@@ -1,0 +1,22 @@
+.message {
+  padding: var(--space-2, 16px);
+  border-radius: var(--border-radius-md, 8px);
+  font-size: var(--font-size-sm, 14px);
+  margin-bottom: var(--space-3, 24px);
+  border: 1px solid;
+}
+.success {
+  background-color: var(--color-success-bg, #e8f5e8);
+  color: var(--color-success-text, #137333);
+  border-color: var(--color-success-border, #c4e7c4);
+}
+.error {
+  background-color: var(--color-error-bg, #fce8e6);
+  color: var(--color-error-text, #d93025);
+  border-color: var(--color-error-border, #f5c6cb);
+}
+.warning {
+  background-color: var(--color-warning-bg, #fef7e0);
+  color: var(--color-warning, #b06000);
+  border-color: var(--color-warning-border, #fdd663);
+}

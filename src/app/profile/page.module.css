@@ -1,0 +1,67 @@
+.profileLayout {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.mainContent {
+  flex-grow: 1;
+}
+
+.profileForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup label {
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+
+.formGroup input,
+.formGroup textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-base);
+  font-family: inherit;
+  background-color: var(--color-bg-card);
+  color: var(--color-text-primary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.formGroup input:read-only {
+  background-color: var(--color-bg-page);
+  cursor: not-allowed;
+  color: var(--color-text-secondary);
+}
+
+.formActions {
+  margin-top: var(--space-2);
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* On smaller screens, stack the sidebar on top */
+@media (max-width: 992px) {
+  .profileLayout {
+    flex-direction: column;
+  }
+}

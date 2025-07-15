@@ -48,3 +48,12 @@ Thumbs.db
 *.mov
 *.wmv
 
+# Dependencies
+/node_modules
+
+# Build directory
+/.next/
+
+# Lockfiles
+package-lock.json
+

@@ -1,0 +1,55 @@
+/* Main container for all content below the page header */
+.adminContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+/* This grid holds the main content cards (the data tables). */
+.tablesGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+/* On larger screens, create a two-column layout for the tables */
+@media (min-width: 1200px) {
+  .tablesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Styling for the cards that will contain the data tables. */
+.tableCard {
+  padding: var(--space-3);
+  /* --- UPDATED: Card Corner Radius --- */
+  /* Change this value to adjust the roundness of the cards. */
+  /* Options from globals.css: --border-radius-sm, --border-radius-md, --border-radius-lg */
+  border-radius: var(--border-radius-md); /* Example: Using the default 8px radius */
+}
+
+/* Title style for the cards */
+.cardTitle {
+  font-family: var(--font-secondary);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-3);
+  /* --- UPDATED: Card Title Font Size --- */
+  /* Change this value to adjust the title font size. */
+  /* Options from globals.css: --font-size-lg, --font-size-xl, --font-size-2xl, etc. */
+  font-size: var(--font-size-xl); /* Example: Making the title slightly smaller */
+}
+
+/* --- NEW: Override for Table Content Font Size --- */
+/* This targets the table inside your cards to control the main content font size. */
+.tableCard :global(table) {
+  /* Change this value to adjust the font size of the text in the table rows. */
+  font-size: var(--font-size-sm); /* Example: Using the smaller 14px font size */
+}
+
+/* --- NEW: Override for Table Footer (Pagination) Font Size --- */
+/* This targets the pagination component at the bottom of your tables. */
+.tableCard :global(.paginationContainer) {
+    /* Change this value to adjust the font size of the 'Showing 1-10 of 50' text. */
+    font-size: var(--font-size-xs); /* Example: Using the extra-small 12px font size */
+}

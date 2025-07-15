@@ -1,0 +1,292 @@
+/*
+ * ==================================================
+ *   Vinite UI Kit: Form Control Styles
+ *   This is the single source of truth for all
+ *   standardized form components.
+ * ==================================================
+ */
+
+/* --- Layout Wrapper --- */
+.formGroup {
+  margin-bottom: var(--space-3, 24px);
+}
+
+.label {
+  display: block;
+  font-size: var(--font-size-sm, 14px);
+  font-weight: var(--font-weight-medium, 500);
+  margin-bottom: var(--space-1, 8px);
+  color: var(--color-text-secondary, #5f6368);
+}
+
+
+/* --- Text Input & Textarea --- */
+.input,
+.textarea {
+  width: 100%;
+  border-radius: var(--border-radius-md, 8px);
+  font-size: var(--font-size-base, 16px);
+  font-family: var(--font-primary, 'Poppins', sans-serif);
+  color: var(--color-text-primary, #202124);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+.input {
+  height: 48px;
+  padding: 0 var(--space-2, 16px);
+}
+.textarea {
+  min-height: 120px;
+  padding: var(--space-2, 16px);
+  resize: vertical;
+}
+
+/* Input Variants */
+.default {
+  border: 1px solid var(--color-border, #dfe1e5);
+  background-color: var(--color-bg-card, #ffffff);
+}
+.quiet {
+  border: 1px solid transparent;
+  background-color: #f3f7fa;
+}
+
+/* Input/Textarea States */
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-primary, #006C67);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.2);
+}
+.input:disabled,
+.textarea:disabled {
+  background-color: var(--color-bg-page, #f8f9fa);
+  cursor: not-allowed;
+  color: var(--color-text-secondary, #5f6368);
+}
+
+
+/* --- Radio Button Styles --- */
+.radioGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3, 24px);
+}
+.radioLabel {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: var(--font-size-base, 16px);
+}
+.radioInput {
+  display: none;
+}
+.radioCustom {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-border, #dfe1e5);
+  border-radius: 50%;
+  margin-right: var(--space-1, 8px);
+  display: inline-block;
+  position: relative;
+  transition: all 0.2s ease;
+}
+.radioInput:checked + .radioCustom {
+  border-color: var(--color-primary, #006C67);
+}
+.radioInput:checked + .radioCustom::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background-color: var(--color-primary, #006C67);
+  border-radius: 50%;
+}
+
+/* --- Checkbox Styles --- */
+.checkboxLabel {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: var(--font-size-base, 16px);
+  gap: var(--space-1, 8px);
+}
+.checkboxInput {
+  display: none;
+}
+.checkboxCustom {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-primary-accent, #4CAEAD); 
+  background-color: transparent;
+  border-radius: var(--border-radius-sm, 4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+.checkboxCustom svg {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  width: 16px;
+  height: 16px;
+}
+.checkboxInput:checked + .checkboxCustom {
+  background-color: var(--color-primary-accent, #4CAEAD);
+  border-color: var(--color-primary-accent, #4CAEAD);
+}
+.checkboxInput:checked + .checkboxCustom svg {
+  opacity: 1;
+}
+
+/* --- Toggle Switch Styles --- */
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  width: 100%;
+}
+.toggleSwitch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+.toggleInput {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.toggleSlider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-border, #dfe1e5);
+  border-radius: 34px;
+  transition: .4s;
+}
+.toggleSlider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .4s;
+}
+.toggleInput:checked + .toggleSlider {
+  background-color: var(--color-primary, #006C67);
+}
+.toggleInput:checked + .toggleSlider:before {
+  transform: translateX(20px);
+}
+
+/* --- Simple Dropdown (Select) Styles --- */
+.dropdownWrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+.dropdownSelect {
+  width: 100%;
+  height: 48px;
+  padding: 0 var(--space-2, 16px);
+  border: 1px solid var(--color-border, #dfe1e5);
+  border-radius: var(--border-radius-md, 8px);
+  font-size: var(--font-size-base, 16px);
+  background-color: white;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+.dropdownArrow {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid var(--color-text-secondary, #5f6368);
+  pointer-events: none;
+}
+
+/* --- Multi-Select Dropdown Styles (Radix UI) --- */
+.multiSelectTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: var(--border-radius-md, 8px);
+  padding: 0 var(--space-2, 16px);
+  height: 48px;
+  width: 100%;
+  font-size: var(--font-size-base, 16px);
+  background-color: white;
+  border: 1px solid var(--color-border, #dfe1e5);
+  cursor: pointer;
+  color: var(--color-text-primary, #202124);
+  font-family: inherit;
+}
+.multiSelectTrigger:focus {
+  outline: none;
+  border-color: var(--color-primary, #006C67);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.2);
+}
+
+.multiSelectChevron {
+  color: var(--color-text-secondary, #5f6368);
+}
+
+.multiSelectContent {
+  min-width: 220px;
+  background-color: white;
+  border-radius: var(--border-radius-md, 8px);
+  padding: var(--space-1, 8px);
+  box-shadow: 0px 10px 38px -10px rgba(22, 23, 24, 0.35), 0px 10px 20px -15px rgba(22, 23, 24, 0.2);
+  animation: slideUpAndFade 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 100;
+}
+
+.multiSelectCheckboxItem {
+  font-size: var(--font-size-sm, 14px);
+  line-height: 1;
+  border-radius: var(--border-radius-sm, 4px);
+  display: flex;
+  align-items: center;
+  height: 25px;
+  padding: 0 8px 0 25px;
+  position: relative;
+  user-select: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.multiSelectCheckboxItem:hover {
+  background-color: var(--color-primary-light, #E0F2F1);
+}
+
+.multiSelectItemIndicator {
+  position: absolute;
+  left: 8px;
+  width: 15px;
+  height: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Keyframes for animation */
+@keyframes slideUpAndFade {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

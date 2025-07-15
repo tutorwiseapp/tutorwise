@@ -1,0 +1,107 @@
+.tableWrapper {
+  width: 100%;
+}
+
+.tableContainer {
+  overflow-x: auto;
+  border: 1px solid var(--color-border, #dfe1e5);
+  border-radius: var(--border-radius-md, 8px);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th, .table td {
+  text-align: left;
+  padding: var(--space-2, 16px);
+  font-size: var(--font-size-sm, 14px);
+  border-bottom: 1px solid var(--color-border, #dfe1e5);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.table th {
+  color: var(--color-text-secondary, #5f6368);
+  font-weight: var(--font-weight-medium, 500);
+  text-transform: uppercase;
+  font-size: var(--font-size-xs, 12px);
+  background-color: var(--color-bg-page, #f8f9fa);
+}
+
+.table tbody tr:last-of-type > td {
+  border-bottom: none;
+}
+
+.dataRow {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.dataRow:hover {
+  background-color: var(--color-bg-page, #f8f9fa);
+}
+
+.expandedRow td {
+  padding: 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.expandedContent {
+  padding: var(--space-2, 16px);
+  background-color: #fafbfb;
+  display: none;
+}
+.expandedContent p {
+  margin: 0 0 var(--space-1, 8px) 0;
+  display: flex;
+  justify-content: space-between;
+}
+.expandedContent p strong {
+  font-weight: var(--font-weight-semibold, 600);
+  padding-right: var(--space-2, 16px);
+}
+
+.noDataCell {
+  text-align: center;
+  padding: var(--space-6, 64px);
+  color: var(--color-text-secondary);
+}
+
+/* Responsive Column Visibility Classes */
+@media (max-width: 1024px) {
+  .desktop {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .tablet, .desktop {
+    display: none;
+  }
+  .expandedContent {
+    display: block;
+  }
+}
+
+.expandedContent {
+  padding: var(--space-2, 16px);
+  background-color: #fafbfb;
+  display: none; /* It should be hidden by default on all screens */
+}
+.expandedContent h4 {
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-2);
+}
+.expandedContent p {
+  margin: 0 0 var(--space-1, 8px) 0;
+  display: flex;
+  justify-content: space-between;
+}
+/* ... other styles ... */
+
+@media (max-width: 768px) {
+  /* ... other mobile styles ... */
+  .expandedContent {
+    display: block; /* ONLY show it on mobile */
+  }
+}

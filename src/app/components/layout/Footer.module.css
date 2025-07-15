@@ -1,0 +1,35 @@
+.footer {
+  width: 100%;
+  text-align: center;
+  padding: 40px 16px 16px;
+  margin-top: auto;
+  flex-shrink: 0;
+  background-color: var(--color-bg-page);
+}
+
+.footer p { 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  flex-wrap: wrap; 
+  gap: 16px 24px;
+  
+  /* 
+    Mobile First Approach:
+    Default to the smaller font size for mobile and tablet.
+  */
+  font-size: var(--font-size-xs); /* 12px */
+  
+  color: var(--color-text-secondary); 
+  transition: font-size 0.2s ease-in-out; /* Optional: smooth transition */
+}
+
+/* 
+  Desktop Override:
+  Apply the larger font size on screens wider than 768px.
+*/
+@media (min-width: 768px) {
+  .footer p {
+    font-size: var(--font-size-sm); /* 14px */
+  }
+}

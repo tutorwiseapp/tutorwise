@@ -1,0 +1,28 @@
+.statusBadge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--border-radius-full, 9999px);
+  font-size: var(--font-size-xs, 12px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-bg-card, #ffffff);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Status Colors */
+.statusDefault, .statusOpen, .statusVisited, .statusShared { 
+  background-color: var(--color-text-secondary, #5f6368); 
+}
+.statusSignedUp, .statusBooked, .statusAccepted { 
+  background-color: var(--color-primary, #006C67);
+}
+.statusPaid { 
+  background-color: var(--color-success, #34a853); 
+}
+.statusPending { 
+  background-color: var(--color-warning, #fbbc05); 
+  color: var(--color-text-primary, #202124); 
+}
+.statusDeclined, .statusFailed { 
+  background-color: var(--color-error, #d93025); 
+}

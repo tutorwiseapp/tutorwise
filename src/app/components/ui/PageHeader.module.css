@@ -1,0 +1,28 @@
+/*
+ * Definitive styles for the PageHeader component.
+ */
+.pageHeader {
+  /* The space below the entire header block before the page content starts. */
+  margin-bottom: var(--space-4, 32px);
+  /* Text defaults to left-alignment. */
+}
+
+.title {
+  font-size: var(--font-size-3xl, 32px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary, #202124);
+  /* The h1 has no bottom margin itself. Spacing is handled by the subtitle. */
+  margin-bottom: 0;
+}
+
+/* 
+ * Style for the optional subtitle paragraph.
+ */
+.subtitle {
+  font-size: var(--font-size-lg, 18px);
+  font-weight: var(--font-weight-regular, 400);
+  color: var(--color-text-secondary, #5f6368);
+  line-height: 1.6;
+  /* Adds a small space between the title and the subtitle. */
+  margin-top: var(--space-1, 8px);
+}

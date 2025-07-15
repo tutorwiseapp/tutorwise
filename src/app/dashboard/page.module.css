@@ -1,0 +1,59 @@
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3, 24px);
+}
+/* Responsive grid columns */
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Styling for the reusable Card component on this page */
+.dashboardCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--space-4); /* Using a larger padding for dashboard cards */
+  min-height: 220px;
+}
+
+/* Styles for the content inside the card */
+.cardContent h3 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-1);
+  color: var(--color-text-primary);
+}
+
+.cardContent p {
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  font-size: var(--font-size-sm);
+}
+
+/* Styles for the link at the bottom of the card */
+.cardLink {
+  margin-top: var(--space-4);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+  text-decoration: none;
+  align-self: flex-start; /* Aligns link to the left */
+}
+.cardLink:hover {
+  text-decoration: underline;
+}
+
+/* Loading state utility */
+.loading {
+  text-align: center;
+  padding: var(--space-6, 64px);
+  color: var(--color-text-secondary);
+}

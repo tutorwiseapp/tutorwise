@@ -1,0 +1,35 @@
+.tabsContainer {
+  display: flex;
+  border-bottom: 1px solid var(--color-border, #dfe1e5);
+  margin-bottom: var(--space-3, 24px);
+  gap: var(--space-4, 32px);
+  overflow-x: auto; /* Allows horizontal scrolling if tabs overflow */
+  /* This ensures there's always some padding on the right when scrolling */
+  scroll-padding-left: var(--space-3, 24px); 
+  /* Hides the scrollbar */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.tabsContainer::-webkit-scrollbar {
+  display: none;
+}
+.tabLink {
+  padding: 8px 4px; /* Added some horizontal padding */
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  color: var(--color-text-secondary, #5f6368);
+  font-weight: var(--font-weight-medium, 500);
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-size: var(--font-size-sm, 14px);
+  font-family: inherit;
+  white-space: nowrap;
+  flex-shrink: 0; /* Prevents tabs from shrinking */
+}
+.tabLink.active {
+  color: var(--color-primary, #006C67);
+  border-bottom-color: var(--color-primary-accent, #4CAEAD);
+}

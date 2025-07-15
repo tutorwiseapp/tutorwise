@@ -1,0 +1,13 @@
+/* This class now styles our main container div */
+.activityCard {
+  background-color: var(--color-bg-card, #ffffff);
+  border: 1px solid var(--color-border, #dfe1e5);
+  border-radius: var(--border-radius-md, 8px);
+  padding: var(--space-3, 24px);
+}
+
+@media (min-width: 768px) {
+  .activityCard {
+    padding: var(--space-4, 32px);
+  }
+}

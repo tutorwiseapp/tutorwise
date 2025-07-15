@@ -1,0 +1,17 @@
+.card {
+  background-color: var(--color-bg-card, #ffffff);
+  border: 1px solid var(--color-border, #dfe1e5);
+  border-radius: var(--border-radius-md, 8px);
+  padding: var(--space-3, 24px);
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.04));
+}
+
+.amountPositive {
+  color: var(--color-success, #34a853);
+  font-weight: var(--font-weight-medium, 500);
+}
+
+.amountNegative {
+  color: var(--color-text-primary, #202124);
+  font-weight: var(--font-weight-regular, 400);
+}

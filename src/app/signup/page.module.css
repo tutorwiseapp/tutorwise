@@ -1,0 +1,47 @@
+.authContainer {
+  width: 100%;
+  max-width: 480px; /* Kept it narrow for auth forms */
+  margin: 0 auto;
+  padding: var(--space-5, 48px) 0;
+}
+
+.authCard {
+  aspect-ratio: unset;
+}
+
+.twoColGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2, 16px);
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: var(--color-text-secondary, #5f6368);
+  font-size: var(--font-size-xs, 12px);
+  margin: var(--space-3, 24px) 0;
+}
+.separator::before, .separator::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--color-border, #dfe1e5);
+}
+.separator:not(:empty)::before { margin-right: .5em; }
+.separator:not(:empty)::after { margin-left: .5em; }
+
+.authSwitch {
+  text-align: center;
+  margin-top: var(--space-3, 24px);
+  font-size: var(--font-size-sm, 14px);
+}
+.authSwitch a {
+    font-weight: var(--font-weight-medium, 500);
+}
+
+@media (max-width: 480px) {
+    .twoColGrid {
+        grid-template-columns: 1fr;
+    }
+}
