@@ -46,13 +46,13 @@ const SignupPage = () => {
 
     const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
     const newUser: User = {
+      id: Date.now(), // Simple unique ID for demonstration
       firstName,
       lastName,
       email,
       password,
       displayName: `${firstName} ${lastName}`,
       agentId: `A1-${initials}${Math.floor(100000 + Math.random() * 900000)}`,
-      createdAt: new Date().toISOString(),
     };
 
     users.push(newUser);
