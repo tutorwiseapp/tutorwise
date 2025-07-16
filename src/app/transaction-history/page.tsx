@@ -1,6 +1,5 @@
 'use client';
 
-// CORRECTED: Unnecessary hooks are removed from the import statement.
 import type { ColumnDef } from '@/types'; 
 
 // Import our components
@@ -31,13 +30,11 @@ const mockTransactions: Transaction[] = [
 ];
 
 const TransactionHistoryPage = () => {
-  // This page is currently display-only, so no user/auth check is needed yet.
-  
   const columns: ColumnDef<Transaction>[] = [
     { 
       header: 'Date', 
       accessorKey: 'date',
-      cell: (value) => new Date(value).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+      cell: (value) => new Date(value as string).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
     },
     { 
       header: 'Description', 
@@ -50,16 +47,21 @@ const TransactionHistoryPage = () => {
     { 
       header: 'Amount', 
       accessorKey: 'amount',
-      cell: (value) => (
-        <span className={value > 0 ? styles.amountPositive : styles.amountNegative}>
-          {value > 0 ? `+£${value.toFixed(2)}` : `-£${Math.abs(value).toFixed(2)}`}
-        </span>
-      )
+      // --- THIS IS THE FIX ---
+      // We explicitly cast `value` to a `number` before performing comparisons.
+      cell: (value) => {
+        const amount = value as number;
+        return (
+          <span className={amount > 0 ? styles.amountPositive : styles.amountNegative}>
+            {amount > 0 ? `+£${amount.toFixed(2)}` : `-£${Math.abs(amount).toFixed(2)}`}
+          </span>
+        )
+      }
     },
     { 
       header: 'Status', 
       accessorKey: 'status',
-      cell: (value) => <StatusBadge status={value} />
+      cell: (value) => <StatusBadge status={value as string} />
     },
   ];
 
