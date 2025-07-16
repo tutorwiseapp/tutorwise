@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
- 
-interface RouteContext {
+import { supabase } from '@/lib/supabaseClient';
+
+// No longer need to define our own RouteContext interface
+
+type RouteParams = {
   params: {
     agent_id: string;
   }
 }
 
-export async function GET(req: NextRequest, context: RouteContext) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-  const { agent_id } = context.params;
+// --- THIS IS THE FIX ---
+// We use the new, correct type for the second argument.
+export async function GET(req: NextRequest, { params }: RouteParams) {
+  const { agent_id } = params;
   const destinationUrl = req.nextUrl.searchParams.get('u');
 
   if (!destinationUrl) {
