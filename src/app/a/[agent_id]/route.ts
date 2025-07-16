@@ -1,32 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabaseClient';
 
-// No longer need to define our own RouteContext interface
-
-type RouteParams = {
-  params: {
-    agent_id: string;
-  }
-}
-
-// --- THIS IS THE FIX ---
-// We use the new, correct type for the second argument.
-export async function GET(req: NextRequest, { params }: RouteParams) {
+// This is the most standard, canonical signature for an App Router dynamic route.
+// We are explicitly typing the 'params' object within the function's second argument.
+export async function GET(
+  request: NextRequest, 
+  { params }: { params: { agent_id: string } }
+) {
   const { agent_id } = params;
-  const destinationUrl = req.nextUrl.searchParams.get('u');
+  const destinationUrl = request.nextUrl.searchParams.get('u');
 
   if (!destinationUrl) {
-    return NextResponse.redirect(new URL('/?error=missing_destination', req.url));
+    return NextResponse.redirect(new URL('/?error=missing_destination', request.url));
   }
   
-  const ipAddress = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || '';
+  const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '';
 
   const clickEventData = {
     agent_id: agent_id,
     destination_url: destinationUrl,
     ip_address: ipAddress,
-    user_agent: req.headers.get('user-agent'),
-    channel_origin: req.nextUrl.searchParams.get('channel_origin'),
+    user_agent: request.headers.get('user-agent'),
+    channel_origin: request.nextUrl.searchParams.get('channel_origin'),
   };
 
   try {
