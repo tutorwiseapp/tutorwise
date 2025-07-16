@@ -118,7 +118,7 @@ export default function HomePage() {
             </div>
             <div className={styles.outputInstructions}>
               <p><strong>1. To Share Manually:</strong> Copy the link, QR code, or snippet and paste it in social media, an email, or a blog post.</p>
-              <p><strong>2. To Share Directly:</strong> Use the one-click "Refer on WhatsApp" or "Refer on LinkedIn" buttons.</p>
+              <p><strong>2. To Share Directly:</strong> Use the one-click &quot;Refer on WhatsApp&quot; or &quot;Refer on LinkedIn&quot; buttons.</p>
               {!isLoggedIn && agentId.startsWith('T1-') && (
                 <p><strong>3. To Claim Rewards:</strong> Save this temporary Agent ID <strong>{agentId}</strong> to <Link href="/claim" className={styles.claimLink}>claim any rewards</Link> you earn, or <Link href="/signup" className={styles.claimLink}>Sign Up</Link> to track them automatically.</p>
               )}
