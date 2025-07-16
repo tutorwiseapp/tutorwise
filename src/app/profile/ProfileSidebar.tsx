@@ -2,23 +2,17 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { User } from '@/types';
-// CORRECTED: Use the full alias path to the shared component
+
+// CORRECTED: The Card component is in the same parent 'ui' folder.
 import Card from '@/app/components/ui/Card';
 import styles from './ProfileSidebar.module.css';
+
+// CORRECTED: Import the 'default' export without curly braces.
+import getProfileImageUrl from '@/lib/utils/image';
 
 interface ProfileSidebarProps {
   user: Partial<User>;
 }
-
-const getProfileImageUrl = (user: Partial<User>) => {
-    if (user.customPictureUrl) return user.customPictureUrl;
-    if (user.email) {
-        // In a real app, use a proper MD5 library
-        const emailHash = 'd41d8cd98f00b204e9800998ecf8427e'; // Placeholder hash
-        return `https://www.gravatar.com/avatar/${emailHash}?d=mp&s=150`;
-    }
-    return `https://i.pravatar.cc/150`; // Fallback
-};
 
 const ProfileSidebar = ({ user }: ProfileSidebarProps) => {
   return (
@@ -31,7 +25,7 @@ const ProfileSidebar = ({ user }: ProfileSidebarProps) => {
           height={150}
           className={styles.profilePicture}
         />
-        <h2 className={styles.displayName}>{user.displayName}</h2>
+        <h2 className={styles.displayName}>{user.displayName || 'Agent'}</h2>
         <p className={styles.agentId}>{user.agentId}</p>
         <Link href={`/agents/${user.agentId}`} className={styles.textLink}>
           View Public Profile

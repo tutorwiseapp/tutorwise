@@ -1,7 +1,6 @@
 import { User } from '@/types';
 
 // Using a simple, non-crypto hash for client-side consistency.
-// In a real app with a backend, this might not be needed.
 const simpleHash = (str: string = ''): string => {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -12,7 +11,8 @@ const simpleHash = (str: string = ''): string => {
   return (hash >>> 0).toString(16).padStart(8, '0');
 };
 
-export const getProfileImageUrl = (user: Partial<User>): string => {
+// This is a default export.
+const getProfileImageUrl = (user: Partial<User>): string => {
   if (user.customPictureUrl) {
     return user.customPictureUrl;
   }
@@ -22,3 +22,5 @@ export const getProfileImageUrl = (user: Partial<User>): string => {
   }
   return `https://i.pravatar.cc/150?u=${user.agentId || 'default'}`;
 };
+
+export default getProfileImageUrl;

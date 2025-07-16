@@ -18,8 +18,10 @@
         "name": "next"
       }
     ],
+    // --- THIS PART IS CRITICAL ---
+    "baseUrl": ".", // Add this line
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"] // This tells TypeScript that "@/" means "src/"
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

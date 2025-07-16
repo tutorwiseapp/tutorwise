@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
 import type { User } from '@/types';
 
-// Import all our reusable components
+// VDL Component Imports
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import Card from '@/app/components/ui/Card';
@@ -15,21 +15,33 @@ import Input from '@/app/components/ui/form/Input';
 import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
 
+// --- THIS IS THE KEY ---
+// Import the useAuth hook to access the central login function
+import { useAuth } from '@/app/components/auth/AuthProvider';
+
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
+  
+  // Get the login function from our context
+  const { login } = useAuth();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    // This logic remains the same
     const users: User[] = JSON.parse(localStorage.getItem('vinite_users') || '[]');
     const user = users.find(
       (u: User) => u.email === email && u.password === password
     );
 
     if (user) {
-      localStorage.setItem('vinite_loggedin_user', JSON.stringify(user));
+      // --- THIS IS THE FIX ---
+      // Instead of just setting localStorage, we call the central login function.
+      // This updates the shared state and notifies all components instantly.
+      login(user); 
+      
       router.push('/dashboard');
     } else {
       setError('Invalid email or password.');
@@ -47,10 +59,9 @@ const LoginPage = () => {
         <Card className={styles.authCard}>
           {error && <Message type="error">{error}</Message>}
           <form onSubmit={handleLogin}>
-            
             <FormGroup label="Email" htmlFor="email">
               <Input
-                variant="quiet" // CORRECTED: Added variant prop
+                variant="quiet"
                 type="email"
                 id="email"
                 value={email}
@@ -58,10 +69,9 @@ const LoginPage = () => {
                 required
               />
             </FormGroup>
-
             <FormGroup label="Password" htmlFor="password">
               <Input
-                variant="quiet" // CORRECTED: Added variant prop
+                variant="quiet"
                 type="password"
                 id="password"
                 value={password}
@@ -69,11 +79,9 @@ const LoginPage = () => {
                 required
               />
             </FormGroup>
-
             <Link href="/forgot-password" className={styles.forgotPasswordLink}>
               Forgot password?
             </Link>
-            
             <Button type="submit" variant="primary" fullWidth>
               Log In
             </Button>
@@ -84,7 +92,7 @@ const LoginPage = () => {
           </Button>
         </Card>
         <div className={styles.authSwitch}>
-          Don't have an account? <Link href="/signup">Sign Up</Link>
+          Don&apos;t have an account? <Link href="/signup">Sign Up</Link>
         </div>
       </div>
     </Container>

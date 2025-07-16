@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import type { Referral, ColumnDef } from '@/types';
+import { useAuth } from '@/app/components/auth/AuthProvider';
 
-// Import our full suite of reusable components
+// VDL Component Imports
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import { DataTable } from '@/app/components/ui/table/DataTable';
@@ -13,28 +14,70 @@ import StatusBadge from '@/app/components/ui/StatusBadge';
 import Button from '@/app/components/ui/Button';
 import styles from './page.module.css';
 
-const mockReferrals: Referral[] = [
-    { id: 1, date: '2025-05-20', seeker: '-', agent: 'A1-JS123456', provider: 'Tutorly', type: 'Course', channel: 'Web', amount: 50.00, status: 'Open' },
-    { id: 2, date: '2025-05-21', seeker: 'john.d@example.com', agent: 'A1-JS123456', provider: 'SaaSify', type: 'Subscription', channel: 'Email', amount: 29.99, status: 'Shared' },
-    { id: 3, date: '2025-05-22', seeker: 'a.long.email@example.com', agent: 'A1-JS123456', provider: 'DesignCo', type: 'Service', channel: 'QR Code', amount: 150.00, status: 'Visited' },
-    { id: 4, date: '2025-05-23', seeker: 'jane.s@example.com', agent: 'A1-JS123456', provider: 'LearnHub', type: 'Course', channel: 'Web', amount: 99.00, status: 'Signed Up' },
-    { id: 5, date: '2025-05-24', seeker: 'mike.r@example.com', agent: 'A1-JS123456', provider: 'Cleanly', type: 'Service', channel: 'WhatsApp', amount: 75.00, status: 'Booked' },
-    { id: 6, date: '2025-05-25', seeker: 'sara.k@example.com', agent: 'A1-JS123456', provider: 'SaaSify', type: 'Subscription', channel: 'Web', amount: 29.99, status: 'Accepted' },
-    { id: 7, date: '2025-05-26', seeker: 'tim.b@example.com', agent: 'A1-JS123456', provider: 'DesignCo', type: 'Service', channel: 'QR Code', amount: 150.00, status: 'Declined' },
-    { id: 8, date: '2025-05-25', seeker: 'sara.k@example.com', agent: 'A1-JS123456', provider: 'SaaSify', type: 'Subscription', channel: 'Web', amount: 3.00, status: 'Paid' },
-    { id: 9, date: '2025-05-27', seeker: 'olivia.p@example.com', agent: 'A1-JS123456', provider: 'LearnHub', type: 'Course', channel: 'Web', amount: 9.90, status: 'Pending' },
-    { id: 10, date: '2025-05-28', seeker: 'liam.h@example.com', agent: 'A1-JS123456', provider: 'Tutorly', type: 'Course', channel: 'Email', amount: 5.00, status: 'Failed' },
-    { id: 11, date: '2025-06-01', seeker: 'chloe.m@example.com', agent: 'A1-JS123456', provider: 'Artisan Goods', type: 'Product', channel: 'Web', amount: 12.50, status: 'Paid' },
+// --- THIS IS THE FIX ---
+// 1. Define the shape of the data coming from our API
+type ClickLogEntry = {
+  id: number;
+  created_at: string;
+  agent_id: string;
+  destination_url: string;
+  channel_origin: string | null;
+};
+
+// Sample data for guiding new users
+const sampleReferrals: Referral[] = [
+    { id: 1, date: new Date().toISOString(), seeker: '-', agent: 'YourAgentID', provider: 'Example.com', type: 'Link', channel: 'Web', amount: 0, status: 'Open' },
 ];
 
-interface TabOption {
-  id: string;
-  label: string;
-}
+interface TabOption { id: string; label: string; }
 
 const ReferralActivityPage = () => {
   const [activeTab, setActiveTab] = useState('generates');
+  const [activity, setActivity] = useState<Referral[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
 
+  useEffect(() => {
+    const fetchActivity = async () => {
+      if (!user) {
+          setIsLoading(false);
+          return;
+      }
+      
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/activity');
+        if (!response.ok) { throw new Error('Failed to fetch activity data.'); }
+
+        // 2. Tell TypeScript to expect an array of our new type
+        const data: ClickLogEntry[] = await response.json();
+        
+        // 3. The `log` parameter is now strongly typed, not 'any'
+        const formattedData: Referral[] = data.map((log) => ({
+            id: log.id,
+            date: log.created_at,
+            seeker: 'Guest',
+            agent: log.agent_id,
+            provider: new URL(log.destination_url).hostname,
+            type: 'Link',
+            channel: log.channel_origin || 'Web',
+            amount: 0,
+            status: 'Open'
+        }));
+
+        setActivity(formattedData);
+      } catch (error) {
+        console.error(error);
+        setActivity([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchActivity();
+  }, [user]);
+
+  // Your column definition remains perfect.
   const columns: ColumnDef<Referral>[] = [
     { header: 'Date', accessorKey: 'date', responsiveClass: 'mobile', cell: (value) => new Date(value).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) },
     { header: 'Seeker', accessorKey: 'seeker', responsiveClass: 'mobile' },
@@ -55,26 +98,34 @@ const ReferralActivityPage = () => {
     { id: 'rewards', label: 'Rewards' },
   ];
 
-  const filteredData = useMemo(() => {
-    const agentId = 'A1-JS123456';
-    const myReferrals = mockReferrals.filter(r => r.agent === agentId);  
-    
-    switch (activeTab) {
-      case 'generates': return myReferrals.filter(r => ['Open'].includes(r.status));
-      case 'shares': return myReferrals.filter(r => ['Shared', 'Visited'].includes(r.status));
-      case 'converts': return myReferrals.filter(r => ['Signed Up', 'Booked', 'Accepted'].includes(r.status));
-      case 'rewards': return myReferrals.filter(r => ['Pending', 'Paid', 'Failed', 'Declined'].includes(r.status));
-      default: return [];
+  const displayedData = useMemo(() => {
+    // This logic is now cleaner. If there's real activity, use it.
+    // If not, and the user isn't loading, show the sample data.
+    if (activity.length > 0) {
+      // Filter the real data
+      switch (activeTab) {
+        case 'generates': return activity.filter(r => ['Open'].includes(r.status));
+        default: return activity; 
+      }
+    } else {
+      // Filter the sample data
+       switch (activeTab) {
+        case 'generates': return sampleReferrals.filter(r => ['Open'].includes(r.status));
+        default: return []; // Show nothing on other tabs if no real data
+      }
     }
-    // CORRECTED: Added mockReferrals to satisfy the linter and ensure future robustness
-  }, [activeTab]);
+  }, [activeTab, activity]);
 
   return (
     <Container>
-      <PageHeader title="Referral Activity" />
+      <PageHeader title="My Activity" subtitle="Track the lifecycle of your referral links." />
       <div className={styles.activityCard}>
         <Tabs tabs={tabOptions} activeTab={activeTab} onTabChange={setActiveTab} />
-        <DataTable columns={columns} data={filteredData} />
+        {isLoading ? (
+          <p style={{ textAlign: 'center', padding: '4rem' }}>Loading activity...</p>
+        ) : (
+          <DataTable columns={columns} data={displayedData} />
+        )}
       </div>
     </Container>
   );

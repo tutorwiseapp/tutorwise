@@ -1,6 +1,7 @@
 // types/index.ts
 
 export interface User {
+  [x: string]: string;
   id: number;
   agentId: string;
   displayName: string;

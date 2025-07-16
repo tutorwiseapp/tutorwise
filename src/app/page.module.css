@@ -6,7 +6,6 @@
   width: 100%;
   padding-top: 100px;
 }
-
 .logo {
   font-family: var(--font-secondary);
   font-size: 64px;
@@ -16,7 +15,6 @@
   text-align: center;
   margin-bottom: var(--space-3);
 }
-
 .tagline {
   max-width: 600px;
   font-size: var(--font-size-base);
@@ -27,7 +25,6 @@
   font-family: var(--font-primary);
   margin: 0 auto var(--space-2) auto;
 }
-
 .inputContainer {
   width: 100%;
   max-width: 800px;
@@ -52,18 +49,14 @@
 .inputContainer.invalid {
   border-color: var(--color-error);
 }
-
-
 .inputWrapper {
   position: relative;
   display: flex;
   align-items: center;
   width: 100%;
 }
-
 .urlWrapper { flex: 3; }
 .agentWrapper { flex: 1; }
-
 .urlInput, .agentInput {
   width: 100%;
   height: 100%;
@@ -84,19 +77,18 @@
 .agentInput::placeholder {
   color: var(--color-text-placeholder);
 }
-.agentInput:disabled {
+.agentInput:disabled,
+.agentInput:read-only {
   background-color: var(--color-bg-page);
   cursor: not-allowed;
   color: var(--color-text-secondary);
 }
-
 .inputSeparator {
   width: 1px;
   height: 24px;
   background-color: var(--color-border);
   margin: auto 0;
 }
-
 .clearBtn {
   position: absolute;
   right: 40px;
@@ -121,7 +113,6 @@
   background-color: var(--color-bg-page);
   color: var(--color-text-primary);
 }
-
 .validationIndicator {
   position: absolute;
   right: 24px;
@@ -133,11 +124,9 @@
   align-items: center;
   justify-content: center;
 }
-
 .agentWrapper .validationIndicator {
   right: 24px;
 }
-
 .validationIndicator.valid, .validationIndicator.invalid {
   display: flex;
 }
@@ -156,7 +145,6 @@
   color: var(--color-error);
   line-height: 1;
 }
-
 .buttonContainer {
   display: flex;
   gap: var(--space-2);
@@ -166,82 +154,48 @@
   width: 100%;
   max-width: 720px;
 }
-
 .buttonContainer > button {
   flex: 1;
   min-width: 176px;
 }
-
-.newOutputContainer {
+.resultsContainer {
   width: 100%;
   max-width: 800px;
   margin: var(--space-6) auto 0;
-}
-
-.outputGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-3);
-  justify-items: center;
-}
-
-.outputCard {
-  width: 100%;
-  max-width: 350px;
-  height: auto;
-  aspect-ratio: 1 / 1;
-  padding: var(--space-2);
-  text-align: center;
-  cursor: pointer;
   display: flex;
   flex-direction: column;
+  gap: var(--space-3);
 }
-
-@media (min-width: 768px) {
-  .outputGrid {
-    grid-template-columns: repeat(2, 1fr);
-    max-width: 600px; 
-    margin-left: auto;
-    margin-right: auto;
-  }
-  
-  .outputGrid > *:nth-child(3) {
-    grid-column: 1 / -1;
-    justify-self: center;
-    width: 50%;
-    max-width: none;
-  }
-
-  .outputCard {
-    max-width: none;
-  }
+.resultsCard {
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-3);
+  width: 100%;
 }
-
-@media (min-width: 992px) {
-  .outputGrid {
-    grid-template-columns: repeat(3, 1fr);
-    max-width: 800px;
-  }
-  
-  .outputGrid > *:nth-child(3) {
-    grid-column: auto;
-    width: 100%;
-  }
+.outputGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
 }
-
-.outputCard h4 {
+.outputColumn {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  cursor: pointer;
+  gap: var(--space-2);
+}
+.outputColumn h4 {
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
-  margin-bottom: var(--space-2);
   transition: color 0.2s ease;
-  flex-shrink: 0;
 }
-.outputCard:hover h4 { color: var(--color-primary); }
-
-/* CORRECTED: The inner box now starts with a light grey background */
+.outputColumn:hover h4 {
+  color: var(--color-primary);
+}
 .outputBox {
-  background-color: var(--color-bg-box); /* This is your light grey color */
+  background-color: var(--color-bg-box);
   border-radius: var(--border-radius-sm);
   padding: var(--space-2);
   word-break: break-all;
@@ -255,11 +209,10 @@
   font-family: var(--font-primary);
   overflow: hidden;
   color: var(--color-text-secondary);
+  min-height: 150px;
 }
-
-/* CORRECTED: The inner box changes to green on hover of the parent card */
-.outputCard:hover .outputBox {
-  background-color: var(--color-primary-light); /* This is your light green color */
+.outputColumn:hover .outputBox {
+  background-color: var(--color-primary-light);
   color: var(--color-text-primary);
 }
 .outputBox pre {
@@ -270,61 +223,31 @@
   color: var(--color-text-primary);
 }
 .outputBox code { font-family: inherit; }
-
-.messageContainer {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  width: auto;
-  min-width: 300px;
-  max-width: 90%;
-}
-
-.tempIdMessageWrapper {
-  width: 100%;
-  max-width: 800px;
-  margin: var(--space-4) auto 0;
-}
-
-.claimLink {
-  font-weight: var(--font-weight-medium);
-  text-decoration: underline;
-  color: inherit;
-}
-.claimLink:hover { text-decoration: none; }
-
 .outputInstructions {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
   line-height: 1.6;
-  margin-top: var(--space-4);
   text-align: left;
-  max-width: 800px;
-  padding: 0;
-  background-color: transparent;
-  border: none;
+  max-width: 100%;
 }
 .outputInstructions p { margin-bottom: var(--space-1); }
 .outputInstructions p:last-child { margin-bottom: 0; }
-.outputInstructions strong {
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-medium);
-}
-
-/* This block is from your working code and is preserved */
+.outputInstructions strong { color: var(--color-text-primary); font-weight: var(--font-weight-medium); }
+.claimLink { font-weight: var(--font-weight-medium); text-decoration: underline; color: inherit; }
+.claimLink:hover { text-decoration: none; }
 @media (max-width: 768px) {
   .mainContent {
-    padding-top: 150px; 
+    padding-top: 80px;
   }
   .inputContainer {
     flex-direction: column;
     height: auto;
     padding: 0;
-    border-radius: var(--border-radius-md);
+    border-radius: var(--border-radius-lg);
   }
-  .inputSeparator { display: none; }
+  .inputSeparator {
+    display: none;
+  }
   .urlInput {
     border-bottom: 1px solid var(--color-border);
     padding: 16px;
@@ -335,11 +258,9 @@
     padding: 16px;
     height: 56px;
   }
-  
   .validationIndicator, .clearBtn {
     display: none;
   }
-  
   .buttonContainer {
     flex-direction: column;
     gap: var(--space-2);
@@ -352,4 +273,18 @@
     width: 100%;
     flex-basis: 48px;
   }
+  .outputGrid {
+    grid-template-columns: 1fr;
+  }
+}
+/* This is a new style for the toast message container */
+.messageContainer {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  width: auto;
+  min-width: 300px;
+  max-width: 90%;
 }

@@ -1,10 +1,5 @@
-// app/a/[agent_id]/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
-// In a real application, your database client (e.g., pg, node-postgres, or an ORM like Kysely/Prisma)
-// would be initialized in a separate utility file, like '@/lib/db'.
-// For now, we will assume a placeholder 'db' object.
-// import { db } from '@/lib/db'; 
+import { supabase } from '@/lib/superbaseClient'; // Correct import path
 
 export async function GET(
   req: NextRequest,
@@ -13,43 +8,37 @@ export async function GET(
   const { agent_id } = params;
   const destinationUrl = req.nextUrl.searchParams.get('u');
 
-  // --- Step 1: Validate Request ---
-  // As per spec 5.2, we must validate the destination.
   if (!destinationUrl) {
-    // Redirect to an error page or the homepage if the destination is missing.
     return NextResponse.redirect(new URL('/?error=missing_destination', req.url));
   }
-  // A basic security check. A real app would have a more robust blocklist.
-  if (destinationUrl.includes('evil-site.com')) {
-    return new Response('Destination is blocked for security reasons.', { status: 400 });
-  }
+  
+  // Use the robust IP address logic you provided.
+  const ipAddress = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || '';
 
-  // --- Step 2: Log Metadata ---
-  // This fulfills the "Track Event" requirement from spec 5.2.
-  const clickEvent = {
+  // Create the object to insert into the database
+  const clickEventData = {
     agent_id: agent_id,
     destination_url: destinationUrl,
-    ip_address: req.ip, // Vercel provides the IP address
+    ip_address: ipAddress,
     user_agent: req.headers.get('user-agent'),
-    channel_origin: req.nextUrl.searchParams.get('channel_origin'), // e.g., ?channel_origin=whatsapp
+    channel_origin: req.nextUrl.searchParams.get('channel_origin'),
   };
-  
+
   try {
-    // This is where you would insert the event into your PostgreSQL database.
-    // Example with a hypothetical ORM:
-    // await db.insertInto('ClickLog').values(clickEvent).execute();
-    
-    // For now, we will log to the console to confirm the data is captured.
-    console.log('--- Click Event Logged ---');
-    console.log(clickEvent);
+    const { error } = await supabase
+      .from('ClickLog')
+      .insert([clickEventData]);
+
+    if (error) {
+      throw error;
+    }
+
+    console.log(`--- Click Event INSERTED into Supabase for Agent: ${agent_id} ---`);
 
   } catch (error) {
-    console.error('Database Error: Failed to log click event.', error);
-    // Important: The redirect should still happen even if logging fails,
-    // to ensure a seamless user experience for the Seeker.
+    console.error('Supabase Error: Failed to log click event.', error);
   }
 
-  // --- Step 3: Redirect ---
-  // Immediately send the Seeker to their intended destination.
+  // Redirect the seeker to their intended destination
   return NextResponse.redirect(destinationUrl);
 }

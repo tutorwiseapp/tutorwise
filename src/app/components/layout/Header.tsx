@@ -1,33 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-// CORRECTED: The import path now uses the robust '@/' alias.
 import NavLink from '@/app/components/ui/nav/NavLink'; 
 import styles from './Header.module.css';
-import type { User } from '@/types';
+
+// --- THIS IS THE KEY ---
+// Import the useAuth hook to get the shared user state
+import { useAuth } from '@/app/components/auth/AuthProvider';
 
 const Header = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    setIsMounted(true); 
-    
-    const loggedInUserString = localStorage.getItem('vinite_loggedin_user');
-    if (loggedInUserString) {
-      setUser(JSON.parse(loggedInUserString));
-    }
-  }, []);
+  
+  // Get the user and logout function directly from our central provider
+  const { user, logout } = useAuth();
 
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault();
-    localStorage.removeItem('vinite_loggedin_user');
-    setUser(null);
+    logout(); // Use the central logout function
     router.push('/');
-    router.refresh(); 
   };
 
   return (
@@ -37,9 +28,8 @@ const Header = () => {
       </div>
       
       <nav className={styles.headerNav}>
-        {!isMounted ? (
-          <div style={{ height: '21px' }} /> 
-        ) : user ? (
+        {/* The logic is now much simpler. It just checks the 'user' from the context. */}
+        {user ? (
           <>
             <NavLink href="/dashboard">My Dashboard</NavLink>
             <NavLink href="/settings">Settings</NavLink>
