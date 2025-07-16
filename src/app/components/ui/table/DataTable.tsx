@@ -1,16 +1,19 @@
 'use client';
 
 import React, { useState, useMemo, Fragment } from 'react';
-import { ColumnDef, DataTableProps } from '@/types';
+// Corrected: Removed unused `ColumnDef` import, as it is defined in the props interface directly.
+import { DataTableProps } from '@/types';
 import Pagination from '../Pagination';
 import styles from './DataTable.module.css';
 
 const ITEMS_PER_PAGE = 10;
 
+// The component is already functional, the error was just the unused import.
 export function DataTable<T extends { id: number | string }>({
   columns,
   data,
 }: DataTableProps<T>) {
+  // ... rest of your working code is fine
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedRow, setExpandedRow] = useState<number | string | null>(null);
 
@@ -63,7 +66,6 @@ export function DataTable<T extends { id: number | string }>({
                               <div className={styles.expandedContent}>
                                   <h4>Full Details:</h4>
                                   {hiddenOnMobileColumns.map(col => (
-                                      // CORRECTED: The key now uses the unique column header
                                       <p key={`expanded-${row.id}-${col.header}`}>
                                           <strong>{col.header}:</strong>
                                           <span>{col.cell ? col.cell(row[col.accessorKey], row) : String(row[col.accessorKey])}</span>

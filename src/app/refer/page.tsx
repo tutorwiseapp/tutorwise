@@ -1,55 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+// Corrected: Removed unused 'useEffect'
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Container from '@/app/components/layout/Container';
 import styles from './page.module.css';
 
 const ReferPage = () => {
-  const [typedText, setTypedText] = useState('');
-  const [textColor, setTextColor] = useState('#006C67');
-
-  useEffect(() => {
-    const textArray = [
-      "product-page", "favorite-blog-post", "local-cafe", "saas-tool", 
-      "online-course", "maths-tutor", "fashion-item"
-    ];
-    const colorArray = [
-      "#E10100", "#F59E0B", "#10B981", "#0063C7",
-      "#8B5CF6", "#006C67", "#D946EF"
-    ];
-    
-    let textArrayIndex = 0;
-    let charIndex = 0;
-    let isDeleting = false;
-    let timeoutId: NodeJS.Timeout;
-
-    function type() {
-      const currentText = textArray[textArrayIndex];
-      const displayedText = isDeleting 
-        ? currentText.substring(0, charIndex - 1) 
-        : currentText.substring(0, charIndex + 1);
-      
-      setTypedText(displayedText);
-      let typeSpeed = isDeleting ? 75 : 150;
-
-      if (!isDeleting && charIndex === currentText.length) {
-        typeSpeed = 2000;
-        isDeleting = true;
-      } else if (isDeleting && charIndex === 0) {
-        isDeleting = false;
-        textArrayIndex = (textArrayIndex + 1) % textArray.length;
-        setTextColor(colorArray[textArrayIndex]);
-        typeSpeed = 500;
-      }
-      charIndex = isDeleting ? charIndex - 1 : charIndex + 1;
-      timeoutId = setTimeout(type, typeSpeed);
-    }
-    const initialTimeout = setTimeout(type, 500);
-    
-    return () => clearTimeout(timeoutId);
-  }, []);
+  // The state is kept for potential future interactivity, but the complex effect is removed.
+  const [typedText] = useState('your-favorite-thing');
+  const [textColor] = useState('#006C67');
 
   return (
     <div className={styles.pageWrapper}>

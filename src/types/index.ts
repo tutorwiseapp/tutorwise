@@ -1,19 +1,18 @@
 // types/index.ts
+import React from 'react'; // Import React for React.ReactNode
 
 export interface User {
-  [x: string]: string;
   id: number;
   agentId: string;
   displayName: string;
   email: string;
-  bio?: string; // Optional property
-  categories?: string; // Optional property
-  achievements?: string; // Optional property
-  customPictureUrl?: string; // Optional property
-  coverPhotoUrl?: string; // Optional property
+  bio?: string;
+  categories?: string;
+  achievements?: string;
+  customPictureUrl?: string;
+  coverPhotoUrl?: string;
 }
 
-// You can add other types here as your app grows
 export interface Referral {
     id: number;
     date: string;
@@ -29,6 +28,13 @@ export interface Referral {
 export interface ColumnDef<T> {
   header: string;
   accessorKey: keyof T;
-  responsiveClass: 'mobile' | 'tablet' | 'desktop';
-  cell?: (value: any) => React.ReactNode;
+  responsiveClass?: 'mobile' | 'tablet' | 'desktop'; // Optional for clarity
+  // Corrected: Cell value can be any type, and row is the full object T
+  cell?: (value: T[keyof T], row: T) => React.ReactNode;
+}
+
+// Corrected: Add the missing DataTableProps type
+export interface DataTableProps<T> {
+  columns: ColumnDef<T>[];
+  data: T[];
 }
