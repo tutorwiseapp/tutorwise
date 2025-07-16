@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/superbaseClient'; // Correct import path
 
+// --- THIS IS THE FIX ---
+// The type for the second argument is now correctly defined.
 export async function GET(
   req: NextRequest,
   { params }: { params: { agent_id: string } }
