@@ -6,7 +6,6 @@ import Footer from '@/app/components/layout/Footer';
 import type { User } from '@/types';
 import { usePathname } from 'next/navigation';
 
-// Create a context to hold the user data and a function to update it
 interface AuthContextType {
   user: User | null;
   login: (userData: User) => void;
@@ -14,7 +13,6 @@ interface AuthContextType {
 }
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Custom hook to easily access the user context
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (!context) {
@@ -32,7 +30,6 @@ export default function AuthProvider({
   const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
 
-  // On initial mount, check localStorage for a logged-in user
   useEffect(() => {
     setIsMounted(true);
     const loggedInUserString = localStorage.getItem('vinite_loggedin_user');
@@ -41,8 +38,6 @@ export default function AuthProvider({
     }
   }, []);
 
-  // This effect listens for route changes to re-check login status,
-  // which fixes the "stuck" header issue after login.
   useEffect(() => {
     const loggedInUserString = localStorage.getItem('vinite_loggedin_user');
     if (loggedInUserString) {
@@ -64,13 +59,17 @@ export default function AuthProvider({
   };
 
   if (!isMounted) {
-    return null; // Prevent hydration mismatch
+    return null;
   }
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <Header user={user} onLogout={logout} />
+        
+        {/* --- THIS IS THE FIX --- */}
+        {/* The Header component no longer needs props passed to it. */}
+        <Header />
+
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {children}
         </main>
