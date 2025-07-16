@@ -6,16 +6,48 @@ import { useRouter } from 'next/navigation';
 import type { User } from '@/types';
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
-import Card from '@/app/components/ui/Card'; // Using the standard Card component
+import Card from '@/app/components/ui/Card';
 import styles from './page.module.css';
 
+// --- THIS IS THE FIX ---
+// The href paths in this array have been corrected to match your actual page routes.
 const dashboardLinks = [
-    { href: '/my-activity', title: 'My Activity', description: 'Track results of Vinite links from create, share, convert, and reward.', linkText: 'View My Activity' },
-    { href: '/earnings', title: 'Referral Earnings', description: 'View referral commission payouts received.', linkText: 'View Earnings' },
-    { href: '/payments', title: 'Payments', description: 'Connect your bank account via Stripe to receive commission payouts.', linkText: 'Manage Payments' },
-    { href: '/', title: 'Generate a Link', description: 'Create a new Vinite link to refer anything to anyone.', linkText: 'Generate Link' },
-    { href: '/profile', title: 'My Profile', description: 'Update your public-facing profile information.', linkText: 'Edit Profile' },
-    { href: '/settings', title: 'Settings', description: 'Manage account settings and notifications.', linkText: 'Go to Settings' },
+    { 
+        href: '/referral-activities', // CORRECTED: Links to the correct referral activities page
+        title: 'My Activity', 
+        description: 'Track results of Vinite links from create, share, convert, and reward.', 
+        linkText: 'View My Activity' 
+    },
+    { 
+        href: '/transaction-history', // CORRECTED: Links to the correct transaction history page
+        title: 'Referral Earnings', 
+        description: 'View referral commission payouts received.', 
+        linkText: 'View Earnings' 
+    },
+    { 
+        href: '/settings', // CORRECTED: Temporarily points to settings until a payments page is built
+        title: 'Payments', 
+        description: 'Connect your bank account via Stripe to receive commission payouts.', 
+        linkText: 'Manage Payments' 
+    },
+    { 
+        href: '/', // This correctly points to the homepage for link generation
+        title: 'Generate a Link', 
+        description: 'Create a new Vinite link to refer anything to anyone.', 
+        linkText: 'Generate Link' 
+    },
+    { 
+        href: '/profile', // This is correct
+        title: 'My Profile', 
+        description: 'Update your public-facing profile information.', 
+        linkText: 'Edit Profile' 
+    },
+    { 
+        href: '/settings', // This is correct
+        title: 'Settings', 
+        description: 'Manage account settings and notifications.', 
+        linkText: 'Go to Settings' 
+    },
 ];
 
 const DashboardPage = () => {
@@ -32,7 +64,6 @@ const DashboardPage = () => {
   }, [router]);
 
   if (!user) {
-    // Render a loading state or null while checking for user
     return <Container><p className={styles.loading}>Loading...</p></Container>;
   }
 
@@ -44,7 +75,6 @@ const DashboardPage = () => {
       />
       <div className={styles.grid}>
         {dashboardLinks.map((link) => (
-          // Using the reusable Card component for each item
           <Card key={link.href} className={styles.dashboardCard}>
             <div className={styles.cardContent}>
               <h3>{link.title}</h3>
