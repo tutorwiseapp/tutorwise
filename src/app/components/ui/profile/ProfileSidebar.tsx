@@ -2,22 +2,17 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { User } from '@/types';
-import Card from '../ui/Card';
+
+// --- THIS IS THE FIX ---
+// The path now correctly goes up one level ('..') from the 'profile' directory
+// and then directly to 'Card.tsx'.
+import Card from '../Card'; 
 import styles from './ProfileSidebar.module.css';
+import getProfileImageUrl from '@/lib/utils/image';
 
 interface ProfileSidebarProps {
-  user: Partial<User>; // Use Partial<User> as some data might be missing
+  user: Partial<User>;
 }
-
-const getProfileImageUrl = (user: Partial<User>) => {
-    if (user.customPictureUrl) return user.customPictureUrl;
-    if (user.email) {
-        // In a real app, use a proper MD5 library
-        const emailHash = 'd41d8cd98f00b204e9800998ecf8427e'; // Placeholder hash
-        return `https://www.gravatar.com/avatar/${emailHash}?d=mp&s=150`;
-    }
-    return `https://i.pravatar.cc/150`; // Fallback
-};
 
 const ProfileSidebar = ({ user }: ProfileSidebarProps) => {
   return (
@@ -30,7 +25,7 @@ const ProfileSidebar = ({ user }: ProfileSidebarProps) => {
           height={150}
           className={styles.profilePicture}
         />
-        <h2 className={styles.displayName}>{user.displayName}</h2>
+        <h2 className={styles.displayName}>{user.displayName || 'Agent'}</h2>
         <p className={styles.agentId}>{user.agentId}</p>
         <Link href={`/agents/${user.agentId}`} className={styles.textLink}>
           View Public Profile
