@@ -1,0 +1,3 @@
+.container { max-width: 800px; margin: 0 auto; padding-top: 3rem; padding-bottom: 3rem; }
+.formGrid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+@media (min-width: 768px) { .formGrid { grid-template-columns: 1fr 1fr; } }

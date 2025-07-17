@@ -9,11 +9,13 @@ const Footer = () => {
         <Link href="/">Home</Link>
         <Link href="/contact">Contact</Link>
         <Link href="/resources">Resources</Link>
+        {/* --- THIS IS THE FIX --- */}
+        <Link href="/terms-of-service">Terms of Service</Link>
+        <Link href="/privacy-policy">Privacy Policy</Link>
+        
+        {/* Social links can be moved to a separate line or component later if needed */}
         <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer">YouTube</a>
         <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-        <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer">Facebook</a>
-        <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a>
-        <a href="https://www.tiktok.com" target="_blank" rel="noopener noreferrer">TikTok</a>
       </p>
     </footer>
   );

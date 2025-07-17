@@ -1,0 +1,47 @@
+/* Styles for the Delete Account page */
+
+.container {
+  max-width: 800px; /* Constrain the width for readability */
+  margin: 0 auto;
+}
+
+/*
+.card {
+  /* No special styles needed, relies on the global Card component 
+}
+*/
+
+.warningMessage {
+  /* This ensures the red Message component has the right margins */
+  margin-bottom: 1.5rem;
+}
+
+.form {
+  margin-top: 1.5rem;
+}
+
+.errorText {
+  color: var(--color-error);
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+/* This is a specific style for the red danger button */
+.dangerButton {
+  background-color: var(--color-error-bg);
+  border-color: var(--color-error);
+  color: var(--color-error-text);
+  font-weight: 600;
+}
+
+.dangerButton:hover:not(:disabled) {
+  background-color: var(--color-error);
+  color: white;
+}
+
+.dangerButton:disabled {
+  background-color: var(--color-bg-page);
+  border-color: var(--color-border);
+  cursor: not-allowed;
+}

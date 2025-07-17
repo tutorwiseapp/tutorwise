@@ -1,0 +1,32 @@
+/* src/app/claim-rewards/page.module.css */
+.card {
+    text-align: center;
+}
+.resultsContainer {
+    margin-top: 2rem;
+}
+.resultsHeader {
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+.rewardList {
+    list-style: none;
+    padding: 0;
+}
+.rewardItem {
+    border-bottom: 1px solid #eee;
+    padding: 1rem 0;
+}
+.rewardItem:last-child {
+    border-bottom: none;
+}
+.rewardItem p {
+    margin: 0;
+}
+.claimAction {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+.claimAction p {
+    margin-bottom: 1rem;
+}

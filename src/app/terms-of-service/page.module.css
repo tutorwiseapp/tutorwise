@@ -1,0 +1,4 @@
+.container { max-width: 800px; margin: 0 auto; padding-top: 3rem; padding-bottom: 3rem; }
+.legalText { line-height: 1.8; font-size: 1rem; color: var(--color-text-secondary); }
+.legalText h2 { font-size: 1.5rem; font-weight: 600; color: var(--color-text-primary); margin-top: 2rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--color-border); }
+.legalText p { margin-bottom: 1rem; }

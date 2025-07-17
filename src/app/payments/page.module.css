@@ -1,0 +1,39 @@
+/* src/app/payments/page.module.css */
+.card {
+  margin-bottom: 2rem;
+}
+.sectionHeader {
+  font-size: 1.25rem;
+  font-weight: 600;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+.card p {
+  margin-bottom: 1rem;
+}
+.card strong {
+  font-weight: 600;
+}
+.buttonGroup {
+  display: flex;
+  gap: 1rem;
+}
+.cardDisplay {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f9fa;
+  margin-bottom: 0.5rem;
+}
+.defaultBadge {
+  background: #e8f5e8;
+  color: #137333;
+  padding: 4px 8px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 500;
+}

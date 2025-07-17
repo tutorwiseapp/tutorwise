@@ -3,9 +3,14 @@
 import React from 'react';
 import styles from './Button.module.css';
 
+// --- THIS IS THE FIX ---
+// Added the 'as' prop to allow the component to render as a different element
+// and changed children to React.ReactNode to be more flexible.
 interface ButtonProps extends React.ComponentPropsWithoutRef<'button'> {
   variant?: 'primary' | 'secondary' | 'google';
   fullWidth?: boolean;
+  as?: 'button' | 'span';
+  children: React.ReactNode; 
 }
 
 const Button = ({
@@ -13,11 +18,10 @@ const Button = ({
   fullWidth = false,
   className,
   children,
+  as: Component = 'button', // Default to a button element
   ...props
 }: ButtonProps) => {
   
-  // CORRECTED: Added the global 'btn' class to ensure base styles are always applied.
-  // Note: The 'btn-primary' variant is handled by globals.css now.
   const buttonClasses = [
     'btn', 
     variant === 'primary' ? 'btn-primary' : '',
@@ -27,10 +31,11 @@ const Button = ({
     className,
   ].filter(Boolean).join(' ');
 
+  // The component now dynamically renders as a <button> or <span>
   return (
-    <button className={buttonClasses} {...props}>
+    <Component className={buttonClasses} {...props as any}>
       {children}
-    </button>
+    </Component>
   );
 };
 

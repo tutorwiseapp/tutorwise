@@ -9,45 +9,14 @@ import PageHeader from '@/app/components/ui/PageHeader';
 import Card from '@/app/components/ui/Card';
 import styles from './page.module.css';
 
-// --- THIS IS THE FIX ---
-// The href paths in this array have been corrected to match your actual page routes.
+// The dashboard links are now fully corrected and integrated.
 const dashboardLinks = [
-    { 
-        href: '/referral-activities', // CORRECTED: Links to the correct referral activities page
-        title: 'My Activity', 
-        description: 'Track results of Vinite links from create, share, convert, and reward.', 
-        linkText: 'View My Activity' 
-    },
-    { 
-        href: '/transaction-history', // CORRECTED: Links to the correct transaction history page
-        title: 'Referral Earnings', 
-        description: 'View referral commission payouts received.', 
-        linkText: 'View Earnings' 
-    },
-    { 
-        href: '/settings', // CORRECTED: Temporarily points to settings until a payments page is built
-        title: 'Payments', 
-        description: 'Connect your bank account via Stripe to receive commission payouts.', 
-        linkText: 'Manage Payments' 
-    },
-    { 
-        href: '/', // This correctly points to the homepage for link generation
-        title: 'Generate a Link', 
-        description: 'Create a new Vinite link to refer anything to anyone.', 
-        linkText: 'Generate Link' 
-    },
-    { 
-        href: '/profile', // This is correct
-        title: 'My Profile', 
-        description: 'Update your public-facing profile information.', 
-        linkText: 'Edit Profile' 
-    },
-    { 
-        href: '/settings', // This is correct
-        title: 'Settings', 
-        description: 'Manage account settings and notifications.', 
-        linkText: 'Go to Settings' 
-    },
+    { href: '/referral-activities', title: 'My Activity', description: 'Track results of Vinite links from create, share, convert, and reward.', linkText: 'View My Activity' },
+    { href: '/transaction-history', title: 'Referral Earnings', description: 'View referral commission payouts received.', linkText: 'View Earnings' },
+    { href: '/payments', title: 'Payments', description: 'Connect your bank account via Stripe to receive commission payouts.', linkText: 'Manage Payments' }, // <-- THIS IS THE FIX
+    { href: '/', title: 'Generate a Link', description: 'Create a new Vinite link to refer anything to anyone.', linkText: 'Generate Link' },
+    { href: '/profile', title: 'My Profile', description: 'Update your public-facing profile information.', linkText: 'Edit Profile' },
+    { href: '/settings', title: 'Settings', description: 'Manage account settings and notifications.', linkText: 'Go to Settings' },
 ];
 
 const DashboardPage = () => {
