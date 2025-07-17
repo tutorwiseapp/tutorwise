@@ -1,448 +1,206 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/lib/supabaseClient';
+import type { User } from '@/types';
 
-// ===================================================================================
-//  Vinite Testapp: Self-Contained Development & Simulation Tool
-//  ---------------------------------------------------------------------------------
-//  This page is 100% independent of the main Vinite application's components.
-//  It includes its own mock components and styles to ensure it can be developed
-//  and used for testing without any dependencies on the production UI library.
-// ===================================================================================
-
-
-// --- 1. EMBEDDED STYLES ---
-// All CSS for this page is contained here. This makes the component portable.
-const TestappStyles = () => (
+// --- THIS IS THE FIX: New CSS for the Actions Panel ---
+const SimulatorStyles = () => (
   <style>{`
-    /* Basic Resets and Body Styles */
-    .testapp-body {
-        font-family: 'Poppins', sans-serif;
-        background-color: #f8f9fa;
-        color: #202124;
-        margin: 0;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600&family=Poppins:wght@400;500&display=swap');
+
+    :root { 
+      --sim-blue: #0d6efd; --sim-green: #198754; --sim-red: #dc3545; --sim-gray: #6c757d; --sim-light-gray: #f8f9fa;
+      --sim-label-color: #666666;
     }
-    .testapp-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem;
+    .sim-body { 
+      font-family: 'Poppins', sans-serif; background-color: #f4f7f9; color: #212529; margin: 0; font-size: 14px;
     }
+    .sim-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+    .sim-header h1, .sim-card-title { font-family: 'Inter', sans-serif; }
+    .sim-header h1 { font-size: 2rem; } .sim-header p { color: var(--sim-gray); }
+    .sim-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; margin-top: 1rem; } /* Reduced top margin */
+    .sim-col-span-4 { grid-column: span 12; } @media (min-width: 768px) { .sim-col-span-4 { grid-column: span 6; } } @media (min-width: 1200px) { .sim-col-span-4 { grid-column: span 4; } }
+    .sim-col-span-8 { grid-column: span 12; } @media (min-width: 1200px) { .sim-col-span-8 { grid-column: span 8; } }
+    .sim-card { background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 0.5rem; padding: 1.5rem; }
+    .sim-card-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e9ecef; }
+    .sim-form-group { margin-bottom: 1rem; }
+    .sim-form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--sim-label-color); }
+    .sim-input { width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.375rem; border: 1px solid #ced4da; font-size: 14px; font-family: 'Poppins', sans-serif; }
+    .sim-btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 1rem; font-size: 14px; border-radius: 0.375rem; border: 1px solid transparent; cursor: pointer; text-align: center; }
+    .sim-btn-primary { background-color: var(--sim-blue); color: white; }
+    .sim-btn-secondary { background-color: var(--sim-gray); color: white; }
+    .sim-btn-danger { background-color: var(--sim-red); color: white; }
+    .sim-btn-full { width: 100%; }
+    .sim-persona-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .sim-user-status { margin-bottom: 8px; }
+    .sim-api-log, .sim-db-log { background-color: #212529; color: #f8f9fa; border-radius: 0.5rem; padding: 1rem; font-family: "SF Mono", "Menlo", monospace; font-size: 0.875rem; height: 400px; overflow-y: auto; white-space: pre-wrap; }
+    .sim-log-get { color: #0d6efd; } .sim-log-post { color: #198754; } .sim-log-delete { color: #dc3545; } .sim-log-patch { color: #fd7e14; }
+    .sim-log-path { color: #adb5bd; }
+    .sim-generated-link { margin-top: 1rem; padding: 1rem; background-color: var(--sim-light-gray); border-radius: 0.375rem; word-break: break-all; }
     
-    /* Page Header Styles */
-    .testapp-header h1 {
-        font-family: 'Inter', sans-serif;
-        font-size: 32px; /* H1 Size */
-        font-weight: 600;
-        margin: 0;
+    /* --- NEW STYLES FOR THE ACTIONS PANEL --- */
+    .sim-actions-panel {
+      height: 80px;
+      background-color: #ffffff;
+      border: 1px solid #dee2e6;
+      border-radius: 0.5rem;
+      margin-top: 2rem;
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-    .testapp-header p {
-        margin-top: 8px;
-        font-size: 18px;
-        color: #5f6368;
+    .sim-actions-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
     }
-
-    /* Main Layout Grid */
-    .controlsGrid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 32px;
-      margin-top: 32px; /* Vertical spacing from subtitle */
+    .sim-actions-panel .sim-btn-secondary {
+      background-color: #e9ecef;
+      color: #495057;
     }
-    @media (min-width: 1024px) { .controlsGrid { grid-template-columns: repeat(2, 1fr); } }
-    
-    /* Card Styling (previously ContentBox) */
-    .card {
-        background-color: #ffffff;
-        border: 1px solid #dfe1e5;
-        border-radius: 8px;
-        padding: 2rem;
+    .sim-actions-panel .sim-btn-secondary.active {
+      background-color: var(--sim-blue);
+      color: white;
     }
-    .sectionTitle {
-      font-family: 'Inter', sans-serif;
-      font-size: 20px; /* H3 Size */
-      font-weight: 600;
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid #f8f9fa;
-    }
-    .sectionSubtitle {
-      font-size: 14px;
-      color: #5f6368;
-      margin-bottom: 24px;
-    }
-
-    /* Form & Input Styling */
-    .form {
-        display: flex;
-        flex-direction: column;
-        gap: 32px; /* Vertical spacing between fields */
-    }
-    .form-group label {
-        display: block;
-        margin-bottom: 8px;
-        font-family: 'Poppins', sans-serif;
-        font-size: 14px;
-        color: #666666;
-        font-weight: 400;
-    }
-    .form-group input {
-        width: 100%;
-        height: 48px;
-        padding: 0 1rem;
-        border-radius: 8px;
-        border: 1px solid #dfe1e5;
-        font-family: 'Poppins', sans-serif;
-        font-size: 14px;
-        color: #000000;
-        font-weight: 400;
-    }
-    .form-group input:disabled {
-        background-color: #f8f9fa;
-        cursor: not-allowed;
-    }
-
-
-    /* Persona Simulation Styles */
-    .personaGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px; }
-    .personaGroup { display: flex; flex-direction: column; gap: 16px; }
-    .personaTitle {
-      font-weight: 600;
-      color: #5f6368;
-      font-size: 14px;
-      border-bottom: 1px solid #f8f9fa;
-      padding-bottom: 8px;
-      margin-bottom: 8px;
-    }
-    .logoutSection {
-      margin-top: 24px;
-      padding-top: 24px;
-      border-top: 1px solid #f8f9fa;
-    }
-
-    /* Lifecycle Simulation Styles */
-    .lifecycle {
-        display: flex;
-        flex-wrap: wrap;
-        position: relative;
-        justify-content: space-between;
-        gap: 32px;
-    }
-    .lifecycle > button { flex-grow: 1; }
-    .lifecycle > button:not(:last-child)::after {
-        content: '→';
-        position: absolute;
-        right: -24px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #dfe1e5;
-        font-weight: 600;
-    }
-
-    /* Utility Styles */
-    .spanTwo { grid-column: span 1; }
-    @media (min-width: 1024px) { .spanTwo { grid-column: span 2; } }
-    
-    /* State Inspector Styles */
-    .stateInspector {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        padding: 1rem;
-        font-family: monospace;
-        font-size: 12px;
-        white-space: pre-wrap;
-        word-break: break-all;
-        max-height: 400px;
-        overflow-y: auto;
-        border: 1px solid #dfe1e5;
-    }
-    .generatedLinkDisplay {
-        margin-top: 24px;
-        padding: 1rem;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        font-size: 14px;
-        word-break: break-all;
-        border: 1px solid #dfe1e5;
-    }
-    .generatedLinkDisplay strong {
-        font-weight: 600;
-        color: #202124;
-        display: block;
-        margin-bottom: 8px;
-    }
-
-    /* Toast Message Styles */
-    .toastMessage {
-      position: fixed;
-      top: 24px;
-      right: 24px;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      z-index: 1000;
-      opacity: 0;
-      animation: fadeInOut 4s ease-in-out forwards;
-      border: 1px solid;
-    }
-    .toastMessage.success { background-color: #e8f5e8; color: #137333; border-color: #c4e7c4; }
-    .toastMessage.error { background-color: #fce8e6; color: #d93025; border-color: #f5c6cb; }
-    .toastMessage.warning { background-color: #fef7e0; color: #b06000; border-color: #fdd663; }
-    @keyframes fadeInOut {
-      0% { opacity: 0; transform: translateY(-20px); }
-      10% { opacity: 1; transform: translateY(0); }
-      90% { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(-20px); }
-    }
-    .dangerButton {
-      border-color: #d93025 !important;
-      color: #d93025 !important;
-      background-color: transparent !important;
-    }
-    .dangerButton:hover { background-color: #fce8e6 !important; }
   `}</style>
 );
 
-// --- 2. INDEPENDENT MOCK COMPONENTS ---
-// These components are defined locally for this page only.
-const Container = ({ children }: { children: React.ReactNode }) => <div className="testapp-container">{children}</div>;
-const PageHeader = ({ title, subtitle }: { title: string, subtitle?: string }) => (
-  <div className="testapp-header">
-    <h1>{title}</h1>
-    {subtitle && <p>{subtitle}</p>}
-  </div>
-);
-const Card = ({ children, className, ...props }: React.HTMLAttributes<HTMLDivElement> & { children: React.ReactNode; className?: string }) => {
-    const cardClasses = `${className || ''} card`;
-    return <div className={cardClasses} {...props}>{children}</div>;
-};
-const FormGroup = ({ label, htmlFor, children }: { label: string, htmlFor?: string, children: React.ReactNode }) => (
-    <div className="form-group">
-        <label htmlFor={htmlFor}>{label}</label>
-        {children}
-    </div>
-);
-const Input = (props: React.ComponentPropsWithoutRef<'input'>) => <input {...props} />;
-const Button = ({ children, variant, className, fullWidth, ...props }: React.ComponentPropsWithoutRef<'button'> & {variant?: string, fullWidth?: boolean}) => {
-    const baseStyle: React.CSSProperties = {
-        height: '40px', padding: '0 1.5rem', borderRadius: '8px', cursor: 'pointer',
-        fontSize: '14px', fontWeight: 500, border: '1px solid #dfe1e5',
-        transition: 'all 0.2s ease-in-out', color: '#202124', backgroundColor: '#f1f3f4',
-        width: fullWidth ? '100%' : 'auto',
-    };
-    const primaryStyle: React.CSSProperties = { ...baseStyle, backgroundColor: '#4CAEAD', color: 'white', borderColor: '#4CAEAD' };
-    const secondaryStyle: React.CSSProperties = { ...baseStyle, backgroundColor: 'transparent', color: '#006C67', borderColor: '#006C67' };
-    let style = baseStyle;
-    if (variant === 'primary') style = primaryStyle;
-    else if (variant === 'secondary') style = secondaryStyle;
-    return <button style={style} className={className} {...props}>{children}</button>;
-};
+// MOCK DATA and TYPE DEFINITION (NO CHANGE)
+const createMockUser = (base: Partial<User>): User => ({ id: Math.random(), firstName: 'Test', lastName: 'User', displayName: 'Test User', email: 'test@example.com', agentId: `A1-JS${Math.floor(100000 + Math.random() * 900000)}`, createdAt: new Date().toISOString(), roles:['agent'], ...base });
+const agentA = createMockUser({ firstName: 'Agent', lastName: 'A', displayName: 'Agent A', email: 'agent.a@vinite.com', agentId: 'A1-AGENTA' });
+const providerB = createMockUser({ firstName: 'Provider', lastName: 'B', displayName: 'Provider B LLC', email: 'provider.b@vinite.com', agentId: 'P1-PROVB', roles: ['provider'] });
+interface ClickLogEntry { id: number; created_at: string; agent_id: string; destination_url: string; status: string | null; ip_address: string | null; user_agent: string | null; channel_origin: string | null; }
 
-// --- 3. MOCK TYPE DEFINITIONS ---
-interface User {
-  firstName: string; lastName: string; displayName: string; email: string;
-  agentId: string; createdAt: string; roles: string[];
-}
-interface Referral {
-  id: number; date: string; seeker: string; agent: string;
-  provider: string; type: string; channel: string;
-  amount: number; status: string;
-}
-
-// --- 4. MOCK DATA AND PERSONAS ---
-const createMockUser = (base: Partial<User>): User => ({
-  firstName: 'Test', lastName: 'User', displayName: 'Test User', email: 'test@example.com',
-  agentId: `A1-JS${Math.floor(100000 + Math.random() * 900000)}`, createdAt: new Date().toISOString(), roles: ['agent'], ...base,
-});
-const agentA = createMockUser({ firstName: 'Agent', lastName: 'A', displayName: 'Agent A', email: 'agent.a@vinite.com', agentId: 'A1-AAAAAA' });
-const agentB = createMockUser({ firstName: 'Agent', lastName: 'B', displayName: 'Agent B', email: 'agent.b@vinite.com', agentId: 'B2-BBBBBB' });
-const seekerA = createMockUser({ firstName: 'Seeker', lastName: 'A', displayName: 'Seeker A', email: 'seeker.a@vinite.com', agentId: 'S1-SAAAAA', roles: ['seeker'] });
-const seekerB = createMockUser({ firstName: 'Seeker', lastName: 'B', displayName: 'Seeker B', email: 'seeker.b@vinite.com', agentId: 'S2-SBBBBB', roles: ['seeker'] });
-const providerA = createMockUser({ firstName: 'Provider', lastName: 'A', displayName: 'Provider A Inc.', email: 'provider.a@vinite.com', agentId: 'P1-PAAAAA', roles: ['provider'] });
-const providerB = createMockUser({ firstName: 'Provider', lastName: 'B', displayName: 'Provider B LLC', email: 'provider.b@vinite.com', agentId: 'P2-PBBBBB', roles: ['provider'] });
-const adminUser = createMockUser({ firstName: 'Admin', lastName: 'User', displayName: 'Admin User', email: 'admin@vinite.com', agentId: 'ADM-001', roles: ['admin'] });
-const superAdminUser = createMockUser({ firstName: 'Super', lastName: 'Admin', displayName: 'Super Admin', email: 'super@vinite.com', agentId: 'SADM-001', roles: ['admin', 'super_admin'] });
-
-// --- 5. THE MAIN TESTAPP PAGE COMPONENT ---
-const TestappPage = () => {
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' | 'warning' } | null>(null);
-  const [localStorageState, setLocalStorageState] = useState('');
-  const [linkGenUrl, setLinkGenUrl] = useState('https://example.com');
-  const [linkGenAgentId, setLinkGenAgentId] = useState('');
-  const [lastGeneratedLink, setLastGeneratedLink] = useState('');
+const ViniteProtocolSimulator = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [apiLog, setApiLog] = useState<string[]>([]);
+  const [dbLog, setDbLog] = useState<ClickLogEntry[]>([]);
+  const [destUrl, setDestUrl] = useState('https://exampleservice.com/product');
+  const [channel, setChannel] = useState('test-suite');
+  const [generatedLink, setGeneratedLink] = useState('');
   
-  // Mock router for this environment
-  const router = { push: (path: string) => console.log(`Navigating to: ${path}`) };
-
-  const updateStateView = () => {
-    if (typeof window !== 'undefined') {
-      const user = localStorage.getItem('vinite_loggedin_user');
-      setCurrentUser(JSON.parse(user || 'null'));
-      const referrals = localStorage.getItem('vinite_referrals');
-      const stateString = `// Logged-in User:\n${JSON.stringify(JSON.parse(user || 'null'), null, 2)}\n\n// Referrals:\n${JSON.stringify(JSON.parse(referrals || '[]'), null, 2)}`;
-      setLocalStorageState(stateString);
-    }
+  const logApiCall = (method: 'GET' | 'POST' | 'DELETE' | 'PATCH', path: string, data?: Record<string, unknown>) => {
+    const entry = `<span class="sim-log-${method.toLowerCase()}">${method}</span> <span class="sim-log-path">${path}</span> ${data ? JSON.stringify(data) : ''}`;
+    setApiLog(prev => [entry, ...prev]);
   };
 
-  useEffect(() => {
-    updateStateView();
+  const fetchDbLog = useCallback(async () => {
+    logApiCall('GET', '/rest/v1/ClickLog?select=*');
+    const { data, error } = await supabase.from('ClickLog').select('*').order('created_at', { ascending: false }).limit(10);
+    if (error) { console.error("Failed to fetch DB log:", error); }
+    else { setDbLog(data); }
   }, []);
 
-  const showMessage = (text: string, type: 'success' | 'error' | 'warning' = 'success') => {
-    setMessage({ text, type });
-    updateStateView();
-    setTimeout(() => setMessage(null), 4000);
-  };
+  useEffect(() => { fetchDbLog(); }, [fetchDbLog]);
 
-  const handleLogin = (user: User) => {
-    localStorage.setItem('vinite_loggedin_user', JSON.stringify(user));
-    setLinkGenAgentId(user.agentId);
-    showMessage(`Logged in as ${user.displayName}.`);
-    if (user.roles.includes('admin')) {
-      router.push('/admin');
-    } else {
-      router.push('/dashboard');
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('vinite_loggedin_user');
-    setLinkGenAgentId('');
-    showMessage('Logged out successfully.');
-    router.push('/');
-  };
+  const handleLogin = (user: User) => { setCurrentUser(user); logApiCall('POST', '/api/auth/login', { email: user.email }); };
+  const handleLogout = () => { setCurrentUser(null); logApiCall('POST', '/api/auth/logout'); };
 
   const handleGenerateLink = () => {
-    if (!linkGenUrl) {
-        showMessage('Please enter a destination URL.', 'error');
-        return;
-    }
-    const agentId = linkGenAgentId || `T1-${Math.floor(100000 + Math.random() * 900000)}`;
-    const newLink = `https://vinite.com/a/${encodeURIComponent(agentId)}?u=${encodeURIComponent(linkGenUrl)}`;
-    setLastGeneratedLink(newLink);
-    
-    const newReferral: Referral = {
-        id: Date.now(), date: new Date().toISOString(), seeker: 'N/A', agent: agentId,
-        provider: new URL(linkGenUrl).hostname, type: 'Link', channel: 'DevTool', amount: 0, status: 'Open',
-    };
-    const existing: Referral[] = JSON.parse(localStorage.getItem('vinite_referrals') || '[]');
-    localStorage.setItem('vinite_referrals', JSON.stringify([newReferral, ...existing]));
-    showMessage(`Generated new link for ${agentId}.`);
+    const agentId = currentUser?.agentId || `T1-GUEST${Math.floor(100000 + Math.random() * 900000)}`;
+    const url = new URL(`https://vinite.com/a/${agentId}`);
+    url.searchParams.set('u', destUrl);
+    url.searchParams.set('channel_origin', channel);
+    setGeneratedLink(url.toString());
+    logApiCall('POST', '/api/v1/links', { destination: destUrl, channel });
   };
   
-  const simulateLifecycleStep = (newStatus: Referral['status']) => {
-      const referrals: Referral[] = JSON.parse(localStorage.getItem('vinite_referrals') || '[]');
-      if(referrals.length === 0) {
-          showMessage('No referrals to update. Generate a link first.', 'warning');
-          return;
-      }
-      referrals[0].status = newStatus;
-      if (newStatus === 'Paid') {
-          referrals[0].amount = Math.floor(Math.random() * 200) + 20;
-      }
-      localStorage.setItem('vinite_referrals', JSON.stringify(referrals));
-      showMessage(`Updated latest referral status to: ${newStatus}`);
+  const simulateClick = async () => {
+    if (!generatedLink) return;
+    const url = new URL(generatedLink);
+    const agentId = url.pathname.split('/')[2];
+    const u = url.searchParams.get('u');
+    const channelOrigin = url.searchParams.get('channel_origin');
+    logApiCall('GET', url.pathname + url.search);
+    await supabase.from('ClickLog').insert([{ agent_id: agentId, destination_url: u, channel_origin: channelOrigin, ip_address: '127.0.0.1', user_agent: 'Simulator', status: 'Clicked' }]);
+    fetchDbLog();
   };
 
-  const handleClearAll = () => {
-    localStorage.removeItem('vinite_loggedin_user');
-    localStorage.removeItem('vinite_referrals');
-    setLinkGenAgentId('');
-    setLastGeneratedLink('');
-    showMessage('All localStorage data cleared.');
-  }
+  const simulateConversion = async () => {
+    const lastClick = dbLog.find(log => log.status === 'Clicked');
+    if (!lastClick) { alert("No 'Clicked' event found to convert. Please simulate a click first."); return; }
+    logApiCall('PATCH', `/rest/v1/ClickLog?id=eq.${lastClick.id}`, { status: 'Converted' });
+    await supabase.from('ClickLog').update({ status: 'Converted' }).eq('id', lastClick.id);
+    logApiCall('POST', '/rest/v1/PendingRewards', { temp_agent_id: lastClick.agent_id });
+    await supabase.from('PendingRewards').insert([{ temp_agent_id: lastClick.agent_id, service_name: new URL(lastClick.destination_url).hostname, reward_amount: 12.50, seeker_email: `seeker-${Date.now()}@example.com` }]);
+    fetchDbLog();
+  };
+
+  const handleFullReset = async () => {
+    logApiCall('DELETE', 'Full State Reset');
+    await supabase.from('ClickLog').delete().gt('id', 0);
+    await supabase.from('PendingRewards').delete().gt('id', 0);
+    fetchDbLog();
+    setApiLog([]);
+    setGeneratedLink('');
+    handleLogout();
+  };
 
   return (
-    <div className="testapp-body">
-      <TestappStyles />
-      <Container>
-        {message && 
-          <div className={`toastMessage ${message.type}`}>
-            {message.text}
+    <div className="sim-body">
+      <SimulatorStyles />
+      <div className="sim-container">
+        <header className="sim-header"><h1>Vinite Protocol Simulator</h1><p>An independent tool to test and validate end-to-end referral flows.</p></header>
+        
+        {/* --- THIS IS THE NEW ACTIONS PANEL --- */}
+        <div className="sim-actions-panel">
+          <div className="sim-actions-group">
+            <span style={{fontWeight: 500}}>Test Mode:</span>
+            <button className="sim-btn sim-btn-secondary active">Referral Flow</button>
+            <button className="sim-btn sim-btn-secondary" disabled>Payouts (coming soon)</button>
+            <button className="sim-btn sim-btn-secondary" disabled>Disputes (coming soon)</button>
           </div>
-        }
-
-        <PageHeader 
-          title="Vinite Testapp"
-          subtitle="Use these tools to simulate different application states and personas."
-        />
-
-        <div className="controlsGrid">
-          <Card>
-            <h3 className="sectionTitle">Persona Simulation</h3>
-            <p className="sectionSubtitle">
-              Current User: <strong>{currentUser?.displayName || 'None'}</strong>
-            </p>
-            <div className="personaGrid">
-              <div className="personaGroup">
-                <h4 className="personaTitle">Agents</h4>
-                <Button onClick={() => handleLogin(agentA)}>Login Agent A</Button>
-                <Button onClick={() => handleLogin(agentB)}>Login Agent B</Button>
-              </div>
-              <div className="personaGroup">
-                <h4 className="personaTitle">Seekers</h4>
-                <Button onClick={() => handleLogin(seekerA)}>Login Seeker A</Button>
-                <Button onClick={() => handleLogin(seekerB)}>Login Seeker B</Button>
-              </div>
-              <div className="personaGroup">
-                <h4 className="personaTitle">Providers</h4>
-                <Button onClick={() => handleLogin(providerA)}>Login Provider A</Button>
-                <Button onClick={() => handleLogin(providerB)}>Login Provider B</Button>
-              </div>
-              <div className="personaGroup">
-                <h4 className="personaTitle">Admins</h4>
-                <Button onClick={() => handleLogin(adminUser)}>Login Admin</Button>
-                <Button onClick={() => handleLogin(superAdminUser)}>Login Super Admin</Button>
-              </div>
-            </div>
-            <div className="logoutSection">
-              <Button onClick={handleLogout} variant="secondary">Logout Current User</Button>
-            </div>
-          </Card>
-
-          <Card>
-            <h3 className="sectionTitle">Generate Vinite Link</h3>
-            <div className="form">
-                  <FormGroup label="Destination URL" htmlFor="destUrl">
-                      <Input id="destUrl" value={linkGenUrl} onChange={e => setLinkGenUrl(e.target.value)} />
-                  </FormGroup>
-                  <FormGroup label="Agent ID (auto-filled on login)" htmlFor="agentId">
-                      <Input id="agentId" value={linkGenAgentId} onChange={e => setLinkGenAgentId(e.target.value)} disabled={!!currentUser} />
-                  </FormGroup>
-                  <Button onClick={handleGenerateLink} variant="primary" fullWidth>1. Generate Link</Button>
-              </div>
-              {lastGeneratedLink && (
-                  <div className="generatedLinkDisplay">
-                      <strong>Last Generated Link:</strong>
-                      <span>{lastGeneratedLink}</span>
-                  </div>
-              )}
-          </Card>
-
-          <Card className="spanTwo">
-            <h3 className="sectionTitle">Referral Lifecycle Simulation (Acts on Latest Referral)</h3>
-            <div className="buttonGroup lifecycle">
-              <Button onClick={() => simulateLifecycleStep('Shared')}>2. Simulate Share</Button>
-              <Button onClick={() => simulateLifecycleStep('Accepted')}>3. Simulate Conversion</Button>
-              <Button onClick={() => simulateLifecycleStep('Paid')}>4. Simulate Reward</Button>
-              <Button onClick={() => showMessage("Rating simulation would go here.")} variant="secondary">5. Simulate Rating</Button>
-            </div>
-          </Card>
-          
-          <Card className="spanTwo">
-              <h3 className="sectionTitle">Current LocalStorage State</h3>
-              <div className="buttonGroup" style={{marginBottom: '16px'}}>
-                  <Button onClick={updateStateView}>Refresh View</Button>
-                  <Button onClick={handleClearAll} variant="secondary" className="dangerButton">Clear All Data</Button>
-              </div>
-              <pre className="stateInspector">{localStorageState}</pre>
-          </Card>
+          <div className="sim-actions-group">
+            <button className="sim-btn sim-btn-danger" onClick={handleFullReset}>Reset All Simulator Data</button>
+          </div>
         </div>
-      </Container>
+
+        <div className="sim-grid">
+          {/* Column 1: Controls */}
+          <div className="sim-col-span-4">
+            <div className="sim-card">
+              <h3 className="sim-card-title">1. Persona Simulation</h3>
+              <p className="sim-user-status">Current User: <strong>{currentUser?.displayName || 'Guest'}</strong></p>
+              <div className="sim-persona-grid">
+                <button className="sim-btn sim-btn-primary" onClick={() => handleLogin(agentA)}>Login as Agent A</button>
+                <button className="sim-btn sim-btn-primary" onClick={() => handleLogin(providerB)}>Login as Provider B</button>
+              </div>
+              <button className="sim-btn sim-btn-secondary sim-btn-full" style={{marginTop: '1rem'}} onClick={handleLogout} disabled={!currentUser}>Logout</button>
+            </div>
+            <div className="sim-card" style={{marginTop: '24px'}}>
+              <h3 className="sim-card-title">2. Generate Referral Link</h3>
+              <div className="sim-form-group"><label htmlFor="destUrl">Destination URL</label><input id="destUrl" className="sim-input" value={destUrl} onChange={e => setDestUrl(e.target.value)} /></div>
+              <div className="sim-form-group"><label htmlFor="channel">Channel Origin</label><input id="channel" className="sim-input" value={channel} onChange={e => setChannel(e.target.value)} /></div>
+              <button className="sim-btn sim-btn-primary sim-btn-full" onClick={handleGenerateLink}>Generate Link</button>
+              {generatedLink && <div className="sim-generated-link">{generatedLink}</div>}
+            </div>
+            <div className="sim-card" style={{marginTop: '24px'}}>
+              <h3 className="sim-card-title">3. Simulate Lifecycle</h3>
+              <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+                <button className="sim-btn sim-btn-primary sim-btn-full" onClick={simulateClick} disabled={!generatedLink}>Simulate Seeker Click</button>
+                <button className="sim-btn sim-btn-primary sim-btn-full" onClick={simulateConversion}>Simulate Conversion</button>
+              </div>
+            </div>
+          </div>
+          {/* Column 2: Logs */}
+          <div className="sim-col-span-8">
+            <div className="sim-card"><h3 className="sim-card-title">API Call Simulation Log</h3><div className="sim-api-log" dangerouslySetInnerHTML={{ __html: apiLog.join('\n') }} /></div>
+            <div className="sim-card" style={{marginTop: '24px'}}>
+              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e9ecef', paddingBottom: '1rem', marginBottom: '1rem'}}>
+                <h3 className="sim-card-title" style={{border: 0, padding: 0, margin: 0}}>Supabase `ClickLog` Table (Live)</h3>
+                <div>
+                  <button className="sim-btn sim-btn-secondary" onClick={fetchDbLog} style={{marginRight: '1rem'}}>Refresh</button>
+                </div>
+              </div>
+              <div className="sim-db-log">{dbLog.map(log => <div key={log.id}>{JSON.stringify(log)}</div>)}</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default TestappPage;
+export default ViniteProtocolSimulator;

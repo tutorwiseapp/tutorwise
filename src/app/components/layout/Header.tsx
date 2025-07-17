@@ -4,20 +4,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import NavLink from '@/app/components/ui/nav/NavLink'; 
 import styles from './Header.module.css';
-
-// --- THIS IS THE KEY ---
-// Import the useAuth hook to get the shared user state
 import { useAuth } from '@/app/components/auth/AuthProvider';
 
 const Header = () => {
   const router = useRouter();
-  
-  // Get the user and logout function directly from our central provider
   const { user, logout } = useAuth();
 
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault();
-    logout(); // Use the central logout function
+    logout();
     router.push('/');
   };
 
@@ -28,15 +23,17 @@ const Header = () => {
       </div>
       
       <nav className={styles.headerNav}>
-        {/* The logic is now much simpler. It just checks the 'user' from the context. */}
         {user ? (
+          // --- Logged-In User View ---
           <>
             <NavLink href="/dashboard">My Dashboard</NavLink>
             <NavLink href="/settings">Settings</NavLink>
             <button onClick={handleLogout} className={styles.logoutButton}>Logout</button>
           </>
         ) : (
+          // --- Guest User View (THIS IS THE FIX) ---
           <>
+            <NavLink href="/signup?intent=claim">Claim Rewards</NavLink>
             <NavLink href="/login">Login</NavLink>
             <NavLink href="/signup">Sign Up</NavLink>
           </>
