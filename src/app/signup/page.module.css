@@ -1,6 +1,6 @@
 .authContainer {
   width: 100%;
-  max-width: 480px; /* Kept it narrow for auth forms */
+  max-width: 480px;
   margin: 0 auto;
   padding: var(--space-5, 48px) 0;
 }

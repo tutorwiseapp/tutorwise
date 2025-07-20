@@ -1,0 +1,171 @@
+/*
+* Filename: src/app/agents/[agentId]/page.module.css
+* Purpose: Provides all styles for the public agent profile page, including the two-column grid layout and all sub-component styles.
+* Change History:
+* C001 - 26 July 2024 : 11:30 - Initial creation with all styles for the V1 profile layout, ensuring proper scoping.
+* Last Modified: 26 July 2024.
+* Requirement ID (optional): VIN-012.
+* Change Summary: This file contains the complete styling for the page, from the main grid to the details within each card, following CSS Module best practices.
+* Impact Analysis: Styles are scoped to this page and have no impact on other parts of the application.
+* Dependencies: Relies on CSS variables (tokens) from globals.css.
+* Props (if applicable): None.
+* TODO (if applicable): None.
+*/
+
+.profileGrid {
+  display: grid;
+  grid-template-columns: 384px 1fr;
+  gap: 40px;
+  align-items: flex-start;
+}
+
+/* --- Left Pane: Profile Card --- */
+.profileCard {
+  padding: 0;
+  overflow: hidden;
+  text-align: center;
+}
+.coverPhoto {
+  height: 160px;
+  background-color: var(--color-primary-light);
+  background-size: cover;
+  background-position: center;
+}
+.profileAvatar {
+  width: 150px; 
+  height: 150px; 
+  border-radius: 50%;
+  margin: -75px auto 0; 
+  border: 4px solid white; 
+  position: relative; 
+  z-index: 1;
+  object-fit: cover;
+}
+.profileBody { 
+  padding: 16px 24px 24px;
+}
+.profileName { 
+  font-size: var(--font-size-2xl); 
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.profileId { 
+  font-family: monospace; 
+  color: var(--color-text-secondary); 
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+.editProfileLink {
+  display: inline-block;
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: 500;
+}
+.detailsDivider {
+  border: 0;
+  height: 1px;
+  background-color: var(--color-bg-page);
+  margin: 24px 0;
+}
+.detailsSection {
+  text-align: left;
+}
+.detailsSection.noPaddingTop {
+  padding-top: 0;
+}
+.detailsSection h3 { 
+  font-size: var(--font-size-lg); 
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.profileBio, .achievementsList {
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--color-text-secondary);
+}
+.profileBio {
+  color: var(--color-text-primary);
+}
+.noDataText {
+  color: var(--color-text-secondary); 
+  font-style: regular;
+  font-size: 16px;
+}
+.tagContainer { 
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 8px;
+}
+.tag {
+  background-color: #e8f5e8; 
+  color: #137333;
+  font-size: 14px; 
+  font-weight: 500; 
+  padding: 4px 12px; 
+  border-radius: 16px;
+}
+
+/* --- Right Pane: Content Cards --- */
+.contentCard {
+  margin-bottom: 24px;
+  padding: var(--space-3);
+  text-align: left;
+}
+.contentCard:last-child { 
+  margin-bottom: 0; 
+}
+.contentCard h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.actionsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.sharesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.activityFeed, .statsList {
+  display: flex;
+  flex-direction: column;
+}
+.activityItem, .statItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-1) 0; /* Adjusted to 8px top/bottom padding as requested */
+  border-bottom: 1px solid var(--color-bg-page);
+  font-size: var(--font-size-sm);
+}
+.activityItem:last-child, .statItem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.activityItem:first-child, .statItem:first-child {
+  padding-top: 0;
+}
+.activityContext {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  flex-shrink: 0;
+  text-align: right;
+}
+.statItem .value {
+  font-weight: 500;
+}
+
+/* --- Responsive & Utility --- */
+.message { 
+  text-align: center; 
+  padding: var(--space-6); 
+}
+@media (max-width: 992px) {
+  .profileGrid { grid-template-columns: 1fr; }
+  .actionsGrid { grid-template-columns: 1fr; }
+  .sharesGrid { grid-template-columns: 1fr; }
+}

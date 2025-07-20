@@ -1,7 +1,21 @@
+/* src/app/components/layout/Container.module.css */
+
 .container {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 1200px;  /* In the Figma design system the fixed page width is set to 1200px */
+  margin: 0 auto;     /* The view port is 1440px, so the margine value is 120px based on a 8-column layout and 1200px width */
   padding: 32px;
   flex-grow: 1;
 }
+
+/* --- NEW --- Add the style for our narrow variant such as forms*/
+.narrow {
+  max-width: 800px;
+}
+
+/* --- ADDITION: Define the new 'wide' variant style --- */
+.wide {
+  max-width: 1440px;
+}
+
+/* Full width - no need to define */

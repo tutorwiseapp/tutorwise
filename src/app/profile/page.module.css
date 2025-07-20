@@ -1,67 +1,56 @@
+/*
+* Filename: src/app/profile/page.module.css
+* Purpose: Provides styles for the private user profile editing page.
+* Change History:
+* C001 - 26 July 2024 : 12:30 - Added .panelDescription class for consistent content spacing.
+* Last Modified: 26 July 2024.
+*/
+
 .profileLayout {
-  display: flex;
-  flex-direction: row;
-  gap: var(--space-4);
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 40px;
   align-items: flex-start;
 }
 
-.mainContent {
-  flex-grow: 1;
-}
-
-.profileForm {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.formGroup {
-  display: flex;
-  flex-direction: column;
-}
-
-.formGroup label {
-  font-weight: var(--font-weight-medium);
-  margin-bottom: var(--space-1);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
-}
-
-.formGroup input,
-.formGroup textarea {
-  width: 100%;
-  padding: 10px 12px;
+.sidebarWrapper, .profileMain {
+  background-color: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
-  font-size: var(--font-size-base);
-  font-family: inherit;
-  background-color: var(--color-bg-card);
-  color: var(--color-text-primary);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.formGroup input:focus,
-.formGroup textarea:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-light);
+.profileMain {
+  padding: var(--space-4);
 }
 
-.formGroup input:read-only {
-  background-color: var(--color-bg-page);
-  cursor: not-allowed;
+.tabContent {
+  padding-top: var(--space-3);
+}
+
+.tabContent h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-3);
+}
+
+.textLink {
+  color: var(--color-primary);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.textLink:hover {
+  text-decoration: underline;
+}
+
+/* --- ADD THIS CLASS --- */
+.panelDescription {
   color: var(--color-text-secondary);
+  margin-bottom: var(--space-2); /* This adds the 16px space */
 }
 
-.formActions {
-  margin-top: var(--space-2);
-  display: flex;
-  justify-content: flex-end;
-}
-
-/* On smaller screens, stack the sidebar on top */
 @media (max-width: 992px) {
   .profileLayout {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 }

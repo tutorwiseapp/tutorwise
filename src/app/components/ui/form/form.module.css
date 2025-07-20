@@ -64,6 +64,27 @@
   color: var(--color-text-secondary, #5f6368);
 }
 
+/* --- Text Input & Textarea --- */
+.input,
+.textarea {
+  width: 100%;
+  border-radius: var(--border-radius-md, 8px);
+  /* --- THIS IS THE KEY --- */
+  /* Ensure the font-size is set to the base size (16px) */
+  font-size: var(--font-size-base, 16px); 
+  font-family: var(--font-primary, 'Poppins', sans-serif);
+  color: var(--color-text-primary, #202124);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+.input {
+  height: 48px;
+  padding: 0 var(--space-2, 16px);
+}
+.textarea {
+  min-height: 120px;
+  padding: var(--space-2, 16px);
+  resize: vertical;
+}
 
 /* --- Radio Button Styles --- */
 .radioGroup {

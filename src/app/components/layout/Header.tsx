@@ -1,3 +1,5 @@
+// src/app/components/layout/Header.tsx - REFACTORED
+
 'use client';
 
 import Link from 'next/link';
@@ -8,7 +10,8 @@ import { useAuth } from '@/app/components/auth/AuthProvider';
 
 const Header = () => {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  // Destructure isLoading from the hook
+  const { user, logout, isLoading } = useAuth();
 
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -23,7 +26,14 @@ const Header = () => {
       </div>
       
       <nav className={styles.headerNav}>
-        {user ? (
+        {/*
+          This is the critical change.
+          If we are still loading, render nothing or a placeholder.
+          This ensures the server render and the first client render match.
+        */}
+        {isLoading ? (
+          <div style={{height: '21px'}} /> // Or a skeleton loader
+        ) : user ? (
           // --- Logged-In User View ---
           <>
             <NavLink href="/dashboard">My Dashboard</NavLink>
@@ -31,7 +41,7 @@ const Header = () => {
             <button onClick={handleLogout} className={styles.logoutButton}>Logout</button>
           </>
         ) : (
-          // --- Guest User View (THIS IS THE FIX) ---
+          // --- Guest User View ---
           <>
             <NavLink href="/signup?intent=claim">Claim Rewards</NavLink>
             <NavLink href="/login">Login</NavLink>

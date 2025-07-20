@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-// import type { User } from '@/types'; // --- THIS IS THE FIX --- Unused import removed.
+import { loadStripe } from '@stripe/stripe-js'; // For redirecting to checkout
 
 // VDL Component Imports
 import Container from '@/app/components/layout/Container';
@@ -13,7 +13,7 @@ import Message from '@/app/components/ui/Message';
 import { useAuth } from '@/app/components/auth/AuthProvider';
 import styles from './page.module.css';
 
-// MOCK DATA
+// MOCK DATA - In a real app, this would be fetched from your database
 const mockStripeConnection = { isConnected: false, email: '' };
 const mockSavedCards = [ { id: 'card_1', brand: 'Visa', last4: '4242', isDefault: true } ];
 
@@ -30,26 +30,59 @@ const CreditCardDisplay = ({ brand, last4, isDefault }: { brand: string, last4:s
 const PaymentsPage = () => {
   const { user } = useAuth();
   
+  // In a real app, this state would be derived from a database call
   const [stripeConnection, setStripeConnection] = useState(mockStripeConnection);
   const [isLoading, setIsLoading] = useState(false);
   const [savedCards] = useState(mockSavedCards);
 
-  const handleConnectStripe = () => {
+  // --- UPDATED --- This now contains real logic to call the backend API
+  const handleConnectStripe = async () => {
     setIsLoading(true);
-    setTimeout(() => {
-      setStripeConnection({ isConnected: true, email: user?.email || '' });
+    try {
+      const response = await fetch('/api/stripe/connect-account');
+      const { url } = await response.json();
+
+      if (url) {
+        window.location.href = url; // Redirect user to Stripe onboarding
+      } else {
+        alert('Could not create a Stripe connection link. Please try again.');
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error('Failed to connect to Stripe:', error);
+      alert('An error occurred while trying to connect to Stripe.');
       setIsLoading(false);
-    }, 1500);
+    }
   };
   
   const handleDisconnect = () => {
     if (confirm('Are you sure you want to disconnect your Stripe account?')) {
         setStripeConnection({ isConnected: false, email: '' });
+        // In a real app, you would also make an API call here to update the user's status
     }
   };
 
-  const handleAddCard = () => { alert('Simulating Add New Card flow...'); };
+  // --- UPDATED --- This now contains real logic to call the backend API
+  const handleAddCard = async () => {
+    try {
+        const response = await fetch('/api/stripe/create-checkout-session');
+        const { sessionId } = await response.json();
+
+        if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
+            throw new Error("Stripe publishable key is not set.");
+        }
+
+        const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+        if (stripe) {
+            await stripe.redirectToCheckout({ sessionId });
+        }
+    } catch (error) {
+        console.error('Failed to add card:', error);
+        alert('Could not start the process to add a new card.');
+    }
+  };
   
+  // Role checks based on the authenticated user
   const isAgent = user?.roles?.includes('agent');
   const isSeeker = user?.roles?.includes('seeker');
   const isProvider = user?.roles?.includes('provider');
@@ -91,6 +124,7 @@ const PaymentsPage = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', margin: '1rem 0' }}>
               {savedCards.map(card => <CreditCardDisplay key={card.id} {...card} />)}
             </div>
+            {/* --- FIX --- onClick handler is now correctly attached */}
             <Button onClick={handleAddCard} variant="secondary">Add New Card</Button>
           </Card>
         </>
@@ -103,6 +137,7 @@ const PaymentsPage = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', margin: '1rem 0' }}>
             {savedCards.map(card => <CreditCardDisplay key={card.id} {...card} />)}
           </div>
+          {/* --- FIX --- onClick handler is now correctly attached */}
           <Button onClick={handleAddCard} variant="secondary">Add New Card</Button>
         </Card>
       )}
