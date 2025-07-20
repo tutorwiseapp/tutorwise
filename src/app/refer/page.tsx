@@ -38,7 +38,7 @@ const ReferPage = () => {
   const [typedText, setTypedText] = useState('');
 
   // --- FIX: Define words and a corresponding color array ---
-  const words = ['your-favourite-fashion', 'a-great-article', 'the-best-tutor', 'a-local-pub', 'cool-new-tech', 'anything-you-love'];
+  const words = ['your-fashion-item', 'a-dream-job', 'the-best-tutor', 'a-local-store', 'cool-new-tech', 'anything-you-love'];
   const colors = ['#dc3545', '#0d6efd', '#fd7e14', '#198754', '#6f42c1', '#d63384']; // Red, Blue, Orange, Green, Purple, Pink
   
   // --- FIX: Add state for the text color ---
