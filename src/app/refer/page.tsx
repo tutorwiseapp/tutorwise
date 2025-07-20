@@ -1,16 +1,88 @@
+/*
+ * Filename: src/app/refer/page.tsx
+ * Purpose: Serves as the public-facing marketing page for the Vinite platform.
+ *
+ * Change History:
+ * C004 - 2025-07-20 : 15:00 - Added dynamic color cycling to the typing animation.
+ * C003 - 2025-07-20 : 14:45 - Corrected the 'use client' directive to fix build error.
+ * C002 - 2025-07-20 : 14:30 - Re-implemented the typing animation effect.
+ * C001 - [Date] : [Time] - Initial creation.
+ *
+ * Last Modified: 2025-07-20 : 15:00
+ * Requirement ID (optional): VIN-UI-007
+ *
+ * Change Summary:
+ * Enhanced the hero section's typing animation. It now cycles through a predefined array of colors,
+ * with each new word appearing in a different color. This was achieved by adding a `textColor` state
+ * that is updated in sync with the `wordIndex` state inside the `useEffect` hook.
+ *
+ * Impact Analysis:
+ * This is a purely visual enhancement that makes the marketing page more dynamic and engaging for
+ * new users. It has no effect on application functionality.
+ *
+ * Dependencies: "react", "next/link", "next/image", "@/app/components/layout/Container".
+ */
 'use client';
 
-// Corrected: Removed unused 'useEffect'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Container from '@/app/components/layout/Container';
 import styles from './page.module.css';
 
 const ReferPage = () => {
-  // The state is kept for potential future interactivity, but the complex effect is removed.
-  const [typedText] = useState('your-favorite-thing');
-  const [textColor] = useState('#006C67');
+  // --- FIX: Add state and logic for the typing animation ---
+  const [wordIndex, setWordIndex] = useState(0);
+  const [subIndex, setSubIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [typedText, setTypedText] = useState('');
+
+  // --- FIX: Define words and a corresponding color array ---
+  const words = ['your-favourite-fashion', 'a-great-article', 'the-best-tutor', 'a-local-pub', 'cool-new-tech', 'anything-you-love'];
+  const colors = ['#dc3545', '#0d6efd', '#fd7e14', '#198754', '#6f42c1', '#d63384']; // Red, Blue, Orange, Green, Purple, Pink
+  
+  // --- FIX: Add state for the text color ---
+  const [textColor, setTextColor] = useState(colors[0]);
+
+  const typingSpeed = 150;
+  const deletingSpeed = 100;
+  const delay = 2000;
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+
+    // Logic for deleting text
+    if (isDeleting) {
+      if (subIndex === 0) {
+        setIsDeleting(false);
+        // --- FIX: When we move to the next word, also set the next color ---
+        setWordIndex((prev) => {
+          const nextIndex = (prev + 1) % words.length;
+          setTextColor(colors[nextIndex]); // Update to the next color in the array
+          return nextIndex;
+        });
+      } else {
+        timeout = setTimeout(() => {
+          setTypedText(words[wordIndex].substring(0, subIndex - 1));
+          setSubIndex((prev) => prev - 1);
+        }, deletingSpeed);
+      }
+    } 
+    // Logic for typing text
+    else {
+      if (subIndex === words[wordIndex].length) {
+        timeout = setTimeout(() => setIsDeleting(true), delay);
+      } else {
+        timeout = setTimeout(() => {
+          setTypedText(words[wordIndex].substring(0, subIndex + 1));
+          setSubIndex((prev) => prev + 1);
+        }, typingSpeed);
+      }
+    }
+
+    return () => clearTimeout(timeout);
+  }, [subIndex, isDeleting, wordIndex]); // Dependencies remain the same
+
 
   return (
     <div className={styles.pageWrapper}>
@@ -20,10 +92,10 @@ const ReferPage = () => {
                 <h1 className={styles.heroTitle}>Refer Anything, Anyone, Anywhere.</h1>
                 <p className={styles.subtitle}>Turn Any URL into Sharable, Monetisable, Rewardable Vinite Links in Seconds.<br/>No Sign-Up Required.</p>
                 <div className={styles.heroCtaGroup}>
-                    {/* Link now points to the homepage (link generator) */}
                     <Link href="/" className={`btn btn-primary ${styles.heroCta}`}>Create Your First Link</Link>
                     <div className={styles.heroVisual}>
                         <span>vinite.com/</span>
+                        {/* --- FIX: Apply the dynamic text color from state --- */}
                         <span className={styles.typingBox} style={{ color: textColor }}>{typedText}</span>
                         <span className={styles.typingCursor}>|</span>
                     </div>
@@ -76,7 +148,6 @@ const ReferPage = () => {
           <div className={styles.ctaContainer}>
             <h2 className={styles.sectionTitle}>Ready to start earning?</h2>
             <p className={styles.sectionSubtitle}>It takes less than 30 seconds to create your first referral link. No credit card, no sign-up required.</p>
-            {/* Link now points to the homepage (link generator) */}
             <Link href="/" className={`btn btn-primary ${styles.heroCta}`}>Get Your Free Vinite Link</Link>
           </div>
         </Container>
