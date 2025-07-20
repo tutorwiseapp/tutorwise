@@ -1,25 +1,8 @@
 /*
  * Filename: src/app/profile/page.tsx
  * Purpose: Allows the authenticated user to edit their profile information.
- *
- * Change History:
- * C002 - 2025-07-19 : 20:05 - Integrated save functionality with DataProvider.
- * C001 - 26 July 2024 : 12:00 - Initial creation and UI refinements.
- *
- * Last Modified: 2025-07-19
+ * Last Modified: 2025-07-26
  * Requirement ID: VIN-A-01.2
- *
- * Change Summary:
- * The `handleSave` function has been refactored. It now uses the `updateUser` function from the `useData`
- * context to persist the user's form data to the central `localStorage` user list. It also updates the
- * currently authenticated user's state via the `login` function from `useAuth` to ensure the UI reflects
- * the changes immediately without a page reload.
- *
- * Impact Analysis:
- * This change makes the profile editing feature fully functional within the mock environment, creating a
- * seamless editing and viewing experience when combined with the new public profile page.
- *
- * Dependencies: "react", "@/types", "@/components/auth/AuthProvider", "@/components/data/DataProvider", and various UI/layout components.
  */
 'use client';
 
@@ -41,19 +24,20 @@ import Tabs from '@/app/components/ui/Tabs';
 import styles from './page.module.css';
 
 const ProfilePage = () => {
-  const { user, login } = useAuth();
+  // Use 'user' for live session, but we'll call it 'profile' to match type
+  const { user: profile, login } = useAuth(); // Assuming useAuth() returns an object with 'user' and 'login'
   const { updateUser } = useData();
   const [activeTab, setActiveTab] = useState('profile');
   const [formData, setFormData] = useState<Partial<Profile>>({});
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user) {
-      setFormData(user);
+    if (profile) {
+      setFormData(profile);
     }
-  }, [user]);
+  }, [profile]);
 
-  if (!user) {
+  if (!profile) {
     return <Container><p>Loading profile...</p></Container>;
   }
 
@@ -64,18 +48,18 @@ const ProfilePage = () => {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    if (user) {
-      const updatedProfile: Profile = { ...user, ...formData } as Profile;
-      
-      // Persist changes to central mock data store
-      updateUser(updatedProfile);
-      
-      // Update the live auth context to reflect changes immediately
-      login(updatedProfile);
+    // Create the fully updated profile object
+    const updatedProfile: Profile = { ...profile, ...formData };
+    
+    // 1. Persist changes to central mock data store
+    updateUser(updatedProfile);
+    
+    // 2. Update the live auth context to reflect changes immediately
+    login(updatedProfile);
 
-      setMessage('Profile updated successfully!');
-      setTimeout(() => setMessage(null), 3000);
-    }
+    setMessage('Profile updated successfully!');
+    window.scrollTo(0, 0);
+    setTimeout(() => setMessage(null), 3000);
   };
 
   const tabOptions = [
@@ -87,7 +71,8 @@ const ProfilePage = () => {
     <Container>
       <div className={styles.profileLayout}>
         <aside className={styles.sidebarWrapper}>
-          <ProfileSidebar user={user} />
+          {/* Ensure ProfileSidebar can handle the `Profile` type */}
+          <ProfileSidebar user={profile} />
         </aside>
         <main className={styles.profileMain}>
           {message && <Message type="success">{message}</Message>}

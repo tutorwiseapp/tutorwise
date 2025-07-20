@@ -5,6 +5,7 @@ interface PageHeaderProps {
   title: string;
   // The subtitle is an optional string. The component will work with or without it.
   subtitle?: string;
+  className?: string;
 }
 
 const PageHeader = ({ title, subtitle }: PageHeaderProps) => {

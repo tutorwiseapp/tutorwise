@@ -1,28 +1,46 @@
-/**
- * Filename: src/app/profile/ProfileSidebar.tsx
+/*
+ * Filename: src/app/components/ui/profile/ProfileSidebar/ProfileSidebar.tsx
  * Purpose: A reusable sidebar component to display a user's key profile information.
  *
  * Change History:
+ * C002 - 2025-07-20 : 07:00 - Applied new standard header format and corrected property accessors to snake_case.
  * C001 - 2024-07-17 : 13:40 - Refactored to use Profile interface and fix public profile link.
  *
- * Last Modified: 2024-07-17
+ * Last Modified: 2025-07-20 : 07:00
  * Requirement ID: VIN-A-01.2
- * Change Summary: Updated the component to accept a 'Profile' object. All internal data access now uses snake_case properties (e.g., user.display_name). The "View Public Profile" link is now correctly constructed using user.agent_id.
- * Impact Analysis: This component is now correctly integrated with the central data model and the application's routing.
- * Dependencies: src/types/index.ts, next/image, next/link
- * Props: user: The Profile object to display.
+ *
+ * Change Summary:
+ * Updated the component to use snake_case for all properties (e.g., user.display_name) to align with the
+ * canonical Profile interface. This also involved applying the new, detailed header format for documentation.
+ *
+ * Impact Analysis:
+ * This is the critical fix for the bug where user data was not appearing on the dashboard/profile pages.
+ * It ensures the component correctly consumes data from the AuthProvider, fixing the broken "View Public Profile" link.
+ *
+ * Dependencies:
+ * - react, next/link, next/image
+ * - @/types
+ * - @/app/components/ui/Card
+ * - ./ProfileSidebar.module.css
+ * - @/lib/utils/image
+ *
+ * Props:
+ * - user: A partial User/Profile object containing the data to be displayed.
+ *
+ * TODO:
+ * - The stats (Total Referrals, Total Earnings) are currently hardcoded and will need to be connected to a live data source.
  */
-
+'use client';
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import type { Profile } from '@/types'; // --- CHANGE: Import Profile
+import type { User } from '@/types';
 import Card from '@/app/components/ui/Card';
 import styles from './ProfileSidebar.module.css';
 import getProfileImageUrl from '@/lib/utils/image';
 
 interface ProfileSidebarProps {
-  user: Partial<Profile>; // Use Partial to handle potentially incomplete objects
+  user: Partial<User>;
 }
 
 const ProfileSidebar = ({ user }: ProfileSidebarProps) => {
@@ -36,16 +54,11 @@ const ProfileSidebar = ({ user }: ProfileSidebarProps) => {
           height={150}
           className={styles.profilePicture}
         />
-        {/* --- CHANGE: Use snake_case properties --- */}
         <h2 className={styles.displayName}>{user.display_name || 'Agent'}</h2>
         <p className={styles.agentId}>{user.agent_id}</p>
-        
-        {/* --- FIX: Correctly construct the link --- */}
-        {user.agent_id && (
-          <Link href={`/agents/${user.agent_id}`} className={styles.textLink}>
-            View Public Profile
-          </Link>
-        )}
+        <Link href={`/agents/${user.agent_id}`} className={styles.textLink}>
+          View Public Profile
+        </Link>
         
         <div className={styles.statsCard}>
           <div className={styles.statItem}>
@@ -65,5 +78,4 @@ const ProfileSidebar = ({ user }: ProfileSidebarProps) => {
     </aside>
   );
 };
-
 export default ProfileSidebar;

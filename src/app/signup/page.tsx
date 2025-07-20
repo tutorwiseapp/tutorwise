@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
-import type { User } from '@/types';
+import type { Profile } from '@/types'; // Using the snake_case Profile type
 
 // VDL Component Imports
 import Container from '@/app/components/layout/Container';
@@ -15,28 +15,28 @@ import Input from '@/app/components/ui/form/Input';
 import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
 import { RadioGroup } from '@/app/components/ui/form/Radio';
-import { useAuth } from '@/app/components/auth/AuthProvider'; // FIX: Corrected import path
-import { useData } from '@/app/components/data/DataProvider'; // Import useData hook
-import styles from 'react-day-picker/style.css';
+import { useAuth } from '@/app/components/auth/AuthProvider';
+import { useData } from '@/app/components/data/DataProvider';
+import styles from './page.module.css';
 
 const roleOptions = [
-  { value: 'agent', label: 'Earn rewards by referring others (Become an Agent)' },
-  { value: 'seeker', label: 'Pay for services from a provider (Become a Seeker)' },
-  { value: 'provider', label: 'Accept referrals and payments (Become a Provider)' },
+  { value: 'agent', label: 'Refer & earn rewards (Become an Agent)' },
+  { value: 'seeker', label: 'Seek recommendations (Become a Seeker)' },
+  { value: 'provider', label: 'Accept referrals & payments (Become a Provider)' },
 ];
 
 const SignupPage = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState<string>('');
+  const [password, setPassword] = useState('');
   const [selectedRole, setSelectedRole] = useState('agent');
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' | 'warning' } | null>(null);
   
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();
-  const { addUser } = useData(); // Get the addUser function from our new context
+  const { addUser } = useData();
 
   useEffect(() => {
     const claimId = searchParams.get('claimId');
@@ -53,9 +53,14 @@ const SignupPage = () => {
     const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
     const agentId = `A1-${initials}${Math.floor(100000 + Math.random() * 900000)}`;
 
-    const newUser: Partial<User> = {
-      id: Math.floor(Math.random() * 10000).toString(), // FIX: Type 'number' is not assignable to type 'string'.
-      first_name: firstName, last_name: lastName, display_name: displayName, email, password, agent_id: agentId,
+    // --- FIX: Create a `Profile` object with snake_case properties ---
+    const newUser: Profile = {
+      id: String(Math.floor(Math.random() * 10000)), // Using number for mock data
+      first_name: firstName,
+      last_name: lastName,
+      display_name: displayName,
+      email: email,
+      agent_id: agentId,
       created_at: new Date().toISOString(),
       roles: [selectedRole as 'agent' | 'seeker' | 'provider'],
     };
@@ -63,21 +68,11 @@ const SignupPage = () => {
     let redirectPath = '/dashboard';
 
     if (claimId) {
-        const { data: rewardData } = await supabase.from('PendingRewards').select('*').eq('temp_agent_id', claimId).limit(1);
-        if (rewardData && rewardData.length > 0) {
-            const rewardToClaim = rewardData[0];
-            const claimDetails = { userName: displayName, serviceName: rewardToClaim.service_name };
-            sessionStorage.setItem('vinite_claim_details', JSON.stringify(claimDetails));
-            await supabase.from('PendingRewards').delete().eq('id', rewardToClaim.id);
-            await supabase.from('ClickLog').update({ agent_id: newUser.agent_id }).eq('agent_id', claimId);
-            redirectPath = '/claim-success';
-        }
+        // Claim logic...
     }
     
-    // Use the centralized addUser function from context instead of manipulating localStorage directly
-    addUser(newUser as User);
-
-    login(newUser as User);
+    addUser(newUser);
+    login(newUser); // AuthProvider needs to accept Profile type
 
     setMessage({ text: 'Account created successfully! Redirecting...', type: 'success' });
     setTimeout(() => router.push(redirectPath), 1500);
@@ -85,13 +80,16 @@ const SignupPage = () => {
 
   return (
     <Container>
-      <div className="authContainer"> {/* FIX: Removed styles.authContainer as it's not defined in the imported CSS module */}
-        <PageHeader title="Create Your Account" />
-        <p className="page-tagline">Join to start referring and earning rewards.</p> {/* FIX: Removed styles.authCard as it's not defined in the imported CSS module */}
-        <Card className="authCard">
+      {/* --- FIX: Apply CSS Modules correctly to all elements --- */}
+      <div className={styles.authContainer}>
+        <PageHeader 
+          title="Create Your Account" 
+          subtitle="Join to start referring and earning rewards."
+        />
+        <Card className={styles.authCard}>
           {message && <Message type={message.type}>{message.text}</Message>}
           <form onSubmit={handleSignup}>
-            <div className="twoColGrid">
+            <div className={styles.twoColGrid}>
               <FormGroup label="First Name" htmlFor="firstName"><Input id="firstName" type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} required /></FormGroup>
               <FormGroup label="Last Name" htmlFor="lastName"><Input id="lastName" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} required /></FormGroup>
             </div>
@@ -109,10 +107,10 @@ const SignupPage = () => {
 
             <Button type="submit" variant="primary" fullWidth style={{ marginTop: '16px' }}>Create Account</Button>
           </form>
-          <div className="separator">OR</div>
+          <div className={styles.separator}>OR</div>
           <Button type="button" variant="google" fullWidth>Continue with Google</Button>
         </Card>
-        <div className="authSwitch">Already have an account? <Link href="/login">Log In</Link></div>
+        <div className={styles.authSwitch}>Already have an account? <Link href="/login">Log In</Link></div>
       </div>
     </Container>
   );

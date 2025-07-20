@@ -1,8 +1,10 @@
+/* src/app/signup/page.module.css */
+
 .authContainer {
   width: 100%;
   max-width: 480px;
   margin: 0 auto;
-  padding: var(--space-5, 48px) 0;
+  padding: var(--space-5) 0;
 }
 
 .authCard {
@@ -12,36 +14,48 @@
 .twoColGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-2, 16px);
+  gap: var(--space-2);
 }
 
 .separator {
   display: flex;
   align-items: center;
   text-align: center;
-  color: var(--color-text-secondary, #5f6368);
-  font-size: var(--font-size-xs, 12px);
-  margin: var(--space-3, 24px) 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  margin: var(--space-3) 0;
 }
+
 .separator::before, .separator::after {
   content: '';
   flex: 1;
-  border-bottom: 1px solid var(--color-border, #dfe1e5);
+  border-bottom: 1px solid var(--color-border);
 }
-.separator:not(:empty)::before { margin-right: .5em; }
-.separator:not(:empty)::after { margin-left: .5em; }
+
+.separator:not(:empty)::before { 
+  margin-right: .5em; 
+}
+
+.separator:not(:empty)::after { 
+  margin-left: .5em; 
+}
 
 .authSwitch {
   text-align: center;
-  margin-top: var(--space-3, 24px);
-  font-size: var(--font-size-sm, 14px);
+  margin-top: var(--space-3);
+  font-size: var(--font-size-sm);
 }
+
 .authSwitch a {
-    font-weight: var(--font-weight-medium, 500);
+    font-weight: var(--font-weight-medium);
 }
 
 @media (max-width: 480px) {
     .twoColGrid {
         grid-template-columns: 1fr;
     }
+}
+
+.authContainer > :global(div[class*="pageHeader"]) {
+  margin-bottom: var(--space-1); /* This set the spacing between the the subtitle and the form */
 }
