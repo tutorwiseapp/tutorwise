@@ -3,29 +3,32 @@
  * Purpose: Provides the initial mock user data for the application's localStorage.
  *
  * Change History:
+ * C003 - 2025-07-20 : 15:30 - Corrected mock user ID to be a string to fix build error.
  * C002 - 2025-07-19 : 22:45 - Refactored all property names to snake_case.
  * C001 - [Date] : [Time] - Initial creation.
  *
- * Last Modified: 2025-07-19
+ * Last Modified: 2025-07-20 : 15:30
  *
  * Change Summary:
- * Updated the entire `mockUsers` array to use `snake_case` for all property names (e.g., `agentId` -> `agent_id`).
- * This aligns the mock data with the canonical `Profile` interface defined in `src/types/index.ts`.
+ * Changed the hardcoded mock user ID from the number `1` to the string `'1'`. This aligns the
+ * mock data with the canonical `Profile` interface, which requires the ID to be a string, and
+ * resolves the TypeScript error that was causing the Vercel deployment to fail.
  *
  * Impact Analysis:
- * This is a critical fix that resolves the "Agent Not Found" bug on the public profile page. It ensures
- * that the data structure in the mock environment is identical to the one planned for the Supabase backend,
- * preventing data-shape-related bugs across the application.
+ * This change fixes a critical deployment blocker and makes the mock data more representative
+ * of the production data from Supabase.
  *
- * Dependencies:
- * - @/types
+ * Dependencies: "@/types"
  */
+
 import type { User } from '@/types';
 
 // This is the single source of truth for all mock users, now aligned with the Profile interface.
 export const mockUsers: User[] = [
   {
-    id: 1,
+    // --- THIS IS THE FIX ---
+    // The `id` must be a string to match the canonical `Profile` interface.
+    id: '1',
     agent_id: 'A1-JS123456',
     display_name: 'Jordan Smith',
     first_name: 'Jordan',
@@ -40,17 +43,15 @@ export const mockUsers: User[] = [
     roles: ['agent', 'seeker'],
     created_at: new Date().toISOString(),
   },
-  // ... other mock users would also be updated here
+  // ... other mock users can be added here
 ];
 
 // This function runs once to set up the data.
 export const initializeMockData = () => {
     if (typeof window !== 'undefined') {
-        // For testing, you might want to clear old data first
-        // localStorage.removeItem('vinite_users');
         if (!localStorage.getItem('vinite_users')) {
             localStorage.setItem('vinite_users', JSON.stringify(mockUsers));
-            console.log('%c[MOCK DATA]: Initialized user list in localStorage with snake_case properties.', 'color: green; font-weight: bold;');
+            console.log('%c[MOCK DATA]: Initialized user list in localStorage.', 'color: green; font-weight: bold;');
         }
     }
 };
