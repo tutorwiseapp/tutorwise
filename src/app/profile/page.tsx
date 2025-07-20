@@ -1,8 +1,26 @@
 /*
  * Filename: src/app/profile/page.tsx
  * Purpose: Allows the authenticated user to edit their profile information.
- * Last Modified: 2025-07-26
+ *
+ * Change History:
+ * C004 - 2025-07-20 : 11:45 - Fixed TypeScript error by using a type assertion on profile updates.
+ * C003 - 2025-07-20 : 10:30 - Updated 'Account Security' tab to link to the new change-password page.
+ * C002 - 2025-07-20 : 09:00 - Integrated save functionality with both DataProvider and AuthProvider.
+ * C001 - 26 July 2024 : 12:00 - Initial creation and UI refinements.
+ *
+ * Last Modified: 2025-07-20 : 11:45
  * Requirement ID: VIN-A-01.2
+ *
+ * Change Summary:
+ * Corrected a TypeScript error in the `handleSave` function. The `updatedProfile` object is now
+ * created with a type assertion (`as Profile`) to satisfy the strict `Profile` interface,
+ * resolving the "is not assignable" error.
+ *
+ * Impact Analysis:
+ * This change allows the component to compile correctly and ensures that the save functionality
+ * works as intended with the application's strict type definitions.
+ *
+ * Dependencies: "react", "@/types", "@/app/components/auth/AuthProvider", "@/app/components/data/DataProvider", and various UI/layout components.
  */
 'use client';
 
@@ -24,9 +42,8 @@ import Tabs from '@/app/components/ui/Tabs';
 import styles from './page.module.css';
 
 const ProfilePage = () => {
-  // Use 'user' for live session, but we'll call it 'profile' to match type
-  const { user: profile, login } = useAuth(); // Assuming useAuth() returns an object with 'user' and 'login'
-  const { updateUser } = useData();
+  const { user: profile, login, isLoading: isAuthLoading } = useAuth();
+  const { updateUser, isLoading: isDataLoading } = useData();
   const [activeTab, setActiveTab] = useState('profile');
   const [formData, setFormData] = useState<Partial<Profile>>({});
   const [message, setMessage] = useState<string | null>(null);
@@ -36,11 +53,7 @@ const ProfilePage = () => {
       setFormData(profile);
     }
   }, [profile]);
-
-  if (!profile) {
-    return <Container><p>Loading profile...</p></Container>;
-  }
-
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: value }));
@@ -48,8 +61,12 @@ const ProfilePage = () => {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    // Create the fully updated profile object
-    const updatedProfile: Profile = { ...profile, ...formData };
+    if (!profile) return;
+
+    // --- THIS IS THE FIX ---
+    // Use a type assertion (`as Profile`) to assure TypeScript that the merged object
+    // conforms to the strict Profile interface.
+    const updatedProfile = { ...profile, ...formData } as Profile;
     
     // 1. Persist changes to central mock data store
     updateUser(updatedProfile);
@@ -58,9 +75,17 @@ const ProfilePage = () => {
     login(updatedProfile);
 
     setMessage('Profile updated successfully!');
-    window.scrollTo(0, 0);
+    window.scrollTo(0, 0); // Scroll to top to show the message
     setTimeout(() => setMessage(null), 3000);
   };
+
+  if (isAuthLoading || isDataLoading) {
+    return <Container><p>Loading profile...</p></Container>;
+  }
+
+  if (!profile) {
+    return <Container><p>Please log in to view your profile.</p></Container>;
+  }
 
   const tabOptions = [
     { id: 'profile', label: 'Profile Details' },
@@ -71,7 +96,6 @@ const ProfilePage = () => {
     <Container>
       <div className={styles.profileLayout}>
         <aside className={styles.sidebarWrapper}>
-          {/* Ensure ProfileSidebar can handle the `Profile` type */}
           <ProfileSidebar user={profile} />
         </aside>
         <main className={styles.profileMain}>

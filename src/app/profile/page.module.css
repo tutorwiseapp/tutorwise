@@ -1,10 +1,29 @@
 /*
-* Filename: src/app/profile/page.module.css
-* Purpose: Provides styles for the private user profile editing page.
-* Change History:
-* C001 - 26 July 2024 : 12:30 - Added .panelDescription class for consistent content spacing.
-* Last Modified: 26 July 2024.
-*/
+ * Filename: src/app/profile/page.module.css
+ * Purpose: Provides styles for the private user profile editing page's two-column layout.
+ *
+ * Change History:
+ * C003 - 2025-07-20 : 12:45 - Removed all visual styles from .sidebarWrapper to fix a double-border bug.
+ * C002 - 2025-07-20 : 12:30 - Added standard hover effects to layout wrappers for UI consistency.
+ * C001 - 26 July 2024 : 12:30 - Added .panelDescription class for consistent content spacing.
+ *
+ * Last Modified: 2025-07-20 : 12:45
+ * Requirement ID (optional): VIN-UI-004
+ *
+ * Change Summary:
+ * The .sidebarWrapper class has been stripped of all visual styling (border, background, etc.). Its sole
+ * responsibility is now layout. The ProfileSidebar component it contains renders its own <Card>, which
+ * resolves the visual bug of a "double border" on the left panel. The .profileMain class retains its
+ * card styling as it directly wraps content.
+ *
+ * Impact Analysis:
+ * This change corrects a significant visual inconsistency on the profile page, ensuring the left and
+ * right panels have an identical border, shadow, and hover effect.
+ *
+ * Dependencies: Relies on CSS variables (tokens) from globals.css.
+ * Props (if applicable): None.
+ * TODO (if applicable): None.
+ */
 
 .profileLayout {
   display: grid;
@@ -13,15 +32,36 @@
   align-items: flex-start;
 }
 
-.sidebarWrapper, .profileMain {
+/*
+ * The .sidebarWrapper is now ONLY a layout container.
+ * The <ProfileSidebar> component inside it is responsible for its own card appearance,
+ * preventing a "double border" effect.
+ */
+
+ /* Comment out this section to remove the No Empty function warning.
+.sidebarWrapper {
+  No styles needed here. 
+}
+*/
+
+/*
+ * The .profileMain acts as the card for the right-hand content panel.
+ * It retains all visual and interactive styles.
+ */
+.profileMain {
   background-color: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
+  padding: var(--space-4);
+  transition: all 0.2s ease-in-out;
 }
 
-.profileMain {
-  padding: var(--space-4);
+.profileMain:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
 }
+
+/* --- Content Styles --- */
 
 .tabContent {
   padding-top: var(--space-3);
@@ -43,11 +83,12 @@
   text-decoration: underline;
 }
 
-/* --- ADD THIS CLASS --- */
 .panelDescription {
   color: var(--color-text-secondary);
-  margin-bottom: var(--space-2); /* This adds the 16px space */
+  margin-bottom: var(--space-2);
 }
+
+/* --- Responsive Layout --- */
 
 @media (max-width: 992px) {
   .profileLayout {

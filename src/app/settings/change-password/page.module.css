@@ -1,0 +1,24 @@
+/*
+ * Filename: src/app/settings/change-password/page.module.css
+ * Purpose: Provides styles for the Change Password page.
+ *
+ * Change History:
+ * C001 - 2025-07-20 : 10:30 - Initial creation.
+ *
+ * Last Modified: 2025-07-20 : 10:30
+ * Requirement ID (optional): VIN-A-005
+ *
+ * Change Summary:
+ * Created styles to ensure the change password form is correctly constrained and presented,
+ * consistent with other form pages like login and contact.
+ *
+ * Impact Analysis:
+ * This is a new, scoped stylesheet. It has no impact on other parts of the application.
+ *
+ * Dependencies: Relies on CSS variables (tokens) from globals.css.
+ */
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+}

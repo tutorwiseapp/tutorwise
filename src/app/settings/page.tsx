@@ -1,3 +1,25 @@
+/*
+ * Filename: src/app/settings/page.tsx
+ * Purpose: Provides a central hub for users to manage application and account settings.
+ *
+ * Change History:
+ * C002 - 2025-07-20 : 10:30 - Updated 'Account Security' card to link to the new change-password page.
+ * C001 - [Date] : [Time] - Initial creation.
+ *
+ * Last Modified: 2025-07-20 : 10:30
+ * Requirement ID (optional): VIN-A-005
+ *
+ * Change Summary:
+ * Changed the "Change Password" link in the "Account Security" card to point to the canonical
+ * `/settings/change-password` route instead of the profile page. This integrates the new page
+ * into the user settings flow.
+ *
+ * Impact Analysis:
+ * This change correctly routes the user to the dedicated password change form, improving security
+ * and user experience.
+ *
+ * Dependencies: "react", "next/link", "@/app/components/auth/AuthProvider", and various UI components.
+ */
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -71,7 +93,7 @@ const SettingsPage = () => {
               ) : (
                 <>
                   <span className={styles.statusDisabled}>Disabled</span>
-                  <div></div> {/* Empty div acts as a placeholder to keep "Enable" on the right */}
+                  <div></div>
                   <a href="#" onClick={(e) => { e.preventDefault(); setDesktopNotificationsEnabled(true); }} className={styles.cardActionLink}>Enable</a>
                 </>
               )}
@@ -100,7 +122,8 @@ const SettingsPage = () => {
               <p className={styles.description}>Manage your login credentials and enable two-factor authentication.</p>
             </div>
             <div className={styles.action}>
-              <Link href="/profile" className={styles.cardActionLink}>Change Password</Link>
+               {/* --- THIS IS THE FIX --- */}
+              <Link href="/settings/change-password" className={styles.cardActionLink}>Change Password</Link>
             </div>
           </div>
 
