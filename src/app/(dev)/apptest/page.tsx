@@ -1,25 +1,80 @@
+/*
+ * Filename: src/app/(dev)/apptest/page.tsx
+ * Purpose: A standalone, single-file simulator to test the Vinite protocol's end-to-end referral flows.
+ *
+ * Change History:
+ * C003 - 2025-07-20 : 13:30 - Made file fully independent by removing all internal app dependencies.
+ * C002 - 2025-07-20 : 13:15 - Fixed TypeScript error by converting mock user ID to a string.
+ * C001 - [Date] : [Time] - Initial creation.
+ *
+ * Last Modified: 2025-07-20 : 13:30
+ * Requirement ID (optional): VIN-DEV-001
+ *
+ * Change Summary:
+ * This file is now fully standalone. It no longer imports from the main Vinite app's /lib or /types.
+ * It now defines its own local `SimulatorUser` type and creates its own local Supabase client instance.
+ * The mock data model was also updated to consistently use snake_case, matching the database schema.
+ * This resolves the deployment error and respects the tool's architectural independence.
+ *
+ * Impact Analysis:
+ * This change fixes the deployment blocker and correctly decouples this development tool from the main
+ * application, making both more maintainable.
+ *
+ * Dependencies: "react", "@supabase/supabase-js".
+ */
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/lib/supabaseClient';
-import type { User } from '@/types';
+import { createClient } from '@supabase/supabase-js';
 
-// --- THIS IS THE FIX: New CSS for the Actions Panel ---
+// --- FIX: Create a local, independent Supabase client ---
+// This tool should not depend on the main app's shared client.
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error("Supabase URL or Anon Key is not defined in environment variables.");
+}
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+
+// --- FIX: Define local, independent types for this tool ---
+// This removes the dependency on the main app's `src/types/index.ts`.
+interface SimulatorUser {
+  id: string;
+  agent_id: string;
+  display_name: string;
+  email: string;
+  roles: ('agent' | 'provider')[];
+  created_at: string;
+  // Add other properties as needed by the simulator, keeping them partial
+  first_name?: string;
+  last_name?: string;
+}
+interface ClickLogEntry {
+  id: number;
+  created_at: string;
+  agent_id: string;
+  destination_url: string;
+  status: string | null;
+  ip_address: string | null;
+  user_agent: string | null;
+  channel_origin: string | null;
+}
+
+// --- THIS IS THE FIX: All CSS is self-contained ---
 const SimulatorStyles = () => (
   <style>{`
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600&family=Poppins:wght@400;500&display=swap');
-
     :root { 
       --sim-blue: #0d6efd; --sim-green: #198754; --sim-red: #dc3545; --sim-gray: #6c757d; --sim-light-gray: #f8f9fa;
       --sim-label-color: #666666;
     }
-    .sim-body { 
-      font-family: 'Poppins', sans-serif; background-color: #f4f7f9; color: #212529; margin: 0; font-size: 14px;
-    }
+    .sim-body { font-family: 'Poppins', sans-serif; background-color: #f4f7f9; color: #212529; margin: 0; font-size: 14px; }
     .sim-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
     .sim-header h1, .sim-card-title { font-family: 'Inter', sans-serif; }
     .sim-header h1 { font-size: 2rem; } .sim-header p { color: var(--sim-gray); }
-    .sim-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; margin-top: 1rem; } /* Reduced top margin */
+    .sim-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; margin-top: 1rem; }
     .sim-col-span-4 { grid-column: span 12; } @media (min-width: 768px) { .sim-col-span-4 { grid-column: span 6; } } @media (min-width: 1200px) { .sim-col-span-4 { grid-column: span 4; } }
     .sim-col-span-8 { grid-column: span 12; } @media (min-width: 1200px) { .sim-col-span-8 { grid-column: span 8; } }
     .sim-card { background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 0.5rem; padding: 1.5rem; }
@@ -38,43 +93,30 @@ const SimulatorStyles = () => (
     .sim-log-get { color: #0d6efd; } .sim-log-post { color: #198754; } .sim-log-delete { color: #dc3545; } .sim-log-patch { color: #fd7e14; }
     .sim-log-path { color: #adb5bd; }
     .sim-generated-link { margin-top: 1rem; padding: 1rem; background-color: var(--sim-light-gray); border-radius: 0.375rem; word-break: break-all; }
-    
-    /* --- NEW STYLES FOR THE ACTIONS PANEL --- */
-    .sim-actions-panel {
-      height: 80px;
-      background-color: #ffffff;
-      border: 1px solid #dee2e6;
-      border-radius: 0.5rem;
-      margin-top: 2rem;
-      padding: 0 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .sim-actions-group {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    .sim-actions-panel .sim-btn-secondary {
-      background-color: #e9ecef;
-      color: #495057;
-    }
-    .sim-actions-panel .sim-btn-secondary.active {
-      background-color: var(--sim-blue);
-      color: white;
-    }
+    .sim-actions-panel { height: 80px; background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 0.5rem; margin-top: 2rem; padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+    .sim-actions-group { display: flex; align-items: center; gap: 1rem; }
+    .sim-actions-panel .sim-btn-secondary { background-color: #e9ecef; color: #495057; }
+    .sim-actions-panel .sim-btn-secondary.active { background-color: var(--sim-blue); color: white; }
   `}</style>
 );
 
-// MOCK DATA and TYPE DEFINITION (NO CHANGE)
-const createMockUser = (base: Partial<User>): User => ({ id: Math.random(), firstName: 'Test', lastName: 'User', displayName: 'Test User', email: 'test@example.com', agentId: `A1-JS${Math.floor(100000 + Math.random() * 900000)}`, createdAt: new Date().toISOString(), roles:['agent'], ...base });
-const agentA = createMockUser({ firstName: 'Agent', lastName: 'A', displayName: 'Agent A', email: 'agent.a@vinite.com', agentId: 'A1-AGENTA' });
-const providerB = createMockUser({ firstName: 'Provider', lastName: 'B', displayName: 'Provider B LLC', email: 'provider.b@vinite.com', agentId: 'P1-PROVB', roles: ['provider'] });
-interface ClickLogEntry { id: number; created_at: string; agent_id: string; destination_url: string; status: string | null; ip_address: string | null; user_agent: string | null; channel_origin: string | null; }
+// --- FIX: MOCK DATA updated to use the local `SimulatorUser` type and snake_case properties ---
+const createMockUser = (base: Partial<SimulatorUser>): SimulatorUser => ({
+  id: Math.random().toString(), // Ensure ID is a string
+  first_name: 'Test',
+  last_name: 'User',
+  display_name: 'Test User',
+  email: 'test@example.com',
+  agent_id: `A1-JS${Math.floor(100000 + Math.random() * 900000)}`,
+  created_at: new Date().toISOString(),
+  roles: ['agent'],
+  ...base
+});
+const agentA = createMockUser({ first_name: 'Agent', last_name: 'A', display_name: 'Agent A', email: 'agent.a@vinite.com', agent_id: 'A1-AGENTA' });
+const providerB = createMockUser({ first_name: 'Provider', last_name: 'B', display_name: 'Provider B LLC', email: 'provider.b@vinite.com', agent_id: 'P1-PROVB', roles: ['provider'] });
 
 const ViniteProtocolSimulator = () => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<SimulatorUser | null>(null); // Use local type
   const [apiLog, setApiLog] = useState<string[]>([]);
   const [dbLog, setDbLog] = useState<ClickLogEntry[]>([]);
   const [destUrl, setDestUrl] = useState('https://exampleservice.com/product');
@@ -90,16 +132,16 @@ const ViniteProtocolSimulator = () => {
     logApiCall('GET', '/rest/v1/ClickLog?select=*');
     const { data, error } = await supabase.from('ClickLog').select('*').order('created_at', { ascending: false }).limit(10);
     if (error) { console.error("Failed to fetch DB log:", error); }
-    else { setDbLog(data); }
+    else { setDbLog(data as ClickLogEntry[]); } // Assert type here
   }, []);
 
   useEffect(() => { fetchDbLog(); }, [fetchDbLog]);
 
-  const handleLogin = (user: User) => { setCurrentUser(user); logApiCall('POST', '/api/auth/login', { email: user.email }); };
+  const handleLogin = (user: SimulatorUser) => { setCurrentUser(user); logApiCall('POST', '/api/auth/login', { email: user.email }); };
   const handleLogout = () => { setCurrentUser(null); logApiCall('POST', '/api/auth/logout'); };
 
   const handleGenerateLink = () => {
-    const agentId = currentUser?.agentId || `T1-GUEST${Math.floor(100000 + Math.random() * 900000)}`;
+    const agentId = currentUser?.agent_id || `T1-GUEST${Math.floor(100000 + Math.random() * 900000)}`;
     const url = new URL(`https://vinite.com/a/${agentId}`);
     url.searchParams.set('u', destUrl);
     url.searchParams.set('channel_origin', channel);
@@ -143,8 +185,6 @@ const ViniteProtocolSimulator = () => {
       <SimulatorStyles />
       <div className="sim-container">
         <header className="sim-header"><h1>Vinite Protocol Simulator</h1><p>An independent tool to test and validate end-to-end referral flows.</p></header>
-        
-        {/* --- THIS IS THE NEW ACTIONS PANEL --- */}
         <div className="sim-actions-panel">
           <div className="sim-actions-group">
             <span style={{fontWeight: 500}}>Test Mode:</span>
@@ -156,13 +196,11 @@ const ViniteProtocolSimulator = () => {
             <button className="sim-btn sim-btn-danger" onClick={handleFullReset}>Reset All Simulator Data</button>
           </div>
         </div>
-
         <div className="sim-grid">
-          {/* Column 1: Controls */}
           <div className="sim-col-span-4">
             <div className="sim-card">
               <h3 className="sim-card-title">1. Persona Simulation</h3>
-              <p className="sim-user-status">Current User: <strong>{currentUser?.displayName || 'Guest'}</strong></p>
+              <p className="sim-user-status">Current User: <strong>{currentUser?.display_name || 'Guest'}</strong></p>
               <div className="sim-persona-grid">
                 <button className="sim-btn sim-btn-primary" onClick={() => handleLogin(agentA)}>Login as Agent A</button>
                 <button className="sim-btn sim-btn-primary" onClick={() => handleLogin(providerB)}>Login as Provider B</button>
@@ -184,7 +222,6 @@ const ViniteProtocolSimulator = () => {
               </div>
             </div>
           </div>
-          {/* Column 2: Logs */}
           <div className="sim-col-span-8">
             <div className="sim-card"><h3 className="sim-card-title">API Call Simulation Log</h3><div className="sim-api-log" dangerouslySetInnerHTML={{ __html: apiLog.join('\n') }} /></div>
             <div className="sim-card" style={{marginTop: '24px'}}>
