@@ -29,7 +29,7 @@ export default function HomePage() {
   const isUrlValid = useMemo(() => { if (!destinationUrl) return null; return validateUrl(destinationUrl).valid; }, [destinationUrl]);
 
   useEffect(() => {
-    if (user?.agentId) { setAgentId(user.agentId); } 
+    if (user?.agent_id) { setAgentId(user.agent_id); } 
     else { let guestId = sessionStorage.getItem('vinite_guest_id'); if (!guestId) { guestId = `T1-GU${Math.floor(100000 + Math.random() * 900000)}`; sessionStorage.setItem('vinite_guest_id', guestId); } setAgentId(guestId); }
   }, [user]);
 
