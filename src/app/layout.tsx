@@ -11,8 +11,8 @@
  *
  * Change Summary:
  * Added a <link> tag in the <head> to import the 'Material Symbols Outlined' font from Google Fonts.
- * This makes the icon font available globally, fixing an issue where icons were not rendering on the
- * marketing page.
+ * This makes the icon font available globally, fixing the issue where icons were not rendering on the
+ * marketing page or any other component.
  *
  * Impact Analysis:
  * This is an application-wide enhancement. It allows any page or component to correctly render
@@ -39,15 +39,15 @@ export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) { 
+}>) {
   return (
     <html lang="en" className={`${poppins.variable} ${inter.variable}`}>
       <head>
         {/* --- THIS IS THE FIX --- */}
         {/* This link imports the icon font, making it available across the entire app. */}
-        <link 
-          rel="stylesheet" 
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=optional" 
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=optional"
         />
       </head>
       <body>
