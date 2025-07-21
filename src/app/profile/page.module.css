@@ -3,8 +3,8 @@
  * Purpose: Provides styles for the private user profile editing page's two-column layout.
  *
  * Change History:
- * C005 - 2025-07-20 : 20:00 - Standardized grid column width and added footnote styles.
- * C004 - 2025-07-20 : 19:45 - Removed all card styling from layout wrappers to fix visual inconsistency.
+ * C005 - 2025-07-20 : 20:00 - Standardized mobile grid gap and added footnote styles.
+ * C004 - 2025-07-20 : 19:45 - Removed card styling from layout wrappers to fix visual inconsistency.
  * C003 - 2025-07-20 : 12:45 - Removed visual styles from .sidebarWrapper to fix a double-border bug.
  * C002 - 2025-07-20 : 12:30 - Added standard hover effects to layout wrappers for UI consistency.
  * C001 - 26 July 2024 : 12:30 - Added .panelDescription class for consistent content spacing.
@@ -13,34 +13,30 @@
  * Requirement ID (optional): VIN-UI-012
  *
  * Change Summary:
- * The `.profileLayout` grid's first column is now `384px`, standardizing it with the public
- * profile page's layout. A new `.footnote` class has been added to style the helper text
- * for the URL input fields, as requested.
+ * The `.profileLayout` grid's first column is now `384px` to standardize with the public page.
+ * Crucially, the `gap` for mobile viewports is now reduced to a standard `var(--space-3)`, fixing
+ * the visual misalignment. A new `.footnote` class has also been added.
  *
  * Impact Analysis:
- * This change resolves the visual misalignment between the private and public profile pages,
- * creating a consistent user experience.
+ * This change resolves the final visual misalignment issue on the profile page, creating a
+ * perfectly consistent mobile experience.
  *
  * Dependencies: Relies on CSS variables (tokens) from globals.css.
  */
 
 .profileLayout {
   display: grid;
-  /* --- THIS IS THE FIX: Standardize the grid to match the public profile --- */
   grid-template-columns: 384px 1fr;
   gap: 40px;
   align-items: flex-start;
 }
 
-/*
- * .profileMain is now PURELY a layout container.
- * The component rendered inside it is responsible for its own card appearance.
- */
 .profileMain {
-  /* No styles needed here */
+  /* No styles needed here as it's a pure layout container */
 }
 
-/* --- Content Styles (applied to elements INSIDE the new Card component) --- */
+
+/* --- Content Styles --- */
 
 .tabContent {
   padding-top: var(--space-3);
@@ -71,7 +67,8 @@
 .footnote {
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
-  margin-top: calc(-1 * var(--space-2)); /* Pulls the text up into the FormGroup's bottom margin */
+  /* Pulls the text up into the FormGroup's default bottom margin */
+  margin-top: calc(-1 * var(--space-2) + 4px);
   padding-left: 2px;
 }
 
@@ -81,5 +78,7 @@
 @media (max-width: 992px) {
   .profileLayout {
     grid-template-columns: 1fr;
+    /* --- THIS IS THE FIX: Standardize the gap on mobile --- */
+    gap: var(--space-3); /* Use 24px gap to match dashboard */
   }
 }
