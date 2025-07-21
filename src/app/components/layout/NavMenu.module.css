@@ -1,0 +1,101 @@
+/*
+ * Filename: src/app/components/layout/NavMenu.module.css
+ * Purpose: Provides styles for the NavMenu component, including the menu trigger and dropdown panel.
+ *
+ * Change History:
+ * C002 - 2025-07-20 : 18:30 - Removed border and padding from menu trigger to finalize sphere design.
+ * C001 - [Date] : [Time] - Initial creation.
+ *
+ * Last Modified: 2025-07-20 : 18:30
+ * Requirement ID (optional): VIN-UI-010
+ *
+ * Change Summary:
+ * The `.menuTrigger` class now has `border: none`, `padding: 0`, and `background: transparent`.
+ * This removes the unwanted outline around the sphere icon, allowing the icon's 3D effect to
+ * be the sole visual element, which was the intended final design.
+ *
+ * Impact Analysis:
+ * This is the final visual refinement that correctly implements the "floating sphere" design.
+ *
+ * Dependencies: Relies on CSS variables (tokens) from globals.css.
+ */
+
+.menuTrigger {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--border-radius-full);
+  cursor: pointer;
+
+  /* --- THIS IS THE FIX --- */
+  /* Remove all wrapper styles to let the sphere component define its own appearance. */
+  border: none;
+  padding: 0;
+  background: transparent;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  /* Add a subtle border to the avatar itself to separate it from the dropdown */
+  border: 2px solid var(--color-bg-page);
+  margin-left: var(--space-1);
+}
+
+.menuContent {
+  min-width: 220px;
+  background-color: var(--color-bg-card);
+  border-radius: var(--border-radius-md);
+  padding: var(--space-1);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  z-index: 50;
+  animation: slideDownAndFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.menuItem {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  line-height: 1;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 var(--space-2);
+  position: relative;
+  user-select: none;
+  outline: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+.menuItem:hover, .menuItem:focus {
+  background-color: var(--color-bg-page);
+  color: var(--color-primary);
+}
+
+.logoutItem {
+  color: var(--color-error);
+}
+.logoutItem:hover, .logoutItem:focus {
+  background-color: var(--color-error-bg);
+  color: var(--color-error-text);
+}
+
+.separator {
+  height: 1px;
+  background-color: var(--color-border);
+  margin: var(--space-1) 0;
+}
+
+@keyframes slideDownAndFade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

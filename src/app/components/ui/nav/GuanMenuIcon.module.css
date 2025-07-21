@@ -1,0 +1,86 @@
+/*
+ * Filename: src/app/components/ui/nav/GuanMenuIcon.module.css
+ * Purpose: Provides styles and animations for the GuanMenuIcon component, creating a 3D sphere effect.
+ *
+ * Change History:
+ * C004 - 2025-07-20 : 18:15 - Replaced gradient with core brand colors for optimal contrast and branding.
+ * C003 - 2025-07-20 : 18:00 - Changed icon stroke color to white for optimal contrast and legibility.
+ * C002 - 2025-07-20 : 17:30 - Re-designed icon container as a 3D-inspired sphere.
+ * C001 - [Date] : [Time] - Initial creation.
+ *
+ * Last Modified: 2025-07-20 : 18:15
+ * Requirement ID (optional): VIN-UI-010
+ *
+ * Change Summary:
+ * The sphere's background is now a `radial-gradient` blending the two core, saturated brand colors:
+ * `--color-primary-accent` and `--color-primary`. This makes the sphere significantly "greener" and
+ * provides excellent contrast for the white icon, creating the final, polished aesthetic.
+ *
+ * Impact Analysis:
+ * This is the final visual refinement for this component, delivering a premium, on-brand look.
+ *
+ * Dependencies: Relies on CSS variables (tokens) from globals.css.
+ */
+
+.iconContainer {
+  width: 40px;
+  height: 40px;
+  position: relative;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* --- THIS IS THE FINAL FIX --- */
+  /* This gradient uses two saturated brand colors for a deep, rich, "greener" look. */
+  background: radial-gradient(circle at 80% 20%, var(--color-primary-accent), var(--color-primary));
+  
+  box-shadow: 
+    /* Inner highlight for the "glass" effect */
+    inset 1px 1px 2px rgba(255, 255, 255, 0.4),
+    /* Soft drop shadow using the brand's accent color */
+    0 2px 4px hsla(178, 100%, 25%, 0.2);
+  
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.iconContainer:hover {
+  transform: translateY(-2px);
+  /* The hover state makes the highlight slightly more prominent */
+  background: radial-gradient(circle at 75% 25%, var(--color-primary-accent), var(--color-primary) 80%);
+  box-shadow: 
+    inset 1px 1px 2px rgba(255, 255, 255, 0.4),
+    /* A larger, more diffuse shadow on hover */
+    0 5px 15px hsla(178, 100%, 25%, 0.3);
+}
+
+.iconSvg {
+  width: 22px;
+  height: 22px;
+  overflow: visible;
+  /* White provides the best contrast and a clean, premium look. */
+  stroke: #FFFFFF;
+}
+
+.guanPath, .closePath {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transform-origin: center center;
+}
+
+.guanPath {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+.closePath {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.5);
+}
+
+.open .guanPath {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.5);
+}
+.open .closePath {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
