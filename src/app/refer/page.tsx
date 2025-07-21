@@ -118,7 +118,7 @@ const ReferPage = () => {
       <section className={`${styles.section} ${styles.howItWorksSection}`}>
         <Container>
           <h2 className={styles.sectionTitle}>Earn in Three Simple Steps</h2>
-          <p className={styles.sectionSubtitle}>From click to cash, Vinite makes earning as easy as 1, 2, 3.</p>
+          <p className={styles.sectionSubtitle}>From click to cash, Vinite makes earning as easy as 1-2-3.</p>
           <div className={styles.stepsGrid}>
             <div className={styles.stepCard}><div className={styles.stepIcon}>1</div><h3>Create</h3><p>Paste any URL to generate a unique Vinite Link instantly.</p></div>
             <div className={styles.stepCard}><div className={styles.stepIcon}>2</div><h3>Share</h3><p>Share your link on social media, in emails, or directly with friends.</p></div>
