@@ -49,6 +49,21 @@
   --color-warning-bg: #fef7e0;
   --color-warning-border: #fdd663;
 
+/* Add this new variable within the :root selector, for example, under the --color-warning-border */
+
+:root {
+  /* ... all your other variables ... */
+  --color-warning-border: #fdd663;
+
+  /* --- THIS IS THE NEW ADDITION --- */
+  /* Added to support the warm, sunrise-themed background animation on the marketing page. */
+  --color-accent-pink: #fde7f3;
+
+  /* Status-specific colors */
+  --status-pending: #fbbc05;
+  /* ... rest of the file ... */
+}
+
   /* Status-specific colors */
   --status-pending: #fbbc05;
 
@@ -152,3 +167,4 @@ a:hover {
   background-color: var(--color-primary-accent-dark, #3A9B9A);
   border-color: var(--color-primary-accent-dark, #3A9B9A);
 }
+
