@@ -3,65 +3,44 @@
  * Purpose: Provides styles for the private user profile editing page's two-column layout.
  *
  * Change History:
- * C003 - 2025-07-20 : 12:45 - Removed all visual styles from .sidebarWrapper to fix a double-border bug.
+ * C005 - 2025-07-20 : 20:00 - Standardized grid column width and added footnote styles.
+ * C004 - 2025-07-20 : 19:45 - Removed all card styling from layout wrappers to fix visual inconsistency.
+ * C003 - 2025-07-20 : 12:45 - Removed visual styles from .sidebarWrapper to fix a double-border bug.
  * C002 - 2025-07-20 : 12:30 - Added standard hover effects to layout wrappers for UI consistency.
  * C001 - 26 July 2024 : 12:30 - Added .panelDescription class for consistent content spacing.
  *
- * Last Modified: 2025-07-20 : 12:45
- * Requirement ID (optional): VIN-UI-004
+ * Last Modified: 2025-07-20 : 20:00
+ * Requirement ID (optional): VIN-UI-012
  *
  * Change Summary:
- * The .sidebarWrapper class has been stripped of all visual styling (border, background, etc.). Its sole
- * responsibility is now layout. The ProfileSidebar component it contains renders its own <Card>, which
- * resolves the visual bug of a "double border" on the left panel. The .profileMain class retains its
- * card styling as it directly wraps content.
+ * The `.profileLayout` grid's first column is now `384px`, standardizing it with the public
+ * profile page's layout. A new `.footnote` class has been added to style the helper text
+ * for the URL input fields, as requested.
  *
  * Impact Analysis:
- * This change corrects a significant visual inconsistency on the profile page, ensuring the left and
- * right panels have an identical border, shadow, and hover effect.
+ * This change resolves the visual misalignment between the private and public profile pages,
+ * creating a consistent user experience.
  *
  * Dependencies: Relies on CSS variables (tokens) from globals.css.
- * Props (if applicable): None.
- * TODO (if applicable): None.
  */
 
 .profileLayout {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  /* --- THIS IS THE FIX: Standardize the grid to match the public profile --- */
+  grid-template-columns: 384px 1fr;
   gap: 40px;
   align-items: flex-start;
 }
 
 /*
- * The .sidebarWrapper is now ONLY a layout container.
- * The <ProfileSidebar> component inside it is responsible for its own card appearance,
- * preventing a "double border" effect.
- */
-
- /* Comment out this section to remove the No Empty function warning.
-.sidebarWrapper {
-  No styles needed here. 
-}
-*/
-
-/*
- * The .profileMain acts as the card for the right-hand content panel.
- * It retains all visual and interactive styles.
+ * .profileMain is now PURELY a layout container.
+ * The component rendered inside it is responsible for its own card appearance.
  */
 .profileMain {
-  background-color: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-md);
-  padding: var(--space-4);
-  transition: all 0.2s ease-in-out;
+  /* No styles needed here */
 }
 
-.profileMain:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
-}
-
-/* --- Content Styles --- */
+/* --- Content Styles (applied to elements INSIDE the new Card component) --- */
 
 .tabContent {
   padding-top: var(--space-3);
@@ -87,6 +66,15 @@
   color: var(--color-text-secondary);
   margin-bottom: var(--space-2);
 }
+
+/* --- THIS IS THE NEW STYLE: For the Gravatar footnotes --- */
+.footnote {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  margin-top: calc(-1 * var(--space-2)); /* Pulls the text up into the FormGroup's bottom margin */
+  padding-left: 2px;
+}
+
 
 /* --- Responsive Layout --- */
 

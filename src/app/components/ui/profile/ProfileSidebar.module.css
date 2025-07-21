@@ -1,10 +1,28 @@
-/* src/app/profile/ProfileSidebar.module.css */
+/*
+ * Filename: src/app/components/ui/profile/ProfileSidebar.module.css
+ * Purpose: Provides styles for the reusable user profile sidebar card.
+ *
+ * Change History:
+ * C002 - 2025-07-20 : 20:00 - Removed fixed width to allow flexibility within grid layouts.
+ * C001 - [Date] : [Time] - Initial creation.
+ *
+ * Last Modified: 2025-07-20 : 20:00
+ * Requirement ID (optional): VIN-UI-012
+ *
+ * Change Summary:
+ * The fixed `width: 320px` has been removed. The component will now naturally fill the width
+ * of its parent grid column, ensuring it can be used consistently in different layouts (like the
+ * 384px private profile column) without being constrained.
+ *
+ * Impact Analysis:
+ * This change is critical for creating a consistent profile page layout.
+ */
 
 .sidebarCard {
   aspect-ratio: unset;
   text-align: center;
-  width: 320px;
-  flex-shrink: 0;
+  /* --- THIS IS THE FIX: Removed fixed width --- */
+  /* width: 320px; */ /* This line is removed */
   padding: var(--space-4, 32px);
 }
 
@@ -18,7 +36,7 @@
   box-shadow: var(--shadow-sm);
   object-fit: cover;
 }
-
+/* ... rest of the file is unchanged ... */
 .displayName {
   font-size: var(--font-size-2xl, 24px);
   font-weight: var(--font-weight-semibold, 600);
