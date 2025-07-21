@@ -3,23 +3,22 @@
  * Purpose: Allows the authenticated user to edit their profile information.
  *
  * Change History:
+ * C006 - 2025-07-20 : 20:00 - Added footnotes below image URL fields.
  * C005 - 2025-07-20 : 19:45 - Refactored JSX to wrap main content in a Card for visual consistency.
  * C004 - 2025-07-20 : 11:45 - Fixed TypeScript error by using a type assertion on profile updates.
  * C003 - 2025-07-20 : 10:30 - Updated 'Account Security' tab to link to the new change-password page.
  * C002 - 2025-07-20 : 09:00 - Integrated save functionality with both DataProvider and AuthProvider.
  * C001 - 26 July 2024 : 12:00 - Initial creation and UI refinements.
  *
- * Last Modified: 2025-07-20 : 19:45
+ * Last Modified: 2025-07-20 : 20:00
  * Requirement ID: VIN-UI-012
  *
  * Change Summary:
- * The main content area (Tabs, form, etc.) is now wrapped in a `<Card>` component. This aligns the
- * page's visual structure with the public agent profile, creating a consistent "floating cards"
- * layout and fixing the previously identified misalignment and double-border issues.
+ * Added descriptive <p> tags with a `.footnote` class below the Cover Photo and Custom Picture URL
+ * input fields to inform the user about the Gravatar fallback, as requested.
  *
  * Impact Analysis:
- * This is a structural and visual change that significantly improves UI consistency across the app.
- * It depends on the corresponding CSS change in `page.module.css`.
+ * This change improves user clarity and experience on the profile editing page.
  *
  * Dependencies: "react", "@/types", "@/app/components/auth/AuthProvider", "@/app/components/data/DataProvider", and various UI/layout components.
  */
@@ -40,7 +39,7 @@ import Textarea from '@/app/components/ui/form/Textarea';
 import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
 import Tabs from '@/app/components/ui/Tabs';
-import Card from '@/app/components/ui/Card'; // --- FIX: Import the Card component
+import Card from '@/app/components/ui/Card';
 import styles from './page.module.css';
 
 const ProfilePage = () => {
@@ -55,7 +54,7 @@ const ProfilePage = () => {
       setFormData(profile);
     }
   }, [profile]);
-
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: value }));
@@ -90,14 +89,10 @@ const ProfilePage = () => {
   return (
     <Container>
       <div className={styles.profileLayout}>
-        {/* The <aside> is now just a layout container */}
         <aside>
           <ProfileSidebar user={profile} />
         </aside>
-        {/* The <main> is now just a layout container */}
         <main>
-          {/* --- THIS IS THE FIX --- */}
-          {/* The content is now wrapped in a Card component for visual consistency */}
           <Card>
             {message && <Message type="success">{message}</Message>}
             <Tabs tabs={tabOptions} activeTab={activeTab} onTabChange={setActiveTab} />
@@ -117,12 +112,20 @@ const ProfilePage = () => {
                   <FormGroup label="Achievements" htmlFor="achievements">
                     <Textarea id="achievements" value={formData.achievements || ''} onChange={handleInputChange} rows={3} placeholder="Describe your key achievements..." />
                   </FormGroup>
+                  
+                  {/* --- THIS IS THE FIX --- */}
                   <FormGroup label="Cover Photo URL" htmlFor="cover_photo_url">
                     <Input id="cover_photo_url" value={formData.cover_photo_url || ''} onChange={handleInputChange} />
                   </FormGroup>
+                  <p className={styles.footnote}>Provide a direct link to an image for your cover photo.</p>
+
                   <FormGroup label="Custom Picture URL" htmlFor="custom_picture_url">
                     <Input id="custom_picture_url" value={formData.custom_picture_url || ''} onChange={handleInputChange} />
                   </FormGroup>
+                  <p className={styles.footnote}>
+                    If left blank, we will attempt to use your Gravatar image.
+                  </p>
+
                   <Button type="submit">Save Changes</Button>
                 </form>
               </div>
