@@ -3,22 +3,23 @@
  * Purpose: Provides the primary, state-aware navigation menu for the application header.
  *
  * Change History:
+ * C003 - 2025-07-20 : 19:15 - Re-architected trigger to match the Airbnb two-circle design pattern.
+ * C002 - 2025-07-20 : 18:45 - Redesigned logged-in state and reordered menu items.
  * C001 - 2025-07-20 : 17:00 - Initial creation.
  *
- * Last Modified: 2025-07-20 : 17:00
- * Requirement ID (optional): VIN-UI-009
+ * Last Modified: 2025-07-20 : 19:15
+ * Requirement ID (optional): VIN-UI-011
  *
  * Change Summary:
- * Created a new navigation menu component based on the approved "Guan character in a pill" design.
- * It uses Radix UI for an accessible dropdown, manages its own open/close state, and leverages
- * the useAuth hook to display different links for authenticated vs. guest users.
+ * The menu trigger has been re-architected to align with the Airbnb UX pattern. For logged-in users,
+ * the trigger is a single button containing two visual elements: the user's avatar on the left and
+ * the Vinite Sphere icon on the right. For guests, it's just the sphere. This creates a more
+ * consistent and intuitive user experience.
  *
  * Impact Analysis:
- * This component will replace the existing inline navigation in the main Header, centralizing
- * all navigation logic and creating a cleaner, more modern UI.
+ * This is the final, polished version of the navigation menu, offering a best-in-class UX.
  *
  * Dependencies: "react", "next/link", "next/image", "@radix-ui/react-dropdown-menu", "@/app/components/auth/AuthProvider", "../ui/nav/GuanMenuIcon".
- * Props (if applicable): None.
  */
 'use client';
 
@@ -42,20 +43,30 @@ const NavMenu = () => {
     router.push('/');
   };
 
+  const getRoleDisplayName = () => {
+    if (!user?.roles || user.roles.length === 0) return 'Member';
+    const role = user.roles[0];
+    return role.charAt(0).toUpperCase() + role.slice(1);
+  };
+
   return (
     <DropdownMenu.Root open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenu.Trigger asChild>
-        <button className={styles.menuTrigger} aria-label="Main menu">
-          <GuanMenuIcon isOpen={isOpen} />
+        {/* --- THIS IS THE FIX: A single button whose *contents* are conditional --- */}
+        <button
+          className={user ? styles.loggedInTrigger : styles.loggedOutTrigger}
+          aria-label="Open user menu"
+        >
           {user && (
             <Image
               src={getProfileImageUrl(user)}
               alt="User Avatar"
-              width={32}
-              height={32}
+              width={36}
+              height={36}
               className={styles.avatar}
             />
           )}
+          <GuanMenuIcon isOpen={isOpen} />
         </button>
       </DropdownMenu.Trigger>
 
@@ -64,15 +75,20 @@ const NavMenu = () => {
           {isLoading ? (
             <DropdownMenu.Item className={styles.menuItem} disabled>Loading...</DropdownMenu.Item>
           ) : user ? (
+            // Logged-in menu order is correct
             <>
+              <DropdownMenu.Label className={styles.roleLabel}>
+                {getRoleDisplayName()}
+              </DropdownMenu.Label>
+              <DropdownMenu.Separator className={styles.separator} />
               <DropdownMenu.Item asChild className={styles.menuItem}>
                 <Link href="/dashboard">My Dashboard</Link>
               </DropdownMenu.Item>
               <DropdownMenu.Item asChild className={styles.menuItem}>
-                <Link href="/profile">My Profile</Link>
+                <Link href="/settings">Settings</Link>
               </DropdownMenu.Item>
               <DropdownMenu.Item asChild className={styles.menuItem}>
-                <Link href="/settings">Settings</Link>
+                <Link href="/profile">My Profile</Link>
               </DropdownMenu.Item>
               <DropdownMenu.Separator className={styles.separator} />
               <DropdownMenu.Item onSelect={handleLogout} className={`${styles.menuItem} ${styles.logoutItem}`}>
@@ -80,6 +96,7 @@ const NavMenu = () => {
               </DropdownMenu.Item>
             </>
           ) : (
+            // Guest menu remains the same
             <>
               <DropdownMenu.Item asChild className={styles.menuItem}>
                 <Link href="/signup">Sign Up</Link>
