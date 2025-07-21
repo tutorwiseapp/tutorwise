@@ -1,30 +1,56 @@
+/*
+ * Filename: src/app/components/layout/Footer.module.css
+ * Purpose: Provides styles for the global site footer.
+ *
+ * Change History:
+ * C002 - 2025-07-20 : 19:45 - Optimized spacing for a more compact design.
+ * C001 - [Date] : [Time] - Initial creation.
+ *
+ * Last Modified: 2025-07-20 : 19:45
+ * Requirement ID (optional): VIN-UI-012
+ *
+ * Change Summary:
+ * Reduced the top padding on the `.footer` element. Reduced the `gap` and set an explicit,
+ * tighter `line-height` on the `.footer p` element. These changes create a more compact and
+ * visually optimized footer, especially on mobile viewports.
+ *
+ * Impact Analysis:
+ * This is a global visual refinement that improves the use of space at the bottom of every page.
+ *
+ * Dependencies: Relies on CSS variables (tokens) from globals.css.
+ */
+
 .footer {
   width: 100%;
   text-align: center;
-  padding: 40px 16px 16px;
+  /* --- FIX: Reduced top padding for a more compact footer --- */
+  padding: var(--space-3) var(--space-2) var(--space-2);
   margin-top: auto;
   flex-shrink: 0;
   background-color: var(--color-bg-page);
 }
 
-.footer p { 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  flex-wrap: wrap; 
-  gap: 16px 24px;
-  
-  /* 
+.footer p {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  /* --- FIX: Reduced gap between links --- */
+  gap: var(--space-1) var(--space-3);
+  /* --- FIX: Set a tighter line-height for better wrapping on mobile --- */
+  line-height: 1.6;
+
+  /*
     Mobile First Approach:
     Default to the smaller font size for mobile and tablet.
   */
   font-size: var(--font-size-xs); /* 12px */
-  
-  color: var(--color-text-secondary); 
+
+  color: var(--color-text-secondary);
   transition: font-size 0.2s ease-in-out; /* Optional: smooth transition */
 }
 
-/* 
+/*
   Desktop Override:
   Apply the larger font size on screens wider than 768px.
 */
