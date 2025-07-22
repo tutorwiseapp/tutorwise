@@ -1,31 +1,25 @@
 /*
  * Filename: src/app/login/page.tsx
- * Purpose: Renders the user login page with robust, state-driven redirection.
+ * Purpose: Renders the user login page with a secure, server-side Google OAuth flow.
  *
  * Change History:
+ * C007 - 2025-07-22 : 18:30 - Implemented the secure server-side Google OAuth flow.
  * C006 - 2025-07-22 : 16:00 - Fixed redirection race condition by using a state-driven useEffect.
- * C005 - 2025-07-22 : 15:15 - Refactored handleLogin to use Supabase client.
- * C004 - 2025-07-22 : 03:00 - Changed Google button variant for better clarity.
- * C003 - 2025-07-21 : 22:45 - Reverted to use page-specific .authContainer.
- * C002 - 2025-07-21 : 21:30 - Refactored to use Container 'form' variant.
- * C001 - [Date] : [Time] - Initial creation.
+ * ... (previous history)
  *
- * Last Modified: 2025-07-22 : 16:00
- * Requirement ID (optional): VIN-B-03.2
+ * Last Modified: 2025-07-22 : 18:30
+ * Requirement ID (optional): VIN-D-02.4
  *
  * Change Summary:
- * A new `useEffect` has been added to listen for changes to the `user` object from `useAuth`.
- * The `router.push('/dashboard')` call has been removed from `handleLogin` and placed inside this
- * new effect. This resolves a critical race condition where the page would redirect back to `/login`
- * before the auth state was fully updated after a successful Supabase login.
+ * The `handleGoogleLogin` function now correctly initiates the server-side OAuth flow by calling
+ * `signInWithOAuth` and providing the absolute `redirectTo` URL for the `/auth/callback` route.
  *
  * Impact Analysis:
- * This change makes the login flow robust, reliable, and compatible with the asynchronous nature
- * of a real backend.
+ * This change makes the Google Sign-In feature fully functional, secure, and reliable.
  */
 'use client';
 
-import { useState, useEffect } from 'react'; // useEffect is now required
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
@@ -47,13 +41,8 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { user } = useAuth(); // We get the user state to watch for changes
+  const { user } = useAuth();
 
-  // --- THIS IS THE FIX ---
-  // This effect listens for the global authentication state to change.
-  // If the user object becomes available (i.e., is no longer null), it means
-  // the entire login and profile fetch process is complete, and we can
-  // now safely redirect to the dashboard.
   useEffect(() => {
     if (user) {
       router.push('/dashboard');
@@ -75,7 +64,21 @@ const LoginPage = () => {
     if (error) {
       setError(error.message);
     }
-    // We NO LONGER redirect here. We let the useEffect handle it.
+  };
+
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      setError(`Google login failed: ${error.message}`);
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -114,7 +117,7 @@ const LoginPage = () => {
           </Button>
         </form>
         <div className={authStyles.separator}>OR</div>
-        <Button type="button" variant="google" fullWidth disabled={isLoading}>
+        <Button type="button" variant="google" fullWidth onClick={handleGoogleLogin} disabled={isLoading}>
           Continue with Google
         </Button>
       </Card>
