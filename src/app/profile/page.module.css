@@ -3,25 +3,24 @@
  * Purpose: Provides styles for the private user profile editing page's two-column layout.
  *
  * Change History:
- * C005 - 2025-07-20 : 20:00 - Standardized mobile grid gap and added footnote styles.
- * C004 - 2025-07-20 : 19:45 - Removed card styling from layout wrappers to fix visual inconsistency.
- * C003 - 2025-07-20 : 12:45 - Removed visual styles from .sidebarWrapper to fix a double-border bug.
- * C002 - 2025-07-20 : 12:30 - Added standard hover effects to layout wrappers for UI consistency.
- * C001 - 26 July 2024 : 12:30 - Added .panelDescription class for consistent content spacing.
+ * C008 - 2025-07-21 : 20:15 - Removed empty ruleset to fix linting error.
+ * C007 - 2025-07-21 : 19:15 - Simplified footnote style.
+ * C006 - 2025-07-21 : 18:45 - Corrected footnote spacing and font size.
+ * C005 - 2025-07-20 : 20:00 - Standardized grid column width.
+ * C004 - 2025-07-20 : 19:45 - Removed card styling from layout wrappers.
+ * C003 - 2025-07-20 : 12:45 - Removed visual styles from .sidebarWrapper.
+ * C002 - 2025-07-20 : 12:30 - Added standard hover effects.
+ * C001 - 26 July 2024 : 12:30 - Added .panelDescription class.
  *
- * Last Modified: 2025-07-20 : 20:00
+ * Last Modified: 2025-07-21 : 20:15
  * Requirement ID (optional): VIN-UI-012
  *
  * Change Summary:
- * The `.profileLayout` grid's first column is now `384px` to standardize with the public page.
- * Crucially, the `gap` for mobile viewports is now reduced to a standard `var(--space-3)`, fixing
- * the visual misalignment. A new `.footnote` class has also been added.
+ * The layout grid is standardized with a 384px sidebar and 40px gap. All visual styling
+ * has been removed from the layout wrappers, and empty rulesets have been cleaned up.
  *
  * Impact Analysis:
- * This change resolves the final visual misalignment issue on the profile page, creating a
- * perfectly consistent mobile experience.
- *
- * Dependencies: Relies on CSS variables (tokens) from globals.css.
+ * This file is now a clean, maintainable layout definition for the profile page.
  */
 
 .profileLayout {
@@ -30,11 +29,6 @@
   gap: 40px;
   align-items: flex-start;
 }
-
-.profileMain {
-  /* No styles needed here as it's a pure layout container */
-}
-
 
 /* --- Content Styles --- */
 
@@ -63,22 +57,11 @@
   margin-bottom: var(--space-2);
 }
 
-/* --- THIS IS THE NEW STYLE: For the Gravatar footnotes --- */
-.footnote {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
-  /* Pulls the text up into the FormGroup's default bottom margin */
-  margin-top: calc(-1 * var(--space-2) + 4px);
-  padding-left: 2px;
-}
-
-
 /* --- Responsive Layout --- */
 
 @media (max-width: 992px) {
   .profileLayout {
     grid-template-columns: 1fr;
-    /* --- THIS IS THE FIX: Standardize the gap on mobile --- */
-    gap: var(--space-3); /* Use 24px gap to match dashboard */
+    gap: 40px;
   }
 }

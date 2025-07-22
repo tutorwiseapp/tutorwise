@@ -1,14 +1,36 @@
 /*
- * ==================================================
- *   Vinite UI Kit: Form Control Styles
- *   This is the single source of truth for all
- *   standardized form components.
- * ==================================================
+ * Filename: src/app/components/ui/form/form.module.css
+ * Purpose: Provides the single source of truth for all standardized form components.
+ *
+ * Change History:
+ * C003 - 2025-07-21 : 20:30 - Added .compactMarginBottom modifier class for optical spacing adjustments.
+ * C002 - 2025-07-21 : 20:00 - Set FormGroup margin-bottom to a standard 24px.
+ * C001 - [Date] : [Time] - Initial creation.
+ *
+ * Last Modified: 2025-07-21 : 20:30
+ * Requirement ID (optional): VIN-UI-012
+ *
+ * Change Summary:
+ * The standard `.formGroup` margin-bottom is set to `24px`. A new modifier
+ * class, `.compactMarginBottom`, has been added to reduce the margin to `16px`. This is
+ * now applied conditionally by the FormGroup component itself for optical balancing.
+ * The `.footnote` style is also correctly defined here.
+ *
+ * Impact Analysis:
+ * This provides the necessary tools and styles to create visually consistent form layouts
+ * across the entire application.
  */
 
 /* --- Layout Wrapper --- */
 .formGroup {
+  /* The standard, default spacing for form groups */
   margin-bottom: var(--space-3, 24px);
+  position: relative;
+}
+
+/* This MODIFIER class optically balances the spacing below taller elements */
+.compactMarginBottom {
+  margin-bottom: var(--space-2, 16px);
 }
 
 .label {
@@ -19,15 +41,20 @@
   color: var(--color-text-secondary, #5f6368);
 }
 
+.footnote {
+  font-size: var(--font-size-xs); /* 12px */
+  color: var(--color-text-secondary);
+  margin-top: var(--space-1); /* Adds the required 8px gap below the input */
+  padding-left: 2px;
+  line-height: 1.5;
+}
+
 
 /* --- Text Input & Textarea --- */
 .input,
 .textarea {
   width: 100%;
   border-radius: var(--border-radius-md, 8px);
-  /* --- FIX #2: FONT SIZE --- */
-  /* This is the critical fix to prevent mobile auto-zoom. */
-  /* We ensure the font-size is explicitly set to the base size of 16px. */
   font-size: var(--font-size-base, 16px);
   font-family: var(--font-primary, 'Poppins', sans-serif);
   color: var(--color-text-primary, #202124);
@@ -70,15 +97,14 @@
 /* --- Radio Button Styles --- */
 .radioGroup {
   display: flex;
-  /* --- FIX #1: RADIO BUTTON ALIGNMENT --- */
-  flex-direction: column;
-  gap: var(--space-2);
+  flex-wrap: wrap;
+  gap: var(--space-3, 24px);
 }
 .radioLabel {
   display: inline-flex;
   align-items: center;
   cursor: pointer;
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-base, 16px);
 }
 .radioInput {
   display: none;
@@ -86,15 +112,15 @@
 .radioCustom {
   width: 20px;
   height: 20px;
-  border: 2px solid var(--color-border);
+  border: 2px solid var(--color-border, #dfe1e5);
   border-radius: 50%;
-  margin-right: var(--space-1);
+  margin-right: var(--space-1, 8px);
   display: inline-block;
   position: relative;
   transition: all 0.2s ease;
 }
 .radioInput:checked + .radioCustom {
-  border-color: var(--color-primary);
+  border-color: var(--color-primary, #006C67);
 }
 .radioInput:checked + .radioCustom::after {
   content: '';
@@ -104,7 +130,7 @@
   transform: translate(-50%, -50%);
   width: 10px;
   height: 10px;
-  background-color: var(--color-primary);
+  background-color: var(--color-primary, #006C67);
   border-radius: 50%;
 }
 
@@ -122,7 +148,7 @@
 .checkboxCustom {
   width: 20px;
   height: 20px;
-  border: 2px solid var(--color-primary-accent, #4CAEAD); 
+  border: 2px solid var(--color-primary-accent, #4CAEAD);
   background-color: transparent;
   border-radius: var(--border-radius-sm, 4px);
   display: flex;
@@ -224,3 +250,72 @@
   pointer-events: none;
 }
 
+/* --- Multi-Select Dropdown Styles (Radix UI) --- */
+.multiSelectTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: var(--border-radius-md, 8px);
+  padding: 0 var(--space-2, 16px);
+  height: 48px;
+  width: 100%;
+  font-size: var(--font-size-base, 16px);
+  background-color: white;
+  border: 1px solid var(--color-border, #dfe1e5);
+  cursor: pointer;
+  color: var(--color-text-primary, #202124);
+  font-family: inherit;
+}
+.multiSelectTrigger:focus {
+  outline: none;
+  border-color: var(--color-primary, #006C67);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.2);
+}
+
+.multiSelectChevron {
+  color: var(--color-text-secondary, #5f6368);
+}
+
+.multiSelectContent {
+  min-width: 220px;
+  background-color: white;
+  border-radius: var(--border-radius-md, 8px);
+  padding: var(--space-1, 8px);
+  box-shadow: 0px 10px 38px -10px rgba(22, 23, 24, 0.35), 0px 10px 20px -15px rgba(22, 23, 24, 0.2);
+  animation: slideUpAndFade 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 100;
+}
+
+.multiSelectCheckboxItem {
+  font-size: var(--font-size-sm, 14px);
+  line-height: 1;
+  border-radius: var(--border-radius-sm, 4px);
+  display: flex;
+  align-items: center;
+  height: 25px;
+  padding: 0 8px 0 25px;
+  position: relative;
+  user-select: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.multiSelectCheckboxItem:hover {
+  background-color: var(--color-primary-light, #E0F2F1);
+}
+
+.multiSelectItemIndicator {
+  position: absolute;
+  left: 8px;
+  width: 15px;
+  height: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Keyframes for animation */
+@keyframes slideUpAndFade {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
