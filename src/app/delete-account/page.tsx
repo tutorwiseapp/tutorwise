@@ -1,9 +1,29 @@
+/*
+ * Filename: src/app/delete-account/page.tsx
+ * Purpose: Provides a UI for users to permanently delete their account.
+ *
+ * Change History:
+ * C002 - 2025-07-22 : 15:00 - Refactored to call a secure API endpoint for deletion.
+ * C001 - [Date] : [Time] - Initial creation.
+ *
+ * Last Modified: 2025-07-22 : 15:00
+ * Requirement ID (optional): VIN-A-006
+ *
+ * Change Summary:
+ * The component no longer attempts to call a mock `logout` function. The `handleDelete` function
+ * is now `async` and makes a `POST` request to our new secure `/api/auth/delete-user` endpoint.
+ * This aligns the component with the live backend and implements user deletion securely.
+ *
+ * Impact Analysis:
+ * This change fixes a critical deployment blocker and makes the feature functional.
+ */
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import type { User } from '@/types'; // This is now used
+import { supabase } from '@/lib/supabaseClient'; // Import the Supabase client
 
+// VDL Component Imports
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import Card from '@/app/components/ui/Card';
@@ -15,40 +35,60 @@ import { useAuth } from '@/app/components/auth/AuthProvider';
 import styles from './page.module.css';
 
 const DeleteAccountPage = () => {
-  const { user, logout } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth(); // `logout` is no longer provided
   const router = useRouter();
   
   const [confirmationEmail, setConfirmationEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // This effect correctly redirects if the user is not logged in.
   useEffect(() => {
-    // --- THIS IS THE FIX ---
-    // We check the user object directly.
-    const loggedInUser: User | null = JSON.parse(localStorage.getItem('vinite_loggedin_user') || 'null');
-    if (!loggedInUser) {
+    if (!isAuthLoading && !user) {
       router.push('/login');
     }
-  }, [router]);
-
-  if (!user) return <Container><p>Loading...</p></Container>;
-
-  const isConfirmationMatch = confirmationEmail === user.email;
+  }, [user, isAuthLoading, router]);
 
   const handleDelete = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isConfirmationMatch) { setError('The email you entered does not match your account email.'); return; }
+    if (confirmationEmail !== user?.email) { 
+      setError('The email you entered does not match your account email.'); 
+      return; 
+    }
+    
     setIsLoading(true);
     setError('');
-    console.log(`DELETING USER: ${user.email}`);
-    setTimeout(() => {
-      logout();
+
+    try {
+      // Call our new secure, server-side API route
+      const response = await fetch('/api/auth/delete-user', {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete account.');
+      }
+
+      // The deletion was successful on the server. The AuthProvider's
+      // onAuthStateChange listener will automatically detect the user is gone.
+      // We can then redirect.
+      alert('Your account has been successfully deleted.');
       router.push('/?message=account-deleted');
-    }, 2000);
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred.');
+      setIsLoading(false);
+    }
   };
+  
+  if (isAuthLoading || !user) {
+    return <Container><p>Loading...</p></Container>;
+  }
+
+  const isConfirmationMatch = confirmationEmail === user.email;
 
   return (
-    <Container className={styles.container}>
+    <Container variant="form">
       <PageHeader title="Delete Your Account" subtitle="This is a permanent action." />
       <Card>
         <Message type="error" className={styles.warningMessage}>
@@ -67,4 +107,5 @@ const DeleteAccountPage = () => {
     </Container>
   );
 };
+
 export default DeleteAccountPage;
