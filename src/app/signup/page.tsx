@@ -3,22 +3,21 @@
  * Purpose: Renders the user signup page, now connected to the live Supabase backend.
  *
  * Change History:
- * C008 - 2025-07-22 : 04:30 - Refactored handleSignup to call Supabase Auth instead of the mock system.
- * C007 - 2025-07-22 : 03:00 - Changed Google button variant for better clarity and contrast.
+ * C009 - 2025-07-22 : 15:45 - Refactored handleSignup to use a two-step profile creation process.
+ * C008 - 2025-07-22 : 04:30 - Refactored handleSignup to call Supabase Auth.
  * ... (previous history)
  *
- * Last Modified: 2025-07-22 : 04:30
+ * Last Modified: 2025-07-22 : 15:45
  * Requirement ID (optional): VIN-B-03.1
  *
  * Change Summary:
- * The `handleSignup` function has been completely rewritten. It now calls `supabase.auth.signUp()`,
- * passing the user's first name, last name, and role in the `options.data` field. This metadata
- * is used by a database trigger to automatically create a corresponding row in the `profiles` table.
- * The component no longer uses the mock `useData` or `useAuth` hooks.
+ * The `handleSignup` function has been completely rewritten to follow the correct and secure
+ * Supabase profile creation pattern. It now first calls `signUp` and then, on success,
+ * performs a second `insert` call to the `profiles` table with the new user's data. This
+ * resolves the "Database error saving new user" bug.
  *
  * Impact Analysis:
- * This is the first frontend component to be fully migrated to the live backend. It allows for
- * real user creation.
+ * This change makes the user signup feature fully functional with the live Supabase backend.
  */
 'use client';
 
@@ -37,6 +36,8 @@ import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
 import { RadioGroup } from '@/app/components/ui/form/Radio';
 import authStyles from '@/app/styles/auth.module.css';
+// NOTE: We no longer need useAuth or useData as this page is fully independent
+// and interacts directly with Supabase.
 
 const roleOptions = [
   { value: 'agent', label: 'Agent - Earn Rewards' },
@@ -68,30 +69,49 @@ const SignupPage = () => {
     setIsLoading(true);
     setMessage(null);
 
-    // Call Supabase Auth to sign up the new user
-    const { data, error } = await supabase.auth.signUp({
+    // --- STEP 1: Create the user in Supabase Auth ---
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email: email,
       password: password,
-      options: {
-        // Pass this metadata to our `handle_new_user` database trigger
-        data: {
-          first_name: firstName,
-          last_name: lastName,
-          role: selectedRole
-        }
-      }
     });
 
+    if (authError) {
+      setMessage({ text: authError.message, type: 'error' });
+      setIsLoading(false);
+      return;
+    }
+
+    if (!authData.user) {
+        setMessage({ text: 'An unexpected error occurred during signup.', type: 'error' });
+        setIsLoading(false);
+        return;
+    }
+
+    // --- STEP 2: If auth user was created, insert their profile into the `profiles` table ---
+    const displayName = `${firstName} ${lastName}`;
+    const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+    const agentId = `A1-${initials}${Math.floor(100000 + Math.random() * 900000)}`;
+
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .insert({
+        id: authData.user.id, // The ID from the newly created auth user
+        first_name: firstName,
+        last_name: lastName,
+        display_name: displayName,
+        agent_id: agentId,
+        roles: [selectedRole as 'agent' | 'seeker' | 'provider'],
+      });
+    
     setIsLoading(false);
 
-    if (error) {
-      setMessage({ text: error.message, type: 'error' });
-    } else if (data.user) {
-      // Supabase sends a confirmation email by default.
-      // We show a success message prompting the user to check their inbox.
+    if (profileError) {
+      // This is where the "Database error saving new user" would appear
+      setMessage({ text: `Database error saving new user: ${profileError.message}`, type: 'error' });
+    } else {
+      // Success!
       setMessage({ text: 'Success! Please check your email to confirm your account.', type: 'success' });
-      // We could add logic here to handle the claimId if needed, but for now,
-      // the primary action is to confirm the email.
+      // The AuthProvider will automatically pick up the new user state after they confirm their email.
     }
   };
 
