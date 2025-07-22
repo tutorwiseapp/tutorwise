@@ -1,24 +1,24 @@
 /*
  * Filename: src/app/signup/page.tsx
- * Purpose: Renders the user signup page, connected to the live Supabase backend for both email and Google OAuth.
+ * Purpose: Renders the user signup page, with a secure, server-side Google OAuth flow.
  *
  * Change History:
- * C011 - 2025-07-22 : 17:00 - Implemented state-driven redirect for Google login to fix race condition.
- * C010 - 2025-07-22 : 16:45 - Implemented the handleGoogleLogin function for OAuth sign-in.
+ * C012 - 2025-07-22 : 18:00 - Refactored Google login to call the new server-side API route.
+ * C011 - 2025-07-22 : 17:00 - Implemented state-driven redirect for Google login.
+ * C010 - 2025-07-22 : 16:45 - Implemented the handleGoogleLogin function.
  * C009 - 2025-07-22 : 15:45 - Refactored handleSignup to use a two-step profile creation process.
- * ... (previous history)
  *
- * Last Modified: 2025-07-22 : 17:00
- * Requirement ID (optional): VIN-D-02
+ * Last Modified: 2025-07-22 : 18:00
+ * Requirement ID (optional): VIN-D-02.3
  *
  * Change Summary:
- * A new `useEffect` hook has been added to listen for the `user` state. When a user logs in
- * (via email or Google), this effect will safely redirect them to the dashboard. The `redirectTo`
- * option has been removed from `signInWithOAuth` to create a more robust, state-driven flow
- * that is free of race conditions.
+ * The `handleGoogleLogin` function no longer calls `supabase.auth.signInWithOAuth` directly.
+ * Instead, it makes a `POST` request to the new `/api/auth/google` server endpoint. This
+ * moves the OAuth initiation to the server, which is the correct and secure pattern that
+ * permanently fixes the localhost connection error.
  *
  * Impact Analysis:
- * This change fixes the `ERR_CONNECTION_REFUSED` error and makes the Google login fully functional and reliable.
+ * This change completes the secure OAuth flow, making it functional and reliable.
  */
 'use client';
 
@@ -58,8 +58,6 @@ const SignupPage = () => {
   const searchParams = useSearchParams();
   const { user } = useAuth();
 
-  // This effect listens for the auth state to change. If a user successfully
-  // logs in (via any method), this will safely redirect them.
   useEffect(() => {
     if (user) {
       router.push('/dashboard');
@@ -96,7 +94,7 @@ const SignupPage = () => {
         return;
     }
 
-    // Step 2: If auth user was created, insert their profile into the `profiles` table
+    // Step 2: Insert their profile into the `profiles` table
     const displayName = `${firstName} ${lastName}`;
     const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
     const agentId = `A1-${initials}${Math.floor(100000 + Math.random() * 900000)}`;
@@ -117,24 +115,37 @@ const SignupPage = () => {
     if (profileError) {
       setMessage({ text: `Database error saving new user: ${profileError.message}`, type: 'error' });
     } else {
-      // With email confirmation disabled for development, the user will be logged in,
-      // and the useEffect will handle the redirect.
-      setMessage({ text: 'Account created successfully! Redirecting...', type: 'success' });
+      setMessage({ text: 'Success! If required, please check your email to confirm your account.', type: 'success' });
     }
   };
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-    });
+    
+    // The client tells the server where to redirect back to after the OAuth flow is complete.
+    const redirectTo = `${window.location.origin}/auth/callback`;
 
-    if (error) {
-      setMessage({ text: `Google login failed: ${error.message}`, type: 'error' });
+    try {
+      // Call our new server-side endpoint
+      const response = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ redirectTo }),
+      });
+
+      const { url, error } = await response.json();
+
+      if (error) {
+        throw new Error(error);
+      }
+
+      // Redirect the user to the Google consent screen
+      window.location.href = url;
+
+    } catch (err) {
+      setMessage({ text: `Google login failed: ${err instanceof Error ? err.message : 'Unknown error'}`, type: 'error' });
       setIsLoading(false);
     }
-    // On success, Supabase redirects to Google and then back. The useEffect will handle
-    // the final redirect to the dashboard.
   };
 
   return (
