@@ -3,23 +3,23 @@
  * Purpose: Provides the primary, state-aware navigation menu for the application header.
  *
  * Change History:
+ * C004 - 2025-07-22 : 14:45 - Refactored handleLogout to use Supabase client, fixing build error.
  * C003 - 2025-07-20 : 19:15 - Re-architected trigger to match the Airbnb two-circle design pattern.
  * C002 - 2025-07-20 : 18:45 - Redesigned logged-in state and reordered menu items.
  * C001 - 2025-07-20 : 17:00 - Initial creation.
  *
- * Last Modified: 2025-07-20 : 19:15
- * Requirement ID (optional): VIN-UI-011
+ * Last Modified: 2025-07-22 : 14:45
+ * Requirement ID (optional): VIN-B-03.1
  *
  * Change Summary:
- * The menu trigger has been re-architected to align with the Airbnb UX pattern. For logged-in users,
- * the trigger is a single button containing two visual elements: the user's avatar on the left and
- * the Vinite Sphere icon on the right. For guests, it's just the sphere. This creates a more
- * consistent and intuitive user experience.
+ * The component no longer attempts to call the mock `logout` function from `useAuth`. Instead, the
+ * `handleLogout` function is now an `async` function that calls `supabase.auth.signOut()`. This
+ * aligns the component with the new live authentication system and resolves the critical build error.
  *
  * Impact Analysis:
- * This is the final, polished version of the navigation menu, offering a best-in-class UX.
+ * This change completes the migration of the header and navigation system to the live backend.
  *
- * Dependencies: "react", "next/link", "next/image", "@radix-ui/react-dropdown-menu", "@/app/components/auth/AuthProvider", "../ui/nav/GuanMenuIcon".
+ * Dependencies: "react", "next/link", "@radix-ui/react-dropdown-menu", "@/lib/supabaseClient", "@/app/components/auth/AuthProvider", "../ui/nav/GuanMenuIcon".
  */
 'use client';
 
@@ -28,6 +28,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { supabase } from '@/lib/supabaseClient'; // --- FIX: Import the Supabase client
 import { useAuth } from '@/app/components/auth/AuthProvider';
 import getProfileImageUrl from '@/lib/utils/image';
 import GuanMenuIcon from '../ui/nav/GuanMenuIcon';
@@ -35,12 +36,20 @@ import styles from './NavMenu.module.css';
 
 const NavMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, logout, isLoading } = useAuth();
+  const { user, isLoading } = useAuth(); // --- FIX: `logout` is no longer provided by the context
   const router = useRouter();
 
-  const handleLogout = () => {
-    logout();
+  // --- FIX: The handler is now an async function that calls Supabase directly ---
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Error logging out:', error);
+      // Optionally, show an error message to the user
+    }
+    // The AuthProvider will automatically detect the sign-out and update the user state.
+    // We can then redirect the user to the homepage.
     router.push('/');
+    router.refresh(); // Recommended to ensure a clean state after logout
   };
 
   const getRoleDisplayName = () => {
@@ -52,7 +61,6 @@ const NavMenu = () => {
   return (
     <DropdownMenu.Root open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenu.Trigger asChild>
-        {/* --- THIS IS THE FIX: A single button whose *contents* are conditional --- */}
         <button
           className={user ? styles.loggedInTrigger : styles.loggedOutTrigger}
           aria-label="Open user menu"
@@ -75,7 +83,6 @@ const NavMenu = () => {
           {isLoading ? (
             <DropdownMenu.Item className={styles.menuItem} disabled>Loading...</DropdownMenu.Item>
           ) : user ? (
-            // Logged-in menu order is correct
             <>
               <DropdownMenu.Label className={styles.roleLabel}>
                 {getRoleDisplayName()}
@@ -96,7 +103,6 @@ const NavMenu = () => {
               </DropdownMenu.Item>
             </>
           ) : (
-            // Guest menu remains the same
             <>
               <DropdownMenu.Item asChild className={styles.menuItem}>
                 <Link href="/signup">Sign Up</Link>
