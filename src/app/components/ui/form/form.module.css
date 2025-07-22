@@ -97,8 +97,11 @@
 /* --- Radio Button Styles --- */
 .radioGroup {
   display: flex;
+  flex-direction: column; /* Ensure they stack vertically */
   flex-wrap: wrap;
-  gap: var(--space-3, 24px);
+  /* --- THIS IS THE FIX --- */
+  /* Reduced gap from 24px to 16px for a tighter layout */
+  gap: var(--space-1, 8px);
 }
 .radioLabel {
   display: inline-flex;
@@ -118,6 +121,7 @@
   display: inline-block;
   position: relative;
   transition: all 0.2s ease;
+  flex-shrink: 0; /* Prevent the circle from shrinking */
 }
 .radioInput:checked + .radioCustom {
   border-color: var(--color-primary, #006C67);

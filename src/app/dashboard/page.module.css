@@ -1,3 +1,25 @@
+/*
+ * Filename: src/app/dashboard/page.module.css
+ * Purpose: Provides a standardized, reusable grid and card system for dashboard-like pages.
+ *
+ * Change History:
+ * C003 - 2025-07-22 : 00:00 - Standardized card content font size to 14px.
+ * C002 - 2025-07-21 : 23:30 - Renamed classes to be generic for reusability (e.g., .gridCard).
+ * C001 - [Date] : [Time] - Initial creation.
+ *
+ * Last Modified: 2025-07-22 : 00:00
+ * Requirement ID (optional): VIN-UI-016
+ *
+ * Change Summary:
+ * The `font-size` for `.cardContent p` has been changed from `var(--font-size-sm)` to
+ * `var(--font-size-sm)`. This makes both the card's description and its action link a
+ * consistent 14px, matching the final design and creating a more elegant typographic hierarchy.
+ *
+ * Impact Analysis:
+ * This is a global refinement that will apply to both the Dashboard and Settings pages, ensuring
+ * perfect visual consistency.
+ */
+
 .grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -15,16 +37,25 @@
   }
 }
 
-/* Styling for the reusable Card component on this page */
-.dashboardCard {
+/* A standardized, self-contained card for use in grids */
+.gridCard {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: var(--space-4); /* Using a larger padding for dashboard cards */
+  padding: var(--space-4);
   min-height: 220px;
+  background-color: var(--color-bg-card, #ffffff);
+  border: 1px solid var(--color-border, #dfe1e5);
+  border-radius: var(--border-radius-md
+  ); /* Use the larger radius from the design */
+  transition: all 0.2s ease-in-out;
 }
 
-/* Styles for the content inside the card */
+.gridCard:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
 .cardContent h3 {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semibold);
@@ -34,24 +65,24 @@
 
 .cardContent p {
   color: var(--color-text-secondary);
-  line-height: 1.6;
-  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  /* --- THIS IS THE FIX --- */
+  font-size: var(--font-size-md
+  ); /* 14px */
 }
 
-/* Styles for the link at the bottom of the card */
 .cardLink {
   margin-top: var(--space-4);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-md); /* 14px */
   font-weight: var(--font-weight-medium);
   color: var(--color-primary);
   text-decoration: none;
-  align-self: flex-start; /* Aligns link to the left */
+  align-self: flex-start;
 }
 .cardLink:hover {
   text-decoration: underline;
 }
 
-/* Loading state utility */
 .loading {
   text-align: center;
   padding: var(--space-6, 64px);

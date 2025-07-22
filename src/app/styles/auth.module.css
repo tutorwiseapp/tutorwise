@@ -1,0 +1,78 @@
+/*
+ * Filename: src/app/styles/auth.module.css
+ * Purpose: Provides a single, shared source of truth for all authentication page styles.
+ *
+ * Change History:
+ * C003 - 2025-07-22 : 02:30 - Removed the invalid .page-tagline override.
+ * C002 - 2025-07-22 : 01:00 - Removed invalid :global override.
+ * C001 - 2025-07-22 : 00:30 - Initial creation.
+ *
+ * Last Modified: 2025-07-22 : 02:30
+ * Requirement ID (optional): VIN-UI-015
+ *
+ * Change Summary:
+ * The invalid `:global(.page-tagline)` rule has been removed from this file. The logic
+ * is now correctly and safely handled in the `Container.module.css` file.
+ *
+ * Impact Analysis:
+ * This change cleans up the CSS and prevents build errors.
+ */
+
+/* Specific styling for the card on auth pages */
+.authCard {
+  aspect-ratio: unset;
+}
+
+.twoColGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  margin: var(--space-3) 0;
+}
+
+.separator::before, .separator::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.separator:not(:empty)::before { 
+  margin-right: .5em; 
+}
+
+.separator:not(:empty)::after { 
+  margin-left: .5em; 
+}
+
+.authSwitch {
+  text-align: center;
+  margin-top: var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+.authSwitch a {
+    font-weight: var(--font-weight-medium);
+}
+
+.forgotPasswordLink {
+  display: block;
+  text-align: right;
+  margin-top: calc(-1 * var(--space-2));
+  margin-bottom: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 480px) {
+    .twoColGrid {
+        grid-template-columns: 1fr;
+    }
+}

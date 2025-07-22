@@ -3,30 +3,30 @@
  * Purpose: Renders the user login page.
  *
  * Change History:
- * C003 - 2025-07-21 : 22:45 - Reverted to use page-specific .authContainer for layout consistency.
- * C002 - 2025-07-21 : 21:30 - Refactored to use the standardized Container 'form' variant.
+ * C004 - 2025-07-22 : 00:30 - Refactored to use the standardized Container and shared auth stylesheet.
+ * C003 - 2025-07-21 : 22:45 - Reverted to use page-specific .authContainer.
+ * C002 - 2025-07-21 : 21:30 - Refactored to use Container 'form' variant.
  * C001 - [Date] : [Time] - Initial creation.
  *
- * Last Modified: 2025-07-21 : 22:45
+ * Last Modified: 2025-07-22 : 00:30
  * Requirement ID (optional): VIN-A-004
  *
  * Change Summary:
- * The page has been reverted to use its own `<div className={styles.authContainer}>`. This ensures
- * it uses the same specific layout and padding as the signup page, resolving the width
- * inconsistency and creating a unified authentication experience.
+ * The page now uses `<Container variant="form">` for its main layout and imports all specific
+ * styles from the new shared `auth.module.css` file. This completes its standardization.
  *
  * Impact Analysis:
- * This change correctly implements the intended design for the login page.
+ * This change aligns the login page perfectly with the application's design system.
  */
 'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import styles from './page.module.css';
 import type { User } from '@/types';
 
 // VDL Component Imports
+import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import Card from '@/app/components/ui/Card';
 import FormGroup from '@/app/components/ui/form/FormGroup';
@@ -34,6 +34,7 @@ import Input from '@/app/components/ui/form/Input';
 import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
 import { useAuth } from '@/app/components/auth/AuthProvider';
+import authStyles from '@/app/styles/auth.module.css'; // The new shared stylesheet
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -57,14 +58,10 @@ const LoginPage = () => {
     }
   };
 
-  const handleGoogleLogin = () => {
-    alert('Simulating Google Login...');
-  };
-
   return (
-    <div className={styles.authContainer}>
+    <Container variant="form">
       <PageHeader title="Log In to Your Account" />
-      <Card className={styles.authCard}>
+      <Card className={authStyles.authCard}>
         {error && <Message type="error">{error}</Message>}
         <form onSubmit={handleLogin}>
           <FormGroup label="Email" htmlFor="email">
@@ -87,22 +84,22 @@ const LoginPage = () => {
               required
             />
           </FormGroup>
-          <Link href="/forgot-password" className={styles.forgotPasswordLink}>
+          <Link href="/forgot-password" className={authStyles.forgotPasswordLink}>
             Forgot password?
           </Link>
           <Button type="submit" variant="primary" fullWidth>
             Log In
           </Button>
         </form>
-        <div className={styles.separator}>OR</div>
-        <Button type="button" variant="google" fullWidth onClick={handleGoogleLogin}>
+        <div className={authStyles.separator}>OR</div>
+        <Button type="button" variant="google" fullWidth>
           Continue with Google
         </Button>
       </Card>
-      <div className={styles.authSwitch}>
+      <div className={authStyles.authSwitch}>
         Don't have an account? <Link href="/signup">Sign Up</Link>
       </div>
-    </div>
+    </Container>
   );
 };
 
