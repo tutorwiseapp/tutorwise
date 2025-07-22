@@ -1,31 +1,33 @@
 /*
  * Filename: src/app/login/page.tsx
- * Purpose: Renders the user login page, now connected to the live Supabase backend.
+ * Purpose: Renders the user login page, now with robust, state-driven redirection.
  *
  * Change History:
- * C005 - 2025-07-22 : 15:15 - Refactored handleLogin to use Supabase client, fixing build error.
- * C004 - 2025-07-22 : 03:00 - Changed Google button variant for better clarity and contrast.
- * C003 - 2025-07-21 : 22:45 - Reverted to use page-specific .authContainer for layout consistency.
- * C002 - 2025-07-21 : 21:30 - Refactored to use the standardized Container 'form' variant.
+ * C006 - 2025-07-22 : 16:00 - Fixed redirection race condition by using a state-driven useEffect.
+ * C005 - 2025-07-22 : 15:15 - Refactore handleLogin to use Supabase client.
+ * C004 - 2025-07-22 : 03:00 - Changed Google button variant for better clarity.
+ * C003 - 2025-07-21 : 22:45 - Reverted to use page-specific .authContainer.
+ * C002 - 2025-07-21 : 21:30 - Refactored to use Container 'form' variant.
  * C001 - [Date] : [Time] - Initial creation.
  *
- * Last Modified: 2025-07-22 : 15:15
- * Requirement ID (optional): VIN-A-004
+ * Last Modified: 2025-07-22 : 16:00
+ * Requirement ID (optional): VIN-B-03.2
  *
  * Change Summary:
- * The component no longer attempts to call the mock `login` function from `useAuth`. The `handleLogin`
- * function is now an `async` function that calls `supabase.auth.signInWithPassword`. This aligns
- * the component with the new live authentication system and resolves the critical build error.
+ * A new `useEffect` has been added to listen for changes to the `user` object from `useAuth`.
+ * The `router.push('/dashboard')` call has been moved from `handleLogin` into this new effect.
+ * This resolves a critical race condition where the page would redirect back to `/login`
+ * before the auth state was fully updated.
  *
  * Impact Analysis:
- * This change completes the migration of the login page to the live backend.
+ * This change makes the login flow robust and reliable.
  */
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // useEffect is now needed
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabaseClient'; // Import the Supabase client
+import { supabase } from '@/lib/supabaseClient';
 
 // VDL Component Imports
 import Container from '@/app/components/layout/Container';
@@ -35,6 +37,7 @@ import FormGroup from '@/app/components/ui/form/FormGroup';
 import Input from '@/app/components/ui/form/Input';
 import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
+import { useAuth } from '@/app/components/auth/AuthProvider';
 import authStyles from '@/app/styles/auth.module.css';
 
 const LoginPage = () => {
@@ -43,14 +46,23 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  // We no longer get `login` from useAuth()
+  const { user } = useAuth(); // We now get the user state to watch for changes
+
+  // --- THIS IS THE FIX ---
+  // This effect listens for the auth state to change.
+  // If the user object becomes available (i.e., not null), it means login was
+  // successful, and we can safely redirect.
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    // Call Supabase Auth to sign in the user
     const { error } = await supabase.auth.signInWithPassword({
       email: email,
       password: password,
@@ -60,11 +72,8 @@ const LoginPage = () => {
 
     if (error) {
       setError(error.message);
-    } else {
-      // The AuthProvider will automatically detect the sign-in and update the global state.
-      // We can then redirect the user to the dashboard.
-      router.push('/dashboard');
     }
+    // We no longer redirect here. We let the useEffect handle it.
   };
 
   return (
