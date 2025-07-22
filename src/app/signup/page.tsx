@@ -12,9 +12,9 @@
  * Requirement ID (optional): VIN-A-004
  *
  * Change Summary:
- * The "Continue with Google" button has been changed from the 'secondary' variant to the 'google'
- * variant. This applies the correct styling (solid white background, border, and shadow), making
- * the button clear, accessible, and easily recognizable on all devices.
+ * The "Continue with Google" button has been changed to the 'google' variant. This applies the
+ * correct styling (solid white background, border, and shadow), making the button clear,
+ * accessible, and easily recognizable on all devices.
  *
  * Impact Analysis:
  * This change significantly improves the usability and professionalism of the signup form.
