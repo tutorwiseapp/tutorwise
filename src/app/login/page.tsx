@@ -1,30 +1,31 @@
 /*
  * Filename: src/app/login/page.tsx
- * Purpose: Renders the user login page.
+ * Purpose: Renders the user login page, now connected to the live Supabase backend.
  *
  * Change History:
+ * C005 - 2025-07-22 : 15:15 - Refactored handleLogin to use Supabase client, fixing build error.
  * C004 - 2025-07-22 : 03:00 - Changed Google button variant for better clarity and contrast.
  * C003 - 2025-07-21 : 22:45 - Reverted to use page-specific .authContainer for layout consistency.
  * C002 - 2025-07-21 : 21:30 - Refactored to use the standardized Container 'form' variant.
  * C001 - [Date] : [Time] - Initial creation.
  *
- * Last Modified: 2025-07-22 : 03:00
+ * Last Modified: 2025-07-22 : 15:15
  * Requirement ID (optional): VIN-A-004
  *
  * Change Summary:
- * The "Continue with Google" button has been changed to the 'google' variant. This applies the
- * correct styling (solid white background, border, and shadow), making the button clear,
- * accessible, and easily recognizable on all devices.
+ * The component no longer attempts to call the mock `login` function from `useAuth`. The `handleLogin`
+ * function is now an `async` function that calls `supabase.auth.signInWithPassword`. This aligns
+ * the component with the new live authentication system and resolves the critical build error.
  *
  * Impact Analysis:
- * This change significantly improves the usability and professionalism of the login form.
+ * This change completes the migration of the login page to the live backend.
  */
 'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import type { User } from '@/types';
+import { supabase } from '@/lib/supabaseClient'; // Import the Supabase client
 
 // VDL Component Imports
 import Container from '@/app/components/layout/Container';
@@ -34,28 +35,35 @@ import FormGroup from '@/app/components/ui/form/FormGroup';
 import Input from '@/app/components/ui/form/Input';
 import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
-import { useAuth } from '@/app/components/auth/AuthProvider';
 import authStyles from '@/app/styles/auth.module.css';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { login } = useAuth();
+  // We no longer get `login` from useAuth()
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const users: User[] = JSON.parse(localStorage.getItem('vinite_users') || '[]');
-    const user = users.find(
-      (u: User) => u.email === email && u.password === password
-    );
+    setIsLoading(true);
+    setError('');
 
-    if (user) {
-      login(user); 
-      router.push('/dashboard');
+    // Call Supabase Auth to sign in the user
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
+
+    setIsLoading(false);
+
+    if (error) {
+      setError(error.message);
     } else {
-      setError('Invalid email or password.');
+      // The AuthProvider will automatically detect the sign-in and update the global state.
+      // We can then redirect the user to the dashboard.
+      router.push('/dashboard');
     }
   };
 
@@ -73,6 +81,7 @@ const LoginPage = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={isLoading}
             />
           </FormGroup>
           <FormGroup label="Password" htmlFor="password">
@@ -83,17 +92,18 @@ const LoginPage = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={isLoading}
             />
           </FormGroup>
           <Link href="/forgot-password" className={authStyles.forgotPasswordLink}>
             Forgot password?
           </Link>
-          <Button type="submit" variant="primary" fullWidth>
-            Log In
+          <Button type="submit" variant="primary" fullWidth disabled={isLoading}>
+            {isLoading ? 'Logging In...' : 'Log In'}
           </Button>
         </form>
         <div className={authStyles.separator}>OR</div>
-        <Button type="button" variant="google" fullWidth>
+        <Button type="button" variant="google" fullWidth disabled={isLoading}>
           Continue with Google
         </Button>
       </Card>
