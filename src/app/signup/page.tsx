@@ -1,13 +1,32 @@
+/*
+ * Filename: src/app/signup/page.tsx
+ * Purpose: Renders the user signup page with a custom, specific layout.
+ *
+ * Change History:
+ * C003 - 2025-07-21 : 22:45 - Reverted to use page-specific .authContainer for precise layout control.
+ * C002 - 2025-07-21 : 21:30 - Refactored to use the standardized Container 'form' variant.
+ * C001 - [Date] : [Time] - Initial creation.
+ *
+ * Last Modified: 2025-07-21 : 22:45
+ * Requirement ID (optional): VIN-A-004
+ *
+ * Change Summary:
+ * The page has been reverted to use its own `<div className={styles.authContainer}>` instead of the
+ * global Container component. This preserves the original, pixel-perfect layout and custom spacing
+ * that is unique to the authentication pages, as requested.
+ *
+ * Impact Analysis:
+ * This change correctly implements the intended design for the signup page.
+ */
 'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
-import type { Profile } from '@/types'; // Using the snake_case Profile type
+import type { Profile } from '@/types';
 
 // VDL Component Imports
-import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import Card from '@/app/components/ui/Card';
 import FormGroup from '@/app/components/ui/form/FormGroup';
@@ -53,9 +72,8 @@ const SignupPage = () => {
     const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
     const agentId = `A1-${initials}${Math.floor(100000 + Math.random() * 900000)}`;
 
-    // --- FIX: Create a `Profile` object with snake_case properties ---
     const newUser: Profile = {
-      id: String(Math.floor(Math.random() * 10000)), // Using number for mock data
+      id: String(Math.floor(Math.random() * 10000)),
       first_name: firstName,
       last_name: lastName,
       display_name: displayName,
@@ -68,51 +86,50 @@ const SignupPage = () => {
     let redirectPath = '/dashboard';
 
     if (claimId) {
-        // Claim logic...
+        // This is where the claim logic would go...
     }
     
-    addUser(newUser);
-    login(newUser); // AuthProvider needs to accept Profile type
+    // We cast to `any` here because our mock `User` type has a password, but `Profile` does not.
+    // This is a temporary necessity of the hybrid mock/real data system.
+    addUser(newUser as any);
+    login(newUser as any);
 
     setMessage({ text: 'Account created successfully! Redirecting...', type: 'success' });
     setTimeout(() => router.push(redirectPath), 1500);
   };
 
   return (
-    <Container>
-      {/* --- FIX: Apply CSS Modules correctly to all elements --- */}
-      <div className={styles.authContainer}>
-        <PageHeader 
-          title="Create Your Account" 
-          subtitle="Join to start referring and earning rewards."
-        />
-        <Card className={styles.authCard}>
-          {message && <Message type={message.type}>{message.text}</Message>}
-          <form onSubmit={handleSignup}>
-            <div className={styles.twoColGrid}>
-              <FormGroup label="First Name" htmlFor="firstName"><Input id="firstName" type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} required /></FormGroup>
-              <FormGroup label="Last Name" htmlFor="lastName"><Input id="lastName" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} required /></FormGroup>
-            </div>
-            <FormGroup label="Email Address" htmlFor="email"><Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></FormGroup>
-            <FormGroup label="Password" htmlFor="password"><Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></FormGroup>
-            
-            <FormGroup label="What do you want to do first?">
-                <RadioGroup
-                    name="role"
-                    options={roleOptions}
-                    selectedValue={selectedRole}
-                    onChange={(e) => setSelectedRole(e.target.value)}
-                />
-            </FormGroup>
+    <div className={styles.authContainer}>
+      <PageHeader 
+        title="Create Your Account" 
+        subtitle="Join to start referring and earning rewards."
+      />
+      <Card className={styles.authCard}>
+        {message && <Message type={message.type}>{message.text}</Message>}
+        <form onSubmit={handleSignup}>
+          <div className={styles.twoColGrid}>
+            <FormGroup label="First Name" htmlFor="firstName"><Input id="firstName" type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} required /></FormGroup>
+            <FormGroup label="Last Name" htmlFor="lastName"><Input id="lastName" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} required /></FormGroup>
+          </div>
+          <FormGroup label="Email Address" htmlFor="email"><Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></FormGroup>
+          <FormGroup label="Password" htmlFor="password"><Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></FormGroup>
+          
+          <FormGroup label="What do you want to do first?">
+              <RadioGroup
+                  name="role"
+                  options={roleOptions}
+                  selectedValue={selectedRole}
+                  onChange={(e) => setSelectedRole(e.target.value)}
+              />
+          </FormGroup>
 
-            <Button type="submit" variant="primary" fullWidth style={{ marginTop: '16px' }}>Create Account</Button>
-          </form>
-          <div className={styles.separator}>OR</div>
-          <Button type="button" variant="google" fullWidth>Continue with Google</Button>
-        </Card>
-        <div className={styles.authSwitch}>Already have an account? <Link href="/login">Log In</Link></div>
-      </div>
-    </Container>
+          <Button type="submit" variant="primary" fullWidth style={{ marginTop: '16px' }}>Create Account</Button>
+        </form>
+        <div className={styles.separator}>OR</div>
+        <Button type="button" variant="google" fullWidth>Continue with Google</Button>
+      </Card>
+      <div className={styles.authSwitch}>Already have an account? <Link href="/login">Log In</Link></div>
+    </div>
   );
 };
 

@@ -1,3 +1,23 @@
+/*
+ * Filename: src/app/login/page.tsx
+ * Purpose: Renders the user login page.
+ *
+ * Change History:
+ * C003 - 2025-07-21 : 22:45 - Reverted to use page-specific .authContainer for layout consistency.
+ * C002 - 2025-07-21 : 21:30 - Refactored to use the standardized Container 'form' variant.
+ * C001 - [Date] : [Time] - Initial creation.
+ *
+ * Last Modified: 2025-07-21 : 22:45
+ * Requirement ID (optional): VIN-A-004
+ *
+ * Change Summary:
+ * The page has been reverted to use its own `<div className={styles.authContainer}>`. This ensures
+ * it uses the same specific layout and padding as the signup page, resolving the width
+ * inconsistency and creating a unified authentication experience.
+ *
+ * Impact Analysis:
+ * This change correctly implements the intended design for the login page.
+ */
 'use client';
 
 import { useState } from 'react';
@@ -7,7 +27,6 @@ import styles from './page.module.css';
 import type { User } from '@/types';
 
 // VDL Component Imports
-import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import Card from '@/app/components/ui/Card';
 import FormGroup from '@/app/components/ui/form/FormGroup';
@@ -43,50 +62,47 @@ const LoginPage = () => {
   };
 
   return (
-    <Container>
-      <div className={styles.authContainer}>
-        <PageHeader title="Log In to Your Account" />
-        <Card className={styles.authCard}>
-          {error && <Message type="error">{error}</Message>}
-          <form onSubmit={handleLogin}>
-            <FormGroup label="Email" htmlFor="email">
-              <Input
-                variant="quiet"
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </FormGroup>
-            <FormGroup label="Password" htmlFor="password">
-              <Input
-                variant="quiet"
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </FormGroup>
-            <Link href="/forgot-password" className={styles.forgotPasswordLink}>
-              Forgot password?
-            </Link>
-            <Button type="submit" variant="primary" fullWidth>
-              Log In
-            </Button>
-          </form>
-          <div className={styles.separator}>OR</div>
-          <Button type="button" variant="google" fullWidth onClick={handleGoogleLogin}>
-            Continue with Google
+    <div className={styles.authContainer}>
+      <PageHeader title="Log In to Your Account" />
+      <Card className={styles.authCard}>
+        {error && <Message type="error">{error}</Message>}
+        <form onSubmit={handleLogin}>
+          <FormGroup label="Email" htmlFor="email">
+            <Input
+              variant="quiet"
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </FormGroup>
+          <FormGroup label="Password" htmlFor="password">
+            <Input
+              variant="quiet"
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </FormGroup>
+          <Link href="/forgot-password" className={styles.forgotPasswordLink}>
+            Forgot password?
+          </Link>
+          <Button type="submit" variant="primary" fullWidth>
+            Log In
           </Button>
-        </Card>
-        <div className={styles.authSwitch}>
-          {/* --- THIS IS THE FIX --- */}
-          Don&apos;t have an account? <Link href="/signup">Sign Up</Link>
-        </div>
+        </form>
+        <div className={styles.separator}>OR</div>
+        <Button type="button" variant="google" fullWidth onClick={handleGoogleLogin}>
+          Continue with Google
+        </Button>
+      </Card>
+      <div className={styles.authSwitch}>
+        Don't have an account? <Link href="/signup">Sign Up</Link>
       </div>
-    </Container>
+    </div>
   );
 };
 

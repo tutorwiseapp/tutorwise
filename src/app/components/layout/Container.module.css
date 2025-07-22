@@ -1,21 +1,55 @@
-/* src/app/components/layout/Container.module.css */
+/*
+ * Filename: src/app/components/layout/Container.module.css
+ * Purpose: Provides the main content container with responsive padding and max-widths.
+ *
+ * Change History:
+ * C004 - 2025-07-21 : 21:30 - Renamed .auth variant to .form for better semantics.
+ * C003 - 2025-07-21 : 21:15 - Added new .auth variant style.
+ * C002 - 2025-07-21 : 21:00 - Added a media query to reduce padding on mobile devices.
+ * C001 - [Date] : [Time] - Initial creation.
+ *
+ * Last Modified: 2025-07-21 : 21:30
+ * Requirement ID (optional): VIN-UI-015
+ *
+ * Change Summary:
+ * Added the `.form` class with a `max-width: 480px`. This is the new standard for
+ * authentication and simple form pages.
+ *
+ * Impact Analysis:
+ * This change provides the necessary styling for the new container variant.
+ */
 
 .container {
   width: 100%;
-  max-width: 1200px;  /* In the Figma design system the fixed page width is set to 1200px */
-  margin: 0 auto;     /* The view port is 1440px, so the margine value is 120px based on a 8-column layout and 1200px width */
-  padding: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-4);
   flex-grow: 1;
+  transition: padding 0.2s ease-in-out;
 }
 
-/* --- NEW --- Add the style for our narrow variant such as forms*/
+@media (max-width: 768px) {
+  .container {
+    padding-left: var(--space-2);
+    padding-right: var(--space-2);
+  }
+}
+
+/* --- Variants --- */
+.default {} 
+
 .narrow {
   max-width: 800px;
 }
 
-/* --- ADDITION: Define the new 'wide' variant style --- */
 .wide {
   max-width: 1440px;
 }
 
-/* Full width - no need to define */
+/* --- THIS IS THE NEW VARIANT --- */
+.form {
+  max-width: 480px;
+  /* Add some vertical padding to center these forms on the page */
+  padding-top: var(--space-5);
+  padding-bottom: var(--space-5);
+}

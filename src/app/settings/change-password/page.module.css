@@ -1,24 +1,25 @@
 /*
  * Filename: src/app/settings/change-password/page.module.css
- * Purpose: Provides styles for the Change Password page.
+ * Purpose: Provides page-specific styles for the Change Password form.
  *
  * Change History:
+ * C002 - 2025-07-21 : 21:30 - Removed .container class as layout is now handled by the global Container component.
  * C001 - 2025-07-20 : 10:30 - Initial creation.
  *
- * Last Modified: 2025-07-20 : 10:30
+ * Last Modified: 2025-07-21 : 21:30
  * Requirement ID (optional): VIN-A-005
  *
  * Change Summary:
- * Created styles to ensure the change password form is correctly constrained and presented,
- * consistent with other form pages like login and contact.
+ * The `.container` class has been removed. All layout responsibilities (like max-width and
+ * padding) have been centralized into the `<Container variant="form">` component, making this
+ * stylesheet empty. It is preserved for any future page-specific styling needs.
  *
  * Impact Analysis:
- * This is a new, scoped stylesheet. It has no impact on other parts of the application.
+ * This change simplifies the CSS and improves maintainability by adhering to the
+ * component-driven layout system.
  *
- * Dependencies: Relies on CSS variables (tokens) from globals.css.
+ * Dependencies: None.
  */
 
-.container {
-  max-width: 600px;
-  margin: 0 auto;
-}
+/* No page-specific styles are currently required. */
+
