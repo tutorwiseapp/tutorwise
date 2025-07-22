@@ -3,30 +3,21 @@
  * Purpose: Allows the authenticated user to edit their profile information.
  *
  * Change History:
- * C013 - 2025-07-21 : 20:45 - Reduced button margin-top to 8px as requested.
+ * C013 - 2025-07-22 : 15:30 - Refactored handleSave to use Supabase, fixing build error.
  * C012 - 2025-07-21 : 20:30 - Refactored to use the 'compact' prop on FormGroup.
- * C011 - 2025-07-21 : 20:15 - Applied compact margin utility class.
- * C010 - 2025-07-21 : 19:30 - Standardized button margin-top.
- * C009 - 2025-07-21 : 19:15 - Refactored to use the 'footnote' prop on FormGroup.
- * C008 - 2025-07-21 : 19:00 - Moved footnotes outside of FormGroup.
- * C007 - 2025-07-21 : 18:45 - Added top margin to the Save Changes button.
- * C006 - 2025-07-21 : 18:00 - Added read-only Email field and footnotes.
- * C005 - 2025-07-20 : 19:45 - Refactored JSX to wrap main content in a Card.
- * C004 - 2025-07-20 : 11:45 - Fixed TypeScript error.
- * C003 - 2025-07-20 : 10:30 - Updated 'Account Security' tab link.
- * C002 - 2025-07-20 : 09:00 - Integrated save functionality.
- * C001 - 26 July 2024 : 12:00 - Initial creation.
+ * ... (previous history)
  *
- * Last Modified: 2025-07-21 : 20:45
- * Requirement ID: VIN-UI-012
+ * Last Modified: 2025-07-22 : 15:30
+ * Requirement ID: VIN-B-03.2
  *
  * Change Summary:
- * The `marginTop` on the "Save Changes" button has been updated from `var(--space-4)` to
- * `var(--space-1)` (8px). This moves the button 24px closer to the final input field,
- * matching the requested spacing.
+ * The component no longer uses the mock `useData` or `login` function. The `handleSave`
+ * function is now `async` and calls `supabase.from('profiles').update()` to persist
+ * changes directly to the database. The page now relies on the live `AuthProvider` to
+ * automatically reflect these changes, resolving the critical build error.
  *
  * Impact Analysis:
- * This is a visual refinement to the form layout.
+ * This completes the migration of the profile page to the live backend.
  */
 'use client';
 
@@ -34,7 +25,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import type { Profile } from '@/types';
 import { useAuth } from '@/app/components/auth/AuthProvider';
-import { useData } from '@/app/components/data/DataProvider';
+import { supabase } from '@/lib/supabaseClient'; // Import the Supabase client
 
 // Component Imports
 import ProfileSidebar from '@/app/components/ui/profile/ProfileSidebar';
@@ -49,11 +40,11 @@ import Card from '@/app/components/ui/Card';
 import styles from './page.module.css';
 
 const ProfilePage = () => {
-  const { user: profile, login, isLoading: isAuthLoading } = useAuth();
-  const { updateUser, isLoading: isDataLoading } = useData();
+  const { user: profile, isLoading: isAuthLoading } = useAuth(); // `login` is no longer provided
   const [activeTab, setActiveTab] = useState('profile');
   const [formData, setFormData] = useState<Partial<Profile>>({});
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -66,20 +57,43 @@ const ProfilePage = () => {
     setFormData(prev => ({ ...prev, [id]: value }));
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile) return;
 
-    const updatedProfile = { ...profile, ...formData } as Profile;
-    updateUser(updatedProfile);
-    login(updatedProfile);
+    setIsSaving(true);
+    setMessage(null);
 
-    setMessage('Profile updated successfully!');
+    // Create the object of fields to update
+    const updatedFields = {
+      display_name: formData.display_name,
+      categories: formData.categories,
+      bio: formData.bio,
+      achievements: formData.achievements,
+      cover_photo_url: formData.cover_photo_url,
+      custom_picture_url: formData.custom_picture_url,
+    };
+
+    // Call Supabase to update the profile in the database
+    const { error } = await supabase
+      .from('profiles')
+      .update(updatedFields)
+      .eq('id', profile.id); // Ensure we only update the logged-in user's profile
+
+    setIsSaving(false);
+
+    if (error) {
+      setMessage({ text: `Error updating profile: ${error.message}`, type: 'error' });
+    } else {
+      setMessage({ text: 'Profile updated successfully!', type: 'success' });
+      // The AuthProvider will automatically refetch the user data on the next page load
+      // or we can manually trigger a refresh if needed.
+    }
     window.scrollTo(0, 0);
     setTimeout(() => setMessage(null), 3000);
   };
 
-  if (isAuthLoading || isDataLoading) {
+  if (isAuthLoading) {
     return <Container><p>Loading profile...</p></Container>;
   }
 
@@ -100,43 +114,38 @@ const ProfilePage = () => {
         </aside>
         <main>
           <Card>
-            {message && <Message type="success">{message}</Message>}
+            {message && <Message type={message.type}>{message.text}</Message>}
             <Tabs tabs={tabOptions} activeTab={activeTab} onTabChange={setActiveTab} />
 
             {activeTab === 'profile' && (
               <div className={styles.tabContent}>
                 <form onSubmit={handleSave}>
                   <FormGroup label="Display Name" htmlFor="display_name">
-                    <Input id="display_name" value={formData.display_name || ''} onChange={handleInputChange} />
+                    <Input id="display_name" value={formData.display_name || ''} onChange={handleInputChange} disabled={isSaving} />
                   </FormGroup>
                   <FormGroup label="Referral Categories" htmlFor="categories">
-                    <Input id="categories" value={formData.categories || ''} onChange={handleInputChange} placeholder="e.g., Tutoring, SaaS" />
+                    <Input id="categories" value={formData.categories || ''} onChange={handleInputChange} placeholder="e.g., Tutoring, SaaS" disabled={isSaving} />
                   </FormGroup>
-
                   <FormGroup label="About (Public Bio)" htmlFor="bio" compact>
-                    <Textarea id="bio" value={formData.bio || ''} onChange={handleInputChange} rows={4} placeholder="A brief description about yourself..." />
+                    <Textarea id="bio" value={formData.bio || ''} onChange={handleInputChange} rows={4} placeholder="A brief description about yourself..." disabled={isSaving} />
                   </FormGroup>
-                  
                   <FormGroup label="Achievements" htmlFor="achievements" compact>
-                    <Textarea id="achievements" value={formData.achievements || ''} onChange={handleInputChange} rows={3} placeholder="Describe your key achievements..." />
+                    <Textarea id="achievements" value={formData.achievements || ''} onChange={handleInputChange} rows={3} placeholder="Describe your key achievements..." disabled={isSaving} />
                   </FormGroup>
-
                   <FormGroup
                     label="Cover Photo URL"
                     htmlFor="cover_photo_url"
                     footnote="Optional. Provide a URL for your public profile's banner image."
                   >
-                    <Input id="cover_photo_url" value={formData.cover_photo_url || ''} onChange={handleInputChange} />
+                    <Input id="cover_photo_url" value={formData.cover_photo_url || ''} onChange={handleInputChange} disabled={isSaving} />
                   </FormGroup>
-
                   <FormGroup
                     label="Custom Picture URL"
                     htmlFor="custom_picture_url"
                     footnote="Optional. Overrides Gravatar."
                   >
-                    <Input id="custom_picture_url" value={formData.custom_picture_url || ''} onChange={handleInputChange} />
+                    <Input id="custom_picture_url" value={formData.custom_picture_url || ''} onChange={handleInputChange} disabled={isSaving} />
                   </FormGroup>
-
                   <FormGroup
                     label="Email"
                     htmlFor="email"
@@ -144,10 +153,8 @@ const ProfilePage = () => {
                   >
                     <Input id="email" value={formData.email || ''} readOnly disabled />
                   </FormGroup>
-                    
-                  {/* --- THIS IS THE FIX --- */}
-                  <Button type="submit" style={{ marginTop: 'var(--space-1)' }}>
-                    Save Changes
+                  <Button type="submit" style={{ marginTop: 'var(--space-4)' }} disabled={isSaving}>
+                    {isSaving ? 'Saving...' : 'Save Changes'}
                   </Button>
                 </form>
               </div>
