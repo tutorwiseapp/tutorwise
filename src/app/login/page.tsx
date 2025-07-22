@@ -1,10 +1,10 @@
 /*
  * Filename: src/app/login/page.tsx
- * Purpose: Renders the user login page, now with robust, state-driven redirection.
+ * Purpose: Renders the user login page with robust, state-driven redirection.
  *
  * Change History:
  * C006 - 2025-07-22 : 16:00 - Fixed redirection race condition by using a state-driven useEffect.
- * C005 - 2025-07-22 : 15:15 - Refactore handleLogin to use Supabase client.
+ * C005 - 2025-07-22 : 15:15 - Refactored handleLogin to use Supabase client.
  * C004 - 2025-07-22 : 03:00 - Changed Google button variant for better clarity.
  * C003 - 2025-07-21 : 22:45 - Reverted to use page-specific .authContainer.
  * C002 - 2025-07-21 : 21:30 - Refactored to use Container 'form' variant.
@@ -15,16 +15,17 @@
  *
  * Change Summary:
  * A new `useEffect` has been added to listen for changes to the `user` object from `useAuth`.
- * The `router.push('/dashboard')` call has been moved from `handleLogin` into this new effect.
- * This resolves a critical race condition where the page would redirect back to `/login`
- * before the auth state was fully updated.
+ * The `router.push('/dashboard')` call has been removed from `handleLogin` and placed inside this
+ * new effect. This resolves a critical race condition where the page would redirect back to `/login`
+ * before the auth state was fully updated after a successful Supabase login.
  *
  * Impact Analysis:
- * This change makes the login flow robust and reliable.
+ * This change makes the login flow robust, reliable, and compatible with the asynchronous nature
+ * of a real backend.
  */
 'use client';
 
-import { useState, useEffect } from 'react'; // useEffect is now needed
+import { useState, useEffect } from 'react'; // useEffect is now required
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
@@ -46,12 +47,13 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { user } = useAuth(); // We now get the user state to watch for changes
+  const { user } = useAuth(); // We get the user state to watch for changes
 
   // --- THIS IS THE FIX ---
-  // This effect listens for the auth state to change.
-  // If the user object becomes available (i.e., not null), it means login was
-  // successful, and we can safely redirect.
+  // This effect listens for the global authentication state to change.
+  // If the user object becomes available (i.e., is no longer null), it means
+  // the entire login and profile fetch process is complete, and we can
+  // now safely redirect to the dashboard.
   useEffect(() => {
     if (user) {
       router.push('/dashboard');
@@ -73,7 +75,7 @@ const LoginPage = () => {
     if (error) {
       setError(error.message);
     }
-    // We no longer redirect here. We let the useEffect handle it.
+    // We NO LONGER redirect here. We let the useEffect handle it.
   };
 
   return (
