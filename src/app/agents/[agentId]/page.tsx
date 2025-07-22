@@ -1,35 +1,36 @@
 /*
  * Filename: src/app/agents/[agentId]/page.tsx
- * Purpose: Displays the public profile for a Vinite agent, with styles correctly scoped to its own module.
+ * Purpose: Displays the public profile for a Vinite agent, fetching live data from the backend.
  *
  * Change History:
+ * C004 - 2025-07-22 : 16:30 - Refactored to fetch live data from the new API endpoint.
  * C003 - 2025-07-20 : 13:45 - Added type validation before setting state to fix Vercel build error.
- * C002 - 2024-07-17 : 14:00 - Refactored to align with the canonical 'Profile' data model and snake_case properties.
- * C001 - 26 July 2024 : 11:30 - Verified all layout and specific styles are sourced from the local CSS module.
+ * C002 - 2024-07-17 : 14:00 - Refactored to align with the canonical 'Profile' data model.
+ * C001 - 26 July 2024 : 11:30 - Initial creation with mock data.
  *
- * Last Modified: 2025-07-20 : 13:45
- * Requirement ID: VIN-A-01.2
+ * Last Modified: 2025-07-22 : 16:30
+ * Requirement ID: VIN-C-03.3
  *
  * Change Summary:
- * Fixed a TypeScript error that blocked Vercel deployment. Added a validation check inside the `useEffect`
- * to ensure the user object found in the `DataProvider` has all the required properties of a `Profile`
- * before calling `setAgent`. This satisfies the strict type checking of the production build.
+ * The component has been completely refactored to fetch live data. It no longer uses the mock
+ * `useData` hook. Instead, it now uses a `useEffect` hook to make a `fetch` call to the new
+ * `/api/agents/[agentId]` endpoint, populating the page with real profile data from the
+ * Supabase database. It now manages its own loading and error states.
  *
  * Impact Analysis:
- * This change fixes a critical deployment blocker. The added validation also makes the page more robust
- * by preventing incomplete data from being rendered.
+ * This change completes the migration of the public profile page to the live backend, removing
+ * the final dependency on the mock data system.
  *
- * Dependencies: "react", "next", "@/app/components/data/DataProvider", "@/types", and various UI components.
+ * Dependencies: "react", "next/navigation", "@/types", "@/app/components/auth/AuthProvider", and various UI components.
  */
 
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import type { Profile, User } from '@/types'; // Import both types
+import type { Profile } from '@/types';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useData } from '@/app/components/data/DataProvider';
 import { useAuth } from '@/app/components/auth/AuthProvider';
 import getProfileImageUrl from '@/lib/utils/image';
 import Container from '@/app/components/layout/Container';
@@ -37,7 +38,7 @@ import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
 import styles from './page.module.css';
 
-// This sub-component is correct and requires no changes.
+// This is a self-contained presentational component and does not need to change.
 const PublicProfileCard = ({ agent, isOwnProfile }: { agent: Profile, isOwnProfile: boolean }) => {
   return (
     <Card className={styles.profileCard}>
@@ -72,7 +73,7 @@ const PublicProfileCard = ({ agent, isOwnProfile }: { agent: Profile, isOwnProfi
         <hr className={styles.detailsDivider} />
         <div className={styles.detailsSection}>
           <h3>Achievements</h3>
-          <p className={styles.achievementsList}>No achievements listed.</p>
+          <p className={styles.achievementsList}>{agent.achievements || 'No achievements listed.'}</p>
         </div>
       </div>
     </Card>
@@ -80,29 +81,37 @@ const PublicProfileCard = ({ agent, isOwnProfile }: { agent: Profile, isOwnProfi
 };
 
 const AgentProfilePage = () => {
-  const [agent, setAgent] = useState<Profile | null>(null); // State expects a strict Profile
+  const [agent, setAgent] = useState<Profile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const params = useParams();
   const agentId = params.agentId as string;
   const { user: loggedInUser } = useAuth();
-  const { users, isLoading } = useData(); // users is of type User[]
 
   useEffect(() => {
-    if (!isLoading && users.length > 0) {
-      const foundAgent: User | undefined = users.find(user => user.agent_id === agentId);
+    if (!agentId) {
+        setIsLoading(false);
+        return;
+    };
 
-      // --- THIS IS THE FIX ---
-      // Validate that the found object has the essential properties of a Profile
-      // before trying to set it as the state.
-      if (foundAgent && foundAgent.id && foundAgent.agent_id && foundAgent.display_name) {
-        // Now that we've confirmed the required fields exist, we can safely
-        // assert the type and set the state.
-        setAgent(foundAgent as Profile);
-      } else {
-        // If the agent isn't found or is incomplete, treat it as not found.
+    const fetchAgentProfile = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`/api/agents/${agentId}`);
+        if (!response.ok) {
+          throw new Error('Agent profile not found.');
+        }
+        const data: Profile = await response.json();
+        setAgent(data);
+      } catch (error) {
+        console.error("Failed to fetch agent profile:", error);
         setAgent(null);
+      } finally {
+        setIsLoading(false);
       }
-    }
-  }, [isLoading, users, agentId]);
+    };
+
+    fetchAgentProfile();
+  }, [agentId]);
 
   const handleShare = (platform: 'whatsapp' | 'linkedin') => {
     if (!agent) return;
@@ -117,7 +126,7 @@ const AgentProfilePage = () => {
   };
 
   if (isLoading) {
-    return <Container><p className={styles.message}>Loading Agent Data...</p></Container>;
+    return <Container><p className={styles.message}>Loading Agent Profile...</p></Container>;
   }
   
   if (!agent) {

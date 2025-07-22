@@ -24,7 +24,6 @@
 import type { Metadata } from 'next';
 import { Inter, Poppins } from 'next/font/google';
 import AuthProvider from '@/app/components/auth/AuthProvider';
-import { DataProvider } from '@/app/components/data/DataProvider';
 import "./globals.css";
 
 const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--font-secondary' });
@@ -51,11 +50,7 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <AuthProvider>
-          <DataProvider>
-            {children}
-          </DataProvider>
-        </AuthProvider>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
