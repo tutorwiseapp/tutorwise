@@ -3,21 +3,20 @@
  * Purpose: Provides styles for the main Header layout container.
  *
  * Change History:
+ * C003 - 2025-07-21 : 23:00 - Added media query to reduce padding on mobile for layout consistency.
  * C002 - 2025-07-20 : 17:00 - Removed unused styles for nav and logout button.
  * C001 - [Date] : [Time] - Initial creation.
  *
- * Last Modified: 2025-07-20 : 17:00
- * Requirement ID (optional): VIN-UI-009
+ * Last Modified: 2025-07-21 : 23:00
+ * Requirement ID (optional): VIN-UI-014
  *
  * Change Summary:
- * Removed the .headerNav and .logoutButton classes as this styling logic has been
- * moved into the new, self-contained NavMenu component. This keeps the header's
- * CSS focused only on its layout responsibilities.
+ * A `@media (max-width: 768px)` query has been added. It reduces the header's horizontal
+ * padding from 32px to 16px on mobile screens. This ensures the header is perfectly aligned
+ * with the responsive content Container below it, resolving the final mobile layout inconsistency.
  *
  * Impact Analysis:
- * This is a cleanup action that improves code maintainability.
- *
- * Dependencies: None.
+ * This is a global layout fix that creates a polished, edge-to-edge mobile experience.
  */
 
 .header {
@@ -26,13 +25,24 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--space-4, 32px);
+  /* Default padding for desktop */
+  padding: 0 var(--space-4); /* 32px */
   background-color: var(--color-bg-card, #ffffff);
   border-bottom: 1px solid var(--color-border, #dfe1e5);
   flex-shrink: 0;
   position: sticky;
   top: 0;
   z-index: 10;
+  transition: padding 0.2s ease-in-out;
+}
+
+/* --- THIS IS THE FIX --- */
+/* On mobile devices, reduce the horizontal padding to match the Container */
+@media (max-width: 768px) {
+  .header {
+    padding-left: var(--space-2);  /* 16px */
+    padding-right: var(--space-2); /* 16px */
+  }
 }
 
 .headerLogo a {
