@@ -3,24 +3,22 @@
  * Purpose: Renders the user signup page, connected to the live Supabase backend for both email and Google OAuth.
  *
  * Change History:
+ * C011 - 2025-07-22 : 17:00 - Implemented state-driven redirect for Google login to fix race condition.
  * C010 - 2025-07-22 : 16:45 - Implemented the handleGoogleLogin function for OAuth sign-in.
  * C009 - 2025-07-22 : 15:45 - Refactored handleSignup to use a two-step profile creation process.
- * C008 - 2025-07-22 : 04:30 - Refactored handleSignup to call Supabase Auth.
- * C007 - 2025-07-22 : 03:00 - Changed Google button variant for better clarity and contrast.
- * C006 - 2025-07-22 : 02:15 - Fully restored component to fix compiler errors.
- * C005 - 2025-07-22 : 01:30 - Removed compact variant from PageHeader.
- * C004 - 2025-07-22 : 01:00 - Refactored to use standardized Container and shared auth styles.
+ * ... (previous history)
  *
- * Last Modified: 2025-07-22 : 16:45
+ * Last Modified: 2025-07-22 : 17:00
  * Requirement ID (optional): VIN-D-02
  *
  * Change Summary:
- * Added the `handleGoogleLogin` function, which calls `supabase.auth.signInWithOAuth`. This
- * function is now attached to the "Continue with Google" button, making social sign-in fully
- * functional. The component is now feature-complete for user registration.
+ * A new `useEffect` hook has been added to listen for the `user` state. When a user logs in
+ * (via email or Google), this effect will safely redirect them to the dashboard. The `redirectTo`
+ * option has been removed from `signInWithOAuth` to create a more robust, state-driven flow
+ * that is free of race conditions.
  *
  * Impact Analysis:
- * This change adds a major user experience and conversion improvement to the application.
+ * This change fixes the `ERR_CONNECTION_REFUSED` error and makes the Google login fully functional and reliable.
  */
 'use client';
 
@@ -38,6 +36,7 @@ import Input from '@/app/components/ui/form/Input';
 import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
 import { RadioGroup } from '@/app/components/ui/form/Radio';
+import { useAuth } from '@/app/components/auth/AuthProvider';
 import authStyles from '@/app/styles/auth.module.css';
 
 const roleOptions = [
@@ -57,6 +56,15 @@ const SignupPage = () => {
   
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user } = useAuth();
+
+  // This effect listens for the auth state to change. If a user successfully
+  // logs in (via any method), this will safely redirect them.
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
 
   useEffect(() => {
     const claimId = searchParams.get('claimId');
@@ -109,7 +117,9 @@ const SignupPage = () => {
     if (profileError) {
       setMessage({ text: `Database error saving new user: ${profileError.message}`, type: 'error' });
     } else {
-      setMessage({ text: 'Success! Please check your email to confirm your account.', type: 'success' });
+      // With email confirmation disabled for development, the user will be logged in,
+      // and the useEffect will handle the redirect.
+      setMessage({ text: 'Account created successfully! Redirecting...', type: 'success' });
     }
   };
 
@@ -117,16 +127,14 @@ const SignupPage = () => {
     setIsLoading(true);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: `${location.origin}/dashboard`, // Redirect to dashboard after successful login
-      },
     });
 
     if (error) {
       setMessage({ text: `Google login failed: ${error.message}`, type: 'error' });
       setIsLoading(false);
     }
-    // No need to set loading to false on success, as the page will redirect.
+    // On success, Supabase redirects to Google and then back. The useEffect will handle
+    // the final redirect to the dashboard.
   };
 
   return (
