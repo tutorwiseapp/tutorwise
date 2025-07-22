@@ -3,21 +3,24 @@
  * Purpose: Provides a secure form for users to change their account password.
  *
  * Change History:
+ * C005 - 2025-07-21 : 22:15 - Reverted to using the global Container component for standardized layout.
+ * C004 - 2025-07-21 : 22:00 - Replaced global Container with page-specific styled div.
+ * C003 - 2025-07-21 : 21:30 - Refactored to use the standardized Container 'form' variant.
+ * C002 - 2025-07-20 : 11:15 - Modified Container to use the 'narrow' variant.
  * C001 - 2025-07-20 : 10:30 - Initial creation with form and mock logic.
  *
- * Last Modified: 2025-07-20 : 10:30
+ * Last Modified: 2025-07-21 : 22:15
  * Requirement ID (optional): VIN-A-005
  *
  * Change Summary:
- * Created the Change Password page, including a form for old password, new password, and confirmation.
- * Implemented mock logic to simulate a successful password change with appropriate user feedback.
+ * The page has been reverted to use the architecturally correct `<Container variant="form">`.
+ * This ensures its layout is controlled by the central design system, guaranteeing consistency
+ * with all other form pages and improving long-term maintainability.
  *
  * Impact Analysis:
- * This is a new feature. It depends on the AuthProvider to ensure only authenticated users can access it.
+ * This change aligns the component with the project's core architectural principles.
  *
- * Dependencies: "react", "@/app/components/auth/AuthProvider", and various UI components.
- * Props (if applicable): None.
- * TODO (if applicable): Replace mock logic with a real Supabase Auth API call to update the user's password.
+ * Dependencies: "react", "@/app/components/auth/AuthProvider", "@/app/components/layout/Container", and various UI components.
  */
 'use client';
 
@@ -34,7 +37,6 @@ import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
 import Breadcrumb from '@/app/components/ui/nav/Breadcrumb';
 import { useAuth } from '@/app/components/auth/AuthProvider';
-import styles from './page.module.css';
 
 const ChangePasswordPage = () => {
   const { user } = useAuth();
@@ -64,8 +66,6 @@ const ChangePasswordPage = () => {
     // MOCK API CALL
     console.log(`Attempting password change for ${user?.email}`);
     setTimeout(() => {
-      // In a real app, you would have logic to check if the old password is correct.
-      // For now, we'll simulate success.
       setIsLoading(false);
       setMessage({ text: 'Password updated successfully! Redirecting...', type: 'success' });
       setTimeout(() => router.push('/settings'), 2000);
@@ -78,7 +78,7 @@ const ChangePasswordPage = () => {
   ];
 
   return (
-    <Container className={styles.container}>
+    <Container variant="form">
       <Breadcrumb crumbs={breadcrumbs} />
       <PageHeader
         title="Change Password"

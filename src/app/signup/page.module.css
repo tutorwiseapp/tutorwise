@@ -1,10 +1,27 @@
-/* src/app/signup/page.module.css */
-
+/*
+ * Filename: src/app/signup/page.module.css
+ * Purpose: Provides specific, custom layout styles for the user signup page.
+ *
+ * Change History:
+ * C002 - 2025-07-21 : 22:45 - Reverted to this file as the single source of truth for the auth layout.
+ * C001 - [Date] : [Time] - Initial creation.
+ *
+ * Last Modified: 2025-07-21 : 22:45
+ * Requirement ID (optional): VIN-A-004
+ *
+ * Change Summary:
+ * This file is confirmed as the correct and final version. It contains the necessary custom
+ * `.authContainer` and spacing override for the PageHeader to ensure a pixel-perfect layout
+ * for the authentication flow, as designed.
+ *
+ * Impact Analysis:
+ * This ensures the signup page has the intended custom layout.
+ */
 .authContainer {
   width: 100%;
   max-width: 480px;
   margin: 0 auto;
-  padding: var(--space-5) 0;
+  padding: var(--space-5) var(--space-2); /* Use standard horizontal padding for mobile */
 }
 
 .authCard {
@@ -56,6 +73,8 @@
     }
 }
 
-.authContainer > :global(div[class*="pageHeader"]) {
-  margin-bottom: var(--space-1); /* This set the spacing between the the subtitle and the form */
+/* This global override targets the PageHeader *only* when it's inside our authContainer */
+.authContainer > :global(div[class*="PageHeader_pageHeader"]) {
+  /* The default PageHeader has a 32px bottom margin. We override it here for a tighter look. */
+  margin-bottom: var(--space-2); /* Sets the spacing between the subtitle and the form card to 24px */
 }
