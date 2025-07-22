@@ -3,20 +3,21 @@
  * Purpose: Renders the user login page.
  *
  * Change History:
- * C004 - 2025-07-22 : 00:30 - Refactored to use the standardized Container and shared auth stylesheet.
- * C003 - 2025-07-21 : 22:45 - Reverted to use page-specific .authContainer.
- * C002 - 2025-07-21 : 21:30 - Refactored to use Container 'form' variant.
+ * C004 - 2025-07-22 : 03:00 - Changed Google button variant for better clarity and contrast.
+ * C003 - 2025-07-21 : 22:45 - Reverted to use page-specific .authContainer for layout consistency.
+ * C002 - 2025-07-21 : 21:30 - Refactored to use the standardized Container 'form' variant.
  * C001 - [Date] : [Time] - Initial creation.
  *
- * Last Modified: 2025-07-22 : 00:30
+ * Last Modified: 2025-07-22 : 03:00
  * Requirement ID (optional): VIN-A-004
  *
  * Change Summary:
- * The page now uses `<Container variant="form">` for its main layout and imports all specific
- * styles from the new shared `auth.module.css` file. This completes its standardization.
+ * The "Continue with Google" button has been changed to the 'google' variant. This applies the
+ * correct styling (solid white background, border, and shadow), making the button clear,
+ * accessible, and easily recognizable on all devices.
  *
  * Impact Analysis:
- * This change aligns the login page perfectly with the application's design system.
+ * This change significantly improves the usability and professionalism of the login form.
  */
 'use client';
 
@@ -34,7 +35,7 @@ import Input from '@/app/components/ui/form/Input';
 import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
 import { useAuth } from '@/app/components/auth/AuthProvider';
-import authStyles from '@/app/styles/auth.module.css'; // The new shared stylesheet
+import authStyles from '@/app/styles/auth.module.css';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
