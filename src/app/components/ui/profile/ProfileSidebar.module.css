@@ -3,26 +3,25 @@
  * Purpose: Provides styles for the reusable user profile sidebar card.
  *
  * Change History:
- * C002 - 2025-07-20 : 20:00 - Removed fixed width to allow flexibility within grid layouts.
+ * C003 - 2025-07-21 : 19:45 - Implemented computed vertical spacing for optimal rhythm.
+ * C002 - 2025-07-20 : 20:00 - Removed fixed width to allow flexibility.
  * C001 - [Date] : [Time] - Initial creation.
  *
- * Last Modified: 2025-07-20 : 20:00
- * Requirement ID (optional): VIN-UI-012
+ * Last Modified: 2025-07-21 : 19:45
+ * Requirement ID (optional): VIN-UI-013
  *
  * Change Summary:
- * The fixed `width: 320px` has been removed. The component will now naturally fill the width
- * of its parent grid column, ensuring it can be used consistently in different layouts (like the
- * 384px private profile column) without being constrained.
+ * The vertical spacing has been re-engineered based on a computed design analysis. All margins now
+ * strictly adhere to the project's 8-point grid, creating a perfect vertical rhythm. The `.nameBlock`
+ * now correctly groups the name and ID with a standard 24px bottom margin.
  *
  * Impact Analysis:
- * This change is critical for creating a consistent profile page layout.
+ * This change creates a visually balanced, professional, and pixel-perfect component.
  */
 
 .sidebarCard {
   aspect-ratio: unset;
   text-align: center;
-  /* --- THIS IS THE FIX: Removed fixed width --- */
-  /* width: 320px; */ /* This line is removed */
   padding: var(--space-4, 32px);
 }
 
@@ -36,17 +35,24 @@
   box-shadow: var(--shadow-sm);
   object-fit: cover;
 }
-/* ... rest of the file is unchanged ... */
+
+/* This block groups the name and ID */
+.nameBlock {
+  /* Establishes the 24px space below the identity block */
+  margin-bottom: var(--space-3, 24px);
+}
+
 .displayName {
   font-size: var(--font-size-2xl, 24px);
   font-weight: var(--font-weight-semibold, 600);
+  /* Creates the 8px space between the name and agent ID */
+  margin-bottom: var(--space-1, 8px);
 }
 
 .agentId {
   font-size: var(--font-size-sm, 14px);
   color: var(--color-text-secondary, #5f6368);
   font-family: monospace;
-  margin-bottom: var(--space-3, 24px);
 }
 
 .textLink {
@@ -55,6 +61,7 @@
 }
 
 .statsCard {
+  /* Establishes the 24px space above the stats block */
   margin-top: var(--space-3, 24px);
   padding-top: var(--space-3, 24px);
   border-top: 1px solid var(--color-bg-page, #f8f9fa);
@@ -64,6 +71,7 @@
   display: flex;
   justify-content: space-between;
   font-size: var(--font-size-sm, 14px);
+  /* 16px space between each stat item */
   margin-bottom: var(--space-2, 16px);
   text-align: left;
 }
