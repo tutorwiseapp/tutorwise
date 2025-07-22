@@ -1,8 +1,9 @@
 /*
  * Filename: src/app/signup/page.tsx
- * Purpose: Renders the user signup page, connected to the live Supabase backend.
+ * Purpose: Renders the user signup page, connected to the live Supabase backend for both email and Google OAuth.
  *
  * Change History:
+ * C010 - 2025-07-22 : 16:45 - Implemented the handleGoogleLogin function for OAuth sign-in.
  * C009 - 2025-07-22 : 15:45 - Refactored handleSignup to use a two-step profile creation process.
  * C008 - 2025-07-22 : 04:30 - Refactored handleSignup to call Supabase Auth.
  * C007 - 2025-07-22 : 03:00 - Changed Google button variant for better clarity and contrast.
@@ -10,17 +11,16 @@
  * C005 - 2025-07-22 : 01:30 - Removed compact variant from PageHeader.
  * C004 - 2025-07-22 : 01:00 - Refactored to use standardized Container and shared auth styles.
  *
- * Last Modified: 2025-07-22 : 15:45
- * Requirement ID (optional): VIN-B-03.1
+ * Last Modified: 2025-07-22 : 16:45
+ * Requirement ID (optional): VIN-D-02
  *
  * Change Summary:
- * The `handleSignup` function has been rewritten to follow the correct and secure Supabase
- * profile creation pattern. It now first calls `signUp` and then, on success, performs a
- * second `insert` call to the `profiles` table with the new user's data. This resolves the
- * "Database error saving new user" bug caused by RLS policies.
+ * Added the `handleGoogleLogin` function, which calls `supabase.auth.signInWithOAuth`. This
+ * function is now attached to the "Continue with Google" button, making social sign-in fully
+ * functional. The component is now feature-complete for user registration.
  *
  * Impact Analysis:
- * This change makes the user signup feature fully functional with the live Supabase backend.
+ * This change adds a major user experience and conversion improvement to the application.
  */
 'use client';
 
@@ -83,7 +83,7 @@ const SignupPage = () => {
     }
 
     if (!authData.user) {
-        setMessage({ text: 'An unexpected error occurred during signup.', type: 'error' });
+        setMessage({ text: 'An unexpected error occurred. Please try again.', type: 'error' });
         setIsLoading(false);
         return;
     }
@@ -96,7 +96,7 @@ const SignupPage = () => {
     const { error: profileError } = await supabase
       .from('profiles')
       .insert({
-        id: authData.user.id, // The ID from the newly created auth user
+        id: authData.user.id,
         first_name: firstName,
         last_name: lastName,
         display_name: displayName,
@@ -117,11 +117,16 @@ const SignupPage = () => {
     setIsLoading(true);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
+      options: {
+        redirectTo: `${location.origin}/dashboard`, // Redirect to dashboard after successful login
+      },
     });
+
     if (error) {
-      setMessage({ text: error.message, type: 'error' });
+      setMessage({ text: `Google login failed: ${error.message}`, type: 'error' });
       setIsLoading(false);
     }
+    // No need to set loading to false on success, as the page will redirect.
   };
 
   return (
