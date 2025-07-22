@@ -3,141 +3,106 @@
  * Purpose: Provides a central hub for users to manage application and account settings.
  *
  * Change History:
- * C002 - 2025-07-20 : 10:30 - Updated 'Account Security' card to link to the new change-password page.
+ * C004 - 2025-07-22 : 00:15 - Applied contentStart class to fix email card alignment.
+ * C003 - 2025-07-21 : 23:30 - Refactored to use the standardized grid system from the dashboard.
+ * C002 - 2025-07-20 : 10:30 - Updated 'Account Security' card link.
  * C001 - [Date] : [Time] - Initial creation.
  *
- * Last Modified: 2025-07-20 : 10:30
+ * Last Modified: 2025-07-22 : 00:15
  * Requirement ID (optional): VIN-A-005
  *
  * Change Summary:
- * Changed the "Change Password" link in the "Account Security" card to point to the canonical
- * `/settings/change-password` route instead of the profile page. This integrates the new page
- * into the user settings flow.
+ * The "Email Notifications" card now uses the `settingStyles.contentStart` utility class.
+ * This overrides the default vertical centering and aligns its content to the top, creating
+ * a visually consistent layout with the other cards on the page.
  *
  * Impact Analysis:
- * This change correctly routes the user to the dedicated password change form, improving security
- * and user experience.
- *
- * Dependencies: "react", "next/link", "@/app/components/auth/AuthProvider", and various UI components.
+ * This change resolves the final layout inconsistency on the Settings page.
  */
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import type { User } from '@/types';
+import { useAuth } from '@/app/components/auth/AuthProvider';
 
-// Import our real, reusable components
+// VDL Component Imports
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import Checkbox from '@/app/components/ui/form/Checkbox';
-import styles from './page.module.css';
+import styles from '@/app/dashboard/page.module.css';
+import settingStyles from './page.module.css';
 
 const SettingsPage = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const { user, isLoading } = useAuth();
   const [desktopNotificationsEnabled, setDesktopNotificationsEnabled] = useState(true);
   const [conversionAlerts, setConversionAlerts] = useState(true);
   const [newsUpdates, setNewsUpdates] = useState(false);
-  const [fontSize, setFontSize] = useState(16);
 
-  useEffect(() => {
-    const loggedInUser = JSON.parse(localStorage.getItem('vinite_loggedin_user') || 'null');
-    setUser(loggedInUser);
-
-    const savedFontSize = localStorage.getItem('app_font_size');
-    if (savedFontSize) {
-      setFontSize(parseInt(savedFontSize, 10));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('app_font_size', fontSize.toString());
-  }, [fontSize]);
-
-  if (!user) {
+  if (isLoading || !user) {
     return <Container><p className={styles.loading}>Loading...</p></Container>;
   }
 
-  const dynamicFontStyles = {
-    '--font-size-dynamic-xl': `${fontSize * 1.25}px`,
-    '--font-size-dynamic-base': `${fontSize}px`,
-    '--font-size-dynamic-sm': `${fontSize * 1.00}px`,
-  } as React.CSSProperties;
-
   return (
     <Container>
-      <div style={dynamicFontStyles}>
-        
-        <div className={styles.pageHeaderContainer}>
-          <PageHeader title="Settings" />
-          <div className={styles.fontSizeSelector}>
-            <button className={`${styles.fontSizeButton} ${fontSize === 14 ? styles.active : ''}`} onClick={() => setFontSize(14)}>A</button>
-            <button className={`${styles.fontSizeButton} ${fontSize === 16 ? styles.active : ''}`} onClick={() => setFontSize(16)}>A</button>
-            <button className={`${styles.fontSizeButton} ${fontSize === 18 ? styles.active : ''}`} onClick={() => setFontSize(18)}>A</button>
+      <PageHeader title="Settings" />
+      
+      <div className={styles.grid}>
+      
+        <div className={styles.gridCard}>
+          <div className={styles.cardContent}>
+            <h3>Desktop Notifications</h3>
+            <p>Get alerts on your desktop when a referral converts or a payment is made.</p>
+          </div>
+          <div className={`${settingStyles.action} ${settingStyles.notificationActions}`}>
+            {desktopNotificationsEnabled ? (
+              <>
+                <span className={settingStyles.statusEnabled}>Enabled</span>
+                <a href="#" onClick={(e) => { e.preventDefault(); setDesktopNotificationsEnabled(false); }} className={`${settingStyles.cardActionLink} ${settingStyles.dangerLink}`}>Disable</a>
+                <a href="#" className={settingStyles.cardActionLink}>Send Test</a>
+              </>
+            ) : (
+              <>
+                <span className={settingStyles.statusDisabled}>Disabled</span>
+                <div></div>
+                <a href="#" onClick={(e) => { e.preventDefault(); setDesktopNotificationsEnabled(true); }} className={settingStyles.cardActionLink}>Enable</a>
+              </>
+            )}
           </div>
         </div>
-        
-        <div className={styles.settingsGrid}>
-        
-          <div className={styles.settingsCard}>
-            <div className={styles.content}>
-              <h3 className={styles.title}>Desktop Notifications</h3>
-              <p className={styles.description}>Get alerts on your desktop when a referral converts or a payment is made.</p>
-            </div>
-            <div className={`${styles.action} ${styles.notificationActions}`}>
-              {desktopNotificationsEnabled ? (
-                <>
-                  <span className={styles.statusEnabled}>Enabled</span>
-                  <a href="#" onClick={(e) => { e.preventDefault(); setDesktopNotificationsEnabled(false); }} className={`${styles.cardActionLink} ${styles.dangerLink}`}>Disable</a>
-                  <a href="#" className={styles.cardActionLink}>Send Test</a>
-                </>
-              ) : (
-                <>
-                  <span className={styles.statusDisabled}>Disabled</span>
-                  <div></div>
-                  <a href="#" onClick={(e) => { e.preventDefault(); setDesktopNotificationsEnabled(true); }} className={styles.cardActionLink}>Enable</a>
-                </>
-              )}
-            </div>
-          </div>
 
-          <div className={styles.settingsCard}>
-            <div className={styles.content}>
-              <h3 className={styles.title}>Email Notifications</h3>
-              <div className={styles.checkboxGroup}>
-                 <div className={styles.checkboxItem}>
-                    <label htmlFor="conversionAlerts" className={styles.checkboxLabelText}>Referral conversion alerts.</label>
-                    <Checkbox id="conversionAlerts" label="" checked={conversionAlerts} onCheckedChange={() => setConversionAlerts(p => !p)} />
-                 </div>
-                 <div className={styles.checkboxItem}>
-                    <label htmlFor="newsUpdates" className={styles.checkboxLabelText}>Platform news and updates.</label>
-                    <Checkbox id="newsUpdates" label="" checked={newsUpdates} onCheckedChange={() => setNewsUpdates(p => !p)} />
-                 </div>
+        {/* --- THIS IS THE FIX --- */}
+        <div className={`${styles.gridCard} ${settingStyles.contentStart}`}>
+          <div className={styles.cardContent}>
+            <h3>Email Notifications</h3>
+          </div>
+          <div className={settingStyles.checkboxGroup}>
+              <div className={settingStyles.checkboxItem}>
+                <label htmlFor="conversionAlerts" className={settingStyles.checkboxLabelText}>Referral activity alerts.</label>
+                <Checkbox id="conversionAlerts" label="" checked={conversionAlerts} onCheckedChange={() => setConversionAlerts(p => !p)} />
               </div>
-            </div>
+              <div className={settingStyles.checkboxItem}>
+                <label htmlFor="newsUpdates" className={settingStyles.checkboxLabelText}>News and updates.</label>
+                <Checkbox id="newsUpdates" label="" checked={newsUpdates} onCheckedChange={() => setNewsUpdates(p => !p)} />
+              </div>
           </div>
-          
-          <div className={styles.settingsCard}>
-            <div className={styles.content}>
-              <h3 className={styles.title}>Account Security</h3>
-              <p className={styles.description}>Manage your login credentials and enable two-factor authentication.</p>
-            </div>
-            <div className={styles.action}>
-               {/* --- THIS IS THE FIX --- */}
-              <Link href="/settings/change-password" className={styles.cardActionLink}>Change Password</Link>
-            </div>
-          </div>
-
-          <div className={styles.settingsCard}>
-            <div className={styles.content}>
-              <h3 className={styles.title}>Data & Privacy</h3>
-              <p className={styles.description}>Delete your account and all associated data permanently. This action cannot be undone.</p>
-            </div>
-            <div className={styles.action}>
-               <Link href="/delete-account" className={`${styles.cardActionLink} ${styles.dangerLink}`}>Delete Account</Link>
-            </div>
-          </div>
-
         </div>
+        
+        <div className={styles.gridCard}>
+          <div className={styles.cardContent}>
+            <h3>Account Security</h3>
+            <p>Manage your login credentials.</p>
+          </div>
+          <Link href="/settings/change-password" className={styles.cardLink}>Change Password</Link>
+        </div>
+
+        <div className={styles.gridCard}>
+          <div className={styles.cardContent}>
+            <h3>Data & Privacy</h3>
+            <p>Delete your account and all associated data permanently.</p>
+          </div>
+           <Link href="/delete-account" className={`${styles.cardLink} ${settingStyles.dangerLink}`}>Delete Account</Link>
+        </div>
+
       </div>
     </Container>
   );

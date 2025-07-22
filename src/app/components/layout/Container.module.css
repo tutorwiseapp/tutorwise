@@ -3,20 +3,23 @@
  * Purpose: Provides the main content container with responsive padding and max-widths.
  *
  * Change History:
- * C004 - 2025-07-21 : 21:30 - Renamed .auth variant to .form for better semantics.
+ * C006 - 2025-07-22 : 02:30 - Added .page-tagline margin override for the 'form' variant.
+ * C005 - 2025-07-22 : 01:00 - Added PageHeader margin override for the 'form' variant.
+ * C004 - 2025-07-21 : 21:30 - Renamed .auth variant to .form.
  * C003 - 2025-07-21 : 21:15 - Added new .auth variant style.
- * C002 - 2025-07-21 : 21:00 - Added a media query to reduce padding on mobile devices.
+ * C002 - 2025-07-21 : 21:00 - Added a media query to reduce padding on mobile.
  * C001 - [Date] : [Time] - Initial creation.
  *
- * Last Modified: 2025-07-21 : 21:30
+ * Last Modified: 2025-07-22 : 02:30
  * Requirement ID (optional): VIN-UI-015
  *
  * Change Summary:
- * Added the `.form` class with a `max-width: 480px`. This is the new standard for
- * authentication and simple form pages.
+ * Added a `:global(.page-tagline)` selector anchored to the local `.form` class. This is the
+ * explicit "function" to manually control the spacing between the tagline and the form card,
+ * overriding the global default and setting it to a consistent 24px.
  *
  * Impact Analysis:
- * This change provides the necessary styling for the new container variant.
+ * This correctly implements the desired spacing for all form pages.
  */
 
 .container {
@@ -46,10 +49,20 @@
   max-width: 1440px;
 }
 
-/* --- THIS IS THE NEW VARIANT --- */
 .form {
   max-width: 480px;
-  /* Add some vertical padding to center these forms on the page */
   padding-top: var(--space-5);
   padding-bottom: var(--space-5);
+}
+
+/* This rule overrides the PageHeader margin inside a form container */
+.form > :global(div[class*="PageHeader_pageHeader__"]) {
+  margin-bottom: var(--space-3);
+}
+
+/* --- THIS IS THE NEW "FUNCTION" YOU REQUESTED --- */
+/* This rule overrides the .page-tagline margin inside a form container */
+.form > :global(.page-tagline) {
+  margin-top: 0;
+  margin-bottom: var(--space-2); /* This is the 24px value you can manually change */
 }

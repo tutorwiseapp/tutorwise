@@ -1,28 +1,38 @@
 /*
- * Definitive styles for the PageHeader component.
+ * Filename: src/app/components/ui/PageHeader.module.css
+ * Purpose: Provides styles for the PageHeader component.
+ *
+ * Change History:
+ * C003 - 2025-07-22 : 02:00 - Removed the .compact variant as it was the incorrect approach.
+ * C002 - 2025-07-22 : 01:30 - Added a .compact variant.
+ * C001 - [Date] : [Time] - Initial creation.
+ *
+ * Last Modified: 2025-07-22 : 02:00
+ * Requirement ID (optional): VIN-UI-015
+ *
+ * Change Summary:
+ * The `.compact` class has been removed. The spacing override is now handled more precisely
+ * and correctly by a targeted rule in the `auth.module.css` file.
+ *
+ * Impact Analysis:
+ * This simplifies the PageHeader component back to its core purpose.
  */
 .pageHeader {
-  /* The space below the entire header block before the page content starts. */
+  /* The default, standard spacing for a PageHeader */
   margin-bottom: var(--space-4, 32px);
-  /* Text defaults to left-alignment. */
 }
 
 .title {
   font-size: var(--font-size-3xl, 32px);
   font-weight: var(--font-weight-semibold, 600);
   color: var(--color-text-primary, #202124);
-  /* The h1 has no bottom margin itself. Spacing is handled by the subtitle. */
   margin-bottom: 0;
 }
 
-/* 
- * Style for the optional subtitle paragraph.
- */
 .subtitle {
   font-size: var(--font-size-lg, 18px);
   font-weight: var(--font-weight-regular, 400);
   color: var(--color-text-secondary, #5f6368);
   line-height: 1.6;
-  /* Adds a small space between the title and the subtitle. */
-  margin-top: var(--space-2, 16px);
+  margin-top: var(--space-1, 8px);
 }

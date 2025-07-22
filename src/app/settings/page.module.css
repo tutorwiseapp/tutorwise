@@ -1,50 +1,30 @@
-/* --- Page Layout --- */
-.pageHeaderContainer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-4, 32px);
-  flex-wrap: wrap;
-  gap: 16px;
+/*
+ * Filename: src/app/settings/page.module.css
+ * Purpose: Provides unique styles for the interactive elements on the Settings page.
+ *
+ * Change History:
+ * C003 - 2025-07-22 : 00:15 - Added .contentStart utility class to fix vertical alignment.
+ * C002 - 2025-07-21 : 23:30 - Removed all redundant grid and card styles.
+ * C001 - [Date] : [Time] - Initial creation.
+ *
+ * Last Modified: 2025-07-22 : 00:15
+ * Requirement ID (optional): VIN-A-005
+ *
+ * Change Summary:
+ * Added a new `.contentStart` utility class. This class overrides the default flexbox alignment,
+ * forcing the content to the top of the card. It is used on the "Email Notifications" card to
+ * fix a vertical alignment issue and ensure a consistent layout.
+ *
+ * Impact Analysis:
+ * This change perfects the layout of the Settings page.
+ */
+
+/* --- THIS IS THE FIX --- */
+/* This utility class overrides the default justify-content from the gridCard */
+.contentStart {
+  justify-content: flex-start;
 }
 
-/* --- Settings Grid & Cards --- */
-.settingsGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-3, 24px);
-}
-@media (min-width: 768px) { .settingsGrid { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1024px) { .settingsGrid { grid-template-columns: repeat(3, 1fr); } }
-
-.settingsCard {
-  background-color: var(--color-bg-card, #ffffff);
-  border: 1px solid var(--color-border, #dfe1e5);
-  border-radius: var(--border-radius-md, 16px);
-  padding: var(--space-4, 32px);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 220px;
-}
-
-/* --- Card Content --- */
-.content { 
-  flex-grow: 1; 
-}
-
-.title {
-  font-size: var(--font-size-dynamic-xl, 20px);
-  font-weight: var(--font-weight-medium, 500);
-  margin-bottom: var(--space-1, 8px);
-  color: var(--color-text-primary, #202124);
-}
-
-.description {
-  font-size: var(--font-size-dynamic-base, 16px);
-  color: var(--color-text-secondary, #5f6368);
-  line-height: 1.6;
-}
 
 /* --- Card Actions / Footers --- */
 .action {
@@ -65,31 +45,34 @@
 .notificationActions > :last-child { text-align: right; }
 
 .cardActionLink {
-  font-size: var(--font-size-dynamic-sm, 14px);
-  font-weight: var(--font-weight-regular, 400);
-  color: var(--color-primary-accent, #4CAEAD);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-primary-accent);
   text-decoration: none;
 }
 .cardActionLink:hover { text-decoration: underline; }
 
 .statusEnabled {
-  font-size: var(--font-size-dynamic-sm, 14px);
-  color: var(--color-primary, #006C67);
-  font-weight: var(--font-weight-medium, 500);
+  font-size: var(--font-size-md);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
 }
 .statusDisabled {
-  font-size: var(--font-size-dynamic-sm, 14px);
-  color: var(--color-text-secondary, #5f6368);
-  font-weight: var(--font-weight-medium, 500);
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
 }
-.dangerLink { color: var(--color-error, #d93025); }
+.dangerLink { 
+  color: var(--color-error) !important; 
+}
 
 /* --- Checkbox Group (Email Card) --- */
 .checkboxGroup {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  margin-top: 16px;
+  gap: 8px;
+  /* Use a larger margin-top to create space from the title */
+  margin-top: var(--space-0); 
 }
 .checkboxItem {
   display: flex;
@@ -98,39 +81,8 @@
   width: 100%;
 }
 .checkboxLabelText {
-  font-size: var(--font-size-dynamic-base, 16px);
-  color: var(--color-text-secondary, #5f6368);
+  font-size: var(--font-size-md); /* Use 14px to match other card text */
+  color: var(--color-text-secondary);
   cursor: pointer;
-}
-
-/* --- Font Size Selector --- */
-.fontSizeSelector {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background-color: var(--color-bg-page, #f8f9fa);
-  border-radius: var(--border-radius-md, 8px);
-  padding: 4px;
-}
-.fontSizeButton {
-  border: 1px solid transparent; background-color: transparent;
-  border-radius: var(--border-radius-sm, 6px); cursor: pointer;
-  font-weight: var(--font-weight-medium, 500); color: var(--color-text-secondary, #5f6368);
-  transition: all 0.2s ease-in-out;
-  display: flex; align-items: center; justify-content: center;
-}
-.fontSizeButton:nth-child(1) { font-size: 12px; width: 32px; height: 32px; }
-.fontSizeButton:nth-child(2) { font-size: 16px; width: 32px; height: 32px; }
-.fontSizeButton:nth-child(3) { font-size: 20px; width: 32px; height: 32px; }
-.fontSizeButton.active {
-  background-color: var(--color-bg-card, #ffffff);
-  color: var(--color-primary-accent, #4CAEAD);
-  border-color: var(--color-border, #dfe1e5);
-}
-
-/* --- Utility --- */
-.loading {
-  text-align: center;
-  padding: var(--space-6, 64px);
-  color: var(--color-text-secondary, #5f6368);
+  padding-right: var(--space-2);
 }

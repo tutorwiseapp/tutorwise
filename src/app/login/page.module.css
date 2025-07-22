@@ -1,71 +1,17 @@
 /*
  * Filename: src/app/login/page.module.css
- * Purpose: Provides specific, custom layout styles for the user login page.
+ * Purpose: Provides page-specific styles for the login page.
  *
  * Change History:
- * C003 - 2025-07-21 : 22:45 - Added .authContainer and PageHeader override to match signup page.
- * C002 - 2025-07-21 : 21:30 - Removed redundant .authContainer class.
- * C001 - [Date] : [Time] - Initial creation.
+ * C004 - 2025-07-22 : 00:30 - This file is now empty as all styles have been centralized.
+ * ... (previous history)
  *
- * Last Modified: 2025-07-21 : 22:45
+ * Last Modified: 2025-07-22 : 00:30
  * Requirement ID (optional): VIN-A-004
  *
  * Change Summary:
- * The `.authContainer` class and the `:global` PageHeader override have been added to this file,
- * making it a mirror of the signup page's stylesheet. This guarantees a pixel-perfect,
- * consistent layout for the entire authentication flow.
- *
- * Impact Analysis:
- * This change resolves the width inconsistency between the login and signup pages.
+ * All styles have been moved to the shared `auth.module.css` file. This file is
+ * preserved for any future styles that are unique only to the login page.
  */
 
-.authContainer {
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
-  padding: var(--space-5) var(--space-2); /* Use standard horizontal padding for mobile */
-}
-
-.authCard {
-  aspect-ratio: unset;
-}
-
-.forgotPasswordLink {
-  display: block;
-  text-align: right;
-  margin-top: calc(-1 * var(--space-2, 16px));
-  margin-bottom: var(--space-3, 24px);
-  font-size: var(--font-size-sm, 14px);
-  color: var(--color-text-secondary, #5f6368);
-}
-
-.separator {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  color: var(--color-text-secondary, #5f6368);
-  font-size: var(--font-size-xs, 12px);
-  margin: var(--space-3, 24px) 0;
-}
-.separator::before, .separator::after {
-  content: '';
-  flex: 1;
-  border-bottom: 1px solid var(--color-border, #dfe1e5);
-}
-.separator:not(:empty)::before { margin-right: .5em; }
-.separator:not(:empty)::after { margin-left: .5em; }
-
-.authSwitch {
-  text-align: center;
-  margin-top: var(--space-3, 24px);
-  font-size: var(--font-size-sm, 14px);
-}
-.authSwitch a {
-    font-weight: var(--font-weight-medium, 500);
-}
-
-/* This global override targets the PageHeader *only* when it's inside our authContainer */
-.authContainer > :global(div[class*="PageHeader_pageHeader"]) {
-  /* The default PageHeader has a 32px bottom margin. We override it here for a tighter look. */
-  margin-bottom: var(--space-3); /* Sets the spacing between the subtitle and the form card to 24px */
-}
+/* No page-specific styles are currently required. */

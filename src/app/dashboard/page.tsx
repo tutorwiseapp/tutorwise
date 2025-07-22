@@ -3,23 +3,24 @@
  * Purpose: Serves as the main navigation hub for authenticated users.
  *
  * Change History:
- * C003 - 2025-07-20 : 14:00 - Fixed property access to use snake_case, resolving build error.
- * C002 - 2025-07-20 : 09:00 - Refactored to use AuthProvider context instead of direct localStorage access.
+ * C005 - 2025-07-22 : 00:00 - Restored the linkText property to the card link.
+ * C004 - 2025-07-21 : 23:30 - Updated to use a standard div with the new generic .gridCard class.
+ * C003 - 2025-07-20 : 14:00 - Fixed property access to use snake_case.
+ * C002 - 2025-07-20 : 09:00 - Refactored to use AuthProvider context.
  * C001 - [Date] : [Time] - Initial creation.
  *
- * Last Modified: 2025-07-20 : 14:00
+ * Last Modified: 2025-07-22 : 00:00
  * Requirement ID: VIN-A-002
  *
  * Change Summary:
- * Updated the `subtitle` prop in the <PageHeader> to use the correct snake_case properties
- * (`user.display_name` and `user.agent_id`). This aligns the component with the canonical data
- * model and resolves the TypeScript error that was causing the Vercel deployment to fail.
+ * The `.map()` function now correctly renders `link.linkText` as the content of the <Link>
+ * component. This restores the visible action links at the bottom of each card, matching the
+ * final design.
  *
  * Impact Analysis:
- * This change fixes a critical deployment blocker and ensures the user's information is displayed
- * correctly on the dashboard.
+ * This fixes a regression and completes the intended design of the dashboard cards.
  *
- * Dependencies: "react", "next/link", "@/app/components/auth/AuthProvider", and various UI components.
+ * Dependencies: "react", "next/link", "@/app/components/auth/AuthProvider", "@/app/components/layout/Container", "@/app/components/ui/PageHeader", "./page.module.css".
  */
 'use client';
 
@@ -31,7 +32,6 @@ import { useAuth } from '@/app/components/auth/AuthProvider';
 // VDL Component Imports
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
-import Card from '@/app/components/ui/Card';
 import styles from './page.module.css';
 
 const dashboardLinks = [
@@ -62,19 +62,18 @@ const DashboardPage = () => {
     <Container>
       <PageHeader
         title="Dashboard"
-        // --- THIS IS THE FIX ---
-        // Use the correct snake_case properties from the user object.
         subtitle={`Welcome, ${user.display_name || 'User'} (${user.agent_id || ''})`}
       />
       <div className={styles.grid}>
         {dashboardLinks.map((link) => (
-          <Card key={link.href} className={styles.dashboardCard}>
+          <div key={link.href} className={styles.gridCard}>
             <div className={styles.cardContent}>
               <h3>{link.title}</h3>
               <p>{link.description}</p>
             </div>
+            {/* --- THIS IS THE FIX --- */}
             <Link href={link.href} className={styles.cardLink}>{link.linkText}</Link>
-          </Card>
+          </div>
         ))}
       </div>
     </Container>
