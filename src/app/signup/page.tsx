@@ -1,21 +1,19 @@
 /*
  * Filename: src/app/signup/page.tsx
- * Purpose: Renders the user signup page, with a secure, server-side Google OAuth flow.
+ * Purpose: Renders the user signup page, with a secure, client-side Google OAuth flow.
  *
  * Change History:
- * C013 - 2025-07-22 : 18:30 - Corrected Google login to initiate the secure server-side OAuth flow.
- * C012 - 2025-07-22 : 18:00 - Refactored Google login to call a server-side API route.
- * C011 - 2025-07-22 : 17:00 - Implemented state-driven redirect for Google login.
- * C010 - 2025-07-22 : 16:45 - Implemented the handleGoogleLogin function.
- * C009 - 2025-07-22 : 15:45 - Refactored handleSignup to use a two-step profile creation process.
+ * C014 - 2025-07-22 : 19:00 - Reverted to the correct client-side PKCE flow for Google Auth.
+ * ... (previous history)
  *
- * Last Modified: 2025-07-22 : 18:30
- * Requirement ID (optional): VIN-D-02.4
+ * Last Modified: 2025-07-22 : 19:00
+ * Requirement ID (optional): VIN-D-02.5
  *
  * Change Summary:
- * The `handleGoogleLogin` function now correctly initiates the server-side OAuth flow by calling
- * `signInWithOAuth` and providing the absolute `redirectTo` URL for the `/auth/callback` route.
- * This is the final and correct implementation that resolves the localhost connection errors.
+ * The `handleGoogleLogin` function has been simplified to correctly initiate the client-side
+ * PKCE OAuth flow. It no longer specifies a `redirectTo` option, allowing Supabase to
+ * correctly use the configured Site URL and Redirect URLs from the dashboard. This is the
+ * definitive fix for the localhost connection error.
  *
  * Impact Analysis:
  * This change makes the Google Sign-Up feature fully functional, secure, and reliable.
@@ -76,25 +74,17 @@ const SignupPage = () => {
     setIsLoading(true);
     setMessage(null);
 
-    // Step 1: Create the user in Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: email,
       password: password,
     });
 
-    if (authError) {
-      setMessage({ text: authError.message, type: 'error' });
+    if (authError || !authData.user) {
+      setMessage({ text: authError?.message || 'Could not sign up user. Please try again.', type: 'error' });
       setIsLoading(false);
       return;
     }
 
-    if (!authData.user) {
-        setMessage({ text: 'An unexpected error occurred. Please try again.', type: 'error' });
-        setIsLoading(false);
-        return;
-    }
-
-    // Step 2: If auth user was created, insert their profile
     const displayName = `${firstName} ${lastName}`;
     const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
     const agentId = `A1-${initials}${Math.floor(100000 + Math.random() * 900000)}`;
@@ -123,9 +113,6 @@ const SignupPage = () => {
     setIsLoading(true);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
     });
 
     if (error) {
