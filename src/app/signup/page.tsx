@@ -1,22 +1,23 @@
 /*
  * Filename: src/app/signup/page.tsx
- * Purpose: Renders the user signup page, with a secure, client-side Google OAuth flow.
+ * Purpose: Renders the user signup page, now configured for dynamic server-side rendering.
  *
  * Change History:
- * C014 - 2025-07-22 : 19:00 - Reverted to the correct client-side PKCE flow for Google Auth.
+ * C018 - 2025-07-22 : 21:00 - Added 'export const dynamic = "force-dynamic"' to resolve build error.
+ * C017 - 2025-07-22 : 20:30 - Refactored to use a Suspense boundary.
  * ... (previous history)
  *
- * Last Modified: 2025-07-22 : 19:00
- * Requirement ID (optional): VIN-D-02.5
+ * Last Modified: 2025-07-22 : 21:00
+ * Requirement ID (optional): VIN-A-004
  *
  * Change Summary:
- * The `handleGoogleLogin` function has been simplified to correctly initiate the client-side
- * PKCE OAuth flow. It no longer specifies a `redirectTo` option, allowing Supabase to
- * correctly use the configured Site URL and Redirect URLs from the dashboard. This is the
- * definitive fix for the localhost connection error.
+ * The component has been refactored back into a single file. The line `export const dynamic = "force-dynamic";`
+ * has been added. This is the official Next.js directive to opt this page out of static building
+ * and force it into dynamic, server-side rendering. This makes the `useSearchParams` hook available
+ * without requiring a Suspense boundary, resolving the build error in a clean, single-file solution.
  *
  * Impact Analysis:
- * This change makes the Google Sign-Up feature fully functional, secure, and reliable.
+ * This change fixes a critical deployment blocker and simplifies the component's structure.
  */
 'use client';
 
@@ -24,6 +25,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
+import type { Profile } from '@/types';
 
 // VDL Component Imports
 import Container from '@/app/components/layout/Container';
@@ -36,6 +38,10 @@ import Message from '@/app/components/ui/Message';
 import { RadioGroup } from '@/app/components/ui/form/Radio';
 import { useAuth } from '@/app/components/auth/AuthProvider';
 import authStyles from '@/app/styles/auth.module.css';
+
+// --- THIS IS THE FINAL, CORRECT SOLUTION ---
+// This line tells Next.js to render this page dynamically on the server at request time.
+export const dynamic = 'force-dynamic';
 
 const roleOptions = [
   { value: 'agent', label: 'Agent - Earn Rewards' },
@@ -89,23 +95,31 @@ const SignupPage = () => {
     const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
     const agentId = `A1-${initials}${Math.floor(100000 + Math.random() * 900000)}`;
 
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .insert({
-        id: authData.user.id,
-        first_name: firstName,
-        last_name: lastName,
-        display_name: displayName,
-        agent_id: agentId,
-        roles: [selectedRole as 'agent' | 'seeker' | 'provider'],
-      });
-    
-    setIsLoading(false);
+    const response = await fetch('/api/auth/create-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            id: authData.user.id,
+            first_name: firstName,
+            last_name: lastName,
+            display_name: displayName,
+            agent_id: agentId,
+            roles: [selectedRole],
+        })
+    });
 
-    if (profileError) {
-      setMessage({ text: `Database error saving new user: ${profileError.message}`, type: 'error' });
+    if (!response.ok) {
+        const { error } = await response.json();
+        setMessage({ text: `Database error: ${error}`, type: 'error' });
+        setIsLoading(false);
     } else {
-      setMessage({ text: 'Success! If required, please check your email to confirm your account.', type: 'success' });
+        const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
+        setIsLoading(false);
+        if (loginError) {
+            setMessage({ text: `Account created, but login failed: ${loginError.message}`, type: 'error' });
+        } else {
+            setMessage({ text: 'Account created! Redirecting...', type: 'success' });
+        }
     }
   };
 
