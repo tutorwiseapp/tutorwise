@@ -1,28 +1,26 @@
-<<<<<<< Updated upstream
-=======
 /*
  * Filename: src/app/page.tsx
  * Purpose: Provides the primary UI for generating new Vinite referral links, connected to the live backend.
  *
  * Change History:
+ * C004 - 2025-07-22 : 22:45 - Manually resolved merge conflicts after stashing.
  * C003 - 2025-07-22 : 22:30 - Corrected state update call to fix TypeScript build error.
  * C002 - 2025-07-22 : 21:30 - Refactored handleGenerateLink to call the new /api/links endpoint.
  * C001 - 2025-07-16 : (Time) - Initial creation with client-side only logic.
  *
- * Last Modified: 2025-07-22 : 22:30
+ * Last Modified: 2025-07-22 : 22:45
  * Requirement ID (optional): VIN-D-01.2
  *
  * Change Summary:
- * The `handleGenerateLink` function now calls `setMessage(null)` directly instead of using the
- * `showMessage` helper to clear the message. This satisfies TypeScript's strict type checking
- * for the `message` state and resolves the "Argument of type 'null' is not assignable" build error.
+ * The file has been manually cleaned to resolve merge conflict markers that were causing the
+ * Vercel build to fail. The code is now syntactically correct and represents the final version
+ * that connects the link generation feature to the live backend API.
  *
  * Impact Analysis:
  * This change fixes a critical deployment blocker.
  *
  * Dependencies: "react", "next/link", "qrcode", "@/app/components/auth/AuthProvider", and various UI components.
  */
->>>>>>> Stashed changes
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
@@ -50,12 +48,21 @@ export default function HomePage() {
   const [generatedLink, setGeneratedLink] = useState('');
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' | 'warning' } | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const isUrlValid = useMemo(() => { if (!destinationUrl) return null; return validateUrl(destinationUrl).valid; }, [destinationUrl]);
 
   useEffect(() => {
-    if (user?.agent_id) { setAgentId(user.agent_id); } 
-    else { let guestId = sessionStorage.getItem('vinite_guest_id'); if (!guestId) { guestId = `T1-GU${Math.floor(100000 + Math.random() * 900000)}`; sessionStorage.setItem('vinite_guest_id', guestId); } setAgentId(guestId); }
+    if (user?.agent_id) { 
+      setAgentId(user.agent_id); 
+    } else { 
+      let guestId = sessionStorage.getItem('vinite_guest_id'); 
+      if (!guestId) { 
+        guestId = `T1-GU${Math.floor(100000 + Math.random() * 900000)}`; 
+        sessionStorage.setItem('vinite_guest_id', guestId); 
+      } 
+      setAgentId(guestId); 
+    }
   }, [user]);
 
   useEffect(() => {
@@ -67,14 +74,8 @@ export default function HomePage() {
 
   const showMessage = (msg: { text: string; type: 'success' | 'error' | 'warning' }) => { setMessage(msg); };
   
-  const handleGenerateLink = useCallback(() => {
+  const handleGenerateLink = useCallback(async () => {
     const urlValidation = validateUrl(destinationUrl);
-<<<<<<< Updated upstream
-    if (!urlValidation.valid) { showMessage({ text: urlValidation.message!, type: 'error' }); return; }
-    const newLink = `https://vinite.com/a/${encodeURIComponent(agentId)}?u=${encodeURIComponent(destinationUrl)}`;
-    setGeneratedLink(newLink);
-    showMessage({ text: 'Your Vinite link is ready!', type: 'success' });
-=======
     if (!urlValidation.valid) { 
       showMessage({ text: urlValidation.message!, type: 'error' }); 
       return; 
@@ -108,7 +109,6 @@ export default function HomePage() {
     } finally {
       setIsGenerating(false);
     }
->>>>>>> Stashed changes
   }, [destinationUrl, agentId]);
   
   const handleClearUrl = () => { setDestinationUrl(''); setGeneratedLink(''); };
@@ -121,8 +121,6 @@ export default function HomePage() {
     window.open(shareUrl, '_blank');
   };
   
-  // --- THIS IS THE ONLY CHANGE ---
-  // The copy function is now more robust.
   const handleCopyToClipboard = (text: string, successMessage: string) => {
     if (!navigator.clipboard) {
       showMessage({ text: 'Clipboard API is not available in this context.', type: 'error' });
@@ -152,10 +150,14 @@ export default function HomePage() {
             <div className={`${styles.validationIndicator} ${isUrlValid === true ? styles.valid : isUrlValid === false ? styles.invalid : ''}`} />
           </div>
           <div className={styles.inputSeparator}></div>
-          <div className={`${styles.inputWrapper} ${styles.agentWrapper}`}><input type="text" className={styles.agentInput} value={agentId} readOnly /></div>
+          <div className={`${styles.inputWrapper} ${styles.agentWrapper}`}>
+            <input type="text" className={styles.agentInput} value={agentId} readOnly />
+          </div>
         </div>
         <div className={styles.buttonContainer}>
-          <Button onClick={handleGenerateLink} variant="primary">Generate Link</Button>
+          <Button onClick={handleGenerateLink} variant="primary" disabled={isGenerating}>
+            {isGenerating ? 'Generating...' : 'Generate Link'}
+          </Button>
           <Button onClick={() => handleShare('whatsapp')} disabled={!generatedLink} variant="primary">Refer on WhatsApp</Button>
           <Button onClick={() => handleShare('linkedin')} disabled={!generatedLink} variant="primary">Refer on LinkedIn</Button>
         </div>
@@ -179,13 +181,9 @@ export default function HomePage() {
             </div>
             <div className={styles.outputInstructions}>
               <p><strong>1. To Share Manually:</strong> Copy the link, QR code, or snippet and paste it in social media, an email, or a blog post.</p>
-              <p><strong>2. To Share Directly:</strong> Use the one-click &quot;Refer on WhatsApp&quot; or &quot;Refer on LinkedIn&quot; buttons.</p>
+              <p><strong>2. To Share Directly:</strong> Use the one-click "Refer on WhatsApp" or "Refer on LinkedIn" buttons.</p>
               {!isLoggedIn && agentId.startsWith('T1-') && (
-<<<<<<< Updated upstream
-                <p><strong>3. To Claim Rewards:</strong> Save this temporary Agent ID <strong>{agentId}</strong> to <Link href="/claim" className={styles.claimLink}>claim any rewards</Link> you earn, or <Link href="/signup" className={styles.claimLink}>Sign Up</Link> to track them automatically.</p>
-=======
                 <p><strong>3. To Claim Rewards:</strong> Save this temporary Agent ID <strong>{agentId}</strong> to <Link href={`/signup?claimId=${agentId}`} className={styles.claimLink}>claim any rewards</Link> you earn, or <Link href="/signup" className={styles.claimLink}>Sign Up</Link> to track them automatically.</p>
->>>>>>> Stashed changes
               )}
             </div>
           </div>
@@ -194,5 +192,3 @@ export default function HomePage() {
     </Container>
   );
 }
-
-// This is the good file and should be used a a rference date 16 July.
