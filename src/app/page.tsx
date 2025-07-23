@@ -1,3 +1,28 @@
+<<<<<<< Updated upstream
+=======
+/*
+ * Filename: src/app/page.tsx
+ * Purpose: Provides the primary UI for generating new Vinite referral links, connected to the live backend.
+ *
+ * Change History:
+ * C003 - 2025-07-22 : 22:30 - Corrected state update call to fix TypeScript build error.
+ * C002 - 2025-07-22 : 21:30 - Refactored handleGenerateLink to call the new /api/links endpoint.
+ * C001 - 2025-07-16 : (Time) - Initial creation with client-side only logic.
+ *
+ * Last Modified: 2025-07-22 : 22:30
+ * Requirement ID (optional): VIN-D-01.2
+ *
+ * Change Summary:
+ * The `handleGenerateLink` function now calls `setMessage(null)` directly instead of using the
+ * `showMessage` helper to clear the message. This satisfies TypeScript's strict type checking
+ * for the `message` state and resolves the "Argument of type 'null' is not assignable" build error.
+ *
+ * Impact Analysis:
+ * This change fixes a critical deployment blocker.
+ *
+ * Dependencies: "react", "next/link", "qrcode", "@/app/components/auth/AuthProvider", and various UI components.
+ */
+>>>>>>> Stashed changes
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
@@ -44,10 +69,46 @@ export default function HomePage() {
   
   const handleGenerateLink = useCallback(() => {
     const urlValidation = validateUrl(destinationUrl);
+<<<<<<< Updated upstream
     if (!urlValidation.valid) { showMessage({ text: urlValidation.message!, type: 'error' }); return; }
     const newLink = `https://vinite.com/a/${encodeURIComponent(agentId)}?u=${encodeURIComponent(destinationUrl)}`;
     setGeneratedLink(newLink);
     showMessage({ text: 'Your Vinite link is ready!', type: 'success' });
+=======
+    if (!urlValidation.valid) { 
+      showMessage({ text: urlValidation.message!, type: 'error' }); 
+      return; 
+    }
+
+    setIsGenerating(true);
+    setMessage(null);
+
+    try {
+      const response = await fetch('/api/links', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          destinationUrl,
+          channel: 'web-generator',
+          agentId,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to create link.');
+      }
+      
+      const newLink = `https://vinite.com/a/${encodeURIComponent(agentId)}?u=${encodeURIComponent(destinationUrl)}`;
+      setGeneratedLink(newLink);
+      showMessage({ text: 'Your Vinite link is ready!', type: 'success' });
+
+    } catch (err) {
+      showMessage({ text: err instanceof Error ? err.message : 'An unknown error occurred.', type: 'error' });
+    } finally {
+      setIsGenerating(false);
+    }
+>>>>>>> Stashed changes
   }, [destinationUrl, agentId]);
   
   const handleClearUrl = () => { setDestinationUrl(''); setGeneratedLink(''); };
@@ -120,7 +181,11 @@ export default function HomePage() {
               <p><strong>1. To Share Manually:</strong> Copy the link, QR code, or snippet and paste it in social media, an email, or a blog post.</p>
               <p><strong>2. To Share Directly:</strong> Use the one-click &quot;Refer on WhatsApp&quot; or &quot;Refer on LinkedIn&quot; buttons.</p>
               {!isLoggedIn && agentId.startsWith('T1-') && (
+<<<<<<< Updated upstream
                 <p><strong>3. To Claim Rewards:</strong> Save this temporary Agent ID <strong>{agentId}</strong> to <Link href="/claim" className={styles.claimLink}>claim any rewards</Link> you earn, or <Link href="/signup" className={styles.claimLink}>Sign Up</Link> to track them automatically.</p>
+=======
+                <p><strong>3. To Claim Rewards:</strong> Save this temporary Agent ID <strong>{agentId}</strong> to <Link href={`/signup?claimId=${agentId}`} className={styles.claimLink}>claim any rewards</Link> you earn, or <Link href="/signup" className={styles.claimLink}>Sign Up</Link> to track them automatically.</p>
+>>>>>>> Stashed changes
               )}
             </div>
           </div>
