@@ -3,20 +3,22 @@
  * Purpose: Renders the user login page with a secure, client-side Google OAuth flow.
  *
  * Change History:
+ * C009 - 2025-07-22 : 19:30 - Removed state-driven redirect useEffect to fix race condition.
  * C008 - 2025-07-22 : 19:00 - Reverted to the correct client-side PKCE flow for Google Auth.
  * C007 - 2025-07-22 : 18:30 - Implemented the secure server-side Google OAuth flow.
  * C006 - 2025-07-22 : 16:00 - Fixed redirection race condition by using a state-driven useEffect.
  *
- * Last Modified: 2025-07-22 : 19:00
+ * Last Modified: 2025-07-22 : 19:30
  * Requirement ID (optional): VIN-D-02.5
  *
  * Change Summary:
- * The `handleGoogleLogin` function has been simplified to correctly initiate the client-side
- * PKCE OAuth flow. A `useEffect` hook robustly handles redirection after any successful
- * login method, creating a reliable and seamless user experience.
+ * The `useEffect` hook that handled redirection has been removed. The page's sole
+ * responsibility is now to initiate login. The central AuthProvider and the consuming
+ * pages (like Dashboard) are now responsible for handling navigation based on auth state,
+ * which is a more robust, centralized pattern that fixes race conditions.
  *
  * Impact Analysis:
- * This change makes the Google Sign-In feature fully functional, secure, and reliable.
+ * This change simplifies the component and makes the login flow more reliable.
  */
 'use client';
 
@@ -44,6 +46,7 @@ const LoginPage = () => {
   const router = useRouter();
   const { user } = useAuth();
 
+  // This effect now redirects a user AWAY from the login page if they are already logged in.
   useEffect(() => {
     if (user) {
       router.push('/dashboard');
@@ -65,7 +68,7 @@ const LoginPage = () => {
     if (error) {
       setError(error.message);
     }
-    // On success, the useEffect will handle the redirect.
+    // On success, the AuthProvider's state will change, and the useEffect above will redirect.
   };
 
   const handleGoogleLogin = async () => {
@@ -78,8 +81,6 @@ const LoginPage = () => {
       setError(`Google login failed: ${error.message}`);
       setIsLoading(false);
     }
-    // On success, Supabase redirects to Google and then back.
-    // The AuthProvider and useEffect will handle the session and final redirect.
   };
 
   return (

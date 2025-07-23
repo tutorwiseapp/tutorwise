@@ -3,20 +3,20 @@
  * Purpose: Renders the user signup page, with a secure, client-side Google OAuth flow.
  *
  * Change History:
+ * C015 - 2025-07-22 : 19:30 - Removed state-driven redirect useEffect to fix race condition.
  * C014 - 2025-07-22 : 19:00 - Reverted to the correct client-side PKCE flow for Google Auth.
  * ... (previous history)
  *
- * Last Modified: 2025-07-22 : 19:00
+ * Last Modified: 2025-07-22 : 19:30
  * Requirement ID (optional): VIN-D-02.5
  *
  * Change Summary:
- * The `handleGoogleLogin` function has been simplified to correctly initiate the client-side
- * PKCE OAuth flow. It no longer specifies a `redirectTo` option, allowing Supabase to
- * correctly use the configured Site URL and Redirect URLs from the dashboard. This is the
- * definitive fix for the localhost connection error.
+ * The `useEffect` hook that handled redirection has been removed. The page's sole
+ * responsibility is now to initiate signup. The central AuthProvider and the consuming
+ * pages (like Dashboard) are now responsible for handling navigation based on auth state.
  *
  * Impact Analysis:
- * This change makes the Google Sign-Up feature fully functional, secure, and reliable.
+ * This change simplifies the component and makes the signup flow more reliable.
  */
 'use client';
 
@@ -56,6 +56,7 @@ const SignupPage = () => {
   const searchParams = useSearchParams();
   const { user } = useAuth();
 
+  // This effect now redirects a user AWAY from the signup page if they are already logged in.
   useEffect(() => {
     if (user) {
       router.push('/dashboard');
