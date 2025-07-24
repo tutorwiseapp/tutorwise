@@ -23,7 +23,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/app/components/auth/AuthProvider';
+import { useAuth } from '@/app/components/auth/removeAuthProvider';
 
 // VDL Component Imports
 import Container from '@/app/components/layout/Container';

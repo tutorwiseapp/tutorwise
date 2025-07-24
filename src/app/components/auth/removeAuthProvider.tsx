@@ -6,7 +6,7 @@
  * The `AuthProvider` is now the single source of truth for authentication state. It no longer
  * provides mock login/logout functions and instead uses Supabase's real-time auth listener.
  * This is the core of the live backend migration.
- */
+ 
 'use client';
 
 import { useState, useEffect, createContext, useContext } from 'react';
@@ -81,3 +81,5 @@ export default function AuthProvider({ children }: { children: React.ReactNode; 
     </AuthContext.Provider>
   );
 }
+
+*/

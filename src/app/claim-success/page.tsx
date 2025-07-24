@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Container from '@/app/components/layout/Container';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
-import { useAuth } from '@/app/components/auth/AuthProvider';
+import { useAuth } from '@/app/components/auth/removeAuthProvider';
 import styles from './page.module.css';
 
 interface ClaimDetails {

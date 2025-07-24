@@ -10,7 +10,7 @@ import PageHeader from '@/app/components/ui/PageHeader';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
-import { useAuth } from '@/app/components/auth/AuthProvider';
+import { useAuth } from '@/app/components/auth/removeAuthProvider';
 import styles from './page.module.css';
 
 // MOCK DATA - In a real app, this would be fetched from your database

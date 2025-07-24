@@ -31,7 +31,7 @@ import { useParams } from 'next/navigation';
 import type { Profile } from '@/types';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useAuth } from '@/app/components/auth/AuthProvider';
+import { useAuth } from '@/app/components/auth/removeAuthProvider';
 import getProfileImageUrl from '@/lib/utils/image';
 import Container from '@/app/components/layout/Container';
 import Card from '@/app/components/ui/Card';
