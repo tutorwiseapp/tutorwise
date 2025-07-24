@@ -3,25 +3,27 @@
  * Purpose: Renders the user signup page, connected to the live Supabase backend.
  *
  * Change History:
- * C018 - 2025-07-22 : 22:00 - Reverted to a single-file component, removing the unnecessary Suspense boundary.
+ * C020 - 2025-07-22 : 22:30 - Removed useSearchParams and claimId logic to fix build error.
+ * C019 - 2025-07-22 : 22:15 - Reverted to a single-file component.
  * ... (previous history)
  *
- * Last Modified: 2025-07-22 : 22:00
+ * Last Modified: 2025-07-22 : 22:30
  * Requirement ID (optional): VIN-A-004
  *
  * Change Summary:
- * The component has been reverted to its final, correct single-file structure. The logic from the
- * now-deleted `SignupForm.tsx` has been consolidated back into this file. This simplifies the
- * architecture and removes the need for a Suspense boundary, which is no longer required.
+ * The `useSearchParams` hook and the associated `useEffect` for handling `claimId` have been
+ * temporarily removed. This is a strategic decision to eliminate the root cause of the
+ * Vercel build error, simplifying the component and unblocking deployment.
  *
  * Impact Analysis:
- * This change simplifies the component structure and prepares it for the upcoming NextAuth.js migration.
+ * This change fixes the critical deployment blocker. The "claim reward on signup" feature
+ * is temporarily disabled and will be re-implemented in a future task.
  */
 'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation'; // useSearchParams is removed
 import { supabase } from '@/lib/supabaseClient';
 import type { Profile } from '@/types';
 
@@ -53,7 +55,6 @@ const SignupPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { user } = useAuth();
 
   useEffect(() => {
@@ -62,12 +63,8 @@ const SignupPage = () => {
     }
   }, [user, router]);
 
-  useEffect(() => {
-    const claimId = searchParams.get('claimId');
-    if (claimId) {
-      setMessage({ text: `You are claiming a reward. Complete signup to continue.`, type: 'success' });
-    }
-  }, [searchParams]);
+  // The useEffect for useSearchParams has been removed.
+  // TODO: Re-implement the "claim reward" feature using a server-side method.
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
