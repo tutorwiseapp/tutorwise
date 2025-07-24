@@ -2,8 +2,20 @@
  * Filename: src/app/signup/page.tsx
  * Purpose: Renders the user signup page, connected to the live Supabase backend.
  *
- * This is the correct, working version of the file that correctly implements
- * the two-step signup and profile creation flow.
+ * Change History:
+ * C018 - 2025-07-22 : 22:00 - Reverted to a single-file component, removing the unnecessary Suspense boundary.
+ * ... (previous history)
+ *
+ * Last Modified: 2025-07-22 : 22:00
+ * Requirement ID (optional): VIN-A-004
+ *
+ * Change Summary:
+ * The component has been reverted to its final, correct single-file structure. The logic from the
+ * now-deleted `SignupForm.tsx` has been consolidated back into this file. This simplifies the
+ * architecture and removes the need for a Suspense boundary, which is no longer required.
+ *
+ * Impact Analysis:
+ * This change simplifies the component structure and prepares it for the upcoming NextAuth.js migration.
  */
 'use client';
 
