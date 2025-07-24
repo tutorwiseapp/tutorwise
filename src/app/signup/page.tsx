@@ -1,29 +1,17 @@
 /*
  * Filename: src/app/signup/page.tsx
- * Purpose: Renders the user signup page, with a secure, client-side Google OAuth flow.
+ * Purpose: Renders the user signup page, connected to the live Supabase backend.
  *
- * Change History:
- * C016 - 2025-07-22 : 20:30 - Implemented the correct handleGoogleSignIn function provided by the user.
- * C015 - 2025-07-22 : 19:45 - Refactored to use a secure API route for profile creation.
- * ... (previous history)
- *
- * Last Modified: 2025-07-22 : 20:30
- * Requirement ID (optional): VIN-D-02.6
- *
- * Change Summary:
- * The component has been updated with the final, correct implementation for Google Sign-In,
- * which uses a direct `redirectTo` to the dashboard. The email signup flow is also the final,
- * secure version. All mock data dependencies have been removed. This is the definitive version.
- *
- * Impact Analysis:
- * This change makes the signup page fully functional, secure, and reliable for all methods.
+ * This is the correct, working version of the file that correctly implements
+ * the two-step signup and profile creation flow.
  */
 'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
+import type { Profile } from '@/types';
 
 // VDL Component Imports
 import Container from '@/app/components/layout/Container';
@@ -53,6 +41,7 @@ const SignupPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
 
   useEffect(() => {
@@ -61,21 +50,12 @@ const SignupPage = () => {
     }
   }, [user, router]);
 
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    setMessage(null);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`,
-      },
-    });
-
-    if (error) {
-      setMessage({ text: `Error: ${error.message}`, type: 'error' });
-      setIsLoading(false);
+  useEffect(() => {
+    const claimId = searchParams.get('claimId');
+    if (claimId) {
+      setMessage({ text: `You are claiming a reward. Complete signup to continue.`, type: 'success' });
     }
-  };
+  }, [searchParams]);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,7 +68,7 @@ const SignupPage = () => {
     });
 
     if (authError || !authData.user) {
-      setMessage({ text: authError?.message || 'Could not sign up user.', type: 'error' });
+      setMessage({ text: authError?.message || 'Could not sign up user. Please try again.', type: 'error' });
       setIsLoading(false);
       return;
     }
@@ -97,7 +77,7 @@ const SignupPage = () => {
     const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
     const agentId = `A1-${initials}${Math.floor(100000 + Math.random() * 900000)}`;
 
-    const response = await fetch('/api/auth/create-profile', {
+    const response = await fetch('/api/auth/create-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -115,8 +95,23 @@ const SignupPage = () => {
         setMessage({ text: `Database error: ${error}`, type: 'error' });
         setIsLoading(false);
     } else {
-        setMessage({ text: 'Success! Please check your email to complete signup.', type: 'success' });
+        const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
         setIsLoading(false);
+        if (loginError) {
+            setMessage({ text: `Account created, but login failed: ${loginError.message}`, type: 'error' });
+        } else {
+            setMessage({ text: 'Account created! Redirecting...', type: 'success' });
+            router.push('/dashboard');
+        }
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+    if (error) {
+      setMessage({ text: `Google login failed: ${error.message}`, type: 'error' });
+      setIsLoading(false);
     }
   };
 
@@ -150,7 +145,7 @@ const SignupPage = () => {
           </Button>
         </form>
         <div className={authStyles.separator}>OR</div>
-        <Button type="button" variant="google" fullWidth onClick={handleGoogleSignIn} disabled={isLoading}>
+        <Button type="button" variant="google" fullWidth onClick={handleGoogleLogin} disabled={isLoading}>
           Continue with Google
         </Button>
       </Card>
