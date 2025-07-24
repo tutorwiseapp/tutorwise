@@ -22,7 +22,7 @@
 import type { Metadata } from 'next';
 import { Inter, Poppins } from 'next/font/google';
 import SessionProvider from '@/app/components/auth/SessionProvider';
-import Layout from './components/layout/Layout'; // Import the new Layout component
+import Layout from '@/app/components/layout/Layout'; // Import the new Layout component
 import "./globals.css";
 
 // The variables are declared with uppercase names
