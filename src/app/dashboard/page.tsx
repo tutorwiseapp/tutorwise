@@ -22,6 +22,29 @@
  *
  * Dependencies: "react", "next/link", "@/app/components/auth/AuthProvider", "@/app/components/layout/Container", "@/app/components/ui/PageHeader", "./page.module.css".
  */
+
+
+/*
+ * Filename: src/app/dashboard/page.tsx
+ * Purpose: Serves as the main navigation hub for authenticated users and acts as a protected route.
+ *
+ * Change History:
+ * C005 - 2025-07-22 : 20:45 - Implemented robust security check to protect the route.
+ * C004 - 2025-07-22 : 00:00 - Restored linkText and standardized font sizes.
+ * C003 - 2025-07-21 : 23:30 - Updated to use a standard div with the generic .gridCard class.
+ * ... (previous history)
+ *
+ * Last Modified: 2025-07-22 : 20:45
+ * Requirement ID: VIN-A-002
+ *
+ * Change Summary:
+ * This component is now the single source of truth for protecting this route. Its
+ * `useEffect` hook will reliably redirect any unauthenticated users to the login page
+ * after the initial auth check is complete. It also displays a dedicated loading state.
+ *
+ * Impact Analysis:
+ * This change properly secures the dashboard and provides a seamless post-login experience.
+ */
 'use client';
 
 import { useEffect } from 'react';
@@ -48,16 +71,30 @@ const DashboardPage = () => {
   const { user, isLoading } = useAuth();
   const router = useRouter();
 
+  // This is the robust security check for the page.
   useEffect(() => {
-    if (!isLoading && !user) {
+    // While the AuthProvider is checking the session, we don't do anything.
+    if (isLoading) {
+      return;
+    }
+    // Once the check is complete, if there is still no user,
+    // we redirect to the login page.
+    if (!user) {
       router.push('/login');
     }
   }, [user, isLoading, router]);
 
+  // While the initial auth check is happening, or if we are about to redirect,
+  // show a clean loading state to prevent flashing content.
   if (isLoading || !user) {
-    return <Container><p className={styles.loading}>Loading...</p></Container>;
+    return (
+      <Container>
+        <p className={styles.loading}>Loading Dashboard...</p>
+      </Container>
+    );
   }
 
+  // If we reach this point, the user is confirmed to be logged in.
   return (
     <Container>
       <PageHeader
@@ -71,7 +108,6 @@ const DashboardPage = () => {
               <h3>{link.title}</h3>
               <p>{link.description}</p>
             </div>
-            {/* --- THIS IS THE FIX --- */}
             <Link href={link.href} className={styles.cardLink}>{link.linkText}</Link>
           </div>
         ))}

@@ -62,3 +62,5 @@ package-lock.json
 .env.local
 
 
+.vercel
+.env*.local
