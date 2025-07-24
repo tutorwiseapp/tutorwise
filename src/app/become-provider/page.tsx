@@ -11,7 +11,7 @@ import Input from '@/app/components/ui/form/Input';
 import Textarea from '@/app/components/ui/form/Textarea';
 import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
-import { useAuth } from '@/app/components/auth/AuthProvider';
+import { useAuth } from '@/app/components/auth/removeAuthProvider';
 import styles from './page.module.css'; // --- FIX: Stylesheet is imported
 
 const BecomeProviderPage = () => {

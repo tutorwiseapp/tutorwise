@@ -1,29 +1,30 @@
 /*
  * Filename: src/app/login/page.tsx
- * Purpose: Provides a single, unified entry point for all user authentication (login and signup).
+ * Purpose: Renders the user login page with secure email and Google OAuth flows.
  *
  * Change History:
- * C011 - 2025-07-23 : 01:00 - Fully refactored to use NextAuth.js signIn function for all methods.
+ * C010 - 2025-07-22 : 20:45 - Finalized redirection logic.
+ * C009 - 2025-07-22 : 20:30 - Implemented the correct handleGoogleSignIn function.
+ * C008 - 2025-07-22 : 19:00 - Reverted to the correct client-side PKCE flow.
  * ... (previous history)
  *
- * Last Modified: 2025-07-23 : 01:00
- * Requirement ID (optional): VIN-M-01.8
+ * Last Modified: 2025-07-22 : 20:45
+ * Requirement ID (optional): VIN-B-03.2
  *
  * Change Summary:
- * The component is now fully migrated to NextAuth.js. The old `supabase.auth` calls have been
- * completely removed. The login form now calls `signIn('credentials', ...)` and the Google
- * button now calls `signIn('google')`. This is the definitive fix that aligns the frontend
- * with the new authentication backend.
+ * The `useEffect` hook now correctly redirects users AWAY from this page if they are already
+ * logged in. The login handlers are fully connected to the live Supabase backend. This is the
+ * final, stable version of this component.
  *
  * Impact Analysis:
- * This change makes the login page fully functional with the NextAuth.js system.
- */
+ * The login flow is now reliable and architecturally sound.
+ 
 'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { signIn, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabaseClient';
 
 // VDL Component Imports
 import Container from '@/app/components/layout/Container';
@@ -33,6 +34,7 @@ import FormGroup from '@/app/components/ui/form/FormGroup';
 import Input from '@/app/components/ui/form/Input';
 import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
+import { useAuth } from '@/app/components/auth/removeAuthProvider';
 import authStyles from '@/app/styles/auth.module.css';
 
 const LoginPage = () => {
@@ -41,54 +43,51 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { data: session, status } = useSession();
-  const searchParams = useSearchParams();
+  const { user } = useAuth();
 
   useEffect(() => {
-    // If the user is authenticated, redirect them.
-    if (status === 'authenticated') {
+    // If the user is already logged in, don't show them the login page.
+    if (user) {
       router.push('/dashboard');
     }
-    // Check for NextAuth-specific errors in the URL
-    const authError = searchParams.get('error');
-    if (authError) {
-        setError('Login failed. Please check your credentials and try again.');
-    }
-  }, [status, router, searchParams]);
+  }, [user, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    const result = await signIn('credentials', {
-      redirect: false, // We handle success/error manually
-      email,
-      password,
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
     });
 
     setIsLoading(false);
 
-    if (result?.error) {
-      setError('Invalid email or password.');
-    } else if (result?.ok) {
+    if (error) {
+      setError(error.message);
+    } else {
+      // On success, the AuthProvider's state will change, and the useEffect above will redirect.
+      // We can add a manual push for a faster perceived redirect.
       router.push('/dashboard');
     }
   };
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleLogin = async () => {
     setIsLoading(true);
-    // This now calls the NextAuth.js endpoint
-    signIn('google');
-  };
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+    });
 
-  if (status === 'loading') {
-    return <Container variant="form"><p style={{textAlign: 'center'}}>Loading...</p></Container>;
-  }
+    if (error) {
+      setError(`Google login failed: ${error.message}`);
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Container variant="form">
-      <PageHeader title="Sign In or Create Account" />
+      <PageHeader title="Log In to Your Account" />
       <Card className={authStyles.authCard}>
         {error && <Message type="error">{error}</Message>}
         <form onSubmit={handleLogin}>
@@ -118,11 +117,11 @@ const LoginPage = () => {
             Forgot password?
           </Link>
           <Button type="submit" variant="primary" fullWidth disabled={isLoading}>
-            {isLoading ? 'Signing In...' : 'Continue with Email'}
+            {isLoading ? 'Logging In...' : 'Log In'}
           </Button>
         </form>
         <div className={authStyles.separator}>OR</div>
-        <Button type="button" variant="google" fullWidth onClick={handleGoogleSignIn} disabled={isLoading}>
+        <Button type="button" variant="google" fullWidth onClick={handleGoogleLogin} disabled={isLoading}>
           Continue with Google
         </Button>
       </Card>
@@ -134,3 +133,5 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+
+*/

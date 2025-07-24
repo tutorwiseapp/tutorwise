@@ -24,7 +24,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import type { Profile } from '@/types';
-import { useAuth } from '@/app/components/auth/AuthProvider';
+import { useAuth } from '@/app/components/auth/removeAuthProvider';
 import { supabase } from '@/lib/supabaseClient'; // Import the Supabase client
 
 // Component Imports

@@ -36,7 +36,7 @@ import Input from '@/app/components/ui/form/Input';
 import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
 import Breadcrumb from '@/app/components/ui/nav/Breadcrumb';
-import { useAuth } from '@/app/components/auth/AuthProvider';
+import { useAuth } from '@/app/components/auth/removeAuthProvider';
 
 const ChangePasswordPage = () => {
   const { user } = useAuth();

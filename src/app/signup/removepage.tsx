@@ -1,29 +1,31 @@
 /*
  * Filename: src/app/signup/page.tsx
- * Purpose: Renders the user signup page for new email/password registrations.
+ * Purpose: Renders the user signup page, connected to the live Supabase backend.
  *
  * Change History:
- * C012 - 2025-07-23 : 01:00 - Fully refactored to use NextAuth.js for the entire flow.
+ * C020 - 2025-07-22 : 22:30 - Removed useSearchParams and claimId logic to fix build error.
+ * C019 - 2025-07-22 : 22:15 - Reverted to a single-file component.
  * ... (previous history)
  *
- * Last Modified: 2025-07-23 : 01:00
+ * Last Modified: 2025-07-22 : 22:30
  * Requirement ID (optional): VIN-A-004
  *
  * Change Summary:
- * The component has been fully migrated to NextAuth.js. The `handleSignup` function now calls a
- * dedicated `/api/auth/register` endpoint, and upon success, it uses `signIn('credentials')`
- * to log the user in. The `handleGoogleLogin` now correctly calls `signIn('google')`. All
- * `supabase.auth` calls have been removed.
+ * The `useSearchParams` hook and the associated `useEffect` for handling `claimId` have been
+ * temporarily removed. This is a strategic decision to eliminate the root cause of the
+ * Vercel build error, simplifying the component and unblocking deployment.
  *
  * Impact Analysis:
- * This change makes the signup page fully functional with the new NextAuth.js system.
- */
+ * This change fixes the critical deployment blocker. The "claim reward on signup" feature
+ * is temporarily disabled and will be re-implemented in a future task.
+ 
 'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { signIn, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation'; // useSearchParams is removed
+import { supabase } from '@/lib/supabaseClient';
+import type { Profile } from '@/types';
 
 // VDL Component Imports
 import Container from '@/app/components/layout/Container';
@@ -34,6 +36,7 @@ import Input from '@/app/components/ui/form/Input';
 import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
 import { RadioGroup } from '@/app/components/ui/form/Radio';
+import { useAuth } from '@/app/components/auth/removeAuthProvider';
 import authStyles from '@/app/styles/auth.module.css';
 
 const roleOptions = [
@@ -48,63 +51,77 @@ const SignupPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [selectedRole, setSelectedRole] = useState('agent');
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' | 'warning' } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   
   const router = useRouter();
-  const { data: session } = useSession();
+  const { user } = useAuth();
 
   useEffect(() => {
-    if (session) {
+    if (user) {
       router.push('/dashboard');
     }
-  }, [session, router]);
+  }, [user, router]);
+
+  // The useEffect for useSearchParams has been removed.
+  // TODO: Re-implement the "claim reward" feature using a server-side method.
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setMessage(null);
 
-    try {
-      const response = await fetch('/api/auth/register', {
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: email,
+      password: password,
+    });
+
+    if (authError || !authData.user) {
+      setMessage({ text: authError?.message || 'Could not sign up user. Please try again.', type: 'error' });
+      setIsLoading(false);
+      return;
+    }
+
+    const displayName = `${firstName} ${lastName}`;
+    const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+    const agentId = `A1-${initials}${Math.floor(100000 + Math.random() * 900000)}`;
+
+    const response = await fetch('/api/auth/create-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email,
-          password,
-          firstName,
-          lastName,
-          role: selectedRole,
-        }),
-      });
+            id: authData.user.id,
+            first_name: firstName,
+            last_name: lastName,
+            display_name: displayName,
+            agent_id: agentId,
+            roles: [selectedRole],
+        })
+    });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create account.');
-      }
-      
-      const result = await signIn('credentials', {
-        redirect: false,
-        email,
-        password,
-      });
-
-      if (result?.error) {
-        throw new Error(result.error);
-      }
-      
-      router.push('/dashboard');
-
-    } catch (err) {
-      setMessage({ text: err instanceof Error ? err.message : 'An unknown error occurred', type: 'error' });
-      setIsLoading(false);
+    if (!response.ok) {
+        const { error } = await response.json();
+        setMessage({ text: `Database error: ${error}`, type: 'error' });
+        setIsLoading(false);
+    } else {
+        const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
+        setIsLoading(false);
+        if (loginError) {
+            setMessage({ text: `Account created, but login failed: ${loginError.message}`, type: 'error' });
+        } else {
+            setMessage({ text: 'Account created! Redirecting...', type: 'success' });
+            router.push('/dashboard');
+        }
     }
   };
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleLogin = async () => {
     setIsLoading(true);
-    signIn('google');
+    const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+    if (error) {
+      setMessage({ text: `Google login failed: ${error.message}`, type: 'error' });
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -122,6 +139,7 @@ const SignupPage = () => {
           </div>
           <FormGroup label="Email Address" htmlFor="email"><Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isLoading} /></FormGroup>
           <FormGroup label="Password" htmlFor="password"><Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={isLoading} /></FormGroup>
+          
           <FormGroup label="What do you want to do first?">
               <RadioGroup
                   name="role"
@@ -130,12 +148,13 @@ const SignupPage = () => {
                   onChange={(e) => setSelectedRole(e.target.value)}
               />
           </FormGroup>
+
           <Button type="submit" variant="primary" fullWidth style={{ marginTop: '16px' }} disabled={isLoading}>
             {isLoading ? 'Creating Account...' : 'Create Account'}
           </Button>
         </form>
         <div className={authStyles.separator}>OR</div>
-        <Button type="button" variant="google" fullWidth onClick={handleGoogleSignIn} disabled={isLoading}>
+        <Button type="button" variant="google" fullWidth onClick={handleGoogleLogin} disabled={isLoading}>
           Continue with Google
         </Button>
       </Card>
@@ -145,3 +164,5 @@ const SignupPage = () => {
 };
 
 export default SignupPage;
+
+*/

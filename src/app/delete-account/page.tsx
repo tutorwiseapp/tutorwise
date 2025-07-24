@@ -31,7 +31,7 @@ import FormGroup from '@/app/components/ui/form/FormGroup';
 import Input from '@/app/components/ui/form/Input';
 import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
-import { useAuth } from '@/app/components/auth/AuthProvider';
+import { useAuth } from '@/app/components/auth/removeAuthProvider';
 import styles from './page.module.css';
 
 const DeleteAccountPage = () => {
