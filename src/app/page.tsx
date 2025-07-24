@@ -1,23 +1,25 @@
 /*
  * Filename: src/app/page.tsx
- * Purpose: Provides the primary UI for generating new Vinite referral links, connected to the live backend.
+ * Purpose: Provides the primary UI for generating new Vinite referral links, with robust backend communication.
  *
  * Change History:
+ * C005 - 2025-07-22 : 23:15 - Implemented robust error handling to prevent JSON parsing errors.
  * C004 - 2025-07-22 : 22:45 - Manually resolved merge conflicts after stashing.
  * C003 - 2025-07-22 : 22:30 - Corrected state update call to fix TypeScript build error.
  * C002 - 2025-07-22 : 21:30 - Refactored handleGenerateLink to call the new /api/links endpoint.
  * C001 - 2025-07-16 : (Time) - Initial creation with client-side only logic.
  *
- * Last Modified: 2025-07-22 : 22:45
- * Requirement ID (optional): VIN-D-01.2
+ * Last Modified: 2025-07-22 : 23:15
+ * Requirement ID (optional): VIN-D-01.3
  *
  * Change Summary:
- * The file has been manually cleaned to resolve merge conflict markers that were causing the
- * Vercel build to fail. The code is now syntactically correct and represents the final version
- * that connects the link generation feature to the live backend API.
+ * The `handleGenerateLink` function's error handling has been significantly improved. It now
+ * checks the `Content-Type` of the response before attempting to parse it as JSON. This
+ * prevents the "Unexpected token '<'" crash and allows a user-friendly error message
+ * to be displayed when the API returns an HTML error page.
  *
  * Impact Analysis:
- * This change fixes a critical deployment blocker.
+ * This change makes the core link generation feature more resilient and user-friendly.
  *
  * Dependencies: "react", "next/link", "qrcode", "@/app/components/auth/AuthProvider", and various UI components.
  */
@@ -96,8 +98,13 @@ export default function HomePage() {
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to create link.');
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.indexOf('application/json') !== -1) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `Request failed with status ${response.status}`);
+        } else {
+          throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
       }
       
       const newLink = `https://vinite.com/a/${encodeURIComponent(agentId)}?u=${encodeURIComponent(destinationUrl)}`;
