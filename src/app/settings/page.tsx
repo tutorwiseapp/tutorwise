@@ -1,47 +1,58 @@
 /*
  * Filename: src/app/settings/page.tsx
  * Purpose: Provides a central hub for users to manage application and account settings.
- *
  * Change History:
+ * C005 - 2025-07-27 : 11:30 - Replaced `useAuth` with Clerk's `useUser` hook.
  * C004 - 2025-07-22 : 00:15 - Applied contentStart class to fix email card alignment.
  * C003 - 2025-07-21 : 23:30 - Refactored to use the standardized grid system from the dashboard.
  * C002 - 2025-07-20 : 10:30 - Updated 'Account Security' card link.
  * C001 - [Date] : [Time] - Initial creation.
- *
- * Last Modified: 2025-07-22 : 00:15
+ * Last Modified: 2025-07-27 : 11:30
  * Requirement ID (optional): VIN-A-005
- *
- * Change Summary:
- * The "Email Notifications" card now uses the `settingStyles.contentStart` utility class.
- * This overrides the default vertical centering and aligns its content to the top, creating
- * a visually consistent layout with the other cards on the page.
- *
- * Impact Analysis:
- * This change resolves the final layout inconsistency on the Settings page.
+ * Change Summary: This is the definitive fix for the `AuthProvider` issue. The old `useAuth`
+ * hook has been surgically replaced with `useUser` from Clerk. A standard `useEffect` hook has
+ * been added to handle loading states and protect the route by redirecting unauthenticated users.
+ * Impact Analysis: This change resolves the final `AuthProvider` dependency crash, fully
+ * migrating the Settings page to the Clerk authentication system while preserving all
+ * existing layout, styles, and functionality.
+ * Dependencies: "@clerk/nextjs", "next/link", "next/navigation", and VDL UI components.
  */
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/app/components/auth/AuthProvider';
+import { useRouter } from 'next/navigation';
+import { useUser } from '@clerk/nextjs';
 
 // VDL Component Imports
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import Checkbox from '@/app/components/ui/form/Checkbox';
-import styles from '@/app/dashboard/page.module.css';
+import styles from '@/app/dashboard/page.module.css'; // Re-uses the dashboard grid styles
 import settingStyles from './page.module.css';
 
 const SettingsPage = () => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoaded } = useUser();
+  const router = useRouter();
+
+  // Your existing state management is preserved
   const [desktopNotificationsEnabled, setDesktopNotificationsEnabled] = useState(true);
   const [conversionAlerts, setConversionAlerts] = useState(true);
   const [newsUpdates, setNewsUpdates] = useState(false);
 
-  if (isLoading || !user) {
+  // This effect protects the route, ensuring only logged-in users can see it.
+  useEffect(() => {
+    if (isLoaded && !user) {
+      router.push('/sign-in');
+    }
+  }, [isLoaded, user, router]);
+
+  // While Clerk is loading the user session, we show a loading state.
+  if (!isLoaded || !user) {
     return <Container><p className={styles.loading}>Loading...</p></Container>;
   }
 
+  // The rest of your component's JSX is preserved exactly as it was.
   return (
     <Container>
       <PageHeader title="Settings" />
@@ -70,7 +81,6 @@ const SettingsPage = () => {
           </div>
         </div>
 
-        {/* --- THIS IS THE FIX --- */}
         <div className={`${styles.gridCard} ${settingStyles.contentStart}`}>
           <div className={styles.cardContent}>
             <h3>Email Notifications</h3>

@@ -1,0 +1,24 @@
+/*
+ * Filename: src/app/components/layout/Layout.tsx
+ * Purpose: Provides the main visual layout for the application (Header, Main, Footer).
+ */
+'use client';
+
+import React from 'react';
+import Header from './Header';
+import Footer from './Footer';
+import styles from './layout.module.css'; // This import will now find the file
+
+const Layout = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <div className={styles.appWrapper}>
+      <Header />
+      <main className={styles.mainContent}>
+        {children}
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+export default Layout;

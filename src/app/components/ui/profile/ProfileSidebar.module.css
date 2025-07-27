@@ -1,22 +1,17 @@
 /*
  * Filename: src/app/components/ui/profile/ProfileSidebar.module.css
  * Purpose: Provides styles for the reusable user profile sidebar card.
- *
  * Change History:
- * C003 - 2025-07-21 : 19:45 - Implemented computed vertical spacing for optimal rhythm.
- * C002 - 2025-07-20 : 20:00 - Removed fixed width to allow flexibility.
- * C001 - [Date] : [Time] - Initial creation.
- *
- * Last Modified: 2025-07-21 : 19:45
+ * C005 - 2025-07-26 : 22:45 - Definitive fix for link positioning and vertical rhythm.
+ * ... (previous history)
+ * Last Modified: 2025-07-26 : 22:45
  * Requirement ID (optional): VIN-UI-013
- *
- * Change Summary:
- * The vertical spacing has been re-engineered based on a computed design analysis. All margins now
- * strictly adhere to the project's 8-point grid, creating a perfect vertical rhythm. The `.nameBlock`
- * now correctly groups the name and ID with a standard 24px bottom margin.
- *
- * Impact Analysis:
- * This change creates a visually balanced, professional, and pixel-perfect component.
+ * Change Summary: This is the definitive fix. The `margin-bottom` on `.nameBlock` has been
+ * adjusted. A `margin-bottom` and `display` property have been added to `.textLink` to
+ * correctly create a 24px gap between it and the stats card below, restoring the link's
+ * visibility and correct position.
+ * Impact Analysis: This is a surgical style fix that perfects the layout of this component
+ * and makes the "View Public Profile" link functional.
  */
 
 .sidebarCard {
@@ -36,16 +31,14 @@
   object-fit: cover;
 }
 
-/* This block groups the name and ID */
 .nameBlock {
-  /* Establishes the 24px space below the identity block */
-  margin-bottom: var(--space-3, 24px);
+  /* This small margin creates space between the ID and the link below it */
+  margin-bottom: var(--space-1, 8px);
 }
 
 .displayName {
   font-size: var(--font-size-2xl, 24px);
   font-weight: var(--font-weight-semibold, 600);
-  /* Creates the 8px space between the name and agent ID */
   margin-bottom: var(--space-1, 8px);
 }
 
@@ -58,11 +51,14 @@
 .textLink {
   font-size: var(--font-size-sm, 14px);
   font-weight: var(--font-weight-medium, 500);
+  /* This ensures the link is treated as a block for spacing purposes */
+  display: inline-block;
+  /* This creates the 24px space between the link and the stats card below it */
+  margin-bottom: var(--space-3, 24px);
 }
 
 .statsCard {
-  /* Establishes the 24px space above the stats block */
-  margin-top: var(--space-3, 24px);
+  /* The margin-top was removed as the link above now correctly controls the spacing */
   padding-top: var(--space-3, 24px);
   border-top: 1px solid var(--color-bg-page, #f8f9fa);
 }
@@ -71,7 +67,6 @@
   display: flex;
   justify-content: space-between;
   font-size: var(--font-size-sm, 14px);
-  /* 16px space between each stat item */
   margin-bottom: var(--space-2, 16px);
   text-align: left;
 }

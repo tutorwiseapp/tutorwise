@@ -1,0 +1,19 @@
+/*
+ * Filename: src/app/components/layout/layout.module.css
+ * Purpose: Provides the core structural styles for the main application layout.
+ * This ensures the main content area grows to fill the viewport, pushing the footer down.
+ */
+
+.appWrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.mainContent {
+  /* This is the key property that makes the main content area expand */
+  flex: 1; 
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}

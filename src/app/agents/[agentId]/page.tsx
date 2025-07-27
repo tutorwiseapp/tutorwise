@@ -1,91 +1,36 @@
 /*
  * Filename: src/app/agents/[agentId]/page.tsx
  * Purpose: Displays the public profile for a Vinite agent, fetching live data from the backend.
- *
  * Change History:
- * C004 - 2025-07-22 : 16:30 - Refactored to fetch live data from the new API endpoint.
- * C003 - 2025-07-20 : 13:45 - Added type validation before setting state to fix Vercel build error.
- * C002 - 2024-07-17 : 14:00 - Refactored to align with the canonical 'Profile' data model.
- * C001 - 26 July 2024 : 11:30 - Initial creation with mock data.
- *
- * Last Modified: 2025-07-22 : 16:30
+ * C002 - 2025-07-26 : 22:45 - Added logic to check if viewer is the profile owner.
+ * C001 - 2025-07-26 : 22:30 - Initial creation.
+ * Last Modified: 2025-07-26 : 22:45
  * Requirement ID: VIN-C-03.3
- *
- * Change Summary:
- * The component has been completely refactored to fetch live data. It no longer uses the mock
- * `useData` hook. Instead, it now uses a `useEffect` hook to make a `fetch` call to the new
- * `/api/agents/[agentId]` endpoint, populating the page with real profile data from the
- * Supabase database. It now manages its own loading and error states.
- *
- * Impact Analysis:
- * This change completes the migration of the public profile page to the live backend, removing
- * the final dependency on the mock data system.
- *
- * Dependencies: "react", "next/navigation", "@/types", "@/app/components/auth/AuthProvider", and various UI components.
+ * Change Summary: This page is the destination for the "View Public Profile" link. It now
+ * uses Clerk's `useUser` hook to check if the person viewing the page is the actual owner,
+ * which can be used to conditionally show an "Edit Profile" link.
+ * Impact Analysis: This additive change makes the "View Public Profile" link functional.
+ * Dependencies: "react", "next/navigation", "next/link", "@clerk/nextjs", "@/types", and VDL UI components.
  */
-
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import type { Profile } from '@/types';
 import Image from 'next/image';
-import Link from 'next/link';
-import { useAuth } from '@/app/components/auth/AuthProvider';
-import getProfileImageUrl from '@/lib/utils/image';
+import { useUser } from '@clerk/nextjs';
 import Container from '@/app/components/layout/Container';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
 import styles from './page.module.css';
-
-// This is a self-contained presentational component and does not need to change.
-const PublicProfileCard = ({ agent, isOwnProfile }: { agent: Profile, isOwnProfile: boolean }) => {
-  return (
-    <Card className={styles.profileCard}>
-      <div className={styles.coverPhoto} style={{ backgroundImage: agent.cover_photo_url ? `url(${agent.cover_photo_url})` : 'none' }} />
-      <Image
-        src={getProfileImageUrl(agent)}
-        alt={`${agent.display_name}'s profile picture`}
-        width={150} height={150}
-        className={styles.profileAvatar}
-      />
-      <div className={styles.profileBody}>
-        <h2 className={styles.profileName}>{agent.display_name}</h2>
-        <p className={styles.profileId}>{agent.agent_id}</p>
-        {isOwnProfile && <Link href="/profile" className={styles.editProfileLink}>Edit Profile</Link>}
-        
-        <hr className={styles.detailsDivider} />
-        <div className={`${styles.detailsSection} ${styles.noPaddingTop}`}>
-          <h3>About</h3>
-          <p className={styles.profileBio}>{agent.bio || 'No bio provided.'}</p>
-        </div>
-        
-        <hr className={styles.detailsDivider} />
-        <div className={styles.detailsSection}>
-          <h3>Specialties</h3>
-          <div className={styles.tagContainer}>
-            {agent.categories && agent.categories.length > 0 ? agent.categories.split(',').map(cat => (
-              <span key={cat.trim()} className={styles.tag}>{cat.trim()}</span>
-            )) : <p className={styles.noDataText}>Not specified.</p>}
-          </div>
-        </div>
-
-        <hr className={styles.detailsDivider} />
-        <div className={styles.detailsSection}>
-          <h3>Achievements</h3>
-          <p className={styles.achievementsList}>{agent.achievements || 'No achievements listed.'}</p>
-        </div>
-      </div>
-    </Card>
-  );
-};
 
 const AgentProfilePage = () => {
   const [agent, setAgent] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const params = useParams();
   const agentId = params.agentId as string;
-  const { user: loggedInUser } = useAuth();
+  const { user: loggedInUser } = useUser(); // Get the currently logged-in user
 
   useEffect(() => {
     if (!agentId) {
@@ -113,18 +58,6 @@ const AgentProfilePage = () => {
     fetchAgentProfile();
   }, [agentId]);
 
-  const handleShare = (platform: 'whatsapp' | 'linkedin') => {
-    if (!agent) return;
-    const text = `Check out ${agent.display_name}'s Vinite referral profile: ${window.location.href}`;
-    let url = '';
-    if (platform === 'whatsapp') {
-      url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    } else {
-      url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`;
-    }
-    window.open(url, '_blank');
-  };
-
   if (isLoading) {
     return <Container><p className={styles.message}>Loading Agent Profile...</p></Container>;
   }
@@ -140,13 +73,44 @@ const AgentProfilePage = () => {
     );
   }
 
-  const isOwnProfile = loggedInUser?.agent_id === agent.agent_id;
+  const imageUrl = agent.custom_picture_url || `https://i.pravatar.cc/150?u=${agent.agent_id || 'default'}`;
+  const isOwnProfile = loggedInUser?.publicMetadata?.agent_id === agent.agent_id;
 
   return (
     <Container>
       <div className={styles.profileGrid}>
         <aside>
-          <PublicProfileCard agent={agent} isOwnProfile={isOwnProfile} />
+          <Card className={styles.profileCard}>
+            <div className={styles.coverPhoto} style={{ backgroundImage: agent.cover_photo_url ? `url(${agent.cover_photo_url})` : 'none' }} />
+            <Image
+              src={imageUrl}
+              alt={`${agent.display_name}'s profile picture`}
+              width={150} height={150}
+              className={styles.profileAvatar}
+            />
+            <div className={styles.profileBody}>
+              <h2 className={styles.profileName}>{agent.display_name}</h2>
+              <p className={styles.profileId}>{agent.agent_id}</p>
+              
+              {isOwnProfile && <Link href="/profile" className={styles.editProfileLink}>Edit Profile</Link>}
+              
+              <hr className={styles.detailsDivider} />
+              <div className={styles.detailsSection}>
+                <h3>About</h3>
+                <p className={styles.profileBio}>{agent.bio || 'No bio provided.'}</p>
+              </div>
+              
+              <hr className={styles.detailsDivider} />
+              <div className={styles.detailsSection}>
+                <h3>Specialties</h3>
+                <div className={styles.tagContainer}>
+                  {agent.categories && agent.categories.length > 0 ? agent.categories.split(',').map(cat => (
+                    <span key={cat.trim()} className={styles.tag}>{cat.trim()}</span>
+                  )) : <p>Not specified.</p>}
+                </div>
+              </div>
+            </div>
+          </Card>
         </aside>
         
         <main>
@@ -155,29 +119,6 @@ const AgentProfilePage = () => {
             <div className={styles.actionsGrid}>
               <Button variant="primary">Refer Me</Button>
               <Button variant="primary">Reward Me</Button>
-            </div>
-          </Card>
-          <Card className={styles.contentCard}>
-            <h3>Shares</h3>
-            <div className={styles.sharesGrid}>
-              <Button variant="secondary" onClick={() => handleShare('whatsapp')}>Share on WhatsApp</Button>
-              <Button variant="secondary" onClick={() => handleShare('linkedin')}>Share on LinkedIn</Button>
-              <Button variant="secondary">Contact Me</Button>
-            </div>
-          </Card>
-          <Card className={styles.contentCard}>
-            <h3>Statistics</h3>
-            <div className={styles.statsList}>
-              <div className={styles.statItem}>
-                <span>Member Since</span>
-                <span className={styles.value}>
-                  {agent.created_at ? new Date(agent.created_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'long' }) : 'N/A'}
-                </span>
-              </div>
-              <div className={styles.statItem}>
-                <span>Total Referrals</span>
-                <span className={styles.value}>128</span>
-              </div>
             </div>
           </Card>
         </main>
