@@ -21,7 +21,7 @@
  */
 import type { Metadata } from 'next';
 import { Inter, Poppins } from 'next/font/google';
-import SessionProvider from '@/app/components/auth/SessionProvider';
+import { ClerkProvider } from '@clerk/nextjs';
 import Layout from '@/app/components/layout/Layout'; // Import the new Layout component
 import "./globals.css";
 
@@ -30,29 +30,18 @@ const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--font-sec
 const poppins = Poppins({ subsets: ['latin'], display: 'swap', weight: ['400', '500', '600', '700'], variable: '--font-primary' });
 
 export const metadata: Metadata = {
-  title: "Vinite - The Simplest Referral Tool",
-  description: "Create and share traceable referral links, no sign up required.",
+  title: "Vinite - The Universal Referral App",
+  description: "Create and share Vinite referral links, no sign up required.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) { 
+export default function RootLayout({ children }: { children: React.ReactNode; }) {
   return (
-    // The variables must be accessed with the correct uppercase names
-    <html lang="en" className={`${poppins.variable} ${inter.variable}`}>
-      <head>
-        <link 
-          rel="stylesheet" 
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=optional" 
-        />
-      </head>
-      <body>
-        <SessionProvider>
+    <ClerkProvider>
+      <html lang="en">
+        <body>
           <Layout>{children}</Layout>
-        </SessionProvider>
-      </body>
-    </html>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
