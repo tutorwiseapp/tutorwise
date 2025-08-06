@@ -10,6 +10,21 @@
  * production build. It provides the essential flexbox styles to ensure the main application
  * wrapper correctly fills the viewport height.
  * Impact Analysis: Fixes a critical deployment blocker.
+ * Purpose: Provides the structural styles for the main application Layout component.
+ *
+ * Change History:
+ * C001 - 2025-07-22 : 23:55 - Initial creation.
+ *
+ * Last Modified: 2025-07-22 : 23:55
+ * Requirement ID (optional): VIN-M-01
+ *
+ * Change Summary:
+ * Created this stylesheet to properly encapsulate the layout's styling logic, moving it
+ * out of inline styles. This adheres to the project's architectural pattern of using CSS
+ * Modules for all components.
+ *
+ * Impact Analysis:
+ * This change improves the maintainability and consistency of the root layout.
  */
 
 .appWrapper {
@@ -24,4 +39,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }

@@ -1,6 +1,10 @@
 /*
  * Filename: src/app/components/layout/Layout.tsx
  * Purpose: Provides the main visual layout for the application (Header, Main, Footer).
+ * ...
+ * Change Summary:
+ * The component's styling has been correctly moved to a dedicated CSS module. All redundant
+ * and incorrect font definitions have been removed.
  */
 'use client';
 

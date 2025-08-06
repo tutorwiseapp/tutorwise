@@ -42,7 +42,9 @@ const Header = () => {
       </div>
       
       {/* The entire previous navigation is replaced by our clean, self-contained component */}
-      <NavMenu />
+      <NavMenu children={undefined}>
+        {/* NavMenu expects children, even if it's just an empty fragment for now */}
+      </NavMenu>
     </header>
   );
 };

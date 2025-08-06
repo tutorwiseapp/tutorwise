@@ -21,6 +21,9 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import type { Profile } from '@/types';
 import { useUser } from '@clerk/nextjs';
+import { supabase } from '@/lib/supabaseClient'; // Import the Supabase client
+
+// Component Imports
 import ProfileSidebar from '@/app/components/ui/profile/ProfileSidebar';
 import Container from '@/app/components/layout/Container';
 import FormGroup from '@/app/components/ui/form/FormGroup';
