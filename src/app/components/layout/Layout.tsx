@@ -1,5 +1,6 @@
 /*
  * Filename: src/app/components/layout/Layout.tsx
+ * Purpose: Provides the main visual layout for the application (Header, Main, Footer).
  * ...
  * Change Summary:
  * The component's styling has been correctly moved to a dedicated CSS module. All redundant
@@ -10,7 +11,7 @@
 import React from 'react';
 import Header from './Header';
 import Footer from './Footer';
-import styles from './Layout.module.css';
+import styles from './layout.module.css'; // This import will now find the file
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (

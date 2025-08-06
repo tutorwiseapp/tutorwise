@@ -17,7 +17,7 @@
   --font-size-xl: 1.25rem;    /* 20px */
   --font-size-2xl: 1.5rem;    /* 24px */
   --font-size-3xl: 2rem;      /* 32px */
-  
+
   /* --- 2. Color System --- */
   --color-primary: #006C67;
   --color-primary-accent: #4CAEAD;
@@ -28,44 +28,27 @@
   --color-text-secondary: #5f6368;
   --color-text-placeholder: #9aa0a6;
 
-  /* Page background settings: white (ffffff) or ligh grey (f8f9fa) */
   --color-bg-page: #ffffff;
   --color-bg-card: #ffffff;
-  --color-bg-box: #f5f5f5;   /* The Vinite link output inner box */
-  
+  --color-bg-box: #f5f5f5;
+
   --color-border: #dfe1e5;
-  
+
   --color-success: #34a853;
   --color-success-text: #137333;
   --color-success-bg: #e8f5e8;
   --color-success-border: #c4e7c4;
-  
+
   --color-error: #d93025;
   --color-error-text: #d93025;
   --color-error-bg: #fce8e6;
   --color-error-border: #f5c6cb;
-  
+
   --color-warning: #b06000;
   --color-warning-bg: #fef7e0;
   --color-warning-border: #fdd663;
-
-/* Add this new variable within the :root selector, for example, under the --color-warning-border */
-
-:root {
-  /* ... all your other variables ... */
-  --color-warning-border: #fdd663;
-
-  /* --- THIS IS THE NEW ADDITION --- */
-  /* Added to support the warm, sunrise-themed background animation on the marketing page. */
+  
   --color-accent-pink: #fde7f3;
-
-  /* Status-specific colors */
-  --status-pending: #fbbc05;
-  /* ... rest of the file ... */
-}
-
-  /* Status-specific colors */
-  --status-pending: #fbbc05;
 
   /* --- 3. Spacing System (8px Grid) --- */
   --space-0: 0.0rem;  /* 0px */
@@ -81,21 +64,19 @@
   --border-radius-md: 8px;
   --border-radius-lg: 16px;
   --border-radius-full: 9999px;
-  
+
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
   --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-
-  --transition-short: all 0.2s ease-in-out;
 }
 
 /* =================================== */
 /* Global Resets & Base Styles         */
 /* =================================== */
 
-* { 
-  box-sizing: border-box; 
-  margin: 0; 
-  padding: 0; 
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html, body {
@@ -112,6 +93,7 @@ body {
 }
 
 h1,h2,h3,h4,h5,h6 {
+  font-family: var(--font-secondary);
   font-weight: var(--font-weight-semibold);
 }
 
@@ -132,25 +114,24 @@ a:hover {
   font-weight: var(--font-weight-regular);
   color: var(--color-text-secondary);
   line-height: 1.6;
-  margin-top: var(--space-1); 
-  margin-bottom: var(--space-5); /* A larger margin for taglines */
+  margin-top: var(--space-1);
+  margin-bottom: var(--space-5);
 }
 
 /* =================================== */
-/* 6. Global Component Styles        */
+/* Global Component Styles           */
 /* =================================== */
 
-/* --- Buttons --- */
 .btn {
-  height: 48px; 
-  padding: 0 var(--space-3, 24px); 
-  border-radius: var(--border-radius-md, 8px); 
+  height: 48px;
+  padding: 0 var(--space-3);
+  border-radius: var(--border-radius-md);
   cursor: pointer;
-  font-size: var(--font-size-base, 16px); 
-  font-weight: var(--font-weight-medium, 500);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
   text-decoration: none;
-  display: inline-flex; 
-  align-items: center; 
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
   border: 1px solid transparent;
   white-space: nowrap;
@@ -159,13 +140,12 @@ a:hover {
 .btn:hover {
   text-decoration: none;
 }
-.btn.btn-primary { 
-  background-color: var(--color-primary-accent, #4CAEAD); 
-  color: var(--color-bg-card, #ffffff); 
-  border-color: var(--color-primary-accent, #4CAEAD); 
+.btn.btn-primary {
+  background-color: var(--color-primary-accent);
+  color: var(--color-bg-card);
+  border-color: var(--color-primary-accent);
 }
 .btn.btn-primary:hover {
-  background-color: var(--color-primary-accent-dark, #3A9B9A);
-  border-color: var(--color-primary-accent-dark, #3A9B9A);
+  background-color: var(--color-primary-accent-dark);
+  border-color: var(--color-primary-accent-dark);
 }
-

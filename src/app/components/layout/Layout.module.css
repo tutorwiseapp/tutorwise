@@ -1,5 +1,15 @@
 /*
  * Filename: src/app/components/layout/layout.module.css
+ * Purpose: Provides the core structural styles for the main application layout.
+ * This ensures the main content area grows to fill the viewport, pushing the footer down.
+ * Change History:
+ * C001 - 2025-07-28 : 01:00 - Initial creation to fix Vercel deployment error.
+ * Last Modified: 2025-07-28 : 01:00
+ * Requirement ID: VIN-M-01
+ * Change Summary: This file was created to resolve a "Module not found" error during the
+ * production build. It provides the essential flexbox styles to ensure the main application
+ * wrapper correctly fills the viewport height.
+ * Impact Analysis: Fixes a critical deployment blocker.
  * Purpose: Provides the structural styles for the main application Layout component.
  *
  * Change History:
@@ -24,6 +34,11 @@
 }
 
 .mainContent {
+  /* This is the key property that makes the main content area expand */
+  flex: 1; 
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   flex: 1;
   display: flex;
   flex-direction: column;

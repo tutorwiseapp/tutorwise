@@ -1,39 +1,75 @@
-/* src/app/payments/page.module.css */
-.card {
-  margin-bottom: 2rem;
+/*
+ * Filename: src/app/payments/page.module.css
+ * Purpose: Provides styles for the user payments management page.
+ * Change History:
+ * C002 - 2025-07-27 : 22:00 - Added styles for role-based flows and payment element.
+ * C001 - 2025-07-27 : 17:00 - Initial creation.
+ */
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  align-items: start;
 }
-.sectionHeader {
-  font-size: 1.25rem;
-  font-weight: 600;
-  padding-bottom: 1rem;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid #e9ecef;
+
+@media (min-width: 992px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
-.card p {
-  margin-bottom: 1rem;
-}
-.card strong {
-  font-weight: 600;
-}
-.buttonGroup {
+
+.column {
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  gap: var(--space-4);
 }
-.cardDisplay {
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  padding: 1rem;
+
+.paymentCard {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  height: 100%;
+}
+
+.cardTitle {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-1);
+}
+
+.cardDescription {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  margin-bottom: var(--space-3);
+  line-height: 1.6;
+}
+
+.connectStatus {
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-3);
+  font-weight: var(--font-weight-medium);
+}
+
+.statusConnected {
+  color: var(--color-success);
+}
+
+.statusNotConnected {
+  color: var(--color-text-secondary);
+}
+
+.cardButton {
+  margin-top: auto; /* Pushes button to the bottom */
+}
+
+.paymentElementWrapper {
+  margin-bottom: var(--space-3);
+}
+
+.loadingCard {
+  display: flex;
   align-items: center;
-  background-color: #f8f9fa;
-  margin-bottom: 0.5rem;
-}
-.defaultBadge {
-  background: #e8f5e8;
-  color: #137333;
-  padding: 4px 8px;
-  border-radius: 99px;
-  font-size: 12px;
-  font-weight: 500;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--color-text-secondary);
 }

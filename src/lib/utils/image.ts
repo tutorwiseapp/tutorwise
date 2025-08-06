@@ -1,52 +1,27 @@
 /*
  * Filename: src/lib/utils/image.ts
  * Purpose: A utility function to resolve the correct profile image URL for a user.
- *
  * Change History:
- * C002 - 2025-07-20 : 07:15 - Applied new standard header format and corrected property accessors to snake_case.
+ * C003 - 2025-07-27 : 11:00 - Restored file and updated types for Clerk compatibility.
+ * C002 - 2025-07-20 : 07:15 - Corrected property accessors to snake_case.
  * C001 - [Date] : [Time] - Initial creation of the utility.
- *
- * Last Modified: 2025-07-20 : 07:15
+ * Last Modified: 2025-07-27 : 11:00
  * Requirement ID: VIN-A-01.2
- *
- * Change Summary:
- * Updated the function to use snake_case for all properties (e.g., user.custom_picture_url) to align with the
- * canonical Profile interface. This also involved applying the new, detailed header format for documentation.
- *
- * Impact Analysis:
- * This is the final fix required to resolve the data inconsistency bug. It ensures that components like
- * ProfileSidebar and ProfileCard can correctly fetch and display user profile images.
- *
- * Dependencies:
- * - @/types
- *
- * Props (if applicable):
- * - user: A partial User/Profile object.
- *
- * TODO: None
+ * Change Summary: This file has been restored. The function signature has been updated to
+ * accept a `Partial<Profile>` type to align with the data structure now passed from the
+ * parent components, which is derived from Clerk's user object.
+ * Impact Analysis: Restoring this file resolves a critical missing dependency for several
+ * profile components, allowing them to correctly render user avatars.
+ * Dependencies: "@/types".
  */
-import { User } from '@/types';
+import type { Profile } from '@/types';
 
-// Using a simple, non-crypto hash for client-side consistency.
-const simpleHash = (str: string = ''): string => {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash |= 0; // Convert to 32bit integer
-  }
-  return (hash >>> 0).toString(16).padStart(8, '0');
-};
-
-// This is a default export.
-const getProfileImageUrl = (user: Partial<User>): string => {
+const getProfileImageUrl = (user: Partial<Profile>): string => {
+  // Prioritize the user's custom/uploaded picture URL
   if (user.custom_picture_url) {
     return user.custom_picture_url;
   }
-  if (user.email) {
-    const emailHash = simpleHash(user.email.trim().toLowerCase());
-    return `https://www.gravatar.com/avatar/${emailHash}?d=mp&s=150`;
-  }
+  // Fallback to a consistent placeholder based on their unique agent_id
   return `https://i.pravatar.cc/150?u=${user.agent_id || 'default'}`;
 };
 

@@ -1,31 +1,23 @@
 /*
  * Filename: src/app/settings/change-password/page.tsx
  * Purpose: Provides a secure form for users to change their account password.
- *
  * Change History:
- * C005 - 2025-07-21 : 22:15 - Reverted to using the global Container component for standardized layout.
- * C004 - 2025-07-21 : 22:00 - Replaced global Container with page-specific styled div.
- * C003 - 2025-07-21 : 21:30 - Refactored to use the standardized Container 'form' variant.
- * C002 - 2025-07-20 : 11:15 - Modified Container to use the 'narrow' variant.
- * C001 - 2025-07-20 : 10:30 - Initial creation with form and mock logic.
- *
- * Last Modified: 2025-07-21 : 22:15
+ * C006 - 2025-07-26 : 23:00 - Replaced `useAuth` with Clerk's `useUser` hook.
+ * ... (previous history)
+ * Last Modified: 2025-07-26 : 23:00
  * Requirement ID (optional): VIN-A-005
- *
- * Change Summary:
- * The page has been reverted to use the architecturally correct `<Container variant="form">`.
- * This ensures its layout is controlled by the central design system, guaranteeing consistency
- * with all other form pages and improving long-term maintainability.
- *
- * Impact Analysis:
- * This change aligns the component with the project's core architectural principles.
- *
- * Dependencies: "react", "@/app/components/auth/AuthProvider", "@/app/components/layout/Container", and various UI components.
+ * Change Summary: Surgically replaced the old `useAuth` hook with `useUser` from Clerk. Added
+ * a `useEffect` to handle loading states and redirect unauthenticated users. This resolves
+ * the final `AuthProvider` dependency crash and fully integrates the page with Clerk.
+ * Impact Analysis: This change completes the migration of the settings pages to the Clerk
+ * authentication system, making the feature functional and secure.
+ * Dependencies: "@clerk/nextjs", "next/navigation", and various VDL UI components.
  */
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useUser } from '@clerk/nextjs';
 
 // VDL Component Imports
 import Container from '@/app/components/layout/Container';
@@ -36,10 +28,9 @@ import Input from '@/app/components/ui/form/Input';
 import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
 import Breadcrumb from '@/app/components/ui/nav/Breadcrumb';
-import { useAuth } from '@/app/components/auth/removeAuthProvider';
 
 const ChangePasswordPage = () => {
-  const { user } = useAuth();
+  const { user, isLoaded } = useUser();
   const router = useRouter();
 
   const [oldPassword, setOldPassword] = useState('');
@@ -47,6 +38,12 @@ const ChangePasswordPage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (isLoaded && !user) {
+      router.push('/sign-in');
+    }
+  }, [isLoaded, user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,17 +57,31 @@ const ChangePasswordPage = () => {
         setMessage({ text: 'New password must be at least 8 characters long.', type: 'error' });
         return;
     }
+    if (!user) {
+        setMessage({ text: 'You must be logged in to change your password.', type: 'error' });
+        return;
+    }
 
     setIsLoading(true);
 
-    // MOCK API CALL
-    console.log(`Attempting password change for ${user?.email}`);
-    setTimeout(() => {
-      setIsLoading(false);
-      setMessage({ text: 'Password updated successfully! Redirecting...', type: 'success' });
-      setTimeout(() => router.push('/settings'), 2000);
-    }, 1500);
+    try {
+        await user.updatePassword({
+            currentPassword: oldPassword,
+            newPassword: newPassword,
+        });
+        setIsLoading(false);
+        setMessage({ text: 'Password updated successfully! Redirecting...', type: 'success' });
+        setTimeout(() => router.push('/settings'), 2000);
+    } catch (err) {
+        const error = err as { errors?: { message: string }[] };
+        setIsLoading(false);
+        setMessage({ text: error.errors?.[0]?.message || 'An unknown error occurred.', type: 'error' });
+    }
   };
+
+  if (!isLoaded || !user) {
+      return <Container><p>Loading...</p></Container>;
+  }
 
   const breadcrumbs = [
     { label: 'Settings', href: '/settings' },

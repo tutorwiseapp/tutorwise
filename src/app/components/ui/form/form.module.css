@@ -1,24 +1,18 @@
 /*
  * Filename: src/app/components/ui/form/form.module.css
  * Purpose: Provides the single source of truth for all standardized form components.
- *
  * Change History:
+ * C004 - 2025-07-26 : 19:30 - Added specific style to vertically align file inputs.
  * C003 - 2025-07-21 : 20:30 - Added .compactMarginBottom modifier class for optical spacing adjustments.
  * C002 - 2025-07-21 : 20:00 - Set FormGroup margin-bottom to a standard 24px.
  * C001 - [Date] : [Time] - Initial creation.
- *
- * Last Modified: 2025-07-21 : 20:30
- * Requirement ID (optional): VIN-UI-012
- *
- * Change Summary:
- * The standard `.formGroup` margin-bottom is set to `24px`. A new modifier
- * class, `.compactMarginBottom`, has been added to reduce the margin to `16px`. This is
- * now applied conditionally by the FormGroup component itself for optical balancing.
- * The `.footnote` style is also correctly defined here.
- *
- * Impact Analysis:
- * This provides the necessary tools and styles to create visually consistent form layouts
- * across the entire application.
+ * Last Modified: 2025-07-26 : 19:30
+ * Requirement ID (optional): VIN-B-03.3
+ * Change Summary: Added a new, targeted style rule `.input[type="file"]`. This rule
+ * adds `padding-top: 10px` to vertically center the native "Choose file" button and
+ * text within the component's fixed 48px height, resolving a visual misalignment bug.
+ * Impact Analysis: This is a surgical fix that only affects file inputs, preserving
+ * all other form styles and resolving a UI bug on the profile page.
  */
 
 /* --- Layout Wrapper --- */
@@ -64,6 +58,12 @@
   height: 48px;
   padding: 0 var(--space-2, 16px);
 }
+
+/* This rule specifically targets file inputs to fix their vertical alignment. */
+.input[type="file"] {
+  padding-top: 10px;
+}
+
 .textarea {
   min-height: 120px;
   padding: var(--space-2, 16px);
@@ -97,10 +97,8 @@
 /* --- Radio Button Styles --- */
 .radioGroup {
   display: flex;
-  flex-direction: column; /* Ensure they stack vertically */
+  flex-direction: column;
   flex-wrap: wrap;
-  /* --- THIS IS THE FIX --- */
-  /* Reduced gap from 24px to 16px for a tighter layout */
   gap: var(--space-1, 8px);
 }
 .radioLabel {
@@ -121,7 +119,7 @@
   display: inline-block;
   position: relative;
   transition: all 0.2s ease;
-  flex-shrink: 0; /* Prevent the circle from shrinking */
+  flex-shrink: 0;
 }
 .radioInput:checked + .radioCustom {
   border-color: var(--color-primary, #006C67);

@@ -1,5 +1,18 @@
 /*
  * Filename: src/app/page.tsx
+<<<<<<< HEAD
+ * Purpose: Provides the primary UI for generating new Vinite referral links.
+ * Change History:
+ * C001 - 2025-07-26 : 10:00 - Replaced Supabase auth hooks with Clerk's `useUser` hook.
+ * Last Modified: 2025-07-26 : 10:00
+ * Requirement ID: VIN-D-01.3
+ * Change Summary: Surgically replaced the old `useAuth` hook with Clerk's `useUser` and the
+ * conditional logic with Clerk's `<SignedOut>` component. This resolves the runtime crash
+ * while preserving all existing component logic and structure.
+ * Impact Analysis: Fixes the critical runtime error on the homepage, fully integrating it
+ * with the Clerk authentication system without altering the page's core functionality or layout.
+ * Dependencies: "react", "next/link", "qrcode", "@clerk/nextjs", and VDL UI components.
+=======
  * Purpose: Provides the primary UI for generating new Vinite referral links, fully migrated to NextAuth.js.
  *
  * Change History:
@@ -25,20 +38,19 @@ import Link from 'next/link';
 import Image from 'next/image';
 import QRCode from 'qrcode';
 import styles from './page.module.css';
-
-// Component Imports
+import { useUser, SignedOut } from '@clerk/nextjs';
 import Container from '@/app/components/layout/Container';
 import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
 import { useSession } from 'next-auth/react'; // --- THIS IS THE FIX ---
 
-// Helper Functions
 const validateUrl = (url: string): { valid: boolean; message?: string } => {
   if (!url) return { valid: false, message: "⚠️ Please enter a destination URL." };
   try { new URL(url); if (!url.startsWith('http://') && !url.startsWith('https://')) { return { valid: false, message: "⚠️ URL must start with https:// or http://." }; } return { valid: true }; } catch { return { valid: false, message: "⚠️ URL format is incorrect. Check for typos." }; }
 };
 
 export default function HomePage() {
+  const { user } = useUser();
   const { data: session } = useSession(); // --- THIS IS THE FIX ---
   const user = session?.user;
 
@@ -52,6 +64,16 @@ export default function HomePage() {
   const isUrlValid = useMemo(() => { if (!destinationUrl) return null; return validateUrl(destinationUrl).valid; }, [destinationUrl]);
 
   useEffect(() => {
+    if (user && user.publicMetadata.agent_id) {
+      setAgentId(user.publicMetadata.agent_id as string);
+    } else {
+      let guestId = sessionStorage.getItem('vinite_guest_id');
+      if (!guestId) {
+        guestId = `T1-GU${Math.floor(100000 + Math.random() * 900000)}`;
+        sessionStorage.setItem('vinite_guest_id', guestId);
+      }
+      setAgentId(guestId);
+
     // --- THIS IS THE FIX: Read the agent_id from the new session object ---
     if (user?.agent_id) { 
       setAgentId(user.agent_id); 
@@ -66,24 +88,63 @@ export default function HomePage() {
   }, [user]);
 
   useEffect(() => {
-    if (generatedLink) { QRCode.toDataURL(generatedLink, { width: 136, margin: 1 }).then(url => setQrCodeDataUrl(url)).catch(err => console.error('QR Code generation failed:', err)); } 
+    if (generatedLink) { QRCode.toDataURL(generatedLink, { width: 136, margin: 1 }).then(url => setQrCodeDataUrl(url)).catch(err => console.error('QR Code generation failed:', err)); }
     else { setQrCodeDataUrl(''); }
   }, [generatedLink]);
 
   useEffect(() => { if (message) { const timer = setTimeout(() => setMessage(null), 3000); return () => clearTimeout(timer); } }, [message]);
 
   const showMessage = (msg: { text: string; type: 'success' | 'error' | 'warning' }) => { setMessage(msg); };
-  
+
   const handleGenerateLink = useCallback(async () => {
+    const urlValidation = validateUrl(destinationUrl);
+    if (!urlValidation.valid) {
+      showMessage({ text: urlValidation.message!, type: 'error' });
+      return;
+    }
+
+    setIsGenerating(true);
+    setMessage(null);
+
+    try {
+      const response = await fetch('/api/links', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          destinationUrl,
+          channel: 'web-generator',
+          agentId,
+        }),
+      });
+
+      if (!response.ok) {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.indexOf('application/json') !== -1) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `Request failed with status ${response.status}`);
+        } else {
+          throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+      }
+
+      const newLink = `https://vinite.com/a/${encodeURIComponent(agentId)}?u=${encodeURIComponent(destinationUrl)}`;
+      setGeneratedLink(newLink);
+      showMessage({ text: 'Your Vinite link is ready!', type: 'success' });
+
+    } catch (err) {
+      showMessage({ text: err instanceof Error ? err.message : 'An unknown error occurred.', type: 'error' });
+    } finally {
+      setIsGenerating(false);
+    }
     // ... (This function is now correct and doesn't need changes)
   }, [destinationUrl, agentId]);
-  
+
   const handleClearUrl = () => { setDestinationUrl(''); setGeneratedLink(''); };
-  
+
   const handleShare = (platform: 'whatsapp' | 'linkedin') => {
     // ... (This function is correct and doesn't need changes)
   };
-  
+
   const handleCopyToClipboard = (text: string, successMessage: string) => {
     // ... (This function is correct and doesn't need changes)
   };
@@ -92,7 +153,7 @@ export default function HomePage() {
   const isLoggedIn = !!user; // --- THIS IS THE FIX ---
 
   return (
-    <Container className={styles.pageContainer}>
+    <Container>
       {message && ( <div className={styles.messageContainer}><Message type={message.type}>{message.text}</Message></div> )}
       <div className={styles.mainContent}>
         <div className={styles.logo}>vinite</div>
@@ -136,6 +197,11 @@ export default function HomePage() {
             <div className={styles.outputInstructions}>
               <p><strong>1. To Share Manually:</strong> Copy the link, QR code, or snippet and paste it in social media, an email, or a blog post.</p>
               <p><strong>2. To Share Directly:</strong> Use the one-click "Refer on WhatsApp" or "Refer on LinkedIn" buttons.</p>
+              <SignedOut>
+                {agentId.startsWith('T1-') && (
+                  <p><strong>3. To Claim Rewards:</strong> Save this temporary Agent ID <strong>{agentId}</strong> to <Link href={`/signup?claimId=${agentId}`} className={styles.claimLink}>claim any rewards</Link> you earn, or <Link href="/signup" className={styles.claimLink}>Sign Up</Link> to track them automatically.</p>
+                )}
+              </SignedOut>
               {!isLoggedIn && agentId.startsWith('T1-') && (
                 <p><strong>3. To Claim Rewards:</strong> Save this temporary Agent ID <strong>{agentId}</strong> to <Link href={`/signup?claimId=${agentId}`} className={styles.claimLink}>claim any rewards</Link> you earn, or <Link href="/login" className={styles.claimLink}>Sign In</Link> to track them automatically.</p>
               )}

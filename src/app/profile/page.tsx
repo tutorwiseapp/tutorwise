@@ -1,30 +1,26 @@
 /*
  * Filename: src/app/profile/page.tsx
- * Purpose: Allows the authenticated user to edit their profile information.
- *
+ * Purpose: Allows the authenticated user to edit their profile information and upload a photo.
  * Change History:
- * C013 - 2025-07-22 : 15:30 - Refactored handleSave to use Supabase, fixing build error.
- * C012 - 2025-07-21 : 20:30 - Refactored to use the 'compact' prop on FormGroup.
+ * C022 - 2025-07-27 : 10:00 - Definitive fix for the "View Public Profile" link.
+ * C021 - 2025-07-26 : 21:45 - Passed `isOwnProfile` prop to ProfileSidebar.
  * ... (previous history)
- *
- * Last Modified: 2025-07-22 : 15:30
- * Requirement ID: VIN-B-03.2
- *
- * Change Summary:
- * The component no longer uses the mock `useData` or `login` function. The `handleSave`
- * function is now `async` and calls `supabase.from('profiles').update()` to persist
- * changes directly to the database. The page now relies on the live `AuthProvider` to
- * automatically reflect these changes, resolving the critical build error.
- *
- * Impact Analysis:
- * This completes the migration of the profile page to the live backend.
+ * Last Modified: 2025-07-27 : 10:00
+ * Requirement ID: VIN-UI-013
+ * Change Summary: This is the definitive fix. The `agent_id` from the Clerk user object's
+ * publicMetadata is now being correctly passed down to the ProfileSidebar component. This
+ * resolves the root cause of the "View Public Profile" link not working, as the link was
+ * previously not being rendered at all due to the missing `agent_id` prop.
+ * Impact Analysis: This change fixes a critical user journey bug. It completes the data
+ * flow from the parent page to the child component, making the link functional.
+ * Dependencies: "@clerk/nextjs", "next/link", and various VDL UI components.
  */
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import type { Profile } from '@/types';
-import { useAuth } from '@/app/components/auth/removeAuthProvider';
+import { useUser } from '@clerk/nextjs';
 import { supabase } from '@/lib/supabaseClient'; // Import the Supabase client
 
 // Component Imports
@@ -40,65 +36,90 @@ import Card from '@/app/components/ui/Card';
 import styles from './page.module.css';
 
 const ProfilePage = () => {
-  const { user: profile, isLoading: isAuthLoading } = useAuth(); // `login` is no longer provided
+  const { user, isLoaded } = useUser();
   const [activeTab, setActiveTab] = useState('profile');
   const [formData, setFormData] = useState<Partial<Profile>>({});
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const avatarFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (profile) {
-      setFormData(profile);
+    if (user) {
+      setFormData({
+        id: user.id,
+        first_name: user.firstName || '',
+        last_name: user.lastName || '',
+        email: user.emailAddresses[0]?.emailAddress || '',
+        display_name: user.fullName || '',
+        agent_id: user.publicMetadata?.agent_id as string || '',
+        bio: user.publicMetadata?.bio as string || '',
+        categories: user.publicMetadata?.categories as string || '',
+        achievements: user.publicMetadata?.achievements as string || '',
+        cover_photo_url: user.publicMetadata?.cover_photo_url as string || '',
+        roles: user.publicMetadata?.role ? [user.publicMetadata.role as 'agent' | 'seeker' | 'provider'] : [],
+      });
     }
-  }, [profile]);
+  }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: value }));
   };
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!profile) return;
-
-    setIsSaving(true);
-    setMessage(null);
-
-    // Create the object of fields to update
-    const updatedFields = {
-      display_name: formData.display_name,
-      categories: formData.categories,
-      bio: formData.bio,
-      achievements: formData.achievements,
-      cover_photo_url: formData.cover_photo_url,
-      custom_picture_url: formData.custom_picture_url,
-    };
-
-    // Call Supabase to update the profile in the database
-    const { error } = await supabase
-      .from('profiles')
-      .update(updatedFields)
-      .eq('id', profile.id); // Ensure we only update the logged-in user's profile
-
-    setIsSaving(false);
-
-    if (error) {
-      setMessage({ text: `Error updating profile: ${error.message}`, type: 'error' });
-    } else {
-      setMessage({ text: 'Profile updated successfully!', type: 'success' });
-      // The AuthProvider will automatically refetch the user data on the next page load
-      // or we can manually trigger a refresh if needed.
+  const handleAvatarUpload = async () => {
+    if (!avatarFileRef.current?.files) {
+      setMessage({ text: 'No file selected for upload.', type: 'error' });
+      return;
     }
-    window.scrollTo(0, 0);
-    setTimeout(() => setMessage(null), 3000);
+    
+    const file = avatarFileRef.current.files[0];
+    setMessage({ text: 'Uploading photo...', type: 'success' });
+
+    try {
+      const response = await fetch(`/api/avatar/upload?filename=${file.name}`, {
+        method: 'POST',
+        body: file,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed.');
+      }
+      
+      await response.json();
+      await user?.reload();
+      setMessage({ text: `Photo uploaded successfully!`, type: 'success' });
+
+    } catch (error) {
+      setMessage({ text: 'Upload failed. Please try again.', type: 'error' });
+    }
   };
 
-  if (isAuthLoading) {
-    return <Container><p>Loading profile...</p></Container>;
-  }
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    setIsSaving(true);
+    setMessage(null);
+    try {
+      const response = await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      if (!response.ok) throw new Error('Failed to update profile.');
+      await user.reload();
+      setMessage({ text: 'Profile updated successfully!', type: 'success' });
+    } catch (err) {
+      const error = err as Error;
+      setMessage({ text: `Error updating profile: ${error.message || 'Please try again.'}`, type: 'error' });
+    } finally {
+      setIsSaving(false);
+      window.scrollTo(0, 0);
+      setTimeout(() => setMessage(null), 3000);
+    }
+  };
 
-  if (!profile) {
-    return <Container><p>Please log in to view your profile.</p></Container>;
+  if (!isLoaded || !user) {
+    return <Container><p>Loading profile...</p></Container>;
   }
 
   const tabOptions = [
@@ -106,11 +127,20 @@ const ProfilePage = () => {
     { id: 'security', label: 'Account Security' },
   ];
 
+  const profileForSidebar: Partial<Profile> = {
+    display_name: user.fullName || '',
+    // --- THIS IS THE SURGICAL FIX ---
+    // The agent_id from publicMetadata must be passed down to the child component.
+    agent_id: user.publicMetadata.agent_id as string || '',
+    custom_picture_url: user.imageUrl,
+    roles: user.publicMetadata.role ? [user.publicMetadata.role as 'agent' | 'seeker' | 'provider'] : [],
+  };
+
   return (
     <Container>
       <div className={styles.profileLayout}>
         <aside>
-          <ProfileSidebar user={profile} />
+          <ProfileSidebar user={profileForSidebar} isOwnProfile={true} />
         </aside>
         <main>
           <Card>
@@ -119,6 +149,13 @@ const ProfilePage = () => {
 
             {activeTab === 'profile' && (
               <div className={styles.tabContent}>
+                <FormGroup label="Profile Photo" htmlFor="avatar">
+                  <div className={styles.fileUploadGroup}>
+                    <Input id="avatar" type="file" ref={avatarFileRef} accept="image/*" />
+                    <Button type="button" onClick={handleAvatarUpload}>Upload Photo</Button>
+                  </div>
+                </FormGroup>
+
                 <form onSubmit={handleSave}>
                   <FormGroup label="Display Name" htmlFor="display_name">
                     <Input id="display_name" value={formData.display_name || ''} onChange={handleInputChange} disabled={isSaving} />
@@ -140,16 +177,9 @@ const ProfilePage = () => {
                     <Input id="cover_photo_url" value={formData.cover_photo_url || ''} onChange={handleInputChange} disabled={isSaving} />
                   </FormGroup>
                   <FormGroup
-                    label="Custom Picture URL"
-                    htmlFor="custom_picture_url"
-                    footnote="Optional. Overrides Gravatar."
-                  >
-                    <Input id="custom_picture_url" value={formData.custom_picture_url || ''} onChange={handleInputChange} disabled={isSaving} />
-                  </FormGroup>
-                  <FormGroup
                     label="Email"
                     htmlFor="email"
-                    footnote="Used for your Gravatar. Cannot be changed."
+                    footnote="Used for your login. Cannot be changed."
                   >
                     <Input id="email" value={formData.email || ''} readOnly disabled />
                   </FormGroup>
@@ -159,9 +189,8 @@ const ProfilePage = () => {
                 </form>
               </div>
             )}
-
             {activeTab === 'security' && (
-              <div className={styles.tabContent}>
+             <div className={styles.tabContent}>
                 <h3>Security Settings</h3>
                 <p className={styles.panelDescription}>
                   Change the password associated with your account.

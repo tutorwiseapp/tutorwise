@@ -1,48 +1,37 @@
-/* src/app/claim-success/page.module.css */
+/*
+ * Filename: src/app/claim-rewards/page.module.css
+ * Purpose: Provides specific styles for the claim rewards confirmation page.
+ * Change History:
+ * C001 - 2025-07-26 : 23:45 - Initial creation.
+ * Last Modified: 2025-07-26 : 23:45
+ */
 
-.container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding-top: 4rem;
-  padding-bottom: 4rem;
+.claimDetails {
+    text-align: center;
+    margin-bottom: var(--space-4);
 }
 
-.successCard {
-  text-align: center;
-  padding: 3rem;
+.claimText {
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-1);
 }
 
-.iconWrapper {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background-color: var(--color-success-bg);
-  color: var(--color-success);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1.5rem;
+.serviceName {
+    font-size: var(--font-size-2xl);
+    font-weight: 600;
+    margin-bottom: var(--space-1);
 }
 
-.iconWrapper .material-symbols-outlined {
-  font-size: 48px;
+.rewardAmount {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--space-3);
 }
 
-.title {
-  font-size: var(--font-size-3xl);
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.subtitle {
-  font-size: var(--font-size-lg);
-  color: var(--color-text-secondary);
-  line-height: 1.6;
-  margin-bottom: 2.5rem;
-}
-
-.buttonGroup {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
+.claimSubtext {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    max-width: 350px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
 }

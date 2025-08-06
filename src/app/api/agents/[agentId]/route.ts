@@ -1,26 +1,27 @@
 /*
  * Filename: src/app/api/agents/[agentId]/route.ts
  * Purpose: Provides a public API endpoint to fetch a single agent's profile data.
- *
  * Change History:
- * C001 - 2025-07-22 : 16:30 - Initial creation.
- *
- * Last Modified: 2025-07-22 : 16:30
- * Requirement ID (optional): VIN-C-03.3
- *
- * Change Summary:
- * Created a new public API route that fetches a specific agent's profile from the database
- * based on their public `agent_id`. This is the new data source for the public profile page.
- *
- * Impact Analysis:
- * This is a critical step in migrating the agent profile page off the mock data system.
+ * C001 - 2025-07-27 : 09:00 - Initial creation.
+ * Last Modified: 2025-07-27 : 09:00
+ * Requirement ID: VIN-C-03.3
+ * Change Summary: This file was created as the definitive fix for the non-functional "View Public
+ * Profile" link. It provides the essential, public-facing backend data source that was missing.
+ * It securely queries the Supabase `profiles` table for the requested agent.
+ * Impact Analysis: This is an additive change that makes the public profile page functional. It has
+ * no impact on any other part of the application.
+ * Dependencies: "next/server", "@supabase/supabase-js".
  */
-import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
 
-// We create a new server-side Supabase client here
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error("Supabase credentials are not set in environment variables.");
+}
+
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function GET(
@@ -33,16 +34,22 @@ export async function GET(
     return NextResponse.json({ error: 'Agent ID is required' }, { status: 400 });
   }
 
-  // Fetch the profile from the database where the public agent_id matches
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .select('*') // You can specify columns here for security, e.g., 'display_name, bio, ...'
-    .eq('agent_id', agentId)
-    .single();
+  try {
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*') // You can specify columns here for security, e.g., 'display_name, bio'
+      .eq('agent_id', agentId)
+      .single();
 
-  if (error || !profile) {
-    return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
+    if (error || !profile) {
+      console.error('Supabase query error:', error);
+      return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(profile);
+
+  } catch (error) {
+    console.error('Server error fetching agent profile:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  return NextResponse.json(profile);
 }
