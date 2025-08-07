@@ -2,21 +2,19 @@
  * Filename: src/app/layout.tsx
  * Purpose: Serves as the root layout, setting up global styles, fonts, and the Clerk auth provider.
  * Change History:
+ * C004 - 2025-08-07 : 18:00 - Added global Toaster provider for notifications.
  * C003 - 2025-07-28 : 12:00 - Definitive fix to resolve merge conflicts.
  * C002 - 2025-07-27 : 23:45 - Added Toaster for app-wide notifications.
- * C001 - 2025-07-26 : 10:00 - Initial setup for Clerk conversion.
- * Last Modified: 2025-07-28 : 12:00
+ * Last Modified: 2025-08-07 : 18:00
  * Requirement ID: VIN-M-01
- * Change Summary: This is the definitive fix for the merge conflict. The file has been manually
- * repaired to remove all conflict markers and remnants of the old NextAuth.js system. It now
- * correctly and exclusively uses the <ClerkProvider> for authentication.
- * Impact Analysis: This change resolves a critical build-blocking error and restores the
- * application's root layout to a stable, functional state.
- * Dependencies: "next", "@clerk/nextjs", "./globals.css", "./components/layout/Layout".
+ * Change Summary: Added the `<Toaster />` component from `react-hot-toast`. This enables the notification system used in pages like "Payments", fulfilling an intended but incomplete feature and improving user feedback according to the "Engaging & Responsive" principle.
+ * Impact Analysis: This is a global, non-breaking enhancement. It makes toast notifications functional across the entire application.
+ * Dependencies: "next", "@clerk/nextjs", "react-hot-toast", "./globals.css", "./components/layout/Layout".
  */
 import type { Metadata } from 'next';
 import { Inter, Poppins } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
+import { Toaster } from 'react-hot-toast'; // --- FIX ---
 import Layout from './components/layout/Layout';
 import "./globals.css";
 
@@ -53,6 +51,13 @@ export default function RootLayout({
           />
         </head>
         <body>
+          {/* --- FIX: Add the Toaster component here --- */}
+          <Toaster
+            position="top-center"
+            toastOptions={{
+              duration: 3000,
+            }}
+          />
           <Layout>{children}</Layout>
         </body>
       </html>
