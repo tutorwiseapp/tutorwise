@@ -1,17 +1,15 @@
+
 /*
  * Filename: src/app/page.tsx
  * Purpose: Provides the primary UI for generating new Vinite referral links.
  * Change History:
+ * C003 - 2025-08-07 : 18:00 - Corrected broken sign-up link for guest reward claims.
  * C002 - 2025-07-28 : 12:00 - Definitive fix to resolve merge conflicts and align with Clerk auth.
  * C001 - 2025-07-26 : 10:00 - Initial Clerk conversion.
- * Last Modified: 2025-07-28 : 12:00
+ * Last Modified: 2025-08-07 : 18:00
  * Requirement ID: VIN-D-01.3
- * Change Summary: This is the definitive fix for the merge conflict that was causing build
- * and syntax errors. The file has been manually repaired to remove all conflict markers and
- * remnants of the old NextAuth.js system (`useSession`). It now correctly and exclusively
- * uses Clerk's `useUser` hook and `<SignedOut>` component.
- * Impact Analysis: This change resolves a critical build-blocking error and stabilizes the
- * homepage, completing its migration to the Clerk authentication system.
+ * Change Summary: Corrected the guest user "claim rewards" link to point to the new `/sign-up` route instead of the old `/signup`. This fixes a broken primary user journey.
+ * Impact Analysis: This change fixes a critical broken link in the guest-to-user conversion funnel, directly impacting user acquisition.
  * Dependencies: "react", "next/link", "qrcode", "@clerk/nextjs", and VDL UI components.
  */
 'use client';
@@ -173,7 +171,7 @@ export default function HomePage() {
               <p><strong>2. To Share Directly:</strong> Use the one-click "Refer on WhatsApp" or "Refer on LinkedIn" buttons.</p>
               <SignedOut>
                 {agentId.startsWith('T1-') && (
-                  <p><strong>3. To Claim Rewards:</strong> Save this temporary Agent ID <strong>{agentId}</strong> to <Link href={`/signup?claimId=${agentId}`} className={styles.claimLink}>claim any rewards</Link> you earn, or <Link href="/signup" className={styles.claimLink}>Sign Up</Link> to track them automatically.</p>
+                  <p><strong>3. To Claim Rewards:</strong> Save this temporary Agent ID <strong>{agentId}</strong> to <Link href={`/sign-up?claimId=${agentId}`} className={styles.claimLink}>claim any rewards</Link> you earn, or <Link href="/sign-up" className={styles.claimLink}>Sign Up</Link> to track them automatically.</p>
                 )}
               </SignedOut>
             </div>

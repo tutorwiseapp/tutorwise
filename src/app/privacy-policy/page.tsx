@@ -2,11 +2,11 @@
 
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
-import styles from './page.module.css'; // --- FIX ---
+import styles from './page.module.css';
 
 const PrivacyPolicyPage = () => {
   return (
-    <Container className={styles.container}>
+    <Container variant="narrow">
       <PageHeader title="Privacy Policy" subtitle="Last Updated: July 17, 2025" />
       <div className={styles.legalText}>
         <h2>1. Information We Collect</h2><p>We collect information you provide directly to us, such as when you create an account, as well as information automatically collected when you use our services.</p>

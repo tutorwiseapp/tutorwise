@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-// import Link from 'next/link'; // --- THIS IS THE FIX --- Unused import removed.
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import Card from '@/app/components/ui/Card';
@@ -9,7 +8,6 @@ import FormGroup from '@/app/components/ui/form/FormGroup';
 import Input from '@/app/components/ui/form/Input';
 import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
-import styles from './page.module.css'; // This is now being used
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
@@ -26,9 +24,7 @@ const ForgotPasswordPage = () => {
   };
 
   return (
-    // --- THIS IS THE FIX ---
-    // The className is now correctly applied to the Container.
-    <Container className={styles.container}>
+    <Container variant="form">
       <PageHeader title="Forgot Password" subtitle="Enter your email to receive a reset link." />
       <Card>
         {isSubmitted ? (
