@@ -1,78 +1,102 @@
+/*
+ * Filename: src/app/referral-activities/page.tsx
+ * Purpose: Displays a user's referral activity, filterable by status.
+ *
+ * Change History:
+ * C003 - 2025-08-07 : 18:00 - Refactored to use the standard Card component.
+ * C002 - 2025-07-20 : 15:15 - Aligned mock data and columns with the canonical Referral interface.
+ * C001 - [Date] : [Time] - Initial creation.
+ *
+ * Last Modified: 2025-08-07 : 18:00
+ * Requirement ID (optional): VIN-A-003
+ *
+ * Change Summary:
+ * Replaced the container `div` with the standardized `<Card>` component. This ensures the page has consistent styling (padding, border, hover effects) with the rest of the application, adhering to the "System First" principle.
+ *
+ * Impact Analysis:
+ * This change improves UI consistency and removes the need for a separate, single-purpose CSS file (`referral-activities/page.module.css`).
+ *
+ * Dependencies: "react", "next/link", "@/types", and various UI components.
+ */
 'use client';
 
-import type { ColumnDef } from '@/types'; 
+import { useState, useMemo } from 'react';
+import Link from 'next/link';
+import type { Referral, ColumnDef } from '@/types';
 
-// Import our components
+// Import our full suite of reusable components
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import { DataTable } from '@/app/components/ui/table/DataTable';
+import Tabs from '@/app/components/ui/Tabs';
 import StatusBadge from '@/app/components/ui/StatusBadge';
-import styles from './page.module.css';
+import Button from '@/app/components/ui/Button';
+import Card from '@/app/components/ui/Card';
 
-// Define the shape of a single transaction
-interface Transaction {
-  id: number;
-  date: string;
-  description: string;
-  type: 'Reward' | 'Payout' | 'Fee';
-  amount: number;
-  status: 'Paid' | 'Pending' | 'Failed';
-}
-
-// Mock data for demonstration
-const mockTransactions: Transaction[] = [
-  { id: 1, date: '2025-06-15', description: 'Commission: LearnHub Course', type: 'Reward', amount: 9.90, status: 'Paid' },
-  { id: 2, date: '2025-06-12', description: 'Commission: SaaSify Subscription', type: 'Reward', amount: 3.00, status: 'Paid' },
-  { id: 3, date: '2025-06-10', description: 'Payout to Bank Account', type: 'Payout', amount: -12.90, status: 'Paid' },
-  { id: 4, date: '2025-06-05', description: 'Commission: Cleanly Service', type: 'Reward', amount: 7.50, status: 'Pending' },
-  { id: 5, date: '2025-05-28', description: 'Commission: Tutorly Referral', type: 'Reward', amount: 5.00, status: 'Failed' },
-  { id: 6, date: '2025-05-20', description: 'Platform Service Fee', type: 'Fee', amount: -1.50, status: 'Paid' },
+// Mock data now perfectly matches the `Referral` interface from `src/types/index.ts`
+const mockReferrals: Referral[] = [
+    { id: 1, created_at: '2025-05-20', seeker_email: '-', agent_id: 'A1-JS123456', provider_id: 'Tutorly', channel_origin: 'Web', amount: 50.00, status: 'Open', destination_url: 'https://tutorly.example.com' },
+    { id: 2, created_at: '2025-05-21', seeker_email: 'john.d@example.com', agent_id: 'A1-JS123456', provider_id: 'SaaSify', channel_origin: 'Email', amount: 29.99, status: 'Shared', destination_url: 'https://saasify.example.com' },
+    { id: 3, created_at: '2025-05-22', seeker_email: 'a.long.email@example.com', agent_id: 'A1-JS123456', provider_id: 'DesignCo', channel_origin: 'QR Code', amount: 150.00, status: 'Visited', destination_url: 'https://designco.example.com' },
+    { id: 4, created_at: '2025-05-23', seeker_email: 'jane.s@example.com', agent_id: 'A1-JS123456', provider_id: 'LearnHub', channel_origin: 'Web', amount: 99.00, status: 'Signed Up', destination_url: 'https://learnhub.example.com' },
+    { id: 5, created_at: '2025-05-24', seeker_email: 'mike.r@example.com', agent_id: 'A1-JS123456', provider_id: 'Cleanly', channel_origin: 'WhatsApp', amount: 75.00, status: 'Booked', destination_url: 'https://cleanly.example.com' },
+    { id: 6, created_at: '2025-05-25', seeker_email: 'sara.k@example.com', agent_id: 'A1-JS123456', provider_id: 'SaaSify', channel_origin: 'Web', amount: 29.99, status: 'Accepted', destination_url: 'https://saasify.example.com' },
+    { id: 7, created_at: '2025-05-26', seeker_email: 'tim.b@example.com', agent_id: 'A1-JS123456', provider_id: 'DesignCo', channel_origin: 'QR Code', amount: 150.00, status: 'Declined', destination_url: 'https://designco.example.com' },
+    { id: 8, created_at: '2025-05-25', seeker_email: 'sara.k@example.com', agent_id: 'A1-JS123456', provider_id: 'SaaSify', channel_origin: 'Web', amount: 3.00, status: 'Paid', destination_url: 'https://saasify.example.com' },
+    { id: 9, created_at: '2025-05-27', seeker_email: 'olivia.p@example.com', agent_id: 'A1-JS123456', provider_id: 'LearnHub', channel_origin: 'Web', amount: 9.90, status: 'Pending', destination_url: 'https://learnhub.example.com' },
+    { id: 10, created_at: '2025-05-28', seeker_email: 'liam.h@example.com', agent_id: 'A1-JS123456', provider_id: 'Tutorly', channel_origin: 'Email', amount: 5.00, status: 'Failed', destination_url: 'https://tutorly.example.com' },
+    { id: 11, created_at: '2025-06-01', seeker_email: 'chloe.m@example.com', agent_id: 'A1-JS123456', provider_id: 'Artisan Goods', channel_origin: 'Web', amount: 12.50, status: 'Paid', destination_url: 'https://artisangoods.example.com' },
 ];
 
-const TransactionHistoryPage = () => {
-  const columns: ColumnDef<Transaction>[] = [
-    { 
-      header: 'Date', 
-      accessorKey: 'date',
-      cell: (value) => new Date(value as string).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-    },
-    { 
-      header: 'Description', 
-      accessorKey: 'description',
-    },
-    { 
-      header: 'Type', 
-      accessorKey: 'type',
-    },
-    { 
-      header: 'Amount', 
-      accessorKey: 'amount',
-      // --- THIS IS THE FIX ---
-      // We explicitly cast `value` to a `number` before performing comparisons.
-      cell: (value) => {
-        const amount = value as number;
-        return (
-          <span className={amount > 0 ? styles.amountPositive : styles.amountNegative}>
-            {amount > 0 ? `+£${amount.toFixed(2)}` : `-£${Math.abs(amount).toFixed(2)}`}
-          </span>
-        )
-      }
-    },
-    { 
-      header: 'Status', 
-      accessorKey: 'status',
-      cell: (value) => <StatusBadge status={value as string} />
-    },
+interface TabOption {
+  id: string;
+  label: string;
+}
+
+const ReferralActivityPage = () => {
+  const [activeTab, setActiveTab] = useState('generates');
+
+  // Column definitions now use the correct `accessorKey` properties from the Referral type
+  const columns: ColumnDef<Referral>[] = [
+    { header: 'Date', accessorKey: 'created_at', responsiveClass: 'mobile', cell: (value) => new Date(value as string).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) },
+    { header: 'Seeker', accessorKey: 'seeker_email', responsiveClass: 'mobile' },
+    { header: 'Agent', accessorKey: 'agent_id', responsiveClass: 'desktop', cell: (value) => <Link href={`/agents/${value}`}>{value as string}</Link> },
+    { header: 'Provider ID', accessorKey: 'provider_id', responsiveClass: 'tablet' },
+    { header: 'Channel', accessorKey: 'channel_origin', responsiveClass: 'desktop' },
+    { header: 'Amount', accessorKey: 'amount', responsiveClass: 'mobile', cell: (value) => `£${Number(value).toFixed(2)}` },
+    { header: 'Status', accessorKey: 'status', responsiveClass: 'mobile', cell: (value) => <StatusBadge status={value as string} /> },
+    { header: 'Action', accessorKey: 'id', responsiveClass: 'desktop', cell: () => <Button variant="secondary" fullWidth={false} style={{height: '32px', fontSize: '12px', padding: '0 16px'}}>Details</Button> },
   ];
+
+  const tabOptions: TabOption[] = [
+    { id: 'generates', label: 'Generates' },
+    { id: 'shares', label: 'Shares' },
+    { id: 'converts', label: 'Converts' },
+    { id: 'rewards', label: 'Rewards' },
+  ];
+
+  const filteredData = useMemo(() => {
+    const agentId = 'A1-JS123456';
+    const myReferrals = mockReferrals.filter(r => r.agent_id === agentId);  
+    
+    switch (activeTab) {
+      case 'generates': return myReferrals.filter(r => ['Open'].includes(r.status));
+      case 'shares': return myReferrals.filter(r => ['Shared', 'Visited'].includes(r.status));
+      case 'converts': return myReferrals.filter(r => ['Signed Up', 'Booked', 'Accepted'].includes(r.status));
+      case 'rewards': return myReferrals.filter(r => ['Pending', 'Paid', 'Failed', 'Declined'].includes(r.status));
+      default: return [];
+    }
+  }, [activeTab]);
 
   return (
     <Container>
-      <PageHeader title="Transaction History" />
-      <div className={styles.card}>
-        <DataTable columns={columns} data={mockTransactions} />
-      </div>
+      <PageHeader title="Referral Activity" />
+      <Card>
+        <Tabs tabs={tabOptions} activeTab={activeTab} onTabChange={setActiveTab} />
+        <DataTable columns={columns} data={filteredData} />
+      </Card>
     </Container>
   );
 };
 
-export default TransactionHistoryPage;
+export default ReferralActivityPage;
