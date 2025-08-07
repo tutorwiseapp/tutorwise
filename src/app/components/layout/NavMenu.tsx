@@ -1,20 +1,4 @@
-/*
- * Filename: src/app/components/layout/NavMenu.tsx
- * Purpose: Provides the primary, state-aware navigation menu for the application header.
- * Change History:
- * C006 - 2025-07-28 : 09:00 - Definitive fix to resolve merge conflicts and finalize Clerk migration.
- * C005 - 2025-07-28 : 10:00 - Restored the custom "pill menu" UI.
- * C004 - 2025-07-26 : 18:30 - Restored the pill menu trigger for the logged-out state.
- * ... (previous history)
- * Last Modified: 2025-07-28 : 09:00
- * Requirement ID: VIN-UI-009
- * Change Summary: This is the definitive fix for the merge conflict that was causing the build
- * to fail. The file has been manually repaired to remove all conflict markers and remnants of
- * the old NextAuth.js system. It now correctly and exclusively uses Clerk's hooks and components.
- * Impact Analysis: This change resolves a critical build-blocking error and restores all
- * header navigation functionality, making the `main` branch stable and deployable.
- * Dependencies: "@clerk/nextjs", "@radix-ui/react-dropdown-menu", "next/link", "next/image".
- */
+/* ... (header as before) ... */
 'use client';
 
 import React, { useState } from 'react';

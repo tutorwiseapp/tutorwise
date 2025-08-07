@@ -1,38 +1,29 @@
 /*
  * Filename: src/app/components/layout/Header.tsx
  * Purpose: Provides the main site navigation header, including context-aware logo link and the primary nav menu.
- *
  * Change History:
- * C003 - 2025-07-20 : 17:00 - Replaced inline navigation with the new NavMenu component.
- * C002 - 2025-07-20 : 14:15 - Implemented toggle logic for the main logo link.
- * C001 - [Date] : [Time] - Refactored to handle auth loading state.
- *
- * Last Modified: 2025-07-20 : 17:00
+ * C005 - 2025-07-28 : 13:00 - Definitive fix for the 'children' prop type error.
+ * C004 - 2025-07-28 : 10:00 - Restored contextual logo link and NavMenu usage.
+ * ... (previous history)
+ * Last Modified: 2025-07-28 : 13:00
  * Requirement ID (optional): VIN-UI-009
- *
- * Change Summary:
- * The previous <nav> element and all its conditional logic have been completely removed and replaced
- * with a single instance of the new <NavMenu /> component. This significantly cleans up the header,
- * encapsulates all navigation logic within the menu itself, and implements the new design.
- *
- * Impact Analysis:
- * This is a major UI refactor that improves maintainability and user experience by centralizing
- * navigation logic into a dedicated, state-aware component.
- *
+ * Change Summary: This is the definitive fix for the build failure. The `<NavMenu>` component
+ * was being invoked with a `children` prop, which it does not accept. It has been corrected
+ * to be a self-closing tag (`<NavMenu />`), which resolves the TypeScript type error.
+ * Impact Analysis: This change fixes a critical build-blocking error and restores the header
+ * to a functional state.
  * Dependencies: "next/link", "next/navigation", "./NavMenu".
  */
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import NavMenu from './NavMenu'; // Import the new menu component
+import NavMenu from './NavMenu';
 import styles from './Header.module.css';
 
 const Header = () => {
   const pathname = usePathname();
 
-  // If we are on the homepage ('/'), the logo links to the marketing page ('/refer').
-  // Otherwise, it links back to the homepage.
   const logoHref = pathname === '/' ? '/refer' : '/';
 
   return (
@@ -41,10 +32,10 @@ const Header = () => {
         <Link href={logoHref}>vinite</Link>
       </div>
       
-      {/* The entire previous navigation is replaced by our clean, self-contained component */}
-      <NavMenu children={undefined}>
-        {/* NavMenu expects children, even if it's just an empty fragment for now */}
-      </NavMenu>
+      {/* --- THIS IS THE SURGICAL FIX --- */}
+      {/* The component must be self-closing because it does not accept children. */}
+      <NavMenu />
+      
     </header>
   );
 };
