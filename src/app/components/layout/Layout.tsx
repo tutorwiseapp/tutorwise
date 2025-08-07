@@ -11,7 +11,7 @@
 import React from 'react';
 import Header from './Header';
 import Footer from './Footer';
-import styles from './layout.module.css'; // This import will now find the file
+import styles from './Layout.module.css'; // This import will now find the file
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
