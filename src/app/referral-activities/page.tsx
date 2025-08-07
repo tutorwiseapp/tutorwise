@@ -3,20 +3,18 @@
  * Purpose: Displays a user's referral activity, filterable by status.
  *
  * Change History:
+ * C003 - 2025-08-07 : 18:00 - Refactored to use the standard Card component.
  * C002 - 2025-07-20 : 15:15 - Aligned mock data and columns with the canonical Referral interface.
  * C001 - [Date] : [Time] - Initial creation.
  *
- * Last Modified: 2025-07-20 : 15:15
+ * Last Modified: 2025-08-07 : 18:00
  * Requirement ID (optional): VIN-A-003
  *
  * Change Summary:
- * Updated the `mockReferrals` data and the `DataTable` column definitions to strictly conform to the
- * canonical `Referral` interface from `src/types/index.ts`. Property names were changed to snake_case
- * (e.g., `date` -> `created_at`). This resolves the TypeScript build error and ensures data consistency.
+ * Replaced the container `div` with the standardized `<Card>` component. This ensures the page has consistent styling (padding, border, hover effects) with the rest of the application, adhering to the "System First" principle.
  *
  * Impact Analysis:
- * This change fixes a critical deployment blocker. It brings this page into alignment with the
- * application's official data contract, making it more robust.
+ * This change improves UI consistency and removes the need for a separate, single-purpose CSS file (`referral-activities/page.module.css`).
  *
  * Dependencies: "react", "next/link", "@/types", and various UI components.
  */
@@ -33,7 +31,7 @@ import { DataTable } from '@/app/components/ui/table/DataTable';
 import Tabs from '@/app/components/ui/Tabs';
 import StatusBadge from '@/app/components/ui/StatusBadge';
 import Button from '@/app/components/ui/Button';
-import styles from './page.module.css';
+import Card from '@/app/components/ui/Card';
 
 // Mock data now perfectly matches the `Referral` interface from `src/types/index.ts`
 const mockReferrals: Referral[] = [
@@ -93,10 +91,10 @@ const ReferralActivityPage = () => {
   return (
     <Container>
       <PageHeader title="Referral Activity" />
-      <div className={styles.activityCard}>
+      <Card>
         <Tabs tabs={tabOptions} activeTab={activeTab} onTabChange={setActiveTab} />
         <DataTable columns={columns} data={filteredData} />
-      </div>
+      </Card>
     </Container>
   );
 };
