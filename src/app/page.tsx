@@ -1,35 +1,18 @@
 /*
  * Filename: src/app/page.tsx
-<<<<<<< HEAD
  * Purpose: Provides the primary UI for generating new Vinite referral links.
  * Change History:
- * C001 - 2025-07-26 : 10:00 - Replaced Supabase auth hooks with Clerk's `useUser` hook.
- * Last Modified: 2025-07-26 : 10:00
+ * C002 - 2025-07-28 : 12:00 - Definitive fix to resolve merge conflicts and align with Clerk auth.
+ * C001 - 2025-07-26 : 10:00 - Initial Clerk conversion.
+ * Last Modified: 2025-07-28 : 12:00
  * Requirement ID: VIN-D-01.3
- * Change Summary: Surgically replaced the old `useAuth` hook with Clerk's `useUser` and the
- * conditional logic with Clerk's `<SignedOut>` component. This resolves the runtime crash
- * while preserving all existing component logic and structure.
- * Impact Analysis: Fixes the critical runtime error on the homepage, fully integrating it
- * with the Clerk authentication system without altering the page's core functionality or layout.
+ * Change Summary: This is the definitive fix for the merge conflict that was causing build
+ * and syntax errors. The file has been manually repaired to remove all conflict markers and
+ * remnants of the old NextAuth.js system (`useSession`). It now correctly and exclusively
+ * uses Clerk's `useUser` hook and `<SignedOut>` component.
+ * Impact Analysis: This change resolves a critical build-blocking error and stabilizes the
+ * homepage, completing its migration to the Clerk authentication system.
  * Dependencies: "react", "next/link", "qrcode", "@clerk/nextjs", and VDL UI components.
-=======
- * Purpose: Provides the primary UI for generating new Vinite referral links, fully migrated to NextAuth.js.
- *
- * Change History:
- * C006 - 2025-07-23 : 00:00 - Fully refactored to use NextAuth.js `useSession` hook.
- * ... (previous history)
- *
- * Last Modified: 2025-07-23 : 00:00
- * Requirement ID (optional): VIN-M-01.6
- *
- * Change Summary:
- * The component has been fully migrated off the old `useAuth` system. It now uses the
- * `useSession` hook from `next-auth/react`. The `useEffect` hook has been updated to
- * correctly read the custom `agent_id` from the augmented session object. The component
- * is now fully integrated with the new authentication system.
- *
- * Impact Analysis:
- * This change resolves the critical runtime error and completes the migration of the homepage.
  */
 'use client';
 
@@ -42,7 +25,6 @@ import { useUser, SignedOut } from '@clerk/nextjs';
 import Container from '@/app/components/layout/Container';
 import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
-import { useSession } from 'next-auth/react'; // --- THIS IS THE FIX ---
 
 const validateUrl = (url: string): { valid: boolean; message?: string } => {
   if (!url) return { valid: false, message: "⚠️ Please enter a destination URL." };
@@ -51,9 +33,6 @@ const validateUrl = (url: string): { valid: boolean; message?: string } => {
 
 export default function HomePage() {
   const { user } = useUser();
-  const { data: session } = useSession(); // --- THIS IS THE FIX ---
-  const user = session?.user;
-
   const [destinationUrl, setDestinationUrl] = useState('');
   const [agentId, setAgentId] = useState('');
   const [generatedLink, setGeneratedLink] = useState('');
@@ -73,17 +52,6 @@ export default function HomePage() {
         sessionStorage.setItem('vinite_guest_id', guestId);
       }
       setAgentId(guestId);
-
-    // --- THIS IS THE FIX: Read the agent_id from the new session object ---
-    if (user?.agent_id) { 
-      setAgentId(user.agent_id); 
-    } else { 
-      let guestId = sessionStorage.getItem('vinite_guest_id'); 
-      if (!guestId) { 
-        guestId = `T1-GU${Math.floor(100000 + Math.random() * 900000)}`; 
-        sessionStorage.setItem('vinite_guest_id', guestId); 
-      } 
-      setAgentId(guestId); 
     }
   }, [user]);
 
@@ -102,10 +70,8 @@ export default function HomePage() {
       showMessage({ text: urlValidation.message!, type: 'error' });
       return;
     }
-
     setIsGenerating(true);
     setMessage(null);
-
     try {
       const response = await fetch('/api/links', {
         method: 'POST',
@@ -116,7 +82,6 @@ export default function HomePage() {
           agentId,
         }),
       });
-
       if (!response.ok) {
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.indexOf('application/json') !== -1) {
@@ -126,31 +91,40 @@ export default function HomePage() {
           throw new Error(`Server error: ${response.status} ${response.statusText}`);
         }
       }
-
       const newLink = `https://vinite.com/a/${encodeURIComponent(agentId)}?u=${encodeURIComponent(destinationUrl)}`;
       setGeneratedLink(newLink);
       showMessage({ text: 'Your Vinite link is ready!', type: 'success' });
-
     } catch (err) {
       showMessage({ text: err instanceof Error ? err.message : 'An unknown error occurred.', type: 'error' });
     } finally {
       setIsGenerating(false);
     }
-    // ... (This function is now correct and doesn't need changes)
   }, [destinationUrl, agentId]);
 
   const handleClearUrl = () => { setDestinationUrl(''); setGeneratedLink(''); };
 
   const handleShare = (platform: 'whatsapp' | 'linkedin') => {
-    // ... (This function is correct and doesn't need changes)
+    if (!generatedLink) { showMessage({ text: "Please generate a link first.", type: 'warning' }); return; }
+    let shareUrl = '';
+    if (platform === 'whatsapp') { shareUrl = `https://wa.me/?text=${encodeURIComponent(`Check out this link: ${generatedLink}`)}`; }
+    else if (platform === 'linkedin') { shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(generatedLink)}`; }
+    window.open(shareUrl, '_blank');
   };
 
   const handleCopyToClipboard = (text: string, successMessage: string) => {
-    // ... (This function is correct and doesn't need changes)
+    if (!navigator.clipboard) {
+      showMessage({ text: 'Clipboard API is not available in this context.', type: 'error' });
+      return;
+    }
+    navigator.clipboard.writeText(text).then(() => {
+      showMessage({ text: successMessage, type: 'success' });
+    }).catch(err => {
+      console.error('Clipboard error:', err);
+      showMessage({ text: 'Failed to copy to clipboard.', type: 'error' });
+    });
   };
 
   const snippetCode = `<a href="${generatedLink}" target="_blank">Referred via Vinite</a>`;
-  const isLoggedIn = !!user; // --- THIS IS THE FIX ---
 
   return (
     <Container>
@@ -202,9 +176,6 @@ export default function HomePage() {
                   <p><strong>3. To Claim Rewards:</strong> Save this temporary Agent ID <strong>{agentId}</strong> to <Link href={`/signup?claimId=${agentId}`} className={styles.claimLink}>claim any rewards</Link> you earn, or <Link href="/signup" className={styles.claimLink}>Sign Up</Link> to track them automatically.</p>
                 )}
               </SignedOut>
-              {!isLoggedIn && agentId.startsWith('T1-') && (
-                <p><strong>3. To Claim Rewards:</strong> Save this temporary Agent ID <strong>{agentId}</strong> to <Link href={`/signup?claimId=${agentId}`} className={styles.claimLink}>claim any rewards</Link> you earn, or <Link href="/login" className={styles.claimLink}>Sign In</Link> to track them automatically.</p>
-              )}
             </div>
           </div>
         )}
