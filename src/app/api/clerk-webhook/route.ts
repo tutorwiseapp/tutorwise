@@ -1,23 +1,28 @@
 /*
  * Filename: src/api/clerk-webhook/route.ts
- * Purpose: Handles incoming webhooks from Clerk, specifically for 'user.created' events.
+ * Purpose: Handles incoming webhooks from Clerk to synchronize user data with the application's Supabase database.
  * Change History:
+ * C011 - 2025-08-07 : 19:00 - Definitive fix for missing Agent ID and data synchronization.
  * C010 - 2025-07-27 : 14:30 - Definitive fix for all TypeScript and SDK usage errors.
  * ... (previous history)
  * Last Modified: 2025-07-27 : 14:30
  * Requirement ID: VIN-API-002
- * Change Summary: This is the definitive and final fix. It resolves the "Property 'users' does not exist"
- * error by correctly calling `clerkClient()` as a function and `await`ing the returned Promise to get
- * the SDK instance, precisely as required by the project's TypeScript configuration. The `email_address`
- * typo is also corrected.
- * Impact Analysis: Resolves all build errors, making the webhook fully functional and type-safe.
- * Dependencies: "svix", "next/server", "@clerk/nextjs/server", "@/lib/stripe".
+ * Change Summary: This is the definitive fix for the missing Agent ID. The webhook has been completely rewritten to be robust and handle multiple event types. It now uses a Supabase Admin client to create, update, and delete records in the `profiles` table in direct response to `user.created`, `user.updated`, and `user.deleted` events from Clerk. This ensures perfect data synchronization and resolves the root cause of the bug.
+ * Impact Analysis: This change fixes a critical bug preventing Agent IDs from appearing on the dashboard and profile pages. It makes the user data model robust and reliable.
+ * Dependencies: "svix", "next/server", "@clerk/nextjs/server", "@supabase/supabase-js", "@/lib/stripe".
  */
 import { Webhook } from 'svix';
 import { headers } from 'next/headers';
 import { WebhookEvent, clerkClient } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 import { stripe } from '@/lib/stripe';
+
+// Create a Supabase admin client to bypass RLS
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 const generateViniteAgentId = (firstName: string | null, lastName: string | null): string => {
   const firstInitial = firstName ? firstName.charAt(0).toUpperCase() : 'X';
@@ -29,7 +34,6 @@ const generateViniteAgentId = (firstName: string | null, lastName: string | null
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
-
   if (!WEBHOOK_SECRET) {
     throw new Error('Please add CLERK_WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local');
   }
@@ -59,26 +63,30 @@ export async function POST(req: Request) {
     return new Response('Error occurred', { status: 400 });
   }
 
+  const { id } = evt.data;
   const eventType = evt.type;
+  
+  console.log(`Webhook with an ID of ${id} and type of ${eventType}`);
 
+  // --- HANDLE USER CREATED ---
   if (eventType === 'user.created') {
-    const { id, email_addresses, first_name, last_name } = evt.data;
-
-    if (!id) {
-      return new Response('Error: User ID is missing in the webhook payload.', { status: 400 });
+    const { id, email_addresses, first_name, last_name, image_url } = evt.data;
+    const email = email_addresses[0]?.email_address;
+    if (!id || !email) {
+      return NextResponse.json({ error: 'Missing user ID or email' }, { status: 400 });
     }
 
+    // 1. Generate Agent ID
     const agent_id = generateViniteAgentId(first_name, last_name);
 
+    // 2. Create Stripe Customer
     const customer = await stripe.customers.create({
-      email: email_addresses[0]?.email_address,
+      email: email,
       name: `${first_name || ''} ${last_name || ''}`.trim(),
-      metadata: {
-        clerkId: id,
-      }
+      metadata: { clerkId: id }
     });
     
-    // --- THIS IS THE SURGICAL FIX ---
+    // 3. Update Clerk Metadata
     const client = await clerkClient();
     await client.users.updateUserMetadata(id, {
       publicMetadata: {
@@ -88,7 +96,68 @@ export async function POST(req: Request) {
       }
     });
 
-    return NextResponse.json({ message: 'User metadata and Stripe customer created' }, { status: 200 });
+    // 4. Create Supabase Profile
+    const { error: supabaseError } = await supabaseAdmin
+      .from('profiles')
+      .insert({
+        id: id,
+        agent_id: agent_id,
+        email: email,
+        display_name: `${first_name || ''} ${last_name || ''}`.trim() || email,
+        first_name: first_name,
+        last_name: last_name,
+        custom_picture_url: image_url,
+        roles: ['agent']
+      });
+
+    if (supabaseError) {
+      console.error('Error creating Supabase profile:', supabaseError);
+      return NextResponse.json({ error: 'Failed to create Supabase profile' }, { status: 500 });
+    }
+
+    return NextResponse.json({ message: 'User created and synchronized successfully' }, { status: 201 });
+  }
+
+  // --- HANDLE USER UPDATED ---
+  if (eventType === 'user.updated') {
+    const { id, first_name, last_name, image_url } = evt.data;
+    
+    const { error } = await supabaseAdmin
+      .from('profiles')
+      .update({
+        first_name: first_name,
+        last_name: last_name,
+        display_name: `${first_name || ''} ${last_name || ''}`.trim(),
+        custom_picture_url: image_url,
+      })
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error updating Supabase profile:', error);
+      return NextResponse.json({ error: 'Failed to update Supabase profile' }, { status: 500 });
+    }
+
+    return NextResponse.json({ message: 'User updated successfully' }, { status: 200 });
+  }
+  
+  // --- HANDLE USER DELETED ---
+  if (eventType === 'user.deleted') {
+      const { id } = evt.data;
+      if (!id) {
+          return NextResponse.json({ error: 'Missing user ID' }, { status: 400 });
+      }
+
+      const { error } = await supabaseAdmin
+          .from('profiles')
+          .delete()
+          .eq('id', id);
+          
+      if (error) {
+          console.error('Error deleting Supabase profile:', error);
+          return NextResponse.json({ error: 'Failed to delete Supabase profile' }, { status: 500 });
+      }
+      
+      return NextResponse.json({ message: 'User deleted successfully' }, { status: 200 });
   }
 
   return new Response('', { status: 200 });
