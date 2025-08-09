@@ -55,13 +55,9 @@ Thumbs.db
 # Build directory
 /.next/
 
-# Lockfiles
-package-lock.json
-
 # Vercel and Supabase setup. 
 # This prevents from ever accidentally committing the secret keys to the Bitbucket repository.
 .env.local
-
 
 .vercel
 .env*.local
