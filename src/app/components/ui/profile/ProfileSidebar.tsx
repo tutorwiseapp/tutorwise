@@ -2,14 +2,13 @@
  * Filename: src/app/components/ui/profile/ProfileSidebar.tsx
  * Purpose: A reusable sidebar component to display a user's key profile information.
  * Change History:
+ * C009 - 2025-08-10 : 11:00 - Removed redundant "Edit Profile" link.
  * C008 - 2025-07-27 : 11:00 - Restored usage of the getProfileImageUrl utility.
- * ... (previous history)
- * Last Modified: 2025-07-27 : 11:00
+ * C007 - 2025-07-27 : 11:00 - (Previous history)
+ * Last Modified: 2025-08-010 : 11:00
  * Requirement ID: VIN-UI-013
- * Change Summary: The component now correctly imports and uses the restored `getProfileImageUrl`
- * utility. This change, combined with the restoration of the utility itself, ensures that
- * profile pictures are rendered correctly and consistently.
- * Impact Analysis: This restores the component to its original, fully functional state.
+ * Change Summary: The component has been simplified. The `isOwnProfile` prop and the conditional logic for the "Edit Public Profile" link have been removed. This component is now solely responsible for displaying the user's private profile sidebar, which should only ever contain the link to "View Public Profile". This aligns with the "Single Responsibility" principle.
+ * Impact Analysis: This change removes the confusing, redundant "Edit Public Profile" link from the user's private profile page, improving the user experience and clarifying the component's purpose.
  * Dependencies: "@/types", "next/image", "next/link", "./ProfileSidebar.module.css", "@/lib/utils/image".
  */
 import React from 'react';
@@ -18,14 +17,13 @@ import Image from 'next/image';
 import type { Profile } from '@/types';
 import Card from '@/app/components/ui/Card';
 import styles from './ProfileSidebar.module.css';
-import getProfileImageUrl from '@/lib/utils/image'; // This import is now restored
+import getProfileImageUrl from '@/lib/utils/image';
 
 interface ProfileSidebarProps {
   user: Partial<Profile>;
-  isOwnProfile?: boolean;
 }
 
-const ProfileSidebar = ({ user, isOwnProfile = false }: ProfileSidebarProps) => {
+const ProfileSidebar = ({ user }: ProfileSidebarProps) => {
   const status = "Active";
   const role = user.roles && user.roles.length > 0 ? user.roles[0] : 'agent';
 
@@ -46,11 +44,8 @@ const ProfileSidebar = ({ user, isOwnProfile = false }: ProfileSidebarProps) => 
         </div>
         
         <div className={styles.linkGroup}>
-          {isOwnProfile && (
-            <Link href="/profile" className={styles.textLink}>
-              Edit Public Profile
-            </Link>
-          )}
+          {/* --- THIS IS THE FIX --- */}
+          {/* Only show the link to the public profile page. */}
           {user.agent_id && (
             <Link href={`/agents/${user.agent_id}`} className={styles.textLink}>
               View Public Profile

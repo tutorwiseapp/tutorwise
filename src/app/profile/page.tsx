@@ -2,17 +2,13 @@
  * Filename: src/app/profile/page.tsx
  * Purpose: Allows the authenticated user to edit their profile information and upload a photo.
  * Change History:
+ * C023 - 2025-08-10 : 11:00 - Removed unused isOwnProfile prop.
  * C022 - 2025-07-27 : 10:00 - Definitive fix for the "View Public Profile" link.
  * C021 - 2025-07-26 : 21:45 - Passed `isOwnProfile` prop to ProfileSidebar.
- * ... (previous history)
- * Last Modified: 2025-07-27 : 10:00
+ * Last Modified: 2025-08-10 : 11:00
  * Requirement ID: VIN-UI-013
- * Change Summary: This is the definitive fix. The `agent_id` from the Clerk user object's
- * publicMetadata is now being correctly passed down to the ProfileSidebar component. This
- * resolves the root cause of the "View Public Profile" link not working, as the link was
- * previously not being rendered at all due to the missing `agent_id` prop.
- * Impact Analysis: This change fixes a critical user journey bug. It completes the data
- * flow from the parent page to the child component, making the link functional.
+ * Change Summary: Removed the unnecessary `isOwnProfile` prop from the `<ProfileSidebar>` component invocation. This aligns the parent page with the simplified, more focused child component.
+ * Impact Analysis: This is a minor cleanup that improves code clarity and maintainability by removing an unused property.
  * Dependencies: "@clerk/nextjs", "next/link", and various VDL UI components.
  */
 'use client';
@@ -21,7 +17,6 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import type { Profile } from '@/types';
 import { useUser } from '@clerk/nextjs';
-import { supabase } from '@/lib/supabaseClient'; // Import the Supabase client
 
 // Component Imports
 import ProfileSidebar from '@/app/components/ui/profile/ProfileSidebar';
@@ -129,8 +124,6 @@ const ProfilePage = () => {
 
   const profileForSidebar: Partial<Profile> = {
     display_name: user.fullName || '',
-    // --- THIS IS THE SURGICAL FIX ---
-    // The agent_id from publicMetadata must be passed down to the child component.
     agent_id: user.publicMetadata.agent_id as string || '',
     custom_picture_url: user.imageUrl,
     roles: user.publicMetadata.role ? [user.publicMetadata.role as 'agent' | 'seeker' | 'provider'] : [],
@@ -140,7 +133,9 @@ const ProfilePage = () => {
     <Container>
       <div className={styles.profileLayout}>
         <aside>
-          <ProfileSidebar user={profileForSidebar} isOwnProfile={true} />
+          {/* --- THIS IS THE FIX --- */}
+          {/* The unnecessary isOwnProfile prop has been removed. */}
+          <ProfileSidebar user={profileForSidebar} />
         </aside>
         <main>
           <Card>
