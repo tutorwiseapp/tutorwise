@@ -2,22 +2,16 @@
 * Filename: src/app/agents/[agentId]/page.module.css
 * Purpose: Provides all styles for the public agent profile page, including the two-column grid layout and all sub-component styles.
 * Change History:
+* C002 - 2025-08-08 : 14:00 - Removed redundant grid layout styles.
 * C001 - 26 July 2024 : 11:30 - Initial creation with all styles for the V1 profile layout, ensuring proper scoping.
-* Last Modified: 26 July 2024.
+* Last Modified: 2025-08-08 : 14:00.
 * Requirement ID (optional): VIN-012.
-* Change Summary: This file contains the complete styling for the page, from the main grid to the details within each card, following CSS Module best practices.
-* Impact Analysis: Styles are scoped to this page and have no impact on other parts of the application.
+* Change Summary: Removed the `.profileGrid` layout rule, as this is now inherited from the shared `profile/page.module.css` file. The remaining styles are preserved as they are specific to the unique elements of the public profile card.
+* Impact Analysis: This change removes duplicated CSS and ensures that if the main profile layout is ever updated, the public page will update automatically, improving maintainability.
 * Dependencies: Relies on CSS variables (tokens) from globals.css.
-* Props (if applicable): None.
-* TODO (if applicable): None.
 */
 
-.profileGrid {
-  display: grid;
-  grid-template-columns: 384px 1fr;
-  gap: 40px;
-  align-items: flex-start;
-}
+/* The .profileLayout grid is now imported from the shared profile stylesheet */
 
 /* --- Left Pane: Profile Card --- */
 .profileCard {
@@ -78,13 +72,10 @@
   font-weight: 600;
   margin-bottom: 16px;
 }
-.profileBio, .achievementsList {
+.profileBio {
   font-size: var(--font-size-base);
   line-height: 1.6;
   white-space: pre-wrap;
-  color: var(--color-text-secondary);
-}
-.profileBio {
   color: var(--color-text-primary);
 }
 .noDataText {
@@ -125,39 +116,6 @@
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
-.sharesGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-.activityFeed, .statsList {
-  display: flex;
-  flex-direction: column;
-}
-.activityItem, .statItem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--space-1) 0; /* Adjusted to 8px top/bottom padding as requested */
-  border-bottom: 1px solid var(--color-bg-page);
-  font-size: var(--font-size-sm);
-}
-.activityItem:last-child, .statItem:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-.activityItem:first-child, .statItem:first-child {
-  padding-top: 0;
-}
-.activityContext {
-  color: var(--color-text-secondary);
-  font-size: 14px;
-  flex-shrink: 0;
-  text-align: right;
-}
-.statItem .value {
-  font-weight: 500;
-}
 
 /* --- Responsive & Utility --- */
 .message { 
@@ -165,7 +123,6 @@
   padding: var(--space-6); 
 }
 @media (max-width: 992px) {
-  .profileGrid { grid-template-columns: 1fr; }
+  /* The main grid responsiveness is handled by the imported layout style */
   .actionsGrid { grid-template-columns: 1fr; }
-  .sharesGrid { grid-template-columns: 1fr; }
 }

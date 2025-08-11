@@ -2,14 +2,13 @@
  * Filename: src/app/agents/[agentId]/page.tsx
  * Purpose: Displays the public profile for a Vinite agent, fetching live data from the backend.
  * Change History:
+ * C003 - 2025-08-08 : 14:00 - Refactored to use the standard two-column profile layout.
  * C002 - 2025-07-26 : 22:45 - Added logic to check if viewer is the profile owner.
  * C001 - 2025-07-26 : 22:30 - Initial creation.
- * Last Modified: 2025-07-26 : 22:45
+ * Last Modified: 2025-08-08 : 14:00
  * Requirement ID: VIN-C-03.3
- * Change Summary: This page is the destination for the "View Public Profile" link. It now
- * uses Clerk's `useUser` hook to check if the person viewing the page is the actual owner,
- * which can be used to conditionally show an "Edit Profile" link.
- * Impact Analysis: This additive change makes the "View Public Profile" link functional.
+ * Change Summary: This page has been refactored to use the same standardized two-column layout (`profileLayout`) as the private profile page, ensuring UI consistency. The `ProfileSidebar` is not used here; instead, the page constructs a similar layout using standard VDL components like `<Card>` to display the agent's public information in the left-hand column. This aligns the page with our "System First" design principles.
+ * Impact Analysis: This change significantly improves the user experience by creating a consistent and predictable layout for both private and public user profiles.
  * Dependencies: "react", "next/navigation", "next/link", "@clerk/nextjs", "@/types", and VDL UI components.
  */
 'use client';
@@ -21,9 +20,15 @@ import type { Profile } from '@/types';
 import Image from 'next/image';
 import { useUser } from '@clerk/nextjs';
 import getProfileImageUrl from '@/lib/utils/image';
+
+// VDL Component Imports
 import Container from '@/app/components/layout/Container';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
+
+// Import the shared layout styles from the private profile page
+import layoutStyles from '@/app/profile/page.module.css';
+// Import page-specific styles
 import styles from './page.module.css';
 
 const AgentProfilePage = () => {
@@ -31,7 +36,7 @@ const AgentProfilePage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const params = useParams();
   const agentId = params.agentId as string;
-  const { user: loggedInUser } = useUser(); // Get the currently logged-in user
+  const { user: loggedInUser } = useUser();
 
   useEffect(() => {
     if (!agentId) {
@@ -74,17 +79,17 @@ const AgentProfilePage = () => {
     );
   }
 
-  const imageUrl = agent.custom_picture_url || `https://i.pravatar.cc/150?u=${agent.agent_id || 'default'}`;
   const isOwnProfile = loggedInUser?.publicMetadata?.agent_id === agent.agent_id;
 
   return (
     <Container>
-      <div className={styles.profileGrid}>
+      {/* --- THIS IS THE FIX: Use the shared layout class --- */}
+      <div className={layoutStyles.profileLayout}>
         <aside>
           <Card className={styles.profileCard}>
             <div className={styles.coverPhoto} style={{ backgroundImage: agent.cover_photo_url ? `url(${agent.cover_photo_url})` : 'none' }} />
             <Image
-              src={imageUrl}
+              src={getProfileImageUrl(agent)}
               alt={`${agent.display_name}'s profile picture`}
               width={150} height={150}
               className={styles.profileAvatar}
@@ -107,7 +112,7 @@ const AgentProfilePage = () => {
                 <div className={styles.tagContainer}>
                   {agent.categories && agent.categories.length > 0 ? agent.categories.split(',').map(cat => (
                     <span key={cat.trim()} className={styles.tag}>{cat.trim()}</span>
-                  )) : <p>Not specified.</p>}
+                  )) : <p className={styles.noDataText}>Not specified.</p>}
                 </div>
               </div>
             </div>
