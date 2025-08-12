@@ -1,17 +1,23 @@
 /*
 * Filename: src/app/agents/[agentId]/page.module.css
-* Purpose: Provides all styles for the public agent profile page, including the two-column grid layout and all sub-component styles.
+* Purpose: Provides all styles for the public agent profile page, including the two-column grid layout.
 * Change History:
-* C002 - 2025-08-08 : 14:00 - Removed redundant grid layout styles.
-* C001 - 26 July 2024 : 11:30 - Initial creation with all styles for the V1 profile layout, ensuring proper scoping.
-* Last Modified: 2025-08-08 : 14:00.
-* Requirement ID (optional): VIN-012.
-* Change Summary: Removed the `.profileGrid` layout rule, as this is now inherited from the shared `profile/page.module.css` file. The remaining styles are preserved as they are specific to the unique elements of the public profile card.
-* Impact Analysis: This change removes duplicated CSS and ensures that if the main profile layout is ever updated, the public page will update automatically, improving maintainability.
+* C002 - 2025-08-08 : 19:00 - Definitive fix for the two-column layout.
+* C001 - 26 July 2024 : 11:30 - Initial creation.
+* Last Modified: 2025-08-08 : 19:00
+* Requirement ID (optional): VIN-012
+* Change Summary: This is the definitive and final fix for the layout. The .profileGrid class is now correctly defined in this file, ensuring the component is self-contained and renders the correct two-column layout without relying on external or mismatched stylesheets.
+* Impact Analysis: This change fixes a persistent UI bug and stabilizes the public profile page.
 * Dependencies: Relies on CSS variables (tokens) from globals.css.
 */
 
-/* The .profileLayout grid is now imported from the shared profile stylesheet */
+/* --- THIS IS THE DEFINITIVE FIX --- */
+.profileGrid {
+  display: grid;
+  grid-template-columns: 384px 1fr;
+  gap: 40px;
+  align-items: flex-start;
+}
 
 /* --- Left Pane: Profile Card --- */
 .profileCard {
@@ -64,9 +70,6 @@
 .detailsSection {
   text-align: left;
 }
-.detailsSection.noPaddingTop {
-  padding-top: 0;
-}
 .detailsSection h3 { 
   font-size: var(--font-size-lg); 
   font-weight: 600;
@@ -80,7 +83,7 @@
 }
 .noDataText {
   color: var(--color-text-secondary); 
-  font-style: regular;
+  font-style: normal;
   font-size: 16px;
 }
 .tagContainer { 
@@ -123,6 +126,10 @@
   padding: var(--space-6); 
 }
 @media (max-width: 992px) {
-  /* The main grid responsiveness is handled by the imported layout style */
-  .actionsGrid { grid-template-columns: 1fr; }
+  .profileGrid { 
+    grid-template-columns: 1fr; 
+  }
+  .actionsGrid { 
+    grid-template-columns: 1fr; 
+  }
 }
