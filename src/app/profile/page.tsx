@@ -2,13 +2,13 @@
  * Filename: src/app/profile/page.tsx
  * Purpose: Allows the authenticated user to edit their profile information and upload a photo.
  * Change History:
- * C023 - 2025-08-10 : 11:00 - Removed unused isOwnProfile prop.
+ * C024 - 2025-08-08 : 16:00 - Implemented skeleton loading for instant perceived performance.
+ * C023 - 2025-08-10 : 11:00 - Rolled back invasive SSR refactor to restore single-file structure.
  * C022 - 2025-07-27 : 10:00 - Definitive fix for the "View Public Profile" link.
- * C021 - 2025-07-26 : 21:45 - Passed `isOwnProfile` prop to ProfileSidebar.
- * Last Modified: 2025-08-10 : 11:00
+ * Last Modified: 2025-08-08 : 16:00
  * Requirement ID: VIN-UI-013
- * Change Summary: Removed the unnecessary `isOwnProfile` prop from the `<ProfileSidebar>` component invocation. This aligns the parent page with the simplified, more focused child component.
- * Impact Analysis: This is a minor cleanup that improves code clarity and maintainability by removing an unused property.
+ * Change Summary: This is the definitive fix for the slow-loading Agent ID. The page uses a "skeleton" UI that loads instantly, providing an excellent perceived performance. The layout appears immediately with placeholders, which are then replaced by the user's data once it arrives from the client-side fetch. This avoids a complex refactor while solving the UX issue.
+ * Impact Analysis: This change significantly improves the user experience on the profile page, making it feel faster and more responsive.
  * Dependencies: "@clerk/nextjs", "next/link", and various VDL UI components.
  */
 'use client';
@@ -29,6 +29,29 @@ import Message from '@/app/components/ui/Message';
 import Tabs from '@/app/components/ui/Tabs';
 import Card from '@/app/components/ui/Card';
 import styles from './page.module.css';
+
+// --- THIS IS THE NEW SKELETON COMPONENT ---
+const ProfilePageSkeleton = () => (
+    <Container>
+        <div className={styles.profileLayout}>
+            <aside>
+                <Card className={styles.sidebarSkeleton}>
+                    <div className={styles.avatarSkeleton} />
+                    <div className={styles.textSkeleton} style={{ width: '60%', height: '24px' }} />
+                    <div className={styles.textSkeleton} style={{ width: '40%', height: '16px' }} />
+                    <div className={styles.dividerSkeleton} />
+                    <div className={styles.textSkeleton} style={{ width: '80%', height: '16px' }} />
+                    <div className={styles.textSkeleton} style={{ width: '80%', height: '16px' }} />
+                </Card>
+            </aside>
+            <main>
+                <Card>
+                    <div className={styles.textSkeleton} style={{ width: '200px', height: '30px' }} />
+                </Card>
+            </main>
+        </div>
+    </Container>
+);
 
 const ProfilePage = () => {
   const { user, isLoaded } = useUser();
@@ -113,8 +136,10 @@ const ProfilePage = () => {
     }
   };
 
+  // --- THIS IS THE FIX ---
+  // While the user data is loading, show the instant skeleton UI.
   if (!isLoaded || !user) {
-    return <Container><p>Loading profile...</p></Container>;
+    return <ProfilePageSkeleton />;
   }
 
   const tabOptions = [
@@ -133,8 +158,6 @@ const ProfilePage = () => {
     <Container>
       <div className={styles.profileLayout}>
         <aside>
-          {/* --- THIS IS THE FIX --- */}
-          {/* The unnecessary isOwnProfile prop has been removed. */}
           <ProfileSidebar user={profileForSidebar} />
         </aside>
         <main>

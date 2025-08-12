@@ -2,26 +2,18 @@
  * Filename: src/app/dashboard/page.tsx
  * Purpose: Serves as the main navigation hub for authenticated users.
  * Change History:
+ * C008 - 2025-08-08 : 15:00 - Refactored to Server Component for instant data load.
  * C007 - 2025-07-26 : 13:30 - Updated to read agent_id from Clerk's publicMetadata.
  * C006 - 2025-07-26 : 12:30 - Replaced `useAuth` with Clerk's `useUser` hook.
- * C005 - 2025-07-22 : 00:00 - Restored the linkText property to the card link.
- * C004 - 2025-07-21 : 23:30 - Updated to use a standard div with the new generic .gridCard class.
- * C003 - 2025-07-20 : 14:00 - Fixed property access to use snake_case.
- * Last Modified: 2025-07-26 : 13:30
+ * Last Modified: 2025-08-08 : 15:00
  * Requirement ID: VIN-A-002
- * Change Summary: The component now reads the user's Vinite-specific `agent_id` from
- * `user.publicMetadata.agent_id`, which is populated by the new Clerk webhook system. This
- * correctly displays the full welcome message (e.g., "Welcome, Jane Doe (A1-JD123456)").
- * Impact Analysis: This change fixes the missing Agent ID bug on the dashboard. It relies
- * on the webhook system being correctly configured to populate the metadata for new users.
- * Dependencies: "@clerk/nextjs", "next/link", "next/navigation", and VDL UI components.
+ * Change Summary: This page has been refactored from a Client Component to a Server Component. The `'use client'` directive was removed. It now uses Clerk's `currentUser()` function on the server to fetch user data *before* the page is rendered. This eliminates the client-side loading delay, making the Agent ID appear instantly for a vastly improved user experience.
+ * Impact Analysis: This change significantly improves the perceived performance of the dashboard. It is a critical UX enhancement.
+ * Dependencies: "@clerk/nextjs", "next/link", and VDL UI components.
  */
-'use client';
-
-import { useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { currentUser } from '@clerk/nextjs/server'; // --- FIX: Import the server-side helper
+import { redirect } from 'next/navigation';
 
 // VDL Component Imports
 import Container from '@/app/components/layout/Container';
@@ -38,38 +30,20 @@ const dashboardLinks = [
     { href: '/become-provider', title: 'Become a Provider', description: 'List your service on Vinite to accept referrals and get new customers.', linkText: 'List Your Service' },
 ];
 
-const DashboardPage = () => {
-  const { user, isLoaded } = useUser();
-  const router = useRouter();
+// The component is now an async function
+const DashboardPage = async () => {
+  // --- FIX: Fetch the user on the server ---
+  const user = await currentUser();
 
-  // This security check ensures only authenticated users can see this page.
-  useEffect(() => {
-    // While Clerk is loading the session, we don't do anything.
-    if (!isLoaded) {
-      return;
-    }
-    // Once the check is complete, if there is still no user,
-    // we redirect to the sign-in page.
-    if (!user) {
-      router.push('/sign-in');
-    }
-  }, [user, isLoaded, router]);
-
-  // While Clerk is loading, or if we are about to redirect,
-  // show a clean loading state to prevent flashing content.
-  if (!isLoaded || !user) {
-    return (
-      <Container>
-        <p className={styles.loading}>Loading Dashboard...</p>
-      </Container>
-    );
+  // If the user is not logged in, the middleware should have already redirected.
+  // This is an extra layer of security.
+  if (!user) {
+    redirect('/sign-in');
   }
 
-  // We now read the user's full name from Clerk and their agent_id from publicMetadata.
   const displayName = user.fullName || 'User';
   const agentId = (user.publicMetadata?.agent_id as string) || '';
 
-  // If we reach this point, the user is confirmed to be logged in.
   return (
     <Container>
       <PageHeader

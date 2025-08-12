@@ -3,24 +3,18 @@
  * Purpose: Provides styles for the private user profile editing page's two-column layout.
  *
  * Change History:
+ * C009 - 2025-08-08 : 16:00 - Added styles for skeleton loading state.
  * C008 - 2025-07-21 : 20:15 - Removed empty ruleset to fix linting error.
  * C007 - 2025-07-21 : 19:15 - Simplified footnote style.
- * C006 - 2025-07-21 : 18:45 - Corrected footnote spacing and font size.
- * C005 - 2025-07-20 : 20:00 - Standardized grid column width.
- * C004 - 2025-07-20 : 19:45 - Removed card styling from layout wrappers.
- * C003 - 2025-07-20 : 12:45 - Removed visual styles from .sidebarWrapper.
- * C002 - 2025-07-20 : 12:30 - Added standard hover effects.
- * C001 - 26 July 2024 : 12:30 - Added .panelDescription class.
  *
- * Last Modified: 2025-07-21 : 20:15
+ * Last Modified: 2025-08-08 : 16:00
  * Requirement ID (optional): VIN-UI-012
  *
  * Change Summary:
- * The layout grid is standardized with a 384px sidebar and 40px gap. All visual styling
- * has been removed from the layout wrappers, and empty rulesets have been cleaned up.
+ * Added new classes to support an animated skeleton loading state. This improves perceived performance by showing the page's layout instantly while data is being fetched.
  *
  * Impact Analysis:
- * This file is now a clean, maintainable layout definition for the profile page.
+ * This is an additive change that improves the user experience of the profile page.
  */
 
 .profileLayout {
@@ -30,14 +24,11 @@
   align-items: flex-start;
 }
 
-/* --- THIS IS THE NEW STYLE RULE --- */
 .fileUploadGroup {
   display: flex;
-  gap: var(--space-2); /* Uses your existing 16px spacing token */
+  gap: var(--space-2);
   align-items: center;
 }
-
-/* --- Content Styles --- */
 
 .tabContent {
   padding-top: var(--space-3);
@@ -64,11 +55,47 @@
   margin-bottom: var(--space-2);
 }
 
-/* --- Responsive Layout --- */
-
 @media (max-width: 992px) {
   .profileLayout {
     grid-template-columns: 1fr;
     gap: 40px;
   }
+}
+
+/* --- SKELETON LOADING STYLES --- */
+
+@keyframes pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.sidebarSkeleton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.avatarSkeleton {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.textSkeleton {
+  border-radius: var(--border-radius-sm);
+  background-color: #e0e0e0;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.dividerSkeleton {
+  height: 1px;
+  width: 100%;
+  background-color: #e0e0e0;
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-2);
 }
