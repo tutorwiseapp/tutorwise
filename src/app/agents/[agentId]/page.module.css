@@ -1,17 +1,17 @@
 /*
 * Filename: src/app/agents/[agentId]/page.module.css
-* Purpose: Provides all styles for the public agent profile page, including the two-column grid layout.
+* Purpose: Provides all styles for the public agent profile page's final two-column layout.
 * Change History:
+* C003 - 2025-08-08 : 20:00 - Definitive and final CSS to match the provided design.
 * C002 - 2025-08-08 : 19:00 - Definitive fix for the two-column layout.
 * C001 - 26 July 2024 : 11:30 - Initial creation.
-* Last Modified: 2025-08-08 : 19:00
+* Last Modified: 2025-08-08 : 20:00
 * Requirement ID (optional): VIN-012
-* Change Summary: This is the definitive and final fix for the layout. The .profileGrid class is now correctly defined in this file, ensuring the component is self-contained and renders the correct two-column layout without relying on external or mismatched stylesheets.
-* Impact Analysis: This change fixes a persistent UI bug and stabilizes the public profile page.
+* Change Summary: This is the definitive and final version of the stylesheet. It is self-contained and includes all necessary styles for the two-column grid, the left-hand profile card, and all right-hand content cards (Actions, Shares, Recent Activity, Statistics) to perfectly match the design.
+* Impact Analysis: This change permanently fixes all layout and style issues on the public profile page.
 * Dependencies: Relies on CSS variables (tokens) from globals.css.
 */
 
-/* --- THIS IS THE DEFINITIVE FIX --- */
 .profileGrid {
   display: grid;
   grid-template-columns: 384px 1fr;
@@ -42,69 +42,55 @@
   object-fit: cover;
 }
 .profileBody { 
-  padding: 16px 24px 24px;
+  padding: 24px;
+  text-align: left;
 }
 .profileName { 
   font-size: var(--font-size-2xl); 
   font-weight: 600;
   margin-bottom: 4px;
+  text-align: center;
 }
 .profileId { 
   font-family: monospace; 
   color: var(--color-text-secondary); 
   font-size: 14px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
+  text-align: center;
 }
 .editProfileLink {
-  display: inline-block;
+  display: block;
   color: var(--color-primary);
   font-size: 14px;
   font-weight: 500;
-}
-.detailsDivider {
-  border: 0;
-  height: 1px;
-  background-color: var(--color-bg-page);
-  margin: 24px 0;
+  text-align: center;
+  margin-bottom: 24px;
 }
 .detailsSection {
   text-align: left;
+  padding-top: var(--space-3);
+  margin-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+.detailsSection:first-of-type {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
 }
 .detailsSection h3 { 
   font-size: var(--font-size-lg); 
   font-weight: 600;
   margin-bottom: 16px;
 }
-.profileBio {
+.profileBio, .noDataText {
   font-size: var(--font-size-base);
   line-height: 1.6;
-  white-space: pre-wrap;
-  color: var(--color-text-primary);
-}
-.noDataText {
-  color: var(--color-text-secondary); 
-  font-style: normal;
-  font-size: 16px;
-}
-.tagContainer { 
-  display: flex; 
-  flex-wrap: wrap; 
-  gap: 8px;
-}
-.tag {
-  background-color: #e8f5e8; 
-  color: #137333;
-  font-size: 14px; 
-  font-weight: 500; 
-  padding: 4px 12px; 
-  border-radius: 16px;
+  color: var(--color-text-secondary);
 }
 
 /* --- Right Pane: Content Cards --- */
 .contentCard {
   margin-bottom: 24px;
-  padding: var(--space-3);
-  text-align: left;
 }
 .contentCard:last-child { 
   margin-bottom: 0; 
@@ -119,6 +105,30 @@
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
+.sharesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.activityFeed, .statsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.activityItem, .statItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--font-size-base);
+}
+.activityContext, .statItem .value {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+}
+.statItem .value {
+    font-weight: 500;
+}
+
 
 /* --- Responsive & Utility --- */
 .message { 
@@ -129,7 +139,7 @@
   .profileGrid { 
     grid-template-columns: 1fr; 
   }
-  .actionsGrid { 
+  .actionsGrid, .sharesGrid { 
     grid-template-columns: 1fr; 
   }
 }
