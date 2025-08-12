@@ -2,13 +2,13 @@
  * Filename: src/app/agents/[agentId]/page.tsx
  * Purpose: Displays the public profile for a Vinite agent, fetching live data from the backend.
  * Change History:
+ * C006 - 2025-08-08 : 18:00 - Restructured JSX to create the definitive two-column layout.
  * C005 - 2025-08-08 : 17:00 - Definitive fix to restore correct layout and use Clerk's `useUser` hook.
  * C004 - 2025-07-22 : 16:30 - Refactored to fetch live data from the new API endpoint.
- * C003 - 2025-07-20 : 13:45 - Added type validation before setting state to fix Vercel build error.
- * Last Modified: 2025-08-08 : 17:00
+ * Last Modified: 2025-08-08 : 18:00
  * Requirement ID: VIN-C-03.3
- * Change Summary: This is the definitive fix for the public profile page. The file has been restored to its original, correct layout. The only change is the replacement of the obsolete `useAuth` hook with Clerk's standard `useUser` hook. This surgical change makes the page fully functional with the new authentication system while preserving the correct user interface.
- * Impact Analysis: This change fixes a critical broken UI and restores the public profile page to its intended, working state.
+ * Change Summary: The JSX has been restructured to use a standard `<aside>` and `<main>` element structure. This allows the CSS grid to correctly position the profile card on the left and the action cards on the right, creating the desired two-column layout that matches the private profile page.
+ * Impact Analysis: This change fixes the UI layout, creating a consistent and professional look for the public profile page.
  * Dependencies: "react", "next/navigation", "next/link", "@clerk/nextjs", "@/types", and various VDL UI components.
  */
 'use client';
@@ -18,7 +18,7 @@ import { useParams } from 'next/navigation';
 import type { Profile } from '@/types';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useUser } from '@clerk/nextjs'; // --- THIS IS THE SURGICAL FIX ---
+import { useUser } from '@clerk/nextjs';
 import getProfileImageUrl from '@/lib/utils/image';
 import Container from '@/app/components/layout/Container';
 import Card from '@/app/components/ui/Card';
@@ -72,7 +72,7 @@ const AgentProfilePage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const params = useParams();
   const agentId = params.agentId as string;
-  const { user: loggedInUser } = useUser(); // --- THIS IS THE SURGICAL FIX ---
+  const { user: loggedInUser } = useUser();
 
   useEffect(() => {
     if (!agentId) {
@@ -127,12 +127,11 @@ const AgentProfilePage = () => {
     );
   }
 
-  // --- THIS IS THE SURGICAL FIX ---
-  // The logic now correctly checks the logged-in user's public metadata.
   const isOwnProfile = loggedInUser?.publicMetadata?.agent_id === agent.agent_id;
 
   return (
     <Container>
+      {/* --- THIS IS THE FIX: Applying the grid and structuring with aside/main --- */}
       <div className={styles.profileGrid}>
         <aside>
           <PublicProfileCard agent={agent} isOwnProfile={isOwnProfile} />
