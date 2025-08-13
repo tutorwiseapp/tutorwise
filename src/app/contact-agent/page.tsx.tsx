@@ -5,13 +5,13 @@
  * C001 - 2025-08-08 : 22:00 - Initial creation.
  * Last Modified: 2025-08-08 : 22:00
  * Requirement ID: VIN-C-03.3
- * Change Summary: This new page was created to fulfill the "Contact Me" user journey. It uses a URL query parameter to identify the agent and provides a simple, consistent contact form.
+ * Change Summary: This new page was created to fulfill the "Contact Me" user journey. It uses a URL query parameter to identify the agent and provides a simple, consistent contact form. It must be wrapped in a <Suspense> in any parent component because it uses useSearchParams.
  * Impact Analysis: This is an additive change that makes the "Contact Me" button on the public profile page functional.
  * Dependencies: "react", "next/navigation", and various VDL UI components.
  */
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
@@ -22,7 +22,8 @@ import Textarea from '@/app/components/ui/form/Textarea';
 import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
 
-const ContactAgentPage = () => {
+// The actual component logic that uses the search params
+const ContactAgentForm = () => {
   const [formState, setFormState] = useState({ status: 'idle', message: '' });
   const searchParams = useSearchParams();
   const agentId = searchParams.get('id');
@@ -63,6 +64,15 @@ const ContactAgentPage = () => {
         )}
       </Card>
     </Container>
+  );
+};
+
+// A wrapper component to handle the Suspense boundary for useSearchParams
+const ContactAgentPage = () => {
+  return (
+    <Suspense fallback={<Container><p>Loading...</p></Container>}>
+      <ContactAgentForm />
+    </Suspense>
   );
 };
 

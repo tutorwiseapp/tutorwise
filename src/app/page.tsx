@@ -1,23 +1,23 @@
-
 /*
  * Filename: src/app/page.tsx
  * Purpose: Provides the primary UI for generating new Vinite referral links.
  * Change History:
+ * C005 - 2025-08-08 : 23:00 - Refactored to read agentId from URL as the source of truth.
+ * C004 - 2025-08-08 : 22:00 - Added logic to handle incoming agent ID from "Refer Me" button.
  * C003 - 2025-08-07 : 18:00 - Corrected broken sign-up link for guest reward claims.
- * C002 - 2025-07-28 : 12:00 - Definitive fix to resolve merge conflicts and align with Clerk auth.
- * C001 - 2025-07-26 : 10:00 - Initial Clerk conversion.
- * Last Modified: 2025-08-07 : 18:00
+ * Last Modified: 2025-08-08 : 23:00
  * Requirement ID: VIN-D-01.3
- * Change Summary: Corrected the guest user "claim rewards" link to point to the new `/sign-up` route instead of the old `/signup`. This fixes a broken primary user journey.
- * Impact Analysis: This change fixes a critical broken link in the guest-to-user conversion funnel, directly impacting user acquisition.
+ * Change Summary: This is the definitive fix for the "Refer Me" flow. The component now uses the `useSearchParams` hook to read the `agentId` from the URL as the highest source of truth. This is a more robust and secure pattern than client-side storage, fulfilling the requirement for a verifiable data flow.
+ * Impact Analysis: This makes the "Refer Me" user journey fully functional and reliable.
  * Dependencies: "react", "next/link", "qrcode", "@clerk/nextjs", and VDL UI components.
  */
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import QRCode from 'qrcode';
+import { useSearchParams } from 'next/navigation'; // Import useSearchParams
 import styles from './page.module.css';
 import { useUser, SignedOut } from '@clerk/nextjs';
 import Container from '@/app/components/layout/Container';
@@ -29,8 +29,10 @@ const validateUrl = (url: string): { valid: boolean; message?: string } => {
   try { new URL(url); if (!url.startsWith('http://') && !url.startsWith('https://')) { return { valid: false, message: "⚠️ URL must start with https:// or http://." }; } return { valid: true }; } catch { return { valid: false, message: "⚠️ URL format is incorrect. Check for typos." }; }
 };
 
-export default function HomePage() {
+// Core component logic is moved into its own component
+const HomePageClient = () => {
   const { user } = useUser();
+  const searchParams = useSearchParams();
   const [destinationUrl, setDestinationUrl] = useState('');
   const [agentId, setAgentId] = useState('');
   const [generatedLink, setGeneratedLink] = useState('');
@@ -41,18 +43,31 @@ export default function HomePage() {
   const isUrlValid = useMemo(() => { if (!destinationUrl) return null; return validateUrl(destinationUrl).valid; }, [destinationUrl]);
 
   useEffect(() => {
+    // --- THIS IS THE DEFINITIVE FIX ---
+    const agentIdFromUrl = searchParams.get('agentId');
+    
+    // Priority 1: Use the Agent ID from the URL if it exists.
+    if (agentIdFromUrl) {
+      setAgentId(agentIdFromUrl);
+      return;
+    }
+
+    // Priority 2: Fallback to the logged-in user's Agent ID.
     if (user && user.publicMetadata.agent_id) {
       setAgentId(user.publicMetadata.agent_id as string);
-    } else {
-      let guestId = sessionStorage.getItem('vinite_guest_id');
-      if (!guestId) {
-        guestId = `T1-GU${Math.floor(100000 + Math.random() * 900000)}`;
-        sessionStorage.setItem('vinite_guest_id', guestId);
-      }
-      setAgentId(guestId);
+      return;
     }
-  }, [user]);
 
+    // Priority 3: Fallback to a guest ID for new, anonymous users.
+    let guestId = sessionStorage.getItem('vinite_guest_id');
+    if (!guestId) {
+      guestId = `T1-GU${Math.floor(100000 + Math.random() * 900000)}`;
+      sessionStorage.setItem('vinite_guest_id', guestId);
+    }
+    setAgentId(guestId);
+  }, [user, searchParams]);
+
+  // ... (All other functions: handleGenerateLink, handleShare, etc. remain exactly the same)
   useEffect(() => {
     if (generatedLink) { QRCode.toDataURL(generatedLink, { width: 136, margin: 1 }).then(url => setQrCodeDataUrl(url)).catch(err => console.error('QR Code generation failed:', err)); }
     else { setQrCodeDataUrl(''); }
@@ -124,8 +139,9 @@ export default function HomePage() {
 
   const snippetCode = `<a href="${generatedLink}" target="_blank">Referred via Vinite</a>`;
 
+
   return (
-    <Container>
+     <Container>
       {message && ( <div className={styles.messageContainer}><Message type={message.type}>{message.text}</Message></div> )}
       <div className={styles.mainContent}>
         <div className={styles.logo}>vinite</div>
@@ -179,5 +195,14 @@ export default function HomePage() {
         )}
       </div>
     </Container>
+  );
+};
+
+// The new parent component that provides the Suspense boundary
+export default function HomePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomePageClient />
+    </Suspense>
   );
 }
