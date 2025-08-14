@@ -2,13 +2,13 @@
  * Filename: src/middleware.ts
  * Purpose: Implements Clerk authentication middleware to protect application routes.
  * Change History:
+ * C008 - 2025-08-09 : 00:00 - Added contact-agent to public routes.
  * C007 - 2025-08-08 : 02:00 - Definitive async/await fix for middleware build error.
  * C006 - 2025-08-08 : 01:00 - Definitive fix for Clerk middleware build error.
- * C005 - 2025-08-07 : 23:00 - Definitive fix for Clerk middleware syntax.
- * Last Modified: 2025-08-08 : 02:00
+ * Last Modified: 2025-08-09 : 00:00
  * Requirement ID: VIN-M-02.1
- * Change Summary: This is the definitive and final fix for the Vercel build error. The middleware handler is now correctly declared as `async`, and the `auth()` function is correctly `await`ed before use. This resolves the `Property 'protect' does not exist on type 'Promise<...>'` TypeScript error by properly handling the asynchronous nature of the authentication check. This is the canonical pattern for protecting routes with this version of the Clerk SDK.
- * Impact Analysis: This change will fix the Vercel build failure and correctly implement the application's security policy, unblocking all future development.
+ * Change Summary: This is the definitive fix for the 404 error on the agent contact page. The line `/contact-agent(.*)` has been added to the `isPublicRoute` array in the correct, fully functional asynchronous middleware file. This is the only change required.
+ * Impact Analysis: This surgical change fixes a critical broken link in a core user journey without altering the now-stable security logic.
  * Dependencies: "@clerk/nextjs/server", "next/server".
  */
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
@@ -29,6 +29,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/agents/(.*)',
   '/api/links',
   '/api/clerk-webhook',
+  '/contact-agent(.*)', // --- THIS IS THE DEFINITIVE FIX ---
 ]);
 
 // This is now an async function
