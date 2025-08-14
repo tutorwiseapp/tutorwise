@@ -2,13 +2,13 @@
 * Filename: src/app/agents/[agentId]/page.module.css
 * Purpose: Provides all styles for the public agent profile page's final two-column layout.
 * Change History:
+* C005 - 2025-08-09 : 01:00 - Corrected hyperlink style to match design.
 * C004 - 2025-08-08 : 21:00 - Added styles for the new activity link.
 * C003 - 2025-08-08 : 20:00 - Definitive and final CSS to match the provided design.
-* C002 - 2025-08-08 : 19:00 - Definitive fix for the two-column layout.
-* Last Modified: 2025-08-08 : 21:00
+* Last Modified: 2025-08-09 : 01:00
 * Requirement ID (optional): VIN-012
-* Change Summary: Added a new `.activityLink` class to correctly style the hyperlinks in the "Recent Activity" card, as per the new requirement.
-* Impact Analysis: This is a minor, additive style change that completes the UI polish for the public profile page.
+* Change Summary: This is the definitive fix for the hyperlink style in the "Recent Activity" card. The `.activityLink` class has been corrected to use the standard `text-decoration: underline;` property on hover. This replaces the incorrect `border-bottom` style and perfectly matches the single, solid underline shown in the design.
+* Impact Analysis: This is a minor, surgical CSS change that brings the component's UI into perfect alignment with the provided design.
 * Dependencies: Relies on CSS variables (tokens) from globals.css.
 */
 
@@ -129,16 +129,16 @@
     font-weight: 500;
 }
 
-/* --- THIS IS THE NEW STYLE FOR THE ACTIVITY LINK --- */
+/* --- THIS IS THE DEFINITIVE FIX --- */
 .activityLink {
   font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: border-color 0.2s ease;
+  color: var(--color-text-primary); /* Use the primary text color */
+  text-decoration: underline; /* Underline by default */
+  text-decoration-color: var(--primary-accent); /* Use the green accent color for the line */
+  transition: color 0.2s ease;
 }
 .activityLink:hover {
-  border-bottom-color: var(--color-text-secondary);
+  color: var(--primary-color); /* Darken the text on hover */
 }
 
 
