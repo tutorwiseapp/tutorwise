@@ -29,7 +29,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/agents/(.*)',
   '/api/links',
   '/api/clerk-webhook',
-  '/api/stripe/create-setup-intent', // --- THIS IS THE DEFINITIVE FIX ---
+  '/api/stripe/create-checkout-session', // --- THIS IS THE DEFINITIVE FIX ---
 ]);
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
