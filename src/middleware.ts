@@ -29,9 +29,10 @@ const isPublicRoute = createRouteMatcher([
   '/api/agents/(.*)',
   '/api/links',
   '/api/clerk-webhook',
-  '/api/stripe/create-checkout-session', // --- THIS IS THE DEFINITIVE FIX ---
+  '/api/stripe/create-checkout-session', // --- THIS IS THE CORRECT LINE TO ADD ---
 ]);
 
+// ... (rest of the middleware file is correct and remains the same)
 export default clerkMiddleware(async (auth, req: NextRequest) => {
   if (isPublicRoute(req)) {
     return NextResponse.next();
