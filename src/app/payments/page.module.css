@@ -2,6 +2,7 @@
  * Filename: src/app/payments/page.module.css
  * Purpose: Provides styles for the user payments management page.
  * Change History:
+ * C003 - 2025-08-09 : 13:00 - Definitive style refactor for v2.0 UI.
  * C002 - 2025-07-27 : 22:00 - Added styles for role-based flows and payment element.
  * C001 - 2025-07-27 : 17:00 - Initial creation.
  */
@@ -19,18 +20,6 @@
   }
 }
 
-.column {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.paymentCard {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
 .cardTitle {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semibold);
@@ -44,32 +33,40 @@
   line-height: 1.6;
 }
 
+/* Receiving Payments Card */
 .connectStatus {
   font-size: var(--font-size-sm);
   margin-bottom: var(--space-3);
   font-weight: var(--font-weight-medium);
 }
+.statusConnected { color: var(--color-success); }
+.statusNotConnected { color: var(--color-text-secondary); }
 
-.statusConnected {
-  color: var(--color-success);
-}
-
-.statusNotConnected {
-  color: var(--color-text-secondary);
-}
-
-.cardButton {
-  margin-top: auto; /* Pushes button to the bottom */
-}
-
+/* Sending Payments Card */
 .paymentElementWrapper {
   margin-bottom: var(--space-3);
 }
-
-.loadingCard {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 200px;
-  color: var(--color-text-secondary);
+.formActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+}
+.cardRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-2);
+}
+.noCardsText {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    padding: var(--space-4) 0;
+    text-align: center;
+    background-color: var(--color-bg-page);
+    border-radius: var(--border-radius-md);
 }
