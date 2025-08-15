@@ -1,0 +1,65 @@
+/*
+ * Filename: src/app/components/ui/payments/SavedCardList.module.css
+ * Purpose: Provides styles for the SavedCardList component.
+ * Change History:
+ * C001 - 2025-08-09 : 11:00 - Initial creation.
+ */
+
+.savedCardsWrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.cardTitle {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-1);
+}
+
+.cardDescription {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  margin-bottom: var(--space-3);
+  line-height: 1.6;
+}
+
+.cardList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+}
+
+.cardRow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    font-size: var(--font-size-sm);
+}
+
+.cardBrand {
+    font-weight: var(--font-weight-semibold);
+    min-width: 60px;
+}
+
+.cardDetails {
+    flex-grow: 1;
+    display: flex;
+    justify-content: space-between;
+}
+
+.removeButton {
+    background: none;
+    border: none;
+    color: var(--color-error);
+    cursor: pointer;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+}
+.removeButton:hover {
+    text-decoration: underline;
+}
