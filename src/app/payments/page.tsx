@@ -2,13 +2,13 @@
  * Filename: src/app/payments/page.tsx
  * Purpose: Allows Agents, Seekers, and Providers to manage their respective payment methods.
  * Change History:
+ * C015 - 2025-08-09 : 12:00 - TEMPORARY: Enabled sending payments for Agents to allow for UI review.
  * C014 - 2025-08-09 : 11:00 - Implemented fetching and display of saved payment methods.
  * C013 - 2025-07-27 : 23:45 - Implemented definitive solution with status fetching.
- * C012 - 2025-07-27 : 22:00 - (Previous history)
- * Last Modified: 2025-08-09 : 11:00
+ * Last Modified: 2025-08-09 : 12:00
  * Requirement ID: VIN-PAY-1
- * Change Summary: This is the definitive implementation for Story VIN-PAY-1. The page now fetches the user's saved cards from the new API endpoint. It correctly handles loading and error states. It conditionally renders either a list of saved cards (using the new <SavedCardList> component) or the "Add Card" form if no cards are saved, fulfilling the user story.
- * Impact Analysis: This change brings the "Sending Payments" section of the page to a feature-complete state, providing a much better user experience.
+ * Change Summary: This is a temporary change for verification only. The `canSendPayments` logic has been modified to include the 'agent' role. This will force the "Sending Payment Methods" card to appear for all user roles, allowing you to see and approve the new UI components that were built.
+ * Impact Analysis: This change will allow you to view the new UI. We can revert it after you have confirmed the design.
  * Dependencies: "@clerk/nextjs", "@stripe/react-stripe-js", "react-hot-toast", and VDL UI components.
  */
 'use client';
@@ -20,19 +20,15 @@ import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-
 import getStripe from '@/lib/utils/get-stripejs';
 import toast from 'react-hot-toast';
 
-// VDL Component Imports
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
 import styles from './page.module.css';
-
-// --- NEW COMPONENT IMPORT ---
 import SavedCardList from '@/app/components/ui/payments/SavedCardList';
 
 const stripePromise = getStripe();
 
-// Define the shape of a saved card from our new API
 interface SavedCard {
     id: string;
     brand: string | undefined;
@@ -41,7 +37,6 @@ interface SavedCard {
     exp_year: number | undefined;
 }
 
-// --- Component for Receiving Payments (Stripe Connect) - No changes here ---
 const StripeConnectCard = ({ isLoading, isConnected, onConnect }: { isLoading: boolean, isConnected: boolean, onConnect: () => void }) => (
     <Card className={styles.paymentCard}>
         <h2 className={styles.cardTitle}>Receiving Payments</h2>
@@ -58,7 +53,6 @@ const StripeConnectCard = ({ isLoading, isConnected, onConnect }: { isLoading: b
     </Card>
 );
 
-// --- Component for Sending Payments (Stripe Payment Element Form) - No changes here ---
 const AddCardForm = () => {
     const stripe = useStripe();
     const elements = useElements();
@@ -94,7 +88,6 @@ const AddCardForm = () => {
     );
 };
 
-// --- THIS IS THE NEW COMPONENT FOR ORCHESTRATING THE SENDING PAYMENTS UI ---
 const SendingPaymentsManager = () => {
     const [savedCards, setSavedCards] = useState<SavedCard[]>([]);
     const [loadingCards, setLoadingCards] = useState(true);
@@ -110,7 +103,6 @@ const SendingPaymentsManager = () => {
                 const data: SavedCard[] = await response.json();
                 setSavedCards(data);
                 if (data.length === 0) {
-                    // If no cards, we need to prepare the "Add Card" form
                     createSetupIntent();
                 }
             } catch (err) {
@@ -134,7 +126,6 @@ const SendingPaymentsManager = () => {
     };
     
     const handleAddNew = () => {
-        // Prepare the form if it wasn't already
         if (!setupIntentClientSecret) {
             createSetupIntent();
         }
@@ -149,7 +140,6 @@ const SendingPaymentsManager = () => {
         return <Card className={styles.loadingCard}>{error}</Card>;
     }
 
-    // If user wants to add a new card OR they have no cards saved yet
     if (showAddCardForm || savedCards.length === 0) {
         if (setupIntentClientSecret) {
             return (
@@ -161,12 +151,9 @@ const SendingPaymentsManager = () => {
         return <Card className={styles.loadingCard}>Preparing payment form...</Card>;
     }
     
-    // Default view: show the list of saved cards
     return <SavedCardList cards={savedCards} onAddNew={handleAddNew} />;
 }
 
-
-// --- Main Page Component - Now much simpler ---
 const PaymentsPage = () => {
     const { user, isLoaded } = useUser();
     const router = useRouter();
@@ -175,7 +162,8 @@ const PaymentsPage = () => {
 
     const userRole = (user?.publicMetadata?.role as string) || 'agent';
     const canReceivePayments = userRole === 'agent' || userRole === 'provider';
-    const canSendPayments = userRole === 'seeker' || userRole === 'provider';
+    // --- THIS IS THE TEMPORARY FIX ---
+    const canSendPayments = userRole === 'seeker' || userRole === 'provider' || userRole === 'agent';
     
     useEffect(() => {
         if (isLoaded && !user) router.push('/sign-in');
