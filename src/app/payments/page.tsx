@@ -2,13 +2,13 @@
  * Filename: src/app/payments/page.tsx
  * Purpose: Allows users to manage their methods for sending and receiving payments.
  * Change History:
+ * C020 - 2025-08-09 : 18:00 - Definitive fix: Restored missing handleConnectStripe function.
  * C019 - 2025-08-09 : 16:00 - Definitive fix for "Could not fetch saved cards" error.
  * C018 - 2025-08-09 : 15:00 - Definitive fix using existing Checkout Session API.
- * C017 - 2025-08-09 : 14:00 - Definitive implementation of Stripe Checkout flow.
- * Last Modified: 2025-08-09 : 16:00
+ * Last Modified: 2025-08-09 : 18:00
  * Requirement ID: VIN-PAY-1
- * Change Summary: This is the definitive fix for the "Could not fetch saved cards" error. The `fetchSavedCards` function and the component's state management have been refactored to correctly distinguish between a true API error and a successful response that simply contains no saved cards (an empty array). The UI now correctly renders the "No cards saved" message in the empty state, providing a clear and accurate user experience.
- * Impact Analysis: This change fixes a critical UX bug on the payments page, ensuring the UI is never misleading and always reflects the true state of the user's account.
+ * Change Summary: This is the definitive fix for the "Cannot find name 'handleConnectStripe'" build error. The missing function was restored after being accidentally deleted in a previous edit. The component is now fully functional.
+ * Impact Analysis: This change fixes a critical build-blocking error and restores all functionality to the payments page.
  * Dependencies: "@clerk/nextjs", "@/lib/utils/get-stripejs", "react-hot-toast", and VDL UI components.
  */
 'use client';
@@ -40,11 +40,7 @@ const PaymentsPage = () => {
     const [savedCards, setSavedCards] = useState<SavedCard[]>([]);
     const [loadingCards, setLoadingCards] = useState(true);
     const [isRedirecting, setIsRedirecting] = useState(false);
-    const [fetchError, setFetchError] = useState<string | null>(null); // State for actual errors
-
-    const userRole = (user?.publicMetadata?.role as string) || 'agent';
-    const canReceivePayments = true;
-    const canSendPayments = true;
+    const [fetchError, setFetchError] = useState<string | null>(null);
 
     useEffect(() => {
         if (isLoaded && !user) {
@@ -52,10 +48,10 @@ const PaymentsPage = () => {
             return;
         }
         if (user) {
-            if (canReceivePayments) fetchAccountStatus();
-            if (canSendPayments) fetchSavedCards();
+            fetchAccountStatus();
+            fetchSavedCards();
         }
-    }, [isLoaded, user, router, canReceivePayments, canSendPayments]);
+    }, [isLoaded, user, router]);
 
     async function fetchAccountStatus() {
         setLoadingConnect(true);
@@ -72,7 +68,7 @@ const PaymentsPage = () => {
 
     async function fetchSavedCards() {
         setLoadingCards(true);
-        setFetchError(null); // Reset error state on new fetch
+        setFetchError(null);
         try {
             const response = await fetch('/api/stripe/get-payment-methods');
             if (!response.ok) {
@@ -83,12 +79,27 @@ const PaymentsPage = () => {
             setSavedCards(data);
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
-            setFetchError(errorMessage); // Set the actual error message
-            toast.error(errorMessage); // Show toast for real errors
+            setFetchError(errorMessage);
+            toast.error(errorMessage);
         } finally {
             setLoadingCards(false);
         }
     }
+
+    // --- THIS IS THE RESTORED FUNCTION ---
+    const handleConnectStripe = async () => {
+        setLoadingConnect(true);
+        try {
+            const response = await fetch('/api/stripe/connect-account');
+            if (!response.ok) throw new Error("Could not get a connection URL.");
+            const { url } = await response.json();
+            if (url) window.location.href = url;
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'Failed to connect to Stripe.');
+        } finally {
+            setLoadingConnect(false);
+        }
+    };
 
     const handleAddNewCard = async () => {
         setIsRedirecting(true);
@@ -118,47 +129,43 @@ const PaymentsPage = () => {
             <PageHeader title="Payment Settings" subtitle="Manage how you send and receive payments." />
             
             <div className={styles.grid}>
-                {canSendPayments && (
-                    <Card>
-                        <h2 className={styles.cardTitle}>Sending Payments</h2>
-                        <p className={styles.cardDescription}>Add or manage your credit and debit cards.</p>
-                        
-                        {loadingCards ? <p>Loading cards...</p> : 
-                         fetchError ? <p className={styles.noCardsText}>{fetchError}</p> : // Only show error if one truly occurred
-                         (
-                            <div>
-                                {savedCards.length > 0 ? (
-                                    savedCards.map(card => (
-                                        <div key={card.id} className={styles.cardRow}>
-                                            <span>{card.brand?.toUpperCase()} ending in {card.last4}</span>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <p className={styles.noCardsText}>No cards saved.</p>
-                                )}
-                                <Button onClick={handleAddNewCard} variant="secondary" style={{ marginTop: '1rem' }} disabled={isRedirecting}>
-                                    {isRedirecting ? 'Redirecting...' : 'Add New Card'}
-                                </Button>
-                            </div>
-                        )}
-                    </Card>
-                )}
-                
-                {canReceivePayments && (
-                    <Card>
-                        <h2 className={styles.cardTitle}>Receiving Payments</h2>
-                        <p className={styles.cardDescription}>Connect a Stripe account to receive your referral earnings and payouts.</p>
-                        <div className={styles.connectStatus}>
-                            Status:
-                            <span className={stripeAccount?.details_submitted ? styles.statusConnected : styles.statusNotConnected}>
-                                {loadingConnect ? 'Checking...' : stripeAccount?.details_submitted ? ' Account Ready' : ' Not Connected'}
-                            </span>
+                <Card>
+                    <h2 className={styles.cardTitle}>Sending Payments</h2>
+                    <p className={styles.cardDescription}>Add or manage your credit and debit cards.</p>
+                    
+                    {loadingCards ? <p>Loading cards...</p> : 
+                     fetchError ? <p className={styles.noCardsText}>{fetchError}</p> : 
+                     (
+                        <div>
+                            {savedCards.length > 0 ? (
+                                savedCards.map(card => (
+                                    <div key={card.id} className={styles.cardRow}>
+                                        <span>{card.brand?.toUpperCase()} ending in {card.last4}</span>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className={styles.noCardsText}>No cards saved.</p>
+                            )}
+                            <Button onClick={handleAddNewCard} variant="secondary" style={{ marginTop: '1rem' }} disabled={isRedirecting}>
+                                {isRedirecting ? 'Redirecting...' : 'Add New Card'}
+                            </Button>
                         </div>
-                        <Button onClick={handleConnectStripe} disabled={loadingConnect} variant="primary" fullWidth>
-                            {loadingConnect ? 'Processing...' : stripeAccount?.details_submitted ? 'Manage Stripe Account' : 'Connect with Stripe'}
-                        </Button>
-                    </Card>
-                )}
+                    )}
+                </Card>
+                
+                <Card>
+                    <h2 className={styles.cardTitle}>Receiving Payments</h2>
+                    <p className={styles.cardDescription}>Connect a Stripe account to receive your referral earnings and payouts.</p>
+                    <div className={styles.connectStatus}>
+                        Status:
+                        <span className={stripeAccount?.details_submitted ? styles.statusConnected : styles.statusNotConnected}>
+                            {loadingConnect ? 'Checking...' : stripeAccount?.details_submitted ? ' Account Ready' : ' Not Connected'}
+                        </span>
+                    </div>
+                    <Button onClick={handleConnectStripe} disabled={loadingConnect} variant="primary" fullWidth>
+                        {loadingConnect ? 'Processing...' : stripeAccount?.details_submitted ? 'Manage Stripe Account' : 'Connect with Stripe'}
+                    </Button>
+                </Card>
             </div>
         </Container>
     );
