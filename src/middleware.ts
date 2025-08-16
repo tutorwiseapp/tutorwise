@@ -44,6 +44,14 @@ const isPublicRoute = createRouteMatcher([
 
 // This is the async function pattern that is compatible with your environment
 export default clerkMiddleware(async (auth, req: NextRequest) => {
+
+  // --- DEFINITIVE DIAGNOSTIC LOGGING ---
+  const path = req.nextUrl.pathname;
+  const isPublic = isPublicRoute(req);
+
+  console.log(`[MIDDLEWARE_DIAGNOSTIC] Path: ${path} | Is Public: ${isPublic}`);
+  // --- END OF LOGGING ---
+
   // If the route is in our matcher, let it pass.
   // The API routes will perform their own `await auth()` check internally.
   if (isPublicRoute(req)) {
