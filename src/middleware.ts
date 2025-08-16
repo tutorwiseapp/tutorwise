@@ -38,6 +38,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/stripe/create-checkout-session',
   '/api/stripe/get-connect-account',
   '/api/stripe/get-payment-methods',
+  '/api/stripe/disconnect-account', // --- THIS IS THE NEW LINE ---
   '/api/profile',
   '/api/avatar/upload'
 ]);
