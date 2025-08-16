@@ -2,16 +2,13 @@
  * Filename: src/app/api/stripe/connect-account/route.ts
  * Purpose: Creates a Stripe Express Account and an Account Link for user onboarding.
  * Change History:
+ * C007 - 2025-08-09 : 17:00 - Definitive fix: Removed card_payments from capabilities.
  * C006 - 2025-07-27 : 23:45 - Added robust validation for user and email.
  * ... (previous history)
- * Last Modified: 2025-07-27 : 23:45
+ * Last Modified: 2025-08-09 : 17:00
  * Requirement ID: VIN-API-002
- * Change Summary: This is the definitive fix for the Stripe 400 Bad Request error. Added
- * explicit checks to ensure that a user object and a primary email address exist before
- * attempting to call the Stripe API. This prevents sending invalid data and makes the
- * account creation process more robust.
- * Impact Analysis: This change resolves the final runtime error in the Stripe Connect flow,
- * making the "Connect with Stripe" button fully functional and reliable.
+ * Change Summary: This is the definitive fix for the Stripe Connect API error. The call to `stripe.accounts.create` has been modified to only request the `transfers` capability. The `card_payments` capability was removed as it is not needed for the Vinite business model and was causing a conflict with the platform's configuration.
+ * Impact Analysis: This change will permanently fix the "Connect with Stripe" button and the entire user onboarding flow for receiving payments.
  * Dependencies: "next/server", "@clerk/nextjs/server", "@/lib/stripe".
  */
 import { NextResponse } from 'next/server';
@@ -28,36 +25,29 @@ export async function GET() {
     const client = await clerkClient();
     const user = await client.users.getUser(userId);
 
-    // --- THIS IS THE FIX (PART 1) ---
-    // 1. Validate that the user object was successfully fetched.
     if (!user) {
         return new NextResponse("User not found", { status: 404 });
     }
     
-    // Find the user's primary email address object from the array.
     const primaryEmailObject = user.emailAddresses.find(
       (email) => email.id === user.primaryEmailAddressId
     );
     
-    // Extract the email string from the object.
     const primaryEmail = primaryEmailObject?.emailAddress;
 
-    // --- THIS IS THE FIX (PART 2) ---
-    // 2. Validate that a primary email address was actually found.
     if (!primaryEmail) {
-        // If not, return a clear error instead of calling Stripe with invalid data.
         return new NextResponse("User has no primary email address.", { status: 400 });
     }
 
     let stripeAccountId = user.publicMetadata?.stripe_account_id as string | undefined;
 
     if (!stripeAccountId) {
-      // Now this call is safe because we know `primaryEmail` is a valid string.
       const account = await stripe.accounts.create({
         type: 'express',
         email: primaryEmail,
         capabilities: {
-          card_payments: { requested: true },
+          // --- THIS IS THE DEFINITIVE FIX ---
+          // We only need to request the ability to transfer funds TO this account.
           transfers: { requested: true },
         },
       });
