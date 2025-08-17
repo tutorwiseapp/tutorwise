@@ -2,9 +2,9 @@
  * Filename: src/app/payments/page.module.css
  * Purpose: Provides styles for the redesigned payments page.
  * Change History:
- * C008 - 2025-08-10 : 11:00 - Definitive and final version of all styles.
+ * C009 - 2025-08-10 : 20:00 - Added styles for new loading and error states.
+ * C008 - 2025-08-10 : 11:00 - Definitive and final styles for the new design.
  * C007 - 2025-08-10 : 06:00 - Definitive fix: Added grid layout styles to fix build error.
- * C006 - 2025-08-10 : 05:00 - (Previous incorrect fix)
  */
 
 .grid {
@@ -20,6 +20,26 @@
   }
 }
 
+/* --- NEW STYLES for Loading and Error States --- */
+.loadingContainer, .errorContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--space-6);
+    background-color: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-lg);
+    min-height: 200px;
+    gap: var(--space-3);
+}
+.retryText {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+}
+/* --- END OF NEW STYLES --- */
+
 .cardContainer {
     display: flex;
     flex-direction: column;
@@ -32,13 +52,13 @@
   margin-bottom: var(--space-1);
 }
 
+/* ... (all other styles from the last correct version remain the same) ... */
 .cardDescription {
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
   margin-bottom: var(--space-3);
   line-height: 1.6;
 }
-
 .cardLink {
     color: var(--color-primary);
     font-weight: 500;
@@ -48,29 +68,24 @@
 .cardLink:hover {
     text-decoration: underline;
 }
-
 .cardActions {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
-
 .disconnect {
     color: var(--color-error);
 }
-
 .sectionTitle {
     font-size: var(--font-size-lg);
     font-weight: var(--font-weight-semibold);
 }
-
 .savedCard {
     display: flex;
     align-items: center;
     gap: var(--space-2);
     padding: var(--space-2) !important;
 }
-
 .cardIcon {
     width: 40px;
     height: 28px;
@@ -78,19 +93,16 @@
     border: 1px solid var(--color-border);
     border-radius: 4px;
 }
-
 .savedCardDetails {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     font-size: var(--font-size-sm);
 }
-
 .cardExpiry {
     color: var(--color-text-secondary);
     font-size: var(--font-size-xs);
 }
-
 .defaultBadge {
     font-size: 10px;
     font-weight: 600;
@@ -100,7 +112,6 @@
     border-radius: var(--border-radius-sm);
     margin-left: var(--space-1);
 }
-
 .manageButton {
     font-size: var(--font-size-xs);
     font-weight: 600;
@@ -115,7 +126,6 @@
 .manageButton:hover {
     color: var(--color-primary);
 }
-
 .dropdownContent {
     min-width: 160px;
     background-color: var(--color-bg-card);
@@ -141,7 +151,6 @@
 .destructive:hover {
     background-color: var(--color-error-bg);
 }
-
 .footerText {
     font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
