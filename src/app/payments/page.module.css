@@ -2,9 +2,9 @@
  * Filename: src/app/payments/page.module.css
  * Purpose: Provides styles for the redesigned payments page.
  * Change History:
+ * C008 - 2025-08-10 : 11:00 - Definitive and final styles for the new design.
  * C007 - 2025-08-10 : 06:00 - Definitive fix: Added grid layout styles to fix build error.
  * C006 - 2025-08-10 : 05:00 - (Previous incorrect fix)
- * C005 - 2025-08-10 : 03:00 - Added styles for Manage dropdown and Default badge.
  */
 
 .grid {
@@ -102,14 +102,15 @@
 }
 
 .manageButton {
-    font-size: var(--font-size-sm);
-    font-weight: 500;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
     color: var(--color-text-secondary);
     text-decoration: none;
     background: none;
     border: none;
     cursor: pointer;
     padding: 4px;
+    letter-spacing: 0.5px;
 }
 .manageButton:hover {
     color: var(--color-primary);
@@ -139,4 +140,10 @@
 }
 .destructive:hover {
     background-color: var(--color-error-bg);
+}
+
+.footerText {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-top: var(--space-3);
 }
