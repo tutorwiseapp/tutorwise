@@ -122,7 +122,7 @@
     padding: var(--space-1);
     box-shadow: var(--shadow-md);
     border: 1px solid var(--color-border);
-    z-index: 50; /* Ensure dropdown appears above other content */
+    z-index: 50;
 }
 .dropdownItem {
     font-size: var(--font-size-sm);
