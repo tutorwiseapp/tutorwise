@@ -84,3 +84,125 @@
 .disconnectLink:hover {
     text-decoration: underline;
 }
+
+/* ... (all previous styles remain the same) ... */
+.cardContainer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.cardTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-1);
+}
+
+.cardDescription {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-3);
+  line-height: 1.6;
+}
+
+.cardLink {
+    color: var(--color-primary);
+    font-weight: 500;
+    font-size: var(--font-size-sm);
+    text-decoration: none;
+}
+.cardLink:hover {
+    text-decoration: underline;
+}
+
+.cardActions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.disconnect {
+    color: var(--color-error);
+}
+
+.sectionTitle {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+}
+
+.savedCard {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) !important;
+}
+
+.cardIcon {
+    width: 40px;
+    height: 28px;
+    background-color: #f0f0f0;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+}
+
+.savedCardDetails {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    font-size: var(--font-size-sm);
+}
+
+.cardExpiry {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+}
+
+/* --- NEW STYLES --- */
+.defaultBadge {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    background-color: var(--color-bg-page);
+    padding: 2px 6px;
+    border-radius: var(--border-radius-sm);
+    margin-left: var(--space-1);
+}
+
+.manageButton {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+}
+.manageButton:hover {
+    color: var(--color-primary);
+}
+
+.dropdownContent {
+    min-width: 160px;
+    background-color: var(--color-bg-card);
+    border-radius: var(--border-radius-md);
+    padding: var(--space-1);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--color-border);
+}
+.dropdownItem {
+    font-size: var(--font-size-sm);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    outline: none;
+}
+.dropdownItem:hover {
+    background-color: var(--color-bg-page);
+}
+.destructive {
+    color: var(--color-error);
+}
+.destructive:hover {
+    background-color: var(--color-error-bg);
+}
