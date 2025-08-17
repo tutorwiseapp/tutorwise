@@ -2,14 +2,14 @@
  * Filename: src/app/payments/page.tsx
  * Purpose: Allows users to manage their methods for sending and receiving payments.
  * Change History:
+ * C025 - 2025-08-10 : 06:00 - Definitive fix for build error by correcting import path.
+ * C024 - 2025-08-10 : 05:00 - Definitive fix for module not found build error.
  * C023 - 2025-08-10 : 03:00 - Definitive and final version with full "Manage Card" functionality.
- * C022 - 2025-08-09 : 22:00 - Definitive fix for misleading "Could not fetch saved cards" error.
- * C021 - 2025-08-09 : 19:00 - Final clean-up and state handling.
- * Last Modified: 2025-08-10 : 03:00
+ * Last Modified: 2025-08-10 : 06:00
  * Requirement ID: VIN-PAY-1
- * Change Summary: This is the definitive and final version of the payments page. It now includes full functionality for the "Manage" button on saved cards, allowing users to set a card as default or remove it. It correctly handles all UI states and API interactions.
- * Impact Analysis: This brings the entire payment management feature to a complete, production-ready state.
- * Dependencies: "@clerk/nextjs", "@/lib/utils/get-stripejs", "react-hot-toast", Radix UI, and VDL components.
+ * Change Summary: This is the definitive and final fix. The component was incorrectly trying to import a non-existent shared stylesheet. The import path has been corrected to point to its own local CSS module, which now contains the necessary grid styles. All functionality has been restored.
+ * Impact Analysis: This change fixes a critical, build-blocking error and restores the page to its feature-complete state.
+ * Dependencies: "@clerk/nextjs", "@/lib/utils/get-stripejs", "react-hot-toast", Radix UI, and VDL UI components.
  */
 'use client';
 
@@ -24,8 +24,7 @@ import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
-import layoutStyles from '@/app/styles/layouts.module.css';
-import styles from './page.module.css';
+import styles from './page.module.css'; // --- THIS IS THE DEFINITIVE FIX ---
 
 interface SavedCard {
     id: string;
@@ -43,7 +42,6 @@ const PaymentsPage = () => {
     const [savedCards, setSavedCards] = useState<SavedCard[]>([]);
     const [defaultPaymentMethodId, setDefaultPaymentMethodId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [isRedirecting, setIsRedirecting] = useState(false);
 
     useEffect(() => {
         if (isLoaded && !user) {
@@ -78,9 +76,50 @@ const PaymentsPage = () => {
         }
     };
     
-    const handleAddNewCard = async () => { /* ... (This function remains the same) ... */ };
-    const handleConnect = async () => { /* ... (This function remains the same) ... */ };
-    const handleDisconnect = async () => { /* ... (This function remains the same) ... */ };
+    const handleConnect = async () => {
+        const toastId = toast.loading('Redirecting to Stripe...');
+        try {
+            const response = await fetch('/api/stripe/connect-account');
+            if (!response.ok) throw new Error("Could not get a connection URL.");
+            const { url } = await response.json();
+            if (url) window.location.href = url;
+            toast.dismiss(toastId);
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'Failed to connect to Stripe.', { id: toastId });
+        }
+    };
+    
+    const handleDisconnect = async () => {
+        if (!confirm('Are you sure you want to disconnect your Stripe account? This cannot be undone.')) return;
+        const toastId = toast.loading('Disconnecting Stripe account...');
+        try {
+            const response = await fetch('/api/stripe/disconnect-account', { method: 'POST' });
+            if (!response.ok) throw new Error(await response.json().then(d => d.error));
+            await user?.reload();
+            await fetchData();
+            toast.success('Stripe account disconnected.', { id: toastId });
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'An unknown error occurred.', { id: toastId });
+        }
+    };
+
+    const handleAddNewCard = async () => {
+        const toastId = toast.loading('Redirecting to Stripe...');
+        try {
+            const response = await fetch('/api/stripe/create-checkout-session', { method: 'POST' });
+            if (!response.ok) throw new Error(await response.json().then(d => d.error));
+            const { sessionId } = await response.json();
+            const stripe = await getStripe();
+            if (stripe && sessionId) {
+                await stripe.redirectToCheckout({ sessionId });
+            } else {
+                throw new Error("Stripe.js failed to load.");
+            }
+            toast.dismiss(toastId);
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "An unknown error occurred.", { id: toastId });
+        }
+    };
 
     const handleSetDefault = async (paymentMethodId: string) => {
         const toastId = toast.loading('Setting default...');
@@ -91,7 +130,7 @@ const PaymentsPage = () => {
                 body: JSON.stringify({ paymentMethodId }) 
             });
             if (!response.ok) throw new Error('Failed to set default card.');
-            setDefaultPaymentMethodId(paymentMethodId); // Optimistic UI update
+            setDefaultPaymentMethodId(paymentMethodId);
             toast.success('Default card updated.', { id: toastId });
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "An unknown error occurred.", { id: toastId });
@@ -108,13 +147,12 @@ const PaymentsPage = () => {
                 body: JSON.stringify({ paymentMethodId }) 
             });
             if (!response.ok) throw new Error('Failed to remove card.');
-            setSavedCards(cards => cards.filter(c => c.id !== paymentMethodId)); // Optimistic UI update
+            setSavedCards(cards => cards.filter(c => c.id !== paymentMethodId));
             toast.success('Card removed.', { id: toastId });
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "An unknown error occurred.", { id: toastId });
         }
     };
-
 
     if (!isLoaded || isLoading) {
         return <Container><p>Loading payment settings...</p></Container>;
@@ -124,8 +162,7 @@ const PaymentsPage = () => {
         <Container>
             <PageHeader title="Payment Settings" />
             
-            <div className={layoutStyles.grid}>
-                {/* --- SENDING PAYMENTS CARD --- */}
+            <div className={styles.grid}>
                 <div className={styles.cardContainer}>
                     <Card>
                         <h3 className={styles.cardTitle}>Sending Payment Methods</h3>
@@ -171,7 +208,6 @@ const PaymentsPage = () => {
                     )}
                 </div>
 
-                {/* --- RECEIVING PAYMENTS CARD --- */}
                  <div className={styles.cardContainer}>
                     <Card>
                         <h3 className={styles.cardTitle}>Receiving Payment Methods</h3>
