@@ -2,13 +2,12 @@
  * Filename: src/app/payments/page.tsx
  * Purpose: Allows users to manage their methods for sending and receiving payments.
  * Change History:
- * C045 - 2025-08-12 : 17:00 - Definitive fix for stale data by disabling fetch cache.
- * C044 - 2025-08-12 : 16:00 - Fixed saved cards not appearing after successful creation.
- * C043 - 2025-08-12 : 15:00 - Refactored to use the standard dashboard grid and card layout.
- * Last Modified: 2025-08-12 : 17:00
+ * C046 - 2025-08-12 : 18:00 - Definitive fix for card management actions with optimistic UI and robust error handling.
+ * C045 - 2025-08-12 : 17:00 - Fixed stale data by disabling fetch cache.
+ * Last Modified: 2025-08-12 : 18:00
  * Requirement ID: VIN-PAY-1
- * Change Summary: This is the definitive fix for the card list not updating after a successful redirect. The `fetch` calls within the `fetchData` function have been updated with the `{ cache: 'no-store' }` option. This forces the browser to bypass Next.js's data cache and request the absolute latest payment method information from the server, ensuring the newly added card appears immediately.
- * Impact Analysis: This resolves a critical UI bug and makes the "Add New Card" user journey fully functional and reliable.
+ * Change Summary: This is the definitive fix that makes the 'Remove' and 'Set as default' actions fully functional. The handlers now check for a successful server response and show specific error messages. The 'Remove' action has been enhanced with an optimistic UI update for a more responsive user experience, with a rollback mechanism if the API call fails.
+ * Impact Analysis: This change fully resolves the bugs preventing users from managing their saved cards, making the feature complete and reliable.
  */
 'use client';
 
@@ -32,7 +31,6 @@ interface SavedCard {
     exp_year: number | undefined;
 }
 
-// The main logic is in this component to allow usage of useSearchParams
 const PaymentsPageContent = () => {
     const { user, isLoaded } = useUser();
     const router = useRouter();
@@ -46,8 +44,6 @@ const PaymentsPageContent = () => {
     const fetchData = useCallback(async () => {
         if (!user) return;
         try {
-            // --- THIS IS THE DEFINITIVE FIX ---
-            // We explicitly disable caching to ensure the latest data is always fetched.
             const [accountRes, cardsRes] = await Promise.all([
                 fetch('/api/stripe/get-connect-account', { cache: 'no-store' }),
                 fetch('/api/stripe/get-payment-methods', { cache: 'no-store' })
@@ -70,24 +66,17 @@ const PaymentsPageContent = () => {
         }
     }, [user]);
 
-    // Initial data load effect
     useEffect(() => {
         if (isLoaded) {
-            if (user) {
-                fetchData();
-            } else {
-                router.push('/sign-in');
-            }
+            if (user) { fetchData(); } else { router.push('/sign-in'); }
         }
     }, [isLoaded, user, router, fetchData]);
 
-    // This effect specifically handles the return from Stripe checkout
     useEffect(() => {
         const status = searchParams.get('status');
         if (status === 'success') {
             toast.success('Your new card was added successfully!');
-            fetchData(); // Re-fetch the data to show the new card
-            
+            fetchData();
             const newUrl = window.location.pathname;
             window.history.replaceState({}, '', newUrl);
         }
@@ -123,31 +112,47 @@ const PaymentsPageContent = () => {
     const handleSetDefault = async (paymentMethodId: string) => {
         const toastId = toast.loading('Setting default...');
         try {
-            await fetch('/api/stripe/set-default-card', { 
+            const response = await fetch('/api/stripe/set-default-card', { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ paymentMethodId }) 
             });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to set default card.');
+            }
+
             setDefaultPaymentMethodId(paymentMethodId);
             toast.success('Default card updated.', { id: toastId });
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : "An error occurred.", { id: toastId });
+            toast.error(error instanceof Error ? error.message : "An unknown error occurred.", { id: toastId });
         }
     };
 
     const handleRemove = async (paymentMethodId: string) => {
-        if (!confirm('Are you sure you want to remove this card?')) return;
+        if (!confirm('Are you sure you want to remove this card? This action cannot be undone.')) return;
+        
+        const originalCards = [...savedCards];
+        setSavedCards(cards => cards.filter(c => c.id !== paymentMethodId));
         const toastId = toast.loading('Removing card...');
+
         try {
-            await fetch('/api/stripe/remove-card', { 
+            const response = await fetch('/api/stripe/remove-card', { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ paymentMethodId }) 
             });
-            setSavedCards(cards => cards.filter(c => c.id !== paymentMethodId));
-            toast.success('Card removed.', { id: toastId });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to remove card.');
+            }
+
+            toast.success('Card removed successfully.', { id: toastId });
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : "An error occurred.", { id: toastId });
+            setSavedCards(originalCards); // Revert UI on failure
+            toast.error(error instanceof Error ? error.message : "An unknown error occurred.", { id: toastId });
         }
     };
 
@@ -184,7 +189,6 @@ const PaymentsPageContent = () => {
     );
 }
 
-// The parent component now wraps the main content in Suspense
 const PaymentsPage = () => {
     return (
         <Suspense fallback={<Container><PageHeader title="Payments" /><p className={dashboardStyles.loading}>Loading...</p></Container>}>
