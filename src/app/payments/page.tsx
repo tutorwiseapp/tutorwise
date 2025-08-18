@@ -2,14 +2,15 @@
  * Filename: src/app/payments/page.tsx
  * Purpose: Allows users to manage their methods for sending and receiving payments.
  * Change History:
+ * C041 - 2025-08-11 : 10:00 - Refactored to use SavedCardList component and hardened create card flow.
  * C040 - 2025-08-10 : 23:00 - Definitive and final complete code implementation.
  * C039 - 2025-08-10 : 22:00 - Definitive fix for UI text and layout.
  * C038 - 2025-08-10 : 21:00 - Definitive fix for "Saved Cards" UI layout and styling.
- * Last Modified: 2025-08-10 : 23:00
+ * Last Modified: 2025-08-11 : 10:00
  * Requirement ID: VIN-PAY-1
- * Change Summary: This is the definitive and final version of the payments page, containing the complete and unabridged code. It correctly implements all features, including the redesigned "Saved Cards" section with robust state management to provide a polished and bug-free user experience.
- * Impact Analysis: This change brings the payments page to its final, feature-complete, and visually polished state.
- * Dependencies: "@clerk/nextjs", "@/lib/utils/get-stripejs", "react-hot-toast", Radix UI, and VDL UI components.
+ * Change Summary: This is the definitive fix for the payment card creation flow. The logic to display the list of saved cards has been moved into the dedicated SavedCardList component, cleaning up this file. The handleAddNewCard function now has more robust error handling to catch non-JSON responses from the server, providing better user feedback if the Stripe redirect fails to initiate.
+ * Impact Analysis: This change improves the reliability of the "Add New Card" feature and makes the code more maintainable by properly encapsulating the card list UI.
+ * Dependencies: "@clerk/nextjs", "@/lib/utils/get-stripejs", "react-hot-toast", and VDL UI components including the new SavedCardList.
  */
 'use client';
 
@@ -18,12 +19,11 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import getStripe from '@/lib/utils/get-stripejs';
 import toast from 'react-hot-toast';
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import Card from '@/app/components/ui/Card';
-import Button from '@/app/components/ui/Button';
+import SavedCardList from '@/app/components/ui/payments/SavedCardList';
 import styles from './page.module.css';
 
 interface SavedCard {
@@ -42,15 +42,16 @@ const PaymentsPage = () => {
     const [savedCards, setSavedCards] = useState<SavedCard[]>([]);
     const [defaultPaymentMethodId, setDefaultPaymentMethodId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [cardsFeatureEnabled, setCardsFeatureEnabled] = useState(true);
 
     const fetchData = useCallback(async () => {
         if (!user) return;
-        
         setIsLoading(true);
-        
         try {
-            const accountRes = await fetch('/api/stripe/get-connect-account');
+            const [accountRes, cardsRes] = await Promise.all([
+                fetch('/api/stripe/get-connect-account'),
+                fetch('/api/stripe/get-payment-methods')
+            ]);
+
             if (accountRes.ok) {
                 const accountData = await accountRes.json();
                 setStripeAccount(accountData.account);
@@ -58,28 +59,20 @@ const PaymentsPage = () => {
                 console.warn('Could not fetch Stripe account:', accountRes.status);
             }
 
-            if (cardsFeatureEnabled) {
-                try {
-                    const cardsRes = await fetch('/api/stripe/get-payment-methods');
-                    if (cardsRes.ok) {
-                        const cardsData = await cardsRes.json();
-                        setSavedCards(cardsData.cards || []);
-                        setDefaultPaymentMethodId(cardsData.defaultPaymentMethodId);
-                    } else {
-                        console.warn('Cards API not available, disabling feature silently.');
-                        setCardsFeatureEnabled(false);
-                    }
-                } catch (cardsError) {
-                    console.warn('Cards feature disabled due to error:', cardsError);
-                    setCardsFeatureEnabled(false);
-                }
+            if (cardsRes.ok) {
+                const cardsData = await cardsRes.json();
+                setSavedCards(cardsData.cards || []);
+                setDefaultPaymentMethodId(cardsData.defaultPaymentMethodId);
+            } else {
+                console.warn('Could not fetch saved cards:', cardsRes.status);
             }
         } catch (error) {
-            console.error('General fetch error:', error);
+            console.error('Failed to fetch payment data:', error);
+            toast.error('Could not load your payment details.');
         } finally {
             setIsLoading(false);
         }
-    }, [user, cardsFeatureEnabled]);
+    }, [user]);
 
     useEffect(() => {
         if (isLoaded) {
@@ -118,10 +111,21 @@ const PaymentsPage = () => {
     };
 
     const handleAddNewCard = async () => {
-        const toastId = toast.loading('Redirecting...');
+        const toastId = toast.loading('Redirecting to add card...');
         try {
             const response = await fetch('/api/stripe/create-checkout-session', { method: 'POST' });
-            if (!response.ok) throw new Error(await response.json().then(d => d.error));
+            
+            // --- THIS IS THE FIX: More robust error handling ---
+            if (!response.ok) {
+                const errorText = await response.text();
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    throw new Error(errorJson.error || 'Failed to create session.');
+                } catch (e) {
+                    throw new Error(`Server returned an error: ${response.status}`);
+                }
+            }
+
             const { sessionId } = await response.json();
             const stripe = await getStripe();
             if (stripe && sessionId) {
@@ -166,11 +170,6 @@ const PaymentsPage = () => {
         }
     };
 
-    const handleTryEnableCards = () => {
-        setCardsFeatureEnabled(true);
-        fetchData();
-    };
-
     if (!isLoaded || isLoading) {
         return <Container><PageHeader title="Payments" /><p>Loading payment settings...</p></Container>;
     }
@@ -180,62 +179,15 @@ const PaymentsPage = () => {
             <PageHeader title="Payments" />
             
             <div className={styles.grid}>
-                <div className={styles.cardContainer}>
-                    <Card>
-                        <h3 className={styles.cardTitle}>Sending Payment Methods</h3>
-                        <p className={styles.cardDescription}>Add or manage your credit and debit cards.</p>
-                        <a href="#" onClick={(e) => { e.preventDefault(); handleAddNewCard(); }} className={styles.cardLink}>
-                            Create New Card
-                        </a>
-                    </Card>
-
-                    {cardsFeatureEnabled && savedCards.length > 0 && (
-                        <div className={styles.savedCardsSection}>
-                            <h3 className={styles.sectionTitle}>Saved Cards</h3>
-                            <p className={styles.cardDescription}>Set a default bank card or remove expired bank cards.</p>
-                            {savedCards.map(card => (
-                                <Card key={card.id} className={styles.savedCard}>
-                                    <span className={styles.cardIcon}></span>
-                                    <div className={styles.savedCardDetails}>
-                                        <span>{card.brand?.toUpperCase()} **** **** **** {card.last4}
-                                            {card.id === defaultPaymentMethodId && <span className={styles.defaultBadge}>DEFAULT</span>}
-                                        </span>
-                                        <span className={styles.cardExpiry}>Expiration: {String(card.exp_month).padStart(2, '0')}/{card.exp_year}</span>
-                                    </div>
-                                    <DropdownMenu.Root>
-                                        <DropdownMenu.Trigger asChild>
-                                            <button className={styles.manageButton}>MANAGE</button>
-                                        </DropdownMenu.Trigger>
-                                        <DropdownMenu.Portal>
-                                            <DropdownMenu.Content className={styles.dropdownContent} sideOffset={5} align="end">
-                                                {card.id !== defaultPaymentMethodId && (
-                                                    <DropdownMenu.Item className={styles.dropdownItem} onSelect={() => handleSetDefault(card.id)}>
-                                                        Set as default
-                                                    </DropdownMenu.Item>
-                                                )}
-                                                <DropdownMenu.Item className={`${styles.dropdownItem} ${styles.destructive}`} onSelect={() => handleRemove(card.id)}>
-                                                    Remove
-                                                </DropdownMenu.Item>
-                                            </DropdownMenu.Content>
-                                        </DropdownMenu.Portal>
-                                    </DropdownMenu.Root>
-                                </Card>
-                            ))}
-                        </div>
-                    )}
-                    
-                    {!cardsFeatureEnabled && (
-                        <Card className={styles.featureDisabledCard}>
-                            <h3 className={styles.sectionTitle}>Saved Cards</h3>
-                            <p className={styles.cardDescription}>Saved cards feature is temporarily unavailable.</p>
-                            <a href="#" onClick={(e) => { e.preventDefault(); handleTryEnableCards(); }} className={styles.cardLink}>
-                                Try Again
-                            </a>
-                        </Card>
-                    )}
-                     
-                     <p className={styles.footerText}>Your payment details are securely processed by Stripe. We do not retain your payment data.</p>
-                </div>
+                <Card>
+                    <SavedCardList
+                        cards={savedCards}
+                        onAddNew={handleAddNewCard}
+                        onRemove={handleRemove}
+                        onSetDefault={handleSetDefault}
+                        defaultPaymentMethodId={defaultPaymentMethodId}
+                    />
+                </Card>
 
                  <div className={styles.cardContainer}>
                     <Card>
@@ -247,9 +199,10 @@ const PaymentsPage = () => {
                                 <a href="#" onClick={(e) => { e.preventDefault(); handleDisconnect(); }} className={`${styles.cardLink} ${styles.disconnect}`}>Disconnect</a>
                             </div>
                         ) : (
-                            <a href="#" onClick={(e) => { e.preventDefault(); handleConnectStripe(); }} className={styles.cardLink}>Connect</a>
+                            <a href="#" onClick={(e) => { e.preventDefault(); handleConnectStripe(); }} className={styles.cardLink}>Connect with Stripe</a>
                         )}
                     </Card>
+                    <p className={styles.footerText}>Your payment details are securely processed by Stripe. We do not retain your payment data.</p>
                 </div>
             </div>
         </Container>
