@@ -2,9 +2,9 @@
  * Filename: src/app/payments/page.module.css
  * Purpose: Provides styles for the redesigned payments page.
  * Change History:
- * C013 - 2025-08-18 : Definitive and final version with all styles refactored from inline.
- * C012 - 2025-08-11 : (Failed attempt, reverted)
- * C011 - 2025-08-10 : (Failed attempt, reverted)
+ * C011 - 2025-08-10 : 23:00 - Definitive and final styles for the new design.
+ * C010 - 2025-08-10 : 22:00 - Definitive fix for card alignment.
+ * C009 - 2025-08-10 : 20:00 - Added styles for new loading and error states.
  */
 
 .grid {
@@ -20,29 +20,10 @@
   }
 }
 
-.column {
+.cardContainer {
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
-}
-
-.loadingContainer, .errorContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: var(--space-6);
-    background-color: var(--color-bg-card);
-    border: 1px solid var(--color-border);
-    border-radius: var(--border-radius-lg);
-    min-height: 200px;
-    gap: var(--space-3);
-}
-
-.errorContainer p {
-    color: var(--color-error);
-    font-size: var(--font-size-base);
 }
 
 .cardTitle {
@@ -63,11 +44,6 @@
     font-weight: 500;
     font-size: var(--font-size-sm);
     text-decoration: none;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    text-align: left;
 }
 .cardLink:hover {
     text-decoration: underline;
@@ -83,10 +59,17 @@
     color: var(--color-error);
 }
 
+.sectionTitle {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--space-1);
+}
+
 .savedCardsList {
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
+    margin-top: var(--space-3);
 }
 
 .savedCardRow {
@@ -101,26 +84,17 @@
 .cardIcon {
     width: 40px;
     height: 28px;
-    background-color: var(--color-bg-page);
+    background-color: #f0f0f0;
     border: 1px solid var(--color-border);
     border-radius: 4px;
     flex-shrink: 0;
 }
 
-.cardDetails {
+.savedCardDetails {
     flex-grow: 1;
-}
-
-.cardInfo {
     display: flex;
-    align-items: center;
-    gap: var(--space-1);
-    font-weight: 500;
+    flex-direction: column;
     font-size: var(--font-size-sm);
-}
-
-.cardBrand {
-    font-weight: 600;
 }
 
 .cardExpiry {
@@ -131,26 +105,26 @@
 .defaultBadge {
     font-size: 10px;
     font-weight: 600;
-    color: var(--color-success-text);
-    background-color: var(--color-success-bg);
-    padding: 2px 8px;
-    border-radius: 99px;
+    color: var(--color-text-secondary);
+    background-color: var(--color-bg-page);
+    padding: 2px 6px;
+    border-radius: var(--border-radius-sm);
+    margin-left: var(--space-1);
 }
 
 .manageButton {
     font-size: var(--font-size-xs);
-    font-weight: 500;
+    font-weight: 600;
     color: var(--color-text-secondary);
-    background-color: var(--color-bg-page);
-    border: 1px solid var(--color-border);
-    border-radius: var(--border-radius-sm);
-    padding: var(--space-1);
+    text-decoration: none;
+    background: none;
+    border: none;
     cursor: pointer;
+    padding: 4px;
     letter-spacing: 0.5px;
 }
 .manageButton:hover {
-    background-color: var(--color-border);
-    color: var(--color-text-primary);
+    color: var(--color-primary);
 }
 
 .dropdownContent {
@@ -176,13 +150,11 @@
     color: var(--color-error);
 }
 .destructive:hover {
-    color: var(--white);
-    background-color: var(--color-error);
+    background-color: var(--color-error-bg);
 }
 
 .footerText {
     font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
-    text-align: center;
     margin-top: var(--space-3);
 }
