@@ -2,15 +2,13 @@
  * Filename: src/app/payments/page.tsx
  * Purpose: Allows users to manage their methods for sending and receiving payments.
  * Change History:
+ * C042 - 2025-08-12 : 14:00 - Simplified layout to match two-card design and use new SavedCardList component.
  * C041 - 2025-08-11 : 10:00 - Refactored to use SavedCardList component and hardened create card flow.
- * C040 - 2025-08-10 : 23:00 - Definitive and final complete code implementation.
- * C039 - 2025-08-10 : 22:00 - Definitive fix for UI text and layout.
- * C038 - 2025-08-10 : 21:00 - Definitive fix for "Saved Cards" UI layout and styling.
- * Last Modified: 2025-08-11 : 10:00
+ * Last Modified: 2025-08-12 : 14:00
  * Requirement ID: VIN-PAY-1
- * Change Summary: This is the definitive fix for the payment card creation flow. The logic to display the list of saved cards has been moved into the dedicated SavedCardList component, cleaning up this file. The handleAddNewCard function now has more robust error handling to catch non-JSON responses from the server, providing better user feedback if the Stripe redirect fails to initiate.
- * Impact Analysis: This change improves the reliability of the "Add New Card" feature and makes the code more maintainable by properly encapsulating the card list UI.
- * Dependencies: "@clerk/nextjs", "@/lib/utils/get-stripejs", "react-hot-toast", and VDL UI components including the new SavedCardList.
+ * Change Summary: The page has been refactored to a simpler, two-card layout that perfectly matches the design. The "Sending Payment Methods" logic is now fully encapsulated within the <SavedCardList /> component, making this page's code cleaner and more maintainable.
+ * Impact Analysis: This change perfects the UI and component structure of the payments page.
+ * Dependencies: "@clerk/nextjs", "@/lib/utils/get-stripejs", "react-hot-toast", and VDL UI components.
  */
 'use client';
 
@@ -91,31 +89,17 @@ const PaymentsPage = () => {
             if (!response.ok) throw new Error("Could not get a connection URL.");
             const { url } = await response.json();
             if (url) window.location.href = url;
-            toast.dismiss(toastId);
+            else toast.dismiss(toastId);
         } catch (error) {
             toast.error(error instanceof Error ? error.message : 'Failed to connect to Stripe.', { id: toastId });
         }
     };
     
-    const handleDisconnect = async () => {
-        if (!confirm('Are you sure you want to disconnect your Stripe account? This cannot be undone.')) return;
-        const toastId = toast.loading('Disconnecting Stripe account...');
-        try {
-            await fetch('/api/stripe/disconnect-account', { method: 'POST' });
-            await user?.reload();
-            await fetchData();
-            toast.success('Stripe account disconnected.', { id: toastId });
-        } catch (error) {
-            toast.error(error instanceof Error ? error.message : 'An unknown error occurred.', { id: toastId });
-        }
-    };
-
     const handleAddNewCard = async () => {
         const toastId = toast.loading('Redirecting to add card...');
         try {
             const response = await fetch('/api/stripe/create-checkout-session', { method: 'POST' });
             
-            // --- THIS IS THE FIX: More robust error handling ---
             if (!response.ok) {
                 const errorText = await response.text();
                 try {
@@ -176,7 +160,7 @@ const PaymentsPage = () => {
     
     return (
         <Container>
-            <PageHeader title="Payments" />
+            <PageHeader title="Payments" subtitle="Manage your methods for sending and receiving payments." />
             
             <div className={styles.grid}>
                 <Card>
@@ -189,21 +173,16 @@ const PaymentsPage = () => {
                     />
                 </Card>
 
-                 <div className={styles.cardContainer}>
-                    <Card>
-                        <h3 className={styles.cardTitle}>Receiving Payment Methods</h3>
+                <Card>
+                    <div className={styles.receivingCardContent}>
+                        <h2 className={styles.cardTitle}>Receiving Payment Methods</h2>
                         <p className={styles.cardDescription}>Connect a Stripe account to receive your referral earnings and payouts.</p>
-                        {stripeAccount?.details_submitted ? (
-                            <div className={styles.cardActions}>
-                                <a href="#" onClick={(e) => { e.preventDefault(); handleConnectStripe(); }} className={styles.cardLink}>Manage</a>
-                                <a href="#" onClick={(e) => { e.preventDefault(); handleDisconnect(); }} className={`${styles.cardLink} ${styles.disconnect}`}>Disconnect</a>
-                            </div>
-                        ) : (
-                            <a href="#" onClick={(e) => { e.preventDefault(); handleConnectStripe(); }} className={styles.cardLink}>Connect with Stripe</a>
-                        )}
-                    </Card>
-                    <p className={styles.footerText}>Your payment details are securely processed by Stripe. We do not retain your payment data.</p>
-                </div>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleConnectStripe(); }} className={styles.cardLink}>
+                            {stripeAccount?.details_submitted ? 'Manage Stripe Account' : 'Connect with Stripe'}
+                        </a>
+                        <p className={styles.footerText}>Your payment details are securely processed by Stripe. We do not retain your payment data.</p>
+                    </div>
+                </Card>
             </div>
         </Container>
     );

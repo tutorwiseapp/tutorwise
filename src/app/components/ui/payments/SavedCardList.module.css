@@ -2,6 +2,7 @@
  * Filename: src/app/components/ui/payments/SavedCardList.module.css
  * Purpose: Provides styles for the SavedCardList component.
  * Change History:
+ * C003 - 2025-08-12 : 14:00 - Added .emptyState style for when no cards are present.
  * C002 - 2025-08-11 : 10:00 - Added styles for the new 'Manage' dropdown menu.
  * C001 - 2025-08-09 : 11:00 - Initial creation.
  */
@@ -30,6 +31,21 @@
     flex-direction: column;
     gap: var(--space-2);
     margin-bottom: var(--space-4);
+    min-height: 80px; /* Ensures the layout doesn't jump when cards load */
+}
+
+/* --- THIS IS THE NEW STYLE --- */
+.emptyState {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--space-3) 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--border-radius-md);
+    flex-grow: 1;
 }
 
 .savedCard {
