@@ -2,9 +2,9 @@
  * Filename: src/app/payments/page.module.css
  * Purpose: Provides styles for the redesigned payments page.
  * Change History:
+ * C011 - 2025-08-10 : 23:00 - Definitive and final styles for the new design.
+ * C010 - 2025-08-10 : 22:00 - Definitive fix for card alignment.
  * C009 - 2025-08-10 : 20:00 - Added styles for new loading and error states.
- * C008 - 2025-08-10 : 11:00 - Definitive and final styles for the new design.
- * C007 - 2025-08-10 : 06:00 - Definitive fix: Added grid layout styles to fix build error.
  */
 
 .grid {
@@ -20,26 +20,6 @@
   }
 }
 
-/* --- NEW STYLES for Loading and Error States --- */
-.loadingContainer, .errorContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: var(--space-6);
-    background-color: var(--color-bg-card);
-    border: 1px solid var(--color-border);
-    border-radius: var(--border-radius-lg);
-    min-height: 200px;
-    gap: var(--space-3);
-}
-.retryText {
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-sm);
-}
-/* --- END OF NEW STYLES --- */
-
 .cardContainer {
     display: flex;
     flex-direction: column;
@@ -52,13 +32,13 @@
   margin-bottom: var(--space-1);
 }
 
-/* ... (all other styles from the last correct version remain the same) ... */
 .cardDescription {
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
   margin-bottom: var(--space-3);
   line-height: 1.6;
 }
+
 .cardLink {
     color: var(--color-primary);
     font-weight: 500;
@@ -68,41 +48,60 @@
 .cardLink:hover {
     text-decoration: underline;
 }
+
 .cardActions {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
+
 .disconnect {
     color: var(--color-error);
 }
+
 .sectionTitle {
     font-size: var(--font-size-lg);
     font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--space-1);
 }
-.savedCard {
+
+.savedCardsList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+}
+
+.savedCardRow {
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    padding: var(--space-2) !important;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
 }
+
 .cardIcon {
     width: 40px;
     height: 28px;
     background-color: #f0f0f0;
     border: 1px solid var(--color-border);
     border-radius: 4px;
+    flex-shrink: 0;
 }
+
 .savedCardDetails {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     font-size: var(--font-size-sm);
 }
+
 .cardExpiry {
     color: var(--color-text-secondary);
     font-size: var(--font-size-xs);
 }
+
 .defaultBadge {
     font-size: 10px;
     font-weight: 600;
@@ -112,6 +111,7 @@
     border-radius: var(--border-radius-sm);
     margin-left: var(--space-1);
 }
+
 .manageButton {
     font-size: var(--font-size-xs);
     font-weight: 600;
@@ -126,6 +126,7 @@
 .manageButton:hover {
     color: var(--color-primary);
 }
+
 .dropdownContent {
     min-width: 160px;
     background-color: var(--color-bg-card);
@@ -151,36 +152,9 @@
 .destructive:hover {
     background-color: var(--color-error-bg);
 }
+
 .footerText {
     font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
     margin-top: var(--space-3);
 }
-
-/* --- NEW STYLE for Feature Disabled State --- */
-.featureDisabledCard {
-    padding: var(--space-3);
-    text-align: center;
-    border: 1px solid var(--color-border);
-    border-radius: var(--border-radius-lg);
-    background-color: var(--color-bg-page);
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-sm);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    align-items: center;
-}
-
-/* --- NEW STYLE for Feature Disabled State --- */
-.featureDisabledCard {
-    padding: var(--space-3);
-    border: 1px solid var(--color-border);
-    border-radius: var(--border-radius-lg);
-    background-color: var(--color-bg-page);
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-sm);
-    /* --- THIS IS THE DEFINITIVE FIX --- */
-    text-align: left; 
-}
-
