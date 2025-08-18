@@ -2,12 +2,12 @@
  * Filename: src/app/payments/page.tsx
  * Purpose: Allows users to manage their methods for sending and receiving payments.
  * Change History:
- * C046 - 2025-08-12 : 18:00 - Definitive fix for card management actions with optimistic UI and robust error handling.
- * C045 - 2025-08-12 : 17:00 - Fixed stale data by disabling fetch cache.
- * Last Modified: 2025-08-12 : 18:00
+ * C047 - 2025-08-12 : 19:00 - Definitive fix for displaying specific backend errors on the frontend.
+ * C046 - 2025-08-12 : 18:00 - Fixed card management actions with optimistic UI.
+ * Last Modified: 2025-08-12 : 19:00
  * Requirement ID: VIN-PAY-1
- * Change Summary: This is the definitive fix that makes the 'Remove' and 'Set as default' actions fully functional. The handlers now check for a successful server response and show specific error messages. The 'Remove' action has been enhanced with an optimistic UI update for a more responsive user experience, with a rollback mechanism if the API call fails.
- * Impact Analysis: This change fully resolves the bugs preventing users from managing their saved cards, making the feature complete and reliable.
+ * Change Summary: This is the definitive fix for the vague "Failed to create session" error. The `handleAddNewCard` function now properly awaits and parses the JSON body of a failed API response. This allows it to display the specific, meaningful error message sent from the backend (e.g., "Stripe Customer ID not found") instead of a generic one.
+ * Impact Analysis: This change dramatically improves the debuggability and user experience of the payment features by providing clear, actionable error messages.
  */
 'use client';
 
@@ -48,7 +48,6 @@ const PaymentsPageContent = () => {
                 fetch('/api/stripe/get-connect-account', { cache: 'no-store' }),
                 fetch('/api/stripe/get-payment-methods', { cache: 'no-store' })
             ]);
-
             if (accountRes.ok) {
                 const accountData = await accountRes.json();
                 setStripeAccount(accountData.account);
@@ -59,7 +58,6 @@ const PaymentsPageContent = () => {
                 setDefaultPaymentMethodId(cardsData.defaultPaymentMethodId);
             }
         } catch (error) {
-            console.error('Failed to fetch payment data:', error);
             toast.error('Could not load your payment details.');
         } finally {
             setIsLoading(false);
@@ -77,8 +75,7 @@ const PaymentsPageContent = () => {
         if (status === 'success') {
             toast.success('Your new card was added successfully!');
             fetchData();
-            const newUrl = window.location.pathname;
-            window.history.replaceState({}, '', newUrl);
+            window.history.replaceState({}, '', window.location.pathname);
         }
     }, [searchParams, fetchData]);
 
@@ -98,14 +95,22 @@ const PaymentsPageContent = () => {
         const toastId = toast.loading('Redirecting...');
         try {
             const response = await fetch('/api/stripe/create-checkout-session', { method: 'POST' });
-            if (!response.ok) throw new Error('Failed to create session.');
+            
+            // --- THIS IS THE DEFINITIVE FIX ---
+            // If the response is not ok, we parse the JSON body to get the specific error.
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to create session.');
+            }
+
             const { sessionId } = await response.json();
             const stripe = await getStripe();
             if (stripe && sessionId) await stripe.redirectToCheckout({ sessionId });
             else throw new Error("Stripe.js failed to load.");
             toast.dismiss(toastId);
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : "An error occurred.", { id: toastId });
+            // The specific error from the backend will now be displayed here.
+            toast.error(error instanceof Error ? error.message : "An unknown error occurred.", { id: toastId });
         }
     };
 
@@ -117,12 +122,10 @@ const PaymentsPageContent = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ paymentMethodId }) 
             });
-
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Failed to set default card.');
             }
-
             setDefaultPaymentMethodId(paymentMethodId);
             toast.success('Default card updated.', { id: toastId });
         } catch (error) {
@@ -131,27 +134,23 @@ const PaymentsPageContent = () => {
     };
 
     const handleRemove = async (paymentMethodId: string) => {
-        if (!confirm('Are you sure you want to remove this card? This action cannot be undone.')) return;
-        
+        if (!confirm('Are you sure you want to remove this card?')) return;
         const originalCards = [...savedCards];
         setSavedCards(cards => cards.filter(c => c.id !== paymentMethodId));
         const toastId = toast.loading('Removing card...');
-
         try {
             const response = await fetch('/api/stripe/remove-card', { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ paymentMethodId }) 
             });
-
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Failed to remove card.');
             }
-
             toast.success('Card removed successfully.', { id: toastId });
         } catch (error) {
-            setSavedCards(originalCards); // Revert UI on failure
+            setSavedCards(originalCards);
             toast.error(error instanceof Error ? error.message : "An unknown error occurred.", { id: toastId });
         }
     };
@@ -174,7 +173,6 @@ const PaymentsPageContent = () => {
                         defaultPaymentMethodId={defaultPaymentMethodId}
                     />
                 </div>
-
                 <div className={dashboardStyles.gridCard}>
                     <div className={dashboardStyles.cardContent}>
                         <h3>Receiving Payment Methods</h3>

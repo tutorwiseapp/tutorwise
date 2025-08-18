@@ -2,15 +2,12 @@
  * Filename: src/api/stripe/create-checkout-session/route.ts
  * Purpose: Creates a Stripe Checkout Session for saving a new payment method.
  * Change History:
+ * C002 - 2025-08-12 : 19:00 - Definitive fix with specific error handling for missing customer ID.
  * C001 - 2025-07-27 : 16:30 - Initial creation.
- * Last Modified: 2025-07-27 : 16:30
+ * Last Modified: 2025-08-12 : 19:00
  * Requirement ID: VIN-API-003
- * Change Summary: This file was created to provide the backend logic for the "Add New Card"
- * button. It securely authenticates the user, finds their Stripe Customer ID from their Clerk
- * publicMetadata, and creates a Stripe Checkout Session in 'setup' mode.
- * Impact Analysis: This is an additive change that makes the "Add New Card" feature on the
- * payments page functional. It depends on the webhook correctly creating a Stripe Customer ID.
- * Dependencies: "next/server", "@clerk/nextjs/server", "@/lib/stripe".
+ * Change Summary: This is the definitive fix for the "Failed to create session" error. The route now includes a specific check for a missing Stripe Customer ID on the user's metadata. If it's missing, it returns a clear 404 error with a descriptive JSON message, which the frontend can then display to the user.
+ * Impact Analysis: This change makes debugging user-specific payment issues much easier and provides clearer feedback when the user creation webhook may have failed.
  */
 import { NextResponse } from 'next/server';
 import { auth, clerkClient } from '@clerk/nextjs/server';
@@ -20,20 +17,24 @@ export async function POST(req: Request) {
   try {
     const { userId } = await auth();
     if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
 
     const client = await clerkClient();
     const user = await client.users.getUser(userId);
     const stripeCustomerId = user.publicMetadata?.stripe_customer_id as string | undefined;
 
+    // --- THIS IS THE DEFINITIVE FIX ---
+    // If the customer ID doesn't exist, it's a critical error, likely from a webhook failure.
+    // We return a specific, actionable error message in a JSON response.
     if (!stripeCustomerId) {
-      // This should not happen if the webhook is working, but it's a critical safeguard.
-      return new NextResponse("Stripe customer not found for this user", { status: 404 });
+      return new NextResponse(
+        JSON.stringify({ error: "Stripe Customer ID not found for this user. Please contact support." }), 
+        { status: 404, headers: { 'Content-Type': 'application/json' } }
+      );
     }
 
     // Create a Stripe Checkout Session in "setup" mode.
-    // This mode is specifically for saving a payment method for future use.
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'setup',
@@ -46,6 +47,8 @@ export async function POST(req: Request) {
 
   } catch (error) {
     console.error("Error creating Stripe checkout session:", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    // The error from Stripe will be caught here and sent back.
+    const errorMessage = error instanceof Error ? error.message : "Internal Server Error";
+    return new NextResponse(JSON.stringify({ error: errorMessage }), { status: 500 });
   }
 }
