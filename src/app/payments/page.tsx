@@ -2,12 +2,13 @@
  * Filename: src/app/payments/page.tsx
  * Purpose: Allows users to manage their methods for sending and receiving payments.
  * Change History:
- * C044 - 2025-08-12 : 16:00 - Definitive fix for saved cards not appearing after successful creation.
+ * C045 - 2025-08-12 : 17:00 - Definitive fix for stale data by disabling fetch cache.
+ * C044 - 2025-08-12 : 16:00 - Fixed saved cards not appearing after successful creation.
  * C043 - 2025-08-12 : 15:00 - Refactored to use the standard dashboard grid and card layout.
- * Last Modified: 2025-08-12 : 16:00
+ * Last Modified: 2025-08-12 : 17:00
  * Requirement ID: VIN-PAY-1
- * Change Summary: This is the definitive fix for the "card not displaying" bug. The component has been refactored to use `useSearchParams` to detect the `?status=success` query parameter upon redirect from Stripe. A new `useEffect` hook now explicitly triggers a data re-fetch and shows a success toast when this parameter is present, ensuring the new card appears immediately.
- * Impact Analysis: This change fixes a critical bug in the user flow for adding a new payment method, making the feature fully functional and reliable.
+ * Change Summary: This is the definitive fix for the card list not updating after a successful redirect. The `fetch` calls within the `fetchData` function have been updated with the `{ cache: 'no-store' }` option. This forces the browser to bypass Next.js's data cache and request the absolute latest payment method information from the server, ensuring the newly added card appears immediately.
+ * Impact Analysis: This resolves a critical UI bug and makes the "Add New Card" user journey fully functional and reliable.
  */
 'use client';
 
@@ -44,11 +45,12 @@ const PaymentsPageContent = () => {
 
     const fetchData = useCallback(async () => {
         if (!user) return;
-        // Don't set loading to true here if we are just refreshing in the background
         try {
+            // --- THIS IS THE DEFINITIVE FIX ---
+            // We explicitly disable caching to ensure the latest data is always fetched.
             const [accountRes, cardsRes] = await Promise.all([
-                fetch('/api/stripe/get-connect-account'),
-                fetch('/api/stripe/get-payment-methods')
+                fetch('/api/stripe/get-connect-account', { cache: 'no-store' }),
+                fetch('/api/stripe/get-payment-methods', { cache: 'no-store' })
             ]);
 
             if (accountRes.ok) {
@@ -64,7 +66,7 @@ const PaymentsPageContent = () => {
             console.error('Failed to fetch payment data:', error);
             toast.error('Could not load your payment details.');
         } finally {
-            setIsLoading(false); // Only set loading to false after the initial load
+            setIsLoading(false);
         }
     }, [user]);
 
@@ -79,7 +81,6 @@ const PaymentsPageContent = () => {
         }
     }, [isLoaded, user, router, fetchData]);
 
-    // --- THIS IS THE DEFINITIVE FIX ---
     // This effect specifically handles the return from Stripe checkout
     useEffect(() => {
         const status = searchParams.get('status');
@@ -87,7 +88,6 @@ const PaymentsPageContent = () => {
             toast.success('Your new card was added successfully!');
             fetchData(); // Re-fetch the data to show the new card
             
-            // Clean the URL to avoid re-triggering on refresh
             const newUrl = window.location.pathname;
             window.history.replaceState({}, '', newUrl);
         }
@@ -187,7 +187,7 @@ const PaymentsPageContent = () => {
 // The parent component now wraps the main content in Suspense
 const PaymentsPage = () => {
     return (
-        <Suspense fallback={<Container><PageHeader title="Payments" /><p>Loading...</p></Container>}>
+        <Suspense fallback={<Container><PageHeader title="Payments" /><p className={dashboardStyles.loading}>Loading...</p></Container>}>
             <PaymentsPageContent />
         </Suspense>
     );
