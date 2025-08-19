@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/api/stripe/set-default-card/route.ts
+ * Filename: src/api/stripe/set-default-card/route.ts
  * Purpose: Securely sets a user's default payment method in Stripe.
  * Change History:
  * C003 - 2025-08-12 : 18:00 - Definitive fix with robust error handling.

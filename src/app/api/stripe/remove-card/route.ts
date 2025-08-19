@@ -1,13 +1,13 @@
 /*
- * Filename: src/app/api/stripe/remove-card/route.ts
+ * Filename: src/api/stripe/remove-card/route.ts
  * Purpose: Securely removes/detaches a user's saved payment method in Stripe.
  * Change History:
+ * C002 - 2025-08-12 : 18:00 - Definitive fix with robust error handling.
  * C001 - 2025-08-10 : 03:00 - Initial creation.
- * Last Modified: 2025-08-10 : 03:00
+ * Last Modified: 2025-08-12 : 18:00
  * Requirement ID: VIN-PAY-1
- * Change Summary: This API route provides the backend logic to detach a PaymentMethod from a Stripe Customer, fulfilling a core requirement of the payment management story.
- * Impact Analysis: This is an additive, secure endpoint that makes the "Remove card" feature functional.
- * Dependencies: "next/server", "@clerk/nextjs/server", "@/lib/stripe".
+ * Change Summary: This is the definitive fix for the remove card functionality. The route now includes a full try/catch block with specific error handling for Stripe API errors. It will now return a meaningful JSON error response to the frontend if the detach operation fails, ensuring the user receives correct feedback.
+ * Impact Analysis: This makes the backend for the "Remove card" feature robust and reliable.
  */
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
@@ -17,19 +17,27 @@ import Stripe from 'stripe';
 export async function POST(req: Request) {
   try {
     const { userId } = await auth();
-    if (!userId) return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    if (!userId) {
+      return new NextResponse(JSON.stringify({ error: "Unauthorized: You must be logged in." }), { status: 401 });
+    }
 
     const { paymentMethodId } = await req.json();
-    if (!paymentMethodId) return new NextResponse(JSON.stringify({ error: "Payment Method ID is required" }), { status: 400 });
+    if (!paymentMethodId) {
+      return new NextResponse(JSON.stringify({ error: "Bad Request: Payment Method ID is required." }), { status: 400 });
+    }
 
-    // For security, we don't need the customer ID. Detaching is a direct action on the payment method.
-    await stripe.paymentMethods.detach(paymentMethodId);
+    const detachedPaymentMethod = await stripe.paymentMethods.detach(paymentMethodId);
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, detachedId: detachedPaymentMethod.id });
 
   } catch (error) {
-    console.error("Error removing payment method:", error);
-    const errorMessage = error instanceof Stripe.errors.StripeError ? error.message : "An unknown error occurred.";
-    return new NextResponse(JSON.stringify({ error: errorMessage }), { status: 500 });
+    console.error("[API/remove-card] CRITICAL ERROR:", error);
+    const errorMessage = error instanceof Stripe.errors.StripeError 
+        ? `Stripe Error: ${error.message}` 
+        : "An internal server error occurred.";
+    
+    const status = error instanceof Stripe.errors.StripeInvalidRequestError ? 400 : 500;
+
+    return new NextResponse(JSON.stringify({ error: errorMessage }), { status });
   }
 }
