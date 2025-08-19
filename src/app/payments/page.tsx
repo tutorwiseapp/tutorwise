@@ -87,7 +87,7 @@ const PaymentsPageContent = () => {
                         if (res.ok) {
                             const data = await res.json();
                             if (data.cards && data.cards.length > initialCardCount) {
-                                return true;
+                                return true; // Success, new card found
                             }
                         }
                         await new Promise(resolve => setTimeout(resolve, interval));
@@ -110,11 +110,9 @@ const PaymentsPageContent = () => {
                 window.history.replaceState({}, '', window.location.pathname);
             });
         }
-    // We only want this to run when searchParams changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParams, isVerifying, initialFetchData, savedCards.length]);
     
-    // ... all other handler functions (handleConnectStripe, handleAddNewCard, etc.) remain exactly the same ...
     const handleConnectStripe = async () => {
         const toastId = toast.loading('Redirecting to Stripe...');
         try {
