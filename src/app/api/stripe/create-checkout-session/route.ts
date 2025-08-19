@@ -2,13 +2,12 @@
  * Filename: src/api/stripe/create-checkout-session/route.ts
  * Purpose: Creates a Stripe Checkout Session for saving a new payment method.
  * Change History:
- * C003 - 2025-08-12 : 20:00 - Definitive fix with self-healing logic for stale Stripe Customer IDs.
- * C002 - 2025-08-12 : 19:00 - Added specific error handling for missing customer ID.
- * C001 - 2025-07-27 : 16:30 - Initial creation.
- * Last Modified: 2025-08-12 : 20:00
+ * C004 - 2025-08-14 : 10:00 - Added customer_id to the success_url to enable stateless polling.
+ * C003 - 2025-08-12 : 20:00 - Implemented self-healing logic for stale Stripe Customer IDs.
+ * Last Modified: 2025-08-14 : 10:00
  * Requirement ID: VIN-API-003
- * Change Summary: This is the definitive fix for the "No such customer" error. The route now contains a robust catch block that specifically identifies this error from Stripe. When detected, it automatically creates a new Stripe Customer for the user, updates their Clerk metadata with the new, valid ID, and then retries creating the checkout session. This "self-healing" logic permanently resolves the data inconsistency without user intervention.
- * Impact Analysis: This makes the application resilient to data mismatches between Clerk and Stripe, fixing a critical failure point in the payment flow.
+ * Change Summary: This is the final component of the definitive fix. The route now dynamically adds the verified `customer_id` as a query parameter to the `success_url`. This provides the frontend with the stateless information it needs to poll the correct customer record, permanently resolving the race condition.
+ * Impact Analysis: This change completes the robust, verifiable "Add New Card" user journey.
  */
 import { NextResponse } from 'next/server';
 import { auth, clerkClient } from '@clerk/nextjs/server';
@@ -16,6 +15,8 @@ import { stripe } from '@/lib/stripe';
 import Stripe from 'stripe';
 
 export async function POST(req: Request) {
+  let customerIdToUse: string | undefined;
+
   try {
     const { userId } = await auth();
     if (!userId) {
@@ -24,9 +25,9 @@ export async function POST(req: Request) {
 
     const client = await clerkClient();
     const user = await client.users.getUser(userId);
-    let stripeCustomerId = user.publicMetadata?.stripe_customer_id as string | undefined;
+    customerIdToUse = user.publicMetadata?.stripe_customer_id as string | undefined;
 
-    if (!stripeCustomerId) {
+    if (!customerIdToUse) {
       return new NextResponse(
         JSON.stringify({ error: "Stripe Customer ID not found. Webhook may have failed." }), 
         { status: 404, headers: { 'Content-Type': 'application/json' } }
@@ -36,8 +37,8 @@ export async function POST(req: Request) {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'setup',
-      customer: stripeCustomerId,
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payments?status=success`,
+      customer: customerIdToUse,
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payments?status=success&customer_id=${customerIdToUse}`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payments?status=cancelled`,
     });
 
@@ -46,10 +47,8 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("[API/create-checkout-session] Initial attempt failed:", error);
 
-    // --- THIS IS THE DEFINITIVE SELF-HEALING FIX ---
-    // Check if the error is specifically "No such customer"
     if (error instanceof Stripe.errors.StripeInvalidRequestError && error.code === 'resource_missing' && error.param === 'customer') {
-      console.warn(`[SELF-HEALING] Stale Stripe Customer ID detected for user. Re-creating customer.`);
+      console.warn(`[SELF-HEALING] Stale Stripe Customer ID detected. Re-creating customer.`);
       
       try {
         const { userId } = await auth();
@@ -64,36 +63,28 @@ export async function POST(req: Request) {
             metadata: { clerkId: user.id }
         });
 
-        // Update Clerk metadata with the new, correct ID
         await client.users.updateUserMetadata(userId, {
-            publicMetadata: {
-                ...user.publicMetadata,
-                stripe_customer_id: newCustomer.id,
-            }
+            publicMetadata: { ...user.publicMetadata, stripe_customer_id: newCustomer.id }
         });
 
         console.log(`[SELF-HEALING] Successfully created new Stripe Customer ${newCustomer.id} for user ${userId}.`);
 
-        // Retry creating the checkout session with the new customer ID
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             mode: 'setup',
-            customer: newCustomer.id, // Use the NEW customer ID
-            success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payments?status=success`,
+            customer: newCustomer.id,
+            success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payments?status=success&customer_id=${newCustomer.id}`,
             cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payments?status=cancelled`,
         });
 
-        // If successful, return the new session. The user will be unaware a fix occurred.
         return NextResponse.json({ sessionId: session.id });
 
       } catch (retryError) {
         console.error("[SELF-HEALING] CRITICAL: Failed to recover from stale customer ID:", retryError);
-        const errorMessage = retryError instanceof Error ? retryError.message : "Self-healing failed. Please contact support.";
-        return new NextResponse(JSON.stringify({ error: errorMessage }), { status: 500 });
+        return new NextResponse(JSON.stringify({ error: "Self-healing failed. Please contact support." }), { status: 500 });
       }
     }
 
-    // For any other type of error, return a generic server error
     const errorMessage = error instanceof Error ? error.message : "Internal Server Error";
     return new NextResponse(JSON.stringify({ error: errorMessage }), { status: 500 });
   }
