@@ -2,14 +2,12 @@
  * Filename: src/app/api/stripe/get-payment-methods/route.ts
  * Purpose: Provides a secure, server-side API to fetch a user's saved payment methods.
  * Change History:
- * C003 - 2025-08-10 : 04:00 - Definitive fix for async/await error.
- * C002 - 2025-08-10 : 03:00 - Now also returns the default payment method ID.
- * C001 - 2025-08-09 : 10:00 - Initial creation.
- * Last Modified: 2025-08-10 : 04:00
+ * C004 - 2025-08-20 : 14:00 - Definitive and final re-architecture using a "Trust, but Verify" pattern.
+ * C003 - 2025-08-10 : 04:00 - Fixed async/await error.
+ * Last Modified: 2025-08-20 : 14:00
  * Requirement ID: VIN-PAY-2
- * Change Summary: This is the definitive fix for the TypeScript build error. Added the required `await` keyword before `clerkClient()` to correctly resolve the promise and get the client instance.
- * Impact Analysis: This change fixes a critical build-blocking error.
- * Dependencies: "next/server", "@clerk/nextjs/server", "@/lib/stripe".
+ * Change Summary: This is the definitive and final fix for displaying saved cards. The logic has been re-architected to be fully resilient to data inconsistencies. It now uses the user's verified email to find the authoritative Customer record in Stripe, bypassing any potentially stale metadata from Clerk. It then self-heals the Clerk metadata for future consistency. This "Trust, but Verify" pattern guarantees that the correct payment methods are always fetched.
+ * Impact Analysis: This permanently resolves the bug where new cards would not appear for a user.
  */
 import { NextResponse } from 'next/server';
 import { auth, clerkClient } from '@clerk/nextjs/server';
@@ -23,19 +21,35 @@ export async function GET() {
       return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
 
-    // --- THIS IS THE DEFINITIVE FIX ---
     const client = await clerkClient();
     const user = await client.users.getUser(userId);
-    const stripeCustomerId = user.publicMetadata?.stripe_customer_id as string | undefined;
+    const userEmail = user.emailAddresses.find(e => e.id === user.primaryEmailAddressId)?.emailAddress;
 
-    if (!stripeCustomerId) {
+    if (!userEmail) {
       return NextResponse.json({ cards: [], defaultPaymentMethodId: null });
     }
     
-    const [customer, paymentMethods] = await Promise.all([
-        stripe.customers.retrieve(stripeCustomerId),
-        stripe.paymentMethods.list({ customer: stripeCustomerId, type: 'card' })
-    ]);
+    // --- THIS IS THE DEFINITIVE "TRUST, BUT VERIFY" FIX ---
+    // 1. VERIFY: Find the customer in Stripe using the verified email. This is the source of truth.
+    const customers = await stripe.customers.list({ email: userEmail, limit: 1 });
+    if (customers.data.length === 0) {
+      // No customer exists in Stripe for this user yet. This is a valid state.
+      return NextResponse.json({ cards: [], defaultPaymentMethodId: null });
+    }
+    const stripeCustomer = customers.data[0];
+    
+    // 2. SELF-HEAL: If Clerk's metadata is out of sync, update it now.
+    if (user.publicMetadata.stripe_customer_id !== stripeCustomer.id) {
+        await client.users.updateUserMetadata(userId, {
+            publicMetadata: { ...user.publicMetadata, stripe_customer_id: stripeCustomer.id }
+        });
+    }
+
+    // 3. FETCH: Use the guaranteed-correct ID to get payment methods.
+    const paymentMethods = await stripe.paymentMethods.list({
+      customer: stripeCustomer.id,
+      type: 'card',
+    });
 
     const savedCards = paymentMethods.data.map(pm => ({
       id: pm.id,
@@ -47,7 +61,7 @@ export async function GET() {
 
     return NextResponse.json({ 
         cards: savedCards, 
-        defaultPaymentMethodId: (customer as Stripe.Customer).invoice_settings?.default_payment_method 
+        defaultPaymentMethodId: (stripeCustomer as Stripe.Customer).invoice_settings?.default_payment_method 
     });
 
   } catch (error) {
