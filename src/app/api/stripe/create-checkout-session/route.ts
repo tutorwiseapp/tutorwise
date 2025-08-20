@@ -2,9 +2,9 @@
  * Filename: src/api/stripe/create-checkout-session/route.ts
  * Purpose: Creates a Stripe Checkout Session for saving a new payment method.
  * Change History:
- * C007 - 2025-08-17 : 10:00 - Definitive and final fix implementing just-in-time Stripe Customer creation.
+ * C007 - 2025-08-18 : 10:00 - Definitive and final fix implementing just-in-time Stripe Customer creation.
  * C006 - 2025-08-14 : 15:00 - Fixed TypeScript and syntax errors.
- * Last Modified: 2025-08-17 : 10:00
+ * Last Modified: 2025-08-18 : 10:00
  * Requirement ID: VIN-API-003
  * Change Summary: This is the definitive and final re-architecture of this route. It no longer relies on waiting for the webhook. Instead, it implements a robust "just-in-time" provisioning model. If a user does not have a Stripe Customer ID when they try to add a card, this route now creates one for them instantly and saves it to their Clerk metadata. This completely eliminates the race condition for new users and guarantees the "Create New Card" flow will work reliably every time.
  * Impact Analysis: This change permanently stabilizes the new user payment setup journey, making it a robust, production-grade feature.

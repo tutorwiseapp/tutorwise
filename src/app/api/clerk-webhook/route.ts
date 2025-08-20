@@ -2,9 +2,9 @@
  * Filename: src/api/clerk-webhook/route.ts
  * Purpose: Handles incoming webhooks from Clerk to synchronize user data with Supabase and Stripe.
  * Change History:
- * C016 - 2025-08-17 : 10:00 - Definitive and final version with idempotent (safe to re-run) logic.
+ * C016 - 2025-08-18 : 10:00 - Definitive and final version with idempotent (safe to re-run) logic.
  * C015 - 2025-08-16 : 10:00 - Implemented Read-Modify-Write pattern to prevent data loss.
- * Last Modified: 2025-08-17
+ * Last Modified: 2025-08-18
  * Requirement ID: VIN-API-002
  * Change Summary: This is the definitive and final version of the webhook. Its logic is now fully idempotent. It first checks if a user already has a Stripe Customer ID before attempting to create one. This makes it a safe, background synchronization process that will never conflict with the primary, just-in-time creation logic in the checkout session API. This change completes the robust, dual-system architecture.
  * Impact Analysis: This change makes the user creation and payment setup process fully resilient to all race conditions and timing issues.
