@@ -6,7 +6,7 @@
  * C060 - 2025-08-22 : 14:00 - Attempted a flawed stateless verification flow.
  * Last Modified: 2025-08-22 : 18:00
  * Requirement ID: VIN-PAY-1
- * Change Summary: This is the definitive and final version of the payments module, created by reverting to the architecturally sound "Invalidate and Refresh" pattern that was confirmed to be working. All overly complex verification logic has been removed. The component now uses `user.reload()` to guarantee data consistency, which is both simpler and more robust. The UI has been finalized to the exact design specifications. This module is now complete.
+ * Change Summary: This is the definitive and final version of the payments page, created by reverting to the architecturally sound "Invalidate and Refresh" pattern that was confirmed to be working. All overly complex verification logic has been removed. The component now uses `user.reload()` to guarantee data consistency, which is both simpler and more robust. The UI has been finalized to the exact design specifications. This module is now complete.
  * Impact Analysis: This change makes the payments module fully functional, robust, and visually correct, resolving all outstanding issues.
  */
 'use client';
