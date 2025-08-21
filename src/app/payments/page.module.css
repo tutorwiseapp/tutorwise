@@ -15,7 +15,7 @@
   align-items: start;
 }
 
-@media (min-width: 992px) {
+@media (min-width: 400px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
   }
