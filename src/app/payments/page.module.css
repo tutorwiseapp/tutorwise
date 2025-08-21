@@ -2,9 +2,8 @@
  * Filename: src/app/payments/page.module.css
  * Purpose: Provides all styles for the definitive payments page layout.
  * Change History:
- * C016 - 2025-08-21 : 22:00 - Added noCardsMessage style for the definitive empty state UI.
- * C015 - 2025-08-21 : 21:00 - Added gridSpanFull class for final layout alignment.
- * Last Modified: 2025-08-21 : 22:00
+ * C014 - 2025-08-13 : 11:00 - Definitive implementation of the new two-column design.
+ * Last Modified: 2025-08-13 : 11:00
  * Requirement ID: VIN-UI-020
  */
 
@@ -13,6 +12,7 @@
   grid-template-columns: 1fr;
   gap: var(--space-4);
   align-items: start;
+  margin-bottom: var(--space-5);
 }
 
 @media (min-width: 992px) {
@@ -21,11 +21,8 @@
   }
 }
 
-.gridSpanFull {
-    grid-column: 1 / -1;
-}
-
 .card {
+  /* This ensures all cards in the top grid have the same height */
   height: 100%; 
 }
 
@@ -78,8 +75,9 @@
     margin-top: var(--space-3);
 }
 
+/* --- Saved Cards Section --- */
 .savedCardsSection {
-    margin-top: var(--space-1);
+    margin-top: var(--space-5);
 }
 
 .sectionHeader {
@@ -90,20 +88,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
-}
-
-/* --- THIS IS THE NEW STYLE FOR THE EMPTY STATE --- */
-.noCardsMessage {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: var(--space-3);
-    border: 1px dashed var(--color-border);
-    border-radius: var(--border-radius-md);
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-sm);
-    min-height: 60px;
 }
 
 .savedCard {
@@ -170,7 +154,6 @@
     border: 1px solid var(--color-border);
     z-index: 50;
 }
-
 .dropdownItem {
     font-size: var(--font-size-sm);
     padding: var(--space-1) var(--space-2);
@@ -178,15 +161,12 @@
     cursor: pointer;
     outline: none;
 }
-
 .dropdownItem:hover {
     background-color: var(--color-bg-page);
 }
-
 .destructive {
     color: var(--color-error);
 }
-
 .destructive:hover {
     background-color: var(--color-error-bg);
 }
