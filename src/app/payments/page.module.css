@@ -2,8 +2,9 @@
  * Filename: src/app/payments/page.module.css
  * Purpose: Provides all styles for the definitive payments page layout.
  * Change History:
- * C014 - 2025-08-13 : 11:00 - Definitive implementation of the new two-column design.
- * Last Modified: 2025-08-13 : 11:00
+ * C015 - 2025-08-21 : 21:00 - Added gridSpanFull class for final layout alignment.
+ * C014 - 2025-08-13 : 11:00 - Implemented the new two-column design.
+ * Last Modified: 2025-08-21 : 21:00
  * Requirement ID: VIN-UI-020
  */
 
@@ -12,7 +13,6 @@
   grid-template-columns: 1fr;
   gap: var(--space-4);
   align-items: start;
-  margin-bottom: var(--space-5);
 }
 
 @media (min-width: 992px) {
@@ -21,8 +21,12 @@
   }
 }
 
+/* This new class makes an element span the full width of the grid */
+.gridSpanFull {
+    grid-column: 1 / -1;
+}
+
 .card {
-  /* This ensures all cards in the top grid have the same height */
   height: 100%; 
 }
 
@@ -75,9 +79,8 @@
     margin-top: var(--space-3);
 }
 
-/* --- Saved Cards Section --- */
 .savedCardsSection {
-    margin-top: var(--space-5);
+    margin-top: var(--space-1); /* Adjusted for better spacing within the grid */
 }
 
 .sectionHeader {
@@ -154,6 +157,7 @@
     border: 1px solid var(--color-border);
     z-index: 50;
 }
+
 .dropdownItem {
     font-size: var(--font-size-sm);
     padding: var(--space-1) var(--space-2);
@@ -161,12 +165,15 @@
     cursor: pointer;
     outline: none;
 }
+
 .dropdownItem:hover {
     background-color: var(--color-bg-page);
 }
+
 .destructive {
     color: var(--color-error);
 }
+
 .destructive:hover {
     background-color: var(--color-error-bg);
 }
