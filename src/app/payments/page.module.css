@@ -2,9 +2,9 @@
  * Filename: src/app/payments/page.module.css
  * Purpose: Provides all styles for the definitive payments page layout.
  * Change History:
+ * C016 - 2025-08-21 : 22:00 - Added noCardsMessage style for the definitive empty state UI.
  * C015 - 2025-08-21 : 21:00 - Added gridSpanFull class for final layout alignment.
- * C014 - 2025-08-13 : 11:00 - Implemented the new two-column design.
- * Last Modified: 2025-08-21 : 21:00
+ * Last Modified: 2025-08-21 : 22:00
  * Requirement ID: VIN-UI-020
  */
 
@@ -21,7 +21,6 @@
   }
 }
 
-/* This new class makes an element span the full width of the grid */
 .gridSpanFull {
     grid-column: 1 / -1;
 }
@@ -80,7 +79,7 @@
 }
 
 .savedCardsSection {
-    margin-top: var(--space-1); /* Adjusted for better spacing within the grid */
+    margin-top: var(--space-1);
 }
 
 .sectionHeader {
@@ -91,6 +90,20 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
+}
+
+/* --- THIS IS THE NEW STYLE FOR THE EMPTY STATE --- */
+.noCardsMessage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--space-3);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--border-radius-md);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    min-height: 60px;
 }
 
 .savedCard {
