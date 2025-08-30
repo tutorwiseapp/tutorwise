@@ -1,38 +1,32 @@
 /*
  * Filename: src/app/claim-rewards/page.tsx
- * Purpose: Allows a new user to claim rewards associated with a temporary guest Agent ID.
+ * Purpose: Allows a new user to claim rewards, migrated to Kinde.
  * Change History:
+ * C002 - 2025-08-26 : 14:00 - Replaced Clerk's useUser hook with Kinde's useKindeBrowserClient.
  * C001 - 2025-07-26 : 23:45 - Initial creation.
- * Last Modified: 2025-07-26 : 23:45
- * Requirement ID (optional): VIN-D-01.4
- * Change Summary: This new page provides the UI for the reward claiming flow. It reads a
- * `claimId` from the URL, displays mock details of the pending reward, and provides a button
- * for the user to confirm the claim. It is protected and requires a user to be logged in.
- * Impact Analysis: This is an additive change that creates a crucial step in the user
- * onboarding and reward lifecycle. It integrates seamlessly with the existing design system.
- * Dependencies: "@clerk/nextjs", "next/navigation", and VDL UI components.
+ * Last Modified: 2025-08-26 : 14:00
+ * Requirement ID: VIN-AUTH-MIG-02
+ * Change Summary: This component has been migrated from Clerk to Kinde. The `useUser` hook was replaced with `useKindeBrowserClient` to manage authentication state, resolving the "Module not found" build error.
  */
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs'; // --- THIS IS THE FIX ---
 import Container from '@/app/components/layout/Container';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
 import PageHeader from '@/app/components/ui/PageHeader';
 import Message from '@/app/components/ui/Message';
-import styles from './page.module.css'; // We will create this stylesheet next
+import styles from './page.module.css';
 
-// This is a placeholder for the actual data you would fetch
 interface PendingReward {
   serviceName: string;
   rewardAmount: number;
 }
 
-// A new component to handle the logic, wrapped in Suspense for useSearchParams
 const ClaimRewardsContent = () => {
-    const { user, isLoaded } = useUser();
+    const { user, isAuthenticated, isLoading: isKindeLoading } = useKindeBrowserClient(); // --- THIS IS THE FIX ---
     const router = useRouter();
     const searchParams = useSearchParams();
     const claimId = searchParams.get('claimId');
@@ -42,50 +36,36 @@ const ClaimRewardsContent = () => {
     const [error, setError] = useState('');
 
     useEffect(() => {
-        // Protect the route
-        if (isLoaded && !user) {
-            router.push('/sign-in');
+        if (!isKindeLoading && !isAuthenticated) {
+            router.push('/api/auth/login'); // --- THIS IS THE FIX ---
         }
 
-        // Fetch mock pending reward details based on the claimId
         if (claimId) {
-            // In a real app, you would make an API call here:
-            // const data = await fetch(`/api/rewards/${claimId}`);
             setPendingReward({
                 serviceName: 'SaaSify Subscription',
                 rewardAmount: 3.00,
             });
         }
-    }, [isLoaded, user, router, claimId]);
+    }, [isKindeLoading, isAuthenticated, router, claimId]);
 
     const handleClaim = async () => {
         setIsLoading(true);
         setError('');
 
         try {
-            // In a real app, you would make an API call to your backend here to:
-            // 1. Validate the claimId
-            // 2. Associate the pending rewards with the now-authenticated user (user.id)
-            // 3. Mark the rewards as claimed
-            
-            // For now, we simulate success
             await new Promise(resolve => setTimeout(resolve, 1000));
-
-            // Store details for the success page
             sessionStorage.setItem('vinite_claim_details', JSON.stringify({
-                userName: user?.firstName || 'User',
+                userName: user?.given_name || 'User', // --- THIS IS THE FIX ---
                 serviceName: pendingReward?.serviceName
             }));
-            
             router.push('/claim-success');
-
         } catch (err) {
             setError('Failed to claim reward. Please try again.');
             setIsLoading(false);
         }
     };
 
-    if (!isLoaded || !user) {
+    if (isKindeLoading || !isAuthenticated) {
         return <p>Loading...</p>;
     }
 

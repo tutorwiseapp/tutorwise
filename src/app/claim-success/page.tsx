@@ -1,23 +1,19 @@
 /*
  * Filename: src/app/claim-success/page.tsx
- * Purpose: Displays a confirmation message after a user successfully claims a reward.
+ * Purpose: Displays a confirmation message after a user successfully claims a reward, migrated to Kinde.
  * Change History:
- * C001 - 2025-07-26 : 23:30 - Replaced `useAuth` with Clerk's `useUser` hook.
- * Last Modified: 2025-07-26 : 23:30
- * Requirement ID (optional): VIN-D-01.4
- * Change Summary: Surgically replaced the old `useAuth` hook with `useUser` from Clerk. Added a
- * `useEffect` hook to protect the route and handle loading states, ensuring that only
- * authenticated users can view this page.
- * Impact Analysis: This change completes the migration of the claim success page to the Clerk
- * authentication system, making the feature functional and secure.
- * Dependencies: "@clerk/nextjs", "next/navigation", and VDL UI components.
+ * C002 - 2025-08-26 : 14:00 - Replaced Clerk's useUser hook with Kinde's useKindeBrowserClient.
+ * C001 - 2025-07-26 : 23:30 - Replaced useAuth with Clerk's useUser hook.
+ * Last Modified: 2025-08-26 : 14:00
+ * Requirement ID: VIN-AUTH-MIG-02
+ * Change Summary: This component has been migrated from Clerk to Kinde. The `useUser` hook was replaced with `useKindeBrowserClient` to manage authentication state, resolving the "Module not found" build error.
  */
 'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs'; // --- THIS IS THE FIX ---
 import Container from '@/app/components/layout/Container';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
@@ -29,33 +25,28 @@ interface ClaimDetails {
 }
 
 const ClaimSuccessPage = () => {
-  const { user, isLoaded } = useUser();
+  const { isAuthenticated, isLoading } = useKindeBrowserClient(); // --- THIS IS THE FIX ---
   const router = useRouter();
   const [claimDetails, setClaimDetails] = useState<ClaimDetails | null>(null);
   
   useEffect(() => {
-    // First, handle the authentication check. Redirect if not loaded or not logged in.
-    if (isLoaded && !user) {
-      router.push('/sign-in');
+    if (!isLoading && !isAuthenticated) {
+      router.push('/api/auth/login'); // --- THIS IS THE FIX ---
       return;
     }
     
-    // Once we know the user is logged in, then we check for the claim details.
-    if (user) {
+    if (isAuthenticated) {
         const detailsString = sessionStorage.getItem('vinite_claim_details');
         if (detailsString) {
           setClaimDetails(JSON.parse(detailsString));
           sessionStorage.removeItem('vinite_claim_details'); 
         } else {
-          // If the user lands here directly without the session storage item,
-          // redirect them to a safe page.
           router.push('/dashboard');
         }
     }
-  }, [user, isLoaded, router]);
+  }, [isAuthenticated, isLoading, router]);
 
-  // Show a loading state while Clerk is verifying the user or before redirecting.
-  if (!isLoaded || !claimDetails) {
+  if (isLoading || !claimDetails) {
     return (
       <Container className={styles.container}>
         <p>Verifying your claim...</p>
