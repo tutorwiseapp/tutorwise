@@ -1,85 +1,38 @@
 /*
  * Filename: src/app/settings/change-password/page.tsx
- * Purpose: Provides a secure form for users to change their account password.
+ * Purpose: Provides a secure form for users to change their account password, migrated to Kinde.
  * Change History:
- * C006 - 2025-07-26 : 23:00 - Replaced `useAuth` with Clerk's `useUser` hook.
- * ... (previous history)
- * Last Modified: 2025-07-26 : 23:00
- * Requirement ID (optional): VIN-A-005
- * Change Summary: Surgically replaced the old `useAuth` hook with `useUser` from Clerk. Added
- * a `useEffect` to handle loading states and redirect unauthenticated users. This resolves
- * the final `AuthProvider` dependency crash and fully integrates the page with Clerk.
- * Impact Analysis: This change completes the migration of the settings pages to the Clerk
- * authentication system, making the feature functional and secure.
- * Dependencies: "@clerk/nextjs", "next/navigation", and various VDL UI components.
+ * C007 - 2025-08-26 : 15:00 - Replaced Clerk logic with a redirect to Kinde's hosted settings page.
+ * C006 - 2025-07-26 : 23:00 - Replaced useAuth with Clerk's useUser hook.
+ * Last Modified: 2025-08-26 : 15:00
+ * Requirement ID: VIN-AUTH-MIG-02
+ * Change Summary: This component has been migrated from Clerk to Kinde. Since Kinde handles password and security management on its own secure, hosted pages, the local form has been removed. The component now uses the `useKindeBrowserClient` hook to protect the route and provides a simple link that directs the user to the correct Kinde settings page. This is a more secure and simpler pattern that resolves the "Module not found" build error.
  */
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs'; // --- THIS IS THE FIX ---
 
 // VDL Component Imports
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import Card from '@/app/components/ui/Card';
-import FormGroup from '@/app/components/ui/form/FormGroup';
-import Input from '@/app/components/ui/form/Input';
 import Button from '@/app/components/ui/Button';
-import Message from '@/app/components/ui/Message';
 import Breadcrumb from '@/app/components/ui/nav/Breadcrumb';
+import Link from 'next/link';
 
 const ChangePasswordPage = () => {
-  const { user, isLoaded } = useUser();
+  const { isAuthenticated, isLoading } = useKindeBrowserClient(); // --- THIS IS THE FIX ---
   const router = useRouter();
 
-  const [oldPassword, setOldPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
   useEffect(() => {
-    if (isLoaded && !user) {
-      router.push('/sign-in');
+    if (!isLoading && !isAuthenticated) {
+      router.push('/api/auth/login'); // --- THIS IS THE FIX ---
     }
-  }, [isLoaded, user, router]);
+  }, [isLoading, isAuthenticated, router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setMessage(null);
-
-    if (newPassword !== confirmPassword) {
-      setMessage({ text: 'New password and confirmation do not match.', type: 'error' });
-      return;
-    }
-    if (newPassword.length < 8) {
-        setMessage({ text: 'New password must be at least 8 characters long.', type: 'error' });
-        return;
-    }
-    if (!user) {
-        setMessage({ text: 'You must be logged in to change your password.', type: 'error' });
-        return;
-    }
-
-    setIsLoading(true);
-
-    try {
-        await user.updatePassword({
-            currentPassword: oldPassword,
-            newPassword: newPassword,
-        });
-        setIsLoading(false);
-        setMessage({ text: 'Password updated successfully! Redirecting...', type: 'success' });
-        setTimeout(() => router.push('/settings'), 2000);
-    } catch (err) {
-        const error = err as { errors?: { message: string }[] };
-        setIsLoading(false);
-        setMessage({ text: error.errors?.[0]?.message || 'An unknown error occurred.', type: 'error' });
-    }
-  };
-
-  if (!isLoaded || !user) {
+  if (isLoading || !isAuthenticated) {
       return <Container><p>Loading...</p></Container>;
   }
 
@@ -88,50 +41,23 @@ const ChangePasswordPage = () => {
     { label: 'Change Password' }
   ];
 
+  // --- THIS IS THE FIX: Kinde handles this on its hosted pages ---
   return (
     <Container variant="form">
       <Breadcrumb crumbs={breadcrumbs} />
       <PageHeader
         title="Change Password"
-        subtitle="Choose a new, strong password for your account."
+        subtitle="Manage your security settings on Kinde."
       />
       <Card>
-        {message && <Message type={message.type}>{message.text}</Message>}
-        <form onSubmit={handleSubmit}>
-          <FormGroup label="Old Password" htmlFor="oldPassword">
-            <Input
-              id="oldPassword"
-              type="password"
-              value={oldPassword}
-              onChange={(e) => setOldPassword(e.target.value)}
-              required
-              disabled={isLoading}
-            />
-          </FormGroup>
-          <FormGroup label="New Password" htmlFor="newPassword">
-            <Input
-              id="newPassword"
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-              disabled={isLoading}
-            />
-          </FormGroup>
-          <FormGroup label="Confirm New Password" htmlFor="confirmPassword">
-            <Input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              disabled={isLoading}
-            />
-          </FormGroup>
-          <Button type="submit" variant="primary" disabled={isLoading} fullWidth>
-            {isLoading ? 'Updating...' : 'Update Password'}
-          </Button>
-        </form>
+        <p style={{ marginBottom: '1.5rem', lineHeight: '1.6' }}>
+          To securely manage your password, multi-factor authentication, and other security settings, please proceed to your Kinde account management page.
+        </p>
+        <a href={process.env.KINDE_ISSUER_URL} target="_blank" rel="noopener noreferrer">
+            <Button variant="primary" fullWidth>
+                Manage Security Settings
+            </Button>
+        </a>
       </Card>
     </Container>
   );

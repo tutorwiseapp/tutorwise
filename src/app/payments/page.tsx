@@ -1,18 +1,18 @@
 /*
  * Filename: src/app/payments/page.tsx
- * Purpose: Allows users to manage their methods for sending and receiving payments.
+ * Purpose: Allows users to manage their methods for sending and receiving payments, migrated to Kinde.
  * Change History:
- * C063 - 2025-08-22 : 23:00 - Definitive and final version. Reverted to the correct "Stateless Verification" architecture from commit c0784de, with all subsequent implementation bugs and UI fixes applied.
- * Last Modified: 2025-08-22 : 23:00
- * Requirement ID: VIN-PAY-1
- * Change Summary: This is the definitive and final version of the payments page. The core logic has been reverted to the architecturally sound "Stateless Verification" flow that was previously working. It uses the `verify-and-get-cards` API to ensure data consistency. All subsequent implementation bugs (typos, dependency array errors) have been fixed, and the UI has been perfected to the final design specifications. This module is now complete.
- * Impact Analysis: This change makes the payments module fully functional, robust, and visually correct, resolving all outstanding issues.
+ * C064 - 2025-08-26 : 15:00 - Replaced Clerk's useUser hook with Kinde's useKindeBrowserClient.
+ * C063 - 2025-08-22 : 23:00 - Definitive and final version with Stateless Verification.
+ * Last Modified: 2025-08-26 : 15:00
+ * Requirement ID: VIN-AUTH-MIG-02
+ * Change Summary: This component has been migrated from Clerk to Kinde. The `useUser` hook was replaced with `useKindeBrowserClient`. A placeholder for `user.reload()` has been noted, as Kinde's client-side hook does not have a direct equivalent, and re-fetching data is handled by the `fetchData` function. This change resolves the "Module not found" build error.
  */
 'use client';
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs'; // --- THIS IS THE FIX ---
 import getStripe from '@/lib/utils/get-stripejs';
 import toast from 'react-hot-toast';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
@@ -32,7 +32,7 @@ interface SavedCard {
 }
 
 const PaymentsPageContent = () => {
-    const { user, isLoaded } = useUser();
+    const { user, isAuthenticated, isLoading: isKindeLoading } = useKindeBrowserClient(); // --- THIS IS THE FIX ---
     const router = useRouter();
     const searchParams = useSearchParams();
     
@@ -61,11 +61,11 @@ const PaymentsPageContent = () => {
     }, [user]);
 
     useEffect(() => {
-        if (isLoaded) {
-            if (user) fetchData(true);
-            else router.push('/sign-in');
+        if (!isKindeLoading) {
+            if (isAuthenticated) fetchData(true);
+            else router.push('/api/auth/login');
         }
-    }, [isLoaded, user, router, fetchData]);
+    }, [isKindeLoading, isAuthenticated, router, fetchData]);
 
     useEffect(() => {
         const status = searchParams.get('status');
@@ -115,7 +115,8 @@ const PaymentsPageContent = () => {
         try {
             const res = await fetch('/api/stripe/disconnect-account', { method: 'POST' });
             if (!res.ok) throw new Error((await res.json()).error);
-            await user?.reload();
+            // NOTE: Kinde's useKindeBrowserClient does not have a `reload()` method.
+            // Re-fetching the data is the correct pattern here.
             await fetchData(false);
             toast.success('Stripe account disconnected.', { id: toastId });
         } catch (e) { toast.error(getErrorMessage(e), { id: toastId }); }
@@ -159,7 +160,7 @@ const PaymentsPageContent = () => {
         }
     };
 
-    if (!isLoaded || isLoading) {
+    if (isKindeLoading || isLoading) {
         return <Container><PageHeader title="Payments" /><p>Loading...</p></Container>;
     }
     

@@ -1,28 +1,19 @@
 /*
  * Filename: src/app/settings/page.tsx
- * Purpose: Provides a central hub for users to manage application and account settings.
+ * Purpose: Provides a central hub for users to manage application and account settings, migrated to Kinde.
  * Change History:
- * C005 - 2025-07-27 : 11:30 - Replaced `useAuth` with Clerk's `useUser` hook.
- * C004 - 2025-07-22 : 00:15 - Applied contentStart class to fix email card alignment.
- * C003 - 2025-07-21 : 23:30 - Refactored to use the standardized grid system from the dashboard.
- * C002 - 2025-07-20 : 10:30 - Updated 'Account Security' card link.
- * C001 - [Date] : [Time] - Initial creation.
- * Last Modified: 2025-07-27 : 11:30
- * Requirement ID (optional): VIN-A-005
- * Change Summary: This is the definitive fix for the `AuthProvider` issue. The old `useAuth`
- * hook has been surgically replaced with `useUser` from Clerk. A standard `useEffect` hook has
- * been added to handle loading states and protect the route by redirecting unauthenticated users.
- * Impact Analysis: This change resolves the final `AuthProvider` dependency crash, fully
- * migrating the Settings page to the Clerk authentication system while preserving all
- * existing layout, styles, and functionality.
- * Dependencies: "@clerk/nextjs", "next/link", "next/navigation", and VDL UI components.
+ * C006 - 2025-08-26 : 15:00 - Replaced Clerk's useUser hook with Kinde's useKindeBrowserClient.
+ * C005 - 2025-07-27 : 11:30 - Replaced useAuth with Clerk's useUser hook.
+ * Last Modified: 2025-08-26 : 15:00
+ * Requirement ID: VIN-AUTH-MIG-02
+ * Change Summary: This component has been migrated from Clerk to Kinde. The `useUser` hook was replaced with `useKindeBrowserClient` to manage authentication state and protect the route, resolving the "Module not found" build error.
  */
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs'; // --- THIS IS THE FIX ---
 
 // VDL Component Imports
 import Container from '@/app/components/layout/Container';
@@ -32,27 +23,23 @@ import styles from '@/app/dashboard/page.module.css'; // Re-uses the dashboard g
 import settingStyles from './page.module.css';
 
 const SettingsPage = () => {
-  const { user, isLoaded } = useUser();
+  const { isAuthenticated, isLoading } = useKindeBrowserClient(); // --- THIS IS THE FIX ---
   const router = useRouter();
 
-  // Your existing state management is preserved
   const [desktopNotificationsEnabled, setDesktopNotificationsEnabled] = useState(true);
   const [conversionAlerts, setConversionAlerts] = useState(true);
   const [newsUpdates, setNewsUpdates] = useState(false);
 
-  // This effect protects the route, ensuring only logged-in users can see it.
   useEffect(() => {
-    if (isLoaded && !user) {
-      router.push('/sign-in');
+    if (!isLoading && !isAuthenticated) {
+      router.push('/api/auth/login'); // --- THIS IS THE FIX ---
     }
-  }, [isLoaded, user, router]);
+  }, [isLoading, isAuthenticated, router]);
 
-  // While Clerk is loading the user session, we show a loading state.
-  if (!isLoaded || !user) {
+  if (isLoading || !isAuthenticated) {
     return <Container><p className={styles.loading}>Loading...</p></Container>;
   }
 
-  // The rest of your component's JSX is preserved exactly as it was.
   return (
     <Container>
       <PageHeader title="Settings" />
