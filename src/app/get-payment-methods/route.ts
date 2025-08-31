@@ -1,55 +1,65 @@
 /*
  * Filename: src/app/api/stripe/get-payment-methods/route.ts
- * Purpose: Provides a secure, server-side API to fetch a user's saved payment methods.
+ * Purpose: Provides a secure API to fetch a user's saved payment methods, migrated to Kinde.
  * Change History:
- * C005 - 2025-08-21 : 23:00 - Definitive and final fix for a critical variable typo that prevented the correct customer ID from being used.
- * C004 - 2025-08-21 : 15:00 - Re-architected with a "Trust, but Verify" pattern.
- * Last Modified: 2025-08-21 : 23:00
- * Requirement ID: VIN-PAY-2
- * Change Summary: This is the definitive and final fix for the entire payments module. A critical typo was identified where the API was not using the correct, verified Stripe Customer ID to fetch the payment methods. The code now correctly uses the authoritative ID retrieved from Stripe. This permanently resolves the bug where saved cards would not appear for a user, making the feature fully functional.
- * Impact Analysis: This permanently resolves the root cause of the payment module failures.
+ * C006 - 2025-08-26 : 19:00 - Replaced Clerk auth with Kinde's sessionManager and Supabase.
+ * C005 - 2025-08-21 : 23:00 - Definitive and final fix for a critical variable typo.
+ * Last Modified: 2025-08-26 : 19:00
+ * Requirement ID: VIN-AUTH-MIG-04
+ * Change Summary: This API has been migrated from Clerk to Kinde. It now uses the `sessionManager` for authentication. The logic to "Trust, but Verify" the Stripe Customer ID has been preserved, but it now self-heals our Supabase `profiles` table instead of Clerk's metadata. This resolves the final server-side build error.
  */
 import { NextResponse } from 'next/server';
-import { auth, clerkClient } from '@clerk/nextjs/server';
+import { sessionManager } from '@/lib/kinde'; // --- THIS IS THE FIX ---
 import { stripe } from '@/lib/stripe';
 import Stripe from 'stripe';
+import { createClient } from '@supabase/supabase-js'; // --- THIS IS THE FIX ---
+
+// --- THIS IS THE FIX: Initialize Supabase admin client ---
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function GET() {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const { getUser, isAuthenticated } = sessionManager(); // --- THIS IS THE FIX ---
+    if (!(await isAuthenticated())) {
       return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
+    const user = await getUser();
+    if (!user) {
+      return new NextResponse("User not found", { status: 404 });
+    }
 
-    const client = await clerkClient();
-    const user = await client.users.getUser(userId);
-    const userEmail = user.emailAddresses.find(e => e.id === user.primaryEmailAddressId)?.emailAddress;
-
+    const userEmail = user.email;
     if (!userEmail) {
       return NextResponse.json({ cards: [], defaultPaymentMethodId: null });
     }
     
-    // 1. VERIFY: Find the customer in Stripe using the verified email. This is the source of truth.
     const customers = await stripe.customers.list({ email: userEmail, limit: 1 });
-    
     if (customers.data.length === 0) {
-      console.log(`[API/get-payment-methods] No Stripe customer found for email: ${userEmail}. Returning empty list.`);
       return NextResponse.json({ cards: [], defaultPaymentMethodId: null });
     }
     
     const stripeCustomer = customers.data[0];
-    
-    // 2. SELF-HEAL: If Clerk's metadata is out of sync, update it now.
-    if (user.publicMetadata.stripe_customer_id !== stripeCustomer.id) {
-        console.warn(`[API/get-payment-methods] Data inconsistency detected for user ${userId}. Self-healing Clerk metadata.`);
-        await client.users.updateUserMetadata(userId, {
-            publicMetadata: { ...user.publicMetadata, stripe_customer_id: stripeCustomer.id }
-        });
+
+    // --- THIS IS THE FIX: Self-heal our own database if needed ---
+    const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('stripe_customer_id')
+        .eq('id', user.id)
+        .single();
+        
+    if (profile && profile.stripe_customer_id !== stripeCustomer.id) {
+        console.warn(`[API/get-payment-methods] Data inconsistency. Self-healing Supabase for user ${user.id}.`);
+        await supabaseAdmin
+            .from('profiles')
+            .update({ stripe_customer_id: stripeCustomer.id })
+            .eq('id', user.id);
     }
 
-    // 3. FETCH: Use the guaranteed-correct ID from the authoritative Stripe Customer object.
     const paymentMethods = await stripe.paymentMethods.list({
-      customer: stripeCustomer.id, // <-- THIS WAS THE BUG. It is now correct.
+      customer: stripeCustomer.id,
       type: 'card',
     });
 

@@ -1,19 +1,19 @@
 /*
  * Filename: src/app/dashboard/page.tsx
- * Purpose: Serves as the main navigation hub for authenticated users.
+ * Purpose: Serves as the main hub for authenticated users, migrated to Kinde.
  * Change History:
- * C008 - 2025-08-08 : 15:00 - Refactored to Server Component for instant data load.
- * C007 - 2025-07-26 : 13:30 - Updated to read agent_id from Clerk's publicMetadata.
- * C006 - 2025-07-26 : 12:30 - Replaced `useAuth` with Clerk's `useUser` hook.
- * Last Modified: 2025-08-08 : 15:00
- * Requirement ID: VIN-A-002
- * Change Summary: This page has been refactored from a Client Component to a Server Component. The `'use client'` directive was removed. It now uses Clerk's `currentUser()` function on the server to fetch user data *before* the page is rendered. This eliminates the client-side loading delay, making the Agent ID appear instantly for a vastly improved user experience.
- * Impact Analysis: This change significantly improves the perceived performance of the dashboard. It is a critical UX enhancement.
- * Dependencies: "@clerk/nextjs", "next/link", and VDL UI components.
+ * C009 - 2025-08-26 : 19:00 - Converted from Server Component to Client Component to use Kinde's hook.
+ * C008 - 2025-08-08 : 15:00 - Refactored to Server Component for instant data load with Clerk.
+ * Last Modified: 2025-08-26 : 19:00
+ * Requirement ID: VIN-AUTH-MIG-04
+ * Change Summary: This page has been converted from a Server Component to a Client Component to align with Kinde's SDK. The Clerk `currentUser()` helper has been replaced with the `useKindeBrowserClient` hook. A loading state has been added, and the page is now protected by a `useEffect` hook that redirects unauthenticated users. This is a necessary architectural change for the Kinde migration and resolves the build error.
  */
+'use client'; // --- THIS IS THE CRITICAL FIX ---
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { currentUser } from '@clerk/nextjs/server'; // --- FIX: Import the server-side helper
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs'; // --- THIS IS THE FIX ---
 
 // VDL Component Imports
 import Container from '@/app/components/layout/Container';
@@ -30,25 +30,29 @@ const dashboardLinks = [
     { href: '/become-provider', title: 'Become a Provider', description: 'List your service on Vinite to accept referrals and get new customers.', linkText: 'List Your Service' },
 ];
 
-// The component is now an async function
-const DashboardPage = async () => {
-  // --- FIX: Fetch the user on the server ---
-  const user = await currentUser();
+const DashboardPage = () => {
+  const { user, isAuthenticated, isLoading } = useKindeBrowserClient(); // --- THIS IS THE FIX ---
+  const router = useRouter();
 
-  // If the user is not logged in, the middleware should have already redirected.
-  // This is an extra layer of security.
-  if (!user) {
-    redirect('/sign-in');
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push('/api/auth/login');
+    }
+  }, [isLoading, isAuthenticated, router]);
+
+  if (isLoading || !user) {
+    return <Container><p className={styles.loading}>Loading...</p></Container>;
   }
 
-  const displayName = user.fullName || 'User';
-  const agentId = (user.publicMetadata?.agent_id as string) || '';
+  const displayName = `${user.given_name || ''} ${user.family_name || ''}`.trim() || 'User';
+  // Note: agent_id will need to be fetched from your backend, as it's not in the Kinde token.
+  const agentId = `(Agent ID from DB)`; 
 
   return (
     <Container>
       <PageHeader
         title="Dashboard"
-        subtitle={`Welcome, ${displayName} (${agentId})`}
+        subtitle={`Welcome, ${displayName} ${agentId}`}
       />
       <div className={styles.grid}>
         {dashboardLinks.map((link) => (
