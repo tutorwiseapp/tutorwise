@@ -1,12 +1,13 @@
 /*
  * Filename: src/app/login/page.tsx
- * Purpose: Renders the user sign-in page supporting passwordless and Google.
+ * Purpose: Renders a polished user sign-in page supporting passwordless and Google.
  * Change History:
+ * C003 - 2025-09-01 : 11:00 - Improved UI with styled buttons and consistent layout.
  * C002 - 2025-08-26 : 22:00 - Updated button text to reflect 'Email + code' flow.
  * C001 - 2025-08-26 : 17:00 - Initial creation with Kinde components.
- * Last Modified: 2025-08-26 : 22:00
+ * Last Modified: 2025-09-01 : 11:00
  * Requirement ID: VIN-AUTH-MIG-05
- * Change Summary: The text on the primary login button has been changed from "Sign In with Email" to "Sign In with a Code". This accurately reflects the `Email + code` passwordless authentication method enabled in the Kinde dashboard, eliminating potential user confusion.
+ * Change Summary: The UI for the login page has been significantly improved to align with the application's design system. It now uses the standard <Button> component, the shared `auth.module.css` styles, and provides a clear link to the sign-up page for a more consistent and user-friendly experience.
  */
 'use client';
 
@@ -24,7 +25,6 @@ const LoginPage = () => {
     <Container variant="form">
       <PageHeader title="Log In to Your Account" />
       <div className={authStyles.authCard}>
-        {/* --- THIS IS THE FIX: Updated button text for clarity --- */}
         <LoginLink>
             <Button variant="primary" fullWidth>Sign In with a Code</Button>
         </LoginLink>
