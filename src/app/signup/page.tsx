@@ -1,13 +1,6 @@
 /*
  * Filename: src/app/signup/page.tsx
- * Purpose: Renders the user sign-up page using Kinde's components.
- * Change History:
- * C003 - 2025-08-26 : 16:30 - Simplified folder structure and fixed TypeScript error for env variable.
- * C002 - 2025-08-26 : 15:30 - Replaced Clerk's SignUp component with Kinde's RegisterLink.
- * C001 - 2025-07-26 : 10:30 - Initial creation with Clerk convention.
- * Last Modified: 2025-08-26 : 16:30
- * Requirement ID: VIN-AUTH-MIG-02
- * Change Summary: This is the definitive fix for the sign-up page migration. The unnecessary [[...sign-up]] catch-all directory has been removed. The TypeScript error "Type 'string | undefined' is not assignable to type 'string'" has been resolved by conditionally rendering the Google login button only if its corresponding environment variable exists.
+ * Purpose: Renders the user sign-up page supporting email/password and Google.
  */
 'use client';
 
@@ -19,7 +12,6 @@ import authStyles from '@/app/styles/auth.module.css';
 import Button from '@/app/components/ui/Button';
 
 const SignUpPage = () => {
-  // --- THIS IS THE FIX: Check for the environment variable first ---
   const googleConnectionId = process.env.NEXT_PUBLIC_KINDE_GOOGLE_CONNECTION_ID;
 
   return (
@@ -27,11 +19,12 @@ const SignUpPage = () => {
       <PageHeader title="Create Your Account" />
       <p className="page-tagline">Join to start referring and earning rewards.</p>
       <div className={authStyles.authCard}>
+        {/* This link handles the email/password flow by going to the main Kinde page */}
         <RegisterLink>
             <Button variant="primary" fullWidth>Sign Up with Email</Button>
         </RegisterLink>
         
-        {/* --- THIS IS THE FIX: Only render this section if the ID exists --- */}
+        {/* This link handles the Google social login flow directly */}
         {googleConnectionId && (
             <>
                 <div className={authStyles.separator}>or</div>

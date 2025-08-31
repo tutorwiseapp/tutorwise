@@ -1,11 +1,6 @@
 /*
  * Filename: src/app/login/page.tsx
- * Purpose: Renders the user sign-in page using Kinde's components.
- * Change History:
- * C001 - 2025-08-26 : 17:00 - Initial creation with Kinde components.
- * Last Modified: 2025-08-26 : 17:00
- * Requirement ID: VIN-AUTH-MIG-02
- * Change Summary: This page provides the user interface for logging in. It uses Kinde's <LoginLink> component to securely redirect users to the Kinde hosted login page for both email and social (Google) authentication.
+ * Purpose: Renders the user sign-in page supporting email/password and Google.
  */
 'use client';
 
@@ -23,10 +18,12 @@ const LoginPage = () => {
     <Container variant="form">
       <PageHeader title="Log In to Your Account" />
       <div className={authStyles.authCard}>
+        {/* This link handles the email/password flow by going to the main Kinde page */}
         <LoginLink>
             <Button variant="primary" fullWidth>Sign In with Email</Button>
         </LoginLink>
         
+        {/* This link handles the Google social login flow directly */}
         {googleConnectionId && (
             <>
                 <div className={authStyles.separator}>or</div>
