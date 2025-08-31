@@ -1,55 +1,48 @@
 /*
  * Filename: src/app/api/referrals/route.ts
- * Purpose: Provides a secure, server-side API endpoint to fetch the authenticated user's referral data.
- *
+ * Purpose: Provides a secure API to fetch the user's referral data, migrated to Kinde.
  * Change History:
+ * C003 - 2025-08-31 : 23:30 - Replaced Supabase auth helpers with Kinde's sessionManager.
  * C002 - 2025-07-22 : 22:30 - Added empty export to satisfy TypeScript module requirement.
  * C001 - 2025-07-22 : 21:00 - Initial creation.
- *
- * Last Modified: 2025-07-22 : 22:30
- * Requirement ID (optional): VIN-C-01.1
- *
- * Change Summary:
- * An empty `export {}` has been added to the end of the file. This is a standard convention to
- * ensure TypeScript treats the file as a module, resolving the "is not a module" build error
- * that can occur in files that only contain ambient declarations or side effects.
- *
- * Impact Analysis:
- * This change fixes a critical deployment blocker.
- *
- * Dependencies: "next/server", "@supabase/auth-helpers-nextjs".
+ * Last Modified: 2025-08-31 : 23:30
+ * Requirement ID: VIN-AUTH-MIG-04
+ * Change Summary: This is the definitive fix for the build error. The dependency on '@supabase/auth-helpers-nextjs' has been removed. The route now uses Kinde's `sessionManager` for authentication and a standard Supabase admin client for database queries, aligning it with the new architecture.
  */
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { sessionManager } from '@/lib/kinde';
 import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function GET() {
-  const supabase = createRouteHandlerClient({ cookies });
-
   try {
-    // 1. Get the current user's session from the cookie
-    const { data: { session } } = await supabase.auth.getSession();
-
-    if (!session) {
+    const { getUser, isAuthenticated } = sessionManager();
+    if (!(await isAuthenticated())) {
       return new NextResponse(
         JSON.stringify({ status: 'fail', message: 'User is not authenticated.' }),
         { status: 401 }
       );
     }
+    const user = await getUser();
+    if (!user) {
+        return new NextResponse("User not found", { status: 404 });
+    }
     
-    // 2. Get the user's profile to find their public agent_id
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('agent_id')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .single();
 
     if (profileError || !profile) {
       throw new Error('Could not find a profile for the current user.');
     }
     
-    // 3. Fetch all referrals that match the user's agent_id
-    const { data: referrals, error: referralsError } = await supabase
+    const { data: referrals, error: referralsError } = await supabaseAdmin
       .from('referrals')
       .select('*')
       .eq('agent_id', profile.agent_id) 
@@ -59,7 +52,6 @@ export async function GET() {
       throw referralsError;
     }
     
-    // 4. Return the data successfully
     return NextResponse.json(referrals);
 
   } catch (error) {
@@ -73,6 +65,3 @@ export async function GET() {
     );
   }
 }
-
-// Adding an empty export ensures this file is treated as a module.
-export {};
