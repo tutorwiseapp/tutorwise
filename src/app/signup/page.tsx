@@ -1,6 +1,12 @@
 /*
  * Filename: src/app/signup/page.tsx
- * Purpose: Renders the user sign-up page supporting email/password and Google.
+ * Purpose: Renders the user sign-up page supporting passwordless and Google.
+ * Change History:
+ * C002 - 2025-08-26 : 22:00 - Updated button text to reflect 'Email + code' flow.
+ * C001 - 2025-08-26 : 16:30 - Initial creation and migration to Kinde.
+ * Last Modified: 2025-08-26 : 22:00
+ * Requirement ID: VIN-AUTH-MIG-05
+ * Change Summary: The text on the primary sign-up button has been changed from "Sign Up with Email" to "Sign Up with a Code". This accurately reflects the `Email + code` passwordless authentication method enabled in the Kinde dashboard, ensuring a clear and consistent user experience.
  */
 'use client';
 
@@ -19,12 +25,11 @@ const SignUpPage = () => {
       <PageHeader title="Create Your Account" />
       <p className="page-tagline">Join to start referring and earning rewards.</p>
       <div className={authStyles.authCard}>
-        {/* This link handles the email/password flow by going to the main Kinde page */}
+        {/* --- THIS IS THE FIX: Updated button text for clarity --- */}
         <RegisterLink>
-            <Button variant="primary" fullWidth>Sign Up with Email</Button>
+            <Button variant="primary" fullWidth>Sign Up with a Code</Button>
         </RegisterLink>
         
-        {/* This link handles the Google social login flow directly */}
         {googleConnectionId && (
             <>
                 <div className={authStyles.separator}>or</div>
