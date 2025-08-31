@@ -10,15 +10,19 @@
  * Impact Analysis: This is a critical component of the definitive fix for the payment card verification flow.
  */
 import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { sessionManager } from '@/lib/kinde';
 import { stripe } from '@/lib/stripe';
 import Stripe from 'stripe';
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const { getUser, isAuthenticated } = sessionManager();
+    if (!(await isAuthenticated())) {
       return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    }
+    const user = await getUser();
+    if (!user) {
+        return new NextResponse("User not found", { status: 404 });
     }
 
     const { customerId } = await req.json();
@@ -27,13 +31,12 @@ export async function POST(req: Request) {
     }
     
     const customer = await stripe.customers.retrieve(customerId);
-
     if (customer.deleted) {
         return new NextResponse(JSON.stringify({ error: "Customer not found." }), { status: 404 });
     }
     
-    if (customer.metadata.clerkId !== userId) {
-        console.warn(`[SECURITY] User ${userId} attempted to access Stripe customer ${customerId} owned by ${customer.metadata.clerkId}.`);
+    if (customer.metadata.kindeId !== user.id) { // --- THIS IS THE FIX ---
+        console.warn(`[SECURITY] User ${user.id} attempted to access Stripe customer ${customerId} owned by ${customer.metadata.kindeId}.`);
         return new NextResponse(JSON.stringify({ error: "Permission Denied" }), { status: 403 });
     }
 
@@ -54,7 +57,6 @@ export async function POST(req: Request) {
         cards: savedCards,
         defaultPaymentMethodId: (customer as Stripe.Customer).invoice_settings?.default_payment_method 
     });
-
   } catch (error) {
     console.error("[API/verify-and-get-cards] Error:", error);
     const errorMessage = error instanceof Stripe.errors.StripeError 

@@ -2,6 +2,7 @@
  * Filename: src/api/stripe/remove-card/route.ts
  * Purpose: Securely removes/detaches a user's saved payment method in Stripe.
  * Change History:
+ * C003 - 2025-07-31 : 13:00 - Migrate to Kinde.
  * C002 - 2025-08-12 : 18:00 - Definitive fix with robust error handling.
  * C001 - 2025-08-10 : 03:00 - Initial creation.
  * Last Modified: 2025-08-12 : 18:00
@@ -10,14 +11,14 @@
  * Impact Analysis: This makes the backend for the "Remove card" feature robust and reliable.
  */
 import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { sessionManager } from '@/lib/kinde';
 import { stripe } from '@/lib/stripe';
 import Stripe from 'stripe';
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const { isAuthenticated } = sessionManager();
+    if (!(await isAuthenticated())) {
       return new NextResponse(JSON.stringify({ error: "Unauthorized: You must be logged in." }), { status: 401 });
     }
 
@@ -27,17 +28,13 @@ export async function POST(req: Request) {
     }
 
     const detachedPaymentMethod = await stripe.paymentMethods.detach(paymentMethodId);
-
     return NextResponse.json({ success: true, detachedId: detachedPaymentMethod.id });
-
   } catch (error) {
     console.error("[API/remove-card] CRITICAL ERROR:", error);
     const errorMessage = error instanceof Stripe.errors.StripeError 
         ? `Stripe Error: ${error.message}` 
         : "An internal server error occurred.";
-    
     const status = error instanceof Stripe.errors.StripeInvalidRequestError ? 400 : 500;
-
     return new NextResponse(JSON.stringify({ error: errorMessage }), { status });
   }
 }

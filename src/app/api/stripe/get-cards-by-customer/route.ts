@@ -3,20 +3,22 @@
  * Purpose: Provides a secure, targeted endpoint to fetch payment methods for a specific Stripe Customer ID.
  * Change History:
  * C001 - 2025-08-14 : 10:00 - Initial creation.
+ * C002 - 2025-08-31 : 13:00 - Migrate to Kinde.
+
  * Last Modified: 2025-08-14 : 10:00
  * Requirement ID: VIN-PAY-1
  * Change Summary: This new API route was created to solve a race condition. It allows the frontend to poll for an updated card list using a specific customer ID passed in the success URL, rather than relying on potentially stale Clerk metadata. It is authenticated to ensure only the logged-in user can query their own data.
  * Impact Analysis: This is a critical component of the definitive fix for the payment card verification flow.
  */
 import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { sessionManager } from '@/lib/kinde';
 import { stripe } from '@/lib/stripe';
 import Stripe from 'stripe';
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const { isAuthenticated } = sessionManager();
+    if (!(await isAuthenticated())) {
       return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
 
@@ -25,10 +27,6 @@ export async function POST(req: Request) {
       return new NextResponse(JSON.stringify({ error: "Customer ID is required" }), { status: 400 });
     }
     
-    // As an additional security measure, a production app might verify that the
-    // Stripe customer's metadata (clerkId) matches the currently logged-in userId.
-    // For this context, trusting the authenticated session is sufficient.
-
     const paymentMethods = await stripe.paymentMethods.list({
       customer: customerId,
       type: 'card',
@@ -43,7 +41,6 @@ export async function POST(req: Request) {
     }));
     
     return NextResponse.json({ cards: savedCards });
-
   } catch (error) {
     console.error("[API/get-cards-by-customer] Error:", error);
     const errorMessage = error instanceof Stripe.errors.StripeError 
