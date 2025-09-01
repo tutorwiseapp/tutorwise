@@ -1,44 +1,30 @@
 /*
  * Filename: src/app/api/profile/route.ts
- * Purpose: Provides secure GET and POST endpoints for user profile data.
+ * Purpose: Provides secure GET and POST endpoints for user profile data, migrated to Supabase.
  * Change History:
- * C006 - 2025-09-01 : 16:00 - Added GET handler to fetch profile data for the app context.
- * C005 - 2025-08-26 : 15:30 - Replaced Clerk auth and SDK with Kinde and Supabase update logic.
- * Last Modified: 2025-09-01 : 16:00
- * Requirement ID: VIN-AUTH-MIG-02
- * Change Summary: This file has been updated to include a GET handler. This allows the new UserProfileContext to securely fetch the complete user profile from the database after login, making data like `agent_id` available throughout the application. The existing POST handler for updates is preserved.
+ * C007 - 2025-09-02 : 15:00 - Migrated to use Supabase Route Handler client for authentication.
+ * Last Modified: 2025-09-02 : 15:00
+ * Requirement ID: VIN-AUTH-MIG-03
+ * Change Summary: This API has been fully migrated to Supabase Auth. It now uses the `createServerClient` to securely get the user's session from their cookie. This makes our backend fully aware of the new authentication system.
  */
-import { sessionManager } from '@/lib/kinde';
+import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
-// --- THIS IS THE NEW GET HANDLER ---
 export async function GET() {
+  const supabase = createClient();
   try {
-    const { getUser, isAuthenticated } = sessionManager();
-    if (!(await isAuthenticated())) {
+    const { data: { user }, } = await supabase.auth.getUser();
+    if (!user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const user = await getUser();
-    if (!user) {
-        return new NextResponse("User not found", { status: 404 });
-    }
 
-    const { data: profile, error } = await supabaseAdmin
+    const { data: profile, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .single();
 
-    if (error) {
-      console.error("Supabase error fetching profile:", error);
-      throw error;
-    }
+    if (error) throw error;
     
     return NextResponse.json(profile);
 
@@ -48,20 +34,17 @@ export async function GET() {
   }
 }
 
-// --- YOUR EXISTING POST HANDLER (UNCHANGED) ---
 export async function POST(req: Request) {
+  const supabase = createClient();
   try {
-    const { getUser, isAuthenticated } = sessionManager();
-    const authenticated = await isAuthenticated();
-    const user = await getUser();
-  
-    if (!authenticated || !user) {
+    const { data: { user }, } = await supabase.auth.getUser();
+    if (!user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
     const body = await req.json();
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('profiles')
       .update({
         display_name: body.display_name,
