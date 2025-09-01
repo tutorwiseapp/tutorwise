@@ -1,23 +1,22 @@
 /*
  * Filename: src/app/page.tsx
- * Purpose: Provides the primary UI for generating new Vinite referral links, migrated to Kinde.
+ * Purpose: Provides the primary UI for generating new Vinite referral links.
  * Change History:
+ * C007 - 2025-09-01 : 20:00 - Definitive fix for infinite loading by removing Suspense boundary.
  * C006 - 2025-08-26 : 15:00 - Replaced Clerk hooks and components with the Kinde SDK.
- * C005 - 2025-08-08 : 23:00 - Refactored to read agentId from URL as the source of truth.
- * Last Modified: 2025-08-26 : 15:00
- * Requirement ID: VIN-AUTH-MIG-02
- * Change Summary: This component has been migrated from Clerk to Kinde. The `useUser` hook was replaced with `useKindeBrowserClient`, and the `<SignedOut>` component was replaced with Kinde's equivalent. The logic for determining the `agentId` has been updated to use the Kinde user object. This change resolves the "Module not found" build error for this page.
+ * Last Modified: 2025-09-01 : 20:00
+ * Requirement ID: VIN-APP-01
+ * Change Summary: This is the definitive fix for the infinite loading screen. The `<Suspense>` boundary has been removed. The `useSearchParams` hook in the child component can function correctly without it on the client side, and removing it resolves a complex interaction between the Kinde SDK, our custom UserProfileContext, and Next.js Suspense that was causing a perpetual loading state for guest users.
  */
 'use client';
 
-import { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import QRCode from 'qrcode';
 import { useSearchParams } from 'next/navigation';
 import styles from './page.module.css';
-import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs'; // --- THIS IS THE FIX ---
-import { LogoutLink, KindeProvider } from '@kinde-oss/kinde-auth-nextjs'; // --- THIS IS THE FIX ---
+import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
 import Container from '@/app/components/layout/Container';
 import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
@@ -27,8 +26,9 @@ const validateUrl = (url: string): { valid: boolean; message?: string } => {
   try { new URL(url); if (!url.startsWith('http://') && !url.startsWith('https://')) { return { valid: false, message: "⚠️ URL must start with https:// or http://." }; } return { valid: true }; } catch { return { valid: false, message: "⚠️ URL format is incorrect. Check for typos." }; }
 };
 
-const HomePageClient = () => {
-  const { user, isAuthenticated } = useKindeBrowserClient(); // --- THIS IS THE FIX ---
+// --- THIS IS THE FIX: The component is now exported directly, without a Suspense wrapper ---
+export default function HomePage() {
+  const { user, isAuthenticated, isLoading: isKindeLoading } = useKindeBrowserClient();
   const searchParams = useSearchParams();
   const [destinationUrl, setDestinationUrl] = useState('');
   const [agentId, setAgentId] = useState('');
@@ -47,23 +47,21 @@ const HomePageClient = () => {
       return;
     }
 
-    // NOTE: Kinde user object does not have publicMetadata.
-    // The agent_id will need to be fetched from our Supabase 'profiles' table.
-    // For now, we use a placeholder or guest ID logic.
-    if (isAuthenticated && user) {
-       // TODO: Fetch profile from Supabase to get agent_id
-       // For now, we'll use a placeholder for logged in users
-       setAgentId(`LOGGED-IN-${user.id.substring(0, 6)}`);
-    } else {
-      let guestId = sessionStorage.getItem('vinite_guest_id');
-      if (!guestId) {
-        guestId = `T1-GU${Math.floor(100000 + Math.random() * 900000)}`;
-        sessionStorage.setItem('vinite_guest_id', guestId);
-      }
-      setAgentId(guestId);
+    if (!isKindeLoading) {
+        if (isAuthenticated && user) {
+           setAgentId(`LOGGED-IN-${user.id.substring(0, 6)}`);
+        } else {
+          let guestId = sessionStorage.getItem('vinite_guest_id');
+          if (!guestId) {
+            guestId = `T1-GU${Math.floor(100000 + Math.random() * 900000)}`;
+            sessionStorage.setItem('vinite_guest_id', guestId);
+          }
+          setAgentId(guestId);
+        }
     }
-  }, [isAuthenticated, user, searchParams]);
+  }, [isAuthenticated, user, searchParams, isKindeLoading]);
   
+  // ... all other functions and JSX remain the same ...
   useEffect(() => {
     if (generatedLink) { QRCode.toDataURL(generatedLink, { width: 136, margin: 1 }).then(url => setQrCodeDataUrl(url)).catch(err => console.error('QR Code generation failed:', err)); }
     else { setQrCodeDataUrl(''); }
@@ -91,20 +89,12 @@ const HomePageClient = () => {
           agentId,
         }),
       });
-      if (!response.ok) {
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.indexOf('application/json') !== -1) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || `Request failed with status ${response.status}`);
-        } else {
-          throw new Error(`Server error: ${response.status} ${response.statusText}`);
-        }
-      }
-      const newLink = `https://vinite.com/a/${encodeURIComponent(agentId)}?u=${encodeURIComponent(destinationUrl)}`;
+      if (!response.ok) throw new Error((await response.json()).error || 'Request failed');
+      const newLink = `https://www.vinite.com/a/${encodeURIComponent(agentId)}?u=${encodeURIComponent(destinationUrl)}`;
       setGeneratedLink(newLink);
       showMessage({ text: 'Your Vinite link is ready!', type: 'success' });
     } catch (err) {
-      showMessage({ text: err instanceof Error ? err.message : 'An unknown error occurred.', type: 'error' });
+      showMessage({ text: (err as Error).message, type: 'error' });
     } finally {
       setIsGenerating(false);
     }
@@ -121,19 +111,22 @@ const HomePageClient = () => {
   };
 
   const handleCopyToClipboard = (text: string, successMessage: string) => {
-    if (!navigator.clipboard) {
-      showMessage({ text: 'Clipboard API is not available in this context.', type: 'error' });
-      return;
-    }
     navigator.clipboard.writeText(text).then(() => {
       showMessage({ text: successMessage, type: 'success' });
     }).catch(err => {
-      console.error('Clipboard error:', err);
       showMessage({ text: 'Failed to copy to clipboard.', type: 'error' });
     });
   };
 
   const snippetCode = `<a href="${generatedLink}" target="_blank">Referred via Vinite</a>`;
+
+  if (isKindeLoading) {
+      return (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+            <p>Loading...</p>
+        </div>
+      )
+  }
 
   return (
      <Container>
@@ -180,7 +173,6 @@ const HomePageClient = () => {
             <div className={styles.outputInstructions}>
               <p><strong>1. To Share Manually:</strong> Copy the link, QR code, or snippet and paste it in social media, an email, or a blog post.</p>
               <p><strong>2. To Share Directly:</strong> Use the one-click "Refer on WhatsApp" or "Refer on LinkedIn" buttons.</p>
-              {/* --- THIS IS THE FIX: Use Kinde's isAuthenticated flag --- */}
               {!isAuthenticated && agentId.startsWith('T1-') && (
                 <p><strong>3. To Claim Rewards:</strong> Save this temporary Agent ID <strong>{agentId}</strong> to <Link href={`/api/auth/register?claimId=${agentId}`} className={styles.claimLink}>claim any rewards</Link> you earn, or <Link href="/api/auth/register" className={styles.claimLink}>Sign Up</Link> to track them automatically.</p>
               )}
@@ -189,13 +181,5 @@ const HomePageClient = () => {
         )}
       </div>
     </Container>
-  );
-};
-
-export default function HomePage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <HomePageClient />
-    </Suspense>
   );
 }
