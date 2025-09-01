@@ -1,26 +1,56 @@
 /*
  * Filename: src/app/api/profile/route.ts
- * Purpose: Provides a secure endpoint for updating a user's profile data, migrated to Kinde.
+ * Purpose: Provides secure GET and POST endpoints for user profile data.
  * Change History:
+ * C006 - 2025-09-01 : 16:00 - Added GET handler to fetch profile data for the app context.
  * C005 - 2025-08-26 : 15:30 - Replaced Clerk auth and SDK with Kinde and Supabase update logic.
- * C004 - 2025-07-27 : 14:30 - Definitive fix for all SDK usage errors.
- * Last Modified: 2025-08-26 : 15:30
+ * Last Modified: 2025-09-01 : 16:00
  * Requirement ID: VIN-AUTH-MIG-02
- * Change Summary: This API route has been fully migrated from Clerk to Kinde. It now uses the `sessionManager` for authentication. Instead of calling the Clerk SDK, it now performs an `update` operation on our Supabase `profiles` table to save the user's data. This makes our database the source of truth for profile information and resolves the "Module not found" build error.
+ * Change Summary: This file has been updated to include a GET handler. This allows the new UserProfileContext to securely fetch the complete user profile from the database after login, making data like `agent_id` available throughout the application. The existing POST handler for updates is preserved.
  */
-import { sessionManager } from '@/lib/kinde'; // --- THIS IS THE FIX ---
+import { sessionManager } from '@/lib/kinde';
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// --- THIS IS THE FIX: Initialize Supabase admin client to perform the update ---
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// --- THIS IS THE NEW GET HANDLER ---
+export async function GET() {
+  try {
+    const { getUser, isAuthenticated } = sessionManager();
+    if (!(await isAuthenticated())) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const user = await getUser();
+    if (!user) {
+        return new NextResponse("User not found", { status: 404 });
+    }
+
+    const { data: profile, error } = await supabaseAdmin
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (error) {
+      console.error("Supabase error fetching profile:", error);
+      throw error;
+    }
+    
+    return NextResponse.json(profile);
+
+  } catch (error) {
+    console.error("API GET /api/profile error:", error);
+    return new NextResponse("Internal Server Error", { status: 500 });
+  }
+}
+
+// --- YOUR EXISTING POST HANDLER (UNCHANGED) ---
 export async function POST(req: Request) {
   try {
-    // --- THIS IS THE FIX: Use Kinde's session manager for authentication ---
     const { getUser, isAuthenticated } = sessionManager();
     const authenticated = await isAuthenticated();
     const user = await getUser();
@@ -31,7 +61,6 @@ export async function POST(req: Request) {
 
     const body = await req.json();
 
-    // --- THIS IS THE FIX: Update our own Supabase database, not Kinde's metadata ---
     const { data, error } = await supabaseAdmin
       .from('profiles')
       .update({
@@ -40,10 +69,9 @@ export async function POST(req: Request) {
         categories: body.categories,
         achievements: body.achievements,
         cover_photo_url: body.cover_photo_url,
-        // The client will also send the new avatar URL here after uploading
         custom_picture_url: body.custom_picture_url
       })
-      .eq('id', user.id) // Find the profile by the Kinde user ID
+      .eq('id', user.id)
       .select()
       .single();
 

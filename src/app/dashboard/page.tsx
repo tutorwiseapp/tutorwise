@@ -1,21 +1,20 @@
 /*
  * Filename: src/app/dashboard/page.tsx
- * Purpose: Serves as the main hub for authenticated users, migrated to Kinde.
+ * Purpose: Serves as the main hub for authenticated users, now using the UserProfileContext.
  * Change History:
- * C009 - 2025-08-26 : 19:00 - Converted from Server Component to Client Component to use Kinde's hook.
- * C008 - 2025-08-08 : 15:00 - Refactored to Server Component for instant data load with Clerk.
- * Last Modified: 2025-08-26 : 19:00
- * Requirement ID: VIN-AUTH-MIG-04
- * Change Summary: This page has been converted from a Server Component to a Client Component to align with Kinde's SDK. The Clerk `currentUser()` helper has been replaced with the `useKindeBrowserClient` hook. A loading state has been added, and the page is now protected by a `useEffect` hook that redirects unauthenticated users. This is a necessary architectural change for the Kinde migration and resolves the build error.
+ * C010 - 2025-09-01 : 19:00 - Replaced Kinde hook with useUserProfile to get full profile data.
+ * C009 - 2025-08-26 : 19:00 - Converted from Server Component to Client Component.
+ * Last Modified: 2025-09-01 : 19:00
+ * Requirement ID: VIN-APP-01
+ * Change Summary: This page has been refactored to use the new `useUserProfile` hook. This provides the complete profile data from the Supabase database, including the user's `agent_id`, which resolves the "Agent ID from DB" placeholder bug.
  */
-'use client'; // --- THIS IS THE CRITICAL FIX ---
+'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs'; // --- THIS IS THE FIX ---
+import { useUserProfile } from '@/app/contexts/UserProfileContext'; // --- THIS IS THE FIX ---
 
-// VDL Component Imports
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import styles from './page.module.css';
@@ -31,22 +30,22 @@ const dashboardLinks = [
 ];
 
 const DashboardPage = () => {
-  const { user, isAuthenticated, isLoading } = useKindeBrowserClient(); // --- THIS IS THE FIX ---
+  const { profile, isLoading } = useUserProfile(); // --- THIS IS THE FIX ---
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    // If loading is finished and there's no profile, the user is not logged in.
+    if (!isLoading && !profile) {
       router.push('/api/auth/login');
     }
-  }, [isLoading, isAuthenticated, router]);
+  }, [isLoading, profile, router]);
 
-  if (isLoading || !user) {
+  if (isLoading || !profile) {
     return <Container><p className={styles.loading}>Loading...</p></Container>;
   }
 
-  const displayName = `${user.given_name || ''} ${user.family_name || ''}`.trim() || 'User';
-  // Note: agent_id will need to be fetched from your backend, as it's not in the Kinde token.
-  const agentId = `(Agent ID from DB)`; 
+  const displayName = profile.display_name || 'User';
+  const agentId = `(${profile.agent_id})`; // --- THIS IS THE FIX: Real agent_id
 
   return (
     <Container>

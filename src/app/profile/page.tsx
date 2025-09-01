@@ -14,9 +14,8 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import type { Profile } from '@/types';
-import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
+import { useUserProfile } from '@/app/contexts/UserProfileContext'; // --- THIS IS THE FIX ---
 
-// Component Imports
 import ProfileSidebar from '@/app/components/ui/profile/ProfileSidebar';
 import Container from '@/app/components/layout/Container';
 import FormGroup from '@/app/components/ui/form/FormGroup';
@@ -51,36 +50,19 @@ const ProfilePageSkeleton = () => (
 );
 
 const ProfilePage = () => {
-  const { user, isLoading: isKindeLoading } = useKindeBrowserClient();
+  const { profile, isLoading } = useUserProfile(); // --- THIS IS THE FIX ---
   const [activeTab, setActiveTab] = useState('profile');
   const [formData, setFormData] = useState<Partial<Profile>>({});
-  
-  // --- THIS IS THE FIX: Added 'warning' to the allowed types for the message state ---
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' | 'warning' } | null>(null);
-  
   const [isSaving, setIsSaving] = useState(false);
   const avatarFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (user) {
-      // TODO: Fetch the full profile from your Supabase backend to get agent_id, bio, etc.
-      // For now, we populate the form with what Kinde provides.
-      setFormData({
-        id: user.id,
-        first_name: user.given_name || '',
-        last_name: user.family_name || '',
-        email: user.email || '',
-        display_name: `${user.given_name || ''} ${user.family_name || ''}`.trim(),
-        custom_picture_url: user.picture || '',
-        agent_id: '',
-        bio: '',
-        categories: '',
-        achievements: '',
-        cover_photo_url: '',
-        roles: [],
-      });
+    // Populate the form state once the full profile is loaded from the context.
+    if (profile) {
+      setFormData(profile);
     }
-  }, [user]);
+  }, [profile]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
@@ -93,23 +75,26 @@ const ProfilePage = () => {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!profile) return;
     setIsSaving(true);
     setMessage(null);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      if (!response.ok) throw new Error('Failed to update profile.');
       setMessage({ text: 'Profile updated successfully!', type: 'success' });
     } catch (err) {
-      const error = err as Error;
-      setMessage({ text: `Error updating profile: ${error.message || 'Please try again.'}`, type: 'error' });
+      setMessage({ text: `Error updating profile: ${(err as Error).message}`, type: 'error' });
     } finally {
       setIsSaving(false);
       window.scrollTo(0, 0);
-      setTimeout(() => setMessage(null), 3000);
     }
   };
 
-  if (isKindeLoading || !user) {
+  if (isLoading || !profile) {
     return <ProfilePageSkeleton />;
   }
 
@@ -118,18 +103,12 @@ const ProfilePage = () => {
     { id: 'security', label: 'Account Security' },
   ];
 
-  const profileForSidebar: Partial<Profile> = {
-    display_name: `${user.given_name || ''} ${user.family_name || ''}`.trim(),
-    agent_id: formData.agent_id || 'Loading...',
-    custom_picture_url: user.picture || '',
-    roles: [],
-  };
-
   return (
     <Container>
       <div className={styles.profileLayout}>
         <aside>
-          <ProfileSidebar user={profileForSidebar} />
+          {/* --- THIS IS THE FIX: Pass the full profile to the sidebar --- */}
+          <ProfileSidebar user={profile} />
         </aside>
         <main>
           <Card>
