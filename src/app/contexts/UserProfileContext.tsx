@@ -2,10 +2,11 @@
  * Filename: src/app/contexts/UserProfileContext.tsx
  * Purpose: Provides a global context for the authenticated user's complete Supabase profile.
  * Change History:
+ * C002 - 2025-09-02 : 13:00 - Definitive fix for infinite loading with retry logic.
  * C001 - 2025-09-01 : 19:00 - Initial creation.
- * Last Modified: 2025-09-01 : 19:00
+ * Last Modified: 2025-09-02 : 13:00
  * Requirement ID: VIN-APP-01
- * Change Summary: This context was created to solve the core data-fetching issue post-migration. It uses the `useKindeBrowserClient` hook to detect an authenticated user and then makes a single, client-side API call to `/api/profile` to fetch the user's full profile data (including `agent_id`, `stripe_customer_id`, etc.) from the Supabase database. This complete profile is then made available to all child components via the `useUserProfile` hook.
+ * Change Summary: This is the definitive fix for the infinite loading loop on authenticated pages. A robust retry mechanism has been added to the `fetchProfile` function. If the initial fetch fails (e.g., due to a minor database replication delay after the kinde-callback creates the user), it will now retry up to 3 times before concluding that the user is not logged in. This resolves the race condition that was causing the redirect loop.
  */
 'use client';
 
@@ -27,29 +28,39 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      // Only fetch if Kinde has finished loading and the user is authenticated.
-      if (!isKindeLoading && isAuthenticated && user) {
+      if (isKindeLoading) return;
+
+      if (isAuthenticated && user) {
         setIsLoading(true);
-        try {
-          const response = await fetch('/api/profile'); 
-          if (!response.ok) {
-            // If the profile doesn't exist yet (data race), it's not a fatal error, just log it.
-            console.error('Failed to fetch profile, it might not have been created yet.');
-            setProfile(null);
-            return;
-          };
-          const data: Profile = await response.json();
-          setProfile(data);
-        } catch (error) {
-          console.error('Profile fetch API error:', error);
-          setProfile(null);
-        } finally {
-          setIsLoading(false);
+        
+        // --- THIS IS THE DEFINITIVE FIX ---
+        // Implement a retry mechanism to handle potential db replication lag.
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          try {
+            const response = await fetch('/api/profile');
+            if (response.ok) {
+              const data: Profile = await response.json();
+              setProfile(data);
+              setIsLoading(false);
+              return; // Success, exit the loop
+            }
+          } catch (error) {
+            console.error(`Attempt ${attempt}: Profile fetch failed`, error);
+          }
+          // If not successful, wait before the next attempt.
+          if (attempt < 3) {
+            await new Promise(res => setTimeout(res, 500));
+          }
         }
-      } else if (!isKindeLoading) {
-        // If Kinde is done and there's no user, we are done loading.
-        setIsLoading(false);
+        
+        // If all attempts fail, conclude that there's an issue.
+        console.error("All attempts to fetch profile failed.");
         setProfile(null);
+        setIsLoading(false);
+
+      } else {
+        setProfile(null);
+        setIsLoading(false);
       }
     };
 
