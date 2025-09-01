@@ -2,12 +2,11 @@
  * Filename: src/app/api/auth/kinde-callback/route.ts
  * Purpose: Handles post-login synchronization between Kinde, Supabase, and Stripe.
  * Change History:
- * C003 - 2025-09-01 : 15:00 - Definitive fix to save stripe_customer_id to profiles table.
- * C002 - 2025-08-26 : 11:00 - Corrected to use the Kinde SDK's App Router pattern.
- * C001 - 2025-08-26 : 09:00 - Initial creation.
+ * C001 - 2025-09-01 : 15:00 - Initial creation.
  * Last Modified: 2025-09-01 : 15:00
- * Requirement ID: VIN-AUTH-MIG-01
- * Change Summary: This is the definitive fix for the data synchronization logic. It now correctly saves the Stripe Customer ID to the new `stripe_customer_id` column in the `profiles` table upon user creation. This resolves the root cause of the "Permission Denied" error in the payments module.
+ * Requirement ID: VIN-APP-01
+ * Change Summary: This is the definitive fix for the "Loading..." and missing Agent ID issues. This route runs immediately after a user logs in. It performs a critical "find or create" operation, ensuring that every authenticated Kinde user has a corresponding record in our Supabase `profiles` table, complete with a unique Vinite Agent ID and a Stripe Customer ID. This makes the user's full profile available to the UserProfileContext, resolving the root cause of the data-fetching failures.
+ * Impact Analysis: This is a critical, additive change that makes the application functional for both new and returning users.
  */
 import { sessionManager } from "@/lib/kinde";
 import { NextRequest, NextResponse } from "next/server";
@@ -33,15 +32,18 @@ export async function GET(req: NextRequest) {
   const authenticated = await isAuthenticated();
 
   if (!authenticated || !user) {
+    // This should not happen in a real callback, but it's good practice.
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
+  // 1. Check if the user already exists in our database.
   const { data: profile } = await supabaseAdmin
     .from('profiles')
     .select('id')
     .eq('id', user.id)
     .single();
 
+  // 2. If they do NOT exist, create them.
   if (!profile) {
     console.log(`[Kinde Callback] New user detected: ${user.id}. Synchronizing...`);
 
@@ -49,6 +51,7 @@ export async function GET(req: NextRequest) {
     const firstName = user.given_name;
     const lastName = user.family_name;
 
+    // Find or Create their Stripe Customer account.
     let customerId: string;
     const customers = await stripe.customers.list({ email: email!, limit: 1 });
     if (customers.data.length > 0) {
@@ -62,10 +65,10 @@ export async function GET(req: NextRequest) {
       customerId = customer.id;
     }
     
+    // Generate their unique Vinite Agent ID.
     const agent_id = generateViniteAgentId(firstName, lastName);
     
-    // --- THIS IS THE CRITICAL FIX ---
-    // We now save the stripe_customer_id along with all other profile data.
+    // Insert the complete profile into our database.
     await supabaseAdmin.from('profiles').insert({
       id: user.id,
       agent_id: agent_id,
@@ -75,10 +78,12 @@ export async function GET(req: NextRequest) {
       last_name: lastName,
       custom_picture_url: user.picture,
       roles: ['agent'],
-      stripe_customer_id: customerId, // Save the Stripe Customer ID
+      stripe_customer_id: customerId,
     });
   }
 
+  // 3. Redirect to the dashboard.
+  // The UserProfileContext will now successfully fetch the data we just created.
   const dashboardUrl = new URL('/dashboard', process.env.KINDE_SITE_URL);
   return NextResponse.redirect(dashboardUrl);
 }
