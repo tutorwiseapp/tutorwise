@@ -4,17 +4,14 @@
  */
 'use client';
 
-import { KindeProvider } from '@kinde-oss/kinde-auth-nextjs';
-import { UserProfileProvider } from './contexts/UserProfileContext'; // --- THIS IS THE FIX ---
+import { UserProfileProvider } from './contexts/UserProfileContext';
 import React from 'react';
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  // We no longer need the KindeProvider.
   return (
-    <KindeProvider>
-      {/* --- THIS IS THE FIX: The UserProfileProvider now wraps the application --- */}
-      <UserProfileProvider>
-        {children}
-      </UserProfileProvider>
-    </KindeProvider>
+    <UserProfileProvider>
+      {children}
+    </UserProfileProvider>
   );
 }
