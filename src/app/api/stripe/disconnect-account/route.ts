@@ -1,26 +1,27 @@
+/*
+ * Filename: src/app/api/stripe/disconnect-account/route.ts
+ * Purpose: Securely deletes a user's Stripe Connect account.
+ * Change History:
+ * C002 - 2025-09-02 : 20:00 - Migrated to use Supabase server client for authentication.
+ * C001 - 2025-08-10 : 00:00 - Initial creation.
+ * Last Modified: 2025-09-02 : 20:00
+ * Requirement ID: VIN-AUTH-MIG-05
+ * Change Summary: This API has been fully migrated to Supabase Auth. It uses the `createClient` to get the user and then reads/updates the `stripe_account_id` in the `profiles` table.
+ */
 import { NextResponse } from 'next/server';
-import { sessionManager } from '@/lib/kinde';
+import { createClient } from '@/utils/supabase/server';
 import { stripe } from '@/lib/stripe';
 import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 export async function POST() {
+  const supabase = createClient();
   try {
-    const { getUser, isAuthenticated } = sessionManager();
-    if (!(await isAuthenticated())) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
       return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
-    const user = await getUser();
-    if (!user) {
-      return new NextResponse("User not found", { status: 404 });
-    }
     
-    const { data: profile } = await supabaseAdmin
+    const { data: profile } = await supabase
       .from('profiles')
       .select('stripe_account_id')
       .eq('id', user.id)
@@ -34,17 +35,14 @@ export async function POST() {
 
     await stripe.accounts.del(stripeAccountId);
 
-    await supabaseAdmin
+    await supabase
       .from('profiles')
       .update({ stripe_account_id: null })
       .eq('id', user.id);
 
     return NextResponse.json({ success: true, message: 'Stripe account disconnected successfully.' });
   } catch (error) {
-    console.error("Error disconnecting Stripe account:", error);
-    const errorMessage = error instanceof Stripe.errors.StripeError
-        ? error.message
-        : "An unknown error occurred.";
+    const errorMessage = error instanceof Stripe.errors.StripeError ? error.message : "An unknown error occurred.";
     return new NextResponse(JSON.stringify({ error: errorMessage }), { status: 500 });
   }
 }

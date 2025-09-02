@@ -1,24 +1,23 @@
 /*
  * Filename: src/app/api/stripe/get-cards-by-customer/route.ts
- * Purpose: Provides a secure, targeted endpoint to fetch payment methods for a specific Stripe Customer ID.
+ * Purpose: Provides a secure endpoint to fetch payment methods for a specific Stripe Customer ID.
  * Change History:
+ * C002 - 2025-09-02 : 20:00 - Migrated to use Supabase server client for authentication.
  * C001 - 2025-08-14 : 10:00 - Initial creation.
- * C002 - 2025-08-31 : 13:00 - Migrate to Kinde.
-
- * Last Modified: 2025-08-14 : 10:00
- * Requirement ID: VIN-PAY-1
- * Change Summary: This new API route was created to solve a race condition. It allows the frontend to poll for an updated card list using a specific customer ID passed in the success URL, rather than relying on potentially stale Clerk metadata. It is authenticated to ensure only the logged-in user can query their own data.
- * Impact Analysis: This is a critical component of the definitive fix for the payment card verification flow.
+ * Last Modified: 2025-09-02 : 20:00
+ * Requirement ID: VIN-AUTH-MIG-05
+ * Change Summary: This API has been fully migrated to Supabase Auth. It uses the `createClient` to authenticate the request before proceeding.
  */
 import { NextResponse } from 'next/server';
-import { sessionManager } from '@/lib/kinde';
+import { createClient } from '@/utils/supabase/server';
 import { stripe } from '@/lib/stripe';
 import Stripe from 'stripe';
 
 export async function POST(req: Request) {
+  const supabase = createClient();
   try {
-    const { isAuthenticated } = sessionManager();
-    if (!(await isAuthenticated())) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
       return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
 
@@ -42,10 +41,7 @@ export async function POST(req: Request) {
     
     return NextResponse.json({ cards: savedCards });
   } catch (error) {
-    console.error("[API/get-cards-by-customer] Error:", error);
-    const errorMessage = error instanceof Stripe.errors.StripeError 
-        ? `Stripe Error: ${error.message}` 
-        : "An internal server error occurred.";
+    const errorMessage = error instanceof Stripe.errors.StripeError ? `Stripe Error: ${error.message}` : "An internal server error occurred.";
     return new NextResponse(JSON.stringify({ error: errorMessage }), { status: 500 });
   }
 }

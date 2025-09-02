@@ -1,38 +1,27 @@
 /*
  * Filename: src/app/api/referrals/route.ts
- * Purpose: Provides a secure API to fetch the user's referral data, migrated to Kinde.
+ * Purpose: Provides a secure API to fetch the user's referral data.
  * Change History:
- * C003 - 2025-08-31 : 23:30 - Replaced Supabase auth helpers with Kinde's sessionManager.
- * C002 - 2025-07-22 : 22:30 - Added empty export to satisfy TypeScript module requirement.
- * C001 - 2025-07-22 : 21:00 - Initial creation.
- * Last Modified: 2025-08-31 : 23:30
- * Requirement ID: VIN-AUTH-MIG-04
- * Change Summary: This is the definitive fix for the build error. The dependency on '@supabase/auth-helpers-nextjs' has been removed. The route now uses Kinde's `sessionManager` for authentication and a standard Supabase admin client for database queries, aligning it with the new architecture.
+ * C004 - 2025-09-02 : 19:00 - Migrated to use Supabase server client for authentication.
+ * Last Modified: 2025-09-02 : 19:00
+ * Requirement ID: VIN-AUTH-MIG-05
+ * Change Summary: This route has been fully migrated to Supabase Auth. It now uses the `createClient` from `@/utils/supabase/server` to securely get the user's session from their cookie.
  */
-import { sessionManager } from '@/lib/kinde';
+import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 export async function GET() {
+  const supabase = createClient();
   try {
-    const { getUser, isAuthenticated } = sessionManager();
-    if (!(await isAuthenticated())) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
       return new NextResponse(
         JSON.stringify({ status: 'fail', message: 'User is not authenticated.' }),
         { status: 401 }
       );
     }
-    const user = await getUser();
-    if (!user) {
-        return new NextResponse("User not found", { status: 404 });
-    }
     
-    const { data: profile, error: profileError } = await supabaseAdmin
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('agent_id')
       .eq('id', user.id)
@@ -42,7 +31,7 @@ export async function GET() {
       throw new Error('Could not find a profile for the current user.');
     }
     
-    const { data: referrals, error: referralsError } = await supabaseAdmin
+    const { data: referrals, error: referralsError } = await supabase
       .from('referrals')
       .select('*')
       .eq('agent_id', profile.agent_id) 
@@ -55,12 +44,8 @@ export async function GET() {
     return NextResponse.json(referrals);
 
   } catch (error) {
-    let errorMessage = 'An unknown error occurred.';
-    if (error instanceof Error) {
-        errorMessage = error.message;
-    }
     return new NextResponse(
-        JSON.stringify({ status: 'fail', message: errorMessage }),
+        JSON.stringify({ status: 'fail', message: (error as Error).message }),
         { status: 500 }
     );
   }

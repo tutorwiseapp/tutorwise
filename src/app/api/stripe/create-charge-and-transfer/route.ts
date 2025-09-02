@@ -1,46 +1,33 @@
 /*
  * Filename: src/app/api/stripe/create-charge-and-transfer/route.ts
- * Purpose: Implements the 'Separate Charges and Transfers' flow, migrated to Kinde.
+ * Purpose: Implements the 'Separate Charges and Transfers' flow.
  * Change History:
- * C002 - 2025-08-26 : 18:00 - Replaced Clerk auth with Kinde and Supabase lookup.
- * C001 - 2025-07-28 : 00:30 - Initial creation.
- * Last Modified: 2025-08-26 : 18:00
- * Requirement ID: VIN-AUTH-MIG-03
- * Change Summary: This API has been migrated from Clerk to Kinde. It now uses `sessionManager` for authentication. The user's Stripe Customer ID is now fetched from our Supabase `profiles` table instead of Clerk's metadata, making our database the source of truth and resolving the build error.
+ * C003 - 2025-09-02 : 19:00 - Migrated to use Supabase server client for authentication.
+ * Last Modified: 2025-09-02 : 19:00
+ * Requirement ID: VIN-AUTH-MIG-05
+ * Change Summary: This API has been fully migrated to Supabase Auth. It now uses the `createClient` from `@/utils/supabase/server` to securely get the user's session and profile data.
  */
 import { NextResponse } from 'next/server';
-import { sessionManager } from '@/lib/kinde'; // --- THIS IS THE FIX ---
+import { createClient } from '@/utils/supabase/server';
 import { stripe } from '@/lib/stripe';
 import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js'; // --- THIS IS THE FIX ---
-
-// --- THIS IS THE FIX: Initialize Supabase admin client ---
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 export async function POST(req: Request) {
+  const supabase = createClient();
   try {
-    const { getUser, isAuthenticated } = sessionManager(); // --- THIS IS THE FIX ---
-    if (!(await isAuthenticated())) {
-      return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
-    }
-    const user = await getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      return new NextResponse("User not found", { status: 404 });
+      return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
 
     const { amount, currency, destinationAccountId, paymentMethodId } = await req.json();
-
     if (!amount || !currency || !destinationAccountId || !paymentMethodId) {
         return new NextResponse(JSON.stringify({ error: "Missing required transaction details." }), { status: 400 });
     }
 
-    // --- THIS IS THE FIX: Retrieve the Seeker's Stripe Customer ID from our Supabase 'profiles' table ---
-    const { data: profile, error: profileError } = await supabaseAdmin
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('stripe_customer_id') // We need to ensure this column exists
+      .select('stripe_customer_id')
       .eq('id', user.id)
       .single();
     
@@ -52,16 +39,11 @@ export async function POST(req: Request) {
     const applicationFee = Math.floor(amount * 0.123);
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount,
-      currency: currency,
-      customer: stripeCustomerId,
+      amount, currency, customer: stripeCustomerId,
       payment_method: paymentMethodId,
-      off_session: true,
-      confirm: true,
+      off_session: true, confirm: true,
       application_fee_amount: applicationFee,
-      transfer_data: {
-        destination: destinationAccountId,
-      },
+      transfer_data: { destination: destinationAccountId },
     });
     
     return NextResponse.json({
@@ -69,13 +51,8 @@ export async function POST(req: Request) {
       paymentIntentId: paymentIntent.id,
       status: paymentIntent.status
     });
-
   } catch (error) {
-    const errorMessage = error instanceof Stripe.errors.StripeError
-        ? error.message
-        : "An unknown error occurred.";
-    
-    console.error("Error creating charge and transfer:", error);
+    const errorMessage = error instanceof Stripe.errors.StripeError ? error.message : "An unknown error occurred.";
     return new NextResponse(JSON.stringify({ error: errorMessage }), { status: 500 });
   }
 }
