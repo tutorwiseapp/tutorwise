@@ -1,13 +1,3 @@
-/*
- * Filename: src/app/agents/[agentId]/page.tsx
- * Purpose: Displays the public profile for a Vinite agent, migrated to Kinde.
- * Change History:
- * C012 - 2025-08-26 : 14:00 - Replaced Clerk's useUser hook with Kinde's useKindeBrowserClient.
- * C011 - 2025-08-08 : 23:30 - Definitive restoration of the complete, fully functional component.
- * Last Modified: 2025-08-26 : 14:00
- * Requirement ID: VIN-AUTH-MIG-02
- * Change Summary: This component has been migrated from Clerk to Kinde. The `useUser` hook was replaced with `useKindeBrowserClient`. The logic to check for `isOwnProfile` was removed, as this is a public-facing page and edit functionality belongs on the private `/profile` page. This change resolves the "Module not found" build error.
- */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -15,13 +5,13 @@ import { useParams, useRouter } from 'next/navigation';
 import type { Profile } from '@/types';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs'; // --- THIS IS THE FIX ---
 import toast from 'react-hot-toast';
 import getProfileImageUrl from '@/lib/utils/image';
 import Container from '@/app/components/layout/Container';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
 import styles from './page.module.css';
+import { useUserProfile } from '@/app/contexts/UserProfileContext'; // Use Supabase context
 
 const AgentProfilePage = () => {
   const [agent, setAgent] = useState<Profile | null>(null);
@@ -29,9 +19,8 @@ const AgentProfilePage = () => {
   const params = useParams();
   const router = useRouter();
   const agentId = params.agentId as string;
-  const { user: loggedInUser } = useKindeBrowserClient(); // --- THIS IS THE FIX ---
+  const { profile: loggedInUserProfile } = useUserProfile();
 
-  // Mock data for new sections
   const recentActivity = [
     { id: 1, text: 'Generated a new link for', subject: 'LearnHub', url: 'https://learnhub.com' },
     { id: 2, text: 'A referral for', subject: 'SaaSify', url: 'https://saasify.com', status: 'resulted in a new client!' },
@@ -68,7 +57,7 @@ const AgentProfilePage = () => {
 
   const handleRewardMe = () => {
     if (!agent) return;
-    router.push(`/sign-up?reward_agent=${agent.agent_id}`);
+    router.push(`/signup?reward_agent=${agent.agent_id}`);
   };
 
   const handleContactMe = () => {
@@ -103,9 +92,7 @@ const AgentProfilePage = () => {
     );
   }
 
-  // NOTE: Kinde user object does not contain publicMetadata.
-  // The 'isOwnProfile' check is removed as edit links belong on the private profile page.
-  // const isOwnProfile = loggedInUser?.publicMetadata?.agent_id === agent.agent_id;
+  const isOwnProfile = loggedInUserProfile?.agent_id === agent.agent_id;
 
   return (
     <Container>
@@ -123,7 +110,7 @@ const AgentProfilePage = () => {
               <h2 className={styles.profileName}>{agent.display_name}</h2>
               <p className={styles.profileId}>{agent.agent_id}</p>
               
-              {/* {isOwnProfile && <Link href="/profile" className={styles.editProfileLink}>Edit Profile</Link>} */}
+              {isOwnProfile && <Link href="/profile" className={styles.editProfileLink}>Edit Profile</Link>}
               
               <div className={styles.detailsSection}>
                 <h3>About</h3>
@@ -198,5 +185,4 @@ const AgentProfilePage = () => {
     </Container>
   );
 };
-
 export default AgentProfilePage;

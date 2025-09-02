@@ -1,18 +1,8 @@
-/*
- * Filename: src/app/claim-rewards/page.tsx
- * Purpose: Allows a new user to claim rewards, migrated to Kinde.
- * Change History:
- * C002 - 2025-08-26 : 14:00 - Replaced Clerk's useUser hook with Kinde's useKindeBrowserClient.
- * C001 - 2025-07-26 : 23:45 - Initial creation.
- * Last Modified: 2025-08-26 : 14:00
- * Requirement ID: VIN-AUTH-MIG-02
- * Change Summary: This component has been migrated from Clerk to Kinde. The `useUser` hook was replaced with `useKindeBrowserClient` to manage authentication state, resolving the "Module not found" build error.
- */
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs'; // --- THIS IS THE FIX ---
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import Container from '@/app/components/layout/Container';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
@@ -26,7 +16,7 @@ interface PendingReward {
 }
 
 const ClaimRewardsContent = () => {
-    const { user, isAuthenticated, isLoading: isKindeLoading } = useKindeBrowserClient(); // --- THIS IS THE FIX ---
+    const { profile, isLoading: isProfileLoading } = useUserProfile();
     const router = useRouter();
     const searchParams = useSearchParams();
     const claimId = searchParams.get('claimId');
@@ -36,8 +26,8 @@ const ClaimRewardsContent = () => {
     const [error, setError] = useState('');
 
     useEffect(() => {
-        if (!isKindeLoading && !isAuthenticated) {
-            router.push('/api/auth/login'); // --- THIS IS THE FIX ---
+        if (!isProfileLoading && !profile) {
+            router.push('/login');
         }
 
         if (claimId) {
@@ -46,7 +36,7 @@ const ClaimRewardsContent = () => {
                 rewardAmount: 3.00,
             });
         }
-    }, [isKindeLoading, isAuthenticated, router, claimId]);
+    }, [isProfileLoading, profile, router, claimId]);
 
     const handleClaim = async () => {
         setIsLoading(true);
@@ -55,7 +45,7 @@ const ClaimRewardsContent = () => {
         try {
             await new Promise(resolve => setTimeout(resolve, 1000));
             sessionStorage.setItem('vinite_claim_details', JSON.stringify({
-                userName: user?.given_name || 'User', // --- THIS IS THE FIX ---
+                userName: profile?.first_name || 'User',
                 serviceName: pendingReward?.serviceName
             }));
             router.push('/claim-success');
@@ -65,7 +55,7 @@ const ClaimRewardsContent = () => {
         }
     };
 
-    if (isKindeLoading || !isAuthenticated) {
+    if (isProfileLoading || !profile) {
         return <p>Loading...</p>;
     }
 

@@ -1,19 +1,9 @@
-/*
- * Filename: src/app/claim-success/page.tsx
- * Purpose: Displays a confirmation message after a user successfully claims a reward, migrated to Kinde.
- * Change History:
- * C002 - 2025-08-26 : 14:00 - Replaced Clerk's useUser hook with Kinde's useKindeBrowserClient.
- * C001 - 2025-07-26 : 23:30 - Replaced useAuth with Clerk's useUser hook.
- * Last Modified: 2025-08-26 : 14:00
- * Requirement ID: VIN-AUTH-MIG-02
- * Change Summary: This component has been migrated from Clerk to Kinde. The `useUser` hook was replaced with `useKindeBrowserClient` to manage authentication state, resolving the "Module not found" build error.
- */
 'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs'; // --- THIS IS THE FIX ---
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import Container from '@/app/components/layout/Container';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
@@ -25,17 +15,17 @@ interface ClaimDetails {
 }
 
 const ClaimSuccessPage = () => {
-  const { isAuthenticated, isLoading } = useKindeBrowserClient(); // --- THIS IS THE FIX ---
+  const { profile, isLoading } = useUserProfile();
   const router = useRouter();
   const [claimDetails, setClaimDetails] = useState<ClaimDetails | null>(null);
   
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/api/auth/login'); // --- THIS IS THE FIX ---
+    if (!isLoading && !profile) {
+      router.push('/login');
       return;
     }
     
-    if (isAuthenticated) {
+    if (profile) {
         const detailsString = sessionStorage.getItem('vinite_claim_details');
         if (detailsString) {
           setClaimDetails(JSON.parse(detailsString));
@@ -44,7 +34,7 @@ const ClaimSuccessPage = () => {
           router.push('/dashboard');
         }
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [profile, isLoading, router]);
 
   if (isLoading || !claimDetails) {
     return (
