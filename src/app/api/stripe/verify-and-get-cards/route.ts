@@ -2,27 +2,22 @@
  * Filename: src/app/api/stripe/verify-and-get-cards/route.ts
  * Purpose: Provides a secure endpoint to verify ownership and fetch payment methods.
  * Change History:
- * C003 - 2025-09-01 : 18:00 - Definitive fix to verify against kindeId in Stripe metadata.
- * C002 - 2025-08-22 : 23:00 - Restored and finalized as part of the definitive working architecture.
- * C001 - 2025-08-21 : 18:00 - Initial creation.
- * Last Modified: 2025-09-01 : 18:00
- * Requirement ID: VIN-PAY-1
- * Change Summary: This is the definitive fix for the security model in the payments flow. The security check now correctly verifies that the `kindeId` in the Stripe customer's metadata matches the authenticated Kinde user's ID. This resolves a critical bug that would cause a "Permission Denied" error.
+ * C003 - 2025-09-02 : 21:00 - Migrated to use Supabase server client for authentication.
+ * Last Modified: 2025-09-02 : 21:00
+ * Requirement ID: VIN-AUTH-MIG-05
+ * Change Summary: This API has been fully migrated to Supabase Auth. It uses the `createClient` to get the user and verifies ownership by checking the `supabaseId` in the Stripe customer's metadata.
  */
 import { NextResponse } from 'next/server';
-import { sessionManager } from '@/lib/kinde';
+import { createClient } from '@/utils/supabase/server';
 import { stripe } from '@/lib/stripe';
 import Stripe from 'stripe';
 
 export async function POST(req: Request) {
+  const supabase = createClient();
   try {
-    const { getUser, isAuthenticated } = sessionManager();
-    if (!(await isAuthenticated())) {
-      return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
-    }
-    const user = await getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-        return new NextResponse("User not found", { status: 404 });
+      return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
 
     const { customerId } = await req.json();
@@ -35,10 +30,8 @@ export async function POST(req: Request) {
         return new NextResponse(JSON.stringify({ error: "Customer not found." }), { status: 404 });
     }
     
-    // --- THIS IS THE DEFINITIVE FIX ---
-    // We must verify against the 'kindeId' that we set when creating the customer.
-    if (customer.metadata.kindeId !== user.id) {
-        console.warn(`[SECURITY] User ${user.id} attempted to access Stripe customer ${customerId} owned by ${customer.metadata.kindeId}.`);
+    if (customer.metadata.supabaseId !== user.id) {
+        console.warn(`[SECURITY] User ${user.id} attempted to access Stripe customer ${customerId} owned by ${customer.metadata.supabaseId}.`);
         return new NextResponse(JSON.stringify({ error: "Permission Denied" }), { status: 403 });
     }
 
@@ -59,12 +52,8 @@ export async function POST(req: Request) {
         cards: savedCards,
         defaultPaymentMethodId: (customer as Stripe.Customer).invoice_settings?.default_payment_method 
     });
-
   } catch (error) {
-    console.error("[API/verify-and-get-cards] Error:", error);
-    const errorMessage = error instanceof Stripe.errors.StripeError 
-        ? `Stripe Error: ${error.message}` 
-        : "An internal server error occurred.";
+    const errorMessage = error instanceof Stripe.errors.StripeError ? `Stripe Error: ${error.message}` : "An internal server error occurred.";
     return new NextResponse(JSON.stringify({ error: errorMessage }), { status: 500 });
   }
 }
