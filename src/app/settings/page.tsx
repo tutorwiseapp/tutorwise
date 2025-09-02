@@ -8,35 +8,30 @@
  * Requirement ID: VIN-AUTH-MIG-02
  * Change Summary: This component has been migrated from Clerk to Kinde. The `useUser` hook was replaced with `useKindeBrowserClient` to manage authentication state and protect the route, resolving the "Module not found" build error.
  */
-'use client';
-
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs'; // --- THIS IS THE FIX ---
-
-// VDL Component Imports
+import { useUserProfile } from '@/app/contexts/UserProfileContext'; // Use Supabase context
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import Checkbox from '@/app/components/ui/form/Checkbox';
-import styles from '@/app/dashboard/page.module.css'; // Re-uses the dashboard grid styles
+import styles from '@/app/dashboard/page.module.css';
 import settingStyles from './page.module.css';
 
 const SettingsPage = () => {
-  const { isAuthenticated, isLoading } = useKindeBrowserClient(); // --- THIS IS THE FIX ---
+  const { profile, isLoading } = useUserProfile();
   const router = useRouter();
-
   const [desktopNotificationsEnabled, setDesktopNotificationsEnabled] = useState(true);
   const [conversionAlerts, setConversionAlerts] = useState(true);
   const [newsUpdates, setNewsUpdates] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/api/auth/login'); // --- THIS IS THE FIX ---
+    if (!isLoading && !profile) {
+      router.push('/login');
     }
-  }, [isLoading, isAuthenticated, router]);
+  }, [isLoading, profile, router]);
 
-  if (isLoading || !isAuthenticated) {
+  if (isLoading || !profile) {
     return <Container><p className={styles.loading}>Loading...</p></Container>;
   }
 

@@ -1,8 +1,16 @@
+/*
+ * Filename: src/app/a/[agent_id]/route.ts
+ * Purpose: Handles referral link clicks, records the event, and redirects the user.
+ * Change History:
+ * C002 - 2025-09-02 : 18:00 - Migrated to use the new Supabase server client.
+ * C001 - [Date] : [Time] - Initial creation.
+ * Last Modified: 2025-09-02 : 18:00
+ * Requirement ID: VIN-APP-02
+ * Change Summary: This is the definitive fix for the build error "Can't resolve '@/lib/supabaseClient'". The route has been updated to import and use the new Supabase server client from `@/utils/supabase/server`, aligning it with the modern Supabase SSR architecture.
+ */
+import { createClient } from '@/utils/supabase/server'; // --- THIS IS THE DEFINITIVE FIX ---
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabaseClient';
 
-// This is the most standard, canonical signature for an App Router dynamic route.
-// We are explicitly typing the 'params' object within the function's second argument.
 export async function GET(
   request: NextRequest, 
   { params }: { params: { agent_id: string } }
@@ -14,26 +22,27 @@ export async function GET(
     return NextResponse.redirect(new URL('/?error=missing_destination', request.url));
   }
   
-  const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '';
+  const ipAddress = request.ip ?? '127.0.0.1';
+  const userAgent = request.headers.get('user-agent');
+  const channelOrigin = request.nextUrl.searchParams.get('channel_origin');
 
   const clickEventData = {
     agent_id: agent_id,
     destination_url: destinationUrl,
     ip_address: ipAddress,
-    user_agent: request.headers.get('user-agent'),
-    channel_origin: request.nextUrl.searchParams.get('channel_origin'),
+    user_agent: userAgent,
+    channel_origin: channelOrigin,
   };
 
   try {
+    const supabase = createClient(); // --- THIS IS THE DEFINITIVE FIX ---
     const { error } = await supabase
-      .from('ClickLog')
+      .from('ClickLog') // This should probably be 'referrals', but using existing table name
       .insert([clickEventData]);
 
     if (error) {
       throw error;
     }
-
-    console.log(`--- Click Event INSERTED into Supabase for Agent: ${agent_id} ---`);
 
   } catch (error) {
     console.error('Supabase Error: Failed to log click event.', error);

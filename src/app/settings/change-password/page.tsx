@@ -1,38 +1,25 @@
-/*
- * Filename: src/app/settings/change-password/page.tsx
- * Purpose: Provides a secure form for users to change their account password, migrated to Kinde.
- * Change History:
- * C007 - 2025-08-26 : 15:00 - Replaced Clerk logic with a redirect to Kinde's hosted settings page.
- * C006 - 2025-07-26 : 23:00 - Replaced useAuth with Clerk's useUser hook.
- * Last Modified: 2025-08-26 : 15:00
- * Requirement ID: VIN-AUTH-MIG-02
- * Change Summary: This component has been migrated from Clerk to Kinde. Since Kinde handles password and security management on its own secure, hosted pages, the local form has been removed. The component now uses the `useKindeBrowserClient` hook to protect the route and provides a simple link that directs the user to the correct Kinde settings page. This is a more secure and simpler pattern that resolves the "Module not found" build error.
- */
 'use client';
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs'; // --- THIS IS THE FIX ---
-
-// VDL Component Imports
+import { useUserProfile } from '@/app/contexts/UserProfileContext'; // Use Supabase context
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
 import Breadcrumb from '@/app/components/ui/nav/Breadcrumb';
-import Link from 'next/link';
 
 const ChangePasswordPage = () => {
-  const { isAuthenticated, isLoading } = useKindeBrowserClient(); // --- THIS IS THE FIX ---
+  const { profile, isLoading } = useUserProfile();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/api/auth/login'); // --- THIS IS THE FIX ---
+    if (!isLoading && !profile) {
+      router.push('/login');
     }
-  }, [isLoading, isAuthenticated, router]);
+  }, [isLoading, profile, router]);
 
-  if (isLoading || !isAuthenticated) {
+  if (isLoading || !profile) {
       return <Container><p>Loading...</p></Container>;
   }
 
@@ -41,23 +28,18 @@ const ChangePasswordPage = () => {
     { label: 'Change Password' }
   ];
 
-  // --- THIS IS THE FIX: Kinde handles this on its hosted pages ---
   return (
     <Container variant="form">
       <Breadcrumb crumbs={breadcrumbs} />
       <PageHeader
         title="Change Password"
-        subtitle="Manage your security settings on Kinde."
+        subtitle="To change your password, please use the password reset flow."
       />
       <Card>
         <p style={{ marginBottom: '1.5rem', lineHeight: '1.6' }}>
-          To securely manage your password, multi-factor authentication, and other security settings, please proceed to your Kinde account management page.
+          Supabase handles password resets via a secure email link. To change your password, please log out and use the "Forgot Password" link on the login page.
         </p>
-        <a href={process.env.KINDE_ISSUER_URL} target="_blank" rel="noopener noreferrer">
-            <Button variant="primary" fullWidth>
-                Manage Security Settings
-            </Button>
-        </a>
+        {/* Supabase doesn't have a direct link to a settings page like Kinde */}
       </Card>
     </Container>
   );

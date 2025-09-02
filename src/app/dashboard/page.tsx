@@ -14,7 +14,6 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext'; // --- THIS IS THE FIX ---
-
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import styles from './page.module.css';
