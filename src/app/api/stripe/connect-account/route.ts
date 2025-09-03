@@ -2,10 +2,10 @@
  * Filename: src/app/api/stripe/connect-account/route.ts
  * Purpose: Creates a Stripe Express Account for a user.
  * Change History:
+ * C012 - 2025-09-03 : 14:15 - Updated to use NEXT_PUBLIC_SITE_URL for robust deployment URLs.
  * C011 - 2025-09-02 : 19:00 - Migrated to use Supabase server client for authentication.
- * Last Modified: 2025-09-02 : 19:00
+ * Last Modified: 2025-09-03 : 14:15
  * Requirement ID: VIN-AUTH-MIG-05
- * Change Summary: This API has been fully migrated to Supabase Auth. It now uses the `createClient` from `@/utils/supabase/server` to securely get the user's session and profile data.
  */
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
@@ -51,8 +51,9 @@ export async function GET() {
 
     const accountLink = await stripe.accountLinks.create({
       account: stripeAccountId,
-      refresh_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payments`,
-      return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payments`,
+      // --- UPDATED ---
+      refresh_url: `${process.env.NEXT_PUBLIC_SITE_URL}/payments`,
+      return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/payments`,
       type: 'account_onboarding',
     });
 

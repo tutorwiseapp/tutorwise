@@ -2,10 +2,10 @@
  * Filename: src/app/api/stripe/create-checkout-session/route.ts
  * Purpose: Creates a Stripe Checkout Session for saving a new payment method.
  * Change History:
+ * C012 - 2025-09-03 : 14:15 - Updated to use NEXT_PUBLIC_SITE_URL for robust deployment URLs.
  * C011 - 2025-09-02 : 20:00 - Migrated to use Supabase server client for authentication.
- * Last Modified: 2025-09-02 : 20:00
+ * Last Modified: 2025-09-03 : 14:15
  * Requirement ID: VIN-AUTH-MIG-05
- * Change Summary: This API has been fully migrated to Supabase Auth. It uses the `createClient` from `@/utils/supabase/server` to securely get the user's session and performs the Stripe "Find or Create" customer logic, updating the Supabase `profiles` table.
  */
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
@@ -48,8 +48,9 @@ export async function POST(req: Request) {
       payment_method_types: ['card'],
       mode: 'setup',
       customer: stripeCustomerId,
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payments?status=success&customer_id=${stripeCustomerId}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payments?status=cancelled`,
+      // --- UPDATED ---
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/payments?status=success&customer_id=${stripeCustomerId}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/payments?status=cancelled`,
     });
 
     return NextResponse.json({ sessionId: session.id });
