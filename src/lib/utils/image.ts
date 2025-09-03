@@ -16,17 +16,18 @@
  */
 import type { Profile } from '@/types';
 
+/**
+ * Returns the appropriate profile image URL for a user.
+ * It prioritizes a custom picture URL and falls back to a placeholder.
+ */
 const getProfileImageUrl = (user: Partial<Profile>): string => {
   // --- UPDATED LOGIC ---
-  // 1. Prioritize the OAuth provider's avatar URL (from Google, etc.).
-  if (user.avatar_url) {
-    return user.avatar_url;
-  }
-  // 2. Fallback to a user's custom-uploaded picture.
+  // 1. Use the URL from the profile (which includes Google's avatar URL).
   if (user.custom_picture_url) {
     return user.custom_picture_url;
   }
-  // 3. Finally, use the placeholder.
+  
+  // 2. Fallback to a placeholder if no picture URL exists.
   return `https://i.pravatar.cc/150?u=${user.agent_id || 'default'}`;
 };
 
