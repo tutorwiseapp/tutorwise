@@ -26,30 +26,54 @@ export async function middleware(request: NextRequest) {
           return request.cookies.get(name)?.value
         },
         set(name: string, value: string, options: CookieOptions) {
-          request.cookies.set({ name, value, ...options })
-          response = NextResponse.next({
-            request: { headers: request.headers },
+          request.cookies.set({
+            name,
+            value,
+            ...options,
           })
-          response.cookies.set({ name, value, ...options })
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          })
+          response.cookies.set({
+            name,
+            value,
+            ...options,
+          })
         },
         remove(name: string, options: CookieOptions) {
-          request.cookies.set({ name, value: '', ...options })
-          response = NextResponse.next({
-            request: { headers: request.headers },
+          request.cookies.set({
+            name,
+            value: '',
+            ...options,
           })
-          response.cookies.set({ name, value: '', ...options })
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          })
+          response.cookies.set({
+            name,
+            value: '',
+            ...options,
+          })
         },
       },
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  const protectedPaths = ['/dashboard', '/profile', '/settings', '/admin']
-  const isProtectedPath = protectedPaths.some(p => request.nextUrl.pathname.startsWith(p))
-
-  if (!user && isProtectedPath) {
-    // If user is not logged in and trying to access a protected path, redirect to login.
+  if (
+    !user &&
+    !request.nextUrl.pathname.startsWith('/login') &&
+    !request.nextUrl.pathname.startsWith('/signup')
+  ) {
+    // --- THIS IS THE FIX ---
+    // Redirect to the correct login PAGE, not the API route.
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
