@@ -1,13 +1,7 @@
-/*
- * Filename: src/utils/supabase/middleware.ts
- * Purpose: Creates a Supabase client for use in Next.js middleware.
- */
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
 
-export function createClient(request: NextRequest) {
-  // Create an unmodified response
+export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -22,8 +16,7 @@ export function createClient(request: NextRequest) {
         get(name: string) {
           return request.cookies.get(name)?.value
         },
-        set(name: string, value: string, options) {
-          // If the cookie is updated, update the request cookies and response cookies
+        set(name: string, value: string, options: CookieOptions) {
           request.cookies.set({
             name,
             value,
@@ -40,8 +33,7 @@ export function createClient(request: NextRequest) {
             ...options,
           })
         },
-        remove(name: string, options) {
-          // If the cookie is removed, update the request cookies and response cookies
+        remove(name: string, options: CookieOptions) {
           request.cookies.set({
             name,
             value: '',
@@ -62,5 +54,19 @@ export function createClient(request: NextRequest) {
     }
   )
 
-  return { supabase, response }
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (
+    !user &&
+    !request.nextUrl.pathname.startsWith('/login') &&
+    !request.nextUrl.pathname.startsWith('/signup')
+  ) {
+    // --- THIS IS THE FIX ---
+    // Redirect to the correct login PAGE, not the API route.
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+
+  return response
 }
