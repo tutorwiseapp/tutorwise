@@ -2,21 +2,56 @@
  * Filename: src/middleware.ts
  * Purpose: Implements Supabase session management middleware.
  * Change History:
- * C004 - 2025-09-02 : 15:00 - Migrated to use Supabase SSR client for session refreshing.
+ * C004 - 2025-09-02 : 15:00 - Migrated to use Supabase middleware.
  * Last Modified: 2025-09-02 : 15:00
  * Requirement ID: VIN-AUTH-MIG-03
- * Change Summary: This middleware now uses the Supabase SSR client. Its primary responsibility is to refresh the user's session cookie on every request, ensuring the user remains logged in as they navigate the site. It also handles the server-side portion of the OAuth code exchange.
+ * Change Summary: tbc.
  */
-import { createClient } from '@/utils/supabase/middleware'
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  const { supabase, response } = createClient(request)
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  })
 
-  // Refresh session if expired - required for Server Components
-  // https://supabase.com/docs/guides/auth/auth-helpers/nextjs#managing-session-with-middleware
-  await supabase.auth.getSession()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          request.cookies.set({ name, value, ...options })
+          response = NextResponse.next({
+            request: { headers: request.headers },
+          })
+          response.cookies.set({ name, value, ...options })
+        },
+        remove(name: string, options: CookieOptions) {
+          request.cookies.set({ name, value: '', ...options })
+          response = NextResponse.next({
+            request: { headers: request.headers },
+          })
+          response.cookies.set({ name, value: '', ...options })
+        },
+      },
+    }
+  )
+
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const protectedPaths = ['/dashboard', '/profile', '/settings', '/admin']
+  const isProtectedPath = protectedPaths.some(p => request.nextUrl.pathname.startsWith(p))
+
+  if (!user && isProtectedPath) {
+    // If user is not logged in and trying to access a protected path, redirect to login.
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
 
   return response
 }
@@ -28,7 +63,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * Feel free to modify this pattern to include more paths.
      */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
