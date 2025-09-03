@@ -33,8 +33,8 @@ import React from 'react';
  * It directly maps to the 'profiles' table in Supabase, using snake_case.
  */
 export interface Profile {
-  id: string; // This MUST match the auth.users.id (UUID)
-  agent_id: string; // The user's unique, public-facing Vinite Agent ID
+  id: string; 
+  agent_id: string;
   display_name: string;
   first_name?: string;
   last_name?: string;
@@ -42,6 +42,8 @@ export interface Profile {
   bio?: string;
   categories?: string;
   achievements?: string;
+  // --- UPDATED: Add avatar_url for OAuth providers ---
+  avatar_url?: string;
   custom_picture_url?: string;
   cover_photo_url?: string;
   stripe_account_id?: string;
@@ -52,7 +54,6 @@ export interface Profile {
 // NOTE: This 'User' type is kept for backward compatibility with the existing mock data system.
 // It will be phased out during the migration to the live backend.
 export type User = Partial<Profile> & { password?: string, id: number | string };
-
 
 /**
  * Represents a single referral event. It is intentionally flexible to support

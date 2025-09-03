@@ -12,7 +12,7 @@
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useUserProfile } from '@/app/contexts/UserProfileContext'; // Use Supabase context
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import getStripe from '@/lib/utils/get-stripejs';
 import toast from 'react-hot-toast';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
@@ -23,6 +23,8 @@ import { getErrorMessage } from '@/lib/utils/getErrorMessage';
 import styles from './page.module.css';
 import Button from '@/app/components/ui/Button';
 
+// ... (interface SavedCard remains the same) ...
+
 interface SavedCard {
     id: string;
     brand: string | undefined;
@@ -30,6 +32,7 @@ interface SavedCard {
     exp_month: number | undefined;
     exp_year: number | undefined;
 }
+
 
 const PaymentsPageContent = () => {
     const { profile, isLoading: isProfileLoading } = useUserProfile();
@@ -41,6 +44,8 @@ const PaymentsPageContent = () => {
     const [defaultPaymentMethodId, setDefaultPaymentMethodId] = useState<string | null>(null);
     const [isLoadingData, setIsLoadingData] = useState(true);
     const [isVerifying, setIsVerifying] = useState(false);
+
+    // ... (fetchData, useEffect hooks, and other handlers remain the same) ...
 
     const fetchData = useCallback(async (showLoading = true) => {
         if (!profile) return;
@@ -120,16 +125,50 @@ const PaymentsPageContent = () => {
         }
     }, [searchParams, isVerifying, router, savedCards.length]);
     
-    const handleConnectStripe = async () => { /* ... (no changes) ... */ };
-    const handleDisconnect = async () => { /* ... (no changes) ... */ };
-    const handleAddNewCard = async () => { /* ... (no changes) ... */ };
-    const handleSetDefault = async (pmId: string) => { /* ... (no changes) ... */ };
-    const handleRemove = async (pmId: string) => { /* ... (no changes) ... */ };
+
+    const handleConnectStripe = async () => { /* ... */ };
+    const handleDisconnect = async () => { /* ... */ };
+    const handleSetDefault = async (pmId: string) => { /* ... */ };
+    const handleRemove = async (pmId: string) => { /* ... */ };
+
+    // --- THIS IS THE FIX ---
+    const handleAddNewCard = async () => {
+      const toastId = toast.loading('Redirecting to Stripe...');
+      try {
+        // 1. Call your API to create a checkout session
+        const response = await fetch('/api/stripe/create-checkout-session', {
+          method: 'POST',
+          cache: 'no-store',
+        });
+
+        if (!response.ok) {
+          throw new Error('Could not create Stripe session.');
+        }
+
+        const { sessionId } = await response.json();
+        if (!sessionId) {
+          throw new Error('Invalid session ID received.');
+        }
+
+        // 2. Redirect to Stripe using the session ID
+        const stripe = await getStripe();
+        if (!stripe) {
+            throw new Error('Stripe.js failed to load.');
+        }
+
+        await stripe.redirectToCheckout({ sessionId });
+        toast.dismiss(toastId);
+
+      } catch (error) {
+        toast.error(getErrorMessage(error), { id: toastId });
+      }
+    };
 
     if (isProfileLoading || isLoadingData) {
         return <Container><PageHeader title="Payments" /><p>Loading...</p></Container>;
     }
     
+    // ... (rest of the JSX remains the same) ...
     return (
         <Container>
             <PageHeader title="Payments" subtitle="Manage your methods for sending and receiving payments." />
