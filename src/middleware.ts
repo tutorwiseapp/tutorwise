@@ -44,7 +44,8 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Define all pages that are accessible to the public
+  // --- THIS IS THE DEFINITIVE FIX ---
+  // Define all public paths that do not require a login.
   const publicPaths = [
     '/',
     '/login',
@@ -54,15 +55,17 @@ export async function middleware(request: NextRequest) {
     '/terms-of-service',
     '/privacy-policy',
     '/forgot-password',
-  ];
+  ]
 
-  // Check if the current request path is for a public page or a public agent profile
-  const isPublicPath = 
+  // Check if the current request path is for a public page or a public agent profile.
+  const isPublicPath =
     publicPaths.includes(request.nextUrl.pathname) ||
     request.nextUrl.pathname.startsWith('/agents/') ||
     request.nextUrl.pathname.startsWith('/contact-agent');
 
-  // If the user is not logged in and the path is not public, redirect to the login page.
+
+  // If the user is not logged in and is trying to access a non-public path,
+  // redirect them to the login page.
   if (!user && !isPublicPath) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
@@ -71,13 +74,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // This matcher is inspired by your Clerk configuration.
-  // It runs on all request paths EXCEPT for:
-  // - /api/ routes
-  // - /auth/ routes (for Google sign-in, etc.)
-  // - /_next/static (static files)
-  // - /_next/image (image optimization files)
-  // - /favicon.ico (favicon file)
+  // This matcher ensures the middleware only runs on pages and not on API or auth routes.
   matcher: [
     '/((?!api|auth|_next/static|_next/image|favicon.ico).*)',
   ],
