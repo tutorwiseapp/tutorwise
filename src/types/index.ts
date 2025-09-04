@@ -34,7 +34,7 @@ import React from 'react';
  */
 export interface Profile {
   id: string; 
-  agent_id: string;
+  agent_id: string; 
   display_name: string;
   first_name?: string;
   last_name?: string;
@@ -42,11 +42,12 @@ export interface Profile {
   bio?: string;
   categories?: string;
   achievements?: string;
-  // --- UPDATED: Add avatar_url for OAuth providers ---
-  avatar_url?: string;
   custom_picture_url?: string;
   cover_photo_url?: string;
   stripe_account_id?: string;
+  // --- THIS IS THE FIX ---
+  // Add the missing property to match the database schema.
+  stripe_customer_id?: string; 
   roles: ('agent' | 'seeker' | 'provider')[];
   created_at: string;
 }

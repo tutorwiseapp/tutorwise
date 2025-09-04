@@ -42,31 +42,71 @@ const PaymentsPageContent = () => {
     const [isLoadingData, setIsLoadingData] = useState(true);
     const [isVerifying, setIsVerifying] = useState(false);
 
+    // Enhanced fetchData function with proper race condition handling
     const fetchData = useCallback(async (showLoading = true) => {
         if (!profile) return;
+        
         if (showLoading) setIsLoadingData(true);
+
         try {
-            const [accountRes, cardsRes] = await Promise.all([
-                fetch('/api/stripe/get-connect-account', { cache: 'no-store' }),
-                fetch('/api/stripe/get-cards-by-customer', { cache: 'no-store' }) // --- THIS IS THE FIX ---
-            ]);
-            if (accountRes.ok) setStripeAccount((await accountRes.json()).account);
-            if (cardsRes.ok) {
-                const d = await cardsRes.json();
-                setSavedCards(d.cards || []);
-                setDefaultPaymentMethodId(d.defaultPaymentMethodId);
+            // Always fetch the Stripe Connect account
+            const accountPromise = fetch('/api/stripe/get-connect-account', { 
+                cache: 'no-store' 
+            });
+
+            // Only fetch cards if we have a valid stripe_customer_id
+            const promises: Promise<Response>[] = [accountPromise];
+            
+            if (profile.stripe_customer_id) {
+                const cardsPromise = fetch('/api/stripe/get-cards-by-customer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ customerId: profile.stripe_customer_id }),
+                    cache: 'no-store'
+                });
+                promises.push(cardsPromise);
             }
-        } catch (error) { toast.error(getErrorMessage(error));
-        } finally { if (showLoading) setIsLoadingData(false); }
+
+            const responses = await Promise.all(promises);
+            const [accountRes, cardsRes] = responses;
+
+            // Process account response
+            if (accountRes.ok) {
+                const accountData = await accountRes.json();
+                setStripeAccount(accountData.account);
+            }
+
+            // Process cards response only if it exists and is successful
+            if (cardsRes && cardsRes.ok) {
+                const cardsData = await cardsRes.json();
+                setSavedCards(cardsData.cards || []);
+                setDefaultPaymentMethodId(cardsData.defaultPaymentMethodId);
+            } else if (!profile.stripe_customer_id) {
+                // If no customer ID, ensure cards are empty
+                setSavedCards([]);
+                setDefaultPaymentMethodId(null);
+            }
+
+        } catch (error) { 
+            console.error('Error fetching payment data:', error);
+            toast.error(getErrorMessage(error));
+        } finally { 
+            if (showLoading) setIsLoadingData(false); 
+        }
     }, [profile]);
 
+    // Main data loading effect
     useEffect(() => {
         if (!isProfileLoading) {
-            if (profile) fetchData(true);
-            else router.push('/login');
+            if (profile) {
+                fetchData(true);
+            } else {
+                router.push('/login');
+            }
         }
     }, [isProfileLoading, profile, router, fetchData]);
 
+    // Enhanced verification polling with better error handling
     useEffect(() => {
         const status = searchParams.get('status');
         const customerId = searchParams.get('customer_id');
@@ -75,11 +115,10 @@ const PaymentsPageContent = () => {
             setIsVerifying(true);
             const toastId = toast.loading('Verifying your new card...');
             let attempts = 0;
-            const maxAttempts = 5;
+            const maxAttempts = 6;
             const initialCardCount = savedCards.length;
 
-            const poll = setInterval(async () => {
-                attempts++;
+            const pollForNewCard = async () => {
                 try {
                     const res = await fetch('/api/stripe/verify-and-get-cards', {
                         method: 'POST',
@@ -88,39 +127,55 @@ const PaymentsPageContent = () => {
                         cache: 'no-store',
                     });
 
-                    if (!res.ok) throw new Error('Verification failed.');
+                    if (!res.ok) {
+                        throw new Error(`Verification API error: ${res.status}`);
+                    }
                     
                     const data = await res.json();
                     const newCards: SavedCard[] = data.cards || [];
 
+                    // Success condition: new card found
                     if (newCards.length > initialCardCount) {
-                        clearInterval(poll);
                         setSavedCards(newCards);
                         setDefaultPaymentMethodId(data.defaultPaymentMethodId);
                         toast.success('Your new card was added successfully!', { id: toastId });
                         router.replace('/payments', { scroll: false });
                         setIsVerifying(false);
-                        return;
+                        return true;
                     }
+
+                    return false;
                 } catch (error) {
+                    console.error('Polling error:', error);
+                    return false;
+                }
+            };
+
+            const poll = setInterval(async () => {
+                attempts++;
+                
+                const success = await pollForNewCard();
+                if (success) {
                     clearInterval(poll);
-                    toast.error(getErrorMessage(error), { id: toastId });
-                    router.replace('/payments', { scroll: false });
-                    setIsVerifying(false);
                     return;
                 }
 
                 if (attempts >= maxAttempts) {
                     clearInterval(poll);
-                    toast.error('Could not verify new card. Please refresh the page.', { id: toastId });
+                    toast.error('Card verification timed out. Please refresh the page to see your new card.', { id: toastId });
                     router.replace('/payments', { scroll: false });
                     setIsVerifying(false);
+                    
+                    // Attempt one final fetch after timeout
+                    setTimeout(() => fetchData(false), 1000);
                 }
             }, 2000);
-        }
-    }, [searchParams, isVerifying, router, savedCards.length]);
-    
 
+            // Cleanup interval if component unmounts
+            return () => clearInterval(poll);
+        }
+    }, [searchParams, isVerifying, router, savedCards.length, fetchData]);
+    
     const handleConnectStripe = async () => {
         const toastId = toast.loading('Redirecting to Stripe...');
         try {
@@ -176,37 +231,49 @@ const PaymentsPageContent = () => {
     };
 
     const handleAddNewCard = async () => {
-      const toastId = toast.loading('Redirecting to Stripe...');
-      try {
-        const response = await fetch('/api/stripe/create-checkout-session', {
-          method: 'POST',
-          cache: 'no-store',
-        });
+        const toastId = toast.loading('Redirecting to Stripe...');
+        try {
+            const response = await fetch('/api/stripe/create-checkout-session', {
+                method: 'POST',
+                cache: 'no-store',
+            });
 
-        if (!response.ok) {
-          throw new Error('Could not create Stripe session.');
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Could not create Stripe session.');
+            }
+
+            const { sessionId } = await response.json();
+            if (!sessionId) {
+                throw new Error('Invalid session ID received.');
+            }
+
+            const stripe = await getStripe();
+            if (!stripe) {
+                throw new Error('Stripe.js failed to load.');
+            }
+
+            await stripe.redirectToCheckout({ sessionId });
+            toast.dismiss(toastId);
+
+        } catch (error) {
+            console.error('Add card error:', error);
+            toast.error(getErrorMessage(error), { id: toastId });
         }
+    };
 
-        const { sessionId } = await response.json();
-        if (!sessionId) {
-          throw new Error('Invalid session ID received.');
-        }
-
-        const stripe = await getStripe();
-        if (!stripe) {
-            throw new Error('Stripe.js failed to load.');
-        }
-
-        await stripe.redirectToCheckout({ sessionId });
-        toast.dismiss(toastId);
-
-      } catch (error) {
-        toast.error(getErrorMessage(error), { id: toastId });
-      }
+    const handleRefreshCards = async () => {
+        await fetchData(true);
+        toast.success('Card data refreshed');
     };
 
     if (isProfileLoading || isLoadingData) {
-        return <Container><PageHeader title="Payments" /><p>Loading...</p></Container>;
+        return (
+            <Container>
+                <PageHeader title="Payments" />
+                <p>Loading payment methods...</p>
+            </Container>
+        );
     }
     
     return (
@@ -226,27 +293,58 @@ const PaymentsPageContent = () => {
                     <div className={styles.savedCardsSection}>
                         <div className={styles.sectionHeader}>
                             <h3 className={styles.cardTitle}>Saved Cards</h3>
-                            <p className={styles.cardDescription}>Set a default card or remove expired ones.</p>
+                            <p className={styles.cardDescription}>
+                                Set a default card or remove expired ones.
+                                <Button onClick={handleRefreshCards} variant="link" style={{marginLeft: '10px', fontSize: '12px'}}>
+                                    🔄 Refresh
+                                </Button>
+                            </p>
                         </div>
                         <div className={styles.savedCardsList}>
                             {savedCards.length === 0 ? (
-                                <div className={styles.noCardsMessage}>You have no saved cards.</div>
+                                <div className={styles.noCardsMessage}>
+                                    {profile?.stripe_customer_id ? 
+                                        "You have no saved cards." : 
+                                        "Add your first card to get started."
+                                    }
+                                </div>
                             ) : (
                                 savedCards.map(card => (
                                     <div key={card.id} className={styles.savedCard}>
                                         <span className={styles.cardIcon}></span>
                                         <div className={styles.savedCardDetails}>
-                                            <span>{card.brand?.toUpperCase()} **** {card.last4}
-                                                {card.id === defaultPaymentMethodId && <span className={styles.defaultBadge}>DEFAULT</span>}
+                                            <span>
+                                                {card.brand?.toUpperCase()} **** {card.last4}
+                                                {card.id === defaultPaymentMethodId && (
+                                                    <span className={styles.defaultBadge}>DEFAULT</span>
+                                                )}
                                             </span>
-                                            <span className={styles.cardExpiry}>Expires: {String(card.exp_month).padStart(2, '0')}/{card.exp_year}</span>
+                                            <span className={styles.cardExpiry}>
+                                                Expires: {String(card.exp_month).padStart(2, '0')}/{card.exp_year}
+                                            </span>
                                         </div>
                                         <DropdownMenu.Root>
-                                            <DropdownMenu.Trigger asChild><button className={styles.manageButton}>Manage</button></DropdownMenu.Trigger>
-                                            <DropdownMenu.Portal><DropdownMenu.Content className={styles.dropdownContent} sideOffset={5} align="end">
-                                                {card.id !== defaultPaymentMethodId && (<DropdownMenu.Item className={styles.dropdownItem} onSelect={() => handleSetDefault(card.id)}>Set as default</DropdownMenu.Item>)}
-                                                <DropdownMenu.Item className={`${styles.dropdownItem} ${styles.destructive}`} onSelect={() => handleRemove(card.id)}>Remove</DropdownMenu.Item>
-                                            </DropdownMenu.Content></DropdownMenu.Portal>
+                                            <DropdownMenu.Trigger asChild>
+                                                <button className={styles.manageButton}>Manage</button>
+                                            </DropdownMenu.Trigger>
+                                            <DropdownMenu.Portal>
+                                                <DropdownMenu.Content className={styles.dropdownContent} sideOffset={5} align="end">
+                                                    {card.id !== defaultPaymentMethodId && (
+                                                        <DropdownMenu.Item 
+                                                            className={styles.dropdownItem} 
+                                                            onSelect={() => handleSetDefault(card.id)}
+                                                        >
+                                                            Set as default
+                                                        </DropdownMenu.Item>
+                                                    )}
+                                                    <DropdownMenu.Item 
+                                                        className={`${styles.dropdownItem} ${styles.destructive}`} 
+                                                        onSelect={() => handleRemove(card.id)}
+                                                    >
+                                                        Remove
+                                                    </DropdownMenu.Item>
+                                                </DropdownMenu.Content>
+                                            </DropdownMenu.Portal>
                                         </DropdownMenu.Root>
                                     </div>
                                 ))
@@ -264,23 +362,34 @@ const PaymentsPageContent = () => {
                                     {stripeAccount?.details_submitted ? 'Manage Stripe Account' : 'Connect Stripe Account'}
                                 </Button>
                                 {stripeAccount?.details_submitted && (
-                                    <Button onClick={handleDisconnect} variant="link" className={styles.disconnect}>Disconnect</Button>
+                                    <Button onClick={handleDisconnect} variant="link" className={styles.disconnect}>
+                                        Disconnect
+                                    </Button>
                                 )}
                             </div>
                         </div>
                     </Card>
                 </div>
             </div>
-            <p className={styles.footerText}>All payments are securely processed by Stripe. We do not store your payment information.</p>
+            <p className={styles.footerText}>
+                All payments are securely processed by Stripe. We do not store your payment information.
+            </p>
         </Container>
     );
 }
 
 const PaymentsPage = () => {
     return (
-        <Suspense fallback={<Container><PageHeader title="Payments" /><p>Loading...</p></Container>}>
+        <Suspense fallback={
+            <Container>
+                <PageHeader title="Payments" />
+                <p>Loading...</p>
+            </Container>
+        }>
             <PaymentsPageContent />
         </Suspense>
     );
 };
+
 export default PaymentsPage;
+
