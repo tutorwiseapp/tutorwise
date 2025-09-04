@@ -35,7 +35,7 @@ const DashboardPage = () => {
   useEffect(() => {
     // If loading is finished and there's no profile, the user is not logged in.
     if (!isLoading && !profile) {
-      router.push('/api/auth/login');
+      router.push('/login');
     }
   }, [isLoading, profile, router]);
 

@@ -11,13 +11,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { createClient } from '@/utils/supabase/client';
 import GuanMenuIcon from '../ui/nav/GuanMenuIcon';
 import styles from './NavMenu.module.css';
 import getProfileImageUrl from '@/lib/utils/image';
@@ -25,14 +23,6 @@ import getProfileImageUrl from '@/lib/utils/image';
 const NavMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { profile, isLoading } = useUserProfile();
-  const router = useRouter();
-  const supabase = createClient();
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push('/');
-    router.refresh();
-  };
 
   if (isLoading) {
     return <div style={{ width: '80px' }} />; // Placeholder to prevent layout shift
@@ -83,12 +73,14 @@ const NavMenu = () => {
                   <Link href="/settings">Settings</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Separator className={styles.separator} />
-                <DropdownMenu.Item
-                  className={`${styles.menuItem} ${styles.logoutItem}`}
-                  onSelect={handleSignOut}
-                >
-                  Sign Out
-                </DropdownMenu.Item>
+                {/* --- THIS IS THE FIX --- */}
+                <form action="/api/auth/logout" method="post" style={{ display: 'contents' }}>
+                  <DropdownMenu.Item asChild className={`${styles.menuItem} ${styles.logoutItem}`}>
+                    <button type="submit" style={{ all: 'unset', width: '100%', cursor: 'pointer' }}>
+                      Sign Out
+                    </button>
+                  </DropdownMenu.Item>
+                </form>
               </>
             ) : (
               <>
