@@ -5,7 +5,6 @@
  * C009 - 2025-09-02 : 11:00 - Definitive fix for Suspense/hook conflict using an isolated child component.
  * Last Modified: 2025-09-02 : 11:00
  * Requirement ID: VIN-APP-01
- * Change Summary: This is the definitive fix for all build and runtime errors. The component that uses the `useSearchParams` hook has been isolated into a small, invisible child component (`AgentIdHandler`). The main `HomePage` component renders this child inside the required <Suspense> boundary. This architecture satisfies the Next.js build requirement without creating the infinite loading runtime bug.
  */
 
 'use client';
@@ -16,7 +15,7 @@ import Image from 'next/image';
 import QRCode from 'qrcode';
 import { useSearchParams } from 'next/navigation';
 import styles from './page.module.css';
-import { useUserProfile } from '@/app/contexts/UserProfileContext'; // Use Supabase context
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import Container from '@/app/components/layout/Container';
 import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
@@ -26,6 +25,7 @@ const validateUrl = (url: string): { valid: boolean; message?: string } => {
   try { new URL(url); if (!url.startsWith('http://') && !url.startsWith('https://')) { return { valid: false, message: "⚠️ URL must start with https:// or http://." }; } return { valid: true }; } catch { return { valid: false, message: "⚠️ URL format is incorrect. Check for typos." }; }
 };
 
+// This child component safely accesses the search params without causing build errors.
 function AgentIdHandler({ setAgentIdFromUrl }: { setAgentIdFromUrl: (id: string) => void }) {
   const searchParams = useSearchParams();
   const agentId = searchParams.get('agentId');
@@ -36,7 +36,7 @@ function AgentIdHandler({ setAgentIdFromUrl }: { setAgentIdFromUrl: (id: string)
     }
   }, [agentId, setAgentIdFromUrl]);
 
-  return null;
+  return null; // This component does not render anything.
 }
 
 export default function HomePage() {
@@ -144,16 +144,16 @@ export default function HomePage() {
             </div>
           </div>
           <div className={styles.buttonContainer}>
-            <Button onClick={handleGenerateLink} variant="primary" disabled={isGenerating}>{isGenerating ? 'Generating...' : 'Generate Link'}</Button>
-            <Button onClick={() => handleShare('whatsapp')} disabled={!generatedLink} variant="primary">Refer on WhatsApp</Button>
-            <Button onClick={() => handleShare('linkedin')} disabled={!generatedLink} variant="primary">Refer on LinkedIn</Button>
+            <Button onClick={handleGenerateLink} disabled={isGenerating}>{isGenerating ? 'Generating...' : 'Generate Link'}</Button>
+            <Button onClick={() => handleShare('whatsapp')} disabled={!generatedLink} variant="secondary">Refer on WhatsApp</Button>
+            <Button onClick={() => handleShare('linkedin')} disabled={!generatedLink} variant="secondary">Refer on LinkedIn</Button>
           </div>
           {generatedLink && (
             <div className={styles.resultsContainer}>
               <div className={styles.resultsCard}>
                 <div className={styles.outputGrid}>
                   <div className={styles.outputColumn} onClick={() => handleCopyToClipboard(generatedLink, 'Link Copied!')}><h4>Copy Vinite Link</h4><div className={styles.outputBox}>{generatedLink}</div></div>
-                  <div className={styles.outputColumn} onClick={() => handleCopyToClipboard(generatedLink, 'Link Copied!')}><h4>Copy QR Code</h4><div className={styles.outputBox}>{qrCodeDataUrl && <Image src={qrCodeDataUrl} alt="Vinite Referral QR Code" width={136} height={136} />}</div></div>
+                  <div className={styles.outputColumn} onClick={() => handleCopyToClipboard(qrCodeDataUrl, 'QR Code Image URL Copied!')}><h4>Copy QR Code</h4><div className={styles.outputBox}>{qrCodeDataUrl && <Image src={qrCodeDataUrl} alt="Vinite Referral QR Code" width={136} height={136} />}</div></div>
                   <div className={styles.outputColumn} onClick={() => handleCopyToClipboard(snippetCode, 'Snippet Copied!')}><h4>Copy Embed Code</h4><div className={styles.outputBox}><pre><code>{snippetCode}</code></pre></div></div>
                 </div>
               </div>
@@ -171,3 +171,4 @@ export default function HomePage() {
     </>
   );
 }
+
