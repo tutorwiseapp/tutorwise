@@ -24,25 +24,63 @@ export async function middleware(request: NextRequest) {
         },
         set(name: string, value: string, options: CookieOptions) {
           request.cookies.set({ name, value, ...options })
-          response = NextResponse.next({ request: { headers: request.headers } })
+          response = NextResponse.next({
+            request: { headers: request.headers },
+          })
           response.cookies.set({ name, value, ...options })
         },
         remove(name: string, options: CookieOptions) {
           request.cookies.set({ name, value: '', ...options })
-          response = NextResponse.next({ request: { headers: request.headers } })
+          response = NextResponse.next({
+            request: { headers: request.headers },
+          })
           response.cookies.set({ name, value: '', ...options })
         },
       },
     }
   )
 
-  await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  // Define all pages that are accessible to the public
+  const publicPaths = [
+    '/',
+    '/login',
+    '/signup',
+    '/refer',
+    '/contact',
+    '/terms-of-service',
+    '/privacy-policy',
+    '/forgot-password',
+  ];
+
+  // Check if the current request path is for a public page or a public agent profile
+  const isPublicPath = 
+    publicPaths.includes(request.nextUrl.pathname) ||
+    request.nextUrl.pathname.startsWith('/agents/') ||
+    request.nextUrl.pathname.startsWith('/contact-agent');
+
+  // If the user is not logged in and the path is not public, redirect to the login page.
+  // This logic now correctly applies ONLY to pages, not API routes, because of the updated config matcher below.
+  if (!user && !isPublicPath) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
 
   return response
 }
 
 export const config = {
+  // This matcher is inspired by your Clerk configuration.
+  // It runs on all request paths EXCEPT for:
+  // - /api/ routes
+  // - /_next/static (static files)
+  // - /_next/image (image optimization files)
+  // - /favicon.ico (favicon file)
+  // This ensures the middleware only protects PAGES and leaves API routes alone.
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 }
+
