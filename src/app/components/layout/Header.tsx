@@ -16,64 +16,28 @@
  */
 'use client';
 
-import React from 'react';
 import Link from 'next/link';
-import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import getProfileImageUrl from '@/lib/utils/image';
+import { usePathname } from 'next/navigation';
 import NavMenu from './NavMenu';
 import styles from './Header.module.css';
 
 const Header = () => {
-    const { profile, isLoading } = useUserProfile();
+  const pathname = usePathname();
 
-    return (
-        <header className={styles.header}>
-            <div className={styles.container}>
-                <div className={styles.logo}>
-                    <Link href="/">Vinite</Link>
-                </div>
-                
-                {/* This wrapper correctly groups the navigation and user sections */}
-                <div className={styles.rightSection}>
-                    <NavMenu />
-                    <div className={styles.userSection}>
-                        {isLoading ? (
-                            <div className={styles.loadingSpinner}></div>
-                        ) : profile ? (
-                            <div className={styles.profileContainer}>
-                                <Link href="/profile" className={styles.profileLink}>
-                                    <img
-                                        src={getProfileImageUrl(profile)}
-                                        alt={profile.display_name || 'User Avatar'}
-                                        className={styles.avatar}
-                                        width={40}
-                                        height={40}
-                                    />
-                                    <span className={styles.profileName}>{profile.display_name}</span>
-                                </Link>
-                                {/* This form now calls the server-side logout route */}
-                                <form action="/api/auth/logout" method="post">
-                                    <button type="submit" className={styles.authButton}>
-                                        Logout
-                                    </button>
-                                </form>
-                            </div>
-                        ) : (
-                            <>
-                                <Link href="/login" className={styles.authButton}>
-                                    Login
-                                </Link>
-                                <Link href="/signup" className={`${styles.authButton} ${styles.signupButton}`}>
-                                    Sign Up
-                                </Link>
-                            </>
-                        )}
-                    </div>
-                </div>
-            </div>
-        </header>
-    );
+  const logoHref = pathname === '/' ? '/refer' : '/';
+
+  return (
+    <header className={styles.header}>
+      <div className={styles.headerLogo}>
+        <Link href={logoHref}>vinite</Link>
+      </div>
+      
+      {/* --- THIS IS THE SURGICAL FIX --- */}
+      {/* The component must be self-closing because it does not accept children. */}
+      <NavMenu />
+      
+    </header>
+  );
 };
 
 export default Header;
-
