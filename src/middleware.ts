@@ -63,7 +63,6 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/contact-agent');
 
   // If the user is not logged in and the path is not public, redirect to the login page.
-  // This logic now correctly applies ONLY to pages, not API routes, because of the updated config matcher below.
   if (!user && !isPublicPath) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
@@ -75,12 +74,12 @@ export const config = {
   // This matcher is inspired by your Clerk configuration.
   // It runs on all request paths EXCEPT for:
   // - /api/ routes
+  // - /auth/ routes (for Google sign-in, etc.)
   // - /_next/static (static files)
   // - /_next/image (image optimization files)
   // - /favicon.ico (favicon file)
-  // This ensures the middleware only protects PAGES and leaves API routes alone.
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!api|auth|_next/static|_next/image|favicon.ico).*)',
   ],
 }
 
