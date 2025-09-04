@@ -3,7 +3,8 @@
  * Purpose: Implements Supabase session management middleware.
  * Change History:
  * C005 - 2025-09-03 : 15:00 - Definitive version for Supabase SSR.
- */
+ * C006 - 2025-09-04 : 14:00 - FIXED MIDDLEWARE - Exclude auth routes from processing
+*/
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
@@ -44,8 +45,7 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // --- THIS IS THE DEFINITIVE FIX ---
-  // Define all public paths that do not require a login.
+  // Define all public paths that do not require a login
   const publicPaths = [
     '/',
     '/login',
@@ -57,15 +57,14 @@ export async function middleware(request: NextRequest) {
     '/forgot-password',
   ]
 
-  // Check if the current request path is for a public page or a public agent profile.
+  // Check if the current request path is for a public page or a public agent profile
   const isPublicPath =
     publicPaths.includes(request.nextUrl.pathname) ||
     request.nextUrl.pathname.startsWith('/agents/') ||
-    request.nextUrl.pathname.startsWith('/contact-agent');
-
+    request.nextUrl.pathname.startsWith('/contact-agent')
 
   // If the user is not logged in and is trying to access a non-public path,
-  // redirect them to the login page.
+  // redirect them to the login page
   if (!user && !isPublicPath) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
@@ -74,7 +73,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // This matcher ensures the middleware only runs on pages and not on API or auth routes.
+  // FIXED: Exclude auth routes completely from middleware processing
   matcher: [
     '/((?!api|auth|_next/static|_next/image|favicon.ico).*)',
   ],
