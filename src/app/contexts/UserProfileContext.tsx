@@ -20,12 +20,8 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // --- THIS IS THE FIX ---
-    // This function now fetches the profile directly using the client-side Supabase instance,
-    // which avoids the race condition of calling the /api/profile route.
-    const fetchProfileDirectly = async (sessionUser: User | null) => {
+    const fetchProfile = async (sessionUser: User | null) => {
       if (sessionUser) {
-        setIsLoading(true);
         try {
           const { data, error } = await supabase
             .from('profiles')
@@ -34,43 +30,39 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
             .single();
           
           if (error) {
-             console.error('Error fetching profile directly:', error);
+             console.error('Error fetching profile:', error);
              setProfile(null);
           } else {
             setProfile(data);
           }
         } catch (error) {
-          console.error('An unexpected error occurred during profile fetch:', error);
+          console.error('Unexpected error fetching profile:', error);
           setProfile(null);
-        } finally {
-          setIsLoading(false);
         }
       } else {
         setProfile(null);
-        setIsLoading(false);
       }
+      setIsLoading(false);
     };
 
-    // Immediately check for a session on initial load
-    const checkSession = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        setUser(session?.user ?? null);
-        await fetchProfileDirectly(session?.user ?? null);
+    const initialize = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+      await fetchProfile(session?.user ?? null);
+
+      const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+        const sessionUser = session?.user ?? null;
+        setUser(sessionUser);
+        fetchProfile(sessionUser);
+      });
+
+      return () => {
+        authListener.subscription.unsubscribe();
+      };
     };
 
-    checkSession();
-
-    // Listen for auth state changes
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      const sessionUser = session?.user ?? null;
-      setUser(sessionUser);
-      fetchProfileDirectly(sessionUser); // Call the direct fetch method here as well
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, []); // Supabase client is stable, so empty dependency is fine here.
+    initialize();
+  }, []);
 
   return (
     <UserProfileContext.Provider value={{ profile, user, isLoading }}>
