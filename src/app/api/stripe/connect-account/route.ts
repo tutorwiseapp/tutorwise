@@ -7,59 +7,128 @@
  * Last Modified: 2025-09-03 : 14:15
  * Requirement ID: VIN-AUTH-MIG-05
  */
-import { NextResponse } from 'next/server';
+ import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { stripe } from '@/lib/stripe';
 import Stripe from 'stripe';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const supabase = createClient();
+  
   try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !user) {
+      console.error('Authentication error:', userError);
+      return new NextResponse(
+        JSON.stringify({ error: "Authentication required" }), 
+        { status: 401 }
+      );
     }
     
-    const primaryEmail = user.email;
-    if (!primaryEmail) {
-        return new NextResponse("User has no primary email address.", { status: 400 });
+    if (!user.email) {
+        console.error('User has no email address:', user.id);
+        return new NextResponse(
+          JSON.stringify({ error: "User email is required for Stripe account creation" }), 
+          { status: 400 }
+        );
     }
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('stripe_account_id')
+      .select('stripe_account_id, display_name')
       .eq('id', user.id)
       .single();
 
-    if (profileError) throw profileError;
-    
+    if (profileError) {
+      console.error('Profile fetch error:', profileError);
+      return new NextResponse(
+        JSON.stringify({ error: "Could not retrieve user profile" }), 
+        { status: 500 }
+      );
+    }
+
     let stripeAccountId = profile?.stripe_account_id;
 
     if (!stripeAccountId) {
-      const account = await stripe.accounts.create({
-        type: 'express',
-        email: primaryEmail,
-        capabilities: { transfers: { requested: true } },
-      });
-      stripeAccountId = account.id;
+      console.log('Creating new Stripe account for user:', user.id);
+      
+      try {
+        const account = await stripe.accounts.create({
+          type: 'express',
+          email: user.email,
+          capabilities: { 
+            transfers: { requested: true },
+            card_payments: { requested: true }
+          },
+          business_type: 'individual',
+          metadata: {
+            supabaseUserId: user.id
+          }
+        });
+        
+        stripeAccountId = account.id;
+        console.log('Created Stripe account:', stripeAccountId);
 
-      await supabase
-        .from('profiles')
-        .update({ stripe_account_id: stripeAccountId })
-        .eq('id', user.id);
+        await supabase
+          .from('profiles')
+          .update({ stripe_account_id: stripeAccountId })
+          .eq('id', user.id);
+        
+      } catch (stripeError) {
+        console.error('Stripe account creation error:', stripeError);
+        return new NextResponse(
+          JSON.stringify({ 
+            error: stripeError instanceof Stripe.errors.StripeError 
+              ? stripeError.message 
+              : "Failed to create Stripe account" 
+          }), 
+          { status: 500 }
+        );
+      }
     }
 
-    const accountLink = await stripe.accountLinks.create({
-      account: stripeAccountId,
-      // --- UPDATED ---
-      refresh_url: `${process.env.NEXT_PUBLIC_SITE_URL}/payments`,
-      return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/payments`,
-      type: 'account_onboarding',
-    });
+    console.log('Creating account link for:', stripeAccountId);
+    
+    try {
+      // --- THIS IS THE DEFINITIVE FIX ---
+      // Get the origin URL directly from the request object for reliability.
+      const origin = new URL(req.url).origin;
 
-    return NextResponse.json({ url: accountLink.url });
+      const accountLink = await stripe.accountLinks.create({
+        account: stripeAccountId,
+        refresh_url: `${origin}/payments?refresh=true`,
+        return_url: `${origin}/payments?connected=true`,
+        type: 'account_onboarding',
+      });
+
+      console.log('Account link created successfully:', accountLink.url);
+      
+      return NextResponse.json({ 
+        url: accountLink.url,
+        accountId: stripeAccountId 
+      });
+      
+    } catch (linkError) {
+      console.error('Account link creation error:', linkError);
+      return new NextResponse(
+        JSON.stringify({ 
+          error: linkError instanceof Stripe.errors.StripeError 
+            ? linkError.message 
+            : "Failed to create onboarding link" 
+        }), 
+        { status: 500 }
+      );
+    }
+
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-    return new NextResponse(JSON.stringify({ error: errorMessage }), { status: 500 });
+    console.error('Unexpected error in connect-account:', error);
+    return new NextResponse(
+      JSON.stringify({ 
+        error: "An unexpected server error occurred" 
+      }), 
+      { status: 500 }
+    );
   }
 }
+
