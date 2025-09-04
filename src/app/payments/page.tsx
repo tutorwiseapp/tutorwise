@@ -24,8 +24,11 @@ import styles from './page.module.css';
 import Button from '@/app/components/ui/Button';
 
 interface SavedCard {
-    id: string; brand: string | undefined; last4: string | undefined;
-    exp_month: number | undefined; exp_year: number | undefined;
+    id: string;
+    brand: string | undefined;
+    last4: string | undefined;
+    exp_month: number | undefined;
+    exp_year: number | undefined;
 }
 
 const PaymentsPageContent = () => {
@@ -45,7 +48,7 @@ const PaymentsPageContent = () => {
         try {
             const [accountRes, cardsRes] = await Promise.all([
                 fetch('/api/stripe/get-connect-account', { cache: 'no-store' }),
-                fetch('/api/stripe/get-payment-methods', { cache: 'no-store' })
+                fetch('/api/stripe/get-cards-by-customer', { cache: 'no-store' }) // --- THIS IS THE FIX ---
             ]);
             if (accountRes.ok) setStripeAccount((await accountRes.json()).account);
             if (cardsRes.ok) {
@@ -64,29 +67,139 @@ const PaymentsPageContent = () => {
         }
     }, [isProfileLoading, profile, router, fetchData]);
 
-    useEffect(() => { /* ... (polling logic remains the same) ... */ }, [searchParams, isVerifying, router, savedCards.length]);
+    useEffect(() => {
+        const status = searchParams.get('status');
+        const customerId = searchParams.get('customer_id');
 
-    const handleConnectStripe = async () => { /* ... */ };
-    const handleDisconnect = async () => { /* ... */ };
-    const handleSetDefault = async (pmId: string) => { /* ... */ };
-    const handleRemove = async (pmId: string) => { /* ... */ };
+        if (status === 'success' && customerId && !isVerifying) {
+            setIsVerifying(true);
+            const toastId = toast.loading('Verifying your new card...');
+            let attempts = 0;
+            const maxAttempts = 5;
+            const initialCardCount = savedCards.length;
+
+            const poll = setInterval(async () => {
+                attempts++;
+                try {
+                    const res = await fetch('/api/stripe/verify-and-get-cards', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ customerId }),
+                        cache: 'no-store',
+                    });
+
+                    if (!res.ok) throw new Error('Verification failed.');
+                    
+                    const data = await res.json();
+                    const newCards: SavedCard[] = data.cards || [];
+
+                    if (newCards.length > initialCardCount) {
+                        clearInterval(poll);
+                        setSavedCards(newCards);
+                        setDefaultPaymentMethodId(data.defaultPaymentMethodId);
+                        toast.success('Your new card was added successfully!', { id: toastId });
+                        router.replace('/payments', { scroll: false });
+                        setIsVerifying(false);
+                        return;
+                    }
+                } catch (error) {
+                    clearInterval(poll);
+                    toast.error(getErrorMessage(error), { id: toastId });
+                    router.replace('/payments', { scroll: false });
+                    setIsVerifying(false);
+                    return;
+                }
+
+                if (attempts >= maxAttempts) {
+                    clearInterval(poll);
+                    toast.error('Could not verify new card. Please refresh the page.', { id: toastId });
+                    router.replace('/payments', { scroll: false });
+                    setIsVerifying(false);
+                }
+            }, 2000);
+        }
+    }, [searchParams, isVerifying, router, savedCards.length]);
+    
+
+    const handleConnectStripe = async () => {
+        const toastId = toast.loading('Redirecting to Stripe...');
+        try {
+            const response = await fetch('/api/stripe/connect-account');
+            if (!response.ok) throw new Error('Could not connect to Stripe.');
+            const { url } = await response.json();
+            window.location.href = url;
+            toast.dismiss(toastId);
+        } catch (error) {
+            toast.error(getErrorMessage(error), { id: toastId });
+        }
+    };
+    
+    const handleDisconnect = async () => {
+        const toastId = toast.loading('Disconnecting your Stripe account...');
+        try {
+            await fetch('/api/stripe/disconnect-account', { method: 'POST' });
+            setStripeAccount(null);
+            toast.success('Stripe account disconnected.', { id: toastId });
+        } catch (error) {
+            toast.error(getErrorMessage(error), { id: toastId });
+        }
+    };
+    
+    const handleSetDefault = async (paymentMethodId: string) => {
+        const toastId = toast.loading('Setting new default...');
+        try {
+            await fetch('/api/stripe/set-default-card', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ paymentMethodId }),
+            });
+            setDefaultPaymentMethodId(paymentMethodId);
+            toast.success('Default payment method updated.', { id: toastId });
+        } catch (error) {
+            toast.error(getErrorMessage(error), { id: toastId });
+        }
+    };
+
+    const handleRemove = async (paymentMethodId: string) => {
+        const toastId = toast.loading('Removing card...');
+        try {
+            await fetch('/api/stripe/remove-card', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ paymentMethodId }),
+            });
+            setSavedCards(prev => prev.filter(card => card.id !== paymentMethodId));
+            toast.success('Card removed successfully.', { id: toastId });
+        } catch (error) {
+            toast.error(getErrorMessage(error), { id: toastId });
+        }
+    };
 
     const handleAddNewCard = async () => {
       const toastId = toast.loading('Redirecting to Stripe...');
       try {
         const response = await fetch('/api/stripe/create-checkout-session', {
           method: 'POST',
+          cache: 'no-store',
         });
-        if (!response.ok) throw new Error((await response.json()).error || 'Failed to create session.');
-        
+
+        if (!response.ok) {
+          throw new Error('Could not create Stripe session.');
+        }
+
         const { sessionId } = await response.json();
-        if (!sessionId) throw new Error('Invalid session ID.');
-        
+        if (!sessionId) {
+          throw new Error('Invalid session ID received.');
+        }
+
         const stripe = await getStripe();
-        if (!stripe) throw new Error('Stripe.js failed to load.');
+        if (!stripe) {
+            throw new Error('Stripe.js failed to load.');
+        }
 
         await stripe.redirectToCheckout({ sessionId });
         toast.dismiss(toastId);
+
       } catch (error) {
         toast.error(getErrorMessage(error), { id: toastId });
       }
@@ -100,8 +213,65 @@ const PaymentsPageContent = () => {
         <Container>
             <PageHeader title="Payments" subtitle="Manage your methods for sending and receiving payments." />
             <div className={styles.grid}>
-                {/* ... (rest of JSX is unchanged) ... */}
+                <div className={styles.columnStack}>
+                    <Card>
+                        <div className={styles.cardContent}>
+                            <h3 className={styles.cardTitle}>Sending Payment Methods</h3>
+                            <p className={styles.cardDescription}>Add or manage your credit and debit cards.</p>
+                            <div className={styles.cardActions}>
+                               <Button onClick={handleAddNewCard} variant="link">Add a New Card</Button>
+                            </div>
+                        </div>
+                    </Card>
+                    <div className={styles.savedCardsSection}>
+                        <div className={styles.sectionHeader}>
+                            <h3 className={styles.cardTitle}>Saved Cards</h3>
+                            <p className={styles.cardDescription}>Set a default card or remove expired ones.</p>
+                        </div>
+                        <div className={styles.savedCardsList}>
+                            {savedCards.length === 0 ? (
+                                <div className={styles.noCardsMessage}>You have no saved cards.</div>
+                            ) : (
+                                savedCards.map(card => (
+                                    <div key={card.id} className={styles.savedCard}>
+                                        <span className={styles.cardIcon}></span>
+                                        <div className={styles.savedCardDetails}>
+                                            <span>{card.brand?.toUpperCase()} **** {card.last4}
+                                                {card.id === defaultPaymentMethodId && <span className={styles.defaultBadge}>DEFAULT</span>}
+                                            </span>
+                                            <span className={styles.cardExpiry}>Expires: {String(card.exp_month).padStart(2, '0')}/{card.exp_year}</span>
+                                        </div>
+                                        <DropdownMenu.Root>
+                                            <DropdownMenu.Trigger asChild><button className={styles.manageButton}>Manage</button></DropdownMenu.Trigger>
+                                            <DropdownMenu.Portal><DropdownMenu.Content className={styles.dropdownContent} sideOffset={5} align="end">
+                                                {card.id !== defaultPaymentMethodId && (<DropdownMenu.Item className={styles.dropdownItem} onSelect={() => handleSetDefault(card.id)}>Set as default</DropdownMenu.Item>)}
+                                                <DropdownMenu.Item className={`${styles.dropdownItem} ${styles.destructive}`} onSelect={() => handleRemove(card.id)}>Remove</DropdownMenu.Item>
+                                            </DropdownMenu.Content></DropdownMenu.Portal>
+                                        </DropdownMenu.Root>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </div>
+                <div className={styles.columnStack}>
+                    <Card>
+                         <div className={styles.cardContent}>
+                            <h3 className={styles.cardTitle}>Receiving Payment Methods</h3>
+                            <p className={styles.cardDescription}>Connect a Stripe account to receive your referral earnings.</p>
+                            <div className={styles.cardActions}>
+                                 <Button onClick={handleConnectStripe} variant="link">
+                                    {stripeAccount?.details_submitted ? 'Manage Stripe Account' : 'Connect Stripe Account'}
+                                </Button>
+                                {stripeAccount?.details_submitted && (
+                                    <Button onClick={handleDisconnect} variant="link" className={styles.disconnect}>Disconnect</Button>
+                                )}
+                            </div>
+                        </div>
+                    </Card>
+                </div>
             </div>
+            <p className={styles.footerText}>All payments are securely processed by Stripe. We do not store your payment information.</p>
         </Container>
     );
 }

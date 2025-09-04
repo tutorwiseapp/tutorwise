@@ -1,32 +1,42 @@
 /*
  * Filename: src/app/components/ui/Button/Button.module.css
  * Purpose: Provides styles for all button variants.
- *
- * Change History:
- * C005 - 2025-07-22 : 04:00 - Implemented custom grey background for the .google variant as requested.
- * C004 - 2025-07-22 : 03:45 - Corrected .google variant styles for proper override.
- * C003 - 2025-07-22 : 03:30 - Removed empty .btn ruleset.
- * C002 - 2025-07-22 : 03:15 - Added styles for the 'google' variant.
- * C001 - [Date] : [Time] - Initial creation.
- *
- * Last Modified: 2025-07-22 : 04:00
- * Requirement ID (optional): VIN-UI-018
- *
- * Change Summary:
- * The `.google` variant has been updated to use a custom grey background color (`#E9ECEF`) with
- * a slightly darker hover state, as per the specific design request. The border has been
- * removed to give it a cleaner, more modern appearance.
- *
- * Impact Analysis:
- * This change correctly implements the requested visual style for the Google button on the
- * login and signup pages.
  */
+
+/* Base styles for all buttons */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid transparent;
+  font-size: 1rem;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
 .fullWidth {
   width: 100%;
 }
 
 /* --- Variants --- */
+.primary {
+  background-color: var(--color-primary, #006C67);
+  color: white;
+}
+.primary:hover:not(:disabled) {
+  background-color: var(--color-primary-dark, #004D40);
+}
+
 .secondary { 
   background-color: transparent; 
   color: var(--color-primary, #006C67); 
@@ -36,25 +46,30 @@
   background-color: var(--color-primary-light, #E0F2F1);
 }
 
-/* --- THIS IS THE FINAL, CORRECTED CODE FOR THE GREY GOOGLE BUTTON --- */
-.google {
-    /* 1. Set the requested grey background color */
-    background-color: #E9ECEF;
-    
-    /* 2. Set dark text color for high contrast */
-    color: var(--color-text-primary, #3c4043);
-    
-    /* 3. Remove the border for a cleaner look */
-    border: 1px solid transparent;
+/* Link variant style */
+.link {
+  background-color: transparent;
+  color: #0070f3;
+  border: none;
+  padding: 0;
+  text-decoration: underline;
+  justify-content: flex-start;
+}
+.link:hover {
+  color: #005bb5;
+}
 
-    /* 4. Use a subtle shadow to make it feel clickable */
+/* Grey Google button styles */
+.google {
+    background-color: #E9ECEF;
+    color: var(--color-text-primary, #3c4043);
+    border: 1px solid transparent;
     box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.04));
     gap: var(--space-2, 12px);
     transition: all 0.2s ease-in-out;
 }
 .google:hover:not(:disabled) {
     box-shadow: var(--shadow-md, 0 4px 8px rgba(0,0,0,0.1));
-    /* A slightly darker grey on hover for clear feedback */
     background-color: #DEE2E6; 
 }
 .google::before {

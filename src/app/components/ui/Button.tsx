@@ -1,41 +1,32 @@
-'use client';
-
 import React from 'react';
 import styles from './Button.module.css';
 
-// --- THIS IS THE FIX ---
-// Added the 'as' prop to allow the component to render as a different element
-// and changed children to React.ReactNode to be more flexible.
-interface ButtonProps extends React.ComponentPropsWithoutRef<'button'> {
-  variant?: 'primary' | 'secondary' | 'google';
+// Added a 'variant' prop to the interface to allow for different button styles.
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children: React.ReactNode;
+  variant?: 'primary' | 'secondary' | 'link' | 'google'; // Define the allowed variants
   fullWidth?: boolean;
-  as?: 'button' | 'span';
-  children: React.ReactNode; 
 }
 
-const Button = ({
-  variant = 'primary',
+const Button: React.FC<ButtonProps> = ({ 
+  children, 
+  variant = 'primary', // Default to 'primary' if no variant is provided
   fullWidth = false,
-  className,
-  children,
-  as: Component = 'button', // Default to a button element
-  ...props
-}: ButtonProps) => {
-  
-  const buttonClasses = [
-    'btn', 
-    variant === 'primary' ? 'btn-primary' : '',
-    styles.btn,
+  className, 
+  ...props 
+}) => {
+  // Combine the base button style with variant and other classes.
+  const buttonClassName = [
+    styles.button,
     styles[variant],
     fullWidth ? styles.fullWidth : '',
-    className,
-  ].filter(Boolean).join(' ');
+    className || ''
+  ].join(' ').trim();
 
-  // The component now dynamically renders as a <button> or <span>
   return (
-    <Component className={buttonClasses} {...props as any}>
+    <button className={buttonClassName} {...props}>
       {children}
-    </Component>
+    </button>
   );
 };
 
