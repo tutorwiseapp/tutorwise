@@ -17,27 +17,30 @@
 const nextConfig = {
   images: {
     remotePatterns: [
-      // --- THIS IS THE FIX ---
-      // Add the following block to approve images from Clerk's CDN.
+      // For Google OAuth Avatars
       {
         protocol: 'https',
-        hostname: 'img.clerk.com',
+        hostname: 'lh3.googleusercontent.com',
         port: '',
         pathname: '/**',
       },
-      // Your existing patterns are preserved.
+      // --- THIS IS THE FIX ---
+      // For user-uploaded avatars stored in Supabase Storage.
+      // The hostname is your Supabase Project URL's domain.
       {
         protocol: 'https',
-        hostname: 'www.gravatar.com',
+        hostname: 'xzhdbvygrbddcevxminj.supabase.co',
         port: '',
-        pathname: '/avatar/**',
+        pathname: '/storage/v1/object/public/**',
       },
+      // For placeholder avatars
       {
         protocol: 'https',
         hostname: 'i.pravatar.cc',
         port: '',
         pathname: '/**',
       },
+      // For resource page images
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
@@ -49,3 +52,4 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
+
