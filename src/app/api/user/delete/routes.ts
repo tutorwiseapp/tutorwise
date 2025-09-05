@@ -22,7 +22,9 @@ export async function POST(req: Request) {
     // Perform the deletion
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
 
-    // Explicitly handle any errors from the deletion process
+    // --- THIS IS THE FIX ---
+    // Explicitly handle any errors from the deletion process and ensure
+    // a valid JSON response is always sent.
     if (deleteError) {
       console.error('Supabase user deletion error:', deleteError.message);
       return NextResponse.json({ error: `Database error: ${deleteError.message}` }, { status: 500 });
@@ -32,6 +34,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, message: 'User account has been permanently deleted.' });
 
   } catch (error) {
+    // This is a fallback catch for any other unexpected errors.
     console.error('Generic error in delete route:', error);
     const errorMessage = error instanceof Error ? error.message : "An unexpected server error occurred.";
     return NextResponse.json({ error: errorMessage }, { status: 500 });
