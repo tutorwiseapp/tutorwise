@@ -10,40 +10,116 @@
  */
 'use client';
 
-import { createClient } from '@/utils/supabase/server';
-import { NextResponse } from 'next/server';
-import { createClient as createAdminClient } from '@supabase/supabase-js';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import Container from '@/app/components/layout/Container';
+import Card from '@/app/components/ui/Card';
+import Button from '@/app/components/ui/Button';
+import PageHeader from '@/app/components/ui/PageHeader';
+import Message from '@/app/components/ui/Message';
+import FormGroup from '@/app/components/ui/form/FormGroup';
+import Input from '@/app/components/ui/form/Input';
+import styles from './page.module.css';
+import { getErrorMessage } from '@/lib/utils/getErrorMessage';
 
-export async function POST(req: Request) {
-  const supabase = createClient();
+const DeleteAccountPage = () => {
+  const { profile, isLoading: isProfileLoading } = useUserProfile();
+  const router = useRouter();
+  const [confirmationText, setConfirmationText] = useState('');
+  const [error, setError] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  useEffect(() => {
+    if (!isProfileLoading && !profile) {
+      router.push('/login');
+    }
+  }, [isProfileLoading, profile, router]);
+
+  const handleDelete = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    if (confirmationText !== 'DELETE') {
+      setError('Please type DELETE to confirm.');
+      return;
     }
 
-    // Initialize the Admin client with the service role key to bypass RLS
-    const supabaseAdmin = createAdminClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    const isConfirmed = window.confirm(
+      'Are you absolutely sure you want to permanently delete your account? This action cannot be undone.'
     );
 
-    // Perform the deletion
-    const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
-
-    // Explicitly handle any errors from the deletion process
-    if (deleteError) {
-      console.error('Supabase user deletion error:', deleteError.message);
-      return NextResponse.json({ error: `Database error: ${deleteError.message}` }, { status: 500 });
+    if (!isConfirmed) {
+      return;
     }
+    
+    setIsDeleting(true);
+    
+    try {
+      const response = await fetch('/api/user/delete', {
+        method: 'POST',
+      });
 
-    // On success, return a valid JSON response
-    return NextResponse.json({ success: true, message: 'User account has been permanently deleted.' });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete account.');
+      }
 
-  } catch (error) {
-    console.error('Generic error in delete route:', error);
-    const errorMessage = error instanceof Error ? error.message : "An unexpected server error occurred.";
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.href = '/';
+
+    } catch (err) {
+      setError(getErrorMessage(err));
+      setIsDeleting(false);
+    }
+  };
+
+  if (isProfileLoading || !profile) {
+    return (
+      <Container>
+        <p>Loading...</p>
+      </Container>
+    );
   }
-}
+
+  return (
+    <Container variant="form">
+      <PageHeader
+        title="Delete Account"
+        subtitle="This action is permanent and cannot be undone."
+      />
+      <Card>
+        <Message type="error" className={styles.warningMessage}>
+          You are about to permanently delete your account, including all of your profile information, referral links, and earnings history.
+        </Message>
+        <form onSubmit={handleDelete} className={styles.form}>
+          <FormGroup
+            label={`To confirm, please type "DELETE" in the box below.`}
+            htmlFor="confirmation"
+          >
+            <Input
+              id="confirmation"
+              type="text"
+              value={confirmationText}
+              onChange={(e) => setConfirmationText(e.target.value)}
+              required
+              autoComplete="off"
+            />
+          </FormGroup>
+
+          {error && <p className={styles.errorText}>{error}</p>}
+
+          <Button
+            type="submit"
+            fullWidth
+            className={styles.dangerButton}
+            disabled={confirmationText !== 'DELETE' || isDeleting}
+          >
+            {isDeleting ? 'Deleting Account...' : 'Delete My Account Permanently'}
+          </Button>
+        </form>
+      </Card>
+    </Container>
+  );
+};
+
+export default DeleteAccountPage;
