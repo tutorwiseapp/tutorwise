@@ -5,12 +5,6 @@
   margin: 0 auto;
 }
 
-/*
-.card {
-  /* No special styles needed, relies on the global Card component 
-}
-*/
-
 .warningMessage {
   /* This ensures the red Message component has the right margins */
   margin-bottom: 1.5rem;
@@ -29,19 +23,21 @@
 
 /* This is a specific style for the red danger button */
 .dangerButton {
-  background-color: var(--color-error-bg);
+  background-color: var(--color-error);
   border-color: var(--color-error);
-  color: var(--color-error-text);
+  color: white;
   font-weight: 600;
 }
 
 .dangerButton:hover:not(:disabled) {
-  background-color: var(--color-error);
-  color: white;
+  background-color: var(--color-error-text);
+  border-color: var(--color-error-text);
 }
 
 .dangerButton:disabled {
   background-color: var(--color-bg-page);
   border-color: var(--color-border);
+  color: var(--color-text-secondary);
   cursor: not-allowed;
+  opacity: 0.6;
 }

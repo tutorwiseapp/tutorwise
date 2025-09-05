@@ -1,70 +1,120 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import Container from '@/app/components/layout/Container';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
+import PageHeader from '@/app/components/ui/PageHeader';
+import Message from '@/app/components/ui/Message';
+import FormGroup from '@/app/components/ui/form/FormGroup';
+import Input from '@/app/components/ui/form/Input';
 import styles from './page.module.css';
+import { getErrorMessage } from '@/lib/utils/getErrorMessage';
 
-interface ClaimDetails {
-  userName: string;
-  serviceName: string;
-}
-
-const ClaimSuccessPage = () => {
-  const { profile, isLoading } = useUserProfile();
+const DeleteAccountPage = () => {
+  const { profile, isLoading: isProfileLoading } = useUserProfile();
   const router = useRouter();
-  const [claimDetails, setClaimDetails] = useState<ClaimDetails | null>(null);
-  
+  const [confirmationText, setConfirmationText] = useState('');
+  const [error, setError] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+
   useEffect(() => {
-    if (!isLoading && !profile) {
+    if (!isProfileLoading && !profile) {
       router.push('/login');
+    }
+  }, [isProfileLoading, profile, router]);
+
+  const handleDelete = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    if (confirmationText !== 'DELETE') {
+      setError('Please type DELETE to confirm.');
+      return;
+    }
+
+    // --- THIS IS THE FIX ---
+    // Add a browser confirmation dialog as a final safety check.
+    const isConfirmed = window.confirm(
+      'Are you absolutely sure you want to permanently delete your account? This action cannot be undone.'
+    );
+
+    // If the user clicks "Cancel", stop the deletion process.
+    if (!isConfirmed) {
       return;
     }
     
-    if (profile) {
-        const detailsString = sessionStorage.getItem('vinite_claim_details');
-        if (detailsString) {
-          setClaimDetails(JSON.parse(detailsString));
-          sessionStorage.removeItem('vinite_claim_details'); 
-        } else {
-          router.push('/dashboard');
-        }
-    }
-  }, [profile, isLoading, router]);
+    setIsDeleting(true);
+    
+    try {
+      const response = await fetch('/api/user/delete', {
+        method: 'POST',
+      });
 
-  if (isLoading || !claimDetails) {
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete account.');
+      }
+
+      // If successful, redirect to the logout route to clear the session
+      // which will then redirect to the homepage.
+      router.push('/api/auth/logout');
+
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  if (isProfileLoading || !profile) {
     return (
-      <Container className={styles.container}>
-        <p>Verifying your claim...</p>
+      <Container>
+        <p>Loading...</p>
       </Container>
     );
   }
 
   return (
-    <Container className={styles.container}>
-      <Card className={styles.successCard}>
-        <div className={styles.iconWrapper}>
-          <span className="material-symbols-outlined">verified</span>
-        </div>
-        <h1 className={styles.title}>Reward Claimed!</h1>
-        <p className={styles.subtitle}>
-          Congratulations, {claimDetails.userName}! You've successfully claimed your reward for <strong>{claimDetails.serviceName}</strong>. We've added it to your account.
-        </p>
-        <div className={styles.buttonGroup}>
-          <Link href="/transaction-history">
-            <Button variant="primary">View My Rewards</Button>
-          </Link>
-          <Link href="/dashboard">
-            <Button variant="secondary">Go to My Dashboard</Button>
-          </Link>
-        </div>
+    <Container variant="form">
+      <PageHeader
+        title="Delete Account"
+        subtitle="This action is permanent and cannot be undone."
+      />
+      <Card>
+        <Message type="error" className={styles.warningMessage}>
+          You are about to permanently delete your account, including all of your profile information, referral links, and earnings history.
+        </Message>
+        <form onSubmit={handleDelete} className={styles.form}>
+          <FormGroup
+            label={`To confirm, please type "DELETE" in the box below.`}
+            htmlFor="confirmation"
+          >
+            <Input
+              id="confirmation"
+              type="text"
+              value={confirmationText}
+              onChange={(e) => setConfirmationText(e.target.value)}
+              required
+              autoComplete="off"
+            />
+          </FormGroup>
+
+          {error && <p className={styles.errorText}>{error}</p>}
+
+          <Button
+            type="submit"
+            fullWidth
+            className={styles.dangerButton}
+            disabled={confirmationText !== 'DELETE' || isDeleting}
+          >
+            {isDeleting ? 'Deleting Account...' : 'Delete My Account Permanently'}
+          </Button>
+        </form>
       </Card>
     </Container>
   );
 };
 
-export default ClaimSuccessPage;
+export default DeleteAccountPage;
