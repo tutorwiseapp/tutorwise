@@ -64,7 +64,10 @@ const DeleteAccountPage = () => {
         throw new Error(errorData.error || 'Failed to delete account.');
       }
 
+      // --- THIS IS THE FIX ---
+      // On successful deletion, POST to the logout route to clear session cookies
       await fetch('/api/auth/logout', { method: 'POST' });
+      // Then force a full-page redirect to the homepage to reset the application state
       window.location.href = '/';
 
     } catch (err) {
