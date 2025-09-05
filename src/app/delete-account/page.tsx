@@ -24,7 +24,7 @@ import styles from './page.module.css';
 import { getErrorMessage } from '@/lib/utils/getErrorMessage';
 
 const DeleteAccountPage = () => {
-  const { profile, user, isLoading: isProfileLoading } = useUserProfile();
+  const { profile, isLoading: isProfileLoading } = useUserProfile();
   const router = useRouter();
   const [confirmationText, setConfirmationText] = useState('');
   const [error, setError] = useState('');
@@ -55,23 +55,26 @@ const DeleteAccountPage = () => {
     setIsDeleting(true);
     
     try {
-      // --- THIS IS THE FIX ---
-      // Pass the authenticated user's ID in the request body
+      // Make the secure API call. No request body is needed.
       const response = await fetch('/api/user/delete', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user?.id }),
       });
 
+      // The server will always send back JSON now, so we can safely parse it.
+      const result = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete account.');
+        // If the server responded with an error, its message will be in result.error
+        throw new Error(result.error || 'Failed to delete account.');
       }
 
+      // On success, the user is deleted. Now, log them out to clear the client-side session.
       await fetch('/api/auth/logout', { method: 'POST' });
+      // Force a full-page redirect to the homepage to reset the application state.
       window.location.href = '/';
 
     } catch (err) {
+      // This will now catch both network errors and the JSON-formatted API errors.
       setError(getErrorMessage(err));
       setIsDeleting(false);
     }
