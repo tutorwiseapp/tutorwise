@@ -14,6 +14,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import QRCode from 'qrcode';
 import { useSearchParams } from 'next/navigation';
+import { nanoid } from 'nanoid'; // --- 1. IMPORT NANO ID ---
 import styles from './page.module.css';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import Container from '@/app/components/layout/Container';
@@ -64,7 +65,8 @@ export default function HomePage() {
       } else {
         let guestId = sessionStorage.getItem('vinite_guest_id');
         if (!guestId) {
-          guestId = `T1-GU${Math.floor(100000 + Math.random() * 900000)}`;
+          // --- 2. USE NANO ID (10 CHARACTERS) FOR GUEST IDS ---
+          guestId = `T1-GU${nanoid(10)}`;
           sessionStorage.setItem('vinite_guest_id', guestId);
         }
         setAgentId(guestId);
@@ -88,16 +90,12 @@ export default function HomePage() {
       return;
     }
 
-    // --- THIS IS THE FIX ---
-    // 1. Immediately generate the link and update the UI so the user gets feedback instantly.
     setIsGenerating(true);
     const newLink = `https://www.vinite.com/a/${encodeURIComponent(agentId)}?u=${encodeURIComponent(destinationUrl)}`;
     setGeneratedLink(newLink);
     showMessage({ text: 'Your Vinite link is ready!', type: 'success' });
     setIsGenerating(false);
 
-    // 2. Then, try to save the link to the backend in the background.
-    // This makes the UI resilient to backend errors.
     try {
       const response = await fetch('/api/links', {
         method: 'POST',
@@ -105,8 +103,6 @@ export default function HomePage() {
         body: JSON.stringify({ destinationUrl, channel: 'web-generator', agentId }),
       });
       if (!response.ok) {
-        // If saving fails, log it for debugging, but don't bother the user
-        // since they already have their functional link.
         console.error('Failed to save the generated link to the database.');
         const errorData = await response.json().catch(() => ({}));
         console.error('API Error:', errorData);
