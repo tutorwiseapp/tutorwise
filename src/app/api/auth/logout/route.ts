@@ -1,9 +1,6 @@
 // Filename: src/app/api/auth/logout/route.ts
 // FIXED LOGOUT HANDLER - Create proper logout API route
 
-// Filename: src/app/api/auth/logout/route.ts
-// FIXED LOGOUT HANDLER - Create proper logout API route
-
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse, type NextRequest } from 'next/server';
 
