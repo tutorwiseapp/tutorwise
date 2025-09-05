@@ -1,3 +1,5 @@
+// Filename: src/app/api/user/delete/route.ts
+
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 import { createClient as createAdminClient } from '@supabase/supabase-js';
@@ -8,26 +10,30 @@ export async function POST(req: Request) {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Use the Supabase Admin client to delete the user
-    // This requires the Service Role Key and bypasses RLS policies
+    // Initialize the Admin client with the service role key to bypass RLS
     const supabaseAdmin = createAdminClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    const { error } = await supabaseAdmin.auth.admin.deleteUser(user.id);
+    // Perform the deletion
+    const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
 
-    if (error) {
-      throw error;
+    // Explicitly handle any errors from the deletion process
+    if (deleteError) {
+      console.error('Supabase user deletion error:', deleteError.message);
+      return NextResponse.json({ error: `Database error: ${deleteError.message}` }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, message: 'User deleted successfully.' });
+    // On success, return a valid JSON response
+    return NextResponse.json({ success: true, message: 'User account has been permanently deleted.' });
 
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-    return new NextResponse(JSON.stringify({ error: errorMessage }), { status: 500 });
+    console.error('Generic error in delete route:', error);
+    const errorMessage = error instanceof Error ? error.message : "An unexpected server error occurred.";
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
