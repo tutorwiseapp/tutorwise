@@ -13,19 +13,18 @@ import { NextResponse } from 'next/server'
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  // next is the URL to redirect to after signing in
-  const next = searchParams.get('next') ?? '/'
-
+  
   if (code) {
     const supabase = createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
       // --- THIS IS THE FIX ---
-      // Redirect to the dashboard after a successful login.
+      // Redirect to the dashboard after a successful login to ensure the 
+      // new session is correctly registered by the browser.
       return NextResponse.redirect(`${origin}/dashboard`)
     }
   }
 
-  // return the user to an error page with instructions
+  // If there's an error, redirect the user to an error page.
   return NextResponse.redirect(`${origin}/auth/auth-code-error`)
 }
