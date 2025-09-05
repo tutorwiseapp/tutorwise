@@ -43,14 +43,8 @@ const DeleteAccountPage = () => {
       setError('Please type DELETE to confirm.');
       return;
     }
-
-    const isConfirmed = window.confirm(
-      'Are you absolutely sure you want to permanently delete your account? This action cannot be undone.'
-    );
-
-    if (!isConfirmed) {
-      return;
-    }
+    
+    // Pop-up has been removed as requested.
     
     setIsDeleting(true);
     
@@ -58,17 +52,26 @@ const DeleteAccountPage = () => {
       const response = await fetch('/api/user/delete', {
         method: 'POST',
       });
-      
-      const result = await response.json();
 
+      // --- THIS IS THE DEFINITIVE FIX ---
+      // If the response is not OK, we safely handle the error instead of crashing.
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to delete account.');
+        let errorMessage = 'An unexpected server error occurred.';
+        // Check if the server sent a JSON error message before trying to parse it.
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const result = await response.json();
+          errorMessage = result.error || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
-
+      
+      // On success, log the user out and redirect.
       await fetch('/api/auth/logout', { method: 'POST' });
       window.location.href = '/';
 
     } catch (err) {
+      // This will now catch network errors and provide a useful message for non-JSON server responses.
       setError(getErrorMessage(err));
       setIsDeleting(false);
     }
