@@ -13,7 +13,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
-import { customAlphabet } from 'nanoid'; // --- 1. IMPORT customAlphabet ---
 
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
@@ -32,22 +31,10 @@ export default function SignUpPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  // --- 2. CREATE A CUSTOM ID GENERATOR ---
-  // Define the characters you want to use (URL-safe, no ambiguous characters)
-  const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-  // Create a function that generates a 10-character ID
-  const generateRandomPart = customAlphabet(alphabet, 10);
-
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setMessage(null);
-
-    // --- 3. GENERATE THE NEW AGENT ID ---
-    // Get user's initials, defaulting to 'U' if no name is provided
-    const initials = fullName.match(/\b(\w)/g)?.join('').substring(0, 2).toUpperCase() || 'U';
-    const randomPart = generateRandomPart(); // e.g., "7zL8bE1wX9"
-    const agentId = `A1-${initials}${randomPart}`; // e.g., "A1-JS7zL8bE1wX9"
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -55,9 +42,6 @@ export default function SignUpPage() {
       options: {
         data: {
           full_name: fullName,
-          // --- 4. SAVE THE NEW ID TO THE DATABASE ---
-          // This is passed to the Supabase function that creates the user profile
-          agent_id: agentId, 
         },
       },
     });
@@ -74,6 +58,10 @@ export default function SignUpPage() {
       provider: 'google',
       options: {
         redirectTo: `${location.origin}/auth/callback`,
+        queryParams: {
+          // This is the key fix to ensure the user can select a different account
+          prompt: 'select_account',
+        },
       },
     });
   };
@@ -105,4 +93,4 @@ export default function SignUpPage() {
       </div>
     </Container>
   );
-};
+}

@@ -40,7 +40,6 @@ export default function LoginPage() {
     if (error) {
       setError(error.message);
     } else {
-      // Refresh the page to trigger the UserProfileContext to fetch the new user.
       router.refresh();
       router.push('/dashboard');
     }
@@ -51,6 +50,10 @@ export default function LoginPage() {
       provider: 'google',
       options: {
         redirectTo: `${location.origin}/auth/callback`,
+        queryParams: {
+          // This is the key fix to ensure the user can select a different account
+          prompt: 'select_account',
+        },
       },
     });
   };
@@ -77,4 +80,4 @@ export default function LoginPage() {
       </div>
     </Container>
   );
-};
+}

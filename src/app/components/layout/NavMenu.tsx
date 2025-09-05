@@ -29,10 +29,19 @@ const NavMenu = () => {
   const supabase = createClient();
 
   const handleSignOut = async () => {
-    router.push('/');
-    // --- THIS IS THE FIX ---
-    // Perform a global sign-out to clear the Google session as well.
-    await supabase.auth.signOut({ scope: 'global' });
+    try {
+      // 1. Let Supabase handle the global sign out.
+      // This clears its own cookies and localStorage items correctly.
+      await supabase.auth.signOut({ scope: 'global' });
+      
+      // 2. Force a hard refresh to the homepage to clear all client-side state.
+      window.location.href = '/';
+      
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Fallback: still force the redirect if the sign out fails for any reason.
+      window.location.href = '/';
+    }
   };
 
   if (isLoading) {
