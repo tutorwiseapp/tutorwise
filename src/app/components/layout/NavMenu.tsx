@@ -29,9 +29,11 @@ const NavMenu = () => {
   const supabase = createClient();
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    // --- THIS IS THE FIX ---
+    // 1. Immediately navigate to a public page.
     router.push('/');
-    router.refresh();
+    // 2. Then, sign the user out.
+    await supabase.auth.signOut();
   };
 
   if (isLoading) {
