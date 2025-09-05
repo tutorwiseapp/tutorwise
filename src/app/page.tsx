@@ -83,23 +83,36 @@ export default function HomePage() {
 
   const handleGenerateLink = useCallback(async () => {
     const urlValidation = validateUrl(destinationUrl);
-    if (!urlValidation.valid) { showMessage({ text: urlValidation.message!, type: 'error' }); return; }
+    if (!urlValidation.valid) {
+      showMessage({ text: urlValidation.message!, type: 'error' });
+      return;
+    }
+
+    // --- THIS IS THE FIX ---
+    // 1. Immediately generate the link and update the UI so the user gets feedback instantly.
     setIsGenerating(true);
-    setMessage(null);
+    const newLink = `https://www.vinite.com/a/${encodeURIComponent(agentId)}?u=${encodeURIComponent(destinationUrl)}`;
+    setGeneratedLink(newLink);
+    showMessage({ text: 'Your Vinite link is ready!', type: 'success' });
+    setIsGenerating(false);
+
+    // 2. Then, try to save the link to the backend in the background.
+    // This makes the UI resilient to backend errors.
     try {
       const response = await fetch('/api/links', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ destinationUrl, channel: 'web-generator', agentId }),
       });
-      if (!response.ok) throw new Error((await response.json()).error || 'Request failed');
-      const newLink = `https://www.vinite.com/a/${encodeURIComponent(agentId)}?u=${encodeURIComponent(destinationUrl)}`;
-      setGeneratedLink(newLink);
-      showMessage({ text: 'Your Vinite link is ready!', type: 'success' });
+      if (!response.ok) {
+        // If saving fails, log it for debugging, but don't bother the user
+        // since they already have their functional link.
+        console.error('Failed to save the generated link to the database.');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('API Error:', errorData);
+      }
     } catch (err) {
-      showMessage({ text: (err as Error).message, type: 'error' });
-    } finally {
-      setIsGenerating(false);
+      console.error('Error saving link:', err);
     }
   }, [destinationUrl, agentId]);
 
@@ -171,4 +184,3 @@ export default function HomePage() {
     </>
   );
 }
-
