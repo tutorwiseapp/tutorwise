@@ -24,7 +24,7 @@ import styles from './page.module.css';
 import { getErrorMessage } from '@/lib/utils/getErrorMessage';
 
 const DeleteAccountPage = () => {
-  const { profile, user, isLoading: isProfileLoading } = useUserProfile();
+  const { profile, isLoading: isProfileLoading } = useUserProfile();
   const router = useRouter();
   const [confirmationText, setConfirmationText] = useState('');
   const [error, setError] = useState('');
@@ -44,8 +44,6 @@ const DeleteAccountPage = () => {
       return;
     }
     
-    // Pop-up has been removed as requested.
-    
     setIsDeleting(true);
     
     try {
@@ -53,10 +51,10 @@ const DeleteAccountPage = () => {
         method: 'POST',
       });
 
-      // --- THIS IS THE DEFINITIVE FIX ---
+      // --- THIS IS THE FIX ---
       // If the response is not OK, we safely handle the error instead of crashing.
       if (!response.ok) {
-        let errorMessage = 'An unexpected server error occurred.';
+        let errorMessage = 'An unexpected server error occurred. Please try again.';
         // Check if the server sent a JSON error message before trying to parse it.
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
