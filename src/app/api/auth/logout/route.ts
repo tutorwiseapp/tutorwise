@@ -1,6 +1,9 @@
 // Filename: src/app/api/auth/logout/route.ts
 // FIXED LOGOUT HANDLER - Create proper logout API route
 
+// Filename: src/app/api/auth/logout/route.ts
+// FIXED LOGOUT HANDLER - Create proper logout API route
+
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse, type NextRequest } from 'next/server';
 
@@ -13,7 +16,9 @@ export async function POST(req: NextRequest) {
   } = await supabase.auth.getSession();
 
   if (session) {
-    await supabase.auth.signOut();
+    // --- THIS IS THE FIX ---
+    // Perform a global sign-out to clear the Google session as well.
+    await supabase.auth.signOut({ scope: 'global' });
   }
 
   // URL to redirect to after logout

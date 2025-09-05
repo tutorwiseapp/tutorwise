@@ -5,43 +5,37 @@ import { NextResponse } from 'next/server';
 import { createClient as createAdminClient } from '@supabase/supabase-js';
 
 export async function POST() {
-  console.log('[API DELETE USER]: Route handler started.');
   try {
+    // 1. Authenticate the user securely from their session cookie.
     const supabase = createClient();
-    console.log('[API DELETE USER]: Server client created.');
-    
-    const { data: { user }, error: getUserError } = await supabase.auth.getUser();
-
-    if (getUserError) {
-      console.error('[API DELETE USER]: Error getting user:', getUserError.message);
-      return NextResponse.json({ error: `Auth error: ${getUserError.message}` }, { status: 500 });
-    }
+    const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-      console.warn('[API DELETE USER]: Unauthorized attempt. No user session found.');
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized: User not found.' }, { status: 401 });
     }
-    console.log(`[API DELETE USER]: Authenticated user found: ${user.id}`);
-
+    
+    // 2. Initialize the Admin client to perform the deletion.
     const supabaseAdmin = createAdminClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
-    console.log('[API DELETE USER]: Admin client created.');
 
+    // 3. Perform the deletion using the authenticated user's ID.
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
 
     if (deleteError) {
-      console.error(`[API DELETE USER]: Supabase admin delete error for user ${user.id}:`, deleteError.message);
-      return NextResponse.json({ error: `Supabase error: ${deleteError.message}` }, { status: 500 });
+      // If Supabase returns an error, forward it in a proper JSON response.
+      console.error('Supabase user deletion error:', deleteError.message);
+      return NextResponse.json({ error: deleteError.message }, { status: 500 });
     }
 
-    console.log(`[API DELETE USER]: Successfully deleted user ${user.id}.`);
+    // 4. On success, return a clear JSON response.
     return NextResponse.json({ success: true });
 
   } catch (e) {
+    // 5. Catch any other unexpected errors and return a proper JSON response.
     const error = e as Error;
-    console.error('[API DELETE USER]: Unhandled exception in route handler:', error.message);
+    console.error('Unhandled error in delete route:', error.message);
     return NextResponse.json({ error: 'An unexpected server error occurred.' }, { status: 500 });
   }
 }

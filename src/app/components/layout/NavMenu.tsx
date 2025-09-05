@@ -8,6 +8,16 @@
  * Requirement ID: VIN-AUTH-MIG-05
  * Change Summary: This component is now fully migrated to Supabase Auth. It uses our custom `useUserProfile` hook to get the user's session and profile data. The logout button now calls the Supabase `signOut` method.
  */
+/*
+ * Filename: src/app/components/layout/NavMenu.tsx
+ * Purpose: Provides the main site navigation header, migrated to Supabase Auth.
+ * Change History:
+ * C003 - 2025-09-02 : 17:00 - Migrated from Kinde to Supabase with UserProfileContext.
+ * C002 - 2025-08-26 : 10:00 - Replaced Clerk components and hooks with Kinde.
+ * Last Modified: 2025-09-02 : 17:00
+ * Requirement ID: VIN-AUTH-MIG-05
+ * Change Summary: This component is now fully migrated to Supabase Auth. It uses our custom `useUserProfile` hook to get the user's session and profile data. The logout button now calls the Supabase `signOut` method.
+ */
 'use client';
 
 import React, { useState } from 'react';
@@ -29,11 +39,10 @@ const NavMenu = () => {
   const supabase = createClient();
 
   const handleSignOut = async () => {
-    // --- THIS IS THE FIX ---
-    // 1. Immediately navigate to a public page.
     router.push('/');
-    // 2. Then, sign the user out.
-    await supabase.auth.signOut();
+    // --- THIS IS THE FIX ---
+    // Perform a global sign-out to clear the Google session as well.
+    await supabase.auth.signOut({ scope: 'global' });
   };
 
   if (isLoading) {
