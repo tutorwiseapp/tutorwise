@@ -1,3 +1,5 @@
+/* Card.module.css */
+
 .card {
   background-color: var(--color-bg-card, #ffffff);
   border: 1px solid var(--color-border, #dfe1e5);

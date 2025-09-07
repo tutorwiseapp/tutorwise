@@ -2,11 +2,12 @@
  * Filename: src/app/payments/page.module.css
  * Purpose: Provides all styles for the definitive payments page layout.
  * Change History:
+ * C020 - 2025-09-07 : Enhanced height alignment with improved flexbox approach
  * C019 - 2025-09-07 : Complete restructure for proper height alignment
  * C018 - 2025-09-07 : Fixed receiving card height alignment issue
  * C017 - 2025-08-22 : 14:00 - Definitive and final fix for UI alignment using a stacked column layout.
  * C016 - 2025-08-21 : 22:00 - Added noCardsMessage style.
- * Last Modified: 2025-09-07 : Complete restructure
+ * Last Modified: 2025-09-07 : Enhanced height alignment
  * Requirement ID: VIN-UI-020
  */
 
@@ -22,7 +23,8 @@
   .paymentsGrid {
     display: flex;
     gap: var(--space-4);
-    align-items: stretch;
+    align-items: stretch; /* This ensures both columns stretch to match height */
+    min-height: 0; /* Allow flex items to shrink if needed */
   }
   
   /* Create left and right column containers */
@@ -31,10 +33,28 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
+    min-height: 0; /* Allow flex items to shrink if needed */
   }
   
   .rightColumn {
     flex: 1;
+    display: flex; /* Make right column a flex container */
+    min-height: 0; /* Allow flex items to shrink if needed */
+  }
+  
+  /* Ensure the receiving card fills the entire right column */
+  .receivingCard {
+    flex: 1; /* Take up full height of right column */
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Ensure left column cards also use full available space */
+  .sendingCard,
+  .savedCardsCard {
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* Allow flex items to shrink if needed */
   }
   
   /* Reset individual card positioning since we're using flex */
@@ -81,7 +101,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: auto;
+    margin-top: auto; /* Push actions to bottom of card */
 }
 
 .footerText {
@@ -112,6 +132,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
+    flex-grow: 1; /* Allow the cards list to grow and fill available space */
 }
 
 .noCardsMessage {
@@ -125,6 +146,7 @@
     color: var(--color-text-secondary);
     font-size: var(--font-size-sm);
     min-height: 60px;
+    flex-grow: 1; /* Allow no cards message to grow and fill space */
 }
 
 .savedCard {
