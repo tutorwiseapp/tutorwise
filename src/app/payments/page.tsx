@@ -153,51 +153,51 @@ const PaymentsPageContent = () => {
         <Container>
             <PageHeader title="Payments" subtitle="Manage your methods for sending and receiving payments." />
             <div className={styles.paymentsGrid}>
-                <div className={styles.columnStack}>
-                    <Card>
-                        <div className={styles.cardContent}>
-                            <h3>Sending Payment Methods</h3>
-                            <p>Add or manage your credit and debit cards for any provider services you may use.</p>
+                <Card className={styles.sendingCard}>
+                    <div className={styles.cardContent}>
+                        <h3>Sending Payment Methods</h3>
+                        <p>Add or manage your credit and debit cards for any provider services you may use.</p>
+                    </div>
+                    <Button onClick={handleAddNewCard} variant="link" className={styles.cardLink}>Add a New Card</Button>
+                </Card>
+
+                <Card className={styles.savedCardsCard}>
+                    <div className={styles.cardContent}>
+                        <div className={styles.sectionHeader}>
+                            <h3>Saved Cards</h3>
+                            <p>Set a default card or remove expired ones.</p>
                         </div>
-                        <Button onClick={handleAddNewCard} variant="link" className={styles.cardLink}>Add a New Card</Button>
-                    </Card>
-                    <Card>
-                        <div className={styles.cardContent}>
-                            <div className={styles.sectionHeader}>
-                                <h3>Saved Cards</h3>
-                                <p>Set a default card or remove expired ones.</p>
-                            </div>
-                            <div className={styles.savedCardsList}>
-                                {savedCards.length === 0 ? (
-                                    <div className={styles.noCardsMessage}>You have no saved cards.</div>
-                                ) : (
-                                    savedCards.map(card => (
-                                        <div key={card.id} className={styles.savedCard}>
-                                            <div className={styles.cardIcon}></div>
-                                            <div className={styles.savedCardDetails}>
-                                                <span>
-                                                    {card.brand?.toUpperCase()} **** {card.last4}
-                                                    {card.id === defaultPaymentMethodId && (<span className={styles.defaultBadge}>DEFAULT</span>)}
-                                                </span>
-                                                <span className={styles.cardExpiry}>Expires: {String(card.exp_month).padStart(2, '0')}/{card.exp_year}</span>
-                                            </div>
-                                            <DropdownMenu.Root>
-                                                <DropdownMenu.Trigger asChild><button className={styles.manageButton}>Manage</button></DropdownMenu.Trigger>
-                                                <DropdownMenu.Portal>
-                                                    <DropdownMenu.Content className={styles.dropdownContent} sideOffset={5} align="end">
-                                                        {card.id !== defaultPaymentMethodId && <DropdownMenu.Item className={styles.dropdownItem} onSelect={() => handleSetDefault(card.id)}>Set as default</DropdownMenu.Item>}
-                                                        <DropdownMenu.Item className={`${styles.dropdownItem} ${styles.destructive}`} onSelect={() => handleRemove(card.id)}>Remove</DropdownMenu.Item>
-                                                    </DropdownMenu.Content>
-                                                </DropdownMenu.Portal>
-                                            </DropdownMenu.Root>
+                        <div className={styles.savedCardsList}>
+                            {savedCards.length === 0 ? (
+                                <div className={styles.noCardsMessage}>You have no saved cards.</div>
+                            ) : (
+                                savedCards.map(card => (
+                                    <div key={card.id} className={styles.savedCard}>
+                                        <div className={styles.cardIcon}></div>
+                                        <div className={styles.savedCardDetails}>
+                                            <span>
+                                                {card.brand?.toUpperCase()} **** {card.last4}
+                                                {card.id === defaultPaymentMethodId && (<span className={styles.defaultBadge}>DEFAULT</span>)}
+                                            </span>
+                                            <span className={styles.cardExpiry}>Expires: {String(card.exp_month).padStart(2, '0')}/{card.exp_year}</span>
                                         </div>
-                                    ))
-                                )}
-                            </div>
+                                        <DropdownMenu.Root>
+                                            <DropdownMenu.Trigger asChild><button className={styles.manageButton}>Manage</button></DropdownMenu.Trigger>
+                                            <DropdownMenu.Portal>
+                                                <DropdownMenu.Content className={styles.dropdownContent} sideOffset={5} align="end">
+                                                    {card.id !== defaultPaymentMethodId && <DropdownMenu.Item className={styles.dropdownItem} onSelect={() => handleSetDefault(card.id)}>Set as default</DropdownMenu.Item>}
+                                                    <DropdownMenu.Item className={`${styles.dropdownItem} ${styles.destructive}`} onSelect={() => handleRemove(card.id)}>Remove</DropdownMenu.Item>
+                                                </DropdownMenu.Content>
+                                            </DropdownMenu.Portal>
+                                        </DropdownMenu.Root>
+                                    </div>
+                                ))
+                            )}
                         </div>
-                    </Card>
-                </div>
-                <Card>
+                    </div>
+                </Card>
+
+                <Card className={styles.receivingCard}>
                     <div className={styles.cardContent}>
                         <h3>Receiving Payouts</h3>
                         <p>Connect a Stripe account to securely receive your referral earnings. Vinite does not store your bank details.</p>

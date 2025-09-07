@@ -8,26 +8,26 @@
  * Requirement ID: VIN-UI-020
  */
 
+/* --- THIS IS THE FIX --- */
 .paymentsGrid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-4);
-  /* --- THIS IS THE FIX --- */
-  /* Aligns items to be of equal height by stretching the shorter column. */
-  align-items: stretch;
+  grid-template-columns: 1fr; /* Single column for mobile */
+  gap: var(--space-4); /* 32px gap for mobile stack */
+  align-items: start;
 }
 
+/* On desktop, create the 2-column layout */
 @media (min-width: 992px) {
   .paymentsGrid {
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-4);
   }
-}
-
-.columnStack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
+  .sendingCard, .savedCardsCard {
+    grid-column: 1; /* Place in the first column */
+  }
+  .receivingCard {
+    grid-column: 2; /* Place in the second column */
+    grid-row: 1 / span 2; /* Make this card span two rows to match height */
+  }
 }
 
 .cardContent {
