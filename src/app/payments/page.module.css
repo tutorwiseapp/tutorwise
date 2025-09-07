@@ -12,21 +12,22 @@
 .paymentsGrid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-4); /* Use 32px gap for mobile as requested */
+  gap: var(--space-4); /* Default 32px gap for mobile */
   align-items: start;
 }
 
 @media (min-width: 992px) {
   .paymentsGrid {
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-4); /* Use 32px gap for desktop */
+    gap: var(--space-4);
   }
 }
 
+/* --- THIS IS THE FIX for Mobile Spacing --- */
 .columnStack {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4); /* This controls the space between cards within the left column */
+  gap: var(--space-4); /* This ensures 32px gap between stacked cards */
 }
 
 .cardContent {

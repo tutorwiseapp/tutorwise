@@ -46,17 +46,18 @@
   background-color: var(--color-primary-light, #E0F2F1);
 }
 
-/* Link variant style */
+/* --- THIS IS THE FIX --- */
+/* The link variant now uses the primary brand color from your global styles. */
 .link {
   background-color: transparent;
-  color: #0070f3;
+  color: var(--color-primary, #006C67);
   border: none;
   padding: 0;
   text-decoration: underline;
   justify-content: flex-start;
 }
 .link:hover {
-  color: #005bb5;
+  color: var(--color-primary-dark, #004D40);
 }
 
 /* Grey Google button styles */
