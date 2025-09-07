@@ -2,14 +2,14 @@
  * Filename: src/app/payments/page.module.css
  * Purpose: Provides all styles for the definitive payments page layout.
  * Change History:
+ * C019 - 2025-09-07 : Complete restructure for proper height alignment
  * C018 - 2025-09-07 : Fixed receiving card height alignment issue
  * C017 - 2025-08-22 : 14:00 - Definitive and final fix for UI alignment using a stacked column layout.
  * C016 - 2025-08-21 : 22:00 - Added noCardsMessage style.
- * Last Modified: 2025-09-07 : Fixed height alignment
+ * Last Modified: 2025-09-07 : Complete restructure
  * Requirement ID: VIN-UI-020
  */
 
-/* --- THIS IS THE FIX --- */
 .paymentsGrid {
   display: grid;
   grid-template-columns: 1fr; /* Single column for mobile */
@@ -17,34 +17,32 @@
   align-items: start;
 }
 
-/* On desktop, create the 2-column layout with equal heights */
+/* On desktop, use flexbox for proper height matching */
 @media (min-width: 992px) {
   .paymentsGrid {
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: 1fr 1fr; /* Use fractional units to create equal-height rows */
+    display: flex;
+    gap: var(--space-4);
     align-items: stretch;
   }
-  .sendingCard {
-    grid-column: 1;
-    grid-row: 1;
+  
+  /* Create left and right column containers */
+  .leftColumn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
   }
-  .savedCardsCard {
-    grid-column: 1;
-    grid-row: 2;
+  
+  .rightColumn {
+    flex: 1;
   }
+  
+  /* Reset individual card positioning since we're using flex */
+  .sendingCard,
+  .savedCardsCard,
   .receivingCard {
-    grid-column: 2;
-    grid-row: 1 / -1; /* Span from first to last row */
-  }
-  
-  /* Ensure the receiving card's content distributes properly */
-  .receivingCard .cardContent {
-    height: 100%;
-    justify-content: space-between;
-  }
-  
-  .receivingCard .cardActions {
-    margin-top: auto;
+    grid-column: unset;
+    grid-row: unset;
   }
 }
 

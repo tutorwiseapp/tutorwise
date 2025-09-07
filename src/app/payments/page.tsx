@@ -2,11 +2,12 @@
  * Filename: src/app/payments/page.tsx
  * Purpose: Allows users to manage payment methods, with robust polling for data consistency.
  * Change History:
+ * C067 - 2025-09-07 : Restructured JSX for proper height alignment using flexbox columns
+ * C066 - 2025-09-07 : Added dynamic height calculation for card alignment
  * C065 - 2025-09-01 : 18:00 - Definitive fix for disappearing cards with robust polling mechanism.
  * C064 - 2025-08-26 : 15:00 - Replaced Clerk's useUser hook with Kinde's useKindeBrowserClient.
- * Last Modified: 2025-09-01 : 18:00
+ * Last Modified: 2025-09-07 : Restructured for height alignment
  * Requirement ID: VIN-PAY-1
- * Change Summary: This is the definitive fix for the "disappearing card" bug. The `useEffect` hook that handles the return from Stripe has been completely re-architected. It now implements a robust polling mechanism that repeatedly calls the verification API for up to 10 seconds. This guarantees the frontend waits for Stripe's systems to achieve eventual consistency, ensuring a newly added card is always present in the list after a page refresh.
  */
 'use client';
 
@@ -153,66 +154,70 @@ const PaymentsPageContent = () => {
         <Container>
             <PageHeader title="Payments" subtitle="Manage your methods for sending and receiving payments." />
             <div className={styles.paymentsGrid}>
-                <Card className={styles.sendingCard}>
-                    <div className={styles.cardContent}>
-                        <h3>Sending Payment Methods</h3>
-                        <p>Add or manage your credit and debit cards for any provider services you may use.</p>
-                    </div>
-                    <Button onClick={handleAddNewCard} variant="link" className={styles.cardLink}>Add a New Card</Button>
-                </Card>
-
-                <Card className={styles.savedCardsCard}>
-                    <div className={styles.cardContent}>
-                        <div className={styles.sectionHeader}>
-                            <h3>Saved Cards</h3>
-                            <p>Set a default card or remove expired ones.</p>
+                <div className={styles.leftColumn}>
+                    <Card className={styles.sendingCard}>
+                        <div className={styles.cardContent}>
+                            <h3>Sending Payment Methods</h3>
+                            <p>Add or manage your credit and debit cards for any provider services you may use.</p>
                         </div>
-                        <div className={styles.savedCardsList}>
-                            {savedCards.length === 0 ? (
-                                <div className={styles.noCardsMessage}>You have no saved cards.</div>
-                            ) : (
-                                savedCards.map(card => (
-                                    <div key={card.id} className={styles.savedCard}>
-                                        <div className={styles.cardIcon}></div>
-                                        <div className={styles.savedCardDetails}>
-                                            <span>
-                                                {card.brand?.toUpperCase()} **** {card.last4}
-                                                {card.id === defaultPaymentMethodId && (<span className={styles.defaultBadge}>DEFAULT</span>)}
-                                            </span>
-                                            <span className={styles.cardExpiry}>Expires: {String(card.exp_month).padStart(2, '0')}/{card.exp_year}</span>
+                        <Button onClick={handleAddNewCard} variant="link" className={styles.cardLink}>Add a New Card</Button>
+                    </Card>
+
+                    <Card className={styles.savedCardsCard}>
+                        <div className={styles.cardContent}>
+                            <div className={styles.sectionHeader}>
+                                <h3>Saved Cards</h3>
+                                <p>Set a default card or remove expired ones.</p>
+                            </div>
+                            <div className={styles.savedCardsList}>
+                                {savedCards.length === 0 ? (
+                                    <div className={styles.noCardsMessage}>You have no saved cards.</div>
+                                ) : (
+                                    savedCards.map(card => (
+                                        <div key={card.id} className={styles.savedCard}>
+                                            <div className={styles.cardIcon}></div>
+                                            <div className={styles.savedCardDetails}>
+                                                <span>
+                                                    {card.brand?.toUpperCase()} **** {card.last4}
+                                                    {card.id === defaultPaymentMethodId && (<span className={styles.defaultBadge}>DEFAULT</span>)}
+                                                </span>
+                                                <span className={styles.cardExpiry}>Expires: {String(card.exp_month).padStart(2, '0')}/{card.exp_year}</span>
+                                            </div>
+                                            <DropdownMenu.Root>
+                                                <DropdownMenu.Trigger asChild><button className={styles.manageButton}>Manage</button></DropdownMenu.Trigger>
+                                                <DropdownMenu.Portal>
+                                                    <DropdownMenu.Content className={styles.dropdownContent} sideOffset={5} align="end">
+                                                        {card.id !== defaultPaymentMethodId && <DropdownMenu.Item className={styles.dropdownItem} onSelect={() => handleSetDefault(card.id)}>Set as default</DropdownMenu.Item>}
+                                                        <DropdownMenu.Item className={`${styles.dropdownItem} ${styles.destructive}`} onSelect={() => handleRemove(card.id)}>Remove</DropdownMenu.Item>
+                                                    </DropdownMenu.Content>
+                                                </DropdownMenu.Portal>
+                                            </DropdownMenu.Root>
                                         </div>
-                                        <DropdownMenu.Root>
-                                            <DropdownMenu.Trigger asChild><button className={styles.manageButton}>Manage</button></DropdownMenu.Trigger>
-                                            <DropdownMenu.Portal>
-                                                <DropdownMenu.Content className={styles.dropdownContent} sideOffset={5} align="end">
-                                                    {card.id !== defaultPaymentMethodId && <DropdownMenu.Item className={styles.dropdownItem} onSelect={() => handleSetDefault(card.id)}>Set as default</DropdownMenu.Item>}
-                                                    <DropdownMenu.Item className={`${styles.dropdownItem} ${styles.destructive}`} onSelect={() => handleRemove(card.id)}>Remove</DropdownMenu.Item>
-                                                </DropdownMenu.Content>
-                                            </DropdownMenu.Portal>
-                                        </DropdownMenu.Root>
-                                    </div>
-                                ))
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+
+                <div className={styles.rightColumn}>
+                    <Card className={styles.receivingCard}>
+                        <div className={styles.cardContent}>
+                            <h3>Receiving Payouts</h3>
+                            <p>Connect a Stripe account to securely receive your referral earnings. Vinite does not store your bank details.</p>
+                        </div>
+                        <div className={styles.cardActions}>
+                            <Button onClick={handleConnectStripe} variant="link" className={styles.cardLink}>
+                                {stripeAccount?.details_submitted ? 'Manage Stripe Account' : 'Connect Stripe Account'}
+                            </Button>
+                            {stripeAccount?.details_submitted && (
+                                <Button onClick={handleDisconnect} variant="link" className={styles.cardLink} style={{ color: 'var(--color-error)' }}>
+                                    Disconnect
+                                </Button>
                             )}
                         </div>
-                    </div>
-                </Card>
-
-                <Card className={styles.receivingCard}>
-                    <div className={styles.cardContent}>
-                        <h3>Receiving Payouts</h3>
-                        <p>Connect a Stripe account to securely receive your referral earnings. Vinite does not store your bank details.</p>
-                    </div>
-                    <div className={styles.cardActions}>
-                        <Button onClick={handleConnectStripe} variant="link" className={styles.cardLink}>
-                            {stripeAccount?.details_submitted ? 'Manage Stripe Account' : 'Connect Stripe Account'}
-                        </Button>
-                        {stripeAccount?.details_submitted && (
-                            <Button onClick={handleDisconnect} variant="link" className={styles.cardLink} style={{ color: 'var(--color-error)' }}>
-                                Disconnect
-                            </Button>
-                        )}
-                    </div>
-                </Card>
+                    </Card>
+                </div>
             </div>
             <p className={styles.footerText}>All payments are securely processed by Stripe. We do not store your payment information.</p>
         </Container>
