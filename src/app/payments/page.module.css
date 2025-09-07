@@ -2,137 +2,89 @@
  * Filename: src/app/payments/page.module.css
  * Purpose: Provides all styles for the definitive payments page layout.
  * Change History:
- * C020 - 2025-09-07 : Enhanced height alignment with improved flexbox approach
- * C019 - 2025-09-07 : Complete restructure for proper height alignment
- * C018 - 2025-09-07 : Fixed receiving card height alignment issue
  * C017 - 2025-08-22 : 14:00 - Definitive and final fix for UI alignment using a stacked column layout.
  * C016 - 2025-08-21 : 22:00 - Added noCardsMessage style.
- * Last Modified: 2025-09-07 : Enhanced height alignment
+ * Last Modified: 2025-08-22 : 14:00
  * Requirement ID: VIN-UI-020
  */
 
-.paymentsGrid {
+.grid {
   display: grid;
-  grid-template-columns: 1fr; /* Single column for mobile */
-  gap: var(--space-4); /* 32px gap for mobile stack */
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
   align-items: start;
 }
 
-/* On desktop, use flexbox for proper height matching */
 @media (min-width: 992px) {
-  .paymentsGrid {
-    display: flex;
-    gap: var(--space-4);
-    align-items: stretch; /* This ensures both columns stretch to match height */
-    min-height: 0; /* Allow flex items to shrink if needed */
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
   }
-  
-  /* Create left and right column containers */
-  .leftColumn {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-    min-height: 0; /* Allow flex items to shrink if needed */
-  }
-  
-  .rightColumn {
-    flex: 1;
-    display: flex; /* Make right column a flex container */
-    min-height: 0; /* Allow flex items to shrink if needed */
-  }
-  
-  /* Ensure the receiving card fills the entire right column */
-  .receivingCard {
-    flex: 1; /* Take up full height of right column */
-    display: flex;
-    flex-direction: column;
-  }
-  
-  /* Ensure left column cards also use full available space */
-  .sendingCard,
-  .savedCardsCard {
-    display: flex;
-    flex-direction: column;
-    min-height: 0; /* Allow flex items to shrink if needed */
-  }
-  
-  /* Reset individual card positioning since we're using flex */
-  .sendingCard,
-  .savedCardsCard,
-  .receivingCard {
-    grid-column: unset;
-    grid-row: unset;
-  }
+}
+
+.columnStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
 }
 
 .cardContent {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  height: 100%;
 }
 
-.cardContent h3 {
+.cardTitle {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
   margin-bottom: var(--space-1);
 }
 
-.cardContent p {
-  font-size: var(--font-size-base);
+.cardDescription {
   color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-4);
   line-height: 1.6;
   flex-grow: 1;
 }
 
-.cardLink {
-  color: var(--color-primary);
-  font-weight: 500;
-  font-size: var(--font-size-sm);
-  text-decoration: none;
-  margin-top: var(--space-3);
-  align-self: flex-start;
-}
-.cardLink:hover {
-  text-decoration: underline;
-}
-
 .cardActions {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-top: auto; /* Push actions to bottom of card */
+    justify-content: space-between;
+    margin-top: auto;
+}
+
+.cardLink {
+    color: var(--color-primary);
+    font-weight: 500;
+    font-size: var(--font-size-sm);
+    text-decoration: none;
+}
+.cardLink:hover {
+    text-decoration: underline;
+}
+
+.disconnect {
+    color: var(--color-error);
+    font-weight: 500;
 }
 
 .footerText {
     font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
     line-height: 1.6;
-    margin-top: var(--space-4);
+    margin-top: var(--space-3);
     grid-column: 1 / -1;
 }
 
 .sectionHeader {
-    margin-bottom: var(--space-2);
-}
-
-.sectionHeader h3 {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-    margin-bottom: var(--space-1);
-}
-
-.sectionHeader p {
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-sm);
-    line-height: 1.6;
+    margin-bottom: var(--space-3);
 }
 
 .savedCardsList {
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
-    flex-grow: 1; /* Allow the cards list to grow and fill available space */
 }
 
 .noCardsMessage {
@@ -146,7 +98,6 @@
     color: var(--color-text-secondary);
     font-size: var(--font-size-sm);
     min-height: 60px;
-    flex-grow: 1; /* Allow no cards message to grow and fill space */
 }
 
 .savedCard {
@@ -161,7 +112,7 @@
 .cardIcon {
     width: 40px;
     height: 28px;
-    background-color: var(--color-bg-page);
+    background-color: #f0f0f0;
     border: 1px solid var(--color-border);
     border-radius: 4px;
     flex-shrink: 0;
@@ -171,7 +122,7 @@
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-sm);
 }
 
 .cardExpiry {
