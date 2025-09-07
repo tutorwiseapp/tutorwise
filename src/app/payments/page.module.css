@@ -2,9 +2,10 @@
  * Filename: src/app/payments/page.module.css
  * Purpose: Provides all styles for the definitive payments page layout.
  * Change History:
+ * C018 - 2025-09-07 : Fixed receiving card height alignment issue
  * C017 - 2025-08-22 : 14:00 - Definitive and final fix for UI alignment using a stacked column layout.
  * C016 - 2025-08-21 : 22:00 - Added noCardsMessage style.
- * Last Modified: 2025-08-22 : 14:00
+ * Last Modified: 2025-09-07 : Fixed height alignment
  * Requirement ID: VIN-UI-020
  */
 
@@ -16,17 +17,33 @@
   align-items: start;
 }
 
-/* On desktop, create the 2-column layout */
+/* On desktop, create the 2-column layout with equal heights */
 @media (min-width: 992px) {
   .paymentsGrid {
     grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto auto; /* Define explicit rows */
   }
-  .sendingCard, .savedCardsCard {
-    grid-column: 1; /* Place in the first column */
+  .sendingCard {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .savedCardsCard {
+    grid-column: 1;
+    grid-row: 2;
   }
   .receivingCard {
-    grid-column: 2; /* Place in the second column */
-    grid-row: 1 / span 2; /* Make this card span two rows to match height */
+    grid-column: 2;
+    grid-row: 1 / span 2; /* Span both rows */
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Make the receiving card content stretch to fill available space */
+  .receivingCard .cardContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 }
 
