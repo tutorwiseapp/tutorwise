@@ -8,12 +8,13 @@
  * Requirement ID: VIN-UI-020
  */
 
-/* --- THIS IS THE FIX for Desktop Width --- */
 .paymentsGrid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-4); /* Default 32px gap for mobile */
-  align-items: start;
+  gap: var(--space-4);
+  /* --- THIS IS THE FIX --- */
+  /* Aligns items to be of equal height by stretching the shorter column. */
+  align-items: stretch;
 }
 
 @media (min-width: 992px) {
@@ -23,17 +24,16 @@
   }
 }
 
-/* --- THIS IS THE FIX for Mobile Spacing --- */
 .columnStack {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4); /* This ensures 32px gap between stacked cards */
+  gap: var(--space-4);
 }
 
 .cardContent {
   display: flex;
   flex-direction: column;
-  flex-grow: 1; /* Ensures content fills the card */
+  flex-grow: 1;
 }
 
 .cardContent h3 {
@@ -43,7 +43,7 @@
 }
 
 .cardContent p {
-  color: var(--font-size-sm);
+  font-size: var(--font-size-base);
   color: var(--color-text-secondary);
   line-height: 1.6;
   flex-grow: 1;
@@ -65,7 +65,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: auto; /* Pushes actions to the bottom of the card */
+    margin-top: auto;
 }
 
 .footerText {
@@ -133,7 +133,7 @@
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
 }
 
 .cardExpiry {
