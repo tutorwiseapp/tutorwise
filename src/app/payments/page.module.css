@@ -21,24 +21,30 @@
 @media (min-width: 992px) {
   .paymentsGrid {
     grid-template-columns: repeat(2, 1fr);
-    align-items: stretch; /* This will make all grid items stretch to fill their grid area */
+    grid-template-rows: 1fr 1fr; /* Use fractional units to create equal-height rows */
+    align-items: stretch;
   }
-  .sendingCard, .savedCardsCard {
-    grid-column: 1; /* Place in the first column */
+  .sendingCard {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .savedCardsCard {
+    grid-column: 1;
+    grid-row: 2;
   }
   .receivingCard {
-    grid-column: 2; /* Place in the second column */
-    grid-row: 1 / span 2; /* Make this card span two rows to match height */
-    height: 100%; /* Ensure it takes full height of the grid area */
-    display: flex !important;
-    flex-direction: column !important;
+    grid-column: 2;
+    grid-row: 1 / -1; /* Span from first to last row */
   }
   
-  /* Force the Card component to stretch */
-  .receivingCard > * {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+  /* Ensure the receiving card's content distributes properly */
+  .receivingCard .cardContent {
+    height: 100%;
+    justify-content: space-between;
+  }
+  
+  .receivingCard .cardActions {
+    margin-top: auto;
   }
 }
 
