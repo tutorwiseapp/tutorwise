@@ -148,3 +148,10 @@
 .destructive:hover {
     background-color: var(--color-error-bg);
 }
+
+/* --- THIS IS THE FIX for mobile spacing --- */
+@media (max-width: 991px) {
+  .grid {
+    gap: var(--space-4); /* 32px */
+  }
+}

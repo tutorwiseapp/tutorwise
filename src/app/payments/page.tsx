@@ -18,9 +18,9 @@ import toast from 'react-hot-toast';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
-import Card from '@/app/components/ui/Card'; // --- Reusable Card component is now used ---
+import Card from '@/app/components/ui/Card';
 import { getErrorMessage } from '@/lib/utils/getErrorMessage';
-import dashboardStyles from '@/app/dashboard/page.module.css'; // --- Import dashboard styles for grid ---
+import dashboardStyles from '@/app/dashboard/page.module.css';
 import styles from './page.module.css';
 import Button from '@/app/components/ui/Button';
 
@@ -147,13 +147,13 @@ const PaymentsPageContent = () => {
     }, 'Redirecting...', 'Redirecting...');
 
     if (isProfileLoading || isLoadingData) {
-        return <Container><PageHeader title="Payments" /><p>Loading...</p></Container>;
+        return <Container variant="wide"><PageHeader title="Payments" /><p>Loading...</p></Container>;
     }
     
     return (
-        <Container>
+        <Container variant="wide">
             <PageHeader title="Payments" subtitle="Manage your methods for sending and receiving payments." />
-            <div className={dashboardStyles.grid}>
+            <div className={styles.grid}>
                 <div className={styles.columnStack}>
                     <Card className={dashboardStyles.gridCard}>
                         <div className={dashboardStyles.cardContent}>
@@ -223,7 +223,7 @@ const PaymentsPageContent = () => {
 }
 
 const PaymentsPage = () => (
-    <Suspense fallback={<Container><PageHeader title="Payments" /><p>Loading...</p></Container>}>
+    <Suspense fallback={<Container variant="wide"><PageHeader title="Payments" /><p>Loading...</p></Container>}>
         <PaymentsPageContent />
     </Suspense>
 );
