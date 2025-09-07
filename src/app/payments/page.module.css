@@ -8,65 +8,17 @@
  * Requirement ID: VIN-UI-020
  */
 
-.grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-4);
-  align-items: start;
-}
-
-@media (min-width: 992px) {
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
 .columnStack {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
-}
-
-.cardContent {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.cardTitle {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-  margin-bottom: var(--space-1);
-}
-
-.cardDescription {
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
-  margin-bottom: var(--space-4);
-  line-height: 1.6;
-  flex-grow: 1;
+  gap: var(--space-4);
 }
 
 .cardActions {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     margin-top: auto;
-}
-
-.cardLink {
-    color: var(--color-primary);
-    font-weight: 500;
-    font-size: var(--font-size-sm);
-    text-decoration: none;
-}
-.cardLink:hover {
-    text-decoration: underline;
-}
-
-.disconnect {
-    color: var(--color-error);
-    font-weight: 500;
 }
 
 .footerText {
@@ -78,7 +30,19 @@
 }
 
 .sectionHeader {
-    margin-bottom: var(--space-3);
+    margin-bottom: var(--space-2);
+}
+
+.sectionHeader h3 {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--space-1);
+}
+
+.sectionHeader p {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
 }
 
 .savedCardsList {
@@ -112,7 +76,7 @@
 .cardIcon {
     width: 40px;
     height: 28px;
-    background-color: #f0f0f0;
+    background-color: var(--color-bg-page);
     border: 1px solid var(--color-border);
     border-radius: 4px;
     flex-shrink: 0;
