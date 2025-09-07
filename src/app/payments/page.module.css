@@ -8,24 +8,70 @@
  * Requirement ID: VIN-UI-020
  */
 
+/* --- THIS IS THE FIX for Desktop Width --- */
+.paymentsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4); /* Use 32px gap for mobile as requested */
+  align-items: start;
+}
+
+@media (min-width: 992px) {
+  .paymentsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4); /* Use 32px gap for desktop */
+  }
+}
+
 .columnStack {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-4); /* This controls the space between cards within the left column */
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* Ensures content fills the card */
+}
+
+.cardContent h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-1);
+}
+
+.cardContent p {
+  color: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  flex-grow: 1;
+}
+
+.cardLink {
+  color: var(--color-primary);
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  margin-top: var(--space-3);
+  align-self: flex-start;
+}
+.cardLink:hover {
+  text-decoration: underline;
 }
 
 .cardActions {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: auto;
+    margin-top: auto; /* Pushes actions to the bottom of the card */
 }
 
 .footerText {
     font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
     line-height: 1.6;
-    margin-top: var(--space-3);
+    margin-top: var(--space-4);
     grid-column: 1 / -1;
 }
 
@@ -147,11 +193,4 @@
 
 .destructive:hover {
     background-color: var(--color-error-bg);
-}
-
-/* --- THIS IS THE FIX for mobile spacing --- */
-@media (max-width: 991px) {
-  .grid {
-    gap: var(--space-4); /* 32px */
-  }
 }

@@ -20,7 +20,6 @@ import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import Card from '@/app/components/ui/Card';
 import { getErrorMessage } from '@/lib/utils/getErrorMessage';
-import dashboardStyles from '@/app/dashboard/page.module.css';
 import styles from './page.module.css';
 import Button from '@/app/components/ui/Button';
 
@@ -147,24 +146,23 @@ const PaymentsPageContent = () => {
     }, 'Redirecting...', 'Redirecting...');
 
     if (isProfileLoading || isLoadingData) {
-        return <Container variant="wide"><PageHeader title="Payments" /><p>Loading...</p></Container>;
+        return <Container><PageHeader title="Payments" /><p>Loading...</p></Container>;
     }
     
     return (
-        <Container variant="wide">
+        <Container>
             <PageHeader title="Payments" subtitle="Manage your methods for sending and receiving payments." />
-            <div className={styles.grid}>
+            <div className={styles.paymentsGrid}>
                 <div className={styles.columnStack}>
-                    <Card className={dashboardStyles.gridCard}>
-                        <div className={dashboardStyles.cardContent}>
+                    <Card>
+                        <div className={styles.cardContent}>
                             <h3>Sending Payment Methods</h3>
                             <p>Add or manage your credit and debit cards for any provider services you may use.</p>
                         </div>
-                        <Button onClick={handleAddNewCard} variant="link" className={dashboardStyles.cardLink}>Add a New Card</Button>
+                        <Button onClick={handleAddNewCard} variant="link" className={styles.cardLink}>Add a New Card</Button>
                     </Card>
-
-                    <Card className={dashboardStyles.gridCard}>
-                        <div className={dashboardStyles.cardContent}>
+                    <Card>
+                        <div className={styles.cardContent}>
                             <div className={styles.sectionHeader}>
                                 <h3>Saved Cards</h3>
                                 <p>Set a default card or remove expired ones.</p>
@@ -199,18 +197,17 @@ const PaymentsPageContent = () => {
                         </div>
                     </Card>
                 </div>
-
-                <Card className={dashboardStyles.gridCard}>
-                    <div className={dashboardStyles.cardContent}>
+                <Card>
+                    <div className={styles.cardContent}>
                         <h3>Receiving Payouts</h3>
                         <p>Connect a Stripe account to securely receive your referral earnings. Vinite does not store your bank details.</p>
                     </div>
                     <div className={styles.cardActions}>
-                        <Button onClick={handleConnectStripe} variant="link" className={dashboardStyles.cardLink}>
+                        <Button onClick={handleConnectStripe} variant="link" className={styles.cardLink}>
                             {stripeAccount?.details_submitted ? 'Manage Stripe Account' : 'Connect Stripe Account'}
                         </Button>
                         {stripeAccount?.details_submitted && (
-                            <Button onClick={handleDisconnect} variant="link" className={dashboardStyles.cardLink} style={{ color: 'var(--color-error)' }}>
+                            <Button onClick={handleDisconnect} variant="link" className={styles.cardLink} style={{ color: 'var(--color-error)' }}>
                                 Disconnect
                             </Button>
                         )}
@@ -223,7 +220,7 @@ const PaymentsPageContent = () => {
 }
 
 const PaymentsPage = () => (
-    <Suspense fallback={<Container variant="wide"><PageHeader title="Payments" /><p>Loading...</p></Container>}>
+    <Suspense fallback={<Container><PageHeader title="Payments" /><p>Loading...</p></Container>}>
         <PaymentsPageContent />
     </Suspense>
 );
