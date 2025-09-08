@@ -12,7 +12,7 @@
 .grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-3, 24px); /* 24px gap to match dashboard mobile spacing */
+  gap: var(--space-4, 32px); /* 32px gap to match dashboard mobile spacing */
   align-items: start;
 }
 
@@ -25,7 +25,7 @@
 .columnStack {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3); /* 40px vertical gap between cards within each column */
+  gap: var(--space-4, 32px); /* 32px vertical gap between cards within each column */
 }
 
 .cardContent {
@@ -37,7 +37,7 @@
 .cardLink {
     color: var(--color-primary);
     font-weight: var(--font-weight-medium); /* Match dashboard link weight */
-    font-size: var(--font-size-sm); /* Match dashboard link size */
+    font-size: var(--font-size-xs); /* Match dashboard link size */
     text-decoration: none;
     align-self: flex-start;
 }
