@@ -1,11 +1,8 @@
 /*
  * Filename: src/app/settings/page.tsx
  * Purpose: Provides a central hub for users to manage application and account settings.
- * Change History:
- * C006 - 2025-09-02 : 21:00 - Added 'use client' directive and migrated to useUserProfile.
- * Last Modified: 2025-09-02 : 21:00
- * Requirement ID: VIN-AUTH-MIG-05
- * Change Summary: This is the definitive fix for the build error. The "'use client'" directive has been added to the top of the file, correctly declaring it as a Client Component. It has also been fully migrated to use the Supabase-powered `useUserProfile` hook for authentication and data.
+ * Last Modified: 2025-09-08
+ * Requirement ID: VIN-A-005
  */
 'use client';
 
@@ -18,7 +15,7 @@ import toast from 'react-hot-toast';
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import Checkbox from '@/app/components/ui/form/Checkbox';
-import styles from '@/app/dashboard/page.module.css';
+import dashboardStyles from '@/app/dashboard/page.module.css';
 import settingStyles from './page.module.css';
 
 const SettingsPage = () => {
@@ -35,7 +32,6 @@ const SettingsPage = () => {
     }
   }, [isLoading, profile, router]);
 
-  // --- THIS IS THE FIX: Function to handle sending a test notification ---
   const handleSendTestNotification = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!('Notification' in window)) {
@@ -68,36 +64,32 @@ const SettingsPage = () => {
 
 
   if (isLoading || !profile) {
-    return <Container><p className={styles.loading}>Loading...</p></Container>;
+    return <Container><p className={dashboardStyles.loading}>Loading...</p></Container>;
   }
 
   return (
     <Container>
       <PageHeader title="Settings" />
-      <div className={styles.grid}>
-        <div className={styles.gridCard}>
-          <div className={styles.cardContent}>
+      <div className={dashboardStyles.grid}>
+        <div className={dashboardStyles.gridCard}>
+          <div className={dashboardStyles.cardContent}>
             <h3>Desktop Notifications</h3>
             <p>Get alerts on your desktop when a referral converts or a payment is made.</p>
           </div>
           <div className={settingStyles.action}>
-            {desktopNotificationsEnabled ? (
-              <>
-                <span className={settingStyles.statusEnabled}>Enabled</span>
-                <a href="#" onClick={(e) => { e.preventDefault(); setDesktopNotificationsEnabled(false); }} className={`${styles.cardLink} ${settingStyles.dangerLink}`}>Disable</a>
-                {/* --- THIS IS THE FIX: The functional "Send Test" link is back --- */}
-                <a href="#" onClick={handleSendTestNotification} className={styles.cardLink}>Send Test</a>
-              </>
-            ) : (
-              <>
-                <span className={settingStyles.statusDisabled}>Disabled</span>
-                <a href="#" onClick={(e) => { e.preventDefault(); setDesktopNotificationsEnabled(true); }} className={styles.cardLink}>Enable</a>
-              </>
-            )}
+            <span className={desktopNotificationsEnabled ? settingStyles.statusEnabled : settingStyles.statusDisabled}>
+              {desktopNotificationsEnabled ? 'Enabled' : 'Disabled'}
+            </span>
+            <div className={settingStyles.actionLinks}>
+              <a href="#" onClick={(e) => { e.preventDefault(); setDesktopNotificationsEnabled(prev => !prev); }} className={`${dashboardStyles.cardLink} ${desktopNotificationsEnabled ? settingStyles.dangerLink : ''}`}>
+                {desktopNotificationsEnabled ? 'Disable' : 'Enable'}
+              </a>
+              <a href="#" onClick={handleSendTestNotification} className={dashboardStyles.cardLink}>Send Test</a>
+            </div>
           </div>
         </div>
-        <div className={`${styles.gridCard} ${settingStyles.contentStart}`}>
-          <div className={styles.cardContent}>
+        <div className={`${dashboardStyles.gridCard} ${settingStyles.contentStart}`}>
+          <div className={dashboardStyles.cardContent}>
             <h3>Email Notifications</h3>
           </div>
           <div className={settingStyles.checkboxGroup}>
@@ -111,19 +103,19 @@ const SettingsPage = () => {
               </div>
           </div>
         </div>
-        <div className={styles.gridCard}>
-          <div className={styles.cardContent}>
+        <div className={dashboardStyles.gridCard}>
+          <div className={dashboardStyles.cardContent}>
             <h3>Account Security</h3>
             <p>Manage your login credentials.</p>
           </div>
-           <Link href="/settings/change-password" className={styles.cardLink}>Change Password</Link>
+           <Link href="/settings/change-password" className={dashboardStyles.cardLink}>Change Password</Link>
         </div>
-        <div className={styles.gridCard}>
-          <div className={styles.cardContent}>
+        <div className={dashboardStyles.gridCard}>
+          <div className={dashboardStyles.cardContent}>
             <h3>Data & Privacy</h3>
             <p>Delete your account and all associated data permanently.</p>
           </div>
-           <Link href="/delete-account" className={`${styles.cardLink} ${settingStyles.dangerLink}`}>Delete Account</Link>
+           <Link href="/delete-account" className={`${dashboardStyles.cardLink} ${settingStyles.dangerLink}`}>Delete Account</Link>
         </div>
       </div>
     </Container>
