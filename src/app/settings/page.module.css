@@ -15,7 +15,7 @@
   grid-template-columns: 1fr 1fr 1fr;
   /* --- THIS IS THE FIX --- */
   /* Use 'baseline' to align the text of each element, not the element's box */
-  align-items: first baseline;
+ /*  align-items: baseline; */
   margin-top: var(--space-4);
 }
 
