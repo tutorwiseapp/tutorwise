@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { createClient } from '@/utils/supabase/client';
+import Link from 'next/link';
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import Card from '@/app/components/ui/Card';
@@ -14,11 +15,11 @@ import Input from '@/app/components/ui/form/Input';
 import Message from '@/app/components/ui/Message';
 
 const ChangePasswordPage = () => {
-  const { profile, isLoading } = useUserProfile();
+  // --- THIS IS THE FIX: Get the full 'user' object to check the provider ---
+  const { profile, user, isLoading } = useUserProfile();
   const router = useRouter();
   const supabase = createClient();
 
-  // --- State for the new password form ---
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +32,6 @@ const ChangePasswordPage = () => {
     }
   }, [isLoading, profile, router]);
 
-  // --- Function to handle the password update ---
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -59,7 +59,6 @@ const ChangePasswordPage = () => {
     setIsSaving(false);
   };
 
-
   if (isLoading || !profile) {
       return <Container><p>Loading...</p></Container>;
   }
@@ -68,43 +67,59 @@ const ChangePasswordPage = () => {
     { label: 'Settings', href: '/settings' },
     { label: 'Change Password' }
   ];
+  
+  // --- THIS IS THE FIX: Check if the user's provider is Google ---
+  const isSocialLogin = user?.app_metadata.provider === 'google';
 
   return (
     <Container variant="form">
       <Breadcrumb crumbs={breadcrumbs} />
       <PageHeader
         title="Change Password"
-        subtitle="Choose a new, strong password for your account."
+        subtitle={isSocialLogin ? "Manage your password via your social provider." : "Choose a new, strong password for your account."}
       />
       <Card>
         {message && <Message type="success">{message}</Message>}
         {error && <Message type="error">{error}</Message>}
 
-        <form onSubmit={handleChangePassword}>
-          <FormGroup label="New Password" htmlFor="newPassword">
-            <Input
-              id="newPassword"
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-              disabled={isSaving}
-            />
-          </FormGroup>
-          <FormGroup label="Confirm New Password" htmlFor="confirmPassword">
-            <Input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              disabled={isSaving}
-            />
-          </FormGroup>
-          <Button type="submit" variant="primary" fullWidth disabled={isSaving}>
-            {isSaving ? 'Saving...' : 'Save Changes'}
-          </Button>
-        </form>
+        {isSocialLogin ? (
+          // If user signed in with Google, show this message
+          <div>
+            <p style={{ marginBottom: '1.5rem', lineHeight: '1.6' }}>
+              You signed in using your Google account. To change your password, you must do so directly with Google.
+            </p>
+            <a href="https://myaccount.google.com/security" target="_blank" rel="noopener noreferrer">
+              <Button variant="primary" fullWidth>Go to Google Account Settings</Button>
+            </a>
+          </div>
+        ) : (
+          // Otherwise, show the password change form
+          <form onSubmit={handleChangePassword}>
+            <FormGroup label="New Password" htmlFor="newPassword">
+              <Input
+                id="newPassword"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                disabled={isSaving}
+              />
+            </FormGroup>
+            <FormGroup label="Confirm New Password" htmlFor="confirmPassword">
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                disabled={isSaving}
+              />
+            </FormGroup>
+            <Button type="submit" variant="primary" fullWidth disabled={isSaving}>
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </form>
+        )}
       </Card>
     </Container>
   );
