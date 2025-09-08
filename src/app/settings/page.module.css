@@ -9,40 +9,49 @@
   justify-content: flex-start;
 }
 
-/* --- THIS IS THE FIX --- */
-/* A 3-column grid to precisely control the alignment of the actions */
-.actionGrid {
+/* --- Main action container --- */
+.action {
   width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  display: flex;
   align-items: center;
   margin-top: var(--space-4);
+  position: relative;
+  min-height: 2rem; /* Ensure enough height for positioning */
 }
 
-/* First item (status) aligns left */
-.actionGrid > *:nth-child(1) {
-  text-align: left;
-}
-/* Second item (toggle link) aligns center */
-.actionGrid > *:nth-child(2) {
-  text-align: center;
-}
-/* Third item (test link) aligns right */
-.actionGrid > *:nth-child(3) {
-  text-align: right;
+/* Position status at the left margin */
+.actionGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
 }
 
+/* Center the toggle link in the middle of the card */
+.actionGroup a {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Position Send Test to the far right */
+.action > a {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
 
 .statusEnabled {
   font-size: var(--font-size-sm);
   color: var(--color-primary);
   font-weight: var(--font-weight-medium);
 }
+
 .statusDisabled {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
   font-weight: var(--font-weight-medium);
 }
+
 .dangerLink { 
   color: var(--color-error) !important; 
 }
@@ -54,12 +63,14 @@
   gap: var(--space-2);
   width: 100%;
 }
+
 .checkboxItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
 }
+
 .checkboxLabelText {
   font-size: var(--font-size-base);
   color: var(--color-text-secondary);
