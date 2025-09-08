@@ -47,18 +47,16 @@ const SettingsPage = () => {
             <h3>Desktop Notifications</h3>
             <p>Get alerts on your desktop when a referral converts or a payment is made.</p>
           </div>
-          <div className={`${settingStyles.action} ${settingStyles.notificationActions}`}>
+          <div className={settingStyles.action}>
             {desktopNotificationsEnabled ? (
               <>
                 <span className={settingStyles.statusEnabled}>Enabled</span>
-                <a href="#" onClick={(e) => { e.preventDefault(); setDesktopNotificationsEnabled(false); }} className={`${settingStyles.cardActionLink} ${settingStyles.dangerLink}`}>Disable</a>
-                <a href="#" className={settingStyles.cardActionLink}>Send Test</a>
+                <a href="#" onClick={(e) => { e.preventDefault(); setDesktopNotificationsEnabled(false); }} className={`${styles.cardLink} ${settingStyles.dangerLink}`}>Disable</a>
               </>
             ) : (
               <>
                 <span className={settingStyles.statusDisabled}>Disabled</span>
-                <div></div>
-                <a href="#" onClick={(e) => { e.preventDefault(); setDesktopNotificationsEnabled(true); }} className={settingStyles.cardActionLink}>Enable</a>
+                <a href="#" onClick={(e) => { e.preventDefault(); setDesktopNotificationsEnabled(true); }} className={styles.cardLink}>Enable</a>
               </>
             )}
           </div>
@@ -83,7 +81,7 @@ const SettingsPage = () => {
             <h3>Account Security</h3>
             <p>Manage your login credentials.</p>
           </div>
-          <Link href="/settings/change-password" className={styles.cardLink}>Change Password</Link>
+           <Link href="/settings/change-password" className={styles.cardLink}>Change Password</Link>
         </div>
         <div className={styles.gridCard}>
           <div className={styles.cardContent}>
