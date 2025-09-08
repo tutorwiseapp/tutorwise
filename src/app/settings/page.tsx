@@ -82,15 +82,15 @@ const SettingsPage = () => {
             <p>Get alerts on your desktop when a referral converts or a payment is made.</p>
           </div>
           <div className={settingStyles.action}>
-            <span className={desktopNotificationsEnabled ? settingStyles.statusEnabled : settingStyles.statusDisabled}>
-              {desktopNotificationsEnabled ? 'Enabled' : 'Disabled'}
-            </span>
-            <div className={settingStyles.actionLinks}>
-              <a href="#" onClick={handleToggleNotifications} className={`${dashboardStyles.cardLink} ${desktopNotificationsEnabled ? settingStyles.dangerLink : ''}`}>
-                {desktopNotificationsEnabled ? 'Disable' : 'Enable'}
-              </a>
-              <a href="#" onClick={handleSendTestNotification} className={dashboardStyles.cardLink}>Send Test</a>
+            <div className={settingStyles.actionGroup}>
+                <span className={desktopNotificationsEnabled ? settingStyles.statusEnabled : settingStyles.statusDisabled}>
+                  {desktopNotificationsEnabled ? 'Enabled' : 'Disabled'}
+                </span>
+                <a href="#" onClick={handleToggleNotifications} className={`${dashboardStyles.cardLink} ${desktopNotificationsEnabled ? settingStyles.dangerLink : ''}`}>
+                  {desktopNotificationsEnabled ? 'Disable' : 'Enable'}
+                </a>
             </div>
+            <a href="#" onClick={handleSendTestNotification} className={dashboardStyles.cardLink}>Send Test</a>
           </div>
         </div>
         <div className={`${dashboardStyles.gridCard} ${settingStyles.contentStart}`}>

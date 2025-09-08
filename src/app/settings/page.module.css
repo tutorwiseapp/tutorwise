@@ -10,20 +10,20 @@
 }
 
 /* --- THIS IS THE FIX --- */
-/* A flexbox layout to position the status on the left and links on the right */
+/* This is the main container for the action bar at the bottom of the card */
 .action {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-top: var(--space-4);
+  justify-content: space-between; /* This pushes the two main groups apart */
+  margin-top: var(--space-4); /* This ensures consistent bottom spacing */
 }
 
-/* A container for the right-aligned links to control their spacing */
-.actionLinks {
+/* This group contains the status and the enable/disable toggle */
+.actionGroup {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
+    gap: var(--space-3); /* Sets the space between "Enabled" and "Disable" */
 }
 
 .statusEnabled {
