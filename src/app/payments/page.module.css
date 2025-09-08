@@ -16,7 +16,7 @@
   align-items: start;
 }
 
-@media (min-width: 786px) {
+@media (min-width: 992px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -25,7 +25,7 @@
 .columnStack {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5); /* 40px vertical gap between cards within each column */
+  gap: var(--space-3); /* 40px vertical gap between cards within each column */
 }
 
 .cardContent {
