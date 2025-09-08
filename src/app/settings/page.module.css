@@ -32,6 +32,7 @@
   text-align: right;
 }
 
+
 .statusEnabled {
   font-size: var(--font-size-sm);
   color: var(--color-primary);
