@@ -13,6 +13,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import toast from 'react-hot-toast';
 
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
@@ -34,6 +35,38 @@ const SettingsPage = () => {
     }
   }, [isLoading, profile, router]);
 
+  // --- THIS IS THE FIX: Function to handle sending a test notification ---
+  const handleSendTestNotification = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!('Notification' in window)) {
+      toast.error('This browser does not support desktop notifications.');
+      return;
+    }
+
+    if (Notification.permission === 'granted') {
+      new Notification('Vinite Test Notification', {
+        body: 'If you can see this, notifications are working!',
+        icon: '/favicon.ico'
+      });
+      toast.success('Test notification sent!');
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+          new Notification('Vinite Test Notification', {
+            body: 'If you can see this, notifications are working!',
+            icon: '/favicon.ico'
+          });
+          toast.success('Permissions granted and test notification sent!');
+        } else {
+          toast.error('Notification permissions were not granted.');
+        }
+      });
+    } else {
+       toast.error('Notifications are blocked. Please enable them in your browser settings.');
+    }
+  };
+
+
   if (isLoading || !profile) {
     return <Container><p className={styles.loading}>Loading...</p></Container>;
   }
@@ -52,6 +85,8 @@ const SettingsPage = () => {
               <>
                 <span className={settingStyles.statusEnabled}>Enabled</span>
                 <a href="#" onClick={(e) => { e.preventDefault(); setDesktopNotificationsEnabled(false); }} className={`${styles.cardLink} ${settingStyles.dangerLink}`}>Disable</a>
+                {/* --- THIS IS THE FIX: The functional "Send Test" link is back --- */}
+                <a href="#" onClick={handleSendTestNotification} className={styles.cardLink}>Send Test</a>
               </>
             ) : (
               <>
