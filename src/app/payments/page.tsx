@@ -290,8 +290,8 @@ const PaymentsPageContent = () => {
                             </div>
                         </div>
                     </Card>
-                    <div className={styles.savedCardsSection}>
-                        <div className={styles.sectionHeader}>
+                    <Card>
+                        <div className={styles.cardContent}>
                             <h3 className={styles.cardTitle}>Saved Cards</h3>
                             <p className={styles.cardDescription}>
                                 Set a default card or remove expired ones.
@@ -299,58 +299,58 @@ const PaymentsPageContent = () => {
                                     🔄 Refresh
                                 </Button>
                             </p>
-                        </div>
-                        <div className={styles.savedCardsList}>
-                            {savedCards.length === 0 ? (
-                                <div className={styles.noCardsMessage}>
-                                    {profile?.stripe_customer_id ? 
-                                        "You have no saved cards." : 
-                                        "Add your first card to get started."
-                                    }
-                                </div>
-                            ) : (
-                                savedCards.map(card => (
-                                    <div key={card.id} className={styles.savedCard}>
-                                        <span className={styles.cardIcon}></span>
-                                        <div className={styles.savedCardDetails}>
-                                            <span>
-                                                {card.brand?.toUpperCase()} **** {card.last4}
-                                                {card.id === defaultPaymentMethodId && (
-                                                    <span className={styles.defaultBadge}>DEFAULT</span>
-                                                )}
-                                            </span>
-                                            <span className={styles.cardExpiry}>
-                                                Expires: {String(card.exp_month).padStart(2, '0')}/{card.exp_year}
-                                            </span>
-                                        </div>
-                                        <DropdownMenu.Root>
-                                            <DropdownMenu.Trigger asChild>
-                                                <button className={styles.manageButton}>Manage</button>
-                                            </DropdownMenu.Trigger>
-                                            <DropdownMenu.Portal>
-                                                <DropdownMenu.Content className={styles.dropdownContent} sideOffset={5} align="end">
-                                                    {card.id !== defaultPaymentMethodId && (
-                                                        <DropdownMenu.Item 
-                                                            className={styles.dropdownItem} 
-                                                            onSelect={() => handleSetDefault(card.id)}
-                                                        >
-                                                            Set as default
-                                                        </DropdownMenu.Item>
-                                                    )}
-                                                    <DropdownMenu.Item 
-                                                        className={`${styles.dropdownItem} ${styles.destructive}`} 
-                                                        onSelect={() => handleRemove(card.id)}
-                                                    >
-                                                        Remove
-                                                    </DropdownMenu.Item>
-                                                </DropdownMenu.Content>
-                                            </DropdownMenu.Portal>
-                                        </DropdownMenu.Root>
+                            <div className={styles.savedCardsList}>
+                                {savedCards.length === 0 ? (
+                                    <div className={styles.noCardsMessage}>
+                                        {profile?.stripe_customer_id ? 
+                                            "You have no saved cards." : 
+                                            "Add your first card to get started."
+                                        }
                                     </div>
-                                ))
-                            )}
+                                ) : (
+                                    savedCards.map(card => (
+                                        <div key={card.id} className={styles.savedCard}>
+                                            <span className={styles.cardIcon}></span>
+                                            <div className={styles.savedCardDetails}>
+                                                <span>
+                                                    {card.brand?.toUpperCase()} **** {card.last4}
+                                                    {card.id === defaultPaymentMethodId && (
+                                                        <span className={styles.defaultBadge}>DEFAULT</span>
+                                                    )}
+                                                </span>
+                                                <span className={styles.cardExpiry}>
+                                                    Expires: {String(card.exp_month).padStart(2, '0')}/{card.exp_year}
+                                                </span>
+                                            </div>
+                                            <DropdownMenu.Root>
+                                                <DropdownMenu.Trigger asChild>
+                                                    <button className={styles.manageButton}>Manage</button>
+                                                </DropdownMenu.Trigger>
+                                                <DropdownMenu.Portal>
+                                                    <DropdownMenu.Content className={styles.dropdownContent} sideOffset={5} align="end">
+                                                        {card.id !== defaultPaymentMethodId && (
+                                                            <DropdownMenu.Item 
+                                                                className={styles.dropdownItem} 
+                                                                onSelect={() => handleSetDefault(card.id)}
+                                                            >
+                                                                Set as default
+                                                            </DropdownMenu.Item>
+                                                        )}
+                                                        <DropdownMenu.Item 
+                                                            className={`${styles.dropdownItem} ${styles.destructive}`} 
+                                                            onSelect={() => handleRemove(card.id)}
+                                                        >
+                                                            Remove
+                                                        </DropdownMenu.Item>
+                                                    </DropdownMenu.Content>
+                                                </DropdownMenu.Portal>
+                                            </DropdownMenu.Root>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    </Card>
                 </div>
                 <div className={styles.columnStack}>
                     <Card>
