@@ -1,90 +1,112 @@
 /*
  * Filename: src/app/payments/page.module.css
- * Purpose: Provides all styles for the definitive payments page layout.
- * Change History:
- * C022 - 2025-09-07 : Updated typography and spacing to match dashboard
- * C017 - 2025-08-22 : 14:00 - Definitive and final fix for UI alignment using a stacked column layout.
- * C016 - 2025-08-21 : 22:00 - Added noCardsMessage style.
- * Last Modified: 2025-09-07 : Updated to match dashboard
- * Requirement ID: VIN-UI-020
+ * Purpose: Provides self-contained styles for the Payments page, mirrored from the Dashboard.
+ * Last Modified: 2025-09-08
  */
 
+/* --- Mirrored Styles from Dashboard --- */
 .grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-5); /* 32px gap to match dashboard mobile spacing */
-  align-items: start;
+  gap: var(--space-3, 24px);
 }
 
-@media (min-width: 992px) {
+@media (min-width: 768px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-.columnStack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5); /* 40px vertical gap between cards within each column */
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
-.cardContent {
+.gridCard {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  justify-content: space-between;
+  padding: var(--space-4);
+  min-height: 220px;
+  background-color: var(--color-bg-card, #ffffff);
+  border: 1px solid var(--color-border, #dfe1e5);
+  border-radius: var(--border-radius-md);
+  transition: all 0.2s ease-in-out;
 }
 
-.cardTitle {
-  font-size: var(--font-size-xl); /* Match dashboard card titles */
+.gridCard:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.cardContent h3 {
+  font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semibold);
   margin-bottom: var(--space-1);
   color: var(--color-text-primary);
 }
 
-.cardDescription {
+.cardContent p {
   color: var(--color-text-secondary);
-  font-size: var(--font-size-md); /* Match dashboard card descriptions */
-  margin-bottom: var(--space-4);
   line-height: 1.5;
-  flex-grow: 1;
+  font-size: var(--font-size-base); /* 16px */
+}
+
+.cardLink {
+  margin-top: var(--space-4);
+  font-size: var(--font-size-sm); /* 14px */
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+  text-decoration: none;
+  align-self: flex-start;
+}
+
+.cardLink:hover {
+  text-decoration: underline;
+}
+
+.loading {
+  text-align: center;
+  padding: var(--space-6, 64px);
+  color: var(--color-text-secondary);
+}
+
+/* --- Styles Unique to Payments Page --- */
+.spanFull {
+  grid-column: 1 / -1; /* Makes the Saved Cards section span the full width */
 }
 
 .cardActions {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     margin-top: auto;
-}
-
-.cardLink {
-    color: var(--color-primary);
-    font-weight: var(--font-weight-medium); /* Match dashboard link weight */
-    font-size: var(--font-size-md); /* Match dashboard link size */
-    text-decoration: none;
-    align-self: flex-start;
-}
-.cardLink:hover {
-    text-decoration: underline;
 }
 
 .disconnect {
     color: var(--color-error);
-    font-weight: var(--font-weight-medium);
 }
 
 .footerText {
     font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
     line-height: 1.6;
-    margin-top: var(--space-3);
-    grid-column: 1 / -1;
+    margin-top: var(--space-4);
 }
 
 .sectionHeader {
-    margin-bottom: var(--space-3);
+    margin-bottom: var(--space-2);
+}
+
+.sectionHeader h3 {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--space-1);
 }
 
 .savedCardsList {
+    margin-top: var(--space-2);
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
@@ -115,7 +137,7 @@
 .cardIcon {
     width: 40px;
     height: 28px;
-    background-color: #f0f0f0;
+    background-color: var(--color-bg-page);
     border: 1px solid var(--color-border);
     border-radius: 4px;
     flex-shrink: 0;
@@ -125,7 +147,7 @@
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
 }
 
 .cardExpiry {
@@ -154,6 +176,7 @@
     padding: 4px;
     letter-spacing: 0.5px;
 }
+
 .manageButton:hover {
     text-decoration: underline;
 }

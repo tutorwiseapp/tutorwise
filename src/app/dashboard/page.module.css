@@ -65,7 +65,6 @@
 .cardContent p {
   color: var(--color-text-secondary);
   line-height: 1.5;
-  /* --- THIS IS THE FIX --- */
   font-size: var(--font-size-base); /* 16px */
 }
 
