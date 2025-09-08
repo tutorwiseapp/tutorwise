@@ -14,16 +14,17 @@
 .action {
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-end; /* Align items to bottom for consistent baseline */
   justify-content: space-between; /* This pushes the two main groups apart */
   margin-top: var(--space-4); /* This ensures consistent bottom spacing */
 }
 
-/* This group contains the status and the enable/disable toggle */
+/* This group contains the status and the enable/disable toggle stacked vertically */
 .actionGroup {
     display: flex;
-    align-items: center;
-    gap: var(--space-3); /* Sets the space between "Enabled" and "Disable" */
+    flex-direction: column; /* Stack vertically instead of horizontally */
+    align-items: center; /* Center both status and link horizontally */
+    gap: var(--space-2); /* Smaller gap between status and link */
 }
 
 .statusEnabled {
