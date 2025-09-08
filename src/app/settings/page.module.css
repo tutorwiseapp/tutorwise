@@ -9,24 +9,27 @@
   justify-content: flex-start;
 }
 
-/* --- Main action container --- */
-.action {
+/* --- THIS IS THE FIX --- */
+/* A 3-column grid to precisely control the alignment of the actions */
+.actionGrid {
   width: 100%;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
   align-items: center;
-  justify-content: space-between;
   margin-top: var(--space-4);
-  position: relative;
 }
 
-/* Center the status and toggle in the middle of the card */
-.actionGroup {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+/* First item (status) aligns left */
+.actionGrid > *:nth-child(1) {
+  text-align: left;
+}
+/* Second item (toggle link) aligns center */
+.actionGrid > *:nth-child(2) {
+  text-align: center;
+}
+/* Third item (test link) aligns right */
+.actionGrid > *:nth-child(3) {
+  text-align: right;
 }
 
 .statusEnabled {
@@ -34,13 +37,11 @@
   color: var(--color-primary);
   font-weight: var(--font-weight-medium);
 }
-
 .statusDisabled {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
   font-weight: var(--font-weight-medium);
 }
-
 .dangerLink { 
   color: var(--color-error) !important; 
 }
@@ -52,14 +53,12 @@
   gap: var(--space-2);
   width: 100%;
 }
-
 .checkboxItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
 }
-
 .checkboxLabelText {
   font-size: var(--font-size-base);
   color: var(--color-text-secondary);
