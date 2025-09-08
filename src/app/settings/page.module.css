@@ -9,24 +9,26 @@
   justify-content: flex-start;
 }
 
-.actionGrid {
+/* --- THIS IS THE DEFINITIVE FIX --- */
+.action {
   width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  /* --- THIS IS THE FIX --- */
-  /* Use 'baseline' to align the text of each element, not the element's box */
- /*  align-items: baseline; */
+  display: flex;
+  align-items: baseline; /* This aligns the text baseline */
+  justify-content: space-between; /* This pushes the outer items to the edges */
   margin-top: var(--space-4);
+  position: relative; /* Create a positioning context */
 }
 
-.actionGrid > *:nth-child(1) {
-  text-align: left;
+/* Override the top margin for links inside the action bar */
+.action > a {
+  margin-top: 0;
 }
-.actionGrid > *:nth-child(2) {
-  text-align: center;
-}
-.actionGrid > *:nth-child(3) {
-  text-align: right;
+
+/* Center the toggle link absolutely within the action bar */
+.toggleLink {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .statusEnabled {

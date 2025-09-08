@@ -81,21 +81,16 @@ const SettingsPage = () => {
             <h3>Desktop Notifications</h3>
             <p>Get alerts on your desktop when a referral converts or a payment is made.</p>
           </div>
-          <div className={settingStyles.actionGrid}>
-            {desktopNotificationsEnabled ? (
-              <>
-                <span className={settingStyles.statusEnabled}>Enabled</span>
-                <a href="#" onClick={handleToggleNotifications} className={`${dashboardStyles.cardLink} ${settingStyles.dangerLink}`}>Disable</a>
-                <a href="#" onClick={handleSendTestNotification} className={dashboardStyles.cardLink}>Send Test</a>
-              </>
-            ) : (
-              <>
-                <span className={settingStyles.statusDisabled}>Disabled</span>
-                <a href="#" onClick={handleToggleNotifications} className={dashboardStyles.cardLink}>Enable</a>
-                {/* Empty div as a placeholder to keep the grid structure consistent */}
-                <div></div>
-              </>
-            )}
+          <div className={settingStyles.action}>
+            <div className={settingStyles.actionGroup}>
+                <span className={desktopNotificationsEnabled ? settingStyles.statusEnabled : settingStyles.statusDisabled}>
+                  {desktopNotificationsEnabled ? 'Enabled' : 'Disabled'}
+                </span>
+            </div>
+            <a href="#" onClick={handleToggleNotifications} className={`${dashboardStyles.cardLink} ${settingStyles.toggleLink} ${desktopNotificationsEnabled ? settingStyles.dangerLink : ''}`}>
+              {desktopNotificationsEnabled ? 'Disable' : 'Enable'}
+            </a>
+            <a href="#" onClick={handleSendTestNotification} className={dashboardStyles.cardLink}>Send Test</a>
           </div>
         </div>
         <div className={`${dashboardStyles.gridCard} ${settingStyles.contentStart}`}>
