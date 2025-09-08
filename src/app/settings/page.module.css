@@ -13,29 +13,21 @@
   width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  align-items: center;
+  /* --- THIS IS THE FIX --- */
+  /* Use 'baseline' to align the text of each element, not the element's box */
+  align-items: baseline;
   margin-top: var(--space-4);
 }
 
-/* --- THIS IS THE DEFINITIVE FIX --- */
-/* This block ensures perfect alignment for every item in the action bar */
-.actionGrid > * {
-  display: flex;
-  align-items: center; /* This handles the vertical alignment */
-}
-/* First item (status) aligns its content to the left */
 .actionGrid > *:nth-child(1) {
-  justify-content: flex-start;
+  text-align: left;
 }
-/* Second item (toggle link) aligns its content to the center */
 .actionGrid > *:nth-child(2) {
-  justify-content: center;
+  text-align: center;
 }
-/* Third item (test link) aligns its content to the right */
 .actionGrid > *:nth-child(3) {
-  justify-content: flex-end;
+  text-align: right;
 }
-
 
 .statusEnabled {
   font-size: var(--font-size-sm);
