@@ -32,6 +32,11 @@ const SettingsPage = () => {
     }
   }, [isLoading, profile, router]);
 
+  const handleToggleNotifications = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setDesktopNotificationsEnabled(prev => !prev);
+  };
+
   const handleSendTestNotification = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!('Notification' in window)) {
@@ -81,7 +86,7 @@ const SettingsPage = () => {
               {desktopNotificationsEnabled ? 'Enabled' : 'Disabled'}
             </span>
             <div className={settingStyles.actionLinks}>
-              <a href="#" onClick={(e) => { e.preventDefault(); setDesktopNotificationsEnabled(prev => !prev); }} className={`${dashboardStyles.cardLink} ${desktopNotificationsEnabled ? settingStyles.dangerLink : ''}`}>
+              <a href="#" onClick={handleToggleNotifications} className={`${dashboardStyles.cardLink} ${desktopNotificationsEnabled ? settingStyles.dangerLink : ''}`}>
                 {desktopNotificationsEnabled ? 'Disable' : 'Enable'}
               </a>
               <a href="#" onClick={handleSendTestNotification} className={dashboardStyles.cardLink}>Send Test</a>
