@@ -9,28 +9,33 @@
   justify-content: flex-start;
 }
 
-/* --- THIS IS THE DEFINITIVE FIX --- */
-/* A 3-column grid to precisely control the alignment of all action items */
 .actionGrid {
   width: 100%;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr; /* Create three equal columns */
-  align-items: center; /* This vertically aligns all items to the middle */
-  margin-top: var(--space-4); /* Ensures consistent bottom margin */
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  margin-top: var(--space-4);
 }
 
-/* First item (status) is aligned to the left */
+/* --- THIS IS THE DEFINITIVE FIX --- */
+/* This block ensures perfect alignment for every item in the action bar */
+.actionGrid > * {
+  display: flex;
+  align-items: center; /* This handles the vertical alignment */
+}
+/* First item (status) aligns its content to the left */
 .actionGrid > *:nth-child(1) {
-  text-align: left;
+  justify-content: flex-start;
 }
-/* Second item (toggle link) is aligned to the center */
+/* Second item (toggle link) aligns its content to the center */
 .actionGrid > *:nth-child(2) {
-  text-align: center;
+  justify-content: center;
 }
-/* Third item (test link) is aligned to the right */
+/* Third item (test link) aligns its content to the right */
 .actionGrid > *:nth-child(3) {
-  text-align: right;
+  justify-content: flex-end;
 }
+
 
 .statusEnabled {
   font-size: var(--font-size-sm);
