@@ -37,7 +37,7 @@
 .cardLink {
     color: var(--color-primary);
     font-weight: var(--font-weight-medium); /* Match dashboard link weight */
-    font-size: var(--font-size-xs); /* Match dashboard link size */
+    font-size: var(--font-size-sm); /* Match dashboard link size */
     text-decoration: none;
     align-self: flex-start;
 }
