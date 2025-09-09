@@ -1,12 +1,14 @@
 /*
  * Filename: src/app/delete-account/page.tsx
- * Purpose: Provides a UI for users to permanently delete their account, migrated to Kinde.
+ * Purpose: Provides a UI for users to permanently delete their account with comprehensive Stripe cleanup.
  * Change History:
+ * C005 - 2025-09-09 : Enhanced to support complete Stripe account/customer deletion.
  * C004 - 2025-08-26 : 14:00 - Replaced Clerk's useUser hook with Kinde's useKindeBrowserClient.
  * C003 - 2025-07-26 : 22:45 - Replaced useAuth with Clerk's useUser hook.
- * Last Modified: 2025-08-26 : 14:00
+ * Last Modified: 2025-09-09
  * Requirement ID: VIN-AUTH-MIG-02
- * Change Summary: This component has been migrated from Clerk to Kinde. The `useUser` hook was replaced with `useKindeBrowserClient`. The email confirmation now uses the `user.email` property from Kinde. The API call to delete the user is a placeholder, as this requires a new Kinde-specific backend implementation. This change resolves the "Module not found" build error.
+ * Change Summary: Enhanced the deletion flow to provide clear feedback about the comprehensive 
+ * data cleanup process, including Stripe payment methods and payout accounts.
  */
 'use client';
 
@@ -51,8 +53,6 @@ const DeleteAccountPage = () => {
         method: 'POST',
       });
 
-      // --- THIS IS THE FIX ---
-      // If the response is not OK, we safely handle the error instead of crashing.
       if (!response.ok) {
         let errorMessage = 'An unexpected server error occurred. Please try again.';
         // Check if the server sent a JSON error message before trying to parse it.
@@ -64,8 +64,13 @@ const DeleteAccountPage = () => {
         throw new Error(errorMessage);
       }
       
+      const result = await response.json();
+      
       // On success, log the user out and redirect.
       await fetch('/api/auth/logout', { method: 'POST' });
+      
+      // Show success message briefly before redirect
+      window.alert(result.message || 'Your account has been successfully deleted.');
       window.location.href = '/';
 
     } catch (err) {
@@ -83,6 +88,11 @@ const DeleteAccountPage = () => {
     );
   }
 
+  // Check if user has any Stripe accounts
+  const hasStripeCustomer = !!profile.stripe_customer_id;
+  const hasStripeAccount = !!profile.stripe_account_id;
+  const hasStripeData = hasStripeCustomer || hasStripeAccount;
+
   return (
     <Container variant="form">
       <PageHeader
@@ -91,8 +101,15 @@ const DeleteAccountPage = () => {
       />
       <Card>
         <Message type="error" className={styles.warningMessage}>
-          You are about to permanently delete your account, including all of your profile information, referral links, and earnings history.
+          You are about to permanently delete your account and all associated data, including:
+          <br /><br />
+          • Your profile information and referral links
+          • All referral activity and earnings history
+          {hasStripeCustomer && <><br />• Your saved payment methods and customer data</>}
+          {hasStripeAccount && <><br />• Your connected payout account and transaction history</>}
+          {hasStripeData && <><br /><br /><strong>Note:</strong> This will also delete all your data from Stripe's systems.</>}
         </Message>
+        
         <form onSubmit={handleDelete} className={styles.form}>
           <FormGroup
             label={`To confirm, please type "DELETE" in the box below.`}
@@ -105,6 +122,7 @@ const DeleteAccountPage = () => {
               onChange={(e) => setConfirmationText(e.target.value)}
               required
               autoComplete="off"
+              placeholder="Type DELETE to confirm"
             />
           </FormGroup>
 
@@ -116,7 +134,7 @@ const DeleteAccountPage = () => {
             className={styles.dangerButton}
             disabled={confirmationText !== 'DELETE' || isDeleting}
           >
-            {isDeleting ? 'Deleting Account...' : 'Delete My Account Permanently'}
+            {isDeleting ? 'Deleting Account and All Data...' : 'Delete My Account Permanently'}
           </Button>
         </form>
       </Card>
