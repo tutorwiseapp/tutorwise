@@ -1,0 +1,33 @@
+// Filename: .claude/settings.json
+
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(yarn *)",
+      "Bash(pnpm *)",
+      "Bash(git *)",
+      "Bash(vercel *)",
+      "Bash(railway *)",
+      "Bash(supabase *)",
+      "Bash(stripe *)",
+      "Read(./package.json)",
+      "Read(./tsconfig.json)",
+      "Read(./next.config.*)",
+      "Read(./tailwind.config.*)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Read(./.next/**)",
+      "Read(./node_modules/**)",
+      "Read(./dist/**)",
+      "Read(./build/**)",
+      "Bash(rm -rf *)",
+      "Bash(sudo *)"
+    ]
+  },
+  "model": "claude-3-5-sonnet-20241022",
+  "includeCoAuthoredBy": true
+}
