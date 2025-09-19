@@ -62,3 +62,6 @@ Thumbs.db
 .vercel
 .env*.local
 
+# Ignore Python virtual environments
+venv/
+ai-backend/venv/

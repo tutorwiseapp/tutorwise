@@ -1,4 +1,9 @@
 {
-    "editor.hover.enabled": true,
-    "editor.hover.sticky": true
+  "python.defaultInterpreterPath": "/Users/michaelquan/projects/tutorwise/ai-backend/venv/bin/python",
+  "python.analysis.extraPaths": [
+    "./ai-backend"
+  ],
+  "python.analysis.autoImportCompletions": true,
+  "python-envs.pythonProjects": [],
+  "python-envs.defaultEnvManager": "ms-python.python:system"
 }
