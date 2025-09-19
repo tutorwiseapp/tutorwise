@@ -1,0 +1,5 @@
+fastapi
+uvicorn[standard]
+redis==4.6.0
+neo4j
+python-dotenv
