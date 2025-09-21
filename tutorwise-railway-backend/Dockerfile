@@ -5,7 +5,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # --- THIS IS THE FIX ---
-# This command explicitly uses the shell (`sh -c`) to run the uvicorn server.
-# This forces the shell to properly expand the `$PORT` environment variable 
-# provided by Railway before the server starts.
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port $PORT"]
+# Run the application using the new Python runner script.
+# This is a more reliable way to handle the dynamic PORT.
+CMD ["python", "runner.py"]
