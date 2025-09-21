@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from ..main import redis_client, neo4j_driver
+# Import from the new db_client file, fixing the circular dependency
+from db_client import redis_client, neo4j_driver
 
 router = APIRouter()
 
