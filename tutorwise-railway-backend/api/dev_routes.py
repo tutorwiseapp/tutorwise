@@ -1,68 +1,47 @@
-import { createClient } from '@supabase/supabase-js';
-import { NextResponse } from 'next/server';
+from fastapi import APIRouter, HTTPException
+from ..main import neo4j_driver
+import datetime
 
-export async function POST() {
-  // --- Step 1: Pre-flight Check for Environment Variables ---
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+router = APIRouter()
 
-  if (!supabaseUrl || !serviceRoleKey) {
-    return NextResponse.json({ message: 'DIAGNOSTIC: A Supabase environment variable is MISSING on Vercel.' }, { status: 500 });
-  }
-
-  // --- Step 2: Write to Supabase using the base client ---
-  // This creates a direct, simple client without cookie/SSR helpers.
-  const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
-  
-  let supabaseStatus: 'ok' | 'error' = 'error';
-  try {
-    const { error } = await supabaseAdmin.from('system_test_logs').insert({ 
-      source: 'Vercel Frontend', 
-      status: 'initiated' 
-    });
-    if (error) throw error;
-    supabaseStatus = 'ok';
-  } catch (error) {
-    console.error('Supabase write error:', error);
-    const dbErrorMessage = error instanceof Error ? error.message : 'Unknown database error';
-    return NextResponse.json({ 
-        message: `Failed to write to Supabase. DB Error: ${dbErrorMessage}`,
-        supabase: 'error',
-        neo4j: 'idle' 
-    }, { status: 500 });
-  }
-
-  // --- Step 3: Call Railway Backend to Write to Neo4j ---
-  let neo4jStatus: 'ok' | 'error' = 'error';
-  try {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (!backendUrl) throw new Error('CRITICAL: NEXT_PUBLIC_API_URL environment variable is not set on Vercel.');
-
-    const response = await fetch(`${backendUrl}/test-neo4j-write`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || 'The Railway backend returned an unspecified error.');
-    }
+def _create_test_node(tx):
+    """
+    A helper function to create a simple test node in Neo4j.
+    Deletes any previous test nodes to keep the database clean.
+    """
+    # First, delete any old test nodes to ensure a clean test run
+    tx.run("MATCH (n:SystemTestNode) DETACH DELETE n")
     
-    neo4jStatus = 'ok';
-  } catch (error) {
-    console.error('Railway/Neo4j error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred while contacting the backend.';
-    return NextResponse.json({ 
-        message: errorMessage,
-        supabase: supabaseStatus,
-        neo4j: 'error'
-    }, { status: 500 });
-  }
+    # Then, create a new node with a timestamp to confirm the write
+    timestamp = datetime.datetime.now().isoformat()
+    tx.run(
+        "CREATE (n:SystemTestNode { source: $source, timestamp: $timestamp })",
+        source="Railway Backend",
+        timestamp=timestamp
+    )
 
-  // --- Success ---
-  return NextResponse.json({
-    supabase: supabaseStatus,
-    neo4j: neo4jStatus,
-  });
-}
+@router.post("/test-neo4j-write", tags=["Development"])
+async def test_neo4j_write():
+    """
+    Receives the request from the Vercel frontend and performs a test write 
+    to the Neo4j database to verify connectivity and credentials.
+    """
+    if not neo4j_driver:
+        raise HTTPException(
+            status_code=503,
+            detail="Neo4j driver not available. Check backend startup logs."
+        )
 
+    try:
+        # Use a session from the driver to execute the transaction
+        with neo4j_driver.session() as session:
+            session.write_transaction(_create_test_node)
+        
+        return {"status": "ok", "message": "Successfully wrote test node to Neo4j."}
+    except Exception as e:
+        # If an error occurs, print it to the Railway logs and return a specific error
+        print(f"Neo4j write error: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to write to Neo4j. DB Error: {str(e)}"
+        )
