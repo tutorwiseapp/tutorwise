@@ -5,25 +5,31 @@ import redis
 from neo4j import GraphDatabase
 from dotenv import load_dotenv
 
-# Load environment variables from .env file for local development
+# Import the new API routers
+from api import health, dev_routes
+
+# Load environment variables from .env file
 load_dotenv()
 
-# Initialize FastAPI app
-app = FastAPI()
+app = FastAPI(
+    title="Tutorwise AI Backend",
+    description="API for Tutorwise services and AI agents.",
+    version="1.0.0"
+)
 
-# --- CORS Configuration ---
-# Get the allowed origins from an environment variable
-allowed_origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
+# CORS configuration
+origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,https://tutorwise.vercel.app").split(",")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# --- Database Connections ---
+# --- Database connections ---
+# These are defined globally so they can be imported by the routers
 redis_client = None
 neo4j_driver = None
 
@@ -32,13 +38,10 @@ def startup_event():
     global redis_client, neo4j_driver
     # Connect to Redis
     try:
-        redis_client = redis.Redis(
-            host=os.getenv("REDIS_HOST"),
-            port=int(os.getenv("REDIS_PORT", 6379)),
-            password=os.getenv("REDIS_PASSWORD"),
-            username=os.getenv("REDIS_USER"),
-            decode_responses=True
-        )
+        redis_url = os.getenv("REDIS_URL")
+        if not redis_url:
+            raise ValueError("REDIS_URL environment variable not set")
+        redis_client = redis.from_url(redis_url, decode_responses=True)
         redis_client.ping()
         print("Successfully connected to Redis.")
     except Exception as e:
@@ -46,10 +49,12 @@ def startup_event():
 
     # Connect to Neo4j
     try:
-        uri = os.getenv("NEO4J_URI")
-        user = os.getenv("NEO4J_USERNAME")
-        password = os.getenv("NEO4J_PASSWORD")
-        neo4j_driver = GraphDatabase.driver(uri, auth=(user, password))
+        neo4j_uri = os.getenv("NEO4J_URI")
+        neo4j_user = os.getenv("NEO4J_USERNAME")
+        neo4j_password = os.getenv("NEO4J_PASSWORD")
+        if not all([neo4j_uri, neo4j_user, neo4j_password]):
+             raise ValueError("NEO4J environment variables not fully set")
+        neo4j_driver = GraphDatabase.driver(neo4j_uri, auth=(neo4j_user, neo4j_password))
         neo4j_driver.verify_connectivity()
         print("Successfully connected to Neo4j.")
     except Exception as e:
@@ -60,25 +65,15 @@ def startup_event():
 def shutdown_event():
     if neo4j_driver:
         neo4j_driver.close()
-        print("Neo4j connection closed.")
 
-# --- API Endpoints ---
-@app.get("/health")
-def health_check():
-    """Health check endpoint to verify service is running."""
-    redis_connected = False
-    if redis_client:
-        try:
-            redis_connected = redis_client.ping()
-        except Exception:
-            redis_connected = False
-            
-    return {"status": "ok", "redis_connected": redis_connected, "neo4j_connected": neo4j_driver is not None}
 
-# --- Placeholder for future AI logic ---
-# Example: Get recommendations for a user
-@app.get("/recommendations/{user_id}")
-def get_recommendations(user_id: str):
-    # In the future, you would query Neo4j here
-    # For now, we return mock data
-    return {"user_id": user_id, "recommendations": ["Math Tutor", "Science Project Helper"]}
+# --- Include API Routers ---
+# This keeps the main file clean and organized
+app.include_router(health.router)
+app.include_router(dev_routes.router)
+
+
+@app.get("/", tags=["Root"])
+def read_root():
+    return {"message": "Welcome to the Tutorwise AI Backend"}
+
