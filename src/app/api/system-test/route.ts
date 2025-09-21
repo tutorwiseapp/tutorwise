@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
 export async function POST() {
@@ -6,21 +6,17 @@ export async function POST() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!supabaseUrl) {
-    return NextResponse.json({ message: 'DIAGNOSTIC: The NEXT_PUBLIC_SUPABASE_URL environment variable is MISSING on Vercel.' }, { status: 500 });
-  }
-  if (!serviceRoleKey) {
-    return NextResponse.json({ message: 'DIAGNOSTIC: The SUPABASE_SERVICE_ROLE_KEY environment variable is MISSING on Vercel.' }, { status: 500 });
-  }
-   if (serviceRoleKey.length < 100) { // A real key is very long
-    return NextResponse.json({ message: 'DIAGNOSTIC: The SUPABASE_SERVICE_ROLE_KEY seems too short. Please verify it was copied correctly.' }, { status: 500 });
+  if (!supabaseUrl || !serviceRoleKey) {
+    return NextResponse.json({ message: 'DIAGNOSTIC: A Supabase environment variable is MISSING on Vercel.' }, { status: 500 });
   }
 
-  // --- Step 2: Write to Supabase ---
-  const supabase = createClient();
+  // --- Step 2: Write to Supabase using the base client ---
+  // This creates a direct, simple client without cookie/SSR helpers.
+  const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+  
   let supabaseStatus: 'ok' | 'error' = 'error';
   try {
-    const { error } = await supabase.from('system_test_logs').insert({ 
+    const { error } = await supabaseAdmin.from('system_test_logs').insert({ 
       source: 'Vercel Frontend', 
       status: 'initiated' 
     });
@@ -69,4 +65,3 @@ export async function POST() {
     neo4j: neo4jStatus,
   });
 }
-
