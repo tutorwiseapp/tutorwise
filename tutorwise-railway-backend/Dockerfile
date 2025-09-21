@@ -4,7 +4,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
-# --- THIS IS THE FIX ---
-# Run the application using the new Python runner script.
-# This is a more reliable way to handle the dynamic PORT.
-CMD ["python", "runner.py"]
+# --- THIS IS THE FINAL FIX ---
+# This uses ENTRYPOINT, the standard way to define the main executable for the container.
+# It runs a shell (`/bin/sh -c`) to ensure the $PORT variable is correctly interpreted.
+ENTRYPOINT ["/bin/sh", "-c", "uvicorn main:app --host 0.0.0.0 --port $PORT"]
