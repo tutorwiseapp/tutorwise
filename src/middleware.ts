@@ -56,7 +56,6 @@ export async function middleware(request: NextRequest) {
     '/privacy-policy',
     '/forgot-password',
     '/system-test',
-    '/system-test-debug',
   ]
 
   // Check if the current request path is for a public page or a public agent profile
