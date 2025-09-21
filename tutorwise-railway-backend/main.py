@@ -1,15 +1,14 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
 
 # Import the new API routers
 from api import health, dev_routes
-# Import the database driver from our new client file
+# Import the driver from our new, central client file
 from db_client import neo4j_driver
 
-# Load environment variables from .env file
-# This is now only needed for ALLOWED_ORIGINS
-from dotenv import load_dotenv
+# Load environment variables (now only needed for ALLOWED_ORIGINS)
 load_dotenv()
 
 app = FastAPI(
@@ -29,15 +28,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# The startup logic is no longer needed here, as connections are handled in db_client.py
+# Startup connection logic is no longer needed here
 
 @app.on_event("shutdown")
 def shutdown_event():
     if neo4j_driver:
         neo4j_driver.close()
 
-# --- Include API Routers ---
-# This keeps the main file clean and organized
+# Include API Routers
 app.include_router(health.router)
 app.include_router(dev_routes.router)
 
