@@ -3,7 +3,10 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
+
 # --- THIS IS THE FIX ---
-# Use the shell form of CMD to allow the $PORT variable to be expanded by the shell.
-# Railway provides the $PORT variable automatically.
-CMD uvicorn main:app --host 0.0.0.0 --port $PORT
+# 1. Make the new start script executable
+RUN chmod +x ./start.sh
+
+# 2. Use the script to start the server, which correctly handles the $PORT variable
+CMD ["./start.sh"]
