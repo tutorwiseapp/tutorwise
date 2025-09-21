@@ -1,23 +1,68 @@
-from fastapi import APIRouter, HTTPException
-from neo4j import exceptions
-from ..main import neo4j_driver
+import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from 'next/server';
 
-router = APIRouter()
+export async function POST() {
+  // --- Step 1: Pre-flight Check for Environment Variables ---
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-@router.post("/test-neo4j-write", tags=["Development"])
-async def test_neo4j_write():
-    """
-    A simple endpoint to create a test node in Neo4j.
-    This should only be used for development and testing.
-    """
-    try:
-        if not neo4j_driver:
-            raise HTTPException(status_code=500, detail="Neo4j driver not available")
-            
-        with neo4j_driver.session() as session:
-            session.run("CREATE (:SystemTest {name: 'Vercel->Railway', timestamp: timestamp()})")
-        return {"status": "ok", "message": "Test node created in Neo4j"}
-    except exceptions.ServiceUnavailable as e:
-         raise HTTPException(status_code=503, detail=f"Neo4j is unavailable: {e}")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"An error occurred with Neo4j: {e}")
+  if (!supabaseUrl || !serviceRoleKey) {
+    return NextResponse.json({ message: 'DIAGNOSTIC: A Supabase environment variable is MISSING on Vercel.' }, { status: 500 });
+  }
+
+  // --- Step 2: Write to Supabase using the base client ---
+  // This creates a direct, simple client without cookie/SSR helpers.
+  const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+  
+  let supabaseStatus: 'ok' | 'error' = 'error';
+  try {
+    const { error } = await supabaseAdmin.from('system_test_logs').insert({ 
+      source: 'Vercel Frontend', 
+      status: 'initiated' 
+    });
+    if (error) throw error;
+    supabaseStatus = 'ok';
+  } catch (error) {
+    console.error('Supabase write error:', error);
+    const dbErrorMessage = error instanceof Error ? error.message : 'Unknown database error';
+    return NextResponse.json({ 
+        message: `Failed to write to Supabase. DB Error: ${dbErrorMessage}`,
+        supabase: 'error',
+        neo4j: 'idle' 
+    }, { status: 500 });
+  }
+
+  // --- Step 3: Call Railway Backend to Write to Neo4j ---
+  let neo4jStatus: 'ok' | 'error' = 'error';
+  try {
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!backendUrl) throw new Error('CRITICAL: NEXT_PUBLIC_API_URL environment variable is not set on Vercel.');
+
+    const response = await fetch(`${backendUrl}/test-neo4j-write`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'The Railway backend returned an unspecified error.');
+    }
+    
+    neo4jStatus = 'ok';
+  } catch (error) {
+    console.error('Railway/Neo4j error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred while contacting the backend.';
+    return NextResponse.json({ 
+        message: errorMessage,
+        supabase: supabaseStatus,
+        neo4j: 'error'
+    }, { status: 500 });
+  }
+
+  // --- Success ---
+  return NextResponse.json({
+    supabase: supabaseStatus,
+    neo4j: neo4jStatus,
+  });
+}
+
