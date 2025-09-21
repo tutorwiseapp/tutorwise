@@ -5,8 +5,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # --- THIS IS THE FIX ---
-# 1. Make the new start script executable
-RUN chmod +x ./start.sh
-
-# 2. Use the script to start the server, which correctly handles the $PORT variable
-CMD ["./start.sh"]
+# This command explicitly uses the shell (`sh -c`) to run the uvicorn server.
+# This forces the shell to properly expand the `$PORT` environment variable 
+# provided by Railway before the server starts.
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port $PORT"]
