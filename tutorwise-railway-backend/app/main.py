@@ -1,23 +1,61 @@
 # tutorwise-railway-backend/app/main.py
 import os
+import logging
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
 
 # Import API routes
 from app.api import health, dev_routes
-# Import database connections for cleanup
-from app.db import neo4j_driver
+# Import database management functions
+from app.db import startup_database_connections, shutdown_database_connections
 
-load_dotenv()
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Only load .env in development
+if os.getenv("ENV") == "development":
+    from dotenv import load_dotenv
+    load_dotenv()
+    logger.info("Loaded environment variables from .env file")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    logger.info("Starting up Tutorwise AI Backend...")
+    try:
+        await startup_database_connections()
+        logger.info("Database connections initialized")
+    except Exception as e:
+        logger.error(f"Failed to initialize database connections: {e}")
+        # Continue startup - let health checks handle the errors
+
+    yield
+
+    # Shutdown
+    logger.info("Shutting down Tutorwise AI Backend...")
+    try:
+        await shutdown_database_connections()
+        logger.info("Database connections closed")
+    except Exception as e:
+        logger.error(f"Error during shutdown: {e}")
 
 app = FastAPI(
     title="Tutorwise AI Backend",
     description="API for Tutorwise services and AI agents.",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
-origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
+# Get CORS origins from environment
+allowed_origins = os.getenv("ALLOWED_ORIGINS")
+if allowed_origins:
+    origins = [origin.strip() for origin in allowed_origins.split(",") if origin.strip()]
+else:
+    # Default to no origins in production - must be explicitly set
+    origins = []
+    logger.warning("ALLOWED_ORIGINS not set - CORS will block all origins")
 
 app.add_middleware(
     CORSMiddleware,
@@ -26,11 +64,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-@app.on_event("shutdown")
-def shutdown_event():
-    if neo4j_driver:
-        neo4j_driver.close()
 
 # Include routers
 app.include_router(health.router)
