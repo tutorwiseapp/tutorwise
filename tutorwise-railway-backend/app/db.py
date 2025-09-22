@@ -10,30 +10,22 @@ load_dotenv()
 redis_client = None
 neo4j_driver = None
 
-# Connect to Redis
-try:
-    redis_url = os.getenv("REDIS_URL")
-    if not redis_url:
-        raise ValueError("REDIS_URL environment variable not set")
-
-    print(f"Attempting to connect to Redis at: {redis_url}")
-
-    # Create Redis client with connection timeout and retry settings
+# Initialize Redis with lazy connection
+redis_url = os.getenv("REDIS_URL")
+if redis_url:
+    print(f"Redis URL configured: {redis_url}")
+    # Create Redis client but don't test connection yet (lazy loading)
     redis_client = redis.from_url(
         redis_url,
         decode_responses=True,
-        socket_connect_timeout=5,
-        socket_timeout=5,
+        socket_connect_timeout=10,
+        socket_timeout=10,
         retry_on_timeout=True,
         health_check_interval=30
     )
-
-    # Test the connection
-    redis_client.ping()
-    print("Successfully connected to Redis.")
-except Exception as e:
-    print(f"Error connecting to Redis: {e}")
-    print(f"Redis URL format: {redis_url if redis_url else 'Not set'}")
+    print("Redis client initialized (connection will be tested on first use)")
+else:
+    print("REDIS_URL environment variable not set")
 
 # Connect to Neo4j
 try:
