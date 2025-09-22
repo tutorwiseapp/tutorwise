@@ -12,42 +12,58 @@ neo4j_driver = None
 
 # Initialize Redis with Railway environment variables
 redis_url = os.getenv("REDIS_URL")
-redis_host = os.getenv("REDISHOST")
-redis_port = os.getenv("REDISPORT", "6379")
-redis_password = os.getenv("REDISPASSWORD")
+redis_public_url = os.getenv("REDIS_PUBLIC_URL")
 
 print(f"Redis configuration:")
 print(f"  REDIS_URL: {redis_url}")
-print(f"  REDISHOST: {redis_host}")
-print(f"  REDISPORT: {redis_port}")
-print(f"  REDISPASSWORD: {'***' if redis_password else 'None'}")
+print(f"  REDIS_PUBLIC_URL: {redis_public_url}")
 
-if redis_host and redis_password:
-    # Use Railway's individual variables
-    print(f"Using Railway Redis variables: {redis_host}:{redis_port}")
-    redis_client = redis.Redis(
-        host=redis_host,
-        port=int(redis_port),
-        password=redis_password,
-        decode_responses=True,
-        socket_connect_timeout=10,
-        socket_timeout=10,
-        retry_on_timeout=True,
-        health_check_interval=30
-    )
-    print("Redis client initialized using Railway variables")
-elif redis_url:
-    # Fallback to URL format
-    print(f"Using Redis URL: {redis_url}")
+# Try public URL first if available, then fallback to private URL
+if redis_public_url:
+    print(f"Using public Redis URL: {redis_public_url}")
     redis_client = redis.from_url(
-        redis_url,
+        redis_public_url,
         decode_responses=True,
         socket_connect_timeout=10,
         socket_timeout=10,
         retry_on_timeout=True,
         health_check_interval=30
     )
-    print("Redis client initialized using URL")
+    print("Redis client initialized using public URL")
+elif redis_url:
+    # Try to construct public URL from private URL if possible
+    if "redis.railway.internal" in redis_url:
+        # Extract password from private URL
+        import re
+        match = re.search(r'redis://default:([^@]+)@', redis_url)
+        if match:
+            password = match.group(1)
+            # Try public endpoint: redis://default:password@shinkansen.proxy.rlwy.net:20154
+            public_url = f"redis://default:{password}@shinkansen.proxy.rlwy.net:20154"
+            print(f"Attempting public Redis endpoint: {public_url}")
+            redis_client = redis.from_url(
+                public_url,
+                decode_responses=True,
+                socket_connect_timeout=10,
+                socket_timeout=10,
+                retry_on_timeout=True,
+                health_check_interval=30
+            )
+            print("Redis client initialized using constructed public URL")
+        else:
+            print("Could not extract password from private URL")
+            redis_client = None
+    else:
+        print(f"Using original Redis URL: {redis_url}")
+        redis_client = redis.from_url(
+            redis_url,
+            decode_responses=True,
+            socket_connect_timeout=10,
+            socket_timeout=10,
+            retry_on_timeout=True,
+            health_check_interval=30
+        )
+        print("Redis client initialized using original URL")
 else:
     print("No Redis configuration found")
 
