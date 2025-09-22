@@ -64,4 +64,9 @@ Thumbs.db
 
 # Ignore Python virtual environments
 venv/
-ai-backend/venv/
+tutorwise-railway-backend/venv/
+
+# Railway and Neo4j setup. 
+.env
+.env.local
+.env.production

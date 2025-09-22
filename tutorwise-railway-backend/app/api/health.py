@@ -6,19 +6,29 @@ router = APIRouter()
 
 @router.get("/health", tags=["Health"])
 async def health_check():
-    redis_status = "ok" if redis_client and redis_client.ping() else "error"
+    # Check Redis with proper error handling
+    redis_status = "error"
+    try:
+        if redis_client:
+            redis_client.ping()
+            redis_status = "ok"
+    except Exception as e:
+        print(f"Redis health check failed: {e}")
+        redis_status = "error"
+    
+    # Check Neo4j with proper error handling
     neo4j_status = "error"
     try:
         if neo4j_driver:
             neo4j_driver.verify_connectivity()
             neo4j_status = "ok"
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"Neo4j health check failed: {e}")
+        neo4j_status = "error"
 
-    if redis_status == "ok" and neo4j_status == "ok":
-        return {"status": "ok", "redis": redis_status, "neo4j": neo4j_status}
-    else:
-        raise HTTPException(
-            status_code=503,
-            detail={"status": "error", "redis": redis_status, "neo4j": neo4j_status}
-        )
+    # Return status regardless of individual service health
+    return {
+        "status": "ok" if redis_status == "ok" and neo4j_status == "ok" else "degraded",
+        "redis": redis_status,
+        "neo4j": neo4j_status
+    }
