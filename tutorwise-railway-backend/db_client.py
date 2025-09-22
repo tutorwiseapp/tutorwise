@@ -3,11 +3,14 @@ import redis
 from neo4j import GraphDatabase
 from dotenv import load_dotenv
 
+# Load environment variables for local development
 load_dotenv()
 
+# Initialize clients
 redis_client = None
 neo4j_driver = None
 
+# Connect to Redis
 try:
     redis_url = os.getenv("REDIS_URL")
     if not redis_url:
@@ -18,6 +21,7 @@ try:
 except Exception as e:
     print(f"Error connecting to Redis: {e}")
 
+# Connect to Neo4j
 try:
     neo4j_uri = os.getenv("NEO4J_URI")
     neo4j_user = os.getenv("NEO4J_USERNAME")
