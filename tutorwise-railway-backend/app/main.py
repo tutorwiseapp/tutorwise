@@ -1,10 +1,12 @@
+# tutorwise-railway-backend/app/main.py
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-# Use the new absolute import path
+# Import API routes
 from app.api import health, dev_routes
+# Import database connections for cleanup
 from app.db import neo4j_driver
 
 load_dotenv()
@@ -30,6 +32,7 @@ def shutdown_event():
     if neo4j_driver:
         neo4j_driver.close()
 
+# Include routers
 app.include_router(health.router)
 app.include_router(dev_routes.router)
 
