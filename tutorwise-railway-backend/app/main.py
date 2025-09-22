@@ -3,9 +3,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-# Use the new absolute import path
-from app.api import health, dev_routes
-from app.db import neo4j_driver
+from api import health, dev_routes
+from db_client import neo4j_driver
 
 load_dotenv()
 
