@@ -10,11 +10,35 @@ load_dotenv()
 redis_client = None
 neo4j_driver = None
 
-# Initialize Redis with lazy connection
+# Initialize Redis with Railway environment variables
 redis_url = os.getenv("REDIS_URL")
-if redis_url:
-    print(f"Redis URL configured: {redis_url}")
-    # Create Redis client but don't test connection yet (lazy loading)
+redis_host = os.getenv("REDISHOST")
+redis_port = os.getenv("REDISPORT", "6379")
+redis_password = os.getenv("REDISPASSWORD")
+
+print(f"Redis configuration:")
+print(f"  REDIS_URL: {redis_url}")
+print(f"  REDISHOST: {redis_host}")
+print(f"  REDISPORT: {redis_port}")
+print(f"  REDISPASSWORD: {'***' if redis_password else 'None'}")
+
+if redis_host and redis_password:
+    # Use Railway's individual variables
+    print(f"Using Railway Redis variables: {redis_host}:{redis_port}")
+    redis_client = redis.Redis(
+        host=redis_host,
+        port=int(redis_port),
+        password=redis_password,
+        decode_responses=True,
+        socket_connect_timeout=10,
+        socket_timeout=10,
+        retry_on_timeout=True,
+        health_check_interval=30
+    )
+    print("Redis client initialized using Railway variables")
+elif redis_url:
+    # Fallback to URL format
+    print(f"Using Redis URL: {redis_url}")
     redis_client = redis.from_url(
         redis_url,
         decode_responses=True,
@@ -23,9 +47,9 @@ if redis_url:
         retry_on_timeout=True,
         health_check_interval=30
     )
-    print("Redis client initialized (connection will be tested on first use)")
+    print("Redis client initialized using URL")
 else:
-    print("REDIS_URL environment variable not set")
+    print("No Redis configuration found")
 
 # Connect to Neo4j
 try:
