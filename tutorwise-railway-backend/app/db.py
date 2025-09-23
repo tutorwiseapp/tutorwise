@@ -1,17 +1,17 @@
 # tutorwise-railway-backend/app/db.py
-import os
-import logging
 import asyncio
-from typing import Optional
+import logging
+import os
+
 import redis
 from neo4j import GraphDatabase
-from contextlib import asynccontextmanager
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Global database clients
+from typing import Optional
 redis_client: Optional[redis.Redis] = None
 neo4j_driver: Optional[GraphDatabase.driver] = None
 

@@ -1,0 +1,59 @@
+# Ruff configuration for Tutorwise Backend
+# Documentation: https://docs.astral.sh/ruff/
+
+# Exclude generated files and dependencies
+extend-exclude = [
+    "venv",
+    ".venv",
+    "__pycache__",
+    ".pytest_cache",
+    "htmlcov",
+    "migrations"
+]
+
+# Target Python 3.11+
+target-version = "py311"
+
+# Line length to match Black's default
+line-length = 88
+
+[lint]
+# Enable recommended rules plus some extras
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "SIM",    # flake8-simplify
+    "I",      # isort
+    "N",      # pep8-naming
+    "C4",     # flake8-comprehensions
+    "S",      # flake8-bandit (security)
+    "T20",    # flake8-print
+]
+
+# Ignore specific rules that may be too strict for this project
+ignore = [
+    "S101",   # Use of assert (common in tests)
+    "S608",   # Possible SQL injection (we use parameterized queries)
+    "T201",   # print statements (useful for debugging)
+    "E501",   # Line too long (handled by line-length setting)
+]
+
+# Rules to fix automatically
+fixable = ["ALL"]
+
+[lint.per-file-ignores]
+# Test files can use assert statements and have print statements
+"tests/**/*.py" = ["S101", "T201", "T203"]
+
+# Configuration files can have print statements
+"**/conftest.py" = ["T201"]
+
+[format]
+# Use double quotes for strings
+quote-style = "double"
+
+# Indent with spaces
+indent-style = "space"

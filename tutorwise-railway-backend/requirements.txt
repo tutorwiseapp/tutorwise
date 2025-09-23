@@ -5,3 +5,11 @@ redis==4.6.0
 neo4j
 python-dotenv
 requests
+
+# Testing dependencies
+pytest
+pytest-asyncio
+pytest-mock
+httpx
+faker
+pytest-cov

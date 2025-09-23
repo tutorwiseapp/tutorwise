@@ -1,14 +1,16 @@
 # app/api/health.py
 import asyncio
 import logging
-from typing import Dict, Any
+from typing import Any
+
 from fastapi import APIRouter
-from app.db import redis_client, neo4j_driver
+
+from app.db import neo4j_driver, redis_client
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-async def check_redis_health() -> Dict[str, Any]:
+async def check_redis_health() -> dict[str, Any]:
     """Check Redis health with proper error handling"""
     if not redis_client:
         return {
@@ -46,7 +48,7 @@ async def check_redis_health() -> Dict[str, Any]:
         "details": "All retry attempts failed"
     }
 
-async def check_neo4j_health() -> Dict[str, Any]:
+async def check_neo4j_health() -> dict[str, Any]:
     """Check Neo4j health with proper error handling"""
     if not neo4j_driver:
         return {

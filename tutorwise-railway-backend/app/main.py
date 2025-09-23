@@ -1,14 +1,16 @@
 # tutorwise-railway-backend/app/main.py
-import os
 import logging
+import os
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import API routes
-from app.api import health, dev_routes
+from app.api import dev_routes, health
+
 # Import database management functions
-from app.db import startup_database_connections, shutdown_database_connections
+from app.db import shutdown_database_connections, startup_database_connections
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
