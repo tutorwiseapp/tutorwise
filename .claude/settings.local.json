@@ -8,7 +8,8 @@
       "Bash(npm run test:backend:*)",
       "Bash(npm run test:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(python3 -m pytest tests/integration/test_health_endpoint.py::TestDevRoutes::test_test_neo4j_write_success -v)"
     ],
     "deny": [],
     "ask": []
