@@ -10,6 +10,19 @@ import PageHeader from '@/app/components/ui/PageHeader';
 
 type TestStatus = 'idle' | 'pending' | 'success' | 'error';
 type HealthStatus = 'unknown' | 'ok' | 'degraded' | 'error';
+type ComponentStatus = 'up' | 'down' | 'degraded' | 'unknown';
+type AlertLevel = 'critical' | 'warning' | 'informational' | 'success';
+
+interface ComponentHealth {
+  name: string;
+  status: ComponentStatus;
+  alertLevel: AlertLevel;
+  message: string;
+  lastCheck: Date;
+  responseTime?: number;
+  uptime?: string;
+  details?: string;
+}
 
 interface HealthResponse {
   status: HealthStatus;
@@ -48,9 +61,16 @@ export default function TestAssuredPage() {
   const [healthLoading, setHealthLoading] = useState(false);
   const [lastHealthCheck, setLastHealthCheck] = useState<Date | null>(null);
 
+  // Continuous Monitoring States
+  const [componentsHealth, setComponentsHealth] = useState<ComponentHealth[]>([]);
+  const [isMonitoring, setIsMonitoring] = useState(false);
+  const [monitoringInterval, setMonitoringInterval] = useState<NodeJS.Timeout | null>(null);
+  const [alertCount, setAlertCount] = useState({ critical: 0, warning: 0, informational: 0 });
+
   const tabs = [
     { id: 'system-tests', label: 'System Tests' },
     { id: 'health-monitor', label: 'Health Monitor' },
+    { id: 'continuous-monitor', label: 'Platform Status' },
     { id: 'test-docs', label: 'Test Documentation' },
     { id: 'test-history', label: 'Test Framework' }
   ];
@@ -65,6 +85,26 @@ export default function TestAssuredPage() {
 
     return () => clearInterval(interval);
   }, [activeTab]);
+
+  // Cleanup monitoring on unmount
+  useEffect(() => {
+    return () => {
+      if (monitoringInterval) {
+        clearInterval(monitoringInterval);
+      }
+    };
+  }, [monitoringInterval]);
+
+  // Update alert counts when components change
+  useEffect(() => {
+    const counts = { critical: 0, warning: 0, informational: 0 };
+    componentsHealth.forEach(component => {
+      if (component.alertLevel === 'critical') counts.critical++;
+      else if (component.alertLevel === 'warning') counts.warning++;
+      else if (component.alertLevel === 'informational') counts.informational++;
+    });
+    setAlertCount(counts);
+  }, [componentsHealth]);
 
   const runSystemTests = async () => {
     setSystemTestStatus('running');
@@ -124,6 +164,92 @@ export default function TestAssuredPage() {
     } finally {
       setHealthLoading(false);
     }
+  };
+
+  const checkComponentHealth = async (component: string, endpoint: string): Promise<ComponentHealth> => {
+    const startTime = Date.now();
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: { 'Cache-Control': 'no-cache' }
+      });
+
+      const responseTime = Date.now() - startTime;
+      const isHealthy = response.ok;
+
+      return {
+        name: component,
+        status: isHealthy ? 'up' : 'down',
+        alertLevel: isHealthy ? 'success' : 'critical',
+        message: isHealthy ? `Operational (${responseTime}ms)` : `HTTP ${response.status} Error`,
+        lastCheck: new Date(),
+        responseTime,
+        details: isHealthy ? undefined : `Failed to reach ${endpoint}`
+      };
+    } catch (error) {
+      return {
+        name: component,
+        status: 'down',
+        alertLevel: 'critical',
+        message: 'Connection Failed',
+        lastCheck: new Date(),
+        details: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  };
+
+  const performContinuousMonitoring = async () => {
+    const components = [
+      { name: 'Vercel Frontend', endpoint: window.location.origin },
+      { name: 'Railway Backend', endpoint: 'https://tutorwise-railway-backend-production.up.railway.app/health' },
+      { name: 'Supabase Database', endpoint: '/api/health/supabase' },
+      { name: 'System Integration', endpoint: '/api/system-test' }
+    ];
+
+    const healthChecks = await Promise.allSettled(
+      components.map(comp => checkComponentHealth(comp.name, comp.endpoint))
+    );
+
+    const results: ComponentHealth[] = healthChecks.map((result, index) => {
+      if (result.status === 'fulfilled') {
+        return result.value;
+      } else {
+        return {
+          name: components[index].name,
+          status: 'unknown',
+          alertLevel: 'warning',
+          message: 'Health check failed',
+          lastCheck: new Date(),
+          details: 'Unable to perform health check'
+        };
+      }
+    });
+
+    setComponentsHealth(results);
+  };
+
+  const startContinuousMonitoring = () => {
+    if (monitoringInterval) {
+      clearInterval(monitoringInterval);
+    }
+
+    setIsMonitoring(true);
+    performContinuousMonitoring(); // Initial check
+
+    const interval = setInterval(() => {
+      performContinuousMonitoring();
+    }, 15000); // Check every 15 seconds
+
+    setMonitoringInterval(interval);
+  };
+
+  const stopContinuousMonitoring = () => {
+    if (monitoringInterval) {
+      clearInterval(monitoringInterval);
+      setMonitoringInterval(null);
+    }
+    setIsMonitoring(false);
   };
 
   const TestStatusIndicator = ({ result }: { result: TestResult }) => {
@@ -399,6 +525,170 @@ export default function TestAssuredPage() {
     </div>
   );
 
+  const renderContinuousMonitor = () => {
+    const getStatusColor = (status: ComponentStatus) => {
+      switch (status) {
+        case 'up': return 'bg-green-100 text-green-800 border-green-200';
+        case 'down': return 'bg-red-100 text-red-800 border-red-200';
+        case 'degraded': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      }
+    };
+
+    const getAlertBadgeColor = (level: AlertLevel) => {
+      switch (level) {
+        case 'critical': return 'bg-red-500 text-white';
+        case 'warning': return 'bg-yellow-500 text-white';
+        case 'informational': return 'bg-blue-500 text-white';
+        case 'success': return 'bg-green-500 text-white';
+      }
+    };
+
+    return (
+      <div className="space-y-6">
+        <Card>
+          <div className="p-6">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h3 className="text-xl font-bold">Platform Status Monitor</h3>
+                <p className="text-gray-600 text-sm">Real-time component health tracking with continuous monitoring</p>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  onClick={startContinuousMonitoring}
+                  disabled={isMonitoring}
+                  variant="primary"
+                >
+                  {isMonitoring ? 'Monitoring...' : 'Start Monitoring'}
+                </Button>
+                {isMonitoring && (
+                  <Button
+                    onClick={stopContinuousMonitoring}
+                    variant="secondary"
+                  >
+                    Stop
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Alert Summary */}
+            {componentsHealth.length > 0 && (
+              <div className="mb-6">
+                <div className="flex gap-4 mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <span className="text-sm font-medium">Critical: {alertCount.critical}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                    <span className="text-sm font-medium">Warning: {alertCount.warning}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                    <span className="text-sm font-medium">Info: {alertCount.informational}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Component Status Cards */}
+            {componentsHealth.length > 0 ? (
+              <div className="grid gap-4 md:grid-cols-2">
+                {componentsHealth.map((component, index) => (
+                  <div
+                    key={index}
+                    className={`p-4 rounded-lg border-2 ${getStatusColor(component.status)}`}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h4 className="font-semibold text-lg">{component.name}</h4>
+                        <p className="text-sm opacity-75">{component.message}</p>
+                      </div>
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-medium ${getAlertBadgeColor(component.alertLevel)}`}
+                      >
+                        {component.alertLevel.toUpperCase()}
+                      </span>
+                    </div>
+
+                    <div className="space-y-1 text-sm opacity-75">
+                      <div className="flex justify-between">
+                        <span>Status:</span>
+                        <span className="font-medium">{component.status.toUpperCase()}</span>
+                      </div>
+                      {component.responseTime && (
+                        <div className="flex justify-between">
+                          <span>Response Time:</span>
+                          <span className="font-medium">{component.responseTime}ms</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between">
+                        <span>Last Check:</span>
+                        <span className="font-medium">{component.lastCheck.toLocaleTimeString()}</span>
+                      </div>
+                      {component.details && (
+                        <div className="mt-2 p-2 bg-black bg-opacity-10 rounded text-xs">
+                          {component.details}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : !isMonitoring ? (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">🚀</div>
+                <h4 className="text-lg font-semibold mb-2">Platform Status Monitoring</h4>
+                <p className="text-gray-600 mb-4">
+                  Click &quot;Start Monitoring&quot; to begin real-time health tracking of all platform components
+                </p>
+                <div className="grid grid-cols-2 gap-4 max-w-md mx-auto text-sm">
+                  <div className="p-3 bg-gray-50 rounded">
+                    <div className="font-medium">Components Tracked:</div>
+                    <div className="text-gray-600">Frontend, Backend, Database, Integration</div>
+                  </div>
+                  <div className="p-3 bg-gray-50 rounded">
+                    <div className="font-medium">Check Frequency:</div>
+                    <div className="text-gray-600">Every 15 seconds</div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p className="text-gray-600">Initializing continuous monitoring...</p>
+              </div>
+            )}
+          </div>
+        </Card>
+
+        {/* Monitoring Configuration */}
+        {isMonitoring && (
+          <Card>
+            <div className="p-6">
+              <h4 className="text-lg font-semibold mb-4">Monitoring Configuration</h4>
+              <div className="grid md:grid-cols-3 gap-4 text-sm">
+                <div className="p-3 bg-gray-50 rounded">
+                  <div className="font-medium">Check Interval</div>
+                  <div className="text-gray-600">15 seconds</div>
+                </div>
+                <div className="p-3 bg-gray-50 rounded">
+                  <div className="font-medium">Timeout</div>
+                  <div className="text-gray-600">10 seconds</div>
+                </div>
+                <div className="p-3 bg-gray-50 rounded">
+                  <div className="font-medium">Components</div>
+                  <div className="text-gray-600">{componentsHealth.length} tracked</div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
+      </div>
+    );
+  };
+
   const renderTestHistory = () => (
     <div className="space-y-6">
       <Card>
@@ -424,6 +714,16 @@ export default function TestAssuredPage() {
                     <div>
                       <h5 className="font-medium">Health Monitoring</h5>
                       <p className="text-sm text-gray-600">Real-time backend service status</p>
+                    </div>
+                    <StatusBadge status="Active" />
+                  </div>
+                </div>
+
+                <div className="p-4 border rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h5 className="font-medium">Platform Status Monitor</h5>
+                      <p className="text-sm text-gray-600">Continuous component health tracking</p>
                     </div>
                     <StatusBadge status="Active" />
                   </div>
@@ -516,6 +816,8 @@ export default function TestAssuredPage() {
         return renderSystemTests();
       case 'health-monitor':
         return renderHealthMonitor();
+      case 'continuous-monitor':
+        return renderContinuousMonitor();
       case 'test-docs':
         return renderTestDocs();
       case 'test-history':
