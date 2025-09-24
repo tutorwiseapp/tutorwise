@@ -107,7 +107,7 @@ const DeleteAccountPage = () => {
           • All referral activity and earnings history
           {hasStripeCustomer && <><br />• Your saved payment methods and customer data</>}
           {hasStripeAccount && <><br />• Your connected payout account and transaction history</>}
-          {hasStripeData && <><br /><br /><strong>Note:</strong> This will also delete all your data from Stripe's systems.</>}
+          {hasStripeData && <><br /><br /><strong>Note:</strong> This will also delete all your data from Stripe&apos;s systems.</>}
         </Message>
         
         <form onSubmit={handleDelete} className={styles.form}>

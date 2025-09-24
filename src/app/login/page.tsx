@@ -76,7 +76,7 @@ export default function LoginPage() {
         <Button variant='google' fullWidth onClick={handleGoogleSignIn}>Sign In with Google</Button>
       </div>
       <div className={authStyles.authSwitch}>
-        Don't have an account? <Link href="/signup">Sign Up</Link>
+        Don&apos;t have an account? <Link href="/signup">Sign Up</Link>
       </div>
     </Container>
   );

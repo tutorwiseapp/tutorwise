@@ -62,7 +62,7 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
     };
 
     initialize();
-  }, []);
+  }, [supabase]);
 
   return (
     <UserProfileContext.Provider value={{ profile, user, isLoading }}>

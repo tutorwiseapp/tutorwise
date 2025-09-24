@@ -24,7 +24,7 @@
  */
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Container from '@/app/components/layout/Container';
@@ -37,12 +37,12 @@ const ReferPage = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [typedText, setTypedText] = useState('');
 
-  // --- FIX: Define words and a corresponding color array ---
-  const words = ['your-fashion-item', 'a-dream-job', 'the-best-tutor', 'a-local-store', 'cool-new-tech', 'anything-you-love'];
-  const colors = ['#dc3545', '#0d6efd', '#fd7e14', '#198754', '#6f42c1', '#d63384']; // Red, Blue, Orange, Green, Purple, Pink
-  
+  // --- FIX: Define words and a corresponding color array with useMemo to prevent re-creation ---
+  const words = useMemo(() => ['your-fashion-item', 'a-dream-job', 'the-best-tutor', 'a-local-store', 'cool-new-tech', 'anything-you-love'], []);
+  const colors = useMemo(() => ['#dc3545', '#0d6efd', '#fd7e14', '#198754', '#6f42c1', '#d63384'], []); // Red, Blue, Orange, Green, Purple, Pink
+
   // --- FIX: Add state for the text color ---
-  const [textColor, setTextColor] = useState(colors[0]);
+  const [textColor, setTextColor] = useState('#dc3545');
 
   const typingSpeed = 150;
   const deletingSpeed = 100;
@@ -81,7 +81,7 @@ const ReferPage = () => {
     }
 
     return () => clearTimeout(timeout);
-  }, [subIndex, isDeleting, wordIndex]); // Dependencies remain the same
+  }, [subIndex, isDeleting, wordIndex, words, colors]);
 
 
   return (

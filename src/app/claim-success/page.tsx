@@ -52,7 +52,7 @@ const ClaimSuccessPage = () => {
         </div>
         <h1 className={styles.title}>Reward Claimed!</h1>
         <p className={styles.subtitle}>
-          Congratulations, {claimDetails.userName}! You've successfully claimed your reward for <strong>{claimDetails.serviceName}</strong>. We've added it to your account.
+          Congratulations, {claimDetails.userName}! You&apos;ve successfully claimed your reward for <strong>{claimDetails.serviceName}</strong>. We&apos;ve added it to your account.
         </p>
         <div className={styles.buttonGroup}>
           <Link href="/transaction-history">
