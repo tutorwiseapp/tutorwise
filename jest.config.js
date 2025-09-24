@@ -29,6 +29,16 @@ const customJestConfig = {
     '!src/app/globals.css',
   ],
   coverageReporters: ['text', 'html', 'lcov'],
+  coverageDirectory: 'coverage',
+  collectCoverage: false, // Enable with --coverage flag
+  coverageThreshold: {
+    global: {
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70
+    }
+  },
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
     '<rootDir>/src/**/*.{test,spec}.{js,jsx,ts,tsx}',

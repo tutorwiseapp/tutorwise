@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm test)",
+      "Bash(python3 -m pytest tests/ -v)",
+      "Bash(npm run lint)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run test:backend:*)",
+      "Bash(npm run test:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -9,6 +9,37 @@ import { NextRequest } from 'next/server'
 // Mock Supabase
 jest.mock('@/utils/supabase/server')
 
+// Mock NextResponse
+jest.mock('next/server', () => {
+  const NextResponseMock = class {
+    constructor(body, options = {}) {
+      this.body = body
+      this.status = options.status || 200
+      this.headers = new Map(Object.entries(options.headers || {}))
+    }
+
+    async json() {
+      if (typeof this.body === 'string') {
+        try {
+          return JSON.parse(this.body)
+        } catch {
+          return { error: this.body }
+        }
+      }
+      return this.body || {}
+    }
+
+    static json(data, options = {}) {
+      return new NextResponseMock(JSON.stringify(data), options)
+    }
+  }
+
+  return {
+    NextResponse: NextResponseMock,
+    NextRequest: jest.fn()
+  }
+})
+
 const mockCreateClient = createClient as jest.MockedFunction<typeof createClient>
 
 describe('/api/profile - Supabase Integration', () => {

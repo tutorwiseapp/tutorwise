@@ -1,19 +1,50 @@
 import '@testing-library/jest-dom'
-
-// Mock Web APIs for Next.js API routes
+import 'whatwg-fetch'
 import { TextEncoder, TextDecoder } from 'util'
+import { ReadableStream, WritableStream, TransformStream } from 'stream/web'
 
+// Polyfill Web APIs for Next.js API routes
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder
-
-// Mock fetch API
-global.fetch = jest.fn()
+global.ReadableStream = ReadableStream
+global.WritableStream = WritableStream
+global.TransformStream = TransformStream
 
 // Mock Request and Response for Next.js API routes
-const { Request, Response, Headers } = jest.requireActual('undici')
-global.Request = Request
-global.Response = Response
-global.Headers = Headers
+global.Request = class MockRequest {
+  constructor(input, init = {}) {
+    this.url = input
+    this.method = init.method || 'GET'
+    this.headers = new Map(Object.entries(init.headers || {}))
+    this._body = init.body
+  }
+
+  async json() {
+    return JSON.parse(this._body || '{}')
+  }
+}
+
+global.Response = class MockResponse {
+  constructor(body, init = {}) {
+    this.body = body
+    this.status = init.status || 200
+    this.statusText = init.statusText || 'OK'
+    this.headers = new Map(Object.entries(init.headers || {}))
+  }
+
+  async json() {
+    if (typeof this.body === 'string') {
+      try {
+        return JSON.parse(this.body)
+      } catch {
+        return { error: this.body }
+      }
+    }
+    return this.body || {}
+  }
+}
+
+global.Headers = Map
 
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
@@ -88,3 +119,38 @@ jest.mock('next/navigation', () => ({
     return new URLSearchParams()
   },
 }))
+
+// Mock NextResponse for API routes
+jest.mock('next/server', () => {
+  const NextResponseMock = class {
+    constructor(body, options = {}) {
+      this.body = body
+      this.status = options.status || 200
+      this.headers = new Map(Object.entries(options.headers || {}))
+    }
+
+    async json() {
+      if (typeof this.body === 'string') {
+        try {
+          return JSON.parse(this.body)
+        } catch {
+          return { error: this.body }
+        }
+      }
+      return this.body || {}
+    }
+
+    static json(data, options = {}) {
+      return new NextResponseMock(JSON.stringify(data), options)
+    }
+  }
+
+  return {
+    NextResponse: NextResponseMock,
+    NextRequest: jest.fn()
+  }
+})
+
+// Set test environment variables
+process.env.STRIPE_SECRET_KEY = 'sk_test_fake_key_for_testing'
+process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = 'pk_test_fake_key_for_testing'

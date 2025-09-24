@@ -11,6 +11,37 @@ import { NextRequest } from 'next/server'
 jest.mock('@/utils/supabase/server')
 jest.mock('@/lib/stripe')
 
+// Mock NextResponse
+jest.mock('next/server', () => {
+  const NextResponseMock = class {
+    constructor(body, options = {}) {
+      this.body = body
+      this.status = options.status || 200
+      this.headers = new Map(Object.entries(options.headers || {}))
+    }
+
+    async json() {
+      if (typeof this.body === 'string') {
+        try {
+          return JSON.parse(this.body)
+        } catch {
+          return { error: this.body }
+        }
+      }
+      return this.body || {}
+    }
+
+    static json(data, options = {}) {
+      return new NextResponseMock(JSON.stringify(data), options)
+    }
+  }
+
+  return {
+    NextResponse: NextResponseMock,
+    NextRequest: jest.fn()
+  }
+})
+
 // Type the mocked modules
 const mockCreateClient = createClient as jest.MockedFunction<typeof createClient>
 const mockStripe = stripe as jest.Mocked<typeof stripe>
