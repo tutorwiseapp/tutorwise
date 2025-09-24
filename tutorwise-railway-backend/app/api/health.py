@@ -12,17 +12,32 @@ router = APIRouter()
 
 async def check_redis_health() -> dict[str, Any]:
     """Check Redis health with proper error handling"""
-    if not redis_client:
-        return {
-            "status": "not_configured",
-            "message": "Redis client not initialized",
-            "details": None
-        }
+    # Use global client if available, otherwise create a temporary one for health check
+    client_to_use = redis_client
+
+    if not client_to_use:
+        try:
+            # Create a temporary client for health check
+            from app.db import get_redis_config
+            redis_url = get_redis_config()
+            import redis
+            client_to_use = redis.from_url(
+                redis_url,
+                decode_responses=True,
+                socket_connect_timeout=5,
+                socket_timeout=5
+            )
+        except Exception as e:
+            return {
+                "status": "not_configured",
+                "message": f"Redis configuration unavailable: {str(e)}",
+                "details": None
+            }
 
     for attempt in range(3):
         try:
             # Test Redis connection
-            redis_client.ping()
+            client_to_use.ping()
             return {
                 "status": "ok",
                 "message": "Redis is healthy",
@@ -50,16 +65,31 @@ async def check_redis_health() -> dict[str, Any]:
 
 async def check_neo4j_health() -> dict[str, Any]:
     """Check Neo4j health with proper error handling"""
-    if not neo4j_driver:
-        return {
-            "status": "not_configured",
-            "message": "Neo4j driver not initialized",
-            "details": None
-        }
+    # Use global driver if available, otherwise create a temporary one for health check
+    driver_to_use = neo4j_driver
+
+    if not driver_to_use:
+        try:
+            # Create a temporary driver for health check
+            from app.db import get_neo4j_config
+            from neo4j import GraphDatabase
+            neo4j_uri, neo4j_user, neo4j_password = get_neo4j_config()
+            driver_to_use = GraphDatabase.driver(
+                neo4j_uri,
+                auth=(neo4j_user, neo4j_password),
+                connection_timeout=10,
+                max_connection_lifetime=300
+            )
+        except Exception as e:
+            return {
+                "status": "not_configured",
+                "message": f"Neo4j configuration unavailable: {str(e)}",
+                "details": None
+            }
 
     try:
         # Test Neo4j connection
-        neo4j_driver.verify_connectivity()
+        driver_to_use.verify_connectivity()
         return {
             "status": "ok",
             "message": "Neo4j is healthy",
