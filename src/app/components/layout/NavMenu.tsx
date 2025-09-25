@@ -110,7 +110,7 @@ const NavMenu = () => {
                 </DropdownMenu.Item>
                 <DropdownMenu.Separator className={styles.separator} />
                  <DropdownMenu.Item asChild className={styles.menuItem}>
-                  <Link href="/refer">What is Vinite?</Link>
+                  <Link href="/about">About Tutorwise</Link>
                 </DropdownMenu.Item>
               </>
             )}

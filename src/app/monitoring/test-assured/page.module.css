@@ -1,0 +1,397 @@
+/*
+ * TestAssured CSS Module
+ * Follows Tutorwise design system with proper CSS variables
+ */
+
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  min-height: 100vh;
+}
+
+.cardContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .sectionHeader {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.subtitle {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-4) 0;
+  line-height: 1.5;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.alertSummary {
+  margin-bottom: var(--space-4);
+}
+
+.alertSummaryTitle {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.alertBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.alertBadge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.alertDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.alertDot.critical {
+  background-color: var(--color-error);
+}
+
+.alertDot.warning {
+  background-color: var(--color-warning);
+}
+
+.alertDot.informational {
+  background-color: var(--color-primary);
+}
+
+.alertDot.success {
+  background-color: var(--color-success);
+}
+
+.alertText {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+
+.componentGrid {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1024px) {
+  .componentGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.componentCard {
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  background-color: var(--color-bg-card);
+}
+
+.componentCard.up {
+  border-left: 4px solid var(--color-success);
+  background-color: var(--color-success-bg);
+}
+
+.componentCard.down {
+  border-left: 4px solid var(--color-error);
+  background-color: var(--color-error-bg);
+}
+
+.componentCard.degraded {
+  border-left: 4px solid var(--color-warning);
+  background-color: var(--color-warning-bg);
+}
+
+.componentCard.unknown {
+  border-left: 4px solid #9ca3af;
+  background-color: #f9fafb;
+}
+
+.componentHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-2);
+}
+
+.componentInfo {
+  flex: 1;
+}
+
+.componentName {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.componentMessage {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.alertBadgeStatus {
+  padding: var(--space-1) var(--space-2);
+  border-radius: 9999px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: white;
+}
+
+.alertBadgeStatus.critical {
+  background-color: var(--color-error);
+}
+
+.alertBadgeStatus.warning {
+  background-color: var(--color-warning);
+}
+
+.alertBadgeStatus.informational {
+  background-color: var(--color-primary);
+}
+
+.alertBadgeStatus.success {
+  background-color: var(--color-success);
+}
+
+.componentStats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+}
+
+.componentStats.fullWidth {
+  grid-template-columns: 1fr;
+}
+
+.statItem {
+  display: flex;
+  justify-content: space-between;
+}
+
+.statLabel {
+  color: var(--color-text-secondary);
+}
+
+.statValue {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.errorDetails {
+  grid-column: span 2;
+  margin-top: var(--space-2);
+  padding: var(--space-2);
+  background-color: var(--color-bg-box);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.emptyState {
+  text-align: center;
+  padding: var(--space-4) 0;
+}
+
+.emptyStateTitle {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.emptyStateDescription {
+  color: var(--color-text-secondary);
+  margin: 0 auto var(--space-4) auto;
+  max-width: 28rem;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+  max-width: 28rem;
+  margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .infoGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.infoCard {
+  padding: var(--space-3);
+  background-color: var(--color-bg-box);
+  border-radius: var(--border-radius-md);
+}
+
+.infoCardTitle {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.infoCardText {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.loadingState {
+  text-align: center;
+  padding: var(--space-6) 0;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 4px solid var(--color-primary);
+  border-top: 4px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto var(--space-3) auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loadingText {
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.configGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+}
+
+@media (min-width: 640px) {
+  .configGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.testItemCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  background-color: var(--color-bg-card);
+}
+
+.testItemInfo {
+  flex: 1;
+}
+
+.testItemTitle {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.testItemDescription {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.testItemStatus {
+  margin-left: var(--space-3);
+}
+
+.testError {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  background-color: var(--color-error-bg);
+  border: 1px solid var(--color-error-border);
+  border-radius: var(--border-radius-md);
+}
+
+.testErrorTitle {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-error-text);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.testErrorMessage {
+  color: var(--color-error-text);
+  margin: 0;
+}
+
+.healthCard {
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  background-color: var(--color-bg-card);
+  margin-bottom: var(--space-2);
+}
+
+.healthCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+
+.healthCardTitle {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.healthCardMessage {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.healthCardDetails {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-box);
+  padding: var(--space-2);
+  border-radius: var(--border-radius-sm);
+  margin: 0;
+}

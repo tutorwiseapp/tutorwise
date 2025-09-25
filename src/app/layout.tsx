@@ -28,8 +28,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Vinite - The Simplest Referral Tool",
-  description: "Create and share traceable referral links, no sign up required.",
+  title: "Tutorwise - Professional Tutoring Platform",
+  description: "Connect with professional tutors and educational services for personalized learning experiences.",
 };
 
 export default function RootLayout({

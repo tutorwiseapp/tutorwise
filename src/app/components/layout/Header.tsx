@@ -29,7 +29,7 @@ const Header = () => {
   return (
     <header className={styles.header}>
       <div className={styles.headerLogo}>
-        <Link href={logoHref}>vinite</Link>
+        <Link href={logoHref}>Tutorwise</Link>
       </div>
       
       {/* --- THIS IS THE SURGICAL FIX --- */}

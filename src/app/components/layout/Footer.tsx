@@ -5,7 +5,7 @@ const Footer = () => {
   return (
     <footer className={styles.footer}>
       <p>
-        <span>© 2025 Vinite. All rights reserved.</span>
+        <span>© 2025 Tutorwise. All rights reserved.</span>
         <Link href="/">Home</Link>
         <Link href="/contact">Contact</Link>
         <Link href="/resources">Resources</Link>

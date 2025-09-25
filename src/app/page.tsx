@@ -139,42 +139,31 @@ export default function HomePage() {
       <Container>
         {message && ( <div className={styles.messageContainer}><Message type={message.type}>{message.text}</Message></div> )}
         <div className={styles.mainContent}>
-          <div className={styles.logo}>vinite</div>
-          <p className={styles.tagline}>Create and share Vinite referral links, no sign up required.</p>
-          <div className={`${styles.inputContainer} ${isUrlValid === true ? styles.valid : isUrlValid === false ? styles.invalid : ''}`}>
-            <div className={`${styles.inputWrapper} ${styles.urlWrapper}`}>
-              <input type="text" className={styles.urlInput} placeholder="https://example.com/product-page" value={destinationUrl} onChange={(e) => setDestinationUrl(e.target.value)} />
-              {destinationUrl && <button className={styles.clearBtn} onClick={handleClearUrl}>×</button>}
-              <div className={`${styles.validationIndicator} ${isUrlValid === true ? styles.valid : isUrlValid === false ? styles.invalid : ''}`} />
-            </div>
-            <div className={styles.inputSeparator}></div>
-            <div className={`${styles.inputWrapper} ${styles.agentWrapper}`}>
-              <input type="text" className={styles.agentInput} value={agentId} readOnly />
-            </div>
-          </div>
+          <div className={styles.logo}>Tutorwise</div>
+          <p className={styles.tagline}>Professional tutoring platform connecting students with qualified tutors.</p>
+
           <div className={styles.buttonContainer}>
-            <Button onClick={handleGenerateLink} disabled={isGenerating}>{isGenerating ? 'Generating...' : 'Generate Link'}</Button>
-            <Button onClick={() => handleShare('whatsapp')} disabled={!generatedLink} variant="secondary">Refer on WhatsApp</Button>
-            <Button onClick={() => handleShare('linkedin')} disabled={!generatedLink} variant="secondary">Refer on LinkedIn</Button>
+            <Link href="/monitoring/test-assured">
+              <Button variant="primary">Access TestAssured</Button>
+            </Link>
+            <Link href="/dashboard">
+              <Button variant="secondary">Go to Dashboard</Button>
+            </Link>
+            <Link href="/login">
+              <Button variant="secondary">Login</Button>
+            </Link>
           </div>
-          {generatedLink && (
-            <div className={styles.resultsContainer}>
-              <div className={styles.resultsCard}>
-                <div className={styles.outputGrid}>
-                  <div className={styles.outputColumn} onClick={() => handleCopyToClipboard(generatedLink, 'Link Copied!')}><h4>Copy Vinite Link</h4><div className={styles.outputBox}>{generatedLink}</div></div>
-                  <div className={styles.outputColumn} onClick={() => handleCopyToClipboard(qrCodeDataUrl, 'QR Code Image URL Copied!')}><h4>Copy QR Code</h4><div className={styles.outputBox}>{qrCodeDataUrl && <Image src={qrCodeDataUrl} alt="Vinite Referral QR Code" width={136} height={136} />}</div></div>
-                  <div className={styles.outputColumn} onClick={() => handleCopyToClipboard(snippetCode, 'Snippet Copied!')}><h4>Copy Embed Code</h4><div className={styles.outputBox}><pre><code>{snippetCode}</code></pre></div></div>
-                </div>
-              </div>
-              <div className={styles.outputInstructions}>
-                <p><strong>1. To Share Manually:</strong> Copy the link, QR code, or snippet and paste it in social media, an email, or a blog post.</p>
-                <p><strong>2. To Share Directly:</strong> Use the one-click &quot;Refer on WhatsApp&quot; or &quot;Refer on LinkedIn&quot; buttons.</p>
-                {!profile && agentId.startsWith('T1-') && (
-                  <p><strong>3. To Claim Rewards:</strong> Save this temporary Agent ID <strong>{agentId}</strong> to <Link href={`/signup?claimId=${agentId}`} className={styles.claimLink}>claim any rewards</Link> you earn, or <Link href="/signup" className={styles.claimLink}>Sign Up</Link> to track them automatically.</p>
-                )}
-              </div>
-            </div>
-          )}
+
+          <div className={styles.featureSection}>
+            <h2>Coming Soon</h2>
+            <p>Tutorwise is building the next generation tutoring platform with:</p>
+            <ul>
+              <li>Role-based dashboards for Students, Tutors, and Agents</li>
+              <li>Professional tutor marketplace</li>
+              <li>Service listings and booking system</li>
+              <li>Comprehensive testing and monitoring tools</li>
+            </ul>
+          </div>
         </div>
       </Container>
     </>

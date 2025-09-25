@@ -7,6 +7,8 @@ import Button from '@/app/components/ui/Button';
 import Tabs from '@/app/components/ui/Tabs';
 import StatusBadge from '@/app/components/ui/StatusBadge';
 import PageHeader from '@/app/components/ui/PageHeader';
+import styles from './page.module.css';
+import dashboardStyles from '@/app/dashboard/page.module.css';
 
 type TestStatus = 'idle' | 'pending' | 'success' | 'error';
 type HealthStatus = 'unknown' | 'ok' | 'degraded' | 'error';
@@ -67,10 +69,16 @@ export default function TestAssuredPage() {
   const [monitoringInterval, setMonitoringInterval] = useState<NodeJS.Timeout | null>(null);
   const [alertCount, setAlertCount] = useState({ critical: 0, warning: 0, informational: 0 });
 
+  // Visual Testing States
+  const [visualTestStatus, setVisualTestStatus] = useState<'idle' | 'running' | 'complete'>('idle');
+  const [screenshots, setScreenshots] = useState<string[]>([]);
+  const [visualTestResults, setVisualTestResults] = useState<any[]>([]);
+
   const tabs = [
     { id: 'system-tests', label: 'System Tests' },
     { id: 'health-monitor', label: 'Health Monitor' },
     { id: 'continuous-monitor', label: 'Platform Status' },
+    { id: 'visual-testing', label: 'Visual Testing' },
     { id: 'test-docs', label: 'Test Documentation' },
     { id: 'test-history', label: 'Test Framework' }
   ];
@@ -229,6 +237,36 @@ export default function TestAssuredPage() {
     setComponentsHealth(results);
   };
 
+  const runVisualTests = async () => {
+    setVisualTestStatus('running');
+    setVisualTestResults([]);
+
+    try {
+      const response = await fetch('/api/visual-testing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          testType: 'screenshots',
+          pages: ['testassured', 'homepage']
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.status === 'success') {
+        setVisualTestResults(result.results || []);
+        setScreenshots(result.screenshots || []);
+      } else {
+        console.error('Visual testing failed:', result.error);
+      }
+
+      setVisualTestStatus('complete');
+    } catch (error) {
+      console.error('Error running visual tests:', error);
+      setVisualTestStatus('complete');
+    }
+  };
+
   const startContinuousMonitoring = () => {
     if (monitoringInterval) {
       clearInterval(monitoringInterval);
@@ -274,32 +312,37 @@ export default function TestAssuredPage() {
   };
 
   const renderSystemTests = () => (
-    <div className="space-y-6">
-      <Card>
-        <div className="p-6">
-          <h3 className="text-xl font-bold mb-4">End-to-End Connectivity Tests</h3>
-          <p className="text-gray-600 mb-6">
-            Validate the complete application stack from frontend to backend databases.
-          </p>
+    <div className={dashboardStyles.grid}>
+      <div className={dashboardStyles.gridCard}>
+        <div className={dashboardStyles.cardContent}>
+          <h3>End-to-End Connectivity Tests</h3>
+          <p>Validate the complete application stack from frontend to backend databases.</p>
+        </div>
+      </div>
 
-          <div className="space-y-4 mb-6">
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div>
-                <p className="font-medium">1. Frontend → Supabase Database</p>
-                <p className="text-sm text-gray-500">Tests authentication and profile database operations</p>
-              </div>
-              <TestStatusIndicator result={supabaseResult} />
-            </div>
-
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div>
-                <p className="font-medium">2. Frontend → Railway Backend → Neo4j Database</p>
-                <p className="text-sm text-gray-500">Tests full-stack connectivity through Railway to graph database</p>
-              </div>
-              <TestStatusIndicator result={neo4jResult} />
-            </div>
+      <div className={dashboardStyles.gridCard}>
+        <div className={dashboardStyles.cardContent}>
+          <h3>1. Frontend → Supabase Database</h3>
+          <p>Tests authentication and profile database operations</p>
+          <div className={styles.testItemStatus}>
+            <TestStatusIndicator result={supabaseResult} />
           </div>
+        </div>
+      </div>
 
+      <div className={dashboardStyles.gridCard}>
+        <div className={dashboardStyles.cardContent}>
+          <h3>2. Frontend → Railway Backend → Neo4j Database</h3>
+          <p>Tests full-stack connectivity through Railway to graph database</p>
+          <div className={styles.testItemStatus}>
+            <TestStatusIndicator result={neo4jResult} />
+          </div>
+        </div>
+      </div>
+
+      <div className={dashboardStyles.gridCard}>
+        <div className={dashboardStyles.cardContent}>
+          <h3>Test Controls</h3>
           <Button
             onClick={runSystemTests}
             disabled={systemTestStatus === 'running'}
@@ -310,75 +353,78 @@ export default function TestAssuredPage() {
           </Button>
 
           {errorMessage && (
-            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="font-semibold text-red-800">Test Error:</p>
-              <p className="text-red-700">{errorMessage}</p>
+            <div className={styles.testError}>
+              <p className={styles.testErrorTitle}>Test Error:</p>
+              <p className={styles.testErrorMessage}>{errorMessage}</p>
             </div>
           )}
         </div>
-      </Card>
+      </div>
     </div>
   );
 
   const renderHealthMonitor = () => (
-    <div className="space-y-6">
-      <Card>
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-bold">Backend Health Monitor</h3>
-            <Button
-              onClick={checkHealth}
-              disabled={healthLoading}
-              variant="secondary"
-            >
-              {healthLoading ? 'Checking...' : 'Check Health'}
-            </Button>
-          </div>
+    <div className={dashboardStyles.grid}>
+      <div className={dashboardStyles.gridCard}>
+        <div className={dashboardStyles.cardContent}>
+          <h3>Backend Health Monitor</h3>
+          <p>Monitor the health of backend services and databases</p>
 
           {lastHealthCheck && (
-            <p className="text-sm text-gray-500 mb-4">
+            <p style={{ marginTop: 'var(--space-2)', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>
               Last checked: {lastHealthCheck.toLocaleString()}
             </p>
           )}
-
-          {healthStatus ? (
-            <div className="space-y-4">
-              <div className="p-4 border rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-medium">Overall Status</span>
-                  <StatusBadge status={healthStatus.status === 'ok' ? 'Healthy' : 'Issues Detected'} />
-                </div>
-              </div>
-
-              <div className="p-4 border rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-medium">Redis Cache</span>
-                  <HealthStatusIndicator status={healthStatus.services.redis.status} />
-                </div>
-                <p className="text-sm text-gray-600">{healthStatus.services.redis.message}</p>
-                {healthStatus.services.redis.details && (
-                  <p className="text-xs text-gray-500 mt-1">{healthStatus.services.redis.details}</p>
-                )}
-              </div>
-
-              <div className="p-4 border rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-medium">Neo4j Graph Database</span>
-                  <HealthStatusIndicator status={healthStatus.services.neo4j.status} />
-                </div>
-                <p className="text-sm text-gray-600">{healthStatus.services.neo4j.message}</p>
-                {healthStatus.services.neo4j.details && (
-                  <p className="text-xs text-gray-500 mt-1">{healthStatus.services.neo4j.details}</p>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-500">Click &quot;Check Health&quot; to view backend status</p>
-            </div>
-          )}
         </div>
-      </Card>
+        <Button
+          onClick={checkHealth}
+          disabled={healthLoading}
+          variant="secondary"
+          style={{ marginTop: 'auto' }}
+        >
+          {healthLoading ? 'Checking...' : 'Check Health'}
+        </Button>
+      </div>
+
+      {healthStatus ? (
+        <>
+          <div className={dashboardStyles.gridCard}>
+            <div className={dashboardStyles.cardContent}>
+              <h3>Overall Status</h3>
+              <StatusBadge status={healthStatus.status === 'ok' ? 'Healthy' : 'Issues Detected'} />
+            </div>
+          </div>
+
+          <div className={dashboardStyles.gridCard}>
+            <div className={dashboardStyles.cardContent}>
+              <h3>Redis Cache</h3>
+              <p>{healthStatus.services.redis.message}</p>
+              {healthStatus.services.redis.details && (
+                <p className={styles.healthCardDetails}>{healthStatus.services.redis.details}</p>
+              )}
+            </div>
+            <HealthStatusIndicator status={healthStatus.services.redis.status} />
+          </div>
+
+          <div className={dashboardStyles.gridCard}>
+            <div className={dashboardStyles.cardContent}>
+              <h3>Neo4j Graph Database</h3>
+              <p>{healthStatus.services.neo4j.message}</p>
+              {healthStatus.services.neo4j.details && (
+                <p className={styles.healthCardDetails}>{healthStatus.services.neo4j.details}</p>
+              )}
+            </div>
+            <HealthStatusIndicator status={healthStatus.services.neo4j.status} />
+          </div>
+        </>
+      ) : (
+        <div className={dashboardStyles.gridCard}>
+          <div className={dashboardStyles.cardContent}>
+            <h3>Backend Health Status</h3>
+            <p>Click Check Health to view backend service status</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 
@@ -514,7 +560,7 @@ export default function TestAssuredPage() {
           </div>
 
           <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <h4 className="font-semibold text-blue-800 mb-2">🚀 Production Ready</h4>
+            <h4 className="font-semibold text-blue-800 mb-2">Production Ready</h4>
             <p className="text-sm text-blue-700">
               The MVP testing strategy is now fully implemented with comprehensive coverage of payment processing,
               authentication systems, and database integrations. All deployment pipelines validated.
@@ -526,164 +572,63 @@ export default function TestAssuredPage() {
   );
 
   const renderContinuousMonitor = () => {
-    const getStatusColor = (status: ComponentStatus) => {
-      switch (status) {
-        case 'up': return 'bg-green-100 text-green-800 border-green-200';
-        case 'down': return 'bg-red-100 text-red-800 border-red-200';
-        case 'degraded': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-        default: return 'bg-gray-100 text-gray-800 border-gray-200';
-      }
-    };
-
-    const getAlertBadgeColor = (level: AlertLevel) => {
-      switch (level) {
-        case 'critical': return 'bg-red-500 text-white';
-        case 'warning': return 'bg-yellow-500 text-white';
-        case 'informational': return 'bg-blue-500 text-white';
-        case 'success': return 'bg-green-500 text-white';
-      }
-    };
-
     return (
-      <div className="space-y-6">
-        <Card>
-          <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h3 className="text-xl font-bold">Platform Status Monitor</h3>
-                <p className="text-gray-600 text-sm">Real-time component health tracking with continuous monitoring</p>
-              </div>
-              <div className="flex gap-3">
-                <Button
-                  onClick={startContinuousMonitoring}
-                  disabled={isMonitoring}
-                  variant="primary"
-                >
-                  {isMonitoring ? 'Monitoring...' : 'Start Monitoring'}
-                </Button>
-                {isMonitoring && (
-                  <Button
-                    onClick={stopContinuousMonitoring}
-                    variant="secondary"
-                  >
-                    Stop
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Alert Summary */}
-            {componentsHealth.length > 0 && (
-              <div className="mb-6">
-                <div className="flex gap-4 mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                    <span className="text-sm font-medium">Critical: {alertCount.critical}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                    <span className="text-sm font-medium">Warning: {alertCount.warning}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                    <span className="text-sm font-medium">Info: {alertCount.informational}</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Component Status Cards */}
-            {componentsHealth.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2">
-                {componentsHealth.map((component, index) => (
-                  <div
-                    key={index}
-                    className={`p-4 rounded-lg border-2 ${getStatusColor(component.status)}`}
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h4 className="font-semibold text-lg">{component.name}</h4>
-                        <p className="text-sm opacity-75">{component.message}</p>
-                      </div>
-                      <span
-                        className={`px-2 py-1 rounded text-xs font-medium ${getAlertBadgeColor(component.alertLevel)}`}
-                      >
-                        {component.alertLevel.toUpperCase()}
-                      </span>
-                    </div>
-
-                    <div className="space-y-1 text-sm opacity-75">
-                      <div className="flex justify-between">
-                        <span>Status:</span>
-                        <span className="font-medium">{component.status.toUpperCase()}</span>
-                      </div>
-                      {component.responseTime && (
-                        <div className="flex justify-between">
-                          <span>Response Time:</span>
-                          <span className="font-medium">{component.responseTime}ms</span>
-                        </div>
-                      )}
-                      <div className="flex justify-between">
-                        <span>Last Check:</span>
-                        <span className="font-medium">{component.lastCheck.toLocaleTimeString()}</span>
-                      </div>
-                      {component.details && (
-                        <div className="mt-2 p-2 bg-black bg-opacity-10 rounded text-xs">
-                          {component.details}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : !isMonitoring ? (
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">🚀</div>
-                <h4 className="text-lg font-semibold mb-2">Platform Status Monitoring</h4>
-                <p className="text-gray-600 mb-4">
-                  Click &quot;Start Monitoring&quot; to begin real-time health tracking of all platform components
-                </p>
-                <div className="grid grid-cols-2 gap-4 max-w-md mx-auto text-sm">
-                  <div className="p-3 bg-gray-50 rounded">
-                    <div className="font-medium">Components Tracked:</div>
-                    <div className="text-gray-600">Frontend, Backend, Database, Integration</div>
-                  </div>
-                  <div className="p-3 bg-gray-50 rounded">
-                    <div className="font-medium">Check Frequency:</div>
-                    <div className="text-gray-600">Every 15 seconds</div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-                <p className="text-gray-600">Initializing continuous monitoring...</p>
-              </div>
-            )}
+      <div className={dashboardStyles.grid}>
+        <div className={dashboardStyles.gridCard}>
+          <div className={dashboardStyles.cardContent}>
+            <h3>Platform Status Monitor</h3>
+            <p>Real-time component health tracking and monitoring</p>
           </div>
-        </Card>
+          <Button
+            onClick={startContinuousMonitoring}
+            disabled={isMonitoring}
+            variant="primary"
+          >
+            {isMonitoring ? 'Monitoring Active' : 'Start Monitoring'}
+          </Button>
+        </div>
 
-        {/* Monitoring Configuration */}
         {isMonitoring && (
-          <Card>
-            <div className="p-6">
-              <h4 className="text-lg font-semibold mb-4">Monitoring Configuration</h4>
-              <div className="grid md:grid-cols-3 gap-4 text-sm">
-                <div className="p-3 bg-gray-50 rounded">
-                  <div className="font-medium">Check Interval</div>
-                  <div className="text-gray-600">15 seconds</div>
-                </div>
-                <div className="p-3 bg-gray-50 rounded">
-                  <div className="font-medium">Timeout</div>
-                  <div className="text-gray-600">10 seconds</div>
-                </div>
-                <div className="p-3 bg-gray-50 rounded">
-                  <div className="font-medium">Components</div>
-                  <div className="text-gray-600">{componentsHealth.length} tracked</div>
-                </div>
-              </div>
+          <div className={dashboardStyles.gridCard}>
+            <div className={dashboardStyles.cardContent}>
+              <h3>Monitor Controls</h3>
+              <p>Monitoring {componentsHealth.length} platform components every 15 seconds</p>
             </div>
-          </Card>
+            <Button
+              onClick={stopContinuousMonitoring}
+              variant="secondary"
+            >
+              Stop Monitoring
+            </Button>
+          </div>
+        )}
+
+        {componentsHealth.map((component, index) => (
+          <div key={index} className={dashboardStyles.gridCard}>
+            <div className={dashboardStyles.cardContent}>
+              <h3>{component.name}</h3>
+              <p>Status: {component.status.toUpperCase()}</p>
+              <p>{component.message}</p>
+              {component.responseTime && (
+                <p>Response Time: {component.responseTime}ms</p>
+              )}
+              <p>Last Check: {component.lastCheck.toLocaleTimeString()}</p>
+              {component.details && (
+                <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)' }}>
+                  {component.details}
+                </p>
+              )}
+            </div>
+          </div>
+        ))}
+
+        {!isMonitoring && componentsHealth.length === 0 && (
+          <div className={dashboardStyles.gridCard}>
+            <div className={dashboardStyles.cardContent}>
+              <h3>Platform Status</h3>
+              <p>Start monitoring to track component health status</p>
+            </div>
+          </div>
         )}
       </div>
     );
@@ -810,6 +755,92 @@ export default function TestAssuredPage() {
     </div>
   );
 
+  const renderVisualTesting = () => (
+    <div className={styles.cardContainer}>
+      <Card>
+        <div style={{ padding: '1.5rem' }}>
+          <h3 style={{ marginBottom: '1rem' }}>Playwright Visual Testing</h3>
+          <p style={{ marginBottom: '1.5rem', color: 'var(--color-text-secondary)' }}>
+            Automated screenshot testing using Playwright for UI regression detection and visual validation.
+          </p>
+
+          <div className={dashboardStyles.grid}>
+            <div className={dashboardStyles.gridCard}>
+              <div className={dashboardStyles.cardContent}>
+                <h4>Screenshot Testing</h4>
+                <p>Capture screenshots of key pages and components for visual validation</p>
+                <ul style={{ margin: '1rem 0', paddingLeft: '1.5rem' }}>
+                  <li>TestAssured page (desktop & mobile)</li>
+                  <li>Homepage (desktop & mobile)</li>
+                  <li>All tab states</li>
+                  <li>Different viewport sizes</li>
+                </ul>
+              </div>
+              <Button
+                onClick={runVisualTests}
+                disabled={visualTestStatus === 'running'}
+                variant="primary"
+              >
+                {visualTestStatus === 'running' ? 'Running Tests...' : 'Run Visual Tests'}
+              </Button>
+            </div>
+
+            <div className={dashboardStyles.gridCard}>
+              <div className={dashboardStyles.cardContent}>
+                <h4>Test Results</h4>
+                <p>Status: <strong>{visualTestStatus}</strong></p>
+                {visualTestResults.length > 0 && (
+                  <div>
+                    <p>Screenshots generated: {screenshots.length}</p>
+                    <ul style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>
+                      {screenshots.slice(0, 5).map((screenshot, index) => (
+                        <li key={index}>{screenshot}</li>
+                      ))}
+                      {screenshots.length > 5 && <li>... and {screenshots.length - 5} more</li>}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className={dashboardStyles.gridCard}>
+              <div className={dashboardStyles.cardContent}>
+                <h4>Playwright Integration</h4>
+                <p>Features available:</p>
+                <ul style={{ margin: '1rem 0', paddingLeft: '1.5rem' }}>
+                  <li>✓ Automated screenshot capture</li>
+                  <li>✓ Multiple viewport testing</li>
+                  <li>✓ Tab state testing</li>
+                  <li>✓ Cross-browser compatibility</li>
+                  <li>✓ Visual regression detection</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {visualTestResults.length > 0 && (
+            <div style={{ marginTop: '2rem' }}>
+              <h4>Visual Test Results</h4>
+              <div className={styles.configGrid}>
+                {visualTestResults.map((result, index) => (
+                  <div key={index} className={styles.testItemCard}>
+                    <div className={styles.testItemInfo}>
+                      <h5 className={styles.testItemTitle}>{result.test}</h5>
+                      <p className={styles.testItemDescription}>
+                        Captured: {new Date(result.timestamp).toLocaleTimeString()}
+                      </p>
+                    </div>
+                    <StatusBadge status={result.status === 'passed' ? 'Ready' : 'Error'} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </Card>
+    </div>
+  );
+
   const renderActiveTab = () => {
     switch (activeTab) {
       case 'system-tests':
@@ -818,6 +849,8 @@ export default function TestAssuredPage() {
         return renderHealthMonitor();
       case 'continuous-monitor':
         return renderContinuousMonitor();
+      case 'visual-testing':
+        return renderVisualTesting();
       case 'test-docs':
         return renderTestDocs();
       case 'test-history':
@@ -829,24 +862,18 @@ export default function TestAssuredPage() {
 
   return (
     <Container>
-      <div className="py-8">
-        <PageHeader
-          title="TestAssured"
-          subtitle="Professional testing platform for Tutorwise - System validation, health monitoring, and test documentation"
-        />
+      <PageHeader
+        title="TestAssured"
+        subtitle="Professional testing platform for Tutorwise - System validation, health monitoring, and test documentation"
+      />
 
-        <div className="mt-8">
-          <Tabs
-            tabs={tabs}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
+      <Tabs
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
 
-          <div className="mt-6">
-            {renderActiveTab()}
-          </div>
-        </div>
-      </div>
+      {renderActiveTab()}
     </Container>
   );
 }
