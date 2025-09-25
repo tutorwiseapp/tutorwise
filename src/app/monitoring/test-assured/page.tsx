@@ -156,6 +156,21 @@ export default function TestAssuredPage() {
     setHealthLoading(true);
     try {
       const response = await fetch('https://tutorwise-railway-backend-production.up.railway.app/health');
+
+      if (!response.ok) {
+        // Handle non-200 responses (like 404)
+        setHealthStatus({
+          status: 'error',
+          timestamp: Date.now(),
+          services: {
+            redis: { status: 'error', message: `Backend service unavailable (${response.status})`, details: 'Railway backend endpoint not found or service down' },
+            neo4j: { status: 'error', message: `Backend service unavailable (${response.status})`, details: 'Cannot check Neo4j status - backend unreachable' }
+          }
+        });
+        setLastHealthCheck(new Date());
+        return;
+      }
+
       const data: HealthResponse = await response.json();
       setHealthStatus(data);
       setLastHealthCheck(new Date());
@@ -165,10 +180,11 @@ export default function TestAssuredPage() {
         status: 'error',
         timestamp: Date.now(),
         services: {
-          redis: { status: 'error', message: 'Health check failed', details: null },
-          neo4j: { status: 'error', message: 'Health check failed', details: null }
+          redis: { status: 'error', message: 'Connection failed', details: error instanceof Error ? error.message : 'Network error' },
+          neo4j: { status: 'error', message: 'Connection failed', details: error instanceof Error ? error.message : 'Network error' }
         }
       });
+      setLastHealthCheck(new Date());
     } finally {
       setHealthLoading(false);
     }
@@ -441,7 +457,7 @@ export default function TestAssuredPage() {
                 <p className="text-sm text-gray-600 mb-3">
                   Professional testing platform combining system tests, health monitoring, and documentation.
                 </p>
-                <ul className="text-sm space-y-1 list-disc list-inside ml-0">
+                <ul className="text-sm space-y-1">
                   <li><strong>System Tests:</strong> End-to-end connectivity validation</li>
                   <li><strong>Health Monitor:</strong> Real-time backend status tracking</li>
                   <li><strong>Documentation:</strong> Comprehensive test plan integration</li>
