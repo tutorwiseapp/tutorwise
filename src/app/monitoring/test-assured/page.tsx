@@ -441,7 +441,7 @@ export default function TestAssuredPage() {
                 <p className="text-sm text-gray-600 mb-3">
                   Professional testing platform combining system tests, health monitoring, and documentation.
                 </p>
-                <ul className="text-sm space-y-1 list-disc ml-0 pl-4">
+                <ul className="text-sm space-y-1 list-disc list-inside ml-0">
                   <li><strong>System Tests:</strong> End-to-end connectivity validation</li>
                   <li><strong>Health Monitor:</strong> Real-time backend status tracking</li>
                   <li><strong>Documentation:</strong> Comprehensive test plan integration</li>
