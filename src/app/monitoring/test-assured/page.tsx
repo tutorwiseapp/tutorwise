@@ -442,10 +442,10 @@ export default function TestAssuredPage() {
                   Professional testing platform combining system tests, health monitoring, and documentation.
                 </p>
                 <ul className="text-sm space-y-1">
-                  <li>• <strong>System Tests:</strong> End-to-end connectivity validation</li>
-                  <li>• <strong>Health Monitor:</strong> Real-time backend status tracking</li>
-                  <li>• <strong>Documentation:</strong> Comprehensive test plan integration</li>
-                  <li>• <strong>Extensible:</strong> Ready for additional test suites</li>
+                  <li><strong>System Tests:</strong> End-to-end connectivity validation</li>
+                  <li><strong>Health Monitor:</strong> Real-time backend status tracking</li>
+                  <li><strong>Documentation:</strong> Comprehensive test plan integration</li>
+                  <li><strong>Extensible:</strong> Ready for additional test suites</li>
                 </ul>
               </section>
 
