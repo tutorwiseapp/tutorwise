@@ -441,7 +441,7 @@ export default function TestAssuredPage() {
                 <p className="text-sm text-gray-600 mb-3">
                   Professional testing platform combining system tests, health monitoring, and documentation.
                 </p>
-                <ul className="text-sm space-y-1">
+                <ul className="text-sm space-y-1 list-disc ml-0 pl-4">
                   <li><strong>System Tests:</strong> End-to-end connectivity validation</li>
                   <li><strong>Health Monitor:</strong> Real-time backend status tracking</li>
                   <li><strong>Documentation:</strong> Comprehensive test plan integration</li>
@@ -635,123 +635,91 @@ export default function TestAssuredPage() {
   };
 
   const renderTestHistory = () => (
-    <div className="space-y-6">
-      <Card>
-        <div className="p-6">
-          <h3 className="text-xl font-bold mb-4">Extensible Test Framework</h3>
-
-          <div className="space-y-6">
-            <section>
-              <h4 className="text-lg font-semibold mb-3">Current Test Suites</h4>
-              <div className="grid gap-4">
-                <div className="p-4 border rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h5 className="font-medium">System Integration Tests</h5>
-                      <p className="text-sm text-gray-600">End-to-end connectivity validation</p>
-                    </div>
-                    <StatusBadge status="Active" />
-                  </div>
-                </div>
-
-                <div className="p-4 border rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h5 className="font-medium">Health Monitoring</h5>
-                      <p className="text-sm text-gray-600">Real-time backend service status</p>
-                    </div>
-                    <StatusBadge status="Active" />
-                  </div>
-                </div>
-
-                <div className="p-4 border rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h5 className="font-medium">Platform Status Monitor</h5>
-                      <p className="text-sm text-gray-600">Continuous component health tracking</p>
-                    </div>
-                    <StatusBadge status="Active" />
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section>
-              <h4 className="text-lg font-semibold mb-3">Planned Test Suites</h4>
-              <div className="grid gap-4">
-                <div className="p-4 border rounded-lg opacity-60">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h5 className="font-medium">Performance Testing</h5>
-                      <p className="text-sm text-gray-600">Load testing, response time validation</p>
-                    </div>
-                    <StatusBadge status="Coming Soon" />
-                  </div>
-                </div>
-
-                <div className="p-4 border rounded-lg opacity-60">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h5 className="font-medium">Security Testing</h5>
-                      <p className="text-sm text-gray-600">Authentication, authorization, data protection</p>
-                    </div>
-                    <StatusBadge status="Coming Soon" />
-                  </div>
-                </div>
-
-                <div className="p-4 border rounded-lg opacity-60">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h5 className="font-medium">API Testing</h5>
-                      <p className="text-sm text-gray-600">REST endpoint validation, contract testing</p>
-                    </div>
-                    <StatusBadge status="Coming Soon" />
-                  </div>
-                </div>
-
-                <div className="p-4 border rounded-lg opacity-60">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h5 className="font-medium">E2E User Flows</h5>
-                      <p className="text-sm text-gray-600">Complete user journey testing with Playwright</p>
-                    </div>
-                    <StatusBadge status="Coming Soon" />
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section>
-              <h4 className="text-lg font-semibold mb-3">TestAssured Extension Guide</h4>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h5 className="font-medium mb-2">Adding New Test Suites:</h5>
-                <ol className="text-sm space-y-1 list-decimal list-inside text-gray-700">
-                  <li>Create new tab in <code>tabs</code> array</li>
-                  <li>Add corresponding render function (e.g., <code>renderPerformanceTests</code>)</li>
-                  <li>Implement test logic with proper state management</li>
-                  <li>Add API routes in <code>/api/</code> directory if needed</li>
-                  <li>Update <code>renderActiveTab</code> switch statement</li>
-                  <li>Follow existing UI patterns for consistency</li>
-                </ol>
-
-                <h5 className="font-medium mt-4 mb-2">Test Suite Template:</h5>
-                <div className="bg-white p-3 rounded font-mono text-xs border">
-                  <div className="text-gray-600">{`// Example: Performance Test Suite`}</div>
-                  <div>const renderPerformanceTests = () =&gt; (</div>
-                  <div>  &lt;div className=&quot;space-y-6&quot;&gt;</div>
-                  <div>    &lt;Card&gt;</div>
-                  <div>      &lt;div className=&quot;p-6&quot;&gt;</div>
-                  <div>        {`// Test implementation here`}</div>
-                  <div>      &lt;/div&gt;</div>
-                  <div>    &lt;/Card&gt;</div>
-                  <div>  &lt;/div&gt;</div>
-                  <div>);</div>
-                </div>
-              </div>
-            </section>
-          </div>
+    <div className={dashboardStyles.grid}>
+      <div className={dashboardStyles.gridCard}>
+        <div className={dashboardStyles.cardContent}>
+          <h3>System Integration Tests</h3>
+          <p>End-to-end connectivity validation</p>
         </div>
-      </Card>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <StatusBadge status="Active" />
+        </div>
+      </div>
+
+      <div className={dashboardStyles.gridCard}>
+        <div className={dashboardStyles.cardContent}>
+          <h3>Health Monitoring</h3>
+          <p>Real-time backend service status</p>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <StatusBadge status="Active" />
+        </div>
+      </div>
+
+      <div className={dashboardStyles.gridCard}>
+        <div className={dashboardStyles.cardContent}>
+          <h3>Platform Status Monitor</h3>
+          <p>Continuous component health tracking</p>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <StatusBadge status="Active" />
+        </div>
+      </div>
+
+      <div className={dashboardStyles.gridCard} style={{ opacity: 0.6 }}>
+        <div className={dashboardStyles.cardContent}>
+          <h3>Performance Testing</h3>
+          <p>Load testing, response time validation</p>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <StatusBadge status="Coming Soon" />
+        </div>
+      </div>
+
+      <div className={dashboardStyles.gridCard} style={{ opacity: 0.6 }}>
+        <div className={dashboardStyles.cardContent}>
+          <h3>Security Testing</h3>
+          <p>Authentication, authorization, data protection</p>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <StatusBadge status="Coming Soon" />
+        </div>
+      </div>
+
+      <div className={dashboardStyles.gridCard} style={{ opacity: 0.6 }}>
+        <div className={dashboardStyles.cardContent}>
+          <h3>API Testing</h3>
+          <p>REST endpoint validation, contract testing</p>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <StatusBadge status="Coming Soon" />
+        </div>
+      </div>
+
+      <div className={dashboardStyles.gridCard} style={{ opacity: 0.6 }}>
+        <div className={dashboardStyles.cardContent}>
+          <h3>E2E User Flows</h3>
+          <p>Complete user journey testing with Playwright</p>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <StatusBadge status="Coming Soon" />
+        </div>
+      </div>
+
+      <div className={dashboardStyles.gridCard} style={{ gridColumn: 'span 2' }}>
+        <div className={dashboardStyles.cardContent}>
+          <h3>TestAssured Extension Guide</h3>
+          <p>How to add new test suites to the framework</p>
+          <ol style={{ marginTop: 'var(--space-3)', paddingLeft: '1.5rem', fontSize: 'var(--font-size-sm)' }}>
+            <li>Create new tab in tabs array</li>
+            <li>Add corresponding render function</li>
+            <li>Implement test logic with proper state management</li>
+            <li>Add API routes in /api/ directory if needed</li>
+            <li>Update renderActiveTab switch statement</li>
+            <li>Follow existing UI patterns for consistency</li>
+          </ol>
+        </div>
+      </div>
     </div>
   );
 
@@ -808,11 +776,11 @@ export default function TestAssuredPage() {
                 <h4>Playwright Integration</h4>
                 <p>Features available:</p>
                 <ul style={{ margin: '1rem 0', paddingLeft: '1.5rem' }}>
-                  <li>✓ Automated screenshot capture</li>
-                  <li>✓ Multiple viewport testing</li>
-                  <li>✓ Tab state testing</li>
-                  <li>✓ Cross-browser compatibility</li>
-                  <li>✓ Visual regression detection</li>
+                  <li>Automated screenshot capture</li>
+                  <li>Multiple viewport testing</li>
+                  <li>Tab state testing</li>
+                  <li>Cross-browser compatibility</li>
+                  <li>Visual regression detection</li>
                 </ul>
               </div>
             </div>
