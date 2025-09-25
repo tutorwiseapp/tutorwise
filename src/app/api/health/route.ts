@@ -4,11 +4,11 @@ export async function GET() {
   const startTime = Date.now();
   const healthChecks: Record<string, any> = {};
   let overallStatus = 'ok';
+  const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://tutorwise.io';
 
   try {
     // 1. Check Supabase
     try {
-      const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://tutorwise.io';
       const supabaseResponse = await fetch(`${baseUrl}/api/health/supabase`, {
         method: 'GET',
         headers: { 'Cache-Control': 'no-cache' }

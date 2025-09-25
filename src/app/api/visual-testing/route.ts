@@ -3,11 +3,11 @@ import { spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs/promises';
 
-export async function POST(request: Request) {
+export async function POST(request: Request): Promise<NextResponse> {
   try {
     const { testType, pages } = await request.json();
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       const results: any[] = [];
       let testStatus = 'running';
 
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(): Promise<NextResponse> {
   try {
     // Return current visual testing status
     const screenshots = [];
