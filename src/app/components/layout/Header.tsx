@@ -19,6 +19,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import NavMenu from './NavMenu';
+import RoleSwitcher from './RoleSwitcher';
 import styles from './Header.module.css';
 
 const Header = () => {
@@ -31,11 +32,12 @@ const Header = () => {
       <div className={styles.headerLogo}>
         <Link href={logoHref}>tutorwise</Link>
       </div>
-      
-      {/* --- THIS IS THE SURGICAL FIX --- */}
-      {/* The component must be self-closing because it does not accept children. */}
-      <NavMenu />
-      
+
+      <div className={styles.headerActions}>
+        <RoleSwitcher className="mr-4" />
+        <NavMenu />
+      </div>
+
     </header>
   );
 };

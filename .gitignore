@@ -75,7 +75,13 @@ Thumbs.db
 venv/
 tutorwise-railway-backend/venv/
 
-# Railway and Neo4j setup. 
+# Railway and Neo4j setup.
 .env
 .env.local
 .env.production
+
+# Google service account credentials
+google-credentials.json
+
+# Gemini CLI local settings (keep base settings.json in version control)
+.gemini/settings.local.json

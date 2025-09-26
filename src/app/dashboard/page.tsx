@@ -29,7 +29,7 @@ const dashboardLinks = [
 ];
 
 const DashboardPage = () => {
-  const { profile, isLoading } = useUserProfile(); // --- THIS IS THE FIX ---
+  const { profile, activeRole, isLoading } = useUserProfile();
   const router = useRouter();
 
   useEffect(() => {
@@ -44,13 +44,23 @@ const DashboardPage = () => {
   }
 
   const displayName = profile.display_name || 'User';
-  const agentId = `(${profile.agent_id})`; // --- THIS IS THE FIX: Real agent_id
+  const agentId = `(${profile.agent_id})`;
+
+  // Get role-specific dashboard title
+  const getDashboardTitle = () => {
+    switch (activeRole) {
+      case 'seeker': return 'Student Dashboard';
+      case 'provider': return 'Tutor Dashboard';
+      case 'agent': return 'Agent Dashboard';
+      default: return 'Dashboard';
+    }
+  };
 
   return (
     <Container>
       <PageHeader
-        title="Dashboard"
-        subtitle={`Welcome, ${displayName} ${agentId}`}
+        title={getDashboardTitle()}
+        subtitle={`Welcome, ${displayName} ${agentId} - ${activeRole ? `Active Role: ${activeRole.charAt(0).toUpperCase() + activeRole.slice(1)}` : ''}`}
       />
       <div className={styles.grid}>
         {dashboardLinks.map((link) => (
