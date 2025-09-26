@@ -1,0 +1,120 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(///**)",
+      "Bash(npm run:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm install:*)",
+      "Bash(npx:*)",
+      "Bash(node:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git log:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(python3:*)",
+      "Bash(pip install:*)",
+      "Bash(pytest:*)",
+      "Bash(eslint:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx playwright:*)",
+      "Bash(curl:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(awk:*)",
+      "Bash(sed:*)",
+      "Bash(sort:*)",
+      "Bash(uniq:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(chmod:*)",
+      "WebSearch"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(sudo:*)",
+      "Bash(su:*)",
+      "Bash(passwd:*)",
+      "Bash(chown:*)",
+      "Bash(mount:*)",
+      "Bash(umount:*)",
+      "Bash(fdisk:*)",
+      "Bash(mkfs:*)",
+      "Bash(dd:*)"
+    ],
+    "ask": [
+      "Bash(docker:*)",
+      "Bash(systemctl:*)",
+      "Bash(service:*)",
+      "Bash(brew:*)",
+      "Bash(apt:*)",
+      "Bash(yum:*)",
+      "Bash(pacman:*)"
+    ]
+  },
+  "features": {
+    "codeGeneration": true,
+    "fileAnalysis": true,
+    "projectContext": true,
+    "gitIntegration": true,
+    "testingSupport": true,
+    "buildTools": true,
+    "linting": true,
+    "debugging": true
+  },
+  "limits": {
+    "maxFileSize": "10MB",
+    "maxConcurrentOperations": 5,
+    "maxContextFiles": 50
+  },
+  "preferences": {
+    "defaultLanguage": "typescript",
+    "codeStyle": "prettier",
+    "testFramework": "jest",
+    "buildTool": "next",
+    "packageManager": "npm"
+  },
+  "integrations": {
+    "git": {
+      "enabled": true,
+      "autoCommit": false,
+      "defaultBranch": "main"
+    },
+    "npm": {
+      "enabled": true,
+      "autoInstall": false,
+      "scriptExecution": true
+    },
+    "testing": {
+      "enabled": true,
+      "autoRun": false,
+      "frameworks": ["jest", "playwright", "pytest"]
+    },
+    "linting": {
+      "enabled": true,
+      "autoFix": false,
+      "tools": ["eslint", "prettier", "typescript"]
+    }
+  },
+  "security": {
+    "allowFileWrite": true,
+    "allowFileDelete": false,
+    "allowSystemCommands": false,
+    "allowNetworkAccess": true,
+    "sandboxMode": false
+  },
+  "logging": {
+    "level": "info",
+    "logFile": ".claude/logs/activity.log",
+    "enableTimestamps": true,
+    "enableCommandLogging": true
+  }
+}
