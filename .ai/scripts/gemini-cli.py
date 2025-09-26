@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Tutorwise Gemini CLI - AI Development Assistant
-A comprehensive CLI tool for AI-powered development assistance with Tutorwise context awareness.
+Gemini CLI for Tutorwise Context Engineering
+Integrates with your existing context system for enhanced AI assistance
 """
 
 import os
@@ -9,336 +9,350 @@ import sys
 import json
 import argparse
 from pathlib import Path
-from typing import Dict, List, Optional, Any
-import subprocess
-
-# Add project root to path for imports
-if '__file__' in globals():
-    project_root = Path(__file__).parent.parent.parent
-else:
-    project_root = Path.cwd()
-
-sys.path.insert(0, str(project_root))
-
-try:
-    import google.generativeai as genai
-except ImportError:
-    print("Error: google-generativeai package not installed")
-    print("Please install with: pip install google-generativeai")
-    sys.exit(1)
+from typing import Dict, List, Optional
+import google.generativeai as genai
+from dotenv import load_dotenv
 
 class TutorwiseGeminiCLI:
+    """Enhanced Gemini CLI with Tutorwise context integration"""
+
     def __init__(self):
-        self.project_root = project_root
-        self.ai_dir = self.project_root / '.ai'
+        # Handle both direct execution and imported module scenarios
+        if '__file__' in globals():
+            self.project_root = Path(__file__).parent.parent.parent
+        else:
+            # Fallback for when imported or executed differently
+            self.project_root = Path.cwd()
+        self.context_dir = self.project_root / ".ai"
+        self.config_dir = self.project_root / ".gemini"
+
+        # Load environment variables
+        load_dotenv(self.project_root / ".env.local")
+        load_dotenv()
+
+        # Load configuration settings
         self.config = self.load_configuration()
-        self.setup_gemini()
 
-    def load_configuration(self) -> Dict[str, Any]:
-        """Load configuration from various sources"""
-        config = {
-            'model': 'gemini-1.5-pro-latest',
-            'temperature': 0.1,
-            'max_tokens': 8192,
-            'context_sources': {
-                'prompt': True,
-                'jira': True,
-                'github': True,
-                'calendar': True,
-                'mermaid': True
-            }
-        }
-
-        # Load from .gemini/settings.json if it exists
-        gemini_config_path = self.project_root / '.gemini' / 'settings.json'
-        if gemini_config_path.exists():
-            try:
-                with open(gemini_config_path) as f:
-                    file_config = json.load(f)
-                    config.update(file_config)
-            except Exception as e:
-                print(f"Warning: Could not load .gemini/settings.json: {e}")
-
-        return config
-
-    def setup_gemini(self):
-        """Initialize Gemini AI with API key"""
+        # Configure Gemini
         api_key = os.getenv('GOOGLE_AI_API_KEY')
         if not api_key:
-            print("Error: GOOGLE_AI_API_KEY environment variable not set")
-            print("Please add your Gemini API key to .env.local")
-            sys.exit(1)
+            raise ValueError("GOOGLE_AI_API_KEY not found in environment")
 
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel(self.config['model'])
+        model_name = self.config.get('model', 'gemini-pro')
+        self.model = genai.GenerativeModel(model_name)
 
-    def load_context(self, sources: Optional[List[str]] = None) -> str:
-        """Load Tutorwise project context from various sources"""
-        context_parts = []
+        # Load context
+        self.context = self.load_project_context()
 
-        # Main project context
-        prompt_file = self.ai_dir / 'PROMPT.md'
-        if prompt_file.exists() and (not sources or 'prompt' in sources):
-            with open(prompt_file) as f:
-                context_parts.append(f"# Tutorwise Project Context\\n{f.read()}")
+    def load_configuration(self) -> Dict:
+        """Load configuration from .gemini directory"""
+        default_config = {
+            "model": "gemini-pro",
+            "temperature": 0.7,
+            "maxTokens": 4096,
+            "contextMode": "full",
+            "streamingEnabled": True
+        }
 
-        # Jira context
-        if not sources or 'jira' in sources:
-            jira_dir = self.ai_dir / 'jira'
+        try:
+            # Load base settings
+            base_settings_file = self.config_dir / "settings.json"
+            if base_settings_file.exists():
+                with open(base_settings_file, 'r') as f:
+                    base_config = json.load(f)
+                    default_config.update(base_config)
+
+            # Load local settings overlay
+            local_settings_file = self.config_dir / "settings.local.json"
+            if local_settings_file.exists():
+                with open(local_settings_file, 'r') as f:
+                    local_config = json.load(f)
+                    default_config.update(local_config)
+
+            # Apply environment variable overrides
+            env_overrides = {
+                "model": os.getenv('GEMINI_MODEL'),
+                "temperature": float(os.getenv('GEMINI_TEMPERATURE', 0)) or None,
+                "maxTokens": int(os.getenv('GEMINI_MAX_TOKENS', 0)) or None,
+                "contextMode": os.getenv('GEMINI_CONTEXT_MODE'),
+                "streamingEnabled": os.getenv('GEMINI_STREAMING', '').lower() == 'true' if os.getenv('GEMINI_STREAMING') else None
+            }
+
+            for key, value in env_overrides.items():
+                if value is not None:
+                    default_config[key] = value
+
+        except Exception as e:
+            print(f"Warning: Could not load configuration: {e}")
+
+        return default_config
+
+    def load_project_context(self) -> Dict:
+        """Load comprehensive project context from .ai directory"""
+        context = {
+            "prompt": "",
+            "jira_tickets": [],
+            "github_data": {},
+            "figma_designs": {},
+            "calendar_events": [],
+            "google_docs": [],
+            "mermaid_diagrams": []
+        }
+
+        try:
+            # Load main context
+            prompt_file = self.context_dir / "PROMPT.md"
+            if prompt_file.exists():
+                context["prompt"] = prompt_file.read_text()
+
+            # Load Jira tickets
+            jira_dir = self.context_dir / "jira" / "tickets"
             if jira_dir.exists():
-                sprint_file = jira_dir / 'current-sprint.md'
-                if sprint_file.exists():
-                    with open(sprint_file) as f:
-                        context_parts.append(f"# Current Sprint Information\\n{f.read()}")
+                for ticket_file in jira_dir.glob("*.md"):
+                    context["jira_tickets"].append({
+                        "key": ticket_file.stem,
+                        "content": ticket_file.read_text()
+                    })
 
-        # GitHub context
-        if not sources or 'github' in sources:
-            github_file = self.ai_dir / 'github' / 'repository-overview.md'
-            if github_file.exists():
-                with open(github_file) as f:
-                    context_parts.append(f"# GitHub Repository Overview\\n{f.read()}")
+            # Load GitHub data
+            github_overview = self.context_dir / "github" / "repository-overview.md"
+            if github_overview.exists():
+                context["github_data"]["overview"] = github_overview.read_text()
 
-        # Calendar context
-        if not sources or 'calendar' in sources:
-            calendar_file = self.ai_dir / 'calendar' / 'development-schedule.md'
-            if calendar_file.exists():
-                with open(calendar_file) as f:
-                    context_parts.append(f"# Development Schedule\\n{f.read()}")
+            # Load Figma designs
+            figma_overview = self.context_dir / "figma" / "overview.md"
+            if figma_overview.exists():
+                context["figma_designs"]["overview"] = figma_overview.read_text()
 
-        # Mermaid diagrams
-        if not sources or 'mermaid' in sources:
-            mermaid_file = self.ai_dir / 'mermaid' / 'overview.md'
-            if mermaid_file.exists():
-                with open(mermaid_file) as f:
-                    context_parts.append(f"# Architecture Diagrams\\n{f.read()}")
+            # Load Calendar events
+            calendar_schedule = self.context_dir / "calendar" / "development-schedule.md"
+            if calendar_schedule.exists():
+                context["calendar_events"] = calendar_schedule.read_text()
 
-        return "\\n\\n".join(context_parts)
+            # Load Google Docs
+            docs_overview = self.context_dir / "google-docs" / "overview.md"
+            if docs_overview.exists():
+                context["google_docs"] = docs_overview.read_text()
 
-    def chat(self, query: str, context_sources: Optional[List[str]] = None) -> str:
-        """Execute a chat query with Tutorwise context"""
-        context = self.load_context(context_sources)
+            # Load Mermaid diagrams
+            mermaid_overview = self.context_dir / "mermaid" / "overview.md"
+            if mermaid_overview.exists():
+                context["mermaid_diagrams"] = mermaid_overview.read_text()
 
-        prompt = f"""You are an AI development assistant for Tutorwise, an educational platform.
-You have access to comprehensive project context and should provide specific, actionable guidance.
+            print(f"✅ Loaded context: {len(context['jira_tickets'])} tickets, "
+                  f"{'GitHub' if context['github_data'] else 'No GitHub'}, "
+                  f"{'Figma' if context['figma_designs'] else 'No Figma'}")
 
-{context}
+        except Exception as e:
+            print(f"⚠️  Warning loading context: {e}")
 
-User Query: {query}
+        return context
 
-Please provide a detailed, helpful response based on the Tutorwise project context."""
+    def build_context_prompt(self, user_query: str, include_full_context: bool = True) -> str:
+        """Build enhanced prompt with project context"""
+
+        if include_full_context:
+            # Full context for complex queries
+            context_prompt = f"""You are an AI assistant working on the Tutorwise educational platform.
+
+PROJECT CONTEXT:
+{self.context['prompt'][:3000]}  # Truncate for token limits
+
+CURRENT JIRA TICKETS:
+{chr(10).join([f"- {ticket['key']}: {ticket['content'][:200]}..." for ticket in self.context['jira_tickets'][:5]])}
+
+DEVELOPMENT SCHEDULE:
+{self.context['calendar_events'][:500] if self.context['calendar_events'] else 'No scheduled events'}
+
+USER QUERY: {user_query}
+
+Provide a detailed, context-aware response based on the Tutorwise project information above."""
+
+        else:
+            # Minimal context for quick queries
+            context_prompt = f"""You are an AI assistant for the Tutorwise educational platform project.
+
+PROJECT: Full-stack Next.js app with Supabase, Stripe payments, and comprehensive testing.
+
+QUERY: {user_query}
+
+Provide a concise, helpful response."""
+
+        return context_prompt
+
+    async def chat(self, query: str, full_context: bool = True, stream: bool = False) -> str:
+        """Chat with Gemini using project context"""
+
+        # Use configuration defaults if not specified
+        if stream is None:
+            stream = self.config.get('streamingEnabled', False)
+
+        prompt = self.build_context_prompt(query, full_context)
+
+        # Apply generation configuration
+        generation_config = {
+            'temperature': self.config.get('temperature', 0.7),
+            'max_output_tokens': self.config.get('maxTokens', 4096),
+        }
 
         try:
-            response = self.model.generate_content(prompt)
-            return response.text
+            if stream:
+                print("Gemini (streaming):")
+                response = self.model.generate_content(
+                    prompt,
+                    stream=True,
+                    generation_config=generation_config
+                )
+                full_response = ""
+                for chunk in response:
+                    if chunk.text:
+                        print(chunk.text, end="", flush=True)
+                        full_response += chunk.text
+                print("\n")
+                return full_response
+            else:
+                print("Gemini is thinking...")
+                response = self.model.generate_content(
+                    prompt,
+                    generation_config=generation_config
+                )
+                return response.text
+
         except Exception as e:
-            return f"Error generating response: {e}"
+            return f"Error communicating with Gemini: {e}"
 
-    def analyze_ticket(self, ticket_id: str) -> str:
-        """Analyze a specific Jira ticket"""
-        ticket_file = self.ai_dir / 'jira' / 'tickets' / f'{ticket_id}.md'
+    def analyze_ticket(self, ticket_key: str) -> str:
+        """Analyze a specific Jira ticket with full context"""
 
-        if not ticket_file.exists():
-            return f"Ticket {ticket_id} not found. Run 'npm run sync:jira' to update tickets."
+        ticket = next((t for t in self.context['jira_tickets'] if t['key'] == ticket_key), None)
+        if not ticket:
+            return f"❌ Ticket {ticket_key} not found in context"
 
-        with open(ticket_file) as f:
-            ticket_content = f.read()
-
-        context = self.load_context()
-
-        prompt = f"""You are analyzing Jira ticket {ticket_id} for the Tutorwise project.
-
-{context}
-
-Ticket Details:
-{ticket_content}
-
-Please provide:
-1. Implementation approach and recommendations
-2. Technical considerations and potential challenges
-3. Estimated effort and complexity
-4. Dependencies and prerequisites
-5. Testing strategy
-"""
-
-        try:
-            response = self.model.generate_content(prompt)
-            return response.text
-        except Exception as e:
-            return f"Error analyzing ticket: {e}"
+        query = f"Analyze ticket {ticket_key} and provide implementation recommendations"
+        return self.chat(query, full_context=True, stream=False)
 
     def code_review(self, description: str) -> str:
-        """Perform AI code review"""
-        context = self.load_context()
+        """Perform context-aware code review"""
 
-        prompt = f"""You are performing a code review for the Tutorwise project.
-
-{context}
-
-Code Review Request: {description}
-
-Please review the code and provide:
-1. Code quality assessment
-2. Security considerations
-3. Performance implications
-4. Adherence to Tutorwise patterns and conventions
-5. Suggestions for improvements
-6. Potential bugs or issues
-"""
-
-        try:
-            response = self.model.generate_content(prompt)
-            return response.text
-        except Exception as e:
-            return f"Error performing code review: {e}"
+        query = f"Review this code/implementation: {description}. Check against Tutorwise patterns and requirements."
+        return self.chat(query, full_context=True, stream=False)
 
     def debug_help(self, error_description: str) -> str:
-        """Get debugging assistance"""
-        context = self.load_context()
+        """Get debugging help with project context"""
 
-        prompt = f"""You are helping debug an issue in the Tutorwise project.
+        query = f"Help debug this issue in Tutorwise: {error_description}. Consider the tech stack and architecture."
+        return self.chat(query, full_context=True, stream=False)
 
-{context}
+    def planning_assist(self) -> str:
+        """Generate development planning recommendations"""
 
-Error/Issue Description: {error_description}
-
-Please provide:
-1. Possible causes of the issue
-2. Step-by-step debugging approach
-3. Common solutions for similar problems
-4. Relevant Tutorwise-specific considerations
-5. Prevention strategies for the future
-"""
-
-        try:
-            response = self.model.generate_content(prompt)
-            return response.text
-        except Exception as e:
-            return f"Error providing debug help: {e}"
-
-    def development_planning(self) -> str:
-        """Generate development planning insights"""
-        context = self.load_context()
-
-        prompt = f"""You are providing development planning insights for the Tutorwise project.
-
-{context}
-
-Please analyze the current project state and provide:
-1. Sprint progress assessment
-2. Upcoming priorities and recommendations
-3. Potential blockers and mitigation strategies
-4. Code quality and technical debt observations
-5. Strategic development suggestions
-"""
-
-        try:
-            response = self.model.generate_content(prompt)
-            return response.text
-        except Exception as e:
-            return f"Error generating planning insights: {e}"
-
-    def interactive_mode(self):
-        """Start interactive chat mode"""
-        print("🤖 Tutorwise Gemini CLI - Interactive Mode")
-        print("Type 'help' for commands, 'exit' to quit\\n")
-
-        while True:
-            try:
-                query = input("💬 You: ").strip()
-
-                if query.lower() in ['exit', 'quit']:
-                    print("👋 Goodbye!")
-                    break
-                elif query.lower() == 'help':
-                    self.print_help()
-                    continue
-                elif not query:
-                    continue
-
-                print("🤔 Thinking...")
-                response = self.chat(query)
-                print(f"🤖 Assistant: {response}\\n")
-
-            except KeyboardInterrupt:
-                print("\\n👋 Goodbye!")
-                break
-            except Exception as e:
-                print(f"❌ Error: {e}")
-
-    def print_help(self):
-        """Print help information"""
-        help_text = """
-🚀 Tutorwise Gemini CLI Commands:
-
-Interactive Commands:
-  help                    Show this help message
-  exit, quit             Exit interactive mode
-
-CLI Commands:
-  chat -q "question"     Ask a question with full context
-  analyze -t TICKET      Analyze a specific Jira ticket
-  review -q "description" Get AI code review assistance
-  debug -q "error"       Get debugging help
-  plan                   Get development planning insights
-
-Examples:
-  python gemini-cli.py chat -q "How to implement role switching?"
-  python gemini-cli.py analyze -t TUTOR-25
-  python gemini-cli.py review -q "Review my authentication code"
-  python gemini-cli.py debug -q "Getting 404 errors on API calls"
-"""
-        print(help_text)
+        query = "Based on current Jira tickets and development schedule, suggest optimal work planning and priorities."
+        return self.chat(query, full_context=True, stream=False)
 
 def main():
-    parser = argparse.ArgumentParser(description='Tutorwise Gemini CLI')
-    subparsers = parser.add_subparsers(dest='command', help='Available commands')
-
-    # Chat command
-    chat_parser = subparsers.add_parser('chat', help='Chat with AI assistant')
-    chat_parser.add_argument('-q', '--query', required=True, help='Question to ask')
-
-    # Analyze command
-    analyze_parser = subparsers.add_parser('analyze', help='Analyze Jira ticket')
-    analyze_parser.add_argument('-t', '--ticket', required=True, help='Ticket ID to analyze')
-
-    # Review command
-    review_parser = subparsers.add_parser('review', help='Get code review')
-    review_parser.add_argument('-q', '--query', required=True, help='Code review description')
-
-    # Debug command
-    debug_parser = subparsers.add_parser('debug', help='Get debugging help')
-    debug_parser.add_argument('-q', '--query', required=True, help='Error description')
-
-    # Plan command
-    subparsers.add_parser('plan', help='Get development planning insights')
-
-    # Interactive command
-    subparsers.add_parser('interactive', help='Start interactive mode')
+    parser = argparse.ArgumentParser(description='Tutorwise Gemini CLI with Context Integration')
+    parser.add_argument('command', nargs='?', choices=['chat', 'analyze', 'review', 'debug', 'plan'],
+                       help='Command to execute')
+    parser.add_argument('--query', '-q', type=str, help='Query or description')
+    parser.add_argument('--ticket', '-t', type=str, help='Jira ticket key for analysis')
+    parser.add_argument('--stream', '-s', action='store_true', help='Stream response')
+    parser.add_argument('--minimal', '-m', action='store_true', help='Use minimal context')
+    parser.add_argument('--interactive', '-i', action='store_true', help='Interactive mode')
 
     args = parser.parse_args()
 
-    cli = TutorwiseGeminiCLI()
+    try:
+        cli = TutorwiseGeminiCLI()
 
-    if args.command == 'chat':
-        response = cli.chat(args.query)
-        print(response)
-    elif args.command == 'analyze':
-        response = cli.analyze_ticket(args.ticket)
-        print(response)
-    elif args.command == 'review':
-        response = cli.code_review(args.query)
-        print(response)
-    elif args.command == 'debug':
-        response = cli.debug_help(args.query)
-        print(response)
-    elif args.command == 'plan':
-        response = cli.development_planning()
-        print(response)
-    elif args.command == 'interactive':
-        cli.interactive_mode()
-    else:
-        # Default to interactive mode
-        cli.interactive_mode()
+        if args.interactive or not args.command:
+            # Interactive mode
+            print("🚀 Tutorwise Gemini CLI - Interactive Mode")
+            print("Commands: chat, analyze <ticket>, review <description>, debug <error>, plan, quit")
+            print("Example: analyze TUTOR-20")
+            print()
 
-if __name__ == '__main__':
+            while True:
+                try:
+                    user_input = input("tutorwise> ").strip()
+                    if not user_input or user_input.lower() == 'quit':
+                        break
+
+                    parts = user_input.split(' ', 1)
+                    cmd = parts[0].lower()
+                    arg = parts[1] if len(parts) > 1 else ""
+
+                    if cmd == 'chat':
+                        if not arg:
+                            arg = input("Enter your question: ")
+                        result = cli.chat(arg, full_context=not args.minimal, stream=args.stream)
+                        print(f"\n{result}\n")
+
+                    elif cmd == 'analyze':
+                        ticket = arg or input("Enter ticket key (e.g., TUTOR-20): ")
+                        result = cli.analyze_ticket(ticket)
+                        print(f"\n{result}\n")
+
+                    elif cmd == 'review':
+                        description = arg or input("Describe code/implementation to review: ")
+                        result = cli.code_review(description)
+                        print(f"\n{result}\n")
+
+                    elif cmd == 'debug':
+                        error = arg or input("Describe the error/issue: ")
+                        result = cli.debug_help(error)
+                        print(f"\n{result}\n")
+
+                    elif cmd == 'plan':
+                        result = cli.planning_assist()
+                        print(f"\n{result}\n")
+
+                    else:
+                        print("Unknown command. Available: chat, analyze, review, debug, plan, quit")
+
+                except KeyboardInterrupt:
+                    print("\nExiting...")
+                    break
+                except Exception as e:
+                    print(f"Error: {e}")
+
+        else:
+            # Command line mode
+            if args.command == 'chat':
+                if not args.query:
+                    print("Error: --query required for chat command")
+                    sys.exit(1)
+                result = cli.chat(args.query, full_context=not args.minimal, stream=args.stream)
+                print(result)
+
+            elif args.command == 'analyze':
+                if not args.ticket:
+                    print("Error: --ticket required for analyze command")
+                    sys.exit(1)
+                result = cli.analyze_ticket(args.ticket)
+                print(result)
+
+            elif args.command == 'review':
+                if not args.query:
+                    print("Error: --query required for review command")
+                    sys.exit(1)
+                result = cli.code_review(args.query)
+                print(result)
+
+            elif args.command == 'debug':
+                if not args.query:
+                    print("Error: --query required for debug command")
+                    sys.exit(1)
+                result = cli.debug_help(args.query)
+                print(result)
+
+            elif args.command == 'plan':
+                result = cli.planning_assist()
+                print(result)
+
+    except Exception as e:
+        print(f"❌ CLI Error: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
     main()

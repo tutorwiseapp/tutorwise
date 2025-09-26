@@ -1,157 +1,232 @@
 # Gemini CLI Configuration
 
-This folder contains configuration files for the Tutorwise Gemini CLI, an AI-powered development assistant.
+This directory contains configuration files for the Tutorwise Gemini CLI integration.
 
 ## Files
 
-### `settings.json`
-Base configuration file for the Gemini CLI. This file is tracked in version control and contains default settings that work for all team members.
+### settings.json
+Base configuration settings for Gemini CLI behavior, context sources, and command defaults.
 
-### `settings.local.json` (gitignored)
-Local override configuration file. Create this file to customize settings for your local environment. This file is automatically excluded from version control.
+**Key Settings:**
+- Model configuration (gemini-pro)
+- Context source enablement
+- Command-specific behaviors
+- Output formatting preferences
 
-### `config.template.env`
-Template for environment variables needed by the Gemini CLI. Copy the contents to your `.env.local` file and fill in your API keys.
+### settings.local.json
+Local development overrides with enhanced features and debug options.
 
-### `README.md`
-This documentation file.
+**Enhanced Features:**
+- Higher token limits
+- Extended context ranges
+- Debug mode capabilities
+- Custom prompts and shortcuts
 
-## Setup Instructions
+### config.template.env
+Template for environment variables needed by Gemini CLI.
 
-1. **Install Dependencies**
-   ```bash
-   pip install google-generativeai
-   ```
+**Usage:**
+1. Copy contents to project root `.env.local`
+2. Fill in your API keys and configuration
+3. Customize optional settings as needed
 
-2. **Configure API Keys**
-   Copy the template to your environment file:
-   ```bash
-   # Add the contents of config.template.env to your .env.local file
-   echo "GOOGLE_AI_API_KEY=your_actual_api_key" >> .env.local
-   ```
+## Configuration Hierarchy
 
-3. **Test Installation**
-   ```bash
-   python .ai/scripts/gemini-cli.py --help
-   ```
+Settings are loaded in this order (later overrides earlier):
+1. `settings.json` - Base settings
+2. `settings.local.json` - Local overrides
+3. Environment variables - Runtime overrides
 
-## Configuration Options
+## Environment Variable Overrides
 
-### Model Settings
-- `model.name`: Gemini model to use (default: "gemini-1.5-pro-latest")
-- `model.temperature`: Creativity level (0.0-1.0, default: 0.1)
-- `model.maxTokens`: Maximum response length (default: 8192)
+You can override any setting using environment variables with the `GEMINI_` prefix:
 
-### Context Sources
-- `context.sources`: Which context files to include
-- `context.maxContextLength`: Maximum context length
-- `context.prioritySources`: Priority order for context loading
+```bash
+GEMINI_MODEL=gemini-pro-vision
+GEMINI_TEMPERATURE=0.9
+GEMINI_CONTEXT_MODE=minimal
+GEMINI_STREAMING=false
+```
 
-### Command Configuration
-- `commands.chat.enabled`: Enable chat functionality
-- `commands.analyze.enabled`: Enable ticket analysis
-- `commands.review.enabled`: Enable code review
-- `commands.debug.enabled`: Enable debug assistance
-- `commands.plan.enabled`: Enable planning insights
+## Context Source Configuration
 
-### Integration Settings
-- `integrations.jira.enabled`: Enable Jira integration
-- `integrations.github.enabled`: Enable GitHub integration
-- `integrations.calendar.enabled`: Enable Calendar integration
+### Jira Integration
+```json
+{
+  "enabled": true,
+  "maxTickets": 30,
+  "includeSubtasks": true,
+  "includeComments": true
+}
+```
 
-## Local Customization
+### GitHub Integration
+```json
+{
+  "enabled": true,
+  "maxIssues": 20,
+  "maxPullRequests": 10,
+  "includeLabels": true
+}
+```
 
-Create a `settings.local.json` file to override any settings:
+### Calendar Integration
+```json
+{
+  "enabled": true,
+  "dayRange": 30,
+  "includeAnalysis": true
+}
+```
+
+## Command Configuration
+
+Each command has specific default behaviors:
+
+- **chat**: Quick interactions with minimal context
+- **analyze**: Deep ticket analysis with full context
+- **review**: Code review with security and performance checks
+- **debug**: Error analysis with technical context
+- **plan**: Strategic planning with sprint and calendar context
+
+## Custom Prompts
+
+Define specialized prompts for different use cases:
 
 ```json
 {
-  "model": {
-    "temperature": 0.2
-  },
-  "context": {
-    "sources": {
-      "calendar": false
-    }
-  },
-  "output": {
-    "colorOutput": false
+  "customPrompts": {
+    "codeReview": "Focus on security, performance, maintainability...",
+    "ticketAnalysis": "Provide comprehensive analysis including...",
+    "debugHelp": "Analyze the error in context of...",
+    "planning": "Generate actionable development plan..."
   }
 }
 ```
 
-## API Keys
+## Shortcuts
 
-### Required
-- **GOOGLE_AI_API_KEY**: Get from https://makersuite.google.com/app/apikey
+Pre-configured command combinations for common tasks:
 
-### Optional (for full functionality)
-- **JIRA_API_TOKEN**: Get from Jira account settings
-- **GITHUB_TOKEN**: Get from GitHub developer settings
-- **GOOGLE_SERVICE_ACCOUNT_EMAIL & GOOGLE_PRIVATE_KEY**: For Google services
-
-## Usage Examples
-
-```bash
-# Interactive mode
-python .ai/scripts/gemini-cli.py interactive
-
-# Direct commands
-python .ai/scripts/gemini-cli.py chat -q "How to implement role switching?"
-python .ai/scripts/gemini-cli.py analyze -t TUTOR-25
-python .ai/scripts/gemini-cli.py review -q "Review my authentication code"
-
-# Using NPM scripts (recommended)
-npm run gemini:chat -- -q "Your question"
-npm run gemini:analyze -- -t TICKET-ID
-npm run gemini:review -- -q "Review description"
+```json
+{
+  "shortcuts": {
+    "quickAnalysis": {
+      "command": "analyze",
+      "contextMode": "minimal",
+      "focusAreas": ["implementation", "testing"]
+    },
+    "securityReview": {
+      "command": "review",
+      "contextMode": "full",
+      "focusAreas": ["security", "authentication"]
+    }
+  }
+}
 ```
+
+## Performance Tuning
+
+### Context Optimization
+- **enableCaching**: Cache API responses to reduce latency
+- **cacheTimeout**: How long to cache responses (seconds)
+- **compressOldTickets**: Reduce context size for older tickets
+- **prioritizeActiveWork**: Focus context on current sprint items
+
+### Output Optimization
+- **streamingEnabled**: Enable real-time response streaming
+- **maxTokens**: Limit response length for faster generation
+- **temperature**: Control response creativity (0.0-1.0)
+
+## Development Mode
+
+Local settings include debug features:
+
+```json
+{
+  "development": {
+    "enableDebugMode": true,
+    "logRequests": false,
+    "logResponses": false,
+    "verboseOutput": true
+  }
+}
+```
+
+## Integration with CLI
+
+The Gemini CLI automatically loads these settings:
+
+1. Checks for `.gemini/settings.json`
+2. Overlays `.gemini/settings.local.json` if present
+3. Applies environment variable overrides
+4. Validates required configurations
+
+## Best Practices
+
+### Security
+- Never commit API keys to version control
+- Use `.env.local` for sensitive configuration
+- Regularly rotate API tokens
+- Monitor API usage and costs
+
+### Performance
+- Use minimal context mode for quick questions
+- Enable caching for repeated operations
+- Adjust token limits based on use case
+- Monitor response times and optimize settings
+
+### Maintenance
+- Review and update settings monthly
+- Clean up old custom prompts
+- Update API keys before expiration
+- Test configuration changes in development
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **API Key Not Set**
-   ```
-   Error: GOOGLE_AI_API_KEY environment variable not set
-   ```
-   Solution: Add your API key to `.env.local`
+**Settings not loading:**
+- Check JSON syntax in configuration files
+- Verify file permissions
+- Ensure files are in correct location
 
-2. **Context Files Missing**
-   ```
-   Warning: Could not load context files
-   ```
-   Solution: Run `npm run sync:context` to generate context files
+**Context too large:**
+- Reduce maxTickets, maxIssues settings
+- Enable compressOldTickets
+- Use minimal context mode
+- Adjust mainPrompt maxLength
 
-3. **Permission Denied**
-   ```
-   Permission denied: .ai/scripts/gemini-cli.py
-   ```
-   Solution: Make the script executable: `chmod +x .ai/scripts/gemini-cli.py`
+**Slow responses:**
+- Enable caching
+- Reduce context sources
+- Lower maxTokens limit
+- Use streaming responses
+
+**Authentication failures:**
+- Verify API keys in `.env.local`
+- Check service account permissions
+- Validate environment variable loading
 
 ### Debug Commands
 
 ```bash
+# Test configuration loading
+python3 .ai/scripts/gemini-cli.py --help
+
+# Validate settings
+node -e "console.log(JSON.parse(require('fs').readFileSync('.gemini/settings.json')))"
+
 # Check environment variables
 echo $GOOGLE_AI_API_KEY
-
-# Test context loading
-python .ai/scripts/gemini-cli.py chat -q "test"
-
-# Validate configuration
-python -c "import json; print(json.load(open('.gemini/settings.json')))"
 ```
 
-## Security Notes
+## Migration from Other AI Tools
 
-- Never commit API keys to version control
-- Use `.env.local` for sensitive environment variables
-- The `settings.local.json` file is automatically gitignored
-- Rotate API keys regularly for security
+If migrating from other AI CLI tools:
 
-## Support
-
-For issues with the Gemini CLI:
-1. Check this README for common solutions
-2. Verify your API keys are correct
-3. Ensure all dependencies are installed
-4. Run context sync if context-related errors occur
+1. Export existing configurations
+2. Map settings to Gemini CLI format
+3. Test with minimal configuration first
+4. Gradually enable additional features
+5. Validate context quality and performance

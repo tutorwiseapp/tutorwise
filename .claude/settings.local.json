@@ -25,7 +25,8 @@
       "Bash(npx playwright test:*)",
       "Bash(npm run sync:jira:*)",
       "Bash(npm run sync:github:*)",
-      "Bash(npm run sync:context:*)"
+      "Bash(npm run sync:context:*)",
+      "Bash(git check-ignore:*)"
     ],
     "deny": [],
     "ask": []

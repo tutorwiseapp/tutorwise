@@ -110,12 +110,130 @@ class SimpleJiraSync {
             summary: fields.summary,
             description: this.extractDescription(fields.description),
             status: fields.status.name,
+            statusCategory: fields.status.statusCategory?.name || 'Unknown',
             assignee: fields.assignee?.displayName || null,
-            priority: fields.priority.name,
+            assigneeEmail: fields.assignee?.emailAddress || null,
+            priority: fields.priority?.name || 'None',
             issueType: fields.issuetype.name,
             labels: fields.labels || [],
             created: fields.created,
-            updated: fields.updated
+            updated: fields.updated,
+            reporter: fields.reporter?.displayName || 'Unknown',
+            reporterEmail: fields.reporter?.emailAddress || null,
+
+            // Additional workflow & progress fields
+            resolution: fields.resolution?.name || null,
+            resolutionDate: fields.resolutiondate || null,
+            dueDate: fields.duedate || null,
+
+            // Time tracking
+            timeTracking: {
+                originalEstimate: fields.timeoriginalestimate || null,
+                remainingEstimate: fields.timeestimate || null,
+                timeSpent: fields.timespent || null,
+                originalEstimateSeconds: fields.timeoriginalestimate || 0,
+                remainingEstimateSeconds: fields.timeestimate || 0,
+                timeSpentSeconds: fields.timespent || 0
+            },
+
+            // Story points and estimation
+            storyPoints: fields.customfield_10016 || fields.storyPoints || null,
+
+            // Environment and testing
+            environment: fields.environment || null,
+
+            // Components and versions
+            components: fields.components?.map(c => c.name) || [],
+            fixVersions: fields.fixVersions?.map(v => v.name) || [],
+            affectedVersions: fields.versions?.map(v => v.name) || [],
+
+            // Parent/Epic information
+            parent: fields.parent ? {
+                key: fields.parent.key,
+                summary: fields.parent.fields?.summary || 'Parent Issue',
+                issueType: fields.parent.fields?.issuetype?.name || 'Issue'
+            } : null,
+
+            // Epic link (common custom field)
+            epic: fields.customfield_10014 ? {
+                key: fields.customfield_10014,
+                summary: fields.customfield_10015 || 'Epic'
+            } : null,
+
+            // Sprint information (common custom field)
+            sprint: fields.customfield_10020 ? this.extractSprintInfo(fields.customfield_10020) : null,
+
+            // Issue links and relationships
+            issuelinks: (fields.issuelinks || []).map(link => ({
+                type: link.type?.name || 'Related',
+                direction: link.outwardIssue ? 'outward' : 'inward',
+                relationship: link.type?.outward || link.type?.inward || 'relates to',
+                linkedIssue: {
+                    key: (link.outwardIssue || link.inwardIssue)?.key || 'Unknown',
+                    summary: (link.outwardIssue || link.inwardIssue)?.fields?.summary || 'Linked Issue',
+                    status: (link.outwardIssue || link.inwardIssue)?.fields?.status?.name || 'Unknown'
+                }
+            })),
+
+            // Subtasks
+            subtasks: (fields.subtasks || []).map(subtask => ({
+                key: subtask.key,
+                summary: subtask.fields?.summary || 'Subtask',
+                status: subtask.fields?.status?.name || 'Unknown',
+                assignee: subtask.fields?.assignee?.displayName || 'Unassigned'
+            })),
+
+            // Security and access
+            security: fields.security?.name || null,
+
+            // Engagement metrics
+            votes: fields.votes?.votes || 0,
+            watchers: fields.watches?.watchCount || 0,
+
+            // Attachments and comments
+            attachments: (fields.attachment || []).length,
+            attachmentDetails: (fields.attachment || []).map(att => ({
+                filename: att.filename,
+                size: att.size,
+                mimeType: att.mimeType,
+                created: att.created,
+                author: att.author?.displayName || 'Unknown'
+            })),
+
+            // Comments count and recent
+            comments: fields.comment?.total || 0,
+            recentComments: (fields.comment?.comments || []).slice(-3).map(comment => ({
+                author: comment.author?.displayName || 'Unknown',
+                created: comment.created,
+                updated: comment.updated,
+                body: this.extractDescription(comment.body)?.substring(0, 200) || ''
+            })),
+
+            // Project information
+            project: {
+                key: fields.project?.key || 'Unknown',
+                name: fields.project?.name || 'Unknown Project',
+                projectType: fields.project?.projectTypeKey || 'unknown'
+            },
+
+            // Workflow and transitions
+            transitions: [], // Will be populated separately if needed
+
+            // Additional metadata
+            lastViewed: fields.lastViewed || null,
+            worklog: fields.worklog ? {
+                total: fields.worklog.total || 0,
+                entries: (fields.worklog.worklogs || []).slice(-3).map(log => ({
+                    author: log.author?.displayName || 'Unknown',
+                    timeSpent: log.timeSpent,
+                    timeSpentSeconds: log.timeSpentSeconds,
+                    comment: log.comment || '',
+                    started: log.started
+                }))
+            } : null,
+
+            // Custom fields that might be relevant
+            customFields: this.extractCustomFields(fields)
         };
     }
     extractDescription(description) {

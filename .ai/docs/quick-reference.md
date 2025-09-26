@@ -82,6 +82,17 @@ npm run gemini:debug -- -q "API returning 404 errors"
 npm run gemini:plan
 ```
 
+### Interactive Menu
+```bash
+npm run gemini
+# Then select:
+# 1. Interactive Chat
+# 2. Analyze Jira Ticket
+# 3. Code Review
+# 4. Debug Help
+# 5. Development Planning
+```
+
 ## File Locations
 
 ### Generated Context Files
@@ -103,7 +114,9 @@ npm run gemini:plan
     ├── integration-overview.md  # Technical architecture
     ├── npm-scripts-reference.md # All NPM scripts
     ├── quick-reference.md    # This file
-    └── role-management-*.md  # Role management docs
+    ├── gemini-integration.md # Gemini CLI guide
+    ├── tutorwise-test-plan.md # Test plan and workflows
+    └── SETUP_COMPLETE.md     # Integration summary
 ```
 
 ### Configuration Files
@@ -121,6 +134,16 @@ npm run gemini:plan
 └── README.md                # Gemini CLI configuration docs
 ```
 
+### Integration Scripts
+```
+.ai/
+├── integrations/             # Sync scripts
+├── scripts/
+│   ├── gemini-cli.py        # Main AI CLI
+│   ├── gemini-workflow.sh   # Interactive wrapper
+│   └── setup-gemini.sh     # Setup script
+```
+
 ## Troubleshooting Quick Fixes
 
 ### Common Issues
@@ -136,6 +159,18 @@ echo $GOOGLE_AI_API_KEY
 
 # Sync failures
 npm run sync:jira  # Test individual sync
+```
+
+### Debug Commands
+```bash
+# Check integration status
+node -e "console.log('Jira:', !!process.env.JIRA_API_TOKEN)"
+node -e "console.log('GitHub:', !!process.env.GITHUB_TOKEN)"
+node -e "console.log('Gemini:', !!process.env.GOOGLE_AI_API_KEY)"
+
+# Validate context files
+ls -la .ai/jira/tickets/
+head -10 .ai/PROMPT.md
 ```
 
 ## API Key Setup Links
@@ -158,6 +193,24 @@ npm run sync:jira  # Test individual sync
 2. Review integration health
 3. Clean up old context files
 4. Update documentation
+
+### Before Major Work
+1. Sync all context
+2. Analyze relevant tickets
+3. Get AI implementation guidance
+4. Set up proper testing
+
+## Performance Tips
+
+### Fast Operations
+- Use `--minimal` for quick questions
+- Sync individual services when possible
+- Cache responses for repeated queries
+
+### Optimization
+- Run `sync:context` daily, `sync:all` weekly
+- Use streaming for long AI responses
+- Parallel testing during development
 
 ## Support Resources
 
