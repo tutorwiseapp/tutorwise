@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://github.com/tutorwiseapp/tutorwise/tree/main/.ai
+    about: Check project documentation and development guidelines
+  - name: 🎭 TestAssured Platform
+    url: https://tutorwise.vercel.app/monitoring/test-assured
+    about: View system health and test results
+  - name: 💬 Discussions
+    url: https://github.com/tutorwiseapp/tutorwise/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: 🚀 Roadmap
+    url: https://github.com/tutorwiseapp/tutorwise/projects
+    about: View development roadmap and feature planning

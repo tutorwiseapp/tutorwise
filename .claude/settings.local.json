@@ -16,7 +16,16 @@
       "Bash(node:*)",
       "Bash(npm run dev:*)",
       "Bash(git push:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npx tsc:*)",
+      "Bash(awk:*)",
+      "Bash(eslint:*)",
+      "Read(///**)",
+      "Bash(npm run test:e2e:*)",
+      "Bash(npx playwright test:*)",
+      "Bash(npm run sync:jira:*)",
+      "Bash(npm run sync:github:*)",
+      "Bash(npm run sync:context:*)"
     ],
     "deny": [],
     "ask": []

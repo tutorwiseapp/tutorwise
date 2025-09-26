@@ -1,9 +1,9 @@
 /*
  * Filename: src/app/page.tsx
- * Purpose: Provides the primary UI for generating new Vinite referral links.
+ * Purpose: Provides the primary UI for Tutorwise homepage and referral functionality.
  * Change History:
  * C009 - 2025-09-02 : 11:00 - Definitive fix for Suspense/hook conflict using an isolated child component.
- * Last Modified: 2025-09-02 : 11:00
+ * Last Modified: 2025-09-25 : 21:00 - Added metadata and updated branding to Tutorwise
  * Requirement ID: VIN-APP-01
  */
 

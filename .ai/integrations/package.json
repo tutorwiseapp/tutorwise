@@ -1,0 +1,22 @@
+{
+  "name": "tutorwise-mcp-integrations",
+  "version": "1.0.0",
+  "description": "MCP servers for Jira and GitHub Projects integration with Claude Code",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "sync:jira": "node sync-jira.js",
+    "sync:github": "node sync-github.js",
+    "sync:all": "npm run sync:jira && npm run sync:github",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.4.0",
+    "@octokit/rest": "^20.0.2",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  }
+}

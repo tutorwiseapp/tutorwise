@@ -12,7 +12,8 @@ const customJestConfig = {
   testPathIgnorePatterns: [
     '<rootDir>/.next/',
     '<rootDir>/node_modules/',
-    '<rootDir>/tutorwise-railway-backend/'
+    '<rootDir>/tutorwise-railway-backend/',
+    '<rootDir>/tests/e2e/'
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
@@ -42,7 +43,8 @@ const customJestConfig = {
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
     '<rootDir>/src/**/*.{test,spec}.{js,jsx,ts,tsx}',
-    '<rootDir>/__tests__/**/*.{js,jsx,ts,tsx}',
+    '<rootDir>/tests/unit/**/*.{js,jsx,ts,tsx}',
+    '<rootDir>/tests/integration/**/*.{js,jsx,ts,tsx}',
   ],
   moduleDirectories: ['node_modules', '<rootDir>/'],
   testTimeout: 10000,

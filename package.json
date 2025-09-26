@@ -13,14 +13,23 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:unit": "jest tests/unit",
+    "test:integration": "jest tests/integration",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
     "test:backend": "cd tutorwise-railway-backend && python3 -m pytest tests/ -v",
     "test:backend:coverage": "cd tutorwise-railway-backend && python3 -m pytest tests/ -v --cov=app --cov-report=term-missing --cov-report=html",
-    "test:all": "npm run test:backend && npm run test",
+    "test:all": "npm run test:backend && npm run test && npm run test:e2e",
     "lint:backend": "cd tutorwise-railway-backend && python3 -m ruff check app/",
     "lint:backend:fix": "cd tutorwise-railway-backend && python3 -m ruff check --fix app/",
     "lint:all": "npm run lint && npm run lint:backend",
     "quality:check": "npm run lint:all && npm run test:all",
-    "health:check": "cd tutorwise-railway-backend && python3 app/backend_healthcheck.py"
+    "health:check": "cd tutorwise-railway-backend && python3 app/backend_healthcheck.py",
+    "sync:jira": "node .ai/integrations/sync-jira.js",
+    "sync:github": "node .ai/integrations/sync-github.js",
+    "sync:context": "npm run sync:jira && npm run sync:github",
+    "dev:with-context": "npm run sync:context && npm run dev"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.2",
@@ -50,6 +59,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@jest/globals": "^30.1.2",
+    "@playwright/test": "^1.55.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
