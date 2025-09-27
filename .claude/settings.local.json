@@ -31,7 +31,9 @@
       "Bash(export:*)",
       "Bash(cat:*)",
       "Bash(npm view:*)",
-      "Bash(npm update:*)"
+      "Bash(npm update:*)",
+      "Bash(rg:*)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []
