@@ -74,13 +74,46 @@
 }
 
 .roleLabel {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  padding: var(--space-2) var(--space-2);
+  font-weight: var(--font-weight-semibold);
+  user-select: none;
+}
+
+.switchLabel {
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
   padding: var(--space-1) var(--space-2);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
   font-weight: var(--font-weight-medium);
   user-select: none;
+}
+
+.roleItem {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  line-height: 1;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 var(--space-2);
+  position: relative;
+  user-select: none;
+  outline: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.roleItem:hover, .roleItem:focus {
+  background-color: var(--color-bg-page);
+  color: var(--color-primary);
+}
+
+.roleItem:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .menuItem {

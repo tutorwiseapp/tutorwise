@@ -24,19 +24,35 @@ import getProfileImageUrl from '@/lib/utils/image';
 
 const NavMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { profile, isLoading } = useUserProfile();
+  const { profile, isLoading, activeRole, availableRoles, switchRole, isRoleSwitching } = useUserProfile();
   const router = useRouter();
   const supabase = createClient();
+
+  // Role configuration matching your design
+  const roleConfig = {
+    agent: { label: 'Agent', icon: '🏢' },
+    provider: { label: 'Tutor', icon: '🎓' },
+    seeker: { label: 'Student', icon: '📚' }
+  };
+
+  const handleRoleSwitch = async (role: 'agent' | 'seeker' | 'provider') => {
+    try {
+      await switchRole(role);
+      setIsOpen(false);
+    } catch (error) {
+      console.error('Failed to switch role:', error);
+    }
+  };
 
   const handleSignOut = async () => {
     try {
       // 1. Let Supabase handle the global sign out.
       // This clears its own cookies and localStorage items correctly.
       await supabase.auth.signOut({ scope: 'global' });
-      
+
       // 2. Force a hard refresh to the homepage to clear all client-side state.
       window.location.href = '/';
-      
+
     } catch (error) {
       console.error('Logout error:', error);
       // Fallback: still force the redirect if the sign out fails for any reason.
@@ -79,25 +95,66 @@ const NavMenu = () => {
           <DropdownMenu.Content className={styles.menuContent} sideOffset={10} align="end">
             {isAuthenticated ? (
               <>
+                {/* Role Header - Following your design pattern */}
                 <DropdownMenu.Label className={styles.roleLabel}>
-                  {profile.display_name || 'Member'}
+                  {activeRole && roleConfig[activeRole] ?
+                    `${roleConfig[activeRole].icon} ${roleConfig[activeRole].label}` :
+                    'Member'
+                  }
                 </DropdownMenu.Label>
                 <DropdownMenu.Separator className={styles.separator} />
+
+                {/* Main Navigation Items */}
                 <DropdownMenu.Item asChild className={styles.menuItem}>
-                  <Link href="/dashboard">My Dashboard</Link>
+                  <Link href="/dashboard">Dashboard</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild className={styles.menuItem}>
-                  <Link href="/profile">My Profile</Link>
+                  <Link href="/messages">Messages</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild className={styles.menuItem}>
-                  <Link href="/settings">Settings</Link>
+                  <Link href="/profile">My network</Link>
                 </DropdownMenu.Item>
+
+                {/* Role Switching Section - Only show if user has multiple roles */}
+                {availableRoles && availableRoles.length > 1 && (
+                  <>
+                    <DropdownMenu.Separator className={styles.separator} />
+                    <DropdownMenu.Label className={styles.switchLabel}>
+                      Switch Role:
+                    </DropdownMenu.Label>
+                    {availableRoles.map((role) => {
+                      if (role === activeRole) return null;
+                      const config = roleConfig[role];
+                      return (
+                        <DropdownMenu.Item
+                          key={role}
+                          className={styles.roleItem}
+                          onSelect={() => handleRoleSwitch(role)}
+                          disabled={isRoleSwitching}
+                        >
+                          {config.icon} {config.label}
+                        </DropdownMenu.Item>
+                      );
+                    })}
+                  </>
+                )}
+
+                <DropdownMenu.Separator className={styles.separator} />
+
+                {/* Account Section */}
+                <DropdownMenu.Item asChild className={styles.menuItem}>
+                  <Link href="/profile">Account</Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item asChild className={styles.menuItem}>
+                  <Link href="/settings">Help centre</Link>
+                </DropdownMenu.Item>
+
                 <DropdownMenu.Separator className={styles.separator} />
                 <DropdownMenu.Item
                   className={`${styles.menuItem} ${styles.logoutItem}`}
                   onSelect={handleSignOut}
                 >
-                  Sign Out
+                  Log out
                 </DropdownMenu.Item>
               </>
             ) : (

@@ -19,7 +19,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import NavMenu from './NavMenu';
-import RoleSwitcher from './RoleSwitcher';
 import styles from './Header.module.css';
 
 const Header = () => {
@@ -34,7 +33,6 @@ const Header = () => {
       </div>
 
       <div className={styles.headerActions}>
-        <RoleSwitcher className="mr-4" />
         <NavMenu />
       </div>
 
