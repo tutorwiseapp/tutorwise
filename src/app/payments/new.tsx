@@ -100,8 +100,8 @@ const PaymentsPageContent = () => {
 
     // Enhanced verification polling with better error handling
     useEffect(() => {
-        const status = searchParams.get('status');
-        const customerId = searchParams.get('customer_id');
+        const status = searchParams?.get('status');
+        const customerId = searchParams?.get('customer_id');
 
         if (status === 'success' && customerId && !isVerifying) {
             setIsVerifying(true);

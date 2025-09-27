@@ -29,7 +29,7 @@ const validateUrl = (url: string): { valid: boolean; message?: string } => {
 // This child component safely accesses the search params without causing build errors.
 function AgentIdHandler({ setAgentIdFromUrl }: { setAgentIdFromUrl: (id: string) => void }) {
   const searchParams = useSearchParams();
-  const agentId = searchParams.get('agentId');
+  const agentId = searchParams?.get('agentId');
 
   useEffect(() => {
     if (agentId) {
