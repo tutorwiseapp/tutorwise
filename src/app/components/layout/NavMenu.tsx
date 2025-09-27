@@ -141,37 +141,43 @@ const NavMenu = () => {
 
                 <DropdownMenu.Separator className={styles.separator} />
 
-                {/* Role Onboarding Section */}
-                <DropdownMenu.Item asChild className={styles.becomeItem}>
-                  <Link href="/onboarding/tutor">
-                    <div className={styles.becomeContent}>
-                      <div>
-                        <div className={styles.becomeTitle}>Become a tutor</div>
-                        <div className={styles.becomeSubtitle}>Start teaching and earn income</div>
+                {/* Role Onboarding Section - Only show roles user doesn't have */}
+                {activeRole !== 'provider' && (
+                  <DropdownMenu.Item asChild className={styles.becomeItem}>
+                    <Link href="/onboarding/tutor">
+                      <div className={styles.becomeContent}>
+                        <div>
+                          <div className={styles.becomeTitle}>Become a tutor</div>
+                          <div className={styles.becomeSubtitle}>Start teaching and earn income</div>
+                        </div>
                       </div>
-                    </div>
-                  </Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item asChild className={styles.becomeItem}>
-                  <Link href="/onboarding/client">
-                    <div className={styles.becomeContent}>
-                      <div>
-                        <div className={styles.becomeTitle}>Become a client</div>
-                        <div className={styles.becomeSubtitle}>Find tutors and start learning</div>
+                    </Link>
+                  </DropdownMenu.Item>
+                )}
+                {activeRole !== 'seeker' && (
+                  <DropdownMenu.Item asChild className={styles.becomeItem}>
+                    <Link href="/onboarding/client">
+                      <div className={styles.becomeContent}>
+                        <div>
+                          <div className={styles.becomeTitle}>Become a client</div>
+                          <div className={styles.becomeSubtitle}>Find tutors and start learning</div>
+                        </div>
                       </div>
-                    </div>
-                  </Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item asChild className={styles.becomeItem}>
-                  <Link href="/onboarding/agent">
-                    <div className={styles.becomeContent}>
-                      <div>
-                        <div className={styles.becomeTitle}>Become an agent</div>
-                        <div className={styles.becomeSubtitle}>Grow your business on our platform</div>
+                    </Link>
+                  </DropdownMenu.Item>
+                )}
+                {activeRole !== 'agent' && (
+                  <DropdownMenu.Item asChild className={styles.becomeItem}>
+                    <Link href="/onboarding/agent">
+                      <div className={styles.becomeContent}>
+                        <div>
+                          <div className={styles.becomeTitle}>Become an agent</div>
+                          <div className={styles.becomeSubtitle}>Grow your business on our platform</div>
+                        </div>
                       </div>
-                    </div>
-                  </Link>
-                </DropdownMenu.Item>
+                    </Link>
+                  </DropdownMenu.Item>
+                )}
 
                 <DropdownMenu.Separator className={styles.separator} />
 
