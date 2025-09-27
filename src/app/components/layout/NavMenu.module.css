@@ -152,6 +152,12 @@
   margin: var(--space-1) 0;
 }
 
+.becomeSeparator {
+  height: 1px;
+  background-color: var(--color-border);
+  margin: 12px 0; /* 8px + 4px = 12px */
+}
+
 /* --- Become Items (like Airbnb's "Become a host") --- */
 
 .becomeItem {
@@ -175,6 +181,16 @@
   text-decoration: none !important;
 }
 
+.becomeItem:hover .becomeTitle,
+.becomeItem:focus .becomeTitle {
+  color: var(--color-primary) !important;
+}
+
+.becomeItem:hover .becomeSubtitle,
+.becomeItem:focus .becomeSubtitle {
+  color: var(--color-text-secondary) !important;
+}
+
 .becomeContent {
   display: flex;
   align-items: center;
@@ -182,14 +198,14 @@
 }
 
 .becomeTitle {
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold) !important;
+  color: var(--color-text-primary) !important;
   margin-bottom: 2px;
 }
 
 .becomeSubtitle {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs) !important;
+  color: var(--color-text-secondary) !important;
   line-height: 1.3;
 }
 
