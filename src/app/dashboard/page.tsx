@@ -49,9 +49,9 @@ const DashboardPage = () => {
   // Get role-specific dashboard title
   const getDashboardTitle = () => {
     switch (activeRole) {
-      case 'seeker': return 'Student Dashboard';
-      case 'provider': return 'Tutor Dashboard';
-      case 'agent': return 'Agent Dashboard';
+      case 'seeker': return 'My Learning Hub';
+      case 'provider': return 'My Teaching Studio';
+      case 'agent': return 'My Tutoring Agency';
       default: return 'Dashboard';
     }
   };

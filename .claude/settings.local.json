@@ -26,7 +26,9 @@
       "Bash(npm run sync:jira:*)",
       "Bash(npm run sync:github:*)",
       "Bash(npm run sync:context:*)",
-      "Bash(git check-ignore:*)"
+      "Bash(git check-ignore:*)",
+      "Bash(brew install:*)",
+      "Bash(export:*)"
     ],
     "deny": [],
     "ask": []
