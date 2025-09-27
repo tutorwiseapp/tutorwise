@@ -28,7 +28,10 @@
       "Bash(npm run sync:context:*)",
       "Bash(git check-ignore:*)",
       "Bash(brew install:*)",
-      "Bash(export:*)"
+      "Bash(export:*)",
+      "Bash(cat:*)",
+      "Bash(npm view:*)",
+      "Bash(npm update:*)"
     ],
     "deny": [],
     "ask": []

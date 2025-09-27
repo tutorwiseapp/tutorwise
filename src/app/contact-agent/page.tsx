@@ -26,7 +26,7 @@ import Message from '@/app/components/ui/Message';
 const ContactAgentForm = () => {
   const [formState, setFormState] = useState({ status: 'idle', message: '' });
   const searchParams = useSearchParams();
-  const agentId = searchParams.get('id');
+  const agentId = searchParams?.get('id');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

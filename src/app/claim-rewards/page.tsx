@@ -19,7 +19,7 @@ const ClaimRewardsContent = () => {
     const { profile, isLoading: isProfileLoading } = useUserProfile();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const claimId = searchParams.get('claimId');
+    const claimId = searchParams?.get('claimId');
 
     const [pendingReward, setPendingReward] = useState<PendingReward | null>(null);
     const [isLoading, setIsLoading] = useState(false);

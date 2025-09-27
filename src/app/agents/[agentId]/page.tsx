@@ -18,7 +18,7 @@ const AgentProfilePage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const params = useParams();
   const router = useRouter();
-  const agentId = params.agentId as string;
+  const agentId = params?.agentId as string;
   const { profile: loggedInUserProfile } = useUserProfile();
 
   const recentActivity = [
