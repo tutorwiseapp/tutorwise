@@ -30,7 +30,7 @@ const NavMenu = () => {
 
   // Role configuration matching your design
   const roleConfig = {
-    agent: { label: 'Agent', icon: '🏢' },
+    agent: { label: 'Agent', icon: '' },
     provider: { label: 'Tutor', icon: '🎓' },
     seeker: { label: 'Student', icon: '📚' }
   };

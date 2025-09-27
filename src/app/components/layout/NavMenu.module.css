@@ -119,7 +119,7 @@
 .menuItem {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
+  color: var(--color-text-primary) !important;
   line-height: 1;
   border-radius: var(--border-radius-sm);
   display: flex;
@@ -130,11 +130,12 @@
   user-select: none;
   outline: none;
   cursor: pointer;
-  text-decoration: none;
+  text-decoration: none !important;
 }
 .menuItem:hover, .menuItem:focus {
   background-color: var(--color-bg-page);
-  color: var(--color-primary);
+  color: var(--color-primary) !important;
+  text-decoration: none !important;
 }
 
 .logoutItem {
