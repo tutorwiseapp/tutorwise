@@ -44,7 +44,7 @@ const DashboardPage = () => {
   }
 
   const displayName = profile.display_name || 'User';
-  const agentId = `(${profile.agent_id})`;
+  const firstName = displayName.split(' ')[0];
 
   // Get role-specific dashboard title
   const getDashboardTitle = () => {
@@ -56,11 +56,21 @@ const DashboardPage = () => {
     }
   };
 
+  // Get formatted role name
+  const getFormattedRole = () => {
+    switch (activeRole) {
+      case 'seeker': return 'Student';
+      case 'provider': return 'Tutor';
+      case 'agent': return 'Agent';
+      default: return '';
+    }
+  };
+
   return (
     <Container>
       <PageHeader
         title={getDashboardTitle()}
-        subtitle={`Welcome, ${displayName} ${agentId} - ${activeRole ? `Active Role: ${activeRole.charAt(0).toUpperCase() + activeRole.slice(1)}` : ''}`}
+        subtitle={`Welcome, ${firstName} (${getFormattedRole()})`}
       />
       <div className={styles.grid}>
         {dashboardLinks.map((link) => (
