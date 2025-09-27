@@ -141,6 +141,40 @@ const NavMenu = () => {
 
                 <DropdownMenu.Separator className={styles.separator} />
 
+                {/* Role Onboarding Section */}
+                <DropdownMenu.Item asChild className={styles.becomeItem}>
+                  <Link href="/onboarding/tutor">
+                    <div className={styles.becomeContent}>
+                      <div>
+                        <div className={styles.becomeTitle}>Become a tutor</div>
+                        <div className={styles.becomeSubtitle}>Start teaching and earn income</div>
+                      </div>
+                    </div>
+                  </Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item asChild className={styles.becomeItem}>
+                  <Link href="/onboarding/client">
+                    <div className={styles.becomeContent}>
+                      <div>
+                        <div className={styles.becomeTitle}>Become a client</div>
+                        <div className={styles.becomeSubtitle}>Find tutors and start learning</div>
+                      </div>
+                    </div>
+                  </Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item asChild className={styles.becomeItem}>
+                  <Link href="/onboarding/agent">
+                    <div className={styles.becomeContent}>
+                      <div>
+                        <div className={styles.becomeTitle}>Become an agent</div>
+                        <div className={styles.becomeSubtitle}>Grow your business on our platform</div>
+                      </div>
+                    </div>
+                  </Link>
+                </DropdownMenu.Item>
+
+                <DropdownMenu.Separator className={styles.separator} />
+
                 {/* Account Section */}
                 <DropdownMenu.Item asChild className={styles.menuItem}>
                   <Link href="/profile">Account</Link>

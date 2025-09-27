@@ -152,6 +152,47 @@
   margin: var(--space-1) 0;
 }
 
+/* --- Become Items (like Airbnb's "Become a host") --- */
+
+.becomeItem {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary) !important;
+  line-height: 1;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  padding: var(--space-2);
+  position: relative;
+  user-select: none;
+  outline: none;
+  cursor: pointer;
+  text-decoration: none !important;
+  min-height: 56px;
+}
+
+.becomeItem:hover, .becomeItem:focus {
+  background-color: var(--color-bg-page);
+  text-decoration: none !important;
+}
+
+.becomeContent {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.becomeTitle {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: 2px;
+}
+
+.becomeSubtitle {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.3;
+}
+
 /* --- Animation --- */
 
 @keyframes slideDownAndFade {
