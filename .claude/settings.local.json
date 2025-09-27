@@ -33,7 +33,8 @@
       "Bash(npm view:*)",
       "Bash(npm update:*)",
       "Bash(rg:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(npx jest:*)"
     ],
     "deny": [],
     "ask": []

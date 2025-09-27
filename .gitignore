@@ -85,3 +85,12 @@ google-credentials.json
 
 # Gemini CLI local settings (keep base settings.json in version control)
 .gemini/settings.local.json
+# Workspace
+.migration-backup/
+*.original
+*.new
+
+# App-specific ignores
+apps/web/.next/
+apps/api/__pycache__/
+apps/api/.pytest_cache/
