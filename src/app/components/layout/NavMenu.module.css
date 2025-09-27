@@ -198,7 +198,7 @@
 }
 
 .becomeTitle {
-  font-weight: var(--font-weight-semibold) !important;
+  font-weight: var(--font-weight-medium) !important;
   color: var(--color-text-primary) !important;
   margin-bottom: 2px;
 }
