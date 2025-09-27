@@ -161,13 +161,13 @@
   border-radius: var(--border-radius-sm);
   display: flex;
   align-items: center;
-  padding: var(--space-2);
+  padding: 8px var(--space-2);
   position: relative;
   user-select: none;
   outline: none;
   cursor: pointer;
   text-decoration: none !important;
-  min-height: 56px;
+  min-height: 48px;
 }
 
 .becomeItem:hover, .becomeItem:focus {
