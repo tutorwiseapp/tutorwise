@@ -1,0 +1,137 @@
+{
+  "layout/Container": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "layout/Footer": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "layout/Header": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "layout/Layout": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "layout/NavMenu": {
+    "dependencies": [
+      "@/utils/supabase/client"
+    ],
+    "dependents": []
+  },
+  "layout/RoleSwitcher": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/Button": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/Card": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/Message": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/PageHeader": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/Pagination": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/StatusBadge": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/Tabs": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/form/Checkbox": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/form/Dropdown": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/form/FormGroup": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/form/Input": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/form/MultiSelectDropdown": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/form/Radio": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/form/Textarea": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/form/ToggleSwitch": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/nav/Breadcrumb": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/nav/GuanMenuIcon": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/nav/NavLink": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/payments/SavedCardList": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/picker/DatePicker": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/picker/TimePicker": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/profile/ProfileCard": {
+    "dependencies": [
+      "@/app/components/ui/Card"
+    ],
+    "dependents": []
+  },
+  "ui/profile/ProfileSidebar": {
+    "dependencies": [
+      "@/app/components/ui/Card",
+      "@/lib/utils/image"
+    ],
+    "dependents": []
+  },
+  "ui/reports/StatCard": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/reports/StatGrid": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "ui/table/DataTable": {
+    "dependencies": [],
+    "dependents": []
+  }
+}

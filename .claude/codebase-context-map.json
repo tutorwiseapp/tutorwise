@@ -1,0 +1,775 @@
+{
+  "timestamp": "2025-09-27T22:27:28.387Z",
+  "overview": {
+    "totalComponents": 32,
+    "totalDirectories": 9,
+    "totalAPIRoutes": 21,
+    "totalSharedTypes": 3
+  },
+  "components": {
+    "layout/": {
+      "type": "directory",
+      "path": "/apps/web/src/app/components/layout",
+      "children": []
+    },
+    "layout/Container": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/layout/Container.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": true,
+      "size": 1571
+    },
+    "layout/Footer": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/layout/Footer.tsx",
+      "imports": [
+        "next/link"
+      ],
+      "exports": [],
+      "hasStyles": true,
+      "size": 856
+    },
+    "layout/Header": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/layout/Header.tsx",
+      "imports": [
+        "next/link",
+        "./NavMenu"
+      ],
+      "exports": [],
+      "hasStyles": true,
+      "size": 1471
+    },
+    "layout/Layout": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/layout/Layout.tsx",
+      "imports": [
+        "react",
+        "./Footer"
+      ],
+      "exports": [],
+      "hasStyles": true,
+      "size": 772
+    },
+    "layout/NavMenu": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/layout/NavMenu.tsx",
+      "imports": [
+        "react",
+        "next/link",
+        "@radix-ui/react-dropdown-menu",
+        "@/utils/supabase/client",
+        "./NavMenu.module.css"
+      ],
+      "exports": [],
+      "hasStyles": true,
+      "size": 8979
+    },
+    "layout/RoleSwitcher": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/layout/RoleSwitcher.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 2637
+    },
+    "ui/": {
+      "type": "directory",
+      "path": "/apps/web/src/app/components/ui",
+      "children": []
+    },
+    "ui/Button": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/Button.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": true,
+      "size": 897
+    },
+    "ui/Card": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/Card.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": true,
+      "size": 1318
+    },
+    "ui/Message": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/Message.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": true,
+      "size": 590
+    },
+    "ui/PageHeader": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/PageHeader.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": true,
+      "size": 1451
+    },
+    "ui/Pagination": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/Pagination.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": true,
+      "size": 1416
+    },
+    "ui/StatusBadge": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/StatusBadge.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": true,
+      "size": 583
+    },
+    "ui/Tabs": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/Tabs.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": true,
+      "size": 651
+    },
+    "ui/form/": {
+      "type": "directory",
+      "path": "/apps/web/src/app/components/ui/form",
+      "children": []
+    },
+    "ui/form/Checkbox": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/form/Checkbox.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 1670
+    },
+    "ui/form/Dropdown": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/form/Dropdown.tsx",
+      "imports": [
+        "react",
+        "./form.module.css"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 947
+    },
+    "ui/form/FormGroup": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/form/FormGroup.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 1818
+    },
+    "ui/form/Input": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/form/Input.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 562
+    },
+    "ui/form/MultiSelectDropdown": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/form/MultiSelectDropdown.tsx",
+      "imports": [
+        "react",
+        "@radix-ui/react-icons"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 1990
+    },
+    "ui/form/Radio": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/form/Radio.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [
+        "RadioGroup"
+      ],
+      "hasStyles": false,
+      "size": 1279
+    },
+    "ui/form/Textarea": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/form/Textarea.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 709
+    },
+    "ui/form/ToggleSwitch": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/form/ToggleSwitch.tsx",
+      "imports": [
+        "react",
+        "./form.module.css"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 697
+    },
+    "ui/nav/": {
+      "type": "directory",
+      "path": "/apps/web/src/app/components/ui/nav",
+      "children": []
+    },
+    "ui/nav/Breadcrumb": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/nav/Breadcrumb.tsx",
+      "imports": [
+        "react",
+        "./Breadcrumb.module.css"
+      ],
+      "exports": [],
+      "hasStyles": true,
+      "size": 1242
+    },
+    "ui/nav/GuanMenuIcon": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/nav/GuanMenuIcon.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": true,
+      "size": 1820
+    },
+    "ui/nav/NavLink": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/nav/NavLink.tsx",
+      "imports": [
+        "react",
+        "./NavLink.module.css"
+      ],
+      "exports": [],
+      "hasStyles": true,
+      "size": 473
+    },
+    "ui/payments/": {
+      "type": "directory",
+      "path": "/apps/web/src/app/components/ui/payments",
+      "children": []
+    },
+    "ui/payments/SavedCardList": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/payments/SavedCardList.tsx",
+      "imports": [
+        "react",
+        "@radix-ui/react-dropdown-menu"
+      ],
+      "exports": [],
+      "hasStyles": true,
+      "size": 4418
+    },
+    "ui/picker/": {
+      "type": "directory",
+      "path": "/apps/web/src/app/components/ui/picker",
+      "children": []
+    },
+    "ui/picker/DatePicker": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/picker/DatePicker.tsx",
+      "imports": [
+        "react",
+        "lucide-react",
+        "react-day-picker",
+        "./Pickers.module.css"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 1236
+    },
+    "ui/picker/TimePicker": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/picker/TimePicker.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 1098
+    },
+    "ui/profile/": {
+      "type": "directory",
+      "path": "/apps/web/src/app/components/ui/profile",
+      "children": []
+    },
+    "ui/profile/ProfileCard": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/profile/ProfileCard.tsx",
+      "imports": [
+        "react",
+        "next/link",
+        "@/app/components/ui/Card",
+        "./ProfileCard.module.css"
+      ],
+      "exports": [
+        "ProfileCard"
+      ],
+      "hasStyles": true,
+      "size": 3208
+    },
+    "ui/profile/ProfileSidebar": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/profile/ProfileSidebar.tsx",
+      "imports": [
+        "react",
+        "next/image",
+        "@/app/components/ui/Card",
+        "@/lib/utils/image"
+      ],
+      "exports": [],
+      "hasStyles": true,
+      "size": 3331
+    },
+    "ui/reports/": {
+      "type": "directory",
+      "path": "/apps/web/src/app/components/ui/reports",
+      "children": []
+    },
+    "ui/reports/StatCard": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/reports/StatCard.tsx",
+      "imports": [
+        "react",
+        "./StatCard.module.css"
+      ],
+      "exports": [],
+      "hasStyles": true,
+      "size": 446
+    },
+    "ui/reports/StatGrid": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/reports/StatGrid.tsx",
+      "imports": [
+        "react",
+        "./StatGrid.module.css"
+      ],
+      "exports": [],
+      "hasStyles": true,
+      "size": 733
+    },
+    "ui/table/": {
+      "type": "directory",
+      "path": "/apps/web/src/app/components/ui/table",
+      "children": []
+    },
+    "ui/table/DataTable": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/ui/table/DataTable.tsx",
+      "imports": [
+        "react",
+        "../Pagination"
+      ],
+      "exports": [
+        "DataTable"
+      ],
+      "hasStyles": true,
+      "size": 3664
+    }
+  },
+  "routes": {
+    "/api/activity": {
+      "path": "/apps/web/src/app/api/activity/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 1652
+    },
+    "/api/agents/:agentId": {
+      "path": "/apps/web/src/app/api/agents/[agentId]/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 2345
+    },
+    "/api/auth/logout": {
+      "path": "/apps/web/src/app/api/auth/logout/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 820
+    },
+    "/api/avatar/upload": {
+      "path": "/apps/web/src/app/api/avatar/upload/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 1401
+    },
+    "/api/health": {
+      "path": "/apps/web/src/app/api/health/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 3773
+    },
+    "/api/health/supabase": {
+      "path": "/apps/web/src/app/api/health/supabase/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 1765
+    },
+    "/api/links": {
+      "path": "/apps/web/src/app/api/links/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 2491
+    },
+    "/api/profile": {
+      "path": "/apps/web/src/app/api/profile/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 2173
+    },
+    "/api/referrals": {
+      "path": "/apps/web/src/app/api/referrals/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 1656
+    },
+    "/api/stripe/connect-account": {
+      "path": "/apps/web/src/app/api/stripe/connect-account/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 4117
+    },
+    "/api/stripe/create-charge-and-transfer": {
+      "path": "/apps/web/src/app/api/stripe/create-charge-and-transfer/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 2328
+    },
+    "/api/stripe/create-checkout-session": {
+      "path": "/apps/web/src/app/api/stripe/create-checkout-session/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 3228
+    },
+    "/api/stripe/disconnect-account": {
+      "path": "/apps/web/src/app/api/stripe/disconnect-account/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 1820
+    },
+    "/api/stripe/get-cards-by-customer": {
+      "path": "/apps/web/src/app/api/stripe/get-cards-by-customer/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 2387
+    },
+    "/api/stripe/get-connect-account": {
+      "path": "/apps/web/src/app/api/stripe/get-connect-account/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 1557
+    },
+    "/api/stripe/remove-card": {
+      "path": "/apps/web/src/app/api/stripe/remove-card/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 1771
+    },
+    "/api/stripe/set-default-card": {
+      "path": "/apps/web/src/app/api/stripe/set-default-card/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 2135
+    },
+    "/api/stripe/verify-and-get-cards": {
+      "path": "/apps/web/src/app/api/stripe/verify-and-get-cards/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 2417
+    },
+    "/api/system-test": {
+      "path": "/apps/web/src/app/api/system-test/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 2405
+    },
+    "/api/user/delete": {
+      "path": "/apps/web/src/app/api/user/delete/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 4160
+    },
+    "/api/visual-testing": {
+      "path": "/apps/web/src/app/api/visual-testing/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 3105
+    }
+  },
+  "sharedTypes": {
+    "interfaces": [
+      "User",
+      "ApiResponse"
+    ],
+    "types": [
+      "UserRole"
+    ],
+    "enums": [],
+    "totalSize": 251
+  },
+  "dependencyGraph": {
+    "layout/Container": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "layout/Footer": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "layout/Header": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "layout/Layout": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "layout/NavMenu": {
+      "dependencies": [
+        "@/utils/supabase/client"
+      ],
+      "dependents": []
+    },
+    "layout/RoleSwitcher": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/Button": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/Card": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/Message": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/PageHeader": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/Pagination": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/StatusBadge": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/Tabs": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/form/Checkbox": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/form/Dropdown": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/form/FormGroup": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/form/Input": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/form/MultiSelectDropdown": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/form/Radio": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/form/Textarea": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/form/ToggleSwitch": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/nav/Breadcrumb": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/nav/GuanMenuIcon": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/nav/NavLink": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/payments/SavedCardList": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/picker/DatePicker": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/picker/TimePicker": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/profile/ProfileCard": {
+      "dependencies": [
+        "@/app/components/ui/Card"
+      ],
+      "dependents": []
+    },
+    "ui/profile/ProfileSidebar": {
+      "dependencies": [
+        "@/app/components/ui/Card",
+        "@/lib/utils/image"
+      ],
+      "dependents": []
+    },
+    "ui/reports/StatCard": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/reports/StatGrid": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "ui/table/DataTable": {
+      "dependencies": [],
+      "dependents": []
+    }
+  },
+  "architecture": {
+    "frontend": "Next.js 13+ with App Router",
+    "backend": "FastAPI with Python 3.12+",
+    "database": "Supabase PostgreSQL + Neo4j + Redis",
+    "deployment": "Vercel (frontend) + Railway (backend)",
+    "monorepo": "npm workspaces"
+  }
+}
