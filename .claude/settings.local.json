@@ -43,7 +43,12 @@
       "Bash(npm run context:setup:*)",
       "Bash(npm run jira:test-tasks:*)",
       "Bash(npm run jira:poll:*)",
-      "Bash(npm run calendar:test-tasks:*)"
+      "Bash(npm run calendar:test-tasks:*)",
+      "WebSearch",
+      "WebFetch(domain:medium.com)",
+      "WebFetch(domain:djinoz.medium.com)",
+      "WebFetch(domain:uxcam.com)",
+      "WebFetch(domain:userpilot.com)"
     ],
     "deny": [],
     "ask": []
