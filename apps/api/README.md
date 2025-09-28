@@ -1,31 +1,33 @@
-# Tutorwise Backend
+# Tutorwise API
 
-Production-ready FastAPI backend for the Tutorwise educational platform.
+Production-ready FastAPI backend for the Tutorwise educational platform. This service provides REST API endpoints, real-time features, and integrates with multiple databases and external services.
 
 ## Features
 
-- 🚀 FastAPI with async support
-- 🔄 Redis caching and session management
-- 📊 Neo4j graph database integration
-- 🏥 Comprehensive health monitoring
-- 🔒 Production security configurations
-- 📦 Gunicorn + Uvicorn for production serving
+- FastAPI with async support and automatic OpenAPI documentation
+- Redis caching and session management
+- Neo4j graph database integration for relationships
+- Supabase PostgreSQL integration for primary data
+- Stripe payment processing and webhook handling
+- Comprehensive health monitoring and logging
+- Production security configurations
+- Comprehensive testing infrastructure with pytest
 
 ## Quick Start
 
 ### Prerequisites
 
-- Python 3.11+
-- Redis server
-- Neo4j database
+- Python 3.8 or higher
+- Redis server (for caching and sessions)
+- Neo4j database (for graph relationships)
+- PostgreSQL database (via Supabase)
+- Stripe account (for payment processing)
 
 ### Local Development
 
-1. **Clone and setup**:
+1. **Install dependencies**:
    ```bash
-   cd tutorwise-railway-backend
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   cd apps/api
    pip install -r requirements.txt
    ```
 
@@ -40,18 +42,23 @@ Production-ready FastAPI backend for the Tutorwise educational platform.
    export ENV=development  # Enables .env file loading
    ```
 
-4. **Run locally**:
+4. **Run development server**:
    ```bash
-   uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+   # From project root
+   npm run dev:api
+
+   # Or directly from apps/api
+   python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
    ```
 
 ### Production Deployment
 
 The application is configured for Railway deployment with:
-- Gunicorn process manager
-- Multiple Uvicorn workers
-- Automatic database connection management
-- Comprehensive health monitoring
+- Gunicorn process manager with multiple Uvicorn workers
+- Automatic database connection management with retry logic
+- Comprehensive health monitoring with detailed service status
+- Environment-based configuration management
+- Secure CORS and authentication handling
 
 ## Environment Variables
 
@@ -59,11 +66,16 @@ The application is configured for Railway deployment with:
 
 | Variable | Description | Example |
 |----------|-------------|---------|
+| `DATABASE_URL` | Supabase PostgreSQL URL | `postgresql://user:pass@host:port/db` |
+| `SUPABASE_URL` | Supabase project URL | `https://project.supabase.co` |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key | `eyJ...` |
 | `REDIS_URL` | Redis connection URL | `redis://user:pass@host:port` |
 | `REDIS_PUBLIC_URL` | Public Redis URL (Railway) | `redis://user:pass@public.host:port` |
 | `NEO4J_URI` | Neo4j connection URI | `bolt://host:7687` |
-| `NEO4J_USERNAME` | Neo4j username | `neo4j` |
+| `NEO4J_USER` | Neo4j username | `neo4j` |
 | `NEO4J_PASSWORD` | Neo4j password | `your_password` |
+| `STRIPE_SECRET_KEY` | Stripe secret key | `sk_live_...` |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook secret | `whsec_...` |
 | `ALLOWED_ORIGINS` | CORS allowed origins | `https://app.com,https://admin.com` |
 
 ### Optional
@@ -119,29 +131,53 @@ The application uses FastAPI lifespan events for proper database connection life
 ### Health Monitoring
 
 The `/health` endpoint:
-- ✅ Always returns 200 OK (never crashes)
-- 🔄 Includes retry logic for transient failures
-- 📊 Provides detailed service status
-- ⚡ Runs health checks concurrently
+- Always returns 200 OK (never crashes)
+- Includes retry logic for transient failures
+- Provides detailed service status for all integrated services
+- Runs health checks concurrently for optimal performance
+- Monitors Redis, Neo4j, and Supabase connectivity
 
 ### Security
 
-- 🔒 Non-root container user
-- 🛡️ No secrets in code/git
-- 🌐 Configurable CORS origins
-- 📝 Comprehensive logging
+- Non-root container user for enhanced security
+- No secrets in code or git repository
+- Configurable CORS origins for controlled access
+- Comprehensive logging and monitoring
+- JWT token validation for protected endpoints
+- Input validation and sanitization
+- Secure environment variable management
 
 ## Testing
 
-Test the health endpoint:
+### Run Test Suite
 ```bash
-python app/backend_healthcheck.py
+# From project root
+npm run test:backend
+
+# Or directly from apps/api
+python -m pytest tests/ -v
 ```
 
-Or manually:
+### Run Tests with Coverage
 ```bash
+python -m pytest tests/ -v --cov=app --cov-report=term-missing --cov-report=html
+```
+
+### Test Health Endpoint
+```bash
+# Local development
+curl http://localhost:8000/health | jq
+
+# Production
 curl https://your-app.railway.app/health | jq
 ```
+
+### Testing Infrastructure
+- Comprehensive test fixtures in `tests/conftest.py`
+- Testing utilities in `tests/utils.py`
+- Unit tests for business logic
+- Integration tests for API endpoints
+- Database mocking for isolated testing
 
 ## Production Checklist
 

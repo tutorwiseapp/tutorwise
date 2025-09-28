@@ -13,11 +13,17 @@
     "build": "npm run build --workspace=@tutorwise/web",
     "test": "npm run test --workspace=@tutorwise/web",
     "test:backend": "cd apps/api && python3 -m pytest tests/ -v",
+    "test:e2e": "playwright test --config=tools/playwright/playwright.config.ts",
+    "test:visual": "percy exec -- playwright test --config=tools/playwright/playwright.config.ts",
     "lint": "npm run lint --workspace=@tutorwise/web",
     "lint:backend": "cd apps/api && python3 -m ruff check app/",
-    "context:generate": "node .claude/generate-context.js",
-    "context:update": "npm run context:generate"
+    "context:generate": "node tools/context-engineering/generate-context.js",
+    "context:update": "npm run context:generate",
+    "tools:migrate": "node tools/context-engineering/migrate-to-monorepo.js",
+    "tools:update-imports": "node tools/context-engineering/update-imports.js"
   },
-  "devDependencies": {},
-  "dependencies": {}
+  "devDependencies": {
+    "@percy/cli": "^1.31.2",
+    "@percy/playwright": "^1.0.9"
+  }
 }

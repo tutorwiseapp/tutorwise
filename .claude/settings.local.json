@@ -34,7 +34,9 @@
       "Bash(npm update:*)",
       "Bash(rg:*)",
       "Bash(tree:*)",
-      "Bash(npx jest:*)"
+      "Bash(npx jest:*)",
+      "Bash(grep:*)",
+      "Bash(xargs dirname:*)"
     ],
     "deny": [],
     "ask": []

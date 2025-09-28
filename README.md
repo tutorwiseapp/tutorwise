@@ -1,38 +1,274 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tutorwise - Educational Platform Monorepo
 
-## Getting Started
+Tutorwise is a full-stack educational platform built with modern web technologies, serving tutors, agents, and clients (students, parents) with features for lesson management, payments, and user interaction.
 
-First, run the development server:
+## Monorepo Structure
 
+This project uses a monorepo architecture with npm workspaces for better code organization and shared packages.
 
+### Project Structure
+
+```
+tutorwise/
+├── apps/                          # Applications
+│   ├── web/                       # Next.js frontend (formerly the main tutorwise app)
+│   └── api/                       # FastAPI backend (formerly tutorwise-railway-backend)
+├── packages/                      # Shared packages
+│   ├── shared-types/              # TypeScript type definitions shared across apps
+│   └── ui/                        # Shared React components (future)
+├── docs/                          # Documentation
+│   ├── requirements/              # Business requirements and specifications
+│   ├── design/                    # UI/UX and system design documentation
+│   ├── development/               # CCDP process and migration reports
+│   ├── testing/                   # Testing strategies and comprehensive test plans
+│   ├── deployment/                # Deployment guides and CI/CD processes
+│   ├── tools/                     # Development tools and context engineering
+│   ├── integration/               # Third-party service integrations
+│   ├── infrastructure/            # Hosting and infrastructure setup
+│   ├── reference/                 # Quick guides and API references
+│   └── release/                   # Release notes and versioning information
+├── tools/                         # Development tools and automation
+│   ├── scripts/                   # Build automation and utilities
+│   ├── configs/                   # Shared configuration files
+│   ├── context-engineering/       # AI context generation and migration tools
+│   ├── playwright/                # End-to-end testing configuration
+│   └── percy/                     # Visual testing setup
+├── tests/                         # Centralized testing infrastructure
+│   ├── unit/                      # Unit tests
+│   ├── integration/               # Integration tests
+│   ├── e2e/                       # End-to-end tests (Playwright)
+│   └── test-results/              # Test artifacts and results
+└── [config files]                # Workspace configuration files
+```
+
+### Applications
+
+#### `apps/web/` - Frontend Application
+- **Technology**: Next.js 13+ with App Router, TypeScript, Tailwind CSS
+- **Purpose**: Main web application serving tutors, agents, and clients
+- **Features**: Authentication, role management, lesson booking, payments
+- **Port**: 3002 (development)
+- **Former location**: Root directory (migrated to monorepo)
+
+#### `apps/api/` - Backend API
+- **Technology**: FastAPI with Python, PostgreSQL, Redis
+- **Purpose**: Backend services, API endpoints, data processing
+- **Features**: User management, payment processing, lesson scheduling
+- **Port**: 8000 (development)
+- **Former location**: `tutorwise-railway-backend/` (migrated to monorepo)
+
+### Shared Packages
+
+#### `packages/shared-types/`
+- **Purpose**: TypeScript type definitions shared between frontend and backend
+- **Exports**: User types, lesson types, payment types, API response types
+- **Import**: `@tutorwise/shared-types`
+
+#### `packages/ui/` *(Future)*
+- **Purpose**: Shared React components library
+- **Exports**: Reusable UI components, design system
+- **Import**: `@tutorwise/ui`
+
+## Development
+
+### Getting Started
+
+```bash
+# Install dependencies
+npm install
+
+# Start frontend development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# or specifically
+npm run dev:web
 
+# Start backend development server
+npm run dev:api
+```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Available Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Frontend
+npm run dev              # Start web app (port 3002)
+npm run build            # Build web app for production
+npm run lint             # Lint web app code
+npm run test             # Run web app tests
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Backend
+npm run dev:api          # Start FastAPI server (port 8000)
+npm run test:backend     # Run Python tests
+npm run lint:backend     # Lint Python code
 
-## Learn More
+# Testing
+npm run test:e2e         # Run End-to-End tests (Playwright)
+npm run test:visual      # Run visual tests (Percy)
+npm run test:all         # Run all tests (frontend + backend)
+npm run quality:check    # Complete quality pipeline (lint + tests)
 
-To learn more about Next.js, take a look at the following resources:
+# Context Engineering
+npm run context:generate # Generate fresh codebase context maps
+npm run context:update   # Alias for context:generate
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Environment Setup
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Frontend Environment** (`apps/web/.env.local`):
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_key
+   ```
 
-## Deploy on Vercel
+2. **Backend Environment** (`apps/api/.env`):
+   ```
+   DATABASE_URL=your_database_url
+   STRIPE_SECRET_KEY=your_stripe_secret
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Architecture
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Tech Stack
 
-Test the branching strategy...Test change for Vinite MVP
+- **Frontend**: Next.js 13+, TypeScript, Tailwind CSS, Radix UI
+- **Backend**: FastAPI, Python, PostgreSQL, Redis
+- **Database**: Supabase PostgreSQL, Neo4j Graph Database
+- **Payments**: Stripe Connect with subscriptions
+- **Authentication**: Supabase Auth
+- **Testing**: Jest (frontend), pytest (backend), Playwright (E2E), Percy (visual)
+- **Test Infrastructure**: Comprehensive FastAPI testing utilities, mock fixtures, database mocking
+- **Deployment**: Vercel (frontend), Railway (backend)
+- **Monitoring**: Integrated platform monitoring
+
+### Key Features
+
+- **Role Management**: Agent/Tutor role switching with personalized experiences
+- **Payment Processing**: Stripe integration with connect accounts
+- **Real-time Features**: Live notifications and updates
+- **Responsive Design**: Mobile-first approach with Tailwind CSS
+- **Type Safety**: Full TypeScript coverage across frontend and backend
+
+## Testing Infrastructure
+
+Comprehensive testing setup across all applications:
+
+### Frontend Testing
+- **Unit Tests**: Jest with React Testing Library
+- **Component Tests**: Isolated component testing
+- **Integration Tests**: API route testing with mock data
+
+### Backend Testing (FastAPI)
+- **Test Client Configuration**: Comprehensive fixtures in `apps/api/tests/conftest.py`
+- **Testing Utilities**: Helper classes in `apps/api/tests/utils.py`
+- **Database Mocking**: Redis and Neo4j mock fixtures
+- **Authentication Testing**: JWT token generation and validation
+- **Payment Testing**: Stripe integration mocking
+- **Async Testing**: AsyncClient and async test runners
+
+### End-to-End Testing
+- **Playwright**: Browser automation and E2E testing
+- **Percy**: Visual regression testing
+- **Test Results**: Centralized in `tests/test-results/`
+
+## AI Context Engineering
+
+This project includes a comprehensive context engineering system for enhanced AI assistance:
+
+- **Automated Analysis**: `npm run context:generate` creates fresh codebase maps
+- **Component Mapping**: Automatically discovers and documents all React components
+- **API Documentation**: Maps all backend endpoints and their purposes
+- **Dependency Graphs**: Visualizes component relationships and imports
+- **AI-Friendly Context**: Rich documentation for better AI assistance
+- **Location**: Moved to `tools/context-engineering/` for better organization
+
+## Documentation
+
+- **Requirements**: See `docs/requirements/` for project specifications and business requirements
+- **Design**: See `docs/design/` for system architecture and UI/UX designs
+- **Development**: See `docs/development/` for CCDP process and migration reports
+- **Features**: See `docs/features/` for feature-specific documentation and workflows
+- **Testing**: See `docs/testing/` for testing strategies and test plans
+- **Deployment**: See `docs/deployment/` for deployment guides and CI/CD processes
+- **Tools**: See `docs/tools/` for development tools and context engineering
+- **Integration**: See `docs/integration/` for third-party service integrations
+- **Infrastructure**: See `docs/infrastructure/` for hosting and infrastructure setup
+- **Reference**: See `docs/reference/` for quick guides and API references
+- **Release**: See `docs/release/` for release notes and versioning information
+
+## Deployment
+
+### Frontend (Vercel)
+- **Build Command**: `cd apps/web && npm run build`
+- **Output Directory**: `apps/web/.next`
+- **Environment**: Production Supabase, Stripe live keys
+
+### Backend (Railway)
+- **Build**: Docker container from `apps/api/`
+- **Environment**: Production database, Redis instance
+- **Health Check**: `/health` endpoint
+
+## Migration History
+
+This project was successfully migrated from a single-repo structure to a monorepo on September 27, 2024:
+
+- **Success Rate**: 100% with zero breaking changes
+- **Files Migrated**: 189 files with preserved git history
+- **Import Updates**: 197 @ imports updated automatically
+- **Build Verification**: All builds and deployments working correctly
+
+For detailed migration information, see `docs/development/monorepo-migration-report.md`.
+
+## Contributing
+
+1. Follow the established patterns in each application
+2. Update shared types when adding new data structures
+3. Run tests and linting before committing
+4. Use the CCDP process documented in `docs/development/CCDP-TUTORWISE.md`
+5. Generate fresh context maps after significant changes
+
+## Documentation Standards
+
+### README Files as Primary Documentation
+
+README files serve as the primary form of documentation throughout the Tutorwise monorepo. Each directory contains comprehensive README documentation that provides:
+
+- **Overview and Purpose**: Clear explanation of the directory's role
+- **Setup Instructions**: Complete installation and configuration guides
+- **Usage Examples**: Practical examples and best practices
+- **Development Guidelines**: Standards and workflows for contributors
+- **Troubleshooting**: Common issues and solutions
+
+### AI-Generated and Maintained Documentation
+
+The documentation system in this project is **AI-generated and maintained** to ensure:
+
+- **Consistency**: Uniform structure and tone across all documentation
+- **Currency**: Regular updates aligned with code changes and project evolution
+- **Completeness**: Comprehensive coverage of all features and components
+- **Professional Standards**: High-quality technical writing without decorative elements
+- **Synchronization**: Cross-referenced and interconnected documentation
+
+### Documentation Locations
+
+- **Root README**: Project overview and monorepo structure
+- **Application READMEs**: Detailed guides for apps/web/ and apps/api/
+- **Package READMEs**: Complete documentation for all shared packages
+- **Tool READMEs**: Configuration and usage for development tools
+- **Documentation Directory**: Structured guides in docs/ for all aspects of development
+
+### Maintenance Process
+
+Documentation is updated automatically as part of the development workflow:
+- **Major Changes**: Documentation updated with significant feature additions
+- **Structural Changes**: README files synchronized with monorepo modifications
+- **Regular Reviews**: Periodic validation of accuracy and completeness
+- **AI Enhancement**: Continuous improvement of documentation quality and coverage
+
+This approach ensures that Tutorwise maintains professional, accurate, and comprehensive documentation that supports effective development and maintenance workflows.
+
+## Support
+
+- **Documentation**: Check `docs/` directory for comprehensive guides
+- **AI Documentation**: See `docs/development/ai-documentation.md` for AI integration
+- **Testing Guide**: See `docs/testing/tutorwise-test-plan.md` for testing procedures
+- **Issues**: Use GitHub issues for bug reports and feature requests
+- **Development Process**: Follow CCDP guidelines in `docs/development/CCDP-TUTORWISE.md`

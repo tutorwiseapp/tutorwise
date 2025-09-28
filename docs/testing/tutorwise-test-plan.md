@@ -15,7 +15,7 @@ This guide provides comprehensive instructions for development workflows, testin
 ```bash
 # Install all dependencies
 npm install
-cd tutorwise-railway-backend && pip install -r requirements.txt
+cd apps/api && pip install -r requirements.txt
 
 # Run complete quality checks
 npm run quality:check
@@ -61,11 +61,51 @@ npm run test:backend
 # Run with coverage reporting
 npm run test:backend:coverage
 
-# Direct pytest commands (from backend directory)
-cd tutorwise-railway-backend
+# Direct pytest commands (from API directory)
+cd apps/api
 python3 -m pytest tests/ -v
 python3 -m pytest tests/ -v --cov=app --cov-report=term-missing --cov-report=html
 ```
+
+#### FastAPI Testing Infrastructure
+
+**Test Client Configuration** (`apps/api/tests/conftest.py`):
+- **TestClient**: Synchronous FastAPI test client with app dependency injection
+- **AsyncClient**: Asynchronous HTTP client for async endpoint testing
+- **Mock Fixtures**: Redis and Neo4j database mocking with sample data
+- **Authentication**: JWT token generation and user session fixtures
+- **Cleanup**: Automatic test isolation and database state management
+
+**Testing Utilities** (`apps/api/tests/utils.py`):
+
+**APITestUtils Class:**
+- `assert_successful_response()` - Validates 200+ responses with JSON content-type
+- `assert_error_response()` - Validates error responses with expected status codes
+- `create_auth_headers()` - Generates Bearer token authentication headers
+- `create_mock_user()` - Factory for user test data with configurable roles
+- `create_mock_lesson()` - Factory for lesson test data with tutor/student relationships
+
+**DatabaseTestUtils Class:**
+- `create_mock_redis_client()` - Mock Redis with standard operations (get, set, delete, etc.)
+- `create_mock_neo4j_driver()` - Mock Neo4j driver with session management
+- `create_mock_neo4j_result()` - Mock query results with data() and iteration support
+
+**AsyncTestUtils Class:**
+- `assert_async_response()` - Async HTTP method testing (GET, POST, PUT, DELETE)
+- `run_async_test()` - Async test runner for sync test contexts
+
+**PaymentTestUtils Class:**
+- `create_mock_stripe_payment_intent()` - Stripe payment intent mocking
+- `create_mock_stripe_customer()` - Stripe customer object mocking
+
+**AuthTestUtils Class:**
+- `create_mock_jwt_payload()` - JWT payload generation with exp/iat timestamps
+- `create_invalid_token_scenarios()` - Invalid token test cases (empty, malformed, expired)
+
+**TestDataFactory Class:**
+- `user_data()` - Configurable user factory with role-based defaults
+- `lesson_data()` - Lesson factory with tutor/student relationships
+- `payment_data()` - Payment factory with Stripe integration fields
 
 #### Test Categories
 - **Unit Tests**: Database connections, configuration management
@@ -73,8 +113,10 @@ python3 -m pytest tests/ -v --cov=app --cov-report=term-missing --cov-report=htm
 - **Database Tests**: Redis, Neo4j connectivity
 
 #### Test Files Location
-- `tutorwise-railway-backend/tests/unit/` - Unit tests
-- `tutorwise-railway-backend/tests/integration/` - Integration tests
+- `apps/api/tests/unit/` - Unit tests
+- `apps/api/tests/integration/` - Integration tests
+- `apps/api/tests/conftest.py` - Comprehensive test fixtures and configuration
+- `apps/api/tests/utils.py` - Testing utilities and helper classes
 
 ### Combined Testing
 
@@ -105,8 +147,8 @@ npm run lint:backend
 # Auto-fix Python code issues
 npm run lint:backend:fix
 
-# Direct ruff commands (from backend directory)
-cd tutorwise-railway-backend
+# Direct ruff commands (from API directory)
+cd apps/api
 python3 -m ruff check app/
 python3 -m ruff check --fix app/
 ```
@@ -135,7 +177,7 @@ npm run lint:all
 open coverage/lcov-report/index.html
 
 # Backend coverage (after running npm run test:backend:coverage)
-cd tutorwise-railway-backend && open htmlcov/index.html
+cd apps/api && open htmlcov/index.html
 ```
 
 ## Health Monitoring
@@ -164,7 +206,7 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_key
 STRIPE_SECRET_KEY=sk_test_your_stripe_key
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_key
 
-# Backend (.env in tutorwise-railway-backend/)
+# Backend (.env in apps/api/)
 REDIS_URL=your_redis_url
 NEO4J_URI=your_neo4j_uri
 NEO4J_USER=your_neo4j_user
@@ -176,8 +218,10 @@ NEO4J_PASSWORD=your_neo4j_password
 # Frontend development
 npm run dev  # Starts on http://localhost:3000
 
-# Backend development (from tutorwise-railway-backend/)
+# Backend development (from apps/api/)
 python3 -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+# Or use npm script from root
+npm run dev:api
 ```
 
 ## Deployment & CI/CD
@@ -227,7 +271,7 @@ npm install
 #### Python Dependencies
 ```bash
 # Refresh Python environment
-cd tutorwise-railway-backend
+cd apps/api
 pip install -r requirements.txt --upgrade
 ```
 
