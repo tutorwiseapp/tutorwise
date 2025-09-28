@@ -1,5 +1,5 @@
 # Tutorwise Codebase Context Map
-Generated: 2025-09-27T22:27:28.392Z
+Generated: 2025-09-28T18:13:06.900Z
 
 ## Quick Stats
 - Components: 32

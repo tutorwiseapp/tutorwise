@@ -69,13 +69,37 @@ npm run health:check           # Run backend health check
 
 ### Individual Service Syncs
 ```bash
-npm run sync:jira              # Sync Jira tickets and sprint data
-npm run sync:github            # Sync GitHub repository data
-npm run sync:google-docs       # Sync Google Docs content
-npm run sync:confluence        # Sync Confluence documentation
-npm run sync:mermaid          # Process Mermaid diagrams
-npm run sync:figma            # Sync Figma design data
-npm run sync:calendar         # Sync Google Calendar events
+npm run sync:jira                    # Sync Jira tickets and sprint data
+npm run sync:github                 # Sync GitHub repository data
+npm run sync:google-docs             # Sync Google Docs content
+npm run sync:confluence              # Sync Confluence documentation
+npm run sync:calendar                # Sync Google Calendar events
+npm run sync:calendar-to-jira        # One-time calendar to Jira sync
+npm run sync:calendar-to-jira:continuous # Continuous calendar polling
+npm run sync:mermaid                 # Process Mermaid diagrams
+npm run sync:figma                   # Sync Figma design data
+```
+
+### Integration Testing
+```bash
+npm run test:confluence              # Test Confluence connection
+npm run test:google                  # Test Google Services authentication
+npm run test:calendar                # Test calendar access
+npm run test:calendar-to-jira        # Test calendar-to-Jira sync
+npm run test:jira-fields             # Test Jira custom fields
+```
+
+### Autonomous Task Execution
+```bash
+# Jira Task Polling
+npm run jira:poll                    # One-time poll for Jira tasks
+npm run jira:poll:continuous         # Continuous Jira polling (10 min)
+npm run jira:test-tasks              # Show scheduled Jira tasks
+
+# Calendar Task Polling
+npm run calendar:poll                # One-time poll for calendar tasks
+npm run calendar:poll:continuous     # Continuous calendar polling (10 min)
+npm run calendar:test-tasks          # Show scheduled calendar events
 ```
 
 ### Bulk Sync Operations

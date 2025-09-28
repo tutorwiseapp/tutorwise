@@ -18,9 +18,10 @@ The `.ai/` directory contains integrations that sync external content into Claud
 |-------------|--------|-----------------|----------------|
 | Jira | ✅ Active | Yes | `.ai/jira/` |
 | GitHub | ✅ Active | Yes | `.ai/github/` |
-| Google Docs | ✅ Ready | Yes | `.ai/google-docs/` |
-| Google Calendar | ✅ Ready | Yes | `.ai/calendar/` |
-| Confluence | 🔧 Setup Required | Yes | `.ai/confluence/` |
+| Google Docs | ✅ Active | Yes | `.ai/google-docs/` |
+| Google Calendar | ✅ Active | Yes | `.ai/calendar/` |
+| Confluence | ✅ Active | Yes | `tools/scripts/sync-confluence.js` |
+| Calendar-to-Jira | ✅ Active | Yes | Automated ticket creation |
 | Mermaid | ✅ Ready | Optional | `.ai/mermaid/` |
 | Figma | ✅ Ready | Yes | `.ai/figma/` |
 
@@ -134,24 +135,24 @@ Already configured and working. Syncs repository info, issues, and PRs.
    GOOGLE_DOCS_FOLDER_IDS=your_folder_ids_here
    ```
 
-### 4. Confluence Setup
+### 4. Confluence Setup (✅ Complete)
 
-1. **Create API Token**:
-   - Go to [Atlassian Account Settings](https://id.atlassian.com/manage-profile/security/api-tokens)
-   - Create new API token
-   - Copy the token (you won't see it again)
+**Already configured and working**. Uses the same Jira credentials since Confluence is part of Atlassian.
 
-2. **Get Space Keys**:
-   - Visit your Confluence spaces
-   - Space key is in the URL: `https://domain.atlassian.net/wiki/spaces/{SPACE_KEY}`
+Configuration uses:
+- Same base URL as Jira (`JIRA_BASE_URL`)
+- Same email and API token (`JIRA_EMAIL`, `JIRA_API_TOKEN`)
+- Default space key: `TUTORWISE` (configurable via `CONFLUENCE_SPACE_KEY`)
 
-3. **Update Environment**:
-   ```bash
-   CONFLUENCE_BASE_URL=https://your-domain.atlassian.net
-   CONFLUENCE_EMAIL=your-email@domain.com
-   CONFLUENCE_API_TOKEN=your_api_token
-   CONFLUENCE_SPACE_KEYS=SPACE1,SPACE2
-   ```
+**Features working:**
+- ✅ Documentation sync from `docs/` folder to Confluence
+- ✅ Automatic Jira ticket creation for new documentation
+- ✅ Custom field population (Start time, End time)
+- ✅ AI tool tracking via labels (ai-generated, claude-code)
+
+**Recent Updates:**
+- ✅ Removed problematic AI Assistant multiuserpicker field
+- ✅ Implemented labels-based AI tool tracking
 
 ### 5. Mermaid Setup (✅ Ready)
 
@@ -161,11 +162,23 @@ No setup required. Works out of the box with default paths and patterns.
 
 ### Individual Syncs
 ```bash
-npm run sync:jira        # Sync Jira tickets
-npm run sync:github      # Sync GitHub data
-npm run sync:google-docs # Sync Google Docs
-npm run sync:confluence  # Sync Confluence pages
-npm run sync:mermaid     # Process Mermaid diagrams
+npm run sync:jira                    # Sync Jira tickets
+npm run sync:github                 # Sync GitHub data
+npm run sync:google-docs             # Sync Google Docs
+npm run sync:confluence              # Sync Confluence pages
+npm run sync:calendar                # Sync Google Calendar events
+npm run sync:calendar-to-jira        # One-time calendar to Jira sync
+npm run sync:calendar-to-jira:continuous # Continuous calendar polling
+npm run sync:mermaid                 # Process Mermaid diagrams
+```
+
+### Integration Testing
+```bash
+npm run test:confluence              # Test Confluence connection
+npm run test:google                  # Test Google Services authentication
+npm run test:calendar                # Test calendar access
+npm run test:calendar-to-jira        # Test calendar-to-Jira sync
+npm run test:jira-fields             # Test Jira custom fields
 ```
 
 ### Combined Syncs

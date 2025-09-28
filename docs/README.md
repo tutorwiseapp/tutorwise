@@ -40,6 +40,9 @@ This directory contains comprehensive documentation for the Tutorwise educationa
 - Tool configuration and usage guides
 - Development workflow documentation
 - Automation script documentation
+- See `automation-guide.md` for remote task execution
+- See `integration-documentation.md` for service integrations
+- See `quick-start-guide.md` for setup instructions
 
 **integration/** - Third-party service integrations
 - API integration guides

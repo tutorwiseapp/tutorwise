@@ -36,7 +36,14 @@
       "Bash(tree:*)",
       "Bash(npx jest:*)",
       "Bash(grep:*)",
-      "Bash(xargs dirname:*)"
+      "Bash(xargs dirname:*)",
+      "Bash(test:*)",
+      "Bash(npm run test:confluence:*)",
+      "Bash(npm run test:google:*)",
+      "Bash(npm run context:setup:*)",
+      "Bash(npm run jira:test-tasks:*)",
+      "Bash(npm run jira:poll:*)",
+      "Bash(npm run calendar:test-tasks:*)"
     ],
     "deny": [],
     "ask": []

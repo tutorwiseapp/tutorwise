@@ -28,12 +28,26 @@
 
 ## Available Commands
 
+### Core Context Commands
 ```bash
-# Generate fresh context maps from current codebase
-npm run context:generate
+npm run context:generate    # Generate fresh context maps from current codebase
+npm run context:update      # Update context documentation (alias)
+npm run context:setup       # Complete system setup and verification
+```
 
-# Update context documentation (alias)
-npm run context:update
+### Integration Commands (✅ All Working)
+```bash
+# Sync Operations
+npm run sync:confluence              # Sync docs to Confluence
+npm run sync:google-docs             # Sync docs to Google Docs
+npm run sync:calendar-to-jira        # One-time calendar sync
+npm run sync:calendar-to-jira:continuous # Continuous calendar polling
+
+# Test Operations
+npm run test:confluence              # Test Confluence connection
+npm run test:google                  # Test Google Services
+npm run test:jira-fields             # Test Jira custom fields
+npm run test:calendar-to-jira        # Test calendar sync
 ```
 
 ## AI Enhancement Benefits
@@ -46,11 +60,13 @@ This system provides AI assistants with:
 4. **Development Workflows**: Standardized processes for adding features
 5. **Architecture Context**: Design decisions and system boundaries
 
-## Current Stats (Auto-Generated)
+## Current Stats (Live Data - September 28, 2025)
 - **32 Components** analyzed and mapped
 - **21 API Routes** discovered and categorized
 - **3 Shared Types** documented
 - **Complete dependency graph** of component relationships
+- **4/4 Integrations** working (Jira, Confluence, Google Services, Calendar-to-Jira)
+- **All test commands** passing
 
 ## Real-World Usage Examples
 
