@@ -14,17 +14,23 @@ This implementation plan provides a detailed roadmap for building the role-based
 - Basic role switching interface
 - Route structure and permissions
 
-**Phase 2: Role-Specific Dashboards (Week 3-4)**
+**Phase 1.5: User Onboarding System (Week 3-4)**
+- Role-specific onboarding flows
+- Information gathering and personalization
+- Progressive disclosure interface
+- Integration with role management
+
+**Phase 2: Role-Specific Dashboards (Week 5-6)**
 - Individual dashboard implementations
 - Role-specific features and navigation
 - Content personalization system
 
-**Phase 3: Advanced Features (Week 5-6)**
+**Phase 3: Advanced Features (Week 7-8)**
 - Dashboard customization
 - AI-driven personalization
 - Analytics and performance tracking
 
-**Phase 4: Polish and Launch (Week 7-8)**
+**Phase 4: Polish and Launch (Week 9-10)**
 - User experience refinements
 - Testing and optimization
 - Documentation and rollout
@@ -192,6 +198,54 @@ CREATE TABLE role_sessions (
 - [ ] Implement role preference APIs
 - [ ] Create database functions for role management
 - [ ] Add proper indexes and constraints
+
+### Phase 1.5: User Onboarding System
+
+#### 1.5.1 Onboarding Flow Infrastructure
+
+**Reference Document:** `user-onboarding-flow-specification.md`
+
+**Core Components:**
+- OnboardingProvider for state management
+- Multi-step flow orchestration
+- Progress tracking and persistence
+- Integration with existing UserProfileContext
+
+**Key Deliverables:**
+- [ ] Create OnboardingProvider context
+- [ ] Implement step-by-step navigation
+- [ ] Build progress indicator component
+- [ ] Add auto-save functionality
+- [ ] Create database schema extensions
+
+#### 1.5.2 Role-Specific Onboarding Flows
+
+**For Seekers (Students):**
+- [ ] Subject selection interface (visual grid)
+- [ ] Skill level assessment (interactive sliders)
+- [ ] Learning goals and preferences
+- [ ] Budget and scheduling setup
+- [ ] Profile completion
+
+**For Providers (Tutors):**
+- [ ] Subject expertise mapping
+- [ ] Teaching experience assessment
+- [ ] Qualification upload system
+- [ ] Rate setting with market guidance
+- [ ] Availability calendar setup
+
+#### 1.5.3 Integration Points
+
+- [ ] Update RoleSwitcher to detect incomplete onboarding
+- [ ] Integrate with dashboard to show onboarding prompts
+- [ ] Connect to recommendation engine
+- [ ] Add onboarding completion tracking
+
+**Timeline:** 2 weeks
+**Success Criteria:**
+- >60% completion rate for essential onboarding
+- <5 minute average completion time
+- Successful role activation with personalized data
 
 ### Phase 2: Role-Specific Dashboards
 
