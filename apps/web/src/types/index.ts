@@ -60,6 +60,9 @@ export interface OnboardingProgress {
   onboarding_completed?: boolean;
   skipped?: boolean;
   role_specific_progress?: Record<string, any>;
+  last_updated?: string;
+  last_auto_save?: string;
+  abandoned_at?: string;
 }
 
 export interface RoleDetails {
