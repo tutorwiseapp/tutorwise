@@ -3,8 +3,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import Container from '@/app/components/layout/Container';
-import PageHeader from '@/app/components/ui/PageHeader';
 import OnboardingWizard from '@/app/components/onboarding/OnboardingWizard';
 import styles from './page.module.css';
 
@@ -29,12 +27,10 @@ export default function ClientOnboardingPage() {
   // Show loading state while checking authentication
   if (isLoading) {
     return (
-      <Container>
-        <div className={styles.loading}>
-          <div className={styles.spinner}></div>
-          <p>Loading your profile...</p>
-        </div>
-      </Container>
+      <div className={styles.loading}>
+        <div className={styles.spinner}></div>
+        <p>Loading your profile...</p>
+      </div>
     );
   }
 
@@ -43,13 +39,21 @@ export default function ClientOnboardingPage() {
     return null;
   }
 
+  const handleOnboardingComplete = () => {
+    router.push('/dashboard');
+  };
+
+  const handleOnboardingSkip = () => {
+    router.push('/dashboard');
+  };
+
   return (
-    <Container>
-      <PageHeader
-        title="Welcome to Tutorwise"
-        subtitle="Let's set up your profile to get started"
+    <div className={styles.onboardingPage}>
+      <OnboardingWizard
+        mode="fullPage"
+        onComplete={handleOnboardingComplete}
+        onSkip={handleOnboardingSkip}
       />
-      <OnboardingWizard />
-    </Container>
+    </div>
   );
 }

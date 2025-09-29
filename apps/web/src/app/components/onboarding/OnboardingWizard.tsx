@@ -15,9 +15,10 @@ type OnboardingStep = 'welcome' | 'role-selection' | 'role-details' | 'completio
 interface OnboardingWizardProps {
   onComplete?: () => void;
   onSkip?: () => void;
+  mode?: 'modal' | 'fullPage';
 }
 
-const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip }) => {
+const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip, mode = 'modal' }) => {
   const { profile, user } = useUserProfile();
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('welcome');
   const [selectedRoles, setSelectedRoles] = useState<('agent' | 'seeker' | 'provider')[]>([]);
@@ -267,7 +268,12 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
   };
 
   return (
-    <div className={styles.wizardContainer} role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+    <div
+      className={`${styles.wizardContainer} ${mode === 'fullPage' ? styles.fullPage : styles.modal}`}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="onboarding-title"
+    >
       {renderProgressIndicator()}
 
       {error && (

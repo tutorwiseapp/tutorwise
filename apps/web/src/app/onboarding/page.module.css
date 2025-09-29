@@ -3,6 +3,23 @@
  * Purpose: Provides styling for the onboarding page using Tutorwise design system
  */
 
+.onboardingPage {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-primary, #ffffff);
+  padding: 1rem;
+}
+
+@media (max-width: 768px) {
+  .onboardingPage {
+    padding: 0.5rem;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+}
+
 .loading {
   display: flex;
   flex-direction: column;
