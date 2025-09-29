@@ -150,6 +150,8 @@
   height: 1px;
   background-color: var(--color-border, #e5e7eb);
   margin: var(--space-1, 8px) 0;
+  width: 100%;
+  display: block;
 }
 
 .separatorExtra {
@@ -162,6 +164,8 @@
   height: 1px;
   background-color: var(--color-border, #e5e7eb);
   margin: var(--space-1, 8px) 0; /* Consistent with standard separator */
+  width: 100%;
+  display: block;
 }
 
 /* --- Become Items (like Airbnb's "Become a host") --- */
