@@ -68,7 +68,8 @@
       "Bash(echo:*)",
       "Bash(echo \"JIRA_EMAIL: $JIRA_EMAIL\")",
       "Bash(./backup-credentials.sh)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(git restore:*)"
     ],
     "deny": [],
     "ask": []

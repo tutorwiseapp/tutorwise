@@ -14,29 +14,56 @@ const WelcomeStep: React.FC<WelcomeStepProps> = ({ onNext, onSkip, userName }) =
     <div className={styles.stepContent}>
       <div className={styles.stepHeader}>
         <h1 className={styles.stepTitle}>
-          Welcome to Tutorwise, {userName}! 🎉
+          Believe. Learn. Succeed.
         </h1>
         <p className={styles.stepSubtitle}>
-          Let&apos;s get you set up with a personalized experience. This quick setup will help us understand how you&apos;d like to use Tutorwise.
+          {userName}, join thousands of students who&apos;ve discovered their potential with personalized tutoring.
         </p>
       </div>
 
       <div className={styles.stepBody}>
-        <h3 className={styles.formLabel}>What we&apos;ll cover:</h3>
-        <div className={styles.checkboxGroup}>
-          <div className={styles.checkboxItem}>
-            <span className={styles.checkboxLabel}>Choose your role(s) - Student, Tutor, or Agent</span>
+        <div className={styles.benefitsList}>
+          <div className={styles.benefit}>
+            <div className={styles.benefitIcon}>✨</div>
+            <div className={styles.benefitContent}>
+              <h4 className={styles.benefitTitle}>Believe in yourself</h4>
+              <p className={styles.benefitDescription}>Build confidence with supportive, expert guidance</p>
+            </div>
           </div>
-          <div className={styles.checkboxItem}>
-            <span className={styles.checkboxLabel}>Set up your preferences and goals</span>
+
+          <div className={styles.benefit}>
+            <div className={styles.benefitIcon}>📚</div>
+            <div className={styles.benefitContent}>
+              <h4 className={styles.benefitTitle}>Learn your way</h4>
+              <p className={styles.benefitDescription}>Personalized lessons that match how you think</p>
+            </div>
           </div>
-          <div className={styles.checkboxItem}>
-            <span className={styles.checkboxLabel}>Customize your dashboard</span>
+
+          <div className={styles.benefit}>
+            <div className={styles.benefitIcon}>🎯</div>
+            <div className={styles.benefitContent}>
+              <h4 className={styles.benefitTitle}>Succeed faster</h4>
+              <p className={styles.benefitDescription}>Achieve breakthrough results in weeks, not years</p>
+            </div>
+          </div>
+
+          <div className={styles.benefit}>
+            <div className={styles.benefitIcon}>🤝</div>
+            <div className={styles.benefitContent}>
+              <h4 className={styles.benefitTitle}>Never learn alone</h4>
+              <p className={styles.benefitDescription}>Your dedicated tutor believes in your success</p>
+            </div>
           </div>
         </div>
 
+        <div className={styles.socialProof}>
+          <p className={styles.socialProofText}>
+            &ldquo;My tutor didn&apos;t just teach me math - they taught me to believe I could do anything!&rdquo; - Sarah K.
+          </p>
+        </div>
+
         <p className={styles.progressIndicator}>
-          Takes about 2-3 minutes • You can always change these settings later
+          Takes 2 minutes • Start believing in yourself today
         </p>
       </div>
 
@@ -52,7 +79,7 @@ const WelcomeStep: React.FC<WelcomeStepProps> = ({ onNext, onSkip, userName }) =
           onClick={onNext}
           className={styles.buttonPrimary}
         >
-          Let&apos;s get started →
+          Yes, I&apos;m ready to succeed →
         </button>
       </div>
     </div>

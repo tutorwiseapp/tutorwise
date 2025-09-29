@@ -224,8 +224,52 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
     return null; // Don't show onboarding if user is not authenticated
   }
 
+  const getStepNumber = () => {
+    switch (currentStep) {
+      case 'welcome': return 1;
+      case 'role-selection': return 2;
+      case 'role-details': return 3;
+      case 'completion': return 4;
+      default: return 1;
+    }
+  };
+
+  const renderProgressIndicator = () => {
+    const stepNumber = getStepNumber();
+    const totalSteps = 4;
+
+    return (
+      <div className={styles.wizardProgress}>
+        {Array.from({ length: totalSteps }, (_, index) => {
+          const step = index + 1;
+          const isActive = step === stepNumber;
+          const isCompleted = step < stepNumber;
+
+          return (
+            <React.Fragment key={step}>
+              <div
+                className={`${styles.progressDot} ${
+                  isActive ? styles.active : isCompleted ? styles.completed : ''
+                }`}
+              />
+              {step < totalSteps && (
+                <div
+                  className={`${styles.progressSeparator} ${
+                    isCompleted ? styles.active : ''
+                  }`}
+                />
+              )}
+            </React.Fragment>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <div className={styles.wizardContainer} role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+      {renderProgressIndicator()}
+
       {error && (
         <div className={styles.errorMessage}>
           <p className={styles.errorText}>{error}</p>

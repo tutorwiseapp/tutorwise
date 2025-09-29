@@ -21,8 +21,8 @@ describe('RoleSelectionStep', () => {
       />
     );
 
-    expect(screen.getByText(/How do you want to use Tutorwise?/)).toBeInTheDocument();
-    expect(screen.getByText(/You can select multiple roles/)).toBeInTheDocument();
+    expect(screen.getByText(/What subjects interest you?/)).toBeInTheDocument();
+    expect(screen.getByText(/Select the subjects you'd like to learn/)).toBeInTheDocument();
   });
 
   it('displays all three role options', () => {
