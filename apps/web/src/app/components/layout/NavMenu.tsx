@@ -178,7 +178,7 @@ const NavMenu = () => {
                   </DropdownMenu.Item>
                 )}
 
-                <DropdownMenu.Separator className={styles.separatorExtra} />
+                <DropdownMenu.Separator className={styles.separator} />
 
                 {/* Account Section */}
                 <DropdownMenu.Item asChild className={styles.menuItem}>
