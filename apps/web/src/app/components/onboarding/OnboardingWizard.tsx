@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { createClient } from '@/utils/supabase/client';
 import { OnboardingProgress, RoleDetails } from '@/types';
@@ -16,9 +16,10 @@ interface OnboardingWizardProps {
   onComplete?: () => void;
   onSkip?: () => void;
   mode?: 'modal' | 'fullPage';
+  initialStep?: string;
 }
 
-const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip, mode = 'modal' }) => {
+const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip, mode = 'modal', initialStep }) => {
   const { profile, user } = useUserProfile();
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('welcome');
   const [selectedRoles, setSelectedRoles] = useState<('agent' | 'seeker' | 'provider')[]>([]);
@@ -29,7 +30,54 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
 
   const supabase = createClient();
 
-  // Initialize step based on existing progress with robust error handling
+  // Periodic auto-save functionality to prevent data loss
+  useEffect(() => {
+    if (!user?.id || !currentStep) return;
+
+    const autoSaveInterval = setInterval(() => {
+      console.log('Auto-save: Periodic save triggered');
+      updateOnboardingProgress(currentStep, {
+        last_auto_save: new Date().toISOString()
+      });
+    }, 30000); // Auto-save every 30 seconds
+
+    return () => clearInterval(autoSaveInterval);
+  }, [user?.id, currentStep, updateOnboardingProgress]);
+
+  // Save progress on page unload (crash/abandonment recovery)
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (!user?.id || !currentStep) return;
+
+      console.log('Auto-save: Page unload detected, saving progress');
+      // Use navigator.sendBeacon for reliable save on page unload
+      const progress = {
+        current_step: currentStep,
+        last_updated: new Date().toISOString(),
+        abandoned_at: new Date().toISOString(),
+        role_specific_progress: {
+          roleDetailsProgress: roleDetailsData,
+          selectedRoles: selectedRoles
+        }
+      };
+
+      const url = '/api/save-onboarding-progress';
+      const data = JSON.stringify({ userId: user.id, progress });
+
+      // Try sendBeacon first (most reliable for page unload)
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(url, data);
+      } else {
+        // Fallback for browsers without sendBeacon
+        updateOnboardingProgress(currentStep);
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [user?.id, currentStep, roleDetailsData, selectedRoles, updateOnboardingProgress]);
+
+  // Initialize step based on URL parameter or existing progress with robust error handling
   useEffect(() => {
     if (!profile || !user) return;
 
@@ -42,10 +90,21 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
         return;
       }
 
-      // Restore progress from last session
+      // Priority 1: Use initialStep from URL (middleware auto-resume)
+      if (initialStep) {
+        const validSteps: OnboardingStep[] = ['welcome', 'role-selection', 'role-details', 'completion'];
+        if (validSteps.includes(initialStep as OnboardingStep)) {
+          console.log(`Auto-resuming onboarding from URL step: ${initialStep}`);
+          setCurrentStep(initialStep as OnboardingStep);
+          return;
+        }
+      }
+
+      // Priority 2: Restore progress from last session (fallback)
       if (progress?.current_step) {
         const validSteps: OnboardingStep[] = ['welcome', 'role-selection', 'role-details', 'completion'];
         if (validSteps.includes(progress.current_step as OnboardingStep)) {
+          console.log(`Restoring onboarding from saved progress: ${progress.current_step}`);
           setCurrentStep(progress.current_step as OnboardingStep);
         } else {
           // Corrupted state - reset to welcome
@@ -78,9 +137,9 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
       setRoleDetailsData({});
       setError('There was an issue loading your progress. Starting fresh.');
     }
-  }, [profile, user]);
+  }, [profile, user, initialStep]);
 
-  const updateOnboardingProgress = async (step: OnboardingStep, additionalData: Partial<OnboardingProgress> = {}, retryCount = 0) => {
+  const updateOnboardingProgress = useCallback(async (step: OnboardingStep, additionalData: Partial<OnboardingProgress> = {}, retryCount = 0) => {
     if (!user?.id) return;
 
     const maxRetries = 3;
@@ -136,11 +195,12 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
         setError('Failed to save progress after multiple attempts. Your progress may be lost if you navigate away. Please try again.');
       }
     }
-  };
+  }, [user?.id, profile, roleDetailsData, selectedRoles, supabase, currentStep]);
 
-  const handleWelcomeNext = () => {
+  const handleWelcomeNext = async () => {
+    console.log('Auto-save: Moving to role-selection step');
     setCurrentStep('role-selection');
-    updateOnboardingProgress('role-selection');
+    await updateOnboardingProgress('role-selection');
   };
 
   const handleRoleSelection = async (roles: ('agent' | 'seeker' | 'provider')[]) => {

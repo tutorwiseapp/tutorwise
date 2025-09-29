@@ -1,14 +1,18 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import OnboardingWizard from '@/app/components/onboarding/OnboardingWizard';
 import styles from './page.module.css';
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, profile, isLoading, needsOnboarding } = useUserProfile();
+
+  // Get step from URL parameters for auto-resume functionality
+  const resumeStep = searchParams.get('step');
 
   useEffect(() => {
     // Redirect to login if not authenticated
@@ -53,6 +57,7 @@ export default function OnboardingPage() {
         mode="fullPage"
         onComplete={handleOnboardingComplete}
         onSkip={handleOnboardingSkip}
+        initialStep={resumeStep || undefined}
       />
     </div>
   );

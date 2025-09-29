@@ -119,12 +119,24 @@ export async function middleware(request: NextRequest) {
           .eq('id', user.id)
           .single()
 
-        // If user needs onboarding, redirect to onboarding page
-        const needsOnboarding = !profile?.onboarding_progress?.onboarding_completed
+        const progress = profile?.onboarding_progress
+        const needsOnboarding = !progress?.onboarding_completed
 
         if (needsOnboarding) {
-          console.log(`Middleware: Redirecting ${pathname} to onboarding - completion required`)
-          return NextResponse.redirect(new URL('/onboarding', request.url))
+          // Auto-save feature: Resume from where user left off
+          const currentStep = progress?.current_step
+          let redirectUrl = '/onboarding'
+
+          // If user has progress, append step parameter to resume from correct position
+          if (currentStep && currentStep !== 'welcome') {
+            redirectUrl = `/onboarding?step=${currentStep}`
+            console.log(`Middleware: Resuming onboarding from step: ${currentStep}`)
+          } else {
+            console.log(`Middleware: Starting fresh onboarding flow`)
+          }
+
+          console.log(`Middleware: Redirecting ${pathname} to ${redirectUrl}`)
+          return NextResponse.redirect(new URL(redirectUrl, request.url))
         }
       } catch (error) {
         console.error('Middleware: Error checking onboarding status:', error)
