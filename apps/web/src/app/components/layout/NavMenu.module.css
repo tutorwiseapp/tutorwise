@@ -154,10 +154,12 @@
   display: block;
 }
 
-.separatorExtra {
+.separatorMyNetwork {
   height: 1px;
   background-color: var(--color-border, #e5e7eb);
-  margin: calc(var(--space-1, 8px) + 16px) 0; /* Standard spacing + 16px extra = 24px total */
+  margin: calc(var(--space-1, 8px) + 8px) 0; /* Standard 8px + 8px extra = 16px total */
+  width: 100%;
+  display: block;
 }
 
 .becomeSeparator {

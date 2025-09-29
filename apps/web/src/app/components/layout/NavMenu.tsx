@@ -115,7 +115,7 @@ const NavMenu = () => {
                   <Link href="/profile">My network</Link>
                 </DropdownMenu.Item>
 
-                <DropdownMenu.Separator className={styles.separator} />
+                <DropdownMenu.Separator className={styles.separatorMyNetwork} />
 
                 {/* Role Switching Section - Only show if user has multiple roles */}
                 {availableRoles && availableRoles.length > 1 && (
