@@ -128,7 +128,10 @@ export async function middleware(request: NextRequest) {
         }
       } catch (error) {
         console.error('Middleware: Error checking onboarding status:', error)
-        // On error, allow through but user will be handled by client-side protection
+        // CRITICAL: On database error, redirect to onboarding to be safe
+        // This ensures onboarding enforcement even if middleware DB calls fail
+        console.log(`Middleware: Database error - redirecting ${pathname} to onboarding for safety`)
+        return NextResponse.redirect(new URL('/onboarding', request.url))
       }
     }
   }
