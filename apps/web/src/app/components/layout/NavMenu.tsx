@@ -147,8 +147,6 @@ const NavMenu = () => {
                   </>
                 )}
 
-                <div className={styles.separator} />
-
                 {/* Role Onboarding Section - Only show roles user doesn't have */}
                 {activeRole !== 'provider' && (
                   <DropdownMenu.Item asChild className={styles.becomeItem}>
