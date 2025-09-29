@@ -1,0 +1,206 @@
+name: 🚀 Continuous Improvement Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # =============================================================================
+  # QUALITY CHECKS
+  # =============================================================================
+  quality-checks:
+    name: 🔍 Quality Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 🔍 ESLint analysis
+        run: npm run lint
+
+      - name: 🔍 TypeScript type checking
+        run: npm run typecheck
+
+      - name: 🔒 Security audit
+        run: npm audit --audit-level=moderate
+
+  # =============================================================================
+  # UNIT TESTS
+  # =============================================================================
+  unit-tests:
+    name: 🧪 Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 🧪 Run unit tests
+        run: npm run test:unit:coverage
+
+      - name: 📊 Upload coverage reports
+        uses: codecov/codecov-action@v3
+        if: always()
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+
+  # =============================================================================
+  # BUILD VERIFICATION
+  # =============================================================================
+  build-verification:
+    name: 🏗️ Build Verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [quality-checks, unit-tests]
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 🏗️ Build project
+        run: npm run build
+
+      - name: 📁 Cache build artifacts
+        uses: actions/cache@v3
+        with:
+          path: |
+            apps/web/.next
+            apps/web/out
+          key: ${{ runner.os }}-build-${{ github.sha }}
+
+  # =============================================================================
+  # E2E TESTS (Optional - runs only on main branch)
+  # =============================================================================
+  e2e-tests:
+    name: 🎭 E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [build-verification]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 🎭 Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: 🎭 Run E2E tests
+        run: npm run test:e2e
+
+      - name: 📁 Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+  # =============================================================================
+  # DEPLOYMENT READINESS
+  # =============================================================================
+  deployment-readiness:
+    name: 🚀 Deployment Readiness
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [quality-checks, unit-tests, build-verification]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 🚀 Run deployment readiness check
+        run: chmod +x scripts/dev-workflow.sh && ./scripts/dev-workflow.sh deploy
+
+      - name: ✅ Deployment ready
+        run: echo "🎉 All checks passed! Ready for deployment."
+
+  # =============================================================================
+  # NOTIFICATION & REPORTING
+  # =============================================================================
+  notify-success:
+    name: 📢 Success Notification
+    runs-on: ubuntu-latest
+    needs: [quality-checks, unit-tests, build-verification, deployment-readiness]
+    if: success() && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: 🎉 Success notification
+        run: |
+          echo "🚀 Continuous Improvement Pipeline completed successfully!"
+          echo "✅ Quality checks passed"
+          echo "✅ Unit tests passed"
+          echo "✅ Build verification passed"
+          echo "✅ Deployment readiness confirmed"
+          echo "🔗 Commit: ${{ github.sha }}"
+
+  notify-failure:
+    name: 📢 Failure Notification
+    runs-on: ubuntu-latest
+    needs: [quality-checks, unit-tests, build-verification, deployment-readiness]
+    if: failure()
+
+    steps:
+      - name: ❌ Failure notification
+        run: |
+          echo "❌ Continuous Improvement Pipeline failed!"
+          echo "🔗 Commit: ${{ github.sha }}"
+          echo "📋 Check the failed jobs above for details"
+          echo "🛠️ Run './scripts/dev-workflow.sh check' locally to debug"
