@@ -178,7 +178,14 @@ const NavMenu = () => {
                   </DropdownMenu.Item>
                 )}
 
-                <DropdownMenu.Separator className={styles.separator} />
+                <DropdownMenu.Separator
+                  className={styles.separator}
+                  style={{
+                    height: '1px',
+                    backgroundColor: '#e5e7eb',
+                    margin: '8px 0'
+                  }}
+                />
 
                 {/* Account Section */}
                 <DropdownMenu.Item asChild className={styles.menuItem}>
