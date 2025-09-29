@@ -9,6 +9,8 @@ This document outlines our comprehensive development workflow for building featu
 - [Quick Start](#quick-start)
 - [Development Workflow Script](#development-workflow-script)
 - [Daily Development Process](#daily-development-process)
+- [Continuous Improvement Process](#continuous-improvement-process)
+- [Production Deployment](#production-deployment)
 - [Quality Gates](#quality-gates)
 - [Troubleshooting](#troubleshooting)
 - [Best Practices](#best-practices)
@@ -114,6 +116,183 @@ npm run workflow:deploy
 git push origin feature/your-feature-name
 
 # 3. Create pull request or merge to main
+```
+
+---
+
+## 🔄 Continuous Improvement Process
+
+> **"As part of continuous improvement process you must have a script that you would run so that we can be effective and efficient building each feature and page."**
+
+Our continuous improvement process ensures consistent, high-quality feature development through automated workflows and comprehensive validation.
+
+### **The Complete Development Lifecycle**
+
+```bash
+# 1. Pre-Development Setup
+npm run workflow:check              # Health check before starting
+git checkout -b feature/your-name   # Create feature branch
+
+# 2. Active Development
+npm run workflow:test               # Run after implementing features
+npm run workflow:check              # Quick validation during development
+
+# 3. Pre-Commit Validation
+npm run workflow:full               # Complete workflow before committing
+git add . && git commit -m "feat: description"
+
+# 4. Deployment Readiness
+npm run workflow:deploy             # Final validation before pushing
+git push origin feature/your-name   # Deploy to production
+```
+
+### **Why This Process Works**
+
+1. **Early Detection**: Catches issues before they reach production
+2. **Consistent Quality**: Every feature follows the same high standards
+3. **Automated Validation**: Reduces human error and oversight
+4. **Rapid Iteration**: Quick feedback loops for faster development
+5. **Production Confidence**: Multiple quality gates ensure reliability
+
+### **Workflow Script Architecture**
+
+Our `scripts/dev-workflow.sh` implements a comprehensive automation system:
+
+```bash
+# Core workflow stages
+dev_check()    # Dependencies, linting, type checking
+dev_test()     # Unit tests, coverage, integration tests
+dev_build()    # Production build verification
+dev_deploy()   # Deployment readiness validation
+dev_full()     # Complete pipeline (check → test → build → deploy)
+```
+
+### **Integration with CI/CD**
+
+- **Local Development**: Fast feedback with auto-fix capabilities
+- **GitHub Actions**: Comprehensive validation on push/PR
+- **Production**: Automated deployment pipeline
+- **Quality Metrics**: Coverage tracking, security audits, performance monitoring
+
+---
+
+## 🚀 Production Deployment
+
+### **Deployment Architecture**
+
+Our application is deployed on **Vercel** with the following architecture:
+
+- **Frontend**: Next.js 14.2.32 with Server-Side Rendering
+- **Database**: Supabase PostgreSQL with Row Level Security
+- **Authentication**: Supabase Auth with middleware protection
+- **Edge Runtime**: Vercel Edge Functions for global performance
+
+### **Critical Production Configurations**
+
+#### **1. Onboarding Enforcement System**
+
+Our onboarding system uses **strict enforcement** to ensure all users complete the required flow:
+
+```typescript
+// middleware.ts - Server-side protection
+export async function middleware(request: NextRequest) {
+  // Check authentication for protected routes
+  if (protectedRoutes.some(route => pathname.startsWith(route))) {
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.redirect(new URL(`/login?redirect=${pathname}`, request.url))
+    }
+
+    // Check onboarding completion
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('onboarding_progress')
+        .eq('id', user.id)
+        .single()
+
+      const needsOnboarding = !profile?.onboarding_progress?.onboarding_completed
+
+      if (needsOnboarding) {
+        return NextResponse.redirect(new URL('/onboarding', request.url))
+      }
+    } catch (error) {
+      // CRITICAL: On database error, redirect to onboarding to be safe
+      // This ensures onboarding enforcement even if middleware DB calls fail
+      return NextResponse.redirect(new URL('/onboarding', request.url))
+    }
+  }
+}
+```
+
+#### **2. Protected Routes Configuration**
+
+```typescript
+const protectedRoutes = [
+  '/dashboard',
+  '/profile',
+  '/settings',
+  '/payments',
+  '/referral-activities',
+  '/transaction-history',
+  '/become-provider',
+  '/agents',
+  '/claim-rewards'
+]
+```
+
+#### **3. Onboarding Flow Architecture**
+
+- **Client-Focused Design**: "Believe. Learn. Succeed." framework
+- **Benefits-Driven**: Sells the dream and outcomes, not just features
+- **Personalized Experience**: Asks about learning needs and aspirations
+- **Progress Persistence**: Saves state across sessions
+- **Error Recovery**: Robust handling of edge cases
+
+### **Production Monitoring**
+
+#### **Health Checks**
+```bash
+# Monitor production health
+curl https://www.tutorwise.io/api/health
+curl https://www.tutorwise.io/dashboard  # Should redirect if not authenticated
+```
+
+#### **Common Production Issues & Fixes**
+
+| Issue | Symptom | Fix |
+|-------|---------|-----|
+| Dashboard accessible without onboarding | Users can access `/dashboard` directly | Deploy middleware fix (automatic redirect) |
+| Onboarding not enforcing | Old design shows up | Clear cache, verify deployment |
+| Database connection errors | Users get error pages | Check Supabase connection, verify environment variables |
+| Authentication failures | Users can't log in | Verify Supabase auth configuration |
+
+### **Deployment Process**
+
+```bash
+# 1. Pre-deployment validation
+npm run workflow:full
+
+# 2. Commit changes
+git add .
+git commit -m "feat: description"
+
+# 3. Deploy to production
+git push origin main
+
+# 4. Verify deployment
+# Check GitHub Actions pipeline
+# Monitor Vercel deployment logs
+# Test critical user flows
+```
+
+### **Emergency Rollback**
+
+```bash
+# If production issues occur
+git revert HEAD           # Revert last commit
+git push origin main      # Deploy rollback
 ```
 
 ---
@@ -240,6 +419,56 @@ npm audit fix
    - Use descriptive commit messages
    - Keep commits atomic and focused
    - Run full workflow before pushing
+
+### **Design System Standards**
+
+#### **Client-Focused UX Principles**
+
+When building user interfaces, especially onboarding flows, follow these principles:
+
+1. **Sell the Dream, Not Features**
+   - Focus on outcomes and benefits
+   - Use aspirational language ("Believe. Learn. Succeed.")
+   - Show social proof and success stories
+   - Ask about aspirations, not just technical details
+
+2. **Educational Psychology Integration**
+   - **Believe**: Build confidence and self-efficacy
+   - **Learn**: Personalized, relevant content
+   - **Succeed**: Clear outcomes and achievement paths
+
+3. **Modern UX Patterns**
+   - Progress indicators for multi-step flows
+   - Benefits-focused messaging over feature lists
+   - Emotional engagement through personalized content
+   - Clear calls-to-action with outcome language
+
+#### **Technical Implementation Standards**
+
+1. **CSS Modules Design System**
+   - Use Tutorwise design tokens (colors, spacing, typography)
+   - 1200px default viewport (Container component standard)
+   - Responsive design with mobile-first approach
+   - Consistent component patterns across the application
+
+2. **Component Architecture**
+   ```tsx
+   // Example: Benefits-focused onboarding step
+   <div className={styles.stepHeader}>
+     <h1 className={styles.stepTitle}>
+       Believe. Learn. Succeed.
+     </h1>
+     <p className={styles.stepSubtitle}>
+       {userName}, join thousands who've discovered their potential
+     </p>
+   </div>
+   ```
+
+3. **State Management Best Practices**
+   - Progress persistence across sessions
+   - Error recovery and graceful degradation
+   - Auto-retry logic for failed operations
+   - Comprehensive error handling
 
 ### **Performance Optimization**
 
