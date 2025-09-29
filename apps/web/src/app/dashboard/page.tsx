@@ -29,17 +29,26 @@ const dashboardLinks = [
 ];
 
 const DashboardPage = () => {
-  const { profile, activeRole, isLoading } = useUserProfile();
+  const { profile, activeRole, isLoading, needsOnboarding } = useUserProfile();
   const router = useRouter();
 
   useEffect(() => {
     // If loading is finished and there's no profile, the user is not logged in.
     if (!isLoading && !profile) {
       router.push('/login');
+      return;
     }
-  }, [isLoading, profile, router]);
 
-  if (isLoading || !profile) {
+    // Strict enforcement: redirect to onboarding if not completed
+    if (!isLoading && profile && needsOnboarding) {
+      console.log('Redirecting to onboarding - dashboard access blocked until completion');
+      router.push('/onboarding');
+      return;
+    }
+  }, [isLoading, profile, needsOnboarding, router]);
+
+  // Show loading while checking authentication and onboarding status
+  if (isLoading || !profile || needsOnboarding) {
     return <Container><p className={styles.loading}>Loading...</p></Container>;
   }
 

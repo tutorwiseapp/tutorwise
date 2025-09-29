@@ -29,27 +29,85 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
 
   const supabase = createClient();
 
-  // Initialize step based on existing progress
+  // Initialize step based on existing progress with robust error handling
   useEffect(() => {
-    if (profile?.onboarding_progress?.current_step) {
-      setCurrentStep(profile.onboarding_progress.current_step as OnboardingStep);
-    }
-    if (profile?.roles && profile.roles.length > 0) {
-      setSelectedRoles(profile.roles);
-    }
-  }, [profile]);
+    if (!profile || !user) return;
 
-  const updateOnboardingProgress = async (step: OnboardingStep, additionalData: Partial<OnboardingProgress> = {}) => {
+    try {
+      const progress = profile.onboarding_progress;
+
+      // If onboarding is already completed, go to completion step
+      if (progress?.onboarding_completed) {
+        setCurrentStep('completion');
+        return;
+      }
+
+      // Restore progress from last session
+      if (progress?.current_step) {
+        const validSteps: OnboardingStep[] = ['welcome', 'role-selection', 'role-details', 'completion'];
+        if (validSteps.includes(progress.current_step as OnboardingStep)) {
+          setCurrentStep(progress.current_step as OnboardingStep);
+        } else {
+          // Corrupted state - reset to welcome
+          console.warn('Invalid onboarding step detected, resetting to welcome');
+          setCurrentStep('welcome');
+        }
+      }
+
+      // Restore selected roles if they exist
+      if (profile.roles && profile.roles.length > 0) {
+        setSelectedRoles(profile.roles);
+
+        // If user has roles but is on welcome/role-selection, they might have abandoned during role-details
+        if (progress?.current_step === 'role-selection' || !progress?.current_step) {
+          setCurrentStep('role-details');
+          setCurrentRoleIndex(0);
+        }
+      }
+
+      // Restore role details progress if exists
+      if (progress?.role_specific_progress?.roleDetailsProgress) {
+        setRoleDetailsData(progress.role_specific_progress.roleDetailsProgress);
+      }
+
+    } catch (error) {
+      console.error('Error initializing onboarding state:', error);
+      // Fallback to clean state
+      setCurrentStep('welcome');
+      setSelectedRoles([]);
+      setRoleDetailsData({});
+      setError('There was an issue loading your progress. Starting fresh.');
+    }
+  }, [profile, user]);
+
+  const updateOnboardingProgress = async (step: OnboardingStep, additionalData: Partial<OnboardingProgress> = {}, retryCount = 0) => {
     if (!user?.id) return;
+
+    const maxRetries = 3;
 
     try {
       const currentProgress = profile?.onboarding_progress || {};
+
+      // Build comprehensive progress update
       const updatedProgress = {
         ...currentProgress,
         current_step: step,
-        completed_steps: [...(currentProgress.completed_steps || []), currentStep],
+        completed_steps: [
+          ...(currentProgress.completed_steps || []).filter(s => s !== currentStep), // Remove current to avoid duplicates
+          currentStep // Add current step to completed
+        ].filter(Boolean), // Remove any empty values
+        last_updated: new Date().toISOString(),
         ...additionalData
       };
+
+      // Save progress with role details if available
+      if (Object.keys(roleDetailsData).length > 0) {
+        updatedProgress.role_specific_progress = {
+          ...updatedProgress.role_specific_progress,
+          roleDetailsProgress: roleDetailsData,
+          selectedRoles: selectedRoles
+        };
+      }
 
       const { error } = await supabase
         .from('profiles')
@@ -57,9 +115,26 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
         .eq('id', user.id);
 
       if (error) throw error;
+
+      console.log(`Onboarding progress saved: ${step}`);
+
+      // Clear any existing errors on successful save
+      if (error) {
+        setError(null);
+      }
+
     } catch (err) {
-      console.error('Error updating onboarding progress:', err);
-      setError('Failed to save progress. Please try again.');
+      console.error(`Error updating onboarding progress (attempt ${retryCount + 1}):`, err);
+
+      // Retry logic for network failures
+      if (retryCount < maxRetries) {
+        console.log(`Retrying in ${(retryCount + 1) * 1000}ms...`);
+        setTimeout(() => {
+          updateOnboardingProgress(step, additionalData, retryCount + 1);
+        }, (retryCount + 1) * 1000);
+      } else {
+        setError('Failed to save progress after multiple attempts. Your progress may be lost if you navigate away. Please try again.');
+      }
     }
   };
 
