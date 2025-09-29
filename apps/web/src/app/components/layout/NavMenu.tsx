@@ -117,7 +117,7 @@ const NavMenu = () => {
 
                 <div
                   className={styles.separator}
-                  style={{ margin: '12px 0' }}
+                  style={{ margin: '8px 0' }}
                 />
 
                 {/* Role Switching Section - Only show if user has multiple roles */}
