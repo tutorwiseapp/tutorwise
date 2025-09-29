@@ -12,7 +12,7 @@ export default function OnboardingPage() {
   const { user, profile, isLoading, needsOnboarding } = useUserProfile();
 
   // Get step from URL parameters for auto-resume functionality
-  const resumeStep = searchParams.get('step');
+  const resumeStep = searchParams?.get('step');
 
   useEffect(() => {
     // Redirect to login if not authenticated
