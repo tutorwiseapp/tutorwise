@@ -148,13 +148,13 @@
 
 .separator {
   height: 1px;
-  background-color: var(--color-border);
-  margin: var(--space-1) 0;
+  background-color: var(--color-border, #e5e7eb);
+  margin: var(--space-1, 8px) 0;
 }
 
 .becomeSeparator {
   height: 1px;
-  background-color: var(--color-border);
+  background-color: var(--color-border, #e5e7eb);
   margin: 12px 0; /* 8px + 4px = 12px */
 }
 
