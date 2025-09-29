@@ -3,7 +3,10 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import Container from '@/app/components/layout/Container';
+import PageHeader from '@/app/components/ui/PageHeader';
 import OnboardingWizard from '@/app/components/onboarding/OnboardingWizard';
+import styles from './page.module.css';
 
 export default function ClientOnboardingPage() {
   const router = useRouter();
@@ -26,12 +29,12 @@ export default function ClientOnboardingPage() {
   // Show loading state while checking authentication
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your profile...</p>
+      <Container>
+        <div className={styles.loading}>
+          <div className={styles.spinner}></div>
+          <p>Loading your profile...</p>
         </div>
-      </div>
+      </Container>
     );
   }
 
@@ -41,22 +44,12 @@ export default function ClientOnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Client-specific onboarding header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome to Tutorwise
-            </h1>
-            <p className="text-lg text-gray-600">
-              Let&apos;s set up your profile to get started
-            </p>
-          </div>
-
-          <OnboardingWizard />
-        </div>
-      </div>
-    </div>
+    <Container variant="form">
+      <PageHeader
+        title="Welcome to Tutorwise"
+        subtitle="Let's set up your profile to get started"
+      />
+      <OnboardingWizard />
+    </Container>
   );
 }

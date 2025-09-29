@@ -1,0 +1,266 @@
+/*
+ * Filename: src/app/components/onboarding/OnboardingWizard.module.css
+ * Purpose: Provides styling for the onboarding wizard using Tutorwise design system
+ */
+
+.wizardOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.wizardContainer {
+  background-color: var(--color-bg-card, #ffffff);
+  border-radius: var(--border-radius-lg, 12px);
+  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05));
+  width: 100%;
+  margin: 1rem 0;
+}
+
+.errorMessage {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--border-radius-md, 8px);
+  padding: 1rem;
+  margin: 1.5rem 1.5rem 0;
+}
+
+.errorMessage .errorText {
+  color: #991b1b;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.stepContent {
+  padding: 2rem;
+}
+
+.stepHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.stepTitle {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1f2937);
+  margin: 0 0 0.5rem 0;
+}
+
+.stepSubtitle {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+}
+
+.stepBody {
+  margin-bottom: 2rem;
+}
+
+.stepActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.progressIndicator {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+/* Role selection specific styles */
+.roleGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 640px) {
+  .roleGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.roleCard {
+  background-color: var(--color-bg-card, #ffffff);
+  border: 2px solid var(--color-border, #dfe1e5);
+  border-radius: var(--border-radius-md, 8px);
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.roleCard:hover {
+  border-color: var(--color-primary, #006C67);
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.08));
+}
+
+.roleCard.selected {
+  border-color: var(--color-primary, #006C67);
+  background-color: var(--color-primary-light, #E0F2F1);
+}
+
+.roleIcon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.roleTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1f2937);
+  margin: 0 0 0.5rem 0;
+}
+
+.roleDescription {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+}
+
+/* Form styles */
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formLabel {
+  display: block;
+  font-weight: 500;
+  color: var(--color-text-primary, #1f2937);
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.formInput,
+.formSelect,
+.formTextarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border, #dfe1e5);
+  border-radius: var(--border-radius-md, 8px);
+  font-size: 1rem;
+  transition: border-color 0.2s ease-in-out;
+}
+
+.formInput:focus,
+.formSelect:focus,
+.formTextarea:focus {
+  outline: none;
+  border-color: var(--color-primary, #006C67);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
+}
+
+.formTextarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+.checkboxGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.checkboxItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--color-bg-secondary, #f9fafb);
+  border: 1px solid var(--color-border, #dfe1e5);
+  border-radius: var(--border-radius-md, 8px);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.checkboxItem:hover {
+  background-color: var(--color-primary-light, #E0F2F1);
+}
+
+.checkboxItem.selected {
+  background-color: var(--color-primary, #006C67);
+  color: white;
+  border-color: var(--color-primary, #006C67);
+}
+
+.checkboxInput {
+  margin: 0;
+}
+
+.checkboxLabel {
+  margin: 0;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+/* Button styles - using existing button system */
+.buttonPrimary {
+  background-color: var(--color-primary, #006C67);
+  color: white;
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-md, 8px);
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  font-size: 1rem;
+}
+
+.buttonPrimary:hover:not(:disabled) {
+  background-color: var(--color-primary-dark, #004D40);
+}
+
+.buttonSecondary {
+  background-color: transparent;
+  color: var(--color-primary, #006C67);
+  border: 1px solid var(--color-primary, #006C67);
+  border-radius: var(--border-radius-md, 8px);
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  font-size: 1rem;
+}
+
+.buttonSecondary:hover:not(:disabled) {
+  background-color: var(--color-primary-light, #E0F2F1);
+}
+
+.buttonDisabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Loading state */
+.loading {
+  text-align: center;
+  padding: 2rem;
+}
+
+.loadingSpinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid var(--color-border, #dfe1e5);
+  border-top: 2px solid var(--color-primary, #006C67);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

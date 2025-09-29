@@ -228,12 +228,12 @@ describe('OnboardingWizard', () => {
     expect(screen.getByTestId('welcome-step')).toBeInTheDocument();
   });
 
-  it('shows modal overlay', () => {
+  it('shows wizard container', () => {
     render(<OnboardingWizard />);
 
-    const modalOverlay = screen.getByRole('dialog');
-    expect(modalOverlay).toBeInTheDocument();
-    expect(modalOverlay).toHaveClass('fixed', 'inset-0');
+    const wizardContainer = screen.getByRole('dialog');
+    expect(wizardContainer).toBeInTheDocument();
+    expect(wizardContainer).toHaveClass('wizardContainer');
   });
 
   it('has proper accessibility attributes', () => {

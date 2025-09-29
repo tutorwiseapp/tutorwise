@@ -8,6 +8,7 @@ import WelcomeStep from './steps/WelcomeStep';
 import RoleSelectionStep from './steps/RoleSelectionStep';
 import RoleDetailsStep from './steps/RoleDetailsStep';
 import CompletionStep from './steps/CompletionStep';
+import styles from './OnboardingWizard.module.css';
 
 type OnboardingStep = 'welcome' | 'role-selection' | 'role-details' | 'completion';
 
@@ -224,20 +225,14 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip 
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-md p-4 m-6 mb-0">
-            <div className="flex">
-              <div className="text-red-800">
-                <p className="text-sm">{error}</p>
-              </div>
-            </div>
-          </div>
-        )}
+    <div className={styles.wizardContainer} role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+      {error && (
+        <div className={styles.errorMessage}>
+          <p className={styles.errorText}>{error}</p>
+        </div>
+      )}
 
-        {renderCurrentStep()}
-      </div>
+      {renderCurrentStep()}
     </div>
   );
 };
