@@ -44,7 +44,7 @@ export default function ClientOnboardingPage() {
   }
 
   return (
-    <Container variant="form">
+    <Container variant="narrow">
       <PageHeader
         title="Welcome to Tutorwise"
         subtitle="Let's set up your profile to get started"

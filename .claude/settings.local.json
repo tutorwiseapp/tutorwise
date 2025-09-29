@@ -67,7 +67,8 @@
       "Bash(chmod:*)",
       "Bash(echo:*)",
       "Bash(echo \"JIRA_EMAIL: $JIRA_EMAIL\")",
-      "Bash(./backup-credentials.sh)"
+      "Bash(./backup-credentials.sh)",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "ask": []

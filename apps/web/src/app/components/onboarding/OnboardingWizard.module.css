@@ -42,6 +42,12 @@
   padding: 2rem;
 }
 
+@media (min-width: 768px) {
+  .stepContent {
+    padding: 3rem;
+  }
+}
+
 .stepHeader {
   text-align: center;
   margin-bottom: 2rem;
@@ -71,6 +77,13 @@
   align-items: center;
 }
 
+@media (min-width: 768px) {
+  .stepActions {
+    gap: 1.5rem;
+    padding: 0 1rem;
+  }
+}
+
 .progressIndicator {
   text-align: center;
   margin-bottom: 1rem;
@@ -89,6 +102,13 @@
 @media (min-width: 640px) {
   .roleGrid {
     grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .roleGrid {
+    gap: 2rem;
   }
 }
 
