@@ -155,7 +155,7 @@
 .becomeSeparator {
   height: 1px;
   background-color: var(--color-border, #e5e7eb);
-  margin: 12px 0; /* 8px + 4px = 12px */
+  margin: var(--space-1, 8px) 0; /* Consistent with standard separator */
 }
 
 /* --- Become Items (like Airbnb's "Become a host") --- */
