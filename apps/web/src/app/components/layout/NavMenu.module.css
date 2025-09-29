@@ -154,6 +154,16 @@
   display: block;
 }
 
+.separator12px {
+  height: 1px !important;
+  background-color: var(--color-border, #e5e7eb) !important;
+  margin: 12px 0 !important;
+  width: 100% !important;
+  display: block !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
 .separatorMyNetwork {
   height: 1px;
   background-color: var(--color-border, #e5e7eb);
