@@ -115,8 +115,6 @@ const NavMenu = () => {
                   <Link href="/profile">My network</Link>
                 </DropdownMenu.Item>
 
-                <DropdownMenu.Separator className={styles.separator} />
-
                 {/* Role Switching Section - Only show if user has multiple roles */}
                 {availableRoles && availableRoles.length > 1 && (
                   <>
@@ -141,7 +139,10 @@ const NavMenu = () => {
                   </>
                 )}
 
-                <DropdownMenu.Separator className={styles.becomeSeparator} />
+                {/* Always show separator before "Become" section */}
+                {!(availableRoles && availableRoles.length > 1) && (
+                  <DropdownMenu.Separator className={styles.separator} />
+                )}
 
                 {/* Role Onboarding Section - Only show roles user doesn't have */}
                 {activeRole !== 'provider' && (
@@ -181,7 +182,7 @@ const NavMenu = () => {
                   </DropdownMenu.Item>
                 )}
 
-                <DropdownMenu.Separator className={styles.becomeSeparator} />
+                <DropdownMenu.Separator className={styles.separator} />
 
                 {/* Account Section */}
                 <DropdownMenu.Item asChild className={styles.menuItem}>
