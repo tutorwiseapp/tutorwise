@@ -22,6 +22,13 @@ import GuanMenuIcon from '../ui/nav/GuanMenuIcon';
 import styles from './NavMenu.module.css';
 import getProfileImageUrl from '@/lib/utils/image';
 
+type Role = 'agent' | 'provider' | 'seeker';
+
+interface RoleConfig {
+  label: string;
+  icon: string;
+}
+
 const NavMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { profile, isLoading, activeRole, availableRoles, switchRole, isRoleSwitching } = useUserProfile();
@@ -29,13 +36,13 @@ const NavMenu = () => {
   const supabase = createClient();
 
   // Role configuration matching your design
-  const roleConfig = {
+  const roleConfig: Record<Role, RoleConfig> = {
     agent: { label: 'Agent', icon: '' },
     provider: { label: 'Tutor', icon: '🎓' },
     seeker: { label: 'Student', icon: '📚' }
-  };
+  } as const;
 
-  const handleRoleSwitch = async (role: 'agent' | 'seeker' | 'provider') => {
+  const handleRoleSwitch = async (role: Role) => {
     try {
       await switchRole(role);
       setIsOpen(false);
@@ -102,7 +109,7 @@ const NavMenu = () => {
                     'Member'
                   }
                 </DropdownMenu.Label>
-                <DropdownMenu.Separator className={styles.separator} />
+                <div className={styles.separator} />
 
                 {/* Main Navigation Items */}
                 <DropdownMenu.Item asChild className={styles.menuItem}>
@@ -115,10 +122,7 @@ const NavMenu = () => {
                   <Link href="/profile">My network</Link>
                 </DropdownMenu.Item>
 
-                <div
-                  className={styles.separator}
-                  style={{ margin: '8px 0' }}
-                />
+                <div className={styles.separator} />
 
                 {/* Role Switching Section - Only show if user has multiple roles */}
                 {availableRoles && availableRoles.length > 1 && (
@@ -143,10 +147,7 @@ const NavMenu = () => {
                   </>
                 )}
 
-                <div
-                  className={styles.separator}
-                  style={{ margin: '8px 0' }}
-                />
+                <div className={styles.separator} />
 
                 {/* Role Onboarding Section - Only show roles user doesn't have */}
                 {activeRole !== 'provider' && (
@@ -186,7 +187,7 @@ const NavMenu = () => {
                   </DropdownMenu.Item>
                 )}
 
-                <DropdownMenu.Separator className={styles.separator} />
+                <div className={styles.separator} />
 
                 {/* Account Section */}
                 <DropdownMenu.Item asChild className={styles.menuItem}>
@@ -196,7 +197,7 @@ const NavMenu = () => {
                   <Link href="/settings">Help centre</Link>
                 </DropdownMenu.Item>
 
-                <DropdownMenu.Separator className={styles.separator} />
+                <div className={styles.separator} />
                 <DropdownMenu.Item
                   className={`${styles.menuItem} ${styles.logoutItem}`}
                   onSelect={handleSignOut}
@@ -212,8 +213,8 @@ const NavMenu = () => {
                 <DropdownMenu.Item asChild className={styles.menuItem}>
                   <Link href="/login">Log In</Link>
                 </DropdownMenu.Item>
-                <DropdownMenu.Separator className={styles.separator} />
-                 <DropdownMenu.Item asChild className={styles.menuItem}>
+                <div className={styles.separator} />
+                <DropdownMenu.Item asChild className={styles.menuItem}>
                   <Link href="/about">About Tutorwise</Link>
                 </DropdownMenu.Item>
               </>
