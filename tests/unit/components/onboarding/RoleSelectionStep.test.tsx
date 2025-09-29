@@ -88,15 +88,15 @@ describe('RoleSelectionStep', () => {
       />
     );
 
-    const studentRole = screen.getByText('Student').closest('div[class*="border-2"]');
-    expect(studentRole).not.toHaveClass('border-blue-500');
+    const studentRole = screen.getByText('Student').closest('div[class*="roleCard"]');
+    expect(studentRole).not.toHaveClass('selected');
 
     fireEvent.click(studentRole!);
-    expect(studentRole).toHaveClass('border-blue-500');
+    expect(studentRole).toHaveClass('selected');
 
     // Deselect
     fireEvent.click(studentRole!);
-    expect(studentRole).not.toHaveClass('border-blue-500');
+    expect(studentRole).not.toHaveClass('selected');
   });
 
   it('allows multiple role selection', () => {
@@ -109,14 +109,14 @@ describe('RoleSelectionStep', () => {
       />
     );
 
-    const studentRole = screen.getByText('Student').closest('div[class*="border-2"]');
-    const tutorRole = screen.getByText('Tutor').closest('div[class*="border-2"]');
+    const studentRole = screen.getByText('Student').closest('div[class*="roleCard"]');
+    const tutorRole = screen.getByText('Tutor').closest('div[class*="roleCard"]');
 
     fireEvent.click(studentRole!);
     fireEvent.click(tutorRole!);
 
-    expect(studentRole).toHaveClass('border-blue-500');
-    expect(tutorRole).toHaveClass('border-green-500');
+    expect(studentRole).toHaveClass('selected');
+    expect(tutorRole).toHaveClass('selected');
   });
 
   it('shows pre-selected roles', () => {
@@ -129,13 +129,13 @@ describe('RoleSelectionStep', () => {
       />
     );
 
-    const studentRole = screen.getByText('Student').closest('div[class*="border-2"]');
-    const tutorRole = screen.getByText('Tutor').closest('div[class*="border-2"]');
-    const agentRole = screen.getByText('Agent').closest('div[class*="border-2"]');
+    const studentRole = screen.getByText('Student').closest('div[class*="roleCard"]');
+    const tutorRole = screen.getByText('Tutor').closest('div[class*="roleCard"]');
+    const agentRole = screen.getByText('Agent').closest('div[class*="roleCard"]');
 
-    expect(studentRole).toHaveClass('border-blue-500');
-    expect(tutorRole).toHaveClass('border-green-500');
-    expect(agentRole).not.toHaveClass('border-purple-500');
+    expect(studentRole).toHaveClass('selected');
+    expect(tutorRole).toHaveClass('selected');
+    expect(agentRole).not.toHaveClass('selected');
   });
 
   it('disables Continue button when no roles selected', () => {
@@ -148,9 +148,9 @@ describe('RoleSelectionStep', () => {
       />
     );
 
-    const continueButton = screen.getByText('Continue');
+    const continueButton = screen.getByText('Continue →');
     expect(continueButton).toBeDisabled();
-    expect(continueButton).toHaveClass('bg-gray-300');
+    expect(continueButton).toHaveClass('buttonDisabled');
   });
 
   it('enables Continue button when roles are selected', () => {
@@ -163,9 +163,9 @@ describe('RoleSelectionStep', () => {
       />
     );
 
-    const continueButton = screen.getByText('Continue');
+    const continueButton = screen.getByText('Continue →');
     expect(continueButton).not.toBeDisabled();
-    expect(continueButton).toHaveClass('bg-blue-600');
+    expect(continueButton).toHaveClass('buttonPrimary');
   });
 
   it('calls onNext with selected roles when Continue is clicked', async () => {
@@ -181,7 +181,7 @@ describe('RoleSelectionStep', () => {
     const studentRole = screen.getByText('Student').closest('div');
     fireEvent.click(studentRole!);
 
-    const continueButton = screen.getByText('Continue');
+    const continueButton = screen.getByText('Continue →');
     fireEvent.click(continueButton);
 
     await waitFor(() => {
@@ -230,7 +230,7 @@ describe('RoleSelectionStep', () => {
     );
 
     // Check for loading spinner by class
-    const spinner = document.querySelector('.animate-spin');
+    const spinner = document.querySelector('.loadingSpinner');
     expect(spinner).toBeInTheDocument();
   });
 });
