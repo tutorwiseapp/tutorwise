@@ -148,11 +148,8 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
       }
     }
 
-    // Check if onboarding is needed
-    const needsOnboarding = !profileData.onboarding_progress?.onboarding_completed;
-    if (needsOnboarding) {
-      setShowOnboarding(true);
-    }
+    // Note: onboarding should be explicitly triggered on onboarding pages,
+    // not automatically shown globally
   };
 
   useEffect(() => {
