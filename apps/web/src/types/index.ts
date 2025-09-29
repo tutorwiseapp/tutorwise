@@ -33,8 +33,8 @@ import React from 'react';
  * It directly maps to the 'profiles' table in Supabase, using snake_case.
  */
 export interface Profile {
-  id: string; 
-  agent_id: string; 
+  id: string;
+  agent_id: string;
   display_name: string;
   first_name?: string;
   last_name?: string;
@@ -45,11 +45,52 @@ export interface Profile {
   custom_picture_url?: string;
   cover_photo_url?: string;
   stripe_account_id?: string;
-  // --- THIS IS THE FIX ---
-  // Add the missing property to match the database schema.
-  stripe_customer_id?: string; 
+  stripe_customer_id?: string;
   roles: ('agent' | 'seeker' | 'provider')[];
   created_at: string;
+
+  // Onboarding system fields
+  preferences?: Record<string, any>;
+  onboarding_progress?: OnboardingProgress;
+}
+
+export interface OnboardingProgress {
+  completed_steps?: string[];
+  current_step?: string;
+  onboarding_completed?: boolean;
+  skipped?: boolean;
+  role_specific_progress?: Record<string, any>;
+}
+
+export interface RoleDetails {
+  id: string;
+  profile_id: string;
+  role_type: 'seeker' | 'provider' | 'agent';
+  subjects?: string[];
+  skill_levels?: Record<string, number>;
+  goals?: string[];
+
+  // Provider-specific fields
+  teaching_experience_years?: number;
+  hourly_rate?: number;
+  qualifications?: string[];
+  specializations?: string[];
+  teaching_style?: string;
+
+  // Seeker-specific fields
+  current_level?: string;
+  target_level?: string;
+  learning_style?: string;
+  availability_hours?: number;
+  budget_range?: string;
+
+  // Agent-specific fields
+  commission_rate?: number;
+  target_categories?: string[];
+  performance_metrics?: Record<string, any>;
+
+  created_at: string;
+  updated_at: string;
 }
 
 // NOTE: This 'User' type is kept for backward compatibility with the existing mock data system.

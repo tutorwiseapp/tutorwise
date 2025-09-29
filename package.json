@@ -12,9 +12,19 @@
     "dev:api": "cd apps/api && python3 -m uvicorn app.main:app --reload",
     "build": "npm run build --workspace=@tutorwise/web",
     "test": "npm run test --workspace=@tutorwise/web",
+    "test:unit": "jest tests/unit",
+    "test:unit:quick": "jest tests/unit --passWithNoTests --silent",
+    "test:unit:watch": "jest tests/unit --watch",
+    "test:unit:coverage": "jest tests/unit --coverage",
+    "test:integration": "jest tests/integration",
     "test:backend": "cd apps/api && python3 -m pytest tests/ -v",
     "test:e2e": "playwright test --config=tools/playwright/playwright.config.ts",
+    "test:e2e:ui": "playwright test --config=tools/playwright/playwright.config.ts --ui",
+    "test:e2e:staging": "BASE_URL=https://tutorwise-production.up.railway.app playwright test --config=tools/playwright/playwright.config.ts",
     "test:visual": "percy exec -- playwright test --config=tools/playwright/playwright.config.ts",
+    "test:all": "npm run test:unit:coverage && npm run test:integration && npm run test:e2e",
+    "test:ci": "npm run test:unit:coverage && npm run test:integration && npm run test:e2e",
+    "test:watch": "concurrently \"npm run test:unit:watch\" \"npm run test:e2e:ui\"",
     "lint": "npm run lint --workspace=@tutorwise/web",
     "lint:backend": "cd apps/api && python3 -m ruff check app/",
     "context:generate": "node tools/context-engineering/generate-context.js",
@@ -38,15 +48,25 @@
     "jira:test-tasks": "node tools/scripts/automation/jira-task-executor.js test",
     "calendar:poll": "node tools/scripts/automation/calendar-task-executor.js poll",
     "calendar:poll:continuous": "node tools/scripts/automation/calendar-task-executor.js continuous",
-    "calendar:test-tasks": "node tools/scripts/automation/calendar-task-executor.js test"
+    "calendar:test-tasks": "node tools/scripts/automation/calendar-task-executor.js test",
+    "gemini": "python3 .ai/scripts/gemini-cli-simple.py --interactive",
+    "gemini:chat": "python3 .ai/scripts/gemini-cli-simple.py chat",
+    "gemini:help": "python3 .ai/scripts/gemini-cli-simple.py --help",
+    "gemini:advanced": "python3 .ai/scripts/gemini-cli.py --help",
+    "gemini:models": "python3 .ai/scripts/check-gemini-models.py",
+    "ai:gemini": "npm run context:generate && python3 .ai/scripts/gemini-cli-simple.py --interactive",
+    "prepare": "husky"
   },
   "dependencies": {
+    "@google/genai": "^1.21.0",
     "axios": "^1.6.0",
-    "googleapis": "^130.0.0",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "googleapis": "^130.0.0"
   },
   "devDependencies": {
     "@percy/cli": "^1.31.2",
-    "@percy/playwright": "^1.0.9"
+    "@percy/playwright": "^1.0.9",
+    "concurrently": "^9.2.1",
+    "husky": "^9.1.7"
   }
 }

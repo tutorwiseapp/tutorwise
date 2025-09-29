@@ -141,8 +141,8 @@ class TutorwiseGeminiCLI:
                 context["mermaid_diagrams"] = mermaid_overview.read_text()
 
             print(f"✅ Loaded context: {len(context['jira_tickets'])} tickets, "
-                  f"{'GitHub' if context['github_data'] else 'No GitHub'}, "
-                  f"{'Figma' if context['figma_designs'] else 'No Figma'}")
+                  f"{'GitHub' if bool(context['github_data']) else 'No GitHub'}, "
+                  f"{'Figma' if bool(context['figma_designs']) else 'No Figma'}")
 
         except Exception as e:
             print(f"⚠️  Warning loading context: {e}")
@@ -160,10 +160,10 @@ PROJECT CONTEXT:
 {self.context['prompt'][:3000]}  # Truncate for token limits
 
 CURRENT JIRA TICKETS:
-{chr(10).join([f"- {ticket['key']}: {ticket['content'][:200]}..." for ticket in self.context['jira_tickets'][:5]])}
+{chr(10).join([f"- {ticket['key']}: {str(ticket.get('content', ''))[:200]}..." for ticket in self.context['jira_tickets'][:5]])}
 
 DEVELOPMENT SCHEDULE:
-{self.context['calendar_events'][:500] if self.context['calendar_events'] else 'No scheduled events'}
+{str(self.context['calendar_events'])[:500] if self.context['calendar_events'] else 'No scheduled events'}
 
 USER QUERY: {user_query}
 

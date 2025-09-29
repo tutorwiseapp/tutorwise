@@ -1,0 +1,82 @@
+{
+  "featureName": "Clean Task Creation Test",
+  "type": "feature-implementation",
+  "complexity": "low",
+  "epicKey": null,
+  "tasks": [
+    {
+      "success": true,
+      "key": "TUTOR-50",
+      "id": "10110",
+      "url": "https://tutorwise.atlassian.net/browse/TUTOR-50",
+      "storyPoints": 0.5,
+      "startDate": "2025-09-29",
+      "dueDate": "2025-09-30",
+      "phase": "Technical Design",
+      "automationLevel": "ai-assisted",
+      "estimatedHours": 1
+    },
+    {
+      "success": true,
+      "key": "TUTOR-51",
+      "id": "10111",
+      "url": "https://tutorwise.atlassian.net/browse/TUTOR-51",
+      "storyPoints": 0.5,
+      "startDate": "2025-09-29",
+      "dueDate": "2025-09-30",
+      "phase": "Code Implementation",
+      "automationLevel": "autonomous",
+      "estimatedHours": 2
+    },
+    {
+      "success": true,
+      "key": "TUTOR-52",
+      "id": "10112",
+      "url": "https://tutorwise.atlassian.net/browse/TUTOR-52",
+      "storyPoints": 0.5,
+      "startDate": "2025-09-29",
+      "dueDate": "2025-09-30",
+      "phase": "Testing Implementation",
+      "automationLevel": "autonomous",
+      "estimatedHours": 1
+    },
+    {
+      "success": true,
+      "key": "TUTOR-53",
+      "id": "10113",
+      "url": "https://tutorwise.atlassian.net/browse/TUTOR-53",
+      "storyPoints": 0.5,
+      "startDate": "2025-09-29",
+      "dueDate": "2025-09-30",
+      "phase": "Quality Assurance",
+      "automationLevel": "ai-assisted",
+      "estimatedHours": 1
+    },
+    {
+      "success": true,
+      "key": "TUTOR-54",
+      "id": "10114",
+      "url": "https://tutorwise.atlassian.net/browse/TUTOR-54",
+      "storyPoints": 0.5,
+      "startDate": "2025-09-29",
+      "dueDate": "2025-09-30",
+      "phase": "Documentation",
+      "automationLevel": "autonomous",
+      "estimatedHours": 0.5
+    },
+    {
+      "success": true,
+      "key": "TUTOR-55",
+      "id": "10115",
+      "url": "https://tutorwise.atlassian.net/browse/TUTOR-55",
+      "storyPoints": 0.5,
+      "startDate": "2025-09-29",
+      "dueDate": "2025-09-30",
+      "phase": "Deployment",
+      "automationLevel": "automated",
+      "estimatedHours": 0.5
+    }
+  ],
+  "totalEstimatedHours": 6,
+  "createdAt": "2025-09-29T11:06:50.270Z"
+}

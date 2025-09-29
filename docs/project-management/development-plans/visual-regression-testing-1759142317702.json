@@ -1,0 +1,46 @@
+{
+  "featureName": "Visual Regression Testing",
+  "type": "testing-enhancement",
+  "complexity": "medium",
+  "epicKey": null,
+  "tasks": [
+    {
+      "success": true,
+      "key": "TUTOR-42",
+      "id": "10098",
+      "url": "https://tutorwise.atlassian.net/browse/TUTOR-42",
+      "phase": "Test Strategy",
+      "automationLevel": "ai-assisted",
+      "estimatedHours": 2
+    },
+    {
+      "success": true,
+      "key": "TUTOR-43",
+      "id": "10099",
+      "url": "https://tutorwise.atlassian.net/browse/TUTOR-43",
+      "phase": "Test Implementation",
+      "automationLevel": "autonomous",
+      "estimatedHours": 4
+    },
+    {
+      "success": true,
+      "key": "TUTOR-44",
+      "id": "10100",
+      "url": "https://tutorwise.atlassian.net/browse/TUTOR-44",
+      "phase": "CI/CD Integration",
+      "automationLevel": "autonomous",
+      "estimatedHours": 1
+    },
+    {
+      "success": true,
+      "key": "TUTOR-45",
+      "id": "10101",
+      "url": "https://tutorwise.atlassian.net/browse/TUTOR-45",
+      "phase": "Monitoring Setup",
+      "automationLevel": "automated",
+      "estimatedHours": 1
+    }
+  ],
+  "totalEstimatedHours": 8,
+  "createdAt": "2025-09-29T10:38:37.700Z"
+}

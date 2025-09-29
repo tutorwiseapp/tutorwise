@@ -1,0 +1,67 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Gemini CLI Interactive",
+            "type": "shell",
+            "command": "npm",
+            "args": [
+                "run",
+                "gemini"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Gemini CLI with Context",
+            "type": "shell",
+            "command": "npm",
+            "args": [
+                "run",
+                "ai:gemini"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Gemini CLI Chat",
+            "type": "shell",
+            "command": "npm",
+            "args": [
+                "run",
+                "gemini:chat",
+                "--",
+                "--query",
+                "${input:geminiQuery}"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "new"
+            },
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "id": "geminiQuery",
+            "description": "Enter your question for Gemini",
+            "default": "How can I help with this project?",
+            "type": "promptString"
+        }
+    ]
+}

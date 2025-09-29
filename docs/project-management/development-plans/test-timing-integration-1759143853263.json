@@ -1,0 +1,58 @@
+{
+  "featureName": "Test Timing Integration",
+  "type": "testing-enhancement",
+  "complexity": "medium",
+  "epicKey": null,
+  "tasks": [
+    {
+      "success": true,
+      "key": "TUTOR-46",
+      "id": "10106",
+      "url": "https://tutorwise.atlassian.net/browse/TUTOR-46",
+      "storyPoints": 0.5,
+      "startDate": "2025-09-29",
+      "dueDate": "2025-09-30",
+      "phase": "Test Strategy",
+      "automationLevel": "ai-assisted",
+      "estimatedHours": 2
+    },
+    {
+      "success": true,
+      "key": "TUTOR-47",
+      "id": "10107",
+      "url": "https://tutorwise.atlassian.net/browse/TUTOR-47",
+      "storyPoints": 0.5,
+      "startDate": "2025-09-29",
+      "dueDate": "2025-09-30",
+      "phase": "Test Implementation",
+      "automationLevel": "autonomous",
+      "estimatedHours": 4
+    },
+    {
+      "success": true,
+      "key": "TUTOR-48",
+      "id": "10108",
+      "url": "https://tutorwise.atlassian.net/browse/TUTOR-48",
+      "storyPoints": 0.5,
+      "startDate": "2025-09-29",
+      "dueDate": "2025-09-30",
+      "phase": "CI/CD Integration",
+      "automationLevel": "autonomous",
+      "estimatedHours": 1
+    },
+    {
+      "success": true,
+      "key": "TUTOR-49",
+      "id": "10109",
+      "url": "https://tutorwise.atlassian.net/browse/TUTOR-49",
+      "storyPoints": 0.5,
+      "startDate": "2025-09-29",
+      "dueDate": "2025-09-30",
+      "phase": "Monitoring Setup",
+      "automationLevel": "automated",
+      "estimatedHours": 1
+    }
+  ],
+  "totalEstimatedHours": 8,
+  "createdAt": "2025-09-29T11:04:13.263Z"
+}

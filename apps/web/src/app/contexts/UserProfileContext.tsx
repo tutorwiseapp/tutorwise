@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import type { Profile } from '@/types';
+import type { Profile, OnboardingProgress, RoleDetails } from '@/types';
 import type { User } from '@supabase/supabase-js';
 
 interface RolePreferences {
@@ -22,6 +22,13 @@ interface UserProfileContextType {
   updateRolePreferences: (preferences: Partial<RolePreferences>) => Promise<void>;
   isLoading: boolean;
   isRoleSwitching: boolean;
+
+  // Onboarding functions
+  needsOnboarding: boolean;
+  showOnboarding: boolean;
+  setShowOnboarding: (show: boolean) => void;
+  updateOnboardingProgress: (progress: Partial<OnboardingProgress>) => Promise<void>;
+  getRoleDetails: (role: 'agent' | 'seeker' | 'provider') => Promise<RoleDetails | null>;
 }
 
 const UserProfileContext = createContext<UserProfileContextType | undefined>(undefined);
@@ -34,6 +41,7 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
   const [activeRole, setActiveRole] = useState<'agent' | 'seeker' | 'provider' | null>(null);
   const [rolePreferences, setRolePreferences] = useState<RolePreferences>({});
   const [isRoleSwitching, setIsRoleSwitching] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   // Role management functions
   const switchRole = async (role: 'agent' | 'seeker' | 'provider') => {
@@ -67,6 +75,55 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Onboarding functions
+  const updateOnboardingProgress = async (progress: Partial<OnboardingProgress>) => {
+    if (!user?.id) return;
+
+    try {
+      const currentProgress = profile?.onboarding_progress || {};
+      const updatedProgress = { ...currentProgress, ...progress };
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ onboarding_progress: updatedProgress })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      // Update local state
+      setProfile(prev => prev ? { ...prev, onboarding_progress: updatedProgress } : null);
+    } catch (error) {
+      console.error('Error updating onboarding progress:', error);
+      throw error;
+    }
+  };
+
+  const getRoleDetails = async (role: 'agent' | 'seeker' | 'provider'): Promise<RoleDetails | null> => {
+    if (!user?.id) return null;
+
+    try {
+      const { data, error } = await supabase
+        .from('role_details')
+        .select('*')
+        .eq('profile_id', user.id)
+        .eq('role_type', role)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // No role details found, which is expected for new users
+          return null;
+        }
+        throw error;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error fetching role details:', error);
+      return null;
+    }
+  };
+
   const initializeRole = (profileData: Profile) => {
     if (!profileData.roles || profileData.roles.length === 0) {
       setActiveRole(null);
@@ -89,6 +146,12 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
         console.error('Error parsing role preferences:', error);
         setRolePreferences({});
       }
+    }
+
+    // Check if onboarding is needed
+    const needsOnboarding = !profileData.onboarding_progress?.onboarding_completed;
+    if (needsOnboarding) {
+      setShowOnboarding(true);
     }
   };
 
@@ -142,6 +205,7 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
   }, [supabase]);
 
   const availableRoles = profile?.roles || [];
+  const needsOnboarding = !profile?.onboarding_progress?.onboarding_completed && !!user;
 
   return (
     <UserProfileContext.Provider value={{
@@ -153,7 +217,12 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
       rolePreferences,
       updateRolePreferences,
       isLoading,
-      isRoleSwitching
+      isRoleSwitching,
+      needsOnboarding,
+      showOnboarding,
+      setShowOnboarding,
+      updateOnboardingProgress,
+      getRoleDetails
     }}>
       {children}
     </UserProfileContext.Provider>

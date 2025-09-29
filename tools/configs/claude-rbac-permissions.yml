@@ -1,0 +1,243 @@
+# =====================================================================
+# Claude Code Assistant - Role-Based Access Control (RBAC)
+# Project: Tutorwise
+# Created: 2025-09-29
+# Purpose: Define permissions and restrictions for Claude Code assistant
+# =====================================================================
+
+# Assistant Identity
+assistant:
+  name: "Claude Code"
+  role: "development_assistant"
+  project: "tutorwise"
+  version: "1.0"
+
+# =====================================================================
+# CRITICAL RESTRICTIONS (NEVER ALLOWED)
+# =====================================================================
+restrictions:
+  # Database Operations - CRITICAL
+  database:
+    - action: "DELETE DATABASE"
+      permission: "FORBIDDEN"
+      description: "Cannot delete entire databases or instances"
+      requires_approval: true
+
+    - action: "DROP SCHEMA"
+      permission: "FORBIDDEN"
+      description: "Cannot drop database schemas without approval"
+      requires_approval: true
+
+    - action: "TRUNCATE TABLES"
+      permission: "FORBIDDEN"
+      description: "Cannot truncate tables with user data"
+      requires_approval: true
+
+  # Infrastructure Operations
+  infrastructure:
+    - action: "DELETE INSTANCES"
+      permission: "FORBIDDEN"
+      description: "Cannot delete cloud instances, containers, or services"
+      requires_approval: true
+
+    - action: "MODIFY PRODUCTION CONFIG"
+      permission: "RESTRICTED"
+      description: "Cannot modify production environment configs without approval"
+      requires_approval: true
+
+  # Security Operations
+  security:
+    - action: "MODIFY AUTH SETTINGS"
+      permission: "FORBIDDEN"
+      description: "Cannot change authentication or authorization settings"
+      requires_approval: true
+
+    - action: "DELETE USER ACCOUNTS"
+      permission: "FORBIDDEN"
+      description: "Cannot delete user accounts or profiles"
+      requires_approval: true
+
+# =====================================================================
+# ALLOWED PERMISSIONS BY CATEGORY
+# =====================================================================
+permissions:
+
+  # Code Development
+  code:
+    read: "ALLOWED"
+    write: "ALLOWED"
+    edit: "ALLOWED"
+    create: "ALLOWED"
+    delete: "RESTRICTED"  # Only specific files, not critical system files
+    description: "Full access to read, write, and edit application code"
+
+  # Database Schema Management
+  database:
+    read_schema: "ALLOWED"
+    create_tables: "ALLOWED"
+    alter_tables: "ALLOWED"
+    create_functions: "ALLOWED"
+    create_views: "ALLOWED"
+    create_indexes: "ALLOWED"
+    insert_test_data: "ALLOWED"
+    update_test_data: "ALLOWED"
+    delete_test_data: "RESTRICTED"  # Only test data, not production
+    run_migrations: "ALLOWED"
+    description: "Can manage database schema and test data, but not delete production data"
+
+  # Tools and Scripts
+  tools:
+    read: "ALLOWED"
+    write: "ALLOWED"
+    execute: "ALLOWED"
+    create: "ALLOWED"
+    modify: "ALLOWED"
+    description: "Full access to development tools and automation scripts"
+
+  # Documentation
+  documentation:
+    read: "ALLOWED"
+    write: "ALLOWED"
+    create: "ALLOWED"
+    update: "ALLOWED"
+    organize: "ALLOWED"
+    description: "Full access to project documentation"
+
+  # Configuration Files
+  configuration:
+    read: "ALLOWED"
+    write: "RESTRICTED"  # Some configs require approval
+    create: "ALLOWED"
+    modify_dev: "ALLOWED"
+    modify_prod: "RESTRICTED"  # Production configs need approval
+    description: "Can modify development configs, production configs need approval"
+
+  # Testing
+  testing:
+    read: "ALLOWED"
+    write: "ALLOWED"
+    execute: "ALLOWED"
+    create_tests: "ALLOWED"
+    run_tests: "ALLOWED"
+    description: "Full access to testing frameworks and test execution"
+
+  # Package Management
+  packages:
+    install: "ALLOWED"
+    update: "ALLOWED"
+    remove: "RESTRICTED"  # Major dependencies need approval
+    description: "Can manage dependencies, major removals need approval"
+
+  # Git Operations
+  git:
+    read: "ALLOWED"
+    commit: "ALLOWED"
+    push: "ALLOWED"
+    branch: "ALLOWED"
+    merge: "RESTRICTED"  # Merge to main needs approval
+    delete_branches: "ALLOWED"  # Only feature branches
+    description: "Full git access except merging to main branch"
+
+# =====================================================================
+# APPROVAL REQUIRED OPERATIONS
+# =====================================================================
+requires_approval:
+
+  # High-Risk Database Operations
+  - action: "DELETE production data"
+    reason: "Risk of data loss"
+
+  - action: "DROP tables with user data"
+    reason: "Risk of permanent data loss"
+
+  - action: "ALTER production database schema"
+    reason: "Risk of breaking production application"
+
+  # Infrastructure Changes
+  - action: "DELETE cloud resources"
+    reason: "Risk of service interruption"
+
+  - action: "MODIFY production environment variables"
+    reason: "Risk of application malfunction"
+
+  # Security Changes
+  - action: "CHANGE authentication settings"
+    reason: "Risk of security breach"
+
+  - action: "MODIFY user permissions"
+    reason: "Risk of unauthorized access"
+
+  # Critical Code Changes
+  - action: "DELETE core system files"
+    reason: "Risk of system failure"
+
+  - action: "MERGE to main branch"
+    reason: "Risk of introducing bugs to production"
+
+# =====================================================================
+# ENVIRONMENT-SPECIFIC PERMISSIONS
+# =====================================================================
+environments:
+
+  development:
+    access_level: "FULL"
+    restrictions: "MINIMAL"
+    description: "Nearly unrestricted access for development work"
+
+  staging:
+    access_level: "FULL"
+    restrictions: "MODERATE"
+    description: "Full access with some safety restrictions"
+
+  production:
+    access_level: "RESTRICTED"
+    restrictions: "HIGH"
+    description: "Limited access, most operations require approval"
+    approval_required_for:
+      - "Database modifications"
+      - "Configuration changes"
+      - "Data modifications"
+      - "Infrastructure changes"
+
+# =====================================================================
+# MONITORING AND LOGGING
+# =====================================================================
+monitoring:
+  log_all_actions: true
+  log_approval_requests: true
+  log_forbidden_attempts: true
+  notify_on_high_risk: true
+
+  high_risk_actions:
+    - "Database deletions"
+    - "Production modifications"
+    - "Security changes"
+    - "Infrastructure deletions"
+
+# =====================================================================
+# EMERGENCY PROCEDURES
+# =====================================================================
+emergency:
+  escalation_contact: "project_owner"
+  emergency_stop: "User can revoke all permissions immediately"
+  rollback_procedure: "All database changes must be reversible"
+
+# =====================================================================
+# USAGE NOTES
+# =====================================================================
+notes: |
+  1. This RBAC file defines what Claude Code assistant can and cannot do
+  2. Critical operations (DELETE, DROP, TRUNCATE) are forbidden without approval
+  3. Production environment has higher restrictions than development
+  4. All high-risk operations are logged and monitored
+  5. User maintains ultimate control and can revoke permissions anytime
+  6. When in doubt, Claude should ask for permission rather than assume
+
+# =====================================================================
+# VERSION HISTORY
+# =====================================================================
+version_history:
+  v1.0:
+    date: "2025-09-29"
+    changes: "Initial RBAC permissions file created"
+    author: "Claude Code Assistant"

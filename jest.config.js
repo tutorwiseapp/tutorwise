@@ -2,7 +2,7 @@ const nextJest = require('next/jest')
 
 const createJestConfig = nextJest({
   // Provide the path to your Next.js app to load next.config.js and .env files
-  dir: './',
+  dir: './apps/web',
 })
 
 // Add any custom config to be passed to Jest
@@ -16,18 +16,18 @@ const customJestConfig = {
     '<rootDir>/tests/e2e/'
   ],
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
+    '^@/(.*)$': '<rootDir>/apps/web/src/$1',
   },
   collectCoverageFrom: [
-    'src/**/*.{js,jsx,ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/**/_*.{js,jsx,ts,tsx}',
-    '!src/**/layout.tsx',
-    '!src/**/page.tsx',
-    '!src/**/loading.tsx',
-    '!src/**/error.tsx',
-    '!src/**/not-found.tsx',
-    '!src/app/globals.css',
+    'apps/web/src/**/*.{js,jsx,ts,tsx}',
+    '!apps/web/src/**/*.d.ts',
+    '!apps/web/src/**/_*.{js,jsx,ts,tsx}',
+    '!apps/web/src/**/layout.tsx',
+    '!apps/web/src/**/page.tsx',
+    '!apps/web/src/**/loading.tsx',
+    '!apps/web/src/**/error.tsx',
+    '!apps/web/src/**/not-found.tsx',
+    '!apps/web/src/app/globals.css',
   ],
   coverageReporters: ['text', 'html', 'lcov'],
   coverageDirectory: 'coverage',

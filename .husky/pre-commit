@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run quick tests before commit
+echo "🧪 Running pre-commit tests..."
+
+# Run unit tests (quick mode)
+npm run test:unit:quick
+
+# Run linting
+npm run lint
+
+# Check for TypeScript errors
+npm run build --quiet || (echo "❌ Build failed. Please fix TypeScript errors." && exit 1)
+
+echo "✅ Pre-commit checks passed!"

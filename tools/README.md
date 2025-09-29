@@ -9,6 +9,7 @@ tools/
 ├── scripts/              # Automation scripts and utilities
 ├── configs/              # Shared configuration files
 ├── context-engineering/  # AI context generation and migration tools
+├── database/            # Database migrations and schema management
 ├── playwright/          # End-to-end testing configuration
 ├── percy/               # Visual testing setup
 └── README.md           # This file
@@ -20,7 +21,7 @@ tools/
 - Build automation scripts
 - Development utilities
 - Deployment helpers
-- Database migration scripts
+- Integration scripts
 
 ### `configs/`
 - **`eslint.config.js`** - Shared ESLint configuration
@@ -38,6 +39,11 @@ tools/
 - **`playwright.config.ts`** - Playwright configuration for E2E tests
 - Test utilities and helpers
 - Browser automation setup
+
+### `database/`
+- **Database Migrations** - SQL scripts for schema changes and data migrations
+- **Migration Tools** - Validation and testing scripts for database changes
+- **Schema Documentation** - Database structure documentation and guides
 
 ### `percy/`
 - Visual regression testing setup
@@ -60,6 +66,35 @@ node tools/context-engineering/generate-context.js
 npm run test:e2e
 # Run visual tests
 npm run test:visual
+```
+
+### Database Migrations
+```bash
+# Apply database migrations (see tools/database/README.md)
+psql -f tools/database/migrations/001_add_onboarding_system.sql
+
+# Validate migration
+psql -f tools/database/migrations/validate_onboarding_schema.sql
+```
+
+### Environment & Integration Testing
+```bash
+# Check environment variables (always loads from .env.local first)
+node tools/scripts/utilities/load-env.js
+
+# Test all integrations (Claude Code, Gemini, Supabase, Database)
+node tools/scripts/utilities/test-integrations.js
+
+# Test specific integration
+node tools/scripts/utilities/test-integrations.js gemini
+node tools/scripts/utilities/test-integrations.js supabase
+```
+
+### Claude Code Permissions
+```bash
+# Check if Claude Code assistant can perform an action
+node tools/scripts/utilities/check-claude-permissions.js "DELETE DATABASE" production
+node tools/scripts/utilities/check-claude-permissions.js "CREATE TABLE" development
 ```
 
 ### Development Scripts

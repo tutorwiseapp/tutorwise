@@ -5,13 +5,15 @@
 'use client';
 
 import { UserProfileProvider } from './contexts/UserProfileContext';
+import OnboardingProvider from './components/onboarding/OnboardingProvider';
 import React from 'react';
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  // We no longer need the KindeProvider.
   return (
     <UserProfileProvider>
-      {children}
+      <OnboardingProvider>
+        {children}
+      </OnboardingProvider>
     </UserProfileProvider>
   );
 }
