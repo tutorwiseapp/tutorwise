@@ -58,10 +58,10 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
       if (profile.roles && profile.roles.length > 0) {
         setSelectedRoles(profile.roles);
 
-        // If user has roles but is on welcome/role-selection, they might have abandoned during role-details
-        if (progress?.current_step === 'role-selection' || !progress?.current_step) {
-          setCurrentStep('role-details');
-          setCurrentRoleIndex(0);
+        // For the new inspirational onboarding, always start with welcome step
+        // Users should experience the full "Believe. Learn. Succeed." journey
+        if (!progress?.current_step) {
+          setCurrentStep('welcome');
         }
       }
 
@@ -159,11 +159,14 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
       if (profileError) throw profileError;
 
       setSelectedRoles(roles);
-      setCurrentStep('role-details');
-      setCurrentRoleIndex(0);
+      setCurrentStep('completion');
 
-      await updateOnboardingProgress('role-details', {
-        role_specific_progress: { selected_roles: roles }
+      await updateOnboardingProgress('completion', {
+        onboarding_completed: true,
+        role_specific_progress: {
+          selected_roles: roles,
+          completed_at: new Date().toISOString()
+        }
       });
     } catch (err) {
       console.error('Error saving role selection:', err);
@@ -270,18 +273,19 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
         );
 
       case 'role-details':
-        const currentRole = selectedRoles[currentRoleIndex];
-        return (
-          <RoleDetailsStep
-            role={currentRole}
-            roleIndex={currentRoleIndex}
-            totalRoles={selectedRoles.length}
-            onNext={handleRoleDetailsNext}
-            onSkip={handleSkip}
-            isLoading={isLoading}
-            initialData={roleDetailsData[currentRole]}
-          />
-        );
+        // Skip role-details for now - our new design focuses on inspiration over detailed forms
+        // Automatically complete onboarding after subject selection
+        if (selectedRoles.length > 0) {
+          setCurrentStep('completion');
+          updateOnboardingProgress('completion', {
+            onboarding_completed: true,
+            role_specific_progress: {
+              selected_roles: selectedRoles,
+              completed_at: new Date().toISOString()
+            }
+          });
+        }
+        return null;
 
       case 'completion':
         return (
@@ -304,15 +308,14 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
     switch (currentStep) {
       case 'welcome': return 1;
       case 'role-selection': return 2;
-      case 'role-details': return 3;
-      case 'completion': return 4;
+      case 'completion': return 3;
       default: return 1;
     }
   };
 
   const renderProgressIndicator = () => {
     const stepNumber = getStepNumber();
-    const totalSteps = 4;
+    const totalSteps = 3;
 
     return (
       <div className={styles.wizardProgress}>
