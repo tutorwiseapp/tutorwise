@@ -16,8 +16,8 @@ import { NextRequest, NextResponse } from 'next/server';
 // --- THIS IS THE FIX ---
 // We create a dedicated admin client that can bypass RLS for this public data lookup.
 const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'temp-key'
 );
 
 export async function GET(
