@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import OnboardingWizard from '@/app/components/onboarding/OnboardingWizard';
 import styles from './page.module.css';
 
-export default function OnboardingPage() {
+function OnboardingPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, profile, isLoading, needsOnboarding } = useUserProfile();
@@ -60,5 +60,18 @@ export default function OnboardingPage() {
         initialStep={resumeStep || undefined}
       />
     </div>
+  );
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={
+      <div className={styles.loading}>
+        <div className={styles.spinner}></div>
+        <p>Loading onboarding...</p>
+      </div>
+    }>
+      <OnboardingPageContent />
+    </Suspense>
   );
 }
