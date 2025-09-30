@@ -201,18 +201,30 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
   const handleWelcomeNext = async () => {
     console.log('Auto-save: Moving to role-selection step');
     setCurrentStep('role-selection');
-    await updateOnboardingProgress('role-selection');
+    try {
+      await updateOnboardingProgress('role-selection');
+    } catch (error) {
+      console.warn('Failed to save progress, but continuing with onboarding:', error);
+    }
   };
 
   const handleBack = async () => {
     switch (currentStep) {
       case 'role-selection':
         setCurrentStep('welcome');
-        await updateOnboardingProgress('welcome');
+        try {
+          await updateOnboardingProgress('welcome');
+        } catch (error) {
+          console.warn('Failed to save progress, but continuing with navigation:', error);
+        }
         break;
       case 'role-details':
         setCurrentStep('role-selection');
-        await updateOnboardingProgress('role-selection');
+        try {
+          await updateOnboardingProgress('role-selection');
+        } catch (error) {
+          console.warn('Failed to save progress, but continuing with navigation:', error);
+        }
         break;
       case 'completion':
         // Don't allow going back from completion
