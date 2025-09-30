@@ -6,6 +6,7 @@ import styles from '../OnboardingWizard.module.css';
 interface RoleSelectionStepProps {
   selectedRoles: ('agent' | 'seeker' | 'provider')[];
   onNext: (roles: ('agent' | 'seeker' | 'provider')[]) => void;
+  onBack?: () => void;
   onSkip: () => void;
   isLoading: boolean;
 }
@@ -55,6 +56,7 @@ const subjects = [
 const RoleSelectionStep: React.FC<RoleSelectionStepProps> = ({
   selectedRoles,
   onNext,
+  onBack,
   onSkip,
   isLoading
 }) => {
@@ -124,28 +126,42 @@ const RoleSelectionStep: React.FC<RoleSelectionStepProps> = ({
       </div>
 
       <div className={styles.stepActions}>
-        <button
-          onClick={onSkip}
-          className={styles.buttonSecondary}
-          disabled={isLoading}
-        >
-          Skip for now
-        </button>
-
-        <button
-          onClick={handleNext}
-          disabled={selectedSubjects.length === 0 || isLoading}
-          className={`${styles.buttonPrimary} ${(selectedSubjects.length === 0 || isLoading) ? styles.buttonDisabled : ''}`}
-        >
-          {isLoading ? (
-            <>
-              <div className={styles.loadingSpinner}></div>
-              Saving...
-            </>
-          ) : (
-            'Continue →'
+        <div className={styles.actionLeft}>
+          {onBack && (
+            <button
+              onClick={onBack}
+              className={styles.buttonSecondary}
+              disabled={isLoading}
+            >
+              ← Back
+            </button>
           )}
-        </button>
+        </div>
+
+        <div className={styles.actionRight}>
+          <button
+            onClick={onSkip}
+            className={styles.buttonSecondary}
+            disabled={isLoading}
+          >
+            Skip for now
+          </button>
+
+          <button
+            onClick={handleNext}
+            disabled={selectedSubjects.length === 0 || isLoading}
+            className={`${styles.buttonPrimary} ${(selectedSubjects.length === 0 || isLoading) ? styles.buttonDisabled : ''}`}
+          >
+            {isLoading ? (
+              <>
+                <div className={styles.loadingSpinner}></div>
+                Saving...
+              </>
+            ) : (
+              'Next →'
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

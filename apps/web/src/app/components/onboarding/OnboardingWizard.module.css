@@ -90,6 +90,18 @@
   align-items: center;
 }
 
+.actionLeft {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.actionRight {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
 @media (min-width: 768px) {
   .stepActions {
     gap: 1.5rem;

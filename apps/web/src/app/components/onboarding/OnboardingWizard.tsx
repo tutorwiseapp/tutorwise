@@ -204,6 +204,24 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
     await updateOnboardingProgress('role-selection');
   };
 
+  const handleBack = async () => {
+    switch (currentStep) {
+      case 'role-selection':
+        setCurrentStep('welcome');
+        await updateOnboardingProgress('welcome');
+        break;
+      case 'role-details':
+        setCurrentStep('role-selection');
+        await updateOnboardingProgress('role-selection');
+        break;
+      case 'completion':
+        // Don't allow going back from completion
+        break;
+      default:
+        break;
+    }
+  };
+
   const handleRoleSelection = async (roles: ('agent' | 'seeker' | 'provider')[]) => {
     if (!user?.id || roles.length === 0) return;
 
@@ -328,6 +346,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
           <RoleSelectionStep
             selectedRoles={selectedRoles}
             onNext={handleRoleSelection}
+            onBack={handleBack}
             onSkip={handleSkip}
             isLoading={isLoading}
           />
