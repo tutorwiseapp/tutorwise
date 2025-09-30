@@ -70,7 +70,22 @@
       "Bash(./backup-credentials.sh)",
       "Bash(git reset:*)",
       "Bash(git restore:*)",
-      "Bash(./scripts/visual-test.sh:*)"
+      "Bash(./scripts/visual-test.sh:*)",
+      "Bash(npx vercel:*)",
+      "WebFetch(domain:vercel.com)",
+      "Bash(railway --version)",
+      "Bash(railway help:*)",
+      "Bash(env)",
+      "Bash(./health-check.sh:*)",
+      "Bash(find:*)",
+      "Bash(tools/scripts/neo4j-test-connection.sh:*)",
+      "Bash(tools/scripts/redis-test-connection.sh:*)",
+      "Bash(tools/scripts/terraform-test-connection.sh:*)",
+      "Bash(ping:*)",
+      "Bash(lsof:*)",
+      "Bash(ps:*)",
+      "Bash(kill:*)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []

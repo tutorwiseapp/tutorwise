@@ -1,0 +1,43 @@
+{
+  "name": "@tutorwise/tools",
+  "version": "1.0.0",
+  "description": "CLI tools and integrations for TutorWise project",
+  "private": true,
+  "scripts": {
+    "setup": "cd integrations && ./setup-integrations.sh",
+    "deploy:vercel": "cd scripts && ./vercel-deploy.sh",
+    "deploy:railway": "cd scripts && ./railway-deploy.sh",
+    "database": "cd scripts && ./supabase-db-management.sh",
+    "test:e2e": "cd scripts && ./playwright-test-e2e.sh",
+    "test:e2e:ui": "cd scripts && ./playwright-test-e2e.sh ui",
+    "test:visual": "cd scripts && ./percy-test-visual.sh",
+    "test:visual:upload": "cd scripts && ./percy-test-visual.sh upload",
+    "health-check": "cd scripts && ./health-check.sh",
+    "install:vercel": "cd integrations && ./install-vercel.sh",
+    "install:railway": "cd integrations && ./install-railway.sh",
+    "install:supabase": "cd integrations && ./install-supabase.sh",
+    "install:playwright": "cd integrations && ./install-playwright.sh",
+    "install:percy": "cd integrations && ./install-percy.sh",
+    "install:neo4j": "cd integrations && ./install-neo4j.sh",
+    "install:redis": "cd integrations && ./install-redis.sh",
+    "install:terraform": "cd integrations && ./install-terraform.sh",
+    "test:neo4j": "cd scripts && ./neo4j-test-connection.sh",
+    "test:redis": "cd scripts && ./redis-test-connection.sh",
+    "test:terraform": "cd scripts && ./terraform-test-connection.sh"
+  },
+  "devDependencies": {
+    "@railway/cli": "^4.10.0",
+    "vercel": "^37.0.0",
+    "supabase": "^1.0.0",
+    "@percy/cli": "^1.0.0"
+  },
+  "keywords": [
+    "deployment",
+    "cli",
+    "vercel",
+    "railway",
+    "tutorwise"
+  ],
+  "author": "TutorWise Team",
+  "license": "MIT"
+}

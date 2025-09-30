@@ -1,0 +1,118 @@
+{
+  "lastUpdated": "2025-09-30",
+  "version": "2.0.0",
+  "categories": {
+    "deployment": ["vercel", "railway"],
+    "database": ["supabase", "neo4j", "redis"],
+    "testing": ["playwright", "percy", "jest"],
+    "infrastructure": ["terraform"]
+  },
+  "integrations": {
+    "vercel": {
+      "status": "installed",
+      "version": "latest",
+      "category": "deployment",
+      "cliCommand": "vercel",
+      "installScript": "integrations/install-vercel.sh",
+      "deployScript": "scripts/vercel-deploy.sh",
+      "authRequired": true,
+      "projectLinked": false
+    },
+    "railway": {
+      "status": "installed",
+      "version": "4.10.0",
+      "category": "deployment",
+      "cliCommand": "railway",
+      "installScript": "integrations/install-railway.sh",
+      "deployScript": "scripts/railway-deploy.sh",
+      "authRequired": true,
+      "projectLinked": false
+    },
+    "supabase": {
+      "status": "available",
+      "version": "latest",
+      "category": "database",
+      "cliCommand": "supabase",
+      "installScript": "integrations/install-supabase.sh",
+      "managementScript": "scripts/supabase-db-management.sh",
+      "authRequired": true,
+      "projectLinked": false
+    },
+    "playwright": {
+      "status": "installed",
+      "version": "1.55.1",
+      "category": "testing",
+      "cliCommand": "npx playwright",
+      "installScript": "integrations/install-playwright.sh",
+      "testScript": "scripts/playwright-test-e2e.sh",
+      "authRequired": false,
+      "projectLinked": true
+    },
+    "percy": {
+      "status": "available",
+      "version": "latest",
+      "category": "testing",
+      "cliCommand": "percy",
+      "installScript": "integrations/install-percy.sh",
+      "testScript": "scripts/percy-test-visual.sh",
+      "authRequired": true,
+      "envVariable": "PERCY_TOKEN"
+    },
+    "jest": {
+      "status": "installed",
+      "version": "30.1.3",
+      "category": "testing",
+      "cliCommand": "npx jest",
+      "installScript": "included-in-project",
+      "testScript": "npm run test",
+      "authRequired": false,
+      "projectLinked": true
+    },
+    "neo4j": {
+      "status": "available",
+      "version": "latest",
+      "category": "database",
+      "cliCommand": "mcp-neo4j",
+      "installScript": "integrations/install-neo4j.sh",
+      "testScript": "scripts/neo4j-test-connection.sh",
+      "authRequired": true,
+      "envVariables": ["NEO4J_URI", "NEO4J_USERNAME", "NEO4J_PASSWORD"],
+      "mcpIntegration": true
+    },
+    "redis": {
+      "status": "available",
+      "version": "latest",
+      "category": "database",
+      "cliCommand": "mcp-redis",
+      "installScript": "integrations/install-redis.sh",
+      "testScript": "scripts/redis-test-connection.sh",
+      "authRequired": true,
+      "envVariables": ["REDIS_URL", "REDIS_PASSWORD", "RAILWAY_TOKEN"],
+      "mcpIntegration": true
+    },
+    "terraform": {
+      "status": "available",
+      "version": "0.2.3",
+      "category": "infrastructure",
+      "cliCommand": "terraform-cloud-mcp",
+      "installScript": "integrations/install-terraform.sh",
+      "testScript": "scripts/terraform-test-connection.sh",
+      "authRequired": true,
+      "envVariables": ["TFC_TOKEN"],
+      "mcpIntegration": true,
+      "dockerImage": "hashicorp/terraform-mcp-server:0.2.3"
+    }
+  },
+  "scripts": {
+    "setup": "npm run setup",
+    "healthCheck": "npm run health-check",
+    "deployVercel": "npm run deploy:vercel",
+    "deployRailway": "npm run deploy:railway",
+    "database": "npm run database",
+    "testE2E": "npm run test:e2e",
+    "testVisual": "npm run test:visual",
+    "testNeo4j": "npm run test:neo4j",
+    "testRedis": "npm run test:redis",
+    "testTerraform": "npm run test:terraform"
+  }
+}

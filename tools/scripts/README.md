@@ -6,15 +6,15 @@
 
 ### **🔗 integrations/**
 Scripts that sync data between external services and the project:
-- `sync-confluence.js` - Sync documentation to Confluence with auto Jira tickets
-- `sync-google-docs.js` - Sync documentation to Google Docs
-- `sync-calendar-to-jira.js` - Sync calendar events to create Jira tickets
+- `confluence-sync.js` - Sync documentation to Confluence with auto Jira tickets
+- `google-docs-sync.js` - Sync documentation to Google Docs
+- `google-calendar-sync-to-jira.js` - Sync Google Calendar events to create Jira tickets
 
 ### **🤖 automation/**
 Scripts that provide autonomous task execution capabilities:
 - `jira-task-executor.js` - Poll Jira tickets and execute Claude Code tasks
-- `calendar-task-executor.js` - Poll calendar events and execute Claude Code tasks
-- `calendar-service.sh` - Calendar service management utilities
+- `google-calendar-task-executor.js` - Poll Google Calendar events and execute Claude Code tasks
+- `google-calendar-service.sh` - Google Calendar service management utilities
 
 ### **🧪 testing/**
 Scripts for testing various system components and integrations:
@@ -37,15 +37,15 @@ General utility scripts for various tasks:
 npm run sync:confluence
 npm run sync:google-docs
 
-# Calendar integration
-npm run sync:calendar-to-jira
+# Google Calendar integration
+npm run sync:google-calendar-to-jira
 ```
 
 ### **Automation Scripts (Continuous)**
 ```bash
 # Autonomous task execution
 npm run jira:poll:continuous
-npm run calendar:poll:continuous
+npm run google-calendar:poll:continuous
 ```
 
 ### **Testing Scripts (Development)**
@@ -69,13 +69,13 @@ npm run screenshot:tabs
 ## 📋 Script Categories by Function
 
 ### **Data Flow: External → Internal**
-- `integrations/sync-confluence.js`
-- `integrations/sync-google-docs.js`
-- `integrations/sync-calendar-to-jira.js`
+- `integrations/confluence-sync.js`
+- `integrations/google-docs-sync.js`
+- `integrations/google-calendar-sync-to-jira.js`
 
 ### **Task Execution: Scheduled → Automated**
 - `automation/jira-task-executor.js`
-- `automation/calendar-task-executor.js`
+- `automation/google-calendar-task-executor.js`
 
 ### **Quality Assurance: Validation → Testing**
 - `testing/test-jira-fields.js`
