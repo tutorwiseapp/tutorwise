@@ -37,7 +37,7 @@ const NavMenu = () => {
 
   // Role configuration matching your design
   const roleConfig: Record<Role, RoleConfig> = {
-    agent: { label: 'Agent', icon: '' },
+    agent: { label: 'Agent', icon: '💼' },
     provider: { label: 'Tutor', icon: '🎓' },
     seeker: { label: 'Student', icon: '📚' }
   } as const;
