@@ -92,7 +92,10 @@
       "Read(//Users/michaelquan/**)",
       "Bash(./tools/scripts/project-audit.sh:*)",
       "Bash(crontab:*)",
-      "Bash(./tools/scripts/run-daily-audit.sh:*)"
+      "Bash(./tools/scripts/run-daily-audit.sh:*)",
+      "Bash(git log:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []
