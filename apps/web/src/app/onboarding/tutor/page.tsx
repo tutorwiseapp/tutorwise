@@ -9,7 +9,7 @@ import styles from '../page.module.css';
 function TutorOnboardingPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, profile, isLoading, needsOnboarding } = useUserProfile();
+  const { user, profile, isLoading, availableRoles } = useUserProfile();
 
   // Get step from URL parameters for auto-resume functionality
   const resumeStep = searchParams?.get('step');
@@ -21,28 +21,27 @@ function TutorOnboardingPageContent() {
       return;
     }
 
-    // Redirect to dashboard if onboarding is already complete
-    if (!isLoading && profile && !needsOnboarding) {
+    // Redirect to dashboard if user already has provider role
+    if (!isLoading && profile && availableRoles?.includes('provider')) {
       router.push('/dashboard');
       return;
     }
-  }, [user, profile, isLoading, needsOnboarding, router]);
+  }, [user, profile, isLoading, availableRoles, router]);
 
   // Handle browser back button to prevent auth flow state issues
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
-      // If user is authenticated and on onboarding, prevent default back behavior
-      // that could break the auth flow state
-      if (user && needsOnboarding) {
+      // If user is authenticated and on tutor onboarding, prevent default back behavior
+      if (user) {
         event.preventDefault();
         // Instead, use the onboarding wizard's built-in back functionality
-        console.log('Browser back prevented during onboarding - use wizard Back button instead');
+        console.log('Browser back prevented during tutor onboarding - use wizard Back button instead');
       }
     };
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [user, needsOnboarding]);
+  }, [user]);
 
   // Show loading state while checking authentication
   if (isLoading) {
