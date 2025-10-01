@@ -59,6 +59,12 @@ export async function middleware(request: NextRequest) {
     '/monitoring/test-assured',
   ]
 
+  // Define onboarding paths that require auth but should not trigger onboarding completion check
+  const onboardingPaths = [
+    '/onboarding',
+    '/onboarding/tutor',
+  ]
+
   // Check if the current request path is for a public page or a public agent profile
   const isPublicPath =
     publicPaths.includes(request.nextUrl.pathname) ||
