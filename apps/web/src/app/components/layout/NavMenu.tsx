@@ -148,7 +148,7 @@ const NavMenu = () => {
                 )}
 
                 {/* Role Onboarding Section - Only show roles user doesn't have */}
-                {!availableRoles?.includes('provider') && (
+                {activeRole !== 'provider' && (
                   <DropdownMenu.Item asChild className={styles.becomeItem}>
                     <Link href="/onboarding/tutor">
                       <div className={styles.becomeContent}>
@@ -160,7 +160,7 @@ const NavMenu = () => {
                     </Link>
                   </DropdownMenu.Item>
                 )}
-                {!availableRoles?.includes('seeker') && (
+                {activeRole !== 'seeker' && (
                   <DropdownMenu.Item asChild className={styles.becomeItem}>
                     <Link href="/onboarding/client">
                       <div className={styles.becomeContent}>
@@ -172,7 +172,7 @@ const NavMenu = () => {
                     </Link>
                   </DropdownMenu.Item>
                 )}
-                {!availableRoles?.includes('agent') && (
+                {activeRole !== 'agent' && (
                   <DropdownMenu.Item asChild className={styles.becomeItem}>
                     <Link href="/onboarding/agent">
                       <div className={styles.becomeContent}>
