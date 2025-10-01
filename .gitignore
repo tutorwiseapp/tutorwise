@@ -82,6 +82,8 @@ tutorwise-railway-backend/venv/
 
 # Google service account credentials
 google-credentials.json
+service-account-key.json
+oauth-credentials.json
 
 # Gemini CLI local settings (keep base settings.json in version control)
 .gemini/settings.local.json
