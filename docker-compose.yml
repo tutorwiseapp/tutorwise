@@ -26,11 +26,11 @@ services:
       - redis_data:/data
     restart: unless-stopped
 
-  tutorwise-railway-backend:
-    build: 
-      context: ./ai-backend 
+  tutorwise-api:
+    build:
+      context: ./apps/api
       dockerfile: Dockerfile
-    container_name: tutorwise-railway-backend
+    container_name: tutorwise-api
     ports:
       - "8000:8000"
     environment:
@@ -43,20 +43,20 @@ services:
       - neo4j
       - redis
     volumes:
-      - ./ai-backend:/app
+      - ./apps/api:/app
     restart: unless-stopped
       
-  tutorwise-railway-frontend:
+  tutorwise-web:
     build:
       context: ./
       dockerfile: Dockerfile # You might need to create a Dockerfile for your frontend
-    container_name: tutorwise-railway-frontend
+    container_name: tutorwise-web
     ports:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8000
     depends_on:
-      - tutorwise-railway-backend
+      - tutorwise-api
     volumes:
       - ./:/app
       - /app/node_modules

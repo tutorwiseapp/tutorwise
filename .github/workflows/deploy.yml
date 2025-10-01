@@ -85,7 +85,7 @@ jobs:
 
     - name: = Health check
       run: |
-        curl -f https://tutorwise-railway-backend-production.up.railway.app/health || exit 1
+        curl -f https://tutorwise-production.up.railway.app/health || exit 1
 
   # Post-deployment verification
   post-deployment-verification:
