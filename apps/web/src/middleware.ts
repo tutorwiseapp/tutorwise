@@ -63,6 +63,7 @@ export async function middleware(request: NextRequest) {
   const onboardingPaths = [
     '/onboarding',
     '/onboarding/tutor',
+    '/onboarding/agent',
   ]
 
   // Check if the current request path is for a public page or a public agent profile
