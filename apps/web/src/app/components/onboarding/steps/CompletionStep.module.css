@@ -207,8 +207,13 @@
   gap: 0.5rem;
 }
 
-.dashboardButton:hover {
+.dashboardButton:hover:not(:disabled) {
   background-color: #1d4ed8;
+}
+
+.dashboardButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .arrowIcon {

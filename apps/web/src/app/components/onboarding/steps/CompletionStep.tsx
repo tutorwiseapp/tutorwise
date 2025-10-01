@@ -7,6 +7,7 @@ import styles from './CompletionStep.module.css';
 interface CompletionStepProps {
   selectedRoles: ('agent' | 'seeker' | 'provider')[];
   onComplete: () => void;
+  isLoading?: boolean;
 }
 
 const roleLabels = {
@@ -15,7 +16,7 @@ const roleLabels = {
   agent: 'Agent'
 };
 
-const CompletionStep: React.FC<CompletionStepProps> = ({ selectedRoles, onComplete }) => {
+const CompletionStep: React.FC<CompletionStepProps> = ({ selectedRoles, onComplete, isLoading = false }) => {
   return (
     <div className={styles.completionContainer}>
       <div className={styles.successSection}>
@@ -91,11 +92,14 @@ const CompletionStep: React.FC<CompletionStepProps> = ({ selectedRoles, onComple
       <button
         onClick={onComplete}
         className={styles.dashboardButton}
+        disabled={isLoading}
       >
-        Go to Dashboard
-        <svg className={styles.arrowIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-        </svg>
+        {isLoading ? 'Completing...' : 'Go to Dashboard'}
+        {!isLoading && (
+          <svg className={styles.arrowIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        )}
       </button>
     </div>
   );

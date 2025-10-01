@@ -338,8 +338,45 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
     }
   };
 
-  const handleComplete = () => {
-    onComplete?.();
+  const handleComplete = async () => {
+    if (!user?.id) return;
+
+    setIsLoading(true);
+    try {
+      // Mark onboarding as completed in database
+      const { error: progressError } = await supabase
+        .from('profiles')
+        .update({
+          onboarding_progress: {
+            onboarding_completed: true,
+            completed_at: new Date().toISOString(),
+            selected_roles: selectedRoles,
+            completed_steps: ['welcome', 'role-selection', 'completion']
+          }
+        })
+        .eq('id', user.id);
+
+      if (progressError) throw progressError;
+
+      // Update user's roles in the profile
+      const { error: rolesError } = await supabase
+        .from('profiles')
+        .update({
+          roles: selectedRoles
+        })
+        .eq('id', user.id);
+
+      if (rolesError) throw rolesError;
+
+      console.log('Onboarding completed successfully');
+
+      // Call the completion callback to navigate to dashboard
+      onComplete?.();
+    } catch (err) {
+      console.error('Error completing onboarding:', err);
+      setError('Failed to complete onboarding. Please try again.');
+      setIsLoading(false);
+    }
   };
 
   const renderCurrentStep = () => {
@@ -384,6 +421,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
           <CompletionStep
             selectedRoles={selectedRoles}
             onComplete={handleComplete}
+            isLoading={isLoading}
           />
         );
 
