@@ -20,7 +20,8 @@ describe('WelcomeStep', () => {
       />
     );
 
-    expect(screen.getByText(/Welcome to Tutorwise, John!/)).toBeInTheDocument();
+    expect(screen.getByText(/Believe\. Learn\. Succeed\./)).toBeInTheDocument();
+    expect(screen.getByText(/John, join thousands of students/)).toBeInTheDocument();
   });
 
   it('displays onboarding overview points', () => {
@@ -32,9 +33,10 @@ describe('WelcomeStep', () => {
       />
     );
 
-    expect(screen.getByText(/Choose your role\(s\) - Student, Tutor, or Agent/)).toBeInTheDocument();
-    expect(screen.getByText(/Set up your preferences and goals/)).toBeInTheDocument();
-    expect(screen.getByText(/Customize your dashboard/)).toBeInTheDocument();
+    expect(screen.getByText(/Believe in yourself/)).toBeInTheDocument();
+    expect(screen.getByText(/Learn your way/)).toBeInTheDocument();
+    expect(screen.getByText(/Succeed faster/)).toBeInTheDocument();
+    expect(screen.getByText(/Never learn alone/)).toBeInTheDocument();
   });
 
   it('shows estimated time', () => {
@@ -46,7 +48,7 @@ describe('WelcomeStep', () => {
       />
     );
 
-    expect(screen.getByText(/Takes about 2-3 minutes/)).toBeInTheDocument();
+    expect(screen.getByText(/Takes 2 minutes/)).toBeInTheDocument();
   });
 
   it('calls onNext when "Let\'s get started" button is clicked', () => {
@@ -58,7 +60,7 @@ describe('WelcomeStep', () => {
       />
     );
 
-    const nextButton = screen.getByText(/Let's get started/);
+    const nextButton = screen.getByText(/Yes, I'm ready to succeed/);
     fireEvent.click(nextButton);
 
     expect(mockOnNext).toHaveBeenCalledTimes(1);
@@ -88,6 +90,7 @@ describe('WelcomeStep', () => {
       />
     );
 
-    expect(screen.getByText(/Welcome to Tutorwise, !/)).toBeInTheDocument();
+    expect(screen.getByText(/Believe\. Learn\. Succeed\./)).toBeInTheDocument();
+    expect(screen.getByText(/, join thousands of students/)).toBeInTheDocument();
   });
 });

@@ -48,6 +48,7 @@ const customJestConfig = {
   ],
   moduleDirectories: ['node_modules', '<rootDir>/'],
   testTimeout: 10000,
+  maxWorkers: 1, // Run tests serially to prevent worker crashes
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

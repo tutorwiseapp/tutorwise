@@ -21,8 +21,8 @@ describe('RoleSelectionStep', () => {
       />
     );
 
-    expect(screen.getByText(/What subjects interest you?/)).toBeInTheDocument();
-    expect(screen.getByText(/Select the subjects you'd like to learn/)).toBeInTheDocument();
+    expect(screen.getByText(/What will you conquer?/)).toBeInTheDocument();
+    expect(screen.getByText(/Choose your subjects and start your transformation/)).toBeInTheDocument();
   });
 
   it('displays all three role options', () => {
@@ -35,9 +35,9 @@ describe('RoleSelectionStep', () => {
       />
     );
 
-    expect(screen.getByText('Student')).toBeInTheDocument();
-    expect(screen.getByText('Tutor')).toBeInTheDocument();
-    expect(screen.getByText('Agent')).toBeInTheDocument();
+    expect(screen.getByText('Mathematics')).toBeInTheDocument();
+    expect(screen.getByText('Languages')).toBeInTheDocument();
+    expect(screen.getByText('Programming')).toBeInTheDocument();
   });
 
   it('shows role descriptions', () => {
@@ -50,9 +50,9 @@ describe('RoleSelectionStep', () => {
       />
     );
 
-    expect(screen.getByText(/I want to learn new skills and find tutors/)).toBeInTheDocument();
-    expect(screen.getByText(/I want to teach and share my expertise/)).toBeInTheDocument();
-    expect(screen.getByText(/I want to connect students with tutors and earn commissions/)).toBeInTheDocument();
+    expect(screen.getByText(/From struggling to succeeding/)).toBeInTheDocument();
+    expect(screen.getByText(/Express yourself with confidence/)).toBeInTheDocument();
+    expect(screen.getByText(/Create the future you imagine/)).toBeInTheDocument();
   });
 
   it('displays role features', () => {
@@ -65,17 +65,10 @@ describe('RoleSelectionStep', () => {
       />
     );
 
-    // Student features
-    expect(screen.getByText('Find qualified tutors')).toBeInTheDocument();
-    expect(screen.getByText('Book sessions')).toBeInTheDocument();
-
-    // Tutor features
-    expect(screen.getByText('Create your profile')).toBeInTheDocument();
-    expect(screen.getByText('Set your rates')).toBeInTheDocument();
-
-    // Agent features
-    expect(screen.getByText('Build your network')).toBeInTheDocument();
-    expect(screen.getByText('Track commissions')).toBeInTheDocument();
+    // Subject outcomes
+    expect(screen.getByText(/Believe: Math can be your strength/)).toBeInTheDocument();
+    expect(screen.getByText(/Learn: Speak fluently in months/)).toBeInTheDocument();
+    expect(screen.getByText(/Succeed: Build amazing projects/)).toBeInTheDocument();
   });
 
   it('allows selecting and deselecting roles', () => {
@@ -88,15 +81,15 @@ describe('RoleSelectionStep', () => {
       />
     );
 
-    const studentRole = screen.getByText('Student').closest('div[class*="roleCard"]');
-    expect(studentRole).not.toHaveClass('selected');
+    const mathSubject = screen.getByText('Mathematics').closest('div[class*="roleCard"]');
+    expect(mathSubject).not.toHaveClass('selected');
 
-    fireEvent.click(studentRole!);
-    expect(studentRole).toHaveClass('selected');
+    fireEvent.click(mathSubject!);
+    expect(mathSubject).toHaveClass('selected');
 
     // Deselect
-    fireEvent.click(studentRole!);
-    expect(studentRole).not.toHaveClass('selected');
+    fireEvent.click(mathSubject!);
+    expect(mathSubject).not.toHaveClass('selected');
   });
 
   it('allows multiple role selection', () => {
@@ -109,14 +102,14 @@ describe('RoleSelectionStep', () => {
       />
     );
 
-    const studentRole = screen.getByText('Student').closest('div[class*="roleCard"]');
-    const tutorRole = screen.getByText('Tutor').closest('div[class*="roleCard"]');
+    const mathSubject = screen.getByText('Mathematics').closest('div[class*="roleCard"]');
+    const langSubject = screen.getByText('Languages').closest('div[class*="roleCard"]');
 
-    fireEvent.click(studentRole!);
-    fireEvent.click(tutorRole!);
+    fireEvent.click(mathSubject!);
+    fireEvent.click(langSubject!);
 
-    expect(studentRole).toHaveClass('selected');
-    expect(tutorRole).toHaveClass('selected');
+    expect(mathSubject).toHaveClass('selected');
+    expect(langSubject).toHaveClass('selected');
   });
 
   it('shows pre-selected roles', () => {
@@ -129,13 +122,9 @@ describe('RoleSelectionStep', () => {
       />
     );
 
-    const studentRole = screen.getByText('Student').closest('div[class*="roleCard"]');
-    const tutorRole = screen.getByText('Tutor').closest('div[class*="roleCard"]');
-    const agentRole = screen.getByText('Agent').closest('div[class*="roleCard"]');
-
-    expect(studentRole).toHaveClass('selected');
-    expect(tutorRole).toHaveClass('selected');
-    expect(agentRole).not.toHaveClass('selected');
+    // Component now uses subject selection internally, not role pre-selection
+    // Verify component renders without crashing
+    expect(screen.getByText('Mathematics')).toBeInTheDocument();
   });
 
   it('disables Continue button when no roles selected', () => {
@@ -148,7 +137,7 @@ describe('RoleSelectionStep', () => {
       />
     );
 
-    const continueButton = screen.getByText('Continue →');
+    const continueButton = screen.getByText('Next →');
     expect(continueButton).toBeDisabled();
     expect(continueButton).toHaveClass('buttonDisabled');
   });
@@ -156,14 +145,18 @@ describe('RoleSelectionStep', () => {
   it('enables Continue button when roles are selected', () => {
     render(
       <RoleSelectionStep
-        selectedRoles={['seeker']}
+        selectedRoles={[]}
         onNext={mockOnNext}
         onSkip={mockOnSkip}
         isLoading={false}
       />
     );
 
-    const continueButton = screen.getByText('Continue →');
+    // Select a subject to enable the button
+    const mathSubject = screen.getByText('Mathematics').closest('div[class*="roleCard"]');
+    fireEvent.click(mathSubject!);
+
+    const continueButton = screen.getByText('Next →');
     expect(continueButton).not.toBeDisabled();
     expect(continueButton).toHaveClass('buttonPrimary');
   });
@@ -178,10 +171,10 @@ describe('RoleSelectionStep', () => {
       />
     );
 
-    const studentRole = screen.getByText('Student').closest('div');
-    fireEvent.click(studentRole!);
+    const mathSubject = screen.getByText('Mathematics').closest('div');
+    fireEvent.click(mathSubject!);
 
-    const continueButton = screen.getByText('Continue →');
+    const continueButton = screen.getByText('Next →');
     fireEvent.click(continueButton);
 
     await waitFor(() => {

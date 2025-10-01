@@ -25,7 +25,11 @@ export async function GET() {
       .single();
 
     if (error) throw error;
-    
+
+    if (!profile) {
+      return new NextResponse("Profile not found", { status: 500 });
+    }
+
     return NextResponse.json(profile);
 
   } catch (error) {

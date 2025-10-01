@@ -132,7 +132,7 @@ describe('UserProfileContext Integration Tests', () => {
       expect(screen.getByTestId('profile-id')).toHaveTextContent('user123');
       expect(screen.getByTestId('active-role')).toHaveTextContent('seeker');
       expect(screen.getByTestId('needs-onboarding')).toHaveTextContent('true'); // No onboarding_completed
-      expect(screen.getByTestId('show-onboarding')).toHaveTextContent('true');
+      expect(screen.getByTestId('show-onboarding')).toHaveTextContent('false'); // showOnboarding is manually controlled
     });
   });
 
