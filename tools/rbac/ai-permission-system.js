@@ -66,6 +66,32 @@ class AIPermissionSystem {
       type: 'PERMISSION_CHECK'
     });
 
+    // Check project scope restrictions FIRST
+    const allowedPath = '/Users/michaelquan/projects/tutorwise';
+    const forbiddenPaths = ['~', '/Users/michaelquan/projects/vinite', '/Users/michaelquan/projects/*'];
+
+    // Check if action or resource violates scope
+    if (resource && !resource.startsWith(allowedPath)) {
+      for (const forbidden of forbiddenPaths) {
+        if (resource.includes(forbidden) || resource.startsWith(forbidden.replace('*', ''))) {
+          this.auditLog({
+            timestamp,
+            action,
+            resource,
+            aiAgent,
+            type: 'SCOPE_VIOLATION',
+            reason: `Access outside project scope: ${resource}`
+          });
+          return {
+            allowed: false,
+            requires_approval: false,
+            reason: `🚨 SCOPE VIOLATION: Access restricted to /Users/michaelquan/projects/tutorwise only`,
+            escalation: 'SECURITY_TEAM'
+          };
+        }
+      }
+    }
+
     // Check if action is forbidden
     for (const forbidden of this.restrictions.forbidden) {
       if (action.toUpperCase().includes(forbidden) || resource.toUpperCase().includes(forbidden)) {

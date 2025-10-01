@@ -67,6 +67,11 @@
     "gemini:advanced": "python3 .ai/scripts/gemini-cli.py --help",
     "gemini:models": "python3 .ai/scripts/check-gemini-models.py",
     "ai:gemini": "npm run context:generate && python3 .ai/scripts/gemini-cli-simple.py --interactive",
+    "audit:project": "tools/scripts/project-audit.sh adhoc",
+    "audit:daily": "tools/scripts/project-audit.sh daily",
+    "audit:weekly": "tools/scripts/project-audit.sh weekly",
+    "audit:validate": "tools/scripts/project-audit.sh validate",
+    "audit:compare": "tools/scripts/project-audit.sh compare",
     "prepare": "husky"
   },
   "dependencies": {
@@ -74,7 +79,10 @@
     "axios": "^1.6.0",
     "dotenv": "^16.6.1",
     "googleapis": "^130.0.0",
-    "neo4j-driver": "^5.28.2"
+    "markdown-pdf": "^11.0.0",
+    "neo4j-driver": "^5.28.2",
+    "nodemailer": "^7.0.6",
+    "puppeteer": "^24.22.3"
   },
   "devDependencies": {
     "@percy/cli": "^1.31.2",

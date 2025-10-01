@@ -86,7 +86,13 @@
       "Bash(ps:*)",
       "Bash(kill:*)",
       "Bash(git rm:*)",
-      "Bash(tools/scripts/railway-deploy.sh:*)"
+      "Bash(tools/scripts/railway-deploy.sh:*)",
+      "WebFetch(domain:tutorwise-3vfprxkvt-vinite.vercel.app)",
+      "Read(//Users/michaelquan/.config/**)",
+      "Read(//Users/michaelquan/**)",
+      "Bash(./tools/scripts/project-audit.sh:*)",
+      "Bash(crontab:*)",
+      "Bash(./tools/scripts/run-daily-audit.sh:*)"
     ],
     "deny": [],
     "ask": []

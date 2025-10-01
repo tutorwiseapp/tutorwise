@@ -1,6 +1,19 @@
-# Tutorwise - Educational Platform Monorepo
+# Tutorwise Tutoring Marketplace
 
-Tutorwise is a full-stack educational platform built with modern web technologies, serving tutors, agents, and clients (students, parents) with features for lesson management, payments, and user interaction.
+# What is Tutorwise
+
+Tutorwise represents a paradigm shift in the tutoring marketplace such as superprof.com and mytutor.co.uk, moving from single-service marketplaces to a user-centric ecosystem. A Typescript, Next.js fullstack for the core platform, and complemented by the Python, FastAPI backend for the resource intensive and specific functionalities. Tutorwise uses PaaS, BaaS, SaaS tools and infrastructure such as Vercel, Supabase Postgres database, Supabase Auth user authentication/ management, Stripe Connect for payments (sending and receiving payements), Railway, Railway Redis, Neo4j Aura for user-subject-lesson and client (parent, student), tutor, agent relationships. A modern tech stack with reusable UI components to reduce development time and effort significantly. 
+
+## Key Innovations:
+* Single account with multi-role: Single account for Client, Tutor, and Agent with seemless role switching.
+* Dynamic dashboards: Role-based interfaces adapting to user needs (My learning hub, My teaching studio, My tutoring agency).
+* Service listing management: Tutors and Agents can create, manage, and promote service offerings across Tutorwise’s seven business services. Clients can create, manage and promote service or lesson requests.
+* Revenue generation: Seven business service on one platform (tutor listing service marketetplace, client request lesson reversed marketplace, agent post group sessions, agent post jobs, agent sell courses, agent listing AI tutor marketplace, and anyone can refer anything to anyone).
+* Network and connections: All user can send invites and organise their connections in to groups of Maths Tutors, Year 10 English Students, etc.
+* Anyone can refer anthing to anyone (RATA): All user can refer each other such as clients can refer their favourite tutors to their friends. 
+* The human (founder, architect, product engineer, tester, developer, and marketer) is in the loop to provide ideas, strategies, plans, features, requirements, eyes, ears and hands.
+* Claude Code (CLI) AI is used to build the software application, platform, service with Gemini Pro AI, archeiving 100% production ready code quality.
+* The Tutorwise application, platform, service is integrated with many cloud technology services such as Atlassian Jira/Confluence, Google Cloud and SaaS business services such as Google Classroom/Meet, HubSpot, Pencil Spaces, Zoom.
 
 ## Monorepo Structure
 
