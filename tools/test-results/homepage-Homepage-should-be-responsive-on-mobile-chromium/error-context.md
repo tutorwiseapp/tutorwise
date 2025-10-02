@@ -1,0 +1,52 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - link "tutorwise" [ref=e5] [cursor=pointer]:
+        - /url: /refer
+      - navigation [ref=e7]:
+        - button "Open user menu" [ref=e8] [cursor=pointer]:
+          - img [ref=e10] [cursor=pointer]
+    - main [ref=e13]:
+      - generic [ref=e15]:
+        - generic [ref=e16]: Tutorwise
+        - paragraph [ref=e17]: Professional tutoring platform connecting students with qualified tutors.
+        - generic [ref=e18]:
+          - link "Access TestAssured" [ref=e19] [cursor=pointer]:
+            - /url: /monitoring/test-assured
+            - button "Access TestAssured" [ref=e20] [cursor=pointer]
+          - link "Go to Dashboard" [ref=e21] [cursor=pointer]:
+            - /url: /dashboard
+            - button "Go to Dashboard" [ref=e22] [cursor=pointer]
+          - link "Login" [ref=e23] [cursor=pointer]:
+            - /url: /login
+            - button "Login" [ref=e24] [cursor=pointer]
+        - generic [ref=e25]:
+          - heading "Coming Soon" [level=2] [ref=e26]
+          - paragraph [ref=e27]: "Tutorwise is building the next generation tutoring platform with:"
+          - list [ref=e28]:
+            - listitem [ref=e29]: Role-based dashboards for Students, Tutors, and Agents
+            - listitem [ref=e30]: Professional tutor marketplace
+            - listitem [ref=e31]: Service listings and booking system
+            - listitem [ref=e32]: Comprehensive testing and monitoring tools
+    - contentinfo [ref=e33]:
+      - paragraph [ref=e34]:
+        - generic [ref=e35]: © 2025 Tutorwise. All rights reserved.
+        - link "Home" [ref=e36] [cursor=pointer]:
+          - /url: /
+        - link "Contact" [ref=e37] [cursor=pointer]:
+          - /url: /contact
+        - link "Resources" [ref=e38] [cursor=pointer]:
+          - /url: /resources
+        - link "Terms of Service" [ref=e39] [cursor=pointer]:
+          - /url: /terms-of-service
+        - link "Privacy Policy" [ref=e40] [cursor=pointer]:
+          - /url: /privacy-policy
+        - link "YouTube" [ref=e41] [cursor=pointer]:
+          - /url: https://www.youtube.com
+        - link "LinkedIn" [ref=e42] [cursor=pointer]:
+          - /url: https://www.linkedin.com
+  - alert [ref=e43]
+```

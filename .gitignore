@@ -85,6 +85,9 @@ google-credentials.json
 service-account-key.json
 oauth-credentials.json
 
+# Auto-generated Vercel environment sync scripts (contain secrets)
+vercel-env-commands.sh
+
 # Gemini CLI local settings (keep base settings.json in version control)
 .gemini/settings.local.json
 # Workspace

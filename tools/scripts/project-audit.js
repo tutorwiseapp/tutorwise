@@ -1102,58 +1102,66 @@ ${this.generateConclusion(currMetrics, prevMetrics, snapshot)}
     return cssPath;
   }
 
-  // Convert markdown to PDF with professional styling
+  // Convert markdown to PDF with professional styling using Puppeteer
   async generateProfessionalPDF(markdownPath, outputPath) {
     try {
       console.log('Generating professional PDF...');
 
-      // Skip PDF generation in CI environments (GitHub Actions, etc.)
-      if (process.env.CI || process.env.GITHUB_ACTIONS) {
-        console.log('⏭️  Skipping PDF generation in CI environment (phantomjs compatibility issues)');
-        console.log('📄 Markdown report available at:', markdownPath);
-        return null;
-      }
+      const puppeteer = require('puppeteer');
+      const { marked } = require('marked');
 
-      const markdownpdf = require('markdown-pdf');
+      // Read markdown content
+      const markdownContent = fs.readFileSync(markdownPath, 'utf8');
 
-      const options = {
-        cssPath: this.createProfessionalPDFStyles(),
-        paperFormat: 'A4',
-        paperBorder: {
+      // Convert markdown to HTML
+      const htmlContent = await marked.parse(markdownContent);
+
+      // Get professional CSS styles
+      const cssPath = this.createProfessionalPDFStyles();
+      const cssContent = fs.readFileSync(cssPath, 'utf8');
+
+      // Create complete HTML document
+      const fullHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>${cssContent}</style>
+</head>
+<body>
+  ${htmlContent}
+</body>
+</html>
+      `;
+
+      // Launch Puppeteer (headless browser)
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'] // Required for CI environments
+      });
+
+      const page = await browser.newPage();
+
+      // Set content and wait for it to load
+      await page.setContent(fullHtml, { waitUntil: 'networkidle0' });
+
+      // Generate PDF
+      await page.pdf({
+        path: outputPath,
+        format: 'A4',
+        margin: {
           top: '0.5in',
           right: '0.5in',
           bottom: '0.5in',
           left: '0.5in'
         },
-        renderDelay: 2000,
-        type: 'pdf',
-        remarkable: {
-          html: true,
-          breaks: false,
-          plugins: [],
-          syntax: ['footnote', 'sup', 'sub']
-        }
-      };
-
-      return new Promise((resolve, reject) => {
-        const stream = markdownpdf(options)
-          .from(markdownPath)
-          .to(outputPath, (err) => {
-            if (err) {
-              console.error('PDF generation error:', err);
-              reject(err);
-            } else {
-              console.log(`Professional PDF generated: ${outputPath}`);
-              resolve(outputPath);
-            }
-          });
-
-        // Handle stream errors to prevent unhandled error events
-        stream.on('error', (err) => {
-          console.error('PDF stream error:', err);
-          reject(err);
-        });
+        printBackground: true
       });
+
+      await browser.close();
+
+      console.log(`Professional PDF generated: ${outputPath}`);
+      return outputPath;
     } catch (error) {
       console.error('Error generating professional PDF:', error);
       throw error;

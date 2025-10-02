@@ -95,7 +95,11 @@
       "Bash(./tools/scripts/run-daily-audit.sh:*)",
       "Bash(git log:*)",
       "Bash(git ls-tree:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(xargs kill:*)",
+      "Bash(code:*)",
+      "Bash(gh run view:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []

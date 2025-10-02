@@ -1,0 +1,40 @@
+{
+  "date": "2025-10-02",
+  "timestamp": "2025-10-02T08:03:44.471Z",
+  "git": {
+    "commits": "5173362 Fix PDF generation crash in GitHub Actions CI environment\nd0214ed Add GitHub Actions scheduled workflows for audit and protection reports\n8f42608 Fix Railway deployment - update Dockerfile paths for build context\n4f4b997 Fix automated audit and protection report cron jobs\n8fd9719 Update agent icon to house\n1d46485 Update agent icon to office building\n0112254 Add agent icon to NavMenu role configuration\n697a336 Fix NavMenu to check availableRoles instead of activeRole\n7644695 Revert NavMenu to use activeRole instead of availableRoles\n4530290 Add agent onboarding flow with 5-step wizard\ne29cbb9 Fix tutor onboarding redirect logic\ndaa44e1 Fix NavMenu role onboarding links logic\n23cdfb4 Add tutor onboarding flow with 5-step wizard\nf8846c4 Move railway.json to project root with correct Dockerfile path\nae6dec6 Fix Railway Dockerfile path configuration\n50e60d9 Fix Railway backend deployment configuration\n63fb182 Fix onboarding completion - implement database persistence and navigation\nc84737a Fix broken onboarding UI - constrain checkmark icon size\n82a5152 Fix testing infrastructure across all layers\nd7978f7 Schedule daily critical files protection reports via cron\n6d9bd98 Implement critical files protection system (Option 3)\nc0a0660 Restore all API routes from git history\n9c49501 Implement comprehensive project audit system with email automation\nf5e52ee Test automatic GitHub → Vercel deployment\nc2dc81b Add AI security controls and RBAC system\n69407b0 URGENT: Fix onboarding step transition error and implement AI security controls\n1d561ee Remove API routes entirely for frontend-only deployment\n0e084a9 Temporarily disable all API routes for onboarding deployment\na54df14 Temporarily disable API route to fix production deployment\n75af3a3 Fix API route env vars for production deployment\ne3f3c3c Remove secret manager files causing build issues\nc976afc Fix onboarding auto-resume and navigation issues",
+    "stats": ".github/workflows/daily-audit.yml              | 96 ++++++++++++++++++++++++++\n .github/workflows/protection-report.yml        | 81 ++++++++++++++++++++++\n apps/api/Dockerfile                            |  4 +-\n apps/web/src/app/components/layout/NavMenu.tsx |  2 +-\n railway.json                                   |  3 +-\n tools/scripts/project-audit.js                 | 52 +++++++-------\n tools/scripts/project-audit.sh                 |  8 +--\n tools/scripts/run-daily-audit.sh               |  3 +\n tools/scripts/run-protection-report.sh         |  3 +\n 9 files changed, 217 insertions(+), 35 deletions(-)",
+    "fileChanges": "A\t.github/workflows/daily-audit.yml\nA\t.github/workflows/protection-report.yml\nM\tapps/api/Dockerfile\nM\tapps/web/src/app/components/layout/NavMenu.tsx\nM\trailway.json\nM\ttools/scripts/project-audit.js\nM\ttools/scripts/project-audit.sh\nM\ttools/scripts/run-daily-audit.sh\nM\ttools/scripts/run-protection-report.sh",
+    "additions": "96\t0\t.github/workflows/daily-audit.yml\n81\t0\t.github/workflows/protection-report.yml\n2\t2\tapps/api/Dockerfile\n1\t1\tapps/web/src/app/components/layout/NavMenu.tsx\n1\t2\trailway.json\n27\t25\ttools/scripts/project-audit.js\n3\t5\ttools/scripts/project-audit.sh\n3\t0\ttools/scripts/run-daily-audit.sh\n3\t0\ttools/scripts/run-protection-report.sh",
+    "blame": "5173362 - micquan, 10 minutes ago : Fix PDF generation crash in GitHub Actions CI environment\nd0214ed - micquan, 65 minutes ago : Add GitHub Actions scheduled workflows for audit and protection reports\n8f42608 - micquan, 67 minutes ago : Fix Railway deployment - update Dockerfile paths for build context\n4f4b997 - micquan, 76 minutes ago : Fix automated audit and protection report cron jobs\n8fd9719 - micquan, 11 hours ago : Update agent icon to house\n1d46485 - micquan, 11 hours ago : Update agent icon to office building\n0112254 - micquan, 11 hours ago : Add agent icon to NavMenu role configuration\n697a336 - micquan, 12 hours ago : Fix NavMenu to check availableRoles instead of activeRole\n7644695 - micquan, 12 hours ago : Revert NavMenu to use activeRole instead of availableRoles\n4530290 - micquan, 12 hours ago : Add agent onboarding flow with 5-step wizard\ne29cbb9 - micquan, 12 hours ago : Fix tutor onboarding redirect logic\ndaa44e1 - micquan, 12 hours ago : Fix NavMenu role onboarding links logic\n23cdfb4 - micquan, 12 hours ago : Add tutor onboarding flow with 5-step wizard\nf8846c4 - micquan, 19 hours ago : Move railway.json to project root with correct Dockerfile path\nae6dec6 - micquan, 19 hours ago : Fix Railway Dockerfile path configuration\n50e60d9 - micquan, 19 hours ago : Fix Railway backend deployment configuration\n63fb182 - micquan, 19 hours ago : Fix onboarding completion - implement database persistence and navigation\nc84737a - micquan, 19 hours ago : Fix broken onboarding UI - constrain checkmark icon size\n82a5152 - micquan, 20 hours ago : Fix testing infrastructure across all layers\nd7978f7 - micquan, 24 hours ago : Schedule daily critical files protection reports via cron\n6d9bd98 - micquan, 25 hours ago : Implement critical files protection system (Option 3)\nc0a0660 - micquan, 25 hours ago : Restore all API routes from git history\n9c49501 - micquan, 25 hours ago : Implement comprehensive project audit system with email automation\nf5e52ee - micquan, 2 days ago : Test automatic GitHub → Vercel deployment\nc2dc81b - micquan, 2 days ago : Add AI security controls and RBAC system\n69407b0 - micquan, 2 days ago : URGENT: Fix onboarding step transition error and implement AI security controls\n1d561ee - micquan, 2 days ago : Remove API routes entirely for frontend-only deployment\n0e084a9 - micquan, 2 days ago : Temporarily disable all API routes for onboarding deployment\na54df14 - micquan, 2 days ago : Temporarily disable API route to fix production deployment\n75af3a3 - micquan, 2 days ago : Fix API route env vars for production deployment\ne3f3c3c - micquan, 2 days ago : Remove secret manager files causing build issues\nc976afc - micquan, 2 days ago : Fix onboarding auto-resume and navigation issues",
+    "authors": "32 micquan"
+  },
+  "fileCount": {
+    "total": 7107,
+    "typescript": 105,
+    "react": 87,
+    "javascript": 222,
+    "markdown": 142,
+    "css": 59,
+    "json": 131
+  },
+  "codeMetrics": {
+    "linesOfCode": 41962,
+    "components": 16,
+    "lastUpdated": "2025-10-02T08:03:49.355Z"
+  },
+  "dependencies": {
+    "dependencies": 9,
+    "devDependencies": 4,
+    "scripts": 66,
+    "nodeVersion": "Not specified",
+    "version": "1.0.0"
+  },
+  "security": {
+    "envFilePresent": true,
+    "gitignorePresent": true,
+    "securityDocsPresent": false,
+    "aiRestrictionsPresent": true,
+    "securityScore": 7.5
+  }
+}

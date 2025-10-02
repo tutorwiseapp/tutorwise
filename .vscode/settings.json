@@ -6,5 +6,9 @@
   "python.analysis.autoImportCompletions": true,
   "python-envs.pythonProjects": [],
   "python-envs.defaultEnvManager": "ms-python.python:system",
-  "python.analysis.typeCheckingMode": "standard"
+  "python.analysis.typeCheckingMode": "standard",
+  "workbench.colorCustomizations": {
+    "chat.requestForeground": "#ffd700",
+    "editorGhostText.foreground": "#ffd700"
+  }
 }
