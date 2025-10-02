@@ -1107,6 +1107,13 @@ ${this.generateConclusion(currMetrics, prevMetrics, snapshot)}
     try {
       console.log('Generating professional PDF...');
 
+      // Skip PDF generation in CI environments (GitHub Actions, etc.)
+      if (process.env.CI || process.env.GITHUB_ACTIONS) {
+        console.log('⏭️  Skipping PDF generation in CI environment (phantomjs compatibility issues)');
+        console.log('📄 Markdown report available at:', markdownPath);
+        return null;
+      }
+
       const markdownpdf = require('markdown-pdf');
 
       const options = {
@@ -1129,7 +1136,7 @@ ${this.generateConclusion(currMetrics, prevMetrics, snapshot)}
       };
 
       return new Promise((resolve, reject) => {
-        markdownpdf(options)
+        const stream = markdownpdf(options)
           .from(markdownPath)
           .to(outputPath, (err) => {
             if (err) {
@@ -1140,6 +1147,12 @@ ${this.generateConclusion(currMetrics, prevMetrics, snapshot)}
               resolve(outputPath);
             }
           });
+
+        // Handle stream errors to prevent unhandled error events
+        stream.on('error', (err) => {
+          console.error('PDF stream error:', err);
+          reject(err);
+        });
       });
     } catch (error) {
       console.error('Error generating professional PDF:', error);
