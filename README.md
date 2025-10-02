@@ -207,12 +207,30 @@ npm run context:setup
 ```
 
 ### CAS Architecture
-- **Contextual Intelligence**: Jira, GitHub, Google Docs, Calendar, Figma, Confluence integration
-- **Autonomous Execution**: Self-managing workflows, task automation, quality gates
-- **System Integration**: End-to-end automation from planning to production
-- **Location**: `tools/cas/`
 
-**See**: `docs/CAS-OVERVIEW.md` for complete CAS documentation
+```
+┌─────────────────────────────────────────────────────────┐
+│                 CONTEXTUAL INPUTS                        │
+│  Jira • GitHub • Google Docs • Calendar • Figma         │
+└─────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────┐
+│              CAS INTELLIGENCE LAYER                      │
+│  Context Analysis • Pattern Learning • Decision Making   │
+└─────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────┐
+│            AUTONOMOUS EXECUTION LAYER                    │
+│  Task Automation • Code Generation • Quality Gates      │
+└─────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────┐
+│            SELF-MANAGED PRODUCTION                       │
+│  Monitoring • Healing • Documentation • Optimization     │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Location**: `tools/cas/` | **See**: `docs/CAS-OVERVIEW.md` for complete documentation
 
 ## Documentation
 
