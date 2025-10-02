@@ -99,3 +99,7 @@ vercel-env-commands.sh
 apps/web/.next/
 apps/api/__pycache__/
 apps/api/.pytest_cache/
+
+# Railway configuration backups (contains secrets)
+apps/web/railway-config-backup.md
+.env.railway
