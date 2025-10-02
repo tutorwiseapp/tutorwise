@@ -42,7 +42,7 @@ jobs:
 
     - name: 📧 Check email status
       run: |
-        if grep -q "Email sent successfully" logs/protection-report-cron.log; then
+        if grep -qi "email sent successfully\|Protection report email sent successfully" logs/protection-report-cron.log; then
           echo "✅ Protection report email sent successfully!"
           exit 0
         else

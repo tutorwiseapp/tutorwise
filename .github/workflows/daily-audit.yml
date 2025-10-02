@@ -69,7 +69,7 @@ jobs:
 
     - name: 📧 Check email status
       run: |
-        if grep -q "Email sent successfully" logs/audit-cron.log; then
+        if grep -qi "email sent successfully\|Audit email sent successfully" logs/audit-cron.log; then
           echo "✅ Audit email sent successfully!"
           exit 0
         else
