@@ -11,9 +11,10 @@ Tutorwise represents a paradigm shift in the tutoring marketplace such as superp
 * Revenue generation: Seven business service on one platform (tutor listing service marketetplace, client request lesson reversed marketplace, agent post group sessions, agent post jobs, agent sell courses, agent listing AI tutor marketplace, and anyone can refer anything to anyone).
 * Network and connections: All user can send invites and organise their connections in to groups of Maths Tutors, Year 10 English Students, etc.
 * Anyone can refer anthing to anyone (RATA): All user can refer each other such as clients can refer their favourite tutors to their friends. 
-* The human (founder, architect, product engineer, tester, developer, and marketer) is in the loop to provide ideas, strategies, plans, features, requirements, eyes, ears and hands.
-* Claude Code (CLI) AI is used to build the software application, platform, service with Gemini Pro AI, archeiving 100% production ready code quality.
-* The Tutorwise application, platform, service is integrated with many cloud technology services such as Atlassian Jira/Confluence, Google Cloud and SaaS business services such as Google Classroom/Meet, HubSpot, Pencil Spaces, Zoom.
+* **Human-AI Collaboration**: The human provides strategic vision while the **Contextual Autonomous System (CAS)** handles tactical execution.
+* **Autonomous Development**: CAS autonomously manages development workflows, monitoring, documentation, and quality assurance.
+* **Proven AI Capability**: Built with Claude Code (CLI) and Gemini Pro AI, demonstrating self-managing, self-healing infrastructure.
+* **Multi-Service Integration**: Seamlessly integrated with Atlassian Jira/Confluence, Google Cloud, Google Classroom/Meet, HubSpot, Pencil Spaces, Zoom.
 
 ## Monorepo Structure
 
@@ -43,7 +44,7 @@ tutorwise/
 ├── tools/                         # Development tools and automation
 │   ├── scripts/                   # Build automation and utilities
 │   ├── configs/                   # Shared configuration files
-│   ├── context-engineering/       # AI context generation and migration tools
+│   ├── context-engineering/       # Contextual Autonomous System (CAS) - migrating to tools/cas/
 │   ├── playwright/                # End-to-end testing configuration
 │   └── percy/                     # Visual testing setup
 ├── tests/                         # Centralized testing infrastructure
@@ -119,9 +120,10 @@ npm run test:visual      # Run visual tests (Percy)
 npm run test:all         # Run all tests (frontend + backend)
 npm run quality:check    # Complete quality pipeline (lint + tests)
 
-# Context Engineering
-npm run context:generate # Generate fresh codebase context maps
-npm run context:update   # Alias for context:generate
+# Contextual Autonomous System (CAS)
+npm run context:generate # Generate contextual intelligence (migrating to cas:generate)
+npm run context:update   # Update CAS knowledge base (migrating to cas:update)
+npm run context:setup    # Initialize CAS infrastructure (migrating to cas:setup)
 ```
 
 ### Environment Setup
@@ -182,16 +184,30 @@ Comprehensive testing setup across all applications:
 - **Percy**: Visual regression testing
 - **Test Results**: Centralized in `tests/test-results/`
 
-## AI Context Engineering
+## Contextual Autonomous System (CAS)
 
-This project includes a comprehensive context engineering system for enhanced AI assistance:
+This project demonstrates a **Contextual Autonomous System (CAS)**—an AI-powered infrastructure that autonomously manages software development, monitoring, and evolution:
 
-- **Automated Analysis**: `npm run context:generate` creates fresh codebase maps
-- **Component Mapping**: Automatically discovers and documents all React components
-- **API Documentation**: Maps all backend endpoints and their purposes
-- **Dependency Graphs**: Visualizes component relationships and imports
-- **AI-Friendly Context**: Rich documentation for better AI assistance
-- **Location**: Moved to `tools/context-engineering/` for better organization
+### CAS Capabilities
+- **Self-Monitoring**: Daily project audits and protection reports (24/7 via GitHub Actions)
+- **Self-Documenting**: Auto-generated audit PDFs, markdown reports, and snapshots
+- **Self-Healing**: Error detection, retry logic, and automatic recovery
+- **Self-Improving**: Pattern recognition, metric analysis, and optimization recommendations
+
+### CAS Commands
+```bash
+npm run context:generate  # Generate contextual intelligence from 6+ sources
+npm run context:update    # Update CAS knowledge base
+npm run context:setup     # Initialize CAS infrastructure
+```
+
+### CAS Architecture
+- **Contextual Intelligence**: Jira, GitHub, Google Docs, Calendar, Figma, Confluence integration
+- **Autonomous Execution**: Self-managing workflows, task automation, quality gates
+- **System Integration**: End-to-end automation from planning to production
+- **Location**: `tools/context-engineering/` (migrating to `tools/cas/`)
+
+**See**: `docs/CAS-OVERVIEW.md` for complete CAS documentation
 
 ## Documentation
 

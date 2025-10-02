@@ -99,7 +99,9 @@
       "Bash(xargs kill:*)",
       "Bash(code:*)",
       "Bash(gh run view:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(railway status:*)",
+      "Bash(railway login:*)"
     ],
     "deny": [],
     "ask": []
