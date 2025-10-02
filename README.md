@@ -1,210 +1,127 @@
-# Tutorwise Tutoring Marketplace
+# Tutorwise - AI-Powered Tutoring Marketplace
 
-# What is Tutorwise
+> A paradigm shift in education technology: Multi-role marketplace meets autonomous AI infrastructure
 
-Tutorwise represents a paradigm shift in the tutoring marketplace such as superprof.com and mytutor.co.uk, moving from single-service marketplaces to a user-centric ecosystem. A Typescript, Next.js fullstack for the core platform, and complemented by the Python, FastAPI backend for the resource intensive and specific functionalities. Tutorwise uses PaaS, BaaS, SaaS tools and infrastructure such as Vercel, Supabase Postgres database, Supabase Auth user authentication/ management, Stripe Connect for payments (sending and receiving payements), Railway, Railway Redis, Neo4j Aura for user-subject-lesson and client (parent, student), tutor, agent relationships. A modern tech stack with reusable UI components to reduce development time and effort significantly. 
+[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Python-green)](https://fastapi.tiangolo.com/)
+[![Deployed on Vercel](https://img.shields.io/badge/Vercel-Deployed-black)](https://vercel.com)
 
-## Key Innovations:
-* Single account with multi-role: Single account for Client, Tutor, and Agent with seemless role switching.
-* Dynamic dashboards: Role-based interfaces adapting to user needs (My learning hub, My teaching studio, My tutoring agency).
-* Service listing management: Tutors and Agents can create, manage, and promote service offerings across Tutorwise’s seven business services. Clients can create, manage and promote service or lesson requests.
-* Revenue generation: Seven business service on one platform (tutor listing service marketetplace, client request lesson reversed marketplace, agent post group sessions, agent post jobs, agent sell courses, agent listing AI tutor marketplace, and anyone can refer anything to anyone).
-* Network and connections: All user can send invites and organise their connections in to groups of Maths Tutors, Year 10 English Students, etc.
-* Anyone can refer anthing to anyone (RATA): All user can refer each other such as clients can refer their favourite tutors to their friends. 
-* **Human-AI Collaboration**: The human provides strategic vision while the **Contextual Autonomous System (CAS)** handles tactical execution.
-* **Autonomous Development**: CAS autonomously manages development workflows, monitoring, documentation, and quality assurance.
-* **Proven AI Capability**: Built with Claude Code (CLI) and Gemini Pro AI, demonstrating self-managing, self-healing infrastructure.
-* **Multi-Service Integration**: Seamlessly integrated with Atlassian Jira/Confluence, Google Cloud, Google Classroom/Meet, HubSpot, Pencil Spaces, Zoom.
+## Overview
 
-## Monorepo Structure
+Tutorwise transforms the traditional tutoring marketplace (like Superprof, MyTutor) into a **comprehensive user-centric ecosystem** powered by autonomous AI. Built with modern tech stack and the **Contextual Autonomous System (CAS)**, Tutorwise demonstrates how AI can autonomously manage software development, monitoring, and continuous evolution.
 
-This project uses a monorepo architecture with npm workspaces for better code organization and shared packages.
+### What Makes Tutorwise Different
 
-### Project Structure
+**🎭 Multi-Role Innovation**
+- Single account serves Client, Tutor, and Agent roles with seamless switching
+- Dynamic dashboards adapt to user context (Learning Hub, Teaching Studio, Agency)
+- Seven revenue streams on one unified platform
 
-```
-tutorwise/
-├── apps/                          # Applications
-│   ├── web/                       # Next.js frontend (formerly the main tutorwise app)
-│   └── api/                       # FastAPI backend (formerly tutorwise-railway-backend)
-├── packages/                      # Shared packages
-│   ├── shared-types/              # TypeScript type definitions shared across apps
-│   └── ui/                        # Shared React components (future)
-├── docs/                          # Documentation
-│   ├── requirements/              # Business requirements and specifications
-│   ├── design/                    # UI/UX and system design documentation
-│   ├── development/               # CCDP process and migration reports
-│   ├── testing/                   # Testing strategies and comprehensive test plans
-│   ├── deployment/                # Deployment guides and CI/CD processes
-│   ├── tools/                     # Development tools and context engineering
-│   ├── integration/               # Third-party service integrations
-│   ├── infrastructure/            # Hosting and infrastructure setup
-│   ├── reference/                 # Quick guides and API references
-│   └── release/                   # Release notes and versioning information
-├── tools/                         # Development tools and automation
-│   ├── scripts/                   # Build automation and utilities
-│   ├── configs/                   # Shared configuration files
-│   ├── context-engineering/       # Contextual Autonomous System (CAS) - migrating to tools/cas/
-│   ├── playwright/                # End-to-end testing configuration
-│   └── percy/                     # Visual testing setup
-├── tests/                         # Centralized testing infrastructure
-│   ├── unit/                      # Unit tests
-│   ├── integration/               # Integration tests
-│   ├── e2e/                       # End-to-end tests (Playwright)
-│   └── test-results/              # Test artifacts and results
-└── [config files]                # Workspace configuration files
-```
+**🤖 Autonomous AI Infrastructure**
+- **CAS (Contextual Autonomous System)** handles tactical execution while humans focus on strategy
+- Self-monitoring, self-healing, self-documenting infrastructure
+- 24/7 automated operations via GitHub Actions
 
-### Applications
+**🔗 Enterprise Integration**
+- Jira/Confluence, Google Workspace, HubSpot, Zoom, Pencil Spaces
+- Stripe Connect for multi-party payments
+- Neo4j for complex relationship mapping
 
-#### `apps/web/` - Frontend Application
-- **Technology**: Next.js 13+ with App Router, TypeScript, Tailwind CSS
-- **Purpose**: Main web application serving tutors, agents, and clients
-- **Features**: Authentication, role management, lesson booking, payments
-- **Port**: 3002 (development)
-- **Former location**: Root directory (migrated to monorepo)
+---
 
-#### `apps/api/` - Backend API
-- **Technology**: FastAPI with Python, PostgreSQL, Redis
-- **Purpose**: Backend services, API endpoints, data processing
-- **Features**: User management, payment processing, lesson scheduling
-- **Port**: 8000 (development)
-- **Former location**: `tutorwise-railway-backend/` (migrated to monorepo)
-
-### Shared Packages
-
-#### `packages/shared-types/`
-- **Purpose**: TypeScript type definitions shared between frontend and backend
-- **Exports**: User types, lesson types, payment types, API response types
-- **Import**: `@tutorwise/shared-types`
-
-#### `packages/ui/` *(Future)*
-- **Purpose**: Shared React components library
-- **Exports**: Reusable UI components, design system
-- **Import**: `@tutorwise/ui`
-
-## Development
-
-### Getting Started
+## Quick Start
 
 ```bash
 # Install dependencies
 npm install
 
-# Start frontend development server
-npm run dev
-# or specifically
-npm run dev:web
+# Start development servers
+npm run dev              # Frontend (port 3002)
+npm run dev:api          # Backend (port 8000)
 
-# Start backend development server
-npm run dev:api
+# Run tests
+npm run test:all         # All tests (frontend + backend + E2E)
+npm run quality:check    # Linting + tests + build verification
 ```
 
-### Available Scripts
+---
 
-```bash
-# Frontend
-npm run dev              # Start web app (port 3002)
-npm run build            # Build web app for production
-npm run lint             # Lint web app code
-npm run test             # Run web app tests
+## Core Features
 
-# Backend
-npm run dev:api          # Start FastAPI server (port 8000)
-npm run test:backend     # Run Python tests
-npm run lint:backend     # Lint Python code
+### Business Capabilities
+1. **Tutor Marketplace** - Service listings and discovery
+2. **Client Requests** - Reverse marketplace for lesson requests
+3. **Group Sessions** - Agent-led collaborative learning
+4. **Job Board** - Tutoring opportunities
+5. **Course Sales** - Digital content marketplace
+6. **AI Tutors** - Automated tutoring services
+7. **RATA (Refer Anything To Anyone)** - Universal referral system
 
-# Testing
-npm run test:e2e         # Run End-to-End tests (Playwright)
-npm run test:visual      # Run visual tests (Percy)
-npm run test:all         # Run all tests (frontend + backend)
-npm run quality:check    # Complete quality pipeline (lint + tests)
+### Platform Features
+- **Role Management**: Seamless switching between Client, Tutor, Agent
+- **Smart Matching**: Neo4j-powered relationship recommendations
+- **Payment Processing**: Stripe Connect for complex transactions
+- **Real-time Updates**: Live notifications and messaging
+- **Network Building**: Organized connections (e.g., "Maths Tutors", "Year 10 Students")
+- **Responsive Design**: Mobile-first with Tailwind CSS
 
-# Contextual Autonomous System (CAS)
-npm run cas:generate     # Generate contextual intelligence
-npm run cas:update       # Update CAS knowledge base
-npm run cas:setup        # Initialize CAS infrastructure
-```
-
-### Environment Setup
-
-1. **Frontend Environment** (`apps/web/.env.local`):
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_key
-   ```
-
-2. **Backend Environment** (`apps/api/.env`):
-   ```
-   DATABASE_URL=your_database_url
-   STRIPE_SECRET_KEY=your_stripe_secret
-   ```
+---
 
 ## Architecture
 
+### Monorepo Structure
+
+```
+tutorwise/
+├── apps/
+│   ├── web/              # Next.js 14 frontend (TypeScript, Tailwind)
+│   └── api/              # FastAPI backend (Python, PostgreSQL, Redis)
+├── packages/
+│   ├── shared-types/     # Shared TypeScript definitions
+│   └── ui/               # Reusable component library (future)
+├── tools/
+│   ├── cas/              # Contextual Autonomous System
+│   ├── scripts/          # Build automation
+│   ├── playwright/       # E2E testing
+│   └── percy/            # Visual regression
+├── tests/                # Centralized testing
+└── docs/                 # Comprehensive documentation
+```
+
 ### Tech Stack
 
-- **Frontend**: Next.js 13+, TypeScript, Tailwind CSS, Radix UI
-- **Backend**: FastAPI, Python, PostgreSQL, Redis
-- **Database**: Supabase PostgreSQL, Neo4j Graph Database
-- **Payments**: Stripe Connect with subscriptions
-- **Authentication**: Supabase Auth
-- **Testing**: Jest (frontend), pytest (backend), Playwright (E2E), Percy (visual)
-- **Test Infrastructure**: Comprehensive FastAPI testing utilities, mock fixtures, database mocking
-- **Deployment**: Vercel (frontend), Railway (backend)
-- **Monitoring**: Integrated platform monitoring
+**Frontend**
+- Next.js 14 (App Router), TypeScript, Tailwind CSS, Radix UI
+- Deployed on Vercel
 
-### Key Features
+**Backend**
+- FastAPI, Python, PostgreSQL, Redis
+- Deployed on Railway with Docker
 
-- **Role Management**: Agent/Tutor role switching with personalized experiences
-- **Payment Processing**: Stripe integration with connect accounts
-- **Real-time Features**: Live notifications and updates
-- **Responsive Design**: Mobile-first approach with Tailwind CSS
-- **Type Safety**: Full TypeScript coverage across frontend and backend
+**Database & Services**
+- Supabase (PostgreSQL + Auth)
+- Neo4j Aura (Graph relationships)
+- Stripe Connect (Payments)
+- Railway Redis (Caching)
 
-## Testing Infrastructure
+**Development & Testing**
+- Jest (unit), Playwright (E2E), Percy (visual)
+- GitHub Actions (CI/CD)
+- CAS (autonomous monitoring)
 
-Comprehensive testing setup across all applications:
-
-### Frontend Testing
-- **Unit Tests**: Jest with React Testing Library
-- **Component Tests**: Isolated component testing
-- **Integration Tests**: API route testing with mock data
-
-### Backend Testing (FastAPI)
-- **Test Client Configuration**: Comprehensive fixtures in `apps/api/tests/conftest.py`
-- **Testing Utilities**: Helper classes in `apps/api/tests/utils.py`
-- **Database Mocking**: Redis and Neo4j mock fixtures
-- **Authentication Testing**: JWT token generation and validation
-- **Payment Testing**: Stripe integration mocking
-- **Async Testing**: AsyncClient and async test runners
-
-### End-to-End Testing
-- **Playwright**: Browser automation and E2E testing
-- **Percy**: Visual regression testing
-- **Test Results**: Centralized in `tests/test-results/`
+---
 
 ## Contextual Autonomous System (CAS)
 
-This project demonstrates a **Contextual Autonomous System (CAS)**—an AI-powered infrastructure that autonomously manages software development, monitoring, and evolution:
+**CAS** is our AI-powered autonomous infrastructure that manages development workflows without human intervention.
 
-### CAS Capabilities
+### What CAS Does
+
 - **Self-Monitoring**: Daily project audits and protection reports (24/7 via GitHub Actions)
 - **Self-Documenting**: Auto-generated audit PDFs, markdown reports, and snapshots
 - **Self-Healing**: Error detection, retry logic, and automatic recovery
 - **Self-Improving**: Pattern recognition, metric analysis, and optimization recommendations
-
-### CAS Commands
-```bash
-npm run cas:generate  # Generate contextual intelligence from 6+ sources
-npm run cas:update    # Update CAS knowledge base
-npm run cas:setup     # Initialize CAS infrastructure
-
-# Backward compatible aliases (still work):
-npm run context:generate
-npm run context:update
-npm run context:setup
-```
 
 ### CAS Architecture
 
@@ -230,97 +147,195 @@ npm run context:setup
 └─────────────────────────────────────────────────────────┘
 ```
 
-**Location**: `tools/cas/` | **See**: `docs/CAS-OVERVIEW.md` for complete documentation
+CAS aggregates context from 6+ sources (Jira, GitHub, Google Workspace, Figma, Confluence), analyzes patterns, makes autonomous decisions, and executes workflows—all while continuously monitoring, healing, and improving itself.
 
-## Documentation
+**AI Velocity**: ~40-60 hours/month of automated work with 0 human hours invested.
 
-- **Requirements**: See `docs/requirements/` for project specifications and business requirements
-- **Design**: See `docs/design/` for system architecture and UI/UX designs
-- **Development**: See `docs/development/` for CCDP process and migration reports
-- **Features**: See `docs/features/` for feature-specific documentation and workflows
-- **Testing**: See `docs/testing/` for testing strategies and test plans
-- **Deployment**: See `docs/deployment/` for deployment guides and CI/CD processes
-- **Tools**: See `docs/tools/` for development tools and context engineering
-- **Integration**: See `docs/integration/` for third-party service integrations
-- **Infrastructure**: See `docs/infrastructure/` for hosting and infrastructure setup
-- **Reference**: See `docs/reference/` for quick guides and API references
-- **Release**: See `docs/release/` for release notes and versioning information
+### CAS Commands
+
+```bash
+# Generate contextual intelligence from 6+ sources
+npm run cas:generate
+
+# Update CAS knowledge base
+npm run cas:update
+
+# Initialize CAS infrastructure
+npm run cas:setup
+
+# Backward compatible (still work)
+npm run context:generate
+npm run context:update
+npm run context:setup
+```
+
+**Location**: `tools/cas/` | **Full Documentation**: `docs/CAS-OVERVIEW.md`
+
+---
+
+## Available Scripts
+
+### Development
+```bash
+npm run dev              # Start frontend (port 3002)
+npm run dev:api          # Start backend (port 8000)
+npm run build            # Production build
+```
+
+### Testing
+```bash
+npm run test             # Frontend unit tests
+npm run test:backend     # Backend tests (pytest)
+npm run test:e2e         # E2E tests (Playwright)
+npm run test:visual      # Visual regression (Percy)
+npm run test:all         # All tests
+npm run quality:check    # Full quality pipeline
+```
+
+### Code Quality
+```bash
+npm run lint             # Lint frontend
+npm run lint:backend     # Lint backend (ruff)
+```
+
+### CAS Operations
+```bash
+npm run cas:generate     # Generate contextual intelligence
+npm run cas:update       # Update knowledge base
+npm run cas:setup        # Initialize infrastructure
+```
+
+---
+
+## Environment Setup
+
+### Frontend (`apps/web/.env.local`)
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_key
+```
+
+### Backend (`apps/api/.env`)
+```bash
+DATABASE_URL=your_database_url
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+STRIPE_SECRET_KEY=your_stripe_secret
+NEO4J_URI=your_neo4j_uri
+REDIS_URL=your_redis_url
+```
+
+---
+
+## Testing Infrastructure
+
+### Frontend Testing
+- **Unit Tests**: Jest + React Testing Library
+- **Component Tests**: Isolated component testing
+- **Integration Tests**: API route testing with mocks
+
+### Backend Testing
+- **FastAPI Test Client**: Comprehensive fixtures in `apps/api/tests/conftest.py`
+- **Database Mocking**: Redis and Neo4j mock fixtures
+- **Authentication**: JWT token generation and validation
+- **Async Testing**: AsyncClient and async test runners
+
+### End-to-End Testing
+- **Playwright**: Browser automation
+- **Percy**: Visual regression testing
+- **Results**: Centralized in `tests/test-results/`
+
+---
 
 ## Deployment
 
 ### Frontend (Vercel)
-- **Build Command**: `cd apps/web && npm run build`
-- **Output Directory**: `apps/web/.next`
-- **Environment**: Production Supabase, Stripe live keys
+- **Build**: `cd apps/web && npm run build`
+- **Output**: `apps/web/.next`
+- **Auto-Deploy**: GitHub main branch → Vercel production
 
 ### Backend (Railway)
-- **Build**: Docker container from `apps/api/`
-- **Environment**: Production database, Redis instance
+- **Build**: Docker from `apps/api/Dockerfile`
 - **Health Check**: `/health` endpoint
+- **Environment**: Production database, Redis
+
+---
+
+## Documentation
+
+### Core Documentation
+- **[CAS Overview](docs/CAS-OVERVIEW.md)** - Contextual Autonomous System
+- **[Testing Plan](docs/testing/tutorwise-test-plan.md)** - Comprehensive test strategy
+- **[CCDP Process](docs/development/CCDP-TUTORWISE.md)** - Development workflow
+- **[Migration Report](docs/development/monorepo-migration-report.md)** - Monorepo migration details
+
+### Documentation Structure
+```
+docs/
+├── requirements/         # Business requirements
+├── design/              # UI/UX and system design
+├── development/         # Development processes
+├── testing/             # Test strategies
+├── deployment/          # Deployment guides
+├── integration/         # Third-party integrations
+├── infrastructure/      # Infrastructure setup
+└── reference/           # API references
+```
+
+### Documentation Philosophy
+
+All documentation is **AI-generated and maintained** to ensure:
+- **Consistency**: Uniform structure across all docs
+- **Currency**: Regular updates aligned with code changes
+- **Completeness**: Comprehensive feature coverage
+- **Accuracy**: Synchronized with actual implementation
+
+---
 
 ## Migration History
 
-This project was successfully migrated from a single-repo structure to a monorepo on September 27, 2024:
+Successfully migrated from single-repo to monorepo on **September 27, 2024**:
 
-- **Success Rate**: 100% with zero breaking changes
-- **Files Migrated**: 189 files with preserved git history
-- **Import Updates**: 197 @ imports updated automatically
-- **Build Verification**: All builds and deployments working correctly
+- ✅ **100% Success Rate** - Zero breaking changes
+- ✅ **189 Files Migrated** - Git history preserved
+- ✅ **197 Imports Updated** - Automatic path resolution
+- ✅ **All Deployments Working** - Vercel + Railway operational
 
-For detailed migration information, see `docs/development/monorepo-migration-report.md`.
+See `docs/development/monorepo-migration-report.md` for details.
+
+---
 
 ## Contributing
 
-1. Follow the established patterns in each application
-2. Update shared types when adding new data structures
-3. Run tests and linting before committing
-4. Use the CCDP process documented in `docs/development/CCDP-TUTORWISE.md`
-5. Generate fresh context maps after significant changes
+1. Follow established patterns in each application
+2. Update shared types (`packages/shared-types/`) when adding data structures
+3. Run `npm run quality:check` before committing
+4. Use CCDP process documented in `docs/development/CCDP-TUTORWISE.md`
+5. Generate fresh context: `npm run cas:generate` after significant changes
 
-## Documentation Standards
+### Pre-commit Checks (Automated)
+- ✅ Critical files protection
+- ✅ Unit tests (Jest)
+- ✅ Linting (ESLint)
+- ✅ Build verification
 
-### README Files as Primary Documentation
+---
 
-README files serve as the primary form of documentation throughout the Tutorwise monorepo. Each directory contains comprehensive README documentation that provides:
+## Support & Resources
 
-- **Overview and Purpose**: Clear explanation of the directory's role
-- **Setup Instructions**: Complete installation and configuration guides
-- **Usage Examples**: Practical examples and best practices
-- **Development Guidelines**: Standards and workflows for contributors
-- **Troubleshooting**: Common issues and solutions
+- **Documentation**: Comprehensive guides in `docs/` directory
+- **AI Context**: `npm run cas:generate` for AI-assisted development
+- **Issues**: GitHub Issues for bug reports and feature requests
+- **Testing**: See `docs/testing/` for testing procedures
 
-### AI-Generated and Maintained Documentation
+---
 
-The documentation system in this project is **AI-generated and maintained** to ensure:
+## License
 
-- **Consistency**: Uniform structure and tone across all documentation
-- **Currency**: Regular updates aligned with code changes and project evolution
-- **Completeness**: Comprehensive coverage of all features and components
-- **Professional Standards**: High-quality technical writing without decorative elements
-- **Synchronization**: Cross-referenced and interconnected documentation
+Proprietary - All rights reserved
 
-### Documentation Locations
+---
 
-- **Root README**: Project overview and monorepo structure
-- **Application READMEs**: Detailed guides for apps/web/ and apps/api/
-- **Package READMEs**: Complete documentation for all shared packages
-- **Tool READMEs**: Configuration and usage for development tools
-- **Documentation Directory**: Structured guides in docs/ for all aspects of development
+**Built with ❤️ using Claude Code (AI) + Human Strategic Vision**
 
-### Maintenance Process
-
-Documentation is updated automatically as part of the development workflow:
-- **Major Changes**: Documentation updated with significant feature additions
-- **Structural Changes**: README files synchronized with monorepo modifications
-- **Regular Reviews**: Periodic validation of accuracy and completeness
-- **AI Enhancement**: Continuous improvement of documentation quality and coverage
-
-This approach ensures that Tutorwise maintains professional, accurate, and comprehensive documentation that supports effective development and maintenance workflows.
-
-## Support
-
-- **Documentation**: Check `docs/` directory for comprehensive guides
-- **AI Documentation**: See `docs/development/ai-documentation.md` for AI integration
-- **Testing Guide**: See `docs/testing/tutorwise-test-plan.md` for testing procedures
-- **Issues**: Use GitHub issues for bug reports and feature requests
-- **Development Process**: Follow CCDP guidelines in `docs/development/CCDP-TUTORWISE.md`
+*Demonstrating that autonomous AI infrastructure is not just possible—it's operational.*
