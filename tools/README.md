@@ -70,7 +70,7 @@ This is the core of our **Contextual Autonomous System**—an AI-powered infrast
 # Generate contextual intelligence from 6+ sources
 npm run context:generate
 # or directly
-node tools/context-engineering/generate-context.js
+node tools/cas/generate-context.js
 
 # Update CAS knowledge base
 npm run context:update

@@ -114,7 +114,7 @@ For general-purpose helper scripts:
 
 - **Package Scripts:** `docs/reference/npm-scripts-reference.md`
 - **Task Automation:** `docs/tools/autonomous-task-scheduling.md`
-- **Integration Guide:** `docs/tools/context-engineering-implementation.md`
+- **Integration Guide:** `docs/tools/cas-implementation.md`
 - **Quick How-To:** `docs/tools/remote-task-scheduling-howto.md`
 
 ---

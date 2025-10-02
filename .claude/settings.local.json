@@ -101,7 +101,8 @@
       "Bash(gh run view:*)",
       "Bash(npm uninstall:*)",
       "Bash(railway status:*)",
-      "Bash(railway login:*)"
+      "Bash(railway login:*)",
+      "Bash(git mv:*)"
     ],
     "deny": [],
     "ask": []

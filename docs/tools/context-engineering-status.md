@@ -46,8 +46,8 @@ npm run test:calendar-to-jira        # Test calendar sync
 - ✅ .ai/INTEGRATION_CONFIG.md
 - ✅ .ai/jira/current-sprint.md
 - ✅ .ai/github/repository-overview.md
-- ✅ docs/tools/context-engineering.md
-- ✅ docs/tools/context-engineering-implementation.md
+- ✅ docs/tools/cas.md
+- ✅ docs/tools/cas-implementation.md
 
 
 

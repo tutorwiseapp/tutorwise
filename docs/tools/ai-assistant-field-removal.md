@@ -47,7 +47,7 @@ labels: ['ai-generated', 'claude-code', 'documentation', 'auto-sync']
    - Removed AI Assistant field references
    - Added labels-based AI tracking
 
-3. **`docs/tools/context-engineering-status.md`**
+3. **`docs/tools/cas-status.md`**
    - Updated working features list
    - Added AI tool tracking via labels
 

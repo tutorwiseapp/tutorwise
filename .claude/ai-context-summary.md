@@ -1,8 +1,8 @@
 # Tutorwise Codebase Context Map
-Generated: 2025-09-28T18:13:06.900Z
+Generated: 2025-10-02T12:06:11.704Z
 
 ## Quick Stats
-- Components: 32
+- Components: 49
 - API Routes: 21
 - Shared Types: 3
 
@@ -30,7 +30,6 @@ Generated: 2025-09-28T18:13:06.900Z
 
 ## API Routes
 - **GET** `/api/activity`: No description
-- **GET** `/api/agents/:agentId`: No description
 - **POST** `/api/auth/logout`: No description
 - **POST** `/api/avatar/upload`: No description
 - **GET** `/api/health`: No description
@@ -38,6 +37,7 @@ Generated: 2025-09-28T18:13:06.900Z
 - **POST** `/api/links`: No description
 - **GET, POST** `/api/profile`: No description
 - **GET** `/api/referrals`: No description
+- **POST** `/api/save-onboarding-progress`: No description
 - **GET** `/api/stripe/connect-account`: No description
 
 ## Shared Types
@@ -46,11 +46,11 @@ Generated: 2025-09-28T18:13:06.900Z
 - Enums: None
 
 ## High-Impact Components
+- **auth/ProtectedRoute**: 0 dependents
 - **layout/Container**: 0 dependents
 - **layout/Footer**: 0 dependents
 - **layout/Header**: 0 dependents
 - **layout/Layout**: 0 dependents
-- **layout/NavMenu**: 0 dependents
 
 ## Architecture
 - **Frontend**: Next.js 13+ with App Router

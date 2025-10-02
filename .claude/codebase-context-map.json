@@ -1,12 +1,28 @@
 {
-  "timestamp": "2025-09-28T18:13:06.895Z",
+  "timestamp": "2025-10-02T12:06:11.697Z",
   "overview": {
-    "totalComponents": 32,
-    "totalDirectories": 9,
+    "totalComponents": 49,
+    "totalDirectories": 14,
     "totalAPIRoutes": 21,
     "totalSharedTypes": 3
   },
   "components": {
+    "auth/": {
+      "type": "directory",
+      "path": "/apps/web/src/app/components/auth",
+      "children": []
+    },
+    "auth/ProtectedRoute": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/auth/ProtectedRoute.tsx",
+      "imports": [
+        "react",
+        "@/app/contexts/UserProfileContext"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 1728
+    },
     "layout/": {
       "type": "directory",
       "path": "/apps/web/src/app/components/layout",
@@ -66,7 +82,7 @@
       ],
       "exports": [],
       "hasStyles": true,
-      "size": 8979
+      "size": 8954
     },
     "layout/RoleSwitcher": {
       "type": "component",
@@ -77,6 +93,199 @@
       "exports": [],
       "hasStyles": false,
       "size": 2637
+    },
+    "onboarding/": {
+      "type": "directory",
+      "path": "/apps/web/src/app/components/onboarding",
+      "children": []
+    },
+    "onboarding/OnboardingProvider": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/onboarding/OnboardingProvider.tsx",
+      "imports": [
+        "react",
+        "./OnboardingWizard"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 905
+    },
+    "onboarding/OnboardingWizard": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/onboarding/OnboardingWizard.tsx",
+      "imports": [
+        "react",
+        "@/utils/supabase/client",
+        "./steps/WelcomeStep",
+        "./steps/RoleDetailsStep",
+        "./OnboardingWizard.module.css"
+      ],
+      "exports": [],
+      "hasStyles": true,
+      "size": 15880
+    },
+    "onboarding/agent/": {
+      "type": "directory",
+      "path": "/apps/web/src/app/components/onboarding/agent",
+      "children": []
+    },
+    "onboarding/agent/AgentCapacityStep": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/onboarding/agent/AgentCapacityStep.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 6487
+    },
+    "onboarding/agent/AgentDetailsStep": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/onboarding/agent/AgentDetailsStep.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 6026
+    },
+    "onboarding/agent/AgentOnboardingWizard": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/onboarding/agent/AgentOnboardingWizard.tsx",
+      "imports": [
+        "react",
+        "@/utils/supabase/client",
+        "./AgentServicesStep",
+        "./AgentCapacityStep",
+        "../OnboardingWizard.module.css"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 9385
+    },
+    "onboarding/agent/AgentServicesStep": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/onboarding/agent/AgentServicesStep.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 4840
+    },
+    "onboarding/agent/AgentWelcomeStep": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/onboarding/agent/AgentWelcomeStep.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 3076
+    },
+    "onboarding/steps/": {
+      "type": "directory",
+      "path": "/apps/web/src/app/components/onboarding/steps",
+      "children": []
+    },
+    "onboarding/steps/CompletionStep": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/onboarding/steps/CompletionStep.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": true,
+      "size": 4235
+    },
+    "onboarding/steps/RoleDetailsStep": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/onboarding/steps/RoleDetailsStep.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 13270
+    },
+    "onboarding/steps/RoleSelectionStep": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/onboarding/steps/RoleSelectionStep.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 4919
+    },
+    "onboarding/steps/WelcomeStep": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/onboarding/steps/WelcomeStep.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 3008
+    },
+    "onboarding/tutor/": {
+      "type": "directory",
+      "path": "/apps/web/src/app/components/onboarding/tutor",
+      "children": []
+    },
+    "onboarding/tutor/TutorAvailabilityStep": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/onboarding/tutor/TutorAvailabilityStep.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 6894
+    },
+    "onboarding/tutor/TutorOnboardingWizard": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/onboarding/tutor/TutorOnboardingWizard.tsx",
+      "imports": [
+        "react",
+        "@/utils/supabase/client",
+        "./TutorSubjectSelectionStep",
+        "./TutorAvailabilityStep",
+        "../OnboardingWizard.module.css"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 9534
+    },
+    "onboarding/tutor/TutorQualificationsStep": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/onboarding/tutor/TutorQualificationsStep.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 6356
+    },
+    "onboarding/tutor/TutorSubjectSelectionStep": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/onboarding/tutor/TutorSubjectSelectionStep.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 4693
+    },
+    "onboarding/tutor/TutorWelcomeStep": {
+      "type": "component",
+      "path": "/apps/web/src/app/components/onboarding/tutor/TutorWelcomeStep.tsx",
+      "imports": [
+        "react"
+      ],
+      "exports": [],
+      "hasStyles": false,
+      "size": 3053
     },
     "ui/": {
       "type": "directory",
@@ -414,16 +623,6 @@
       "database": "Unknown",
       "size": 1652
     },
-    "/api/agents/:agentId": {
-      "path": "/apps/web/src/app/api/agents/[agentId]/route.ts",
-      "methods": [
-        "GET"
-      ],
-      "purpose": "No description",
-      "auth": "Unknown",
-      "database": "Unknown",
-      "size": 2345
-    },
     "/api/auth/logout": {
       "path": "/apps/web/src/app/api/auth/logout/route.ts",
       "methods": [
@@ -483,7 +682,7 @@
       "purpose": "No description",
       "auth": "Unknown",
       "database": "Unknown",
-      "size": 2173
+      "size": 2265
     },
     "/api/referrals": {
       "path": "/apps/web/src/app/api/referrals/route.ts",
@@ -494,6 +693,16 @@
       "auth": "Unknown",
       "database": "Unknown",
       "size": 1656
+    },
+    "/api/save-onboarding-progress": {
+      "path": "/apps/web/src/app/api/save-onboarding-progress/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "purpose": "No description",
+      "auth": "Unknown",
+      "database": "Unknown",
+      "size": 1060
     },
     "/api/stripe/connect-account": {
       "path": "/apps/web/src/app/api/stripe/connect-account/route.ts",
@@ -629,6 +838,12 @@
     "totalSize": 251
   },
   "dependencyGraph": {
+    "auth/ProtectedRoute": {
+      "dependencies": [
+        "@/app/contexts/UserProfileContext"
+      ],
+      "dependents": []
+    },
     "layout/Container": {
       "dependencies": [],
       "dependents": []
@@ -652,6 +867,76 @@
       "dependents": []
     },
     "layout/RoleSwitcher": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "onboarding/OnboardingProvider": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "onboarding/OnboardingWizard": {
+      "dependencies": [
+        "@/utils/supabase/client"
+      ],
+      "dependents": []
+    },
+    "onboarding/agent/AgentCapacityStep": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "onboarding/agent/AgentDetailsStep": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "onboarding/agent/AgentOnboardingWizard": {
+      "dependencies": [
+        "@/utils/supabase/client"
+      ],
+      "dependents": []
+    },
+    "onboarding/agent/AgentServicesStep": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "onboarding/agent/AgentWelcomeStep": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "onboarding/steps/CompletionStep": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "onboarding/steps/RoleDetailsStep": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "onboarding/steps/RoleSelectionStep": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "onboarding/steps/WelcomeStep": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "onboarding/tutor/TutorAvailabilityStep": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "onboarding/tutor/TutorOnboardingWizard": {
+      "dependencies": [
+        "@/utils/supabase/client"
+      ],
+      "dependents": []
+    },
+    "onboarding/tutor/TutorQualificationsStep": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "onboarding/tutor/TutorSubjectSelectionStep": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "onboarding/tutor/TutorWelcomeStep": {
       "dependencies": [],
       "dependents": []
     },

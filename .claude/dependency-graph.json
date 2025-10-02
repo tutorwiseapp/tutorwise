@@ -1,4 +1,10 @@
 {
+  "auth/ProtectedRoute": {
+    "dependencies": [
+      "@/app/contexts/UserProfileContext"
+    ],
+    "dependents": []
+  },
   "layout/Container": {
     "dependencies": [],
     "dependents": []
@@ -22,6 +28,76 @@
     "dependents": []
   },
   "layout/RoleSwitcher": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "onboarding/OnboardingProvider": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "onboarding/OnboardingWizard": {
+    "dependencies": [
+      "@/utils/supabase/client"
+    ],
+    "dependents": []
+  },
+  "onboarding/agent/AgentCapacityStep": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "onboarding/agent/AgentDetailsStep": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "onboarding/agent/AgentOnboardingWizard": {
+    "dependencies": [
+      "@/utils/supabase/client"
+    ],
+    "dependents": []
+  },
+  "onboarding/agent/AgentServicesStep": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "onboarding/agent/AgentWelcomeStep": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "onboarding/steps/CompletionStep": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "onboarding/steps/RoleDetailsStep": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "onboarding/steps/RoleSelectionStep": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "onboarding/steps/WelcomeStep": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "onboarding/tutor/TutorAvailabilityStep": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "onboarding/tutor/TutorOnboardingWizard": {
+    "dependencies": [
+      "@/utils/supabase/client"
+    ],
+    "dependents": []
+  },
+  "onboarding/tutor/TutorQualificationsStep": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "onboarding/tutor/TutorSubjectSelectionStep": {
+    "dependencies": [],
+    "dependents": []
+  },
+  "onboarding/tutor/TutorWelcomeStep": {
     "dependencies": [],
     "dependents": []
   },

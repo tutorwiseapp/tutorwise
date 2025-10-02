@@ -38,7 +38,7 @@ This document serves as the central hub for Tutorwise's AI integration suite and
 ## Development Tools & Automation
 
 ### Context Engineering
-- **Location**: `tools/context-engineering/`
+- **Location**: `tools/cas/`
 - **Generate Context**: `npm run context:generate`
 - **Update Context**: `npm run context:update`
 
@@ -110,7 +110,7 @@ npm run health:check # Backend service status
 ### Documentation Organization (Updated)
 - Four-tier structure: apps/, packages/, docs/, tools/
 - Centralized test results in tests/test-results/
-- Context engineering tools moved to tools/context-engineering/
+- Context engineering tools moved to tools/cas/
 - Updated all path references for new structure
 
 ## Development Workflow

@@ -110,8 +110,8 @@ Check your `.env.local` file has:
 
 ## 🆘 Support
 
-- **Status Report**: `docs/tools/context-engineering-status.md`
-- **Full Documentation**: `docs/tools/context-engineering-implementation.md`
+- **Status Report**: `docs/tools/cas-status.md`
+- **Full Documentation**: `docs/tools/cas-implementation.md`
 - **Integration Config**: `.ai/INTEGRATION_CONFIG.md`
 
 ---

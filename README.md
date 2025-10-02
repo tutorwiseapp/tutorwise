@@ -205,7 +205,7 @@ npm run context:setup     # Initialize CAS infrastructure
 - **Contextual Intelligence**: Jira, GitHub, Google Docs, Calendar, Figma, Confluence integration
 - **Autonomous Execution**: Self-managing workflows, task automation, quality gates
 - **System Integration**: End-to-end automation from planning to production
-- **Location**: `tools/context-engineering/` (migrating to `tools/cas/`)
+- **Location**: `tools/cas/`
 
 **See**: `docs/CAS-OVERVIEW.md` for complete CAS documentation
 
