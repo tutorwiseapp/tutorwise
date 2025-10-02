@@ -121,9 +121,9 @@ npm run test:all         # Run all tests (frontend + backend)
 npm run quality:check    # Complete quality pipeline (lint + tests)
 
 # Contextual Autonomous System (CAS)
-npm run context:generate # Generate contextual intelligence (migrating to cas:generate)
-npm run context:update   # Update CAS knowledge base (migrating to cas:update)
-npm run context:setup    # Initialize CAS infrastructure (migrating to cas:setup)
+npm run cas:generate     # Generate contextual intelligence
+npm run cas:update       # Update CAS knowledge base
+npm run cas:setup        # Initialize CAS infrastructure
 ```
 
 ### Environment Setup
@@ -196,9 +196,14 @@ This project demonstrates a **Contextual Autonomous System (CAS)**—an AI-power
 
 ### CAS Commands
 ```bash
-npm run context:generate  # Generate contextual intelligence from 6+ sources
-npm run context:update    # Update CAS knowledge base
-npm run context:setup     # Initialize CAS infrastructure
+npm run cas:generate  # Generate contextual intelligence from 6+ sources
+npm run cas:update    # Update CAS knowledge base
+npm run cas:setup     # Initialize CAS infrastructure
+
+# Backward compatible aliases (still work):
+npm run context:generate
+npm run context:update
+npm run context:setup
 ```
 
 ### CAS Architecture
