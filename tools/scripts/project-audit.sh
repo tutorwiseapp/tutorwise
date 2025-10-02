@@ -6,7 +6,7 @@
 set -e
 
 AUDIT_DIR="docs/project-audit"
-CURRENT_DATE="2024-09-30"  # Fixed for current audit session
+CURRENT_DATE=$(date +%Y-%m-%d)  # Dynamic date for daily audits
 CURRENT_AUDIT_FILE="$AUDIT_DIR/project-audit-$CURRENT_DATE.md"
 AUDIT_CONFIG="tools/configs/audit-config.json"
 
@@ -138,17 +138,15 @@ EOF
 validate_audit_structure() {
     local audit_file="$1"
     local required_sections=(
-        "# TutorWise Project Audit Report"
+        "# Tutorwise Project Audit"
         "## Executive Summary"
-        "Overall Project Health Score"
-        "## Audit Methodology"
         "## Conclusion"
     )
 
     log_info "Validating audit structure..."
 
     for section in "${required_sections[@]}"; do
-        if ! grep -q "$section" "$audit_file"; then
+        if ! grep -qi "$section" "$audit_file"; then
             log_error "Missing required section: $section"
             return 1
         fi

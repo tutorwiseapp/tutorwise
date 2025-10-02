@@ -3,6 +3,9 @@
 # Daily Project Audit Runner
 # This script is designed to be run by cron to execute daily project audits
 
+# Set PATH for cron to find node
+export PATH="/opt/homebrew/opt/node@22/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
+
 # Set the working directory to the project root
 cd /Users/michaelquan/projects/tutorwise
 
