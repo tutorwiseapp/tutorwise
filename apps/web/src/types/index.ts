@@ -74,11 +74,14 @@ export interface RoleDetails {
   goals?: string[];
 
   // Provider-specific fields
+  teaching_experience?: string; // Changed to string to match onboarding
   teaching_experience_years?: number;
   hourly_rate?: number;
   qualifications?: string[];
   specializations?: string[];
   teaching_style?: string;
+  teaching_methods?: string[]; // Added from onboarding
+  availability?: any; // Availability data from onboarding
 
   // Seeker-specific fields
   current_level?: string;
@@ -94,6 +97,71 @@ export interface RoleDetails {
 
   created_at: string;
   updated_at: string;
+}
+
+/**
+ * ==================================================================
+ * Template-specific interfaces for Account > Professional Info page
+ * These represent the editable template structure for each role
+ * ==================================================================
+ */
+
+export interface TutorProfessionalInfo {
+  // Teaching
+  subjects: string[]; // e.g., ['Mathematics', 'Physics', 'Chemistry']
+  levels: string[]; // e.g., ['GCSE', 'A-Level', 'KS3']
+  teaching_experience: string;
+  teaching_methods: string[]; // e.g., ['interactive', 'exam_focused', 'visual_learning']
+
+  // Rates & Availability (baseline, not binding)
+  hourly_rate_range?: { min: number; max: number };
+  typical_availability?: any; // Flexible availability structure
+
+  // Credentials
+  qualifications: string[]; // e.g., ['BSc Mathematics - Oxford', 'PGCE']
+  certifications: string[]; // e.g., ['QTS', 'DBS']
+  specializations: string[]; // e.g., ['ADHD support', 'Exam prep']
+
+  // Preferences
+  max_students_per_week?: number;
+  preferred_student_age_range?: { min: number; max: number };
+  willing_to_travel?: boolean;
+  travel_radius_km?: number;
+}
+
+export interface ClientProfessionalInfo {
+  // Student/Child Info
+  student_ages?: number[];
+  subjects_of_interest?: string[];
+  learning_goals?: string[];
+  preferred_teaching_style?: string[];
+  budget_range?: { min: number; max: number };
+
+  // Preferences
+  preferred_session_length?: number; // minutes
+  preferred_session_frequency?: string;
+  preferred_delivery_format?: ('online' | 'in_person' | 'hybrid')[];
+}
+
+export interface AgentProfessionalInfo {
+  // Agency Details
+  agency_name: string;
+  agency_size: number;
+  years_in_business: number;
+  agency_description: string;
+
+  // Services
+  services_offered: string[]; // e.g., ['tutoring', 'courses', 'group_sessions']
+  subject_specializations: string[];
+  commission_rate?: number;
+
+  // Coverage
+  service_areas: string[]; // Geographic areas
+  online_service_available: boolean;
+
+  // Capacity
+  student_capacity: number;
+  tutor_network_size?: number;
 }
 
 // NOTE: This 'User' type is kept for backward compatibility with the existing mock data system.
