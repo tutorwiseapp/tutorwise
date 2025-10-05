@@ -21,9 +21,9 @@ test.describe('Account > Professional Info', () => {
     await expect(page.getByRole('link', { name: 'Professional Info' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Settings' })).toBeVisible();
 
-    // Professional Info tab should be active (has specific class or aria-current)
+    // Professional Info tab should be active (has tabActive class)
     const profInfoTab = page.getByRole('link', { name: 'Professional Info' });
-    await expect(profInfoTab).toHaveClass(/active/);
+    await expect(profInfoTab).toHaveClass(/tabActive/);
   });
 
   test('should display info banner about editable template', async ({ page }) => {
@@ -41,8 +41,8 @@ test.describe('Account > Professional Info', () => {
     // Check for form sections
     await expect(page.getByText('Professional Information')).toBeVisible();
 
-    // Check for Subjects section
-    await expect(page.getByText('Subjects', { exact: true })).toBeVisible();
+    // Check for Subjects section (with asterisk for required field)
+    await expect(page.getByText(/Subjects \*/)).toBeVisible();
     await expect(page.getByText('Select the subjects you teach')).toBeVisible();
 
     // Check for Education Levels section
@@ -116,9 +116,12 @@ test.describe('Account > Professional Info', () => {
   test('should allow adding and removing qualifications', async ({ page }) => {
     await page.goto('/account/professional-info');
 
-    // Find qualification inputs
+    // Find qualification inputs - form starts with 1 input by default
     const qualInputs = page.getByPlaceholder(/BSc Mathematics/);
     const initialCount = await qualInputs.count();
+
+    // Should start with at least 1 input
+    expect(initialCount).toBeGreaterThanOrEqual(1);
 
     // Click "Add Qualification" button
     await page.getByRole('button', { name: /Add Qualification/ }).click();
