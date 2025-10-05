@@ -1,20 +1,15 @@
 import { test, expect } from '@playwright/test';
+import { loginAsTutor } from '../../helpers/auth';
 
 test.describe('Account > Professional Info', () => {
-  test.beforeEach(async ({ page }) => {
-    // TODO: Add authentication helper
-    // For now, assume user is logged in or we'll see login redirect
-  });
+  // Skip authentication for the unauthenticated test
+  test.describe('Authenticated Tests', () => {
+    test.beforeEach(async ({ page }) => {
+      // Login as tutor before each test
+      await loginAsTutor(page);
+    });
 
-  test('should redirect to login when not authenticated', async ({ page }) => {
-    // Navigate to professional info page without auth
-    await page.goto('/account/professional-info');
-
-    // Should redirect to login
-    await expect(page).toHaveURL(/.*login/);
-  });
-
-  test('should display account layout with top tabs', async ({ page }) => {
+    test('should display account layout with top tabs', async ({ page }) => {
     // Navigate to professional info page (assuming logged in)
     await page.goto('/account/professional-info');
 
@@ -186,7 +181,7 @@ test.describe('Account > Professional Info', () => {
     await expect(page.getByRole('button', { name: 'Mathematics' })).toHaveClass(/chipSelected/);
   });
 
-  test('should match Figma design system', async ({ page }) => {
+    test('should match Figma design system', async ({ page }) => {
     await page.goto('/account/professional-info');
 
     // Check color scheme (blue theme)
@@ -213,10 +208,25 @@ test.describe('Account > Professional Info', () => {
     // Should have consistent spacing (2rem = 32px)
     expect(marginBottom).toBe('32px');
   });
+  });
+
+  // Unauthenticated test (separate from authenticated tests)
+  test('should redirect to login when not authenticated', async ({ page }) => {
+    // Navigate to professional info page without auth
+    await page.goto('/account/professional-info');
+
+    // Should redirect to login
+    await expect(page).toHaveURL(/.*login/);
+  });
 });
 
 // Visual Regression Tests
 test.describe('Visual Regression Tests', () => {
+  test.beforeEach(async ({ page }) => {
+    // Login as tutor for visual tests
+    await loginAsTutor(page);
+  });
+
   test('should match desktop screenshot', async ({ page }) => {
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto('/account/professional-info');

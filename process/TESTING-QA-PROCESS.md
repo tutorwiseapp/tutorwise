@@ -1,8 +1,13 @@
 # Testing & QA Process for TutorWise
 
-**Version:** 1.0.0
+**Version:** 1.1.0
 **Last Updated:** October 5, 2025
 **Purpose:** Define the complete testing and QA process that must be followed for all feature development
+
+## Quick Links
+- [E2E Testing Guide](../tests/e2e/README.md) - Complete guide for E2E tests with authentication
+- [Test Strategy](./TEST-STRATEGY-COMPLETE.md) - Comprehensive test strategy document
+- [Figma Compliance](./FIGMA-DESIGN-COMPLIANCE.md) - Design system compliance verification
 
 ---
 
@@ -195,21 +200,68 @@ npm run test:e2e:visual
 
 **Purpose:** Test complete user journeys
 
-**Location:** `apps/web/tests/e2e/` or using Playwright
+**Location:** `tests/e2e/` using Playwright
+
+**Documentation:** 📖 [Complete E2E Testing Guide](../tests/e2e/README.md)
+
+**Setup:**
+1. Copy `.env.test.example` to `.env.test`
+2. Create test users in Supabase test project
+3. Configure test credentials in `.env.test`
 
 **Run Command:**
 ```bash
-cd apps/web
-npm run test:e2e
+npx playwright test --config=tools/playwright/playwright.config.ts
+```
+
+**Run Specific Test:**
+```bash
+npx playwright test tests/e2e/account/professional-info.spec.ts
+```
+
+**Run with UI (Interactive):**
+```bash
+npx playwright test --ui
+```
+
+**Authentication in E2E Tests:**
+
+All E2E tests use the authentication helper from `tests/helpers/auth.ts`:
+
+```typescript
+import { loginAsTutor, loginAsClient, loginAsAgent } from '../../helpers/auth';
+
+test('authenticated test', async ({ page }) => {
+  await loginAsTutor(page);  // Login before accessing protected pages
+  await page.goto('/account/professional-info');
+  // ... test logic
+});
 ```
 
 **Critical Flows to Test:**
-1. User authentication (login/signup)
-2. Onboarding flow
-3. Template editing (Account > Professional Info)
-4. Listing creation
-5. Search and filters
+1. ✅ User authentication (login/signup with redirect)
+2. ✅ Onboarding flow
+3. ✅ Template editing (Account > Professional Info)
+4. Listing creation (future)
+5. Search and filters (future)
 6. Booking flow (future)
+
+**Test Users Required:**
+- Test Tutor (provider role) - for tutor-specific features
+- Test Client (seeker role) - for client-specific features
+- Test Agent (agent role) - for agent-specific features
+
+**Visual Regression Testing:**
+
+Playwright includes built-in visual regression testing:
+
+```bash
+# Run visual regression tests
+npx playwright test tests/e2e/ --grep "Visual Regression"
+
+# Update visual baselines (after intentional UI changes)
+npx playwright test --update-snapshots
+```
 
 ---
 
