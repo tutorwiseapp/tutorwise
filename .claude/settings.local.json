@@ -8,7 +8,12 @@
       "Bash(./sadd status)",
       "Bash(TERM=xterm ./sadd status)",
       "Bash(TERM=xterm ./sadd list)",
-      "Bash(TERM=xterm bash cas/packages/sadd/bin/sadd-apps)"
+      "Bash(TERM=xterm bash cas/packages/sadd/bin/sadd-apps)",
+      "Bash(mkdir:*)",
+      "Bash(rmdir:*)",
+      "Bash(cp:*)",
+      "Bash(ls:*)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []
