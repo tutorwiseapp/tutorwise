@@ -76,17 +76,41 @@ npm run quality:check    # Linting + tests + build verification
 tutorwise/
 ├── apps/
 │   ├── web/              # Next.js 14 frontend (TypeScript, Tailwind)
+│   │   └── src/
+│   │       ├── app/      # Next.js App Router pages & API routes
+│   │       ├── lib/      # Utilities and helpers
+│   │       └── middleware.ts  # Auth & route protection
 │   └── api/              # FastAPI backend (Python, PostgreSQL, Redis)
 ├── packages/
 │   ├── shared-types/     # Shared TypeScript definitions
+│   ├── shared/           # Shared utilities (config, stripe, supabase, etc.)
 │   └── ui/               # Reusable component library (future)
+├── cas/                  # Contextual Autonomous System
+│   ├── packages/         # CAS core, agent, SADD
+│   ├── apps/             # CAS CLI tools
+│   ├── docs/             # CAS documentation
+│   └── config/           # Application & service registry
 ├── tools/
-│   ├── cas/              # Contextual Autonomous System
-│   ├── scripts/          # Build automation
-│   ├── playwright/       # E2E testing
-│   └── percy/            # Visual regression
+│   ├── scripts/          # Build automation, deployment, monitoring
+│   │   ├── deployment/   # Railway & Vercel deploy scripts
+│   │   ├── security/     # Credential backup & protection
+│   │   ├── monitoring/   # Health checks & audits
+│   │   └── setup/        # Environment setup utilities
+│   ├── rbac/             # AI permission system
+│   ├── playwright/       # E2E testing config
+│   └── integrations/     # Third-party service configs
 ├── tests/                # Centralized testing
-└── docs/                 # Comprehensive documentation
+│   ├── unit/             # Jest unit tests
+│   ├── integration/      # Integration tests
+│   └── e2e/              # Playwright E2E tests
+├── docs/                 # Comprehensive documentation
+│   ├── development/      # Dev guides & processes
+│   ├── deployment/       # Deployment procedures
+│   ├── features/         # Feature specifications
+│   ├── ai/               # Gemini AI integration docs
+│   └── security/         # Security policies & guides
+├── human/                # Product engineer notes & artifacts
+└── process/              # Process-related documentation
 ```
 
 ### Tech Stack
@@ -169,7 +193,7 @@ npm run context:update
 npm run context:setup
 ```
 
-**Location**: `tools/cas/` | **Full Documentation**: `docs/CAS-OVERVIEW.md`
+**Location**: `cas/` | **Full Documentation**: `cas/docs/` and `docs/development/`
 
 ---
 
@@ -264,22 +288,34 @@ REDIS_URL=your_redis_url
 ## Documentation
 
 ### Core Documentation
-- **[CAS Overview](docs/CAS-OVERVIEW.md)** - Contextual Autonomous System
+- **[CAS Overview](cas/docs/guides/CAS-OVERVIEW.md)** - Contextual Autonomous System architecture
+- **[CAS Quick Start](cas/docs/quick-start.md)** - Getting started with CAS
+- **[SADD Overview](cas/docs/sadd/SADD-SOFTWARE-APPLICATION-DISCOVERY-AND-DEVELOPMENT.md)** - Software Application Discovery & Development
+- **[Development Quick Start](docs/development/quick-start-guide.md)** - Quick start for developers
+- **[Deployment Guide](docs/deployment/pre-deployment-review.md)** - Pre-deployment checklist
 - **[Testing Plan](docs/testing/tutorwise-test-plan.md)** - Comprehensive test strategy
-- **[CCDP Process](docs/development/CCDP-TUTORWISE.md)** - Development workflow
-- **[Migration Report](docs/development/monorepo-migration-report.md)** - Monorepo migration details
+- **[Security Guide](docs/security/credential-backup-guide.md)** - Credential management & backup
 
 ### Documentation Structure
 ```
 docs/
-├── requirements/         # Business requirements
-├── design/              # UI/UX and system design
-├── development/         # Development processes
-├── testing/             # Test strategies
-├── deployment/          # Deployment guides
+├── development/         # Development processes & guides
+├── deployment/          # Deployment procedures & notes
+├── features/            # Feature specifications & roadmaps
+├── ai/                  # Gemini AI integration documentation
+├── security/            # Security policies & credential management
+├── requirements/        # Business requirements
+├── design/              # UI/UX and system design (Figma exports)
+├── testing/             # Test strategies & plans
 ├── integration/         # Third-party integrations
 ├── infrastructure/      # Infrastructure setup
-└── reference/           # API references
+├── tools/               # Tool configurations & status
+└── project-audit/       # Automated audit reports
+
+cas/docs/
+├── guides/              # CAS implementation guides
+├── sadd/                # SADD (Software Application Discovery) docs
+└── *.md                 # Architecture, consolidation, quick-start guides
 ```
 
 ### Documentation Philosophy
@@ -292,7 +328,35 @@ All documentation is **AI-generated and maintained** to ensure:
 
 ---
 
-## Migration History
+## Recent Updates
+
+### October 2024 - Major Infrastructure Improvements
+
+**Project Organization** ✅
+- Cleaned up root directory - moved all documentation to organized subdirectories
+- Migrated middleware.ts to `apps/web/src/` for better Next.js conventions
+- Reorganized 150+ files into proper locations (docs/, cas/, tools/)
+- Enhanced file naming with clear prefixes (DEV-, DEPLOY-, AI-, SECURITY-, CAS-, SADD-)
+
+**CAS Infrastructure** ✅
+- Complete CAS consolidation from `tools/cas/` → `cas/` directory
+- Added SADD (Software Application Discovery & Development) packages
+- Implemented comprehensive CAS documentation and guides
+- Created application registry for multi-project support
+
+**Security & Monitoring** ✅
+- Implemented AI RBAC (Role-Based Access Control) system
+- Added critical files protection with automated monitoring
+- Created comprehensive backup and rollback procedures
+- Daily/weekly automated audit reports with email notifications
+
+**Deployment Pipeline** ✅
+- Fixed Vercel account configuration (migrated from personal to business account)
+- Established GitHub → Vercel auto-deployment
+- Configured all production environment variables
+- Enhanced deployment scripts with health checks and monitoring
+
+### September 2024 - Monorepo Migration
 
 Successfully migrated from single-repo to monorepo on **September 27, 2024**:
 
@@ -300,8 +364,6 @@ Successfully migrated from single-repo to monorepo on **September 27, 2024**:
 - ✅ **189 Files Migrated** - Git history preserved
 - ✅ **197 Imports Updated** - Automatic path resolution
 - ✅ **All Deployments Working** - Vercel + Railway operational
-
-See `docs/development/monorepo-migration-report.md` for details.
 
 ---
 
