@@ -1,0 +1,597 @@
+{
+  "metadata": {
+    "project": "TutorWise",
+    "generated": "2025-10-03",
+    "description": "Comprehensive inventory of all tools, scripts, and services for startup utility management"
+  },
+  "services": {
+    "web_frontend": {
+      "name": "Next.js Frontend",
+      "type": "web_service",
+      "port": 3000,
+      "file_path": "/Users/michaelquan/projects/tutorwise/apps/web",
+      "description": "Next.js frontend application for TutorWise",
+      "start_command": "npm run dev:web",
+      "build_command": "npm run build",
+      "health_check": "curl http://localhost:3000/api/health",
+      "dependencies": ["node", "npm"],
+      "environment_vars": ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY"],
+      "deployment": {
+        "primary": "Vercel",
+        "backup": "Railway (Docker)",
+        "dockerfile": "/Users/michaelquan/projects/tutorwise/apps/web/Dockerfile"
+      }
+    },
+    "api_backend": {
+      "name": "FastAPI Backend",
+      "type": "api_service",
+      "port": 8000,
+      "file_path": "/Users/michaelquan/projects/tutorwise/apps/api",
+      "description": "Python FastAPI backend for TutorWise AI services",
+      "start_command": "npm run dev:api",
+      "production_command": "gunicorn -k uvicorn.workers.UvicornWorker -w 4 -b 0.0.0.0:8000 --timeout 120 app.main:app",
+      "health_check": "curl http://localhost:8000/health",
+      "dependencies": ["python3", "uvicorn", "neo4j", "redis"],
+      "environment_vars": ["NEO4J_URI", "NEO4J_USERNAME", "NEO4J_PASSWORD", "REDIS_URL"],
+      "deployment": {
+        "primary": "Railway",
+        "dockerfile": "/Users/michaelquan/projects/tutorwise/apps/api/Dockerfile"
+      }
+    },
+    "neo4j": {
+      "name": "Neo4j Database",
+      "type": "database",
+      "port": 7687,
+      "browser_port": 7474,
+      "file_path": "/Users/michaelquan/projects/tutorwise/docker-compose.yml",
+      "description": "Neo4j graph database for user relationships and recommendations",
+      "start_command": "docker-compose up neo4j -d",
+      "stop_command": "docker-compose stop neo4j",
+      "health_check": "bash /Users/michaelquan/projects/tutorwise/tools/scripts/neo4j-test-connection.sh",
+      "dependencies": ["docker", "docker-compose"],
+      "environment_vars": ["NEO4J_URI", "NEO4J_USERNAME", "NEO4J_PASSWORD"],
+      "data_volume": "neo4j_data"
+    },
+    "redis": {
+      "name": "Redis Cache",
+      "type": "database",
+      "port": 6379,
+      "file_path": "/Users/michaelquan/projects/tutorwise/docker-compose.yml",
+      "description": "Redis in-memory cache for session management and caching",
+      "start_command": "docker-compose up redis -d",
+      "stop_command": "docker-compose stop redis",
+      "health_check": "bash /Users/michaelquan/projects/tutorwise/tools/scripts/redis-test-connection.sh",
+      "dependencies": ["docker", "docker-compose"],
+      "environment_vars": ["REDIS_URL"],
+      "data_volume": "redis_data"
+    }
+  },
+  "background_services": {
+    "jira_task_executor": {
+      "name": "Jira Task Executor",
+      "type": "polling_service",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/automation/jira-task-executor.js",
+      "description": "Polls Jira tickets and executes Claude Code/Gemini tasks based on schedule",
+      "start_command": "npm run jira:poll:continuous",
+      "test_command": "npm run jira:test-tasks",
+      "poll_interval": "10 minutes",
+      "dependencies": ["node", "jira_api"],
+      "environment_vars": ["JIRA_BASE_URL", "JIRA_EMAIL", "JIRA_API_TOKEN", "JIRA_PROJECT_KEY"],
+      "supports": ["file_creation", "package_installation", "command_execution"]
+    },
+    "calendar_task_executor": {
+      "name": "Google Calendar Task Executor",
+      "type": "polling_service",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/automation/google-calendar-task-executor.js",
+      "description": "Polls Google Calendar events and executes Claude Code tasks directly",
+      "start_command": "npm run calendar:poll:continuous",
+      "test_command": "npm run calendar:test-tasks",
+      "service_script": "/Users/michaelquan/projects/tutorwise/tools/scripts/automation/google-calendar-service.sh",
+      "service_commands": {
+        "start": "bash tools/scripts/automation/google-calendar-service.sh start",
+        "stop": "bash tools/scripts/automation/google-calendar-service.sh stop",
+        "status": "bash tools/scripts/automation/google-calendar-service.sh status",
+        "logs": "bash tools/scripts/automation/google-calendar-service.sh logs"
+      },
+      "poll_interval": "10 minutes",
+      "dependencies": ["node", "google_api"],
+      "environment_vars": ["GOOGLE_SERVICE_ACCOUNT_PATH", "GOOGLE_CALENDAR_IDS"],
+      "supports": ["file_creation", "package_installation", "command_execution"],
+      "log_file": "/tmp/tutorwise-calendar-service.log",
+      "pid_file": "/tmp/tutorwise-calendar-service.pid"
+    },
+    "calendar_sync": {
+      "name": "Google Calendar to Jira Sync",
+      "type": "sync_service",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/integrations/google-calendar-sync-to-jira.js",
+      "description": "Syncs Google Calendar events to Jira tickets",
+      "start_command": "npm run sync:calendar-to-jira:continuous",
+      "test_command": "npm run test:calendar-to-jira",
+      "dependencies": ["node", "google_api", "jira_api"],
+      "environment_vars": ["GOOGLE_SERVICE_ACCOUNT_PATH", "GOOGLE_CALENDAR_IDS", "JIRA_BASE_URL", "JIRA_EMAIL", "JIRA_API_TOKEN"]
+    }
+  },
+  "scheduled_tasks": {
+    "daily_audit": {
+      "name": "Daily Project Audit",
+      "type": "cron_job",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/run-daily-audit.sh",
+      "audit_script": "/Users/michaelquan/projects/tutorwise/tools/scripts/project-audit.sh",
+      "description": "Automated daily project audit with email reports",
+      "schedule": "0 6,19 * * * (6 AM & 7 PM daily)",
+      "npm_command": "npm run audit:daily",
+      "dependencies": ["node", "email_service"],
+      "environment_vars": ["RESEND_API_KEY", "RESEND_FROM_EMAIL"],
+      "output_log": "/Users/michaelquan/projects/tutorwise/logs/audit-cron.log",
+      "github_action": "/Users/michaelquan/projects/tutorwise/.github/workflows/daily-audit.yml"
+    },
+    "protection_report": {
+      "name": "Critical Files Protection Report",
+      "type": "cron_job",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/run-protection-report.sh",
+      "report_script": "/Users/michaelquan/projects/tutorwise/tools/scripts/email/send-protection-report-email.js",
+      "description": "Monitors and reports on critical file protection status",
+      "schedule": "2 6,19 * * * (6:02 AM & 7:02 PM daily)",
+      "dependencies": ["node", "email_service"],
+      "environment_vars": ["RESEND_API_KEY", "RESEND_FROM_EMAIL"],
+      "output_log": "/Users/michaelquan/projects/tutorwise/logs/protection-report-cron.log",
+      "github_action": "/Users/michaelquan/projects/tutorwise/.github/workflows/protection-report.yml"
+    }
+  },
+  "integration_scripts": {
+    "confluence_sync": {
+      "name": "Confluence Documentation Sync",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/integrations/confluence-sync.js",
+      "description": "Syncs markdown files from docs/ folder to Confluence spaces",
+      "command": "npm run sync:confluence",
+      "test_command": "npm run test:confluence",
+      "dependencies": ["node", "confluence_api"],
+      "environment_vars": ["JIRA_BASE_URL", "JIRA_EMAIL", "JIRA_API_TOKEN", "CONFLUENCE_SPACE_KEY"]
+    },
+    "google_docs_sync": {
+      "name": "Google Docs Sync",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/integrations/google-docs-sync.js",
+      "description": "Syncs markdown files from docs/ folder to Google Docs",
+      "command": "npm run sync:google-docs",
+      "test_command": "npm run test:google",
+      "dependencies": ["node", "google_api"],
+      "environment_vars": ["GOOGLE_SERVICE_ACCOUNT_PATH", "GOOGLE_DOCS_FOLDER_IDS"]
+    },
+    "fetch_confluence_page": {
+      "name": "Fetch Confluence Page",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/integrations/fetch-confluence-page.js",
+      "description": "Fetches and saves Confluence pages locally",
+      "dependencies": ["node", "confluence_api"],
+      "environment_vars": ["JIRA_BASE_URL", "JIRA_EMAIL", "JIRA_API_TOKEN"]
+    },
+    "fetch_figma_design": {
+      "name": "Fetch Figma Design",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/integrations/fetch-figma-design.js",
+      "description": "Fetches Figma design data and saves locally",
+      "dependencies": ["node"],
+      "environment_vars": ["FIGMA_API_TOKEN", "FIGMA_FILE_KEY"]
+    }
+  },
+  "utility_scripts": {
+    "health_check": {
+      "name": "System Health Check",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/health-check.sh",
+      "description": "Comprehensive health check for all CLI tools, services, and authentication",
+      "command": "bash tools/scripts/health-check.sh",
+      "checks": ["node", "npm", "git", "vercel", "railway", "supabase", "percy", "playwright", "jest", "build_status"]
+    },
+    "neo4j_test": {
+      "name": "Neo4j Connection Test",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/neo4j-test-connection.sh",
+      "description": "Tests Neo4j MCP connection and configuration",
+      "command": "bash tools/scripts/neo4j-test-connection.sh",
+      "dependencies": ["neo4j", "mcp-neo4j"],
+      "environment_vars": ["NEO4J_URI", "NEO4J_USERNAME", "NEO4J_PASSWORD"]
+    },
+    "redis_test": {
+      "name": "Redis Connection Test",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/redis-test-connection.sh",
+      "description": "Tests Redis MCP connection and configuration",
+      "command": "bash tools/scripts/redis-test-connection.sh",
+      "dependencies": ["redis", "mcp-redis"],
+      "environment_vars": ["REDIS_URL", "RAILWAY_TOKEN"]
+    },
+    "populate_neo4j": {
+      "name": "Populate Neo4j Sample Data",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/populate-neo4j-sample-data.js",
+      "description": "Populates Neo4j database with sample data for testing",
+      "command": "node tools/scripts/populate-neo4j-sample-data.js",
+      "dependencies": ["node", "neo4j"],
+      "environment_vars": ["NEO4J_URI", "NEO4J_USERNAME", "NEO4J_PASSWORD"]
+    },
+    "screenshot_homepage": {
+      "name": "Screenshot Homepage",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/utilities/screenshot-homepage.js",
+      "description": "Takes screenshots of the homepage using Puppeteer",
+      "command": "node tools/scripts/utilities/screenshot-homepage.js",
+      "dependencies": ["node", "puppeteer"]
+    },
+    "screenshot_tabs": {
+      "name": "Screenshot Tabs",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/utilities/screenshot-tabs.js",
+      "description": "Takes screenshots of multiple tabs",
+      "command": "node tools/scripts/utilities/screenshot-tabs.js",
+      "dependencies": ["node", "puppeteer"]
+    },
+    "gemini_wrapper": {
+      "name": "Gemini CLI Wrapper",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/utilities/gemini-wrapper.js",
+      "description": "Wrapper for Gemini AI CLI interactions",
+      "command": "node tools/scripts/utilities/gemini-wrapper.js",
+      "dependencies": ["node"],
+      "environment_vars": ["GEMINI_API_KEY"]
+    }
+  },
+  "deployment_scripts": {
+    "vercel_deploy": {
+      "name": "Vercel Deployment",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/vercel-deploy.sh",
+      "description": "Deploy frontend to Vercel",
+      "command": "bash tools/scripts/vercel-deploy.sh",
+      "dependencies": ["vercel_cli", "node"],
+      "environment_vars": ["VERCEL_TOKEN", "VERCEL_ORG_ID", "VERCEL_PROJECT_ID"]
+    },
+    "railway_deploy": {
+      "name": "Railway Deployment",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/railway-deploy.sh",
+      "description": "Deploy backend to Railway",
+      "command": "bash tools/scripts/railway-deploy.sh",
+      "dependencies": ["railway_cli"],
+      "environment_vars": ["RAILWAY_TOKEN"]
+    }
+  },
+  "testing_scripts": {
+    "playwright_e2e": {
+      "name": "Playwright E2E Tests",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/playwright-test-e2e.sh",
+      "description": "Run end-to-end tests with Playwright",
+      "commands": {
+        "default": "bash tools/scripts/playwright-test-e2e.sh",
+        "ui": "npm run test:e2e:ui",
+        "headed": "npm run test:e2e:headed",
+        "staging": "npm run test:e2e:staging"
+      },
+      "dependencies": ["playwright", "node"],
+      "config": "/Users/michaelquan/projects/tutorwise/tools/playwright/playwright.config.ts"
+    },
+    "percy_visual": {
+      "name": "Percy Visual Tests",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/percy-test-visual.sh",
+      "description": "Run visual regression tests with Percy",
+      "command": "bash tools/scripts/percy-test-visual.sh",
+      "npm_command": "npm run test:visual",
+      "dependencies": ["percy", "playwright"],
+      "environment_vars": ["PERCY_TOKEN"]
+    },
+    "role_management_tests": {
+      "name": "Role Management Tests",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/testing/test-role-management.js",
+      "description": "Test role management functionality",
+      "command": "node tools/scripts/testing/test-role-management.js",
+      "dependencies": ["node"]
+    },
+    "jira_fields_test": {
+      "name": "Jira Fields Test",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/testing/test-jira-fields.js",
+      "description": "Test Jira custom fields integration",
+      "command": "npm run test:jira-fields",
+      "dependencies": ["node", "jira_api"],
+      "environment_vars": ["JIRA_BASE_URL", "JIRA_EMAIL", "JIRA_API_TOKEN"]
+    }
+  },
+  "cas_tools": {
+    "generate_context": {
+      "name": "CAS Context Generator",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/cas/generate-context.js",
+      "description": "Generates context for Contextual Autonomous System",
+      "command": "npm run cas:generate",
+      "dependencies": ["node"]
+    },
+    "setup_cas": {
+      "name": "CAS Setup",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/cas/setup-context-engineering.js",
+      "description": "Setup script for Contextual Autonomous System",
+      "command": "npm run cas:setup",
+      "dependencies": ["node"]
+    },
+    "update_imports": {
+      "name": "Update Imports",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/cas/update-imports.js",
+      "description": "Updates import statements across the codebase",
+      "command": "npm run tools:update-imports",
+      "dependencies": ["node"]
+    },
+    "migrate_to_monorepo": {
+      "name": "Monorepo Migration",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/cas/migrate-to-monorepo.js",
+      "description": "Migrates project structure to monorepo",
+      "command": "npm run tools:migrate",
+      "dependencies": ["node"]
+    },
+    "jira_integration": {
+      "name": "Jira CAS Integration",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/cas/jira-integration.js",
+      "description": "Jira integration for CAS",
+      "dependencies": ["node", "jira_api"],
+      "environment_vars": ["JIRA_BASE_URL", "JIRA_EMAIL", "JIRA_API_TOKEN"]
+    }
+  },
+  "rbac_tools": {
+    "approval_workflow": {
+      "name": "Approval Workflow",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/rbac/approval-workflow.js",
+      "description": "Role-based approval workflow management",
+      "dependencies": ["node"]
+    },
+    "ai_permission_system": {
+      "name": "AI Permission System",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/rbac/ai-permission-system.js",
+      "description": "AI-driven permission management system",
+      "dependencies": ["node"]
+    },
+    "critical_files_protection": {
+      "name": "Critical Files Protection",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/rbac/critical-files-protection.js",
+      "description": "Protection system for critical project files",
+      "dependencies": ["node"]
+    }
+  },
+  "email_scripts": {
+    "send_audit_email": {
+      "name": "Send Audit Email",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/email/send-audit-email.js",
+      "description": "Sends project audit report via email",
+      "dependencies": ["node", "nodemailer"],
+      "environment_vars": ["RESEND_API_KEY", "RESEND_FROM_EMAIL"]
+    },
+    "send_protection_report_email": {
+      "name": "Send Protection Report Email",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/email/send-protection-report-email.js",
+      "description": "Sends critical files protection report via email",
+      "dependencies": ["node", "nodemailer"],
+      "environment_vars": ["RESEND_API_KEY", "RESEND_FROM_EMAIL"]
+    }
+  },
+  "installation_scripts": {
+    "install_vercel": {
+      "name": "Install Vercel CLI",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/integrations/install-vercel.sh",
+      "description": "Installs and configures Vercel CLI",
+      "command": "bash tools/integrations/install-vercel.sh"
+    },
+    "install_railway": {
+      "name": "Install Railway CLI",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/integrations/install-railway.sh",
+      "description": "Installs and configures Railway CLI",
+      "command": "bash tools/integrations/install-railway.sh"
+    },
+    "install_supabase": {
+      "name": "Install Supabase CLI",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/integrations/install-supabase.sh",
+      "description": "Installs and configures Supabase CLI",
+      "command": "bash tools/integrations/install-supabase.sh"
+    },
+    "install_playwright": {
+      "name": "Install Playwright",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/integrations/install-playwright.sh",
+      "description": "Installs Playwright and browsers",
+      "command": "bash tools/integrations/install-playwright.sh"
+    },
+    "install_percy": {
+      "name": "Install Percy CLI",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/integrations/install-percy.sh",
+      "description": "Installs Percy visual testing CLI",
+      "command": "bash tools/integrations/install-percy.sh"
+    },
+    "install_neo4j": {
+      "name": "Install Neo4j MCP",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/integrations/install-neo4j.sh",
+      "description": "Installs Neo4j MCP server",
+      "command": "bash tools/integrations/install-neo4j.sh"
+    },
+    "install_redis": {
+      "name": "Install Redis MCP",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/integrations/install-redis.sh",
+      "description": "Installs Redis MCP server",
+      "command": "bash tools/integrations/install-redis.sh"
+    },
+    "install_terraform": {
+      "name": "Install Terraform",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/integrations/install-terraform.sh",
+      "description": "Installs Terraform for infrastructure as code",
+      "command": "bash tools/integrations/install-terraform.sh"
+    },
+    "setup_integrations": {
+      "name": "Setup All Integrations",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/integrations/setup-integrations.sh",
+      "description": "Master script to setup all integrations",
+      "command": "bash tools/integrations/setup-integrations.sh"
+    }
+  },
+  "secret_management": {
+    "google_secret_manager_setup": {
+      "name": "Google Secret Manager Setup",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/google-secret-manager-setup.sh",
+      "description": "Sets up Google Cloud Secret Manager",
+      "command": "bash tools/scripts/google-secret-manager-setup.sh",
+      "dependencies": ["gcloud"],
+      "environment_vars": ["GOOGLE_CLOUD_PROJECT"]
+    },
+    "migrate_secrets_to_gcp": {
+      "name": "Migrate Secrets to GCP",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/migrate-secrets-to-gcp.sh",
+      "description": "Migrates local secrets to Google Cloud Secret Manager",
+      "command": "bash tools/scripts/migrate-secrets-to-gcp.sh",
+      "dependencies": ["gcloud"]
+    },
+    "sync_env_to_vercel": {
+      "name": "Sync Environment to Vercel",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/sync-env-to-vercel.sh",
+      "description": "Syncs environment variables to Vercel",
+      "command": "bash tools/scripts/sync-env-to-vercel.sh",
+      "dependencies": ["vercel_cli"],
+      "environment_vars": ["VERCEL_TOKEN"]
+    }
+  },
+  "database_management": {
+    "supabase_db_management": {
+      "name": "Supabase Database Management",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/supabase-db-management.sh",
+      "description": "Manages Supabase database operations",
+      "command": "bash tools/scripts/supabase-db-management.sh",
+      "dependencies": ["supabase_cli"]
+    },
+    "demo_database_queries": {
+      "name": "Demo Database Queries",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/scripts/demo-database-queries.js",
+      "description": "Demonstrates database query patterns",
+      "command": "node tools/scripts/demo-database-queries.js",
+      "dependencies": ["node", "neo4j"]
+    }
+  },
+  "github_actions": {
+    "ci": {
+      "name": "Continuous Integration",
+      "file_path": "/Users/michaelquan/projects/tutorwise/.github/workflows/ci.yml",
+      "description": "CI pipeline for testing and validation",
+      "triggers": ["push", "pull_request"],
+      "jobs": ["lint", "test", "build"]
+    },
+    "deploy": {
+      "name": "Production Deployment",
+      "file_path": "/Users/michaelquan/projects/tutorwise/.github/workflows/deploy.yml",
+      "description": "Automated deployment to production (Vercel + Railway)",
+      "triggers": ["push to main", "workflow_dispatch"],
+      "jobs": ["pre-deployment-check", "deploy-frontend", "deploy-backend", "post-deployment-verification"],
+      "secrets_required": ["VERCEL_TOKEN", "VERCEL_ORG_ID", "VERCEL_PROJECT_ID", "RAILWAY_TOKEN"]
+    },
+    "daily_audit_action": {
+      "name": "Daily Project Audit (GitHub Action)",
+      "file_path": "/Users/michaelquan/projects/tutorwise/.github/workflows/daily-audit.yml",
+      "description": "Automated daily project audit via GitHub Actions",
+      "schedule": "0 6,18 * * * (6 AM & 6 PM UTC)",
+      "secrets_required": ["RESEND_API_KEY", "RESEND_FROM_EMAIL"]
+    },
+    "protection_report_action": {
+      "name": "Protection Report (GitHub Action)",
+      "file_path": "/Users/michaelquan/projects/tutorwise/.github/workflows/protection-report.yml",
+      "description": "Automated protection report via GitHub Actions",
+      "schedule": "2 6,18 * * * (6:02 AM & 6:02 PM UTC)",
+      "secrets_required": ["RESEND_API_KEY", "RESEND_FROM_EMAIL"]
+    },
+    "continuous_improvement": {
+      "name": "Continuous Improvement",
+      "file_path": "/Users/michaelquan/projects/tutorwise/.github/workflows/continuous-improvement.yml",
+      "description": "Automated continuous improvement workflows"
+    }
+  },
+  "docker_services": {
+    "all_services": {
+      "name": "All Docker Services",
+      "file_path": "/Users/michaelquan/projects/tutorwise/docker-compose.yml",
+      "description": "Docker Compose configuration for all services",
+      "start_all": "docker-compose up -d",
+      "stop_all": "docker-compose down",
+      "services": ["neo4j", "redis", "tutorwise-api", "tutorwise-web"],
+      "volumes": ["neo4j_data", "neo4j_logs", "neo4j_plugins", "redis_data"]
+    }
+  },
+  "environment_variables": {
+    "critical": [
+      "NEO4J_URI",
+      "NEO4J_USERNAME",
+      "NEO4J_PASSWORD",
+      "REDIS_URL",
+      "NEXT_PUBLIC_SUPABASE_URL",
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "SUPABASE_SERVICE_ROLE_KEY",
+      "RESEND_API_KEY",
+      "RESEND_FROM_EMAIL"
+    ],
+    "integrations": [
+      "JIRA_BASE_URL",
+      "JIRA_EMAIL",
+      "JIRA_API_TOKEN",
+      "JIRA_PROJECT_KEY",
+      "GOOGLE_SERVICE_ACCOUNT_PATH",
+      "GOOGLE_CALENDAR_IDS",
+      "GOOGLE_DOCS_FOLDER_IDS",
+      "CONFLUENCE_SPACE_KEY",
+      "FIGMA_API_TOKEN",
+      "FIGMA_FILE_KEY"
+    ],
+    "deployment": [
+      "VERCEL_TOKEN",
+      "VERCEL_ORG_ID",
+      "VERCEL_PROJECT_ID",
+      "RAILWAY_TOKEN",
+      "PERCY_TOKEN"
+    ],
+    "ai_services": [
+      "GEMINI_API_KEY"
+    ]
+  },
+  "recommended_startup_order": [
+    {
+      "step": 1,
+      "services": ["neo4j", "redis"],
+      "description": "Start databases first",
+      "command": "docker-compose up neo4j redis -d"
+    },
+    {
+      "step": 2,
+      "services": ["api_backend"],
+      "description": "Start backend API after databases are ready",
+      "command": "npm run dev:api",
+      "wait_for": ["neo4j", "redis"]
+    },
+    {
+      "step": 3,
+      "services": ["web_frontend"],
+      "description": "Start frontend web application",
+      "command": "npm run dev:web",
+      "wait_for": ["api_backend"]
+    },
+    {
+      "step": 4,
+      "services": ["jira_task_executor", "calendar_task_executor"],
+      "description": "Start background polling services (optional)",
+      "commands": [
+        "npm run jira:poll:continuous",
+        "npm run calendar:poll:continuous"
+      ],
+      "optional": true
+    }
+  ],
+  "startup_utility_requirements": {
+    "features_needed": [
+      "Check if service is already running (by port or PID)",
+      "Start services in correct dependency order",
+      "Stop all services gracefully",
+      "Restart individual services",
+      "View real-time logs for each service",
+      "Health check for all services",
+      "Environment variable validation",
+      "Display service status dashboard",
+      "Handle service failures and auto-restart",
+      "Background service management (detach/attach)"
+    ],
+    "process_management": {
+      "pid_tracking": true,
+      "log_aggregation": true,
+      "auto_restart": true,
+      "graceful_shutdown": true
+    },
+    "monitoring": {
+      "health_checks": true,
+      "status_dashboard": true,
+      "log_streaming": true,
+      "error_alerts": true
+    }
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2025-10-05",
+  "managed_by": "CAS/SADD",
+  "applications": {
+    "tutorwise": {
+      "name": "TutorWise",
+      "type": "primary",
+      "description": "Tutor marketplace platform - primary source for features",
+      "path": "/Users/michaelquan/projects/tutorwise",
+      "git_remote": "git@github.com:tutorwise/tutorwise.git",
+      "status": "active",
+      "framework": "next.js",
+      "language": "typescript",
+      "role": "source",
+      "tech_stack": {
+        "frontend": "Next.js 14",
+        "backend": "FastAPI",
+        "database": ["Supabase", "Neo4j", "Redis"],
+        "payments": "Stripe",
+        "deployment": ["Vercel", "Railway"]
+      },
+      "managed_services": {
+        "cas": true,
+        "sadd": true,
+        "context_generation": true,
+        "service_orchestration": true
+      },
+      "sadd_role": "source",
+      "features_exported": [
+        "ui-components",
+        "supabase-auth",
+        "stripe-payments",
+        "role-based-dashboard",
+        "profile-management"
+      ],
+      "created_at": "2025-10-05",
+      "notes": "Main development platform - all features originate here"
+    },
+    "vinite": {
+      "name": "Vinite",
+      "type": "satellite",
+      "description": "Universal referral platform (RATA - Refer Anything To Anyone)",
+      "path": "/Users/michaelquan/projects/vinite",
+      "git_remote": "git@github.com:viniteapp/vinite.git",
+      "status": "active",
+      "framework": "next.js",
+      "language": "typescript",
+      "role": "target",
+      "tech_stack": {
+        "frontend": "Next.js 14",
+        "database": "Supabase",
+        "payments": "Stripe",
+        "deployment": "Vercel"
+      },
+      "managed_services": {
+        "sadd": true,
+        "sadd_remote_agent": true
+      },
+      "sadd_role": "target",
+      "features_imported": [
+        {
+          "feature": "ui-components",
+          "version": "1.2.0",
+          "imported_at": "2025-10-05",
+          "status": "pending_merge",
+          "branch": "sadd/ui-components-v1.2.0-20251005-130857"
+        }
+      ],
+      "deployment_info": {
+        "url": "https://vinite.com",
+        "vercel_project": "vinite",
+        "supabase_project": "vinite-production"
+      },
+      "role_mapping": {
+        "tutor": "provider",
+        "client": "seeker",
+        "agent": "agent"
+      },
+      "created_at": "2025-10-05",
+      "notes": "Independent referral platform - receives selected features from TutorWise"
+    }
+  },
+  "stats": {
+    "total_applications": 2,
+    "active_applications": 2,
+    "source_applications": 1,
+    "target_applications": 1,
+    "total_deployments": 1,
+    "pending_deployments": 1
+  },
+  "metadata": {
+    "registry_path": "cas/config/application-registry.json",
+    "service_registry_path": "cas/config/service-registry.json",
+    "feature_catalog_path": "cas/packages/sadd/config/sadd-feature-catalog.json"
+  }
+}

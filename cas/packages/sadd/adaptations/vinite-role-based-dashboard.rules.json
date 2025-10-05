@@ -1,0 +1,64 @@
+{
+  "feature": "role-based-dashboard",
+  "target": "vinite",
+  "description": "Adaptation rules for Role-Based Dashboard → Vinite",
+  "rules": [
+    {
+      "type": "file_exclusion",
+      "description": "Remove marketplace-specific features",
+      "exclude": [
+        "**/services/**",
+        "**/listings/**",
+        "**/marketplace/**",
+        "**/service-listing/**"
+      ],
+      "reason": "Vinite has no marketplace - it's a referral link generator"
+    },
+    {
+      "type": "string_replace",
+      "description": "Map tutor to provider in role references",
+      "pattern": "'tutor'",
+      "replacement": "'provider'",
+      "files": ["*.ts", "*.tsx"]
+    },
+    {
+      "type": "string_replace",
+      "description": "Map client to seeker in role references",
+      "pattern": "'client'",
+      "replacement": "'seeker'",
+      "files": ["*.ts", "*.tsx"]
+    },
+    {
+      "type": "regex_replace",
+      "description": "Update role labels in UI",
+      "pattern": "Tutor Dashboard",
+      "replacement": "Provider Dashboard",
+      "files": ["*.tsx"]
+    },
+    {
+      "type": "regex_replace",
+      "description": "Update client dashboard label",
+      "pattern": "Client Dashboard",
+      "replacement": "Seeker Dashboard",
+      "files": ["*.tsx"]
+    },
+    {
+      "type": "remove_code_block",
+      "description": "Remove service listing navigation",
+      "start_marker": "// START: Service listing navigation",
+      "end_marker": "// END: Service listing navigation",
+      "files": ["*.tsx"]
+    },
+    {
+      "type": "type_mapping",
+      "description": "Map dashboard-related types",
+      "mappings": {
+        "TutorDashboard": "ProviderDashboard",
+        "ClientDashboard": "SeekerDashboard",
+        "ServiceListingCard": null,
+        "MarketplaceView": null
+      }
+    }
+  ],
+  "notes": "Significant adaptation required. Remove all marketplace features. Add referral tracking views manually after migration."
+}

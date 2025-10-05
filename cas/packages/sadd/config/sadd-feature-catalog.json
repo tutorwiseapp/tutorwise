@@ -1,0 +1,134 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2025-10-05",
+  "features": {
+    "ui-components": {
+      "name": "UI Component Library",
+      "description": "Reusable UI components (Button, Card, Tabs, StatusBadge, etc.)",
+      "source": "apps/web/src/app/components/ui/",
+      "type": "components",
+      "platforms": ["tutorwise", "vinite"],
+      "tutorwise_version": "1.2.0",
+      "vinite_version": null,
+      "status": "not_synced",
+      "adaptations_required": [],
+      "files": [
+        "apps/web/src/app/components/ui/Button.tsx",
+        "apps/web/src/app/components/ui/Button.module.css",
+        "apps/web/src/app/components/ui/Card.tsx",
+        "apps/web/src/app/components/ui/Card.module.css",
+        "apps/web/src/app/components/ui/Tabs.tsx",
+        "apps/web/src/app/components/ui/Tabs.module.css",
+        "apps/web/src/app/components/ui/StatusBadge.tsx",
+        "apps/web/src/app/components/ui/StatusBadge.module.css"
+      ],
+      "notes": "100% reusable - no adaptations needed"
+    },
+    "supabase-auth": {
+      "name": "Supabase Authentication",
+      "description": "SSR-ready Supabase auth with role-based access",
+      "source": "apps/web/src/lib/supabase/",
+      "type": "library",
+      "platforms": ["tutorwise", "vinite"],
+      "tutorwise_version": "2.1.0",
+      "vinite_version": null,
+      "status": "not_synced",
+      "adaptations_required": [
+        "Role mapping: tutor→provider, client→seeker",
+        "Database schema field names",
+        "Redirect URLs after auth"
+      ],
+      "files": [
+        "apps/web/src/lib/supabase/client.ts",
+        "apps/web/src/lib/supabase/server.ts",
+        "apps/web/src/lib/supabase/middleware.ts"
+      ],
+      "notes": "Core auth system - critical for Vinite"
+    },
+    "stripe-payments": {
+      "name": "Stripe Payment Integration",
+      "description": "Checkout, webhooks, subscription management",
+      "source": "apps/web/src/lib/stripe/",
+      "type": "library",
+      "platforms": ["tutorwise", "vinite"],
+      "tutorwise_version": "1.5.0",
+      "vinite_version": null,
+      "status": "not_synced",
+      "adaptations_required": [
+        "Pricing model: lessons → referral commissions",
+        "Webhook endpoint URLs",
+        "Success/cancel redirect URLs"
+      ],
+      "files": [
+        "apps/web/src/lib/stripe/client.ts",
+        "apps/web/src/lib/stripe/config.ts"
+      ],
+      "notes": "Payment processing - adapt for referral model"
+    },
+    "role-based-dashboard": {
+      "name": "Role-Based Dashboard Layout",
+      "description": "Multi-role dashboard with navigation and role switching",
+      "source": "apps/web/src/app/dashboard/",
+      "type": "feature",
+      "platforms": ["tutorwise", "vinite"],
+      "tutorwise_version": "3.0.0",
+      "vinite_version": null,
+      "status": "not_synced",
+      "adaptations_required": [
+        "Remove marketplace/listing features",
+        "Remove service management pages",
+        "Add referral tracking views",
+        "Add referral link generator",
+        "Role mapping: tutor→provider, client→seeker"
+      ],
+      "files": [
+        "apps/web/src/app/dashboard/layout.tsx",
+        "apps/web/src/app/dashboard/page.tsx",
+        "apps/web/src/components/dashboard/navigation.tsx",
+        "apps/web/src/components/dashboard/role-switcher.tsx"
+      ],
+      "notes": "Major feature - requires significant adaptation",
+      "exclusions": [
+        "apps/web/src/app/dashboard/services/**",
+        "apps/web/src/app/dashboard/listings/**",
+        "apps/web/src/app/dashboard/marketplace/**"
+      ]
+    },
+    "profile-management": {
+      "name": "User Profile Management",
+      "description": "Profile view, edit, avatar upload",
+      "source": "apps/web/src/app/profile/",
+      "type": "feature",
+      "platforms": ["tutorwise", "vinite"],
+      "tutorwise_version": "2.0.0",
+      "vinite_version": null,
+      "status": "not_synced",
+      "adaptations_required": [
+        "Remove tutor-specific fields (qualifications, services)",
+        "Add agent-specific fields (referral code, commission rate)",
+        "Profile type mapping"
+      ],
+      "files": [
+        "apps/web/src/app/profile/page.tsx",
+        "apps/web/src/app/profile/edit/page.tsx",
+        "apps/web/src/components/profile/profile-card.tsx",
+        "apps/web/src/components/profile/avatar-upload.tsx"
+      ],
+      "notes": "Adapt for agent/seeker/provider roles"
+    }
+  },
+  "metadata": {
+    "tutorwise_repo": "/Users/michaelquan/projects/tutorwise",
+    "vinite_repo": "/Users/michaelquan/projects/vinite",
+    "sync_strategy": "selective-manual",
+    "primary_source": "tutorwise",
+    "target_platforms": ["vinite"]
+  },
+  "stats": {
+    "total_features": 5,
+    "synced": 0,
+    "not_synced": 5,
+    "diverged": 0,
+    "outdated": 0
+  }
+}

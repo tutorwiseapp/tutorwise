@@ -1,0 +1,59 @@
+{
+  "feature": "supabase-auth",
+  "target": "vinite",
+  "description": "Adaptation rules for Supabase Authentication → Vinite",
+  "rules": [
+    {
+      "type": "string_replace",
+      "description": "Map tutor role to provider role",
+      "pattern": "role: 'tutor'",
+      "replacement": "role: 'provider'",
+      "files": ["*.ts", "*.tsx"]
+    },
+    {
+      "type": "string_replace",
+      "description": "Map tutor role string to provider",
+      "pattern": "'tutor'",
+      "replacement": "'provider'",
+      "files": ["*.ts", "*.tsx"]
+    },
+    {
+      "type": "string_replace",
+      "description": "Map client role to seeker role",
+      "pattern": "role: 'client'",
+      "replacement": "role: 'seeker'",
+      "files": ["*.ts", "*.tsx"]
+    },
+    {
+      "type": "string_replace",
+      "description": "Map client role string to seeker",
+      "pattern": "'client'",
+      "replacement": "'seeker'",
+      "files": ["*.ts", "*.tsx"]
+    },
+    {
+      "type": "regex_replace",
+      "description": "Update redirect URLs to Vinite paths",
+      "pattern": "redirect_url:\\s*['\"`]/dashboard/client['\"`]",
+      "replacement": "redirect_url: '/dashboard/seeker'",
+      "files": ["*.ts", "*.tsx"]
+    },
+    {
+      "type": "regex_replace",
+      "description": "Update redirect URLs for tutors to providers",
+      "pattern": "redirect_url:\\s*['\"`]/dashboard/tutor['\"`]",
+      "replacement": "redirect_url: '/dashboard/provider'",
+      "files": ["*.ts", "*.tsx"]
+    },
+    {
+      "type": "type_mapping",
+      "description": "Map TutorWise types to Vinite types",
+      "mappings": {
+        "TutorProfile": "ProviderProfile",
+        "ClientProfile": "SeekerProfile",
+        "AgentProfile": "AgentProfile"
+      }
+    }
+  ],
+  "notes": "Role mapping for Vinite's seeker/agent/provider model. Database schema changes may be required."
+}

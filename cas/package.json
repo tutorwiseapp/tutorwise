@@ -1,0 +1,36 @@
+{
+  "name": "cas-workspace",
+  "version": "2.0.0",
+  "description": "CAS - Contextual Autonomous System Platform",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=@cas/web",
+    "dev:web": "npm run dev --workspace=@cas/web",
+    "dev:api": "npm run dev --workspace=@cas/api",
+    "dev:docs": "npm run dev --workspace=@cas/docs",
+    "dev:all": "concurrently \"npm run dev:web\" \"npm run dev:api\"",
+    "build": "npm run build --workspaces",
+    "build:web": "npm run build --workspace=@cas/web",
+    "build:api": "npm run build --workspace=@cas/api",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tutorwise/tutorwise",
+    "directory": "cas"
+  },
+  "keywords": [
+    "devops",
+    "automation",
+    "autonomous",
+    "service-management",
+    "ai-powered"
+  ],
+  "author": "TutorWise Team",
+  "license": "MIT"
+}

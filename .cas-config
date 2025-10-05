@@ -1,0 +1,10 @@
+{
+  "name": "tutorwise",
+  "root": "/Users/michaelquan/projects/tutorwise",
+  "startup_script": "tools/scripts/setup/cas-startup.sh",
+  "services": {
+    "frontend": {"port": 3000, "health": "/api/health"},
+    "backend": {"port": 8000, "health": "/health"},
+    "databases": ["redis", "neo4j"]
+  }
+}

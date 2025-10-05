@@ -1,0 +1,128 @@
+#!/bin/bash
+# SADD Apps - Show all applications managed by CAS/SADD
+# Part of SADD (Software Application Discovery and Development)
+
+set -e
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
+REGISTRY="$PROJECT_ROOT/cas/config/application-registry.json"
+
+if [ ! -f "$REGISTRY" ]; then
+  echo -e "${RED}❌ Application registry not found${NC}"
+  exit 1
+fi
+
+clear
+echo ""
+echo -e "${BLUE}╔════════════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║           CAS/SADD Application Registry                           ║${NC}"
+echo -e "${BLUE}║           Software Application Discovery & Development             ║${NC}"
+echo -e "${BLUE}╚════════════════════════════════════════════════════════════════════╝${NC}"
+echo ""
+
+# Stats
+TOTAL=$(jq -r '.stats.total_applications' "$REGISTRY")
+ACTIVE=$(jq -r '.stats.active_applications' "$REGISTRY")
+SOURCE=$(jq -r '.stats.source_applications' "$REGISTRY")
+TARGET=$(jq -r '.stats.target_applications' "$REGISTRY")
+DEPLOYMENTS=$(jq -r '.stats.total_deployments' "$REGISTRY")
+
+echo -e "${CYAN}📊 Summary:${NC}"
+echo -e "  Total Applications: ${GREEN}$TOTAL${NC}"
+echo -e "  Active: ${GREEN}$ACTIVE${NC} | Source: ${BLUE}$SOURCE${NC} | Target: ${YELLOW}$TARGET${NC}"
+echo -e "  Total Deployments: ${MAGENTA}$DEPLOYMENTS${NC}"
+echo ""
+
+# List applications
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+APPS=$(jq -r '.applications | keys[]' "$REGISTRY")
+
+for app in $APPS; do
+  NAME=$(jq -r ".applications[\"$app\"].name" "$REGISTRY")
+  TYPE=$(jq -r ".applications[\"$app\"].type" "$REGISTRY")
+  DESC=$(jq -r ".applications[\"$app\"].description" "$REGISTRY")
+  STATUS=$(jq -r ".applications[\"$app\"].status" "$REGISTRY")
+  ROLE=$(jq -r ".applications[\"$app\"].sadd_role" "$REGISTRY")
+  PATH=$(jq -r ".applications[\"$app\"].path" "$REGISTRY")
+  
+  # Color based on type
+  if [ "$TYPE" = "primary" ]; then
+    COLOR=$GREEN
+    TYPE_ICON="🏠"
+  else
+    COLOR=$YELLOW
+    TYPE_ICON="🛰️"
+  fi
+  
+  # Status indicator
+  if [ "$STATUS" = "active" ]; then
+    STATUS_ICON="${GREEN}● ACTIVE${NC}"
+  else
+    STATUS_ICON="${RED}○ INACTIVE${NC}"
+  fi
+  
+  echo ""
+  echo -e "${COLOR}${TYPE_ICON} $NAME${NC} (${ROLE})"
+  echo -e "   ${CYAN}Type:${NC} $TYPE"
+  echo -e "   ${CYAN}Status:${NC} $STATUS_ICON"
+  echo -e "   ${CYAN}Description:${NC} $DESC"
+  echo -e "   ${CYAN}Path:${NC} $PATH"
+  
+  # Show tech stack
+  FRAMEWORK=$(jq -r ".applications[\"$app\"].framework" "$REGISTRY")
+  echo -e "   ${CYAN}Framework:${NC} $FRAMEWORK"
+  
+  # Show SADD-specific info
+  if [ "$ROLE" = "source" ]; then
+    EXPORTED=$(jq -r ".applications[\"$app\"].features_exported | length" "$REGISTRY")
+    echo -e "   ${CYAN}Features Available:${NC} ${GREEN}$EXPORTED${NC} features ready for export"
+    
+    # List features
+    echo -e "   ${BLUE}Features:${NC}"
+    jq -r ".applications[\"$app\"].features_exported[]" "$REGISTRY" | sed 's/^/     • /'
+  fi
+  
+  if [ "$ROLE" = "target" ]; then
+    IMPORTED=$(jq -r ".applications[\"$app\"].features_imported | length" "$REGISTRY")
+    echo -e "   ${CYAN}Features Imported:${NC} ${MAGENTA}$IMPORTED${NC} features deployed"
+    
+    # List imported features
+    if [ "$IMPORTED" -gt 0 ]; then
+      echo -e "   ${BLUE}Imported Features:${NC}"
+      jq -r ".applications[\"$app\"].features_imported[] | \"     • \(.feature) v\(.version) (\(.status))\"" "$REGISTRY"
+    fi
+  fi
+  
+  # Show managed services
+  echo -e "   ${CYAN}Managed Services:${NC}"
+  HAS_CAS=$(jq -r ".applications[\"$app\"].managed_services.cas // false" "$REGISTRY")
+  HAS_SADD=$(jq -r ".applications[\"$app\"].managed_services.sadd // false" "$REGISTRY")
+  HAS_AGENT=$(jq -r ".applications[\"$app\"].managed_services.sadd_remote_agent // false" "$REGISTRY")
+  
+  [ "$HAS_CAS" = "true" ] && echo -e "     ${GREEN}✓${NC} CAS (Service Orchestration)"
+  [ "$HAS_SADD" = "true" ] && echo -e "     ${GREEN}✓${NC} SADD (Feature Migration)"
+  [ "$HAS_AGENT" = "true" ] && echo -e "     ${GREEN}✓${NC} SADD Remote Agent"
+  
+  echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+done
+
+echo ""
+echo -e "${CYAN}💡 Commands:${NC}"
+echo ""
+echo -e "  View feature catalog:    ${BLUE}cat cas/packages/sadd/config/sadd-feature-catalog.json${NC}"
+echo -e "  View service registry:   ${BLUE}cat cas/config/service-registry.json${NC}"
+echo -e "  Deploy feature:          ${BLUE}bash cas/packages/sadd/bin/sadd-extract-feature.sh <feature>${NC}"
+echo -e "  View this registry:      ${BLUE}bash cas/packages/sadd/bin/sadd-apps${NC}"
+echo ""
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""

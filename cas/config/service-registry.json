@@ -1,0 +1,201 @@
+{
+  "version": "1.0.0",
+  "services": [
+    {
+      "name": "cas-startup",
+      "file": "tools/scripts/setup/cas-startup.sh",
+      "description": "CAS Startup Manager (this tool)",
+      "check_command": "ps aux | grep -v grep | grep -q cas-startup.sh",
+      "auto_start": false,
+      "category": "management",
+      "priority": 1
+    },
+    {
+      "name": "cas-context-generator",
+      "file": "cas/packages/core/src/context/generate-context.js",
+      "description": "Generates AI context for CAS system",
+      "start_command": "cd /Users/michaelquan/projects/tutorwise && npm run cas:generate",
+      "auto_start": false,
+      "category": "ai",
+      "priority": 2
+    },
+    {
+      "name": "tutorwise-web",
+      "file": "apps/web/package.json",
+      "description": "TutorWise Marketplace Frontend (Port 3000)",
+      "start_command": "cd /Users/michaelquan/projects/tutorwise && npm run dev:web",
+      "check_command": "curl -s http://localhost:3000/api/health > /dev/null 2>&1",
+      "auto_start": true,
+      "category": "service",
+      "priority": 3,
+      "depends_on": ["backend-api"],
+      "platform": "tutorwise"
+    },
+    {
+      "name": "vinite-web",
+      "file": "apps/vinite/package.json",
+      "description": "Vinite Referral Engine Frontend (Port 3001)",
+      "start_command": "cd /Users/michaelquan/projects/tutorwise && npm run dev:vinite",
+      "check_command": "curl -s http://localhost:3001/api/health > /dev/null 2>&1",
+      "auto_start": false,
+      "category": "service",
+      "priority": 4,
+      "depends_on": ["backend-api"],
+      "platform": "vinite",
+      "notes": "Referral engine for TutorWise - shares backend, auth, and payments"
+    },
+    {
+      "name": "vercel-frontend",
+      "file": "vercel.json",
+      "description": "Vercel Frontend Deployment",
+      "check_command": "curl -s https://tutorwise.vercel.app > /dev/null 2>&1",
+      "auto_start": false,
+      "category": "deployment",
+      "priority": 4
+    },
+    {
+      "name": "supabase-db",
+      "file": "PLACEHOLDER",
+      "description": "Supabase Database (Placeholder)",
+      "check_command": "false",
+      "auto_start": false,
+      "category": "database",
+      "priority": 5
+    },
+    {
+      "name": "supabase-auth",
+      "file": "PLACEHOLDER",
+      "description": "Supabase Authentication (Placeholder)",
+      "check_command": "false",
+      "auto_start": false,
+      "category": "service",
+      "priority": 6
+    },
+    {
+      "name": "stripe",
+      "file": "PLACEHOLDER",
+      "description": "Stripe Payment Integration (Placeholder)",
+      "check_command": "false",
+      "auto_start": false,
+      "category": "integration",
+      "priority": 7
+    },
+    {
+      "name": "backend-api",
+      "file": "apps/api/app/main.py",
+      "description": "FastAPI Backend Server (Port 8000)",
+      "start_command": "cd /Users/michaelquan/projects/tutorwise && npm run dev:api",
+      "check_command": "curl -s http://localhost:8000/health > /dev/null 2>&1",
+      "auto_start": true,
+      "category": "service",
+      "priority": 8,
+      "depends_on": ["neo4j-database", "redis-cache"]
+    },
+    {
+      "name": "railway-backend",
+      "file": "railway.json",
+      "description": "Railway Backend Deployment",
+      "check_command": "curl -s https://tutorwise-production.up.railway.app/health > /dev/null 2>&1",
+      "auto_start": false,
+      "category": "deployment",
+      "priority": 9
+    },
+    {
+      "name": "redis-cache",
+      "file": "docker-compose.yml",
+      "description": "Redis Cache Server (Port 6379)",
+      "start_command": "cd /Users/michaelquan/projects/tutorwise && docker-compose up redis -d",
+      "stop_command": "docker-compose stop redis",
+      "check_command": "docker ps | grep redis | grep -q Up",
+      "auto_start": true,
+      "category": "database",
+      "priority": 10
+    },
+    {
+      "name": "neo4j-database",
+      "file": "docker-compose.yml",
+      "description": "Neo4j Graph Database (Port 7687)",
+      "start_command": "cd /Users/michaelquan/projects/tutorwise && docker-compose up neo4j -d",
+      "stop_command": "docker-compose stop neo4j",
+      "check_command": "docker ps | grep neo4j | grep -q Up",
+      "auto_start": true,
+      "category": "database",
+      "priority": 11
+    },
+    {
+      "name": "calendar-task-executor",
+      "file": "tools/scripts/automation/google-calendar-task-executor.js",
+      "description": "Polls Google Calendar for tasks every 10 minutes",
+      "start_command": "cd /Users/michaelquan/projects/tutorwise && npm run calendar:poll:continuous",
+      "check_command": "test -f /tmp/tutorwise-services/calendar-task-executor.pid && ps -p $(cat /tmp/tutorwise-services/calendar-task-executor.pid) > /dev/null 2>&1",
+      "auto_start": false,
+      "category": "background",
+      "priority": 12
+    },
+    {
+      "name": "calendar-jira-sync",
+      "file": "tools/scripts/automation/sync-calendar-to-jira.js",
+      "description": "Syncs Google Calendar events to Jira",
+      "start_command": "cd /Users/michaelquan/projects/tutorwise && npm run sync:calendar-to-jira:continuous",
+      "check_command": "test -f /tmp/tutorwise-services/calendar-jira-sync.pid && ps -p $(cat /tmp/tutorwise-services/calendar-jira-sync.pid) > /dev/null 2>&1",
+      "auto_start": false,
+      "category": "background",
+      "priority": 13
+    },
+    {
+      "name": "jira-task-executor",
+      "file": "tools/scripts/automation/jira-task-executor.js",
+      "description": "Polls Jira for tasks every 10 minutes",
+      "start_command": "cd /Users/michaelquan/projects/tutorwise && npm run jira:poll:continuous",
+      "check_command": "test -f /tmp/tutorwise-services/jira-task-executor.pid && ps -p $(cat /tmp/tutorwise-services/jira-task-executor.pid) > /dev/null 2>&1",
+      "auto_start": false,
+      "category": "background",
+      "priority": 14
+    },
+    {
+      "name": "confluence-sync",
+      "file": "tools/scripts/integrations/confluence-sync.js",
+      "description": "Syncs documentation to Confluence",
+      "start_command": "cd /Users/michaelquan/projects/tutorwise && npm run sync:confluence",
+      "check_command": "test -f /tmp/tutorwise-services/confluence-sync.pid && ps -p $(cat /tmp/tutorwise-services/confluence-sync.pid) > /dev/null 2>&1",
+      "auto_start": false,
+      "category": "integration",
+      "priority": 15
+    },
+    {
+      "name": "google-docs-sync",
+      "file": "tools/scripts/integrations/sync-google-docs.js",
+      "description": "Syncs documentation to Google Docs",
+      "start_command": "cd /Users/michaelquan/projects/tutorwise && npm run sync:google-docs",
+      "check_command": "test -f /tmp/tutorwise-services/google-docs-sync.pid && ps -p $(cat /tmp/tutorwise-services/google-docs-sync.pid) > /dev/null 2>&1",
+      "auto_start": false,
+      "category": "integration",
+      "priority": 16
+    },
+    {
+      "name": "test-integrations",
+      "file": "tools/scripts/utilities/test-integrations.js",
+      "description": "Tests all API integrations on startup",
+      "start_command": "node /Users/michaelquan/projects/tutorwise/tools/scripts/utilities/test-integrations.js",
+      "auto_start": false,
+      "category": "validation",
+      "priority": 17
+    },
+    {
+      "name": "health-check",
+      "file": "tools/scripts/monitoring/health-check.sh",
+      "description": "System health check validator",
+      "start_command": "bash /Users/michaelquan/projects/tutorwise/tools/scripts/monitoring/health-check.sh",
+      "auto_start": false,
+      "category": "monitoring",
+      "priority": 18
+    }
+  ],
+  "settings": {
+    "pid_directory": "/tmp/tutorwise-services",
+    "log_directory": "/Users/michaelquan/projects/tutorwise/logs",
+    "auto_restart_on_failure": true,
+    "health_check_interval": 30,
+    "startup_delay_between_services": 2
+  }
+}

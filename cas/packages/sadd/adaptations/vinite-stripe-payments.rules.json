@@ -1,0 +1,37 @@
+{
+  "feature": "stripe-payments",
+  "target": "vinite",
+  "description": "Adaptation rules for Stripe Payments → Vinite",
+  "rules": [
+    {
+      "type": "regex_replace",
+      "description": "Update success redirect URL to Vinite",
+      "pattern": "success_url:\\s*['\"`].*?/payment/success['\"`]",
+      "replacement": "success_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment/success`",
+      "files": ["*.ts", "*.tsx"]
+    },
+    {
+      "type": "regex_replace",
+      "description": "Update cancel redirect URL to Vinite",
+      "pattern": "cancel_url:\\s*['\"`].*?/payment/cancel['\"`]",
+      "replacement": "cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment/cancel`",
+      "files": ["*.ts", "*.tsx"]
+    },
+    {
+      "type": "string_replace",
+      "description": "Update webhook endpoint reference",
+      "pattern": "/api/webhooks/stripe",
+      "replacement": "/api/webhooks/stripe",
+      "files": ["*.ts", "*.tsx"]
+    },
+    {
+      "type": "regex_replace",
+      "description": "Update pricing model comments",
+      "pattern": "// Lesson.*payment",
+      "replacement": "// Referral commission payment",
+      "flags": "gi",
+      "files": ["*.ts", "*.tsx"]
+    }
+  ],
+  "notes": "Webhook URLs and pricing model need manual review. Vinite uses referral commissions instead of lesson payments."
+}

@@ -1,0 +1,17 @@
+{
+  "name": "@cas/agent",
+  "version": "1.0.0",
+  "description": "CAS Autonomous Agent - AI-powered overnight development",
+  "main": "src/index.js",
+  "dependencies": {
+    "@cas/core": "^2.0.0",
+    "axios": "^1.6.0"
+  },
+  "keywords": [
+    "cas",
+    "autonomous-agent",
+    "ai-development"
+  ],
+  "author": "CAS Platform Team",
+  "license": "MIT"
+}

@@ -1,0 +1,15 @@
+{
+  "feature": "ui-components",
+  "target": "vinite",
+  "description": "Adaptation rules for UI Components → Vinite (minimal changes needed)",
+  "rules": [
+    {
+      "type": "string_replace",
+      "description": "No changes needed - components are 100% reusable",
+      "pattern": "",
+      "replacement": "",
+      "files": []
+    }
+  ],
+  "notes": "UI components are platform-agnostic and can be used as-is in Vinite"
+}

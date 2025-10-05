@@ -1,0 +1,120 @@
+{
+  "version": "1.0.0",
+  "enabled": true,
+  "mode": "autonomous",
+
+  "schedule": {
+    "start_time": "20:00",
+    "end_time": "06:00",
+    "timezone": "America/Los_Angeles",
+    "days": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+  },
+
+  "limits": {
+    "max_tasks_per_session": 5,
+    "max_time_per_task_hours": 4,
+    "max_retries_per_task": 3,
+    "max_files_per_task": 20,
+    "max_lines_per_file": 1000
+  },
+
+  "task_sources": {
+    "jira": {
+      "enabled": true,
+      "query": "labels = 'ai-ready' AND status = 'To Do' ORDER BY priority DESC",
+      "poll_interval_minutes": 30
+    },
+    "github": {
+      "enabled": true,
+      "labels": ["ai-ready"],
+      "project_column": "AI Queue",
+      "poll_interval_minutes": 30
+    }
+  },
+
+  "quality_controls": {
+    "require_tests": true,
+    "min_test_coverage_percent": 80,
+    "run_linter": true,
+    "run_type_checker": true,
+    "run_build": true,
+    "run_health_check": true
+  },
+
+  "safety_rules": {
+    "auto_merge": false,
+    "require_human_approval": true,
+    "backup_before_changes": true,
+    "max_deletions_per_task": 500,
+    "forbidden_files": [
+      ".env",
+      ".env.local",
+      ".env.production",
+      "package-lock.json",
+      "credentials.json",
+      "secrets.yaml"
+    ],
+    "forbidden_operations": [
+      "rm -rf",
+      "DROP DATABASE",
+      "DELETE FROM users",
+      "force push",
+      "hard reset"
+    ]
+  },
+
+  "notifications": {
+    "morning_report": {
+      "enabled": true,
+      "time": "06:00",
+      "format": "markdown",
+      "include_stats": true
+    },
+    "task_completion": {
+      "enabled": false,
+      "realtime": false
+    },
+    "errors": {
+      "enabled": true,
+      "critical_only": true,
+      "wake_human_threshold": "blocker"
+    },
+    "channels": {
+      "slack_webhook": null,
+      "email": null,
+      "discord_webhook": null,
+      "file": "cas/packages/agent/logs/reports/daily-report.md"
+    }
+  },
+
+  "execution": {
+    "work_directory": "/Users/michaelquan/projects/tutorwise",
+    "branch_prefix": "ai/",
+    "commit_message_prefix": "🤖 [AI]",
+    "pr_labels": ["ai-generated", "needs-review"],
+    "create_backup_branch": true
+  },
+
+  "learning": {
+    "track_success_rate": true,
+    "learn_from_feedback": true,
+    "improve_estimates": true,
+    "pattern_recognition": true,
+    "failure_analysis": true
+  },
+
+  "reporting": {
+    "daily_report": true,
+    "weekly_summary": true,
+    "metrics_tracking": true,
+    "log_retention_days": 30
+  },
+
+  "advanced": {
+    "parallel_tasks": false,
+    "intelligent_prioritization": true,
+    "dependency_detection": true,
+    "context_awareness": true,
+    "self_debugging": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "feature": "radix-ui-components",
+  "target": "vinite",
+  "description": "Adaptation rules for Radix UI components → Vinite",
+  "rules": [
+    {
+      "type": "string_replace",
+      "description": "No adaptations needed - 100% reusable",
+      "pattern": "__NO_CHANGES_NEEDED__",
+      "replacement": "__NO_CHANGES_NEEDED__",
+      "files": ["*.ts", "*.tsx"]
+    }
+  ],
+  "notes": "Radix UI components are platform-agnostic and require no adaptation for Vinite."
+}

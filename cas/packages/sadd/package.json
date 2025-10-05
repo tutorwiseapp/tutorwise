@@ -1,0 +1,47 @@
+{
+  "name": "@cas/sadd",
+  "version": "1.0.0",
+  "description": "SADD - Software Application Discovery and Development: Repo discovery, migration, development, and management tool",
+  "main": "lib/sadd-apply-adaptations.js",
+  "bin": {
+    "sadd-extract": "./bin/sadd-extract-feature.sh",
+    "sadd-adapt": "./bin/sadd-adapt-feature.sh",
+    "sadd-apply": "./bin/sadd-apply-feature.sh",
+    "sadd-discover": "./bin/sadd-discover-repos.sh",
+    "sadd-scan": "./bin/sadd-scan-repo.sh"
+  },
+  "scripts": {
+    "extract": "bash bin/sadd-extract-feature.sh",
+    "adapt": "bash bin/sadd-adapt-feature.sh",
+    "apply": "bash bin/sadd-apply-feature.sh",
+    "discover": "bash bin/sadd-discover-repos.sh",
+    "scan": "bash bin/sadd-scan-repo.sh"
+  },
+  "keywords": [
+    "cas",
+    "sadd",
+    "software-discovery",
+    "application-migration",
+    "code-sharing",
+    "feature-mirroring",
+    "repo-management"
+  ],
+  "author": "CAS Platform Team",
+  "license": "MIT",
+  "dependencies": {
+    "glob": "^10.3.10"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tutorwise/tutorwise.git",
+    "directory": "cas/packages/sadd"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "config/",
+    "adaptations/",
+    "README.md"
+  ]
+}

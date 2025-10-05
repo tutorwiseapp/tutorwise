@@ -1,0 +1,60 @@
+{
+  "feature": "profile-management",
+  "target": "vinite",
+  "description": "Adaptation rules for Profile Management → Vinite",
+  "rules": [
+    {
+      "type": "string_replace",
+      "description": "Map tutor to provider",
+      "pattern": "'tutor'",
+      "replacement": "'provider'",
+      "files": ["*.ts", "*.tsx"]
+    },
+    {
+      "type": "string_replace",
+      "description": "Map client to seeker",
+      "pattern": "'client'",
+      "replacement": "'seeker'",
+      "files": ["*.ts", "*.tsx"]
+    },
+    {
+      "type": "regex_replace",
+      "description": "Update tutor profile labels",
+      "pattern": "Tutor Profile",
+      "replacement": "Provider Profile",
+      "files": ["*.tsx"]
+    },
+    {
+      "type": "regex_replace",
+      "description": "Update client profile labels",
+      "pattern": "Client Profile",
+      "replacement": "Seeker Profile",
+      "files": ["*.tsx"]
+    },
+    {
+      "type": "remove_code_block",
+      "description": "Remove tutor-specific fields (qualifications, certifications)",
+      "start_marker": "// START: Tutor qualifications",
+      "end_marker": "// END: Tutor qualifications",
+      "files": ["*.tsx"]
+    },
+    {
+      "type": "remove_code_block",
+      "description": "Remove service offerings section",
+      "start_marker": "// START: Service offerings",
+      "end_marker": "// END: Service offerings",
+      "files": ["*.tsx"]
+    },
+    {
+      "type": "type_mapping",
+      "description": "Map profile types",
+      "mappings": {
+        "TutorProfile": "ProviderProfile",
+        "ClientProfile": "SeekerProfile",
+        "TutorQualifications": null,
+        "ServiceOffering": null
+      }
+    }
+  ],
+  "notes": "Remove tutor-specific fields. Manually add agent-specific fields (referral_code, commission_rate) after migration."
+}
