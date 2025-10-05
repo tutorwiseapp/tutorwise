@@ -1,17 +1,17 @@
 # Context Engineering System Status
 
-**Generated:** 2025-09-28T18:13:06.905Z
+**Generated:** 2025-10-05T11:49:52.987Z
 
 ## Integration Status
 
 - ✅ **Confluence**: working
-- ✅ **Google Services**: working
-- ✅ **Jira Fields**: working
-- ✅ **Calendar to Jira**: working
+- ❌ **Google Services**: failed
+- ❌ **Jira Fields**: failed
+- ❌ **Calendar to Jira**: failed
 
 ## Context Generation
 
-- ✅ Context maps generation
+- ❌ Context maps generation
 - ✅ Context engineering documentation
 - ✅ Integration configuration
 
@@ -41,21 +41,20 @@ npm run test:calendar-to-jira        # Test calendar sync
 
 ## Context Files
 
-### Core Files (6 found)
+### Core Files (4 found)
 - ✅ .ai/PROMPT.md
 - ✅ .ai/INTEGRATION_CONFIG.md
 - ✅ .ai/jira/current-sprint.md
 - ✅ .ai/github/repository-overview.md
-- ✅ docs/tools/cas.md
-- ✅ docs/tools/cas-implementation.md
 
-
+### Missing Files (2)
+- ❌ docs/tools/cas.md
+- ❌ docs/tools/cas-implementation.md
 
 ## System Features
 
 ### ✅ Working Features
-- Jira ticket sync with custom fields (Start time, End time)
-- AI tool tracking via labels (ai-generated, claude-code)
+- Jira ticket sync with custom fields
 - Confluence documentation sync
 - Google Calendar integration
 - Calendar-to-Jira ticket creation
