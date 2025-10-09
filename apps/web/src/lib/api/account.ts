@@ -7,8 +7,17 @@ import { createClient } from '@/utils/supabase/client';
 
 export interface ProfessionalInfoTemplate {
   role_type: 'seeker' | 'provider' | 'agent';
-  // Provider fields
+  // Common fields
   subjects?: string[];
+  // Seeker fields
+  education_level?: string;
+  learning_goals?: string[];
+  learning_preferences?: string[];
+  budget_range?: string;
+  sessions_per_week?: string;
+  session_duration?: string;
+  additional_info?: string;
+  // Provider fields
   teaching_experience?: string;
   hourly_rate?: number;
   hourly_rate_range?: { min: number; max: number };
@@ -77,8 +86,19 @@ export async function updateProfessionalInfo(template: ProfessionalInfoTemplate)
     updated_at: new Date().toISOString(),
   };
 
-  // Add optional provider fields
+  // Add common fields
   if (template.subjects) upsertData.subjects = template.subjects;
+
+  // Add optional seeker fields
+  if (template.education_level) upsertData.education_level = template.education_level;
+  if (template.learning_goals) upsertData.learning_goals = template.learning_goals;
+  if (template.learning_preferences) upsertData.learning_preferences = template.learning_preferences;
+  if (template.budget_range) upsertData.budget_range = template.budget_range;
+  if (template.sessions_per_week) upsertData.sessions_per_week = template.sessions_per_week;
+  if (template.session_duration) upsertData.session_duration = template.session_duration;
+  if (template.additional_info) upsertData.additional_info = template.additional_info;
+
+  // Add optional provider fields
   if (template.teaching_experience) upsertData.teaching_experience = template.teaching_experience;
   if (template.hourly_rate) upsertData.hourly_rate = template.hourly_rate;
   if (template.qualifications) upsertData.qualifications = template.qualifications;
