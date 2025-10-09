@@ -48,6 +48,11 @@ const getDashboardLinks = (role: string | null) => {
   ];
 
   const agentLinks = [
+    // Agents can do everything - they manage the platform
+    { href: '/marketplace', title: 'Find Tutors', description: 'Browse and connect with qualified tutors.', linkText: 'Browse Tutors', highlight: true },
+    { href: '/listings', title: 'My Listings', description: 'View and manage tutoring service listings.', linkText: 'View Listings', highlight: true },
+    { href: '/listings/create', title: 'Create New Listing', description: 'Create a new service listing.', linkText: 'Create Listing', highlight: true },
+    { href: '/bookings', title: 'My Bookings', description: 'View upcoming and past tutoring sessions.', linkText: 'View Bookings' },
     ...referralLinks,
     ...commonLinks,
   ];
