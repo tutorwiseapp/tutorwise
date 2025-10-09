@@ -219,16 +219,16 @@ tutorwise/
 
 ### 8 Specialized AI Agents
 
-| Agent | Role | Week 2 Status |
-|-------|------|---------------|
-| **Planner** | Project Manager | ✅ 8/8 todos completed (100%) |
-| **Analyst** | Business Analyst | ✅ Requirements delivered |
-| **Developer** | Software Developer | ✅ 2 forms | 751 LOC | 89.71% coverage |
-| **Tester** | QA Tester | ✅ 48 tests | 100% passing |
-| **QA** | QA Engineer | ✅ 29 Storybook stories |
-| **Security** | Security Engineer | 🟡 Week 3 activation |
-| **Engineer** | System Engineer | ✅ API operational |
-| **Marketer** | Marketing Manager | 🔴 Week 3+ activation |
+| Agent | Role | Focus | Week 2 Status |
+|-------|------|-------|---------------|
+| **Planner** | Project Manager | Sprint planning, coordination | ✅ 8/8 todos completed (100%) |
+| **Analyst** | Business Analyst | Requirements, research | ✅ Requirements delivered |
+| **Developer** | Software Developer | **Feature development** | ✅ 2 forms \| 751 LOC \| 89.71% coverage |
+| **Tester** | QA Tester | Test automation, validation | ✅ 48 tests \| 100% passing |
+| **QA** | QA Engineer | Quality assurance, visual testing | ✅ 29 Storybook stories |
+| **Security** | Security Engineer | Security audits, vulnerability scanning | 🟡 Week 3 activation |
+| **Engineer** | AI-DevOps Engineer | **System engineering** (design, deploy, monitor) | ✅ API operational |
+| **Marketer** | Marketing Manager | Analytics, growth strategy | 🔴 Week 3+ activation |
 
 **AI Velocity**: Week 2 delivered in 1 day what traditionally takes 5 days (400% faster)
 
