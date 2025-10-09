@@ -110,48 +110,9 @@ export default function ListingDetailsPage() {
               </div>
             </Card>
 
-            {/* Teaching Experience */}
-            {listing.teaching_experience && (
-              <Card>
-                <div className="p-6">
-                  <h2 className="text-xl font-semibold mb-3">Teaching Experience</h2>
-                  <p className="text-gray-700">{listing.teaching_experience}</p>
-                </div>
-              </Card>
-            )}
-
-            {/* Qualifications */}
-            {listing.qualifications && listing.qualifications.length > 0 && (
-              <Card>
-                <div className="p-6">
-                  <h2 className="text-xl font-semibold mb-3">Qualifications</h2>
-                  <ul className="list-disc list-inside space-y-2">
-                    {listing.qualifications.map((qual, index) => (
-                      <li key={index} className="text-gray-700">{qual}</li>
-                    ))}
-                  </ul>
-                </div>
-              </Card>
-            )}
-
-            {/* Teaching Methods */}
-            {listing.teaching_methods && listing.teaching_methods.length > 0 && (
-              <Card>
-                <div className="p-6">
-                  <h2 className="text-xl font-semibold mb-3">Teaching Methods</h2>
-                  <div className="flex flex-wrap gap-2">
-                    {listing.teaching_methods.map((method) => (
-                      <span
-                        key={method}
-                        className="inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium bg-gray-100 text-gray-800"
-                      >
-                        {method}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </Card>
-            )}
+            {/* Note: teaching_experience, qualifications, and teaching_methods fields
+                are not part of the Listing type. These would need to be fetched from
+                the profile's role_details if needed. */}
 
             {/* Specializations */}
             {listing.specializations && listing.specializations.length > 0 && (
