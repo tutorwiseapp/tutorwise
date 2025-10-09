@@ -166,6 +166,13 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
 
       // Save tutor details to role_details table
       if (selectedSubjects.length > 0 && qualifications && availability) {
+        // Default education levels - can be customized later in professional info
+        const defaultSkillLevels = {
+          'GCSE': true,
+          'A-Level': true,
+          'Undergraduate': true
+        };
+
         const { error: detailsError } = await supabase
           .from('role_details')
           .upsert({
@@ -177,6 +184,8 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
             hourly_rate: availability.hourlyRate,
             availability: availability.availability,
             teaching_methods: availability.sessionTypes,
+            skill_levels: defaultSkillLevels,
+            specializations: qualifications.certifications || [],
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           });

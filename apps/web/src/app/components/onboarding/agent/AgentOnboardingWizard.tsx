@@ -166,19 +166,23 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
 
       // Save agent details to role_details table
       if (selectedServices.length > 0 && agencyDetails && capacity) {
+        // Map to fields expected by AgentProfessionalInfoForm
         const { error: detailsError } = await supabase
           .from('role_details')
           .upsert({
             profile_id: user.id,
             role_type: 'agent',
             agency_name: agencyDetails.agencyName,
-            agency_size: agencyDetails.agencySize,
+            number_of_tutors: agencyDetails.agencySize,
             years_in_business: agencyDetails.yearsInBusiness,
-            agency_description: agencyDetails.description,
+            description: agencyDetails.description,
             services: selectedServices,
-            commission_rate: capacity.commissionRate,
-            service_areas: capacity.serviceAreas,
-            student_capacity: capacity.studentCapacity,
+            commission_rate: capacity.commissionRate ? parseFloat(capacity.commissionRate) : undefined,
+            coverage_areas: capacity.serviceAreas,
+            // Set default subject specializations and education levels
+            subject_specializations: [],
+            education_levels: [],
+            certifications: [],
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           });

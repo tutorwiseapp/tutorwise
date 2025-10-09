@@ -25,6 +25,7 @@ export interface ProfessionalInfoTemplate {
   teaching_methods?: string[];
   availability?: any;
   specializations?: string[];
+  skill_levels?: Record<string, boolean>;
   // Agent fields
   agency_name?: string;
   services?: string[];
@@ -105,6 +106,7 @@ export async function updateProfessionalInfo(template: ProfessionalInfoTemplate)
   if (template.teaching_methods) upsertData.teaching_methods = template.teaching_methods;
   if (template.availability) upsertData.availability = template.availability;
   if (template.specializations) upsertData.specializations = template.specializations;
+  if (template.skill_levels) upsertData.skill_levels = template.skill_levels;
 
   // Add optional agent fields
   if (template.agency_name) upsertData.agency_name = template.agency_name;
