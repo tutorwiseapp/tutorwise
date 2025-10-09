@@ -48,6 +48,16 @@ cas/
 │   │   ├── planning/
 │   │   │   └── cas-feature-dev-plan.md    # ← Auto-maintained
 │   │   └── implementation/
+├── tools/                          # 🔧 CAS Tooling & Utilities
+│   ├── testing/                    # Test automation scripts
+│   ├── automation/                 # Workflow automation
+│   ├── monitoring/                 # Health monitoring
+│   ├── security/                   # Security tooling
+│   └── utilities/                  # General utilities
+├── process/                        # 📋 QA & Development Workflows
+│   ├── daily-routines/             # Daily development tasks
+│   ├── development-workflows/      # Development processes
+│   └── *.md                        # Process documentation
 │   ├── tester/                     # QA Tester
 │   │   ├── README.md
 │   │   └── test-suites/
