@@ -114,24 +114,7 @@ export default function ListingDetailsPage() {
                 are not part of the Listing type. These would need to be fetched from
                 the profile's role_details if needed. */}
 
-            {/* Specializations */}
-            {listing.specializations && listing.specializations.length > 0 && (
-              <Card>
-                <div className="p-6">
-                  <h2 className="text-xl font-semibold mb-3">Specializations</h2>
-                  <div className="flex flex-wrap gap-2">
-                    {listing.specializations.map((spec) => (
-                      <span
-                        key={spec}
-                        className="inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium bg-purple-100 text-purple-800"
-                      >
-                        {spec}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </Card>
-            )}
+            {/* Note: specializations field is not part of the Listing type */}
           </div>
 
           {/* Sidebar */}
