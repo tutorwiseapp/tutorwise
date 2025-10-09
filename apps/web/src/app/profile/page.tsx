@@ -78,7 +78,7 @@ const ProfilePage = () => {
     setFormData(prev => ({ ...prev, [id]: value }));
   };
 
-  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -104,6 +104,10 @@ const ProfilePage = () => {
     // TODO: Implement Supabase Storage upload
     // const supabase = createClient();
     // ... upload logic ...
+  };
+
+  const handleAvatarButtonClick = () => {
+    avatarFileRef.current?.click();
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -194,8 +198,8 @@ const ProfilePage = () => {
               <div className={styles.tabContent}>
                 <FormGroup label="Profile Photo" htmlFor="avatar">
                   <div className={styles.fileUploadGroup}>
-                    <Input id="avatar" type="file" ref={avatarFileRef} accept="image/*" />
-                    <Button type="button" onClick={handleAvatarUpload}>Upload Photo</Button>
+                    <Input id="avatar" type="file" ref={avatarFileRef} accept="image/*" onChange={handleAvatarChange} />
+                    <Button type="button" onClick={handleAvatarButtonClick}>Upload Photo</Button>
                   </div>
                 </FormGroup>
 
