@@ -17,12 +17,12 @@ export default function MarketplacePage() {
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState<ListingFilters>({
-    subjects: searchParams.get('subjects')?.split(',').filter(Boolean) || [],
-    levels: searchParams.get('levels')?.split(',').filter(Boolean) || [],
-    location_type: searchParams.get('location_type') as any || undefined,
-    min_price: searchParams.get('min_price') ? Number(searchParams.get('min_price')) : undefined,
-    max_price: searchParams.get('max_price') ? Number(searchParams.get('max_price')) : undefined,
-    search: searchParams.get('q') || undefined,
+    subjects: searchParams?.get('subjects')?.split(',').filter(Boolean) || [],
+    levels: searchParams?.get('levels')?.split(',').filter(Boolean) || [],
+    location_type: searchParams?.get('location_type') as any || undefined,
+    min_price: searchParams?.get('min_price') ? Number(searchParams.get('min_price')) : undefined,
+    max_price: searchParams?.get('max_price') ? Number(searchParams.get('max_price')) : undefined,
+    search: searchParams?.get('q') || undefined,
   });
 
   const ITEMS_PER_PAGE = 12;
