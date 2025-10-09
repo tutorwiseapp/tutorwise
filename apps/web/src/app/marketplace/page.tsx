@@ -36,10 +36,12 @@ export default function MarketplacePage() {
     try {
       const result = await searchListings({
         filters,
-        page: currentPage,
         limit: ITEMS_PER_PAGE,
-        sort: 'created_at',
-        order: 'desc',
+        offset: (currentPage - 1) * ITEMS_PER_PAGE,
+        sort: {
+          field: 'created_at',
+          order: 'desc',
+        },
       });
       setListings(result.listings);
       setTotalCount(result.total);
