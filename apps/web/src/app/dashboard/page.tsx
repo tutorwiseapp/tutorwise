@@ -20,6 +20,13 @@ import styles from './page.module.css';
 
 // Role-specific dashboard links
 const getDashboardLinks = (role: string | null) => {
+  // Referral cards - common to all roles
+  const referralLinks = [
+    { href: '/referral-activities', title: 'My Activity', description: 'Track results of your referral links.', linkText: 'View Activity' },
+    { href: '/transaction-history', title: 'Referral Earnings', description: 'View referral commission payouts received.', linkText: 'View Earnings' },
+    { href: '/payments', title: 'Payments', description: 'Connect your bank account via Stripe to receive payouts.', linkText: 'Manage Payments' },
+  ];
+
   const commonLinks = [
     { href: '/profile', title: 'My Profile', description: 'Update your public-facing profile information.', linkText: 'Edit Profile' },
     { href: '/settings', title: 'Settings', description: 'Manage account settings and notifications.', linkText: 'Go to Settings' },
@@ -29,19 +36,19 @@ const getDashboardLinks = (role: string | null) => {
     { href: '/listings', title: 'My Listings', description: 'View and manage your tutoring service listings.', linkText: 'View Listings', highlight: true },
     { href: '/listings/create', title: 'Create New Listing', description: 'Create a new service listing to attract students.', linkText: 'Create Listing', highlight: true },
     { href: '/marketplace', title: 'Browse Marketplace', description: 'See how your listings appear to students.', linkText: 'View Marketplace' },
+    ...referralLinks,
     ...commonLinks,
   ];
 
   const seekerLinks = [
     { href: '/marketplace', title: 'Find Tutors', description: 'Browse and connect with qualified tutors.', linkText: 'Browse Tutors', highlight: true },
     { href: '/bookings', title: 'My Bookings', description: 'View your upcoming and past tutoring sessions.', linkText: 'View Bookings' },
+    ...referralLinks,
     ...commonLinks,
   ];
 
   const agentLinks = [
-    { href: '/referral-activities', title: 'My Activity', description: 'Track results of your referral links.', linkText: 'View Activity' },
-    { href: '/transaction-history', title: 'Referral Earnings', description: 'View referral commission payouts received.', linkText: 'View Earnings' },
-    { href: '/payments', title: 'Payments', description: 'Connect your bank account via Stripe to receive payouts.', linkText: 'Manage Payments' },
+    ...referralLinks,
     ...commonLinks,
   ];
 
