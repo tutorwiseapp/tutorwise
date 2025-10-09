@@ -90,6 +90,9 @@ vercel-env-commands.sh
 
 # Gemini CLI local settings (keep base settings.json in version control)
 .gemini/settings.local.json
+
+# Claude Code local settings (keep base settings.json in version control)
+.claude/settings.local.json
 # Workspace
 .migration-backup/
 *.original
