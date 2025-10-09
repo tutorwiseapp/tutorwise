@@ -159,6 +159,8 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
       if (rolesError) throw rolesError;
 
       // Save client details to role_details table
+      // NOTE FOR CLAUDE CODE & CAS: This saves the initial learning profile data
+      // that clients can later edit in /account/professional-info
       if (selectedSubjects.length > 0) {
         const budgetRange = prefs.budgetMin && prefs.budgetMax
           ? `${prefs.budgetMin}-${prefs.budgetMax}`
@@ -169,15 +171,17 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
           .upsert({
             profile_id: user.id,
             role_type: 'seeker',
-            subjects: selectedSubjects,
-            education_level: prefs.educationLevel,
-            learning_goals: prefs.learningGoals,
-            learning_preferences: prefs.learningPreferences,
-            budget_range: budgetRange,
-            sessions_per_week: prefs.sessionsPerWeek,
-            session_duration: prefs.sessionDuration,
-            additional_info: prefs.additionalInfo,
-            created_at: new Date().toISOString(),
+            // Core client/seeker information collected during onboarding
+            subjects: selectedSubjects, // Array of subjects they want to learn
+            education_level: prefs.educationLevel, // Current education level
+            learning_goals: prefs.learningGoals, // Array of goals (e.g., "exam_prep", "skill_building")
+            learning_preferences: prefs.learningPreferences, // Array of preferences (e.g., "online", "one_on_one")
+            budget_range: budgetRange, // String like "20-40" (hourly rate range)
+            sessions_per_week: prefs.sessionsPerWeek, // String like "1-2", "3-4"
+            session_duration: prefs.sessionDuration, // String like "30min", "1hour"
+            additional_info: prefs.additionalInfo, // Free-text additional requirements
+            // NOTE: created_at removed - database handles this automatically via default value
+            // Only update updated_at to avoid overwriting original creation timestamp
             updated_at: new Date().toISOString()
           });
 

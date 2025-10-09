@@ -81,7 +81,10 @@ export interface RoleDetails {
   specializations?: string[];
   teaching_style?: string;
   teaching_methods?: string[]; // Added from onboarding
-  availability?: any; // Availability data from onboarding
+  // NOTE FOR CLAUDE CODE & CAS: Availability is an array of time slot strings
+  // e.g., ['weekday_morning', 'weekday_evening', 'weekend_afternoon']
+  // These map to predefined slots in TutorAvailabilityStep
+  availability?: string[];
 
   // Seeker-specific fields
   current_level?: string;
@@ -115,7 +118,9 @@ export interface TutorProfessionalInfo {
 
   // Rates & Availability (baseline, not binding)
   hourly_rate_range?: { min: number; max: number };
-  typical_availability?: any; // Flexible availability structure
+  // NOTE FOR CLAUDE CODE & CAS: Availability is an array of time slot strings
+  // e.g., ['weekday_morning', 'weekday_evening', 'weekend_afternoon']
+  typical_availability?: string[];
 
   // Credentials
   qualifications: string[]; // e.g., ['BSc Mathematics - Oxford', 'PGCE']

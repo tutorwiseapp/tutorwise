@@ -23,7 +23,9 @@ export interface ProfessionalInfoTemplate {
   hourly_rate_range?: { min: number; max: number };
   qualifications?: string[];
   teaching_methods?: string[];
-  availability?: any;
+  // NOTE FOR CLAUDE CODE & CAS: Availability is an array of time slot strings
+  // e.g., ['weekday_morning', 'weekday_evening', 'weekend_afternoon']
+  availability?: string[];
   specializations?: string[];
   skill_levels?: Record<string, boolean>;
   // Agent fields

@@ -165,25 +165,30 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
       if (rolesError) throw rolesError;
 
       // Save agent details to role_details table
+      // NOTE FOR CLAUDE CODE & CAS: This saves the initial agency profile data
+      // that agents can later edit in /account/professional-info
       if (selectedServices.length > 0 && agencyDetails && capacity) {
-        // Map to fields expected by AgentProfessionalInfoForm
         const { error: detailsError } = await supabase
           .from('role_details')
           .upsert({
             profile_id: user.id,
             role_type: 'agent',
+            // Core agency information collected during onboarding
             agency_name: agencyDetails.agencyName,
-            number_of_tutors: agencyDetails.agencySize,
+            number_of_tutors: agencyDetails.agencySize, // e.g., "1-5", "6-10"
             years_in_business: agencyDetails.yearsInBusiness,
             description: agencyDetails.description,
-            services: selectedServices,
-            commission_rate: capacity.commissionRate || undefined,
-            coverage_areas: capacity.serviceAreas,
-            // Set default subject specializations and education levels
-            subject_specializations: [],
-            education_levels: [],
-            certifications: [],
-            created_at: new Date().toISOString(),
+            services: selectedServices, // Array of services offered
+            commission_rate: capacity.commissionRate || undefined, // Percentage number
+            coverage_areas: capacity.serviceAreas, // Geographic regions
+            // NOTE: Fields below not collected in onboarding - agents set in professional info
+            // Removed empty arrays to avoid confusion. If field doesn't exist, it's null/undefined
+            // which clearly indicates "not set" vs empty array which could mean "none"
+            // subject_specializations: left unset
+            // education_levels: left unset
+            // certifications: left unset
+            // NOTE: created_at removed - database handles this automatically via default value
+            // Only update updated_at to avoid overwriting original creation timestamp
             updated_at: new Date().toISOString()
           });
 

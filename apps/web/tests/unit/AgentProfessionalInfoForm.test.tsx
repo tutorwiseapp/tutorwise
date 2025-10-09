@@ -37,12 +37,16 @@ jest.mock('react-hot-toast', () => ({
 import toast from 'react-hot-toast';
 
 describe('AgentProfessionalInfoForm', () => {
+  // Type-safe mock helpers
+  const mockGetProfessionalInfo = accountApi.getProfessionalInfo as jest.MockedFunction<typeof accountApi.getProfessionalInfo>;
+  const mockUpdateProfessionalInfo = accountApi.updateProfessionalInfo as jest.MockedFunction<typeof accountApi.updateProfessionalInfo>;
+
   beforeEach(() => {
     // Clear all mocks before each test
     jest.clearAllMocks();
 
     // Default mock implementation
-    (accountApi.getProfessionalInfo as jest.Mock).mockResolvedValue(null);
+    mockGetProfessionalInfo.mockResolvedValue(null);
   });
 
   describe('Rendering', () => {
@@ -70,7 +74,7 @@ describe('AgentProfessionalInfoForm', () => {
 
     it('shows loading state initially', () => {
       // Mock a delayed response
-      (accountApi.getProfessionalInfo as jest.Mock).mockImplementation(
+      mockGetProfessionalInfo.mockImplementation(
         () => new Promise(resolve => setTimeout(() => resolve(null), 1000))
       );
 
@@ -439,7 +443,7 @@ describe('AgentProfessionalInfoForm', () => {
         description: 'Leading tutoring agency in London'
       };
 
-      (accountApi.getProfessionalInfo as jest.Mock).mockResolvedValue(mockTemplate);
+      mockGetProfessionalInfo.mockResolvedValue(mockTemplate);
 
       render(<AgentProfessionalInfoForm />);
 
@@ -457,7 +461,7 @@ describe('AgentProfessionalInfoForm', () => {
 
     it('saves template successfully', async () => {
       const user = userEvent.setup();
-      (accountApi.updateProfessionalInfo as jest.Mock).mockResolvedValue({ success: true });
+      mockUpdateProfessionalInfo.mockResolvedValue({ success: true });
 
       render(<AgentProfessionalInfoForm />);
 
@@ -505,7 +509,7 @@ describe('AgentProfessionalInfoForm', () => {
 
     it('shows error toast on save failure', async () => {
       const user = userEvent.setup();
-      (accountApi.updateProfessionalInfo as jest.Mock).mockRejectedValue(
+      mockUpdateProfessionalInfo.mockRejectedValue(
         new Error('Network error')
       );
 
@@ -545,7 +549,7 @@ describe('AgentProfessionalInfoForm', () => {
 
     it('filters empty certifications on submit', async () => {
       const user = userEvent.setup();
-      (accountApi.updateProfessionalInfo as jest.Mock).mockResolvedValue({ success: true });
+      mockUpdateProfessionalInfo.mockResolvedValue({ success: true });
 
       render(<AgentProfessionalInfoForm />);
 

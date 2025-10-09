@@ -165,28 +165,30 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
       if (rolesError) throw rolesError;
 
       // Save tutor details to role_details table
+      // NOTE FOR CLAUDE CODE & CAS: This saves the initial professional template data
+      // that users can later edit in /account/professional-info
       if (selectedSubjects.length > 0 && qualifications && availability) {
-        // Default education levels - can be customized later in professional info
-        const defaultSkillLevels = {
-          'GCSE': true,
-          'A-Level': true,
-          'Undergraduate': true
-        };
+        // NOTE: skill_levels left empty - tutors will set their teaching levels
+        // in professional info form. This prevents assuming incorrect defaults.
+        // Previous approach assumed GCSE/A-Level/Undergraduate which may not apply.
 
         const { error: detailsError } = await supabase
           .from('role_details')
           .upsert({
             profile_id: user.id,
             role_type: 'provider',
+            // Core tutor information collected during onboarding
             subjects: selectedSubjects,
             teaching_experience: qualifications.experience,
             qualifications: [qualifications.education, ...qualifications.certifications],
             hourly_rate: availability.hourlyRate,
-            availability: availability.availability,
-            teaching_methods: availability.sessionTypes,
-            skill_levels: defaultSkillLevels,
+            availability: availability.availability, // Array of time slots
+            teaching_methods: availability.sessionTypes, // e.g., ['one_on_one', 'online']
             specializations: qualifications.certifications || [],
-            created_at: new Date().toISOString(),
+            // Leave skill_levels empty - tutor sets in professional info
+            skill_levels: {},
+            // NOTE: created_at removed - database handles this automatically
+            // Only update updated_at to avoid overwriting original creation timestamp
             updated_at: new Date().toISOString()
           });
 

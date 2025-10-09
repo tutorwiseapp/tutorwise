@@ -31,9 +31,12 @@ jest.mock('@/app/contexts/UserProfileContext', () => ({
 global.fetch = jest.fn();
 
 describe('ProfilePage', () => {
+  // Type-safe mock helper
+  const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
+
   beforeEach(() => {
     jest.clearAllMocks();
-    (global.fetch as jest.Mock).mockResolvedValue({
+    mockFetch.mockResolvedValue({
       ok: true,
       json: async () => ({ success: true }),
     });
@@ -248,7 +251,7 @@ describe('ProfilePage', () => {
       const user = userEvent.setup();
 
       // Mock slow API response
-      (global.fetch as jest.Mock).mockImplementation(() =>
+      mockFetch.mockImplementation(() =>
         new Promise(resolve => setTimeout(() => resolve({
           ok: true,
           json: async () => ({ success: true })
@@ -283,7 +286,7 @@ describe('ProfilePage', () => {
   describe('Error Handling', () => {
     it('shows error for 400 Bad Request', async () => {
       const user = userEvent.setup();
-      (global.fetch as jest.Mock).mockResolvedValue({
+      mockFetch.mockResolvedValue({
         ok: false,
         status: 400,
         json: async () => ({ message: 'Invalid data' }),
@@ -301,7 +304,7 @@ describe('ProfilePage', () => {
 
     it('shows error for 401 Unauthorized', async () => {
       const user = userEvent.setup();
-      (global.fetch as jest.Mock).mockResolvedValue({
+      mockFetch.mockResolvedValue({
         ok: false,
         status: 401,
         json: async () => ({}),
@@ -319,7 +322,7 @@ describe('ProfilePage', () => {
 
     it('shows error for 403 Forbidden', async () => {
       const user = userEvent.setup();
-      (global.fetch as jest.Mock).mockResolvedValue({
+      mockFetch.mockResolvedValue({
         ok: false,
         status: 403,
         json: async () => ({}),
@@ -337,7 +340,7 @@ describe('ProfilePage', () => {
 
     it('shows error for 500 Server Error', async () => {
       const user = userEvent.setup();
-      (global.fetch as jest.Mock).mockResolvedValue({
+      mockFetch.mockResolvedValue({
         ok: false,
         status: 500,
         json: async () => ({}),
@@ -355,7 +358,7 @@ describe('ProfilePage', () => {
 
     it('handles network errors gracefully', async () => {
       const user = userEvent.setup();
-      (global.fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
+      mockFetch.mockRejectedValue(new Error('Network error'));
 
       render(<ProfilePage />);
 
@@ -369,7 +372,7 @@ describe('ProfilePage', () => {
 
     it('re-enables save button after error', async () => {
       const user = userEvent.setup();
-      (global.fetch as jest.Mock).mockResolvedValue({
+      mockFetch.mockResolvedValue({
         ok: false,
         status: 500,
         json: async () => ({}),
@@ -410,7 +413,7 @@ describe('ProfilePage', () => {
       const user = userEvent.setup();
 
       // First submission - error
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 500,
         json: async () => ({}),
@@ -426,7 +429,7 @@ describe('ProfilePage', () => {
       });
 
       // Second submission - success
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ success: true }),
       });
