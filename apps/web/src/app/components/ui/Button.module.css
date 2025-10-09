@@ -82,3 +82,29 @@
     background-repeat: no-repeat;
     background-size: contain;
 }
+
+/* Outline variant */
+.outline {
+  background-color: transparent;
+  color: var(--color-text-primary, #3c4043);
+  border: 1px solid var(--color-border, #ddd);
+}
+.outline:hover:not(:disabled) {
+  background-color: var(--color-bg-secondary, #f5f5f5);
+}
+
+/* Size variants */
+.sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.md {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+}
+
+.lg {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+}

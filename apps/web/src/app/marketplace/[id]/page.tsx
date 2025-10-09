@@ -110,11 +110,67 @@ export default function ListingDetailsPage() {
               </div>
             </Card>
 
-            {/* Note: teaching_experience, qualifications, and teaching_methods fields
-                are not part of the Listing type. These would need to be fetched from
-                the profile's role_details if needed. */}
+            {/* Teaching Experience */}
+            {listing.teaching_experience && (
+              <Card>
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold mb-3">Teaching Experience</h2>
+                  <p className="text-gray-700">{listing.teaching_experience}</p>
+                </div>
+              </Card>
+            )}
 
-            {/* Note: specializations field is not part of the Listing type */}
+            {/* Qualifications */}
+            {listing.qualifications && listing.qualifications.length > 0 && (
+              <Card>
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold mb-3">Qualifications</h2>
+                  <ul className="list-disc list-inside space-y-2">
+                    {listing.qualifications.map((qual, index) => (
+                      <li key={index} className="text-gray-700">{qual}</li>
+                    ))}
+                  </ul>
+                </div>
+              </Card>
+            )}
+
+            {/* Teaching Methods */}
+            {listing.teaching_methods && listing.teaching_methods.length > 0 && (
+              <Card>
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold mb-3">Teaching Methods</h2>
+                  <div className="flex flex-wrap gap-2">
+                    {listing.teaching_methods.map((method) => (
+                      <span
+                        key={method}
+                        className="inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium bg-gray-100 text-gray-800"
+                      >
+                        {method}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            {/* Specializations */}
+            {listing.specializations && listing.specializations.length > 0 && (
+              <Card>
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold mb-3">Specializations</h2>
+                  <div className="flex flex-wrap gap-2">
+                    {listing.specializations.map((spec) => (
+                      <span
+                        key={spec}
+                        className="inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium bg-purple-100 text-purple-800"
+                      >
+                        {spec}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </Card>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -178,12 +234,17 @@ export default function ListingDetailsPage() {
                       <span className="font-medium text-gray-900">{listing.booking_count}</span>
                     </div>
                   )}
-                  {/* Note: response_time field not yet in Listing type */}
+                  {listing.response_time && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">Response Time</span>
+                      <span className="font-medium text-gray-900">{listing.response_time}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Action Buttons */}
                 <div className="space-y-3">
-                  <Button className="w-full">
+                  <Button className="w-full" size="lg">
                     Book a Lesson
                   </Button>
                   <Button variant="outline" className="w-full">

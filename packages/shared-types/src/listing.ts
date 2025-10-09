@@ -35,6 +35,10 @@ export interface Listing {
   subjects: string[];
   levels: string[];
   languages: string[];
+  specializations?: string[];
+  teaching_methods?: string[];
+  qualifications?: string[];
+  teaching_experience?: string;
 
   // Pricing
   hourly_rate?: number;
@@ -64,6 +68,7 @@ export interface Listing {
   view_count: number;
   inquiry_count: number;
   booking_count: number;
+  response_time?: string;
 
   // Timestamps
   created_at: string;
