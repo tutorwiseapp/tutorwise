@@ -5,7 +5,7 @@
     "network-idle-timeout": 100
   },
   "snapshot": {
-    "widths": [375, 1280],
+    "widths": [375, 768, 1280],
     "min-height": 1024,
     "percy-css": ""
   },
@@ -14,5 +14,10 @@
       "allowed-hostnames": ["localhost"],
       "network-idle-timeout": 100
     }
+  },
+  "storybook": {
+    "args": "--ci",
+    "include": ["UI/**"],
+    "waitForTimeout": 15000
   }
 }

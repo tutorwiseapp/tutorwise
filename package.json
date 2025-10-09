@@ -9,12 +9,14 @@
     "cas/packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=@tutorwise/web",
+    "dev": "npm run dev:all",
+    "dev:all": "concurrently \"npm run dev:web\" \"npm run dev:vinite\" \"npm run dev:api\"",
     "dev:web": "npm run dev --workspace=@tutorwise/web",
     "dev:vinite": "PORT=3001 npm run dev --workspace=@tutorwise/vinite",
     "dev:api": "cd apps/api && python3 -m uvicorn app.main:app --reload",
     "build": "npm run build --workspace=@tutorwise/web",
-    "test": "npm run test --workspace=@tutorwise/web",
+    "test": "npm run test:all",
+    "test:all": "npm run test:unit:coverage && npm run test:integration && npm run test:e2e",
     "test:unit": "jest tests/unit",
     "test:unit:quick": "jest tests/unit --passWithNoTests --silent",
     "test:unit:watch": "jest tests/unit --watch",
@@ -25,12 +27,11 @@
     "test:e2e:ui": "playwright test --config=tools/playwright/playwright.config.ts --ui",
     "test:e2e:staging": "BASE_URL=https://tutorwise-production.up.railway.app playwright test --config=tools/playwright/playwright.config.ts",
     "test:visual": "percy exec -- playwright test --config=tools/playwright/playwright.config.ts",
-    "test:all": "npm run test:unit:coverage && npm run test:integration && npm run test:e2e",
-    "test:ci": "npm run test:unit:coverage && npm run test:integration && npm run test:e2e",
     "test:watch": "concurrently \"npm run test:unit:watch\" \"npm run test:e2e:ui\"",
     "lint": "npm run lint --workspace=@tutorwise/web",
     "lint:fix": "npm run lint:fix --workspace=@tutorwise/web",
     "typecheck": "npm run typecheck --workspace=@tutorwise/web",
+    "lint:backend": "cd apps/api && python3 -m ruff check app/",
     "workflow:check": "./scripts/dev-workflow.sh check",
     "workflow:test": "./scripts/dev-workflow.sh test",
     "workflow:build": "./scripts/dev-workflow.sh build",
@@ -41,7 +42,10 @@
     "visual-test": "./scripts/visual-test.sh",
     "visual-test:nav": "./scripts/visual-test.sh navigation",
     "visual-test:onboarding": "./scripts/visual-test.sh onboarding",
-    "lint:backend": "cd apps/api && python3 -m ruff check app/",
+    "storybook": "npm run storybook --workspace=@tutorwise/web",
+    "storybook:build": "npm run storybook:build --workspace=@tutorwise/web",
+    "storybook:test": "npm run storybook:test --workspace=@tutorwise/web",
+    "storybook:percy": "npm run storybook:percy --workspace=@tutorwise/web",
     "cas:generate": "node cas/packages/core/src/context/generate-context.js",
     "cas:update": "npm run cas:generate",
     "cas:setup": "node cas/packages/core/src/context/setup-context-engineering.js",
@@ -95,19 +99,26 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@google/genai": "^1.21.0",
+    "@google/genai": "^1.22.0",
     "axios": "^1.6.0",
     "dotenv": "^16.6.1",
     "googleapis": "^130.0.0",
     "marked": "^16.3.0",
     "neo4j-driver": "^5.28.2",
-    "nodemailer": "^7.0.6",
-    "puppeteer": "^24.22.3"
+    "nodemailer": "^7.0.7",
+    "puppeteer": "^24.23.0",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@percy/cli": "^1.31.2",
     "@percy/playwright": "^1.0.9",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
     "concurrently": "^9.2.1",
-    "husky": "^9.1.7"
+    "husky": "^9.1.7",
+    "jest-environment-jsdom": "^30.2.0",
+    "wait-on": "^9.0.1"
   }
 }
