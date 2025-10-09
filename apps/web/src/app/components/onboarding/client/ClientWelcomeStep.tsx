@@ -21,7 +21,7 @@ const ClientWelcomeStep: React.FC<ClientWelcomeStepProps> = ({
           Welcome, {userName}! 🎓
         </h2>
         <p className={styles.stepSubtitle}>
-          Let's find the perfect tutor for your learning journey
+          Let&apos;s find the perfect tutor for your learning journey
         </p>
       </div>
 
@@ -54,7 +54,7 @@ const ClientWelcomeStep: React.FC<ClientWelcomeStepProps> = ({
 
         <div className={styles.motivationalQuote}>
           <p className={styles.quoteText}>
-            "Education is the most powerful weapon which you can use to change the world."
+            &ldquo;Education is the most powerful weapon which you can use to change the world.&rdquo;
           </p>
           <p className={styles.quoteAuthor}>— Nelson Mandela</p>
         </div>
