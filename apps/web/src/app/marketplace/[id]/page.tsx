@@ -178,17 +178,12 @@ export default function ListingDetailsPage() {
                       <span className="font-medium text-gray-900">{listing.booking_count}</span>
                     </div>
                   )}
-                  {listing.response_time && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Response Time</span>
-                      <span className="font-medium text-gray-900">{listing.response_time}</span>
-                    </div>
-                  )}
+                  {/* Note: response_time field not yet in Listing type */}
                 </div>
 
                 {/* Action Buttons */}
                 <div className="space-y-3">
-                  <Button className="w-full" size="lg">
+                  <Button className="w-full">
                     Book a Lesson
                   </Button>
                   <Button variant="outline" className="w-full">
