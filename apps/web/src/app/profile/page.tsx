@@ -26,6 +26,7 @@ import Button from '@/app/components/ui/Button';
 import Message from '@/app/components/ui/Message';
 import Tabs from '@/app/components/ui/Tabs';
 import Card from '@/app/components/ui/Card';
+import ProfileCompletenessIndicator from '@/app/components/profile/ProfileCompletenessIndicator';
 import styles from './page.module.css';
 
 // Validation schema
@@ -83,27 +84,52 @@ const ProfilePage = () => {
     if (!file) return;
 
     // Validate file
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      setMessage({ text: 'Image must be less than 5MB', type: 'error' });
+    const { validateImageFile, compressImage, uploadAvatar } = await import('@/lib/api/storage');
+
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      setMessage({ text: validation.error!, type: 'error' });
       return;
     }
 
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      setMessage({ text: 'Only JPEG, PNG, and WebP images allowed', type: 'error' });
-      return;
+    setIsSaving(true);
+    setMessage({ text: 'Uploading avatar...', type: 'warning' });
+
+    try {
+      // Compress image before upload
+      const compressedFile = await compressImage(file, 400, 0.85);
+
+      // Upload to Supabase Storage
+      const { url, path } = await uploadAvatar(compressedFile, profile!.id);
+
+      // Update profile with new avatar URL
+      const response = await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          avatar_url: url,
+          avatar_storage_path: path,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update profile with avatar');
+      }
+
+      // Update local form data
+      setFormData(prev => ({ ...prev, avatar_url: url, avatar_storage_path: path }));
+
+      setMessage({ text: 'Avatar uploaded successfully!', type: 'success' });
+    } catch (error) {
+      console.error('Avatar upload error:', error);
+      setMessage({
+        text: `Failed to upload avatar: ${(error as Error).message}`,
+        type: 'error'
+      });
+    } finally {
+      setIsSaving(false);
     }
-
-    // For now, show a coming soon message with better UX
-    setMessage({
-      text: `Image "${file.name}" validated successfully! Avatar upload feature coming soon.`,
-      type: 'warning'
-    });
-
-    // TODO: Implement Supabase Storage upload
-    // const supabase = createClient();
-    // ... upload logic ...
   };
 
   const handleAvatarButtonClick = () => {
@@ -196,6 +222,8 @@ const ProfilePage = () => {
 
             {activeTab === 'profile' && (
               <div className={styles.tabContent}>
+                <ProfileCompletenessIndicator profile={profile} />
+
                 <FormGroup label="Profile Photo" htmlFor="avatar">
                   <div className={styles.fileUploadGroup}>
                     <Input id="avatar" type="file" ref={avatarFileRef} accept="image/*" onChange={handleAvatarChange} />
