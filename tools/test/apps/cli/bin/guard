@@ -1,0 +1,129 @@
+#!/usr/bin/env node
+
+/**
+ * GUARD CLI - TutorWise Quality Assurance System
+ *
+ * Usage:
+ *   guard run                  # Run all tests
+ *   guard run unit             # Run unit tests
+ *   guard run e2e              # Run E2E tests
+ *   guard validate             # Pre-commit validation
+ *   guard report               # Generate test report
+ */
+
+import { program } from 'commander';
+import { execSync } from 'child_process';
+import chalk from 'chalk';
+import ora from 'ora';
+
+program
+  .name('guard')
+  .description('GUARD - Governance, Usability, Assurance, Reliability, Defence')
+  .version('1.0.0');
+
+// Run command
+program
+  .command('run [suite]')
+  .description('Run test suites')
+  .action((suite) => {
+    const spinner = ora('Running GUARD tests...').start();
+
+    try {
+      let command;
+
+      switch(suite) {
+        case 'unit':
+          command = 'npm run test:unit';
+          break;
+        case 'e2e':
+          command = 'npm run test:e2e';
+          break;
+        case 'visual':
+          command = 'npm run test:visual';
+          break;
+        case 'a11y':
+          command = 'npm run test:a11y';
+          break;
+        case 'security':
+          command = 'npm run test:security';
+          break;
+        case 'governance':
+          command = 'npm run lint && npm run typecheck';
+          break;
+        default:
+          command = 'npm test';
+      }
+
+      spinner.text = `Running ${suite || 'all'} tests...`;
+      execSync(command, { stdio: 'inherit' });
+      spinner.succeed(chalk.green(`✓ ${suite || 'All'} tests passed`));
+    } catch (error) {
+      spinner.fail(chalk.red(`✗ ${suite || 'Some'} tests failed`));
+      process.exit(1);
+    }
+  });
+
+// Validate command
+program
+  .command('validate')
+  .description('Run quality validation checks')
+  .option('--pr', 'PR validation mode')
+  .option('--production', 'Production readiness check')
+  .action((options) => {
+    const spinner = ora('Running GUARD validation...').start();
+
+    try {
+      // Lint check
+      spinner.text = 'Linting code...';
+      execSync('npm run lint', { stdio: 'pipe' });
+
+      // Type check
+      spinner.text = 'Type checking...';
+      execSync('npm run typecheck', { stdio: 'pipe' });
+
+      // Unit tests
+      if (options.pr || options.production) {
+        spinner.text = 'Running unit tests...';
+        execSync('npm run test:unit', { stdio: 'pipe' });
+      }
+
+      // E2E tests for production
+      if (options.production) {
+        spinner.text = 'Running E2E tests...';
+        execSync('npm run test:e2e', { stdio: 'pipe' });
+      }
+
+      spinner.succeed(chalk.green('✓ Validation passed'));
+    } catch (error) {
+      spinner.fail(chalk.red('✗ Validation failed'));
+      console.error(error.message);
+      process.exit(1);
+    }
+  });
+
+// Report command
+program
+  .command('report')
+  .description('Generate test report')
+  .option('--coverage', 'Coverage report')
+  .option('--failures', 'Show only failures')
+  .action((options) => {
+    console.log(chalk.blue.bold('\n📊 GUARD Test Report\n'));
+
+    if (options.coverage) {
+      execSync('npm run test:unit:coverage', { stdio: 'inherit' });
+    } else {
+      console.log('Full report generation coming soon...');
+      console.log('For now, check: guard/docs/reports/');
+    }
+  });
+
+// Monitor command
+program
+  .command('monitor')
+  .description('Monitor production health')
+  .action(() => {
+    console.log(chalk.yellow('Production monitoring coming in Phase 4...'));
+  });
+
+program.parse();
