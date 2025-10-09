@@ -1,299 +1,287 @@
-# 🚀 TutorWise Quick Start Guide
+# Tutorwise Quick Start Guide
 
-## When Starting a Claude Code Session
+## Remote Task Execution - How To
 
-### Step 1: Initialize Environment
+This guide shows you how to schedule and execute tasks remotely using Tutorwise's automation system.
 
-```bash
-npm run claude:login
+## Prerequisites
+
+1. **Environment Setup**: Ensure `.env.local` is configured with your service credentials
+2. **Dependencies**: Run `npm install` to install required packages
+3. **Service Accounts**: Google service account JSON file in place
+
+## Method 1: Jira Task Scheduling (Recommended)
+
+### Step 1: Create a Jira Ticket
+1. Go to your Jira project (e.g., TUTOR project)
+2. Create a new ticket (Task or Story)
+3. Set the **Summary** to: `[Claude Code] Brief task description`
+4. Set the **Start time** custom field to when you want the task to execute
+5. Add your task instruction to the **description**:
+
+**Recommended Format:**
+```
+Claude Code: Install the express package using npm.
+
+Results: The express package is installed and available for use in the project.
 ```
 
-This will:
-- ✅ Load all environment variables
-- ✅ Validate configurations
-- ✅ Show service status
-- ✅ Offer to start services
-
-### Step 2: Choose Your Option
-
-**Option 1: Start All Services Automatically** ⭐ Recommended
-- Starts Neo4j, Redis, Backend API, Frontend Web
-- Everything ready in ~30 seconds
-
-**Option 2: Interactive Service Manager**
-- Fine-grained control over each service
-- Start/stop individual services
-- Monitor status in real-time
-
-**Option 3: Core Services Only**
-- Just databases and main services
-- Skip background tasks
-
-**Option 4: Skip**
-- Manual service management
-
-## 📊 Quick Commands
-
-### Service Management
-```bash
-# Interactive manager
-npm run startup
-
-# View status
-npm run startup:status
-
-# Start everything
-npm run startup:start-all
-
-# Stop everything
-npm run startup:stop-all
-
-# Restart all
-npm run startup:restart-all
+**Alternative Formats:**
+```
+[CLAUDE CODE]
+TASK: CREATE_FILE
+FILE: meeting-notes.md
+PATH: docs/meetings
+CONTENT: Meeting agenda template with action items section
 ```
 
-### Development
+### Step 2: Start the Polling System
 ```bash
-# Frontend only
-npm run dev:web
+# Start continuous polling (recommended for production)
+npm run jira:poll:continuous
 
-# Backend only
-npm run dev:api
-
-# Run tests
-npm run test:e2e
-npm run test:unit
-
-# Visual tests
-npm run visual-test
+# Or one-time poll for testing
+npm run jira:poll
 ```
 
-### Integrations
+### Step 3: Monitor Execution
+- Check the Jira ticket for execution comments
+- Task results will be posted as comments
+- Files will be created in the specified location
+
+**Example Ticket:**
+- **Summary**: "Create meeting notes template"
+- **Start time**: "2024-10-28 21:00"
+- **Description**: "Claude Code: Create 'meeting-notes.md' in docs/meetings folder. Write Meeting agenda template with action items section."
+
+## Method 2: Calendar Task Scheduling
+
+### Step 1: Create Calendar Event
+1. Open Google Calendar
+2. Create an event at your desired execution time
+3. Add task instruction to the event description using either format:
+
+**Structured Format (Recommended):**
+```
+[CLAUDE CODE]
+TASK: CREATE_FILE
+FILE: daily-report.md
+PATH: docs/reports
+CONTENT: Daily status report template
+```
+
+**Conversational Format:**
+```
+Claude Code: Create "daily-report.md" in docs/reports folder. Write Daily status report template.
+```
+
+### Step 2: Start Calendar Polling
 ```bash
-# Sync Confluence
-npm run sync:confluence
+# Start continuous calendar polling
+npm run calendar:poll:continuous
 
-# Sync Google Docs
-npm run sync:google-docs
+# Or one-time poll for testing
+npm run calendar:poll
+```
 
-# Test Jira
+### Step 3: Monitor Execution
+- Check the execution log: `logs/calendar-task-execution.log`
+- Files will be created in the specified location
+- No Jira ticket is created (direct execution)
+
+## Method 3: Hybrid Calendar-to-Jira
+
+### Step 1: Create Calendar Event (Same as Method 2)
+1. Create calendar event with Claude Code instruction in description
+
+### Step 2: Start Hybrid Sync
+```bash
+# Start calendar-to-Jira sync
+npm run sync:calendar-to-jira:continuous
+```
+
+### Step 3: Start Jira Polling
+```bash
+# In another terminal, start Jira task execution
+npm run jira:poll:continuous
+```
+
+### Result
+- Calendar event automatically creates Jira ticket
+- Jira system executes the task
+- Full audit trail maintained in Jira
+
+## Professional Task Format
+
+The system uses a professional format for all AI tools:
+
+### Format Structure
+```
+Summary: [Claude Code] Brief description of task
+Description:
+Claude Code: Specific task instruction
+
+Results: Expected outcome description
+```
+
+### Supported Task Types
+
+#### File Creation
+```
+Summary: [Claude Code] Create API Documentation
+Description:
+Claude Code: Create "api-documentation.md" in docs/api folder. Write API endpoint documentation with examples.
+
+Results: API documentation file is created with comprehensive endpoint information.
+```
+
+#### Package Installation
+```
+Summary: [Claude Code] Install Express Package
+Description:
+Claude Code: Install the express package using npm.
+
+Results: The express package is installed and available for use in the project.
+```
+
+#### Command Execution
+```
+Summary: [Claude Code] Run Build Command
+Description:
+Claude Code: Run the build command.
+
+Results: The project is built successfully and ready for deployment.
+```
+
+## Testing Your Setup
+
+### Test Service Connections
+```bash
+# Test all integrations
+npm run test:google
+npm run test:confluence
+npm run test:calendar-to-jira
+
+# Test Jira custom fields
+npm run test:jira-fields
+```
+
+### Test Task Detection
+```bash
+# See what tasks are scheduled in Jira
 npm run jira:test-tasks
 
-# Test Calendar
+# See what calendar events have tasks
 npm run calendar:test-tasks
 ```
 
-### CAS (Contextual Autonomous System)
+### Test Complete Workflow
+1. Create a test Jira ticket with start time 5 minutes from now
+2. Add description: `Claude Code: Create "test.md" in docs/testing folder. Write Hello World!`
+3. Run: `npm run jira:poll`
+4. Check if `docs/testing/test.md` was created
+
+## Monitoring and Logs
+
+### Jira Method Monitoring
+- Execution status posted as Jira comments
+- Error details in ticket comments
+- Use Jira filters to track automated tasks
+
+### Calendar Method Monitoring
 ```bash
-# Generate context
-npm run cas:generate
+# View execution log
+tail -f logs/calendar-task-execution.log
 
-# Setup CAS
-npm run cas:setup
-
-# Update context
-npm run cas:update
+# Check for recent executions
+cat logs/calendar-task-execution.log | grep "$(date +%Y-%m-%d)"
 ```
 
-### Deployment
+### Real-time Monitoring
 ```bash
-# Deploy backend to Railway
-npm run deploy:railway
+# Monitor Jira polling in real-time
+npm run jira:poll:continuous
 
-# Deploy frontend to Vercel (preview)
-npm run deploy:vercel
-
-# Deploy frontend to Vercel (production)
-npm run deploy:vercel:prod
+# Monitor calendar polling in real-time
+npm run calendar:poll:continuous
 ```
 
-> 📖 **Setup Guides:**
-> - [Railway Auth Setup](tools/docs/setup/cloud-services/railway.md) - Account Token required
-> - [Vercel Auth Setup](tools/docs/setup/cloud-services/vercel.md) - User Access Token
-> - [Supabase Auth Setup](tools/docs/setup/cloud-services/supabase.md) - Anon vs Service Role
-> - [Stripe Auth Setup](tools/docs/setup/cloud-services/stripe.md) - Publishable vs Secret Keys
+## Common Use Cases
 
-## 🔧 Service Status Table
+### 1. Daily Report Generation
+**Schedule:** Every day at 5 PM
+**Method:** Calendar event
+**Task:** `Claude Code: Create "daily-report-YYYY-MM-DD.md" in docs/reports folder. Write daily status report template.`
 
-When you run `npm run startup:status`, you'll see:
+### 2. Meeting Preparation
+**Schedule:** 30 minutes before meeting
+**Method:** Jira ticket
+**Task:** `Claude Code: Create "meeting-prep.md" in docs/meetings folder. Write meeting preparation checklist.`
 
-| Service | Port | Description | Status |
-|---------|------|-------------|--------|
-| Neo4j | 7687 | Graph Database | ● / ○ |
-| Redis | 6379 | Cache Server | ● / ○ |
-| Backend | 8000 | FastAPI | ● / ○ |
-| Frontend | 3000 | Next.js | ● / ○ |
+### 3. Documentation Updates
+**Schedule:** After code deployment
+**Method:** Hybrid (calendar creates Jira ticket)
+**Task:** `Claude Code: Create "release-notes.md" in docs/releases folder. Write release notes template.`
 
-## 🌐 Access URLs
+## Troubleshooting
 
-### Local Development
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000
-- **API Docs**: http://localhost:8000/docs
-- **Neo4j Browser**: http://localhost:7474
+### Task Not Executing
+1. **Check polling is running**: Look for polling messages in console
+2. **Verify task format**: Ensure "Claude Code:" prefix is present
+3. **Check permissions**: Run test commands to verify service access
+4. **Review logs**: Check execution logs for errors
 
-### Production
-- **Frontend**: https://tutorwise.vercel.app
-- **Backend**: https://tutorwise-production.up.railway.app
-- **Railway Dashboard**: https://railway.app
+### Authentication Issues
+1. **Update credentials**: Check `.env.local` file
+2. **Test connections**: Run `npm run test:google` and `npm run test:confluence`
+3. **Verify permissions**: Ensure service accounts have required access
 
-## 🔑 Environment Variables Reference
+### File Creation Issues
+1. **Check paths**: Ensure directory paths exist or can be created
+2. **Verify permissions**: Check write permissions to target directories
+3. **Review syntax**: Ensure task format matches examples
 
-Critical variables that must be set in `.env.local`:
+## Quick Commands Reference
 
-### Railway (Backend Deployment)
-- ✅ `RAILWAY_API_TOKEN` - **Account Token** (not Project Token)
-  - Create at: https://railway.app/account/tokens
-  - **Must NOT be scoped to a project**
-
-### Vercel (Frontend Deployment)
-- ✅ `VERCEL_TOKEN` - User Access Token
-  - Create at: https://vercel.com/account/tokens
-  - Full account or project-specific access
-
-### Supabase (Database & Auth)
-- ✅ `NEXT_PUBLIC_SUPABASE_URL` - Project URL
-- ✅ `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Anon/Public key (safe for frontend)
-- ✅ `SUPABASE_SERVICE_ROLE_KEY` - Service role key (backend only, SECRET!)
-
-### Stripe (Payments)
-- ✅ `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` - Publishable key (safe for frontend)
-- ✅ `STRIPE_SECRET_KEY` - Secret key (backend only, SECRET!)
-- ✅ `STRIPE_WEBHOOK_SECRET` - Webhook signing secret
-
-### Services
-- ✅ `NEO4J_URI` - Neo4j connection string
-- ✅ `REDIS_URL` - Redis connection string
-
-### Integrations
-- ✅ `JIRA_BASE_URL` - Jira instance URL
-- ✅ `JIRA_EMAIL` - Jira user email
-- ✅ `JIRA_API_TOKEN` - Jira API token
-- ✅ `GOOGLE_AI_API_KEY` - Google AI/Gemini API key
-- ✅ `FIGMA_ACCESS_TOKEN` - Figma personal access token
-
-## 🆘 Troubleshooting
-
-### Services won't start
 ```bash
-# Check logs
-cat logs/<service-name>.log
+# Start Systems
+npm run jira:poll:continuous          # Jira task polling
+npm run calendar:poll:continuous      # Calendar task polling
+npm run sync:calendar-to-jira:continuous  # Hybrid method
 
-# Clean PIDs
-rm -rf /tmp/tutorwise-services/*.pid
+# Testing
+npm run jira:test-tasks              # Show Jira tasks
+npm run calendar:test-tasks          # Show calendar events
+npm run test:jira-fields            # Validate Jira setup
 
-# Restart
-npm run startup:restart-all
+# One-time Operations
+npm run jira:poll                    # Single Jira poll
+npm run calendar:poll                # Single calendar poll
+npm run sync:calendar-to-jira        # Single calendar-to-Jira sync
+
+# Documentation Sync
+npm run sync:all                     # Sync all documentation
+npm run sync:confluence              # Sync to Confluence only
+npm run sync:google-docs             # Sync to Google Docs only
 ```
 
-### Port conflicts
-```bash
-# Check what's using port 3000
-lsof -i :3000
+## Getting Help
 
-# Kill process
-kill -9 <PID>
+### Debug Mode
+Add `DEBUG=true` to any command for verbose logging:
+```bash
+DEBUG=true npm run jira:poll
 ```
 
-### Environment issues
-```bash
-# Verify .env.local exists
-cat .env.local | grep RAILWAY_API_TOKEN
+### Log Files
+- Calendar executions: `logs/calendar-task-execution.log`
+- Console output for Jira executions
+- Service connection logs in console
 
-# Reload environment
-npm run claude:login
-```
+### Common Patterns
+- **File naming**: Use descriptive names with proper extensions
+- **Path specification**: Always relative to project root
+- **Content description**: Be specific about what content to include
+- **Scheduling**: Allow buffer time for system processing
 
-## 📚 Full Documentation
-
-### 📖 Main Documentation Hub
-- **[Complete Documentation Index](tools/docs/README.md)** - Full documentation navigation
-
-### Service Management
-- [CAS Startup Utility](tools/docs/usage/cas-startup.md) - Service orchestration
-- [Shell Aliases Setup](tools/docs/usage/aliases.md) - Command shortcuts
-- [Command Reference](tools/docs/usage/commands.md) - All command methods
-
-### Cloud Services Setup
-- [Cloud Services Overview](tools/docs/setup/cloud-services/overview.md) - Complete setup guide
-- [Railway Authentication](tools/docs/setup/cloud-services/railway.md) - Account vs Project Tokens
-- [Vercel Authentication](tools/docs/setup/cloud-services/vercel.md) - User vs Project Tokens
-- [Supabase Authentication](tools/docs/setup/cloud-services/supabase.md) - Anon vs Service Role Keys
-- [Stripe Authentication](tools/docs/setup/cloud-services/stripe.md) - Publishable vs Secret Keys
-
-### Database Setup
-- [Neo4j Setup](tools/docs/setup/databases/neo4j.md) - Graph database configuration
-- [Redis Setup](tools/docs/setup/databases/redis.md) - Cache & session storage
-
-### Architecture & Integration
-- [CAS Documentation](.ai/ARCHITECTURE.md) - Contextual Autonomous System
-- [Integration Guide](tools/integrations/README.md) - Third-party integrations
-
-## 🎯 Common Workflows
-
-### Daily Development Start
-```bash
-npm run claude:login
-# Choose option 1 (Start all)
-# Wait 30 seconds
-# Go to http://localhost:3000
-```
-
-### Testing Changes
-```bash
-# Unit tests
-npm run test:unit
-
-# E2E tests
-npm run test:e2e
-
-# Visual regression
-npm run visual-test
-```
-
-### Deploying to Production
-```bash
-# Backend to Railway
-npm run deploy:railway
-
-# Frontend to Vercel (production)
-npm run deploy:vercel:prod
-
-# Or deploy both
-npm run deploy:railway && npm run deploy:vercel:prod
-```
-
-### First-Time Cloud Service Setup
-
-**Railway (Backend):**
-1. Create Account Token: https://railway.app/account/tokens
-2. **Do NOT select a project** when creating
-3. Add to `.env.local`: `RAILWAY_API_TOKEN=your-token`
-4. Run: `npm run deploy:railway`
-
-**Vercel (Frontend):**
-1. Create User Token: https://vercel.com/account/tokens
-2. Add to `.env.local`: `VERCEL_TOKEN=your-token`
-3. Run: `npm run deploy:vercel`
-
-**Supabase (Database):**
-1. Get credentials: https://app.supabase.com/project/[ID]/settings/api
-2. Add to `.env.local`:
-   ```bash
-   NEXT_PUBLIC_SUPABASE_URL=https://[PROJECT_REF].supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
-   SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...  # Keep secret!
-   ```
-
-**Stripe (Payments):**
-1. Get test keys: https://dashboard.stripe.com/apikeys (Test mode)
-2. Add to `.env.local`:
-   ```bash
-   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
-   STRIPE_SECRET_KEY=sk_test_...  # Keep secret!
-   ```
-3. For production, switch to Live mode keys
-
----
-
-**Happy Coding! 🚀**
+You're now ready to schedule and execute remote tasks using the Tutorwise automation system!
