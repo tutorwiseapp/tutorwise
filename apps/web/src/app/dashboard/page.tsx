@@ -18,15 +18,40 @@ import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import styles from './page.module.css';
 
-const dashboardLinks = [
-    { href: '/referral-activities', title: 'My Activity', description: 'Track results of Vinite links from create, share, convert, and reward.', linkText: 'View My Activity' },
-    { href: '/transaction-history', title: 'Referral Earnings', description: 'View referral commission payouts received.', linkText: 'View Earnings' },
-    { href: '/payments', title: 'Payments', description: 'Connect your bank account via Stripe to receive commission payouts.', linkText: 'Manage Payments' },
-    { href: '/', title: 'Generate a Link', description: 'Create a new Vinite link to refer anything to anyone.', linkText: 'Generate Link' },
+// Role-specific dashboard links
+const getDashboardLinks = (role: string) => {
+  const commonLinks = [
     { href: '/profile', title: 'My Profile', description: 'Update your public-facing profile information.', linkText: 'Edit Profile' },
     { href: '/settings', title: 'Settings', description: 'Manage account settings and notifications.', linkText: 'Go to Settings' },
-    { href: '/become-provider', title: 'Become a Provider', description: 'List your service on Vinite to accept referrals and get new customers.', linkText: 'List Your Service' },
-];
+  ];
+
+  const providerLinks = [
+    { href: '/listings', title: 'My Listings', description: 'View and manage your tutoring service listings.', linkText: 'View Listings', highlight: true },
+    { href: '/listings/create', title: 'Create New Listing', description: 'Create a new service listing to attract students.', linkText: 'Create Listing', highlight: true },
+    { href: '/marketplace', title: 'Browse Marketplace', description: 'See how your listings appear to students.', linkText: 'View Marketplace' },
+    ...commonLinks,
+  ];
+
+  const seekerLinks = [
+    { href: '/marketplace', title: 'Find Tutors', description: 'Browse and connect with qualified tutors.', linkText: 'Browse Tutors', highlight: true },
+    { href: '/bookings', title: 'My Bookings', description: 'View your upcoming and past tutoring sessions.', linkText: 'View Bookings' },
+    ...commonLinks,
+  ];
+
+  const agentLinks = [
+    { href: '/referral-activities', title: 'My Activity', description: 'Track results of your referral links.', linkText: 'View Activity' },
+    { href: '/transaction-history', title: 'Referral Earnings', description: 'View referral commission payouts received.', linkText: 'View Earnings' },
+    { href: '/payments', title: 'Payments', description: 'Connect your bank account via Stripe to receive payouts.', linkText: 'Manage Payments' },
+    ...commonLinks,
+  ];
+
+  switch (role) {
+    case 'provider': return providerLinks;
+    case 'seeker': return seekerLinks;
+    case 'agent': return agentLinks;
+    default: return commonLinks;
+  }
+};
 
 const DashboardPage = () => {
   const { profile, activeRole, isLoading, needsOnboarding } = useUserProfile();
@@ -75,16 +100,51 @@ const DashboardPage = () => {
     }
   };
 
+  const dashboardLinks = getDashboardLinks(activeRole);
+
+  // Welcome message for new users
+  const getWelcomeMessage = () => {
+    switch (activeRole) {
+      case 'provider':
+        return 'Ready to start teaching? Create your first listing to connect with students!';
+      case 'seeker':
+        return 'Find the perfect tutor to help you achieve your learning goals!';
+      case 'agent':
+        return 'Start referring services and earning commissions!';
+      default:
+        return 'Your dashboard is ready to use!';
+    }
+  };
+
   return (
     <Container>
       <PageHeader
         title={getDashboardTitle()}
         subtitle={`Welcome, ${firstName} (${getFormattedRole()})`}
       />
+
+      {/* Welcome banner for new users */}
+      <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          🎉 Onboarding Complete!
+        </h2>
+        <p className="text-gray-700 text-lg">
+          {getWelcomeMessage()}
+        </p>
+      </div>
+
       <div className={styles.grid}>
         {dashboardLinks.map((link) => (
-          <div key={link.href} className={styles.gridCard}>
+          <div
+            key={link.href}
+            className={`${styles.gridCard} ${(link as any).highlight ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}
+          >
             <div className={styles.cardContent}>
+              {(link as any).highlight && (
+                <span className="inline-block mb-2 px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded-full">
+                  ⭐ Recommended
+                </span>
+              )}
               <h3>{link.title}</h3>
               <p>{link.description}</p>
             </div>
