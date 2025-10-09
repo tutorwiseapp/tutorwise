@@ -221,14 +221,16 @@ tutorwise/
 
 | Agent | Role | Focus | Week 2 Status |
 |-------|------|-------|---------------|
-| **Planner** | Project Manager | Sprint planning, coordination | ✅ 8/8 todos completed (100%) |
-| **Analyst** | Business Analyst | Requirements, research | ✅ Requirements delivered |
-| **Developer** | Software Developer | **Feature development** | ✅ 2 forms \| 751 LOC \| 89.71% coverage |
+| **Planner** | Strategic PDM (Product Delivery Manager) | **Product vision, roadmap, prioritization** + execution | ✅ 8/8 todos (100%) |
+| **Analyst** | Product Analyst | **Market research, competitive analysis** + requirements | ✅ Requirements delivered |
+| **Developer** | Software Developer | Feature development (forms, components, logic) | ✅ 2 forms \| 751 LOC \| 89.71% |
 | **Tester** | QA Tester | Test automation, validation | ✅ 48 tests \| 100% passing |
 | **QA** | QA Engineer | Quality assurance, visual testing | ✅ 29 Storybook stories |
 | **Security** | Security Engineer | Security audits, vulnerability scanning | 🟡 Week 3 activation |
-| **Engineer** | AI-DevOps Engineer | **System engineering** (design, deploy, monitor) | ✅ API operational |
-| **Marketer** | Marketing Manager | Analytics, growth strategy | 🔴 Week 3+ activation |
+| **Engineer** | AI-DevOps Engineer | System engineering (APIs, deploy, monitor, support) | ✅ API operational |
+| **Marketer** | Growth & Analytics Manager | **Usage analytics, feedback collection** → feeds Analyst | 🔴 Week 3+ activation |
+
+**Strategic Feedback Loop:** Marketer (data) → Analyst (insights) → Planner (decisions) → Development → Marketer (measure) ♻️
 
 **AI Velocity**: Week 2 delivered in 1 day what traditionally takes 5 days (400% faster)
 
