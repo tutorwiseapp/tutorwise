@@ -16,10 +16,14 @@ export default function PublicProfilePage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadProfile();
-  }, [params.id]);
+    if (params?.id) {
+      loadProfile();
+    }
+  }, [params?.id]);
 
   const loadProfile = async () => {
+    if (!params?.id) return;
+
     setIsLoading(true);
     setError(null);
 
