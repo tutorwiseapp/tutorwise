@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Container from '@/app/components/layout/Container';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
-import { getListingById } from '@/lib/api/listings';
+import { getListing } from '@/lib/api/listings';
 import type { Listing } from '@tutorwise/shared-types';
 import { toast } from 'sonner';
 
@@ -22,7 +22,7 @@ export default function ListingDetailsPage() {
   const loadListing = async () => {
     setIsLoading(true);
     try {
-      const data = await getListingById(params.id as string);
+      const data = await getListing(params.id as string);
       setListing(data);
     } catch (error) {
       console.error('Failed to load listing:', error);
