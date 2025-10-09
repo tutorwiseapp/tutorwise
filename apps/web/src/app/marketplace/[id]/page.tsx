@@ -188,7 +188,7 @@ export default function ListingDetailsPage() {
                       <div className="mt-3">
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
                           🎁 Free Trial Available
-                          {listing.trial_duration && ` (${listing.trial_duration} mins)`}
+                          {listing.trial_duration_minutes && ` (${listing.trial_duration_minutes} mins)`}
                         </span>
                       </div>
                     )}
