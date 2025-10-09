@@ -13,8 +13,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { z } from 'zod';
 import type { Profile } from '@/types';
-import { useUserProfile } from '@/app/contexts/UserProfileContext'; // --- THIS IS THE FIX ---
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
 
 import ProfileSidebar from '@/app/components/ui/profile/ProfileSidebar';
 import Container from '@/app/components/layout/Container';
@@ -26,6 +27,14 @@ import Message from '@/app/components/ui/Message';
 import Tabs from '@/app/components/ui/Tabs';
 import Card from '@/app/components/ui/Card';
 import styles from './page.module.css';
+
+// Validation schema
+const profileSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters').optional(),
+  email: z.string().email('Invalid email address').optional(),
+  phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number format').optional().or(z.literal('')),
+  bio: z.string().max(500, 'Bio must be 500 characters or less').optional(),
+});
 
 const ProfilePageSkeleton = () => (
     <Container>
@@ -69,28 +78,94 @@ const ProfilePage = () => {
     setFormData(prev => ({ ...prev, [id]: value }));
   };
 
-  const handleAvatarUpload = async () => {
-    setMessage({ text: 'Avatar upload functionality is being migrated.', type: 'warning' });
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      setMessage({ text: 'Image must be less than 5MB', type: 'error' });
+      return;
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setMessage({ text: 'Only JPEG, PNG, and WebP images allowed', type: 'error' });
+      return;
+    }
+
+    // For now, show a coming soon message with better UX
+    setMessage({
+      text: `Image "${file.name}" validated successfully! Avatar upload feature coming soon.`,
+      type: 'warning'
+    });
+
+    // TODO: Implement Supabase Storage upload
+    // const supabase = createClient();
+    // ... upload logic ...
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile) return;
+
+    // Validate form data
+    try {
+      profileSchema.parse(formData);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setMessage({
+          text: err.errors[0].message,
+          type: 'error'
+        });
+        window.scrollTo(0, 0);
+        return;
+      }
+    }
+
     setIsSaving(true);
     setMessage(null);
+
     try {
       const response = await fetch('/api/profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-      if (!response.ok) throw new Error('Failed to update profile.');
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+
+        // Specific error messages based on status code
+        if (response.status === 400) {
+          throw new Error(`Validation error: ${errorData.message || 'Invalid data'}`);
+        } else if (response.status === 401) {
+          throw new Error('Session expired. Please log in again.');
+        } else if (response.status === 403) {
+          throw new Error('You do not have permission to update this profile.');
+        } else if (response.status === 500) {
+          throw new Error('Server error. Please try again later.');
+        } else {
+          throw new Error('Failed to update profile. Please try again.');
+        }
+      }
+
       setMessage({ text: 'Profile updated successfully!', type: 'success' });
+
+      // Optionally reload profile data from context
+      // This ensures UI reflects latest data
     } catch (err) {
-      setMessage({ text: `Error updating profile: ${(err as Error).message}`, type: 'error' });
+      const errorMessage = (err as Error).message;
+      console.error('Profile save error:', errorMessage);
+
+      setMessage({
+        text: errorMessage,
+        type: 'error'
+      });
     } finally {
       setIsSaving(false);
-      window.scrollTo(0, 0);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 

@@ -77,7 +77,7 @@ export default function TutorProfessionalInfoForm() {
             setHourlyRateMax(templateData.hourly_rate.toString());
           }
 
-          setQualifications(templateData.qualifications || ['']);
+          setQualifications(templateData.qualifications && templateData.qualifications.length > 0 ? templateData.qualifications : ['']);
           setCertifications(templateData.specializations || []);
           setTeachingMethods(templateData.teaching_methods || []);
           setSpecializations(templateData.specializations || []);
@@ -154,7 +154,6 @@ export default function TutorProfessionalInfoForm() {
         teaching_methods: teachingMethods,
         specializations: certifications
       });
-
       toast.success('✅ Template saved. Changes won\'t affect your existing listings.');
     } catch (error) {
       console.error('Error saving template:', error);

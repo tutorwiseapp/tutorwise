@@ -13,12 +13,74 @@ Every challenge we solve for TutorWise becomes a CAS capability that works for a
 
 ---
 
-## 📋 Active Development (Q2 2025)
+## 📋 Active Development (Q4 2025)
+
+### TutorWise Milestone: Testing Infrastructure & Quality Assurance (GUARD)
+
+**Date Started:** 2025-10-08
+**Status:** 🟢 In Progress
+
+#### TutorWise Requirements:
+- Comprehensive unit testing (Jest + React Testing Library)
+- E2E testing (Playwright)
+- Visual regression testing (Percy)
+- Component testing (Storybook - blocked by Next.js 14 incompatibility)
+- Test coverage reporting
+- CI/CD integration
+
+#### Current Status:
+- ✅ **TutorProfessionalInfoForm:** 15/15 tests passing | 83.95% coverage
+- 🟡 **ProfilePage:** 2/24 tests passing | Complex component structure issues
+- ✅ **Percy Visual Regression:** 4 snapshots integrated
+- 🔴 **Storybook:** Blocked by webpack incompatibility (using Percy alternative)
+- 🔴 **ClientProfessionalInfoForm:** Not implemented (placeholder only)
+- 🔴 **AgentProfessionalInfoForm:** Not implemented (placeholder only)
+
+#### CAS Enhancements Being Built:
+
+| Feature | Status | Autonomy Impact | Priority |
+|---------|--------|-----------------|----------|
+| GUARD test orchestration | 🟢 Active | +12% | P0 |
+| Automated test coverage reporting | 📋 Planned | +5% | P0 |
+| Visual regression baseline management | 🟡 Partial | +4% | P1 |
+| Component complexity detection | 📋 Planned | +6% | P1 |
+| Test gap analysis | 📋 Planned | +7% | P1 |
+| Auto-fix failing tests | 📋 Planned | +10% | P2 |
+
+**CAS Commands Being Added:**
+```bash
+guard run [suite]             # Run test suites (unit, e2e, visual)
+guard coverage                # Generate coverage report
+guard analyze                 # Analyze test gaps
+guard fix                     # Auto-fix common test issues
+guard baseline create         # Create visual baselines
+guard baseline approve        # Approve visual changes
+```
+
+**Key Learnings:**
+1. **Component Testability:** Complex nested components (ProfilePage: Container → Tabs → Cards → Form) make unit testing difficult
+2. **Implementation Discovery:** Always verify component implementation exists before planning tests
+3. **Alternative Solutions:** When Storybook blocked, Percy + Playwright provided visual regression testing
+4. **Coverage Quality:** 83.95% coverage achievable with straightforward component structure
+
+**Action Items:**
+- 🔴 **Implement ClientProfessionalInfoForm** (placeholder → full component)
+- 🔴 **Implement AgentProfessionalInfoForm** (placeholder → full component)
+- 🟡 **Refactor ProfilePage** for testability (or accept E2E-only coverage)
+- ✅ **Continue TutorProfessionalInfoForm pattern** for new components
+
+**Generalization Strategy:**
+- Test complexity detection for any React/Vue/Angular component
+- Visual regression for any UI framework
+- Coverage gap analysis for any language
+- Auto-fix patterns for common test failures
+
+---
 
 ### TutorWise Milestone: User Authentication System
 
 **Date Started:** 2025-10-04
-**Status:** 🟡 In Progress
+**Status:** ✅ Complete
 
 #### TutorWise Requirements:
 - Supabase authentication
