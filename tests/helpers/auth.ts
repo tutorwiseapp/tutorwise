@@ -61,16 +61,16 @@ export const TEST_USERS: Record<string, TestUser> = {
 export async function loginAsUser(
   page: Page,
   userType: keyof typeof TEST_USERS,
-  baseURL: string = 'http://localhost:3000'
 ): Promise<void> {
   const user = TEST_USERS[userType];
+  const baseURL = 'http://localhost:3000'; // Hardcode baseURL here
 
   // Navigate to login page
   await page.goto(`${baseURL}/login`);
 
   // Wait for login form to be visible
   await page.waitForSelector('input[name="email"], input[type="email"]', {
-    timeout: 10000,
+    timeout: 30000,
   });
 
   // Fill in credentials

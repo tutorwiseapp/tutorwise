@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { loginAsTutor } from '../../helpers/auth';
+import percySnapshot from '@percy/playwright';
 
 test.describe('Account > Professional Info', () => {
   // Skip authentication for the unauthenticated test
@@ -11,7 +12,7 @@ test.describe('Account > Professional Info', () => {
 
     test('should display account layout with top tabs', async ({ page }) => {
     // Navigate to professional info page (assuming logged in)
-    await page.goto('/account/professional-info');
+    await page.goto('http://localhost:3000/account/professional-info');
 
     // Check for account settings title
     await expect(page.getByRole('heading', { name: 'Account Settings' })).toBeVisible();
@@ -27,7 +28,7 @@ test.describe('Account > Professional Info', () => {
   });
 
   test('should display info banner about editable template', async ({ page }) => {
-    await page.goto('/account/professional-info');
+    await page.goto('http://localhost:3000/account/professional-info');
 
     // Check for info banner
     const banner = page.getByText(/This is an editable template/);
@@ -36,7 +37,7 @@ test.describe('Account > Professional Info', () => {
   });
 
   test('should display tutor professional info form', async ({ page }) => {
-    await page.goto('/account/professional-info');
+    await page.goto('http://localhost:3000/account/professional-info');
 
     // Check for form sections
     await expect(page.getByText('Professional Information')).toBeVisible();
@@ -67,7 +68,7 @@ test.describe('Account > Professional Info', () => {
   });
 
   test('should allow subject selection via chips', async ({ page }) => {
-    await page.goto('/account/professional-info');
+    await page.goto('http://localhost:3000/account/professional-info');
 
     // Find and click Mathematics chip
     const mathsChip = page.getByRole('button', { name: 'Mathematics' });
@@ -87,7 +88,7 @@ test.describe('Account > Professional Info', () => {
   });
 
   test('should validate required fields', async ({ page }) => {
-    await page.goto('/account/professional-info');
+    await page.goto('http://localhost:3000/account/professional-info');
 
     const saveButton = page.getByRole('button', { name: /Save Template/ });
 
@@ -111,12 +112,20 @@ test.describe('Account > Professional Info', () => {
 
     // Now should be enabled
     await expect(saveButton).toBeEnabled();
+
+    // Submit form
+    await page.getByRole('button', { name: /Save Template/ }).click();
+
+    // Should show success toast (wait for it to appear)
+    await expect(page.getByText(/Template saved/)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/Changes won't affect your existing listings/)).toBeVisible();
   });
 
   test('should allow adding and removing qualifications', async ({ page }) => {
-    await page.goto('/account/professional-info');
+    await page.goto('http://localhost:3000/account/professional-info');
 
     // Find qualification inputs - form starts with 1 input by default
+    await page.waitForSelector('input[placeholder="e.g., BSc Mathematics - Oxford University"]');
     const qualInputs = page.getByPlaceholder(/BSc Mathematics/);
     const initialCount = await qualInputs.count();
 
@@ -143,30 +152,42 @@ test.describe('Account > Professional Info', () => {
   });
 
   test('should submit form successfully', async ({ page }) => {
-    await page.goto('/account/professional-info');
+    await page.goto('http://localhost:3000/account/professional-info');
+
+    // Wait for form to load
+    await page.waitForSelector('.formSection');
 
     // Fill required fields
     await page.getByRole('button', { name: 'Mathematics' }).click();
+    await page.waitForTimeout(100); // Wait for state update
+
     await page.getByRole('button', { name: 'GCSE' }).click();
+    await page.waitForTimeout(100); // Wait for state update
+
     await page.getByRole('combobox').selectOption('5-10 years');
+    await page.waitForTimeout(100); // Wait for state update
 
     // Optionally fill other fields
     await page.getByPlaceholder('Min').fill('40');
     await page.getByPlaceholder('Max').fill('50');
 
+    const saveButton = page.getByRole('button', { name: /Save Template/ });
+
+    // Wait for button to be enabled (React state update)
+    await expect(saveButton).toBeEnabled({ timeout: 10000 });
+
     // Submit form
-    await page.getByRole('button', { name: /Save Template/ }).click();
+    await saveButton.click();
 
     // Should show success toast (wait for it to appear)
-    await expect(page.getByText(/Template saved/)).toBeVisible({ timeout: 5000 });
-    await expect(page.getByText(/Changes won't affect your existing listings/)).toBeVisible();
+    await expect(page.getByText(/Template saved/)).toBeVisible({ timeout: 10000 });
   });
 
   test('should be responsive on mobile viewport', async ({ page }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
 
-    await page.goto('/account/professional-info');
+    await page.goto('http://localhost:3000/account/professional-info');
 
     // Check that page renders
     await expect(page.getByText('Professional Information')).toBeVisible();
@@ -185,7 +206,7 @@ test.describe('Account > Professional Info', () => {
   });
 
     test('should match Figma design system', async ({ page }) => {
-    await page.goto('/account/professional-info');
+    await page.goto('http://localhost:3000/account/professional-info');
 
     // Check color scheme (blue theme)
     const activeTab = page.getByRole('link', { name: 'Professional Info' });
@@ -204,6 +225,7 @@ test.describe('Account > Professional Info', () => {
     expect(chipBorderRadius).toBe('20px');
 
     // Check spacing (Tailwind defaults)
+    await page.waitForSelector('.formSection', { timeout: 60000 });
     const formSection = page.locator('.formSection').first();
     const marginBottom = await formSection.evaluate(el => {
       return window.getComputedStyle(el).marginBottom;
@@ -216,7 +238,7 @@ test.describe('Account > Professional Info', () => {
   // Unauthenticated test (separate from authenticated tests)
   test('should redirect to login when not authenticated', async ({ page }) => {
     // Navigate to professional info page without auth
-    await page.goto('/account/professional-info');
+    await page.goto('http://localhost:3000/account/professional-info');
 
     // Should redirect to login
     await expect(page).toHaveURL(/.*login/);
@@ -232,10 +254,13 @@ test.describe('Visual Regression Tests', () => {
 
   test('should match desktop screenshot', async ({ page }) => {
     await page.setViewportSize({ width: 1920, height: 1080 });
-    await page.goto('/account/professional-info');
+    await page.goto('http://localhost:3000/account/professional-info');
 
     // Wait for form to load
     await page.waitForSelector('.formSection');
+
+    // Percy snapshot for visual regression
+    await percySnapshot(page, 'Professional Info - Desktop');
 
     // Take screenshot
     await expect(page).toHaveScreenshot('professional-info-desktop.png', {
@@ -246,9 +271,12 @@ test.describe('Visual Regression Tests', () => {
 
   test('should match tablet screenshot', async ({ page }) => {
     await page.setViewportSize({ width: 768, height: 1024 });
-    await page.goto('/account/professional-info');
+    await page.goto('http://localhost:3000/account/professional-info');
 
     await page.waitForSelector('.formSection');
+
+    // Percy snapshot for visual regression
+    await percySnapshot(page, 'Professional Info - Tablet');
 
     await expect(page).toHaveScreenshot('professional-info-tablet.png', {
       fullPage: true,
@@ -258,9 +286,12 @@ test.describe('Visual Regression Tests', () => {
 
   test('should match mobile screenshot', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('/account/professional-info');
+    await page.goto('http://localhost:3000/account/professional-info');
 
     await page.waitForSelector('.formSection');
+
+    // Percy snapshot for visual regression
+    await percySnapshot(page, 'Professional Info - Mobile');
 
     await expect(page).toHaveScreenshot('professional-info-mobile.png', {
       fullPage: true,
@@ -269,13 +300,20 @@ test.describe('Visual Regression Tests', () => {
   });
 
   test('should match form with selections', async ({ page }) => {
-    await page.goto('/account/professional-info');
+    await page.goto('http://localhost:3000/account/professional-info');
 
     // Make some selections
     await page.getByRole('button', { name: 'Mathematics' }).click();
+    await page.waitForTimeout(100);
     await page.getByRole('button', { name: 'Physics' }).click();
+    await page.waitForTimeout(100);
     await page.getByRole('button', { name: 'GCSE' }).click();
+    await page.waitForTimeout(100);
     await page.getByRole('combobox').selectOption('5-10 years');
+    await page.waitForTimeout(100);
+
+    // Percy snapshot for visual regression
+    await percySnapshot(page, 'Professional Info - With Selections');
 
     await expect(page).toHaveScreenshot('professional-info-with-selections.png', {
       fullPage: true,

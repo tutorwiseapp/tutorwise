@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import API routes
-from app.api import dev_routes, health, account
+from app.api import dev_routes, health, account, onboarding
 
 # Import database management functions
 from app.db import shutdown_database_connections, startup_database_connections
@@ -71,6 +71,7 @@ app.add_middleware(
 app.include_router(health.router)
 app.include_router(dev_routes.router)
 app.include_router(account.router)
+app.include_router(onboarding.router, prefix="/api/onboarding", tags=["onboarding"])
 
 @app.get("/", tags=["Root"])
 def read_root():
