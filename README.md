@@ -70,47 +70,61 @@ npm run quality:check    # Linting + tests + build verification
 
 ## Architecture
 
-### Monorepo Structure
+### 3-Tier Monorepo Architecture
 
 ```
 tutorwise/
-├── apps/
+├── apps/                 # 📱 Applications
 │   ├── web/              # Next.js 14 frontend (TypeScript, Tailwind)
-│   │   └── src/
-│   │       ├── app/      # Next.js App Router pages & API routes
-│   │       ├── lib/      # Utilities and helpers
-│   │       └── middleware.ts  # Auth & route protection
+│   │   ├── src/app/      # App Router pages & API routes
+│   │   ├── src/lib/      # Utilities and helpers
+│   │   └── tests/        # Unit tests (Jest + RTL)
 │   └── api/              # FastAPI backend (Python, PostgreSQL, Redis)
-├── packages/
-│   ├── shared-types/     # Shared TypeScript definitions
-│   ├── shared/           # Shared utilities (config, stripe, supabase, etc.)
-│   └── ui/               # Reusable component library (future)
-├── cas/                  # Contextual Autonomous System
-│   ├── packages/         # CAS core, agent, SADD
-│   ├── apps/             # CAS CLI tools
-│   ├── docs/             # CAS documentation
-│   └── config/           # Application & service registry
-├── tools/
-│   ├── scripts/          # Build automation, deployment, monitoring
-│   │   ├── deployment/   # Railway & Vercel deploy scripts
-│   │   ├── security/     # Credential backup & protection
-│   │   ├── monitoring/   # Health checks & audits
-│   │   └── setup/        # Environment setup utilities
-│   ├── rbac/             # AI permission system
-│   ├── playwright/       # E2E testing config
-│   └── integrations/     # Third-party service configs
-├── tests/                # Centralized testing
-│   ├── unit/             # Jest unit tests
+│       ├── app/          # FastAPI application
+│       └── tests/        # Backend tests (pytest)
+│
+├── cas/                  # 🤖 AI Tooling & Workflows
+│   ├── agents/           # 8 specialized AI agents
+│   │   ├── planner/      # Project Manager
+│   │   ├── analyst/      # Business Analyst
+│   │   ├── developer/    # Software Developer
+│   │   ├── tester/       # QA Tester
+│   │   ├── qa/           # QA Engineer
+│   │   ├── security/     # Security Engineer
+│   │   ├── engineer/     # System Engineer
+│   │   └── marketer/     # Marketing Manager
+│   ├── tools/            # CAS utilities
+│   │   ├── testing/      # Test automation scripts
+│   │   ├── automation/   # Workflow automation
+│   │   ├── monitoring/   # Health monitoring
+│   │   ├── security/     # Security tooling
+│   │   └── utilities/    # General utilities
+│   ├── process/          # QA & development workflows
+│   └── docs/             # CAS documentation
+│
+├── packages/             # 📦 Shared Packages
+│   ├── shared-types/     # TypeScript definitions
+│   └── shared/           # Utilities (config, stripe, supabase)
+│
+├── tests/                # 🧪 Cross-App Testing
+│   ├── e2e/              # Playwright E2E tests
 │   ├── integration/      # Integration tests
-│   └── e2e/              # Playwright E2E tests
-├── docs/                 # Comprehensive documentation
-│   ├── development/      # Dev guides & processes
-│   ├── deployment/       # Deployment procedures
-│   ├── features/         # Feature specifications
-│   ├── ai/               # Gemini AI integration docs
-│   └── security/         # Security policies & guides
-├── human/                # Product engineer notes & artifacts
-└── process/              # Process-related documentation
+│   ├── helpers/          # Shared test utilities
+│   └── playwright.config.ts
+│
+├── tools/                # 🔧 Shared Dev Infrastructure
+│   ├── scripts/          # Deployment, setup scripts
+│   ├── configs/          # Shared configurations
+│   ├── database/         # DB utilities
+│   ├── rbac/             # AI permission system
+│   └── docs/             # Tool documentation
+│
+└── docs/                 # 📚 Documentation
+    ├── development/      # Dev guides
+    ├── testing/          # Test strategies
+    ├── deployment/       # Deployment procedures
+    ├── integration/      # Third-party integrations
+    └── archive/          # Historical docs & sessions
 ```
 
 ### Tech Stack
@@ -348,23 +362,23 @@ REDIS_URL=your_redis_url
 ### Documentation Structure
 ```
 docs/
-├── development/         # Development processes & guides
-├── deployment/          # Deployment procedures & notes
-├── features/            # Feature specifications & roadmaps
-├── ai/                  # Gemini AI integration documentation
-├── security/            # Security policies & credential management
-├── requirements/        # Business requirements
-├── design/              # UI/UX and system design (Figma exports)
-├── testing/             # Test strategies & plans
-├── integration/         # Third-party integrations
+├── development/         # Dev guides & processes
+├── testing/             # Test strategies (Storybook, Percy, E2E)
+├── deployment/          # Deployment procedures
+├── integration/         # Third-party integrations (Vinite, etc)
+├── ai/                  # AI integration documentation
+├── security/            # Security policies
 ├── infrastructure/      # Infrastructure setup
-├── tools/               # Tool configurations & status
-└── project-audit/       # Automated audit reports
+├── project-management/  # Project strategy & roadmaps
+└── archive/             # Historical docs
+    ├── sessions/        # Development session summaries
+    ├── reports/         # Completion reports
+    └── guard-tests/     # Legacy GUARD test infrastructure
 
 cas/docs/
 ├── guides/              # CAS implementation guides
-├── sadd/                # SADD (Software Application Discovery) docs
-└── *.md                 # Architecture, consolidation, quick-start guides
+├── context-engineering/ # Context engineering docs
+└── *.md                 # Architecture & quick-start guides
 ```
 
 ### Documentation Philosophy

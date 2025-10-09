@@ -48,16 +48,6 @@ cas/
 │   │   ├── planning/
 │   │   │   └── cas-feature-dev-plan.md    # ← Auto-maintained
 │   │   └── implementation/
-├── tools/                          # 🔧 CAS Tooling & Utilities
-│   ├── testing/                    # Test automation scripts
-│   ├── automation/                 # Workflow automation
-│   ├── monitoring/                 # Health monitoring
-│   ├── security/                   # Security tooling
-│   └── utilities/                  # General utilities
-├── process/                        # 📋 QA & Development Workflows
-│   ├── daily-routines/             # Daily development tasks
-│   ├── development-workflows/      # Development processes
-│   └── *.md                        # Process documentation
 │   ├── tester/                     # QA Tester
 │   │   ├── README.md
 │   │   └── test-suites/
@@ -77,27 +67,43 @@ cas/
 │       ├── README.md
 │       └── analytics/
 │
-├── core/                          # Core System Components
-│   ├── orchestrator.ts            # Planner coordination
-│   ├── context.ts                 # Shared context
-│   └── communication.ts           # Inter-agent messaging
+├── tools/                          # 🔧 CAS Tooling & Utilities
+│   ├── testing/                    # Test automation scripts
+│   │   ├── test-jira-fields.js
+│   │   ├── test-role-management.js
+│   │   └── test-role-comprehensive.js
+│   ├── automation/                 # Workflow automation
+│   │   ├── google-calendar-service.sh
+│   │   ├── google-calendar-task-executor.js
+│   │   └── jira-task-executor.js
+│   ├── monitoring/                 # Health monitoring
+│   │   ├── health-check.sh
+│   │   ├── project-audit.sh
+│   │   └── run-daily-audit.sh
+│   ├── security/                   # Security tooling
+│   │   ├── backup-credentials.sh
+│   │   ├── google-secret-manager-setup.sh
+│   │   └── migrate-secrets-to-gcp.sh
+│   └── utilities/                  # General utilities
+│       ├── gemini-wrapper.js
+│       ├── screenshot.js
+│       └── test-integrations.js
 │
-├── tools/                         # Shared Tooling
-│   └── test/                      # Testing tools (formerly guard/)
-│       ├── unit/
-│       ├── e2e/
-│       └── visual/
+├── process/                        # 📋 QA & Development Workflows
+│   ├── daily-routines/             # Daily development tasks
+│   │   └── development-operations.md
+│   ├── development-workflows/      # Development processes
+│   │   └── autonomous-ai-development.md
+│   ├── FIGMA-DESIGN-COMPLIANCE.md
+│   ├── POST-DEPLOYMENT-VERIFICATION.md
+│   ├── TEST-STRATEGY-COMPLETE.md
+│   └── TESTING-QA-PROCESS.md
 │
-├── docs/                          # Documentation
-│   ├── README.md
-│   ├── ENHANCED-CAS-AI-PRODUCT-TEAM.md    # Full architecture guide
-│   ├── WEEK-2-SUMMARY.md                   # Week 2 completion summary
-│   └── guides/
-│       └── CAS-IMPLEMENTATION-TRACKER.md
-│
-└── config/                        # Configuration
-    ├── cas.config.ts              # System config
-    └── agents.config.ts           # Agent definitions
+└── docs/                           # 📚 CAS Documentation
+    ├── README.md
+    ├── context-engineering.md
+    ├── autonomous-task-scheduling.md
+    └── remote-task-scheduling-howto.md
 ```
 
 ---
