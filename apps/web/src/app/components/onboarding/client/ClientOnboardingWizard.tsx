@@ -235,9 +235,8 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
       case 'completion':
         return (
           <CompletionStep
-            roleType="seeker"
-            userName={profile?.first_name || profile?.display_name || 'there'}
-            onContinue={handleCompletionContinue}
+            selectedRoles={['seeker']}
+            onComplete={handleCompletionContinue}
           />
         );
 
