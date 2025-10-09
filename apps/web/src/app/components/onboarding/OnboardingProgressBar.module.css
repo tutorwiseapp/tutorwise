@@ -1,0 +1,198 @@
+.container {
+  width: 100%;
+  padding: 2rem 0;
+}
+
+.progressBarContainer {
+  width: 100%;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.progressBar {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 999px;
+}
+
+.stepsContainer {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.stepWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stepIndicator {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+.stepCircle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.stepCircle--completed {
+  background: #10b981;
+  color: white;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+.stepCircle--current {
+  background: #3b82f6;
+  color: white;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.stepCircle--upcoming {
+  background: white;
+  border: 2px solid #d1d5db;
+  color: #9ca3af;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 2px 16px rgba(59, 130, 246, 0.6);
+  }
+}
+
+.checkIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.stepNumber {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.stepConnector {
+  flex: 1;
+  height: 2px;
+  background: #e5e7eb;
+  margin: 0 -20px;
+  position: relative;
+  z-index: 1;
+  transition: background 0.3s ease;
+}
+
+.stepConnector--completed {
+  background: #10b981;
+}
+
+.stepLabel {
+  margin-top: 0.75rem;
+  text-align: center;
+  max-width: 150px;
+}
+
+.stepTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.stepTitle--completed {
+  color: #10b981;
+}
+
+.stepTitle--current {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.stepTitle--upcoming {
+  color: #9ca3af;
+}
+
+.stepDescription {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  line-height: 1.4;
+}
+
+.progressText {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin-top: 1rem;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1.5rem 0;
+  }
+
+  .stepCircle {
+    width: 32px;
+    height: 32px;
+  }
+
+  .checkIcon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .stepNumber {
+    font-size: 0.75rem;
+  }
+
+  .stepLabel {
+    max-width: 100px;
+  }
+
+  .stepTitle {
+    font-size: 0.75rem;
+  }
+
+  .stepDescription {
+    display: none;
+  }
+
+  .progressText {
+    font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .stepCircle {
+    width: 28px;
+    height: 28px;
+  }
+
+  .stepTitle {
+    font-size: 0.6875rem;
+  }
+
+  .stepLabel {
+    max-width: 80px;
+  }
+}
