@@ -16,10 +16,14 @@ export default function ListingDetailsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    loadListing();
-  }, [params.id]);
+    if (params?.id) {
+      loadListing();
+    }
+  }, [params?.id]);
 
   const loadListing = async () => {
+    if (!params?.id) return;
+
     setIsLoading(true);
     try {
       const data = await getListing(params.id as string);
