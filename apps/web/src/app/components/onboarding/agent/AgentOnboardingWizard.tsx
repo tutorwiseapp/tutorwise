@@ -177,7 +177,7 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
             years_in_business: agencyDetails.yearsInBusiness,
             description: agencyDetails.description,
             services: selectedServices,
-            commission_rate: capacity.commissionRate ? parseFloat(capacity.commissionRate) : undefined,
+            commission_rate: capacity.commissionRate || undefined,
             coverage_areas: capacity.serviceAreas,
             // Set default subject specializations and education levels
             subject_specializations: [],
