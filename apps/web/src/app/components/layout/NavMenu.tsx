@@ -115,25 +115,6 @@ const NavMenu = () => {
                 <DropdownMenu.Item asChild className={styles.menuItem}>
                   <Link href="/dashboard">Dashboard</Link>
                 </DropdownMenu.Item>
-
-                {/* Role-specific navigation */}
-                {activeRole === 'provider' && (
-                  <>
-                    <DropdownMenu.Item asChild className={styles.menuItem}>
-                      <Link href="/listings">📋 My Listings</Link>
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item asChild className={styles.menuItem}>
-                      <Link href="/listings/create">➕ Create Listing</Link>
-                    </DropdownMenu.Item>
-                  </>
-                )}
-
-                {activeRole === 'seeker' && (
-                  <DropdownMenu.Item asChild className={styles.menuItem}>
-                    <Link href="/marketplace">🔍 Find Tutors</Link>
-                  </DropdownMenu.Item>
-                )}
-
                 <DropdownMenu.Item asChild className={styles.menuItem}>
                   <Link href="/messages">Messages</Link>
                 </DropdownMenu.Item>
