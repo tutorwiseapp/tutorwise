@@ -115,8 +115,9 @@ const ProfilePage = () => {
       profileSchema.parse(formData);
     } catch (err) {
       if (err instanceof z.ZodError) {
+        const zodError = err as z.ZodError;
         setMessage({
-          text: err.errors[0].message,
+          text: zodError.errors[0].message,
           type: 'error'
         });
         window.scrollTo(0, 0);
