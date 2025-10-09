@@ -33,15 +33,15 @@ const getDashboardLinks = (role: string | null) => {
   ];
 
   const providerLinks = [
-    { href: '/listings', title: 'My Listings', description: 'View and manage your tutoring service listings.', linkText: 'View Listings', highlight: true },
-    { href: '/listings/create', title: 'Create New Listing', description: 'Create a new service listing to attract students.', linkText: 'Create Listing', highlight: true },
+    { href: '/listings', title: 'My Listings', description: 'View and manage your tutoring service listings.', linkText: 'View Listings' },
+    { href: '/listings/create', title: 'Create New Listing', description: 'Create a new service listing to attract students.', linkText: 'Create Listing' },
     { href: '/marketplace', title: 'Browse Marketplace', description: 'See how your listings appear to students.', linkText: 'View Marketplace' },
     ...referralLinks,
     ...commonLinks,
   ];
 
   const seekerLinks = [
-    { href: '/marketplace', title: 'Find Tutors', description: 'Browse and connect with qualified tutors.', linkText: 'Browse Tutors', highlight: true },
+    { href: '/marketplace', title: 'Find Tutors', description: 'Browse and connect with qualified tutors.', linkText: 'Browse Tutors' },
     { href: '/bookings', title: 'My Bookings', description: 'View your upcoming and past tutoring sessions.', linkText: 'View Bookings' },
     ...referralLinks,
     ...commonLinks,
@@ -49,9 +49,9 @@ const getDashboardLinks = (role: string | null) => {
 
   const agentLinks = [
     // Agents can do everything - they manage the platform
-    { href: '/marketplace', title: 'Find Tutors', description: 'Browse and connect with qualified tutors.', linkText: 'Browse Tutors', highlight: true },
-    { href: '/listings', title: 'My Listings', description: 'View and manage tutoring service listings.', linkText: 'View Listings', highlight: true },
-    { href: '/listings/create', title: 'Create New Listing', description: 'Create a new service listing.', linkText: 'Create Listing', highlight: true },
+    { href: '/marketplace', title: 'Find Tutors', description: 'Browse and connect with qualified tutors.', linkText: 'Browse Tutors' },
+    { href: '/listings', title: 'My Listings', description: 'View and manage tutoring service listings.', linkText: 'View Listings' },
+    { href: '/listings/create', title: 'Create New Listing', description: 'Create a new service listing.', linkText: 'Create Listing' },
     { href: '/bookings', title: 'My Bookings', description: 'View upcoming and past tutoring sessions.', linkText: 'View Bookings' },
     ...referralLinks,
     ...commonLinks,
@@ -137,16 +137,8 @@ const DashboardPage = () => {
 
       <div className={styles.grid}>
         {dashboardLinks.map((link) => (
-          <div
-            key={link.href}
-            className={`${styles.gridCard} ${(link as any).highlight ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}
-          >
+          <div key={link.href} className={styles.gridCard}>
             <div className={styles.cardContent}>
-              {(link as any).highlight && (
-                <span className="inline-block mb-2 px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded-full">
-                  ⭐ Recommended
-                </span>
-              )}
               <h3>{link.title}</h3>
               <p>{link.description}</p>
             </div>
