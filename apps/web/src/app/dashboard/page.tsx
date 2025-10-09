@@ -135,16 +135,6 @@ const DashboardPage = () => {
         subtitle={`Welcome, ${firstName} (${getFormattedRole()})`}
       />
 
-      {/* Welcome banner for new users */}
-      <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          🎉 Onboarding Complete!
-        </h2>
-        <p className="text-gray-700 text-lg">
-          {getWelcomeMessage()}
-        </p>
-      </div>
-
       <div className={styles.grid}>
         {dashboardLinks.map((link) => (
           <div
