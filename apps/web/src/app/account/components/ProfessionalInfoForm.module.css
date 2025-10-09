@@ -23,20 +23,28 @@
 
 /* Input Fields */
 .input,
-.select {
+.select,
+.textarea {
   width: 100%;
   padding: 0.625rem 0.875rem;
   border: 1px solid #d1d5db;
   border-radius: 6px;
   font-size: 0.938rem;
   transition: border-color 0.2s ease;
+  font-family: inherit;
 }
 
 .input:focus,
-.select:focus {
+.select:focus,
+.textarea:focus {
   outline: none;
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
 }
 
 .inlineInputs {

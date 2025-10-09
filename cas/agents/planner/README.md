@@ -1,0 +1,481 @@
+# Planner Agent - Project Manager
+
+**Role:** AI Project Manager & Team Coordinator
+**Responsibilities:** Sprint (or Kanban) planning, agent coordination, blocker resolution, progress tracking
+
+---
+
+## Overview
+
+The Planner agent acts as the autonomous project manager, coordinating all other CAS agents to ensure smooth workflow execution. It monitors progress, detects blockers, assigns work, and maintains project visibility.
+
+---
+
+## Core Responsibilities
+
+### 1. Sprint (or Kanban) Planning
+- Define sprint goals based on product roadmap
+- Break down features into agent-specific tasks
+- Estimate effort and timeline
+- Create sprint schedule
+
+### 2. Agent Coordination
+- Assign tasks to appropriate agents
+- Monitor agent progress
+- Detect dependencies and blockers
+- Facilitate inter-agent communication
+
+### 3. Workflow Orchestration
+- Execute multi-agent workflows
+- Ensure proper task sequencing
+- Handle parallel work streams
+- Manage handoffs between agents
+
+### 4. Progress Tracking
+- Monitor feature completion
+- Track sprint velocity
+- Generate status reports
+- Update stakeholders
+
+### 5. Blocker Resolution
+- Detect blocked work early
+- Identify root causes
+- Reassign or escalate as needed
+- Track resolution time
+
+---
+
+## Agent Coordination Matrix
+
+### Workflow: Feature Implementation
+
+```
+Planner
+  ↓
+Analyst (Requirements) → Developer (Implementation)
+                              ↓
+                         Tester (Validation)
+                              ↓
+                         QA (Quality Check)
+                              ↓
+                         Security (Scan) → Engineer (Deploy)
+                                                ↓
+                                           Marketer (Track)
+```
+
+### Communication Patterns
+
+| From → To | Purpose | Trigger |
+|-----------|---------|---------|
+| Planner → All | Task assignment | Sprint planning |
+| Agent → Planner | Status update | Task completion / blocker |
+| Developer → Tester | Code ready | Implementation complete |
+| Tester → Developer | Issues found | Tests failing |
+| QA → Engineer | Approved | QA passed |
+| Security → Planner | Vulnerabilities | Security scan complete |
+
+---
+
+## Key Functions
+
+### Task Assignment
+```typescript
+async assignTask(agent: AgentType, task: Task): Promise<void> {
+  // Check agent availability
+  const status = await this.getAgentStatus(agent);
+
+  if (status.busy) {
+    await this.queue(agent, task);
+  } else {
+    await this.send(agent, {
+      type: 'task_assigned',
+      task,
+      priority: task.priority,
+      dependencies: task.dependencies
+    });
+  }
+}
+```
+
+### Blocker Detection
+```typescript
+async detectBlockers(): Promise<Blocker[]> {
+  const agents = await this.getAllAgentStatuses();
+  const blockers = [];
+
+  // Check if tester blocked by incomplete developer work
+  if (agents.tester.blocked && agents.developer.incompleteTasks.length > 0) {
+    blockers.push({
+      blocked: 'tester',
+      blockedBy: 'developer',
+      reason: 'Incomplete implementation',
+      tasks: agents.developer.incompleteTasks
+    });
+  }
+
+  // Check if QA blocked by failing tests
+  if (agents.qa.waiting && agents.tester.failingTests.length > 0) {
+    blockers.push({
+      blocked: 'qa',
+      blockedBy: 'tester',
+      reason: 'Failing tests',
+      tests: agents.tester.failingTests
+    });
+  }
+
+  return blockers;
+}
+```
+
+### Progress Tracking
+```typescript
+async trackProgress(feature: string): Promise<Progress> {
+  const featurePlan = await this.loadPlan('cas-feature-dev-plan.md', feature);
+  const systemPlan = await this.loadPlan('cas-system-imp-plan.md', feature);
+
+  return {
+    feature,
+    developer: featurePlan.status,
+    tester: featurePlan.testResults,
+    qa: featurePlan.qaReview,
+    engineer: systemPlan.deploymentStatus,
+    overallProgress: this.calculateProgress(featurePlan, systemPlan)
+  };
+}
+```
+
+---
+
+## Example: Week 1 Coordination
+
+### Day 1-2: Profile Feature
+```
+Planner assigns:
+  ├─ Analyst: Verify requirements ✅
+  ├─ Developer: Implement ProfilePage ✅
+  └─ Security: Review validation logic ✅
+
+Developer reports: "ProfilePage complete"
+Planner detects: Tests incomplete
+Planner reassigns: Developer → Write tests
+
+Tester reports: "Tests written but low coverage (8%)"
+Planner decides: Accept E2E coverage, not blocking
+```
+
+### Day 3: TutorProfessionalInfoForm
+```
+Planner assigns:
+  ├─ Developer: Implement component ✅
+  ├─ Tester: Write unit tests ✅
+  └─ QA: Visual regression tests ✅
+
+Developer reports: "Implementation complete"
+Tester reports: "15/15 tests passing, 83.95% coverage"
+QA reports: "4 Percy snapshots created"
+Planner marks: Feature COMPLETE ✅
+```
+
+### Day 4: Discovery Phase
+```
+Planner assigns:
+  └─ Developer: Implement Client/Agent forms
+
+Developer reports: "Components are placeholders only"
+Planner detects: Implementation blocker
+Planner decides: Defer to Week 2, adjust sprint scope
+```
+
+### Day 5: Onboarding API
+```
+Planner assigns:
+  ├─ Engineer: Create API endpoints ✅
+  ├─ Developer: Create frontend client ✅
+  └─ Tester: Test API integration ⏳
+
+Engineer reports: "API complete, migration ready"
+Developer reports: "Client created, integration pending"
+Planner notes: "Integration testing for Week 2"
+```
+
+---
+
+## Sprint Planning Process
+
+### 1. Define Sprint Goals (Week 1 Example)
+```markdown
+Sprint: Week 1 - Profile & Professional Info
+Duration: 5 days (40 hours)
+
+Goals:
+  1. Complete Profile editing feature
+  2. Complete Professional Info template (Tutor)
+  3. Establish testing infrastructure
+  4. Onboarding auto-save API
+
+Success Criteria:
+  - Profile feature production-ready
+  - TutorProfessionalInfoForm >80% test coverage
+  - Percy visual regression integrated
+  - Onboarding API functional
+```
+
+### 2. Break Down Features
+```
+Feature: TutorProfessionalInfoForm
+  ├─ Analyst: Requirements (0.5h) ✅
+  ├─ Developer:
+  │   ├─ Component implementation (3h) ✅
+  │   ├─ Unit tests (2h) ✅
+  │   └─ Storybook stories (1h) ✅
+  ├─ Tester:
+  │   ├─ Test validation (0.5h) ✅
+  │   └─ Coverage report (0.5h) ✅
+  ├─ QA:
+  │   └─ Visual regression (1h) ✅
+  └─ Engineer:
+      └─ API validation (0.5h) ✅
+
+Total: 9 hours
+```
+
+### 3. Assign & Track
+```typescript
+const sprint = {
+  week: 1,
+  features: [
+    {
+      name: "TutorProfessionalInfoForm",
+      assignments: [
+        { agent: "analyst", hours: 0.5, status: "complete" },
+        { agent: "developer", hours: 6, status: "complete" },
+        { agent: "tester", hours: 1, status: "complete" },
+        { agent: "qa", hours: 1, status: "complete" },
+        { agent: "engineer", hours: 0.5, status: "complete" }
+      ],
+      overallStatus: "complete",
+      blockers: []
+    }
+  ]
+};
+```
+
+---
+
+## Blocker Resolution Examples
+
+### Example 1: Tester Blocked by Developer
+```
+Detection:
+  Tester status: Waiting for unit tests
+  Developer todos: 2 tasks incomplete
+
+Resolution:
+  1. Planner detects blocker
+  2. Reassigns tasks to Developer
+  3. Notifies Tester of delay
+  4. Updates sprint timeline
+  5. Monitors completion
+
+Outcome:
+  Developer completes tasks → Tester unblocked
+```
+
+### Example 2: QA Blocked by Failing Tests
+```
+Detection:
+  QA status: Cannot start review
+  Tester report: 15 E2E tests failing
+
+Resolution:
+  1. Planner analyzes test failures
+  2. Identifies root cause (timing issues)
+  3. Assigns Engineer to investigate
+  4. Developer fixes timing issues
+  5. Tester re-runs tests
+
+Outcome:
+  Tests passing → QA unblocked
+```
+
+### Example 3: Engineer Blocked by Missing Requirements
+```
+Detection:
+  Engineer status: Cannot create migration
+  Analyst status: Requirements incomplete
+
+Resolution:
+  1. Planner escalates to Analyst
+  2. Analyst completes requirements
+  3. Planner validates completeness
+  4. Assigns Engineer to proceed
+
+Outcome:
+  Requirements complete → Engineer unblocked
+```
+
+---
+
+## Status Reports
+
+### Daily Standup Format
+```markdown
+# Daily Standup - 2025-10-08
+
+## Agent Status
+
+### Developer
+- Yesterday: Onboarding API client
+- Today: Documentation
+- Blockers: None
+
+### Tester
+- Yesterday: TutorProfessionalInfoForm tests (15/15 passing)
+- Today: Coverage report
+- Blockers: ProfilePage complex structure
+
+### Engineer
+- Yesterday: Onboarding API endpoints
+- Today: Database migration
+- Blockers: None
+
+### QA
+- Yesterday: Percy snapshots
+- Today: Accessibility testing
+- Blockers: None
+
+## Sprint Progress
+- Completed: 3/5 features
+- On track: Yes (+3.5 hour buffer)
+- Risks: ProfilePage test coverage low (accepted)
+```
+
+### Weekly Summary Format
+```markdown
+# Week 1 Summary
+
+## Accomplishments
+✅ TutorProfessionalInfoForm: 83.95% coverage
+✅ Percy integration: 4 snapshots
+✅ Onboarding API: Complete
+✅ Testing infrastructure: Established
+
+## Metrics
+- Tests: 24/54 passing (44%)
+- Coverage: 55% overall
+- Velocity: 24/40 hours (60%)
+- Buffer: +16 hours for Week 2
+
+## Blockers Resolved
+✅ Storybook → Percy alternative
+✅ Client/Agent → Deferred to Week 2
+
+## Week 2 Plan
+- Client/Agent Professional Info forms
+- Onboarding auto-save integration
+- E2E test improvements
+```
+
+---
+
+## Configuration
+
+### planner.config.ts
+```typescript
+export const plannerConfig = {
+  sprintDuration: 5, // days
+  dailyCapacity: 8, // hours per agent
+  reportingSchedule: {
+    daily: '09:00',
+    weekly: 'Friday 16:00'
+  },
+  blockerThresholds: {
+    warningHours: 4,
+    criticalHours: 8
+  },
+  agentCoordination: {
+    maxConcurrentTasks: 3,
+    taskTimeout: 24 // hours
+  }
+};
+```
+
+---
+
+## CLI Commands
+
+```bash
+# Sprint management
+cas plan sprint create      # Create new sprint
+cas plan sprint status      # View sprint progress
+cas plan sprint close       # Close and summarize sprint
+
+# Task management
+cas plan task assign <agent> <task>   # Assign task
+cas plan task status <task>           # Check task status
+cas plan task complete <task>         # Mark complete
+
+# Blocker management
+cas plan blockers list      # List all blockers
+cas plan blockers resolve   # Resolve blocker
+
+# Reporting
+cas plan report daily       # Daily standup
+cas plan report weekly      # Weekly summary
+cas plan report agent <name> # Agent-specific report
+```
+
+---
+
+## Integration with Other Agents
+
+### Receives Updates From
+- **Developer:** Feature completions, todo updates
+- **Tester:** Test results, coverage reports
+- **QA:** Quality reviews, accessibility scores
+- **Engineer:** Deployment status, performance metrics
+- **Security:** Vulnerability scans
+- **Analyst:** Requirements changes
+- **Marketer:** Usage metrics
+
+### Sends Assignments To
+- All agents based on sprint plan
+
+### Monitors
+- Agent status and availability
+- Task progress and completion
+- Blockers and dependencies
+- Sprint velocity and timeline
+
+---
+
+## Success Metrics
+
+### Week 1 Performance
+```
+Sprint Planning: ✅ Effective
+  - Goals clearly defined
+  - Features broken down appropriately
+  - Realistic estimates
+
+Agent Coordination: ✅ Good
+  - Smooth handoffs
+  - Blockers detected early
+  - Clear communication
+
+Blocker Resolution: ✅ Excellent
+  - 3 blockers identified
+  - All resolved or deferred appropriately
+  - No critical delays
+
+Progress Tracking: ✅ Excellent
+  - Accurate status reporting
+  - Clear visibility
+  - Comprehensive documentation
+```
+
+---
+
+**Maintained By:** Planner Agent (autonomous)
+**Updated:** After each sprint event, blocker, or milestone
+**Shared With:** All agents, stakeholders

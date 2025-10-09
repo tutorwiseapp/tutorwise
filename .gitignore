@@ -103,3 +103,14 @@ apps/api/.pytest_cache/
 # Railway configuration backups (contains secrets)
 apps/web/railway-config-backup.md
 .env.railway
+credentials-tutorwise.json
+
+# Playwright test results and artifacts
+tools/test-results/
+tools/playwright-report/data/
+tools/playwright-report/trace/
+test-results/
+tests/e2e/**/*-snapshots/
+
+# Temporary session files
+.gemini/settings.json.orig
