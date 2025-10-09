@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import OnboardingWizard from '@/app/components/onboarding/OnboardingWizard';
+import ClientOnboardingWizard from '@/app/components/onboarding/client/ClientOnboardingWizard';
 import styles from './page.module.css';
 
 export default function ClientOnboardingPage() {
@@ -49,8 +49,7 @@ export default function ClientOnboardingPage() {
 
   return (
     <div className={styles.onboardingPage}>
-      <OnboardingWizard
-        mode="fullPage"
+      <ClientOnboardingWizard
         onComplete={handleOnboardingComplete}
         onSkip={handleOnboardingSkip}
       />
