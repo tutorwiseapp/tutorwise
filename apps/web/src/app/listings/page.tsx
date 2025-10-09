@@ -149,18 +149,16 @@ export default function MyListingsPage() {
 
                   <div className="flex flex-col gap-2 ml-4">
                     <Link href={`/listings/${listing.id}/edit`}>
-                      <Button variant="secondary" size="sm">Edit</Button>
+                      <Button variant="secondary">Edit</Button>
                     </Link>
                     <Button
                       variant="secondary"
-                      size="sm"
                       onClick={() => handleToggleStatus(listing)}
                     >
                       {listing.status === 'published' ? 'Unpublish' : 'Publish'}
                     </Button>
                     <Button
-                      variant="ghost"
-                      size="sm"
+                      variant="secondary"
                       onClick={() => handleDelete(listing.id)}
                     >
                       Delete

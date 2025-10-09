@@ -80,8 +80,7 @@ export default function MarketplacePage() {
                 <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
                 {(filters.subjects?.length || filters.levels?.length || filters.search) && (
                   <Button
-                    variant="ghost"
-                    size="sm"
+                    variant="secondary"
                     onClick={handleClearFilters}
                   >
                     Clear all
@@ -166,8 +165,7 @@ export default function MarketplacePage() {
                           return (
                             <Button
                               key={page}
-                              variant={page === currentPage ? 'primary' : 'ghost'}
-                              size="sm"
+                              variant={page === currentPage ? 'primary' : 'secondary'}
                               onClick={() => setCurrentPage(page)}
                             >
                               {page}
