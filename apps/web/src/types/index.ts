@@ -52,6 +52,9 @@ export interface Profile {
   // Onboarding system fields
   preferences?: Record<string, any>;
   onboarding_progress?: OnboardingProgress;
+
+  // Optional joined role_details (when fetched with profile)
+  role_details?: RoleDetails;
 }
 
 export interface OnboardingProgress {

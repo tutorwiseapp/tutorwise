@@ -76,11 +76,14 @@ export default function PublicProfilePage() {
     );
   }
 
-  const roleLabel = {
-    tutor: 'Tutor',
-    client: 'Client',
+  const roleLabels: Record<string, string> = {
+    provider: 'Tutor',
+    seeker: 'Client',
     agent: 'Agent',
-  }[profile.role || 'client'];
+  };
+
+  const primaryRole = profile.roles?.[0] || 'seeker';
+  const roleLabel = roleLabels[primaryRole] || 'User';
 
   return (
     <div className={styles.pageContainer}>
@@ -97,9 +100,9 @@ export default function PublicProfilePage() {
           {/* Header Section */}
           <div className={styles.header}>
             <div className={styles.avatarSection}>
-              {profile.avatar_url ? (
+              {profile.custom_picture_url ? (
                 <img
-                  src={profile.avatar_url}
+                  src={profile.custom_picture_url}
                   alt={profile.display_name || 'User avatar'}
                   className={styles.avatar}
                 />
@@ -164,23 +167,23 @@ export default function PublicProfilePage() {
                       </div>
                     )}
 
-                    {profile.role_details.levels && profile.role_details.levels.length > 0 && (
+                    {profile.role_details.teaching_experience && (
                       <div className={styles.infoItem}>
-                        <h3 className={styles.infoLabel}>Education Levels</h3>
-                        <div className={styles.badgeContainer}>
-                          {profile.role_details.levels.map((level: string) => (
-                            <span key={level} className={styles.badge}>
-                              {level}
-                            </span>
-                          ))}
-                        </div>
+                        <h3 className={styles.infoLabel}>Teaching Experience</h3>
+                        <p className={styles.infoValue}>{profile.role_details.teaching_experience}</p>
                       </div>
                     )}
 
-                    {profile.role_details.experience && (
+                    {profile.role_details.teaching_methods && profile.role_details.teaching_methods.length > 0 && (
                       <div className={styles.infoItem}>
-                        <h3 className={styles.infoLabel}>Experience</h3>
-                        <p className={styles.infoValue}>{profile.role_details.experience}</p>
+                        <h3 className={styles.infoLabel}>Teaching Methods</h3>
+                        <div className={styles.badgeContainer}>
+                          {profile.role_details.teaching_methods.map((method: string) => (
+                            <span key={method} className={styles.badge}>
+                              {method}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     )}
 
@@ -224,7 +227,7 @@ export default function PublicProfilePage() {
                     </div>
                     <div className={styles.statLabel}>Joined</div>
                   </div>
-                  {profile.role === 'tutor' && (
+                  {profile.roles?.includes('provider') && (
                     <>
                       <div className={styles.statItem}>
                         <div className={styles.statValue}>4.8★</div>

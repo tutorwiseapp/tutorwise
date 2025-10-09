@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Container from '@/app/components/layout/Container';
 import Card from '@/app/components/ui/Card';
@@ -10,7 +10,7 @@ import type { Listing, ListingFilters } from '@tutorwise/shared-types';
 import SearchFilters from '@/app/components/marketplace/SearchFilters';
 import ListingCard from '@/app/components/marketplace/ListingCard';
 
-export default function MarketplacePage() {
+function MarketplaceContent() {
   const searchParams = useSearchParams();
   const [listings, setListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -195,5 +195,22 @@ export default function MarketplacePage() {
         </div>
       </div>
     </Container>
+  );
+}
+
+export default function MarketplacePage() {
+  return (
+    <Suspense fallback={
+      <Container>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading marketplace...</p>
+          </div>
+        </div>
+      </Container>
+    }>
+      <MarketplaceContent />
+    </Suspense>
   );
 }
