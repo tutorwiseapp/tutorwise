@@ -23,9 +23,6 @@ export default function Step5LocationMedia({
   const [locationCity, setLocationCity] = useState(formData.location_city || '');
   const [locationPostcode, setLocationPostcode] = useState(formData.location_postcode || '');
   const [videoUrl, setVideoUrl] = useState(formData.video_url || '');
-  const [status, setStatus] = useState<'draft' | 'published'>(
-    formData.status === 'published' ? 'published' : 'draft'
-  );
   const [errors, setErrors] = useState<{ locationType?: string; location?: string }>({});
 
   const validate = () => {
@@ -154,38 +151,6 @@ export default function Step5LocationMedia({
             className={styles.formInput}
           />
         </div>
-
-        {/* Publish or Draft */}
-        <div className={styles.formGroup}>
-          <label className={styles.formLabel}>
-            Ready to publish?
-          </label>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
-            <button
-              type="button"
-              className={`${styles.checkboxItem} ${status === 'draft' ? styles.selected : ''}`}
-              onClick={() => setStatus('draft')}
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '16px', textAlign: 'left', minHeight: '80px' }}
-            >
-              <span style={{ fontWeight: 600, marginBottom: '4px' }}>Save as Draft</span>
-              <span style={{ fontSize: '0.75rem', opacity: 0.8, lineHeight: '1.4' }}>
-                Preview and edit later
-              </span>
-            </button>
-
-            <button
-              type="button"
-              className={`${styles.checkboxItem} ${status === 'published' ? styles.selected : ''}`}
-              onClick={() => setStatus('published')}
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '16px', textAlign: 'left', minHeight: '80px' }}
-            >
-              <span style={{ fontWeight: 600, marginBottom: '4px' }}>Publish Now</span>
-              <span style={{ fontSize: '0.75rem', opacity: 0.8, lineHeight: '1.4' }}>
-                Make listing visible to students
-              </span>
-            </button>
-          </div>
-        </div>
       </div>
 
       <div className={styles.stepActions}>
@@ -200,11 +165,11 @@ export default function Step5LocationMedia({
 
         <div className={styles.actionRight}>
           <button
-            onClick={() => handleSubmit(status === 'published')}
+            onClick={() => handleSubmit(true)}
             disabled={isSaving}
             className={styles.buttonPrimary}
           >
-            {isSaving ? 'Saving...' : status === 'published' ? 'Publish Listing ✓' : 'Save as Draft'}
+            {isSaving ? 'Publishing...' : 'Publish Now'}
           </button>
         </div>
       </div>
