@@ -73,19 +73,16 @@ export default function Step5LocationMedia({
           {errors.locationType && (
             <p className={styles.errorText}>{errors.locationType}</p>
           )}
-          <p className={styles.helperText}>
-            How will you deliver your tutoring sessions?
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem', marginTop: '0.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
             <button
               type="button"
               className={`${styles.checkboxItem} ${locationType === 'online' ? styles.selected : ''}`}
               onClick={() => setLocationType('online')}
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '1rem', textAlign: 'left' }}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '16px', textAlign: 'left', minHeight: '80px' }}
             >
-              <span style={{ fontWeight: 600, marginBottom: '0.25rem' }}>💻 Online Only</span>
-              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>
-                Teach via video call (Zoom, Teams, Google Meet, etc.)
+              <span style={{ fontWeight: 600, marginBottom: '4px' }}>💻 Online Only</span>
+              <span style={{ fontSize: '0.75rem', opacity: 0.8, lineHeight: '1.4' }}>
+                Video call tutoring
               </span>
             </button>
 
@@ -93,11 +90,11 @@ export default function Step5LocationMedia({
               type="button"
               className={`${styles.checkboxItem} ${locationType === 'in_person' ? styles.selected : ''}`}
               onClick={() => setLocationType('in_person')}
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '1rem', textAlign: 'left' }}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '16px', textAlign: 'left', minHeight: '80px' }}
             >
-              <span style={{ fontWeight: 600, marginBottom: '0.25rem' }}>📍 In-Person Only</span>
-              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>
-                Face-to-face tutoring at your location or student&apos;s home
+              <span style={{ fontWeight: 600, marginBottom: '4px' }}>📍 In-Person Only</span>
+              <span style={{ fontSize: '0.75rem', opacity: 0.8, lineHeight: '1.4' }}>
+                Face-to-face tutoring
               </span>
             </button>
 
@@ -105,11 +102,11 @@ export default function Step5LocationMedia({
               type="button"
               className={`${styles.checkboxItem} ${locationType === 'hybrid' ? styles.selected : ''}`}
               onClick={() => setLocationType('hybrid')}
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '1rem', textAlign: 'left' }}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '16px', textAlign: 'left', minHeight: '80px', gridColumn: 'span 2' }}
             >
-              <span style={{ fontWeight: 600, marginBottom: '0.25rem' }}>🌐 Hybrid (Both)</span>
-              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>
-                Flexible - offer both online and in-person options
+              <span style={{ fontWeight: 600, marginBottom: '4px' }}>🌐 Hybrid (Both)</span>
+              <span style={{ fontSize: '0.75rem', opacity: 0.8, lineHeight: '1.4' }}>
+                Flexible - both online and in-person
               </span>
             </button>
           </div>
@@ -140,9 +137,6 @@ export default function Step5LocationMedia({
                 className={styles.formInput}
               />
             </div>
-            <p className={styles.helperText}>
-              We&apos;ll only show your general area to students (not your exact address)
-            </p>
           </div>
         )}
 
@@ -159,31 +153,23 @@ export default function Step5LocationMedia({
             placeholder="https://youtube.com/watch?v=..."
             className={styles.formInput}
           />
-          <p className={styles.helperText}>
-            Add a YouTube or Vimeo link to introduce yourself (increases trust!)
-          </p>
         </div>
 
         {/* Publish or Draft */}
-        <div style={{
-          padding: '1.5rem',
-          backgroundColor: 'var(--color-background-secondary, #f9fafb)',
-          borderRadius: '0.5rem',
-          marginTop: '1.5rem'
-        }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '1rem' }}>
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel}>
             Ready to publish?
-          </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem' }}>
+          </label>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
             <button
               type="button"
               className={`${styles.checkboxItem} ${status === 'draft' ? styles.selected : ''}`}
               onClick={() => setStatus('draft')}
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '1rem', textAlign: 'left' }}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '16px', textAlign: 'left', minHeight: '80px' }}
             >
-              <span style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Save as Draft</span>
-              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>
-                You can preview and edit before publishing
+              <span style={{ fontWeight: 600, marginBottom: '4px' }}>Save as Draft</span>
+              <span style={{ fontSize: '0.75rem', opacity: 0.8, lineHeight: '1.4' }}>
+                Preview and edit later
               </span>
             </button>
 
@@ -191,11 +177,11 @@ export default function Step5LocationMedia({
               type="button"
               className={`${styles.checkboxItem} ${status === 'published' ? styles.selected : ''}`}
               onClick={() => setStatus('published')}
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '1rem', textAlign: 'left' }}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '16px', textAlign: 'left', minHeight: '80px' }}
             >
-              <span style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Publish Now</span>
-              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>
-                Make your listing visible to students immediately
+              <span style={{ fontWeight: 600, marginBottom: '4px' }}>Publish Now</span>
+              <span style={{ fontSize: '0.75rem', opacity: 0.8, lineHeight: '1.4' }}>
+                Make listing visible to students
               </span>
             </button>
           </div>
