@@ -67,13 +67,17 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
             maxLength={200}
             style={errors.title ? { borderColor: 'var(--color-error, #dc2626)' } : {}}
           />
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
-            {errors.title && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
+            {errors.title ? (
               <p className={styles.errorText} style={{ margin: 0 }}>
                 {errors.title}
               </p>
+            ) : (
+              <p className={styles.helperText} style={{ margin: 0, fontSize: '0.75rem' }}>
+                Min. 10 characters recommended
+              </p>
             )}
-            <span style={{ color: 'var(--color-text-tertiary, #9ca3af)', fontSize: '0.875rem', marginLeft: 'auto' }}>
+            <span style={{ color: 'var(--color-text-tertiary, #9ca3af)', fontSize: '0.875rem' }}>
               {title.length}/200
             </span>
           </div>
@@ -94,13 +98,17 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
             maxLength={2000}
             style={errors.description ? { borderColor: 'var(--color-error, #dc2626)' } : {}}
           />
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
-            {errors.description && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
+            {errors.description ? (
               <p className={styles.errorText} style={{ margin: 0 }}>
                 {errors.description}
               </p>
+            ) : (
+              <p className={styles.helperText} style={{ margin: 0, fontSize: '0.75rem' }}>
+                Min. 50 characters recommended
+              </p>
             )}
-            <span style={{ color: 'var(--color-text-tertiary, #9ca3af)', fontSize: '0.875rem', marginLeft: 'auto' }}>
+            <span style={{ color: 'var(--color-text-tertiary, #9ca3af)', fontSize: '0.875rem' }}>
               {description.length}/2000
             </span>
           </div>
