@@ -8,10 +8,11 @@ import Step1BasicInfo from './wizard-steps/Step1BasicInfo';
 import Step2TeachingDetails from './wizard-steps/Step2TeachingDetails';
 import Step3ExpertiseCredentials from './wizard-steps/Step3ExpertiseCredentials';
 import Step4PricingAvailability from './wizard-steps/Step4PricingAvailability';
+import Step4point5Availability from './wizard-steps/Step4point5Availability';
 import Step5LocationMedia from './wizard-steps/Step5LocationMedia';
 import styles from '../onboarding/OnboardingWizard.module.css';
 
-type ListingStep = 'welcome' | 'basic' | 'teaching' | 'expertise' | 'pricing' | 'location';
+type ListingStep = 'welcome' | 'basic' | 'teaching' | 'expertise' | 'pricing' | 'availability' | 'location';
 
 interface CreateListingWizardProps {
   onSubmit: (data: CreateListingInput) => void;
@@ -89,11 +90,16 @@ export default function CreateListingWizard({
 
   const handlePricingNext = (data: Partial<CreateListingInput>) => {
     updateFormData(data);
+    setCurrentStep('availability');
+  };
+
+  const handleAvailabilityNext = (data: Partial<CreateListingInput>) => {
+    updateFormData(data);
     setCurrentStep('location');
   };
 
   const handleBack = () => {
-    const stepOrder: ListingStep[] = ['welcome', 'basic', 'teaching', 'expertise', 'pricing', 'location'];
+    const stepOrder: ListingStep[] = ['welcome', 'basic', 'teaching', 'expertise', 'pricing', 'availability', 'location'];
     const currentIndex = stepOrder.indexOf(currentStep);
     if (currentIndex > 0) {
       setCurrentStep(stepOrder[currentIndex - 1]);
@@ -154,6 +160,14 @@ export default function CreateListingWizard({
             onBack={handleBack}
           />
         );
+      case 'availability':
+        return (
+          <Step4point5Availability
+            formData={formData}
+            onNext={handleAvailabilityNext}
+            onBack={handleBack}
+          />
+        );
       case 'location':
         return (
           <Step5LocationMedia
@@ -173,16 +187,16 @@ export default function CreateListingWizard({
     <div className={styles.wizardContainer + ' ' + styles.fullPage}>
       {/* Progress indicator */}
       <div className={styles.wizardProgress}>
-        {['welcome', 'basic', 'teaching', 'expertise', 'pricing', 'location'].map((step, index) => (
+        {['welcome', 'basic', 'teaching', 'expertise', 'pricing', 'availability', 'location'].map((step, index) => (
           <div key={step} style={{ display: 'flex', alignItems: 'center' }}>
             <div
               className={`${styles.progressDot} ${
                 currentStep === step ? styles.active :
-                ['welcome', 'basic', 'teaching', 'expertise', 'pricing', 'location'].indexOf(currentStep) > index ? styles.completed : ''
+                ['welcome', 'basic', 'teaching', 'expertise', 'pricing', 'availability', 'location'].indexOf(currentStep) > index ? styles.completed : ''
               }`}
             />
-            {index < 5 && <div className={`${styles.progressSeparator} ${
-              ['welcome', 'basic', 'teaching', 'expertise', 'pricing', 'location'].indexOf(currentStep) > index ? styles.active : ''
+            {index < 6 && <div className={`${styles.progressSeparator} ${
+              ['welcome', 'basic', 'teaching', 'expertise', 'pricing', 'availability', 'location'].indexOf(currentStep) > index ? styles.active : ''
             }`} />}
           </div>
         ))}
