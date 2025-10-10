@@ -4,12 +4,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import Container from '@/app/components/layout/Container';
-import Card from '@/app/components/ui/Card';
-import Button from '@/app/components/ui/Button';
 import { getMyListings, deleteListing, publishListing, unpublishListing } from '@/lib/api/listings';
 import type { Listing } from '@tutorwise/shared-types';
 import { toast } from 'sonner';
+import styles from './page.module.css';
 
 export default function MyListingsPage() {
   const router = useRouter();
@@ -41,12 +39,12 @@ export default function MyListingsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this listing?')) return;
+    if (!confirm('Are you sure you want to delete this listing? This action cannot be undone.')) return;
 
     try {
       await deleteListing(id);
       setListings(prev => prev.filter(l => l.id !== id));
-      toast.success('Listing deleted');
+      toast.success('Listing deleted successfully');
     } catch (error) {
       console.error('Failed to delete listing:', error);
       toast.error('Failed to delete listing');
@@ -71,105 +69,115 @@ export default function MyListingsPage() {
 
   if (userLoading || isLoading) {
     return (
-      <Container>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading your listings...</p>
-          </div>
-        </div>
-      </Container>
+      <div className={styles.loading}>
+        <div className={styles.spinner}></div>
+        <p className={styles.loadingText}>Loading your listings...</p>
+      </div>
     );
   }
 
   return (
-    <Container>
-      <div className="max-w-6xl mx-auto py-8">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">My Listings</h1>
-            <p className="mt-2 text-gray-600">Manage your tutoring service listings</p>
+    <div className={styles.listingsPage}>
+      {/* Page Header */}
+      <div className={styles.pageHeader}>
+        <div className={styles.headerTop}>
+          <div className={styles.headerContent}>
+            <h1>My Listings</h1>
+            <p>Manage your tutoring service listings</p>
           </div>
           <Link href="/listings/create">
-            <Button>+ Create New Listing</Button>
+            <button className={styles.createButton}>Create New Listing</button>
           </Link>
         </div>
-
-        {listings.length === 0 ? (
-          <Card>
-            <div className="text-center py-12">
-              <p className="text-gray-600 mb-4">You haven&apos;t created any listings yet</p>
-              <Link href="/listings/create">
-                <Button>Create Your First Listing</Button>
-              </Link>
-            </div>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {listings.map(listing => (
-              <Card key={listing.id}>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-semibold text-gray-900">{listing.title}</h3>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        listing.status === 'published' ? 'bg-green-100 text-green-800' :
-                        listing.status === 'draft' ? 'bg-gray-100 text-gray-800' :
-                        'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {listing.status}
-                      </span>
-                    </div>
-
-                    <p className="text-gray-600 mb-3 line-clamp-2">{listing.description}</p>
-
-                    <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-                      <div>
-                        <span className="font-medium">Subjects:</span> {listing.subjects.join(', ')}
-                      </div>
-                      <div>
-                        <span className="font-medium">Levels:</span> {listing.levels.join(', ')}
-                      </div>
-                      {listing.hourly_rate && (
-                        <div>
-                          <span className="font-medium">Rate:</span> £{listing.hourly_rate}/hr
-                        </div>
-                      )}
-                      <div>
-                        <span className="font-medium">Type:</span> {listing.location_type}
-                      </div>
-                    </div>
-
-                    <div className="flex gap-4 text-sm text-gray-500 mt-2">
-                      <div>👁 {listing.view_count} views</div>
-                      <div>💬 {listing.inquiry_count} inquiries</div>
-                      <div>📅 {listing.booking_count} bookings</div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-2 ml-4">
-                    <Link href={`/listings/${listing.id}/edit`}>
-                      <Button variant="secondary">Edit</Button>
-                    </Link>
-                    <Button
-                      variant="secondary"
-                      onClick={() => handleToggleStatus(listing)}
-                    >
-                      {listing.status === 'published' ? 'Unpublish' : 'Publish'}
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      onClick={() => handleDelete(listing.id)}
-                    >
-                      Delete
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
       </div>
-    </Container>
+
+      {/* Listings Grid or Empty State */}
+      {listings.length === 0 ? (
+        <div className={styles.emptyState}>
+          <h2 className={styles.emptyStateTitle}>No listings yet</h2>
+          <p className={styles.emptyStateText}>
+            Create your first tutoring listing to start attracting students and growing your tutoring business.
+          </p>
+          <Link href="/listings/create">
+            <button className={styles.emptyStateButton}>Create Your First Listing</button>
+          </Link>
+        </div>
+      ) : (
+        <div className={styles.listingsGrid}>
+          {listings.map(listing => (
+            <div key={listing.id} className={styles.listingCard}>
+              {/* Card Header */}
+              <div className={styles.cardHeader}>
+                <h3 className={styles.cardTitle}>{listing.title}</h3>
+                <span className={`${styles.statusBadge} ${
+                  listing.status === 'published' ? styles.statusPublished :
+                  listing.status === 'draft' ? styles.statusDraft :
+                  styles.statusPending
+                }`}>
+                  {listing.status}
+                </span>
+              </div>
+
+              {/* Description */}
+              <p className={styles.cardDescription}>{listing.description}</p>
+
+              {/* Metadata */}
+              <div className={styles.cardMeta}>
+                <div className={styles.metaItem}>
+                  <span>Subjects:</span> {listing.subjects?.join(', ') || 'Not specified'}
+                </div>
+                <div className={styles.metaItem}>
+                  <span>Levels:</span> {listing.levels?.join(', ') || 'Not specified'}
+                </div>
+                {listing.hourly_rate && (
+                  <div className={styles.metaItem}>
+                    <span>Rate:</span> £{listing.hourly_rate}/hr
+                  </div>
+                )}
+                <div className={styles.metaItem}>
+                  <span>Type:</span> {listing.location_type || 'Not specified'}
+                </div>
+              </div>
+
+              {/* Statistics - No icons, clean text */}
+              <div className={styles.cardStats}>
+                <div className={styles.statItem}>
+                  <span className={styles.statValue}>{listing.view_count || 0}</span> views
+                </div>
+                <span className={styles.statDivider}>•</span>
+                <div className={styles.statItem}>
+                  <span className={styles.statValue}>{listing.inquiry_count || 0}</span> inquiries
+                </div>
+                <span className={styles.statDivider}>•</span>
+                <div className={styles.statItem}>
+                  <span className={styles.statValue}>{listing.booking_count || 0}</span> bookings
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className={styles.cardActions}>
+                <Link href={`/listings/${listing.id}/edit`} style={{ flex: 1 }}>
+                  <button className={styles.actionButton}>Edit</button>
+                </Link>
+                <button
+                  className={`${styles.actionButton} ${
+                    listing.status === 'published' ? '' : styles.actionButtonPrimary
+                  }`}
+                  onClick={() => handleToggleStatus(listing)}
+                >
+                  {listing.status === 'published' ? 'Unpublish' : 'Publish'}
+                </button>
+                <button
+                  className={`${styles.actionButton} ${styles.actionButtonDanger}`}
+                  onClick={() => handleDelete(listing.id)}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
