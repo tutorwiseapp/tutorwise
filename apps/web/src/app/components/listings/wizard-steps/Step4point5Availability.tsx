@@ -103,10 +103,9 @@ export default function Step4point5Availability({ formData, onNext, onBack }: St
   };
 
   const handleContinue = () => {
-    // Store availability data in formData
-    onNext({
-      availability_periods: periods as any // Will need to update types
-    });
+    // Note: Availability periods will be stored locally but not submitted yet
+    // Backend integration pending
+    onNext({});
   };
 
   const formatPeriodText = (period: AvailabilityPeriod) => {
