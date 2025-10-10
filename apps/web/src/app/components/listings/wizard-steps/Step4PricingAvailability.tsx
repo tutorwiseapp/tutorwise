@@ -66,9 +66,6 @@ export default function Step4PricingAvailability({ formData, onNext, onBack }: S
           {errors.hourlyRate && (
             <p className={styles.errorText}>{errors.hourlyRate}</p>
           )}
-          <p className={styles.helperText}>
-            Select your typical hourly rate (you can adjust per session)
-          </p>
           <div className={styles.checkboxGroup}>
             {HOURLY_RATE_RANGES.map((range) => (
               <button
@@ -88,9 +85,6 @@ export default function Step4PricingAvailability({ formData, onNext, onBack }: S
           <label className={styles.formLabel}>
             Free Trial Lesson (Optional)
           </label>
-          <p className={styles.helperText}>
-            Offering a free trial can help you attract more students
-          </p>
           <div className={styles.checkboxGroup}>
             <button
               type="button"

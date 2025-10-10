@@ -100,9 +100,6 @@ export default function Step3ExpertiseCredentials({ formData, onNext, onBack }: 
           <label className={styles.formLabel}>
             Years of Teaching Experience
           </label>
-          <p className={styles.helperText}>
-            How long have you been teaching?
-          </p>
           <div className={styles.checkboxGroup}>
             {YEARS_EXPERIENCE.map((years) => (
               <button
@@ -122,9 +119,6 @@ export default function Step3ExpertiseCredentials({ formData, onNext, onBack }: 
           <label className={styles.formLabel}>
             Specializations (Optional)
           </label>
-          <p className={styles.helperText}>
-            What are you particularly skilled at? Select all that apply
-          </p>
           <div className={styles.checkboxGroup}>
             {SPECIALIZATIONS.map((spec) => (
               <button
@@ -156,9 +150,6 @@ export default function Step3ExpertiseCredentials({ formData, onNext, onBack }: 
           <label className={styles.formLabel}>
             Teaching Methods (Optional)
           </label>
-          <p className={styles.helperText}>
-            How do you teach? Select your preferred methods
-          </p>
           <div className={styles.checkboxGroup}>
             {TEACHING_METHODS.map((method) => (
               <button

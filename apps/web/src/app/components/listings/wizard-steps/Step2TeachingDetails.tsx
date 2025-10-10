@@ -135,9 +135,6 @@ export default function Step2TeachingDetails({ formData, onNext, onBack }: Step2
           {errors.subjects && (
             <p className={styles.errorText}>{errors.subjects}</p>
           )}
-          <p className={styles.helperText}>
-            Select all subjects you teach (you can offer different rates for each later)
-          </p>
           <div className={styles.checkboxGroup}>
             {SUBJECTS.map((subject) => (
               <button
@@ -172,9 +169,6 @@ export default function Step2TeachingDetails({ formData, onNext, onBack }: Step2
           {errors.levels && (
             <p className={styles.errorText}>{errors.levels}</p>
           )}
-          <p className={styles.helperText}>
-            Which education levels do you teach?
-          </p>
           <div className={styles.checkboxGroup}>
             {KEY_STAGES.map((level) => (
               <button
@@ -194,9 +188,6 @@ export default function Step2TeachingDetails({ formData, onNext, onBack }: Step2
           <label className={styles.formLabel}>
             Languages Spoken
           </label>
-          <p className={styles.helperText}>
-            Which languages can you teach in?
-          </p>
           <div className={styles.checkboxGroup}>
             {LANGUAGES.map((language) => (
               <button

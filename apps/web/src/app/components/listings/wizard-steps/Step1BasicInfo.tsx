@@ -68,16 +68,12 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
             style={errors.title ? { borderColor: 'var(--color-error, #dc2626)' } : {}}
           />
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
-            {errors.title ? (
+            {errors.title && (
               <p className={styles.errorText} style={{ margin: 0 }}>
                 {errors.title}
               </p>
-            ) : (
-              <p className={styles.helperText} style={{ margin: 0 }}>
-                Include the subject and education level for better discoverability
-              </p>
             )}
-            <span style={{ color: 'var(--color-text-tertiary, #9ca3af)', fontSize: '0.875rem' }}>
+            <span style={{ color: 'var(--color-text-tertiary, #9ca3af)', fontSize: '0.875rem', marginLeft: 'auto' }}>
               {title.length}/200
             </span>
           </div>
@@ -99,16 +95,12 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
             style={errors.description ? { borderColor: 'var(--color-error, #dc2626)' } : {}}
           />
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
-            {errors.description ? (
+            {errors.description && (
               <p className={styles.errorText} style={{ margin: 0 }}>
                 {errors.description}
               </p>
-            ) : (
-              <p className={styles.helperText} style={{ margin: 0 }}>
-                Share your teaching style, experience, and what students can expect
-              </p>
             )}
-            <span style={{ color: 'var(--color-text-tertiary, #9ca3af)', fontSize: '0.875rem' }}>
+            <span style={{ color: 'var(--color-text-tertiary, #9ca3af)', fontSize: '0.875rem', marginLeft: 'auto' }}>
               {description.length}/2000
             </span>
           </div>
