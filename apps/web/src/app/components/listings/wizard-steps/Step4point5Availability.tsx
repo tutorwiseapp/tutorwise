@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import type { CreateListingInput } from '@tutorwise/shared-types';
 import styles from '../../onboarding/OnboardingWizard.module.css';
+import CustomDateInput from './CustomDateInput';
+import CustomTimePicker from './CustomTimePicker';
 
 interface Step4point5Props {
   formData: Partial<CreateListingInput>;
@@ -29,17 +31,6 @@ interface UnavailabilityPeriod {
 }
 
 const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
-const TIME_OPTIONS = [
-  '12:00 AM', '12:30 AM', '1:00 AM', '1:30 AM', '2:00 AM', '2:30 AM',
-  '3:00 AM', '3:30 AM', '4:00 AM', '4:30 AM', '5:00 AM', '5:30 AM',
-  '6:00 AM', '6:30 AM', '7:00 AM', '7:30 AM', '8:00 AM', '8:30 AM',
-  '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
-  '12:00 PM', '12:30 PM', '1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM',
-  '3:00 PM', '3:30 PM', '4:00 PM', '4:30 PM', '5:00 PM', '5:30 PM',
-  '6:00 PM', '6:30 PM', '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM',
-  '9:00 PM', '9:30 PM', '10:00 PM', '10:30 PM', '11:00 PM', '11:30 PM'
-];
 
 export default function Step4point5Availability({ formData, onNext, onBack }: Step4point5Props) {
   // Availability state
@@ -186,7 +177,7 @@ export default function Step4point5Availability({ formData, onNext, onBack }: St
         </p>
       </div>
 
-      <div className={styles.stepBody}>
+      <div className={styles.stepBody} style={{ marginTop: '40px' }}>
         {/* Two-column layout */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
           {/* Left Column: Availability Period */}
@@ -243,92 +234,44 @@ export default function Step4point5Availability({ formData, onNext, onBack }: St
             {/* Date Pickers */}
             <div className={styles.formGroup}>
               <div style={{ display: 'grid', gridTemplateColumns: availabilityType === 'recurring' ? '1fr 1fr' : '1fr', gap: '16px' }}>
-                <div>
-                  <label className={styles.formLabel}>Date</label>
-                  {availErrors.dates && (
-                    <p className={styles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
-                      {availErrors.dates}
-                    </p>
-                  )}
-                  <input
-                    type="date"
-                    value={availFromDate}
-                    onChange={(e) => {
-                      setAvailFromDate(e.target.value);
-                      // Clear error when user selects a date
-                      if (availErrors.dates) {
-                        setAvailErrors(prev => ({ ...prev, dates: undefined }));
-                      }
-                    }}
-                    className={styles.formInput}
-                    style={{ height: '64px', fontSize: '1rem' }}
-                  />
-                </div>
+                <CustomDateInput
+                  label="From"
+                  value={availFromDate}
+                  onChange={setAvailFromDate}
+                  error={availErrors.dates}
+                  onClearError={() => setAvailErrors(prev => ({ ...prev, dates: undefined }))}
+                />
                 {availabilityType === 'recurring' && (
-                  <div>
-                    <label className={styles.formLabel}>To</label>
-                    <input
-                      type="date"
-                      value={availToDate}
-                      onChange={(e) => {
-                        setAvailToDate(e.target.value);
-                        // Clear error when user selects a date
-                        if (availErrors.dates) {
-                          setAvailErrors(prev => ({ ...prev, dates: undefined }));
-                        }
-                      }}
-                      className={styles.formInput}
-                      style={{ height: '64px', fontSize: '1rem' }}
-                    />
-                  </div>
+                  <CustomDateInput
+                    label="To"
+                    value={availToDate}
+                    onChange={setAvailToDate}
+                    onClearError={() => setAvailErrors(prev => ({ ...prev, dates: undefined }))}
+                  />
                 )}
               </div>
             </div>
 
             {/* Time Pickers */}
             <div className={styles.formGroup}>
+              {availErrors.times && (
+                <p className={styles.errorText} style={{ marginBottom: '8px' }}>
+                  {availErrors.times}
+                </p>
+              )}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div>
-                  <label className={styles.formLabel}>Start time</label>
-                  {availErrors.times && (
-                    <p className={styles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
-                      {availErrors.times}
-                    </p>
-                  )}
-                  <select
-                    value={startTime}
-                    onChange={(e) => {
-                      setStartTime(e.target.value);
-                      // Clear error when user changes time
-                      if (availErrors.times) {
-                        setAvailErrors(prev => ({ ...prev, times: undefined }));
-                      }
-                    }}
-                    className={styles.formInput}
-                  >
-                    {TIME_OPTIONS.map(time => (
-                      <option key={time} value={time}>{time}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className={styles.formLabel}>End time</label>
-                  <select
-                    value={endTime}
-                    onChange={(e) => {
-                      setEndTime(e.target.value);
-                      // Clear error when user changes time
-                      if (availErrors.times) {
-                        setAvailErrors(prev => ({ ...prev, times: undefined }));
-                      }
-                    }}
-                    className={styles.formInput}
-                  >
-                    {TIME_OPTIONS.map(time => (
-                      <option key={time} value={time}>{time}</option>
-                    ))}
-                  </select>
-                </div>
+                <CustomTimePicker
+                  label="Start time"
+                  value={startTime}
+                  onChange={setStartTime}
+                  onClearError={() => setAvailErrors(prev => ({ ...prev, times: undefined }))}
+                />
+                <CustomTimePicker
+                  label="End time"
+                  value={endTime}
+                  onChange={setEndTime}
+                  onClearError={() => setAvailErrors(prev => ({ ...prev, times: undefined }))}
+                />
               </div>
             </div>
 
@@ -419,43 +362,19 @@ export default function Step4point5Availability({ formData, onNext, onBack }: St
             {/* Date Pickers */}
             <div className={styles.formGroup}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div>
-                  <label className={styles.formLabel}>From</label>
-                  {unavailErrors.dates && (
-                    <p className={styles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
-                      {unavailErrors.dates}
-                    </p>
-                  )}
-                  <input
-                    type="date"
-                    value={unavailFromDate}
-                    onChange={(e) => {
-                      setUnavailFromDate(e.target.value);
-                      // Clear error when user selects a date
-                      if (unavailErrors.dates) {
-                        setUnavailErrors(prev => ({ ...prev, dates: undefined }));
-                      }
-                    }}
-                    className={styles.formInput}
-                    style={{ height: '64px', fontSize: '1rem' }}
-                  />
-                </div>
-                <div>
-                  <label className={styles.formLabel}>To</label>
-                  <input
-                    type="date"
-                    value={unavailToDate}
-                    onChange={(e) => {
-                      setUnavailToDate(e.target.value);
-                      // Clear error when user selects a date
-                      if (unavailErrors.dates) {
-                        setUnavailErrors(prev => ({ ...prev, dates: undefined }));
-                      }
-                    }}
-                    className={styles.formInput}
-                    style={{ height: '64px', fontSize: '1rem' }}
-                  />
-                </div>
+                <CustomDateInput
+                  label="From"
+                  value={unavailFromDate}
+                  onChange={setUnavailFromDate}
+                  error={unavailErrors.dates}
+                  onClearError={() => setUnavailErrors(prev => ({ ...prev, dates: undefined }))}
+                />
+                <CustomDateInput
+                  label="To"
+                  value={unavailToDate}
+                  onChange={setUnavailToDate}
+                  onClearError={() => setUnavailErrors(prev => ({ ...prev, dates: undefined }))}
+                />
               </div>
             </div>
 
