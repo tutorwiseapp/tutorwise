@@ -21,8 +21,9 @@ function TutorOnboardingPageContent() {
       return;
     }
 
-    // Redirect to dashboard if user already has provider role
-    if (!isLoading && profile && availableRoles?.includes('provider')) {
+    // Don't redirect if onboarding is incomplete - allow re-onboarding
+    // Only redirect to dashboard if user already has provider role AND onboarding is complete
+    if (!isLoading && profile && availableRoles?.includes('provider') && profile.onboarding_progress?.onboarding_completed) {
       router.push('/dashboard');
       return;
     }
