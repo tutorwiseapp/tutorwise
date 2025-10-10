@@ -70,7 +70,7 @@ export default function Step1BasicInfo({ formData, onNext }: Step1Props) {
           <span className="text-xs text-gray-500 ml-auto">{title.length}/200</span>
         </div>
         <p className="mt-1 text-xs text-gray-500">
-          💡 Tip: Include the subject and level to attract the right students
+          Tip: Include the subject and level to attract the right students
         </p>
       </div>
 
@@ -95,7 +95,7 @@ export default function Step1BasicInfo({ formData, onNext }: Step1Props) {
           <span className="text-xs text-gray-500 ml-auto">{description.length}/2000</span>
         </div>
         <p className="mt-1 text-xs text-gray-500">
-          💡 Tip: Mention your teaching style, student outcomes, and any unique qualifications
+          Tip: Mention your teaching style, student outcomes, and any unique qualifications
         </p>
       </div>
 

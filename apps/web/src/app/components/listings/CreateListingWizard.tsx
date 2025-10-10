@@ -135,7 +135,7 @@ export default function CreateListingWizard({
             <div key={step.id} className="flex items-center flex-1">
               <div className="flex flex-col items-center flex-1">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold mb-2 transition-colors ${
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold mb-2 transition-colors ${
                     currentStep > step.id
                       ? 'bg-green-500 text-white'
                       : currentStep === step.id
@@ -145,14 +145,14 @@ export default function CreateListingWizard({
                 >
                   {currentStep > step.id ? '✓' : step.id}
                 </div>
-                <span
-                  className={`text-xs sm:text-sm font-medium text-center ${
+                <div
+                  className={`text-xs font-medium text-center ${
                     currentStep === step.id ? 'text-blue-600' : 'text-gray-600'
                   }`}
                 >
-                  <span className="hidden sm:inline">{step.label}</span>
-                  <span className="sm:hidden">{step.shortLabel}</span>
-                </span>
+                  <div className="hidden sm:block">{step.label}</div>
+                  <div className="sm:hidden">{step.shortLabel}</div>
+                </div>
               </div>
               {index < STEPS.length - 1 && (
                 <div
@@ -168,10 +168,10 @@ export default function CreateListingWizard({
 
       {/* Step Content */}
       <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
-        {initialData && (
+        {initialData && Object.keys(initialData).length > 0 && (
           <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800">
-              ✨ <strong>Pre-filled from your profile:</strong> We&apos;ve loaded your professional information. You can edit anything you&apos;d like.
+              <strong>Pre-filled from your profile:</strong> We&apos;ve loaded your professional information. You can edit anything you&apos;d like.
             </p>
           </div>
         )}
