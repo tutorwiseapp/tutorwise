@@ -16,7 +16,7 @@ export default function WelcomeStep({ userName, onNext, onSkip }: WelcomeStepPro
           Create Your Tutoring Service
         </h1>
         <p className={styles.stepSubtitle}>
-          {userName}, let's create a compelling listing that attracts the right students.
+          {userName}, let&apos;s create a compelling listing that attracts the right students.
         </p>
       </div>
 
@@ -78,7 +78,7 @@ export default function WelcomeStep({ userName, onNext, onSkip }: WelcomeStepPro
           onClick={onNext}
           className={styles.buttonPrimary}
         >
-          Let's create my listing →
+          Let&apos;s create my listing →
         </button>
       </div>
     </div>
