@@ -71,22 +71,16 @@ export default function Step4PricingAvailability({ formData, onNext, onBack }: S
           <p style={{ color: 'var(--color-text-secondary, #6b7280)', fontSize: '0.875rem', marginBottom: '1rem' }}>
             Select your typical hourly rate (you can adjust per session)
           </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <div className={styles.checkboxGroup}>
             {HOURLY_RATE_RANGES.map((range) => (
-              <label
+              <button
                 key={range.value}
+                type="button"
                 className={`${styles.checkboxItem} ${hourlyRate === range.value ? styles.selected : ''}`}
-                style={{ padding: '1rem', cursor: 'pointer' }}
                 onClick={() => setHourlyRate(range.value)}
               >
-                <input
-                  type="radio"
-                  checked={hourlyRate === range.value}
-                  onChange={() => setHourlyRate(range.value)}
-                  className={styles.checkboxInput}
-                />
-                <span className={styles.checkboxLabel}>{range.label}</span>
-              </label>
+                {range.label}
+              </button>
             ))}
           </div>
         </div>
@@ -100,18 +94,13 @@ export default function Step4PricingAvailability({ formData, onNext, onBack }: S
             Offering a free trial can help you attract more students
           </p>
           <div className={styles.checkboxGroup}>
-            <div
+            <button
+              type="button"
               className={`${styles.checkboxItem} ${freeTrial ? styles.selected : ''}`}
               onClick={() => setFreeTrial(!freeTrial)}
             >
-              <input
-                type="checkbox"
-                checked={freeTrial}
-                onChange={() => setFreeTrial(!freeTrial)}
-                className={styles.checkboxInput}
-              />
-              <span className={styles.checkboxLabel}>Yes, I offer a free trial lesson</span>
-            </div>
+              Yes, I offer a free trial lesson
+            </button>
           </div>
         </div>
 
@@ -123,19 +112,14 @@ export default function Step4PricingAvailability({ formData, onNext, onBack }: S
             </label>
             <div className={styles.checkboxGroup}>
               {[15, 30, 45, 60].map((mins) => (
-                <div
+                <button
                   key={mins}
+                  type="button"
                   className={`${styles.checkboxItem} ${trialDuration === mins ? styles.selected : ''}`}
                   onClick={() => setTrialDuration(mins)}
                 >
-                  <input
-                    type="radio"
-                    checked={trialDuration === mins}
-                    onChange={() => setTrialDuration(mins)}
-                    className={styles.checkboxInput}
-                  />
-                  <span className={styles.checkboxLabel}>{mins} minutes</span>
-                </div>
+                  {mins} minutes
+                </button>
               ))}
             </div>
           </div>

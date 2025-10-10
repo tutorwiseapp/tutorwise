@@ -142,18 +142,14 @@ export default function Step2TeachingDetails({ formData, onNext, onBack }: Step2
           </p>
           <div className={styles.checkboxGroup}>
             {SUBJECTS.map((subject) => (
-              <label
+              <button
                 key={subject}
+                type="button"
                 className={`${styles.checkboxItem} ${subjects.includes(subject) ? styles.selected : ''}`}
+                onClick={() => toggleSubject(subject)}
               >
-                <input
-                  type="checkbox"
-                  checked={subjects.includes(subject)}
-                  onChange={() => toggleSubject(subject)}
-                  className={styles.checkboxInput}
-                />
-                <span className={styles.checkboxLabel}>{subject}</span>
-              </label>
+                {subject}
+              </button>
             ))}
           </div>
           {subjects.includes('Other') && (
@@ -185,18 +181,14 @@ export default function Step2TeachingDetails({ formData, onNext, onBack }: Step2
           </p>
           <div className={styles.checkboxGroup}>
             {KEY_STAGES.map((level) => (
-              <label
+              <button
                 key={level}
+                type="button"
                 className={`${styles.checkboxItem} ${levels.includes(level) ? styles.selected : ''}`}
+                onClick={() => toggleLevel(level)}
               >
-                <input
-                  type="checkbox"
-                  checked={levels.includes(level)}
-                  onChange={() => toggleLevel(level)}
-                  className={styles.checkboxInput}
-                />
-                <span className={styles.checkboxLabel}>{level}</span>
-              </label>
+                {level}
+              </button>
             ))}
           </div>
         </div>
@@ -211,18 +203,14 @@ export default function Step2TeachingDetails({ formData, onNext, onBack }: Step2
           </p>
           <div className={styles.checkboxGroup}>
             {LANGUAGES.map((language) => (
-              <label
+              <button
                 key={language}
+                type="button"
                 className={`${styles.checkboxItem} ${languages.includes(language) ? styles.selected : ''}`}
+                onClick={() => toggleLanguage(language)}
               >
-                <input
-                  type="checkbox"
-                  checked={languages.includes(language)}
-                  onChange={() => toggleLanguage(language)}
-                  className={styles.checkboxInput}
-                />
-                <span className={styles.checkboxLabel}>{language}</span>
-              </label>
+                {language}
+              </button>
             ))}
           </div>
           {languages.includes('Other') && (

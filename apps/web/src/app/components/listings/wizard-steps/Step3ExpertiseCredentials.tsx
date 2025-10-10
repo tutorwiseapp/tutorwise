@@ -105,19 +105,14 @@ export default function Step3ExpertiseCredentials({ formData, onNext, onBack }: 
           </p>
           <div className={styles.checkboxGroup}>
             {YEARS_EXPERIENCE.map((years) => (
-              <label
+              <button
                 key={years}
+                type="button"
                 className={`${styles.checkboxItem} ${yearsOfExperience === years ? styles.selected : ''}`}
+                onClick={() => setYearsOfExperience(years)}
               >
-                <input
-                  type="radio"
-                  checked={yearsOfExperience === years}
-                  onChange={() => setYearsOfExperience(years)}
-                  className={styles.checkboxInput}
-                  name="years-experience"
-                />
-                <span className={styles.checkboxLabel}>{years} years</span>
-              </label>
+                {years} years
+              </button>
             ))}
           </div>
         </div>
@@ -132,18 +127,14 @@ export default function Step3ExpertiseCredentials({ formData, onNext, onBack }: 
           </p>
           <div className={styles.checkboxGroup}>
             {SPECIALIZATIONS.map((spec) => (
-              <label
+              <button
                 key={spec}
+                type="button"
                 className={`${styles.checkboxItem} ${specializations.includes(spec) ? styles.selected : ''}`}
+                onClick={() => toggleSpecialization(spec)}
               >
-                <input
-                  type="checkbox"
-                  checked={specializations.includes(spec)}
-                  onChange={() => toggleSpecialization(spec)}
-                  className={styles.checkboxInput}
-                />
-                <span className={styles.checkboxLabel}>{spec}</span>
-              </label>
+                {spec}
+              </button>
             ))}
           </div>
           {specializations.includes('Other') && (
@@ -170,18 +161,14 @@ export default function Step3ExpertiseCredentials({ formData, onNext, onBack }: 
           </p>
           <div className={styles.checkboxGroup}>
             {TEACHING_METHODS.map((method) => (
-              <label
+              <button
                 key={method}
+                type="button"
                 className={`${styles.checkboxItem} ${teachingMethods.includes(method) ? styles.selected : ''}`}
+                onClick={() => toggleMethod(method)}
               >
-                <input
-                  type="checkbox"
-                  checked={teachingMethods.includes(method)}
-                  onChange={() => toggleMethod(method)}
-                  className={styles.checkboxInput}
-                />
-                <span className={styles.checkboxLabel}>{method}</span>
-              </label>
+                {method}
+              </button>
             ))}
           </div>
           {teachingMethods.includes('Other') && (

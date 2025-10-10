@@ -76,66 +76,42 @@ export default function Step5LocationMedia({
           <p className={styles.helperText}>
             How will you deliver your tutoring sessions?
           </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
-            <label
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem', marginTop: '0.5rem' }}>
+            <button
+              type="button"
               className={`${styles.checkboxItem} ${locationType === 'online' ? styles.selected : ''}`}
-              style={{ padding: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'flex-start' }}
+              onClick={() => setLocationType('online')}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '1rem', textAlign: 'left' }}
             >
-              <input
-                type="radio"
-                name="location"
-                checked={locationType === 'online'}
-                onChange={() => setLocationType('online')}
-                className={styles.checkboxInput}
-                style={{ marginTop: '0.125rem' }}
-              />
-              <div style={{ marginLeft: '0.75rem' }}>
-                <span className={styles.checkboxLabel}>💻 Online Only</span>
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted, #6b7280)', marginTop: '0.25rem' }}>
-                  Teach via video call (Zoom, Teams, Google Meet, etc.)
-                </p>
-              </div>
-            </label>
+              <span style={{ fontWeight: 600, marginBottom: '0.25rem' }}>💻 Online Only</span>
+              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>
+                Teach via video call (Zoom, Teams, Google Meet, etc.)
+              </span>
+            </button>
 
-            <label
+            <button
+              type="button"
               className={`${styles.checkboxItem} ${locationType === 'in_person' ? styles.selected : ''}`}
-              style={{ padding: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'flex-start' }}
+              onClick={() => setLocationType('in_person')}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '1rem', textAlign: 'left' }}
             >
-              <input
-                type="radio"
-                name="location"
-                checked={locationType === 'in_person'}
-                onChange={() => setLocationType('in_person')}
-                className={styles.checkboxInput}
-                style={{ marginTop: '0.125rem' }}
-              />
-              <div style={{ marginLeft: '0.75rem' }}>
-                <span className={styles.checkboxLabel}>📍 In-Person Only</span>
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted, #6b7280)', marginTop: '0.25rem' }}>
-                  Face-to-face tutoring at your location or student&apos;s home
-                </p>
-              </div>
-            </label>
+              <span style={{ fontWeight: 600, marginBottom: '0.25rem' }}>📍 In-Person Only</span>
+              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>
+                Face-to-face tutoring at your location or student&apos;s home
+              </span>
+            </button>
 
-            <label
+            <button
+              type="button"
               className={`${styles.checkboxItem} ${locationType === 'hybrid' ? styles.selected : ''}`}
-              style={{ padding: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'flex-start' }}
+              onClick={() => setLocationType('hybrid')}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '1rem', textAlign: 'left' }}
             >
-              <input
-                type="radio"
-                name="location"
-                checked={locationType === 'hybrid'}
-                onChange={() => setLocationType('hybrid')}
-                className={styles.checkboxInput}
-                style={{ marginTop: '0.125rem' }}
-              />
-              <div style={{ marginLeft: '0.75rem' }}>
-                <span className={styles.checkboxLabel}>🌐 Hybrid (Both)</span>
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted, #6b7280)', marginTop: '0.25rem' }}>
-                  Flexible - offer both online and in-person options
-                </p>
-              </div>
-            </label>
+              <span style={{ fontWeight: 600, marginBottom: '0.25rem' }}>🌐 Hybrid (Both)</span>
+              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>
+                Flexible - offer both online and in-person options
+              </span>
+            </button>
           </div>
         </div>
 
@@ -198,46 +174,30 @@ export default function Step5LocationMedia({
           <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '1rem' }}>
             Ready to publish?
           </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <label
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem' }}>
+            <button
+              type="button"
               className={`${styles.checkboxItem} ${status === 'draft' ? styles.selected : ''}`}
-              style={{ padding: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'flex-start' }}
+              onClick={() => setStatus('draft')}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '1rem', textAlign: 'left' }}
             >
-              <input
-                type="radio"
-                name="status"
-                checked={status === 'draft'}
-                onChange={() => setStatus('draft')}
-                className={styles.checkboxInput}
-                style={{ marginTop: '0.125rem' }}
-              />
-              <div style={{ marginLeft: '0.75rem' }}>
-                <span className={styles.checkboxLabel}>Save as Draft</span>
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted, #6b7280)', marginTop: '0.25rem' }}>
-                  You can preview and edit before publishing
-                </p>
-              </div>
-            </label>
+              <span style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Save as Draft</span>
+              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>
+                You can preview and edit before publishing
+              </span>
+            </button>
 
-            <label
+            <button
+              type="button"
               className={`${styles.checkboxItem} ${status === 'published' ? styles.selected : ''}`}
-              style={{ padding: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'flex-start' }}
+              onClick={() => setStatus('published')}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '1rem', textAlign: 'left' }}
             >
-              <input
-                type="radio"
-                name="status"
-                checked={status === 'published'}
-                onChange={() => setStatus('published')}
-                className={styles.checkboxInput}
-                style={{ marginTop: '0.125rem' }}
-              />
-              <div style={{ marginLeft: '0.75rem' }}>
-                <span className={styles.checkboxLabel}>Publish Now</span>
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted, #6b7280)', marginTop: '0.25rem' }}>
-                  Make your listing visible to students immediately
-                </p>
-              </div>
-            </label>
+              <span style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Publish Now</span>
+              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>
+                Make your listing visible to students immediately
+              </span>
+            </button>
           </div>
         </div>
       </div>
