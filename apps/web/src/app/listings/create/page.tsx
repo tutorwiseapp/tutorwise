@@ -7,6 +7,7 @@ import { createListing } from '@/lib/api/listings';
 import type { CreateListingInput } from '@tutorwise/shared-types';
 import { toast } from 'sonner';
 import CreateListingForm from '@/app/components/listings/CreateListingForm';
+import styles from './page.module.css';
 
 export default function CreateListingPage() {
   const router = useRouter();
@@ -49,11 +50,9 @@ export default function CreateListingPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
+      <div className={styles.loading}>
+        <div className={styles.spinner}></div>
+        <p>Loading...</p>
       </div>
     );
   }
@@ -86,11 +85,13 @@ export default function CreateListingPage() {
   };
 
   return (
-    <CreateListingForm
-      onSubmit={handleSubmit}
-      onCancel={handleCancel}
-      isSaving={isSaving}
-      initialData={initialData}
-    />
+    <div className={styles.listingPage}>
+      <CreateListingForm
+        onSubmit={handleSubmit}
+        onCancel={handleCancel}
+        isSaving={isSaving}
+        initialData={initialData}
+      />
+    </div>
   );
 }

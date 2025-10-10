@@ -127,8 +127,8 @@ export default function CreateListingWizard({
   };
 
   return (
-    <div className="flex-1 bg-gray-50 flex flex-col" data-wizard-version="v5">
-      <div className="max-w-5xl mx-auto px-6 py-12 w-full">
+    <div className="w-full max-w-6xl" data-wizard-version="v6">
+      <div className="px-6 py-12">
         {/* Progress Dots - matching onboarding style */}
         <div className="flex justify-center items-center gap-3 mb-16">
           {STEPS.map((step) => (
