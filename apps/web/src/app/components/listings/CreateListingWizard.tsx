@@ -127,7 +127,7 @@ export default function CreateListingWizard({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50" data-wizard-version="v2">
+    <div className="absolute inset-0 overflow-y-auto bg-gray-50" data-wizard-version="v3">
       <div className="max-w-5xl mx-auto px-6 py-12">
         {/* Progress Dots - matching onboarding style */}
         <div className="flex justify-center items-center gap-3 mb-16">

@@ -6,7 +6,7 @@
 
 export default function TestStylesPage() {
   return (
-    <div className="min-h-screen bg-gray-50" data-test-page="v1">
+    <div className="absolute inset-0 overflow-y-auto bg-gray-50" data-test-page="v2-fixed">
       <div className="max-w-5xl mx-auto px-6 py-12">
         {/* Test 1: Progress Dots */}
         <div className="mb-16">
