@@ -339,9 +339,14 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
   };
 
   const handleComplete = async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      console.error('No user ID found');
+      return;
+    }
 
     setIsLoading(true);
+    setError(null);
+
     try {
       // Mark onboarding as completed in database
       const { error: progressError } = await supabase
@@ -356,7 +361,10 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
         })
         .eq('id', user.id);
 
-      if (progressError) throw progressError;
+      if (progressError) {
+        console.error('Progress update error:', progressError);
+        throw progressError;
+      }
 
       // Update user's roles in the profile
       const { error: rolesError } = await supabase
@@ -366,12 +374,20 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
         })
         .eq('id', user.id);
 
-      if (rolesError) throw rolesError;
+      if (rolesError) {
+        console.error('Roles update error:', rolesError);
+        throw rolesError;
+      }
 
       console.log('Onboarding completed successfully');
+      setIsLoading(false);
 
       // Call the completion callback to navigate to dashboard
-      onComplete?.();
+      if (onComplete) {
+        onComplete();
+      } else {
+        console.warn('No onComplete callback provided');
+      }
     } catch (err) {
       console.error('Error completing onboarding:', err);
       setError('Failed to complete onboarding. Please try again.');

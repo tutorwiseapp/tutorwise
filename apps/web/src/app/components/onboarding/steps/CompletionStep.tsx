@@ -1,7 +1,7 @@
 'use client';
 
 /* eslint-disable react/no-unescaped-entities */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './CompletionStep.module.css';
 
 interface CompletionStepProps {
@@ -17,6 +17,24 @@ const roleLabels = {
 };
 
 const CompletionStep: React.FC<CompletionStepProps> = ({ selectedRoles, onComplete, isLoading = false }) => {
+  const [countdown, setCountdown] = useState(3);
+
+  // Auto-redirect after 3 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          onComplete();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [onComplete]);
+
   return (
     <div className={styles.completionContainer}>
       <div className={styles.successSection}>
@@ -88,13 +106,18 @@ const CompletionStep: React.FC<CompletionStepProps> = ({ selectedRoles, onComple
         <p>🔧 You can also update your preferences and profile information in your account settings.</p>
       </div>
 
-      {/* Action Button */}
+      {/* Auto-redirect message */}
+      <div className={styles.redirectMessage}>
+        <p>Redirecting to your dashboard in {countdown} second{countdown !== 1 ? 's' : ''}...</p>
+      </div>
+
+      {/* Manual Action Button */}
       <button
         onClick={onComplete}
         className={styles.dashboardButton}
         disabled={isLoading}
       >
-        {isLoading ? 'Completing...' : 'Go to Dashboard'}
+        {isLoading ? 'Completing...' : 'Go to Dashboard Now'}
         {!isLoading && (
           <svg className={styles.arrowIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
