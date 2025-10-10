@@ -127,36 +127,44 @@ export default function CreateListingWizard({
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
-      {/* Simple Progress Indicator */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-sm font-medium text-gray-700">
-            Step {currentStep} of {STEPS.length}
-          </p>
-          <p className="text-sm text-gray-500">{STEPS[currentStep - 1].label}</p>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-5xl mx-auto px-6 py-12">
+        {/* Progress Dots - matching onboarding style */}
+        <div className="flex justify-center items-center gap-3 mb-16">
+          {STEPS.map((step) => (
+            <div key={step.id} className="flex items-center">
+              <div
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  currentStep === step.id
+                    ? 'bg-teal-600 scale-125'
+                    : currentStep > step.id
+                    ? 'bg-teal-600'
+                    : 'bg-gray-300'
+                }`}
+              />
+              {step.id < STEPS.length && (
+                <div
+                  className={`w-12 h-0.5 transition-colors duration-300 ${
+                    currentStep > step.id ? 'bg-teal-600' : 'bg-gray-300'
+                  }`}
+                />
+              )}
+            </div>
+          ))}
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${(currentStep / STEPS.length) * 100}%` }}
-          />
-        </div>
-      </div>
 
-      {/* Step Content */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+        {/* Step Content - full width, centered */}
         {renderStep()}
-      </div>
 
-      {/* Cancel Link */}
-      <div className="mt-6 text-center">
-        <button
-          onClick={onCancel}
-          className="text-sm text-gray-600 hover:text-gray-900 underline"
-        >
-          Cancel
-        </button>
+        {/* Cancel Link */}
+        <div className="mt-12 text-center">
+          <button
+            onClick={onCancel}
+            className="text-sm text-gray-600 hover:text-gray-900"
+          >
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
   );
