@@ -66,12 +66,13 @@ export default function CreateListingPage() {
     setIsSaving(true);
     try {
       const listing = await createListing(data);
-      toast.success('Listing created successfully!');
+      toast.success('Listing published successfully!');
 
       // Clear draft from localStorage on successful creation
       localStorage.removeItem('listing_draft');
 
-      router.push(`/listings/${listing.id}`);
+      // Redirect to My Listings page after successful publish
+      router.push('/listings');
     } catch (error) {
       console.error('Failed to create listing:', error);
       toast.error('Failed to create listing. Please try again.');
