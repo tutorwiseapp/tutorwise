@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import timePickerStyles from './CustomTimePicker.module.css';
 import styles from '../../onboarding/OnboardingWizard.module.css';
 
@@ -16,8 +16,6 @@ export default function CustomTimePicker({ value, onChange, label, onClearError 
   const [hour, setHour] = useState('9');
   const [minute, setMinute] = useState('00');
   const [period, setPeriod] = useState<'AM' | 'PM'>('AM');
-  const [openUpward, setOpenUpward] = useState(true);
-  const inputRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Parse the value to set initial state
@@ -57,24 +55,13 @@ export default function CustomTimePicker({ value, onChange, label, onClearError 
   };
 
   const handleOpen = () => {
-    // Determine if there's enough space to open upward or downward
-    if (inputRef.current) {
-      const rect = inputRef.current.getBoundingClientRect();
-      const dropdownHeight = 400; // Approximate height of dropdown
-      const spaceAbove = rect.top;
-      const spaceBelow = window.innerHeight - rect.bottom;
-
-      // Open upward only if there's enough space above AND more space above than below
-      // Otherwise open downward (default behavior)
-      setOpenUpward(spaceAbove >= dropdownHeight && spaceAbove > spaceBelow);
-    }
     setIsOpen(true);
   };
 
   return (
     <div className={timePickerStyles.timePickerContainer}>
       <label className={styles.formLabel}>{label}</label>
-      <div className={timePickerStyles.inputWrapper} ref={inputRef}>
+      <div className={timePickerStyles.inputWrapper}>
         <input
           type="text"
           value={value}
@@ -92,8 +79,8 @@ export default function CustomTimePicker({ value, onChange, label, onClearError 
           <div
             className={timePickerStyles.dropdown}
             style={{
-              [openUpward ? 'bottom' : 'top']: '100%',
-              [openUpward ? 'marginBottom' : 'marginTop']: '4px'
+              bottom: '100%',
+              marginBottom: '4px'
             }}
           >
             <div className={timePickerStyles.dropdownHeader}>
