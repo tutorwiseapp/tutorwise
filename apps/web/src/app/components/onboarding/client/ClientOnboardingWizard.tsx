@@ -129,10 +129,16 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
 
     setIsLoading(true);
     try {
-      // Save onboarding completion to profiles
-      const { error: progressError } = await supabase
+      // Update user's roles to include seeker
+      const currentRoles = profile?.roles || [];
+      const updatedRoles = [...new Set([...currentRoles, 'seeker'])];
+
+      // Single atomic update - roles, active_role, and onboarding completion together
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({
+          roles: updatedRoles,
+          active_role: 'seeker', // Set seeker as active role
           onboarding_progress: {
             onboarding_completed: true,
             completed_at: new Date().toISOString(),
@@ -145,18 +151,10 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
         })
         .eq('id', user.id);
 
-      if (progressError) throw progressError;
-
-      // Update user's roles to include seeker
-      const currentRoles = profile?.roles || [];
-      const updatedRoles = [...new Set([...currentRoles, 'seeker'])];
-
-      const { error: rolesError } = await supabase
-        .from('profiles')
-        .update({ roles: updatedRoles })
-        .eq('id', user.id);
-
-      if (rolesError) throw rolesError;
+      if (profileError) {
+        console.error('Profile update error:', profileError);
+        throw profileError;
+      }
 
       // Save client details to role_details table
       // NOTE FOR CLAUDE CODE & CAS: This saves the initial learning profile data

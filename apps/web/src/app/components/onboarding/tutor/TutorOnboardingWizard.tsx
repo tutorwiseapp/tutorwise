@@ -134,10 +134,16 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
 
     setIsLoading(true);
     try {
-      // Save onboarding completion
-      const { error: progressError } = await supabase
+      // Update user's roles to include provider
+      const currentRoles = profile?.roles || [];
+      const updatedRoles = [...new Set([...currentRoles, 'provider'])];
+
+      // Single atomic update - roles, active_role, and onboarding completion together
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({
+          roles: updatedRoles,
+          active_role: 'provider', // Set provider as active role
           onboarding_progress: {
             onboarding_completed: true,
             completed_at: new Date().toISOString(),
@@ -151,18 +157,10 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
         })
         .eq('id', user.id);
 
-      if (progressError) throw progressError;
-
-      // Update user's roles to include provider
-      const currentRoles = profile?.roles || [];
-      const updatedRoles = [...new Set([...currentRoles, 'provider'])];
-
-      const { error: rolesError } = await supabase
-        .from('profiles')
-        .update({ roles: updatedRoles })
-        .eq('id', user.id);
-
-      if (rolesError) throw rolesError;
+      if (profileError) {
+        console.error('Profile update error:', profileError);
+        throw profileError;
+      }
 
       // Save tutor details to role_details table
       // NOTE FOR CLAUDE CODE & CAS: This saves the initial professional template data

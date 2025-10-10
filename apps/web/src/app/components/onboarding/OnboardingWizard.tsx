@@ -348,10 +348,17 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
     setError(null);
 
     try {
-      // Mark onboarding as completed in database
-      const { error: progressError } = await supabase
+      // Validate roles exist
+      if (!selectedRoles || selectedRoles.length === 0) {
+        throw new Error('Cannot complete onboarding without selecting at least one role');
+      }
+
+      // Single atomic update - both onboarding completion AND roles together
+      const { error: updateError } = await supabase
         .from('profiles')
         .update({
+          roles: selectedRoles,
+          active_role: selectedRoles[0], // Set first role as active
           onboarding_progress: {
             onboarding_completed: true,
             completed_at: new Date().toISOString(),
@@ -361,22 +368,9 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
         })
         .eq('id', user.id);
 
-      if (progressError) {
-        console.error('Progress update error:', progressError);
-        throw progressError;
-      }
-
-      // Update user's roles in the profile
-      const { error: rolesError } = await supabase
-        .from('profiles')
-        .update({
-          roles: selectedRoles
-        })
-        .eq('id', user.id);
-
-      if (rolesError) {
-        console.error('Roles update error:', rolesError);
-        throw rolesError;
+      if (updateError) {
+        console.error('Onboarding completion error:', updateError);
+        throw updateError;
       }
 
       console.log('Onboarding completed successfully');
