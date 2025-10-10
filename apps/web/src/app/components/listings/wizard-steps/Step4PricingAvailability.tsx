@@ -64,11 +64,9 @@ export default function Step4PricingAvailability({ formData, onNext, onBack }: S
             Hourly Rate <span style={{ color: 'var(--color-error, #dc2626)' }}>*</span>
           </label>
           {errors.hourlyRate && (
-            <p style={{ color: 'var(--color-error, #dc2626)', fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-              {errors.hourlyRate}
-            </p>
+            <p className={styles.errorText}>{errors.hourlyRate}</p>
           )}
-          <p style={{ color: 'var(--color-text-secondary, #6b7280)', fontSize: '0.875rem', marginBottom: '1rem' }}>
+          <p className={styles.helperText}>
             Select your typical hourly rate (you can adjust per session)
           </p>
           <div className={styles.checkboxGroup}>
@@ -90,7 +88,7 @@ export default function Step4PricingAvailability({ formData, onNext, onBack }: S
           <label className={styles.formLabel}>
             Free Trial Lesson (Optional)
           </label>
-          <p style={{ color: 'var(--color-text-secondary, #6b7280)', fontSize: '0.875rem', marginBottom: '1rem' }}>
+          <p className={styles.helperText}>
             Offering a free trial can help you attract more students
           </p>
           <div className={styles.checkboxGroup}>

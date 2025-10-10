@@ -100,7 +100,7 @@ export default function Step3ExpertiseCredentials({ formData, onNext, onBack }: 
           <label className={styles.formLabel}>
             Years of Teaching Experience
           </label>
-          <p style={{ color: 'var(--color-text-secondary, #6b7280)', fontSize: '0.875rem', marginBottom: '1rem' }}>
+          <p className={styles.helperText}>
             How long have you been teaching?
           </p>
           <div className={styles.checkboxGroup}>
@@ -122,7 +122,7 @@ export default function Step3ExpertiseCredentials({ formData, onNext, onBack }: 
           <label className={styles.formLabel}>
             Specializations (Optional)
           </label>
-          <p style={{ color: 'var(--color-text-secondary, #6b7280)', fontSize: '0.875rem', marginBottom: '1rem' }}>
+          <p className={styles.helperText}>
             What are you particularly skilled at? Select all that apply
           </p>
           <div className={styles.checkboxGroup}>
@@ -138,7 +138,7 @@ export default function Step3ExpertiseCredentials({ formData, onNext, onBack }: 
             ))}
           </div>
           {specializations.includes('Other') && (
-            <div style={{ marginTop: '1rem' }}>
+            <div style={{ marginTop: '16px' }}>
               <input
                 type="text"
                 value={otherSpecialization}
@@ -156,7 +156,7 @@ export default function Step3ExpertiseCredentials({ formData, onNext, onBack }: 
           <label className={styles.formLabel}>
             Teaching Methods (Optional)
           </label>
-          <p style={{ color: 'var(--color-text-secondary, #6b7280)', fontSize: '0.875rem', marginBottom: '1rem' }}>
+          <p className={styles.helperText}>
             How do you teach? Select your preferred methods
           </p>
           <div className={styles.checkboxGroup}>
@@ -172,7 +172,7 @@ export default function Step3ExpertiseCredentials({ formData, onNext, onBack }: 
             ))}
           </div>
           {teachingMethods.includes('Other') && (
-            <div style={{ marginTop: '1rem' }}>
+            <div style={{ marginTop: '16px' }}>
               <input
                 type="text"
                 value={otherMethod}

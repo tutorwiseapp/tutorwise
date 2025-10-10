@@ -133,11 +133,9 @@ export default function Step2TeachingDetails({ formData, onNext, onBack }: Step2
             Subjects <span style={{ color: 'var(--color-error, #dc2626)' }}>*</span>
           </label>
           {errors.subjects && (
-            <p style={{ color: 'var(--color-error, #dc2626)', fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-              {errors.subjects}
-            </p>
+            <p className={styles.errorText}>{errors.subjects}</p>
           )}
-          <p style={{ color: 'var(--color-text-secondary, #6b7280)', fontSize: '0.875rem', marginBottom: '1rem' }}>
+          <p className={styles.helperText}>
             Select all subjects you teach (you can offer different rates for each later)
           </p>
           <div className={styles.checkboxGroup}>
@@ -153,7 +151,7 @@ export default function Step2TeachingDetails({ formData, onNext, onBack }: Step2
             ))}
           </div>
           {subjects.includes('Other') && (
-            <div style={{ marginTop: '1rem' }}>
+            <div style={{ marginTop: '16px' }}>
               <input
                 type="text"
                 value={otherSubject}
@@ -172,11 +170,9 @@ export default function Step2TeachingDetails({ formData, onNext, onBack }: Step2
             Education Levels <span style={{ color: 'var(--color-error, #dc2626)' }}>*</span>
           </label>
           {errors.levels && (
-            <p style={{ color: 'var(--color-error, #dc2626)', fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-              {errors.levels}
-            </p>
+            <p className={styles.errorText}>{errors.levels}</p>
           )}
-          <p style={{ color: 'var(--color-text-secondary, #6b7280)', fontSize: '0.875rem', marginBottom: '1rem' }}>
+          <p className={styles.helperText}>
             Which education levels do you teach?
           </p>
           <div className={styles.checkboxGroup}>
@@ -198,7 +194,7 @@ export default function Step2TeachingDetails({ formData, onNext, onBack }: Step2
           <label className={styles.formLabel}>
             Languages Spoken
           </label>
-          <p style={{ color: 'var(--color-text-secondary, #6b7280)', fontSize: '0.875rem', marginBottom: '1rem' }}>
+          <p className={styles.helperText}>
             Which languages can you teach in?
           </p>
           <div className={styles.checkboxGroup}>
@@ -214,7 +210,7 @@ export default function Step2TeachingDetails({ formData, onNext, onBack }: Step2
             ))}
           </div>
           {languages.includes('Other') && (
-            <div style={{ marginTop: '1rem' }}>
+            <div style={{ marginTop: '16px' }}>
               <input
                 type="text"
                 value={otherLanguage}
