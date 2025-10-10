@@ -90,24 +90,11 @@ export default function CreateListingPage() {
   };
 
   return (
-    <Container>
-      <div className="max-w-4xl mx-auto py-8">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Create New Listing</h1>
-          <p className="mt-2 text-gray-600">
-            Share your expertise by creating a tutoring service listing
-          </p>
-        </div>
-
-        <Card>
-          <CreateListingForm
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-            isSaving={isSaving}
-            initialData={initialData}
-          />
-        </Card>
-      </div>
-    </Container>
+    <CreateListingForm
+      onSubmit={handleSubmit}
+      onCancel={handleCancel}
+      isSaving={isSaving}
+      initialData={initialData}
+    />
   );
 }

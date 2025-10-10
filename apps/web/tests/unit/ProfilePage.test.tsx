@@ -39,7 +39,7 @@ describe('ProfilePage', () => {
     mockFetch.mockResolvedValue({
       ok: true,
       json: async () => ({ success: true }),
-    });
+    } as Response);
   });
 
   describe('Rendering', () => {
@@ -255,7 +255,7 @@ describe('ProfilePage', () => {
         new Promise(resolve => setTimeout(() => resolve({
           ok: true,
           json: async () => ({ success: true })
-        }), 100))
+        } as Response), 100))
       );
 
       render(<ProfilePage />);
@@ -290,7 +290,7 @@ describe('ProfilePage', () => {
         ok: false,
         status: 400,
         json: async () => ({ message: 'Invalid data' }),
-      });
+      } as Response);
 
       render(<ProfilePage />);
 
@@ -308,7 +308,7 @@ describe('ProfilePage', () => {
         ok: false,
         status: 401,
         json: async () => ({}),
-      });
+      } as Response);
 
       render(<ProfilePage />);
 
@@ -326,7 +326,7 @@ describe('ProfilePage', () => {
         ok: false,
         status: 403,
         json: async () => ({}),
-      });
+      } as Response);
 
       render(<ProfilePage />);
 
@@ -344,7 +344,7 @@ describe('ProfilePage', () => {
         ok: false,
         status: 500,
         json: async () => ({}),
-      });
+      } as Response);
 
       render(<ProfilePage />);
 
@@ -376,7 +376,7 @@ describe('ProfilePage', () => {
         ok: false,
         status: 500,
         json: async () => ({}),
-      });
+      } as Response);
 
       render(<ProfilePage />);
 
@@ -417,7 +417,7 @@ describe('ProfilePage', () => {
         ok: false,
         status: 500,
         json: async () => ({}),
-      });
+      } as Response);
 
       render(<ProfilePage />);
 
@@ -432,7 +432,7 @@ describe('ProfilePage', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ success: true }),
-      });
+      } as Response);
 
       await user.click(saveButton);
 
