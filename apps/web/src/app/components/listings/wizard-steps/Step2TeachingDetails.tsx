@@ -62,6 +62,8 @@ export default function Step2TeachingDetails({ formData, onNext, onBack }: Step2
   const [subjects, setSubjects] = useState<string[]>(formData.subjects || []);
   const [levels, setLevels] = useState<string[]>(formData.levels || []);
   const [languages, setLanguages] = useState<string[]>(formData.languages || ['English']);
+  const [otherSubject, setOtherSubject] = useState('');
+  const [otherLanguage, setOtherLanguage] = useState('');
   const [errors, setErrors] = useState<{ subjects?: string; levels?: string }>({});
 
   const toggleSubject = (subject: string) => {
@@ -99,7 +101,19 @@ export default function Step2TeachingDetails({ formData, onNext, onBack }: Step2
 
   const handleContinue = () => {
     if (validate()) {
-      onNext({ subjects, levels, languages });
+      // Replace "Other" with custom values if provided
+      const finalSubjects = subjects.map(s =>
+        s === 'Other' && otherSubject.trim() ? otherSubject.trim() : s
+      );
+      const finalLanguages = languages.map(l =>
+        l === 'Other' && otherLanguage.trim() ? otherLanguage.trim() : l
+      );
+
+      onNext({
+        subjects: finalSubjects,
+        levels,
+        languages: finalLanguages
+      });
     }
   };
 
@@ -128,10 +142,9 @@ export default function Step2TeachingDetails({ formData, onNext, onBack }: Step2
           </p>
           <div className={styles.checkboxGroup}>
             {SUBJECTS.map((subject) => (
-              <div
+              <label
                 key={subject}
                 className={`${styles.checkboxItem} ${subjects.includes(subject) ? styles.selected : ''}`}
-                onClick={() => toggleSubject(subject)}
               >
                 <input
                   type="checkbox"
@@ -140,9 +153,21 @@ export default function Step2TeachingDetails({ formData, onNext, onBack }: Step2
                   className={styles.checkboxInput}
                 />
                 <span className={styles.checkboxLabel}>{subject}</span>
-              </div>
+              </label>
             ))}
           </div>
+          {subjects.includes('Other') && (
+            <div style={{ marginTop: '1rem' }}>
+              <input
+                type="text"
+                value={otherSubject}
+                onChange={(e) => setOtherSubject(e.target.value)}
+                placeholder="Please specify your subject"
+                maxLength={32}
+                className={styles.formInput}
+              />
+            </div>
+          )}
         </div>
 
         {/* Education Levels */}
@@ -160,10 +185,9 @@ export default function Step2TeachingDetails({ formData, onNext, onBack }: Step2
           </p>
           <div className={styles.checkboxGroup}>
             {KEY_STAGES.map((level) => (
-              <div
+              <label
                 key={level}
                 className={`${styles.checkboxItem} ${levels.includes(level) ? styles.selected : ''}`}
-                onClick={() => toggleLevel(level)}
               >
                 <input
                   type="checkbox"
@@ -172,7 +196,7 @@ export default function Step2TeachingDetails({ formData, onNext, onBack }: Step2
                   className={styles.checkboxInput}
                 />
                 <span className={styles.checkboxLabel}>{level}</span>
-              </div>
+              </label>
             ))}
           </div>
         </div>
@@ -187,10 +211,9 @@ export default function Step2TeachingDetails({ formData, onNext, onBack }: Step2
           </p>
           <div className={styles.checkboxGroup}>
             {LANGUAGES.map((language) => (
-              <div
+              <label
                 key={language}
                 className={`${styles.checkboxItem} ${languages.includes(language) ? styles.selected : ''}`}
-                onClick={() => toggleLanguage(language)}
               >
                 <input
                   type="checkbox"
@@ -199,9 +222,21 @@ export default function Step2TeachingDetails({ formData, onNext, onBack }: Step2
                   className={styles.checkboxInput}
                 />
                 <span className={styles.checkboxLabel}>{language}</span>
-              </div>
+              </label>
             ))}
           </div>
+          {languages.includes('Other') && (
+            <div style={{ marginTop: '1rem' }}>
+              <input
+                type="text"
+                value={otherLanguage}
+                onChange={(e) => setOtherLanguage(e.target.value)}
+                placeholder="Please specify your language"
+                maxLength={32}
+                className={styles.formInput}
+              />
+            </div>
+          )}
         </div>
       </div>
 

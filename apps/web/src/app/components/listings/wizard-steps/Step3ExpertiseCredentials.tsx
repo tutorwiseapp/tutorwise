@@ -23,6 +23,7 @@ const SPECIALIZATIONS = [
   'Adult Learning',
   'Career Changers',
   'Online Teaching',
+  'Other'
 ];
 
 const TEACHING_METHODS = [
@@ -38,6 +39,7 @@ const TEACHING_METHODS = [
   'Technology-Enhanced',
   'Games & Activities',
   'Real-World Examples',
+  'Other'
 ];
 
 const YEARS_EXPERIENCE = [
@@ -52,6 +54,8 @@ export default function Step3ExpertiseCredentials({ formData, onNext, onBack }: 
   const [specializations, setSpecializations] = useState<string[]>(formData.specializations || []);
   const [teachingMethods, setTeachingMethods] = useState<string[]>(formData.teaching_methods || []);
   const [yearsOfExperience, setYearsOfExperience] = useState(formData.years_of_experience || '');
+  const [otherSpecialization, setOtherSpecialization] = useState('');
+  const [otherMethod, setOtherMethod] = useState('');
 
   const toggleSpecialization = (item: string) => {
     setSpecializations(prev =>
@@ -66,9 +70,17 @@ export default function Step3ExpertiseCredentials({ formData, onNext, onBack }: 
   };
 
   const handleContinue = () => {
+    // Replace "Other" with custom values if provided
+    const finalSpecializations = specializations.map(s =>
+      s === 'Other' && otherSpecialization.trim() ? otherSpecialization.trim() : s
+    );
+    const finalMethods = teachingMethods.map(m =>
+      m === 'Other' && otherMethod.trim() ? otherMethod.trim() : m
+    );
+
     onNext({
-      specializations,
-      teaching_methods: teachingMethods,
+      specializations: finalSpecializations,
+      teaching_methods: finalMethods,
       years_of_experience: yearsOfExperience,
     });
   };
@@ -93,19 +105,19 @@ export default function Step3ExpertiseCredentials({ formData, onNext, onBack }: 
           </p>
           <div className={styles.checkboxGroup}>
             {YEARS_EXPERIENCE.map((years) => (
-              <div
+              <label
                 key={years}
                 className={`${styles.checkboxItem} ${yearsOfExperience === years ? styles.selected : ''}`}
-                onClick={() => setYearsOfExperience(years)}
               >
                 <input
                   type="radio"
                   checked={yearsOfExperience === years}
                   onChange={() => setYearsOfExperience(years)}
                   className={styles.checkboxInput}
+                  name="years-experience"
                 />
                 <span className={styles.checkboxLabel}>{years} years</span>
-              </div>
+              </label>
             ))}
           </div>
         </div>
@@ -120,10 +132,9 @@ export default function Step3ExpertiseCredentials({ formData, onNext, onBack }: 
           </p>
           <div className={styles.checkboxGroup}>
             {SPECIALIZATIONS.map((spec) => (
-              <div
+              <label
                 key={spec}
                 className={`${styles.checkboxItem} ${specializations.includes(spec) ? styles.selected : ''}`}
-                onClick={() => toggleSpecialization(spec)}
               >
                 <input
                   type="checkbox"
@@ -132,9 +143,21 @@ export default function Step3ExpertiseCredentials({ formData, onNext, onBack }: 
                   className={styles.checkboxInput}
                 />
                 <span className={styles.checkboxLabel}>{spec}</span>
-              </div>
+              </label>
             ))}
           </div>
+          {specializations.includes('Other') && (
+            <div style={{ marginTop: '1rem' }}>
+              <input
+                type="text"
+                value={otherSpecialization}
+                onChange={(e) => setOtherSpecialization(e.target.value)}
+                placeholder="Please specify your specialization"
+                maxLength={32}
+                className={styles.formInput}
+              />
+            </div>
+          )}
         </div>
 
         {/* Teaching Methods */}
@@ -147,10 +170,9 @@ export default function Step3ExpertiseCredentials({ formData, onNext, onBack }: 
           </p>
           <div className={styles.checkboxGroup}>
             {TEACHING_METHODS.map((method) => (
-              <div
+              <label
                 key={method}
                 className={`${styles.checkboxItem} ${teachingMethods.includes(method) ? styles.selected : ''}`}
-                onClick={() => toggleMethod(method)}
               >
                 <input
                   type="checkbox"
@@ -159,9 +181,21 @@ export default function Step3ExpertiseCredentials({ formData, onNext, onBack }: 
                   className={styles.checkboxInput}
                 />
                 <span className={styles.checkboxLabel}>{method}</span>
-              </div>
+              </label>
             ))}
           </div>
+          {teachingMethods.includes('Other') && (
+            <div style={{ marginTop: '1rem' }}>
+              <input
+                type="text"
+                value={otherMethod}
+                onChange={(e) => setOtherMethod(e.target.value)}
+                placeholder="Please specify your teaching method"
+                maxLength={32}
+                className={styles.formInput}
+              />
+            </div>
+          )}
         </div>
       </div>
 
