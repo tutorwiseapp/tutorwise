@@ -2,13 +2,12 @@
 
 import { useState } from 'react';
 import type { CreateListingInput } from '@tutorwise/shared-types';
-import Button from '@/app/components/ui/Button';
+import styles from '../../onboarding/OnboardingWizard.module.css';
 
 interface Step2Props {
   formData: Partial<CreateListingInput>;
   onNext: (data: Partial<CreateListingInput>) => void;
   onBack: () => void;
-  isFirstStep: boolean;
 }
 
 const SUBJECTS = [
@@ -34,14 +33,14 @@ const SUBJECTS = [
 ];
 
 const KEY_STAGES = [
-  { value: 'Primary (KS1 & KS2)', label: 'Primary Education (KS1 & KS2) - Age 5 to 11' },
-  { value: 'KS3', label: 'Secondary (KS3) - Age 11 to 14' },
-  { value: 'GCSE', label: 'GCSE / KS4 - Age 14 to 16' },
-  { value: 'A-Level', label: 'A-Level - Age 16 to 18' },
-  { value: 'IB', label: 'International Baccalaureate (IB)' },
-  { value: 'Undergraduate', label: 'University/Undergraduate' },
-  { value: 'Postgraduate', label: 'Postgraduate' },
-  { value: 'Adult Learning', label: 'Adult Learning' },
+  'Primary (KS1 & KS2)',
+  'KS3',
+  'GCSE',
+  'A-Level',
+  'IB',
+  'Undergraduate',
+  'Postgraduate',
+  'Adult Learning',
 ];
 
 const LANGUAGES = [
@@ -91,7 +90,7 @@ export default function Step2TeachingDetails({ formData, onNext, onBack }: Step2
     }
 
     if (levels.length === 0) {
-      newErrors.levels = 'Please select at least one key stage/level';
+      newErrors.levels = 'Please select at least one education level';
     }
 
     setErrors(newErrors);
@@ -105,118 +104,118 @@ export default function Step2TeachingDetails({ formData, onNext, onBack }: Step2
   };
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Teaching Details</h2>
-        <p className="text-gray-600">
-          Select the subjects and levels you teach. This helps students find the right tutor.
+    <div className={styles.stepContent}>
+      <div className={styles.stepHeader}>
+        <h1 className={styles.stepTitle}>What Do You Teach?</h1>
+        <p className={styles.stepSubtitle}>
+          Select the subjects and levels you teach to help students find you
         </p>
       </div>
 
-      {/* Subjects */}
-      <div>
-        <label className="block text-lg font-semibold text-gray-900 mb-3">
-          Subjects <span className="text-red-500">*</span>
-        </label>
-        {errors.subjects && (
-          <p className="mb-2 text-sm text-red-600">{errors.subjects}</p>
-        )}
-        <p className="text-sm text-gray-600 mb-4">
-          Select all subjects you teach (you can offer different rates for different subjects later)
-        </p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {SUBJECTS.map((subject) => (
-            <label
-              key={subject}
-              className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-all ${
-                subjects.includes(subject)
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <input
-                type="checkbox"
-                checked={subjects.includes(subject)}
-                onChange={() => toggleSubject(subject)}
-                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-              />
-              <span className="ml-2 text-sm font-medium text-gray-900">{subject}</span>
-            </label>
-          ))}
+      <div className={styles.stepBody}>
+        {/* Subjects */}
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel}>
+            Subjects <span style={{ color: 'var(--color-error, #dc2626)' }}>*</span>
+          </label>
+          {errors.subjects && (
+            <p style={{ color: 'var(--color-error, #dc2626)', fontSize: '0.875rem', marginBottom: '0.5rem' }}>
+              {errors.subjects}
+            </p>
+          )}
+          <p style={{ color: 'var(--color-text-secondary, #6b7280)', fontSize: '0.875rem', marginBottom: '1rem' }}>
+            Select all subjects you teach (you can offer different rates for each later)
+          </p>
+          <div className={styles.checkboxGroup}>
+            {SUBJECTS.map((subject) => (
+              <div
+                key={subject}
+                className={`${styles.checkboxItem} ${subjects.includes(subject) ? styles.selected : ''}`}
+                onClick={() => toggleSubject(subject)}
+              >
+                <input
+                  type="checkbox"
+                  checked={subjects.includes(subject)}
+                  onChange={() => toggleSubject(subject)}
+                  className={styles.checkboxInput}
+                />
+                <span className={styles.checkboxLabel}>{subject}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Education Levels */}
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel}>
+            Education Levels <span style={{ color: 'var(--color-error, #dc2626)' }}>*</span>
+          </label>
+          {errors.levels && (
+            <p style={{ color: 'var(--color-error, #dc2626)', fontSize: '0.875rem', marginBottom: '0.5rem' }}>
+              {errors.levels}
+            </p>
+          )}
+          <p style={{ color: 'var(--color-text-secondary, #6b7280)', fontSize: '0.875rem', marginBottom: '1rem' }}>
+            Which education levels do you teach?
+          </p>
+          <div className={styles.checkboxGroup}>
+            {KEY_STAGES.map((level) => (
+              <div
+                key={level}
+                className={`${styles.checkboxItem} ${levels.includes(level) ? styles.selected : ''}`}
+                onClick={() => toggleLevel(level)}
+              >
+                <input
+                  type="checkbox"
+                  checked={levels.includes(level)}
+                  onChange={() => toggleLevel(level)}
+                  className={styles.checkboxInput}
+                />
+                <span className={styles.checkboxLabel}>{level}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Languages */}
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel}>
+            Languages Spoken
+          </label>
+          <p style={{ color: 'var(--color-text-secondary, #6b7280)', fontSize: '0.875rem', marginBottom: '1rem' }}>
+            Which languages can you teach in?
+          </p>
+          <div className={styles.checkboxGroup}>
+            {LANGUAGES.map((language) => (
+              <div
+                key={language}
+                className={`${styles.checkboxItem} ${languages.includes(language) ? styles.selected : ''}`}
+                onClick={() => toggleLanguage(language)}
+              >
+                <input
+                  type="checkbox"
+                  checked={languages.includes(language)}
+                  onChange={() => toggleLanguage(language)}
+                  className={styles.checkboxInput}
+                />
+                <span className={styles.checkboxLabel}>{language}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Key Stages/Levels */}
-      <div>
-        <label className="block text-lg font-semibold text-gray-900 mb-3">
-          Key Stages / Education Levels <span className="text-red-500">*</span>
-        </label>
-        {errors.levels && (
-          <p className="mb-2 text-sm text-red-600">{errors.levels}</p>
-        )}
-        <p className="text-sm text-gray-600 mb-4">
-          Which levels do you teach?
-        </p>
-        <div className="space-y-2">
-          {KEY_STAGES.map((stage) => (
-            <label
-              key={stage.value}
-              className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                levels.includes(stage.value)
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <input
-                type="checkbox"
-                checked={levels.includes(stage.value)}
-                onChange={() => toggleLevel(stage.value)}
-                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-              />
-              <span className="ml-3 text-sm font-medium text-gray-900">{stage.label}</span>
-            </label>
-          ))}
+      <div className={styles.stepActions}>
+        <div className={styles.actionLeft}>
+          <button onClick={onBack} className={styles.buttonSecondary}>
+            ← Back
+          </button>
         </div>
-      </div>
-
-      {/* Languages */}
-      <div>
-        <label className="block text-lg font-semibold text-gray-900 mb-3">
-          Languages Spoken
-        </label>
-        <p className="text-sm text-gray-600 mb-4">
-          Which languages can you teach in?
-        </p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {LANGUAGES.map((language) => (
-            <label
-              key={language}
-              className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-all ${
-                languages.includes(language)
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <input
-                type="checkbox"
-                checked={languages.includes(language)}
-                onChange={() => toggleLanguage(language)}
-                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-              />
-              <span className="ml-2 text-sm font-medium text-gray-900">{language}</span>
-            </label>
-          ))}
+        <div className={styles.actionRight}>
+          <button onClick={handleContinue} className={styles.buttonPrimary}>
+            Continue →
+          </button>
         </div>
-      </div>
-
-      {/* Navigation */}
-      <div className="flex justify-between pt-4">
-        <Button onClick={onBack} variant="outline">
-          ← Back
-        </Button>
-        <Button onClick={handleContinue}>
-          Continue →
-        </Button>
       </div>
     </div>
   );

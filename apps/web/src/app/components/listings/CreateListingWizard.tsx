@@ -1,12 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import type { CreateListingInput } from '@tutorwise/shared-types';
+import WelcomeStep from './wizard-steps/WelcomeStep';
 import Step1BasicInfo from './wizard-steps/Step1BasicInfo';
 import Step2TeachingDetails from './wizard-steps/Step2TeachingDetails';
 import Step3ExpertiseCredentials from './wizard-steps/Step3ExpertiseCredentials';
 import Step4PricingAvailability from './wizard-steps/Step4PricingAvailability';
 import Step5LocationMedia from './wizard-steps/Step5LocationMedia';
+import styles from '../onboarding/OnboardingWizard.module.css';
+
+type ListingStep = 'welcome' | 'basic' | 'teaching' | 'expertise' | 'pricing' | 'location';
 
 interface CreateListingWizardProps {
   onSubmit: (data: CreateListingInput) => void;
@@ -15,21 +20,14 @@ interface CreateListingWizardProps {
   initialData?: Partial<CreateListingInput>;
 }
 
-const STEPS = [
-  { id: 1, label: 'Basic Info', shortLabel: 'Basic' },
-  { id: 2, label: 'Teaching Details', shortLabel: 'Teaching' },
-  { id: 3, label: 'Expertise', shortLabel: 'Expertise' },
-  { id: 4, label: 'Pricing & Availability', shortLabel: 'Pricing' },
-  { id: 5, label: 'Location & Media', shortLabel: 'Location' },
-];
-
 export default function CreateListingWizard({
   onSubmit,
   onCancel,
   isSaving = false,
   initialData
 }: CreateListingWizardProps) {
-  const [currentStep, setCurrentStep] = useState(1);
+  const { profile, user } = useUserProfile();
+  const [currentStep, setCurrentStep] = useState<ListingStep>('welcome');
   const [formData, setFormData] = useState<Partial<CreateListingInput>>({
     currency: 'GBP',
     location_country: 'United Kingdom',
@@ -38,17 +36,19 @@ export default function CreateListingWizard({
     ...initialData,
   });
 
-  // Auto-save draft every 30 seconds
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (formData.title || formData.description) {
-        localStorage.setItem('listing_draft', JSON.stringify(formData));
-        console.log('Draft auto-saved');
-      }
-    }, 30000);
-
-    return () => clearInterval(timer);
+  // Auto-save draft to localStorage
+  const saveDraft = useCallback(() => {
+    if (formData.title || formData.description) {
+      localStorage.setItem('listing_draft', JSON.stringify(formData));
+      console.log('Draft saved');
+    }
   }, [formData]);
+
+  // Auto-save every 30 seconds
+  useEffect(() => {
+    const timer = setInterval(saveDraft, 30000);
+    return () => clearInterval(timer);
+  }, [saveDraft]);
 
   // Load draft on mount
   useEffect(() => {
@@ -67,24 +67,42 @@ export default function CreateListingWizard({
     setFormData(prev => ({ ...prev, ...stepData }));
   };
 
-  const handleNext = (stepData: Partial<CreateListingInput>) => {
-    updateFormData(stepData);
-    if (currentStep < STEPS.length) {
-      setCurrentStep(currentStep + 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+  // Step navigation handlers
+  const handleWelcomeNext = () => {
+    setCurrentStep('basic');
+  };
+
+  const handleBasicNext = (data: Partial<CreateListingInput>) => {
+    updateFormData(data);
+    setCurrentStep('teaching');
+  };
+
+  const handleTeachingNext = (data: Partial<CreateListingInput>) => {
+    updateFormData(data);
+    setCurrentStep('expertise');
+  };
+
+  const handleExpertiseNext = (data: Partial<CreateListingInput>) => {
+    updateFormData(data);
+    setCurrentStep('pricing');
+  };
+
+  const handlePricingNext = (data: Partial<CreateListingInput>) => {
+    updateFormData(data);
+    setCurrentStep('location');
   };
 
   const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    const stepOrder: ListingStep[] = ['welcome', 'basic', 'teaching', 'expertise', 'pricing', 'location'];
+    const currentIndex = stepOrder.indexOf(currentStep);
+    if (currentIndex > 0) {
+      setCurrentStep(stepOrder[currentIndex - 1]);
     }
   };
 
   const handleSaveDraft = () => {
-    localStorage.setItem('listing_draft', JSON.stringify(formData));
-    alert('Draft saved! You can resume later from your dashboard.');
+    saveDraft();
+    alert('Draft saved! You can resume later from your listings page.');
     onCancel();
   };
 
@@ -95,27 +113,52 @@ export default function CreateListingWizard({
   };
 
   const renderStep = () => {
-    const commonProps = {
-      formData,
-      onNext: handleNext,
-      onBack: handleBack,
-      isFirstStep: currentStep === 1,
-      isLastStep: currentStep === STEPS.length,
-    };
-
     switch (currentStep) {
-      case 1:
-        return <Step1BasicInfo {...commonProps} />;
-      case 2:
-        return <Step2TeachingDetails {...commonProps} />;
-      case 3:
-        return <Step3ExpertiseCredentials {...commonProps} />;
-      case 4:
-        return <Step4PricingAvailability {...commonProps} />;
-      case 5:
+      case 'welcome':
+        return (
+          <WelcomeStep
+            userName={profile?.display_name || user?.email?.split('@')[0] || 'there'}
+            onNext={handleWelcomeNext}
+            onSkip={onCancel}
+          />
+        );
+      case 'basic':
+        return (
+          <Step1BasicInfo
+            formData={formData}
+            onNext={handleBasicNext}
+            onBack={handleBack}
+          />
+        );
+      case 'teaching':
+        return (
+          <Step2TeachingDetails
+            formData={formData}
+            onNext={handleTeachingNext}
+            onBack={handleBack}
+          />
+        );
+      case 'expertise':
+        return (
+          <Step3ExpertiseCredentials
+            formData={formData}
+            onNext={handleExpertiseNext}
+            onBack={handleBack}
+          />
+        );
+      case 'pricing':
+        return (
+          <Step4PricingAvailability
+            formData={formData}
+            onNext={handlePricingNext}
+            onBack={handleBack}
+          />
+        );
+      case 'location':
         return (
           <Step5LocationMedia
-            {...commonProps}
+            formData={formData}
+            onBack={handleBack}
             onSubmit={handleFinalSubmit}
             onSaveDraft={handleSaveDraft}
             isSaving={isSaving}
@@ -127,45 +170,26 @@ export default function CreateListingWizard({
   };
 
   return (
-    <div className="w-full max-w-6xl" data-wizard-version="v6">
-      <div className="px-6 py-12">
-        {/* Progress Dots - matching onboarding style */}
-        <div className="flex justify-center items-center gap-3 mb-16">
-          {STEPS.map((step) => (
-            <div key={step.id} className="flex items-center">
-              <div
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  currentStep === step.id
-                    ? 'bg-teal-600 scale-125'
-                    : currentStep > step.id
-                    ? 'bg-teal-600'
-                    : 'bg-gray-300'
-                }`}
-              />
-              {step.id < STEPS.length && (
-                <div
-                  className={`w-12 h-0.5 transition-colors duration-300 ${
-                    currentStep > step.id ? 'bg-teal-600' : 'bg-gray-300'
-                  }`}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Step Content - full width, centered */}
-        {renderStep()}
-
-        {/* Cancel Link */}
-        <div className="mt-12 text-center">
-          <button
-            onClick={onCancel}
-            className="text-sm text-gray-600 hover:text-gray-900"
-          >
-            Cancel
-          </button>
-        </div>
+    <div className={styles.wizardContainer + ' ' + styles.fullPage}>
+      {/* Progress indicator */}
+      <div className={styles.wizardProgress}>
+        {['welcome', 'basic', 'teaching', 'expertise', 'pricing', 'location'].map((step, index) => (
+          <div key={step} style={{ display: 'flex', alignItems: 'center' }}>
+            <div
+              className={`${styles.progressDot} ${
+                currentStep === step ? styles.active :
+                ['welcome', 'basic', 'teaching', 'expertise', 'pricing', 'location'].indexOf(currentStep) > index ? styles.completed : ''
+              }`}
+            />
+            {index < 5 && <div className={`${styles.progressSeparator} ${
+              ['welcome', 'basic', 'teaching', 'expertise', 'pricing', 'location'].indexOf(currentStep) > index ? styles.active : ''
+            }`} />}
+          </div>
+        ))}
       </div>
+
+      {/* Step content */}
+      {renderStep()}
     </div>
   );
 }

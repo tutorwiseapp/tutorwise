@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import type { CreateListingInput, LocationType } from '@tutorwise/shared-types';
-import Button from '@/app/components/ui/Button';
+import styles from '../../onboarding/OnboardingWizard.module.css';
 
 interface Step5Props {
   formData: Partial<CreateListingInput>;
@@ -56,198 +56,211 @@ export default function Step5LocationMedia({
   };
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Location & Media</h2>
-        <p className="text-gray-600">
+    <div className={styles.stepContent}>
+      <div className={styles.stepHeader}>
+        <h1 className={styles.stepTitle}>Location & Media</h1>
+        <p className={styles.stepSubtitle}>
           Final step! Let students know where you teach and add an optional introduction video.
         </p>
       </div>
 
-      {/* Location Type */}
-      <div>
-        <label className="block text-lg font-semibold text-gray-900 mb-3">
-          Delivery Mode <span className="text-red-500">*</span>
-        </label>
-        {errors.locationType && (
-          <p className="mb-2 text-sm text-red-600">{errors.locationType}</p>
-        )}
-        <p className="text-sm text-gray-600 mb-4">
-          How will you deliver your tutoring sessions?
-        </p>
-        <div className="space-y-3">
-          <label
-            className={`flex items-start p-4 border-2 rounded-lg cursor-pointer transition-all ${
-              locationType === 'online'
-                ? 'border-teal-500 bg-teal-50'
-                : 'border-gray-200 hover:border-gray-300'
-            }`}
-          >
-            <input
-              type="radio"
-              name="location"
-              checked={locationType === 'online'}
-              onChange={() => setLocationType('online')}
-              className="w-4 h-4 mt-1 text-teal-600 focus:ring-teal-500"
-            />
-            <div className="ml-3">
-              <span className="text-sm font-medium text-gray-900">💻 Online Only</span>
-              <p className="text-xs text-gray-600 mt-1">
-                Teach via video call (Zoom, Teams, Google Meet, etc.)
-              </p>
-            </div>
+      <div className={styles.stepBody}>
+        {/* Location Type */}
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel}>
+            Delivery Mode <span style={{ color: 'var(--color-error, #dc2626)' }}>*</span>
           </label>
-
-          <label
-            className={`flex items-start p-4 border-2 rounded-lg cursor-pointer transition-all ${
-              locationType === 'in_person'
-                ? 'border-teal-500 bg-teal-50'
-                : 'border-gray-200 hover:border-gray-300'
-            }`}
-          >
-            <input
-              type="radio"
-              name="location"
-              checked={locationType === 'in_person'}
-              onChange={() => setLocationType('in_person')}
-              className="w-4 h-4 mt-1 text-teal-600 focus:ring-teal-500"
-            />
-            <div className="ml-3">
-              <span className="text-sm font-medium text-gray-900">📍 In-Person Only</span>
-              <p className="text-xs text-gray-600 mt-1">
-                Face-to-face tutoring at your location or student&apos;s home
-              </p>
-            </div>
-          </label>
-
-          <label
-            className={`flex items-start p-4 border-2 rounded-lg cursor-pointer transition-all ${
-              locationType === 'hybrid'
-                ? 'border-teal-500 bg-teal-50'
-                : 'border-gray-200 hover:border-gray-300'
-            }`}
-          >
-            <input
-              type="radio"
-              name="location"
-              checked={locationType === 'hybrid'}
-              onChange={() => setLocationType('hybrid')}
-              className="w-4 h-4 mt-1 text-teal-600 focus:ring-teal-500"
-            />
-            <div className="ml-3">
-              <span className="text-sm font-medium text-gray-900">🌐 Hybrid (Both)</span>
-              <p className="text-xs text-gray-600 mt-1">
-                Flexible - offer both online and in-person options
-              </p>
-            </div>
-          </label>
-        </div>
-      </div>
-
-      {/* Location Details (if in-person or hybrid) */}
-      {(locationType === 'in_person' || locationType === 'hybrid') && (
-        <div className="space-y-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Your Location <span className="text-red-500">*</span>
-          </label>
-          {errors.location && (
-            <p className="text-sm text-red-600">{errors.location}</p>
+          {errors.locationType && (
+            <p className={styles.errorText}>{errors.locationType}</p>
           )}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
+          <p className={styles.helperText}>
+            How will you deliver your tutoring sessions?
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
+            <label
+              className={`${styles.checkboxItem} ${locationType === 'online' ? styles.selected : ''}`}
+              style={{ padding: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'flex-start' }}
+            >
+              <input
+                type="radio"
+                name="location"
+                checked={locationType === 'online'}
+                onChange={() => setLocationType('online')}
+                className={styles.checkboxInput}
+                style={{ marginTop: '0.125rem' }}
+              />
+              <div style={{ marginLeft: '0.75rem' }}>
+                <span className={styles.checkboxLabel}>💻 Online Only</span>
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted, #6b7280)', marginTop: '0.25rem' }}>
+                  Teach via video call (Zoom, Teams, Google Meet, etc.)
+                </p>
+              </div>
+            </label>
+
+            <label
+              className={`${styles.checkboxItem} ${locationType === 'in_person' ? styles.selected : ''}`}
+              style={{ padding: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'flex-start' }}
+            >
+              <input
+                type="radio"
+                name="location"
+                checked={locationType === 'in_person'}
+                onChange={() => setLocationType('in_person')}
+                className={styles.checkboxInput}
+                style={{ marginTop: '0.125rem' }}
+              />
+              <div style={{ marginLeft: '0.75rem' }}>
+                <span className={styles.checkboxLabel}>📍 In-Person Only</span>
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted, #6b7280)', marginTop: '0.25rem' }}>
+                  Face-to-face tutoring at your location or student&apos;s home
+                </p>
+              </div>
+            </label>
+
+            <label
+              className={`${styles.checkboxItem} ${locationType === 'hybrid' ? styles.selected : ''}`}
+              style={{ padding: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'flex-start' }}
+            >
+              <input
+                type="radio"
+                name="location"
+                checked={locationType === 'hybrid'}
+                onChange={() => setLocationType('hybrid')}
+                className={styles.checkboxInput}
+                style={{ marginTop: '0.125rem' }}
+              />
+              <div style={{ marginLeft: '0.75rem' }}>
+                <span className={styles.checkboxLabel}>🌐 Hybrid (Both)</span>
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted, #6b7280)', marginTop: '0.25rem' }}>
+                  Flexible - offer both online and in-person options
+                </p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        {/* Location Details (if in-person or hybrid) */}
+        {(locationType === 'in_person' || locationType === 'hybrid') && (
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>
+              Your Location <span style={{ color: 'var(--color-error, #dc2626)' }}>*</span>
+            </label>
+            {errors.location && (
+              <p className={styles.errorText}>{errors.location}</p>
+            )}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <input
                 type="text"
                 value={locationCity}
                 onChange={(e) => setLocationCity(e.target.value)}
                 placeholder="City or Town"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                className={styles.formInput}
               />
-            </div>
-            <div>
               <input
                 type="text"
                 value={locationPostcode}
                 onChange={(e) => setLocationPostcode(e.target.value)}
                 placeholder="Postcode (optional)"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                className={styles.formInput}
               />
             </div>
+            <p className={styles.helperText}>
+              We&apos;ll only show your general area to students (not your exact address)
+            </p>
           </div>
-          <p className="text-xs text-gray-500">
-            We&apos;ll only show your general area to students (not your exact address)
+        )}
+
+        {/* Introduction Video (Optional) */}
+        <div className={styles.formGroup}>
+          <label htmlFor="video-url" className={styles.formLabel}>
+            Introduction Video (Optional)
+          </label>
+          <input
+            id="video-url"
+            type="url"
+            value={videoUrl}
+            onChange={(e) => setVideoUrl(e.target.value)}
+            placeholder="https://youtube.com/watch?v=..."
+            className={styles.formInput}
+          />
+          <p className={styles.helperText}>
+            Add a YouTube or Vimeo link to introduce yourself (increases trust!)
           </p>
         </div>
-      )}
 
-      {/* Introduction Video (Optional) */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Introduction Video (Optional)
-        </label>
-        <input
-          type="url"
-          value={videoUrl}
-          onChange={(e) => setVideoUrl(e.target.value)}
-          placeholder="https://youtube.com/watch?v=..."
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-        />
-        <p className="mt-1 text-xs text-gray-500">
-          Add a YouTube or Vimeo link to introduce yourself (increases trust!)
-        </p>
-      </div>
+        {/* Publish or Draft */}
+        <div style={{
+          padding: '1.5rem',
+          backgroundColor: 'var(--color-background-secondary, #f9fafb)',
+          borderRadius: '0.5rem',
+          marginTop: '1.5rem'
+        }}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '1rem' }}>
+            Ready to publish?
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <label
+              className={`${styles.checkboxItem} ${status === 'draft' ? styles.selected : ''}`}
+              style={{ padding: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'flex-start' }}
+            >
+              <input
+                type="radio"
+                name="status"
+                checked={status === 'draft'}
+                onChange={() => setStatus('draft')}
+                className={styles.checkboxInput}
+                style={{ marginTop: '0.125rem' }}
+              />
+              <div style={{ marginLeft: '0.75rem' }}>
+                <span className={styles.checkboxLabel}>Save as Draft</span>
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted, #6b7280)', marginTop: '0.25rem' }}>
+                  You can preview and edit before publishing
+                </p>
+              </div>
+            </label>
 
-      {/* Publish or Draft */}
-      <div className="p-6 bg-gray-50 rounded-lg">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Ready to publish?</h3>
-        <div className="space-y-3">
-          <label className="flex items-start cursor-pointer">
-            <input
-              type="radio"
-              name="status"
-              checked={status === 'draft'}
-              onChange={() => setStatus('draft')}
-              className="w-4 h-4 mt-1 text-gray-600 focus:ring-gray-500"
-            />
-            <div className="ml-3">
-              <span className="text-sm font-medium text-gray-900">Save as Draft</span>
-              <p className="text-xs text-gray-600">You can preview and edit before publishing</p>
-            </div>
-          </label>
-
-          <label className="flex items-start cursor-pointer">
-            <input
-              type="radio"
-              name="status"
-              checked={status === 'published'}
-              onChange={() => setStatus('published')}
-              className="w-4 h-4 mt-1 text-teal-600 focus:ring-teal-500"
-            />
-            <div className="ml-3">
-              <span className="text-sm font-medium text-gray-900">Publish Now</span>
-              <p className="text-xs text-gray-600">Make your listing visible to students immediately</p>
-            </div>
-          </label>
+            <label
+              className={`${styles.checkboxItem} ${status === 'published' ? styles.selected : ''}`}
+              style={{ padding: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'flex-start' }}
+            >
+              <input
+                type="radio"
+                name="status"
+                checked={status === 'published'}
+                onChange={() => setStatus('published')}
+                className={styles.checkboxInput}
+                style={{ marginTop: '0.125rem' }}
+              />
+              <div style={{ marginLeft: '0.75rem' }}>
+                <span className={styles.checkboxLabel}>Publish Now</span>
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted, #6b7280)', marginTop: '0.25rem' }}>
+                  Make your listing visible to students immediately
+                </p>
+              </div>
+            </label>
+          </div>
         </div>
       </div>
 
-      {/* Navigation */}
-      <div className="flex flex-col sm:flex-row justify-between gap-4 pt-4">
-        <div className="flex gap-2">
-          <Button onClick={onBack} variant="outline">
+      <div className={styles.stepActions}>
+        <div className={styles.actionLeft}>
+          <button onClick={onBack} className={styles.buttonSecondary} disabled={isSaving}>
             ← Back
-          </Button>
-          <Button onClick={onSaveDraft} variant="outline" disabled={isSaving}>
+          </button>
+          <button onClick={onSaveDraft} className={styles.buttonSecondary} disabled={isSaving}>
             Save for Later
-          </Button>
+          </button>
         </div>
 
-        <Button
-          onClick={() => handleSubmit(status === 'published')}
-          disabled={isSaving}
-          className="px-8"
-        >
-          {isSaving ? 'Saving...' : status === 'published' ? 'Publish Listing ✓' : 'Save as Draft'}
-        </Button>
+        <div className={styles.actionRight}>
+          <button
+            onClick={() => handleSubmit(status === 'published')}
+            disabled={isSaving}
+            className={styles.buttonPrimary}
+          >
+            {isSaving ? 'Saving...' : status === 'published' ? 'Publish Listing ✓' : 'Save as Draft'}
+          </button>
+        </div>
       </div>
     </div>
   );

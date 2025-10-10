@@ -2,15 +2,15 @@
 
 import { useState } from 'react';
 import type { CreateListingInput } from '@tutorwise/shared-types';
-import Button from '@/app/components/ui/Button';
+import styles from '../../onboarding/OnboardingWizard.module.css';
 
 interface Step1Props {
   formData: Partial<CreateListingInput>;
   onNext: (data: Partial<CreateListingInput>) => void;
-  isFirstStep: boolean;
+  onBack: () => void;
 }
 
-export default function Step1BasicInfo({ formData, onNext }: Step1Props) {
+export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props) {
   const [title, setTitle] = useState(formData.title || '');
   const [description, setDescription] = useState(formData.description || '');
   const [errors, setErrors] = useState<{ title?: string; description?: string }>({});
@@ -22,6 +22,8 @@ export default function Step1BasicInfo({ formData, onNext }: Step1Props) {
       newErrors.title = 'Title is required';
     } else if (title.trim().length < 10) {
       newErrors.title = 'Title must be at least 10 characters';
+    } else if (title.trim().length > 200) {
+      newErrors.title = 'Title must be no more than 200 characters';
     }
 
     if (!description.trim()) {
@@ -41,47 +43,50 @@ export default function Step1BasicInfo({ formData, onNext }: Step1Props) {
   };
 
   return (
-    <div className="text-center">
-      {/* Header - matching onboarding style */}
-      <div className="mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Basic Information</h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+    <div className={styles.stepContent}>
+      <div className={styles.stepHeader}>
+        <h1 className={styles.stepTitle}>Basic Information</h1>
+        <p className={styles.stepSubtitle}>
           Create a clear title and description for your tutoring service
         </p>
       </div>
 
-      {/* Form Fields - centered, max-width */}
-      <div className="max-w-3xl mx-auto space-y-8 text-left">
+      <div className={styles.stepBody}>
         {/* Title */}
-        <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-900 mb-2">
-            Service Title <span className="text-red-500">*</span>
+        <div className={styles.formGroup}>
+          <label htmlFor="title" className={styles.formLabel}>
+            Service Title <span style={{ color: 'var(--color-error, #dc2626)' }}>*</span>
           </label>
           <input
             id="title"
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g., GCSE Mathematics Tutor"
-            className={`w-full px-4 py-3 text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
-              errors.title ? 'border-red-500' : 'border-gray-300'
-            }`}
+            placeholder="e.g., GCSE Mathematics Tutor - Experienced & Results-Focused"
+            className={styles.formInput}
             maxLength={200}
+            style={errors.title ? { borderColor: 'var(--color-error, #dc2626)' } : {}}
           />
-          <div className="mt-2 flex justify-between items-center">
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem' }}>
             {errors.title ? (
-              <p className="text-sm text-red-600">{errors.title}</p>
+              <p style={{ color: 'var(--color-error, #dc2626)', fontSize: '0.875rem', margin: 0 }}>
+                {errors.title}
+              </p>
             ) : (
-              <p className="text-xs text-gray-500">Include the subject and education level</p>
+              <p style={{ color: 'var(--color-text-secondary, #6b7280)', fontSize: '0.875rem', margin: 0 }}>
+                Include the subject and education level for better discoverability
+              </p>
             )}
-            <span className="text-xs text-gray-400">{title.length}/200</span>
+            <span style={{ color: 'var(--color-text-tertiary, #9ca3af)', fontSize: '0.875rem' }}>
+              {title.length}/200
+            </span>
           </div>
         </div>
 
         {/* Description */}
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-900 mb-2">
-            Description <span className="text-red-500">*</span> (minimum 50 characters)
+        <div className={styles.formGroup}>
+          <label htmlFor="description" className={styles.formLabel}>
+            Description <span style={{ color: 'var(--color-error, #dc2626)' }}>*</span>
           </label>
           <textarea
             id="description"
@@ -89,28 +94,38 @@ export default function Step1BasicInfo({ formData, onNext }: Step1Props) {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Describe your teaching approach, experience, and what makes your tutoring effective..."
             rows={8}
-            className={`w-full px-4 py-3 text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none ${
-              errors.description ? 'border-red-500' : 'border-gray-300'
-            }`}
+            className={styles.formTextarea}
             maxLength={2000}
+            style={errors.description ? { borderColor: 'var(--color-error, #dc2626)' } : {}}
           />
-          <div className="mt-2 flex justify-between items-center">
-            {errors.description && (
-              <p className="text-sm text-red-600">{errors.description}</p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem' }}>
+            {errors.description ? (
+              <p style={{ color: 'var(--color-error, #dc2626)', fontSize: '0.875rem', margin: 0 }}>
+                {errors.description}
+              </p>
+            ) : (
+              <p style={{ color: 'var(--color-text-secondary, #6b7280)', fontSize: '0.875rem', margin: 0 }}>
+                Share your teaching style, experience, and what students can expect
+              </p>
             )}
-            <span className="text-xs text-gray-400 ml-auto">{description.length}/2000</span>
+            <span style={{ color: 'var(--color-text-tertiary, #9ca3af)', fontSize: '0.875rem' }}>
+              {description.length}/2000
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Continue Button - centered, matching onboarding */}
-      <div className="mt-12 flex justify-center gap-4">
-        <Button
-          onClick={handleContinue}
-          className="bg-teal-700 hover:bg-teal-800 text-white px-8 py-3 rounded-lg font-medium"
-        >
-          Continue
-        </Button>
+      <div className={styles.stepActions}>
+        <div className={styles.actionLeft}>
+          <button onClick={onBack} className={styles.buttonSecondary}>
+            ← Back
+          </button>
+        </div>
+        <div className={styles.actionRight}>
+          <button onClick={handleContinue} className={styles.buttonPrimary}>
+            Continue →
+          </button>
+        </div>
       </div>
     </div>
   );
