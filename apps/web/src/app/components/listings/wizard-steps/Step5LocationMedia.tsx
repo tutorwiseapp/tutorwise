@@ -77,7 +77,7 @@ export default function Step5LocationMedia({
               onClick={() => setLocationType('online')}
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '16px', textAlign: 'left', minHeight: '80px' }}
             >
-              <span style={{ fontWeight: 600, marginBottom: '4px' }}>💻 Online Only</span>
+              <span style={{ fontWeight: 600, marginBottom: '4px' }}>Online Only</span>
               <span style={{ fontSize: '0.75rem', opacity: 0.8, lineHeight: '1.4' }}>
                 Video call tutoring
               </span>
@@ -89,7 +89,7 @@ export default function Step5LocationMedia({
               onClick={() => setLocationType('in_person')}
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '16px', textAlign: 'left', minHeight: '80px' }}
             >
-              <span style={{ fontWeight: 600, marginBottom: '4px' }}>📍 In-Person Only</span>
+              <span style={{ fontWeight: 600, marginBottom: '4px' }}>In-Person Only</span>
               <span style={{ fontSize: '0.75rem', opacity: 0.8, lineHeight: '1.4' }}>
                 Face-to-face tutoring
               </span>
@@ -101,7 +101,7 @@ export default function Step5LocationMedia({
               onClick={() => setLocationType('hybrid')}
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '16px', textAlign: 'left', minHeight: '80px', gridColumn: 'span 2' }}
             >
-              <span style={{ fontWeight: 600, marginBottom: '4px' }}>🌐 Hybrid (Both)</span>
+              <span style={{ fontWeight: 600, marginBottom: '4px' }}>Hybrid (Both)</span>
               <span style={{ fontSize: '0.75rem', opacity: 0.8, lineHeight: '1.4' }}>
                 Flexible - both online and in-person
               </span>
