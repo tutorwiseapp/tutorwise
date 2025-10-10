@@ -85,9 +85,17 @@ export interface CreateListingInput {
   subjects: string[];
   levels: string[];
   languages?: string[];
+  specializations?: string[];
+  teaching_methods?: string[];
+  qualifications?: string[];
+  academic_qualifications?: string[];
+  professional_qualifications?: string[];
+  years_of_experience?: string;
 
   // Pricing
   hourly_rate?: number;
+  hourly_rate_min?: number;
+  hourly_rate_max?: number;
   currency?: string;
   pricing_packages?: PricingPackage[];
   free_trial?: boolean;
