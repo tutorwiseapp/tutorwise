@@ -57,15 +57,16 @@ export default function CustomTimePicker({ value, onChange, label, onClearError 
   };
 
   const handleOpen = () => {
-    // Determine if there's enough space above to open upward
+    // Determine if there's enough space to open upward or downward
     if (inputRef.current) {
       const rect = inputRef.current.getBoundingClientRect();
       const dropdownHeight = 400; // Approximate height of dropdown
       const spaceAbove = rect.top;
       const spaceBelow = window.innerHeight - rect.bottom;
 
-      // Open downward if there's not enough space above
-      setOpenUpward(spaceAbove >= dropdownHeight || spaceAbove > spaceBelow);
+      // Open upward only if there's enough space above AND more space above than below
+      // Otherwise open downward (default behavior)
+      setOpenUpward(spaceAbove >= dropdownHeight && spaceAbove > spaceBelow);
     }
     setIsOpen(true);
   };
