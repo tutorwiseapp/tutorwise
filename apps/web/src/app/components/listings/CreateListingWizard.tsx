@@ -127,65 +127,35 @@ export default function CreateListingWizard({
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* Progress Bar */}
+    <div className="max-w-3xl mx-auto">
+      {/* Simple Progress Indicator */}
       <div className="mb-8">
-        <div className="flex items-center justify-between mb-2">
-          {STEPS.map((step, index) => (
-            <div key={step.id} className="flex items-center flex-1">
-              <div className="flex flex-col items-center flex-1">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold mb-2 transition-colors ${
-                    currentStep > step.id
-                      ? 'bg-green-500 text-white'
-                      : currentStep === step.id
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-200 text-gray-600'
-                  }`}
-                >
-                  {currentStep > step.id ? '✓' : step.id}
-                </div>
-                <div
-                  className={`text-xs font-medium text-center ${
-                    currentStep === step.id ? 'text-blue-600' : 'text-gray-600'
-                  }`}
-                >
-                  <div className="hidden sm:block">{step.label}</div>
-                  <div className="sm:hidden">{step.shortLabel}</div>
-                </div>
-              </div>
-              {index < STEPS.length - 1 && (
-                <div
-                  className={`h-1 flex-1 mx-2 transition-colors ${
-                    currentStep > step.id ? 'bg-green-500' : 'bg-gray-200'
-                  }`}
-                />
-              )}
-            </div>
-          ))}
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm font-medium text-gray-700">
+            Step {currentStep} of {STEPS.length}
+          </p>
+          <p className="text-sm text-gray-500">{STEPS[currentStep - 1].label}</p>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div
+            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            style={{ width: `${(currentStep / STEPS.length) * 100}%` }}
+          />
         </div>
       </div>
 
       {/* Step Content */}
-      <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
-        {initialData && Object.keys(initialData).length > 0 && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800">
-              <strong>Pre-filled from your profile:</strong> We&apos;ve loaded your professional information. You can edit anything you&apos;d like.
-            </p>
-          </div>
-        )}
-
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
         {renderStep()}
       </div>
 
-      {/* Cancel Button */}
-      <div className="mt-4 text-center">
+      {/* Cancel Link */}
+      <div className="mt-6 text-center">
         <button
           onClick={onCancel}
-          className="text-gray-600 hover:text-gray-800 text-sm font-medium"
+          className="text-sm text-gray-600 hover:text-gray-900 underline"
         >
-          Cancel and go back
+          Cancel
         </button>
       </div>
     </div>
