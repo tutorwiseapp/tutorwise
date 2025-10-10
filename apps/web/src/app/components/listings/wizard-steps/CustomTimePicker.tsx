@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import styles from './CustomTimePicker.module.css';
+import timePickerStyles from './CustomTimePicker.module.css';
+import styles from '../../onboarding/OnboardingWizard.module.css';
 
 interface CustomTimePickerProps {
   value: string; // "9:00 AM" format
@@ -54,37 +55,38 @@ export default function CustomTimePicker({ value, onChange, label, onClearError 
   };
 
   return (
-    <div className={styles.timePickerContainer}>
-      <label className={styles.label}>{label}</label>
-      <div className={styles.inputWrapper}>
+    <div className={timePickerStyles.timePickerContainer}>
+      <label className={styles.formLabel}>{label}</label>
+      <div className={timePickerStyles.inputWrapper}>
         <input
           type="text"
           value={value}
           onClick={() => setIsOpen(true)}
           readOnly
-          className={styles.input}
+          className={styles.formInput}
           placeholder="Select time"
+          style={{ cursor: 'pointer' }}
         />
       </div>
 
       {isOpen && (
         <>
-          <div className={styles.overlay} onClick={handleCancel} />
-          <div className={styles.dropdown}>
-            <div className={styles.dropdownHeader}>
-              <span className={styles.dropdownTitle}>Select Time</span>
+          <div className={timePickerStyles.overlay} onClick={handleCancel} />
+          <div className={timePickerStyles.dropdown}>
+            <div className={timePickerStyles.dropdownHeader}>
+              <span className={timePickerStyles.dropdownTitle}>Select Time</span>
             </div>
 
-            <div className={styles.selectorsContainer}>
-              <div className={styles.selectorColumn}>
-                <div className={styles.selectorLabel}>Hour</div>
-                <div className={styles.selectorScroll}>
+            <div className={timePickerStyles.selectorsContainer}>
+              <div className={timePickerStyles.selectorColumn}>
+                <div className={timePickerStyles.selectorLabel}>Hour</div>
+                <div className={timePickerStyles.selectorScroll}>
                   {hours.map(h => (
                     <button
                       key={h}
                       type="button"
                       onClick={() => setHour(h)}
-                      className={`${styles.selectorButton} ${hour === h ? styles.selected : ''}`}
+                      className={`${timePickerStyles.selectorButton} ${hour === h ? timePickerStyles.selected : ''}`}
                     >
                       {h}
                     </button>
@@ -92,15 +94,15 @@ export default function CustomTimePicker({ value, onChange, label, onClearError 
                 </div>
               </div>
 
-              <div className={styles.selectorColumn}>
-                <div className={styles.selectorLabel}>Minute</div>
-                <div className={styles.selectorScroll}>
+              <div className={timePickerStyles.selectorColumn}>
+                <div className={timePickerStyles.selectorLabel}>Minute</div>
+                <div className={timePickerStyles.selectorScroll}>
                   {minutes.map(m => (
                     <button
                       key={m}
                       type="button"
                       onClick={() => setMinute(m)}
-                      className={`${styles.selectorButton} ${minute === m ? styles.selected : ''}`}
+                      className={`${timePickerStyles.selectorButton} ${minute === m ? timePickerStyles.selected : ''}`}
                     >
                       {m}
                     </button>
@@ -108,15 +110,15 @@ export default function CustomTimePicker({ value, onChange, label, onClearError 
                 </div>
               </div>
 
-              <div className={styles.selectorColumn}>
-                <div className={styles.selectorLabel}>Period</div>
-                <div className={styles.selectorScroll}>
+              <div className={timePickerStyles.selectorColumn}>
+                <div className={timePickerStyles.selectorLabel}>Period</div>
+                <div className={timePickerStyles.selectorScroll}>
                   {['AM', 'PM'].map(p => (
                     <button
                       key={p}
                       type="button"
                       onClick={() => setPeriod(p as 'AM' | 'PM')}
-                      className={`${styles.selectorButton} ${period === p ? styles.selected : ''}`}
+                      className={`${timePickerStyles.selectorButton} ${period === p ? timePickerStyles.selected : ''}`}
                     >
                       {p}
                     </button>
@@ -125,18 +127,18 @@ export default function CustomTimePicker({ value, onChange, label, onClearError 
               </div>
             </div>
 
-            <div className={styles.dropdownFooter}>
+            <div className={timePickerStyles.dropdownFooter}>
               <button
                 type="button"
                 onClick={handleCancel}
-                className={styles.cancelButton}
+                className={timePickerStyles.cancelButton}
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleApply}
-                className={styles.applyButton}
+                className={timePickerStyles.applyButton}
               >
                 Apply
               </button>
