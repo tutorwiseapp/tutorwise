@@ -156,7 +156,7 @@ export default function Step5LocationMedia({
       <div className={styles.stepActions}>
         <div className={styles.actionLeft}>
           <button onClick={onBack} className={styles.buttonSecondary} disabled={isSaving}>
-            ← Back
+            Back
           </button>
           <button onClick={onSaveDraft} className={styles.buttonSecondary} disabled={isSaving}>
             Save for Later

@@ -118,12 +118,12 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
       <div className={styles.stepActions}>
         <div className={styles.actionLeft}>
           <button onClick={onBack} className={styles.buttonSecondary}>
-            ← Back
+            Back
           </button>
         </div>
         <div className={styles.actionRight}>
           <button onClick={handleContinue} className={styles.buttonPrimary}>
-            Continue →
+            Continue
           </button>
         </div>
       </div>
