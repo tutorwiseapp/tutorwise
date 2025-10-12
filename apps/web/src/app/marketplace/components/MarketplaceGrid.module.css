@@ -1,0 +1,125 @@
+/*
+ * Marketplace Grid - Airbnb-inspired layout
+ */
+
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.gridHeader {
+  margin-bottom: 32px;
+}
+
+.resultCount {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+/* Grid Layout - Responsive columns */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 32px;
+}
+
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Loading State */
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  text-align: center;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #e5e7eb;
+  border-top: 3px solid #0f766e;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loadingText {
+  color: #6b7280;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  text-align: center;
+}
+
+.emptyIcon {
+  color: #d1d5db;
+  margin-bottom: 24px;
+}
+
+.emptyTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 12px 0;
+}
+
+.emptyText {
+  color: #6b7280;
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 400px;
+  margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 32px 20px;
+  }
+
+  .gridHeader {
+    margin-bottom: 24px;
+  }
+
+  .resultCount {
+    font-size: 1.25rem;
+  }
+
+  .grid {
+    gap: 24px;
+  }
+}

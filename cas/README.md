@@ -11,7 +11,7 @@
 CAS is an **AI-Powered Continuous Delivery Platform** that models a complete product team with 8 autonomous AI agents operating in continuous flow. It combines strategic product management with autonomous execution, delivering production-ready software 400% faster than traditional teams.
 
 **Evolved from:** DevOps automation → AI Product Team → **Strategic AI Organization**
-**Key Innovation:** Strategic Feedback Loop (Marketer → Analyst → Planner → Development)
+**Key Innovation:** Strategic Feedback Loop (Marketer → Planner → (Human-in-the-Loop) → Analyst → Development)
 
 ---
 

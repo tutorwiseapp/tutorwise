@@ -1,0 +1,16 @@
+{
+  "name": "@cas/qa-agent",
+  "version": "1.0.0",
+  "description": "CAS QA Agent - QA Engineer",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "cas",
+    "agent",
+    "qa"
+  ],
+  "author": "CAS Platform Team",
+  "license": "MIT"
+}

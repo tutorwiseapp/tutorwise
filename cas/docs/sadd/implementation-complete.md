@@ -38,7 +38,7 @@
    - Mirror features to target applications
 
 4. **Automation Engine**
-   - File: `cas/packages/sadd/lib/sadd-apply-adaptations.js`
+   - File: `cas/packages/sadd/src/sadd-apply-adaptations.js`
    - 7 transformation rule types
 
 5. **Feature Catalog**
@@ -65,7 +65,7 @@ tutorwise-monorepo/
 │           │   ├── sadd-discover-repos.sh                 📅 Future
 │           │   └── sadd-scan-repo.sh                      📅 Future
 │           │
-│           ├── lib/                                       ← Libraries
+│           ├── src/                                       ← Libraries
 │           │   └── sadd-apply-adaptations.js              ✅ Ready
 │           │
 │           ├── config/                                    ← Configuration

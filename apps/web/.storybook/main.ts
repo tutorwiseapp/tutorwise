@@ -1,4 +1,4 @@
-import type { StorybookConfig } from '@storybook/nextjs';
+import type { StorybookConfig } from '@storybook/nextjs-vite';
 
 import { join, dirname } from "path"
 
@@ -23,7 +23,7 @@ const config: StorybookConfig = {
     'msw-storybook-addon'
   ],
   framework: {
-    name: getAbsolutePath('@storybook/nextjs'),
+    name: getAbsolutePath('@storybook/nextjs-vite'),
     options: {
       builder: {
         useSWC: true, // Use SWC instead of Babel for faster builds

@@ -105,7 +105,7 @@ sadd-apply radix-ui-components-v1.2.0-vinite-adapted ~/projects/vinite
 
 ---
 
-### 4. Automation Engine (`lib/sadd-apply-adaptations.js`)
+### 4. Automation Engine (`src/sadd-apply-adaptations.js`)
 Automated transformation engine for code adaptations.
 
 **Supported Transformations:**
@@ -150,7 +150,7 @@ cas/packages/sadd/
 │   ├── sadd-discover-repos.sh            # Discover (future)
 │   └── sadd-scan-repo.sh                 # Scan (future)
 │
-├── lib/                                  # Libraries
+├── src/                                  # Libraries
 │   └── sadd-apply-adaptations.js         # Automation engine
 │
 ├── config/                               # Configuration
@@ -228,7 +228,7 @@ git push origin main
 | Feature Extraction | ✅ Complete | `bin/sadd-extract-feature.sh` |
 | Feature Adaptation | ✅ Complete | `bin/sadd-adapt-feature.sh` |
 | Feature Application | ✅ Complete | `bin/sadd-apply-feature.sh` |
-| Automation Engine | ✅ Complete | `lib/sadd-apply-adaptations.js` |
+| Automation Engine | ✅ Complete | `src/sadd-apply-adaptations.js` |
 | Feature Catalog | ✅ Complete | `config/sadd-feature-catalog.json` (5 features) |
 | Vinite Rules | ✅ Complete | `adaptations/vinite/*.rules.json` (5 rule sets) |
 | Documentation | ✅ Complete | README.md, SADD-SUMMARY.md |

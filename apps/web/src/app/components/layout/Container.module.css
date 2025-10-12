@@ -55,6 +55,12 @@
   padding-bottom: var(--space-5);
 }
 
+
+.profile {
+  max-width: 1440px;
+  padding: 0 var(--space-6);
+}
+
 /* This rule overrides the PageHeader margin inside a form container */
 .form > :global(div[class*="PageHeader_pageHeader__"]) {
   margin-bottom: var(--space-3);

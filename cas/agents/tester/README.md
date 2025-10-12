@@ -13,35 +13,29 @@ The Tester agent writes comprehensive tests, validates functionality, and ensure
 
 ## Core Responsibilities
 
-### 1. Unit Test Implementation
-- Write unit tests for components
-- Achieve >80% code coverage
-- Test all interaction patterns
-- Validate edge cases
+### 1. E2E (End-to-End) Verification (NEW - FINAL GATEKEEPER)
+- **Purpose:** To guarantee that a feature works correctly within the fully integrated, live application environment. This is the final quality gate before a feature is marked as "Done."
+- **Trigger:** Runs after a feature has passed the **QA Agent's** Visual Verification.
+- **Process:**
+    1.  Writes E2E tests using Playwright to simulate the complete user journey.
+    2.  Tests the feature on a live preview deployment or a staging environment.
+    3.  Validates not just functionality, but also layout, responsiveness, and integration with shell components (like the main navigation and layout).
+- **Gatekeeping:**
+    - **On Success:** Marks the feature as "✅ E2E Verification Passed." The feature is now considered **Done**.
+    - **On Failure:** **Blocks the PR** and assigns a task back to the Developer Agent with a detailed E2E test failure report, including screenshots and traces.
 
-### 2. Integration Testing
-- Test component integration
-- Validate API integration
-- Test data flow
-- Ensure proper error handling
+### 2. Unit Test Implementation
+- Write unit tests for complex business logic and component functions.
+- Aim for >80% code coverage on critical logic paths.
+- Test edge cases and error handling in isolation.
 
-### 3. E2E Testing
-- Create end-to-end test scenarios
-- Test complete user workflows
-- Validate cross-browser compatibility
-- Test responsive behavior
+### 3. Integration Testing
+- Write tests to verify the contracts between the UI and the backend API.
+- Ensure data is passed correctly and that error states are handled gracefully.
 
 ### 4. Test Coverage Reporting
-- Generate coverage reports
-- Identify untested code paths
-- Track coverage trends
-- Report gaps to Developer
-
-### 5. Test Result Communication
-- Report passing/failing tests to Developer
-- Update feature plans with results
-- Notify Planner of blockers
-- Provide detailed failure diagnostics
+- Generate and publish code coverage reports.
+- Identify critical code paths that are not covered by unit tests and recommend E2E tests to cover them.
 
 ---
 
@@ -65,6 +59,12 @@ The Tester agent writes comprehensive tests, validates functionality, and ensure
 - All tests passing first run
 - Clear test descriptions
 - Proper mocking
+
+---
+
+## Secret Management
+
+This agent **must not** access `.env` files or environment variables directly. All required secrets (e.g., API keys, credentials) must be requested from the **Engineer Agent** by following the process defined in the [Secret Management Workflow](../../process/SECRET-MANAGEMENT-WORKFLOW.md).
 
 ---
 

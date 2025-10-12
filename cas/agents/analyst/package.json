@@ -1,0 +1,16 @@
+{
+  "name": "@cas/analyst-agent",
+  "version": "1.0.0",
+  "description": "CAS Analyst Agent - Business Analyst",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "cas",
+    "agent",
+    "analyst"
+  ],
+  "author": "CAS Platform Team",
+  "license": "MIT"
+}

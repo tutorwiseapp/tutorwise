@@ -14,7 +14,7 @@ export default function TutorNarrative({ listing }: TutorNarrativeProps) {
     <div className={styles.tutorNarrative}>
       {/* Introduction */}
       <div className={styles.section}>
-        <h3 className={styles.title}>Hi, I'm {listing.title.split(' ')[0]}</h3>
+        <h3 className={styles.title}>Hi, I&apos;m {listing.title.split(' ')[0]}</h3>
         <p className={styles.text}>{listing.description}</p>
       </div>
 

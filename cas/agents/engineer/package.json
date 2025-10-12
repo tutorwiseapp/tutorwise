@@ -1,0 +1,16 @@
+{
+  "name": "@cas/engineer-agent",
+  "version": "1.0.0",
+  "description": "CAS Engineer Agent - System Engineer",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "cas",
+    "agent",
+    "engineer"
+  ],
+  "author": "CAS Platform Team",
+  "license": "MIT"
+}

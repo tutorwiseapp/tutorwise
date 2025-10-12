@@ -27,7 +27,7 @@ interface ContainerProps {
   children: React.ReactNode;
   className?: string;
   // --- FIX: Add 'form' to the list of official variants ---
-  variant?: 'default' | 'narrow' | 'wide' | 'form'; 
+  variant?: 'default' | 'narrow' | 'wide' | 'form' | 'profile'; 
 }
 
 const Container = ({ children, className, variant = 'default' }: ContainerProps) => {

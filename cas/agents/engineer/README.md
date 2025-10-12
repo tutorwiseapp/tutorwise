@@ -18,47 +18,49 @@ The Engineer agent is the **AI-DevOps** specialist responsible for system design
 
 ## Core Responsibilities
 
-### 1. System Design & Architecture
+### 1. Secret & Environment Variable Management (NEW - CRITICAL SECURITY ROLE)
+- **Role:** Acts as the centralized **Secrets Manager** for the entire CAS system.
+- **Responsibility:** The *only* agent with permission to access `.env` files and other secret stores.
+- **Process:**
+    1.  Loads all environment variables at startup.
+    2.  Securely provides credentials to other agents on a per-task, as-needed basis.
+    3.  Logs all secret access requests for auditing.
+- **Reference:** [Secret Management Workflow](../../process/SECRET-MANAGEMENT-WORKFLOW.md)
+
+### 2. System Design & Architecture
 - Design scalable system architecture
 - Define API contracts and schemas
 - Plan database architecture
 - Design infrastructure topology
-- Create system integration patterns
 
-### 2. Infrastructure as Code (Build)
+### 3. Infrastructure as Code (Build)
 - Implement REST APIs (FastAPI, Express)
 - Design and implement database schemas
 - Write infrastructure configuration (Docker, K8s)
-- Create deployment automation scripts
 - Manage environment configurations
 
-### 3. Deployment Automation (Deploy)
+### 4. Deployment Automation (Deploy)
 - Configure CI/CD pipelines (GitHub Actions)
 - Automate deployment scripts (Vercel, Railway)
 - Manage multi-environment deployments
 - Implement blue-green deployments
-- Handle rollback procedures
 
-### 4. System Monitoring (Monitor)
+### 5. System Monitoring (Monitor)
 - Track API response times and throughput
 - Monitor error rates and patterns
 - Measure system uptime (SLA tracking)
-- Analyze performance bottlenecks
 - Set up alerting and notifications
-- Generate health check reports
 
-### 5. Production Support (Support)
+### 6. Production Support (Support)
 - Investigate production incidents
 - Analyze system logs and metrics
 - Perform root cause analysis
 - Implement fixes for infrastructure issues
-- Maintain system documentation
 
-### 6. Auto-Maintain System Plan
+### 7. Auto-Maintain System Plan
 - Update `cas-system-imp-plan.md` from deployment events
 - Track API endpoint status and health
 - Document performance metrics and SLAs
-- Integrate monitoring data and alerts
 - Maintain infrastructure inventory
 
 ---

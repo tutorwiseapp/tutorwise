@@ -2,7 +2,7 @@
   "name": "@cas/sadd",
   "version": "1.0.0",
   "description": "SADD - Software Application Discovery and Development: Repo discovery, migration, development, and management tool",
-  "main": "lib/sadd-apply-adaptations.js",
+  "main": "dist/sadd-apply-adaptations.js",
   "bin": {
     "sadd-extract": "./bin/sadd-extract-feature.sh",
     "sadd-adapt": "./bin/sadd-adapt-feature.sh",
@@ -15,7 +15,8 @@
     "adapt": "bash bin/sadd-adapt-feature.sh",
     "apply": "bash bin/sadd-apply-feature.sh",
     "discover": "bash bin/sadd-discover-repos.sh",
-    "scan": "bash bin/sadd-scan-repo.sh"
+    "scan": "bash bin/sadd-scan-repo.sh",
+    "build": "tsc"
   },
   "keywords": [
     "cas",
@@ -39,7 +40,7 @@
   },
   "files": [
     "bin/",
-    "lib/",
+    "dist/",
     "config/",
     "adaptations/",
     "README.md"

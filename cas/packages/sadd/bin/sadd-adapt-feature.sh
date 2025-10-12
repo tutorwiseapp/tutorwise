@@ -70,7 +70,7 @@ if [ -f "$RULES_FILE" ]; then
   echo ""
 
   # Apply adaptations using Node.js automation engine
-  node "$SCRIPT_DIR/../lib/sadd-apply-adaptations.js" "$PACKAGE_DIR" "$RULES_FILE" "$TARGET_PLATFORM"
+  node "$SCRIPT_DIR/../src/sadd-apply-adaptations.js" "$PACKAGE_DIR" "$RULES_FILE" "$TARGET_PLATFORM"
 
   echo ""
   echo -e "${GREEN}✓${NC} Automated adaptations applied"

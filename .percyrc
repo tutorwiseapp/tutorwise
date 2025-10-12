@@ -9,15 +9,8 @@
     "min-height": 1024,
     "percy-css": ""
   },
-  "agent": {
-    "asset-discovery": {
-      "allowed-hostnames": ["localhost"],
-      "network-idle-timeout": 100
-    }
-  },
   "storybook": {
-    "args": "--ci",
-    "include": ["UI/**"],
+    "include": ["UI/**", "Shared/**"],
     "waitForTimeout": 15000
   }
 }

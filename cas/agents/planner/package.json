@@ -1,0 +1,16 @@
+{
+  "name": "@cas/planner-agent",
+  "version": "1.0.0",
+  "description": "CAS Planner Agent - Project Manager",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "cas",
+    "agent",
+    "planner"
+  ],
+  "author": "CAS Platform Team",
+  "license": "MIT"
+}

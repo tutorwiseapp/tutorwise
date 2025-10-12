@@ -21,14 +21,14 @@ export default function ActivityFeed() {
         <h2 className={styles.title}>Recent Activities</h2>
         <div className={styles.activityList}>
           <p className={styles.activityText}>John just received a 5-star review from Sarah K.</p>
-          <p className={styles.activityText}>Your listing for 'GCSE Maths' was viewed 25 times this week.</p>
+          <p className={styles.activityText}>Your listing for &apos;GCSE Maths&apos; was viewed 25 times this week.</p>
           <p className={styles.activityText}>You have a new booking request for Saturday.</p>
         </div>
       </div>
       <div className={styles.activity}>
         <h2 className={styles.title}>Recent Messages</h2>
         <div className={styles.activityList}>
-          <p className={styles.activityText}>You have a new message regarding "A-Level Chemistry".</p>
+          <p className={styles.activityText}>You have a new message regarding &quot;A-Level Chemistry&quot;.</p>
           <p className={styles.activityText}>David L. replied to your message.</p>
           <p className={styles.activityText}>Reminder: Your lesson with Jane D. is tomorrow.</p>
         </div>

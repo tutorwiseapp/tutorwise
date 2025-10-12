@@ -32,7 +32,7 @@ The Auto-Plan Updater system automatically maintains the planning documents for 
 
 ### Developer Agent
 
-**FeaturePlanUpdater.ts** - [View Source](developer/FeaturePlanUpdater.ts)
+**FeaturePlanUpdater.ts** - [View Source](developer/src/FeaturePlanUpdater.ts)
 - `updateFromTodos()` - Update feature implementation todos
 - `updateTestResults()` - Update test results from Tester agent
 - `updateQAReview()` - Update QA review from QA agent
@@ -56,7 +56,7 @@ The Auto-Plan Updater system automatically maintains the planning documents for 
 ### Developer Agent - Update Feature Plan
 
 ```typescript
-import { FeaturePlanUpdater } from './cas/agents/developer/FeaturePlanUpdater';
+import { FeaturePlanUpdater } from './developer/src/FeaturePlanUpdater';
 
 const updater = new FeaturePlanUpdater(2); // Week 2
 
@@ -90,7 +90,7 @@ await updater.updateTimestamp();
 ### Engineer Agent - Update System Plan
 
 ```typescript
-import { SystemPlanUpdater } from './cas/agents/engineer/SystemPlanUpdater';
+import { SystemPlanUpdater } from './engineer/src/SystemPlanUpdater';
 
 const updater = new SystemPlanUpdater(2); // Week 2
 
@@ -228,13 +228,15 @@ The auto-updaters have been used to update both plan files with Week 2 achieveme
 ```
 cas/agents/
 ├── developer/
-│   ├── FeaturePlanUpdater.ts          # ✅ Auto-updater implementation
-│   ├── FeaturePlanUpdater.test.ts     # ✅ Test suite
+│   ├── src/
+│   │   ├── FeaturePlanUpdater.ts          # ✅ Auto-updater implementation
+│   │   ├── FeaturePlanUpdater.test.ts     # ✅ Test suite
 │   └── planning/
 │       └── cas-feature-dev-plan.md    # ✅ Auto-maintained plan
 ├── engineer/
-│   ├── SystemPlanUpdater.ts           # ✅ Auto-updater implementation
-│   ├── SystemPlanUpdater.test.ts      # ✅ Test suite
+│   ├── src/
+│   │   ├── SystemPlanUpdater.ts           # ✅ Auto-updater implementation
+│   │   ├── SystemPlanUpdater.test.ts      # ✅ Test suite
 │   └── planning/
 │       └── cas-system-imp-plan.md     # ✅ Auto-maintained plan
 └── README-AUTO-UPDATERS.md            # ✅ This documentation
@@ -248,10 +250,10 @@ cas/agents/
 
 ```bash
 # Test Developer Agent updater
-npx ts-node cas/agents/developer/FeaturePlanUpdater.test.ts
+npx ts-node cas/agents/developer/src/FeaturePlanUpdater.test.ts
 
 # Test Engineer Agent updater
-npx ts-node cas/agents/engineer/SystemPlanUpdater.test.ts
+npx ts-node cas/agents/engineer/src/SystemPlanUpdater.test.ts
 ```
 
 ### Manual Verification
@@ -278,10 +280,10 @@ The updaters are written in TypeScript and can be compiled to JavaScript:
 
 ```bash
 # Compile Developer updater
-npx tsc cas/agents/developer/FeaturePlanUpdater.ts --module esnext --target es2020 --moduleResolution node
+npx tsc cas/agents/developer/src/FeaturePlanUpdater.ts --module esnext --target es2020 --moduleResolution node
 
 # Compile Engineer updater
-npx tsc cas/agents/engineer/SystemPlanUpdater.ts --module esnext --target es2020 --moduleResolution node
+npx tsc cas/agents/engineer/src/SystemPlanUpdater.ts --module esnext --target es2020 --moduleResolution node
 ```
 
 ### Adding New Update Methods

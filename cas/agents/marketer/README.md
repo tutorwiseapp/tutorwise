@@ -97,6 +97,12 @@ The Marketer agent tracks user engagement, analyzes usage patterns, collects fee
 
 ---
 
+## Secret Management
+
+This agent **must not** access `.env` files or environment variables directly. All required secrets (e.g., API keys, credentials) must be requested from the **Engineer Agent** by following the process defined in the [Secret Management Workflow](../../process/SECRET--MANAGEMENT-WORKFLOW.md).
+
+---
+
 ## Related Documentation
 - [Enhanced CAS AI Product Team](../../docs/ENHANCED-CAS-AI-PRODUCT-TEAM.md)
 - [Week 2 Summary](../../docs/WEEK-2-SUMMARY.md)

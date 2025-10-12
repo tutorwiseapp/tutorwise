@@ -57,7 +57,7 @@
 │   ├── sadd-discover-repos.sh        # Discover repositories
 │   └── sadd-scan-repo.sh             # Scan single repository
 │
-├── lib/                              # Core libraries
+├── src/                              # Core libraries
 │   └── sadd-apply-adaptations.js     # Automation engine
 │
 ├── config/                           # Configuration

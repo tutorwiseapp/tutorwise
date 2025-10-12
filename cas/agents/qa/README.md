@@ -13,38 +13,34 @@ The QA agent ensures quality standards, validates usability, and performs visual
 
 ## Core Responsibilities
 
-### 1. Accessibility Testing
+### 1. Automated Visual Verification (NEW - PRIMARY RESPONSIBILITY)
+- **Purpose:** Act as the automated gatekeeper for UI quality and design system adherence.
+- **Trigger:** Runs automatically when the Developer Agent completes a UI task and pushes Storybook stories.
+- **Process:**
+    1. Uses a visual regression tool (e.g., Percy) to take snapshots of all new and updated Storybook stories.
+    2. Compares these snapshots against the approved baseline from the `main` branch.
+- **Gatekeeping:**
+    - **On Success:** Automatically approves the changes and adds a "✅ Visual Verification Passed" status to the PR.
+    - **On Failure:** Automatically **blocks the PR** and assigns a task back to the Developer Agent with a report of the visual regressions.
+- **Reference:** [Visual Verification Workflow](../../process/VISUAL-VERIFICATION-WORKFLOW.md)
+
+### 2. Accessibility Testing
 - WCAG 2.1 AA compliance validation
 - Keyboard navigation testing
 - Screen reader compatibility
 - Color contrast verification
-- Focus management validation
-
-### 2. Visual Regression Testing
-- Create Percy snapshots
-- Compare visual changes
-- Validate responsive designs
-- Test across viewports (desktop, tablet, mobile)
 
 ### 3. Usability Validation
 - User interaction testing
 - Form usability validation
 - Error message clarity
-- Loading state UX
-- Success feedback validation
+- Loading and success state feedback
 
 ### 4. Cross-Browser Testing
-- Chrome compatibility
-- Firefox compatibility
-- Safari compatibility
-- Edge compatibility
-- Mobile browser testing
+- Automated checks for Chrome, Firefox, and Safari compatibility using Playwright.
 
-### 5. Performance Testing
-- Page load time measurement
-- Interactive element responsiveness
-- Bundle size analysis
-- Render performance validation
+### 5. Performance Audits
+- Run Lighthouse audits to measure page load times and identify performance bottlenecks.
 
 ---
 
@@ -75,6 +71,12 @@ The QA agent ensures quality standards, validates usability, and performs visual
 - Stories ready for Percy integration
 - Blocked by Storybook webpack issue
 - Workaround: Percy direct snapshots
+
+---
+
+## Secret Management
+
+This agent **must not** access `.env` files or environment variables directly. All required secrets (e.g., API keys, credentials) must be requested from the **Engineer Agent** by following the process defined in the [Secret Management Workflow](../../process/SECRET-MANAGEMENT-WORKFLOW.md).
 
 ---
 
