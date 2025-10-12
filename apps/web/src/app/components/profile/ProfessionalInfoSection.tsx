@@ -30,7 +30,7 @@ export default function ProfessionalInfoSection({ listing }: ProfessionalInfoSec
           </tr>
           <tr>
             <td>Academic Qualifications</td>
-            <td>{listing.qualifications.join(', ')}</td>
+            <td>{listing.qualifications?.join(', ')}</td>
           </tr>
           <tr>
             <td>Professional Qualifications</td>
