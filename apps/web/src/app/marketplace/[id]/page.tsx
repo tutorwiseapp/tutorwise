@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Container from '@/app/components/layout/Container';
 import { getListing } from '@/lib/api/listings';
@@ -20,28 +20,31 @@ export default function ListingDetailsPage() {
   const router = useRouter();
   const [listing, setListing] = useState<Listing | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (params?.id) {
-      loadListing();
-    }
-  }, [params?.id]);
-
-  const loadListing = async () => {
+  const loadListing = useCallback(async () => {
     if (!params?.id) return;
 
     setIsLoading(true);
+    setError(null);
     try {
       const data = await getListing(params.id as string);
+      if (!data) {
+        throw new Error("Tutor profile not found.");
+      }
       setListing(data);
-    } catch (error) {
-      console.error('Failed to load listing:', error);
+    } catch (err) {
+      console.error('Failed to load listing:', err);
+      setError("We couldn't load this tutor's profile. Please try again later.");
       toast.error('Failed to load listing');
-      router.push('/marketplace');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [params?.id]);
+
+  useEffect(() => {
+    loadListing();
+  }, [loadListing]);
 
   if (isLoading) {
     return (
@@ -50,6 +53,20 @@ export default function ListingDetailsPage() {
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-4 text-gray-600">Loading...</p>
+          </div>
+        </div>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Something went wrong</h2>
+            <p className="text-gray-600 mb-8">{error}</p>
+            <Button onClick={() => router.push('/marketplace')}>Back to Marketplace</Button>
           </div>
         </div>
       </Container>
