@@ -35,7 +35,13 @@ The Analyst agent is the **Product Analyst** - combining business analysis with 
 - **Gate:** A feature cannot proceed to the Planner until this kick-off is complete.
 - **Reference:** [AI Three Amigos Kick-off](../../process/AI-THREE-AMIGOS-KICK-OFF.md)
 
-### 3. Market Research & Competitive Analysis
+### 3. Impact Review (NEW - "PRODUCTION METRICS REVIEW")
+- **Role:** The "Did it Work?" participant in the post-deployment review.
+- **Process:** Reviews the **Production Performance Report** from the Marketer Agent.
+- **Responsibility:** Compares the actual production data against the **Success Metrics** defined in the original Feature Brief to determine if the feature achieved its goals.
+- **Reference:** [Production Metrics Review Workflow](../../process/PRODUCTION-METRICS-REVIEW-WORKFLOW.md)
+
+### 4. Market Research & Competitive Analysis
 - Research market trends and opportunities
 - Analyze competitor features and positioning
 - Identify market gaps and niches

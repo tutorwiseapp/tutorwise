@@ -23,54 +23,56 @@ The Planner agent is the **Strategic PDM** - the autonomous leader combining pro
 - Make go/no-go decisions on features
 - Balance business value vs. technical effort
 
-### 2. Strategic Feature Prioritization (Product Manager)
+### 2. Strategic Decision-Making (NEW - "PRODUCTION METRICS REVIEW")
+- **Role:** The final decision-maker in the post-deployment review loop.
+- **Process:** Receives the **Feature Impact Summary** from the Marketer Agent.
+- **Responsibility:** Makes the strategic call based on production data:
+    - **SUCCESS:** Acknowledges success and archives the learnings.
+    - **ITERATE:** Creates a new, prioritized feature task for the Analyst to begin work on an improved version.
+    - **REMOVE:** Creates a new task to deprecate and remove a failed feature.
+- **Reference:** [Production Metrics Review Workflow](../../process/PRODUCTION-METRICS-REVIEW-WORKFLOW.md)
+
+### 3. Strategic Feature Prioritization (Product Manager)
 - Prioritize features based on ROI and impact
 - Use data from Marketer to inform decisions
 - Balance quick wins vs. long-term investments
 - Manage product backlog strategically
-- Align features with user needs (from Analyst)
 
-### 3. Sprint Planning & Execution (Project Manager + Scrum Master)
+### 4. Sprint Planning & Execution (Project Manager + Scrum Master)
 - Define sprint goals based on product roadmap
 - Break down features into agent-specific tasks
 - Estimate effort and timeline
 - Create sprint schedule
-- Facilitate sprint ceremonies (planning, reviews, retros)
 
-### 4. Agent Coordination (Delivery Manager)
+### 5. Agent Coordination (Delivery Manager)
 - Assign tasks to appropriate agents
 - Monitor agent progress and velocity
 - Detect dependencies and blockers
 - Facilitate inter-agent communication
-- Remove impediments to delivery
 
-### 5. Workflow Orchestration (Delivery Manager)
+### 6. Workflow Orchestration (Delivery Manager)
 - Execute multi-agent workflows
 - Ensure proper task sequencing
-- Handle parallel work streams
 - Manage handoffs between agents
 - Optimize delivery pipeline
 
-### 6. Progress Tracking & Reporting (Project Manager)
+### 7. Progress Tracking & Reporting (Project Manager)
 - Monitor feature completion
 - Track sprint velocity and burndown
 - Generate status reports
 - Update stakeholders
-- Maintain delivery metrics
 
-### 7. Blocker Resolution (Scrum Master)
+### 8. Blocker Resolution (Scrum Master)
 - Detect blocked work early
 - Identify root causes
 - Reassign or escalate as needed
 - Track resolution time
-- Prevent future blockers
 
-### 8. Strategic Feedback Integration (Product Manager)
+### 9. Strategic Feedback Integration (Product Manager)
 - Review Marketer analytics and user feedback
 - Adjust roadmap based on market performance
 - Collaborate with Analyst on product-market fit
 - Iterate on product strategy
-- Close the feedback loop
 
 ---
 

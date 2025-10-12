@@ -19,7 +19,13 @@ The Developer agent implements features from requirements, writes unit tests, cr
 - **Output:** Produces a **Feasibility Report** that assesses technical feasibility, clarifies component requirements, and identifies potential blockers.
 - **Reference:** [AI Three Amigos Kick-off](../../process/AI-THREE-AMIGOS-KICK-OFF.md)
 
-### 2. Feature Implementation
+### 2. Technical Health Review (NEW - "PRODUCTION METRICS REVIEW")
+- **Role:** The "Is it Healthy?" participant in the post-deployment review.
+- **Process:** Reviews production monitoring data and error logs related to the feature.
+- **Responsibility:** Assesses the feature's technical performance in production, identifying any new errors, performance bottlenecks, or unexpected behavior.
+- **Reference:** [Production Metrics Review Workflow](../../process/PRODUCTION-METRICS-REVIEW-WORKFLOW.md)
+
+### 3. Feature Implementation
 - Implement features based on the **final, signed-off Feature Brief**.
 - Strictly adhere to the **Proven Patterns & Constraints** defined in the brief.
 - Write clean, maintainable, and type-safe TypeScript code.
