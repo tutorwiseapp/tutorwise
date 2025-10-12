@@ -31,3 +31,32 @@
   font-weight: 600;
   color: #000;
 }
+
+@media (max-width: 768px) {
+  .table, .table tbody, .table tr, .table td {
+    display: block;
+    width: 100%;
+  }
+
+  .table tr {
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #e8e8e8;
+    padding-bottom: 1rem;
+  }
+
+  .table tr:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .table td {
+    border: none;
+    padding: 0.25rem 0;
+  }
+
+  .table td:first-child {
+    font-weight: 500;
+    color: #555;
+  }
+}

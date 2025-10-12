@@ -29,3 +29,10 @@
   font-size: 1rem;
   color: #484848;
 }
+
+@media (max-width: 768px) {
+  .availabilitySection {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
