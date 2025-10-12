@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import type { Listing } from '@tutorwise/shared-types';
+import { slugify } from '@/lib/utils/slugify';
 import styles from './TutorCard.module.css';
 
 interface TutorCardProps {
@@ -50,7 +51,7 @@ export default function TutorCard({ listing }: TutorCardProps) {
 
   return (
     <div className={styles.tutorCard}>
-      <Link href={`/marketplace/${listing.id}`} className={styles.cardLink}>
+      <Link href={`/tutor/${listing.id}/${slugify(listing.title)}`} className={styles.cardLink}>
         {/* Image Section */}
         <div className={styles.imageContainer}>
           {imageUrl && !imageError ? (

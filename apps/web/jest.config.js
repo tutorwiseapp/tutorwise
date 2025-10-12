@@ -10,15 +10,7 @@ module.exports = {
     '\.css$': 'identity-obj-proxy',
   },
   transform: {
-    '^.+\.(js|jsx|ts|tsx)$': ['babel-jest', {
-      presets: [
-        ['next/babel', {
-          'preset-typescript': {
-            allowDeclareFields: true
-          }
-        }]
-      ]
-    }],
+    '^.+\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
   testTimeout: 90000, // Set Jest test timeout to 90 seconds
   // Add globals to support TypeScript type assertions
