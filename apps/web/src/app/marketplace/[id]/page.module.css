@@ -1,0 +1,22 @@
+
+.pageWrapper {
+  background-color: #fff;
+  padding: 2rem 0;
+}
+
+
+.mainContent {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 48px;
+  padding: 0 2rem;
+  margin-top: 54px;
+}
+
+@media (max-width: 768px) {
+  .mainContent {
+    grid-template-columns: 1fr;
+    padding: 0 1rem;
+    margin-top: 24px;
+  }
+}

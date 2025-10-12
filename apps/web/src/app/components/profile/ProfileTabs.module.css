@@ -1,0 +1,28 @@
+
+.profileTabs {
+  display: flex;
+  border-bottom: 1px solid #e8e8e8;
+  margin-bottom: 2rem;
+}
+
+.tab {
+  padding: 1rem 1.5rem; /* Reduced horizontal padding */
+  font-size: 1rem;
+  font-weight: 500; /* Medium */
+  color: #666;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out;
+  border-bottom: 3px solid transparent; /* Increased thickness */
+}
+
+.tab:hover {
+  color: #111; /* Subtle hover effect */
+}
+
+.tab.active {
+  color: #006c67; /* Primary teal color */
+  border-bottom-color: #006c67;
+  font-weight: 700; /* Bold */
+}
