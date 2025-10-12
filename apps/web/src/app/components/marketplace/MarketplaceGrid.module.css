@@ -1,0 +1,131 @@
+/*
+ * Marketplace Grid - True Airbnb Layout
+ * 1440px max-width container with responsive padding
+ */
+
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 48px 80px;
+  background: white;
+}
+
+@media (max-width: 1280px) {
+  .container {
+    padding: 48px 40px;
+  }
+}
+
+.gridHeader {
+  margin-bottom: 24px;
+}
+
+.resultCount {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #222222;
+  margin: 0;
+}
+
+/* Grid Layout - Airbnb Responsive Columns: 4 → 2 → 1 */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 32px 24px;
+  justify-items: center;
+}
+
+/* Tablet: 2 columns */
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    justify-items: stretch;
+  }
+}
+
+/* Desktop: 4 columns */
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Loading State */
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  text-align: center;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #e5e7eb;
+  border-top: 3px solid var(--color-primary-accent, #4CAEAD);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loadingText {
+  color: #6b7280;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  text-align: center;
+}
+
+.emptyIcon {
+  color: #d1d5db;
+  margin-bottom: 24px;
+}
+
+.emptyTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 12px 0;
+}
+
+.emptyText {
+  color: #6b7280;
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 400px;
+  margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 32px 20px;
+  }
+
+  .gridHeader {
+    margin-bottom: 24px;
+  }
+
+  .resultCount {
+    font-size: 1.25rem;
+  }
+
+  .grid {
+    gap: 24px;
+  }
+}

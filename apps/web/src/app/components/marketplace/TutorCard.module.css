@@ -1,0 +1,303 @@
+/*
+ * Tutor Card Component - Airbnb-inspired design
+ * Clean, modern, and professional
+ */
+
+.tutorCard {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 282px;
+}
+
+.tutorCard:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+}
+
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* Image Section */
+.imageContainer {
+  position: relative;
+  width: 100%;
+  padding-top: 100%; /* 1:1 aspect ratio (square) */
+  overflow: hidden;
+  background: #f3f4f6;
+}
+
+.image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.tutorCard:hover .image {
+  transform: scale(1.05);
+}
+
+.imagePlaceholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+}
+
+.trialBadge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: var(--color-primary-accent, #4CAEAD);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 2;
+}
+
+/* Heart Save Button - Right */
+.saveButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 2;
+  color: #222222;
+}
+
+.saveButton:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+}
+
+.saveButton svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Content Section - Clean Airbnb Format */
+.content {
+  padding: 12px 8px;
+  height: 110px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Row Structure - Left/Right Layout */
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  min-height: 18px;
+}
+
+/* Line 1: Name */
+.name {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #111827;
+  margin: 0;
+  line-height: 1.2;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Line 2: Subject */
+.subject {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.2;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.level {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  line-height: 1.2;
+  flex-shrink: 0;
+  font-weight: 400;
+}
+
+/* Line 3: Location & Delivery Mode */
+.location {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.2;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.deliveryMode {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  line-height: 1.2;
+  flex-shrink: 0;
+  font-weight: 400;
+}
+
+/* Rating - Right side of line 1 */
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.starIcon {
+  color: #111827;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.ratingValue {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: #111827;
+}
+
+/* Line 4: Price */
+.price {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #111827;
+  line-height: 1.2;
+  flex: 1;
+}
+
+.priceUnit {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #111827;
+}
+
+.trialText {
+  font-size: 0.8125rem;
+  color: var(--color-primary-accent, #4CAEAD);
+  line-height: 1.2;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+
+/* Instant Book Link - Right side of line 4 */
+.bookLink {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--color-primary, #006C67);
+  text-decoration: underline;
+  cursor: pointer;
+  line-height: 1.2;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+
+.bookLink:hover {
+  color: var(--color-primary-accent, #4CAEAD);
+}
+
+/* Disabled state (default - instant book turned off) */
+.bookLinkDisabled {
+  color: #6b7280;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.bookLinkDisabled:hover {
+  color: #6b7280;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .content {
+    padding: 10px 8px;
+    gap: 3px;
+  }
+
+  .row {
+    gap: 6px;
+  }
+
+  .name {
+    font-size: 0.875rem;
+  }
+
+  .subject {
+    font-size: 0.75rem;
+  }
+
+  .level {
+    font-size: 0.6875rem;
+  }
+
+  .location {
+    font-size: 0.75rem;
+  }
+
+  .deliveryMode {
+    font-size: 0.6875rem;
+  }
+
+  .rating {
+    gap: 2px;
+  }
+
+  .ratingValue {
+    font-size: 0.75rem;
+  }
+
+  .price {
+    font-size: 0.875rem;
+  }
+
+  .priceUnit {
+    font-size: 0.875rem;
+  }
+
+  .trialText {
+    font-size: 0.75rem;
+  }
+
+  .bookLink {
+    font-size: 0.875rem;
+  }
+}

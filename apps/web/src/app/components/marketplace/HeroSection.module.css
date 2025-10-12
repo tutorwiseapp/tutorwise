@@ -1,0 +1,194 @@
+/*
+ * Hero Section - ChatGPT-Style with Tutorwise Theme
+ * Subtle grey gradient background with centered AI chat interface
+ */
+
+.heroSection {
+  position: relative;
+  width: 100%;
+  background: linear-gradient(135deg, #F8F9FA 0%, #F0F2F5 100%);
+  padding: 80px 24px 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.heroContent {
+  max-width: 720px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Typography */
+.heroTitle {
+  font-size: 3rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #202124);
+  margin: 0 0 16px 0;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.heroSubtitle {
+  font-size: 1.125rem;
+  font-weight: 400;
+  color: var(--color-text-secondary, #5f6368);
+  margin: 0 0 32px 0;
+  line-height: 1.5;
+}
+
+/* ChatGPT-style Chat Input */
+.chatForm {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.chatInputContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid var(--color-border, #dfe1e5);
+  border-radius: 24px;
+  padding: 12px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s;
+}
+
+.chatInputContainer:focus-within {
+  border-color: var(--color-primary-accent, #4CAEAD);
+  box-shadow: 0 4px 12px rgba(76, 174, 173, 0.15);
+}
+
+.chatInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  color: var(--color-text-primary, #202124);
+  background: transparent;
+  resize: none;
+  max-height: 120px;
+  line-height: 1.5;
+  font-family: inherit;
+  padding: 0;
+  margin-right: 12px;
+}
+
+.chatInput::placeholder {
+  color: var(--color-text-placeholder, #9aa0a6);
+}
+
+.chatInput:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Send Button - Tutorwise Teal */
+.sendButton {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--color-primary-accent, #4CAEAD);
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.sendButton:hover:not(:disabled) {
+  background: var(--color-primary-accent-dark, #3A9B9A);
+  transform: translateY(-1px);
+}
+
+.sendButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.buttonSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Example Query Chips */
+.exampleQueries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.exampleChip {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--color-border, #dfe1e5);
+  background: #ffffff;
+  color: var(--color-text-secondary, #5f6368);
+  font-size: 0.875rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.exampleChip:hover:not(:disabled) {
+  border-color: var(--color-primary-accent, #4CAEAD);
+  color: var(--color-primary, #006C67);
+  background: var(--color-primary-light, #E0F2F1);
+}
+
+.exampleChip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .heroSection {
+    padding: 48px 20px 40px;
+  }
+
+  .heroTitle {
+    font-size: 2rem;
+  }
+
+  .heroSubtitle {
+    font-size: 1rem;
+    margin-bottom: 24px;
+  }
+
+  .chatInputContainer {
+    padding: 10px 12px;
+    border-radius: 20px;
+  }
+
+  .chatInput {
+    font-size: 0.9375rem;
+  }
+
+  .sendButton {
+    width: 32px;
+    height: 32px;
+  }
+
+  .exampleChip {
+    font-size: 0.8125rem;
+    padding: 6px 12px;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
