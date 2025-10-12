@@ -13,8 +13,14 @@ The Developer agent implements features from requirements, writes unit tests, cr
 
 ## Core Responsibilities
 
-### 1. Feature Implementation
-- Implement features based on the **Feature Brief** from the Analyst Agent.
+### 1. Feasibility Review (NEW - "THREE AMIGOS" KICK-OFF)
+- **Role:** The "Development Amigo" in the pre-development kick-off.
+- **Process:** Reviews the draft Feature Brief from the Analyst Agent.
+- **Output:** Produces a **Feasibility Report** that assesses technical feasibility, clarifies component requirements, and identifies potential blockers.
+- **Reference:** [AI Three Amigos Kick-off](../../process/AI-THREE-AMIGOS-KICK-OFF.md)
+
+### 2. Feature Implementation
+- Implement features based on the **final, signed-off Feature Brief**.
 - Strictly adhere to the **Proven Patterns & Constraints** defined in the brief.
 - Write clean, maintainable, and type-safe TypeScript code.
 

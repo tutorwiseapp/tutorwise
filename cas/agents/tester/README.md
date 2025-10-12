@@ -13,7 +13,13 @@ The Tester agent writes comprehensive tests, validates functionality, and ensure
 
 ## Core Responsibilities
 
-### 1. E2E (End-to-End) Verification (NEW - FINAL GATEKEEPER)
+### 1. Testability Review (NEW - "THREE AMIGOS" KICK-OFF)
+- **Role:** The "Testing Amigo" in the pre-development kick-off.
+- **Process:** Reviews the draft Feature Brief from the Analyst Agent.
+- **Output:** Produces a **Testability Report** that defines the high-level E2E test plan and identifies potential edge cases, failure modes, and test data requirements.
+- **Reference:** [AI Three Amigos Kick-off](../../process/AI-THREE-AMIGOS-KICK-OFF.md)
+
+### 2. E2E (End-to-End) Verification (FINAL GATEKEEPER)
 - **Purpose:** To guarantee that a feature works correctly within the fully integrated, live application environment. This is the final quality gate before a feature is marked as "Done."
 - **Trigger:** Runs after a feature has passed the **QA Agent's** Visual Verification.
 - **Process:**

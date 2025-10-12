@@ -25,7 +25,17 @@ The Analyst agent is the **Product Analyst** - combining business analysis with 
 - **Output:** Creates a **Feature Brief** with a "Proven Patterns & Constraints" section.
 - **Reference:** [Contextual Analysis Workflow](../../process/CONTEXTUAL-ANALYSIS-WORKFLOW.md)
 
-### 2. Market Research & Competitive Analysis
+### 2. AI Three Amigos Kick-off (NEW - MANDATORY REVIEW GATE)
+- **Role:** Facilitator of the pre-development review process.
+- **Process:**
+    1.  After creating the draft Feature Brief, it shares it with the Developer and Tester agents.
+    2.  It collects their "Feasibility" and "Testability" reports.
+    3.  It synthesizes the feedback and updates the brief.
+    4.  It manages the sign-off process from all three agents.
+- **Gate:** A feature cannot proceed to the Planner until this kick-off is complete.
+- **Reference:** [AI Three Amigos Kick-off](../../process/AI-THREE-AMIGOS-KICK-OFF.md)
+
+### 3. Market Research & Competitive Analysis
 - Research market trends and opportunities
 - Analyze competitor features and positioning
 - Identify market gaps and niches

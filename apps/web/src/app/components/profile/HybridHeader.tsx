@@ -1,4 +1,8 @@
 
+'use client';
+
+import { useRouter, usePathname } from 'next/navigation';
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import styles from './HybridHeader.module.css';
 import type { Listing } from '@tutorwise/shared-types';
 import Button from '@/app/components/ui/Button';
@@ -8,6 +12,22 @@ interface HybridHeaderProps {
 }
 
 export default function HybridHeader({ listing }: HybridHeaderProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const { user, isLoading } = useUserProfile();
+
+  const handleActionClick = () => {
+    if (isLoading) return; // Don't do anything while auth status is loading
+
+    if (!user) {
+      // If user is a guest, redirect to login
+      router.push(`/login?redirect=${pathname}`);
+    } else {
+      // If user is logged in, log a TODO for now
+      console.log('TODO: Implement authenticated action (e.g., open booking modal)');
+    }
+  };
+
   return (
     <div className={styles.hybridHeader}>
       <div className={styles.left}>
@@ -37,9 +57,9 @@ export default function HybridHeader({ listing }: HybridHeaderProps) {
           </div>
         </div>
         <div className={styles.actions}>
-          <Button className={styles.button}>Request my services</Button>
-          <Button className={styles.button} data-variant="outline">Send me a message</Button>
-          <Button className={styles.button} data-variant="outline">Connect with me</Button>
+          <Button className={styles.button} onClick={handleActionClick}>Request my services</Button>
+          <Button className={styles.button} data-variant="outline" onClick={handleActionClick}>Send me a message</Button>
+          <Button className={styles.button} data-variant="outline" onClick={handleActionClick}>Connect with me</Button>
         </div>
       </div>
     </div>
