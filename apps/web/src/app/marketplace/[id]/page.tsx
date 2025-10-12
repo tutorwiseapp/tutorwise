@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Container from '@/app/components/layout/Container';
-import Button from '@/app/components/ui/Button'; // <-- FIX: Add missing import
+import NotFound from '@/app/components/layout/NotFound';
+import Button from '@/app/components/ui/Button';
 import { getListing } from '@/lib/api/listings';
 import type { Listing } from '@tutorwise/shared-types';
 import { toast } from 'sonner';
@@ -18,22 +19,27 @@ import styles from './page.module.css';
 
 export default function ListingDetailsPage() {
   const params = useParams();
-  const router = useRouter();
   const [listing, setListing] = useState<Listing | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notFound, setNotFound] = useState(false);
 
   const loadListing = useCallback(async () => {
-    if (!params?.id) return;
+    if (!params?.id) {
+      setNotFound(true);
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
+    setNotFound(false);
     try {
       const data = await getListing(params.id as string);
       if (!data) {
-        throw new Error("Tutor profile not found.");
+        setNotFound(true);
+      } else {
+        setListing(data);
       }
-      setListing(data);
     } catch (err) {
       console.error('Failed to load listing:', err);
       setError("We couldn't load this tutor's profile. Please try again later.");
@@ -60,6 +66,19 @@ export default function ListingDetailsPage() {
     );
   }
 
+  if (notFound) {
+    return (
+      <Container>
+        <NotFound
+          title="Tutor Profile Not Found"
+          message="We couldn't find the tutor you're looking for. They may have moved or the link may be incorrect."
+          linkText="Back to Marketplace"
+          linkHref="/marketplace"
+        />
+      </Container>
+    );
+  }
+
   if (error) {
     return (
       <Container>
@@ -67,7 +86,7 @@ export default function ListingDetailsPage() {
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-4">Something went wrong</h2>
             <p className="text-gray-600 mb-8">{error}</p>
-            <Button onClick={() => router.push('/marketplace')}>Back to Marketplace</Button>
+            <Button onClick={loadListing}>Try Again</Button>
           </div>
         </div>
       </Container>
@@ -75,6 +94,7 @@ export default function ListingDetailsPage() {
   }
 
   if (!listing) {
+    // This should not be reached, but as a fallback
     return null;
   }
 
@@ -85,7 +105,6 @@ export default function ListingDetailsPage() {
         <ProfileTabs />
         <div className={styles.mainContent}>
           <div className={styles.leftColumn}>
-            {/* The content below would eventually be driven by the active tab */}
             <TutorNarrative listing={listing} />
             <ReviewsSection />
             <AvailabilitySection />
