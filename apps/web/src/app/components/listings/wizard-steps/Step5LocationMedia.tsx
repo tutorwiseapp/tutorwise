@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import type { CreateListingInput } from '@tutorwise/shared-types';
 import Button from '@/app/components/ui/Button';
-import FormSection from '@/app/components/ui/form/FormSection';
-import FormField from '@/app/components/ui/form/FormField';
+import FormSection from '@/app/components/listings/FormSection';
+import FormField from '@/app/components/listings/FormField';
 import ImageUpload from '@/app/components/listings/ImageUpload';
-import styles from '@/app/styles/wizard.module.css';
+import styles from '../onboarding/OnboardingWizard.module.css';
 
 interface Step5LocationMediaProps {
   formData: Partial<CreateListingInput>;
