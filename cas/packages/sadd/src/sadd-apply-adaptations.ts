@@ -42,52 +42,6 @@ interface AdaptationRules {
   rules: AdaptationRule[];
 }
 
-import { getPostgresClient, getNeo4jDriver } from './db-connector';
-
-/**
- * Discovers the architecture of the application and stores it in the databases.
- */
-export async function discoverAndStoreArchitecture(projectRoot: string): Promise<void> {
-  log('blue', '🔎', 'Starting architecture discovery...');
-
-  const files = await glob('**/*.{ts,tsx,js,jsx}', {
-    cwd: projectRoot,
-    ignore: ['**/node_modules/**', '**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', '**/tests/**'],
-    absolute: true,
-  });
-
-  log('green', '✓', `Found ${files.length} relevant source files.`);
-
-  const pgClient = getPostgresClient();
-  const neo4jDriver = getNeo4jDriver();
-  const session = neo4jDriver.session();
-
-  try {
-    // In a real implementation, we would do more sophisticated analysis here.
-    // For now, we will just log the files and simulate the DB operations.
-
-    for (const file of files) {
-      const relativePath = path.relative(projectRoot, file);
-      console.log(`  -> Storing: ${relativePath}`);
-
-      // Simulate storing in Postgres
-      // await pgClient.query('INSERT INTO files (path) VALUES ($1) ON CONFLICT (path) DO NOTHING', [relativePath]);
-
-      // Simulate storing in Neo4j
-      // await session.run('MERGE (f:File {path: $path})', { path: relativePath });
-    }
-
-    log('green', '✅', 'Successfully stored architecture in Supabase and Neo4j (simulation).');
-
-  } catch (error: any) {
-    log('red', '✗', `Error during architecture discovery: ${error.message}`);
-  } finally {
-    await pgClient.end();
-    await session.close();
-    await neo4jDriver.close();
-  }
-}
-
 /**
  * Main adaptation function
  */

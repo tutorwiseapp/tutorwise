@@ -32,16 +32,12 @@
   "dependencies": {
     "glob": "^10.3.10"
   },
-  "devDependencies": {
-    "@neondatabase/serverless": "^1.0.2",
-    "neo4j-driver": "^6.0.0",
-    "pg": "^8.16.3"
-  },
+  "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tutorwise/tutorwise.git",
-    "directory": "cas/packages/sadd"
+    "url": "git+https://github.com/tutorwise/tutorwise.git"
   },
+
   "files": [
     "bin/",
     "dist/",

@@ -1,4 +1,3 @@
-// Force clean build
 import { useState } from 'react';
 import type { CreateListingInput } from '@tutorwise/shared-types';
 import Button from '@/app/components/ui/Button';
@@ -28,14 +27,8 @@ export default function Step5LocationMedia({
   const [videoUrl, setVideoUrl] = useState(formData.video_url || '');
   const [imageUrls, setImageUrls] = useState<string[]>(formData.images || []);
 
-  const handleImageUpload = (files: File[]) => {
-    // This is where you would trigger the actual upload to a server.
-    // For now, we'll just log it and update the local state with mock URLs.
-    console.log('TODO: Upload files to server:', files);
-
-    // Create temporary blob URLs for preview
-    const newImageUrls = files.map(file => URL.createObjectURL(file));
-    setImageUrls(prev => [...prev, ...newImageUrls]);
+  const handleNewImage = (url: string) => {
+    setImageUrls(prev => [...prev, url]);
   };
 
   const handleSubmit = () => {
@@ -65,7 +58,11 @@ export default function Step5LocationMedia({
           label="Upload Photos"
           description="Add up to 5 photos. A professional headshot is recommended for your main photo."
         >
-          <ImageUpload onUpload={handleImageUpload} initialImageUrls={imageUrls} />
+          <ImageUpload
+            onNewImage={handleNewImage}
+            imagePreviews={imageUrls}
+            setImagePreviews={setImageUrls}
+          />
         </FormField>
         <FormField
           label="YouTube Video URL"
