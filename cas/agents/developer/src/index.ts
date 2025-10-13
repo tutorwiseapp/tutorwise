@@ -23,11 +23,7 @@ class DeveloperAgent {
     let report = `## Feasibility Report\n\n`;
     if (hasPatterns && hasLayout) {
       report += `- **Technical Feasibility:** ✅ High. The brief provides clear architectural and design patterns.\n`;
-      report += `- **Component Plan:** Re-use existing \
-`<Button>\
-` and \
-`<ProgressDots>\
-`. New components will be required for each wizard step.\n`;
+      report += `- **Component Plan:** Re-use existing 'Button' and 'ProgressDots'. New components will be required for each wizard step.\n`;
       report += `- **Blockers:** None identified.\n`;
     } else {
       report += `- **Technical Feasibility:** ⚠️ Medium. The brief is missing the critical "Proven Patterns & Constraints" section. This is a high-risk implementation.\n`;
