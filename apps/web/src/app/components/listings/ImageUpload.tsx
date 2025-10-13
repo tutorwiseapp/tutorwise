@@ -1,63 +1,82 @@
 'use client';
 
-import { useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { useImageUpload } from '@/hooks/useImageUpload';
+import { toast } from 'sonner';
 import styles from './ImageUpload.module.css';
 
 interface ImageUploadProps {
-  onNewImage: (url: string) => void;
-  imagePreviews: string[];
-  setImagePreviews: (urls: string[]) => void;
+  onUploadComplete: (urls: string[]) => void;
+  existingImages?: string[];
 }
 
-export default function ImageUpload({ onNewImage, imagePreviews, setImagePreviews }: ImageUploadProps) {
-  const { user } = useUserProfile();
+export default function ImageUpload({ onUploadComplete, existingImages = [] }: ImageUploadProps) {
+  const [files, setFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>(existingImages);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const { isUploading, error, handleFileSelect } = useImageUpload({
-    onUploadSuccess: (url) => {
-      onNewImage(url);
-    },
-  });
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    const newFiles = [...files, ...acceptedFiles];
+    setFiles(newFiles);
 
-  const onDrop = (acceptedFiles: File[]) => {
-    if (acceptedFiles.length > 0 && user) {
-      handleFileSelect(acceptedFiles[0], user.id);
-    }
-  };
+    const newPreviews = acceptedFiles.map(file => URL.createObjectURL(file));
+    setPreviews(prev => [...prev, ...newPreviews]);
+  }, [files]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { 'image/*': ['.jpeg', '.jpg', '.png'] },
-    multiple: false,
+    accept: { 'image/*': ['.jpeg', '.jpg', '.png', '.gif'] },
+    maxSize: 5 * 1024 * 1024, // 5MB
   });
 
-  const removeImage = (index: number) => {
-    const newPreviews = [...imagePreviews];
-    newPreviews.splice(index, 1);
-    setImagePreviews(newPreviews);
+  const handleUpload = async () => {
+    if (files.length === 0) {
+      onUploadComplete(existingImages);
+      return;
+    }
+
+    setIsUploading(true);
+    const uploadedUrls = [...existingImages];
+
+    for (const file of files) {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch('/api/avatar/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) throw new Error('Upload failed');
+        const { url } = await response.json();
+        uploadedUrls.push(url);
+      } catch (error) {
+        console.error('Failed to upload file:', file.name, error);
+        toast.error(`Failed to upload ${file.name}`);
+      }
+    }
+
+    setIsUploading(false);
+    onUploadComplete(uploadedUrls);
   };
 
   return (
-    <div className={styles.imageUploadContainer}>
+    <div>
       <div {...getRootProps()} className={`${styles.dropzone} ${isDragActive ? styles.active : ''}`}>
         <input {...getInputProps()} />
-        {isUploading ? (
-          <p>Uploading...</p>
-        ) : (
-          <p>Drag & drop an image here, or click to select one</p>
-        )}
+        <p>Drag & drop some files here, or click to select files</p>
       </div>
-      {error && <p className={styles.error}>{error}</p>}
       <div className={styles.previewGrid}>
-        {imagePreviews.map((preview, index) => (
-          <div key={index} className={styles.previewItem}>
-            <img src={preview} alt={`Preview ${index + 1}`} />
-            <button onClick={() => removeImage(index)} className={styles.removeButton}>×</button>
+        {previews.map((preview, index) => (
+          <div key={index} className={styles.preview}>
+            <img src={preview} alt={`preview ${index}`} />
           </div>
         ))}
       </div>
+      <button onClick={handleUpload} disabled={isUploading} className={styles.uploadButton}>
+        {isUploading ? 'Uploading...' : 'Upload Images'}
+      </button>
     </div>
   );
 }

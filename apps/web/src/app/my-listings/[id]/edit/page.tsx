@@ -1,69 +1,89 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getListing, updateListing } from '@/lib/api/listings';
 import type { Listing, UpdateListingInput } from '@tutorwise/shared-types';
-import CreateListingForm from '@/app/components/listings/CreateListingForm';
 import { toast } from 'sonner';
+import CreateListingWizard from '@/app/components/listings/CreateListingWizard';
+import styles from '../../create/page.module.css';
 
 export default function EditListingPage() {
   const router = useRouter();
   const params = useParams();
+  const { user, isLoading: userLoading } from useUserProfile();
   const [listing, setListing] = useState<Listing | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
+  const listingId = params.id as string;
+
   useEffect(() => {
-    const fetchListing = async () => {
-      try {
-        const listingData = await getListing(params.id as string);
-        if (!listingData) {
-          toast.error('Listing not found');
-          router.push('/listings');
-          return;
-        }
-        setListing(listingData);
-      } catch (error) {
-        console.error('Failed to fetch listing:', error);
-        toast.error('Failed to load listing details.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (params.id) {
-      fetchListing();
+    if (!userLoading && !user) {
+      router.push(`/login?redirect=/my-listings/${listingId}/edit`);
+      return;
     }
-  }, [params.id, router]);
 
-  const handleUpdate = async (data: UpdateListingInput) => {
+    if (user && listingId) {
+      loadListing();
+    }
+  }, [user, userLoading, listingId, router]);
+
+  const loadListing = async () => {
+    try {
+      const data = await getListing(listingId);
+      if (data) {
+        setListing(data);
+      } else {
+        toast.error('Listing not found');
+        router.push('/my-listings');
+      }
+    } catch (error) {
+      console.error('Failed to load listing:', error);
+      toast.error('Failed to load listing');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = async (data: Partial<UpdateListingInput>) => {
     setIsSaving(true);
     try {
-      await updateListing({ id: params.id as string, ...data });
+      const updatedData = { ...data, id: listingId };
+      await updateListing(updatedData);
       toast.success('Listing updated successfully!');
-      router.push('/listings');
+      router.push('/my-listings');
     } catch (error) {
       console.error('Failed to update listing:', error);
-      toast.error('Failed to update listing.');
+      toast.error('Failed to update listing. Please try again.');
     } finally {
       setIsSaving(false);
     }
   };
 
-  if (isLoading) {
-    return <div>Loading listing...</div>;
+  const handleCancel = () => {
+    router.push('/my-listings');
+  };
+
+  if (userLoading || isLoading) {
+    return (
+      <div className={styles.loading}>
+        <div className={styles.spinner}></div>
+        <p>Loading listing data...</p>
+      </div>
+    );
   }
 
   if (!listing) {
-    return <div>Listing not found.</div>;
+    return null; // Or a "not found" component
   }
 
   return (
-    <div>
-      <CreateListingForm
-        onSubmit={handleUpdate}
-        onCancel={() => router.push('/listings')}
+    <div className={styles.listingPage}>
+      <CreateListingWizard
+        onSubmit={handleSubmit}
+        onCancel={handleCancel}
         isSaving={isSaving}
         initialData={listing}
       />

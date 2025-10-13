@@ -7,6 +7,7 @@ import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getMyListings, deleteListing, publishListing, unpublishListing } from '@/lib/api/listings';
 import type { Listing } from '@tutorwise/shared-types';
 import { toast } from 'sonner';
+import ListingCard from './ListingCard';
 import styles from './page.module.css';
 
 export default function MyListingsPage() {
@@ -105,76 +106,12 @@ export default function MyListingsPage() {
       ) : (
         <div className={styles.listingsGrid}>
           {listings.map(listing => (
-            <div key={listing.id} className={styles.listingCard}>
-              {/* Card Header */}
-              <div className={styles.cardHeader}>
-                <h3 className={styles.cardTitle}>{listing.title}</h3>
-                <span className={`${styles.statusBadge} ${
-                  listing.status === 'published' ? styles.statusPublished :
-                  listing.status === 'draft' ? styles.statusDraft :
-                  styles.statusPending
-                }`}>
-                  {listing.status}
-                </span>
-              </div>
-
-              {/* Description */}
-              <p className={styles.cardDescription}>{listing.description}</p>
-
-              {/* Metadata */}
-              <div className={styles.cardMeta}>
-                <div className={styles.metaItem}>
-                  <span>Subjects:</span> {listing.subjects?.join(', ') || 'Not specified'}
-                </div>
-                <div className={styles.metaItem}>
-                  <span>Levels:</span> {listing.levels?.join(', ') || 'Not specified'}
-                </div>
-                {listing.hourly_rate && (
-                  <div className={styles.metaItem}>
-                    <span>Rate:</span> £{listing.hourly_rate}/hr
-                  </div>
-                )}
-                <div className={styles.metaItem}>
-                  <span>Type:</span> {listing.location_type || 'Not specified'}
-                </div>
-              </div>
-
-              {/* Statistics - No icons, clean text */}
-              <div className={styles.cardStats}>
-                <div className={styles.statItem}>
-                  <span className={styles.statValue}>{listing.view_count || 0}</span> views
-                </div>
-                <span className={styles.statDivider}>•</span>
-                <div className={styles.statItem}>
-                  <span className={styles.statValue}>{listing.inquiry_count || 0}</span> inquiries
-                </div>
-                <span className={styles.statDivider}>•</span>
-                <div className={styles.statItem}>
-                  <span className={styles.statValue}>{listing.booking_count || 0}</span> bookings
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className={styles.cardActions}>
-                <Link href={`/my-listings/${listing.id}/edit`} style={{ flex: 1 }}>
-                  <button className={styles.actionButton}>Edit</button>
-                </Link>
-                <button
-                  className={`${styles.actionButton} ${
-                    listing.status === 'published' ? '' : styles.actionButtonPrimary
-                  }`}
-                  onClick={() => handleToggleStatus(listing)}
-                >
-                  {listing.status === 'published' ? 'Unpublish' : 'Publish'}
-                </button>
-                <button
-                  className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-                  onClick={() => handleDelete(listing.id)}
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
+            <ListingCard
+              key={listing.id}
+              listing={listing}
+              onDelete={handleDelete}
+              onToggleStatus={handleToggleStatus}
+            />
           ))}
         </div>
       )}

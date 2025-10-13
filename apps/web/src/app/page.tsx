@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import type { Listing } from '@tutorwise/shared-types';
 import { parseSearchQuery, queryToFilters } from '@/lib/services/gemini';
 import HeroSection from '@/app/components/marketplace/HeroSection';
-import FilterChips, { FilterState } from '@/app/components/marketplace/FilterChips';
 import MarketplaceGrid from '@/app/components/marketplace/MarketplaceGrid';
 import styles from './page.module.css';
 
@@ -12,27 +11,11 @@ export default function HomePage() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [currentQuery, setCurrentQuery] = useState('');
-
-  const [filters, setFilters] = useState<FilterState>({
-    subjects: [],
-    levels: [],
-    locationType: null,
-    priceRange: { min: null, max: null },
-    freeTrialOnly: false,
-  });
 
   // Load featured tutors on initial page load
   useEffect(() => {
     loadFeaturedTutors();
   }, []);
-
-  // Reload results when filters change
-  useEffect(() => {
-    if (hasSearched) {
-      executeSearch();
-    }
-  }, [filters]);
 
   const loadFeaturedTutors = async () => {
     setIsLoading(true);
@@ -48,7 +31,6 @@ export default function HomePage() {
   };
 
   const handleSearch = async (query: string) => {
-    setCurrentQuery(query);
     setIsLoading(true);
     setHasSearched(true);
 
@@ -59,39 +41,6 @@ export default function HomePage() {
 
       // Convert parsed query to filters
       const searchFilters = queryToFilters(parsed);
-
-      // Update filter state
-      setFilters({
-        subjects: searchFilters.subjects || [],
-        levels: searchFilters.levels || [],
-        locationType: searchFilters.location_type || null,
-        priceRange: {
-          min: searchFilters.min_price || null,
-          max: searchFilters.max_price || null,
-        },
-        freeTrialOnly: searchFilters.free_trial_only || false,
-      });
-
-      // Execute the search
-      await executeSearch(searchFilters);
-    } catch (error) {
-      console.error('Search error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const executeSearch = async (customFilters?: any) => {
-    setIsLoading(true);
-    try {
-      const searchFilters = customFilters || {
-        subjects: filters.subjects.length > 0 ? filters.subjects : undefined,
-        levels: filters.levels.length > 0 ? filters.levels : undefined,
-        location_type: filters.locationType || undefined,
-        min_price: filters.priceRange.min || undefined,
-        max_price: filters.priceRange.max || undefined,
-        free_trial_only: filters.freeTrialOnly || undefined,
-      };
 
       // Build query string
       const params = new URLSearchParams();
@@ -122,23 +71,16 @@ export default function HomePage() {
 
       setListings(data.listings || []);
     } catch (error) {
-      console.error('Search execution error:', error);
+      console.error('Search error:', error);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleFilterChange = (newFilters: FilterState) => {
-    setFilters(newFilters);
   };
 
   return (
     <div className={styles.marketplacePage}>
       {/* Hero Section with AI Chat Bar */}
       <HeroSection onSearch={handleSearch} isSearching={isLoading} />
-
-      {/* Filter Chips */}
-      <FilterChips filters={filters} onFilterChange={handleFilterChange} />
 
       {/* Marketplace Grid */}
       <MarketplaceGrid
