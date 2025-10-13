@@ -324,19 +324,19 @@
   "rbac_tools": {
     "approval_workflow": {
       "name": "Approval Workflow",
-      "file_path": "/Users/michaelquan/projects/tutorwise/tools/rbac/approval-workflow.js",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/change-management/approval-workflow.js",
       "description": "Role-based approval workflow management",
       "dependencies": ["node"]
     },
     "ai_permission_system": {
       "name": "AI Permission System",
-      "file_path": "/Users/michaelquan/projects/tutorwise/tools/rbac/ai-permission-system.js",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/change-management/ai-permission-system.js",
       "description": "AI-driven permission management system",
       "dependencies": ["node"]
     },
     "critical_files_protection": {
       "name": "Critical Files Protection",
-      "file_path": "/Users/michaelquan/projects/tutorwise/tools/rbac/critical-files-protection.js",
+      "file_path": "/Users/michaelquan/projects/tutorwise/tools/change-management/critical-files-protection.js",
       "description": "Protection system for critical project files",
       "dependencies": ["node"]
     }

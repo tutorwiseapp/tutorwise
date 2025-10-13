@@ -37,6 +37,13 @@ export default function CreateListingWizard({
     ...initialData,
   });
 
+  useEffect(() => {
+    if (profile?.display_name && !formData.title && !initialData?.title) {
+      // Pre-fill the title if it's empty
+      setFormData(prev => ({ ...prev, title: `${profile.display_name}'s Tutoring Service` }));
+    }
+  }, [profile, formData.title, initialData]);
+
   // Auto-save draft to localStorage
   const saveDraft = useCallback(() => {
     if (formData.title || formData.description) {

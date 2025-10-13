@@ -168,9 +168,8 @@ df51d8e Implement autonomous AI development system with Jira integration
  .../app/components/onboarding/OnboardingWizard.tsx |  18 +-
  docs/ai-change-management.md                       | 242 ++++++++++++++++++
  docs/deployment-process.md                         | 185 ++++++++++++++
- tools/rbac/ai-permission-system.js                 | 225 +++++++++++++++++
- tools/rbac/approval-workflow.js                    | 278 +++++++++++++++++++++
- 29 files changed, 1008 insertions(+), 1411 deletions(-)
+ tools/change-management/ai-permission-system.js                 | 225 +++++++++++++++++
+ tools/change-management/approval-workflow.js                    | 278 +++++++++++++++++++++ 29 files changed, 1008 insertions(+), 1411 deletions(-)
 ```
 
 #### Detailed File Changes
@@ -202,8 +201,8 @@ D	apps/web/src/app/api/visual-testing/route.ts
 M	apps/web/src/app/components/onboarding/OnboardingWizard.tsx
 A	docs/ai-change-management.md
 A	docs/deployment-process.md
-A	tools/rbac/ai-permission-system.js
-A	tools/rbac/approval-workflow.js
+A	tools/change-management/ai-permission-system.js
+A	tools/change-management/approval-workflow.js
 ```
 
 #### Development Team Activity
@@ -231,8 +230,8 @@ A	tools/rbac/approval-workflow.js
 - `DEPLOYMENT_TEST.md`
 - `docs/ai-change-management.md`
 - `docs/deployment-process.md`
-- `tools/rbac/ai-permission-system.js`
-- `tools/rbac/approval-workflow.js`
+- `tools/change-management/ai-permission-system.js`
+- `tools/change-management/approval-workflow.js`
 
 ### Files Modified
 
@@ -317,10 +316,8 @@ AI agent performed system-wide file searches outside project boundaries, accessi
 
 ### Implemented Security Controls
 
-- **Comprehensive AI RBAC system**: tools/rbac/ai-permission-system.js
-- **AI restrictions file**: .ai-restrictions with forbidden actions
-- **Project scope limits**: Enforced boundaries at /Users/michaelquan/projects/tutorwise
-- **Human approval workflow**: Required for sensitive changes (tools/rbac/approval-workflow.js)
+- **Comprehensive AI RBAC system**: tools/change-management/ai-permission-system.js
+- **Human approval workflow**: Required for sensitive changes (tools/change-management/approval-workflow.js)
 - **Automated audit system**: Daily/weekly reports with email notifications
 
 ### Recent Achievements

@@ -6,6 +6,9 @@
   "scripts": {
     "build": "tsc"
   },
+  "dependencies": {
+    "@cas/agent": "workspace:*"
+  },
   "keywords": [
     "cas",
     "agent",

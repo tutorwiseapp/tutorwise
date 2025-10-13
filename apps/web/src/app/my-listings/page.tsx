@@ -17,7 +17,7 @@ export default function MyListingsPage() {
 
   useEffect(() => {
     if (!userLoading && !user) {
-      router.push('/login?redirect=/listings');
+      router.push('/login?redirect=/my-listings');
       return;
     }
 
@@ -85,7 +85,7 @@ export default function MyListingsPage() {
             <h1>My Listings</h1>
             <p>Manage your tutoring service listings</p>
           </div>
-          <Link href="/listings/create">
+          <Link href="/my-listings/create">
             <button className={styles.createButton}>Create New Listing</button>
           </Link>
         </div>
@@ -98,7 +98,7 @@ export default function MyListingsPage() {
           <p className={styles.emptyStateText}>
             Create your first tutoring listing to start attracting students and growing your tutoring business.
           </p>
-          <Link href="/listings/create">
+          <Link href="/my-listings/create">
             <button className={styles.emptyStateButton}>Create Your First Listing</button>
           </Link>
         </div>
@@ -156,7 +156,7 @@ export default function MyListingsPage() {
 
               {/* Action Buttons */}
               <div className={styles.cardActions}>
-                <Link href={`/listings/${listing.id}/edit`} style={{ flex: 1 }}>
+                <Link href={`/my-listings/${listing.id}/edit`} style={{ flex: 1 }}>
                   <button className={styles.actionButton}>Edit</button>
                 </Link>
                 <button

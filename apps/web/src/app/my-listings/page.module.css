@@ -1,0 +1,184 @@
+/* My Listings Page - Refined UI/UX */
+
+.listingsPage {
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
+
+.pageHeader {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 48px 24px 32px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.headerContent h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.headerContent p {
+  font-size: 1rem;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.createButton {
+  padding: 12px 24px;
+  background-color: #006c67; /* Primary Teal */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.createButton:hover {
+  background-color: #004f4a;
+}
+
+/* Grid Layout */
+.listingsGrid {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 1024px) {
+  .listingsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Refined Listing Card */
+.listingCard {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.cardTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.statusBadge {
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.statusPublished {
+  background-color: #e0f2f1;
+  color: #006c67;
+}
+
+.statusDraft {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.cardDescription {
+  color: #6b7280;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardMeta {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.cardStats {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.875rem;
+  color: #6b7280;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.statValue {
+  font-weight: 600;
+  color: #374151;
+}
+
+.cardActions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.actionButton {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+}
+
+.actionButton:hover {
+  background-color: #f9fafb;
+}
+
+.actionButtonPrimary {
+  background-color: #006c67;
+  color: white;
+  border-color: #006c67;
+}
+
+.actionButtonPrimary:hover {
+  background-color: #004f4a;
+}
+
+/* Empty State & Loading - Simplified for brevity */
+.emptyState, .loading {
+  text-align: center;
+  padding: 4rem 0;
+}
+.spinner {
+  /* Spinner styles */
+}

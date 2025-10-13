@@ -28,9 +28,8 @@ const CRITICAL_FILE_PATTERNS = {
     'middleware.ts': 'Authentication middleware - Controls all route access',
     'apps/web/src/middleware.ts': 'Next.js middleware - Auth & onboarding enforcement',
     '.ai-restrictions': 'AI security policy - RBAC rules',
-    'tools/rbac/ai-permission-system.js': 'Permission enforcement system',
-    'tools/rbac/approval-workflow.js': 'Human approval workflow',
-
+    'tools/change-management/ai-permission-system.js': 'Permission enforcement system',
+    'tools/change-management/approval-workflow.js': 'Human approval workflow',
     // Payment Integration
     'apps/web/src/lib/stripe.ts': 'Stripe client - Payment processing core',
 

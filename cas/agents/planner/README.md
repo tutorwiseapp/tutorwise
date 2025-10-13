@@ -74,6 +74,15 @@ The Planner agent is the **Strategic PDM** - the autonomous leader combining pro
 - Collaborate with Analyst on product-market fit
 - Iterate on product strategy
 
+### 10. Request for Production Deployment (NEW - FINAL HAND-OFF)
+- **Role:** The final step in the autonomous workflow.
+- **Trigger:** When a feature has successfully passed all preceding quality gates (Visual & E2E Verification).
+- **Process:**
+    1.  The Planner requests permission for `PRODUCTION_DEPLOYMENT` from the Engineer Agent.
+    2.  This action is flagged as `APPROVAL_REQUIRED` by the Change Management system.
+    3.  A formal **Request for Deployment** is created for the human operator.
+- **Output:** A pending approval request for the final "go-live" decision, which must be approved and executed by a human.
+
 ---
 
 ## Agent Coordination Matrix

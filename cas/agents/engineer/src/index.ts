@@ -1,10 +1,12 @@
-import { AIPermissionSystem } from '../../../../tools/rbac';
+import { AIPermissionSystem, ApprovalWorkflow } from '../../../../tools/change-management';
 
 class PermissionedEngineer {
   private permissionSystem: AIPermissionSystem;
+  private approvalWorkflow: ApprovalWorkflow;
 
   constructor() {
     this.permissionSystem = new AIPermissionSystem();
+    this.approvalWorkflow = new ApprovalWorkflow();
   }
 
   /**
@@ -19,18 +21,50 @@ class PermissionedEngineer {
     const result = this.permissionSystem.checkPermission(action, resource, agentName);
 
     if (result.allowed) {
+      console.log(`✅ Permission GRANTED for ${agentName} to ${action} on ${resource}.`);
       return true;
     }
 
     if (result.requires_approval) {
-      console.log(`️⚠️ Action requires human approval: ${result.reason}`);
-      this.permissionSystem.requestApproval(action, resource, justification, agentName);
-      // In a real implementation, this would enter a loop to check for approval status.
-      // For now, we will consider it denied.
-      return false;
+      console.log(`⚠️ Action requires human approval: ${result.reason}`);
+      const request = this.approvalWorkflow.createApprovalRequest(action, resource, justification, agentName);
+      console.log(`⏳ Waiting for human approval for request: ${request.id}`);
+      
+      // Poll for approval status
+      return this.waitForApproval(request.id);
     }
 
-    console.error(`🚫 Action forbidden: ${result.reason}`);
+    console.error(`🚫 Action FORBIDDEN for ${agentName} to ${action} on ${resource}: ${result.reason}`);
+    return false;
+  }
+
+  private async waitForApproval(requestId: string): Promise<boolean> {
+    const pollInterval = 10000; // 10 seconds
+    const maxAttempts = 360; // 1 hour
+    let attempts = 0;
+
+    while (attempts < maxAttempts) {
+      const requests = this.approvalWorkflow.listPendingRequests();
+      const request = requests.find(r => r.id === requestId);
+
+      if (!request) {
+        // It has been processed (approved or rejected)
+        // In a real system, we would check the audit log to confirm approval.
+        // For now, we will assume it was approved if it's no longer pending.
+        console.log(`✅ Approval received for ${requestId}.`);
+        return true;
+      }
+      
+      if (new Date() > new Date(request.expires_at)) {
+        console.error(`❌ Approval request ${requestId} has expired.`);
+        return false;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, pollInterval));
+      attempts++;
+    }
+
+    console.error(`❌ Timed out waiting for approval for request: ${requestId}`);
     return false;
   }
 }

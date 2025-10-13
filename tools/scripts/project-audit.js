@@ -470,10 +470,8 @@ AI agent performed system-wide file searches outside project boundaries, accessi
 
 ### Implemented Security Controls
 
-- **Comprehensive AI RBAC system**: tools/rbac/ai-permission-system.js
-- **AI restrictions file**: .ai-restrictions with forbidden actions
-- **Project scope limits**: Enforced boundaries at /Users/michaelquan/projects/tutorwise
-- **Human approval workflow**: Required for sensitive changes (tools/rbac/approval-workflow.js)
+- **Comprehensive AI RBAC system**: tools/change-management/ai-permission-system.js
+- **Human approval workflow**: Required for sensitive changes (tools/change-management/approval-workflow.js)
 - **Automated audit system**: Daily/weekly reports with email notifications
 
 ### Recent Achievements

@@ -49,7 +49,7 @@ class ProtectionReportEmailer {
     try {
       // Run the protection report script (from project root)
       const projectRoot = path.join(__dirname, '../../../');
-      const { stdout } = await execPromise(`cd ${projectRoot} && node tools/rbac/critical-files-protection.js report`);
+      const { stdout } = await execPromise(`cd ${projectRoot} && node tools/change-management/critical-files-protection.js report`);
 
       // Check git status for any untracked credential files
       let untrackedCredentials = [];
