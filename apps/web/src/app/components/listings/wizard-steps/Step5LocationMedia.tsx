@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import type { CreateListingInput } from '@tutorwise/shared-types';
 import Button from '@/app/components/ui/Button';
-import FormSection from '@/app/components/ui/form/FormSection';
-import FormField from '@/app/components/ui/form/FormField';
-// import ImageUpload from '@/app/components/listings/ImageUpload'; // Temporarily disabled
-import styles from '@/app/styles/wizard.module.css';
+import FormSection from '@/app/components/listings/FormSection';
+import FormField from '@/app/components/listings/FormField';
+import ImageUpload from '@/app/components/listings/ImageUpload';
+import styles from '../onboarding/OnboardingWizard.module.css';
 
 interface Step5LocationMediaProps {
   formData: Partial<CreateListingInput>;
@@ -64,8 +64,7 @@ export default function Step5LocationMedia({
           label="Upload Photos"
           description="Add up to 5 photos. A professional headshot is recommended for your main photo."
         >
-          {/* <ImageUpload onUpload={handleImageUpload} initialImageUrls={imageUrls} /> */}
-          <p>Image upload is temporarily unavailable. We are working on a fix.</p>
+          <ImageUpload onUpload={handleImageUpload} initialImageUrls={imageUrls} />
         </FormField>
         <FormField
           label="YouTube Video URL"

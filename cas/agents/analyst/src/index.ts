@@ -98,7 +98,7 @@ export const runAnalyst = async (): Promise<void> => {
   
   // Step 1: Contextual Analysis
   const featureQuery = 'A new multi-step wizard for creating a service listing.';
-  const draftBrief = await analyst.generateFeatureBrief(featureQuery);
+  const draftBrief = analyst.generateFeatureBrief(featureQuery);
   
   console.log('\n--- Draft Feature Brief ---\n');
   console.log(draftBrief);

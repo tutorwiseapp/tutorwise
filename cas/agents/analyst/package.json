@@ -6,12 +6,6 @@
   "scripts": {
     "build": "tsc"
   },
-  "dependencies": {
-    "glob": "^10.3.10"
-  },
-  "devDependencies": {
-    "@types/glob": "^8.1.0"
-  },
   "keywords": [
     "cas",
     "agent",
