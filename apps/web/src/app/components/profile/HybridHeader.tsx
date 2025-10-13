@@ -1,6 +1,5 @@
 
-'use client';
-
+import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import styles from './HybridHeader.module.css';
@@ -33,7 +32,7 @@ export default function HybridHeader({ listing }: HybridHeaderProps) {
       <div className={styles.left}>
         <div className={styles.avatar}>
           {listing.images && listing.images.length > 0 ? (
-            <img src={listing.images[0]} alt={listing.title} />
+            <Image src={listing.images[0]} alt={listing.title} width={180} height={180} />
           ) : <div className={styles.avatarPlaceholder}></div>}
         </div>
         <div className={styles.info}>
