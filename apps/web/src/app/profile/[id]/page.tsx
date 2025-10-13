@@ -100,9 +100,9 @@ export default function PublicProfilePage() {
           {/* Header Section */}
           <div className={styles.header}>
             <div className={styles.avatarSection}>
-              {profile.custom_picture_url ? (
+              {(profile.avatar_url || profile.custom_picture_url) ? (
                 <img
-                  src={profile.custom_picture_url}
+                  src={profile.avatar_url || profile.custom_picture_url}
                   alt={profile.display_name || 'User avatar'}
                   className={styles.avatar}
                 />

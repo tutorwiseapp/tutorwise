@@ -42,7 +42,8 @@ export interface Profile {
   bio?: string;
   categories?: string;
   achievements?: string;
-  custom_picture_url?: string;
+  avatar_url?: string;  // Primary profile picture (synced with Supabase auth)
+  custom_picture_url?: string;  // Deprecated: use avatar_url instead
   cover_photo_url?: string;
   stripe_account_id?: string;
   stripe_customer_id?: string;

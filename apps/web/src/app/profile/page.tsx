@@ -105,7 +105,7 @@ const ProfilePage = () => {
 
                 <FormGroup label="Profile Photo" htmlFor="avatar">
                   <ImageUpload
-                    onUploadComplete={(urls) => setFormData(prev => ({ ...prev, avatar_url: urls[0] || null }))}
+                    onUploadComplete={(urls) => setFormData(prev => ({ ...prev, avatar_url: urls[0] || undefined }))}
                     existingImages={(formData as any)?.avatar_url ? [(formData as any).avatar_url] : []}
                   />
                   {isUploading && <p>Uploading...</p>}

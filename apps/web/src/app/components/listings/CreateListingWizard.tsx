@@ -38,11 +38,24 @@ export default function CreateListingWizard({
   });
 
   useEffect(() => {
-    if (profile?.display_name && !formData.title && !initialData?.title) {
-      // Pre-fill the title if it's empty
-      setFormData(prev => ({ ...prev, title: `${profile.display_name}'s Tutoring Service` }));
+    if (profile && !initialData) {
+      const updates: Partial<CreateListingInput> = {};
+
+      // Auto-populate title from profile display name
+      if (profile.display_name && !formData.title) {
+        updates.title = `${profile.display_name}'s Tutoring Service`;
+      }
+
+      // Auto-populate first image with profile picture (avatar_url)
+      if (profile.avatar_url && (!formData.images || formData.images.length === 0)) {
+        updates.images = [profile.avatar_url];
+      }
+
+      if (Object.keys(updates).length > 0) {
+        setFormData(prev => ({ ...prev, ...updates }));
+      }
     }
-  }, [profile, formData.title, initialData]);
+  }, [profile, formData.title, formData.images, initialData]);
 
   // Auto-save draft to localStorage
   const saveDraft = useCallback(() => {

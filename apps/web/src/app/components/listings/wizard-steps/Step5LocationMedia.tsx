@@ -35,14 +35,22 @@ export default function Step5LocationMedia({
   };
 
   const handleSubmit = async () => {
+    // Ensure profile picture (first image) is preserved
+    const profilePicture = formData.images && formData.images.length > 0 ? formData.images[0] : null;
+
     // Check if there are unuploaded files
     if (imageUploadRef.current?.hasUnuploadedFiles()) {
       setIsUploading(true);
       toast.info('Uploading images...');
 
       try {
-        // Trigger the upload
+        // Trigger the upload of additional photos
         const uploadedUrls = await imageUploadRef.current.uploadImages();
+
+        // Combine profile picture with additional photos
+        const finalImages = profilePicture
+          ? [profilePicture, ...uploadedUrls.filter(url => url !== profilePicture)]
+          : uploadedUrls;
 
         // Submit with uploaded URLs
         const stepData = {
@@ -50,7 +58,7 @@ export default function Step5LocationMedia({
           location_city: city,
           location_postcode: postcode,
           video_url: videoUrl,
-          images: uploadedUrls,
+          images: finalImages,
         };
         onSubmit(stepData);
       } catch (error) {
@@ -60,7 +68,7 @@ export default function Step5LocationMedia({
         setIsUploading(false);
       }
     } else {
-      // No new files to upload, submit directly
+      // No new files to upload, submit directly with existing images
       const stepData = {
         location_type: locationType,
         location_city: city,
@@ -85,14 +93,17 @@ export default function Step5LocationMedia({
       </div>
 
       <div className={formSectionStyles.formSection}>
-        <h3 className={formSectionStyles.title}>Photos & Video</h3>
+        <h3 className={formSectionStyles.title}>Additional Photos & Video</h3>
         <div className={formFieldStyles.formField}>
-          <label className={formFieldStyles.label}>Upload Photos</label>
-          <p className={formFieldStyles.description}>Add up to 5 photos. A professional headshot is recommended for your main photo.</p>
+          <label className={formFieldStyles.label}>Upload Additional Photos (Optional)</label>
+          <p className={formFieldStyles.description}>
+            Your profile picture is already set as your main listing image.
+            Add additional photos here to showcase your teaching space, materials, or qualifications.
+          </p>
           <ImageUpload
             ref={imageUploadRef}
             onUploadComplete={handleUploadComplete}
-            existingImages={imageUrls}
+            existingImages={imageUrls.slice(1)} // Exclude profile picture (first image)
           />
         </div>
         <div className={formFieldStyles.formField}>
