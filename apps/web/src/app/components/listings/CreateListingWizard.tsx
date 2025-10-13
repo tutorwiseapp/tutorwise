@@ -46,9 +46,11 @@ export default function CreateListingWizard({
         updates.title = `${profile.display_name}'s Tutoring Service`;
       }
 
-      // Auto-populate first image with profile picture (avatar_url)
-      if (profile.avatar_url && (!formData.images || formData.images.length === 0)) {
-        updates.images = [profile.avatar_url];
+      // Auto-populate first image with profile picture
+      // Try avatar_url first, fallback to custom_picture_url for existing users
+      const profilePicture = profile.avatar_url || profile.custom_picture_url;
+      if (profilePicture && (!formData.images || formData.images.length === 0)) {
+        updates.images = [profilePicture];
       }
 
       if (Object.keys(updates).length > 0) {

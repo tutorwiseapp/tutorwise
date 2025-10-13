@@ -102,9 +102,9 @@ const NavMenu = () => {
           <DropdownMenu.Content className={styles.menuContent} sideOffset={10} align="end">
             {isAuthenticated ? (
               <>
-                {/* Role Header - Following your design pattern */}
+                {/* Role Header - Only show if onboarding is complete */}
                 <DropdownMenu.Label className={styles.roleLabel}>
-                  {activeRole && roleConfig[activeRole] ?
+                  {activeRole && roleConfig[activeRole] && profile?.onboarding_progress?.onboarding_completed ?
                     `${roleConfig[activeRole].icon} ${roleConfig[activeRole].label}` :
                     'Member'
                   }
