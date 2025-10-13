@@ -3,7 +3,7 @@
 
 # CRITICAL: Check for protected file violations
 echo "🛡️  Checking critical files protection..."
-node tools/rbac/critical-files-protection.js validate-commit || exit 1
+node tools/change-management/critical-files-protection.js validate-commit || exit 1
 
 # Run quick tests before commit
 echo "🧪 Running pre-commit tests..."

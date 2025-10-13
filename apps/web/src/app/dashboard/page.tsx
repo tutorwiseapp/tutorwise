@@ -33,8 +33,8 @@ const getDashboardLinks = (role: string | null) => {
   ];
 
   const providerLinks = [
-    { href: '/listings', title: 'My Listings', description: 'View and manage your tutoring service listings.', linkText: 'View Listings' },
-    { href: '/listings/create', title: 'Create New Listing', description: 'Create a new service listing to attract students.', linkText: 'Create Listing' },
+    { href: '/my-listings', title: 'My Listings', description: 'View and manage your tutoring service listings.', linkText: 'View Listings' },
+    { href: '/my-listings/create', title: 'Create New Listing', description: 'Create a new service listing to attract students.', linkText: 'Create Listing' },
     { href: '/marketplace', title: 'Browse Marketplace', description: 'See how your listings appear to students.', linkText: 'View Marketplace' },
     ...referralLinks,
     ...commonLinks,
@@ -50,8 +50,8 @@ const getDashboardLinks = (role: string | null) => {
   const agentLinks = [
     // Agents can do everything - they manage the platform
     { href: '/marketplace', title: 'Find Tutors', description: 'Browse and connect with qualified tutors.', linkText: 'Browse Tutors' },
-    { href: '/listings', title: 'My Listings', description: 'View and manage tutoring service listings.', linkText: 'View Listings' },
-    { href: '/listings/create', title: 'Create New Listing', description: 'Create a new service listing.', linkText: 'Create Listing' },
+    { href: '/my-listings', title: 'My Listings', description: 'View and manage tutoring service listings.', linkText: 'View Listings' },
+    { href: '/my-listings/create', title: 'Create New Listing', description: 'Create a new service listing.', linkText: 'Create Listing' },
     { href: '/bookings', title: 'My Bookings', description: 'View upcoming and past tutoring sessions.', linkText: 'View Bookings' },
     ...referralLinks,
     ...commonLinks,

@@ -301,6 +301,15 @@
   margin: 0 0 1.5rem 0;
 }
 
+.showAllReviews {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+.showAllReviews:hover {
+  background-color: #2563eb;
+}
+
 @media (max-width: 1024px) {
   .contentGrid {
     grid-template-columns: 1fr;

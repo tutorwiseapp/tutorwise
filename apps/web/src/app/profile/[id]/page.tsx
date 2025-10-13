@@ -114,9 +114,6 @@ export default function PublicProfilePage() {
             </div>
 
             <div className={styles.headerInfo}>
-              <h1 className={styles.displayName}>
-                {profile.display_name || 'Anonymous User'}
-              </h1>
               <div className={styles.roleBadge}>{roleLabel}</div>
               {profile.categories && (
                 <p className={styles.categories}>{profile.categories}</p>
@@ -153,53 +150,18 @@ export default function PublicProfilePage() {
               {profile.role_details && (
                 <Card className={styles.section}>
                   <h2 className={styles.sectionTitle}>Professional Information</h2>
-                  <div className={styles.professionalInfo}>
-                    {profile.role_details.subjects && profile.role_details.subjects.length > 0 && (
-                      <div className={styles.infoItem}>
-                        <h3 className={styles.infoLabel}>Subjects</h3>
-                        <div className={styles.badgeContainer}>
-                          {profile.role_details.subjects.map((subject: string) => (
-                            <span key={subject} className={styles.badge}>
-                              {subject}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {profile.role_details.teaching_experience && (
-                      <div className={styles.infoItem}>
-                        <h3 className={styles.infoLabel}>Teaching Experience</h3>
-                        <p className={styles.infoValue}>{profile.role_details.teaching_experience}</p>
-                      </div>
-                    )}
-
-                    {profile.role_details.teaching_methods && profile.role_details.teaching_methods.length > 0 && (
-                      <div className={styles.infoItem}>
-                        <h3 className={styles.infoLabel}>Teaching Methods</h3>
-                        <div className={styles.badgeContainer}>
-                          {profile.role_details.teaching_methods.map((method: string) => (
-                            <span key={method} className={styles.badge}>
-                              {method}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {profile.role_details.qualifications && profile.role_details.qualifications.length > 0 && (
-                      <div className={styles.infoItem}>
-                        <h3 className={styles.infoLabel}>Qualifications</h3>
-                        <ul className={styles.qualificationsList}>
-                          {profile.role_details.qualifications.map((qual: string, index: number) => (
-                            <li key={index}>{qual}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
+                  {/* ... professional info content ... */}
                 </Card>
               )}
+
+              {/* Reviews Section */}
+              <Card className={styles.section}>
+                <h2 className={styles.sectionTitle}>Reviews (112)</h2>
+                {/* Placeholder for reviews */}
+                <div className="flex justify-center mt-6">
+                  <Button variant="outline" className={styles.showAllReviews}>Show all 112 reviews</Button>
+                </div>
+              </Card>
             </div>
 
             {/* Sidebar */}

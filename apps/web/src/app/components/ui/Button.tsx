@@ -4,7 +4,7 @@ import styles from './Button.module.css';
 // Added a 'variant' prop to the interface to allow for different button styles.
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'link' | 'google' | 'outline'; // Define the allowed variants
+  variant?: 'primary' | 'secondary' | 'link' | 'google' | 'outline' | 'danger'; // Define the allowed variants
   fullWidth?: boolean;
   size?: 'sm' | 'md' | 'lg'; // Define the allowed sizes
 }

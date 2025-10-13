@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useImperativeHandle, forwardRef } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'sonner';
 import styles from './ImageUpload.module.css';
@@ -10,7 +10,12 @@ interface ImageUploadProps {
   existingImages?: string[];
 }
 
-export default function ImageUpload({ onUploadComplete, existingImages = [] }: ImageUploadProps) {
+export interface ImageUploadRef {
+  uploadImages: () => Promise<string[]>;
+  hasUnuploadedFiles: () => boolean;
+}
+
+const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({ onUploadComplete, existingImages = [] }, ref) => {
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>(existingImages);
   const [isUploading, setIsUploading] = useState(false);
@@ -29,10 +34,10 @@ export default function ImageUpload({ onUploadComplete, existingImages = [] }: I
     maxSize: 5 * 1024 * 1024, // 5MB
   });
 
-  const handleUpload = async () => {
+  const handleUpload = async (): Promise<string[]> => {
     if (files.length === 0) {
       onUploadComplete(existingImages);
-      return;
+      return existingImages;
     }
 
     setIsUploading(true);
@@ -58,8 +63,16 @@ export default function ImageUpload({ onUploadComplete, existingImages = [] }: I
     }
 
     setIsUploading(false);
+    setFiles([]); // Clear files after upload
     onUploadComplete(uploadedUrls);
+    return uploadedUrls;
   };
+
+  // Expose methods via ref
+  useImperativeHandle(ref, () => ({
+    uploadImages: handleUpload,
+    hasUnuploadedFiles: () => files.length > 0,
+  }));
 
   return (
     <div>
@@ -79,4 +92,8 @@ export default function ImageUpload({ onUploadComplete, existingImages = [] }: I
       </button>
     </div>
   );
-}
+});
+
+ImageUpload.displayName = 'ImageUpload';
+
+export default ImageUpload;

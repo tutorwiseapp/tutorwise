@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import Button from '@/app/components/ui/Button';
 import { getMyListings, deleteListing, publishListing, unpublishListing } from '@/lib/api/listings';
 import type { Listing } from '@tutorwise/shared-types';
 import { toast } from 'sonner';
@@ -87,7 +88,7 @@ export default function MyListingsPage() {
             <p>Manage your tutoring service listings</p>
           </div>
           <Link href="/my-listings/create">
-            <button className={styles.createButton}>Create New Listing</button>
+            <Button>Create Listing</Button>
           </Link>
         </div>
       </div>

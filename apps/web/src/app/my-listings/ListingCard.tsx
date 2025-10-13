@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import type { Listing } from '@tutorwise/shared-types';
+import Button from '@/app/components/ui/Button';
 import styles from './ListingCard.module.css';
 
 interface ListingCardProps {
@@ -43,15 +44,15 @@ export default function ListingCard({ listing, onDelete, onToggleStatus }: Listi
           <span>{listing.booking_count || 0} bookings</span>
         </div>
         <div className={styles.actions}>
-          <Link href={`/my-listings/${listing.id}/edit`} className={styles.actionButton}>
-            Edit
+          <Link href={`/my-listings/${listing.id}/edit`}>
+            <Button variant="outline" size="sm" fullWidth>Edit</Button>
           </Link>
-          <button onClick={() => onToggleStatus(listing)} className={styles.actionButton}>
+          <Button variant="outline" size="sm" fullWidth onClick={() => onToggleStatus(listing)}>
             {listing.status === 'published' ? 'Unpublish' : 'Publish'}
-          </button>
-          <button onClick={() => onDelete(listing.id)} className={`${styles.actionButton} ${styles.danger}`}>
+          </Button>
+          <Button variant="danger" size="sm" fullWidth onClick={() => onDelete(listing.id)}>
             Delete
-          </button>
+          </Button>
         </div>
       </div>
     </div>

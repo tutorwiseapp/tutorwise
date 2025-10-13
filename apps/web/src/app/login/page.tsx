@@ -10,7 +10,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
@@ -22,7 +22,7 @@ import Input from '@/app/components/ui/form/Input';
 import FormGroup from '@/app/components/ui/form/FormGroup';
 import Message from '@/app/components/ui/Message';
 
-export default function LoginPage() {
+function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -46,7 +46,7 @@ export default function LoginPage() {
     if (error) {
       setError(error.message);
     } else {
-      const redirectUrl = searchParams.get('redirect') || '/dashboard';
+      const redirectUrl = searchParams?.get('redirect') || '/dashboard';
       router.push(redirectUrl);
       router.refresh();
     }
@@ -86,5 +86,13 @@ export default function LoginPage() {
         Don&apos;t have an account? <Link href="/signup">Sign Up</Link>
       </div>
     </Container>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<Container><div>Loading...</div></Container>}>
+      <LoginForm />
+    </Suspense>
   );
 }

@@ -30,47 +30,46 @@
 
 /* --- Variants --- */
 .primary {
-  background-color: var(--color-primary, #006C67);
+  background-color: #2c7a7b;
   color: white;
+  border-color: #2c7a7b;
 }
 .primary:hover:not(:disabled) {
-  background-color: var(--color-primary-dark, #004D40);
+  background-color: #4CAEAD !important;
+  border-color: #4CAEAD !important;
 }
 
 .secondary { 
   background-color: transparent; 
-  color: var(--color-primary, #006C67); 
-  border-color: var(--color-primary, #006C67); 
+  color: #2c7a7b; 
+  border-color: #2c7a7b; 
 }
 .secondary:hover:not(:disabled) {
-  background-color: var(--color-primary-light, #E0F2F1);
+  background-color: #f0fdfa;
 }
 
-/* --- THIS IS THE FIX --- */
-/* The link variant now uses the primary brand color from your global styles. */
 .link {
   background-color: transparent;
-  color: var(--color-primary, #006C67);
+  color: #2c7a7b;
   border: none;
   padding: 0;
   text-decoration: underline;
   justify-content: flex-start;
 }
 .link:hover {
-  color: var(--color-primary-dark, #004D40);
+  color: #286a69;
 }
 
-/* Grey Google button styles */
 .google {
     background-color: #E9ECEF;
-    color: var(--color-text-primary, #3c4043);
+    color: #3c4043;
     border: 1px solid transparent;
-    box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.04));
-    gap: var(--space-2, 12px);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    gap: 12px;
     transition: all 0.2s ease-in-out;
 }
 .google:hover:not(:disabled) {
-    box-shadow: var(--shadow-md, 0 4px 8px rgba(0,0,0,0.1));
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     background-color: #DEE2E6; 
 }
 .google::before {
@@ -83,14 +82,23 @@
     background-size: contain;
 }
 
-/* Outline variant */
 .outline {
   background-color: transparent;
-  color: var(--color-text-primary, #3c4043);
-  border: 1px solid var(--color-border, #ddd);
+  color: #2c7a7b;
+  border: 1px solid #2c7a7b;
 }
 .outline:hover:not(:disabled) {
-  background-color: var(--color-bg-secondary, #f5f5f5);
+  background-color: #4CAEAD;
+  color: white;
+}
+
+.danger {
+  background-color: transparent;
+  color: #c53030;
+  border: 1px solid #c53030;
+}
+.danger:hover:not(:disabled) {
+  background-color: #fed7d7;
 }
 
 /* Size variants */

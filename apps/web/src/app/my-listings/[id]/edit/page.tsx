@@ -12,12 +12,12 @@ import styles from '../../create/page.module.css';
 export default function EditListingPage() {
   const router = useRouter();
   const params = useParams();
-  const { user, isLoading: userLoading } from useUserProfile();
+  const { user, isLoading: userLoading } = useUserProfile();
   const [listing, setListing] = useState<Listing | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isListingLoading, setIsListingLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  const listingId = params.id as string;
+  const listingId = params?.id as string;
 
   useEffect(() => {
     if (!userLoading && !user) {
@@ -43,7 +43,7 @@ export default function EditListingPage() {
       console.error('Failed to load listing:', error);
       toast.error('Failed to load listing');
     } finally {
-      setIsLoading(false);
+      setIsListingLoading(false);
     }
   };
 
@@ -66,7 +66,7 @@ export default function EditListingPage() {
     router.push('/my-listings');
   };
 
-  if (userLoading || isLoading) {
+  if (userLoading || isListingLoading) {
     return (
       <div className={styles.loading}>
         <div className={styles.spinner}></div>

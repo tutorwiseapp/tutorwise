@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { CreateListingInput } from '@tutorwise/shared-types';
 import Button from '@/app/components/ui/Button';
-import FormSection from '@/app/components/ui/form/FormSection';
-import FormField from '@/app/components/ui/form/FormField';
-import ImageUpload from '@/app/components/listings/ImageUpload';
-import styles from '@/app/styles/wizard.module.css';
+import ImageUpload, { type ImageUploadRef } from '@/app/components/listings/ImageUpload';
+import styles from '../../onboarding/OnboardingWizard.module.css';
+import formSectionStyles from '@/app/components/ui/form/FormSection.module.css';
+import formFieldStyles from '@/app/components/ui/form/FormField.module.css';
+import { toast } from 'sonner';
 
 interface Step5LocationMediaProps {
   formData: Partial<CreateListingInput>;
@@ -26,20 +27,49 @@ export default function Step5LocationMedia({
   const [postcode, setPostcode] = useState(formData.location_postcode || '');
   const [videoUrl, setVideoUrl] = useState(formData.video_url || '');
   const [imageUrls, setImageUrls] = useState<string[]>(formData.images || []);
+  const [isUploading, setIsUploading] = useState(false);
+  const imageUploadRef = useRef<ImageUploadRef>(null);
 
-  const handleNewImage = (url: string) => {
-    setImageUrls(prev => [...prev, url]);
+  const handleUploadComplete = (urls: string[]) => {
+    setImageUrls(urls);
   };
 
-  const handleSubmit = () => {
-    const stepData = {
-      location_type: locationType,
-      location_city: city,
-      location_postcode: postcode,
-      video_url: videoUrl,
-      images: imageUrls,
-    };
-    onSubmit(stepData);
+  const handleSubmit = async () => {
+    // Check if there are unuploaded files
+    if (imageUploadRef.current?.hasUnuploadedFiles()) {
+      setIsUploading(true);
+      toast.info('Uploading images...');
+
+      try {
+        // Trigger the upload
+        const uploadedUrls = await imageUploadRef.current.uploadImages();
+
+        // Submit with uploaded URLs
+        const stepData = {
+          location_type: locationType,
+          location_city: city,
+          location_postcode: postcode,
+          video_url: videoUrl,
+          images: uploadedUrls,
+        };
+        onSubmit(stepData);
+      } catch (error) {
+        console.error('Upload error:', error);
+        toast.error('Failed to upload images. Please try again.');
+      } finally {
+        setIsUploading(false);
+      }
+    } else {
+      // No new files to upload, submit directly
+      const stepData = {
+        location_type: locationType,
+        location_city: city,
+        location_postcode: postcode,
+        video_url: videoUrl,
+        images: imageUrls,
+      };
+      onSubmit(stepData);
+    }
   };
 
   return (
@@ -49,25 +79,25 @@ export default function Step5LocationMedia({
         Where will you teach? Add some photos and a video to make your profile stand out.
       </p>
 
-      <FormSection title="Teaching Location">
+      <div className={formSectionStyles.formSection}>
+        <h3 className={formSectionStyles.title}>Teaching Location</h3>
         {/* Location Type Radio Buttons */}
-      </FormSection>
+      </div>
 
-      <FormSection title="Photos & Video">
-        <FormField
-          label="Upload Photos"
-          description="Add up to 5 photos. A professional headshot is recommended for your main photo."
-        >
+      <div className={formSectionStyles.formSection}>
+        <h3 className={formSectionStyles.title}>Photos & Video</h3>
+        <div className={formFieldStyles.formField}>
+          <label className={formFieldStyles.label}>Upload Photos</label>
+          <p className={formFieldStyles.description}>Add up to 5 photos. A professional headshot is recommended for your main photo.</p>
           <ImageUpload
-            onNewImage={handleNewImage}
-            imagePreviews={imageUrls}
-            setImagePreviews={setImageUrls}
+            ref={imageUploadRef}
+            onUploadComplete={handleUploadComplete}
+            existingImages={imageUrls}
           />
-        </FormField>
-        <FormField
-          label="YouTube Video URL"
-          description="Add a link to a YouTube video to introduce yourself."
-        >
+        </div>
+        <div className={formFieldStyles.formField}>
+          <label className={formFieldStyles.label}>YouTube Video URL</label>
+          <p className={formFieldStyles.description}>Add a link to a YouTube video to introduce yourself.</p>
           <input
             type="text"
             value={videoUrl}
@@ -75,14 +105,14 @@ export default function Step5LocationMedia({
             placeholder="https://www.youtube.com/watch?v=..."
             className={styles.input}
           />
-        </FormField>
-      </FormSection>
+        </div>
+      </div>
 
       <div className={styles.buttonGroup}>
-        <Button variant="outline" onClick={onBack}>Back</Button>
-        <Button variant="outline" onClick={onSaveDraft}>Save Draft</Button>
-        <Button onClick={handleSubmit} disabled={isSaving}>
-          {isSaving ? 'Saving...' : 'Finish & Submit'}
+        <Button variant="outline" onClick={onBack} disabled={isUploading || isSaving}>Back</Button>
+        <Button variant="outline" onClick={onSaveDraft} disabled={isUploading || isSaving}>Save Draft</Button>
+        <Button onClick={handleSubmit} disabled={isUploading || isSaving}>
+          {isUploading ? 'Uploading...' : isSaving ? 'Saving...' : 'Finish & Submit'}
         </Button>
       </div>
     </div>
