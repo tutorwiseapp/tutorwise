@@ -1,0 +1,16 @@
+diff a/vertex_test.py b/vertex_test.py	(rejected hunks)
+@@ -1,7 +1,10 @@
++from vertexai import init
+ from vertexai.preview.generative_models import GenerativeModel
+-import vertexai
+ 
+-vertexai.init(project="tutorwise-472312", location="us-central1")
+-model = GenerativeModel("gemini-1.5-flash")
+-print(model.generate_content("Say hello from Vertex AI!").text)
++init(project="tutorwise-472312", location="us-central1")
+ 
++# Use the latest available 2.5 model
++model = GenerativeModel("gemini-2.5-pro")
++
++response = model.generate_content("Explain async/await in Python.")
++print(response.text)

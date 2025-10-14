@@ -31,7 +31,7 @@ interface UserProfileContextType {
   getRoleDetails: (role: 'agent' | 'seeker' | 'provider') => Promise<RoleDetails | null>;
 }
 
-const UserProfileContext = createContext<UserProfileContextType | undefined>(undefined);
+export const UserProfileContext = createContext<UserProfileContextType | undefined>(undefined);
 
 export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
   const supabase = createClient();

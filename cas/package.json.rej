@@ -1,0 +1,9 @@
+diff a/cas/package.json b/cas/package.json	(rejected hunks)
+@@ -8,6 +8,7 @@
+     "apps/*"
+   ],
+   "scripts": {
++    "start": "node index.js",
+     "dev": "npm run dev --workspace=@cas/web",
+     "dev:web": "npm run dev --workspace=@cas/web",
+     "dev:api": "npm run dev --workspace=@cas/api",

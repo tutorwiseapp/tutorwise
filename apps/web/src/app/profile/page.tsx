@@ -62,14 +62,38 @@ const ProfilePage = () => {
     setMessage(null);
 
     try {
-      // TODO: Implement profile save logic
-      setMessage({ text: 'Profile updated successfully!', type: 'success' });
+      const response = await fetch('/api/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setMessage({ text: 'Profile updated successfully!', type: 'success' });
+      } else {
+        const errorData = await response.json();
+        let errorMessage = 'Failed to update profile';
+        if (response.status === 400) {
+          errorMessage = 'Validation error: ' + (errorData.message || '');
+        } else if (response.status === 401) {
+          errorMessage = 'Session expired. Please log in again.';
+        } else if (response.status === 403) {
+          errorMessage = 'You do not have permission to perform this action.';
+        } else if (response.status >= 500) {
+          errorMessage = 'Server error. Please try again later.';
+        }
+        setMessage({ text: errorMessage, type: 'error' });
+      }
     } catch (error) {
       setMessage({ text: 'Failed to update profile', type: 'error' });
     } finally {
       setIsSaving(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
+
 
   if (isLoading || !profile) {
     // // return <ProfilePageSkeleton />;
@@ -113,11 +137,63 @@ const ProfilePage = () => {
                 </FormGroup>
 
                 <form onSubmit={handleSave}>
-                  {/* ... (rest of the form remains the same) ... */}
+                  <FormGroup label="Display Name" htmlFor="display_name">
+                    <input
+                      id="display_name"
+                      name="display_name"
+                      type="text"
+                      value={formData.display_name || ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, display_name: e.target.value }))}
+                    />
+                  </FormGroup>
+                  <FormGroup label="About (Public Bio)" htmlFor="bio">
+                    <textarea
+                      id="bio"
+                      name="bio"
+                      value={formData.bio || ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
+                    />
+                  </FormGroup>
+                  <FormGroup label="Referral Categories" htmlFor="categories">
+                    <input
+                      id="categories"
+                      name="categories"
+                      type="text"
+                      value={formData.categories || ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, categories: e.target.value }))}
+                    />
+                  </FormGroup>
+                  <FormGroup label="Achievements" htmlFor="achievements">
+                    <input
+                      id="achievements"
+                      name="achievements"
+                      type="text"
+                      value={formData.achievements || ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, achievements: e.target.value }))}
+                    />
+                  </FormGroup>
+                  <FormGroup label="Email" htmlFor="email">
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={formData.email || ''}
+                      readOnly
+                      disabled
+                    />
+                  </FormGroup>
+                  <button type="submit" disabled={isSaving}>
+                    {isSaving ? 'Saving...' : 'Save Changes'}
+                  </button>
                 </form>
               </div>
             )}
-            {/* ... (rest of the component remains the same) ... */}
+            {activeTab === 'security' && (
+              <div className={styles.tabContent}>
+                <h2>Security Settings</h2>
+                <p>Change the password for your account.</p>
+              </div>
+            )}
           </Card>
         </main>
       </div>

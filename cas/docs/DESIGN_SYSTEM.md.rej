@@ -1,0 +1,14 @@
+diff a/cas/docs/DESIGN_SYSTEM.md b/cas/docs/DESIGN_SYSTEM.md	(rejected hunks)
+@@ -28,10 +28,11 @@ The core design tokens are defined as CSS variables in `apps/web/src/app/globals
+ - `space-5`: `3rem` (48px)
+ - `space-6`: `4rem` (64px)
+ 
+-### Corner Radii
++### Corner Radius
+ 
+ - `sm`: `4px`
+ - `md`: `8px`
++- `ml`: `12px`
+ - `lg`: `16px`
+ 
+ ## 3. Core UI Components

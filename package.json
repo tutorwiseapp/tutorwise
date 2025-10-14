@@ -18,7 +18,7 @@
     "test": "npm run test:all",
     "test:all": "npm run test:unit:coverage && npm run test:integration && npm run test:e2e",
     "test:unit": "jest tests/unit",
-    "test:unit:quick": "jest tests/unit --passWithNoTests --silent",
+"test:unit:quick": "npm test --workspace=@tutorwise/web -- --passWithNoTests --silent",
     "test:unit:watch": "jest tests/unit --watch",
     "test:unit:coverage": "jest tests/unit --coverage",
     "test:integration": "jest tests/integration",
@@ -124,6 +124,7 @@
     "husky": "^9.1.7",
     "jest-environment-jsdom": "^30.2.0",
     "ts-jest": "^29.4.5",
+    "tsconfig-paths-jest": "^0.0.1",
     "wait-on": "^9.0.1"
   }
 }

@@ -235,3 +235,41 @@ export interface DataTableProps<T> {
   columns: ColumnDef<T>[];
   data: T[];
 }
+
+/**
+ * ==================================================================
+ * Marketplace & Listings
+ * ==================================================================
+ */
+
+export interface Listing {
+  id: string;
+  profile_id: string;
+  title: string;
+  description: string;
+  status: 'draft' | 'published' | 'archived';
+  subjects: string[];
+  levels: string[];
+  hourly_rate?: number;
+  location_type: 'online' | 'in_person' | 'hybrid';
+  location_city?: string;
+  view_count: number;
+  booking_count: number;
+  created_at: string;
+  updated_at: string;
+  free_trial?: boolean;
+  images?: { url: string }[];
+  profile?: {
+    display_name: string;
+    avatar_url?: string;
+  };
+}
+
+export interface ListingFilters {
+  search?: string;
+  subjects?: string[];
+  levels?: string[];
+  location_type?: 'online' | 'in_person' | 'hybrid';
+  min_price?: number;
+  max_price?: number;
+}

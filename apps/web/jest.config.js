@@ -1,26 +1,23 @@
-module.exports = {
+// apps/web/jest.config.js
+const nextJest = require('next/jest');
+const { pathsToModuleNameMapper } = require('ts-jest');
+const { compilerOptions } = require('./tsconfig.json');
+
+const createJestConfig = nextJest({
+  // This is correct because it's relative to THIS file (apps/web)
+  dir: './',
+});
+
+const customJestConfig = {
+  // Go up two directories from apps/web to find the root setup file
   setupFilesAfterEnv: ['<rootDir>/../../jest.setup.js'],
   testEnvironment: 'jest-environment-jsdom',
-  testPathIgnorePatterns: [
-    '<rootDir>/.next/',
-    '<rootDir>/node_modules/',
-  ],
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-    '\.css$': 'identity-obj-proxy',
-  },
-  transform: {
-    '^.+\.(js|jsx|ts|tsx)$': 'babel-jest',
-  },
-  testTimeout: 90000, // Set Jest test timeout to 90 seconds
-  // Add globals to support TypeScript type assertions
-  globals: {
-    'ts-jest': {
-      tsconfig: {
-        jsx: 'react',
-        esModuleInterop: true,
-        allowSyntheticDefaultImports: true,
-      },
-    },
-  },
+
+  // Automatically read the path aliases from your tsconfig.json
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
+    // The prefix should be relative to <rootDir> which is now apps/web
+    prefix: '<rootDir>/',
+  }),
 };
+
+module.exports = createJestConfig(customJestConfig);
