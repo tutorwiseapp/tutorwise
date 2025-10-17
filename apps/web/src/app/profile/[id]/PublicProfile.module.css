@@ -23,7 +23,7 @@
   align-items: end;
   padding: 0 2rem 2rem;
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
 }
@@ -71,13 +71,13 @@
 
 .roleBadge {
   display: inline-block;
-  padding: 0.25rem 0.75rem;
+  padding: 8px 16px;
   background: #dbeafe;
   color: #1e40af;
   border-radius: 999px;
   font-size: 0.875rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 8px;
 }
 
 .categories {
@@ -98,8 +98,8 @@
 .actionCard {
   background: white;
   border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 1.5rem;
+  border-radius: 16px;
+  padding: 24px;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s;
@@ -115,7 +115,7 @@
 .actionIcon {
   width: 40px;
   height: 40px;
-  margin: 0 auto 0.75rem;
+  margin: 0 auto 16px;
   display: flex;
   align-items: center;
   justify-content: center;
