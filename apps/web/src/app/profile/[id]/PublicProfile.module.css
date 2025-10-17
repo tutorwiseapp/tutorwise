@@ -63,10 +63,11 @@
 }
 
 .displayName {
-  font-size: 2rem;
+  font-size: 2.625rem; /* 42px - Golden ratio from base 26px */
   font-weight: 700;
   color: #111827;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 16px 0; /* Golden ratio spacing */
+  line-height: 1.2;
 }
 
 .roleBadge {
@@ -75,15 +76,16 @@
   background: #dbeafe;
   color: #1e40af;
   border-radius: 999px;
-  font-size: 0.875rem;
+  font-size: 1rem; /* 16px - Golden ratio base */
   font-weight: 600;
-  margin-bottom: 8px;
+  margin-bottom: 16px; /* Golden ratio spacing */
 }
 
 .categories {
-  font-size: 1rem;
+  font-size: 1.125rem; /* 18px - Slightly above base for better readability */
   color: #6b7280;
   margin: 0;
+  line-height: 1.618; /* Golden ratio for line height */
 }
 
 .headerActions {
@@ -133,38 +135,42 @@
 
 .contentGrid {
   display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 2rem;
+  grid-template-columns: 1.618fr 1fr; /* Golden ratio: main content : sidebar */
+  gap: 40px; /* Golden ratio spacing (24 × 1.618 ≈ 39, round to 40) */
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .mainContent {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 40px; /* Golden ratio spacing (24 × 1.618 ≈ 39, round to 40) */
 }
 
 .section {
-  padding: 2rem;
+  padding: 40px; /* Golden ratio padding */
+  border-radius: 16px;
 }
 
 .sectionTitle {
-  font-size: 1.5rem;
+  font-size: 1.625rem; /* 26px - Golden ratio from 16px base */
   font-weight: 700;
   color: #111827;
-  margin: 0 0 1rem 0;
+  margin: 0 0 24px 0; /* Golden ratio spacing */
+  line-height: 1.2;
 }
 
 .bio {
-  font-size: 1rem;
-  line-height: 1.75;
+  font-size: 1rem; /* 16px base */
+  line-height: 1.618; /* Golden ratio line height */
   color: #374151;
   white-space: pre-line;
   margin: 0;
 }
 
 .achievements {
-  font-size: 1rem;
-  line-height: 1.75;
+  font-size: 1rem; /* 16px base */
+  line-height: 1.618; /* Golden ratio line height */
   color: #374151;
   white-space: pre-line;
   margin: 0;
@@ -241,18 +247,20 @@
 .sidebar {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 24px; /* Golden ratio spacing from 16px base */
 }
 
 .sidebarCard {
-  padding: 1.5rem;
+  padding: 32px; /* Golden ratio padding (24 × 1.33) */
+  border-radius: 16px;
 }
 
 .sidebarTitle {
-  font-size: 1.125rem;
+  font-size: 1.25rem; /* 20px - Between base and golden ratio step */
   font-weight: 600;
   color: #111827;
-  margin: 0 0 1rem 0;
+  margin: 0 0 16px 0; /* Golden ratio spacing */
+  line-height: 1.2;
 }
 
 .sidebarButton {
