@@ -125,7 +125,7 @@ export default function PublicProfilePage() {
 
             <div className={styles.headerActions}>
               <Button variant="primary">Send Message</Button>
-              <Button variant="outline">Book Session</Button>
+              <Button variant="secondary">Book Session</Button>
             </div>
           </div>
 
