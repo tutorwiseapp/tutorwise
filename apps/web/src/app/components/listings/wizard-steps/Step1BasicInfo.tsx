@@ -11,15 +11,20 @@ interface Step1Props {
 }
 
 export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props) {
+  const [tutorName, setTutorName] = useState(formData.tutor_name || '');
   const [title, setTitle] = useState(formData.title || '');
   const [description, setDescription] = useState(formData.description || '');
-  const [errors, setErrors] = useState<{ title?: string; description?: string }>({});
+  const [errors, setErrors] = useState<{ tutorName?: string; title?: string; description?: string }>({});
 
   const validate = () => {
-    const newErrors: { title?: string; description?: string } = {};
+    const newErrors: { tutorName?: string; title?: string; description?: string } = {};
+
+    if (!tutorName.trim()) {
+      newErrors.tutorName = 'Tutor name is required';
+    }
 
     if (!title.trim()) {
-      newErrors.title = 'Title is required';
+      newErrors.title = 'Service title is required';
     } else if (title.trim().length < 10) {
       newErrors.title = 'Title must be at least 10 characters';
     } else if (title.trim().length > 200) {
@@ -38,7 +43,11 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
 
   const handleContinue = () => {
     if (validate()) {
-      onNext({ title: title.trim(), description: description.trim() });
+      onNext({
+        tutor_name: tutorName.trim(),
+        title: title.trim(),
+        description: description.trim()
+      });
     }
   };
 
@@ -52,7 +61,32 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
       </div>
 
       <div className={styles.stepBody}>
-        {/* Title */}
+        {/* Tutor Name */}
+        <div className={styles.formGroup}>
+          <label htmlFor="tutorName" className={styles.formLabel}>
+            Your Full Name <span style={{ color: 'var(--color-error, #dc2626)' }}>*</span>
+          </label>
+          <input
+            id="tutorName"
+            type="text"
+            value={tutorName}
+            onChange={(e) => setTutorName(e.target.value)}
+            placeholder="e.g., Jane Doe"
+            className={styles.formInput}
+            maxLength={100}
+            style={errors.tutorName ? { borderColor: 'var(--color-error, #dc2626)' } : {}}
+          />
+          {errors.tutorName && (
+            <p className={styles.errorText} style={{ margin: '8px 0 0 0' }}>
+              {errors.tutorName}
+            </p>
+          )}
+          <p className={styles.helperText} style={{ margin: '8px 0 0 0', fontSize: '0.75rem' }}>
+            This will be displayed on your marketplace card
+          </p>
+        </div>
+
+        {/* Service Title */}
         <div className={styles.formGroup}>
           <label htmlFor="title" className={styles.formLabel}>
             Service Title <span style={{ color: 'var(--color-error, #dc2626)' }}>*</span>

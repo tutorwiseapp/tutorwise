@@ -105,9 +105,9 @@ export default function TutorCard({ listing }: TutorCardProps) {
 
         {/* Content Section - Clean Airbnb Format */}
         <div className={styles.content}>
-          {/* Line 1: Name & Rating */}
+          {/* Line 1: Tutor Name & Rating */}
           <div className={styles.row}>
-            <h3 className={styles.name}>{listing.title}</h3>
+            <h3 className={styles.name}>{listing.tutor_name || listing.title}</h3>
             <div className={styles.rating}>
               <svg
                 className={styles.starIcon}
@@ -121,6 +121,13 @@ export default function TutorCard({ listing }: TutorCardProps) {
               <span className={styles.ratingValue}>{rating.toFixed(1)}</span>
             </div>
           </div>
+
+          {/* Line 1.5: Service Title (if tutor_name exists) */}
+          {listing.tutor_name && (
+            <div className={styles.row}>
+              <div className={styles.serviceTitle}>{listing.title}</div>
+            </div>
+          )}
 
           {/* Line 2: Subject & Level */}
           <div className={styles.row}>

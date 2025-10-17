@@ -68,9 +68,9 @@ export default function CreateListingWizard({
     if (profile && !initialData && isDraftLoaded) {
       const updates: Partial<CreateListingInput> = {};
 
-      // Auto-populate title from profile display name
-      if (profile.display_name && !formData.title) {
-        updates.title = `${profile.display_name}'s Tutoring Service`;
+      // Auto-populate tutor_name from profile display name
+      if (profile.display_name && !formData.tutor_name) {
+        updates.tutor_name = profile.display_name;
       }
 
       // Auto-populate first image with profile picture
@@ -83,7 +83,7 @@ export default function CreateListingWizard({
         setFormData(prev => ({ ...prev, ...updates }));
       }
     }
-  }, [profile, formData.title, formData.images, initialData, isDraftLoaded]);
+  }, [profile, formData.tutor_name, formData.images, initialData, isDraftLoaded]);
 
   // Save current step whenever it changes (for resume functionality)
   useEffect(() => {

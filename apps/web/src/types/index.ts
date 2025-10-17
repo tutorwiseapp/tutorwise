@@ -197,7 +197,8 @@ export interface DataTableProps<T> {
 export interface Listing {
   id: string;
   profile_id: string;
-  title: string;
+  tutor_name?: string; // Full name of the tutor (e.g., "Jane Doe")
+  title: string; // Service title (e.g., "GCSE Maths Tutor")
   description: string;
   status: 'draft' | 'published' | 'archived';
   subjects: string[];
