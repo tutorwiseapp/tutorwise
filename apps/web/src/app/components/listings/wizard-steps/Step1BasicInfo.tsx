@@ -90,15 +90,15 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
           <input
             id="tutorName"
             type="text"
-            value={tutorName}
+            value={tutorName || 'Loading...'}
             readOnly
             disabled
-            placeholder="e.g., Jane Doe"
             className={styles.formInput}
             style={{
               backgroundColor: '#f3f4f6',
               cursor: 'not-allowed',
-              color: '#6b7280'
+              color: '#374151',
+              fontWeight: '500'
             }}
           />
           {errors.tutorName && (
