@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import type { CreateListingInput } from '@tutorwise/shared-types';
+import { useAutoSaveDraft, loadDraft, clearDraft, saveCurrentStep } from '@/lib/utils/wizardUtils';
 import WelcomeStep from './wizard-steps/WelcomeStep';
 import Step1BasicInfo from './wizard-steps/Step1BasicInfo';
 import Step2TeachingDetails from './wizard-steps/Step2TeachingDetails';
@@ -28,6 +29,8 @@ export default function CreateListingWizard({
   initialData
 }: CreateListingWizardProps) {
   const { profile, user } = useUserProfile();
+  const DRAFT_KEY = 'listing_draft';
+
   const [currentStep, setCurrentStep] = useState<ListingStep>('welcome');
   const [formData, setFormData] = useState<Partial<CreateListingInput>>({
     currency: 'GBP',
@@ -36,9 +39,33 @@ export default function CreateListingWizard({
     languages: ['English'],
     ...initialData,
   });
+  const [isDraftLoaded, setIsDraftLoaded] = useState(false);
 
+  // Load draft from database on mount
   useEffect(() => {
-    if (profile && !initialData) {
+    async function loadSavedDraft() {
+      if (!isDraftLoaded && !initialData) {
+        const draft = await loadDraft<CreateListingInput>(user?.id, DRAFT_KEY, initialData);
+        if (draft) {
+          setFormData(prev => ({ ...prev, ...draft }));
+        }
+        setIsDraftLoaded(true);
+      }
+    }
+    loadSavedDraft();
+  }, [user?.id, initialData, isDraftLoaded]);
+
+  // Auto-save draft every 30 seconds (using shared utility with database sync)
+  const { saveDraft } = useAutoSaveDraft<Partial<CreateListingInput>>(
+    user?.id,
+    DRAFT_KEY,
+    formData,
+    (data) => !!(data.title || data.description) // Only save if title or description exists
+  );
+
+  // Auto-populate from profile
+  useEffect(() => {
+    if (profile && !initialData && isDraftLoaded) {
       const updates: Partial<CreateListingInput> = {};
 
       // Auto-populate title from profile display name
@@ -47,8 +74,7 @@ export default function CreateListingWizard({
       }
 
       // Auto-populate first image with profile picture
-      // Try avatar_url first, fallback to custom_picture_url for existing users
-      const profilePicture = profile.avatar_url || profile.custom_picture_url;
+      const profilePicture = profile.avatar_url;
       if (profilePicture && (!formData.images || formData.images.length === 0)) {
         updates.images = [profilePicture];
       }
@@ -57,34 +83,14 @@ export default function CreateListingWizard({
         setFormData(prev => ({ ...prev, ...updates }));
       }
     }
-  }, [profile, formData.title, formData.images, initialData]);
+  }, [profile, formData.title, formData.images, initialData, isDraftLoaded]);
 
-  // Auto-save draft to localStorage
-  const saveDraft = useCallback(() => {
-    if (formData.title || formData.description) {
-      localStorage.setItem('listing_draft', JSON.stringify(formData));
-      console.log('Draft saved');
-    }
-  }, [formData]);
-
-  // Auto-save every 30 seconds
+  // Save current step whenever it changes (for resume functionality)
   useEffect(() => {
-    const timer = setInterval(saveDraft, 30000);
-    return () => clearInterval(timer);
-  }, [saveDraft]);
-
-  // Load draft on mount
-  useEffect(() => {
-    const draft = localStorage.getItem('listing_draft');
-    if (draft && !initialData) {
-      try {
-        const parsedDraft = JSON.parse(draft);
-        setFormData(prev => ({ ...prev, ...parsedDraft }));
-      } catch (e) {
-        console.error('Failed to load draft:', e);
-      }
+    if (isDraftLoaded) {
+      saveCurrentStep(user?.id, DRAFT_KEY, currentStep);
     }
-  }, [initialData]);
+  }, [user?.id, currentStep, isDraftLoaded]);
 
   const updateFormData = (stepData: Partial<CreateListingInput>) => {
     setFormData(prev => ({ ...prev, ...stepData }));
@@ -134,9 +140,9 @@ export default function CreateListingWizard({
     onCancel();
   };
 
-  const handleFinalSubmit = (finalStepData: Partial<CreateListingInput>) => {
+  const handleFinalSubmit = async (finalStepData: Partial<CreateListingInput>) => {
     const completeData = { ...formData, ...finalStepData };
-    localStorage.removeItem('listing_draft');
+    await clearDraft(user?.id, DRAFT_KEY); // Use shared utility to clear draft from DB and localStorage
     onSubmit(completeData as CreateListingInput);
   };
 

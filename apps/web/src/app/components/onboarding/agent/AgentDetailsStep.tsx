@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import styles from '../OnboardingWizard.module.css';
+import { WizardActionButtons, useWizardValidation } from '../shared/WizardButton';
+import { SingleSelectCardGroup } from '../shared/SelectableCard';
 
 interface AgentDetailsStepProps {
   onNext: (details: AgencyDetailsData) => void;
@@ -42,13 +44,22 @@ const AgentDetailsStep: React.FC<AgentDetailsStepProps> = ({
   const [yearsInBusiness, setYearsInBusiness] = useState('');
   const [description, setDescription] = useState('');
 
-  const handleNext = () => {
-    if (agencyName && agencySize && yearsInBusiness && description.length >= 50) {
-      onNext({ agencyName, agencySize, yearsInBusiness, description });
-    }
-  };
+  // Validation using shared hook
+  const { isValid } = useWizardValidation({
+    fields: { agencyName, agencySize, yearsInBusiness, description },
+    validators: {
+      agencyName: (v) => v !== '',
+      agencySize: (v) => v !== '',
+      yearsInBusiness: (v) => v !== '',
+      description: (v) => v.length >= 50,
+    },
+    debug: true,
+  });
 
-  const isValid = agencyName && agencySize && yearsInBusiness && description.length >= 50;
+  const handleContinue = () => {
+    // The WizardActionButtons component ensures this only runs when isValid is true
+    onNext({ agencyName, agencySize, yearsInBusiness, description });
+  };
 
   return (
     <div className={styles.stepContent}>
@@ -81,24 +92,12 @@ const AgentDetailsStep: React.FC<AgentDetailsStepProps> = ({
           <label className={styles.formLabel}>
             Agency Size *
           </label>
-          <div className={styles.roleGrid}>
-            {agencySizes.map((size) => (
-              <div
-                key={size.value}
-                className={`${styles.roleCard} ${agencySize === size.value ? styles.selected : ''}`}
-                onClick={() => setAgencySize(size.value)}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className={styles.roleHeader}>
-                  <h3 className={styles.roleTitle}>{size.label}</h3>
-                  <div className={`${styles.roleCheckbox} ${agencySize === size.value ? styles.checked : ''}`}>
-                    {agencySize === size.value && '✓'}
-                  </div>
-                </div>
-                <p className={styles.roleDescription}>{size.description}</p>
-              </div>
-            ))}
-          </div>
+          <SingleSelectCardGroup
+            options={agencySizes}
+            selectedValue={agencySize}
+            onChange={(value) => setAgencySize(value as string)}
+            debug={true}
+          />
         </div>
 
         {/* Years in Business */}
@@ -106,24 +105,12 @@ const AgentDetailsStep: React.FC<AgentDetailsStepProps> = ({
           <label className={styles.formLabel}>
             Years in Business *
           </label>
-          <div className={styles.roleGrid}>
-            {yearsOptions.map((option) => (
-              <div
-                key={option.value}
-                className={`${styles.roleCard} ${yearsInBusiness === option.value ? styles.selected : ''}`}
-                onClick={() => setYearsInBusiness(option.value)}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className={styles.roleHeader}>
-                  <h3 className={styles.roleTitle}>{option.label}</h3>
-                  <div className={`${styles.roleCheckbox} ${yearsInBusiness === option.value ? styles.checked : ''}`}>
-                    {yearsInBusiness === option.value && '✓'}
-                  </div>
-                </div>
-                <p className={styles.roleDescription}>{option.description}</p>
-              </div>
-            ))}
-          </div>
+          <SingleSelectCardGroup
+            options={yearsOptions}
+            selectedValue={yearsInBusiness}
+            onChange={(value) => setYearsInBusiness(value as string)}
+            debug={true}
+          />
         </div>
 
         {/* Description */}
@@ -134,7 +121,7 @@ const AgentDetailsStep: React.FC<AgentDetailsStepProps> = ({
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Share your agency&apos;s mission, values, what makes you different, and what clients can expect..."
+            placeholder="Share your agency's mission, values, what makes you different, and what clients can expect..."
             className={styles.formTextarea}
             rows={5}
           />
@@ -144,36 +131,14 @@ const AgentDetailsStep: React.FC<AgentDetailsStepProps> = ({
         </div>
       </div>
 
-      <div className={styles.stepActions}>
-        <div className={styles.actionLeft}>
-          {onBack && (
-            <button
-              onClick={onBack}
-              className={styles.buttonSecondary}
-              disabled={isLoading}
-            >
-              ← Back
-            </button>
-          )}
-          <button
-            onClick={onSkip}
-            className={styles.buttonSecondary}
-            disabled={isLoading}
-          >
-            Skip for now
-          </button>
-        </div>
-
-        <div className={styles.actionRight}>
-          <button
-            onClick={handleNext}
-            className={`${styles.buttonPrimary} ${!isValid ? styles.buttonDisabled : ''}`}
-            disabled={!isValid || isLoading}
-          >
-            Continue →
-          </button>
-        </div>
-      </div>
+      <WizardActionButtons
+        onContinue={handleContinue}
+        continueEnabled={isValid}
+        onBack={onBack}
+        onSkip={onSkip}
+        isLoading={isLoading}
+        debug={true}
+      />
     </div>
   );
 };

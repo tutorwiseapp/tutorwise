@@ -1,12 +1,14 @@
+// src/app/contexts/UserProfileContext.tsx
+
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import type { Profile, OnboardingProgress, RoleDetails } from '@/types';
+import type { Profile, OnboardingProgress, RoleDetails, Role } from '@/types';
 import type { User } from '@supabase/supabase-js';
 
 interface RolePreferences {
-  lastActiveRole?: 'agent' | 'seeker' | 'provider';
+  lastActiveRole?: Role;
   dashboardLayout?: Record<string, any>;
   notifications?: Record<string, boolean>;
   customizations?: Record<string, any>;
@@ -15,9 +17,10 @@ interface RolePreferences {
 interface UserProfileContextType {
   profile: Profile | null;
   user: User | null;
-  activeRole: 'agent' | 'seeker' | 'provider' | null;
-  availableRoles: ('agent' | 'seeker' | 'provider')[];
-  switchRole: (role: 'agent' | 'seeker' | 'provider') => Promise<void>;
+  activeRole: Role | null;
+  availableRoles: Role[];
+  switchRole: (role: Role) => Promise<void>;
+  setActiveRole: (role: Role) => void;
   rolePreferences: RolePreferences;
   updateRolePreferences: (preferences: Partial<RolePreferences>) => Promise<void>;
   isLoading: boolean;
@@ -28,23 +31,24 @@ interface UserProfileContextType {
   showOnboarding: boolean;
   setShowOnboarding: (show: boolean) => void;
   updateOnboardingProgress: (progress: Partial<OnboardingProgress>) => Promise<void>;
-  getRoleDetails: (role: 'agent' | 'seeker' | 'provider') => Promise<RoleDetails | null>;
+  getRoleDetails: (role: Role) => Promise<RoleDetails | null>;
+  refreshProfile: () => Promise<Profile | null>;
 }
 
-export const UserProfileContext = createContext<UserProfileContextType | undefined>(undefined);
+const UserProfileContext = createContext<UserProfileContextType | undefined>(undefined);
 
 export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
   const supabase = createClient();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeRole, setActiveRole] = useState<'agent' | 'seeker' | 'provider' | null>(null);
+  const [activeRole, setActiveRoleState] = useState<Role | null>(null);
   const [rolePreferences, setRolePreferences] = useState<RolePreferences>({});
   const [isRoleSwitching, setIsRoleSwitching] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   // Role management functions
-  const switchRole = async (role: 'agent' | 'seeker' | 'provider') => {
+  const switchRole = async (role: Role) => {
     if (!profile || !profile.roles.includes(role)) {
       throw new Error(`User does not have access to role: ${role}`);
     }
@@ -53,12 +57,36 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
     try {
       localStorage.setItem('activeRole', role);
       await updateRolePreferences({ lastActiveRole: role });
-      setActiveRole(role);
+
+      // Update in database
+      const { error } = await supabase
+        .from('profiles')
+        .update({ active_role: role })
+        .eq('id', user!.id);
+
+      if (error) throw error;
+
+      setActiveRoleState(role);
+      setProfile(prev => prev ? { ...prev, active_role: role } : null);
     } catch (error) {
       console.error('Error switching role:', error);
       throw error;
     } finally {
       setIsRoleSwitching(false);
+    }
+  };
+
+  const setActiveRole = (role: Role) => {
+    setActiveRoleState(role);
+    if (profile && user) {
+      supabase
+        .from('profiles')
+        .update({ active_role: role })
+        .eq('id', user.id)
+        .then(({ error }) => {
+          if (error) console.error('Error setting active role:', error);
+          else setProfile((prev) => prev ? { ...prev, active_role: role } : prev);
+        });
     }
   };
 
@@ -80,8 +108,27 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
     if (!user?.id) return;
 
     try {
-      const currentProgress = profile?.onboarding_progress || {};
-      const updatedProgress = { ...currentProgress, ...progress };
+      const currentProgress: Partial<OnboardingProgress> = profile?.onboarding_progress || {};
+
+      // Deep merge for role-specific progress
+      const updatedProgress: OnboardingProgress = {
+        ...currentProgress,
+        ...progress,
+        seeker: {
+          ...(currentProgress.seeker || {}),
+          ...(progress.seeker || {}),
+        },
+        provider: {
+          ...(currentProgress.provider || {}),
+          ...(progress.provider || {}),
+        },
+        agent: {
+          ...(currentProgress.agent || {}),
+          ...(progress.agent || {}),
+        },
+        last_updated: new Date().toISOString(),
+        onboarding_completed: progress.onboarding_completed ?? currentProgress.onboarding_completed ?? false,
+      };
 
       const { error } = await supabase
         .from('profiles')
@@ -98,7 +145,7 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const getRoleDetails = async (role: 'agent' | 'seeker' | 'provider'): Promise<RoleDetails | null> => {
+  const getRoleDetails = async (role: Role): Promise<RoleDetails | null> => {
     if (!user?.id) return null;
 
     try {
@@ -110,10 +157,7 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
         .single();
 
       if (error) {
-        if (error.code === 'PGRST116') {
-          // No role details found, which is expected for new users
-          return null;
-        }
+        if (error.code === 'PGRST116') return null; // No rows found
         throw error;
       }
 
@@ -124,18 +168,40 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const initializeRole = (profileData: Profile) => {
-    if (!profileData.roles || profileData.roles.length === 0) {
-      setActiveRole(null);
-      return;
-    }
+  const refreshProfile = async (): Promise<Profile | null> => {
+    if (!user?.id) return null;
 
-    const savedRole = localStorage.getItem('activeRole') as 'agent' | 'seeker' | 'provider' | null;
+    try {
+      console.log('[UserProfileContext] Refreshing profile...');
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.error('[UserProfileContext] Error refreshing profile:', error);
+        return null;
+      }
+
+      console.log('[UserProfileContext] Profile refreshed:', data);
+      setProfile(data);
+      return data;
+    } catch (error) {
+      console.error('[UserProfileContext] Unexpected error refreshing profile:', error);
+      return null;
+    }
+  };
+
+  const initializeRole = (profileData: Profile) => {
+    const savedRole = localStorage.getItem('activeRole') as Role | null;
 
     if (savedRole && profileData.roles.includes(savedRole)) {
-      setActiveRole(savedRole);
-    } else {
-      setActiveRole(profileData.roles[0]);
+      setActiveRoleState(savedRole);
+    } else if (profileData.active_role) {
+      setActiveRoleState(profileData.active_role);
+    } else if (profileData.roles.length > 0) {
+      setActiveRoleState(profileData.roles[0]);
     }
 
     const savedPreferences = localStorage.getItem('rolePreferences');
@@ -147,59 +213,82 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
         setRolePreferences({});
       }
     }
-
-    // Note: onboarding should be explicitly triggered on onboarding pages,
-    // not automatically shown globally
   };
 
   useEffect(() => {
+    let mounted = true;
+    const supabaseClient = createClient();
+
     const fetchProfile = async (sessionUser: User | null) => {
+      if (!mounted) return;
+
+      console.log('[UserProfileContext] Fetching profile for user:', sessionUser?.id);
+
       if (sessionUser) {
         try {
-          const { data, error } = await supabase
+          const { data, error } = await supabaseClient
             .from('profiles')
             .select('*')
             .eq('id', sessionUser.id)
             .single();
-          
+
+          if (!mounted) return;
+
           if (error) {
-             console.error('Error fetching profile:', error);
-             setProfile(null);
-             setActiveRole(null);
+            console.error('[UserProfileContext] Error fetching profile:', error);
+            setProfile(null);
+            setActiveRoleState(null);
           } else {
+            console.log('[UserProfileContext] Profile loaded:', data);
             setProfile(data);
             initializeRole(data);
           }
         } catch (error) {
-          console.error('Unexpected error fetching profile:', error);
+          console.error('[UserProfileContext] Unexpected error fetching profile:', error);
           setProfile(null);
-          setActiveRole(null);
+          setActiveRoleState(null);
         }
       } else {
+        console.log('[UserProfileContext] No user session, clearing profile');
         setProfile(null);
-        setActiveRole(null);
+        setActiveRoleState(null);
       }
-      setIsLoading(false);
+
+      if (mounted) {
+        console.log('[UserProfileContext] Setting isLoading to false');
+        setIsLoading(false);
+      }
     };
 
     const initialize = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      console.log('[UserProfileContext] Initializing...');
+      const { data: { session } } = await supabaseClient.auth.getSession();
+
+      if (!mounted) return;
+
       setUser(session?.user ?? null);
       await fetchProfile(session?.user ?? null);
 
-      const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      const { data: authListener } = supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+        if (!mounted) return;
+
         const sessionUser = session?.user ?? null;
         setUser(sessionUser);
-        fetchProfile(sessionUser);
+        await fetchProfile(sessionUser);
       });
 
       return () => {
+        mounted = false;
         authListener.subscription.unsubscribe();
       };
     };
 
     initialize();
-  }, [supabase]);
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const availableRoles = profile?.roles || [];
   const needsOnboarding = !profile?.onboarding_progress?.onboarding_completed && !!user;
@@ -208,9 +297,10 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
     <UserProfileContext.Provider value={{
       profile,
       user,
-      activeRole,
+      activeRole: activeRole,
       availableRoles,
       switchRole,
+      setActiveRole,
       rolePreferences,
       updateRolePreferences,
       isLoading,
@@ -219,7 +309,8 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
       showOnboarding,
       setShowOnboarding,
       updateOnboardingProgress,
-      getRoleDetails
+      getRoleDetails,
+      refreshProfile
     }}>
       {children}
     </UserProfileContext.Provider>

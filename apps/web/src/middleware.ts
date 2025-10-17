@@ -1,6 +1,7 @@
+// apps/web/src/middleware.ts
+
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import type { OnboardingProgress } from './types'
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -15,13 +16,15 @@ export async function middleware(request: NextRequest) {
     '/transaction-history',
     '/become-provider',
     '/agents',
-    '/claim-rewards'
+    '/claim-rewards',
   ]
 
   // Define routes that should bypass onboarding check
   const onboardingRoutes = [
     '/onboarding',
-    '/onboarding/client'
+    '/onboarding/client',
+    '/onboarding/tutor',
+    '/onboarding/agent'
   ]
 
   // Define public routes that don't require authentication
@@ -63,17 +66,10 @@ export async function middleware(request: NextRequest) {
           return request.cookies.get(name)?.value
         },
         set(name: string, value: string, options: any) {
-          // Ensure cookies work across redirects with proper options
-          const cookieOptions = {
-            ...options,
-            sameSite: 'lax' as const,
-            secure: process.env.NODE_ENV === 'production',
-            path: '/',
-          }
           request.cookies.set({
             name,
             value,
-            ...cookieOptions,
+            ...options,
           })
           response = NextResponse.next({
             request: {
@@ -83,19 +79,14 @@ export async function middleware(request: NextRequest) {
           response.cookies.set({
             name,
             value,
-            ...cookieOptions,
+            ...options,
           })
         },
         remove(name: string, options: any) {
-          const cookieOptions = {
-            ...options,
-            maxAge: 0,
-            path: '/',
-          }
           request.cookies.set({
             name,
             value: '',
-            ...cookieOptions,
+            ...options,
           })
           response = NextResponse.next({
             request: {
@@ -105,27 +96,18 @@ export async function middleware(request: NextRequest) {
           response.cookies.set({
             name,
             value: '',
-            ...cookieOptions,
+            ...options,
           })
         },
       },
     }
   )
 
-  // Refresh session if expired - important for server-side rendering
-  try {
-    await supabase.auth.getSession()
-  } catch (error) {
-    console.error('Middleware session refresh error:', error)
-  }
-
   // Check authentication for protected routes
   if (protectedRoutes.some(route => pathname.startsWith(route))) {
     const {
-      data: { session },
-    } = await supabase.auth.getSession()
-
-    const user = session?.user
+      data: { user },
+    } = await supabase.auth.getUser()
 
     // Redirect to login if not authenticated
     if (!user) {
@@ -134,42 +116,38 @@ export async function middleware(request: NextRequest) {
 
     // For authenticated users, check onboarding status (except for onboarding routes)
     if (!onboardingRoutes.some(route => pathname.startsWith(route))) {
-      const onboardingProgress = session?.user?.user_metadata?.onboarding_progress as OnboardingProgress
-      const needsOnboarding = !onboardingProgress?.onboarding_completed
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('onboarding_progress')
+          .eq('id', user.id)
+          .single()
 
-      if (needsOnboarding) {
-        try {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('onboarding_progress')
-            .eq('id', user.id)
-            .single()
+        const progress = profile?.onboarding_progress
+        const needsOnboarding = !progress?.onboarding_completed
 
-          const progress = profile?.onboarding_progress
-          const isCompleted = progress?.onboarding_completed
+        if (needsOnboarding) {
+          // Auto-save feature: Resume from where user left off
+          const currentStep = progress?.current_step
+          let redirectUrl = '/onboarding'
 
-          if (!isCompleted) {
-            const currentStep = progress?.current_step
-            let redirectUrl = '/onboarding'
-
-            if (currentStep && currentStep !== 'welcome') {
-              redirectUrl = `/onboarding?step=${currentStep}`
-            }
-
-            return NextResponse.redirect(new URL(redirectUrl, request.url))
+          // If user has progress, append step parameter to resume from correct position
+          if (currentStep && currentStep !== 'welcome') {
+            redirectUrl = `/onboarding?step=${currentStep}`
+            console.log(`Middleware: Resuming onboarding from step: ${currentStep}`)
           } else {
-            // Update the session with the latest onboarding status
-            await supabase.auth.updateUser({
-              data: {
-                ...session.user.user_metadata,
-                onboarding_progress: progress
-              }
-            })
+            console.log(`Middleware: Starting fresh onboarding flow`)
           }
-        } catch (error) {
-          console.error('Middleware: Error checking onboarding status:', error)
-          return NextResponse.redirect(new URL('/onboarding', request.url))
+
+          console.log(`Middleware: Redirecting ${pathname} to ${redirectUrl}`)
+          return NextResponse.redirect(new URL(redirectUrl, request.url))
         }
+      } catch (error) {
+        console.error('Middleware: Error checking onboarding status:', error)
+        // CRITICAL: On database error, redirect to onboarding to be safe
+        // This ensures onboarding enforcement even if middleware DB calls fail
+        console.log(`Middleware: Database error - redirecting ${pathname} to onboarding for safety`)
+        return NextResponse.redirect(new URL('/onboarding', request.url))
       }
     }
   }
@@ -179,12 +157,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

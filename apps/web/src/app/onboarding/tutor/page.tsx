@@ -60,6 +60,9 @@ function TutorOnboardingPageContent() {
   }
 
   const handleOnboardingComplete = () => {
+    console.log('[TutorOnboarding] Onboarding complete! Database save already finished.');
+    console.log('[TutorOnboarding] Redirecting to dashboard...');
+    // Use Next.js router for proper client-side navigation (preserves session)
     router.push('/dashboard');
   };
 

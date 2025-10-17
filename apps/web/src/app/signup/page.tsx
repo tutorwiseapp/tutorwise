@@ -29,6 +29,7 @@ export default function SignUpPage() {
   const [fullName, setFullName] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
@@ -40,21 +41,47 @@ export default function SignUpPage() {
     e.preventDefault();
     setError(null);
     setMessage(null);
+    setIsLoading(true);
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
+    try {
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${location.origin}/onboarding`,
+          data: {
+            full_name: fullName,
+          },
         },
-      },
-    });
+      });
 
-    if (error) {
-      setError(error.message);
-    } else {
-      setMessage("Check your email for a confirmation link!");
+      if (signUpError) {
+        setError(signUpError.message);
+        setIsLoading(false);
+        return;
+      }
+
+      console.log('Signup response:', { data, hasSession: !!data.session, hasUser: !!data.user });
+
+      // If we have a session, user is auto-logged in
+      if (data.session) {
+        console.log('Session created, redirecting to onboarding...');
+        router.push('/onboarding');
+      } else if (data.user && !data.user.email_confirmed_at) {
+        // Email confirmation is enabled
+        setMessage("Check your email for a confirmation link!");
+        setIsLoading(false);
+      } else {
+        // Edge case: user created but no session yet
+        setMessage("Account created! Redirecting...");
+        setTimeout(() => {
+          router.push('/login?message=Please log in with your new account');
+        }, 1500);
+      }
+    } catch (err) {
+      console.error('Signup error:', err);
+      setError('An unexpected error occurred. Please try again.');
+      setIsLoading(false);
     }
   };
 
@@ -88,10 +115,12 @@ export default function SignUpPage() {
           <FormGroup label="Password" htmlFor="password">
             <Input id="password" name="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
           </FormGroup>
-          <Button type="submit" variant="primary" fullWidth>Sign Up</Button>
+          <Button type="submit" variant="primary" fullWidth disabled={isLoading}>
+            {isLoading ? 'Creating account...' : 'Sign Up'}
+          </Button>
         </form>
         <div className={authStyles.separator}>or</div>
-        <Button variant='google' fullWidth onClick={handleGoogleSignUp}>Sign Up with Google</Button>
+        <Button variant='secondary' fullWidth onClick={handleGoogleSignUp}>Sign Up with Google</Button>
       </div>
       <div className={authStyles.authSwitch}>
         Already have an account? <Link href="/login">Log In</Link>

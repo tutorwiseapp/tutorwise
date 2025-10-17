@@ -1,18 +1,15 @@
+// src/app/onboarding/page.tsx
+
 'use client';
 
-import { useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import OnboardingWizard from '@/app/components/onboarding/OnboardingWizard';
 import styles from './page.module.css';
 
-function OnboardingPageContent() {
+export default function OnboardingPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const { user, profile, isLoading, needsOnboarding } = useUserProfile();
-
-  // Get step from URL parameters for auto-resume functionality
-  const resumeStep = searchParams?.get('step');
+  const { user, profile, isLoading, availableRoles } = useUserProfile();
 
   useEffect(() => {
     // Redirect to login if not authenticated
@@ -21,35 +18,22 @@ function OnboardingPageContent() {
       return;
     }
 
-    // Redirect to dashboard if onboarding is already complete
-    if (!isLoading && profile && !needsOnboarding) {
-      router.push('/dashboard');
-      return;
-    }
-  }, [user, profile, isLoading, needsOnboarding, router]);
-
-  // Handle browser back button to prevent auth flow state issues
-  useEffect(() => {
-    const handlePopState = (event: PopStateEvent) => {
-      // If user is authenticated and on onboarding, prevent default back behavior
-      // that could break the auth flow state
-      if (user && needsOnboarding) {
-        event.preventDefault();
-        // Instead, use the onboarding wizard's built-in back functionality
-        console.log('Browser back prevented during onboarding - use wizard Back button instead');
+    // If onboarding is complete and user has all roles, redirect to dashboard
+    if (!isLoading && profile?.onboarding_progress?.onboarding_completed) {
+      const hasAllRoles = availableRoles.length === 3;
+      if (hasAllRoles) {
+        router.push('/dashboard');
+        return;
       }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [user, needsOnboarding]);
+    }
+  }, [user, profile, isLoading, availableRoles, router]);
 
   // Show loading state while checking authentication
   if (isLoading) {
     return (
       <div className={styles.loading}>
         <div className={styles.spinner}></div>
-        <p>Loading your profile...</p>
+        <p>Loading...</p>
       </div>
     );
   }
@@ -59,35 +43,80 @@ function OnboardingPageContent() {
     return null;
   }
 
-  const handleOnboardingComplete = () => {
-    router.push('/dashboard');
-  };
+  // Check which roles are available
+  const hasSeeker = availableRoles.includes('seeker');
+  const hasProvider = availableRoles.includes('provider');
+  const hasAgent = availableRoles.includes('agent');
 
-  const handleOnboardingSkip = () => {
-    router.push('/dashboard');
+  const handleRoleSelect = (role: 'seeker' | 'provider' | 'agent') => {
+    const routeMap = {
+      seeker: '/onboarding/client',
+      provider: '/onboarding/tutor',
+      agent: '/onboarding/agent'
+    };
+    router.push(routeMap[role]);
   };
 
   return (
     <div className={styles.onboardingPage}>
-      <OnboardingWizard
-        mode="fullPage"
-        onComplete={handleOnboardingComplete}
-        onSkip={handleOnboardingSkip}
-        initialStep={resumeStep || undefined}
-      />
-    </div>
-  );
-}
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Choose Your Path</h1>
+          <p className={styles.subtitle}>
+            Select the role that best describes what you want to do on Tutorwise
+          </p>
+        </div>
 
-export default function OnboardingPage() {
-  return (
-    <Suspense fallback={
-      <div className={styles.loading}>
-        <div className={styles.spinner}></div>
-        <p>Loading onboarding...</p>
+        <div className={styles.roleCards}>
+          {/* Client Card */}
+          <button
+            onClick={() => !hasSeeker && handleRoleSelect('seeker')}
+            disabled={hasSeeker}
+            className={`${styles.roleCard} ${hasSeeker ? styles.disabled : ''}`}
+          >
+            <div className={styles.roleIcon}>📚</div>
+            <h3 className={styles.roleTitle}>Client</h3>
+            <p className={styles.roleDescription}>
+              Find expert tutors and start your learning journey
+            </p>
+            {hasSeeker && (
+              <div className={styles.badge}>Already enrolled</div>
+            )}
+          </button>
+
+          {/* Tutor Card */}
+          <button
+            onClick={() => !hasProvider && handleRoleSelect('provider')}
+            disabled={hasProvider}
+            className={`${styles.roleCard} ${hasProvider ? styles.disabled : ''}`}
+          >
+            <div className={styles.roleIcon}>🎓</div>
+            <h3 className={styles.roleTitle}>Tutor</h3>
+            <p className={styles.roleDescription}>
+              Share your knowledge and earn income teaching others
+            </p>
+            {hasProvider && (
+              <div className={styles.badge}>Already enrolled</div>
+            )}
+          </button>
+
+          {/* Agent Card */}
+          <button
+            onClick={() => !hasAgent && handleRoleSelect('agent')}
+            disabled={hasAgent}
+            className={`${styles.roleCard} ${hasAgent ? styles.disabled : ''}`}
+          >
+            <div className={styles.roleIcon}>🏠</div>
+            <h3 className={styles.roleTitle}>Agent</h3>
+            <p className={styles.roleDescription}>
+              Manage tutoring services and grow your business
+            </p>
+            {hasAgent && (
+              <div className={styles.badge}>Already enrolled</div>
+            )}
+          </button>
+        </div>
       </div>
-    }>
-      <OnboardingPageContent />
-    </Suspense>
+    </div>
   );
 }

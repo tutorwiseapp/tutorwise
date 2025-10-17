@@ -25,7 +25,7 @@ export default function ProfileCompletenessIndicator({ profile }: ProfileComplet
       {
         key: 'avatar',
         label: 'Upload a profile photo',
-        completed: Boolean(profile.custom_picture_url),
+        completed: Boolean(profile.avatar_url),
       },
       {
         key: 'bio',

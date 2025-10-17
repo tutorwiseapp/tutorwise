@@ -10,21 +10,26 @@ interface CompletionStepProps {
   isLoading?: boolean;
 }
 
-const roleLabels = {
-  seeker: 'Student',
-  provider: 'Tutor',
-  agent: 'Agent'
-};
-
-const CompletionStep: React.FC<CompletionStepProps> = ({ selectedRoles, onComplete, isLoading = false }) => {
-  // Auto-redirect immediately
+const CompletionStep: React.FC<CompletionStepProps> = ({ onComplete }) => {
   useEffect(() => {
-    onComplete();
+    console.log('[CompletionStep] Component mounted. Database update already complete. Showing success message...');
+
+    // Wait 2 seconds for the user to see the success message, then redirect
+    const timer = setTimeout(() => {
+      console.log('[CompletionStep] ✅ Redirecting to dashboard...');
+      onComplete();
+    }, 2000);
+
+    return () => clearTimeout(timer);
   }, [onComplete]);
 
   return (
     <div className={styles.completionContainer}>
-      <p>Completing onboarding...</p>
+      <div className={styles.successIcon}>✓</div>
+      <h2 className={styles.successTitle}>Welcome to Tutorwise!</h2>
+      <p className={styles.successMessage}>
+        Setting up your profile... You will be redirected to your dashboard shortly.
+      </p>
     </div>
   );
 };

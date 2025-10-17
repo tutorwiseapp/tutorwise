@@ -31,14 +31,14 @@ export default function CreateListingPage() {
             prefillData.hourly_rate_min = roleDetails.hourly_rate;
             prefillData.hourly_rate_max = roleDetails.hourly_rate;
           }
-          if (roleDetails.qualifications) {
-            prefillData.academic_qualifications = roleDetails.qualifications as string[];
+          if (roleDetails.certifications) {
+            prefillData.academic_qualifications = roleDetails.certifications;
           }
-          if (roleDetails.teaching_experience) {
-            prefillData.years_of_experience = roleDetails.teaching_experience;
+          if (roleDetails.experience) {
+            prefillData.years_of_experience = roleDetails.experience;
           }
-          if (roleDetails.teaching_methods) {
-            prefillData.teaching_methods = roleDetails.teaching_methods as string[];
+          if (roleDetails.session_types) {
+            prefillData.teaching_methods = roleDetails.session_types;
           }
 
           setInitialData(prefillData);

@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/a/[agent_id]/route.ts
+ * Filename: src/app/a/[referral_id]/route.ts
  * Purpose: Handles referral link clicks, records the event, and redirects the user.
  * Change History:
  * C002 - 2025-09-02 : 18:00 - Migrated to use the new Supabase server client.
@@ -13,9 +13,9 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest, 
-  { params }: { params: { agent_id: string } }
+  { params }: { params: { referral_id: string } }
 ) {
-  const { agent_id } = params;
+  const { referral_id } = params;
   const destinationUrl = request.nextUrl.searchParams.get('u');
 
   if (!destinationUrl) {
@@ -27,7 +27,7 @@ export async function GET(
   const channelOrigin = request.nextUrl.searchParams.get('channel_origin');
 
   const clickEventData = {
-    agent_id: agent_id,
+    referral_id: referral_id,
     destination_url: destinationUrl,
     ip_address: ipAddress,
     user_agent: userAgent,

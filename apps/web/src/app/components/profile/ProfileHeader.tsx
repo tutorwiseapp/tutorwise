@@ -41,8 +41,8 @@ export default function ProfileHeader({ listing }: ProfileHeaderProps) {
         </div>
         <div className={styles.actions}>
           <Button>Request my services</Button>
-          <Button variant="outline">Send me a message</Button>
-          <Button variant="outline">Connect with me</Button>
+          <Button variant="secondary">Send me a message</Button>
+          <Button variant="secondary">Connect with me</Button>
         </div>
       </div>
     </div>

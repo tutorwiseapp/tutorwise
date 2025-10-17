@@ -22,13 +22,13 @@ import type { Profile } from '@/types';
  */
 const getProfileImageUrl = (user: Partial<Profile>): string => {
   // --- UPDATED LOGIC ---
-  // 1. Use the URL from the profile (which includes Google's avatar URL).
-  if (user.custom_picture_url) {
-    return user.custom_picture_url;
+  // 1. Use the URL from the profile (which includes avatar URL).
+  if (user.avatar_url) {
+    return user.avatar_url;
   }
-  
+
   // 2. Fallback to a placeholder if no picture URL exists.
-  return `https://i.pravatar.cc/150?u=${user.agent_id || 'default'}`;
+  return `https://i.pravatar.cc/150?u=${user.id || user.referral_id || 'default'}`;
 };
 
 export default getProfileImageUrl;

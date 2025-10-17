@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import styles from '../OnboardingWizard.module.css';
+import { WizardActionButtons, useWizardValidation } from '../shared/WizardButton';
+import { SingleSelectCardGroup, MultiSelectCardGroup } from '../shared/SelectableCard';
 
 interface TutorQualificationsStepProps {
   onNext: (qualifications: QualificationsData) => void;
@@ -25,19 +27,19 @@ const experienceLevels = [
 ];
 
 const educationLevels = [
-  { value: 'high_school', label: 'High School' },
-  { value: 'some_college', label: 'Some College' },
-  { value: 'bachelors', label: "Bachelor's Degree" },
-  { value: 'masters', label: "Master's Degree" },
-  { value: 'phd', label: 'Ph.D. or Doctorate' }
+  { value: 'high_school', label: 'High School', description: 'Secondary education', icon: '🎓' },
+  { value: 'some_college', label: 'Some College', description: 'Partial post-secondary', icon: '📚' },
+  { value: 'bachelors', label: "Bachelor's Degree", description: 'Undergraduate degree', icon: '🎓' },
+  { value: 'masters', label: "Master's Degree", description: 'Graduate degree', icon: '🎓' },
+  { value: 'phd', label: 'Ph.D. or Doctorate', description: 'Doctoral degree', icon: '👨‍🎓' }
 ];
 
 const commonCertifications = [
-  'Teaching Certificate',
-  'TESOL/TEFL',
-  'Subject-Specific Certification',
-  'Tutoring Certification',
-  'None yet'
+  { value: 'teaching_certificate', label: 'Teaching Certificate', description: 'State or national certification', icon: '📜' },
+  { value: 'tesol_tefl', label: 'TESOL/TEFL', description: 'English language teaching', icon: '🌍' },
+  { value: 'subject_specific', label: 'Subject-Specific Certification', description: 'Specialized subject area', icon: '📋' },
+  { value: 'tutoring_cert', label: 'Tutoring Certification', description: 'Professional tutoring credential', icon: '✅' },
+  { value: 'none', label: 'None yet', description: 'No certifications at this time', icon: '○' }
 ];
 
 const TutorQualificationsStep: React.FC<TutorQualificationsStepProps> = ({
@@ -51,21 +53,21 @@ const TutorQualificationsStep: React.FC<TutorQualificationsStepProps> = ({
   const [certifications, setCertifications] = useState<string[]>([]);
   const [bio, setBio] = useState('');
 
-  const handleCertificationToggle = (cert: string) => {
-    setCertifications(prev =>
-      prev.includes(cert)
-        ? prev.filter(c => c !== cert)
-        : [...prev, cert]
-    );
-  };
+  // Validation using shared hook
+  const { isValid } = useWizardValidation({
+    fields: { experience, education, bio },
+    validators: {
+      experience: (v) => v !== '',
+      education: (v) => v !== '',
+      bio: (v) => v.length >= 50,
+    },
+    debug: true,
+  });
 
-  const handleNext = () => {
-    if (experience && education && bio.length >= 50) {
-      onNext({ experience, education, certifications, bio });
-    }
+  const handleContinue = () => {
+    // The WizardActionButtons component ensures this only runs when isValid is true
+    onNext({ experience, education, certifications, bio });
   };
-
-  const isValid = experience && education && bio.length >= 50;
 
   return (
     <div className={styles.stepContent}>
@@ -84,24 +86,12 @@ const TutorQualificationsStep: React.FC<TutorQualificationsStepProps> = ({
           <label className={styles.formLabel}>
             Teaching Experience *
           </label>
-          <div className={styles.roleGrid}>
-            {experienceLevels.map((level) => (
-              <div
-                key={level.value}
-                className={`${styles.roleCard} ${experience === level.value ? styles.selected : ''}`}
-                onClick={() => setExperience(level.value)}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className={styles.roleHeader}>
-                  <h3 className={styles.roleTitle}>{level.label}</h3>
-                  <div className={`${styles.roleCheckbox} ${experience === level.value ? styles.checked : ''}`}>
-                    {experience === level.value && '✓'}
-                  </div>
-                </div>
-                <p className={styles.roleDescription}>{level.description}</p>
-              </div>
-            ))}
-          </div>
+          <SingleSelectCardGroup
+            options={experienceLevels}
+            selectedValue={experience}
+            onChange={(value) => setExperience(value as string)}
+            debug={true}
+          />
         </div>
 
         {/* Education */}
@@ -109,42 +99,25 @@ const TutorQualificationsStep: React.FC<TutorQualificationsStepProps> = ({
           <label className={styles.formLabel}>
             Highest Education Level *
           </label>
-          <select
-            value={education}
-            onChange={(e) => setEducation(e.target.value)}
-            className={styles.formSelect}
-          >
-            <option value="">Select your education level</option>
-            {educationLevels.map((level) => (
-              <option key={level.value} value={level.value}>
-                {level.label}
-              </option>
-            ))}
-          </select>
+          <SingleSelectCardGroup
+            options={educationLevels}
+            selectedValue={education}
+            onChange={(value) => setEducation(value as string)}
+            debug={true}
+          />
         </div>
 
         {/* Certifications */}
         <div className={styles.formGroup}>
           <label className={styles.formLabel}>
-            Certifications (Optional)
+            Certifications (Select all that apply)
           </label>
-          <div className={styles.checkboxGroup}>
-            {commonCertifications.map((cert) => (
-              <div
-                key={cert}
-                className={`${styles.checkboxItem} ${certifications.includes(cert) ? styles.selected : ''}`}
-                onClick={() => handleCertificationToggle(cert)}
-              >
-                <input
-                  type="checkbox"
-                  checked={certifications.includes(cert)}
-                  onChange={() => {}}
-                  className={styles.checkboxInput}
-                />
-                <label className={styles.checkboxLabel}>{cert}</label>
-              </div>
-            ))}
-          </div>
+          <MultiSelectCardGroup
+            options={commonCertifications}
+            selectedValues={certifications}
+            onChange={(values) => setCertifications(values as string[])}
+            debug={true}
+          />
         </div>
 
         {/* Bio */}
@@ -165,36 +138,14 @@ const TutorQualificationsStep: React.FC<TutorQualificationsStepProps> = ({
         </div>
       </div>
 
-      <div className={styles.stepActions}>
-        <div className={styles.actionLeft}>
-          {onBack && (
-            <button
-              onClick={onBack}
-              className={styles.buttonSecondary}
-              disabled={isLoading}
-            >
-              ← Back
-            </button>
-          )}
-          <button
-            onClick={onSkip}
-            className={styles.buttonSecondary}
-            disabled={isLoading}
-          >
-            Skip for now
-          </button>
-        </div>
-
-        <div className={styles.actionRight}>
-          <button
-            onClick={handleNext}
-            className={`${styles.buttonPrimary} ${!isValid ? styles.buttonDisabled : ''}`}
-            disabled={!isValid || isLoading}
-          >
-            Continue →
-          </button>
-        </div>
-      </div>
+      <WizardActionButtons
+        onContinue={handleContinue}
+        continueEnabled={isValid}
+        onBack={onBack}
+        onSkip={onSkip}
+        isLoading={isLoading}
+        debug={true}
+      />
     </div>
   );
 };

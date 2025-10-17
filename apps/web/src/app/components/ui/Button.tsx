@@ -1,34 +1,52 @@
+// apps/web/src/app/components/ui/Button.tsx
+'use client';
+
 import React from 'react';
 import styles from './Button.module.css';
 
-// Added a 'variant' prop to the interface to allow for different button styles.
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'link' | 'google' | 'outline' | 'danger'; // Define the allowed variants
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+  isLoading?: boolean;
+  href?: string;
   fullWidth?: boolean;
-  size?: 'sm' | 'md' | 'lg'; // Define the allowed sizes
 }
 
 const Button: React.FC<ButtonProps> = ({
   children,
-  variant = 'primary', // Default to 'primary' if no variant is provided
+  variant = 'primary',
+  size = 'md',
+  isLoading = false,
+  href,
   fullWidth = false,
-  size = 'md', // Default to 'md' if no size is provided
-  className,
   ...props
 }) => {
-  // Combine the base button style with variant, size and other classes.
-  const buttonClassName = [
-    styles.button,
-    styles[variant],
-    size ? styles[size] : '',
-    fullWidth ? styles.fullWidth : '',
-    className || ''
-  ].join(' ').trim();
+  const className = `
+    ${styles.button}
+    ${styles[variant]}
+    ${styles[size]}
+    ${fullWidth ? styles.fullWidth : ''}
+    ${props.disabled || isLoading ? styles.disabled : ''}
+  `;
+
+  const content = isLoading ? (
+    <span className={styles.loader} />
+  ) : (
+    children
+  );
+
+  if (href) {
+    return (
+      <a href={href} className={className}>
+        {content}
+      </a>
+    );
+  }
 
   return (
-    <button className={buttonClassName} {...props}>
-      {children}
+    <button className={className} disabled={props.disabled || isLoading} {...props}>
+      {content}
     </button>
   );
 };

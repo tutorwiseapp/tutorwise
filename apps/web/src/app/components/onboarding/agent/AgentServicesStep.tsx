@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import styles from '../OnboardingWizard.module.css';
+import { WizardActionButtons } from '../shared/WizardButton';
+import { MultiSelectCardGroup } from '../shared/SelectableCard';
 
 interface AgentServicesStepProps {
   onNext: (services: string[]) => void;
@@ -12,55 +14,44 @@ interface AgentServicesStepProps {
 
 const services = [
   {
-    id: 'academic_tutoring',
+    value: 'academic_tutoring',
     label: 'Academic Tutoring',
     description: 'K-12 and college subject tutoring',
-    outcome: 'Provide: Comprehensive academic support',
-    popular: true
   },
   {
-    id: 'test_prep',
+    value: 'test_prep',
     label: 'Test Preparation',
     description: 'SAT, ACT, GRE, GMAT prep',
-    outcome: 'Provide: Standardized test coaching',
-    popular: true
   },
   {
-    id: 'language_learning',
+    value: 'language_learning',
     label: 'Language Learning',
     description: 'ESL, foreign languages, linguistics',
-    outcome: 'Provide: Language instruction services',
-    popular: true
   },
   {
-    id: 'stem_tutoring',
+    value: 'stem_tutoring',
     label: 'STEM Tutoring',
-    description: 'Math, Science, Programming, Engineering',
-    outcome: 'Provide: Technical subject expertise'
+    description: 'Math, Science, Programming, Engineering'
   },
   {
-    id: 'special_needs',
+    value: 'special_needs',
     label: 'Special Needs',
-    description: 'Learning disabilities, IEP support',
-    outcome: 'Provide: Specialized education support'
+    description: 'Learning disabilities, IEP support'
   },
   {
-    id: 'college_prep',
+    value: 'college_prep',
     label: 'College Preparation',
-    description: 'Essay writing, application support, college counseling',
-    outcome: 'Provide: College admissions guidance'
+    description: 'Essay writing, application support, college counseling'
   },
   {
-    id: 'career_coaching',
+    value: 'career_coaching',
     label: 'Career Coaching',
-    description: 'Resume building, interview prep, career planning',
-    outcome: 'Provide: Professional development services'
+    description: 'Resume building, interview prep, career planning'
   },
   {
-    id: 'enrichment',
+    value: 'enrichment',
     label: 'Enrichment Programs',
-    description: 'Music, arts, sports, hobby instruction',
-    outcome: 'Provide: Extracurricular education'
+    description: 'Music, arts, sports, hobby instruction'
   }
 ];
 
@@ -72,18 +63,9 @@ const AgentServicesStep: React.FC<AgentServicesStepProps> = ({
 }) => {
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
 
-  const handleServiceToggle = (serviceId: string) => {
-    setSelectedServices(prev =>
-      prev.includes(serviceId)
-        ? prev.filter(id => id !== serviceId)
-        : [...prev, serviceId]
-    );
-  };
-
-  const handleNext = () => {
-    if (selectedServices.length > 0) {
-      onNext(selectedServices);
-    }
+  const handleContinue = () => {
+    // The WizardActionButtons component ensures this only runs when valid
+    onNext(selectedServices);
   };
 
   return (
@@ -98,30 +80,12 @@ const AgentServicesStep: React.FC<AgentServicesStepProps> = ({
       </div>
 
       <div className={styles.stepBody}>
-        <div className={styles.roleGrid}>
-          {services.map((service) => (
-            <div
-              key={service.id}
-              className={`${styles.roleCard} ${selectedServices.includes(service.id) ? styles.selected : ''} ${service.popular ? styles.popular : ''}`}
-              onClick={() => handleServiceToggle(service.id)}
-            >
-              {service.popular && <span className={styles.popularBadge}>Popular</span>}
-
-              <div className={styles.roleHeader}>
-                <h3 className={styles.roleTitle}>{service.label}</h3>
-                <div className={`${styles.roleCheckbox} ${selectedServices.includes(service.id) ? styles.checked : ''}`}>
-                  {selectedServices.includes(service.id) && '✓'}
-                </div>
-              </div>
-
-              <p className={styles.roleDescription}>{service.description}</p>
-
-              <div className={styles.outcomeBox}>
-                <span className={styles.outcomeText}>{service.outcome}</span>
-              </div>
-            </div>
-          ))}
-        </div>
+        <MultiSelectCardGroup
+          options={services}
+          selectedValues={selectedServices}
+          onChange={(values) => setSelectedServices(values as string[])}
+          debug={true}
+        />
 
         <p className={styles.progressIndicator}>
           {selectedServices.length === 0 ? 'Select at least one service' :
@@ -129,36 +93,14 @@ const AgentServicesStep: React.FC<AgentServicesStepProps> = ({
         </p>
       </div>
 
-      <div className={styles.stepActions}>
-        <div className={styles.actionLeft}>
-          {onBack && (
-            <button
-              onClick={onBack}
-              className={styles.buttonSecondary}
-              disabled={isLoading}
-            >
-              ← Back
-            </button>
-          )}
-          <button
-            onClick={onSkip}
-            className={styles.buttonSecondary}
-            disabled={isLoading}
-          >
-            Skip for now
-          </button>
-        </div>
-
-        <div className={styles.actionRight}>
-          <button
-            onClick={handleNext}
-            className={styles.buttonPrimary}
-            disabled={selectedServices.length === 0 || isLoading}
-          >
-            Continue →
-          </button>
-        </div>
-      </div>
+      <WizardActionButtons
+        onContinue={handleContinue}
+        continueEnabled={selectedServices.length > 0}
+        onBack={onBack}
+        onSkip={onSkip}
+        isLoading={isLoading}
+        debug={true}
+      />
     </div>
   );
 };

@@ -34,13 +34,13 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import type { User } from '@/types';
+import type { Profile } from '@/types';
 import Card from '@/app/components/ui/Card';
 import getProfileImageUrl from '@/lib/utils/image';
 import styles from './ProfileCard.module.css';
 
 interface ProfileCardProps {
-  agent: Partial<User>;
+  agent: Partial<Profile>;
   isOwnProfile?: boolean;
 }
 
@@ -62,7 +62,7 @@ export const ProfileCard = ({ agent, isOwnProfile = false }: ProfileCardProps) =
       </div>
       <div className={styles.profileBody}>
         <h2 className={styles.profileName}>{agent.display_name}</h2>
-        <p className={styles.profileId}>{agent.agent_id}</p>
+        <p className={styles.profileId}>ID: {agent.referral_id || agent.id?.slice(0, 8)}</p>
         {isOwnProfile && <Link href="/profile" className={styles.editProfileLink}>Edit Profile</Link>}
         
         <div className={styles.detailsSection}>

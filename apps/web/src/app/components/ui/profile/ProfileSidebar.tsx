@@ -40,14 +40,14 @@ const ProfileSidebar = ({ user }: ProfileSidebarProps) => {
         
         <div className={styles.nameBlock}>
           <h2 className={styles.displayName}>{user.display_name || 'Vinite User'}</h2>
-          <p className={styles.agentId}>{user.agent_id}</p>
+          <p className={styles.agentId}>ID: {user.referral_id || user.id?.slice(0, 8)}</p>
         </div>
-        
+
         <div className={styles.linkGroup}>
           {/* --- THIS IS THE FIX --- */}
           {/* Only show the link to the public profile page. */}
-          {user.agent_id && (
-            <Link href={`/agents/${user.agent_id}`} className={styles.textLink}>
+          {user.id && (
+            <Link href={`/agents/${user.id}`} className={styles.textLink}>
               View Public Profile
             </Link>
           )}

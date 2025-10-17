@@ -428,12 +428,12 @@ export default function Step4point5Availability({ formData, onNext, onBack }: St
 
       <div className={styles.stepActions}>
         <div className={styles.actionLeft}>
-          <button onClick={onBack} className={styles.buttonSecondary}>
+          <button type="button" onClick={onBack} className={styles.buttonSecondary}>
             Back
           </button>
         </div>
         <div className={styles.actionRight}>
-          <button onClick={handleContinue} className={styles.buttonPrimary}>
+          <button type="button" onClick={handleContinue} className={styles.buttonPrimary}>
             Continue
           </button>
         </div>

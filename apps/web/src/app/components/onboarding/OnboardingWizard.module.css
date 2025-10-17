@@ -19,21 +19,21 @@
 .wizardContainer {
   background-color: var(--color-bg-card, #ffffff);
   width: 100%;
-  max-width: 800px;
+  max-width: 1200px; /* Design system: shared form group wizard width */
   margin: 0 auto;
 }
 
 .wizardContainer.fullPage {
   border-radius: 0;
   box-shadow: none;
-  max-width: none;
+  max-width: 1440px; /* Design system: max content width */
   width: 100%;
 }
 
 .wizardContainer.modal {
   border-radius: var(--border-radius-lg, 12px);
   box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05));
-  max-width: 800px;
+  max-width: 1200px; /* Design system: shared form group wizard width */
   margin: 1rem;
 }
 
@@ -53,6 +53,9 @@
 
 .stepContent {
   padding: 2rem;
+  max-width: 1200px; /* Design system: content width constraint */
+  margin: 0 auto; /* Center content within container */
+  width: 100%;
 }
 
 @media (min-width: 768px) {
@@ -164,6 +167,7 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 0.75rem;
+  gap: 16px; /* 16px spacing between title and checkbox */
 }
 
 .roleTitle {
@@ -171,6 +175,8 @@
   font-weight: 600;
   color: var(--color-text-primary, #1f2937);
   margin: 0;
+  flex: 1; /* Allow title to take available space but not overflow */
+  line-height: 1.4; /* Better line height for readability */
 }
 
 .roleCheckbox {

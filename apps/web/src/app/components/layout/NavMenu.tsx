@@ -33,7 +33,6 @@ const NavMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { profile, isLoading, activeRole, availableRoles, switchRole, isRoleSwitching } = useUserProfile();
   const router = useRouter();
-  const supabase = createClient();
 
   // Role configuration matching your design
   const roleConfig: Record<Role, RoleConfig> = {
@@ -46,6 +45,7 @@ const NavMenu = () => {
     try {
       await switchRole(role);
       setIsOpen(false);
+      router.push('/dashboard');
     } catch (error) {
       console.error('Failed to switch role:', error);
     }
@@ -53,6 +53,7 @@ const NavMenu = () => {
 
   const handleSignOut = async () => {
     try {
+      const supabase = createClient();
       // 1. Let Supabase handle the global sign out.
       // This clears its own cookies and localStorage items correctly.
       await supabase.auth.signOut({ scope: 'global' });
@@ -150,7 +151,7 @@ const NavMenu = () => {
                 {/* Role Onboarding Section - Only show roles user doesn't have */}
                 {!availableRoles?.includes('provider') && (
                   <DropdownMenu.Item asChild className={styles.becomeItem}>
-                    <Link href="/onboarding/tutor">
+                    <Link href="/onboarding">
                       <div className={styles.becomeContent}>
                         <div>
                           <div className={styles.becomeTitle}>Become a tutor</div>
@@ -162,7 +163,7 @@ const NavMenu = () => {
                 )}
                 {!availableRoles?.includes('seeker') && (
                   <DropdownMenu.Item asChild className={styles.becomeItem}>
-                    <Link href="/onboarding/client">
+                    <Link href="/onboarding">
                       <div className={styles.becomeContent}>
                         <div>
                           <div className={styles.becomeTitle}>Become a client</div>
@@ -174,7 +175,7 @@ const NavMenu = () => {
                 )}
                 {!availableRoles?.includes('agent') && (
                   <DropdownMenu.Item asChild className={styles.becomeItem}>
-                    <Link href="/onboarding/agent">
+                    <Link href="/onboarding">
                       <div className={styles.becomeContent}>
                         <div>
                           <div className={styles.becomeTitle}>Become an agent</div>

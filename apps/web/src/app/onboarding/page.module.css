@@ -6,10 +6,13 @@
 .onboardingPage {
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   background-color: var(--color-bg-primary, #ffffff);
-  padding: 1rem;
+  padding: 2rem 1rem;
+  max-width: 1440px; /* Design system: max viewport width */
+  margin: 0 auto; /* Center on ultra-wide screens */
+  width: 100%;
 }
 
 @media (max-width: 768px) {
@@ -48,4 +51,122 @@
   color: #6b7280;
   font-size: 1rem;
   margin: 0;
+}
+
+/* Role Selection Styles */
+.container {
+  max-width: 1200px;
+  width: 100%;
+  padding: 2rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1f2937);
+  margin: 0 0 1rem 0;
+}
+
+.subtitle {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+}
+
+.roleCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.roleCard {
+  position: relative;
+  background: white;
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: 1rem;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.roleCard:not(.disabled):hover {
+  border-color: var(--color-primary, #006C67);
+  box-shadow: 0 10px 25px rgba(0, 108, 103, 0.1);
+  transform: translateY(-4px);
+}
+
+.roleCard:not(.disabled):active {
+  transform: translateY(-2px);
+}
+
+.roleCard.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--color-bg-secondary, #f9fafb);
+}
+
+.roleIcon {
+  font-size: 4rem;
+  margin-bottom: 0.5rem;
+}
+
+.roleTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1f2937);
+  margin: 0;
+}
+
+.roleDescription {
+  font-size: 1rem;
+  color: var(--color-text-secondary, #6b7280);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--color-success-bg, #dcfce7);
+  color: var(--color-success-text, #166534);
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .roleCards {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .roleCard {
+    padding: 2rem 1.5rem;
+  }
 }

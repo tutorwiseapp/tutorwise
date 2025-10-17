@@ -6,10 +6,10 @@
 .listingPage {
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   background-color: var(--color-bg-primary, #ffffff);
-  padding: 1rem;
+  padding: 2rem 1rem;
 }
 
 @media (max-width: 768px) {

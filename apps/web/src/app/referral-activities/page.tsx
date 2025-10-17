@@ -33,19 +33,19 @@ import StatusBadge from '@/app/components/ui/StatusBadge';
 import Button from '@/app/components/ui/Button';
 import Card from '@/app/components/ui/Card';
 
-// Mock data now perfectly matches the `Referral` interface from `src/types/index.ts`
-const mockReferrals: Referral[] = [
-    { id: 1, created_at: '2025-05-20', seeker_email: '-', agent_id: 'A1-JS123456', provider_id: 'Tutorly', channel_origin: 'Web', amount: 50.00, status: 'Open', destination_url: 'https://tutorly.example.com' },
-    { id: 2, created_at: '2025-05-21', seeker_email: 'john.d@example.com', agent_id: 'A1-JS123456', provider_id: 'SaaSify', channel_origin: 'Email', amount: 29.99, status: 'Shared', destination_url: 'https://saasify.example.com' },
-    { id: 3, created_at: '2025-05-22', seeker_email: 'a.long.email@example.com', agent_id: 'A1-JS123456', provider_id: 'DesignCo', channel_origin: 'QR Code', amount: 150.00, status: 'Visited', destination_url: 'https://designco.example.com' },
-    { id: 4, created_at: '2025-05-23', seeker_email: 'jane.s@example.com', agent_id: 'A1-JS123456', provider_id: 'LearnHub', channel_origin: 'Web', amount: 99.00, status: 'Signed Up', destination_url: 'https://learnhub.example.com' },
-    { id: 5, created_at: '2025-05-24', seeker_email: 'mike.r@example.com', agent_id: 'A1-JS123456', provider_id: 'Cleanly', channel_origin: 'WhatsApp', amount: 75.00, status: 'Booked', destination_url: 'https://cleanly.example.com' },
-    { id: 6, created_at: '2025-05-25', seeker_email: 'sara.k@example.com', agent_id: 'A1-JS123456', provider_id: 'SaaSify', channel_origin: 'Web', amount: 29.99, status: 'Accepted', destination_url: 'https://saasify.example.com' },
-    { id: 7, created_at: '2025-05-26', seeker_email: 'tim.b@example.com', agent_id: 'A1-JS123456', provider_id: 'DesignCo', channel_origin: 'QR Code', amount: 150.00, status: 'Declined', destination_url: 'https://designco.example.com' },
-    { id: 8, created_at: '2025-05-25', seeker_email: 'sara.k@example.com', agent_id: 'A1-JS123456', provider_id: 'SaaSify', channel_origin: 'Web', amount: 3.00, status: 'Paid', destination_url: 'https://saasify.example.com' },
-    { id: 9, created_at: '2025-05-27', seeker_email: 'olivia.p@example.com', agent_id: 'A1-JS123456', provider_id: 'LearnHub', channel_origin: 'Web', amount: 9.90, status: 'Pending', destination_url: 'https://learnhub.example.com' },
-    { id: 10, created_at: '2025-05-28', seeker_email: 'liam.h@example.com', agent_id: 'A1-JS123456', provider_id: 'Tutorly', channel_origin: 'Email', amount: 5.00, status: 'Failed', destination_url: 'https://tutorly.example.com' },
-    { id: 11, created_at: '2025-06-01', seeker_email: 'chloe.m@example.com', agent_id: 'A1-JS123456', provider_id: 'Artisan Goods', channel_origin: 'Web', amount: 12.50, status: 'Paid', destination_url: 'https://artisangoods.example.com' },
+// Mock data for referral activities (Note: uses different schema than Referral type)
+const mockReferrals = [
+    { id: '1', created_at: '2025-05-20', seeker_email: '-', agent_id: 'A1-JS123456', provider_id: 'Tutorly', channel_origin: 'Web', amount: 50.00, status: 'Open', destination_url: 'https://tutorly.example.com' },
+    { id: '2', created_at: '2025-05-21', seeker_email: 'john.d@example.com', agent_id: 'A1-JS123456', provider_id: 'SaaSify', channel_origin: 'Email', amount: 29.99, status: 'Shared', destination_url: 'https://saasify.example.com' },
+    { id: '3', created_at: '2025-05-22', seeker_email: 'a.long.email@example.com', agent_id: 'A1-JS123456', provider_id: 'DesignCo', channel_origin: 'QR Code', amount: 150.00, status: 'Visited', destination_url: 'https://designco.example.com' },
+    { id: '4', created_at: '2025-05-23', seeker_email: 'jane.s@example.com', agent_id: 'A1-JS123456', provider_id: 'LearnHub', channel_origin: 'Web', amount: 99.00, status: 'Signed Up', destination_url: 'https://learnhub.example.com' },
+    { id: '5', created_at: '2025-05-24', seeker_email: 'mike.r@example.com', agent_id: 'A1-JS123456', provider_id: 'Cleanly', channel_origin: 'WhatsApp', amount: 75.00, status: 'Booked', destination_url: 'https://cleanly.example.com' },
+    { id: '6', created_at: '2025-05-25', seeker_email: 'sara.k@example.com', agent_id: 'A1-JS123456', provider_id: 'SaaSify', channel_origin: 'Web', amount: 29.99, status: 'Accepted', destination_url: 'https://saasify.example.com' },
+    { id: '7', created_at: '2025-05-26', seeker_email: 'tim.b@example.com', agent_id: 'A1-JS123456', provider_id: 'DesignCo', channel_origin: 'QR Code', amount: 150.00, status: 'Declined', destination_url: 'https://designco.example.com' },
+    { id: '8', created_at: '2025-05-25', seeker_email: 'sara.k@example.com', agent_id: 'A1-JS123456', provider_id: 'SaaSify', channel_origin: 'Web', amount: 3.00, status: 'Paid', destination_url: 'https://saasify.example.com' },
+    { id: '9', created_at: '2025-05-27', seeker_email: 'olivia.p@example.com', agent_id: 'A1-JS123456', provider_id: 'LearnHub', channel_origin: 'Web', amount: 9.90, status: 'Pending', destination_url: 'https://learnhub.example.com' },
+    { id: '10', created_at: '2025-05-28', seeker_email: 'liam.h@example.com', agent_id: 'A1-JS123456', provider_id: 'Tutorly', channel_origin: 'Email', amount: 5.00, status: 'Failed', destination_url: 'https://tutorly.example.com' },
+    { id: '11', created_at: '2025-06-01', seeker_email: 'chloe.m@example.com', agent_id: 'A1-JS123456', provider_id: 'Artisan Goods', channel_origin: 'Web', amount: 12.50, status: 'Paid', destination_url: 'https://artisangoods.example.com' },
 ];
 
 interface TabOption {
@@ -56,8 +56,8 @@ interface TabOption {
 const ReferralActivityPage = () => {
   const [activeTab, setActiveTab] = useState('generates');
 
-  // Column definitions now use the correct `accessorKey` properties from the Referral type
-  const columns: ColumnDef<Referral>[] = [
+  // Column definitions for the referral activities table
+  const columns: ColumnDef<any>[] = [
     { header: 'Date', accessorKey: 'created_at', responsiveClass: 'mobile', cell: (value) => new Date(value as string).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) },
     { header: 'Seeker', accessorKey: 'seeker_email', responsiveClass: 'mobile' },
     { header: 'Agent', accessorKey: 'agent_id', responsiveClass: 'desktop', cell: (value) => <Link href={`/agents/${value}`}>{value as string}</Link> },

@@ -1,268 +1,167 @@
+// apps/web/src/app/components/onboarding/client/ClientOnboardingWizard.tsx
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { createClient } from '@/utils/supabase/client';
-import ClientWelcomeStep from './ClientWelcomeStep';
+import { useAutoSaveDraft, loadDraft, clearDraft, saveCurrentStep } from '@/lib/utils/wizardUtils';
+import { OnboardingProgress } from '@/types';
+
+// Corrected import paths
+import WelcomeStep from '../steps/WelcomeStep';
+import OnboardingProgressBar from '../OnboardingProgressBar';
+
 import ClientSubjectSelectionStep from './ClientSubjectSelectionStep';
 import ClientLearningPreferencesStep from './ClientLearningPreferencesStep';
-import CompletionStep from '../steps/CompletionStep';
+import styles from '../../../onboarding/client/page.module.css';
+
+export type ClientStep = 'subjects' | 'preferences' | 'completion';
 
 interface ClientOnboardingWizardProps {
-  onComplete?: () => void;
+  onComplete: () => void;
   onSkip?: () => void;
+  initialStep?: ClientStep;
 }
 
-type ClientStep = 'welcome' | 'subjects' | 'preferences' | 'completion';
-
-export interface LearningPreferencesData {
-  educationLevel: string;
-  learningGoals: string[];
-  learningPreferences: string[];
-  budgetMin: string;
-  budgetMax: string;
-  sessionsPerWeek: string;
-  sessionDuration: string;
-  additionalInfo: string;
+interface ClientDraftData {
+  subjects: string[];
+  preferences: any;
 }
 
 const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
   onComplete,
-  onSkip
+  onSkip,
+  initialStep = 'subjects'
 }) => {
-  const { user, profile } = useUserProfile();
-  const supabase = createClient();
+  const { profile, user, updateOnboardingProgress } = useUserProfile();
+  const DRAFT_KEY = 'onboarding_draft_client';
 
-  const [currentStep, setCurrentStep] = useState<ClientStep>('welcome');
-  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
-  const [preferences, setPreferences] = useState<LearningPreferencesData | null>(null);
+  const [currentStep, setCurrentStep] = useState<ClientStep>(initialStep);
+  const [subjects, setSubjects] = useState<string[]>([]);
+  const [preferences, setPreferences] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isDraftLoaded, setIsDraftLoaded] = useState(false);
 
-  // Load existing progress if any
+  // Load draft from database on mount
   useEffect(() => {
-    const loadProgress = async () => {
-      if (!user?.id) return;
-
-      try {
-        const { data, error } = await supabase
-          .from('role_details')
-          .select('*')
-          .eq('profile_id', user.id)
-          .eq('role_type', 'seeker')
-          .single();
-
-        if (data && !error) {
-          // Restore progress
-          if (data.subjects) setSelectedSubjects(data.subjects);
-          if (data.education_level || data.learning_goals) {
-            setPreferences({
-              educationLevel: data.education_level || '',
-              learningGoals: data.learning_goals || [],
-              learningPreferences: data.learning_preferences || [],
-              budgetMin: data.budget_range?.split('-')[0] || '',
-              budgetMax: data.budget_range?.split('-')[1] || '',
-              sessionsPerWeek: data.sessions_per_week || '',
-              sessionDuration: data.session_duration || '',
-              additionalInfo: data.additional_info || ''
-            });
-          }
+    async function loadSavedDraft() {
+      if (!isDraftLoaded) {
+        const draft = await loadDraft<ClientDraftData>(user?.id, DRAFT_KEY);
+        if (draft) {
+          if (draft.subjects) setSubjects(draft.subjects);
+          if (draft.preferences) setPreferences(draft.preferences);
         }
-      } catch (err) {
-        console.error('Error loading client onboarding progress:', err);
+        setIsDraftLoaded(true);
       }
-    };
+    }
+    loadSavedDraft();
+  }, [user?.id, isDraftLoaded]);
 
-    loadProgress();
-  }, [user, supabase]);
-
-  const handleWelcomeNext = () => {
-    setCurrentStep('subjects');
+  // Prepare form data for auto-save
+  const formData: ClientDraftData = {
+    subjects,
+    preferences,
   };
 
-  const handleSubjectsNext = (subjects: string[]) => {
-    setSelectedSubjects(subjects);
+  // Auto-save draft every 30 seconds (with database sync)
+  const { saveDraft } = useAutoSaveDraft<ClientDraftData>(
+    user?.id,
+    DRAFT_KEY,
+    formData,
+    (data) => data.subjects.length > 0 // Only save if user has selected at least one subject
+  );
+
+  // Save current step whenever it changes
+  useEffect(() => {
+    if (isDraftLoaded) {
+      saveCurrentStep(user?.id, DRAFT_KEY, currentStep);
+    }
+  }, [user?.id, currentStep, isDraftLoaded]);
+
+  // Scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentStep]);
+
+  const handleBack = () => {
+    if (currentStep === 'preferences') setCurrentStep('subjects');
+  }
+
+  const handleSkipHandler = () => {
+    if (onSkip) {
+      onSkip();
+    } else {
+      onComplete();
+    }
+  }
+
+  const handleSubjectsNext = async (selectedSubjects: string[]) => {
+    console.log('[ClientOnboardingWizard] handleSubjectsNext called', selectedSubjects);
+
+    // Update state and UI immediately
+    setSubjects(selectedSubjects);
     setCurrentStep('preferences');
+
+    // Update database in background (don't await)
+    updateOnboardingProgress({
+      current_step: 'preferences',
+      seeker: { ...(profile?.onboarding_progress?.seeker || {}), subjects: selectedSubjects }
+    }).catch(error => {
+      console.error('[ClientOnboardingWizard] Error updating progress:', error);
+    });
   };
 
-  const handleSubjectsBack = () => {
-    setCurrentStep('welcome');
-  };
-
-  const handlePreferencesNext = (prefs: LearningPreferencesData) => {
-    setPreferences(prefs);
-    handleComplete(prefs);
-  };
-
-  const handlePreferencesBack = () => {
-    setCurrentStep('subjects');
-  };
-
-  const handleSkip = async () => {
-    if (!user?.id) return;
-
+  const handlePreferencesNext = async (selectedPreferences: any) => {
+    console.log('[ClientOnboardingWizard] handlePreferencesNext called', selectedPreferences);
     setIsLoading(true);
-    try {
-      // Mark onboarding as skipped
-      await supabase
-        .from('profiles')
-        .update({
-          onboarding_progress: {
-            onboarding_completed: true,
-            skipped: true,
-            completed_at: new Date().toISOString()
-          }
-        })
-        .eq('id', user.id);
 
-      onSkip?.();
-    } catch (err) {
-      console.error('Error skipping onboarding:', err);
-      setError('Failed to skip onboarding. Please try again.');
+    try {
+      setPreferences(selectedPreferences);
+      // Update the database with client-specific progress (but don't mark as complete yet)
+      console.log('[ClientOnboardingWizard] Updating onboarding progress...');
+      await updateOnboardingProgress({
+        current_step: 'completion',
+        seeker: { ...(profile?.onboarding_progress?.seeker || {}), subjects, preferences: selectedPreferences },
+        onboarding_completed: false  // Master wizard will mark as complete
+      });
+      console.log('[ClientOnboardingWizard] Progress updated, clearing draft...');
+
+      // Clear draft since client-specific onboarding is complete
+      await clearDraft(user?.id, DRAFT_KEY);
+      console.log('[ClientOnboardingWizard] Draft cleared, calling onComplete...');
+
+      // Call parent's onComplete to return control to master wizard
+      onComplete();
+    } catch (error) {
+      console.error('[ClientOnboardingWizard] Error in handlePreferencesNext:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleComplete = async (prefs: LearningPreferencesData) => {
-    if (!user?.id) return;
-
-    setIsLoading(true);
-    try {
-      // Update user's roles to include seeker
-      const currentRoles = profile?.roles || [];
-      const updatedRoles = [...new Set([...currentRoles, 'seeker'])];
-
-      // Single atomic update - roles, active_role, and onboarding completion together
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          roles: updatedRoles,
-          active_role: 'seeker', // Set seeker as active role
-          onboarding_progress: {
-            onboarding_completed: true,
-            completed_at: new Date().toISOString(),
-            selected_roles: ['seeker'],
-            client_data: {
-              subjects: selectedSubjects,
-              preferences: prefs
-            }
-          }
-        })
-        .eq('id', user.id);
-
-      if (profileError) {
-        console.error('Profile update error:', profileError);
-        throw profileError;
-      }
-
-      // Save client details to role_details table
-      // NOTE FOR CLAUDE CODE & CAS: This saves the initial learning profile data
-      // that clients can later edit in /account/professional-info
-      if (selectedSubjects.length > 0) {
-        const budgetRange = prefs.budgetMin && prefs.budgetMax
-          ? `${prefs.budgetMin}-${prefs.budgetMax}`
-          : undefined;
-
-        const { error: detailsError } = await supabase
-          .from('role_details')
-          .upsert({
-            profile_id: user.id,
-            role_type: 'seeker',
-            // Core client/seeker information collected during onboarding
-            subjects: selectedSubjects, // Array of subjects they want to learn
-            education_level: prefs.educationLevel, // Current education level
-            learning_goals: prefs.learningGoals, // Array of goals (e.g., "exam_prep", "skill_building")
-            learning_preferences: prefs.learningPreferences, // Array of preferences (e.g., "online", "one_on_one")
-            budget_range: budgetRange, // String like "20-40" (hourly rate range)
-            sessions_per_week: prefs.sessionsPerWeek, // String like "1-2", "3-4"
-            session_duration: prefs.sessionDuration, // String like "30min", "1hour"
-            additional_info: prefs.additionalInfo, // Free-text additional requirements
-            // NOTE: created_at removed - database handles this automatically via default value
-            // Only update updated_at to avoid overwriting original creation timestamp
-            updated_at: new Date().toISOString()
-          });
-
-        if (detailsError) {
-          console.error('Error saving client details:', detailsError);
-        }
-      }
-
-      console.log('Client onboarding completed successfully');
-      setCurrentStep('completion');
-    } catch (err) {
-      console.error('Error completing onboarding:', err);
-      setError('Failed to complete onboarding. Please try again.');
-      setIsLoading(false);
-    }
-  };
-
-  const handleCompletionContinue = () => {
-    onComplete?.();
-  };
-
   const renderCurrentStep = () => {
     switch (currentStep) {
-      case 'welcome':
-        return (
-          <ClientWelcomeStep
-            onNext={handleWelcomeNext}
-            onSkip={handleSkip}
-            userName={profile?.first_name || profile?.display_name || 'there'}
-          />
-        );
-
       case 'subjects':
-        return (
-          <ClientSubjectSelectionStep
-            onNext={handleSubjectsNext}
-            onBack={handleSubjectsBack}
-            onSkip={handleSkip}
-            isLoading={isLoading}
-            initialSubjects={selectedSubjects}
-          />
-        );
-
+        return <ClientSubjectSelectionStep onNext={handleSubjectsNext} onSkip={handleSkipHandler} isLoading={isLoading} initialSubjects={subjects} />;
       case 'preferences':
-        return (
-          <ClientLearningPreferencesStep
-            onNext={handlePreferencesNext}
-            onBack={handlePreferencesBack}
-            onSkip={handleSkip}
-            isLoading={isLoading}
-            initialPreferences={preferences}
-          />
-        );
-
-      case 'completion':
-        return (
-          <CompletionStep
-            selectedRoles={['seeker']}
-            onComplete={handleCompletionContinue}
-          />
-        );
-
+        return <ClientLearningPreferencesStep onNext={handlePreferencesNext} onBack={handleBack} onSkip={handleSkipHandler} isLoading={isLoading} />;
       default:
         return null;
     }
   };
 
+  const getStepNumber = () => {
+    const steps: ClientStep[] = ['subjects', 'preferences'];
+    return steps.indexOf(currentStep) + 1;
+  }
+
   return (
-    <div>
-      {error && (
-        <div style={{
-          padding: '1rem',
-          background: '#fee',
-          color: '#c33',
-          borderRadius: '6px',
-          marginBottom: '1rem'
-        }}>
-          {error}
-        </div>
-      )}
+    <div className={styles.wizardContainer}>
+      <OnboardingProgressBar currentStepId={getStepNumber()} totalSteps={2} />
       {renderCurrentStep()}
     </div>
   );
 };
 
 export default ClientOnboardingWizard;
+

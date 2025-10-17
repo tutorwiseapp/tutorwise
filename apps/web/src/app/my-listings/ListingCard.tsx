@@ -45,9 +45,9 @@ export default function ListingCard({ listing, onDelete, onToggleStatus }: Listi
         </div>
         <div className={styles.actions}>
           <Link href={`/my-listings/${listing.id}/edit`}>
-            <Button variant="outline" size="sm" fullWidth>Edit</Button>
+            <Button variant="secondary" size="sm" fullWidth>Edit</Button>
           </Link>
-          <Button variant="outline" size="sm" fullWidth onClick={() => onToggleStatus(listing)}>
+          <Button variant="secondary" size="sm" fullWidth onClick={() => onToggleStatus(listing)}>
             {listing.status === 'published' ? 'Unpublish' : 'Publish'}
           </Button>
           <Button variant="danger" size="sm" fullWidth onClick={() => onDelete(listing.id)}>

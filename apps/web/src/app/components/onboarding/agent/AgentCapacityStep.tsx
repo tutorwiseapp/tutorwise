@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import styles from '../OnboardingWizard.module.css';
+import { WizardActionButtons, useWizardValidation } from '../shared/WizardButton';
+import { SingleSelectCardGroup, CompactCheckboxGroup } from '../shared/SelectableCard';
 
 interface AgentCapacityStepProps {
   onNext: (capacity: CapacityData) => void;
@@ -48,21 +50,21 @@ const AgentCapacityStep: React.FC<AgentCapacityStepProps> = ({
   const [serviceAreas, setServiceAreas] = useState<string[]>([]);
   const [studentCapacity, setStudentCapacity] = useState('');
 
-  const handleServiceAreaToggle = (value: string) => {
-    setServiceAreas(prev =>
-      prev.includes(value)
-        ? prev.filter(v => v !== value)
-        : [...prev, value]
-    );
-  };
+  // Validation using shared hook
+  const { isValid } = useWizardValidation({
+    fields: { commissionRate, serviceAreas, studentCapacity },
+    validators: {
+      commissionRate: (v) => v > 0,
+      serviceAreas: (v) => v.length > 0,
+      studentCapacity: (v) => v !== '',
+    },
+    debug: true,
+  });
 
-  const handleNext = () => {
-    if (commissionRate > 0 && serviceAreas.length > 0 && studentCapacity) {
-      onNext({ commissionRate, serviceAreas, studentCapacity });
-    }
+  const handleContinue = () => {
+    // The WizardActionButtons component ensures this only runs when isValid is true
+    onNext({ commissionRate, serviceAreas, studentCapacity });
   };
-
-  const isValid = commissionRate > 0 && serviceAreas.length > 0 && studentCapacity;
 
   return (
     <div className={styles.stepContent}>
@@ -81,24 +83,12 @@ const AgentCapacityStep: React.FC<AgentCapacityStepProps> = ({
           <label className={styles.formLabel}>
             Commission Rate *
           </label>
-          <div className={styles.roleGrid}>
-            {commissionRates.map((rate) => (
-              <div
-                key={rate.value}
-                className={`${styles.roleCard} ${commissionRate === rate.value ? styles.selected : ''}`}
-                onClick={() => setCommissionRate(rate.value)}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className={styles.roleHeader}>
-                  <h3 className={styles.roleTitle}>{rate.label}</h3>
-                  <div className={`${styles.roleCheckbox} ${commissionRate === rate.value ? styles.checked : ''}`}>
-                    {commissionRate === rate.value && '✓'}
-                  </div>
-                </div>
-                <p className={styles.roleDescription}>{rate.description}</p>
-              </div>
-            ))}
-          </div>
+          <SingleSelectCardGroup
+            options={commissionRates}
+            selectedValue={commissionRate}
+            onChange={(value) => setCommissionRate(value as number)}
+            debug={true}
+          />
           <p className={styles.progressIndicator}>
             💡 You can adjust your rate anytime in settings
           </p>
@@ -109,18 +99,12 @@ const AgentCapacityStep: React.FC<AgentCapacityStepProps> = ({
           <label className={styles.formLabel}>
             Service Areas * (Select all that apply)
           </label>
-          <div className={styles.checkboxGroup}>
-            {serviceAreaOptions.map((area) => (
-              <div
-                key={area.value}
-                className={`${styles.checkboxItem} ${serviceAreas.includes(area.value) ? styles.selected : ''}`}
-                onClick={() => handleServiceAreaToggle(area.value)}
-              >
-                <span style={{ marginRight: '8px' }}>{area.icon}</span>
-                <label className={styles.checkboxLabel}>{area.label}</label>
-              </div>
-            ))}
-          </div>
+          <CompactCheckboxGroup
+            options={serviceAreaOptions}
+            selectedValues={serviceAreas}
+            onChange={(values) => setServiceAreas(values as string[])}
+            debug={true}
+          />
         </div>
 
         {/* Student Capacity */}
@@ -128,24 +112,12 @@ const AgentCapacityStep: React.FC<AgentCapacityStepProps> = ({
           <label className={styles.formLabel}>
             Current Student Capacity *
           </label>
-          <div className={styles.roleGrid}>
-            {capacityOptions.map((option) => (
-              <div
-                key={option.value}
-                className={`${styles.roleCard} ${studentCapacity === option.value ? styles.selected : ''}`}
-                onClick={() => setStudentCapacity(option.value)}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className={styles.roleHeader}>
-                  <h3 className={styles.roleTitle}>{option.label}</h3>
-                  <div className={`${styles.roleCheckbox} ${studentCapacity === option.value ? styles.checked : ''}`}>
-                    {studentCapacity === option.value && '✓'}
-                  </div>
-                </div>
-                <p className={styles.roleDescription}>{option.description}</p>
-              </div>
-            ))}
-          </div>
+          <SingleSelectCardGroup
+            options={capacityOptions}
+            selectedValue={studentCapacity}
+            onChange={(value) => setStudentCapacity(value as string)}
+            debug={true}
+          />
         </div>
 
         <p className={styles.progressIndicator}>
@@ -153,36 +125,14 @@ const AgentCapacityStep: React.FC<AgentCapacityStepProps> = ({
         </p>
       </div>
 
-      <div className={styles.stepActions}>
-        <div className={styles.actionLeft}>
-          {onBack && (
-            <button
-              onClick={onBack}
-              className={styles.buttonSecondary}
-              disabled={isLoading}
-            >
-              ← Back
-            </button>
-          )}
-          <button
-            onClick={onSkip}
-            className={styles.buttonSecondary}
-            disabled={isLoading}
-          >
-            Skip for now
-          </button>
-        </div>
-
-        <div className={styles.actionRight}>
-          <button
-            onClick={handleNext}
-            className={`${styles.buttonPrimary} ${!isValid ? styles.buttonDisabled : ''}`}
-            disabled={!isValid || isLoading}
-          >
-            Continue →
-          </button>
-        </div>
-      </div>
+      <WizardActionButtons
+        onContinue={handleContinue}
+        continueEnabled={isValid}
+        onBack={onBack}
+        onSkip={onSkip}
+        isLoading={isLoading}
+        debug={true}
+      />
     </div>
   );
 };

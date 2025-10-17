@@ -51,18 +51,18 @@ const AgentProfilePage = () => {
 
   const handleReferMe = () => {
     if (!agent) return;
-    sessionStorage.setItem('vinite_referral_agent_id', agent.agent_id);
+    sessionStorage.setItem('vinite_referral_agent_id', agent.id);
     router.push('/');
   };
 
   const handleRewardMe = () => {
     if (!agent) return;
-    router.push(`/signup?reward_agent=${agent.agent_id}`);
+    router.push(`/signup?reward_agent=${agent.id}`);
   };
 
   const handleContactMe = () => {
     if (!agent) return;
-    router.push(`/contact-agent?id=${agent.agent_id}`);
+    router.push(`/contact-agent?id=${agent.id}`);
   };
   
   const handleShare = (platform: 'whatsapp' | 'linkedin') => {
@@ -92,7 +92,7 @@ const AgentProfilePage = () => {
     );
   }
 
-  const isOwnProfile = loggedInUserProfile?.agent_id === agent.agent_id;
+  const isOwnProfile = loggedInUserProfile?.id === agent.id;
 
   return (
     <Container>
@@ -108,7 +108,7 @@ const AgentProfilePage = () => {
             />
             <div className={styles.profileBody}>
               <h2 className={styles.profileName}>{agent.display_name}</h2>
-              <p className={styles.profileId}>{agent.agent_id}</p>
+              <p className={styles.profileId}>ID: {agent.referral_id || agent.id.slice(0, 8)}</p>
               
               {isOwnProfile && <Link href="/profile" className={styles.editProfileLink}>Edit Profile</Link>}
               

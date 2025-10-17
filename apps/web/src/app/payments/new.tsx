@@ -286,7 +286,7 @@ const PaymentsPageContent = () => {
                             <h3 className={styles.cardTitle}>Saved Cards</h3>
                             <p className={styles.cardDescription}>
                                 Set a default card or remove expired ones.
-                                <Button onClick={handleRefreshCards} variant="link" style={{marginLeft: '10px', fontSize: '12px'}}>
+                                <Button onClick={handleRefreshCards} variant="ghost" style={{marginLeft: '10px', fontSize: '12px'}}>
                                     🔄 Refresh
                                 </Button>
                             </p>

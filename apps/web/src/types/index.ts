@@ -1,40 +1,17 @@
-/*
- * Filename: src/types/index.ts
- * Purpose: To define the canonical, shared TypeScript interfaces for the entire Vinite application.
- *
- * Change History:
- * C007 - 2025-07-19 : 22:30 - Final definitive version incorporating all user feedback and best practices.
- * C006 - 2025-07-19 : 19:30 - Final version locked. Reinstated flexible Referral model.
- * C005 - 2025-07-19 : 16:55 - Enhanced the Transaction interface for robustness.
- * C004 - 2025-07-19 : 16:28 - Integrated user feedback to create final data models.
- * C003 - 2025-07-19 : 13:47 - Refactored all interfaces to use snake_case for property names.
- * C002 - 2025-07-19 : 13:02 - Formalized interfaces for User, Profile, Referral, and Transaction as per project plan.
- * C001 - [Date] : [Time] - Initial creation with basic types.
- *
- * Last Modified: 2025-07-19
- * Requirement ID: VIN-001
- *
- * Change Summary: This is the final, agreed-upon version of the data models. It establishes a single `Profile` interface as the source of truth, uses `snake_case` for all data-layer properties to align with Supabase, keeps the `Referral` model flexible for the permissionless flow, and uses a standard ledger model for `Transaction`.
- * Impact Analysis: This creates the final 'data contract' for both frontend (Epic 1) and backend (Epic 2) teams. All development will now proceed based on these interfaces.
- * Dependencies: React (for React.ReactNode type)
- */
+// apps/web/src/types/index.ts
 
 import React from 'react';
 
 /**
  * ==================================================================
- * Canonical Data Models for Vinite
+ * Canonical Data Models
  * This is the single source of truth for our data structures.
  * ==================================================================
  */
 
-/**
- * The ONE canonical interface for a user's profile data.
- * It directly maps to the 'profiles' table in Supabase, using snake_case.
- */
 export interface Profile {
   id: string;
-  agent_id: string;
+  referral_id: string;
   display_name: string;
   first_name?: string;
   last_name?: string;
@@ -42,185 +19,169 @@ export interface Profile {
   bio?: string;
   categories?: string;
   achievements?: string;
-  avatar_url?: string;  // Primary profile picture (synced with Supabase auth)
-  custom_picture_url?: string;  // Deprecated: use avatar_url instead
+  avatar_url?: string;
   cover_photo_url?: string;
   stripe_account_id?: string;
   stripe_customer_id?: string;
-  roles: ('agent' | 'seeker' | 'provider')[];
+  roles: Role[];
+  active_role?: Role;
   created_at: string;
-
-  // Onboarding system fields
   preferences?: Record<string, any>;
   onboarding_progress?: OnboardingProgress;
-
-  // Optional joined role_details (when fetched with profile)
-  role_details?: RoleDetails;
+  professional_details?: ProfessionalDetails;
 }
 
+export type Role = 'agent' | 'seeker' | 'provider';
+
+/**
+ * ==================================================================
+ * Onboarding-Specific Data Structures
+ * ==================================================================
+ */
+
+export type OnboardingStep = 'welcome-and-role-selection' | 'role-specific-details' | 'completion';
+export type ClientStep = 'welcome' | 'subjects' | 'preferences' | 'completion';
+export type TutorOnboardingStep = 'welcome' | 'subjects' | 'qualifications' | 'availability' | 'completion';
+export type AgentOnboardingStep = 'welcome' | 'details' | 'services' | 'capacity' | 'completion';
+
 export interface OnboardingProgress {
-  completed_steps?: string[];
+  onboarding_completed: boolean;
   current_step?: string;
-  onboarding_completed?: boolean;
-  skipped?: boolean;
-  role_specific_progress?: Record<string, any>;
+  completed_steps?: string[];
   last_updated?: string;
-  last_auto_save?: string;
   abandoned_at?: string;
+  skipped?: boolean;
+  seeker?: SeekerProgress;
+  provider?: TutorProgress;
+  agent?: AgentProgress;
+  role_specific_progress?: {
+    roleDetailsProgress?: Record<string, Partial<RoleDetails>>;
+    selected_roles?: Role[];
+    [key: string]: any;
+  };
+  [key: string]: any;
+}
+
+export interface SeekerProgress {
+  subjects?: string[];
+  preferences?: LearningPreferencesData;
+}
+
+export interface TutorProgress {
+  subjects?: string[];
+  qualifications?: QualificationsData;
+  availability?: AvailabilityData;
+}
+
+export interface AgentProgress {
+  details?: AgencyDetailsData;
+  services?: string[];
+  capacity?: CapacityData;
+}
+
+export interface AgencyDetailsData {
+  agencyName: string;
+  agencySize: string;
+  yearsInBusiness: string;
+  description: string;
+}
+
+export interface CapacityData {
+  commissionRate: number;
+  serviceAreas: string[];
+  studentCapacity: string;
+}
+
+export interface QualificationsData {
+  experience: string;
+  education: string;
+  certifications: string[];
+  bio: string;
+}
+
+export interface AvailabilityData {
+  hourlyRate: number;
+  availability: string[];
+  sessionTypes: string[];
+}
+
+export interface LearningPreferencesData {
+  location?: string;
+  budget?: number;
+  learningStyle?: string;
 }
 
 export interface RoleDetails {
-  id: string;
   profile_id: string;
-  role_type: 'seeker' | 'provider' | 'agent';
-  subjects?: string[];
-  skill_levels?: Record<string, number>;
-  goals?: string[];
-
-  // Provider-specific fields
-  teaching_experience?: string; // Changed to string to match onboarding
-  teaching_experience_years?: number;
+  role_type: Role;
+  experience?: string;
+  education?: string;
+  certifications?: string[];
+  bio?: string;
   hourly_rate?: number;
-  qualifications?: string[];
-  specializations?: string[];
-  teaching_style?: string;
-  teaching_methods?: string[]; // Added from onboarding
-  // NOTE FOR CLAUDE CODE & CAS: Availability is an array of time slot strings
-  // e.g., ['weekday_morning', 'weekday_evening', 'weekend_afternoon']
-  // These map to predefined slots in TutorAvailabilityStep
   availability?: string[];
-
-  // Seeker-specific fields
-  current_level?: string;
-  target_level?: string;
-  learning_style?: string;
-  availability_hours?: number;
-  budget_range?: string;
-
-  // Agent-specific fields
+  session_types?: string[];
+  subjects?: string[];
+  learning_goals?: string;
+  preferred_style?: string;
+  agency_name?: string;
+  agency_size?: string;
+  years_in_business?: string;
+  description?: string;
   commission_rate?: number;
-  target_categories?: string[];
-  performance_metrics?: Record<string, any>;
-
-  created_at: string;
-  updated_at: string;
+  service_areas?: string[];
+  student_capacity?: string;
+  services?: string[];
 }
 
 /**
  * ==================================================================
- * Template-specific interfaces for Account > Professional Info page
- * These represent the editable template structure for each role
+ * API & Function Payloads
  * ==================================================================
  */
 
-export interface TutorProfessionalInfo {
-  // Teaching
-  subjects: string[]; // e.g., ['Mathematics', 'Physics', 'Chemistry']
-  levels: string[]; // e.g., ['GCSE', 'A-Level', 'KS3']
-  teaching_experience: string;
-  teaching_methods: string[]; // e.g., ['interactive', 'exam_focused', 'visual_learning']
-
-  // Rates & Availability (baseline, not binding)
-  hourly_rate_range?: { min: number; max: number };
-  // NOTE FOR CLAUDE CODE & CAS: Availability is an array of time slot strings
-  // e.g., ['weekday_morning', 'weekday_evening', 'weekend_afternoon']
-  typical_availability?: string[];
-
-  // Credentials
-  qualifications: string[]; // e.g., ['BSc Mathematics - Oxford', 'PGCE']
-  certifications: string[]; // e.g., ['QTS', 'DBS']
-  specializations: string[]; // e.g., ['ADHD support', 'Exam prep']
-
-  // Preferences
-  max_students_per_week?: number;
-  preferred_student_age_range?: { min: number; max: number };
-  willing_to_travel?: boolean;
-  travel_radius_km?: number;
+export interface SaveProgressPayload {
+  userId: string;
+  progress: Partial<OnboardingProgress>;
 }
 
-export interface ClientProfessionalInfo {
-  // Student/Child Info
-  student_ages?: number[];
-  subjects_of_interest?: string[];
-  learning_goals?: string[];
-  preferred_teaching_style?: string[];
-  budget_range?: { min: number; max: number };
+export interface OnboardingProgressResponse {
+  success: boolean;
+  error?: string;
+}
 
-  // Preferences
-  preferred_session_length?: number; // minutes
-  preferred_session_frequency?: string;
-  preferred_delivery_format?: ('online' | 'in_person' | 'hybrid')[];
+/**
+ * ==================================================================
+ * Professional Details & Other Data Structures
+ * ==================================================================
+ */
+
+export interface ProfessionalDetails {
+  tutor?: Partial<TutorProfessionalInfo>;
+  agent?: Partial<AgentProfessionalInfo>;
+  client?: Partial<ClientProfessionalInfo>;
+}
+
+export interface TutorProfessionalInfo {
+  subjects: string[];
+  levels: string[];
+  experience: number;
+  qualifications: string;
+  hourly_rate: number;
 }
 
 export interface AgentProfessionalInfo {
-  // Agency Details
   agency_name: string;
-  agency_size: number;
-  years_in_business: number;
-  agency_description: string;
-
-  // Services
-  services_offered: string[]; // e.g., ['tutoring', 'courses', 'group_sessions']
-  subject_specializations: string[];
-  commission_rate?: number;
-
-  // Coverage
-  service_areas: string[]; // Geographic areas
-  online_service_available: boolean;
-
-  // Capacity
-  student_capacity: number;
-  tutor_network_size?: number;
+  specializations: string[];
+  service_areas: string[];
 }
 
-// NOTE: This 'User' type is kept for backward compatibility with the existing mock data system.
-// It will be phased out during the migration to the live backend.
-export type User = Partial<Profile> & { password?: string, id: number | string };
-
-/**
- * Represents a single referral event. It is intentionally flexible to support
- * the journey from an anonymous click to an attributed conversion.
- */
-export interface Referral {
-  id: number | string;
-  agent_id: string;
-  destination_url: string;
-  status: 'Open' | 'Shared' | 'Visited' | 'Signed Up' | 'Booked' | 'Accepted' | 'Declined' | 'Paid' | 'Pending' | 'Failed';
-  created_at: string;
-
-  // These fields are progressively enriched and MUST be optional for the permissionless model
-  seeker_email?: string;
-  provider_id?: string;
-  channel_origin?: string;
-  amount?: number;
+export interface ClientProfessionalInfo {
+  learning_goals: string[];
+  preferred_subjects: string[];
+  student_level: string;
 }
 
-/**
- * Represents a single financial transaction, like a bank statement ledger.
- */
-export interface Transaction {
-  id: number | string;
-  user_id: string;
-  type: 'Commission' | 'Payout' | 'Fee' | 'Bonus' | 'Reversal';
-  status: 'Paid' | 'Pending' | 'Failed';
-  amount: number; // Positive for income (commission), negative for expenses (payout)
-  description: string;
-  currency: 'gbp' | 'usd' | 'eur';
-  processor_transaction_id?: string; // Optional ID from Stripe for reconciliation
-  related_referral_id?: string;
-  created_at: string;
-}
-
-/**
- * ==================================================================
- * UI-Specific Types (Generic and Reusable)
- * ==================================================================
- */
-
-/**
- * Defines the structure for a column in the reusable DataTable component.
- * Uses camelCase for props as is conventional for React components.
- */
 export interface ColumnDef<T> {
   header: string;
   accessorKey: keyof T;
@@ -228,19 +189,10 @@ export interface ColumnDef<T> {
   cell?: (value: T[keyof T], row: T) => React.ReactNode;
 }
 
-/**
- * Defines the props for the reusable DataTable component.
- */
 export interface DataTableProps<T> {
   columns: ColumnDef<T>[];
   data: T[];
 }
-
-/**
- * ==================================================================
- * Marketplace & Listings
- * ==================================================================
- */
 
 export interface Listing {
   id: string;
@@ -269,7 +221,47 @@ export interface ListingFilters {
   search?: string;
   subjects?: string[];
   levels?: string[];
-  location_type?: 'online' | 'in_person' | 'hybrid';
   min_price?: number;
   max_price?: number;
+  location_type?: 'online' | 'in_person' | 'hybrid';
+  location_city?: string;
+  free_trial_only?: boolean;
+  min_rating?: number;
+  sort_by?: 'hourly_rate_asc' | 'hourly_rate_desc' | 'rating_desc' | 'newest';
 }
+
+export interface Activity {
+  id: string;
+  type: string;
+  message: string;
+  timestamp: string;
+  link?: string;
+}
+
+export interface Referral {
+  id: string;
+  referee_name: string;
+  status: 'Pending' | 'Completed' | 'Expired';
+  reward_amount: number;
+  sent_at: string;
+}
+
+export interface Transaction {
+  id: string;
+  date: string;
+  description: string;
+  amount: number;
+  status: 'Completed' | 'Pending' | 'Failed';
+}
+
+export interface NavLink {
+  href: string;
+  label: string;
+  icon?: React.ReactNode;
+}
+
+export interface BreadcrumbItem {
+  href: string;
+  label: string;
+}
+

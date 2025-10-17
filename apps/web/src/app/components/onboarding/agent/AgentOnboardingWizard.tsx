@@ -1,326 +1,179 @@
+// apps/web/src/app/components/onboarding/agent/AgentOnboardingWizard.tsx
+
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { createClient } from '@/utils/supabase/client';
-import AgentWelcomeStep from './AgentWelcomeStep';
+import { useAutoSaveDraft, loadDraft, clearDraft, saveCurrentStep } from '@/lib/utils/wizardUtils';
+import AgentWelcomeStep from '@/app/components/onboarding/steps/WelcomeStep';
+import AgentDetailsStep from './AgentDetailsStep';
 import AgentServicesStep from './AgentServicesStep';
-import AgentDetailsStep, { AgencyDetailsData } from './AgentDetailsStep';
-import AgentCapacityStep, { CapacityData } from './AgentCapacityStep';
-import CompletionStep from '../steps/CompletionStep';
-import styles from '../OnboardingWizard.module.css';
+import AgentCapacityStep from './AgentCapacityStep';
+import { AgencyDetailsData, CapacityData } from '@/types';
 
-type AgentOnboardingStep = 'welcome' | 'services' | 'details' | 'capacity' | 'completion';
+export type AgentOnboardingStep = 'details' | 'services' | 'capacity' | 'completion';
 
 interface AgentOnboardingWizardProps {
-  onComplete?: () => void;
+  onComplete: () => void;
   onSkip?: () => void;
   mode?: 'modal' | 'fullPage';
   initialStep?: string;
 }
 
+interface AgentDraftData {
+  agencyDetails: Partial<AgencyDetailsData>;
+  services: string[];
+  capacity: Partial<CapacityData>;
+}
+
 const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
   onComplete,
   onSkip,
-  mode = 'modal',
+  mode = 'fullPage',
   initialStep
 }) => {
-  const { profile, user } = useUserProfile();
-  const [currentStep, setCurrentStep] = useState<AgentOnboardingStep>('welcome');
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [agencyDetails, setAgencyDetails] = useState<AgencyDetailsData | null>(null);
-  const [capacity, setCapacity] = useState<CapacityData | null>(null);
+  const { profile, user, updateOnboardingProgress } = useUserProfile();
+  const DRAFT_KEY = 'onboarding_draft_agent';
+
+  const [currentStep, setCurrentStep] = useState<AgentOnboardingStep>(
+    (initialStep as AgentOnboardingStep) || 'details'
+  );
+  const [agencyDetails, setAgencyDetails] = useState<Partial<AgencyDetailsData>>({});
+  const [services, setServices] = useState<string[]>([]);
+  const [capacity, setCapacity] = useState<Partial<CapacityData>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isDraftLoaded, setIsDraftLoaded] = useState(false);
 
-  const supabase = createClient();
-
-  // Auto-save functionality
-  const updateOnboardingProgress = useCallback(async (step: AgentOnboardingStep, additionalData: any = {}) => {
-    if (!user?.id) return;
-
-    try {
-      const updatedProgress = {
-        current_step: step,
-        last_updated: new Date().toISOString(),
-        agent_data: {
-          services: selectedServices,
-          agencyDetails,
-          capacity,
-          ...additionalData
-        }
-      };
-
-      await supabase
-        .from('profiles')
-        .update({ onboarding_progress: updatedProgress })
-        .eq('id', user.id);
-
-    } catch (err) {
-      console.error('Error updating onboarding progress:', err);
-    }
-  }, [user?.id, selectedServices, agencyDetails, capacity, supabase]);
-
-  // Initialize step from URL or saved progress
+  // Load draft from database on mount
   useEffect(() => {
-    if (initialStep) {
-      const validSteps: AgentOnboardingStep[] = ['welcome', 'services', 'details', 'capacity', 'completion'];
-      if (validSteps.includes(initialStep as AgentOnboardingStep)) {
-        setCurrentStep(initialStep as AgentOnboardingStep);
-        return;
+    async function loadSavedDraft() {
+      if (!isDraftLoaded) {
+        const draft = await loadDraft<AgentDraftData>(user?.id, DRAFT_KEY);
+        if (draft) {
+          if (draft.agencyDetails) setAgencyDetails(draft.agencyDetails);
+          if (draft.services) setServices(draft.services);
+          if (draft.capacity) setCapacity(draft.capacity);
+        }
+        setIsDraftLoaded(true);
       }
     }
+    loadSavedDraft();
+  }, [user?.id, isDraftLoaded]);
 
-    // Try to resume from saved progress
-    if (profile?.onboarding_progress?.current_step) {
-      const savedStep = profile.onboarding_progress.current_step;
-      if (savedStep && savedStep !== 'welcome') {
-        setCurrentStep(savedStep as AgentOnboardingStep);
-      }
+  // Prepare form data for auto-save
+  const formData: AgentDraftData = {
+    agencyDetails,
+    services,
+    capacity,
+  };
+
+  // Auto-save draft every 30 seconds (with database sync)
+  const { saveDraft } = useAutoSaveDraft<AgentDraftData>(
+    user?.id,
+    DRAFT_KEY,
+    formData,
+    (data) => Object.keys(data.agencyDetails).length > 0 // Only save if user has entered agency details
+  );
+
+  // Save current step whenever it changes
+  useEffect(() => {
+    if (isDraftLoaded) {
+      saveCurrentStep(user?.id, DRAFT_KEY, currentStep);
     }
-  }, [initialStep, profile]);
+  }, [user?.id, currentStep, isDraftLoaded]);
 
-  // Step navigation handlers
-  const handleWelcomeNext = () => {
+  // Scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentStep]);
+
+  const handleDetailsSubmit = async (data: AgencyDetailsData) => {
+    console.log('[AgentOnboardingWizard] handleDetailsSubmit called', data);
+
+    // Update state and UI immediately
+    setAgencyDetails(data);
     setCurrentStep('services');
-    updateOnboardingProgress('services');
+
+    // Update database in background (don't await)
+    updateOnboardingProgress({
+      current_step: 'services',
+      agent: { details: data }
+    }).catch(error => {
+      console.error('[AgentOnboardingWizard] Error updating progress:', error);
+    });
   };
 
-  const handleServicesNext = (services: string[]) => {
-    setSelectedServices(services);
-    setCurrentStep('details');
-    updateOnboardingProgress('details', { services });
-  };
+  const handleServicesSubmit = async (selectedServices: string[]) => {
+    console.log('[AgentOnboardingWizard] handleServicesSubmit called', selectedServices);
 
-  const handleDetailsNext = (details: AgencyDetailsData) => {
-    setAgencyDetails(details);
+    // Update state and UI immediately
+    setServices(selectedServices);
     setCurrentStep('capacity');
-    updateOnboardingProgress('capacity', { agencyDetails: details });
+
+    // Update database in background (don't await)
+    updateOnboardingProgress({
+      current_step: 'capacity',
+      agent: { ...(Object.keys(agencyDetails).length > 0 && { details: agencyDetails as AgencyDetailsData }), services: selectedServices }
+    }).catch(error => {
+      console.error('[AgentOnboardingWizard] Error updating progress:', error);
+    });
   };
 
-  const handleCapacityNext = (cap: CapacityData) => {
-    setCapacity(cap);
-    setCurrentStep('completion');
-    updateOnboardingProgress('completion', { capacity: cap });
-  };
-
-  const handleSkip = async () => {
-    if (!user?.id) return;
-
+  const handleCapacitySubmit = async (data: CapacityData) => {
+    console.log('[AgentOnboardingWizard] handleCapacitySubmit called', data);
     setIsLoading(true);
-    try {
-      await supabase
-        .from('profiles')
-        .update({
-          onboarding_progress: {
-            onboarding_completed: true,
-            skipped: true,
-            completed_at: new Date().toISOString()
-          }
-        })
-        .eq('id', user.id);
 
-      onSkip?.();
-    } catch (err) {
-      console.error('Error skipping onboarding:', err);
-      setError('Failed to skip onboarding. Please try again.');
+    try {
+      setCapacity(data);
+      // Update the database with agent-specific progress (but don't mark as complete yet)
+      console.log('[AgentOnboardingWizard] Updating onboarding progress...');
+      await updateOnboardingProgress({
+        current_step: 'completion',
+        agent: { ...(Object.keys(agencyDetails).length > 0 && { details: agencyDetails as AgencyDetailsData }), services, capacity: data },
+        onboarding_completed: false  // Master wizard will mark as complete
+      });
+      console.log('[AgentOnboardingWizard] Progress updated, clearing draft...');
+
+      // Clear draft since agent-specific onboarding is complete
+      await clearDraft(user?.id, DRAFT_KEY);
+      console.log('[AgentOnboardingWizard] Draft cleared, calling onComplete...');
+
+      // Call parent's onComplete to return control to master wizard
+      onComplete();
+    } catch (error) {
+      console.error('[AgentOnboardingWizard] Error in handleCapacitySubmit:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleComplete = async () => {
-    if (!user?.id) return;
+  const handleBack = () => {
+    if (currentStep === 'services') setCurrentStep('details');
+    if (currentStep === 'capacity') setCurrentStep('services');
+  }
 
-    setIsLoading(true);
-    try {
-      // Update user's roles to include agent
-      const currentRoles = profile?.roles || [];
-      const updatedRoles = [...new Set([...currentRoles, 'agent'])];
-
-      // Single atomic update - roles, active_role, and onboarding completion together
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          roles: updatedRoles,
-          active_role: 'agent', // Set agent as active role
-          onboarding_progress: {
-            onboarding_completed: true,
-            completed_at: new Date().toISOString(),
-            selected_roles: ['agent'],
-            agent_data: {
-              services: selectedServices,
-              agencyDetails,
-              capacity
-            }
-          }
-        })
-        .eq('id', user.id);
-
-      if (profileError) {
-        console.error('Profile update error:', profileError);
-        throw profileError;
-      }
-
-      // Save agent details to role_details table
-      // NOTE FOR CLAUDE CODE & CAS: This saves the initial agency profile data
-      // that agents can later edit in /account/professional-info
-      if (selectedServices.length > 0 && agencyDetails && capacity) {
-        const { error: detailsError } = await supabase
-          .from('role_details')
-          .upsert({
-            profile_id: user.id,
-            role_type: 'agent',
-            // Core agency information collected during onboarding
-            agency_name: agencyDetails.agencyName,
-            number_of_tutors: agencyDetails.agencySize, // e.g., "1-5", "6-10"
-            years_in_business: agencyDetails.yearsInBusiness,
-            description: agencyDetails.description,
-            services: selectedServices, // Array of services offered
-            commission_rate: capacity.commissionRate || undefined, // Percentage number
-            coverage_areas: capacity.serviceAreas, // Geographic regions
-            // NOTE: Fields below not collected in onboarding - agents set in professional info
-            // Removed empty arrays to avoid confusion. If field doesn't exist, it's null/undefined
-            // which clearly indicates "not set" vs empty array which could mean "none"
-            // subject_specializations: left unset
-            // education_levels: left unset
-            // certifications: left unset
-            // NOTE: created_at removed - database handles this automatically via default value
-            // Only update updated_at to avoid overwriting original creation timestamp
-            updated_at: new Date().toISOString()
-          });
-
-        if (detailsError) {
-          console.error('Error saving agent details:', detailsError);
-        }
-      }
-
-      console.log('Agent onboarding completed successfully');
-      onComplete?.();
-    } catch (err) {
-      console.error('Error completing onboarding:', err);
-      setError('Failed to complete onboarding. Please try again.');
-      setIsLoading(false);
+  const handleSkipHandler = () => {
+    if (onSkip) {
+      onSkip();
+    } else {
+      onComplete();
     }
-  };
+  }
 
   const renderCurrentStep = () => {
     switch (currentStep) {
-      case 'welcome':
-        return (
-          <AgentWelcomeStep
-            onNext={handleWelcomeNext}
-            onSkip={handleSkip}
-            userName={profile?.first_name || profile?.display_name || 'there'}
-          />
-        );
-
-      case 'services':
-        return (
-          <AgentServicesStep
-            onNext={handleServicesNext}
-            onBack={() => setCurrentStep('welcome')}
-            onSkip={handleSkip}
-            isLoading={isLoading}
-          />
-        );
-
       case 'details':
-        return (
-          <AgentDetailsStep
-            onNext={handleDetailsNext}
-            onBack={() => setCurrentStep('services')}
-            onSkip={handleSkip}
-            isLoading={isLoading}
-          />
-        );
-
+        return <AgentDetailsStep onNext={handleDetailsSubmit} onSkip={handleSkipHandler} isLoading={isLoading} />;
+      case 'services':
+        return <AgentServicesStep onNext={handleServicesSubmit} onBack={handleBack} onSkip={handleSkipHandler} isLoading={isLoading} />;
       case 'capacity':
-        return (
-          <AgentCapacityStep
-            onNext={handleCapacityNext}
-            onBack={() => setCurrentStep('details')}
-            onSkip={handleSkip}
-            isLoading={isLoading}
-          />
-        );
-
-      case 'completion':
-        return (
-          <CompletionStep
-            selectedRoles={['agent']}
-            onComplete={handleComplete}
-            isLoading={isLoading}
-          />
-        );
-
+        return <AgentCapacityStep onNext={handleCapacitySubmit} onBack={handleBack} onSkip={handleSkipHandler} isLoading={isLoading} />;
       default:
         return null;
     }
   };
 
-  if (!user) {
-    return null;
-  }
-
-  const getStepNumber = () => {
-    switch (currentStep) {
-      case 'welcome': return 1;
-      case 'services': return 2;
-      case 'details': return 3;
-      case 'capacity': return 4;
-      case 'completion': return 5;
-      default: return 1;
-    }
-  };
-
-  const renderProgressIndicator = () => {
-    const stepNumber = getStepNumber();
-    const totalSteps = 5;
-
-    return (
-      <div className={styles.wizardProgress}>
-        {Array.from({ length: totalSteps }, (_, index) => {
-          const step = index + 1;
-          const isActive = step === stepNumber;
-          const isCompleted = step < stepNumber;
-
-          return (
-            <React.Fragment key={step}>
-              <div
-                className={`${styles.progressDot} ${
-                  isActive ? styles.active : isCompleted ? styles.completed : ''
-                }`}
-              />
-              {step < totalSteps && (
-                <div
-                  className={`${styles.progressSeparator} ${
-                    isCompleted ? styles.active : ''
-                  }`}
-                />
-              )}
-            </React.Fragment>
-          );
-        })}
-      </div>
-    );
-  };
-
-  return (
-    <div className={mode === 'modal' ? styles.wizardOverlay : ''}>
-      <div className={`${styles.wizardContainer} ${styles[mode]}`} role="dialog" aria-modal="true" aria-labelledby="agent-onboarding-title">
-        {renderProgressIndicator()}
-
-        {error && (
-          <div className={styles.errorMessage}>
-            <p className={styles.errorText}>{error}</p>
-          </div>
-        )}
-
-        {renderCurrentStep()}
-      </div>
-    </div>
-  );
+  return <div>{renderCurrentStep()}</div>;
 };
 
 export default AgentOnboardingWizard;

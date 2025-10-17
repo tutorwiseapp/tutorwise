@@ -80,7 +80,7 @@ function LoginForm() {
           <Button type="submit" variant="primary" fullWidth>Sign In</Button>
         </form>
         <div className={authStyles.separator}>or</div>
-        <Button variant='google' fullWidth onClick={handleGoogleSignIn}>Sign In with Google</Button>
+        <Button variant='secondary' fullWidth onClick={handleGoogleSignIn}>Sign In with Google</Button>
       </div>
       <div className={authStyles.authSwitch}>
         Don&apos;t have an account? <Link href="/signup">Sign Up</Link>

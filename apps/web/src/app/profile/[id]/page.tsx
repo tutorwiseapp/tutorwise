@@ -100,9 +100,9 @@ export default function PublicProfilePage() {
           {/* Header Section */}
           <div className={styles.header}>
             <div className={styles.avatarSection}>
-              {(profile.avatar_url || profile.custom_picture_url) ? (
+              {profile.avatar_url ? (
                 <img
-                  src={profile.avatar_url || profile.custom_picture_url}
+                  src={profile.avatar_url}
                   alt={profile.display_name || 'User avatar'}
                   className={styles.avatar}
                 />
@@ -122,7 +122,7 @@ export default function PublicProfilePage() {
 
             <div className={styles.headerActions}>
               <Button variant="primary">Send Message</Button>
-              <Button variant="outline">Book Session</Button>
+              <Button variant="secondary">Book Session</Button>
             </div>
           </div>
 
@@ -147,7 +147,7 @@ export default function PublicProfilePage() {
               )}
 
               {/* Professional Info Section */}
-              {profile.role_details && (
+              {profile.professional_details && (
                 <Card className={styles.section}>
                   <h2 className={styles.sectionTitle}>Professional Information</h2>
                   {/* ... professional info content ... */}
@@ -159,7 +159,7 @@ export default function PublicProfilePage() {
                 <h2 className={styles.sectionTitle}>Reviews (112)</h2>
                 {/* Placeholder for reviews */}
                 <div className="flex justify-center mt-6">
-                  <Button variant="outline" className={styles.showAllReviews}>Show all 112 reviews</Button>
+                  <Button variant="secondary" className={styles.showAllReviews}>Show all 112 reviews</Button>
                 </div>
               </Card>
             </div>
@@ -172,7 +172,7 @@ export default function PublicProfilePage() {
                 <Button variant="primary" className={styles.sidebarButton}>
                   Send Message
                 </Button>
-                <Button variant="outline" className={styles.sidebarButton}>
+                <Button variant="secondary" className={styles.sidebarButton}>
                   Book Session
                 </Button>
               </Card>

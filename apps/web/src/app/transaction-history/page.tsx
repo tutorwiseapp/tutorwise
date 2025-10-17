@@ -33,8 +33,8 @@ import StatusBadge from '@/app/components/ui/StatusBadge';
 import Button from '@/app/components/ui/Button';
 import Card from '@/app/components/ui/Card';
 
-// Mock data now perfectly matches the `Referral` interface from `src/types/index.ts`
-const mockReferrals: Referral[] = [
+// Mock data for transaction history (Note: uses different schema than Referral type)
+const mockReferrals = [
     { id: 1, created_at: '2025-05-20', seeker_email: '-', agent_id: 'A1-JS123456', provider_id: 'Tutorly', channel_origin: 'Web', amount: 50.00, status: 'Open', destination_url: 'https://tutorly.example.com' },
     { id: 2, created_at: '2025-05-21', seeker_email: 'john.d@example.com', agent_id: 'A1-JS123456', provider_id: 'SaaSify', channel_origin: 'Email', amount: 29.99, status: 'Shared', destination_url: 'https://saasify.example.com' },
     { id: 3, created_at: '2025-05-22', seeker_email: 'a.long.email@example.com', agent_id: 'A1-JS123456', provider_id: 'DesignCo', channel_origin: 'QR Code', amount: 150.00, status: 'Visited', destination_url: 'https://designco.example.com' },
@@ -56,8 +56,8 @@ interface TabOption {
 const ReferralActivityPage = () => {
   const [activeTab, setActiveTab] = useState('generates');
 
-  // Column definitions now use the correct `accessorKey` properties from the Referral type
-  const columns: ColumnDef<Referral>[] = [
+  // Column definitions for the transaction history table
+  const columns: ColumnDef<any>[] = [
     { header: 'Date', accessorKey: 'created_at', responsiveClass: 'mobile', cell: (value) => new Date(value as string).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) },
     { header: 'Seeker', accessorKey: 'seeker_email', responsiveClass: 'mobile' },
     { header: 'Agent', accessorKey: 'agent_id', responsiveClass: 'desktop', cell: (value) => <Link href={`/agents/${value}`}>{value as string}</Link> },

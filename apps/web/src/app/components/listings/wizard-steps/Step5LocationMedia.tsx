@@ -1,3 +1,5 @@
+// apps/web/src/app/components/listings/wizard-steps/Step5LocationMedia.tsx
+
 import { useState, useRef } from 'react';
 import type { CreateListingInput } from '@tutorwise/shared-types';
 import Button from '@/app/components/ui/Button';
@@ -35,24 +37,18 @@ export default function Step5LocationMedia({
   };
 
   const handleSubmit = async () => {
-    // Ensure profile picture (first image) is preserved
     const profilePicture = formData.images && formData.images.length > 0 ? formData.images[0] : null;
 
-    // Check if there are unuploaded files
     if (imageUploadRef.current?.hasUnuploadedFiles()) {
       setIsUploading(true);
       toast.info('Uploading images...');
 
       try {
-        // Trigger the upload of additional photos
         const uploadedUrls = await imageUploadRef.current.uploadImages();
-
-        // Combine profile picture with additional photos
         const finalImages = profilePicture
           ? [profilePicture, ...uploadedUrls.filter(url => url !== profilePicture)]
           : uploadedUrls;
 
-        // Submit with uploaded URLs
         const stepData = {
           location_type: locationType,
           location_city: city,
@@ -68,7 +64,6 @@ export default function Step5LocationMedia({
         setIsUploading(false);
       }
     } else {
-      // No new files to upload, submit directly with existing images
       const stepData = {
         location_type: locationType,
         location_city: city,
@@ -103,7 +98,7 @@ export default function Step5LocationMedia({
           <ImageUpload
             ref={imageUploadRef}
             onUploadComplete={handleUploadComplete}
-            existingImages={imageUrls.slice(1)} // Exclude profile picture (first image)
+            existingImages={imageUrls.slice(1)}
           />
         </div>
         <div className={formFieldStyles.formField}>
@@ -120,8 +115,8 @@ export default function Step5LocationMedia({
       </div>
 
       <div className={styles.buttonGroup}>
-        <Button variant="outline" onClick={onBack} disabled={isUploading || isSaving}>Back</Button>
-        <Button variant="outline" onClick={onSaveDraft} disabled={isUploading || isSaving}>Save Draft</Button>
+        <Button variant="secondary" onClick={onBack} disabled={isUploading || isSaving}>Back</Button>
+        <Button variant="secondary" onClick={onSaveDraft} disabled={isUploading || isSaving}>Save Draft</Button>
         <Button onClick={handleSubmit} disabled={isUploading || isSaving}>
           {isUploading ? 'Uploading...' : isSaving ? 'Saving...' : 'Finish & Submit'}
         </Button>
