@@ -122,13 +122,6 @@ export default function TutorCard({ listing }: TutorCardProps) {
             </div>
           </div>
 
-          {/* Line 1.5: Service Title (if tutor_name exists) */}
-          {listing.tutor_name && (
-            <div className={styles.row}>
-              <div className={styles.serviceTitle}>{listing.title}</div>
-            </div>
-          )}
-
           {/* Line 2: Subject & Level */}
           <div className={styles.row}>
             <div className={styles.subject}>

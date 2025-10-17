@@ -138,17 +138,6 @@
   text-overflow: ellipsis;
 }
 
-/* Line 1.5: Service Title (shown when tutor_name exists) */
-.serviceTitle {
-  font-size: 0.875rem;
-  color: #6b7280;
-  line-height: 1.2;
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 /* Line 2: Subject */
 .subject {
   font-size: 0.875rem;
@@ -270,10 +259,6 @@
 
   .name {
     font-size: 0.875rem;
-  }
-
-  .serviceTitle {
-    font-size: 0.75rem;
   }
 
   .subject {
