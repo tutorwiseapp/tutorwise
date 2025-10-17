@@ -18,9 +18,9 @@ export default function ProfileCompletenessIndicator({ profile }: ProfileComplet
   const { completenessScore, checks, incompleteCount } = useMemo(() => {
     const checks: CompletenessCheck[] = [
       {
-        key: 'display_name',
+        key: 'full_name',
         label: 'Add your display name',
-        completed: Boolean(profile.display_name && profile.display_name.length >= 2),
+        completed: Boolean(profile.full_name && profile.full_name.length >= 2),
       },
       {
         key: 'avatar',

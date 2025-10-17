@@ -361,7 +361,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
             onNext={handleRoleSelection}
             onSkip={handleSkip}
             isLoading={isLoading}
-            userName={profile?.first_name || profile?.display_name || ''}
+            userName={profile?.first_name || profile?.full_name || ''}
           />
         );
 

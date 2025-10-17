@@ -39,7 +39,7 @@ const ProfileSidebar = ({ user }: ProfileSidebarProps) => {
         />
         
         <div className={styles.nameBlock}>
-          <h2 className={styles.displayName}>{user.display_name || 'Vinite User'}</h2>
+          <h2 className={styles.displayName}>{user.full_name || 'Vinite User'}</h2>
           <p className={styles.agentId}>ID: {user.referral_id || user.id?.slice(0, 8)}</p>
         </div>
 

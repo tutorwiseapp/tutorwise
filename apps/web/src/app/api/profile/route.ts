@@ -51,7 +51,7 @@ export async function POST(req: Request) {
     const { data, error } = await supabase
       .from('profiles')
       .update({
-        display_name: body.display_name,
+        full_name: body.full_name,
         bio: body.bio,
         categories: body.categories,
         achievements: body.achievements,

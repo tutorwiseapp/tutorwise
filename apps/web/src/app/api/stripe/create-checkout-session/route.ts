@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     // 1. Get the user's profile from our database.
     const { data: profile } = await supabase
       .from('profiles')
-      .select('stripe_customer_id, display_name')
+      .select('stripe_customer_id, full_name')
       .eq('id', user.id)
       .single();
 
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     if (!stripeCustomerId) {
       const newCustomer = await stripe.customers.create({
         email: user.email!,
-        name: profile.display_name,
+        name: profile.full_name,
         metadata: { supabaseId: user.id }
       });
       stripeCustomerId = newCustomer.id;

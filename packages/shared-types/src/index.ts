@@ -2,7 +2,9 @@
 export interface User {
   id: string;
   email: string;
-  display_name?: string;
+  full_name?: string; // Full legal name (required for tutors)
+  first_name?: string;
+  last_name?: string;
 }
 
 export interface ApiResponse<T> {

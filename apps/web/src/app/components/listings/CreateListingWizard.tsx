@@ -67,7 +67,7 @@ export default function CreateListingWizard({
   useEffect(() => {
     console.log('[CreateListingWizard] Auto-populate check:', {
       hasProfile: !!profile,
-      displayName: profile?.display_name,
+      fullName: profile?.full_name,
       hasInitialData: !!initialData,
       isDraftLoaded,
       currentTutorName: formData.tutor_name
@@ -76,10 +76,10 @@ export default function CreateListingWizard({
     if (profile && !initialData && isDraftLoaded) {
       const updates: Partial<CreateListingInput> = {};
 
-      // Auto-populate tutor_name from profile display name
-      if (profile.display_name && !formData.tutor_name) {
-        console.log('[CreateListingWizard] Auto-populating tutor_name:', profile.display_name);
-        updates.tutor_name = profile.display_name;
+      // Auto-populate tutor_name from profile full_name
+      if (profile.full_name && !formData.tutor_name) {
+        console.log('[CreateListingWizard] Auto-populating tutor_name:', profile.full_name);
+        updates.tutor_name = profile.full_name;
       }
 
       // Auto-populate first image with profile picture
@@ -162,7 +162,7 @@ export default function CreateListingWizard({
       case 'welcome':
         return (
           <WelcomeStep
-            userName={profile?.display_name || user?.email?.split('@')[0] || 'there'}
+            userName={profile?.full_name || user?.email?.split('@')[0] || 'there'}
             onNext={handleWelcomeNext}
             onSkip={onCancel}
           />

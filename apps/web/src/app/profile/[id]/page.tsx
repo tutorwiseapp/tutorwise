@@ -103,12 +103,12 @@ export default function PublicProfilePage() {
               {profile.avatar_url ? (
                 <img
                   src={profile.avatar_url}
-                  alt={profile.display_name || 'User avatar'}
+                  alt={profile.full_name || 'User avatar'}
                   className={styles.avatar}
                 />
               ) : (
                 <div className={styles.avatarPlaceholder}>
-                  {profile.display_name?.[0]?.toUpperCase() || profile.email?.[0]?.toUpperCase() || '?'}
+                  {profile.full_name?.[0]?.toUpperCase() || profile.email?.[0]?.toUpperCase() || '?'}
                 </div>
               )}
             </div>

@@ -137,13 +137,13 @@ const ProfilePage = () => {
                 </FormGroup>
 
                 <form onSubmit={handleSave}>
-                  <FormGroup label="Display Name" htmlFor="display_name">
+                  <FormGroup label="Display Name" htmlFor="full_name">
                     <input
-                      id="display_name"
-                      name="display_name"
+                      id="full_name"
+                      name="full_name"
                       type="text"
-                      value={formData.display_name || ''}
-                      onChange={(e) => setFormData(prev => ({ ...prev, display_name: e.target.value }))}
+                      value={formData.full_name || ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
                     />
                   </FormGroup>
                   <FormGroup label="About (Public Bio)" htmlFor="bio">

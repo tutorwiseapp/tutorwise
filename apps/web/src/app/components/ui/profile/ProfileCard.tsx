@@ -10,7 +10,7 @@
  * Requirement ID: VIN-A-01.2
  *
  * Change Summary:
- * Updated the component to use snake_case for all properties (e.g., agent.display_name) to align with the
+ * Updated the component to use snake_case for all properties (e.g., agent.full_name) to align with the
  * canonical Profile interface. This also involved applying the new, detailed header format for documentation.
  *
  * Impact Analysis:
@@ -54,14 +54,14 @@ export const ProfileCard = ({ agent, isOwnProfile = false }: ProfileCardProps) =
       <div className={styles.avatarContainer}>
         <Image
           src={getProfileImageUrl(agent)}
-          alt={`${agent.display_name || 'Agent'}'s profile picture`}
+          alt={`${agent.full_name || 'Agent'}'s profile picture`}
           width={150}
           height={150}
           className={styles.profileAvatar}
         />
       </div>
       <div className={styles.profileBody}>
-        <h2 className={styles.profileName}>{agent.display_name}</h2>
+        <h2 className={styles.profileName}>{agent.full_name}</h2>
         <p className={styles.profileId}>ID: {agent.referral_id || agent.id?.slice(0, 8)}</p>
         {isOwnProfile && <Link href="/profile" className={styles.editProfileLink}>Edit Profile</Link>}
         

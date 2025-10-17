@@ -12,7 +12,7 @@ import React from 'react';
 export interface Profile {
   id: string;
   referral_id: string;
-  display_name: string;
+  full_name: string; // Full legal name (required for tutors)
   first_name?: string;
   last_name?: string;
   email: string;
@@ -213,7 +213,7 @@ export interface Listing {
   free_trial?: boolean;
   images?: { url: string }[];
   profile?: {
-    display_name: string;
+    full_name: string;
     avatar_url?: string;
   };
 }

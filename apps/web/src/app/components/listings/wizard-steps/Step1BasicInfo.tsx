@@ -85,7 +85,7 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
         {/* Tutor Name */}
         <div className={styles.formGroup}>
           <label htmlFor="tutorName" className={styles.formLabel}>
-            Your Full Name <span style={{ color: 'var(--color-error, #dc2626)' }}>*</span>
+            Full Name <span style={{ color: 'var(--color-error, #dc2626)' }}>*</span>
           </label>
           <input
             id="tutorName"
@@ -103,7 +103,7 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
             </p>
           )}
           <p className={styles.helperText} style={{ margin: '8px 0 0 0', fontSize: '0.75rem' }}>
-            This will be displayed on your marketplace card
+            Your full legal name will be displayed on your marketplace listing
           </p>
         </div>
 

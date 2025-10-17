@@ -89,7 +89,7 @@ const DashboardPage = () => {
     return <Container><p className={styles.loading}>Loading...</p></Container>;
   }
 
-  const displayName = profile.display_name || 'User';
+  const displayName = profile.full_name || 'User';
   const firstName = displayName.split(' ')[0];
 
   // Get role-specific dashboard title

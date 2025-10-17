@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('stripe_account_id, display_name')
+      .select('stripe_account_id, full_name')
       .eq('id', user.id)
       .single();
 

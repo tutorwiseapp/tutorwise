@@ -67,7 +67,7 @@ const AgentProfilePage = () => {
   
   const handleShare = (platform: 'whatsapp' | 'linkedin') => {
     if (!agent) return;
-    const text = `Check out ${agent.display_name}'s Vinite referral profile: ${window.location.href}`;
+    const text = `Check out ${agent.full_name}'s Vinite referral profile: ${window.location.href}`;
     let url = '';
     if (platform === 'whatsapp') {
       url = `https://wa.me/?text=${encodeURIComponent(text)}`;
@@ -102,12 +102,12 @@ const AgentProfilePage = () => {
             <div className={styles.coverPhoto} style={{ backgroundImage: agent.cover_photo_url ? `url(${agent.cover_photo_url})` : 'none' }} />
             <Image
               src={getProfileImageUrl(agent)}
-              alt={`${agent.display_name}'s profile picture`}
+              alt={`${agent.full_name}'s profile picture`}
               width={150} height={150}
               className={styles.profileAvatar}
             />
             <div className={styles.profileBody}>
-              <h2 className={styles.profileName}>{agent.display_name}</h2>
+              <h2 className={styles.profileName}>{agent.full_name}</h2>
               <p className={styles.profileId}>ID: {agent.referral_id || agent.id.slice(0, 8)}</p>
               
               {isOwnProfile && <Link href="/profile" className={styles.editProfileLink}>Edit Profile</Link>}
