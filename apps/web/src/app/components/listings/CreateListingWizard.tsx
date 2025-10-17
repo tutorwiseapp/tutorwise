@@ -65,21 +65,32 @@ export default function CreateListingWizard({
 
   // Auto-populate from profile
   useEffect(() => {
+    console.log('[CreateListingWizard] Auto-populate check:', {
+      hasProfile: !!profile,
+      displayName: profile?.display_name,
+      hasInitialData: !!initialData,
+      isDraftLoaded,
+      currentTutorName: formData.tutor_name
+    });
+
     if (profile && !initialData && isDraftLoaded) {
       const updates: Partial<CreateListingInput> = {};
 
       // Auto-populate tutor_name from profile display name
       if (profile.display_name && !formData.tutor_name) {
+        console.log('[CreateListingWizard] Auto-populating tutor_name:', profile.display_name);
         updates.tutor_name = profile.display_name;
       }
 
       // Auto-populate first image with profile picture
       const profilePicture = profile.avatar_url;
       if (profilePicture && (!formData.images || formData.images.length === 0)) {
+        console.log('[CreateListingWizard] Auto-populating image:', profilePicture);
         updates.images = [profilePicture];
       }
 
       if (Object.keys(updates).length > 0) {
+        console.log('[CreateListingWizard] Applying updates:', updates);
         setFormData(prev => ({ ...prev, ...updates }));
       }
     }

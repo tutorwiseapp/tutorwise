@@ -18,7 +18,15 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
 
   // Sync local state with formData prop changes (for auto-population)
   useEffect(() => {
+    console.log('[Step1BasicInfo] Sync check:', {
+      formDataTutorName: formData.tutor_name,
+      localTutorName: tutorName,
+      formDataTitle: formData.title,
+      localTitle: title
+    });
+
     if (formData.tutor_name && !tutorName) {
+      console.log('[Step1BasicInfo] Setting tutor name to:', formData.tutor_name);
       setTutorName(formData.tutor_name);
     }
     if (formData.title && !title) {
