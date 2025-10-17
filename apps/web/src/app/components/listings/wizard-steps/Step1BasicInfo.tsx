@@ -82,7 +82,7 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
       </div>
 
       <div className={styles.stepBody}>
-        {/* Tutor Name */}
+        {/* Tutor Name - Read-only, populated from profile */}
         <div className={styles.formGroup}>
           <label htmlFor="tutorName" className={styles.formLabel}>
             Full Name <span style={{ color: 'var(--color-error, #dc2626)' }}>*</span>
@@ -91,11 +91,15 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
             id="tutorName"
             type="text"
             value={tutorName}
-            onChange={(e) => setTutorName(e.target.value)}
+            readOnly
+            disabled
             placeholder="e.g., Jane Doe"
             className={styles.formInput}
-            maxLength={100}
-            style={errors.tutorName ? { borderColor: 'var(--color-error, #dc2626)' } : {}}
+            style={{
+              backgroundColor: '#f3f4f6',
+              cursor: 'not-allowed',
+              color: '#6b7280'
+            }}
           />
           {errors.tutorName && (
             <p className={styles.errorText} style={{ margin: '8px 0 0 0' }}>
@@ -103,7 +107,7 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
             </p>
           )}
           <p className={styles.helperText} style={{ margin: '8px 0 0 0', fontSize: '0.75rem' }}>
-            Your full legal name will be displayed on your marketplace listing
+            Your full legal name from your profile. To change it, update your profile settings.
           </p>
         </div>
 
