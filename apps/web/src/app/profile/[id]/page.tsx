@@ -114,6 +114,9 @@ export default function PublicProfilePage() {
             </div>
 
             <div className={styles.headerInfo}>
+              <h1 className={styles.displayName}>
+                {profile.full_name || 'Anonymous User'}
+              </h1>
               <div className={styles.roleBadge}>{roleLabel}</div>
               {profile.categories && (
                 <p className={styles.categories}>{profile.categories}</p>
@@ -122,7 +125,7 @@ export default function PublicProfilePage() {
 
             <div className={styles.headerActions}>
               <Button variant="primary">Send Message</Button>
-              <Button variant="secondary">Book Session</Button>
+              <Button variant="outline">Book Session</Button>
             </div>
           </div>
 
