@@ -163,7 +163,7 @@ export default function PublicProfilePage() {
               {profile.bio && (
                 <Card className={styles.section}>
                   <h2 className={styles.sectionTitle}>
-                    Hi, I'm {profile.first_name || profile.full_name?.split(' ')[0] || profile.full_name}
+                    Hi, I&apos;m {profile.first_name || profile.full_name?.split(' ')[0] || profile.full_name}
                   </h2>
                   <p className={styles.bio}>{profile.bio}</p>
                 </Card>

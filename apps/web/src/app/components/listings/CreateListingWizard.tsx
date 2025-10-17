@@ -69,11 +69,10 @@ export default function CreateListingWizard({
       hasProfile: !!profile,
       fullName: profile?.full_name,
       hasInitialData: !!initialData,
-      isDraftLoaded,
       currentTutorName: formData.tutor_name
     });
 
-    if (profile && !initialData && isDraftLoaded) {
+    if (profile && !initialData) {
       const updates: Partial<CreateListingInput> = {};
 
       // Auto-populate tutor_name from profile full_name
@@ -94,7 +93,7 @@ export default function CreateListingWizard({
         setFormData(prev => ({ ...prev, ...updates }));
       }
     }
-  }, [profile, formData.tutor_name, formData.images, initialData, isDraftLoaded]);
+  }, [profile, formData.tutor_name, formData.images, initialData]);
 
   // Save current step whenever it changes (for resume functionality)
   useEffect(() => {
