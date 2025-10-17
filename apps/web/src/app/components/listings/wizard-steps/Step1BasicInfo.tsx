@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { CreateListingInput } from '@tutorwise/shared-types';
 import styles from '../../onboarding/OnboardingWizard.module.css';
 
@@ -15,6 +15,19 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
   const [title, setTitle] = useState(formData.title || '');
   const [description, setDescription] = useState(formData.description || '');
   const [errors, setErrors] = useState<{ tutorName?: string; title?: string; description?: string }>({});
+
+  // Sync local state with formData prop changes (for auto-population)
+  useEffect(() => {
+    if (formData.tutor_name && !tutorName) {
+      setTutorName(formData.tutor_name);
+    }
+    if (formData.title && !title) {
+      setTitle(formData.title);
+    }
+    if (formData.description && !description) {
+      setDescription(formData.description);
+    }
+  }, [formData.tutor_name, formData.title, formData.description]);
 
   const validate = () => {
     const newErrors: { tutorName?: string; title?: string; description?: string } = {};
