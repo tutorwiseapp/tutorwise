@@ -162,7 +162,9 @@ export default function PublicProfilePage() {
               {/* About Section */}
               {profile.bio && (
                 <Card className={styles.section}>
-                  <h2 className={styles.sectionTitle}>About</h2>
+                  <h2 className={styles.sectionTitle}>
+                    Hi, I'm {profile.first_name || profile.full_name}
+                  </h2>
                   <p className={styles.bio}>{profile.bio}</p>
                 </Card>
               )}
