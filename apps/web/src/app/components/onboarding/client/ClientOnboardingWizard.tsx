@@ -14,9 +14,10 @@ import OnboardingProgressBar from '../OnboardingProgressBar';
 
 import ClientSubjectSelectionStep from './ClientSubjectSelectionStep';
 import ClientLearningPreferencesStep from './ClientLearningPreferencesStep';
+import ClientAvailabilityStep from './ClientAvailabilityStep';
 import styles from '../../../onboarding/client/page.module.css';
 
-export type ClientStep = 'subjects' | 'preferences' | 'completion';
+export type ClientStep = 'subjects' | 'preferences' | 'availability' | 'completion';
 
 interface ClientOnboardingWizardProps {
   onComplete: () => void;
@@ -28,6 +29,7 @@ interface ClientOnboardingWizardProps {
 interface ClientDraftData {
   subjects: string[];
   preferences: any;
+  availability: any;
 }
 
 const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
@@ -43,6 +45,7 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
   const [currentStep, setCurrentStep] = useState<ClientStep>(initialStep);
   const [subjects, setSubjects] = useState<string[]>([]);
   const [preferences, setPreferences] = useState({});
+  const [availability, setAvailability] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [isDraftLoaded, setIsDraftLoaded] = useState(false);
 
@@ -54,6 +57,7 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
         if (draft) {
           if (draft.subjects) setSubjects(draft.subjects);
           if (draft.preferences) setPreferences(draft.preferences);
+          if (draft.availability) setAvailability(draft.availability);
         }
         setIsDraftLoaded(true);
       }
@@ -65,6 +69,7 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
   const formData: ClientDraftData = {
     subjects,
     preferences,
+    availability,
   };
 
   // Auto-save draft every 30 seconds (with database sync)
@@ -89,6 +94,7 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
 
   const handleBack = () => {
     if (currentStep === 'preferences') setCurrentStep('subjects');
+    if (currentStep === 'availability') setCurrentStep('preferences');
   }
 
   const handleSkipHandler = () => {
@@ -117,10 +123,26 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
 
   const handlePreferencesNext = async (selectedPreferences: any) => {
     console.log('[ClientOnboardingWizard] handlePreferencesNext called', selectedPreferences);
+
+    // Update state and UI immediately
+    setPreferences(selectedPreferences);
+    setCurrentStep('availability');
+
+    // Update database in background (don't await)
+    updateOnboardingProgress({
+      current_step: 'availability',
+      seeker: { ...(profile?.onboarding_progress?.seeker || {}), subjects, preferences: selectedPreferences }
+    }).catch(error => {
+      console.error('[ClientOnboardingWizard] Error updating progress:', error);
+    });
+  };
+
+  const handleAvailabilityNext = async (selectedAvailability: any) => {
+    console.log('[ClientOnboardingWizard] handleAvailabilityNext called', selectedAvailability);
     setIsLoading(true);
 
     try {
-      setPreferences(selectedPreferences);
+      setAvailability(selectedAvailability);
 
       // Add 'seeker' role to user's roles if not already present
       const currentRoles = profile?.roles || [];
@@ -142,7 +164,7 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
       console.log('[ClientOnboardingWizard] Updating onboarding progress...');
       await updateOnboardingProgress({
         current_step: 'completion',
-        seeker: { ...(profile?.onboarding_progress?.seeker || {}), subjects, preferences: selectedPreferences },
+        seeker: { ...(profile?.onboarding_progress?.seeker || {}), subjects, preferences, availability: selectedAvailability },
         onboarding_completed: true,  // Mark as complete for standalone client onboarding
         completed_at: new Date().toISOString()
       });
@@ -155,7 +177,7 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
       // Call parent's onComplete to redirect to dashboard
       onComplete();
     } catch (error) {
-      console.error('[ClientOnboardingWizard] Error in handlePreferencesNext:', error);
+      console.error('[ClientOnboardingWizard] Error in handleAvailabilityNext:', error);
     } finally {
       setIsLoading(false);
     }
@@ -167,19 +189,21 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
         return <ClientSubjectSelectionStep onNext={handleSubjectsNext} onSkip={handleSkipHandler} isLoading={isLoading} initialSubjects={subjects} />;
       case 'preferences':
         return <ClientLearningPreferencesStep onNext={handlePreferencesNext} onBack={handleBack} onSkip={handleSkipHandler} isLoading={isLoading} />;
+      case 'availability':
+        return <ClientAvailabilityStep onNext={handleAvailabilityNext} onBack={handleBack} onSkip={handleSkipHandler} isLoading={isLoading} />;
       default:
         return null;
     }
   };
 
   const getStepNumber = () => {
-    const steps: ClientStep[] = ['subjects', 'preferences'];
+    const steps: ClientStep[] = ['subjects', 'preferences', 'availability'];
     return steps.indexOf(currentStep) + 1;
   }
 
   return (
     <div className={`${styles.wizardContainer} ${mode === 'fullPage' ? styles.fullPage : styles.modal}`}>
-      <OnboardingProgressBar currentStepId={getStepNumber()} totalSteps={2} />
+      <OnboardingProgressBar currentStepId={getStepNumber()} totalSteps={3} />
       {renderCurrentStep()}
     </div>
   );
