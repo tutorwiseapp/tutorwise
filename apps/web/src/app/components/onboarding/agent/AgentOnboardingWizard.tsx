@@ -5,6 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useAutoSaveDraft, loadDraft, clearDraft, saveCurrentStep } from '@/lib/utils/wizardUtils';
+import { createClient } from '@/utils/supabase/client';
 import AgentWelcomeStep from '@/app/components/onboarding/steps/WelcomeStep';
 import AgentDetailsStep from './AgentDetailsStep';
 import AgentServicesStep from './AgentServicesStep';
@@ -33,6 +34,7 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
   initialStep
 }) => {
   const { profile, user, updateOnboardingProgress } = useUserProfile();
+  const supabase = createClient();
   const DRAFT_KEY = 'onboarding_draft_agent';
 
   const [currentStep, setCurrentStep] = useState<AgentOnboardingStep>(
@@ -125,12 +127,30 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
 
     try {
       setCapacity(data);
-      // Update the database with agent-specific progress (but don't mark as complete yet)
+
+      // Add 'agent' role to user's roles if not already present
+      const currentRoles = profile?.roles || [];
+      if (!currentRoles.includes('agent')) {
+        console.log('[AgentOnboardingWizard] Adding agent role to user profile...');
+        const updatedRoles = [...currentRoles, 'agent'];
+        const { error: roleError } = await supabase
+          .from('profiles')
+          .update({ roles: updatedRoles })
+          .eq('id', user?.id);
+
+        if (roleError) {
+          console.error('[AgentOnboardingWizard] Error adding agent role:', roleError);
+          throw roleError;
+        }
+      }
+
+      // Update the database with agent-specific progress and mark as complete
       console.log('[AgentOnboardingWizard] Updating onboarding progress...');
       await updateOnboardingProgress({
         current_step: 'completion',
         agent: { ...(Object.keys(agencyDetails).length > 0 && { details: agencyDetails as AgencyDetailsData }), services, capacity: data },
-        onboarding_completed: false  // Master wizard will mark as complete
+        onboarding_completed: true,  // Mark as complete for standalone agent onboarding
+        completed_at: new Date().toISOString()
       });
       console.log('[AgentOnboardingWizard] Progress updated, clearing draft...');
 
@@ -138,7 +158,7 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
       await clearDraft(user?.id, DRAFT_KEY);
       console.log('[AgentOnboardingWizard] Draft cleared, calling onComplete...');
 
-      // Call parent's onComplete to return control to master wizard
+      // Call parent's onComplete to redirect to dashboard
       onComplete();
     } catch (error) {
       console.error('[AgentOnboardingWizard] Error in handleCapacitySubmit:', error);
