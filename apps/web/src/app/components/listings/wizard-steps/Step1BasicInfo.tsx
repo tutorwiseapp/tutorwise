@@ -15,6 +15,7 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
   const [title, setTitle] = useState(formData.title || '');
   const [description, setDescription] = useState(formData.description || '');
   const [errors, setErrors] = useState<{ tutorName?: string; title?: string; description?: string }>({});
+  const [isWaitingForProfile, setIsWaitingForProfile] = useState(!formData.tutor_name);
 
   // Sync local state with formData prop changes (for auto-population)
   useEffect(() => {
@@ -22,20 +23,25 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
       formDataTutorName: formData.tutor_name,
       localTutorName: tutorName,
       formDataTitle: formData.title,
-      localTitle: title
+      localTitle: title,
+      isWaitingForProfile
     });
 
-    if (formData.tutor_name && !tutorName) {
-      console.log('[Step1BasicInfo] Setting tutor name to:', formData.tutor_name);
-      setTutorName(formData.tutor_name);
+    // Always sync from formData to local state when formData changes
+    if (formData.tutor_name !== tutorName) {
+      console.log('[Step1BasicInfo] Syncing tutor name from formData:', formData.tutor_name);
+      setTutorName(formData.tutor_name || '');
+      if (formData.tutor_name) {
+        setIsWaitingForProfile(false);
+      }
     }
-    if (formData.title && !title) {
-      setTitle(formData.title);
+    if (formData.title !== title) {
+      setTitle(formData.title || '');
     }
-    if (formData.description && !description) {
-      setDescription(formData.description);
+    if (formData.description !== description) {
+      setDescription(formData.description || '');
     }
-  }, [formData.tutor_name, formData.title, formData.description]);
+  }, [formData.tutor_name, formData.title, formData.description, tutorName, title, description]);
 
   const validate = () => {
     const newErrors: { tutorName?: string; title?: string; description?: string } = {};
