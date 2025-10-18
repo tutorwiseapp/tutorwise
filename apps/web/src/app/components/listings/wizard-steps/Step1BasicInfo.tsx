@@ -96,7 +96,7 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
           <input
             id="tutorName"
             type="text"
-            value={tutorName || 'Loading...'}
+            value={formData.tutor_name || tutorName || 'Loading...'}
             readOnly
             disabled
             className={styles.formInput}
@@ -115,6 +115,12 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
           <p className={styles.helperText} style={{ margin: '8px 0 0 0', fontSize: '0.75rem' }}>
             Your full legal name from your profile. To change it, update your profile settings.
           </p>
+          {/* Debug info - remove after testing */}
+          {process.env.NODE_ENV === 'development' && (
+            <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '4px' }}>
+              Debug: formData.tutor_name = {JSON.stringify(formData.tutor_name)} | tutorName = {JSON.stringify(tutorName)}
+            </p>
+          )}
         </div>
 
         {/* Service Title */}
