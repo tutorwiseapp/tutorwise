@@ -9,7 +9,7 @@ import styles from '../page.module.css';
 function AgentOnboardingPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, profile, isLoading, availableRoles, refreshProfile } = useUserProfile();
+  const { user, profile, isLoading, availableRoles, refreshProfile, setActiveRole } = useUserProfile();
 
   // Get step from URL parameters for auto-resume functionality
   const resumeStep = searchParams?.get('step');
@@ -62,14 +62,18 @@ function AgentOnboardingPageContent() {
   const handleOnboardingComplete = async () => {
     console.log('[AgentOnboarding] Onboarding complete, refreshing profile...');
     await refreshProfile();
-    console.log('[AgentOnboarding] Profile refreshed, redirecting to dashboard...');
+    console.log('[AgentOnboarding] Profile refreshed, setting active role to agent...');
+    setActiveRole('agent');
+    console.log('[AgentOnboarding] Active role set, redirecting to dashboard...');
     router.push('/dashboard');
   };
 
   const handleOnboardingSkip = async () => {
     console.log('[AgentOnboarding] Onboarding skipped, refreshing profile...');
     await refreshProfile();
-    console.log('[AgentOnboarding] Profile refreshed, redirecting to dashboard...');
+    console.log('[AgentOnboarding] Profile refreshed, setting active role to agent...');
+    setActiveRole('agent');
+    console.log('[AgentOnboarding] Active role set, redirecting to dashboard...');
     router.push('/dashboard');
   };
 

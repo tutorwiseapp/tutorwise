@@ -8,7 +8,7 @@ import styles from './page.module.css';
 
 export default function ClientOnboardingPage() {
   const router = useRouter();
-  const { user, profile, isLoading, availableRoles, refreshProfile } = useUserProfile();
+  const { user, profile, isLoading, availableRoles, refreshProfile, setActiveRole } = useUserProfile();
 
   useEffect(() => {
     // Redirect to login if not authenticated
@@ -43,14 +43,18 @@ export default function ClientOnboardingPage() {
   const handleOnboardingComplete = async () => {
     console.log('[ClientOnboardingPage] Onboarding complete, refreshing profile...');
     await refreshProfile();
-    console.log('[ClientOnboardingPage] Profile refreshed, redirecting to dashboard...');
+    console.log('[ClientOnboardingPage] Profile refreshed, setting active role to seeker...');
+    setActiveRole('seeker');
+    console.log('[ClientOnboardingPage] Active role set, redirecting to dashboard...');
     router.push('/dashboard');
   };
 
   const handleOnboardingSkip = async () => {
     console.log('[ClientOnboardingPage] Onboarding skipped, refreshing profile...');
     await refreshProfile();
-    console.log('[ClientOnboardingPage] Profile refreshed, redirecting to dashboard...');
+    console.log('[ClientOnboardingPage] Profile refreshed, setting active role to seeker...');
+    setActiveRole('seeker');
+    console.log('[ClientOnboardingPage] Active role set, redirecting to dashboard...');
     router.push('/dashboard');
   };
 
