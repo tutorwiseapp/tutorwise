@@ -9,7 +9,7 @@ import styles from '../page.module.css';
 function AgentOnboardingPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, profile, isLoading, availableRoles } = useUserProfile();
+  const { user, profile, isLoading, availableRoles, refreshProfile } = useUserProfile();
 
   // Get step from URL parameters for auto-resume functionality
   const resumeStep = searchParams?.get('step');
@@ -59,11 +59,17 @@ function AgentOnboardingPageContent() {
     return null;
   }
 
-  const handleOnboardingComplete = () => {
+  const handleOnboardingComplete = async () => {
+    console.log('[AgentOnboarding] Onboarding complete, refreshing profile...');
+    await refreshProfile();
+    console.log('[AgentOnboarding] Profile refreshed, redirecting to dashboard...');
     router.push('/dashboard');
   };
 
-  const handleOnboardingSkip = () => {
+  const handleOnboardingSkip = async () => {
+    console.log('[AgentOnboarding] Onboarding skipped, refreshing profile...');
+    await refreshProfile();
+    console.log('[AgentOnboarding] Profile refreshed, redirecting to dashboard...');
     router.push('/dashboard');
   };
 

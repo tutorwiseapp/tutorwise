@@ -8,7 +8,7 @@ import styles from './page.module.css';
 
 export default function ClientOnboardingPage() {
   const router = useRouter();
-  const { user, profile, isLoading, availableRoles } = useUserProfile();
+  const { user, profile, isLoading, availableRoles, refreshProfile } = useUserProfile();
 
   useEffect(() => {
     // Redirect to login if not authenticated
@@ -40,11 +40,17 @@ export default function ClientOnboardingPage() {
     return null;
   }
 
-  const handleOnboardingComplete = () => {
+  const handleOnboardingComplete = async () => {
+    console.log('[ClientOnboardingPage] Onboarding complete, refreshing profile...');
+    await refreshProfile();
+    console.log('[ClientOnboardingPage] Profile refreshed, redirecting to dashboard...');
     router.push('/dashboard');
   };
 
-  const handleOnboardingSkip = () => {
+  const handleOnboardingSkip = async () => {
+    console.log('[ClientOnboardingPage] Onboarding skipped, refreshing profile...');
+    await refreshProfile();
+    console.log('[ClientOnboardingPage] Profile refreshed, redirecting to dashboard...');
     router.push('/dashboard');
   };
 

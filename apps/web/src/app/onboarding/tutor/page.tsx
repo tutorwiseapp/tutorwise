@@ -9,7 +9,7 @@ import styles from '../page.module.css';
 function TutorOnboardingPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, profile, isLoading, availableRoles } = useUserProfile();
+  const { user, profile, isLoading, availableRoles, refreshProfile } = useUserProfile();
 
   // Get step from URL parameters for auto-resume functionality
   const resumeStep = searchParams?.get('step');
@@ -59,14 +59,19 @@ function TutorOnboardingPageContent() {
     return null;
   }
 
-  const handleOnboardingComplete = () => {
+  const handleOnboardingComplete = async () => {
     console.log('[TutorOnboarding] Onboarding complete! Database save already finished.');
-    console.log('[TutorOnboarding] Redirecting to dashboard...');
+    console.log('[TutorOnboarding] Refreshing profile...');
+    await refreshProfile();
+    console.log('[TutorOnboarding] Profile refreshed, redirecting to dashboard...');
     // Use Next.js router for proper client-side navigation (preserves session)
     router.push('/dashboard');
   };
 
-  const handleOnboardingSkip = () => {
+  const handleOnboardingSkip = async () => {
+    console.log('[TutorOnboarding] Onboarding skipped, refreshing profile...');
+    await refreshProfile();
+    console.log('[TutorOnboarding] Profile refreshed, redirecting to dashboard...');
     router.push('/dashboard');
   };
 
