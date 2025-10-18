@@ -23,6 +23,7 @@ function AgentOnboardingPageContent() {
 
     // Redirect to dashboard if user already has agent role
     if (!isLoading && profile && availableRoles?.includes('agent')) {
+      console.log('[AgentOnboardingPage] User already has agent role, redirecting to dashboard');
       router.push('/dashboard');
       return;
     }

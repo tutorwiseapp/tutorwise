@@ -8,7 +8,7 @@ import styles from './page.module.css';
 
 export default function ClientOnboardingPage() {
   const router = useRouter();
-  const { user, profile, isLoading, needsOnboarding } = useUserProfile();
+  const { user, profile, isLoading, availableRoles } = useUserProfile();
 
   useEffect(() => {
     // Redirect to login if not authenticated
@@ -17,12 +17,13 @@ export default function ClientOnboardingPage() {
       return;
     }
 
-    // Redirect to dashboard if onboarding is already complete
-    if (!isLoading && profile && !needsOnboarding) {
+    // Redirect to dashboard if user already has the seeker role
+    if (!isLoading && profile && availableRoles.includes('seeker')) {
+      console.log('[ClientOnboardingPage] User already has seeker role, redirecting to dashboard');
       router.push('/dashboard');
       return;
     }
-  }, [user, profile, isLoading, needsOnboarding, router]);
+  }, [user, profile, isLoading, availableRoles, router]);
 
   // Show loading state while checking authentication
   if (isLoading) {
