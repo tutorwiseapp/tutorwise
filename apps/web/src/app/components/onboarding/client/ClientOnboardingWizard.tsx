@@ -20,6 +20,7 @@ export type ClientStep = 'subjects' | 'preferences' | 'completion';
 interface ClientOnboardingWizardProps {
   onComplete: () => void;
   onSkip?: () => void;
+  mode?: 'modal' | 'fullPage';
   initialStep?: ClientStep;
 }
 
@@ -31,6 +32,7 @@ interface ClientDraftData {
 const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
   onComplete,
   onSkip,
+  mode = 'modal',
   initialStep = 'subjects'
 }) => {
   const { profile, user, updateOnboardingProgress } = useUserProfile();
@@ -156,7 +158,7 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
   }
 
   return (
-    <div className={styles.wizardContainer}>
+    <div className={`${styles.wizardContainer} ${mode === 'fullPage' ? styles.fullPage : styles.modal}`}>
       <OnboardingProgressBar currentStepId={getStepNumber()} totalSteps={2} />
       {renderCurrentStep()}
     </div>
