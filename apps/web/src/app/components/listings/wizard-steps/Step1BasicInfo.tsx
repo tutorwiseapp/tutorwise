@@ -41,7 +41,7 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
     if (formData.description !== description) {
       setDescription(formData.description || '');
     }
-  }, [formData.tutor_name, formData.title, formData.description, tutorName, title, description]);
+  }, [formData.tutor_name, formData.title, formData.description]);
 
   const validate = () => {
     const newErrors: { tutorName?: string; title?: string; description?: string } = {};
