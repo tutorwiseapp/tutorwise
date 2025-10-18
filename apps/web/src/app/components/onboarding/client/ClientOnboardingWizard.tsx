@@ -6,6 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useAutoSaveDraft, loadDraft, clearDraft, saveCurrentStep } from '@/lib/utils/wizardUtils';
 import { OnboardingProgress } from '@/types';
+import { createClient } from '@/utils/supabase/client';
 
 // Corrected import paths
 import WelcomeStep from '../steps/WelcomeStep';
@@ -36,6 +37,7 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
   initialStep = 'subjects'
 }) => {
   const { profile, user, updateOnboardingProgress } = useUserProfile();
+  const supabase = createClient();
   const DRAFT_KEY = 'onboarding_draft_client';
 
   const [currentStep, setCurrentStep] = useState<ClientStep>(initialStep);
@@ -119,12 +121,30 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
 
     try {
       setPreferences(selectedPreferences);
-      // Update the database with client-specific progress (but don't mark as complete yet)
+
+      // Add 'seeker' role to user's roles if not already present
+      const currentRoles = profile?.roles || [];
+      if (!currentRoles.includes('seeker')) {
+        console.log('[ClientOnboardingWizard] Adding seeker role to user profile...');
+        const updatedRoles = [...currentRoles, 'seeker'];
+        const { error: roleError } = await supabase
+          .from('profiles')
+          .update({ roles: updatedRoles })
+          .eq('id', user?.id);
+
+        if (roleError) {
+          console.error('[ClientOnboardingWizard] Error adding seeker role:', roleError);
+          throw roleError;
+        }
+      }
+
+      // Update the database with client-specific progress and mark as complete
       console.log('[ClientOnboardingWizard] Updating onboarding progress...');
       await updateOnboardingProgress({
         current_step: 'completion',
         seeker: { ...(profile?.onboarding_progress?.seeker || {}), subjects, preferences: selectedPreferences },
-        onboarding_completed: false  // Master wizard will mark as complete
+        onboarding_completed: true,  // Mark as complete for standalone client onboarding
+        completed_at: new Date().toISOString()
       });
       console.log('[ClientOnboardingWizard] Progress updated, clearing draft...');
 
@@ -132,7 +152,7 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
       await clearDraft(user?.id, DRAFT_KEY);
       console.log('[ClientOnboardingWizard] Draft cleared, calling onComplete...');
 
-      // Call parent's onComplete to return control to master wizard
+      // Call parent's onComplete to redirect to dashboard
       onComplete();
     } catch (error) {
       console.error('[ClientOnboardingWizard] Error in handlePreferencesNext:', error);

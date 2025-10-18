@@ -73,11 +73,21 @@ const ClientLearningPreferencesStep: React.FC<ClientLearningPreferencesStepProps
           </label>
           <input
             id="budget"
-            type="number"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
             value={budget ?? ''}
-            onChange={(e) => setBudget(e.target.value ? Number(e.target.value) : undefined)}
+            onChange={(e) => {
+              const value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+              setBudget(value ? Number(value) : undefined);
+            }}
             placeholder="e.g., 30"
             className={styles.formInput}
+            style={{
+              MozAppearance: 'textfield',
+              WebkitAppearance: 'none',
+              appearance: 'textfield'
+            }}
           />
         </div>
 
