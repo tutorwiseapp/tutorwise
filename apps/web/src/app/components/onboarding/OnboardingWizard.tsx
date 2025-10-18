@@ -381,6 +381,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
             <ClientOnboardingWizard
               onComplete={handleSubWizardComplete}
               onSkip={handleSkip}
+              mode="fullPage"
             />
           );
         }
