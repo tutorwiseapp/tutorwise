@@ -127,6 +127,11 @@ export default function CreateListingWizard({
 
   // Step navigation handlers
   const handleWelcomeNext = () => {
+    // Ensure tutor_name is populated from profile when moving to basic info step
+    if (profile?.full_name && !formData.tutor_name) {
+      console.log('[CreateListingWizard] Populating tutor_name on navigation:', profile.full_name);
+      setFormData(prev => ({ ...prev, tutor_name: profile.full_name }));
+    }
     setCurrentStep('basic');
   };
 
