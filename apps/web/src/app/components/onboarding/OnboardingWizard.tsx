@@ -126,9 +126,10 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
   useEffect(() => {
     if (!profile || !user) return;
 
-    // If we are already in the middle of the role selection flow,
-    // do not re-initialize state from the profile.
+    // If we are already transitioning to the role-specific step,
+    // do not re-initialize state from the potentially stale profile data.
     if (currentStep === 'role-specific-details') {
+      console.log('[OnboardingWizard] useEffect: Skipping state reset during role transition.');
       return;
     }
 
@@ -373,8 +374,9 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
 
       case 'role-specific-details':
         // Render the appropriate specialized wizard based on selected role
-        // Use else if to ensure only one wizard is rendered
+        // Use else if to ensure only one wizard is rendered and prioritize 'seeker'
         if (selectedRoles.includes('seeker')) {
+          console.log('[OnboardingWizard] Rendering ClientOnboardingWizard');
           return (
             <ClientOnboardingWizard
               onComplete={handleSubWizardComplete}
@@ -383,6 +385,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
             />
           );
         } else if (selectedRoles.includes('provider')) {
+          console.log('[OnboardingWizard] Rendering TutorOnboardingWizard');
           return (
             <TutorOnboardingWizard
               onComplete={handleSubWizardComplete}
@@ -391,6 +394,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
             />
           );
         } else if (selectedRoles.includes('agent')) {
+          console.log('[OnboardingWizard] Rendering AgentOnboardingWizard');
           return (
             <AgentOnboardingWizard
               onComplete={handleSubWizardComplete}
@@ -399,7 +403,8 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
             />
           );
         }
-        // If no recognized role, skip to completion
+        // If no recognized role somehow, skip to completion (existing fallback)
+        console.warn('[OnboardingWizard] No recognized role found for role-specific-details, skipping to completion.');
         handleSubWizardComplete();
         return null;
 
