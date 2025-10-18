@@ -47,7 +47,13 @@ export default function CreateListingWizard({
       if (!isDraftLoaded && !initialData) {
         const draft = await loadDraft<CreateListingInput>(user?.id, DRAFT_KEY, initialData);
         if (draft) {
-          setFormData(prev => ({ ...prev, ...draft }));
+          // Only merge fields from draft that actually have values
+          // Don't overwrite with undefined/null values
+          const draftWithValues = Object.fromEntries(
+            Object.entries(draft).filter(([_, value]) => value !== undefined && value !== null && value !== '')
+          );
+          console.log('[CreateListingWizard] Loading draft:', draftWithValues);
+          setFormData(prev => ({ ...prev, ...draftWithValues }));
         }
         setIsDraftLoaded(true);
       }
