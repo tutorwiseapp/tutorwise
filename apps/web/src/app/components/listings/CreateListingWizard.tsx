@@ -68,8 +68,12 @@ export default function CreateListingWizard({
     console.log('[CreateListingWizard] Auto-populate check:', {
       hasProfile: !!profile,
       fullName: profile?.full_name,
+      profileEmail: profile?.email,
+      hasUser: !!user,
+      userEmail: user?.email,
       hasInitialData: !!initialData,
-      currentTutorName: formData.tutor_name
+      currentTutorName: formData.tutor_name,
+      currentImages: formData.images
     });
 
     if (profile && !initialData) {
@@ -79,6 +83,10 @@ export default function CreateListingWizard({
       if (profile.full_name && !formData.tutor_name) {
         console.log('[CreateListingWizard] Auto-populating tutor_name:', profile.full_name);
         updates.tutor_name = profile.full_name;
+      } else if (!profile.full_name) {
+        console.warn('[CreateListingWizard] Profile has no full_name field!', profile);
+      } else if (formData.tutor_name) {
+        console.log('[CreateListingWizard] Tutor name already set:', formData.tutor_name);
       }
 
       // Auto-populate first image with profile picture
@@ -91,7 +99,12 @@ export default function CreateListingWizard({
       if (Object.keys(updates).length > 0) {
         console.log('[CreateListingWizard] Applying updates:', updates);
         setFormData(prev => ({ ...prev, ...updates }));
+      } else {
+        console.log('[CreateListingWizard] No updates needed');
       }
+    } else {
+      if (!profile) console.log('[CreateListingWizard] No profile available yet');
+      if (initialData) console.log('[CreateListingWizard] Has initialData, skipping auto-populate');
     }
   }, [profile, formData.tutor_name, formData.images, initialData]);
 
