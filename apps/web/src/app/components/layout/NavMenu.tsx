@@ -38,7 +38,7 @@ const NavMenu = () => {
   const roleConfig: Record<Role, RoleConfig> = {
     agent: { label: 'Agent', icon: '🏠' },
     provider: { label: 'Tutor', icon: '🎓' },
-    seeker: { label: 'Student', icon: '📚' }
+    seeker: { label: 'Client', icon: '📚' }
   } as const;
 
   const handleRoleSwitch = async (role: Role) => {
