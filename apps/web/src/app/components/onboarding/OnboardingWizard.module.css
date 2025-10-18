@@ -296,6 +296,7 @@
   border: 1px solid var(--color-border, #dfe1e5);
   border-radius: 8px; /* 8px × 1 */
   font-size: 1rem;
+  font-family: inherit; /* Use the same font as rest of the page (not monospace) */
   transition: border-color 0.2s ease-in-out;
 }
 
