@@ -126,6 +126,12 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
   useEffect(() => {
     if (!profile || !user) return;
 
+    // If we are already in the middle of the role selection flow,
+    // do not re-initialize state from the profile.
+    if (currentStep === 'role-specific-details') {
+      return;
+    }
+
     try {
       const progress = profile.onboarding_progress;
 
@@ -170,7 +176,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
       setRoleDetailsData({});
       setError('There was an issue loading your progress. Starting fresh.');
     }
-  }, [profile, user, initialStep]);
+  }, [profile, user, initialStep, currentStep]);
 
   const handleBack = async () => {
     switch (currentStep) {
@@ -367,15 +373,7 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
 
       case 'role-specific-details':
         // Render the appropriate specialized wizard based on selected role
-        if (selectedRoles.includes('provider')) {
-          return (
-            <TutorOnboardingWizard
-              onComplete={handleSubWizardComplete}
-              onSkip={handleSkip}
-              mode="fullPage"
-            />
-          );
-        }
+        // Use else if to ensure only one wizard is rendered
         if (selectedRoles.includes('seeker')) {
           return (
             <ClientOnboardingWizard
@@ -384,8 +382,15 @@ const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete, onSkip,
               mode="fullPage"
             />
           );
-        }
-        if (selectedRoles.includes('agent')) {
+        } else if (selectedRoles.includes('provider')) {
+          return (
+            <TutorOnboardingWizard
+              onComplete={handleSubWizardComplete}
+              onSkip={handleSkip}
+              mode="fullPage"
+            />
+          );
+        } else if (selectedRoles.includes('agent')) {
           return (
             <AgentOnboardingWizard
               onComplete={handleSubWizardComplete}
