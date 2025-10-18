@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import styles from '../OnboardingWizard.module.css';
 import { WizardActionButtons, useWizardValidation } from '../shared/WizardButton';
-import { SingleSelectCardGroup, CompactCheckboxGroup } from '../shared/SelectableCard';
+import { SingleSelectCardGroup, MultiSelectCardGroup } from '../shared/SelectableCard';
 
 interface AgentCapacityStepProps {
   onNext: (capacity: CapacityData) => void;
@@ -99,7 +99,7 @@ const AgentCapacityStep: React.FC<AgentCapacityStepProps> = ({
           <label className={styles.formLabel}>
             Service Areas * (Select all that apply)
           </label>
-          <CompactCheckboxGroup
+          <MultiSelectCardGroup
             options={serviceAreaOptions}
             selectedValues={serviceAreas}
             onChange={(values) => setServiceAreas(values as string[])}
