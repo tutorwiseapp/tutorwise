@@ -7,7 +7,6 @@ import { SingleSelectCardGroup } from '../shared/SelectableCard';
 
 export interface PreferencesData {
   location?: string;
-  budget?: number;
   learningStyle?: string;
 }
 
@@ -32,13 +31,12 @@ const ClientLearningPreferencesStep: React.FC<ClientLearningPreferencesStepProps
   isLoading,
 }) => {
   const [location, setLocation] = useState('');
-  const [budget, setBudget] = useState<number | undefined>(undefined);
   const [learningStyle, setLearningStyle] = useState('');
 
   const handleContinue = () => {
     // The WizardActionButtons component ensures this only runs when valid
     // These fields are all optional, so we always allow continuing
-    onNext({ location, budget, learningStyle });
+    onNext({ location, learningStyle });
   };
 
   return (
@@ -63,31 +61,6 @@ const ClientLearningPreferencesStep: React.FC<ClientLearningPreferencesStepProps
             onChange={(e) => setLocation(e.target.value)}
             placeholder="e.g., London or Online"
             className={styles.formInput}
-          />
-        </div>
-
-        {/* Budget */}
-        <div className={styles.formGroup}>
-          <label className={styles.formLabel} htmlFor="budget">
-            Budget (£/hour)
-          </label>
-          <input
-            id="budget"
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            value={budget ?? ''}
-            onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, ''); // Remove non-digits
-              setBudget(value ? Number(value) : undefined);
-            }}
-            placeholder="e.g., 30"
-            className={styles.formInput}
-            style={{
-              MozAppearance: 'textfield',
-              WebkitAppearance: 'none',
-              appearance: 'textfield'
-            }}
           />
         </div>
 

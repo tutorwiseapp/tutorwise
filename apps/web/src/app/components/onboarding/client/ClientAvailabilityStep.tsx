@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from '../OnboardingWizard.module.css';
 import { WizardActionButtons, useWizardValidation } from '../shared/WizardButton';
-import { MultiSelectCardGroup } from '../shared/SelectableCard';
+import { SingleSelectCardGroup, MultiSelectCardGroup } from '../shared/SelectableCard';
 
 interface ClientAvailabilityStepProps {
   onNext: (availability: AvailabilityData) => void;
@@ -13,9 +13,18 @@ interface ClientAvailabilityStepProps {
 }
 
 export interface AvailabilityData {
+  hourlyBudget: number;
   availability: string[];
   sessionTypes: string[];
 }
+
+const budgetRanges = [
+  { value: 25, label: '£25-35/hr', description: 'Entry level' },
+  { value: 40, label: '£40-50/hr', description: 'Intermediate' },
+  { value: 60, label: '£60-75/hr', description: 'Experienced' },
+  { value: 80, label: '£80-100/hr', description: 'Expert' },
+  { value: 100, label: '£100+/hr', description: 'Premium' }
+];
 
 const availabilityOptions = [
   { value: 'weekday_morning', label: 'Weekday Mornings', description: '6am - 12pm' },
@@ -39,26 +48,46 @@ const ClientAvailabilityStep: React.FC<ClientAvailabilityStepProps> = ({
   onSkip,
   isLoading
 }) => {
+  const [hourlyBudget, setHourlyBudget] = useState<number>(0);
   const [availability, setAvailability] = useState<string[]>([]);
   const [sessionTypes, setSessionTypes] = useState<string[]>([]);
 
   // Validation using shared hook
   const { isValid } = useWizardValidation({
-    fields: { availability, sessionTypes },
+    fields: { hourlyBudget, availability, sessionTypes },
     validators: {
+      hourlyBudget: (v) => v > 0,
       availability: (v) => v.length > 0,
       sessionTypes: (v) => v.length > 0,
     },
     debug: true,
   });
 
+  // Debug: Log when component mounts
+  useEffect(() => {
+    console.log('[ClientAvailabilityStep] Component mounted');
+    console.log('[ClientAvailabilityStep] onNext type:', typeof onNext);
+    console.log('[ClientAvailabilityStep] onNext:', onNext);
+  }, [onNext]);
+
+  // Debug: Log when validation state changes
+  useEffect(() => {
+    console.log('[ClientAvailabilityStep] Validation changed:', {
+      isValid,
+      hourlyBudget,
+      availability: availability.length,
+      sessionTypes: sessionTypes.length
+    });
+  }, [isValid, hourlyBudget, availability.length, sessionTypes.length]);
+
   const handleContinue = () => {
     console.log('[ClientAvailabilityStep] handleContinue called');
-    console.log('[ClientAvailabilityStep] Form data:', { availability, sessionTypes });
+    console.log('[ClientAvailabilityStep] Form data:', { hourlyBudget, availability, sessionTypes });
+    console.log('[ClientAvailabilityStep] isValid:', isValid);
     console.log('[ClientAvailabilityStep] Calling onNext...');
 
     // The WizardActionButtons component ensures this only runs when isValid is true
-    onNext({ availability, sessionTypes });
+    onNext({ hourlyBudget, availability, sessionTypes });
 
     console.log('[ClientAvailabilityStep] onNext called successfully');
   };
@@ -67,14 +96,28 @@ const ClientAvailabilityStep: React.FC<ClientAvailabilityStepProps> = ({
     <div className={styles.stepContent}>
       <div className={styles.stepHeader}>
         <h2 className={styles.stepTitle}>
-          When are you available for tutoring?
+          Set your availability and budget preferences
         </h2>
         <p className={styles.stepSubtitle}>
-          Help us match you with tutors who fit your schedule
+          Help us match you with tutors who fit your schedule and budget
         </p>
       </div>
 
       <div className={styles.stepBody}>
+        {/* Hourly Budget Selection */}
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel}>Hourly Budget *</label>
+          <SingleSelectCardGroup
+            options={budgetRanges}
+            selectedValue={hourlyBudget}
+            onChange={(value) => setHourlyBudget(value as number)}
+            debug={true}
+          />
+          <p className={styles.progressIndicator}>
+            💡 You can adjust your budget anytime in settings
+          </p>
+        </div>
+
         {/* Availability Selection */}
         <div className={styles.formGroup}>
           <label className={styles.formLabel}>
