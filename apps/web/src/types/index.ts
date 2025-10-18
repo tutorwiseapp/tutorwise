@@ -65,6 +65,7 @@ export interface OnboardingProgress {
 export interface SeekerProgress {
   subjects?: string[];
   preferences?: LearningPreferencesData;
+  availability?: any;
 }
 
 export interface TutorProgress {
