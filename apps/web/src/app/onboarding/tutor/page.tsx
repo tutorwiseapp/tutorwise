@@ -61,21 +61,21 @@ function TutorOnboardingPageContent() {
 
   const handleOnboardingComplete = async () => {
     console.log('[TutorOnboarding] Onboarding complete! Database save already finished.');
-    console.log('[TutorOnboarding] Refreshing profile...');
+    console.log('[TutorOnboarding] Setting active role to provider...');
+    await setActiveRole('provider');
+    console.log('[TutorOnboarding] Active role set, refreshing profile...');
     await refreshProfile();
-    console.log('[TutorOnboarding] Profile refreshed, setting active role to provider...');
-    setActiveRole('provider');
-    console.log('[TutorOnboarding] Active role set, redirecting to dashboard...');
+    console.log('[TutorOnboarding] Profile refreshed, redirecting to dashboard...');
     // Use Next.js router for proper client-side navigation (preserves session)
     router.push('/dashboard');
   };
 
   const handleOnboardingSkip = async () => {
-    console.log('[TutorOnboarding] Onboarding skipped, refreshing profile...');
+    console.log('[TutorOnboarding] Onboarding skipped, setting active role to provider...');
+    await setActiveRole('provider');
+    console.log('[TutorOnboarding] Active role set, refreshing profile...');
     await refreshProfile();
-    console.log('[TutorOnboarding] Profile refreshed, setting active role to provider...');
-    setActiveRole('provider');
-    console.log('[TutorOnboarding] Active role set, redirecting to dashboard...');
+    console.log('[TutorOnboarding] Profile refreshed, redirecting to dashboard...');
     router.push('/dashboard');
   };
 

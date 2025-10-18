@@ -41,20 +41,20 @@ export default function ClientOnboardingPage() {
   }
 
   const handleOnboardingComplete = async () => {
-    console.log('[ClientOnboardingPage] Onboarding complete, refreshing profile...');
+    console.log('[ClientOnboardingPage] Onboarding complete, setting active role to seeker...');
+    await setActiveRole('seeker');
+    console.log('[ClientOnboardingPage] Active role set, refreshing profile...');
     await refreshProfile();
-    console.log('[ClientOnboardingPage] Profile refreshed, setting active role to seeker...');
-    setActiveRole('seeker');
-    console.log('[ClientOnboardingPage] Active role set, redirecting to dashboard...');
+    console.log('[ClientOnboardingPage] Profile refreshed, redirecting to dashboard...');
     router.push('/dashboard');
   };
 
   const handleOnboardingSkip = async () => {
-    console.log('[ClientOnboardingPage] Onboarding skipped, refreshing profile...');
+    console.log('[ClientOnboardingPage] Onboarding skipped, setting active role to seeker...');
+    await setActiveRole('seeker');
+    console.log('[ClientOnboardingPage] Active role set, refreshing profile...');
     await refreshProfile();
-    console.log('[ClientOnboardingPage] Profile refreshed, setting active role to seeker...');
-    setActiveRole('seeker');
-    console.log('[ClientOnboardingPage] Active role set, redirecting to dashboard...');
+    console.log('[ClientOnboardingPage] Profile refreshed, redirecting to dashboard...');
     router.push('/dashboard');
   };
 
