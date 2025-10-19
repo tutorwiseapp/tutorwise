@@ -20,24 +20,11 @@
   display: flex;
   align-items: flex-end;
   padding: 2rem;
-  border: 2px solid transparent;
 }
 
 .roleCard:hover {
   transform: translateY(-10px) scale(1.03);
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-}
-
-.clientCard:hover {
-  border-color: #3b82f6; /* A blue to match the client theme */
-}
-
-.tutorCard:hover {
-  border-color: #8b5cf6; /* A purple for the tutor theme */
-}
-
-.agentCard:hover {
-  border-color: #10b981; /* A green for the agent theme */
 }
 
 .cardBgImage {

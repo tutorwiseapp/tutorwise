@@ -35,7 +35,7 @@
 .spinner {
   width: 3rem;
   height: 3rem;
-  border: 3px solid #e5e7eb;
+  border: 3px solid transparent;
   border-top: 3px solid #3b82f6;
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -89,7 +89,6 @@
 .roleCard {
   position: relative;
   background: white;
-  border: 2px solid var(--color-border, #e5e7eb);
   border-radius: 1rem;
   padding: 2.5rem 2rem;
   text-align: center;
@@ -102,7 +101,6 @@
 }
 
 .roleCard:not(.disabled):hover {
-  border-color: var(--color-primary, #006C67);
   box-shadow: 0 10px 25px rgba(0, 108, 103, 0.1);
   transform: translateY(-4px);
 }
