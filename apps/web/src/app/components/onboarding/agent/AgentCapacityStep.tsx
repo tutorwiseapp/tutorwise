@@ -27,10 +27,10 @@ const commissionRates = [
 ];
 
 const serviceAreaOptions = [
-  { value: 'local', label: 'Local In-Person', icon: '🏠' },
-  { value: 'regional', label: 'Regional', icon: '🗺️' },
-  { value: 'online', label: 'Online/Virtual', icon: '💻' },
-  { value: 'hybrid', label: 'Hybrid Model', icon: '🔄' }
+  { value: 'local', label: 'Local In-Person' },
+  { value: 'regional', label: 'Regional' },
+  { value: 'online', label: 'Online/Virtual' },
+  { value: 'hybrid', label: 'Hybrid Model' }
 ];
 
 const capacityOptions = [

@@ -36,10 +36,10 @@ const availabilityOptions = [
 ];
 
 const sessionTypeOptions = [
-  { value: 'one_on_one', label: 'One-on-One', description: 'Individual tutoring sessions', icon: '👤' },
-  { value: 'group', label: 'Group Sessions', description: 'Learning with others', icon: '👥' },
-  { value: 'online', label: 'Online Sessions', description: 'Virtual meetings', icon: '💻' },
-  { value: 'in_person', label: 'In-Person', description: 'Face-to-face sessions', icon: '🏠' }
+  { value: 'one_on_one', label: 'One-on-One', description: 'Individual tutoring sessions' },
+  { value: 'group', label: 'Group Sessions', description: 'Learning with others' },
+  { value: 'online', label: 'Online Sessions', description: 'Virtual meetings' },
+  { value: 'in_person', label: 'In-Person', description: 'Face-to-face sessions' }
 ];
 
 const ClientAvailabilityStep: React.FC<ClientAvailabilityStepProps> = ({

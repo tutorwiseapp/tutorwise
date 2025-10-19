@@ -20,20 +20,17 @@ const roleOptions = [
   {
     value: 'seeker',
     label: "I'm seeking a tutor",
-    description: 'Find and connect with qualified tutors',
-    icon: '🔍'
+    description: 'Find and connect with qualified tutors'
   },
   {
     value: 'provider',
     label: "I'm a tutor",
-    description: 'Offer your tutoring services',
-    icon: '👨‍🏫'
+    description: 'Offer your tutoring services'
   },
   {
     value: 'agent',
     label: "I'm an agent",
-    description: 'Manage tutoring services and connections',
-    icon: '🏢'
+    description: 'Manage tutoring services and connections'
   }
 ];
 

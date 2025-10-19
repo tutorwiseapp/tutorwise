@@ -27,19 +27,19 @@ const experienceLevels = [
 ];
 
 const educationLevels = [
-  { value: 'high_school', label: 'High School', description: 'Secondary education', icon: '🎓' },
-  { value: 'some_college', label: 'Some College', description: 'Partial post-secondary', icon: '📚' },
-  { value: 'bachelors', label: "Bachelor's Degree", description: 'Undergraduate degree', icon: '🎓' },
-  { value: 'masters', label: "Master's Degree", description: 'Graduate degree', icon: '🎓' },
-  { value: 'phd', label: 'Ph.D. or Doctorate', description: 'Doctoral degree', icon: '👨‍🎓' }
+  { value: 'high_school', label: 'High School', description: 'Secondary education' },
+  { value: 'some_college', label: 'Some College', description: 'Partial post-secondary' },
+  { value: 'bachelors', label: "Bachelor's Degree", description: 'Undergraduate degree' },
+  { value: 'masters', label: "Master's Degree", description: 'Graduate degree' },
+  { value: 'phd', label: 'Ph.D. or Doctorate', description: 'Doctoral degree' }
 ];
 
 const commonCertifications = [
-  { value: 'teaching_certificate', label: 'Teaching Certificate', description: 'State or national certification', icon: '📜' },
-  { value: 'tesol_tefl', label: 'TESOL/TEFL', description: 'English language teaching', icon: '🌍' },
-  { value: 'subject_specific', label: 'Subject-Specific Certification', description: 'Specialized subject area', icon: '📋' },
-  { value: 'tutoring_cert', label: 'Tutoring Certification', description: 'Professional tutoring credential', icon: '✅' },
-  { value: 'none', label: 'None yet', description: 'No certifications at this time', icon: '○' }
+  { value: 'teaching_certificate', label: 'Teaching Certificate', description: 'State or national certification' },
+  { value: 'tesol_tefl', label: 'TESOL/TEFL', description: 'English language teaching' },
+  { value: 'subject_specific', label: 'Subject-Specific Certification', description: 'Specialized subject area' },
+  { value: 'tutoring_cert', label: 'Tutoring Certification', description: 'Professional tutoring credential' },
+  { value: 'none', label: 'None yet', description: 'No certifications at this time' }
 ];
 
 const TutorQualificationsStep: React.FC<TutorQualificationsStepProps> = ({
