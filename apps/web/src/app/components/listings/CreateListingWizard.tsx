@@ -46,20 +46,33 @@ export default function CreateListingWizard({
     async function loadSavedDraft() {
       if (!isDraftLoaded && !initialData) {
         const draft = await loadDraft<CreateListingInput>(user?.id, DRAFT_KEY, initialData);
-        if (draft) {
-          // Only merge fields from draft that actually have values
-          // Don't overwrite with undefined/null values
-          const draftWithValues = Object.fromEntries(
-            Object.entries(draft).filter(([_, value]) => value !== undefined && value !== null && value !== '')
-          );
-          console.log('[CreateListingWizard] Loading draft:', draftWithValues);
-          setFormData(prev => ({ ...prev, ...draftWithValues }));
+
+        // Prepare initial data with profile information
+        const baseData = draft || {};
+
+        // Only merge fields from draft that actually have values
+        // Don't overwrite with undefined/null values
+        const draftWithValues = Object.fromEntries(
+          Object.entries(baseData).filter(([_, value]) => value !== undefined && value !== null && value !== '')
+        );
+
+        // Pre-fill tutor_name from profile if not in draft
+        const initialFormData = {
+          ...draftWithValues,
+          tutor_name: draftWithValues.tutor_name || profile?.full_name || '',
+        };
+
+        if (!draftWithValues.tutor_name && profile?.full_name) {
+          console.log('[CreateListingWizard] Pre-filling tutor_name from profile during initialization:', profile.full_name);
         }
+
+        console.log('[CreateListingWizard] Loading draft with profile data:', initialFormData);
+        setFormData(prev => ({ ...prev, ...initialFormData }));
         setIsDraftLoaded(true);
       }
     }
     loadSavedDraft();
-  }, [user?.id, initialData, isDraftLoaded]);
+  }, [user?.id, initialData, isDraftLoaded, profile]);
 
   // Auto-save draft every 30 seconds (using shared utility with database sync)
   const { saveDraft } = useAutoSaveDraft<Partial<CreateListingInput>>(
