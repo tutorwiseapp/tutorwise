@@ -28,16 +28,27 @@ export default function CreateListingWizard({
   isSaving = false,
   initialData
 }: CreateListingWizardProps) {
-  const { profile, user } = useUserProfile();
+  const { profile, user, isLoading: isProfileLoading } = useUserProfile();
   const DRAFT_KEY = 'listing_draft';
 
   const [currentStep, setCurrentStep] = useState<ListingStep>('welcome');
-  const [formData, setFormData] = useState<Partial<CreateListingInput>>({
-    currency: 'GBP',
-    location_country: 'United Kingdom',
-    timezone: 'Europe/London',
-    languages: ['English'],
-    ...initialData,
+  const [formData, setFormData] = useState<Partial<CreateListingInput>>(() => {
+    // Initialize with profile data if available
+    const baseData: Partial<CreateListingInput> = {
+      currency: 'GBP',
+      location_country: 'United Kingdom',
+      timezone: 'Europe/London',
+      languages: ['English'],
+      ...initialData,
+    };
+
+    // Pre-populate tutor_name from profile during initialization
+    if (profile?.full_name && !baseData.tutor_name) {
+      baseData.tutor_name = profile.full_name;
+      console.log('[CreateListingWizard] Initializing tutor_name from profile:', profile.full_name);
+    }
+
+    return baseData;
   });
   const [isDraftLoaded, setIsDraftLoaded] = useState(false);
 
@@ -258,6 +269,17 @@ export default function CreateListingWizard({
         return null;
     }
   };
+
+  // Wait for profile to load before rendering to ensure tutor_name is available
+  if (isProfileLoading) {
+    return (
+      <div className={styles.wizardContainer + ' ' + styles.fullPage}>
+        <div style={{ padding: '3rem 1rem', textAlign: 'center' }}>
+          <p>Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.wizardContainer + ' ' + styles.fullPage}>
