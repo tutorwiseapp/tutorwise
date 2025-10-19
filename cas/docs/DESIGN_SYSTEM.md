@@ -26,90 +26,88 @@ The entire system is built upon four foundational principles:
 
 These are the fundamental "atoms" of the design system.
 
+
 ### 2.1. Color System
 Defined in `globals.css` using CSS variables and mapped in `tailwind.config.ts`.
 
-| Role             | Name             | Hex Code | CSS Variable               | Tailwind Class        |
-| :--------------- | :--------------- | :------- | :------------------------- | :-------------------- |
-| Primary          | Tutorwise Teal   | #006C67  | `--color-primary`          | `bg-primary`          |
-| Secondary        | Amber            | #FFC107  | `--color-secondary`        | `bg-secondary`        |
-| Accent           | Blue             | #2196F3  | `--color-accent`           | `bg-accent`           |
-| Text (Primary)   | Dark Gray        | #212121  | `--color-text-primary`   | `text-text-primary`   |
-| Text (Secondary) | Medium Gray      | #757575  | `--color-text-secondary` | `text-text-secondary` |
-| Text (Light)     | White            | #FFFFFF  | `--color-text-light`     | `text-text-light`     |
-| Background (Pri) | White            | #FFFFFF  | `--color-bg-primary`     | `bg-bg-primary`       |
-| Background (Sec) | Light Gray       | #F5F5F5  | `--color-bg-secondary`   | `bg-bg-secondary`     |
-| Border (Pri)     | Light Gray Border| #E0E0E0  | `--color-border-primary` | `border-border-primary`|
-| Border (Sec)     | Medium Gray Border| #BDBDBD | `--color-border-secondary`| `border-border-secondary`|
-| Status: Success  | Green            | #4CAF50  | `--color-success`          | `bg-success`          |
-| Status: Warning  | Orange           | #FF9800  | `--color-warning`          | `bg-warning`          |
-| Status: Error    | Red              | #F44336  | `--color-error`            | `bg-error`            |
-| Status: Info     | Blue             | #2196F3  | `--color-info`             | `bg-info`             |
+| Role          | Name                  | Hex Code | CSS Variable                | Tailwind Class (Example) |
+| :------------ | :-------------------- | :------- | :-------------------------- | :----------------------- |
+| Primary       | Primary Default       | #006c67  | `--color-primary-default`   | `bg-primary`             |
+| Primary       | Primary Dark          | #005954  | `--color-primary-dark`      | `bg-primary-dark`        |
+| Primary       | Primary Light         | #E6F0F0  | `--color-primary-light`     | `bg-primary-light`       |
+| Secondary     | Secondary Default     | #4CAEAD  | `--color-secondary-default` | `bg-secondary`           |
+| Secondary     | Secondary Dark        | #3D8B8A  | `--color-secondary-dark`    | `bg-secondary-dark`      |
+| Base          | White                 | #FFFFFF  | `--color-base-white`        | `bg-white`               |
+| Base          | Black                 | #000000  | `--color-base-black`        | `bg-black`               |
+| Gray          | Gray 700              | #4B4B4B  | `--color-gray-700`          | `text-gray-700`          |
+| Gray          | Gray 300              | #D1D1D1  | `--color-gray-300`          | `border-gray-300`        |
+| Gray          | Gray 100              | #F5F5F5  | `--color-gray-100`          | `bg-gray-100`            |
+| Status: Success| Success Default       | #4CAF50  | `--color-success-default`   | `bg-success`             |
+| Status: Success| Success Light         | #E8F5E9  | `--color-success-light`     | `bg-success-light`       |
+| Status: Warning| Warning Default       | #FF9800  | `--color-warning-default`   | `bg-warning`             |
+| Status: Warning| Warning Light         | #FFF8E1  | `--color-warning-light`     | `bg-warning-light`       |
+| Status: Error | Error Default         | #F44336  | `--color-error-default`     | `bg-error`               |
+| Status: Error | Error Light           | #FFEBEE  | `--color-error-light`       | `bg-error-light`         |
+| Status: Info  | Info Default          | #2196F3  | `--color-info-default`      | `bg-info`                |
+| Status: Info  | Info Light            | #E3F2FD  | `--color-info-light`        | `bg-info-light`          |
+
+*(Note: 'Name' column filled descriptively based on CSS Variable. Tailwind classes are illustrative examples)*
 
 *(Note: Dark mode colors are defined but not listed here for brevity).*
 
+
 ### 2.2. Typography System
 -   **Font Family:** Inter (via `--font-inter`), sans-serif fallback.
--   **Base Font Size:** 16px.
+-   **Base Font Size:** 16px. 
 
-**Headings:**
+**Headings:** 
 
-| Element | Default Style (globals.css) | Tailwind Size Class | Font Size (px) | Font Weight         |
-| :------ | :-------------------------- | :------------------ | :------------- | :------------------ |
-| `h1`    | 36px bold                   | `text-4xl`          | 36px           | `font-bold` (700)   |
-| `h2`    | 30px semibold               | `text-3xl`          | 30px           | `font-semibold` (600) |
-| `h3`    | 24px semibold               | `text-2xl`          | 24px           | `font-semibold` (600) |
-| `h4`    | 20px semibold               | `text-xl`           | 20px           | `font-semibold` (600) |
-| `h5`    | 18px semibold               | `text-lg`           | 18px           | `font-semibold` (600) |
-| `h6`    | 16px semibold               | `text-base`         | 16px           | `font-semibold` (600) |
+| Element | Default Style (descriptive) | Tailwind Size Class (derived) | Font Size (px) | Font Weight          |
+| :------ | :-------------------------- | :-------------------------- | :------------- | :------------------- |
+| `h1`    | Display Large               | `text-display-lg`           | 36px           | `font-bold` (700)    |
+| `h2`    | Display Small               | `text-display-sm`           | 30px           | `font-semibold` (600)|
+| `h3`    | Heading Large               | `text-heading-lg`           | 24px           | `font-semibold` (600)|
+| `h4`    | Heading Medium              | `text-heading-md`           | 20px           | `font-semibold` (600)|
+| `h5`    | Heading Small               | `text-heading-sm`           | 18px           | `font-semibold` (600)|
+| `h6`    | Body Base (Semibold)        | `text-body-base`            | 16px           | `font-semibold` (600)|
 
-**Body Text:**
+*(Note: Mapped PDF Token Names to Element/Default Style. Tailwind classes derived from PDF CSS Class)*
 
-| Style       | Tailwind Size Class | Font Size (px) | Tailwind Weight Class | Font Weight   |
-| :---------- | :------------------ | :------------- | :-------------------- | :------------ |
-| Extra Small | `text-xs`           | 12px           | `font-normal` (etc.)  | 400 (default) |
-| Small       | `text-sm`           | 14px           | `font-normal` (etc.)  | 400 (default) |
-| Base        | `text-base`         | 16px           | `font-normal` (etc.)  | 400 (default) |
-| Large       | `text-lg`           | 18px           | `font-normal` (etc.)  | 400 (default) |
+**Body Text:** *(Table structure follows original MD exactly; content updated/mapped from PDF)*
+
+| Style       | Tailwind Size Class (derived) | Font Size (px) | Tailwind Weight Class (derived) | Font Weight   |
+| :---------- | :-------------------------- | :------------- | :---------------------------- | :------------ |
+| Extra Small | `text-body-xs`              | 12px           | `font-normal`                 | 400 (Normal)  |
+| Small       | `text-body-sm`              | 14px           | `font-normal`                 | 400 (Normal)  |
+| Base        | `text-body-base`            | 16px           | `font-normal`                 | 400 (Normal)  |
+| Large       | `text-body-lg`              | 18px           | `font-normal`                 | 400 (Normal)  |
 
 *(Note: Default paragraph line height is 1.6)*
+
+**Implementation Note:** Custom typography classes like `text-display-lg`, `text-heading-lg`, `text-body-sm` should be defined in your Tailwind config or globals.css. If not yet implemented, use standard Tailwind classes as equivalents: `text-4xl` (36px), `text-3xl` (30px), `text-2xl` (24px), `text-xl` (20px), `text-lg` (18px), `text-base` (16px), `text-sm` (14px), `text-xs` (12px).
 
 ### 2.3. Spacing & Sizing System
 Based on an **8-point grid system** (multiples of 8px). Tailwind CSS utility classes (`p-*`, `m-*`, `gap-*`, etc.) should be used.
 
-| Tailwind Class Suffix | Value   | Pixels |
-| :-------------------- | :------ | :----- |
-| `-1`                  | `0.25rem` | 4px    |
-| `-2`                  | `0.5rem`  | 8px    |
-| `-3`                  | `0.75rem` | 12px   |
-| `-4`                  | `1rem`    | 16px   |
-| `-6`                  | `1.5rem`  | 24px   |
-| `-8`                  | `2rem`    | 32px   |
-| `-12`                 | `3rem`    | 48px   |
-| `-16`                 | `4rem`    | 64px   |
+| Tailwind Class Suffix | Value (rem) | Pixels |
+| :-------------------- | :---------- | :----- |
+| `-1`                  | `0.25rem`   | 4px    | *(space-xxs)* |
+| `-2`                  | `0.5rem`    | 8px    | *(space-xs)* |
+| `-4`                  | `1rem`      | 16px   | *(space-sm)* |
+| `-6`                  | `1.5rem`    | 24px   | *(space-md)* |
+| `-8`                  | `2rem`      | 32px   | *(space-lg)* |
+| `-12`                 | `3rem`      | 48px   | *(space-xl)* |
+| `-16`                 | `4rem`      | 64px   | *(space-2xl)* |
 
 ### 2.4. Border Radius System
 Controlled via CSS variables mapped to Tailwind classes.
 
-| CSS Variable             | Tailwind Class | Pixel Value | Use Case Example          |
-| :----------------------- | :------------- | :---------- | :------------------------ |
-| `--border-radius-sm`     | `rounded-sm`   | 2px         | Small tags, badges        |
-| `--border-radius-md`     | `rounded-md`   | 6px         | Buttons, Inputs, Cards    |
-| `--border-radius-lg`     | `rounded-lg`   | 8px         | Larger containers         |
-| `--border-radius-xl`     | `rounded-xl`   | 12px        | Modals                    |
-| `--border-radius-full`   | `rounded-full` | 9999px      | Avatars, Pills            |
-
-### 2.5. Shadow System
-Controlled via CSS variables mapped to Tailwind classes.
-
-| CSS Variable     | Tailwind Class | Use Case Example                 |
-| :--------------- | :------------- | :------------------------------- |
-| `--shadow-sm`    | `shadow-sm`    | Subtle elevation                 |
-| `--shadow-md`    | `shadow-md`    | Default Card shadow              |
-| `--shadow-lg`    | `shadow-lg`    | Hover states, emphasized elements |
-| `--shadow-xl`    | `shadow-xl`    | Modals, Popovers                 |
-| `--shadow-2xl`   | `shadow-2xl`   | Highest elevation                |
-| `--shadow-inner` | `shadow-inner` | Input focus states (inset)       |
+| CSS Variable (from Token Name) | Tailwind Class (derived) | Pixel Value | Use Case Example                               |
+| :----------------------------- | :----------------------- | :---------- | :--------------------------------------------- |
+| `--border-radius-sm`           | `rounded-sm`             | 4px         | For small components (e.g., pagination buttons). |
+| `--border-radius-md`           | `rounded-md`             | 8px         | Default for containers (Cards, Inputs, Modals).   |
+| `--border-radius-lg`           | `rounded-lg`             | 16px        | For larger layout elements.                     |
+| `--border-radius-full`         | `rounded-full`           | 9999px      | For inline items (Chips, Pills, Avatars).      |
 
 ---
 
@@ -125,9 +123,9 @@ Controlled via CSS variables mapped to Tailwind classes.
 -   `accent`: Blue background, white text. Alternative actions or special emphasis.
 
 **Sizes:** (Padding / Font Size)
--   `small`: `p-1 px-3` / `text-sm` (14px)
--   `medium` (Default): `p-2 px-4` / `text-base` (16px)
--   `large`: `p-3 px-6` / `text-lg` (18px)
+-   `small`: `py-1 px-3` / `text-sm` (14px)
+-   `medium` (Default): `py-2 px-4` / `text-base` (16px)
+-   `large`: `py-3 px-6` / `text-lg` (18px)
 
 **States:**
 -   **Hover:** Subtle background/border color change (darker for primary/accent, light tint for secondary).
@@ -219,9 +217,9 @@ Standardized elements for user input. All form controls share common styling for
     -   Selected State (e.g., in wizards): Add `border-2 border-primary` via `className` prop.
 
 ### 5.2. Page Layout & Grid Strategy
--   **Primary Desktop Width:** `1440px` (Maximum viewport width - applies to fullPage mode containers).
--   **Content Container:** Centered container with `max-width: 1200px` (default content width) and horizontal padding (`px-4`). Use `<Container>` component or apply Tailwind classes `max-w-6xl mx-auto px-4`.
--   **Container Styling:** Page-level containers, modals, and wizard containers do NOT use borders. They use `box-shadow: none` and `border-radius: 0` for clean, modern appearance. Visual separation is achieved through background colors, shadows on inner elements, and spacing.
+-   **Maximum Viewport Width:** `1440px`. This is the maximum width for which the primary desktop layout is designed (applies to fullPage mode containers).
+-   **Default Content Container:** `1200px` (`max-w-6xl` in Tailwind). This is the default maximum width for main content areas, centered on the page with horizontal padding (`px-4`). This is enforced by the `<Container>` component's default variant.
+-   **Container Styling Principle:** Page-level containers, modals, and wizard containers do NOT use borders. They use `box-shadow: none` and `border-radius: 0` for a clean, modern appearance. Visual separation is achieved through background colors, shadows on inner elements (cards, buttons), and spacing. This principle aligns with Core Principle #4 (Strategic Border Usage).
 -   **Grid System:** Utilizes Tailwind's responsive grid utilities (e.g., `grid grid-cols-1 md:grid-cols-3 gap-4`) based on the 8-point spacing system for gaps.
 
 ### 5.3. Modal Component (`<Modal>`)
