@@ -51,15 +51,20 @@ export default function CreateListingWizard({
         const baseData = draft || {};
 
         // Only merge fields from draft that actually have values
-        // Don't overwrite with undefined/null values
+        // Don't overwrite with undefined/null/empty values
         const draftWithValues = Object.fromEntries(
           Object.entries(baseData).filter(([_, value]) => value !== undefined && value !== null && value !== '')
-        );
+        ) as Partial<CreateListingInput>;
 
         // Pre-fill tutor_name from profile if not in draft
-        if (!draftWithValues.tutor_name && profile?.full_name) {
-          console.log('[CreateListingWizard] Pre-filling tutor_name from profile during initialization:', profile.full_name);
-          draftWithValues.tutor_name = profile.full_name;
+        // This ensures the name is available immediately when the wizard loads
+        const tutorName = draftWithValues.tutor_name || profile?.full_name;
+
+        if (tutorName) {
+          draftWithValues.tutor_name = tutorName;
+          if (profile?.full_name && !baseData.tutor_name) {
+            console.log('[CreateListingWizard] Pre-filling tutor_name from profile during initialization:', profile.full_name);
+          }
         }
 
         console.log('[CreateListingWizard] Loading draft with profile data:', draftWithValues);
