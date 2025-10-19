@@ -11,6 +11,7 @@ import AgentDetailsStep from './AgentDetailsStep';
 import AgentServicesStep from './AgentServicesStep';
 import AgentCapacityStep from './AgentCapacityStep';
 import { AgencyDetailsData, CapacityData } from '@/types';
+import styles from '../OnboardingWizard.module.css';
 
 export type AgentOnboardingStep = 'details' | 'services' | 'capacity' | 'completion';
 
@@ -193,7 +194,11 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
     }
   };
 
-  return <div>{renderCurrentStep()}</div>;
+  return (
+    <div className={`${styles.wizardContainer} ${mode === 'fullPage' ? styles.fullPage : styles.modal}`}>
+      {renderCurrentStep()}
+    </div>
+  );
 };
 
 export default AgentOnboardingWizard;

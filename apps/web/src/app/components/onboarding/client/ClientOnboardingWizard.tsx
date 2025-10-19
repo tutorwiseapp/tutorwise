@@ -15,7 +15,7 @@ import OnboardingProgressBar from '../OnboardingProgressBar';
 import ClientSubjectSelectionStep from './ClientSubjectSelectionStep';
 import ClientLearningPreferencesStep from './ClientLearningPreferencesStep';
 import ClientAvailabilityStep from './ClientAvailabilityStep';
-import styles from '../../../onboarding/client/page.module.css';
+import styles from '../OnboardingWizard.module.css';
 
 export type ClientStep = 'subjects' | 'preferences' | 'availability' | 'completion';
 
