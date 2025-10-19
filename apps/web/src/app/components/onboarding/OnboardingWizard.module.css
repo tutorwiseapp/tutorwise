@@ -39,6 +39,7 @@
 
 .errorMessage {
   background-color: #fef2f2;
+  border: 1px solid #fecaca;
   border-radius: var(--border-radius-md, 8px);
   padding: 1rem;
   margin: 1.5rem 1.5rem 0;
@@ -141,6 +142,7 @@
 
 .roleCard {
   background-color: var(--color-bg-card, #ffffff);
+  border: 2px solid var(--color-border, #dfe1e5);
   border-radius: var(--border-radius-md, 8px);
   padding: 1.5rem;
   cursor: pointer;
@@ -149,11 +151,13 @@
 }
 
 .roleCard:hover {
+  border-color: var(--color-primary, #006C67);
   box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.08));
   transform: translateY(-1px);
 }
 
 .roleCard.selected {
+  border-color: var(--color-primary, #006C67);
   background-color: var(--color-primary-light, #E0F2F1);
   box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.12));
 }
@@ -178,6 +182,7 @@
 .roleCheckbox {
   width: 1.25rem;
   height: 1.25rem;
+  border: 2px solid var(--color-border, #dfe1e5);
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -187,6 +192,7 @@
 }
 
 .roleCheckbox.checked {
+  border-color: var(--color-primary, #006C67);
   background-color: var(--color-primary, #006C67);
   color: white;
 }
@@ -332,6 +338,7 @@
   justify-content: center;
   padding: 12px 16px; /* 8px × 1.5 and 8px × 2 */
   background-color: var(--color-bg-secondary, #f9fafb);
+  border: 2px solid var(--color-border, #dfe1e5);
   border-radius: 8px; /* 8px × 1 */
   cursor: pointer;
   transition: all 0.2s ease-in-out;
@@ -344,6 +351,7 @@
 
 .checkboxItem:hover {
   background-color: var(--color-primary-light, #E0F2F1);
+  border-color: var(--color-primary, #006C67);
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 108, 103, 0.1);
 }
@@ -355,11 +363,13 @@
 .checkboxItem.selected {
   background-color: var(--color-primary, #006C67);
   color: white;
+  border-color: var(--color-primary, #006C67);
   box-shadow: 0 2px 8px rgba(0, 108, 103, 0.2);
 }
 
 .checkboxItem.selected:hover {
   background-color: #005a56;
+  border-color: #005a56;
 }
 
 /* Button styles - using existing button system */
@@ -422,6 +432,7 @@
   padding: 1rem;
   background-color: var(--color-bg-secondary, #f9fafb);
   border-radius: var(--border-radius-md, 8px);
+  border: 1px solid var(--color-border, #e5e7eb);
 }
 
 .benefitIcon {

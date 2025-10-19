@@ -35,7 +35,7 @@
 .spinner {
   width: 3rem;
   height: 3rem;
-  border: 3px solid transparent;
+  border: 3px solid #e5e7eb;
   border-top: 3px solid #3b82f6;
   border-radius: 50%;
   animation: spin 1s linear infinite;

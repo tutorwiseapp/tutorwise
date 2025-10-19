@@ -68,6 +68,7 @@
 
 .stepCircle--upcoming {
   background: white;
+  border: 2px solid #d1d5db;
   color: #9ca3af;
 }
 
