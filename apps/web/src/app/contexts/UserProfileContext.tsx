@@ -20,7 +20,7 @@ interface UserProfileContextType {
   activeRole: Role | null;
   availableRoles: Role[];
   switchRole: (role: Role) => Promise<void>;
-  setActiveRole: (role: Role) => Promise<void>;
+  setActiveRole: (role: Role) => void;
   rolePreferences: RolePreferences;
   updateRolePreferences: (preferences: Partial<RolePreferences>) => Promise<void>;
   isLoading: boolean;
@@ -76,28 +76,17 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const setActiveRole = async (role: Role): Promise<void> => {
+  const setActiveRole = (role: Role) => {
     setActiveRoleState(role);
-    localStorage.setItem('activeRole', role);
-
     if (profile && user) {
-      try {
-        const { error } = await supabase
-          .from('profiles')
-          .update({ active_role: role })
-          .eq('id', user.id);
-
-        if (error) {
-          console.error('[UserProfileContext] Error setting active role:', error);
-          throw error;
-        }
-
-        console.log('[UserProfileContext] Active role updated to:', role);
-        setProfile((prev) => prev ? { ...prev, active_role: role } : prev);
-      } catch (error) {
-        console.error('[UserProfileContext] Failed to set active role:', error);
-        throw error;
-      }
+      supabase
+        .from('profiles')
+        .update({ active_role: role })
+        .eq('id', user.id)
+        .then(({ error }) => {
+          if (error) console.error('Error setting active role:', error);
+          else setProfile((prev) => prev ? { ...prev, active_role: role } : prev);
+        });
     }
   };
 

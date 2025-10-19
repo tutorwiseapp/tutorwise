@@ -60,20 +60,20 @@ function AgentOnboardingPageContent() {
   }
 
   const handleOnboardingComplete = async () => {
-    console.log('[AgentOnboarding] Onboarding complete, setting active role to agent...');
-    await setActiveRole('agent');
-    console.log('[AgentOnboarding] Active role set, refreshing profile...');
+    console.log('[AgentOnboarding] Onboarding complete, refreshing profile...');
     await refreshProfile();
-    console.log('[AgentOnboarding] Profile refreshed, redirecting to dashboard...');
+    console.log('[AgentOnboarding] Profile refreshed, setting active role to agent...');
+    setActiveRole('agent');
+    console.log('[AgentOnboarding] Active role set, redirecting to dashboard...');
     router.push('/dashboard');
   };
 
   const handleOnboardingSkip = async () => {
-    console.log('[AgentOnboarding] Onboarding skipped, setting active role to agent...');
-    await setActiveRole('agent');
-    console.log('[AgentOnboarding] Active role set, refreshing profile...');
+    console.log('[AgentOnboarding] Onboarding skipped, refreshing profile...');
     await refreshProfile();
-    console.log('[AgentOnboarding] Profile refreshed, redirecting to dashboard...');
+    console.log('[AgentOnboarding] Profile refreshed, setting active role to agent...');
+    setActiveRole('agent');
+    console.log('[AgentOnboarding] Active role set, redirecting to dashboard...');
     router.push('/dashboard');
   };
 
