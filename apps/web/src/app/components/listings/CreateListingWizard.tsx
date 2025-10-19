@@ -57,17 +57,13 @@ export default function CreateListingWizard({
         );
 
         // Pre-fill tutor_name from profile if not in draft
-        const initialFormData = {
-          ...draftWithValues,
-          tutor_name: draftWithValues.tutor_name || profile?.full_name || '',
-        };
-
         if (!draftWithValues.tutor_name && profile?.full_name) {
           console.log('[CreateListingWizard] Pre-filling tutor_name from profile during initialization:', profile.full_name);
+          draftWithValues.tutor_name = profile.full_name;
         }
 
-        console.log('[CreateListingWizard] Loading draft with profile data:', initialFormData);
-        setFormData(prev => ({ ...prev, ...initialFormData }));
+        console.log('[CreateListingWizard] Loading draft with profile data:', draftWithValues);
+        setFormData(prev => ({ ...prev, ...draftWithValues }));
         setIsDraftLoaded(true);
       }
     }
