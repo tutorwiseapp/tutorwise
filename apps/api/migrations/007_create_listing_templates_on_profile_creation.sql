@@ -9,7 +9,7 @@ CREATE OR REPLACE FUNCTION create_default_listing_templates()
 RETURNS TRIGGER AS $$
 BEGIN
   -- Only create templates if:
-  -- 1. Profile has full_name set (prevents empty tutor_name in listings)
+  -- 1. Profile has full_name set (prevents empty full_name in listings)
   -- 2. Profile has provider role (tutors only)
   -- 3. This is a new profile (INSERT operation)
   IF NEW.full_name IS NOT NULL AND
@@ -29,7 +29,7 @@ BEGIN
       timezone,
       location_type,
       status,
-      tutor_name
+      full_name
     ) VALUES (
       NEW.id,
       'GCSE Mathematics Tutor - Experienced & Results-Focused',
@@ -58,7 +58,7 @@ BEGIN
       timezone,
       location_type,
       status,
-      tutor_name
+      full_name
     ) VALUES (
       NEW.id,
       'GCSE English Language & Literature Tutor',
@@ -87,7 +87,7 @@ BEGIN
       timezone,
       location_type,
       status,
-      tutor_name
+      full_name
     ) VALUES (
       NEW.id,
       'GCSE Science Tutor - Biology, Chemistry & Physics',

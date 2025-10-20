@@ -33,7 +33,7 @@ BEGIN
       timezone,
       location_type,
       status,
-      tutor_name
+      full_name
     ) VALUES (
       tutor_record.id,
       'GCSE Mathematics Tutor - Experienced & Results-Focused',
@@ -62,7 +62,7 @@ BEGIN
       timezone,
       location_type,
       status,
-      tutor_name
+      full_name
     ) VALUES (
       tutor_record.id,
       'GCSE English Language & Literature Tutor',
@@ -91,7 +91,7 @@ BEGIN
       timezone,
       location_type,
       status,
-      tutor_name
+      full_name
     ) VALUES (
       tutor_record.id,
       'GCSE Science Tutor - Biology, Chemistry & Physics',

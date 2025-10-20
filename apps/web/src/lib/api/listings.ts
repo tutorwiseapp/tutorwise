@@ -85,7 +85,7 @@ export async function createListing(input: CreateListingInput): Promise<Listing>
 
   const listingData = {
     profile_id: user.id,
-    tutor_name: input.tutor_name,
+    full_name: input.full_name,
     title: input.title,
     description: input.description,
     subjects: input.subjects,

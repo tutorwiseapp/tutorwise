@@ -27,7 +27,7 @@ export interface Listing {
   profile_id: string;
 
   // Basic Info
-  tutor_name?: string; // Full name of the tutor (e.g., "Jane Doe")
+  full_name?: string; // Full name of the tutor (e.g., "Jane Doe")
   title: string; // Service title (e.g., "GCSE Maths Tutor")
   description: string;
   status: ListingStatus;
@@ -79,7 +79,7 @@ export interface Listing {
 
 export interface CreateListingInput {
   // Basic Info (required)
-  tutor_name?: string; // Full name of the tutor
+  full_name?: string; // Full name of the tutor
   title: string; // Service title
   description: string;
 

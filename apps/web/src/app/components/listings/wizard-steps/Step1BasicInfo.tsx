@@ -11,27 +11,27 @@ interface Step1Props {
 }
 
 export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props) {
-  const [tutorName, setTutorName] = useState(formData.tutor_name || '');
+  const [fullName, setFullName] = useState(formData.full_name || '');
   const [title, setTitle] = useState(formData.title || '');
   const [description, setDescription] = useState(formData.description || '');
-  const [errors, setErrors] = useState<{ tutorName?: string; title?: string; description?: string }>({});
-  const [isWaitingForProfile, setIsWaitingForProfile] = useState(!formData.tutor_name);
+  const [errors, setErrors] = useState<{ fullName?: string; title?: string; description?: string }>({});
+  const [isWaitingForProfile, setIsWaitingForProfile] = useState(!formData.full_name);
 
   // Sync local state with formData prop changes (for auto-population)
   useEffect(() => {
     console.log('[Step1BasicInfo] Sync check:', {
-      formDataTutorName: formData.tutor_name,
-      localTutorName: tutorName,
+      formDataFullName: formData.full_name,
+      localFullName: fullName,
       formDataTitle: formData.title,
       localTitle: title,
       isWaitingForProfile
     });
 
     // Always sync from formData to local state when formData changes
-    if (formData.tutor_name !== tutorName) {
-      console.log('[Step1BasicInfo] Syncing tutor name from formData:', formData.tutor_name);
-      setTutorName(formData.tutor_name || '');
-      if (formData.tutor_name) {
+    if (formData.full_name !== fullName) {
+      console.log('[Step1BasicInfo] Syncing full name from formData:', formData.full_name);
+      setFullName(formData.full_name || '');
+      if (formData.full_name) {
         setIsWaitingForProfile(false);
       }
     }
@@ -41,13 +41,13 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
     if (formData.description !== description) {
       setDescription(formData.description || '');
     }
-  }, [formData.tutor_name, formData.title, formData.description]);
+  }, [formData.full_name, formData.title, formData.description]);
 
   const validate = () => {
-    const newErrors: { tutorName?: string; title?: string; description?: string } = {};
+    const newErrors: { fullName?: string; title?: string; description?: string } = {};
 
-    if (!tutorName.trim()) {
-      newErrors.tutorName = 'Tutor name is required';
+    if (!fullName.trim()) {
+      newErrors.fullName = 'Full name is required';
     }
 
     if (!title.trim()) {
@@ -71,7 +71,7 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
   const handleContinue = () => {
     if (validate()) {
       onNext({
-        tutor_name: tutorName.trim(),
+        full_name: fullName.trim(),
         title: title.trim(),
         description: description.trim()
       });
@@ -88,15 +88,15 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
       </div>
 
       <div className={styles.stepBody}>
-        {/* Tutor Name - Read-only, populated from profile */}
+        {/* Full Name - Read-only, populated from profile */}
         <div className={styles.formGroup}>
-          <label htmlFor="tutorName" className={styles.formLabel}>
+          <label htmlFor="fullName" className={styles.formLabel}>
             Full Name <span style={{ color: 'var(--color-error, #dc2626)' }}>*</span>
           </label>
           <input
-            id="tutorName"
+            id="fullName"
             type="text"
-            value={formData.tutor_name || tutorName || 'Loading...'}
+            value={formData.full_name || fullName || 'Loading...'}
             readOnly
             disabled
             className={styles.formInput}
@@ -107,9 +107,9 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
               fontWeight: '500'
             }}
           />
-          {errors.tutorName && (
+          {errors.fullName && (
             <p className={styles.errorText} style={{ margin: '8px 0 0 0' }}>
-              {errors.tutorName}
+              {errors.fullName}
             </p>
           )}
           <p className={styles.helperText} style={{ margin: '8px 0 0 0', fontSize: '0.75rem' }}>
@@ -118,7 +118,7 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
           {/* Debug info - remove after testing */}
           {process.env.NODE_ENV === 'development' && (
             <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '4px' }}>
-              Debug: formData.tutor_name = {JSON.stringify(formData.tutor_name)} | tutorName = {JSON.stringify(tutorName)}
+              Debug: formData.full_name = {JSON.stringify(formData.full_name)} | fullName = {JSON.stringify(fullName)}
             </p>
           )}
         </div>

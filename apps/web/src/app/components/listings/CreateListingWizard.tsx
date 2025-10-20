@@ -42,10 +42,10 @@ export default function CreateListingWizard({
       ...initialData,
     };
 
-    // Pre-populate tutor_name from profile during initialization
-    if (profile?.full_name && !baseData.tutor_name) {
-      baseData.tutor_name = profile.full_name;
-      console.log('[CreateListingWizard] Initializing tutor_name from profile:', profile.full_name);
+    // Pre-populate full_name from profile during initialization
+    if (profile?.full_name && !baseData.full_name) {
+      baseData.full_name = profile.full_name;
+      console.log('[CreateListingWizard] Initializing full_name from profile:', profile.full_name);
     }
 
     return baseData;
@@ -67,14 +67,14 @@ export default function CreateListingWizard({
           Object.entries(baseData).filter(([_, value]) => value !== undefined && value !== null && value !== '')
         ) as Partial<CreateListingInput>;
 
-        // Pre-fill tutor_name from profile if not in draft
+        // Pre-fill full_name from profile if not in draft
         // This ensures the name is available immediately when the wizard loads
-        const tutorName = draftWithValues.tutor_name || profile?.full_name;
+        const fullName = draftWithValues.full_name || profile?.full_name;
 
-        if (tutorName) {
-          draftWithValues.tutor_name = tutorName;
-          if (profile?.full_name && !baseData.tutor_name) {
-            console.log('[CreateListingWizard] Pre-filling tutor_name from profile during initialization:', profile.full_name);
+        if (fullName) {
+          draftWithValues.full_name = fullName;
+          if (profile?.full_name && !baseData.full_name) {
+            console.log('[CreateListingWizard] Pre-filling full_name from profile during initialization:', profile.full_name);
           }
         }
 
@@ -103,21 +103,21 @@ export default function CreateListingWizard({
       hasUser: !!user,
       userEmail: user?.email,
       hasInitialData: !!initialData,
-      currentTutorName: formData.tutor_name,
+      currentFullName: formData.full_name,
       currentImages: formData.images
     });
 
     if (profile && !initialData) {
       const updates: Partial<CreateListingInput> = {};
 
-      // Auto-populate tutor_name from profile full_name
-      if (profile.full_name && !formData.tutor_name) {
-        console.log('[CreateListingWizard] Auto-populating tutor_name:', profile.full_name);
-        updates.tutor_name = profile.full_name;
+      // Auto-populate full_name from profile full_name
+      if (profile.full_name && !formData.full_name) {
+        console.log('[CreateListingWizard] Auto-populating full_name:', profile.full_name);
+        updates.full_name = profile.full_name;
       } else if (!profile.full_name) {
         console.warn('[CreateListingWizard] Profile has no full_name field!', profile);
-      } else if (formData.tutor_name) {
-        console.log('[CreateListingWizard] Tutor name already set:', formData.tutor_name);
+      } else if (formData.full_name) {
+        console.log('[CreateListingWizard] Full name already set:', formData.full_name);
       }
 
       // Auto-populate first image with profile picture
@@ -137,7 +137,7 @@ export default function CreateListingWizard({
       if (!profile) console.log('[CreateListingWizard] No profile available yet');
       if (initialData) console.log('[CreateListingWizard] Has initialData, skipping auto-populate');
     }
-  }, [profile, formData.tutor_name, formData.images, initialData]);
+  }, [profile, formData.full_name, formData.images, initialData]);
 
   // Save current step whenever it changes (for resume functionality)
   useEffect(() => {
@@ -152,10 +152,10 @@ export default function CreateListingWizard({
 
   // Step navigation handlers
   const handleWelcomeNext = () => {
-    // Ensure tutor_name is populated from profile when moving to basic info step
-    if (profile?.full_name && !formData.tutor_name) {
-      console.log('[CreateListingWizard] Populating tutor_name on navigation:', profile.full_name);
-      setFormData(prev => ({ ...prev, tutor_name: profile.full_name }));
+    // Ensure full_name is populated from profile when moving to basic info step
+    if (profile?.full_name && !formData.full_name) {
+      console.log('[CreateListingWizard] Populating full_name on navigation:', profile.full_name);
+      setFormData(prev => ({ ...prev, full_name: profile.full_name }));
     }
     setCurrentStep('basic');
   };
@@ -270,7 +270,7 @@ export default function CreateListingWizard({
     }
   };
 
-  // Wait for profile to load before rendering to ensure tutor_name is available
+  // Wait for profile to load before rendering to ensure full_name is available
   if (isProfileLoading) {
     return (
       <div className={styles.wizardContainer + ' ' + styles.fullPage}>

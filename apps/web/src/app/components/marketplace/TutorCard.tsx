@@ -107,7 +107,7 @@ export default function TutorCard({ listing }: TutorCardProps) {
         <div className={styles.content}>
           {/* Line 1: Tutor Name & Rating */}
           <div className={styles.row}>
-            <h3 className={styles.name}>{listing.tutor_name || listing.title}</h3>
+            <h3 className={styles.name}>{listing.full_name || listing.title}</h3>
             <div className={styles.rating}>
               <svg
                 className={styles.starIcon}
