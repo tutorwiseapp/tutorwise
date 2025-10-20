@@ -50,13 +50,13 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
 
   // Sync other fields with formData prop changes
   useEffect(() => {
-    if (formData.title !== title) {
-      setTitle(formData.title || '');
+    if (formData.title && formData.title !== title) {
+      setTitle(formData.title);
     }
-    if (formData.description !== description) {
-      setDescription(formData.description || '');
+    if (formData.description && formData.description !== description) {
+      setDescription(formData.description);
     }
-  }, [formData.title, formData.description]);
+  }, [formData.title, formData.description, title, description]);
 
   const validate = () => {
     const newErrors: { tutorName?: string; title?: string; description?: string } = {};
