@@ -95,6 +95,7 @@
     "deploy:railway": "bash tools/scripts/deployment/railway-deploy.sh",
     "deploy:vercel": "bash tools/scripts/deployment/vercel-deploy.sh",
     "deploy:vercel:prod": "bash tools/scripts/deployment/vercel-deploy.sh prod",
+    "migrate:listing-templates": "node apps/api/migrations/run-migrations-007-008.js",
     "prepare": "husky"
   },
   "dependencies": {
