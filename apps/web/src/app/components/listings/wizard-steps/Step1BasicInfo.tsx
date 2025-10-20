@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { CreateListingInput } from '@tutorwise/shared-types';
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import styles from '../../onboarding/OnboardingWizard.module.css';
 
 interface Step1Props {
@@ -11,37 +12,51 @@ interface Step1Props {
 }
 
 export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props) {
+  const { profile, isLoading: isProfileLoading } = useUserProfile();
+
+  // Initialize tutorName state - start potentially empty
   const [tutorName, setTutorName] = useState(formData.tutor_name || '');
   const [title, setTitle] = useState(formData.title || '');
   const [description, setDescription] = useState(formData.description || '');
   const [errors, setErrors] = useState<{ tutorName?: string; title?: string; description?: string }>({});
+  // Keep track if we initially relied on profile
   const [isWaitingForProfile, setIsWaitingForProfile] = useState(!formData.tutor_name);
 
-  // Sync local state with formData prop changes (for auto-population)
   useEffect(() => {
-    console.log('[Step1BasicInfo] Sync check:', {
-      formDataTutorName: formData.tutor_name,
-      localTutorName: tutorName,
-      formDataTitle: formData.title,
-      localTitle: title,
-      isWaitingForProfile
-    });
-
-    // Always sync from formData to local state when formData changes
-    if (formData.tutor_name !== tutorName) {
-      console.log('[Step1BasicInfo] Syncing tutor name from formData:', formData.tutor_name);
-      setTutorName(formData.tutor_name || '');
-      if (formData.tutor_name) {
-        setIsWaitingForProfile(false);
-      }
+    // Priority 1: If formData prop changes *after* initial render (e.g., loading a draft), update local state
+    if (formData.tutor_name && formData.tutor_name !== tutorName) {
+      console.log('[Step1BasicInfo] Syncing tutor name from formData prop change:', formData.tutor_name);
+      setTutorName(formData.tutor_name);
+      setIsWaitingForProfile(false); // No longer waiting if formData provided it
     }
+    // Priority 2: If profile has loaded AND local state is still empty AND formData didn't provide it initially
+    else if (!isProfileLoading && profile?.full_name && !tutorName && isWaitingForProfile) {
+      console.log('[Step1BasicInfo] Initializing tutor name from loaded profile context:', profile.full_name);
+      setTutorName(profile.full_name);
+      setIsWaitingForProfile(false); // Name has been set
+    }
+    // Optional: If profile loads but has no full_name, stop waiting
+    else if (!isProfileLoading && !profile?.full_name && isWaitingForProfile) {
+      console.log('[Step1BasicInfo] Profile loaded but no full_name found.');
+      setIsWaitingForProfile(false);
+    }
+  }, [
+    profile,
+    isProfileLoading,
+    formData.tutor_name, // React to changes in the prop
+    tutorName,            // Include local state to prevent unnecessary sets
+    isWaitingForProfile   // Include waiting state
+  ]);
+
+  // Sync other fields with formData prop changes
+  useEffect(() => {
     if (formData.title !== title) {
       setTitle(formData.title || '');
     }
     if (formData.description !== description) {
       setDescription(formData.description || '');
     }
-  }, [formData.tutor_name, formData.title, formData.description]);
+  }, [formData.title, formData.description]);
 
   const validate = () => {
     const newErrors: { tutorName?: string; title?: string; description?: string } = {};
@@ -96,7 +111,7 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
           <input
             id="tutorName"
             type="text"
-            value={formData.tutor_name || tutorName || 'Loading...'}
+            value={tutorName || (isProfileLoading ? 'Loading...' : '')}
             readOnly
             disabled
             className={styles.formInput}
@@ -118,7 +133,7 @@ export default function Step1BasicInfo({ formData, onNext, onBack }: Step1Props)
           {/* Debug info - remove after testing */}
           {process.env.NODE_ENV === 'development' && (
             <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '4px' }}>
-              Debug: formData.tutor_name = {JSON.stringify(formData.tutor_name)} | tutorName = {JSON.stringify(tutorName)}
+              Debug: isProfileLoading = {JSON.stringify(isProfileLoading)} | profile.full_name = {JSON.stringify(profile?.full_name)} | tutorName = {JSON.stringify(tutorName)}
             </p>
           )}
         </div>
