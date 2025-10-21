@@ -97,7 +97,14 @@
 
 .actions {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 16px;
+  grid-template-columns: 1fr; /* Mobile: stack vertically */
+  gap: 8px;
   margin-top: auto;
+}
+
+@media (min-width: 640px) {
+  .actions {
+    grid-template-columns: 1fr 1fr 1fr; /* Tablet+: horizontal layout */
+    gap: 12px;
+  }
 }

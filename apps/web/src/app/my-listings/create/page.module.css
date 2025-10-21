@@ -9,14 +9,12 @@
   align-items: flex-start;
   justify-content: center;
   background-color: var(--color-bg-primary, #ffffff);
-  padding: 2rem 1rem;
+  padding: 0; /* Mobile & tablet: no padding to allow full width */
 }
 
-@media (max-width: 768px) {
+@media (min-width: 1024px) {
   .listingPage {
-    padding: 0.5rem;
-    align-items: flex-start;
-    padding-top: 2rem;
+    padding: 2rem 1rem; /* Desktop: add padding */
   }
 }
 

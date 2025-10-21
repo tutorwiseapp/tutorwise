@@ -6,22 +6,43 @@
 }
 
 .pageHeader {
-  max-width: 1280px;
+  max-width: 1200px; /* Design system: default content container */
   margin: 0 auto;
-  padding: 48px 24px 32px;
+  padding: 24px 16px; /* Mobile-first: reduced padding */
   border-bottom: 1px solid #e5e7eb;
+}
+
+@media (min-width: 768px) {
+  .pageHeader {
+    padding: 48px 24px 32px;
+  }
 }
 
 .headerTop {
   display: flex;
+  flex-direction: column; /* Mobile: stack vertically */
+  gap: 16px;
   justify-content: space-between;
-  align-items: center;
+  align-items: stretch; /* Mobile: full width buttons */
+}
+
+@media (min-width: 768px) {
+  .headerTop {
+    flex-direction: row;
+    align-items: center;
+  }
 }
 
 .headerContent h1 {
-  font-size: 2.25rem;
+  font-size: 1.875rem; /* Mobile: smaller heading */
   font-weight: 700;
   color: #111827;
+}
+
+@media (min-width: 768px) {
+  .headerContent h1 {
+    font-size: 2.25rem;
+  }
 }
 
 .headerContent p {
@@ -48,12 +69,19 @@
 
 /* Grid Layout */
 .listingsGrid {
-  max-width: 1280px;
+  max-width: 1200px; /* Design system: default content container */
   margin: 0 auto;
-  padding: 32px 24px;
+  padding: 16px; /* Mobile: reduced padding */
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
+  gap: 16px; /* Mobile: reduced gap */
+}
+
+@media (min-width: 768px) {
+  .listingsGrid {
+    padding: 32px 24px;
+    gap: 24px;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -174,11 +202,61 @@
   background-color: #004f4a;
 }
 
-/* Empty State & Loading - Simplified for brevity */
+/* Empty State & Loading */
 .emptyState, .loading {
   text-align: center;
-  padding: 4rem 0;
+  padding: 2rem 1rem; /* Mobile: reduced padding */
+  max-width: 1200px;
+  margin: 0 auto;
 }
+
+@media (min-width: 768px) {
+  .emptyState, .loading {
+    padding: 4rem 0;
+  }
+}
+
+.emptyStateTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .emptyStateTitle {
+    font-size: 2rem;
+  }
+}
+
+.emptyStateText {
+  font-size: 1rem;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+.emptyStateButton {
+  padding: 12px 24px;
+  background-color: #006c67;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.emptyStateButton:hover {
+  background-color: #004f4a;
+}
+
 .spinner {
   /* Spinner styles */
+}
+
+.loadingText {
+  font-size: 1rem;
+  color: #6b7280;
+  margin-top: 1rem;
 }

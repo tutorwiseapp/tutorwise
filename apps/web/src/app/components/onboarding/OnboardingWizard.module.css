@@ -52,7 +52,7 @@
 }
 
 .stepContent {
-  padding: 2rem;
+  padding: 1.5rem; /* Mobile: reduced padding for more content space */
   max-width: 1200px; /* Design system: content width constraint */
   margin: 0 auto; /* Center content within container */
   width: 100%;
@@ -60,7 +60,13 @@
 
 @media (min-width: 768px) {
   .stepContent {
-    padding: 3rem;
+    padding: 2rem; /* Tablet: moderate padding */
+  }
+}
+
+@media (min-width: 1024px) {
+  .stepContent {
+    padding: 3rem; /* Desktop: comfortable padding */
   }
 }
 

@@ -1,6 +1,7 @@
 /*
  * Filename: src/app/onboarding/client/page.module.css
  * Purpose: Provides styling for the client onboarding page using Tutorwise design system
+ * Mobile-first responsive design
  */
 
 .onboardingPage {
@@ -9,17 +10,15 @@
   align-items: flex-start;
   justify-content: center;
   background-color: var(--color-bg-primary, #ffffff);
-  padding: 2rem 1rem;
+  padding: 0; /* Mobile & tablet: no padding for full-width */
   max-width: 1440px; /* Design system: max viewport width */
   margin: 0 auto; /* Center on ultra-wide screens */
   width: 100%;
 }
 
-@media (max-width: 768px) {
+@media (min-width: 1024px) {
   .onboardingPage {
-    padding: 0.5rem;
-    align-items: flex-start;
-    padding-top: 2rem;
+    padding: 2rem 1rem; /* Desktop: add padding */
   }
 }
 
