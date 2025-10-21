@@ -71,6 +71,11 @@ export interface Listing {
   booking_count: number;
   response_time?: string;
 
+  // Template Fields
+  is_template?: boolean;      // Whether this is a system-generated template
+  is_deletable?: boolean;     // Whether this listing can be deleted
+  template_id?: string;       // Unique identifier for template type (e.g., "mathematics-gcse-group")
+
   // Timestamps
   created_at: string;
   updated_at: string;
