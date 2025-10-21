@@ -43,13 +43,13 @@ export default function CreateListingWizard({
     };
 
     // Pre-populate full_name from profile during initialization
-    // Priority: full_name > display_name > email username
+    // Priority: full_name > email username
     if (!baseData.full_name && profile) {
-      const fallbackName = profile.full_name || profile.display_name;
+      const fallbackName = profile.full_name;
       if (fallbackName) {
         baseData.full_name = fallbackName;
         console.log('[CreateListingWizard] Initializing full_name from profile:', {
-          source: profile.full_name ? 'full_name' : 'display_name',
+          source: 'full_name',
           value: fallbackName
         });
       }
@@ -75,14 +75,14 @@ export default function CreateListingWizard({
         ) as Partial<CreateListingInput>;
 
         // Pre-fill full_name from profile if not in draft
-        // Priority: draft > profile.full_name > profile.display_name
-        const fullName = draftWithValues.full_name || profile?.full_name || profile?.display_name;
+        // Priority: draft > profile.full_name
+        const fullName = draftWithValues.full_name || profile?.full_name;
 
         if (fullName) {
           draftWithValues.full_name = fullName;
           if (!baseData.full_name) {
             console.log('[CreateListingWizard] Pre-filling full_name from profile during draft load:', {
-              source: draftWithValues.full_name ? 'draft' : profile?.full_name ? 'full_name' : 'display_name',
+              source: draftWithValues.full_name ? 'draft' : 'full_name',
               value: fullName
             });
           }
@@ -121,13 +121,13 @@ export default function CreateListingWizard({
       const updates: Partial<CreateListingInput> = {};
 
       // Auto-populate full_name from profile
-      // Priority: full_name > display_name > email username
+      // Priority: full_name > email username
       if (!formData.full_name) {
-        const fallbackName = profile.full_name || profile.display_name || user?.email?.split('@')[0] || '';
+        const fallbackName = profile.full_name || user?.email?.split('@')[0] || '';
 
         if (fallbackName) {
           console.log('[CreateListingWizard] Auto-populating full_name:', {
-            source: profile.full_name ? 'full_name' : profile.display_name ? 'display_name' : 'email',
+            source: profile.full_name ? 'full_name' : 'email',
             value: fallbackName
           });
           updates.full_name = fallbackName;
@@ -171,12 +171,12 @@ export default function CreateListingWizard({
   // Step navigation handlers
   const handleWelcomeNext = () => {
     // Ensure full_name is populated from profile when moving to basic info step
-    // Priority: current formData > profile.full_name > profile.display_name > email
+    // Priority: current formData > profile.full_name > email
     if (!formData.full_name && profile) {
-      const fallbackName = profile.full_name || profile.display_name || user?.email?.split('@')[0] || '';
+      const fallbackName = profile.full_name || user?.email?.split('@')[0] || '';
       if (fallbackName) {
         console.log('[CreateListingWizard] Populating full_name on navigation:', {
-          source: profile.full_name ? 'full_name' : profile.display_name ? 'display_name' : 'email',
+          source: profile.full_name ? 'full_name' : 'email',
           value: fallbackName
         });
         setFormData(prev => ({ ...prev, full_name: fallbackName }));
