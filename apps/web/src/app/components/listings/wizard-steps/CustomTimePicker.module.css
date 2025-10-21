@@ -24,8 +24,15 @@
   border: 1px solid var(--color-border, #dfe1e5);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  width: 280px;
+  width: calc(100vw - 32px); /* Mobile: full width minus margins */
+  max-width: 280px; /* Desktop: constrained width */
   /* Position (top/bottom) and margin set dynamically via inline styles */
+}
+
+@media (min-width: 480px) {
+  .dropdown {
+    width: 280px;
+  }
 }
 
 .dropdownHeader {

@@ -1,26 +1,58 @@
 .roleContainer {
   display: flex;
   justify-content: center;
-  gap: 2rem;
-  margin-top: 3rem;
+  gap: 1rem; /* Mobile: reduced gap */
+  margin-top: 2rem; /* Mobile: reduced margin */
   flex-wrap: wrap;
   width: 100%;
+}
+
+@media (min-width: 768px) {
+  .roleContainer {
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .roleContainer {
+    gap: 2rem;
+    margin-top: 3rem;
+  }
 }
 
 .roleCard {
   position: relative;
   overflow: hidden;
-  border-radius: 16px;
-  width: 300px;
-  height: 400px;
+  border-radius: 12px; /* Mobile: slightly smaller radius */
+  width: 100%; /* Mobile: full width */
+  max-width: 360px; /* Mobile: limit max width */
+  height: 320px; /* Mobile: reduced height */
   cursor: pointer;
   transition: all 0.3s ease-in-out;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
   color: white;
   display: flex;
   align-items: flex-end;
-  padding: 2rem;
+  padding: 1.5rem; /* Mobile: reduced padding */
   border: 2px solid transparent;
+}
+
+@media (min-width: 640px) {
+  .roleCard {
+    width: 280px;
+    height: 360px;
+    padding: 1.75rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .roleCard {
+    width: 300px;
+    height: 400px;
+    padding: 2rem;
+    border-radius: 16px;
+  }
 }
 
 .roleCard:hover {
@@ -101,20 +133,38 @@
 }
 
 .cardContent h3 {
-  font-size: 2.25rem;
+  font-size: 1.75rem; /* Mobile: smaller heading */
   font-weight: 700;
   margin-bottom: 0.5rem;
   color: #ffffff;
   text-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
 }
 
+@media (min-width: 640px) {
+  .cardContent h3 {
+    font-size: 2rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .cardContent h3 {
+    font-size: 2.25rem;
+  }
+}
+
 .cardContent p {
-  font-size: 1.1rem;
+  font-size: 0.9375rem; /* Mobile: smaller text */
   color: #e5e7eb;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
   opacity: 0;
   transition: opacity 0.4s ease-out;
   transition-delay: 0.1s;
+}
+
+@media (min-width: 768px) {
+  .cardContent p {
+    font-size: 1.1rem;
+  }
 }
 
 .roleCard:hover .cardContent p {

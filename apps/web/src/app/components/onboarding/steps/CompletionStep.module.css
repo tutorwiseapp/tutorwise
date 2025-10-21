@@ -1,5 +1,5 @@
 .completionContainer {
-  padding: 2rem;
+  padding: 1.5rem; /* Mobile: reduced padding */
   text-align: center;
   max-width: 1200px; /* Design system: default container width */
   margin: 0 auto;
@@ -7,20 +7,42 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 400px;
+  min-height: 300px; /* Mobile: reduced min-height */
+}
+
+@media (min-width: 768px) {
+  .completionContainer {
+    padding: 2rem;
+    min-height: 400px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .completionContainer {
+    padding: 3rem;
+  }
 }
 
 .successIcon {
-  width: 5rem;
-  height: 5rem;
+  width: 4rem; /* Mobile: smaller icon */
+  height: 4rem;
   background-color: #dcfce7;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 1.5rem;
-  font-size: 3rem;
+  margin: 0 auto 1rem;
+  font-size: 2rem;
   color: #16a34a;
+}
+
+@media (min-width: 768px) {
+  .successIcon {
+    width: 5rem;
+    height: 5rem;
+    margin: 0 auto 1.5rem;
+    font-size: 3rem;
+  }
 }
 
 .successSection {
@@ -28,46 +50,90 @@
 }
 
 .checkmarkContainer {
-  width: 5rem;
-  height: 5rem;
+  width: 4rem; /* Mobile: smaller container */
+  height: 4rem;
   background-color: #dcfce7;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 1.5rem;
+  margin: 0 auto 1rem;
+}
+
+@media (min-width: 768px) {
+  .checkmarkContainer {
+    width: 5rem;
+    height: 5rem;
+    margin: 0 auto 1.5rem;
+  }
 }
 
 .checkmarkIcon {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2rem; /* Mobile: smaller icon */
+  height: 2rem;
   color: #16a34a;
 }
 
+@media (min-width: 768px) {
+  .checkmarkIcon {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+
 .successTitle {
-  font-size: 2rem;
+  font-size: 1.5rem; /* Mobile: smaller heading */
   font-weight: 700;
   color: #1f2937;
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.75rem 0;
+  padding: 0 1rem;
+}
+
+@media (min-width: 768px) {
+  .successTitle {
+    font-size: 2rem;
+    margin: 0 0 1rem 0;
+    padding: 0;
+  }
 }
 
 .successMessage {
-  font-size: 1.125rem;
+  font-size: 1rem; /* Mobile: smaller text */
   color: #6b7280;
-  margin: 0 0 2rem 0;
+  margin: 0 0 1.5rem 0;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 768px) {
+  .successMessage {
+    font-size: 1.125rem;
+    margin: 0 0 2rem 0;
+    padding: 0;
+  }
 }
 
 .roleSummary {
   background-color: #f9fafb;
   border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
+  padding: 1.25rem; /* Mobile: reduced padding */
+  margin-bottom: 1.5rem;
   max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  width: calc(100% - 2rem); /* Mobile: account for margins */
+}
+
+@media (min-width: 640px) {
+  .roleSummary {
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    margin-left: auto;
+    margin-right: auto;
+    width: auto;
+  }
 }
 
 .roleSummaryTitle {
@@ -116,12 +182,23 @@
 .nextSteps {
   background-color: #eff6ff;
   border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
+  padding: 1.25rem; /* Mobile: reduced padding */
+  margin-bottom: 1.5rem;
   text-align: left;
   max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  width: calc(100% - 2rem); /* Mobile: account for margins */
+}
+
+@media (min-width: 640px) {
+  .nextSteps {
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    margin-left: auto;
+    margin-right: auto;
+    width: auto;
+  }
 }
 
 .nextStepsTitle {
@@ -248,20 +325,10 @@
 }
 
 @media (max-width: 768px) {
-  .completionContainer {
-    padding: 1.5rem;
-  }
-
-  .successTitle {
-    font-size: 1.5rem;
-  }
-
-  .successMessage {
-    font-size: 1rem;
-  }
-
   .dashboardButton {
-    width: 100%;
+    width: calc(100% - 2rem);
+    max-width: 400px;
     justify-content: center;
+    margin: 0 1rem;
   }
 }

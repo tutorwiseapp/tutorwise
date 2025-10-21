@@ -6,10 +6,18 @@
   background: white;
   border: 1px solid var(--color-border, #dfe1e5);
   border-radius: 8px;
-  padding: 16px;
+  padding: 12px; /* Mobile: reduced padding */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   margin-top: 4px;
-  width: 352px; /* 32px larger than typical 320px calendar */
+  width: calc(100vw - 32px); /* Mobile: full width minus margins */
+  max-width: 352px; /* Desktop: constrained width */
+}
+
+@media (min-width: 480px) {
+  .calendarContainer {
+    padding: 16px;
+    width: 352px;
+  }
 }
 
 .calendarHeader {

@@ -114,18 +114,18 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .container {
-    padding: 32px 20px;
+    padding: 24px 16px; /* Mobile: reduced padding for more content space */
   }
 
   .gridHeader {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
 
   .resultCount {
-    font-size: 1.25rem;
+    font-size: 1.125rem; /* Mobile: slightly smaller heading */
   }
 
   .grid {
-    gap: 24px;
+    gap: 20px; /* Mobile: reduced gap */
   }
 }
