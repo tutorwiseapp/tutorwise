@@ -125,26 +125,28 @@ const NavMenu = () => {
 
                 <div className={styles.separator12px} />
 
-                {/* Current Role Section - Show active role with icon */}
-                {activeRole && roleConfig[activeRole] && (
-                  <DropdownMenu.Item asChild className={styles.becomeItem}>
-                    <div className={styles.becomeContent}>
-                      <div>
-                        <div className={styles.becomeTitle}>
-                          {roleConfig[activeRole].icon} {roleConfig[activeRole].label}
-                        </div>
-                      </div>
-                    </div>
-                  </DropdownMenu.Item>
-                )}
-
-                {/* Role Switching Section - Only show if user has multiple roles */}
-                {availableRoles && availableRoles.length > 1 && (
+                {/* Role Switching Section - Show if user has any roles */}
+                {availableRoles && availableRoles.length > 0 && (
                   <>
                     <DropdownMenu.Label className={styles.switchLabel}>
                       Switch Role:
                     </DropdownMenu.Label>
-                    {availableRoles.map((role) => {
+
+                    {/* Current Active Role */}
+                    {activeRole && roleConfig[activeRole] && (
+                      <DropdownMenu.Item asChild className={styles.becomeItem}>
+                        <div className={styles.becomeContent}>
+                          <div>
+                            <div className={styles.becomeTitle}>
+                              {roleConfig[activeRole].icon} {roleConfig[activeRole].label}
+                            </div>
+                          </div>
+                        </div>
+                      </DropdownMenu.Item>
+                    )}
+
+                    {/* Other Available Roles */}
+                    {availableRoles.length > 1 && availableRoles.map((role) => {
                       if (role === activeRole) return null;
                       const config = roleConfig[role];
                       return (
