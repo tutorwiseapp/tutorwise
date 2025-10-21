@@ -125,6 +125,19 @@ const NavMenu = () => {
 
                 <div className={styles.separator12px} />
 
+                {/* Current Role Section - Show active role with icon */}
+                {activeRole && roleConfig[activeRole] && (
+                  <DropdownMenu.Item asChild className={styles.becomeItem}>
+                    <div className={styles.becomeContent}>
+                      <div>
+                        <div className={styles.becomeTitle}>
+                          {roleConfig[activeRole].icon} {roleConfig[activeRole].label}
+                        </div>
+                      </div>
+                    </div>
+                  </DropdownMenu.Item>
+                )}
+
                 {/* Role Switching Section - Only show if user has multiple roles */}
                 {availableRoles && availableRoles.length > 1 && (
                   <>
