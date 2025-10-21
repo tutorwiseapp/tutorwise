@@ -1,7 +1,8 @@
 /*
  * Filename: src/app/settings/page.module.css
  * Purpose: Provides unique styles for the interactive elements on the Settings page.
- * Last Modified: 2025-09-08
+ * UPDATED: 2025-10-20 - Added mobile-first responsive layout
+ * Last Modified: 2025-10-20
  * Requirement ID: VIN-A-005
  */
 
@@ -9,14 +10,23 @@
   justify-content: flex-start;
 }
 
-/* --- THIS IS THE DEFINITIVE FIX --- */
+/* Mobile-first action bar - simplified layout */
 .action {
   width: 100%;
   display: flex;
-  align-items: baseline; /* This aligns the text baseline */
-  justify-content: space-between; /* This pushes the outer items to the edges */
+  flex-direction: column; /* Mobile: stack vertically */
+  align-items: stretch;
+  gap: 0.75rem; /* Mobile: space between items */
   margin-top: var(--space-4);
-  position: relative; /* Create a positioning context */
+}
+
+@media (min-width: 640px) {
+  .action {
+    flex-direction: row; /* Tablet+: horizontal layout */
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
 }
 
 /* Override the top margin for links inside the action bar */
@@ -24,11 +34,20 @@
   margin-top: 0;
 }
 
-/* Center the toggle link absolutely within the action bar */
+/* Remove complex absolute positioning - use simple flex layout */
 .toggleLink {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  /* No absolute positioning needed on mobile */
+  order: 2; /* Position in middle on desktop */
+}
+
+@media (min-width: 640px) {
+  .toggleLink {
+    flex: 0 0 auto; /* Don't grow, center naturally */
+  }
+}
+
+.actionGroup {
+  order: 1; /* Status first on all devices */
 }
 
 .statusEnabled {
@@ -36,28 +55,39 @@
   color: var(--color-primary);
   font-weight: var(--font-weight-medium);
 }
+
 .statusDisabled {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
   font-weight: var(--font-weight-medium);
 }
-.dangerLink { 
-  color: var(--color-error) !important; 
+
+.dangerLink {
+  color: var(--color-error) !important;
 }
 
 /* --- Checkbox Group (Email Card) --- */
 .checkboxGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 0.75rem; /* Mobile: increased gap for touch targets */
   width: 100%;
 }
+
+@media (min-width: 640px) {
+  .checkboxGroup {
+    gap: var(--space-2); /* Tablet+: normal gap */
+  }
+}
+
 .checkboxItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  min-height: 44px; /* Mobile: ensure touch target size */
 }
+
 .checkboxLabelText {
   font-size: var(--font-size-base);
   color: var(--color-text-secondary);

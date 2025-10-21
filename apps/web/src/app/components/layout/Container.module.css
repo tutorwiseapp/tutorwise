@@ -1,45 +1,44 @@
 /*
  * Filename: src/app/components/layout/Container.module.css
  * Purpose: Provides the main content container with responsive padding and max-widths.
+ * UPDATED: 2025-10-20 - Converted to mobile-first responsive design
  *
  * Change History:
+ * C007 - 2025-10-20 : Converted to mobile-first approach (min-width media queries)
  * C006 - 2025-07-22 : 02:30 - Added .page-tagline margin override for the 'form' variant.
  * C005 - 2025-07-22 : 01:00 - Added PageHeader margin override for the 'form' variant.
  * C004 - 2025-07-21 : 21:30 - Renamed .auth variant to .form.
  * C003 - 2025-07-21 : 21:15 - Added new .auth variant style.
  * C002 - 2025-07-21 : 21:00 - Added a media query to reduce padding on mobile.
  * C001 - [Date] : [Time] - Initial creation.
- *
- * Last Modified: 2025-07-22 : 02:30
- * Requirement ID (optional): VIN-UI-015
- *
- * Change Summary:
- * Added a `:global(.page-tagline)` selector anchored to the local `.form` class. This is the
- * explicit "function" to manually control the spacing between the tagline and the form card,
- * overriding the global default and setting it to a consistent 24px.
- *
- * Impact Analysis:
- * This correctly implements the desired spacing for all form pages.
  */
 
+/* Mobile-first base styles */
 .container {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--space-4);
+  padding: 1rem; /* Mobile: 16px all sides */
   flex-grow: 1;
   transition: padding 0.2s ease-in-out;
 }
 
-@media (max-width: 768px) {
+/* Tablet and up */
+@media (min-width: 768px) {
   .container {
-    padding-left: var(--space-2);
-    padding-right: var(--space-2);
+    padding: 2rem; /* Tablet: 32px all sides */
+  }
+}
+
+/* Desktop and up */
+@media (min-width: 1024px) {
+  .container {
+    padding: 2rem; /* Desktop: maintain 32px */
   }
 }
 
 /* --- Variants --- */
-.default {} 
+.default {}
 
 .narrow {
   max-width: 800px;
