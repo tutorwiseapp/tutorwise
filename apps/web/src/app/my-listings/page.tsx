@@ -31,7 +31,18 @@ export default function MyListingsPage() {
   const loadListings = async () => {
     try {
       const data = await getMyListings();
-      setListings(data);
+
+      // Sort listings: templates first, then by creation date
+      const sortedData = data.sort((a, b) => {
+        // Templates always come first
+        if (a.is_template && !b.is_template) return -1;
+        if (!a.is_template && b.is_template) return 1;
+
+        // Within same type, sort by creation date (newest first)
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+
+      setListings(sortedData);
     } catch (error) {
       console.error('Failed to load listings:', error);
       toast.error('Failed to load listings');
@@ -66,6 +77,27 @@ export default function MyListingsPage() {
     } catch (error) {
       console.error('Failed to update listing status:', error);
       toast.error('Failed to update listing status');
+    }
+  };
+
+  const handleDuplicate = async (templateId: string) => {
+    try {
+      if (!user) return;
+
+      const { duplicateTemplate } = await import('@/lib/utils/templateGenerator');
+      const newListingId = await duplicateTemplate(templateId, user.id);
+
+      if (newListingId) {
+        toast.success('Template duplicated successfully!');
+        await loadListings();
+        // Optionally redirect to edit the new listing
+        // router.push(`/my-listings/${newListingId}/edit`);
+      } else {
+        toast.error('Failed to duplicate template');
+      }
+    } catch (error) {
+      console.error('Failed to duplicate template:', error);
+      toast.error('Failed to duplicate template');
     }
   };
 
@@ -112,6 +144,7 @@ export default function MyListingsPage() {
               listing={listing}
               onDelete={handleDelete}
               onToggleStatus={handleToggleStatus}
+              onDuplicate={handleDuplicate}
             />
           ))}
         </div>

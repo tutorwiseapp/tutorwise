@@ -49,7 +49,7 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
 
   // Role management functions
   const switchRole = async (role: Role) => {
-    if (!profile || !profile.roles.includes(role)) {
+    if (!profile || !(profile.roles || []).includes(role)) {
       throw new Error(`User does not have access to role: ${role}`);
     }
 
@@ -196,12 +196,15 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
   const initializeRole = (profileData: Profile) => {
     const savedRole = localStorage.getItem('activeRole') as Role | null;
 
-    if (savedRole && profileData.roles.includes(savedRole)) {
+    // Handle case where roles might be null or undefined
+    const roles = profileData.roles || [];
+
+    if (savedRole && roles.includes(savedRole)) {
       setActiveRoleState(savedRole);
     } else if (profileData.active_role) {
       setActiveRoleState(profileData.active_role);
-    } else if (profileData.roles.length > 0) {
-      setActiveRoleState(profileData.roles[0]);
+    } else if (roles.length > 0) {
+      setActiveRoleState(roles[0]);
     }
 
     const savedPreferences = localStorage.getItem('rolePreferences');
@@ -239,7 +242,15 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
             setProfile(null);
             setActiveRoleState(null);
           } else {
-            console.log('[UserProfileContext] Profile loaded:', data);
+            console.log('[UserProfileContext] Profile loaded:', {
+              id: data?.id,
+              email: data?.email,
+              first_name: data?.first_name,
+              last_name: data?.last_name,
+              full_name: data?.full_name,
+              hasFirstName: !!data?.first_name,
+              hasLastName: !!data?.last_name
+            });
             setProfile(data);
             initializeRole(data);
           }

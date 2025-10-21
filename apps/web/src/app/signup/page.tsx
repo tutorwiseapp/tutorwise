@@ -26,7 +26,8 @@ import Message from '@/app/components/ui/Message';
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -50,7 +51,9 @@ export default function SignUpPage() {
         options: {
           emailRedirectTo: `${location.origin}/onboarding`,
           data: {
-            full_name: fullName,
+            first_name: firstName,
+            last_name: lastName,
+            full_name: `${firstName} ${lastName}`.trim(),
           },
         },
       });
@@ -101,16 +104,19 @@ export default function SignUpPage() {
   return (
     <Container variant="form">
       <PageHeader title="Create Your Account" />
-      <p className="page-tagline">Join to start referring and earning rewards.</p>
+      <p className="page-tagline">Join Tutorwise Free: Start Tutoring Now!</p>
       <div className={authStyles.authCard}>
         {message && <Message type="success">{message}</Message>}
         {error && <Message type="error">{error}</Message>}
         <form onSubmit={handleSignUp}>
-          <FormGroup label="Full Name" htmlFor="fullName">
-            <Input id="fullName" name="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+          <FormGroup label="First Name" htmlFor="firstName">
+            <Input id="firstName" name="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="John" required />
+          </FormGroup>
+          <FormGroup label="Last Name" htmlFor="lastName">
+            <Input id="lastName" name="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Smith" required />
           </FormGroup>
           <FormGroup label="Email" htmlFor="email">
-            <Input id="email" name="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <Input id="email" name="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="johnsmith@gmail.com" required />
           </FormGroup>
           <FormGroup label="Password" htmlFor="password">
             <Input id="password" name="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />

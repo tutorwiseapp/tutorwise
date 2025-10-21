@@ -12,12 +12,14 @@ import { createClient } from '@/utils/supabase/client';
 import WelcomeStep from '../steps/WelcomeStep';
 import OnboardingProgressBar from '../OnboardingProgressBar';
 
+import ClientPersonalInfoStep from './ClientPersonalInfoStep';
 import ClientSubjectSelectionStep from './ClientSubjectSelectionStep';
 import ClientLearningPreferencesStep from './ClientLearningPreferencesStep';
 import ClientAvailabilityStep from './ClientAvailabilityStep';
+import { PersonalInfoData } from '../tutor/TutorOnboardingWizard';
 import styles from '../OnboardingWizard.module.css';
 
-export type ClientStep = 'subjects' | 'preferences' | 'availability' | 'completion';
+export type ClientStep = 'personalInfo' | 'subjects' | 'preferences' | 'availability' | 'completion';
 
 interface ClientOnboardingWizardProps {
   onComplete: () => void;
@@ -27,6 +29,7 @@ interface ClientOnboardingWizardProps {
 }
 
 interface ClientDraftData {
+  personalInfo: Partial<PersonalInfoData>;
   subjects: string[];
   preferences: any;
   availability: any;
@@ -36,13 +39,14 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
   onComplete,
   onSkip,
   mode = 'modal',
-  initialStep = 'subjects'
+  initialStep = 'personalInfo'
 }) => {
   const { profile, user, updateOnboardingProgress } = useUserProfile();
   const supabase = createClient();
   const DRAFT_KEY = 'onboarding_draft_client';
 
   const [currentStep, setCurrentStep] = useState<ClientStep>(initialStep);
+  const [personalInfo, setPersonalInfo] = useState<Partial<PersonalInfoData>>({});
   const [subjects, setSubjects] = useState<string[]>([]);
   const [preferences, setPreferences] = useState({});
   const [availability, setAvailability] = useState({});
@@ -55,6 +59,7 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
       if (!isDraftLoaded) {
         const draft = await loadDraft<ClientDraftData>(user?.id, DRAFT_KEY);
         if (draft) {
+          if (draft.personalInfo) setPersonalInfo(draft.personalInfo);
           if (draft.subjects) setSubjects(draft.subjects);
           if (draft.preferences) setPreferences(draft.preferences);
           if (draft.availability) setAvailability(draft.availability);
@@ -67,6 +72,7 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
 
   // Prepare form data for auto-save
   const formData: ClientDraftData = {
+    personalInfo,
     subjects,
     preferences,
     availability,
@@ -77,7 +83,7 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
     user?.id,
     DRAFT_KEY,
     formData,
-    (data) => data.subjects.length > 0 // Only save if user has selected at least one subject
+    (data) => !!data.personalInfo?.firstName || data.subjects.length > 0 // Save if user has started filling personal info or selected subjects
   );
 
   // Save current step whenever it changes
@@ -93,6 +99,7 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
   }, [currentStep]);
 
   const handleBack = () => {
+    if (currentStep === 'subjects') setCurrentStep('personalInfo');
     if (currentStep === 'preferences') setCurrentStep('subjects');
     if (currentStep === 'availability') setCurrentStep('preferences');
   }
@@ -104,6 +111,61 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
       onComplete();
     }
   }
+
+  const handlePersonalInfoSubmit = async (data: PersonalInfoData) => {
+    console.log('[ClientOnboardingWizard] handlePersonalInfoSubmit called', data);
+
+    // Update state immediately
+    setPersonalInfo(data);
+    setIsLoading(true);
+
+    try {
+      const fullName = `${data.firstName} ${data.lastName}`.trim();
+
+      // Save all personal info to profile
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          first_name: data.firstName,
+          last_name: data.lastName,
+          full_name: fullName,
+          gender: data.gender,
+          date_of_birth: data.dateOfBirth,
+          phone: data.phone,
+          address_line1: data.address,
+          town: data.town,
+          city: data.city,
+          country: data.country,
+          postal_code: data.postalCode,
+          emergency_contact_name: data.emergencyContactName,
+          emergency_contact_email: data.emergencyContactEmail,
+        })
+        .eq('id', user!.id);
+
+      if (error) {
+        console.error('[ClientOnboardingWizard] Error saving personal info:', error);
+        throw error;
+      }
+
+      console.log('[ClientOnboardingWizard] ✓ Personal info saved to profile');
+
+      // Move to next step
+      setCurrentStep('subjects');
+
+      // Update onboarding progress in background
+      updateOnboardingProgress({
+        current_step: 'subjects',
+      }).catch(error => {
+        console.error('[ClientOnboardingWizard] Error updating progress:', error);
+      });
+
+    } catch (error) {
+      console.error('[ClientOnboardingWizard] Error in handlePersonalInfoSubmit:', error);
+      alert('Failed to save personal information. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSubjectsNext = async (selectedSubjects: string[]) => {
     console.log('[ClientOnboardingWizard] handleSubjectsNext called', selectedSubjects);
@@ -185,8 +247,16 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
 
   const renderCurrentStep = () => {
     switch (currentStep) {
+      case 'personalInfo':
+        return (
+          <ClientPersonalInfoStep
+            onNext={handlePersonalInfoSubmit}
+            onSkip={handleSkipHandler}
+            isLoading={isLoading}
+          />
+        );
       case 'subjects':
-        return <ClientSubjectSelectionStep onNext={handleSubjectsNext} onSkip={handleSkipHandler} isLoading={isLoading} initialSubjects={subjects} />;
+        return <ClientSubjectSelectionStep onNext={handleSubjectsNext} onBack={handleBack} onSkip={handleSkipHandler} isLoading={isLoading} initialSubjects={subjects} />;
       case 'preferences':
         return <ClientLearningPreferencesStep onNext={handlePreferencesNext} onBack={handleBack} onSkip={handleSkipHandler} isLoading={isLoading} />;
       case 'availability':
@@ -197,13 +267,13 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
   };
 
   const getStepNumber = () => {
-    const steps: ClientStep[] = ['subjects', 'preferences', 'availability'];
+    const steps: ClientStep[] = ['personalInfo', 'subjects', 'preferences', 'availability'];
     return steps.indexOf(currentStep) + 1;
   }
 
   return (
     <div className={`${styles.wizardContainer} ${mode === 'fullPage' ? styles.fullPage : styles.modal}`}>
-      <OnboardingProgressBar currentStepId={getStepNumber()} totalSteps={3} />
+      <OnboardingProgressBar currentStepId={getStepNumber()} totalSteps={4} />
       {renderCurrentStep()}
     </div>
   );

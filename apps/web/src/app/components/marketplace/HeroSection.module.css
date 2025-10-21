@@ -21,8 +21,9 @@
 
 /* Typography */
 .heroTitle {
-  font-size: 3rem;
-  font-weight: 600;
+  font-family: var(--font-primary, 'Poppins', sans-serif);
+  font-size: 2rem; /* 32px - smaller to fit on one line */
+  font-weight: 600; /* Semibold */
   color: var(--color-text-primary, #202124);
   margin: 0 0 16px 0;
   letter-spacing: -0.02em;
@@ -160,7 +161,7 @@
   }
 
   .heroTitle {
-    font-size: 2rem;
+    font-size: 1.5rem; /* 24px on mobile */
   }
 
   .heroSubtitle {

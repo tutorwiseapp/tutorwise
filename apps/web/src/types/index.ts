@@ -12,10 +12,34 @@ import React from 'react';
 export interface Profile {
   id: string;
   referral_id: string;
-  full_name: string; // Full legal name (required for tutors)
+  full_name: string; // Full legal name - derived from first_name + last_name
   first_name?: string;
   last_name?: string;
   email: string;
+  phone?: string; // Phone number
+  gender?: string; // Gender (Male, Female, Other, Prefer not to say)
+  date_of_birth?: string; // ISO date string (required for tutors/agents for background checks)
+  // Address fields
+  address_line1?: string; // Address (street address)
+  town?: string; // Town
+  city?: string; // City
+  country?: string; // Country
+  postal_code?: string; // Postal/ZIP code
+  // Emergency contact
+  emergency_contact_name?: string; // Emergency contact name
+  emergency_contact_email?: string; // Emergency contact email
+  // Identity verification
+  identity_verification_document_url?: string; // URL to uploaded identity verification document (passport, driver's license, etc.)
+  identity_verification_document_name?: string; // Original filename of uploaded document
+  identity_verified?: boolean; // Whether identity has been verified by admin
+  identity_verified_at?: string; // ISO date string - when identity was verified
+  // DBS certificate (required for tutors/agents only)
+  dbs_certificate_number?: string; // DBS certificate number (required for UK tutors/agents)
+  dbs_certificate_date?: string; // ISO date string - DBS certificate issue date
+  dbs_certificate_url?: string; // URL to uploaded DBS certificate document
+  dbs_verified?: boolean; // Whether DBS certificate has been verified by admin
+  dbs_verified_at?: string; // ISO date string - when DBS was verified
+  // Other fields
   bio?: string;
   categories?: string;
   achievements?: string;
@@ -209,10 +233,14 @@ export interface Listing {
   location_city?: string;
   view_count: number;
   booking_count: number;
+  inquiry_count?: number;
   created_at: string;
   updated_at: string;
   free_trial?: boolean;
   images?: { url: string }[];
+  is_template?: boolean; // Whether this is a system-generated template
+  is_deletable?: boolean; // Whether this listing can be deleted
+  template_id?: string; // Unique identifier for template type
   profile?: {
     full_name: string;
     avatar_url?: string;

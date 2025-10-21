@@ -9,10 +9,12 @@ interface ListingCardProps {
   listing: Listing;
   onDelete: (id: string) => void;
   onToggleStatus: (listing: Listing) => void;
+  onDuplicate: (id: string) => void;
 }
 
-export default function ListingCard({ listing, onDelete, onToggleStatus }: ListingCardProps) {
+export default function ListingCard({ listing, onDelete, onToggleStatus, onDuplicate }: ListingCardProps) {
   const imageUrl = listing.images?.[0];
+  const isTemplate = listing.is_template === true;
 
   return (
     <div className={styles.card}>
@@ -26,9 +28,16 @@ export default function ListingCard({ listing, onDelete, onToggleStatus }: Listi
             </svg>
           </div>
         )}
-        <span className={`${styles.statusBadge} ${styles[listing.status]}`}>
-          {listing.status}
-        </span>
+        <div className={styles.badges}>
+          {isTemplate && (
+            <span className={styles.templateBadge}>
+              Template
+            </span>
+          )}
+          <span className={`${styles.statusBadge} ${styles[listing.status]}`}>
+            {listing.status}
+          </span>
+        </div>
       </div>
       <div className={styles.content}>
         <h3 className={styles.title}>{listing.title}</h3>
@@ -43,17 +52,28 @@ export default function ListingCard({ listing, onDelete, onToggleStatus }: Listi
           <span>{listing.inquiry_count || 0} inquiries</span>
           <span>{listing.booking_count || 0} bookings</span>
         </div>
-        <div className={styles.actions}>
-          <Link href={`/my-listings/${listing.id}/edit`}>
-            <Button variant="secondary" size="sm" fullWidth>Edit</Button>
-          </Link>
-          <Button variant="secondary" size="sm" fullWidth onClick={() => onToggleStatus(listing)}>
-            {listing.status === 'published' ? 'Unpublish' : 'Publish'}
-          </Button>
-          <Button variant="danger" size="sm" fullWidth onClick={() => onDelete(listing.id)}>
-            Delete
-          </Button>
-        </div>
+
+        {/* Templates: Show only Duplicate button */}
+        {isTemplate ? (
+          <div className={styles.actionsTemplate}>
+            <Button variant="primary" size="md" fullWidth onClick={() => onDuplicate(listing.id)}>
+              Duplicate
+            </Button>
+          </div>
+        ) : (
+          /* Regular listings: Show Edit, Publish/Unpublish, Delete */
+          <div className={styles.actions}>
+            <Link href={`/my-listings/${listing.id}/edit`}>
+              <Button variant="secondary" size="sm" fullWidth>Edit</Button>
+            </Link>
+            <Button variant="secondary" size="sm" fullWidth onClick={() => onToggleStatus(listing)}>
+              {listing.status === 'published' ? 'Unpublish' : 'Publish'}
+            </Button>
+            <Button variant="danger" size="sm" fullWidth onClick={() => onDelete(listing.id)}>
+              Delete
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

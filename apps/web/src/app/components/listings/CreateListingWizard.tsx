@@ -43,9 +43,16 @@ export default function CreateListingWizard({
     };
 
     // Pre-populate full_name from profile during initialization
-    if (profile?.full_name && !baseData.full_name) {
-      baseData.full_name = profile.full_name;
-      console.log('[CreateListingWizard] Initializing full_name from profile:', profile.full_name);
+    // Priority: full_name > display_name > email username
+    if (!baseData.full_name && profile) {
+      const fallbackName = profile.full_name || profile.display_name;
+      if (fallbackName) {
+        baseData.full_name = fallbackName;
+        console.log('[CreateListingWizard] Initializing full_name from profile:', {
+          source: profile.full_name ? 'full_name' : 'display_name',
+          value: fallbackName
+        });
+      }
     }
 
     return baseData;
@@ -68,13 +75,16 @@ export default function CreateListingWizard({
         ) as Partial<CreateListingInput>;
 
         // Pre-fill full_name from profile if not in draft
-        // This ensures the name is available immediately when the wizard loads
-        const fullName = draftWithValues.full_name || profile?.full_name;
+        // Priority: draft > profile.full_name > profile.display_name
+        const fullName = draftWithValues.full_name || profile?.full_name || profile?.display_name;
 
         if (fullName) {
           draftWithValues.full_name = fullName;
-          if (profile?.full_name && !baseData.full_name) {
-            console.log('[CreateListingWizard] Pre-filling full_name from profile during initialization:', profile.full_name);
+          if (!baseData.full_name) {
+            console.log('[CreateListingWizard] Pre-filling full_name from profile during draft load:', {
+              source: draftWithValues.full_name ? 'draft' : profile?.full_name ? 'full_name' : 'display_name',
+              value: fullName
+            });
           }
         }
 
@@ -110,13 +120,21 @@ export default function CreateListingWizard({
     if (profile && !initialData) {
       const updates: Partial<CreateListingInput> = {};
 
-      // Auto-populate full_name from profile full_name
-      if (profile.full_name && !formData.full_name) {
-        console.log('[CreateListingWizard] Auto-populating full_name:', profile.full_name);
-        updates.full_name = profile.full_name;
-      } else if (!profile.full_name) {
-        console.warn('[CreateListingWizard] Profile has no full_name field!', profile);
-      } else if (formData.full_name) {
+      // Auto-populate full_name from profile
+      // Priority: full_name > display_name > email username
+      if (!formData.full_name) {
+        const fallbackName = profile.full_name || profile.display_name || user?.email?.split('@')[0] || '';
+
+        if (fallbackName) {
+          console.log('[CreateListingWizard] Auto-populating full_name:', {
+            source: profile.full_name ? 'full_name' : profile.display_name ? 'display_name' : 'email',
+            value: fallbackName
+          });
+          updates.full_name = fallbackName;
+        } else {
+          console.warn('[CreateListingWizard] No name available in profile!', profile);
+        }
+      } else {
         console.log('[CreateListingWizard] Full name already set:', formData.full_name);
       }
 
@@ -153,9 +171,16 @@ export default function CreateListingWizard({
   // Step navigation handlers
   const handleWelcomeNext = () => {
     // Ensure full_name is populated from profile when moving to basic info step
-    if (profile?.full_name && !formData.full_name) {
-      console.log('[CreateListingWizard] Populating full_name on navigation:', profile.full_name);
-      setFormData(prev => ({ ...prev, full_name: profile.full_name }));
+    // Priority: current formData > profile.full_name > profile.display_name > email
+    if (!formData.full_name && profile) {
+      const fallbackName = profile.full_name || profile.display_name || user?.email?.split('@')[0] || '';
+      if (fallbackName) {
+        console.log('[CreateListingWizard] Populating full_name on navigation:', {
+          source: profile.full_name ? 'full_name' : profile.display_name ? 'display_name' : 'email',
+          value: fallbackName
+        });
+        setFormData(prev => ({ ...prev, full_name: fallbackName }));
+      }
     }
     setCurrentStep('basic');
   };

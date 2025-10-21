@@ -1,0 +1,122 @@
+[
+  {
+    "template_id": "mathematics-gcse-group",
+    "title": "Mathematics GCSE Group Session",
+    "description": "A structured group learning session focused on key GCSE Maths topics including algebra, geometry, and problem-solving. Sessions combine concept revision, exam practice, and collaborative exercises to build confidence and accuracy in a supportive peer environment.",
+    "subjects": ["Mathematics"],
+    "levels": ["GCSE"],
+    "learning_outcomes": [
+      "Strengthen understanding of GCSE Maths core principles",
+      "Improve exam technique through timed question drills",
+      "Build confidence in problem-solving and analytical thinking"
+    ],
+    "session_duration": 90,
+    "session_type": "Group Session (Up to 6 students)",
+    "hourly_rate": 20,
+    "currency": "GBP",
+    "location_type": "online",
+    "location_country": "United Kingdom",
+    "timezone": "Europe/London",
+    "availability": {
+      "Tuesday": ["18:00-19:30"],
+      "Thursday": ["18:00-19:30"]
+    },
+    "languages": ["English"],
+    "teaching_methods": ["Group Learning", "Exam Practice", "Collaborative Exercises"],
+    "tags": ["GCSE", "Mathematics", "Group Session", "Online", "Exam Prep"]
+  },
+  {
+    "template_id": "english-gcse-onetoone",
+    "title": "English GCSE One-on-One Session",
+    "description": "A tailored one-on-one tutoring session focused on improving analytical writing, comprehension, and exam preparation for GCSE English Language and Literature. Each session adapts to the student's specific needs, helping them gain clarity, confidence, and precision in their responses.",
+    "subjects": ["English"],
+    "levels": ["GCSE"],
+    "learning_outcomes": [
+      "Enhance reading comprehension and textual analysis skills",
+      "Improve essay structure and vocabulary usage",
+      "Develop exam confidence through practice papers and feedback"
+    ],
+    "session_duration": 60,
+    "session_type": "One-on-One Private Tutoring",
+    "hourly_rate": 35,
+    "currency": "GBP",
+    "location_type": "hybrid",
+    "location_country": "United Kingdom",
+    "location_city": "London",
+    "timezone": "Europe/London",
+    "availability": {
+      "Monday": ["16:00-20:00"],
+      "Tuesday": ["16:00-20:00"],
+      "Wednesday": ["16:00-20:00"],
+      "Thursday": ["16:00-20:00"],
+      "Friday": ["16:00-20:00"]
+    },
+    "languages": ["English"],
+    "teaching_methods": ["One-on-One Tutoring", "Personalized Learning", "Exam Practice"],
+    "tags": ["GCSE", "English", "One-on-One", "Hybrid", "Exam Prep", "London"]
+  },
+  {
+    "template_id": "ai-tutor-study-support",
+    "title": "AI Tutor Study Support",
+    "description": "An AI-powered tutoring session designed to provide immediate study assistance, concept explanations, and personalised practice questions across multiple subjects. The AI Tutor offers interactive learning while being supervised by a qualified educator to ensure content quality and relevance.",
+    "subjects": ["Mathematics", "English", "Science"],
+    "levels": ["GCSE", "A-Level"],
+    "learning_outcomes": [
+      "Receive quick, accurate answers to study questions",
+      "Reinforce understanding through guided AI-generated exercises",
+      "Develop self-paced study habits supported by intelligent feedback"
+    ],
+    "session_duration": 30,
+    "session_type": "On-Demand AI Study Support Session",
+    "hourly_rate": 10,
+    "currency": "GBP",
+    "location_type": "online",
+    "location_country": "United Kingdom",
+    "timezone": "Europe/London",
+    "availability": {
+      "Monday": ["00:00-23:59"],
+      "Tuesday": ["00:00-23:59"],
+      "Wednesday": ["00:00-23:59"],
+      "Thursday": ["00:00-23:59"],
+      "Friday": ["00:00-23:59"],
+      "Saturday": ["00:00-23:59"],
+      "Sunday": ["00:00-23:59"]
+    },
+    "languages": ["English"],
+    "teaching_methods": ["AI-Powered Learning", "Interactive Exercises", "On-Demand Support"],
+    "specializations": ["Multi-Subject Support", "AI-Assisted Learning"],
+    "tags": ["AI Tutor", "On-Demand", "Multi-Subject", "Online", "Flexible", "GCSE", "A-Level"]
+  },
+  {
+    "template_id": "science-tutor-referral",
+    "title": "Science Tutor Referral Programme",
+    "description": "Refer a student to our Science Tutoring Programme and earn rewards when they book sessions. The programme offers tailored one-on-one or small group science tutoring designed to simplify complex topics and prepare students for top grades in Biology, Chemistry, and Physics.",
+    "subjects": ["Biology", "Chemistry", "Physics"],
+    "levels": ["GCSE", "A-Level"],
+    "learning_outcomes": [
+      "Build a deeper understanding of scientific concepts",
+      "Develop strong exam strategies and practical application skills",
+      "Gain confidence in handling higher-level questions"
+    ],
+    "session_duration": 60,
+    "session_type": "Referral-Based Tutoring Service",
+    "hourly_rate": 40,
+    "currency": "GBP",
+    "location_type": "hybrid",
+    "location_country": "United Kingdom",
+    "location_city": "London",
+    "timezone": "Europe/London",
+    "availability": {
+      "Monday": ["17:00-21:00"],
+      "Tuesday": ["17:00-21:00"],
+      "Wednesday": ["17:00-21:00"],
+      "Thursday": ["17:00-21:00"],
+      "Friday": ["17:00-21:00"],
+      "Saturday": ["10:00-14:00"]
+    },
+    "languages": ["English"],
+    "teaching_methods": ["One-on-One Tutoring", "Small Group Sessions", "Exam Preparation"],
+    "specializations": ["Biology", "Chemistry", "Physics", "Referral Programme"],
+    "tags": ["Science", "GCSE", "A-Level", "Referral", "Hybrid", "London", "Biology", "Chemistry", "Physics"]
+  }
+]
