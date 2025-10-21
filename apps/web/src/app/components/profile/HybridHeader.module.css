@@ -62,7 +62,18 @@
   grid-template-rows: auto auto;
   gap: 24px; /* Optimized vertical spacing */
 }
-.stats, .actions {
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px; /* Horizontal spacing between stat columns */
+  padding: 1.5rem 2rem; /* Padding inside the container */
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.actions {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px; /* Optimized horizontal spacing */
@@ -70,10 +81,9 @@
 
 .stat {
   text-align: center;
-  padding: 1rem;
-  border: 1px solid #e8e8e8;
-  border-radius: 8px;
-  min-width: 160px;
+  /* Remove individual borders - now using container border */
+  padding: 0;
+  min-width: 0;
 }
 
 .statLabel {

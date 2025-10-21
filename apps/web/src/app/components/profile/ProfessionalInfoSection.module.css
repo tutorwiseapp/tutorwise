@@ -14,6 +14,7 @@
 .table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed; /* Enforce fixed column widths */
 }
 
 .table td {
@@ -21,6 +22,7 @@
   border-bottom: 1px solid #e8e8e8;
   font-size: 1rem;
   color: #484848;
+  vertical-align: top; /* Align content to top */
 }
 
 .table tr:last-child td {
@@ -30,9 +32,20 @@
 .table td:first-child {
   font-weight: 600;
   color: #000;
+  width: 240px; /* Fixed width for label column */
+  padding-right: 2rem; /* Add spacing between label and value */
+}
+
+.table td:last-child {
+  /* Value column takes remaining space */
+  width: auto;
 }
 
 @media (max-width: 768px) {
+  .table {
+    table-layout: auto; /* Reset to auto for mobile */
+  }
+
   .table, .table tbody, .table tr, .table td {
     display: block;
     width: 100%;
@@ -58,5 +71,7 @@
   .table td:first-child {
     font-weight: 500;
     color: #555;
+    width: 100%; /* Reset width for mobile */
+    padding-right: 0; /* Reset padding for mobile */
   }
 }
