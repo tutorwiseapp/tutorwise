@@ -225,7 +225,7 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
       <div className={styles.stepHeader}>
         <h2 className={styles.stepTitle}>Personal Information</h2>
         <p className={styles.stepSubtitle}>
-          Let's start with your basic information
+          Let&apos;s start with your basic information
         </p>
       </div>
 
@@ -486,7 +486,7 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
               </p>
             )}
             <p className={styles.helperText} style={{ marginTop: '0.5rem', marginBottom: 0 }}>
-              Passport, driver's license, or national ID (JPG, PNG, PDF - max 5MB)
+              Passport, driver&apos;s license, or national ID (JPG, PNG, PDF - max 5MB)
             </p>
           </div>
 
