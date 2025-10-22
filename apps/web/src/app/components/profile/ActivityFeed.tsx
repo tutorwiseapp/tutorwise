@@ -1,11 +1,12 @@
 
+import Card from '@/app/components/ui/Card';
 import styles from './ActivityFeed.module.css';
 
 export default function ActivityFeed() {
   const verifications = ["Email", "Phone", "Government ID", "DBS Check"];
 
   return (
-    <div className={styles.activityFeed}>
+    <Card className={styles.activityFeed}>
       <div className={styles.activity}>
         <h2 className={styles.title}>Verifications</h2>
         <div className={styles.verificationList}>
@@ -41,6 +42,6 @@ export default function ActivityFeed() {
           <p className={styles.activityText}>You have a new connection request.</p>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

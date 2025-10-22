@@ -1,16 +1,13 @@
 
+/* Card component provides: background-color, border-radius, border, padding, box-shadow */
 .activityFeed {
   display: flex;
   flex-direction: column;
-  background-color: #fff;
-  border-radius: 12px;
-  border: 1px solid #e8e8e8;
-  padding: 1.5rem;
 }
 
 .activity {
-  padding: 1.5rem 0;
-  border-bottom: 1px solid #e8e8e8;
+  padding: var(--space-3, 24px) 0;
+  border-bottom: 1px solid var(--color-border, #dfe1e5);
 }
 
 .activity:first-child {
@@ -23,44 +20,45 @@
 }
 
 .title {
-  font-size: 1.375rem; /* 22px */
-  font-weight: bold;
-  margin-bottom: 1rem;
+  font-size: var(--font-size-xl, 20px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary, #202124);
+  margin-bottom: var(--space-2, 16px);
 }
 
 .verificationList {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-2, 16px);
 }
 
 .verificationItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  font-size: 1rem;
-  color: #333;
+  gap: var(--space-2, 16px);
+  font-size: var(--font-size-base, 16px);
+  color: var(--color-text-primary, #202124);
 }
 
 .checkbox {
   -webkit-appearance: none;
   appearance: none;
-  background-color: #fff;
+  background-color: var(--color-bg-card, #fff);
   margin: 0;
   font: inherit;
   color: currentColor;
   width: 1.15em;
   height: 1.15em;
-  border: 0.15em solid #006c67;
-  border-radius: 0.15em;
+  border: 0.15em solid var(--color-primary, #006c67);
+  border-radius: var(--border-radius-sm, 4px);
   transform: translateY(-0.075em);
   display: grid;
   place-content: center;
 }
 
 .checkbox:checked {
-  background-color: #006c67; /* Solid teal fill */
+  background-color: var(--color-primary, #006c67);
 }
 
 .checkbox::before {
@@ -81,12 +79,12 @@
 .activityList {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem; /* Space between text items */
+  gap: var(--space-2, 16px);
 }
 
 .activityText {
-  font-size: 1rem;
-  color: #555;
+  font-size: var(--font-size-base, 16px);
+  color: var(--color-text-secondary, #5f6368);
   line-height: 1.6;
-  margin: 0; /* Remove default paragraph margin */
+  margin: 0;
 }

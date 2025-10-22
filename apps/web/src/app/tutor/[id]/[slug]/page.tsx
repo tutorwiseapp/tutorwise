@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import Container from '@/app/components/layout/Container';
 import NotFound from '@/app/components/layout/NotFound';
 import Button from '@/app/components/ui/Button';
 import { getListing } from '@/lib/api/listings';
@@ -55,52 +54,51 @@ export default function ListingDetailsPage() {
 
   if (isLoading) {
     return (
-      <Container>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading...</p>
-          </div>
+      <div className={styles.pageWrapper}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}></div>
+          <p className={styles.loadingText}>Loading profile...</p>
         </div>
-      </Container>
+      </div>
     );
   }
 
   if (notFound) {
     return (
-      <Container>
-        <NotFound
-          title="Tutor Profile Not Found"
-          message="We couldn't find the tutor you're looking for. They may have moved or the link may be incorrect."
-          linkText="Back to Marketplace"
-          linkHref="/marketplace"
-        />
-      </Container>
+      <div className={styles.pageWrapper}>
+        <div className={styles.contentWrapper}>
+          <NotFound
+            title="Tutor Profile Not Found"
+            message="We couldn't find the tutor you're looking for. They may have moved or the link may be incorrect."
+            linkText="Back to Marketplace"
+            linkHref="/marketplace"
+          />
+        </div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Container>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">Something went wrong</h2>
-            <p className="text-gray-600 mb-8">{error}</p>
+      <div className={styles.pageWrapper}>
+        <div className={styles.contentWrapper}>
+          <div className={styles.errorContainer}>
+            <h2 className={styles.errorTitle}>Something went wrong</h2>
+            <p className={styles.errorMessage}>{error}</p>
             <Button onClick={loadListing}>Try Again</Button>
           </div>
         </div>
-      </Container>
+      </div>
     );
   }
 
   if (!listing) {
-    // This should not be reached, but as a fallback
     return null;
   }
 
   return (
     <div className={styles.pageWrapper}>
-      <Container variant="profile">
+      <div className={styles.contentWrapper}>
         <HybridHeader listing={listing} />
         <ProfileTabs />
         <div className={styles.mainContent}>
@@ -114,7 +112,7 @@ export default function ListingDetailsPage() {
             <ActivityFeed />
           </div>
         </div>
-      </Container>
+      </div>
     </div>
   );
 }
