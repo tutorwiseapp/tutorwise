@@ -42,8 +42,8 @@ export default function HybridHeader({ listing }: HybridHeaderProps) {
           )}
         </div>
         <div className={styles.profileInfo}>
-          <h1 className={styles.tutorName}>{listing.title}</h1>
-          <p className={styles.specialty}>Maths Specialist</p>
+          <h1 className={styles.tutorName}>{listing.full_name || listing.title}</h1>
+          <p className={styles.specialty}>{listing.title}</p>
           <p className={styles.location}>{listing.location_city || 'United Kingdom'}</p>
         </div>
       </div>

@@ -10,11 +10,16 @@ export default function TutorNarrative({ listing }: TutorNarrativeProps) {
   // Placeholder for teaching philosophy - this would come from the listing data in a real scenario
   const teachingPhilosophy = "I believe in making math engaging and approachable. My personalized approach builds strong foundations, boosts problem-solving skills, and instills confidence. I use interactive tools to prepare for exams like the SAT or AP Calculus, helping students overcome challenges and embrace maths with a growth mindset.";
 
+  // Extract first name from full_name, fallback to first word of title
+  const firstName = listing.full_name
+    ? listing.full_name.split(' ')[0]
+    : listing.title.split(' ')[0];
+
   return (
     <div className={styles.tutorNarrative}>
       {/* Introduction */}
       <div className={styles.section}>
-        <h3 className={styles.title}>Hi, I&apos;m {listing.title.split(' ')[0]}</h3>
+        <h3 className={styles.title}>Hi, I&apos;m {firstName}</h3>
         <p className={styles.text}>{listing.description}</p>
       </div>
 
