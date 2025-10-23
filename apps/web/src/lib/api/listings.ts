@@ -25,12 +25,23 @@ export async function getMyListings(): Promise<Listing[]> {
 
   const { data, error } = await supabase
     .from('listings')
-    .select('*')
+    .select(`
+      *,
+      profiles:profile_id (
+        avatar_url
+      )
+    `)
     .eq('profile_id', user.id)
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return data as Listing[];
+
+  // Flatten the profile data into the listing object
+  return (data || []).map((listing: any) => ({
+    ...listing,
+    avatar_url: listing.profiles?.avatar_url,
+    profiles: undefined, // Remove the nested object
+  })) as Listing[];
 }
 
 /**
@@ -41,7 +52,12 @@ export async function getListing(id: string): Promise<Listing | null> {
 
   const { data, error } = await supabase
     .from('listings')
-    .select('*')
+    .select(`
+      *,
+      profiles:profile_id (
+        avatar_url
+      )
+    `)
     .eq('id', id)
     .single();
 
@@ -49,7 +65,14 @@ export async function getListing(id: string): Promise<Listing | null> {
     throw error;
   }
 
-  return data as Listing | null;
+  if (!data) return null;
+
+  // Flatten the profile data into the listing object
+  return {
+    ...data,
+    avatar_url: (data as any).profiles?.avatar_url,
+    profiles: undefined,
+  } as Listing;
 }
 
 /**
@@ -222,7 +245,12 @@ export async function searchListings(params: ListingSearchParams = {}): Promise<
 
   let query = supabase
     .from('listings')
-    .select('*', { count: 'exact' })
+    .select(`
+      *,
+      profiles:profile_id (
+        avatar_url
+      )
+    `, { count: 'exact' })
     .eq('status', 'published');
 
   // Apply filters
@@ -285,8 +313,15 @@ export async function searchListings(params: ListingSearchParams = {}): Promise<
 
   if (error) throw error;
 
+  // Flatten the profile data into the listing objects
+  const listings = (data || []).map((listing: any) => ({
+    ...listing,
+    avatar_url: listing.profiles?.avatar_url,
+    profiles: undefined, // Remove the nested object
+  })) as Listing[];
+
   return {
-    listings: data as Listing[],
+    listings,
     total: count || 0,
     limit,
     offset,

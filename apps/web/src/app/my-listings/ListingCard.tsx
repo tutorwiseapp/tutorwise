@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import type { Listing } from '@tutorwise/shared-types';
 import Button from '@/app/components/ui/Button';
+import getProfileImageUrl from '@/lib/utils/image';
 import styles from './ListingCard.module.css';
 
 interface ListingCardProps {
@@ -13,21 +14,17 @@ interface ListingCardProps {
 }
 
 export default function ListingCard({ listing, onDelete, onToggleStatus, onDuplicate }: ListingCardProps) {
-  const imageUrl = listing.images?.[0];
+  // Use the same profile image logic as NavMenu (includes academic avatar fallback)
+  const imageUrl = getProfileImageUrl({
+    id: listing.profile_id,
+    avatar_url: listing.avatar_url,
+  });
   const isTemplate = listing.is_template === true;
 
   return (
     <div className={styles.card}>
       <div className={styles.imageContainer}>
-        {imageUrl ? (
-          <img src={imageUrl} alt={listing.title} className={styles.image} />
-        ) : (
-          <div className={styles.imagePlaceholder}>
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="currentColor" />
-            </svg>
-          </div>
-        )}
+        <img src={imageUrl} alt={listing.full_name || listing.title} className={styles.image} />
         <div className={styles.badges}>
           {isTemplate && (
             <span className={styles.templateBadge}>

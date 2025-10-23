@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import type { Listing } from '@tutorwise/shared-types';
 import { slugify } from '@/lib/utils/slugify';
+import getProfileImageUrl from '@/lib/utils/image';
 import styles from './TutorCard.module.css';
 
 interface TutorCardProps {
@@ -14,10 +15,11 @@ export default function TutorCard({ listing }: TutorCardProps) {
   const [imageError, setImageError] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
 
-  // Get the first image or use a placeholder
-  const imageUrl = listing.images && listing.images.length > 0
-    ? listing.images[0]
-    : null;
+  // Use the same profile image logic as NavMenu (includes academic avatar fallback)
+  const imageUrl = getProfileImageUrl({
+    id: listing.profile_id,
+    avatar_url: listing.avatar_url,
+  });
 
   // Calculate rating display (placeholder for now)
   const rating = 4.8; // TODO: Get actual rating from reviews
@@ -54,29 +56,11 @@ export default function TutorCard({ listing }: TutorCardProps) {
       <Link href={`/tutor/${listing.id}/${slugify(listing.title)}`} className={styles.cardLink}>
         {/* Image Section */}
         <div className={styles.imageContainer}>
-          {imageUrl && !imageError ? (
-            <img
-              src={imageUrl}
-              alt={listing.title}
-              className={styles.image}
-              onError={() => setImageError(true)}
-            />
-          ) : (
-            <div className={styles.imagePlaceholder}>
-              <svg
-                width="48"
-                height="48"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"
-                  fill="currentColor"
-                />
-              </svg>
-            </div>
-          )}
+          <img
+            src={imageUrl}
+            alt={listing.full_name || listing.title}
+            className={styles.image}
+          />
 
           {/* Free Trial Badge - Left */}
           {listing.free_trial && (

@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import getProfileImageUrl from '@/lib/utils/image';
 import styles from './HybridHeader.module.css';
 import type { Listing } from '@tutorwise/shared-types';
 import Button from '@/app/components/ui/Button';
@@ -26,20 +27,22 @@ export default function HybridHeader({ listing }: HybridHeaderProps) {
     }
   };
 
+  // Use the same profile image logic as NavMenu (includes academic avatar fallback)
+  const avatarUrl = getProfileImageUrl({
+    id: listing.profile_id,
+    avatar_url: listing.avatar_url,
+  });
+
   return (
     <div className={styles.hybridHeader}>
       {/* Left Column: Profile Picture + Info */}
       <div className={styles.leftColumn}>
         <div className={styles.avatarContainer}>
-          {listing.images && listing.images.length > 0 ? (
-            <img
-              src={listing.images[0]}
-              alt={listing.title}
-              className={styles.avatar}
-            />
-          ) : (
-            <div className={styles.avatarPlaceholder}></div>
-          )}
+          <img
+            src={avatarUrl}
+            alt={listing.full_name || listing.title}
+            className={styles.avatar}
+          />
         </div>
         <div className={styles.profileInfo}>
           <h1 className={styles.tutorName}>{listing.full_name || listing.title}</h1>

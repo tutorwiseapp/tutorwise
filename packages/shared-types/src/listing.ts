@@ -28,6 +28,7 @@ export interface Listing {
 
   // Basic Info
   full_name?: string; // Full name of the tutor (e.g., "Jane Doe")
+  avatar_url?: string; // Profile picture URL from profiles table
   title: string; // Service title (e.g., "GCSE Maths Tutor")
   description: string;
   status: ListingStatus;
