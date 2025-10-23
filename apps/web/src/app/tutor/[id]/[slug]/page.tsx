@@ -49,8 +49,10 @@ export default function ListingDetailsPage() {
   }, [params?.id]);
 
   useEffect(() => {
-    loadListing();
-  }, [loadListing]);
+    if (params?.id) {
+      loadListing();
+    }
+  }, [loadListing, params?.id]);
 
   if (isLoading) {
     return (
