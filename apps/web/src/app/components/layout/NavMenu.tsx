@@ -125,28 +125,15 @@ const NavMenu = () => {
 
                 <div className={styles.separator12px} />
 
-                {/* Role Switching Section - Show if user has any roles */}
-                {availableRoles && availableRoles.length > 0 && (
+                {/* Role Switching Section - Show if user has multiple roles */}
+                {availableRoles && availableRoles.length > 1 && (
                   <>
                     <DropdownMenu.Label className={styles.switchLabel}>
                       Switch Role:
                     </DropdownMenu.Label>
 
-                    {/* Current Active Role */}
-                    {activeRole && roleConfig[activeRole] && (
-                      <DropdownMenu.Item asChild className={styles.becomeItem}>
-                        <div className={styles.becomeContent}>
-                          <div>
-                            <div className={styles.becomeTitle}>
-                              {roleConfig[activeRole].icon} {roleConfig[activeRole].label}
-                            </div>
-                          </div>
-                        </div>
-                      </DropdownMenu.Item>
-                    )}
-
-                    {/* Other Available Roles */}
-                    {availableRoles.length > 1 && availableRoles.map((role) => {
+                    {/* Other Available Roles (excluding current active role) */}
+                    {availableRoles.map((role) => {
                       if (role === activeRole) return null;
                       const config = roleConfig[role];
                       return (
