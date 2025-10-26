@@ -8,7 +8,7 @@
     "apps/*"
   ],
   "scripts": {
-    "start": "node index.js",
+    "start": "ts-node index.ts",
     "dev": "npm run dev --workspace=@cas/web",
     "dev:web": "npm run dev --workspace=@cas/web",
     "dev:api": "npm run dev --workspace=@cas/api",
@@ -33,5 +33,8 @@
     "ai-powered"
   ],
   "author": "TutorWise Team",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "ts-node": "^10.9.2"
+  }
 }

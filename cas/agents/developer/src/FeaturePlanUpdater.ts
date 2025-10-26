@@ -12,383 +12,220 @@
  * @agent Developer Agent
  * @auto-maintains cas/agents/developer/planning/cas-feature-dev-plan.md
  */
-
 import * as fs from 'fs';
 import * as path from 'path';
-
-export interface Todo {
-  content: string;
-  status: 'pending' | 'in_progress' | 'completed';
-  activeForm: string;
-}
-
-export interface FeatureStatus {
-  name: string;
-  status: '✅' | '🟡' | '🔴';
-  statusText: 'Complete' | 'In Progress' | 'Not Started' | 'Blocked';
-  developer: string;
-  started?: string;
-  completed?: string;
-  blocked?: string;
-  todos: Array<{
-    task: string;
-    completed: boolean;
-  }>;
-  testResults?: {
-    unitTests: string;
-    coverage: string;
-    e2eTests?: string;
-    status: string;
-  };
-  qaReview?: {
-    accessibility: string;
-    visualRegression: string;
-    codeQuality: string;
-  };
-  plannerNotes?: string[];
-}
-
-export interface WeekSummary {
-  weekNumber: number;
-  features: FeatureStatus[];
-  metrics: {
-    totalTests: string;
-    testsPasssing: string;
-    coverage: string;
-    percySnapshots?: string;
-  };
-  blockersResolved: string[];
-}
-
 export class FeaturePlanUpdater {
-  private planFilePath: string;
-  private currentWeek: number;
-
-  constructor(weekNumber: number = 2) {
-    this.planFilePath = path.join(
-      __dirname,
-      'planning',
-      'cas-feature-dev-plan.md'
-    );
-    this.currentWeek = weekNumber;
-  }
-
-  /**
-   * Update the plan based on current todos
-   */
-  async updateFromTodos(todos: Todo[], featureName: string): Promise<void> {
-    const plan = await this.readPlan();
-    const updatedPlan = this.injectTodoUpdates(plan, todos, featureName);
-    await this.writePlan(updatedPlan);
-  }
-
-  /**
-   * Update test results section
-   */
-  async updateTestResults(
-    featureName: string,
-    testResults: FeatureStatus['testResults']
-  ): Promise<void> {
-    const plan = await this.readPlan();
-    const updatedPlan = this.injectTestResults(plan, featureName, testResults);
-    await this.writePlan(updatedPlan);
-  }
-
-  /**
-   * Update QA review section
-   */
-  async updateQAReview(
-    featureName: string,
-    qaReview: FeatureStatus['qaReview']
-  ): Promise<void> {
-    const plan = await this.readPlan();
-    const updatedPlan = this.injectQAReview(plan, featureName, qaReview);
-    await this.writePlan(updatedPlan);
-  }
-
-  /**
-   * Add a new feature to the backlog
-   */
-  async addFeatureToBacklog(feature: FeatureStatus): Promise<void> {
-    const plan = await this.readPlan();
-    const updatedPlan = this.addFeature(plan, feature, 'backlog');
-    await this.writePlan(updatedPlan);
-  }
-
-  /**
-   * Move feature from backlog to current sprint
-   */
-  async moveToCurrentSprint(featureName: string): Promise<void> {
-    const plan = await this.readPlan();
-    const updatedPlan = this.moveFeature(plan, featureName, 'current');
-    await this.writePlan(updatedPlan);
-  }
-
-  /**
-   * Mark feature as complete and move to completed section
-   */
-  async markFeatureComplete(featureName: string, completedDate: string): Promise<void> {
-    const plan = await this.readPlan();
-    const updatedPlan = this.completeFeature(plan, featureName, completedDate);
-    await this.writePlan(updatedPlan);
-  }
-
-  /**
-   * Update the "Last Updated" timestamp
-   */
-  async updateTimestamp(): Promise<void> {
-    const plan = await this.readPlan();
-    const now = new Date().toISOString().split('.')[0].replace('T', ' ');
-    const updatedPlan = plan.replace(
-      /\*\*Last Updated:\*\* \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/,
-      `**Last Updated:** ${now}`
-    );
-    await this.writePlan(updatedPlan);
-  }
-
-  // Private helper methods
-
-  private async readPlan(): Promise<string> {
-    return fs.promises.readFile(this.planFilePath, 'utf-8');
-  }
-
-  private async writePlan(content: string): Promise<void> {
-    await fs.promises.writeFile(this.planFilePath, content, 'utf-8');
-  }
-
-  private injectTodoUpdates(
-    plan: string,
-    todos: Todo[],
-    featureName: string
-  ): string {
-    // Find the feature section
-    const featurePattern = new RegExp(
-      `### Feature: ${featureName}[\\s\\S]*?#### Implementation Todos \\(Auto-tracked\\)([\\s\\S]*?)(?=####|###|---)`
-    );
-
-    const match = plan.match(featurePattern);
-    if (!match) {
-      console.warn(`Feature "${featureName}" not found in plan`);
-      return plan;
+    planFilePath: string;
+    currentWeek: number;
+    constructor(weekNumber = 2) {
+        this.planFilePath = path.join(
+              __dirname,
+              '../planning',
+              'cas-feature-dev-plan.md'
+            );
+        this.currentWeek = weekNumber;
     }
-
-    // Generate todo markdown
-    const todoMarkdown = todos
-      .map(todo => {
-        const checkbox = todo.status === 'completed' ? '[x]' : '[ ]';
-        return `- ${checkbox} ${todo.content}`;
-      })
-      .join('\n');
-
-    // Replace the todos section
-    return plan.replace(
-      featurePattern,
-      (match, todosSection) => {
-        return match.replace(todosSection, '\n' + todoMarkdown + '\n');
-      }
-    );
-  }
-
-  private injectTestResults(
-    plan: string,
-    featureName: string,
-    testResults: FeatureStatus['testResults']
-  ): string {
-    if (!testResults) return plan;
-
-    const testMarkdown = `\`\`\`
+    /**
+     * Update the plan based on current todos
+     */
+    async updateFromTodos(todos: any[], featureName: string) {
+        const plan = await this.readPlan();
+        const updatedPlan = this.injectTodoUpdates(plan, todos, featureName);
+        await this.writePlan(updatedPlan);
+    }
+    /**
+     * Update test results section
+     */
+    async updateTestResults(featureName: string, testResults: any) {
+        const plan = await this.readPlan();
+        const updatedPlan = this.injectTestResults(plan, featureName, testResults);
+        await this.writePlan(updatedPlan);
+    }
+    /**
+     * Update QA review section
+     */
+    async updateQAReview(featureName: string, qaReview: any) {
+        const plan = await this.readPlan();
+        const updatedPlan = this.injectQAReview(plan, featureName, qaReview);
+        await this.writePlan(updatedPlan);
+    }
+    /**
+     * Add a new feature to the backlog
+     */
+    async addFeatureToBacklog(feature: any) {
+        const plan = await this.readPlan();
+        const updatedPlan = this.addFeature(plan, feature, 'backlog');
+        await this.writePlan(updatedPlan);
+    }
+    /**
+     * Move feature from backlog to current sprint
+     */
+    async moveToCurrentSprint(featureName: string) {
+        const plan = await this.readPlan();
+        const updatedPlan = this.moveFeature(plan, featureName, 'current');
+        await this.writePlan(updatedPlan);
+    }
+    /**
+     * Mark feature as complete and move to completed section
+     */
+    async markFeatureComplete(featureName: string, completedDate: string) {
+        const plan = await this.readPlan();
+        const updatedPlan = this.completeFeature(plan, featureName, completedDate);
+        await this.writePlan(updatedPlan);
+    }
+    /**
+     * Update the "Last Updated" timestamp
+     */
+    async updateTimestamp() {
+        const plan = await this.readPlan();
+        const now = new Date().toISOString().split('.')[0].replace('T', ' ');
+        const updatedPlan = plan.replace(/\*\*Last Updated:\*\* \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/, `**Last Updated:** ${now}`);
+        await this.writePlan(updatedPlan);
+    }
+    // Private helper methods
+    async readPlan(): Promise<string> {
+        return fs.promises.readFile(this.planFilePath, 'utf-8');
+    }
+    async writePlan(content: string) {
+        await fs.promises.writeFile(this.planFilePath, content, 'utf-8');
+    }
+    injectTodoUpdates(plan: string, todos: any[], featureName: string) {
+        // Find the feature section
+        const featurePattern = new RegExp(`### Feature: ${featureName}[\\s\\S]*?#### Implementation Todos \\(Auto-tracked\\)([\\s\\S]*?)(?=####|###|---)`);
+        const match = plan.match(featurePattern);
+        if (!match) {
+            console.warn(`Feature "${featureName}" not found in plan`);
+            return plan;
+        }
+        // Generate todo markdown
+        const todoMarkdown = todos
+            .map((todo: any) => {
+            const checkbox = todo.status === 'completed' ? '[x]' : '[ ]';
+            return `- ${checkbox} ${todo.content}`;
+        })
+            .join('\n');
+        // Replace the todos section
+        return plan.replace(featurePattern, (match: any, todosSection: any) => {
+            return match.replace(todosSection, '\n' + todoMarkdown + '\n');
+        });
+    }
+    injectTestResults(plan: string, featureName: string, testResults: any) {
+        if (!testResults)
+            return plan;
+        const testMarkdown = `\`\`\`
 ${testResults.unitTests}
 ${testResults.coverage}
 ${testResults.e2eTests || ''}
 Status: ${testResults.status}
 \`\`\``;
-
-    // Find and replace test results section
-    const pattern = new RegExp(
-      `(### Feature: ${featureName}[\\s\\S]*?#### Test Results \\(from Tester Agent\\))\\s*\`\`\`[\\s\\S]*?\`\`\``
-    );
-
-    if (plan.match(pattern)) {
-      return plan.replace(pattern, `$1\n${testMarkdown}`);
+        // Find and replace test results section
+        const pattern = new RegExp(`(### Feature: ${featureName}[\\s\\S]*?#### Test Results \\(from Tester Agent\\))\\s*\`\`\`[\\s\\S]*?\`\`\``);
+        if (plan.match(pattern)) {
+            return plan.replace(pattern, `$1\n${testMarkdown}`);
+        }
+        // If no test results section exists, add it after Implementation Todos
+        const insertPattern = new RegExp(`(### Feature: ${featureName}[\\s\\S]*?#### Implementation Todos[\\s\\S]*?)(?=####|###|---)`);
+        return plan.replace(insertPattern, `$1\n#### Test Results (from Tester Agent)\n${testMarkdown}\n\n`);
     }
-
-    // If no test results section exists, add it after Implementation Todos
-    const insertPattern = new RegExp(
-      `(### Feature: ${featureName}[\\s\\S]*?#### Implementation Todos[\\s\\S]*?)(?=####|###|---)`
-    );
-
-    return plan.replace(
-      insertPattern,
-      `$1\n#### Test Results (from Tester Agent)\n${testMarkdown}\n\n`
-    );
-  }
-
-  private injectQAReview(
-    plan: string,
-    featureName: string,
-    qaReview: FeatureStatus['qaReview']
-  ): string {
-    if (!qaReview) return plan;
-
-    const qaMarkdown = `\`\`\`
+    injectQAReview(plan: string, featureName: string, qaReview: any) {
+        if (!qaReview)
+            return plan;
+        const qaMarkdown = `\`\`\`
 ✅ Accessibility: ${qaReview.accessibility}
 ✅ Visual Regression: ${qaReview.visualRegression}
 ✅ Code Quality: ${qaReview.codeQuality}
 \`\`\``;
-
-    // Find and replace QA review section
-    const pattern = new RegExp(
-      `(### Feature: ${featureName}[\\s\\S]*?#### QA Review \\(from QA Agent\\))\\s*\`\`\`[\\s\\S]*?\`\`\``
-    );
-
-    if (plan.match(pattern)) {
-      return plan.replace(pattern, `$1\n${qaMarkdown}`);
+        // Find and replace QA review section
+        const pattern = new RegExp(`(### Feature: ${featureName}[\\s\\S]*?#### QA Review \\(from QA Agent\\))\\s*\`\`\`[\\s\\S]*?\`\`\``);
+        if (plan.match(pattern)) {
+            return plan.replace(pattern, `$1\n${qaMarkdown}`);
+        }
+        // If no QA section exists, add it after Test Results
+        const insertPattern = new RegExp(`(### Feature: ${featureName}[\\s\\S]*?#### Test Results[\\s\\S]*?\`\`\`[\\s\\S]*?\`\`\`)(?=\\n\\n####|\\n\\n###|\\n\\n---)`);
+        return plan.replace(insertPattern, `$1\n\n#### QA Review (from QA Agent)\n${qaMarkdown}\n`);
     }
-
-    // If no QA section exists, add it after Test Results
-    const insertPattern = new RegExp(
-      `(### Feature: ${featureName}[\\s\\S]*?#### Test Results[\\s\\S]*?\`\`\`[\\s\\S]*?\`\`\`)(?=\\n\\n####|\\n\\n###|\\n\\n---)`
-    );
-
-    return plan.replace(
-      insertPattern,
-      `$1\n\n#### QA Review (from QA Agent)\n${qaMarkdown}\n`
-    );
-  }
-
-  private addFeature(
-    plan: string,
-    feature: FeatureStatus,
-    section: 'current' | 'backlog'
-  ): string {
-    const featureMarkdown = this.generateFeatureMarkdown(feature);
-
-    const sectionHeader = section === 'current'
-      ? `## Current Sprint: Week ${this.currentWeek}`
-      : `## Backlog: Week ${this.currentWeek + 1}`;
-
-    // Find section and append feature
-    const pattern = new RegExp(`(${sectionHeader}[\\s\\S]*?)(?=\\n## |$)`);
-
-    return plan.replace(pattern, `$1\n${featureMarkdown}\n---\n\n`);
-  }
-
-  private moveFeature(
-    plan: string,
-    featureName: string,
-    destination: 'current' | 'completed'
-  ): string {
-    // Extract feature from current location
-    const featurePattern = new RegExp(
-      `### Feature: ${featureName}[\\s\\S]*?(?=\\n### |\\n## |$)`
-    );
-
-    const featureMatch = plan.match(featurePattern);
-    if (!featureMatch) {
-      console.warn(`Feature "${featureName}" not found`);
-      return plan;
+    addFeature(plan: string, feature: any, section: string) {
+        const featureMarkdown = this.generateFeatureMarkdown(feature);
+        const sectionHeader = section === 'current'
+            ? `## Current Sprint: Week ${this.currentWeek}`
+            : `## Backlog: Week ${this.currentWeek + 1}`;
+        // Find section and append feature
+        const pattern = new RegExp(`(${sectionHeader}[\\s\\S]*?)(?=\\n## |$)`);
+        return plan.replace(pattern, `$1\n${featureMarkdown}\n---\n\n`);
     }
-
-    const featureContent = featureMatch[0];
-
-    // Remove from current location
-    let updatedPlan = plan.replace(featurePattern, '');
-
-    // Insert into destination
-    if (destination === 'current') {
-      const currentHeader = `## Current Sprint: Week ${this.currentWeek}`;
-      updatedPlan = updatedPlan.replace(
-        currentHeader,
-        `${currentHeader}\n\n${featureContent}\n---\n`
-      );
-    } else {
-      const completedHeader = `## Completed: Week ${this.currentWeek}`;
-      updatedPlan = updatedPlan.replace(
-        completedHeader,
-        `${completedHeader}\n\n${featureContent}\n---\n`
-      );
+    moveFeature(plan: string, featureName: string, destination: string) {
+        // Extract feature from current location
+        const featurePattern = new RegExp(`### Feature: ${featureName}[\\s\\S]*?(?=\\n### |\\n## |$)`);
+        const featureMatch = plan.match(featurePattern);
+        if (!featureMatch) {
+            console.warn(`Feature "${featureName}" not found`);
+            return plan;
+        }
+        const featureContent = featureMatch[0];
+        // Remove from current location
+        let updatedPlan = plan.replace(featurePattern, '');
+        // Insert into destination
+        if (destination === 'current') {
+            const currentHeader = `## Current Sprint: Week ${this.currentWeek}`;
+            updatedPlan = updatedPlan.replace(currentHeader, `${currentHeader}\n\n${featureContent}\n---\n`);
+        }
+        else {
+            const completedHeader = `## Completed: Week ${this.currentWeek}`;
+            updatedPlan = updatedPlan.replace(completedHeader, `${completedHeader}\n\n${featureContent}\n---\n`);
+        }
+        return updatedPlan;
     }
-
-    return updatedPlan;
-  }
-
-  private completeFeature(
-    plan: string,
-    featureName: string,
-    completedDate: string
-  ): string {
-    // Update status to ✅ Complete
-    let updatedPlan = plan.replace(
-      new RegExp(`(### Feature: ${featureName} )[🟡🔴]`),
-      '$1✅'
-    );
-
-    updatedPlan = updatedPlan.replace(
-      new RegExp(`(### Feature: ${featureName}[\\s\\S]*?\\*\\*Status:\\*\\* )[^\\n]+`),
-      '$1Complete'
-    );
-
-    // Add completed date
-    updatedPlan = updatedPlan.replace(
-      new RegExp(`(### Feature: ${featureName}[\\s\\S]*?\\*\\*Started:\\*\\* [^\\n]+)`),
-      `$1\n**Completed:** ${completedDate}`
-    );
-
-    // Move to completed section
-    return this.moveFeature(updatedPlan, featureName, 'completed');
-  }
-
-  private generateFeatureMarkdown(feature: FeatureStatus): string {
-    let markdown = `### Feature: ${feature.name} ${feature.status}\n`;
-    markdown += `**Status:** ${feature.statusText}\n`;
-    markdown += `**Developer:** ${feature.developer}\n`;
-
-    if (feature.started) {
-      markdown += `**Started:** ${feature.started}\n`;
+    completeFeature(plan: string, featureName: string, completedDate: string) {
+        // Update status to ✅ Complete
+        let updatedPlan = plan.replace(new RegExp(`(### Feature: ${featureName} )[🟡🔴]`), '$1✅');
+        updatedPlan = updatedPlan.replace(new RegExp(`(### Feature: ${featureName}[\\s\\S]*?\\*\\*Status:\\*\\* )[^\\n]+`), '$1Complete');
+        // Add completed date
+        updatedPlan = updatedPlan.replace(new RegExp(`(### Feature: ${featureName}[\\s\\S]*?\\*\\*Started:\\*\\* [^\\n]+)`), `$1\n**Completed:** ${completedDate}`);
+        // Move to completed section
+        return this.moveFeature(updatedPlan, featureName, 'completed');
     }
-
-    if (feature.completed) {
-      markdown += `**Completed:** ${feature.completed}\n`;
+    generateFeatureMarkdown(feature: any) {
+        let markdown = `### Feature: ${feature.name} ${feature.status}\n`;
+        markdown += `**Status:** ${feature.statusText}\n`;
+        markdown += `**Developer:** ${feature.developer}\n`;
+        if (feature.started) {
+            markdown += `**Started:** ${feature.started}\n`;
+        }
+        if (feature.completed) {
+            markdown += `**Completed:** ${feature.completed}\n`;
+        }
+        if (feature.blocked) {
+            markdown += `**Blocked:** ${feature.blocked}\n`;
+        }
+        markdown += `\n#### Implementation Todos (Auto-tracked)\n`;
+        feature.todos.forEach((todo: any) => {
+            const checkbox = todo.completed ? '[x]' : '[ ]';
+            markdown += `- ${checkbox} ${todo.task}\n`;
+        });
+        if (feature.testResults) {
+            markdown += `\n#### Test Results (from Tester Agent)\n\`\`\`\n`;
+            markdown += `${feature.testResults.unitTests}\n`;
+            markdown += `${feature.testResults.coverage}\n`;
+            if (feature.testResults.e2eTests) {
+                markdown += `${feature.testResults.e2eTests}\n`;
+            }
+            markdown += `Status: ${feature.testResults.status}\n\`\`\`\n`;
+        }
+        if (feature.qaReview) {
+            markdown += `\n#### QA Review (from QA Agent)\n\`\`\`\n`;
+            markdown += `✅ Accessibility: ${feature.qaReview.accessibility}\n`;
+            markdown += `✅ Visual Regression: ${feature.qaReview.visualRegression}\n`;
+            markdown += `✅ Code Quality: ${feature.qaReview.codeQuality}\n\`\`\`\n`;
+        }
+        if (feature.plannerNotes && feature.plannerNotes.length > 0) {
+            markdown += `\n#### Planner Notes\n`;
+            feature.plannerNotes.forEach((note: any) => {
+                markdown += `- ${note}\n`;
+            });
+        }
+        return markdown;
     }
-
-    if (feature.blocked) {
-      markdown += `**Blocked:** ${feature.blocked}\n`;
-    }
-
-    markdown += `\n#### Implementation Todos (Auto-tracked)\n`;
-    feature.todos.forEach(todo => {
-      const checkbox = todo.completed ? '[x]' : '[ ]';
-      markdown += `- ${checkbox} ${todo.task}\n`;
-    });
-
-    if (feature.testResults) {
-      markdown += `\n#### Test Results (from Tester Agent)\n\`\`\`\n`;
-      markdown += `${feature.testResults.unitTests}\n`;
-      markdown += `${feature.testResults.coverage}\n`;
-      if (feature.testResults.e2eTests) {
-        markdown += `${feature.testResults.e2eTests}\n`;
-      }
-      markdown += `Status: ${feature.testResults.status}\n\`\`\`\n`;
-    }
-
-    if (feature.qaReview) {
-      markdown += `\n#### QA Review (from QA Agent)\n\`\`\`\n`;
-      markdown += `✅ Accessibility: ${feature.qaReview.accessibility}\n`;
-      markdown += `✅ Visual Regression: ${feature.qaReview.visualRegression}\n`;
-      markdown += `✅ Code Quality: ${feature.qaReview.codeQuality}\n\`\`\`\n`;
-    }
-
-    if (feature.plannerNotes && feature.plannerNotes.length > 0) {
-      markdown += `\n#### Planner Notes\n`;
-      feature.plannerNotes.forEach(note => {
-        markdown += `- ${note}\n`;
-      });
-    }
-
-    return markdown;
-  }
 }
-
 /**
  * Usage Example:
  *
