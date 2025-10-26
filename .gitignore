@@ -84,6 +84,7 @@ tutorwise-railway-backend/venv/
 google-credentials.json
 service-account-key.json
 oauth-credentials.json
+suspended-google-credentials.json
 
 # Auto-generated Vercel environment sync scripts (contain secrets)
 vercel-env-commands.sh
