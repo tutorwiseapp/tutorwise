@@ -1,0 +1,146 @@
+/*
+ * My Profile Page Layout
+ * Last Modified: 2025-10-24
+ * Design System Compliance: Using tokens from DESIGN_SYSTEM.md
+ * Layout: Responsive 2-column layout (desktop) → 1-column (tablet/mobile)
+ */
+
+/* Page wrapper - full width background */
+.pageWrapper {
+  background-color: var(--color-bg-page, #fff);
+  min-height: 100vh;
+  padding: var(--space-4, 32px) 0;
+}
+
+/* Content wrapper - matches OnboardingWizard .stepContent exactly */
+.contentWrapper {
+  padding: 1.5rem; /* Mobile: 24px */
+  max-width: 1200px; /* Design system: content width constraint */
+  margin: 0 auto; /* Center content within container */
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .contentWrapper {
+    padding: 2rem; /* Tablet: 32px */
+  }
+}
+
+@media (min-width: 1024px) {
+  .contentWrapper {
+    padding: 3rem; /* Desktop: 48px */
+  }
+}
+
+/* Personal Info content - single column, no sidebar */
+.personalInfoContent {
+  margin-top: var(--space-5, 48px);
+  max-width: 100%;
+}
+
+/* Main content grid - two columns on desktop */
+.mainContent {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 48px; /* Fixed 48px gap between panels */
+  margin-top: var(--space-5, 48px);
+  align-items: start; /* Prevent sidebar from stretching */
+}
+
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 32px);
+  min-width: 0; /* Prevent grid blowout */
+}
+
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 32px);
+  min-width: 0; /* Prevent grid blowout */
+}
+
+/* Responsive: Stack layout on tablet and mobile */
+@media (max-width: 1023px) {
+  .mainContent {
+    grid-template-columns: 1fr;
+    gap: var(--space-4, 32px);
+    margin-top: var(--space-4, 32px);
+  }
+
+  /* Sidebar appears first on mobile/tablet */
+  .rightColumn {
+    order: -1;
+  }
+
+  .leftColumn {
+    order: 1;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 767px) {
+  .pageWrapper {
+    padding: var(--space-3, 24px) 0;
+  }
+
+  .mainContent {
+    margin-top: var(--space-3, 24px);
+    gap: var(--space-3, 24px);
+  }
+}
+
+/* Loading state */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: var(--space-2, 16px);
+}
+
+.loadingSpinner {
+  width: 3rem;
+  height: 3rem;
+  border: 3px solid var(--color-border, #dfe1e5);
+  border-top: 3px solid var(--color-primary, #006C67);
+  border-radius: var(--border-radius-full, 9999px);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loadingText {
+  font-size: var(--font-size-base, 16px);
+  color: var(--color-text-secondary, #5f6368);
+  margin: 0;
+}
+
+/* Error state */
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  text-align: center;
+  gap: var(--space-3, 24px);
+}
+
+.errorTitle {
+  font-size: var(--font-size-2xl, 24px);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-text-primary, #202124);
+  margin: 0;
+}
+
+.errorMessage {
+  font-size: var(--font-size-base, 16px);
+  color: var(--color-text-secondary, #5f6368);
+  margin: 0;
+}

@@ -1,0 +1,314 @@
+/* PersonalInfoForm.module.css */
+/* Design System Compliant - Using 8px grid system and design tokens */
+
+.personalInfoForm {
+  /* Container for width management and responsive padding only */
+  /* No visual styling (borders/shadows) - blends with page background */
+  padding: 2rem; /* Desktop: 32px - responsive padding for content */
+  width: 100%; /* Take full width available */
+  max-width: 100%; /* Respect parent max-width: 1200px */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 3rem; /* 48px - 8px grid system */
+}
+
+.title {
+  font-size: 1.875rem; /* 30px - Design System: h2 / text-display-sm */
+  font-weight: 600;
+  color: var(--color-text-primary, #1f2937);
+  margin: 0 0 0.5rem 0; /* 8px bottom margin */
+}
+
+.subtitle {
+  font-size: 0.875rem; /* 14px - Design System: text-body-sm */
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  line-height: 1.6; /* Design system default */
+}
+
+.formContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem; /* 32px - 8px grid system */
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* 8px - 8px grid system */
+}
+
+.formLabel {
+  font-size: 0.875rem; /* 14px - text-body-sm */
+  font-weight: 500;
+  color: var(--color-text-primary, #374151);
+  line-height: 1.6;
+}
+
+.formInput {
+  width: 100%;
+  padding: 0.75rem; /* 12px - close to 8px grid (can be 0.75rem or 1rem/16px) */
+  border: 1px solid var(--color-border, #d1d5db);
+  border-radius: var(--border-radius-md, 8px);
+  font-size: 1rem; /* 16px - text-body-base */
+  color: var(--color-text-primary, #1f2937);
+  background-color: var(--color-bg-input, #ffffff);
+  transition: all 0.2s ease;
+  line-height: 1.5;
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: var(--color-primary, #006C67);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
+}
+
+.formInput:disabled {
+  background-color: var(--color-bg-disabled, #f9fafb);
+  color: var(--color-text-disabled, #9ca3af);
+  cursor: not-allowed;
+}
+
+.formInput::placeholder {
+  color: var(--color-text-placeholder, #9ca3af);
+}
+
+/* Select dropdown custom styling */
+select.formInput {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+  padding-right: 2.5rem;
+}
+
+/* Inline Editing Styles */
+.displayValue {
+  padding: 0.75rem; /* 12px - consistent with formInput */
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-md, 8px);
+  min-height: 44px; /* Accessible touch target */
+  display: flex;
+  align-items: center;
+  color: var(--color-text-primary, #1f2937);
+  background-color: var(--color-bg-input, #ffffff);
+  line-height: 1.5;
+}
+
+.displayValue.editable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-color: var(--color-border, #d1d5db);
+}
+
+.displayValue.editable:hover {
+  background-color: var(--color-bg-hover, #f9fafb);
+  border-color: var(--color-primary, #006C67);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.05);
+}
+
+.editingContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* 8px - 8px grid system */
+  position: relative;
+}
+
+/* Saving state visual feedback */
+.formInput.saving {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.savingIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.savingText {
+  font-size: 0.875rem;
+  color: var(--color-primary, #006C67);
+  font-weight: 500;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Helper text for keyboard shortcuts */
+.keyboardHint {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+/* Removed - no longer needed */
+.inlineActions {
+  display: none;
+}
+
+.placeholder {
+  color: var(--color-text-placeholder, #9ca3af);
+  font-style: italic;
+}
+
+/* Document Upload Styles */
+.documentDisplay {
+  padding: 0.75rem; /* 12px - consistent with other inputs */
+  border: 1px solid var(--color-border, #d1d5db);
+  border-radius: var(--border-radius-md, 8px);
+  min-height: 44px; /* Accessible touch target */
+  display: flex;
+  align-items: center;
+  background-color: var(--color-bg-input, #ffffff);
+  transition: all 0.2s ease;
+}
+
+.documentDisplay.editable {
+  cursor: pointer;
+}
+
+.documentDisplay.editable:hover {
+  background-color: var(--color-bg-hover, #f9fafb);
+  border-color: var(--color-primary, #006C67);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.05);
+}
+
+.documentInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.5rem; /* 8px - 8px grid system */
+}
+
+.fileButton {
+  flex: 1;
+  padding: var(--space-3, 12px) var(--space-4, 16px);
+  border: 1px solid var(--color-border, #d1d5db);
+  border-radius: var(--border-radius-md, 8px);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary, #374151);
+  background-color: var(--color-bg-input, #ffffff);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.fileButton:hover:not(.disabled) {
+  background-color: var(--color-bg-hover, #f9fafb);
+  border-color: var(--color-primary, #006C67);
+}
+
+.fileButton.disabled {
+  background-color: var(--color-bg-disabled, #f9fafb);
+  color: var(--color-text-disabled, #9ca3af);
+  cursor: not-allowed;
+}
+
+.deleteButton {
+  padding: var(--space-1, 4px) var(--space-3, 12px);
+  border: 1px solid #ef4444;
+  border-radius: var(--border-radius-sm, 4px);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #ef4444;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.deleteButton:hover:not(:disabled) {
+  background-color: #fef2f2;
+}
+
+.deleteButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.helperText {
+  font-size: 0.75rem; /* 12px - text-body-xs */
+  color: var(--color-text-secondary, #6b7280);
+  margin-top: 0.25rem; /* 4px - smallest spacing unit */
+  line-height: 1.6;
+}
+
+.successText {
+  font-size: 0.875rem; /* 14px - text-body-sm */
+  color: var(--color-primary, #006C67);
+  margin-top: 0.5rem; /* 8px - 8px grid system */
+  line-height: 1.6;
+}
+
+.errorText {
+  font-size: 0.875rem; /* 14px - text-body-sm */
+  color: #ef4444;
+  margin-top: 0.5rem; /* 8px - 8px grid system */
+  line-height: 1.6;
+}
+
+.subsectionTitle {
+  font-size: 1rem; /* 16px - text-body-base with semibold */
+  font-weight: 600;
+  color: var(--color-text-primary, #1f2937);
+  margin-bottom: 0.75rem; /* 12px - spacing before content */
+  line-height: 1.6;
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-3, 12px);
+  justify-content: flex-end;
+  padding-top: var(--space-4, 32px);
+  border-top: 1px solid var(--color-border, #e5e7eb);
+  margin-top: var(--space-4, 32px);
+}
+
+/* Responsive padding - optimized for full-width content */
+@media (max-width: 767px) {
+  .personalInfoForm {
+    padding: 1rem; /* Mobile: 16px - minimal padding */
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 0.75rem; /* 12px - 8px grid system */
+    align-items: stretch;
+    margin-bottom: 2rem; /* 32px on mobile */
+  }
+
+  .formContent {
+    gap: 1.5rem; /* 24px on mobile - slightly tighter */
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .personalInfoForm {
+    padding: 1.5rem; /* Tablet: 24px - reduced for more content width */
+  }
+}

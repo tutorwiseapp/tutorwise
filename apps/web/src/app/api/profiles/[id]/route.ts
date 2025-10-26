@@ -3,7 +3,7 @@ import { createClient } from '@/utils/supabase/server';
 
 /**
  * GET /api/profiles/[id]
- * Fetch public profile information
+ * Fetch public profile information for any user.
  */
 export async function GET(
   request: NextRequest,
@@ -11,58 +11,65 @@ export async function GET(
 ) {
   try {
     const supabase = createClient();
+    const profileId = params.id;
 
-    // Fetch profile from database
-    const { data: profile, error } = await supabase
+    // Fetch the base profile
+    const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', profileId)
       .single();
 
-    if (error) {
-      if (error.code === 'PGRST116') {
-        return NextResponse.json(
-          { error: 'Profile not found' },
-          { status: 404 }
-        );
+    if (profileError) {
+      if (profileError.code === 'PGRST116') { // "Not Found"
+        return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
       }
-      throw error;
+      throw profileError;
     }
 
-    // Fetch role-specific details if available
-    let roleDetails = null;
-    if (profile.role) {
-      const { data, error: roleError } = await supabase
-        .from('role_details')
-        .select('*')
-        .eq('profile_id', params.id)
-        .eq('role', profile.role)
-        .single();
+    // Fetch all roles for the profile
+    const { data: rolesData, error: rolesError } = await supabase
+      .from('profile_roles')
+      .select('role')
+      .eq('profile_id', profileId);
 
-      if (!roleError && data) {
-        roleDetails = data;
-      }
+    if (rolesError) throw rolesError;
+
+    // Fetch professional details
+    const { data: professionalDetailsData, error: professionalDetailsError } = await supabase
+      .from('professional_details')
+      .select('*')
+      .eq('profile_id', profileId)
+      .single();
+
+    // We don't throw an error if professional details are not found, as they are optional
+    if (professionalDetailsError && professionalDetailsError.code !== 'PGRST116') {
+      throw professionalDetailsError;
     }
 
-    // Return public profile data (exclude sensitive fields)
+    // Combine the data into a single profile object
     const publicProfile = {
-      id: profile.id,
-      full_name: profile.full_name,
-      avatar_url: profile.avatar_url,
-      cover_photo_url: profile.cover_photo_url,
-      bio: profile.bio,
-      achievements: profile.achievements,
-      categories: profile.categories,
-      role: profile.role,
-      created_at: profile.created_at,
-      role_details: roleDetails,
+      // Explicitly list fields to return to avoid leaking sensitive data
+      id: profileData.id,
+      full_name: profileData.full_name,
+      first_name: profileData.first_name,
+      last_name: profileData.last_name,
+      bio: profileData.bio,
+      categories: profileData.categories,
+      achievements: profileData.achievements,
+      avatar_url: profileData.avatar_url,
+      cover_photo_url: profileData.cover_photo_url,
+      created_at: profileData.created_at,
+      roles: rolesData.map(r => r.role),
+      professional_details: professionalDetailsData || null,
+      // Email, phone, address, DOB, and emergency contacts are private
     };
 
     return NextResponse.json(publicProfile);
   } catch (error) {
-    console.error('Failed to fetch profile:', error);
+    console.error('Error fetching public profile:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch profile' },
+      { error: 'An unexpected error occurred.' },
       { status: 500 }
     );
   }

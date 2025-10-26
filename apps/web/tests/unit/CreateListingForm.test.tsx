@@ -13,8 +13,8 @@ describe('CreateListingForm Wizard', () => {
     jest.clearAllMocks();
   });
 
-  // Helper function to start the wizard and get to the first form step
-  const startWizard = async () => {
+  // Helper function to render the form
+  const renderForm = () => {
     const user = userEvent.setup();
     render(
       <CreateListingForm
@@ -23,72 +23,56 @@ describe('CreateListingForm Wizard', () => {
         isSaving={false}
       />
     );
-    // Click the button on the Welcome step to start the form
-    const startButton = screen.getByRole('button', { name: /Let's create my listing/i });
-    await user.click(startButton);
     return { user };
   };
 
   describe('Initial Rendering', () => {
-    it('should first render the Welcome step', () => {
+    it('should render the Create Listing form', () => {
       render(<CreateListingForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />);
-      expect(screen.getByText('Create Your Tutoring Service')).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /Let's create my listing/i })
-      ).toBeInTheDocument();
+      expect(screen.getByText('Create Listing')).toBeInTheDocument();
+      // Check that Service Title label exists
+      expect(screen.getByText(/Service Title/i)).toBeInTheDocument();
     });
 
-    it('should navigate to the Basic Information step after starting', async () => {
-      await startWizard();
-      expect(screen.getByText('Basic Information')).toBeInTheDocument();
-      // The label in the component is "Service Title"
-      expect(screen.getByLabelText(/Service Title/i)).toBeInTheDocument();
+    it('should show Service Title and Description fields', () => {
+      renderForm();
+      expect(screen.getByText(/Service Title/i)).toBeInTheDocument();
+      expect(screen.getByText(/Description/i)).toBeInTheDocument();
     });
   });
 
   describe('Step 1: Basic Information', () => {
-    it('should have a pre-filled title based on user profile', async () => {
-      await startWizard();
-      // The mock profile's display_name is "Test User"
-      const titleInput = screen.getByLabelText(/Service Title/i);
-      expect(titleInput).toHaveValue("Test User's Tutoring Service");
-    });
-
-    it('should show correct initial character count for description', async () => {
-        await startWizard();
-        // The component renders the counter as "0 / 2000"
-        expect(screen.getByText(/0\s*\/\s*2000/)).toBeInTheDocument();
+    it('should show correct initial character count for description', () => {
+        renderForm();
+        // The component renders the counter as "(0/2000)" for description
+        expect(screen.getByText(/\(0\/2000\)/)).toBeInTheDocument();
     });
 
     it('should update description character count on input', async () => {
-        const { user } = await startWizard();
-        const descInput = screen.getByLabelText(/Description/i);
+        const { user } = renderForm();
+        // Find description textarea by placeholder
+        const descInput = screen.getByPlaceholderText(/Describe your teaching approach/i);
         await user.type(descInput, 'Test description');
         // "Test description" is 16 characters
-        expect(screen.getByText(/16\s*\/\s*2000/)).toBeInTheDocument();
+        expect(screen.getByText(/\(16\/2000\)/)).toBeInTheDocument();
     });
 
-    it('should show validation errors for empty fields', async () => {
-        const { user } = await startWizard();
-        const titleInput = screen.getByLabelText(/Service Title/i);
-        const descInput = screen.getByLabelText(/Description/i);
+    it('should show validation errors for title field', async () => {
+        const { user } = renderForm();
+        // Find title input by placeholder
+        const titleInput = screen.getByPlaceholderText(/e.g., GCSE Mathematics/i);
 
         // Clear title to trigger required
         await user.clear(titleInput);
-        const nextButton = screen.getByRole('button', {name: 'Continue'});
-        await user.click(nextButton);
-        expect(await screen.findByText('Title is required')).toBeInTheDocument();
+        const submitButton = screen.getByRole('button', {name: /Publish Listing/i});
+        await user.click(submitButton);
+        expect(await screen.findByText('Service title is required')).toBeInTheDocument();
 
         // Type short title for length error
         await user.type(titleInput, 'short');
-        await user.click(nextButton);
+        await user.click(submitButton);
         expect(await screen.findByText('Title must be at least 10 characters')).toBeInTheDocument();
 
-        // Set short non-empty description to trigger length (bypasses required)
-        await user.type(descInput, 'short desc'); // 10 chars < 50
-        await user.click(nextButton);
-        expect(screen.getByText('Description must be at least 50 characters')).toBeInTheDocument();
-        
         expect(mockOnSubmit).not.toHaveBeenCalled();
     });
   });

@@ -10,7 +10,7 @@ module.exports = {
     '\.css$': 'identity-obj-proxy',
   },
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { configFile: '../../babel.config.js' }],
+    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { configFile: '<rootDir>/../../babel.config.js' }],
   },
   transformIgnorePatterns: [
     'node_modules/(?!(.*\\.mjs$))',

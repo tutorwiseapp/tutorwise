@@ -5,20 +5,25 @@ import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import getProfileImageUrl from '@/lib/utils/image';
 import styles from './HybridHeader.module.css';
 import type { Listing } from '@tutorwise/shared-types';
+import type { Profile } from '@/types';
 import Button from '@/app/components/ui/Button';
 import Card from '@/app/components/ui/Card';
 
 interface HybridHeaderProps {
-  listing: Listing;
+  listing?: Listing;
+  profile?: Profile;
+  actionsDisabled?: boolean;
+  isEditable?: boolean;
+  onUpdate?: (updates: Partial<Profile>) => Promise<void>;
 }
 
-export default function HybridHeader({ listing }: HybridHeaderProps) {
+export default function HybridHeader({ listing, profile, actionsDisabled = false }: HybridHeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { user, isLoading } = useUserProfile();
 
   const handleActionClick = (action: string) => {
-    if (isLoading) return;
+    if (isLoading || actionsDisabled) return;
 
     if (!user) {
       router.push(`/login?redirect=${pathname}`);
@@ -27,11 +32,20 @@ export default function HybridHeader({ listing }: HybridHeaderProps) {
     }
   };
 
+  // Support both listing and profile props
+  const data = listing || profile;
+  if (!data) return null;
+
   // Use the same profile image logic as NavMenu (includes academic avatar fallback)
   const avatarUrl = getProfileImageUrl({
-    id: listing.profile_id,
-    avatar_url: listing.avatar_url,
+    id: listing ? listing.profile_id : (profile?.id || ''),
+    avatar_url: listing ? listing.avatar_url : (profile?.avatar_url || null),
   });
+
+  const fullName = listing ? listing.full_name : (profile?.full_name || 'Anonymous User');
+  const title = listing ? listing.title : (profile?.professional_details?.tutor?.subjects?.[0] || 'Tutor');
+  const location = listing ? listing.location_city : (profile?.city || 'United Kingdom');
+  const hourlyRate = listing ? listing.hourly_rate : (profile?.professional_details?.tutor?.hourly_rate || 'N/A');
 
   return (
     <div className={styles.hybridHeader}>
@@ -40,14 +54,14 @@ export default function HybridHeader({ listing }: HybridHeaderProps) {
         <div className={styles.avatarContainer}>
           <img
             src={avatarUrl}
-            alt={listing.full_name || listing.title}
+            alt={fullName || title}
             className={styles.avatar}
           />
         </div>
         <div className={styles.profileInfo}>
-          <h1 className={styles.tutorName}>{listing.full_name || listing.title}</h1>
-          <p className={styles.specialty}>{listing.title}</p>
-          <p className={styles.location}>{listing.location_city || 'United Kingdom'}</p>
+          <h1 className={styles.tutorName}>{fullName || title}</h1>
+          <p className={styles.specialty}>{title}</p>
+          <p className={styles.location}>{location}</p>
         </div>
       </div>
 
@@ -62,7 +76,7 @@ export default function HybridHeader({ listing }: HybridHeaderProps) {
             </div>
             <div className={styles.statItem}>
               <p className={styles.statLabel}>One-on-One Session Rate</p>
-              <p className={styles.statValue}>£{listing.hourly_rate}</p>
+              <p className={styles.statValue}>£{hourlyRate}</p>
             </div>
             <div className={styles.statItem}>
               <p className={styles.statLabel}>Group Session Rate</p>

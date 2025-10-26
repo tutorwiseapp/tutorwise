@@ -10,6 +10,7 @@ export async function middleware(request: NextRequest) {
   const protectedRoutes = [
     '/dashboard',
     '/profile',
+    '/my-profile',
     '/settings',
     '/payments',
     '/referral-activities',

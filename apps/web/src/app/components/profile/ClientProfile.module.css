@@ -1,0 +1,33 @@
+.profileGrid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 2rem;
+}
+
+.profileCard {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.profileAvatar {
+  border-radius: 50%;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.profileName {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.contentCard {
+  padding: 1.5rem;
+}
+
+.contentCard h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}

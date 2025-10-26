@@ -1,21 +1,75 @@
 
 .availabilitySection {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
-  padding: 2.5rem 0;
-  border-top: 1px solid #e8e8e8;
+  padding: 1.5rem;
+  background-color: #fafafa;
+  border-radius: 8px;
 }
 
 .title {
-  font-size: 1.375rem; /* 22px */
-  font-weight: 700; /* Bold */
-  margin-bottom: 1.25rem;
-  color: #000;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #333;
 }
 
-.available ul,
-.unavailable ul {
+/* Inline Editing Styles */
+.content {
+  color: var(--color-text-primary, #202124);
+}
+
+.content.editable {
+  cursor: pointer;
+  padding: var(--space-2, 8px);
+  border-radius: var(--border-radius-md, 8px);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.content.editable:hover {
+  background-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0 2px var(--color-border, #dfe1e5);
+}
+
+.editingContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
+}
+
+.textarea {
+  width: 100%;
+  padding: var(--space-3, 12px);
+  border: 2px solid var(--color-border, #dfe1e5);
+  border-radius: var(--border-radius-md, 8px);
+  font-family: inherit;
+  font-size: var(--font-size-base, 16px);
+  line-height: 1.6;
+  resize: vertical;
+  transition: border-color 0.2s ease;
+  background-color: white;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-primary, #006C67);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
+}
+
+.inlineActions {
+  display: flex;
+  gap: var(--space-2, 8px);
+  justify-content: flex-end;
+}
+
+.placeholder {
+  color: var(--color-text-secondary, #5f6368);
+  font-style: italic;
+}
+
+.available ul, .unavailable ul {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -24,10 +78,18 @@
   gap: 0.5rem;
 }
 
-.available li,
+.available li {
+  background-color: #e8f5e9; /* success-light */
+  color: #2e7d32;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+}
+
 .unavailable li {
-  font-size: 1rem;
-  color: #484848;
+  background-color: #fff8e1; /* warning-light */
+  color: #f57c00;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
 }
 
 @media (max-width: 768px) {

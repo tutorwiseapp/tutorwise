@@ -8,10 +8,10 @@
 /* Container: 2-column layout (Left: Profile | Right: Stats + Actions) */
 .hybridHeader {
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: var(--space-5, 48px);
+  grid-template-columns: 40% 60%;
+  gap: 0; /* Remove gap - right column will use full 60% width */
   margin-bottom: var(--space-4, 32px);
-  align-items: start;
+  align-items: center; /* Center align vertically */
 }
 
 /* ========================================
@@ -22,6 +22,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center; /* Center align the entire left section */
   gap: var(--space-3, 24px);
   text-align: center;
 }
@@ -90,7 +91,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3, 24px);
-  flex: 1;
+  width: 100%; /* Take full available width */
   min-width: 0;
 }
 
@@ -98,6 +99,7 @@
 .statsCard {
   /* Card component provides padding, border, shadow */
   padding: 0 !important; /* Override Card default padding for custom grid padding */
+  width: 100%; /* Stretch to full width of right column */
 }
 
 .statsGrid {
@@ -107,7 +109,7 @@
 }
 
 .statItem {
-  padding: var(--space-3, 24px);
+  padding: var(--space-2, 16px) var(--space-3, 20px); /* Reduced vertical padding */
   text-align: center;
   border-right: 1px solid var(--color-border, #dfe1e5);
 }
@@ -117,15 +119,15 @@
 }
 
 .statLabel {
-  font-size: var(--font-size-sm, 14px);
+  font-size: 16px; /* Changed to 16px as requested */
   font-weight: var(--font-weight-medium, 500);
   color: var(--color-text-secondary, #5f6368);
-  margin: 0 0 var(--space-1, 8px) 0;
-  line-height: 1.4;
+  margin: 0 0 var(--space-1, 6px) 0;
+  line-height: 1.3;
 }
 
 .statValue {
-  font-size: var(--font-size-3xl, 32px);
+  font-size: var(--font-size-2xl, 28px); /* Reduced from 32px to 28px */
   font-weight: var(--font-weight-bold, 700);
   color: var(--color-text-primary, #202124);
   margin: 0;
@@ -136,30 +138,32 @@
 .actionButtons {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-2, 16px);
+  gap: var(--space-2, 12px); /* Slightly reduced gap */
 }
 
 /* ========================================
    RESPONSIVE DESIGN
    ======================================== */
 
-/* Tablet: Adjust stats to vertical stack */
+/* Tablet: Stack layout, horizontal profile info */
 @media (max-width: 1023px) {
   .hybridHeader {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Single column layout */
     gap: var(--space-4, 32px);
   }
 
   .leftColumn {
-    flex-direction: row;
+    flex-direction: row; /* Horizontal layout: avatar on left, info on right */
     text-align: left;
     justify-content: flex-start;
+    align-items: center;
     gap: var(--space-3, 24px);
   }
 
   .avatarContainer {
     width: 120px;
     height: 120px;
+    flex-shrink: 0;
   }
 
   .profileInfo {
@@ -167,8 +171,12 @@
     text-align: left;
   }
 
+  .rightColumn {
+    width: 100%; /* Full width on tablet */
+  }
+
   .statsGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Stack stats vertically */
   }
 
   .statItem {
@@ -178,6 +186,7 @@
     border-right: none;
     border-bottom: 1px solid var(--color-border, #dfe1e5);
     text-align: left;
+    padding: var(--space-3, 20px);
   }
 
   .statItem:last-child {
@@ -192,19 +201,24 @@
     font-size: var(--font-size-2xl, 24px);
   }
 
-  /* Action buttons: stack to 1 column on tablet */
+  /* Action buttons: 2 columns on tablet */
   .actionButtons {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: var(--space-2, 16px);
   }
 }
 
-/* Mobile: Further compaction */
+/* Mobile: Vertical centered layout */
 @media (max-width: 767px) {
+  .hybridHeader {
+    gap: var(--space-3, 24px);
+  }
+
   .leftColumn {
-    flex-direction: column;
+    flex-direction: column; /* Stack avatar and info vertically */
     text-align: center;
     align-items: center;
+    gap: var(--space-2, 16px);
   }
 
   .avatarContainer {
@@ -239,5 +253,10 @@
 
   .statValue {
     font-size: var(--font-size-xl, 20px);
+  }
+
+  /* Action buttons: single column on mobile */
+  .actionButtons {
+    grid-template-columns: 1fr;
   }
 }

@@ -1,19 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import type { CreateListingInput } from '@tutorwise/shared-types';
-import { useAutoSaveDraft, loadDraft, clearDraft, saveCurrentStep } from '@/lib/utils/wizardUtils';
-import WelcomeStep from './wizard-steps/WelcomeStep';
-import Step1BasicInfo from './wizard-steps/Step1BasicInfo';
-import Step2TeachingDetails from './wizard-steps/Step2TeachingDetails';
-import Step3ExpertiseCredentials from './wizard-steps/Step3ExpertiseCredentials';
-import Step4PricingAvailability from './wizard-steps/Step4PricingAvailability';
-import Step4point5Availability from './wizard-steps/Step4point5Availability';
-import Step5LocationMedia from './wizard-steps/Step5LocationMedia';
-import styles from '../onboarding/OnboardingWizard.module.css';
-
-type ListingStep = 'welcome' | 'basic' | 'teaching' | 'expertise' | 'pricing' | 'availability' | 'location';
+import { useAutoSaveDraft, loadDraft, clearDraft } from '@/lib/utils/wizardUtils';
+import CreateListings from './wizard-steps/CreateListings';
 
 interface CreateListingWizardProps {
   onSubmit: (data: CreateListingInput) => void;
@@ -28,12 +19,11 @@ export default function CreateListingWizard({
   isSaving = false,
   initialData
 }: CreateListingWizardProps) {
-  const { profile, user, isLoading: isProfileLoading } = useUserProfile();
+  const { profile, user } = useUserProfile();
   const DRAFT_KEY = 'listing_draft';
 
-  const [currentStep, setCurrentStep] = useState<ListingStep>('welcome');
   const [formData, setFormData] = useState<Partial<CreateListingInput>>(() => {
-    // Initialize with profile data if available
+    // Initialize with defaults and initial data
     const baseData: Partial<CreateListingInput> = {
       currency: 'GBP',
       location_country: 'United Kingdom',
@@ -42,21 +32,14 @@ export default function CreateListingWizard({
       ...initialData,
     };
 
-    // Pre-populate full_name from profile during initialization
-    // Priority: full_name > email username
+    // Pre-populate full_name from profile
     if (!baseData.full_name && profile) {
-      const fallbackName = profile.full_name;
-      if (fallbackName) {
-        baseData.full_name = fallbackName;
-        console.log('[CreateListingWizard] Initializing full_name from profile:', {
-          source: 'full_name',
-          value: fallbackName
-        });
-      }
+      baseData.full_name = profile.full_name || '';
     }
 
     return baseData;
   });
+
   const [isDraftLoaded, setIsDraftLoaded] = useState(false);
 
   // Load draft from database on mount
@@ -65,38 +48,27 @@ export default function CreateListingWizard({
       if (!isDraftLoaded && !initialData) {
         const draft = await loadDraft<CreateListingInput>(user?.id, DRAFT_KEY, initialData);
 
-        // Prepare initial data with profile information
-        const baseData = draft || {};
+        if (draft) {
+          // Only merge fields from draft that actually have values
+          const draftWithValues = Object.fromEntries(
+            Object.entries(draft).filter(([_, value]) => value !== undefined && value !== null && value !== '')
+          ) as Partial<CreateListingInput>;
 
-        // Only merge fields from draft that actually have values
-        // Don't overwrite with undefined/null/empty values
-        const draftWithValues = Object.fromEntries(
-          Object.entries(baseData).filter(([_, value]) => value !== undefined && value !== null && value !== '')
-        ) as Partial<CreateListingInput>;
-
-        // Pre-fill full_name from profile if not in draft
-        // Priority: draft > profile.full_name
-        const fullName = draftWithValues.full_name || profile?.full_name;
-
-        if (fullName) {
-          draftWithValues.full_name = fullName;
-          if (!baseData.full_name) {
-            console.log('[CreateListingWizard] Pre-filling full_name from profile during draft load:', {
-              source: draftWithValues.full_name ? 'draft' : 'full_name',
-              value: fullName
-            });
+          // Pre-fill full_name from profile if not in draft
+          const fullName = draftWithValues.full_name || profile?.full_name;
+          if (fullName) {
+            draftWithValues.full_name = fullName;
           }
-        }
 
-        console.log('[CreateListingWizard] Loading draft with profile data:', draftWithValues);
-        setFormData(prev => ({ ...prev, ...draftWithValues }));
+          setFormData(prev => ({ ...prev, ...draftWithValues }));
+        }
         setIsDraftLoaded(true);
       }
     }
     loadSavedDraft();
   }, [user?.id, initialData, isDraftLoaded, profile]);
 
-  // Auto-save draft every 30 seconds (using shared utility with database sync)
+  // Auto-save draft every 30 seconds
   const { saveDraft } = useAutoSaveDraft<Partial<CreateListingInput>>(
     user?.id,
     DRAFT_KEY,
@@ -104,229 +76,22 @@ export default function CreateListingWizard({
     (data) => !!(data.title || data.description) // Only save if title or description exists
   );
 
-  // Auto-populate from profile
-  useEffect(() => {
-    console.log('[CreateListingWizard] Auto-populate check:', {
-      hasProfile: !!profile,
-      fullName: profile?.full_name,
-      profileEmail: profile?.email,
-      hasUser: !!user,
-      userEmail: user?.email,
-      hasInitialData: !!initialData,
-      currentFullName: formData.full_name,
-      currentImages: formData.images
-    });
-
-    if (profile && !initialData) {
-      const updates: Partial<CreateListingInput> = {};
-
-      // Auto-populate full_name from profile
-      // Priority: full_name > email username
-      if (!formData.full_name) {
-        const fallbackName = profile.full_name || user?.email?.split('@')[0] || '';
-
-        if (fallbackName) {
-          console.log('[CreateListingWizard] Auto-populating full_name:', {
-            source: profile.full_name ? 'full_name' : 'email',
-            value: fallbackName
-          });
-          updates.full_name = fallbackName;
-        } else {
-          console.warn('[CreateListingWizard] No name available in profile!', profile);
-        }
-      } else {
-        console.log('[CreateListingWizard] Full name already set:', formData.full_name);
-      }
-
-      // Auto-populate first image with profile picture
-      const profilePicture = profile.avatar_url;
-      if (profilePicture && (!formData.images || formData.images.length === 0)) {
-        console.log('[CreateListingWizard] Auto-populating image:', profilePicture);
-        updates.images = [profilePicture];
-      }
-
-      if (Object.keys(updates).length > 0) {
-        console.log('[CreateListingWizard] Applying updates:', updates);
-        setFormData(prev => ({ ...prev, ...updates }));
-      } else {
-        console.log('[CreateListingWizard] No updates needed');
-      }
-    } else {
-      if (!profile) console.log('[CreateListingWizard] No profile available yet');
-      if (initialData) console.log('[CreateListingWizard] Has initialData, skipping auto-populate');
-    }
-  }, [profile, formData.full_name, formData.images, initialData]);
-
-  // Save current step whenever it changes (for resume functionality)
-  useEffect(() => {
-    if (isDraftLoaded) {
-      saveCurrentStep(user?.id, DRAFT_KEY, currentStep);
-    }
-  }, [user?.id, currentStep, isDraftLoaded]);
-
-  const updateFormData = (stepData: Partial<CreateListingInput>) => {
-    setFormData(prev => ({ ...prev, ...stepData }));
-  };
-
-  // Step navigation handlers
-  const handleWelcomeNext = () => {
-    // Ensure full_name is populated from profile when moving to basic info step
-    // Priority: current formData > profile.full_name > email
-    if (!formData.full_name && profile) {
-      const fallbackName = profile.full_name || user?.email?.split('@')[0] || '';
-      if (fallbackName) {
-        console.log('[CreateListingWizard] Populating full_name on navigation:', {
-          source: profile.full_name ? 'full_name' : 'email',
-          value: fallbackName
-        });
-        setFormData(prev => ({ ...prev, full_name: fallbackName }));
-      }
-    }
-    setCurrentStep('basic');
-  };
-
-  const handleBasicNext = (data: Partial<CreateListingInput>) => {
-    updateFormData(data);
-    setCurrentStep('teaching');
-  };
-
-  const handleTeachingNext = (data: Partial<CreateListingInput>) => {
-    updateFormData(data);
-    setCurrentStep('expertise');
-  };
-
-  const handleExpertiseNext = (data: Partial<CreateListingInput>) => {
-    updateFormData(data);
-    setCurrentStep('pricing');
-  };
-
-  const handlePricingNext = (data: Partial<CreateListingInput>) => {
-    updateFormData(data);
-    setCurrentStep('availability');
-  };
-
-  const handleAvailabilityNext = (data: Partial<CreateListingInput>) => {
-    updateFormData(data);
-    setCurrentStep('location');
-  };
-
-  const handleBack = () => {
-    const stepOrder: ListingStep[] = ['welcome', 'basic', 'teaching', 'expertise', 'pricing', 'availability', 'location'];
-    const currentIndex = stepOrder.indexOf(currentStep);
-    if (currentIndex > 0) {
-      setCurrentStep(stepOrder[currentIndex - 1]);
-    }
-  };
-
   const handleSaveDraft = () => {
     saveDraft();
-    alert('Draft saved! You can resume later from your listings page.');
-    onCancel();
   };
 
-  const handleFinalSubmit = async (finalStepData: Partial<CreateListingInput>) => {
-    const completeData = { ...formData, ...finalStepData };
-    await clearDraft(user?.id, DRAFT_KEY); // Use shared utility to clear draft from DB and localStorage
-    onSubmit(completeData as CreateListingInput);
+  const handleSubmit = async (data: Partial<CreateListingInput>) => {
+    await clearDraft(user?.id, DRAFT_KEY);
+    onSubmit(data as CreateListingInput);
   };
-
-  const renderStep = () => {
-    switch (currentStep) {
-      case 'welcome':
-        return (
-          <WelcomeStep
-            userName={profile?.full_name || user?.email?.split('@')[0] || 'there'}
-            onNext={handleWelcomeNext}
-            onSkip={onCancel}
-          />
-        );
-      case 'basic':
-        return (
-          <Step1BasicInfo
-            formData={formData}
-            onNext={handleBasicNext}
-            onBack={handleBack}
-          />
-        );
-      case 'teaching':
-        return (
-          <Step2TeachingDetails
-            formData={formData}
-            onNext={handleTeachingNext}
-            onBack={handleBack}
-          />
-        );
-      case 'expertise':
-        return (
-          <Step3ExpertiseCredentials
-            formData={formData}
-            onNext={handleExpertiseNext}
-            onBack={handleBack}
-          />
-        );
-      case 'pricing':
-        return (
-          <Step4PricingAvailability
-            formData={formData}
-            onNext={handlePricingNext}
-            onBack={handleBack}
-          />
-        );
-      case 'availability':
-        return (
-          <Step4point5Availability
-            formData={formData}
-            onNext={handleAvailabilityNext}
-            onBack={handleBack}
-          />
-        );
-      case 'location':
-        return (
-          <Step5LocationMedia
-            formData={formData}
-            onBack={handleBack}
-            onSubmit={handleFinalSubmit}
-            onSaveDraft={handleSaveDraft}
-            isSaving={isSaving}
-          />
-        );
-      default:
-        return null;
-    }
-  };
-
-  // Wait for profile to load before rendering to ensure full_name is available
-  if (isProfileLoading) {
-    return (
-      <div className={styles.wizardContainer + ' ' + styles.fullPage}>
-        <div style={{ padding: '3rem 1rem', textAlign: 'center' }}>
-          <p>Loading your profile...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className={styles.wizardContainer + ' ' + styles.fullPage}>
-      {/* Progress indicator */}
-      <div className={styles.wizardProgress}>
-        {['welcome', 'basic', 'teaching', 'expertise', 'pricing', 'availability', 'location'].map((step, index) => (
-          <div key={step} style={{ display: 'flex', alignItems: 'center' }}>
-            <div
-              className={`${styles.progressDot} ${
-                currentStep === step ? styles.active :
-                ['welcome', 'basic', 'teaching', 'expertise', 'pricing', 'availability', 'location'].indexOf(currentStep) > index ? styles.completed : ''
-              }`}
-            />
-            {index < 6 && <div className={`${styles.progressSeparator} ${
-              ['welcome', 'basic', 'teaching', 'expertise', 'pricing', 'availability', 'location'].indexOf(currentStep) > index ? styles.active : ''
-            }`} />}
-          </div>
-        ))}
-      </div>
-
-      {/* Step content */}
-      {renderStep()}
-    </div>
+    <CreateListings
+      formData={formData}
+      onSubmit={handleSubmit}
+      onCancel={onCancel}
+      onSaveDraft={handleSaveDraft}
+      isSaving={isSaving}
+    />
   );
 }

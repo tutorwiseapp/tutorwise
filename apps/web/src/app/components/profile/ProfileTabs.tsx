@@ -1,27 +1,30 @@
 
 'use client';
 
-import { useState } from 'react';
 import styles from './ProfileTabs.module.css';
 
 const tabs = [
-  'Overview',
+  'Personal Info',
+  'Professional Info',
   'Reviews',
   'Matching Requests',
   'Matching Jobs',
   'Matching Agents',
 ];
 
-export default function ProfileTabs() {
-  const [activeTab, setActiveTab] = useState('Overview');
+interface ProfileTabsProps {
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
+}
 
+export default function ProfileTabs({ activeTab = 'Personal Info', onTabChange }: ProfileTabsProps) {
   return (
     <div className={styles.profileTabs}>
       {tabs.map((tab) => (
         <button
           key={tab}
           className={`${styles.tab} ${activeTab === tab ? styles.active : ''}`}
-          onClick={() => setActiveTab(tab)}
+          onClick={() => onTabChange?.(tab)}
         >
           {tab}
         </button>

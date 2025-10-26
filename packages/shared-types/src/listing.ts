@@ -29,6 +29,7 @@ export interface Listing {
   // Basic Info
   full_name?: string; // Full name of the tutor (e.g., "Jane Doe")
   avatar_url?: string; // Profile picture URL from profiles table
+  listing_type?: string; // Type of listing (e.g., "Tutor: One-on-One Session")
   title: string; // Service title (e.g., "GCSE Maths Tutor")
   description: string;
   status: ListingStatus;
@@ -48,6 +49,13 @@ export interface Listing {
   pricing_packages?: PricingPackage[];
   free_trial: boolean;
   trial_duration_minutes?: number;
+
+  // MVP Fields
+  instant_booking_enabled?: boolean;
+  ai_tools_used?: string[];
+  cancellation_policy?: string;
+  duration_options?: number[];
+  location_details?: string;
 
   // Availability & Location
   location_type: LocationType;
@@ -86,6 +94,7 @@ export interface Listing {
 export interface CreateListingInput {
   // Basic Info (required)
   full_name?: string; // Full name of the tutor
+  listing_type?: string; // Type of listing (e.g., "Tutor: One-on-One Session")
   title: string; // Service title
   description: string;
 
@@ -115,12 +124,19 @@ export interface CreateListingInput {
   location_city?: string;
   location_postcode?: string;
   location_country?: string;
+  location_details?: string;
   timezone?: string;
   availability?: Availability;
 
   // Media
   images?: string[];
   video_url?: string;
+
+  // MVP Fields
+  instant_booking_enabled?: boolean;
+  ai_tools_used?: string[];
+  cancellation_policy?: string;
+  duration_options?: number[];
 
   // SEO
   tags?: string[];
