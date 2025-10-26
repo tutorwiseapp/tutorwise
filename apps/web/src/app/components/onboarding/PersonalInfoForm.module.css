@@ -5,7 +5,7 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.5rem; /* Mobile: 24px (8px × 3) */
-  margin-bottom: 2rem; /* Add spacing between grid sections */
+  /* No margin-bottom - spacing handled by parent formContent gap */
 }
 
 @media (min-width: 640px) {
@@ -21,7 +21,7 @@
     grid-template-columns: repeat(2, 1fr);
     row-gap: 2rem; /* Desktop: 32px vertical (8px × 4) */
     column-gap: 2rem; /* Desktop: 32px horizontal (8px × 4) */
-    margin-bottom: 2rem; /* Desktop: 32px spacing between sections */
+    /* No margin-bottom - spacing handled by parent formContent gap */
   }
 }
 
