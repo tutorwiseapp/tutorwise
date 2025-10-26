@@ -9,14 +9,10 @@ import ProfileTabs from '@/app/components/profile/ProfileTabs';
 import ReviewsSection from '@/app/components/profile/ReviewsSection';
 import PersonalInfoForm from '@/app/components/profile/PersonalInfoForm';
 import ProfessionalInfoForm from '@/app/components/profile/ProfessionalInfoForm';
-import ClientProfile from '@/app/components/profile/ClientProfile';
-import AgentProfile from '@/app/components/profile/AgentProfile';
 import ActivityFeed from '@/app/components/profile/ActivityFeed';
 import styles from './page.module.css';
-import Container from '@/app/components/layout/Container';
-import Button from '@/app/components/ui/Button';
 
-const TutorProfile = ({
+const ProfileContent = ({
   profile,
   onSave,
   activeTab
@@ -97,19 +93,8 @@ export default function MyProfilePage() {
   const renderProfileContent = () => {
     if (!profile) return null;
 
-    // Use activeRole from context, fall back to roles array
-    const currentRole = activeRole || (profile.roles && profile.roles.length > 0 ? profile.roles[0] : null);
-
-    switch (currentRole) {
-      case 'provider':
-        return <TutorProfile profile={profile} onSave={handleSave} activeTab={activeTab} />;
-      case 'agent':
-        return <AgentProfile profile={profile} isEditable={true} onSave={handleSave} />;
-      case 'seeker':
-        return <ClientProfile profile={profile} isEditable={true} onSave={handleSave} />;
-      default:
-        return <TutorProfile profile={profile} onSave={handleSave} activeTab={activeTab} />;
-    }
+    // All roles now use the same unified tab-based layout
+    return <ProfileContent profile={profile} onSave={handleSave} activeTab={activeTab} />;
   };
 
   if (isLoading) {
