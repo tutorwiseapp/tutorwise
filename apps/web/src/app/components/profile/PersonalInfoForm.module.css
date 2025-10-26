@@ -295,7 +295,7 @@ select.formInput {
   }
 
   .formContent {
-    gap: 1.5rem; /* 24px on mobile - slightly tighter */
+    gap: 2rem; /* 32px on mobile - consistent with desktop */
   }
 
   .actions {
