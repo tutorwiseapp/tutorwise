@@ -1,6 +1,7 @@
 'use client';
 
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import TutorProfessionalInfoForm from '../components/TutorProfessionalInfoForm';
@@ -9,21 +10,49 @@ import AgentProfessionalInfoForm from '../components/AgentProfessionalInfoForm';
 
 export default function ProfessionalInfoPage() {
   const { profile, activeRole, isLoading } = useUserProfile();
+  const { isAllowed, isLoading: roleLoading } = useRoleGuard(['provider', 'agent', 'seeker']);
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
+  // Initialize mounted state
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Redirect if not logged in
   useEffect(() => {
     if (!isLoading && !profile) {
-      router.push('/login');
+      router.push('/login?redirect=/account/professional-info');
     }
   }, [isLoading, profile, router]);
 
-  if (!mounted || isLoading || !profile) {
-    return <div>Loading...</div>;
+  // Show loading state
+  if (!mounted || isLoading || roleLoading || !profile) {
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '400px',
+        flexDirection: 'column',
+        gap: '1rem'
+      }}>
+        <div style={{
+          width: '48px',
+          height: '48px',
+          border: '3px solid #e5e7eb',
+          borderTopColor: '#2563eb',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }}></div>
+        <p style={{ color: '#6b7280' }}>Loading professional information...</p>
+      </div>
+    );
+  }
+
+  // Role guard will redirect if not allowed
+  if (!isAllowed) {
+    return null;
   }
 
   // Map roles to form components

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { getListing, updateListing } from '@/lib/api/listings';
 import type { Listing, UpdateListingInput } from '@tutorwise/shared-types';
 import { toast } from 'sonner';
@@ -13,12 +14,14 @@ export default function EditListingPage() {
   const router = useRouter();
   const params = useParams();
   const { user, isLoading: userLoading } = useUserProfile();
+  const { isAllowed, isLoading: roleLoading } = useRoleGuard(['provider', 'agent', 'seeker']);
   const [listing, setListing] = useState<Listing | null>(null);
   const [isListingLoading, setIsListingLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
   const listingId = params?.id as string;
 
+  // Load listing data - must be before conditional returns
   useEffect(() => {
     if (!userLoading && !user) {
       router.push(`/login?redirect=/my-listings/${listingId}/edit`);
@@ -66,13 +69,19 @@ export default function EditListingPage() {
     router.push('/my-listings');
   };
 
-  if (userLoading || isListingLoading) {
+  // Show loading state for all async operations
+  if (userLoading || roleLoading || isListingLoading) {
     return (
       <div className={styles.loading}>
         <div className={styles.spinner}></div>
         <p>Loading listing data...</p>
       </div>
     );
+  }
+
+  // Role guard will handle redirect, just return null if not allowed
+  if (!isAllowed) {
+    return null;
   }
 
   if (!listing) {

@@ -1,7 +1,7 @@
 /*
  * Filename: src/app/settings/page.tsx
  * Purpose: Provides a central hub for users to manage application and account settings.
- * Last Modified: 2025-09-08
+ * Last Modified: 2025-10-26
  * Requirement ID: VIN-A-005
  */
 'use client';
@@ -10,6 +10,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import toast from 'react-hot-toast';
 
 import Container from '@/app/components/layout/Container';
@@ -20,15 +21,17 @@ import settingStyles from './page.module.css';
 
 const SettingsPage = () => {
   const { profile, isLoading } = useUserProfile();
+  const { isAllowed, isLoading: roleLoading } = useRoleGuard(['provider', 'agent', 'seeker']);
   const router = useRouter();
 
   const [desktopNotificationsEnabled, setDesktopNotificationsEnabled] = useState(true);
   const [conversionAlerts, setConversionAlerts] = useState(true);
   const [newsUpdates, setNewsUpdates] = useState(false);
 
+  // Redirect if not logged in
   useEffect(() => {
     if (!isLoading && !profile) {
-      router.push('/login');
+      router.push('/login?redirect=/settings');
     }
   }, [isLoading, profile, router]);
 
@@ -68,8 +71,35 @@ const SettingsPage = () => {
   };
 
 
-  if (isLoading || !profile) {
-    return <Container><p className={dashboardStyles.loading}>Loading...</p></Container>;
+  // Show loading state
+  if (isLoading || roleLoading || !profile) {
+    return (
+      <Container>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '400px',
+          flexDirection: 'column',
+          gap: '1rem'
+        }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '3px solid #e5e7eb',
+            borderTopColor: '#2563eb',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }}></div>
+          <p style={{ color: '#6b7280' }}>Loading settings...</p>
+        </div>
+      </Container>
+    );
+  }
+
+  // Role guard will redirect if not allowed
+  if (!isAllowed) {
+    return null;
   }
 
   return (
