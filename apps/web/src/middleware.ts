@@ -6,10 +6,15 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // Redirect /my-profile to /profile for backward compatibility
+  if (pathname === '/my-profile') {
+    return NextResponse.redirect(new URL('/profile', request.url))
+  }
+
   // Define routes that require authentication
   const protectedRoutes = [
     '/dashboard',
-    '/my-profile',
+    '/profile',
     '/settings',
     '/payments',
     '/referral-activities',

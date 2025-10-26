@@ -244,7 +244,7 @@ export default function CreateListings({
       <div className={styles.errorContainer}>
         <h2>Profile Incomplete</h2>
         <p>Please add subjects to your profile before creating a listing.</p>
-        <Button onClick={() => window.location.href = '/my-profile'}>Update Profile</Button>
+        <Button onClick={() => window.location.href = '/profile'}>Update Profile</Button>
       </div>
     );
   }
@@ -429,7 +429,7 @@ export default function CreateListings({
             {errors.subjects && <p className={styles.errorText}>{errors.subjects}</p>}
             {profileSubjects.length === 0 && (
               <p className={styles.warningText}>
-                No subjects in profile. <a href="/my-profile">Update Profile</a>
+                No subjects in profile. <a href="/profile">Update Profile</a>
               </p>
             )}
           </div>

@@ -67,7 +67,7 @@ function TutorOnboardingPageContent() {
     setActiveRole('provider');
     console.log('[TutorOnboarding] Active role set, redirecting to my-profile...');
     // Use Next.js router for proper client-side navigation (preserves session)
-    router.push('/my-profile');
+    router.push('/profile');
   };
 
   const handleOnboardingSkip = async () => {
@@ -76,7 +76,7 @@ function TutorOnboardingPageContent() {
     console.log('[TutorOnboarding] Profile refreshed, setting active role to provider...');
     setActiveRole('provider');
     console.log('[TutorOnboarding] Active role set, redirecting to my-profile...');
-    router.push('/my-profile');
+    router.push('/profile');
   };
 
   return (

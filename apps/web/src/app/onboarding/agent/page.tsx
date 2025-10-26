@@ -65,7 +65,7 @@ function AgentOnboardingPageContent() {
     console.log('[AgentOnboarding] Profile refreshed, setting active role to agent...');
     setActiveRole('agent');
     console.log('[AgentOnboarding] Active role set, redirecting to my-profile...');
-    router.push('/my-profile');
+    router.push('/profile');
   };
 
   const handleOnboardingSkip = async () => {
@@ -74,7 +74,7 @@ function AgentOnboardingPageContent() {
     console.log('[AgentOnboarding] Profile refreshed, setting active role to agent...');
     setActiveRole('agent');
     console.log('[AgentOnboarding] Active role set, redirecting to my-profile...');
-    router.push('/my-profile');
+    router.push('/profile');
   };
 
   return (

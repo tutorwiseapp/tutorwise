@@ -110,7 +110,7 @@ const AgentProfilePage = () => {
               <h2 className={styles.profileName}>{agent.full_name}</h2>
               <p className={styles.profileId}>ID: {agent.referral_id || agent.id.slice(0, 8)}</p>
               
-              {isOwnProfile && <Link href="/my-profile" className={styles.editProfileLink}>Edit Profile</Link>}
+              {isOwnProfile && <Link href="/profile" className={styles.editProfileLink}>Edit Profile</Link>}
               
               <div className={styles.detailsSection}>
                 <h3>About</h3>

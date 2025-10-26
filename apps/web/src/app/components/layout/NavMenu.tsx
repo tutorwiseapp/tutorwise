@@ -120,7 +120,7 @@ const NavMenu = () => {
                   <Link href="/messages">Messages</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild className={styles.menuItem}>
-                  <Link href="/my-profile">My Profile</Link>
+                  <Link href="/profile">My Profile</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild className={styles.menuItem}>
                   <Link href="/my-listings">My listings</Link>
@@ -195,7 +195,7 @@ const NavMenu = () => {
 
                 {/* Account Section */}
                 <DropdownMenu.Item asChild className={styles.menuItem}>
-                  <Link href="/my-profile">My Profile</Link>
+                  <Link href="/profile">My Profile</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild className={styles.menuItem}>
                   <Link href="/settings">Help centre</Link>

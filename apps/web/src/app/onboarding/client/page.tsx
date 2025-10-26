@@ -46,7 +46,7 @@ export default function ClientOnboardingPage() {
     console.log('[ClientOnboardingPage] Profile refreshed, setting active role to seeker...');
     setActiveRole('seeker');
     console.log('[ClientOnboardingPage] Active role set, redirecting to my-profile...');
-    router.push('/my-profile');
+    router.push('/profile');
   };
 
   const handleOnboardingSkip = async () => {
@@ -55,7 +55,7 @@ export default function ClientOnboardingPage() {
     console.log('[ClientOnboardingPage] Profile refreshed, setting active role to seeker...');
     setActiveRole('seeker');
     console.log('[ClientOnboardingPage] Active role set, redirecting to my-profile...');
-    router.push('/my-profile');
+    router.push('/profile');
   };
 
   return (
