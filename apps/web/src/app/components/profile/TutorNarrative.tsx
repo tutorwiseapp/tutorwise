@@ -79,10 +79,10 @@ export default function TutorNarrative({ profile, isEditable = false, onSave = (
               rows={5}
             />
             <div className={styles.inlineActions}>
-              <Button variant="secondary" size="small" onClick={() => handleCancel('bio')}>
+              <Button variant="secondary" size="sm" onClick={() => handleCancel('bio')}>
                 Cancel
               </Button>
-              <Button variant="primary" size="small" onClick={() => handleSave('bio')}>
+              <Button variant="primary" size="sm" onClick={() => handleSave('bio')}>
                 Save
               </Button>
             </div>
@@ -110,10 +110,10 @@ export default function TutorNarrative({ profile, isEditable = false, onSave = (
               rows={5}
             />
             <div className={styles.inlineActions}>
-              <Button variant="secondary" size="small" onClick={() => handleCancel('philosophy')}>
+              <Button variant="secondary" size="sm" onClick={() => handleCancel('philosophy')}>
                 Cancel
               </Button>
-              <Button variant="primary" size="small" onClick={() => handleSave('philosophy')}>
+              <Button variant="primary" size="sm" onClick={() => handleSave('philosophy')}>
                 Save
               </Button>
             </div>

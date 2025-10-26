@@ -39,7 +39,7 @@ export default function HybridHeader({ listing, profile, actionsDisabled = false
   // Use the same profile image logic as NavMenu (includes academic avatar fallback)
   const avatarUrl = getProfileImageUrl({
     id: listing ? listing.profile_id : (profile?.id || ''),
-    avatar_url: listing ? listing.avatar_url : (profile?.avatar_url || null),
+    avatar_url: listing ? listing.avatar_url : (profile?.avatar_url || undefined),
   });
 
   const fullName = listing ? listing.full_name : (profile?.full_name || 'Anonymous User');

@@ -15,10 +15,10 @@ interface EditAvailabilityModalProps {
 }
 
 export default function EditAvailabilityModal({ profile, isOpen, onClose, onSave }: EditAvailabilityModalProps) {
-  const [availability, setAvailability] = useState(profile.professional_details?.tutor?.availability?.join('\n') || '');
+  const [availability, setAvailability] = useState((profile.professional_details?.tutor as any)?.availability?.join('\n') || '');
 
   useEffect(() => {
-    setAvailability(profile.professional_details?.tutor?.availability?.join('\n') || '');
+    setAvailability((profile.professional_details?.tutor as any)?.availability?.join('\n') || '');
   }, [profile]);
 
   const handleSave = () => {
@@ -27,8 +27,8 @@ export default function EditAvailabilityModal({ profile, isOpen, onClose, onSave
         ...profile.professional_details,
         tutor: {
           ...profile.professional_details?.tutor,
-          availability: availability.split('\n').filter(line => line.trim() !== ''),
-        },
+          availability: availability.split('\n').filter((line: string) => line.trim() !== ''),
+        } as any,
       },
     });
     onClose();
@@ -37,11 +37,13 @@ export default function EditAvailabilityModal({ profile, isOpen, onClose, onSave
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Edit Availability">
       <div className={styles.modalContent}>
-        <FormGroup 
-          label="Available Time Slots" 
+        <FormGroup
+          label="Available Time Slots"
           htmlFor="availability"
-          description="Enter one time slot per line. For example: 'Every Tuesday, 5:00 PM - 7:00 PM'"
         >
+          <p className={styles.description}>
+            Enter one time slot per line. For example: &apos;Every Tuesday, 5:00 PM - 7:00 PM&apos;
+          </p>
           <textarea
             id="availability"
             value={availability}

@@ -105,10 +105,10 @@ export default function ListingDetailsPage() {
         <ProfileTabs />
         <div className={styles.mainContent}>
           <div className={styles.leftColumn}>
-            <TutorNarrative listing={listing} />
+            {/* TODO: TutorNarrative needs profile prop, not listing */}
             <ReviewsSection />
-            <AvailabilitySection />
-            <ProfessionalInfoSection listing={listing} />
+            {/* TODO: AvailabilitySection needs profile prop */}
+            {/* TODO: ProfessionalInfoSection needs profile prop, not listing */}
           </div>
           <div className={styles.rightColumn}>
             <ActivityFeed />

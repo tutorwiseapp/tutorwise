@@ -414,7 +414,7 @@ export default function CreateListings({
             </label>
             <p className={styles.helperText}>Select from your profile</p>
             <div className={styles.checkboxList}>
-              {profileSubjects.map((subject) => (
+              {profileSubjects.map((subject: string) => (
                 <label key={subject} className={styles.checkboxLabel}>
                   <input
                     type="checkbox"
@@ -441,7 +441,7 @@ export default function CreateListings({
             </label>
             <p className={styles.helperText}>Select from your profile</p>
             <div className={styles.checkboxList}>
-              {profileLevels.map((level) => (
+              {profileLevels.map((level: string) => (
                 <label key={level} className={styles.checkboxLabel}>
                   <input
                     type="checkbox"
@@ -497,7 +497,7 @@ export default function CreateListings({
             </label>
             <select
               value={deliveryMode}
-              onChange={(e) => setDeliveryMode(e.target.value)}
+              onChange={(e) => setDeliveryMode(e.target.value as "online" | "in_person" | "hybrid")}
               className={styles.select}
             >
               {DELIVERY_MODES.map(({ value, label }) => (

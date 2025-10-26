@@ -22,7 +22,7 @@ const TutorProfile = ({
   activeTab
 }: {
   profile: Profile;
-  onSave: (updatedProfile: Partial<Profile>) => void;
+  onSave: (updatedProfile: Partial<Profile>) => Promise<void>;
   activeTab: string;
 }) => {
   const renderTabContent = () => {

@@ -40,7 +40,7 @@ export default function AgentProfile({ profile, isEditable = false, onSave = () 
             <p className={styles.profileId}>ID: {profile.referral_id || profile.id.slice(0, 8)}</p>
             
             {isEditable && (
-              <Button variant="secondary" size="small" onClick={() => setIsModalOpen(true)}>
+              <Button variant="secondary" size="sm" onClick={() => setIsModalOpen(true)}>
                 Edit Details
               </Button>
             )}

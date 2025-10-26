@@ -93,10 +93,10 @@ export default function ProfessionalInfoSection({ profile, isEditable = false, o
                     placeholder="Enter subjects separated by commas"
                   />
                   <div className={styles.inlineActions}>
-                    <Button variant="secondary" size="small" onClick={() => handleCancel('subjects')}>
+                    <Button variant="secondary" size="sm" onClick={() => handleCancel('subjects')}>
                       Cancel
                     </Button>
-                    <Button variant="primary" size="small" onClick={() => handleSave('subjects')}>
+                    <Button variant="primary" size="sm" onClick={() => handleSave('subjects')}>
                       Save
                     </Button>
                   </div>
@@ -129,10 +129,10 @@ export default function ProfessionalInfoSection({ profile, isEditable = false, o
                     placeholder="Years of experience"
                   />
                   <div className={styles.inlineActions}>
-                    <Button variant="secondary" size="small" onClick={() => handleCancel('experience')}>
+                    <Button variant="secondary" size="sm" onClick={() => handleCancel('experience')}>
                       Cancel
                     </Button>
-                    <Button variant="primary" size="small" onClick={() => handleSave('experience')}>
+                    <Button variant="primary" size="sm" onClick={() => handleSave('experience')}>
                       Save
                     </Button>
                   </div>
@@ -165,10 +165,10 @@ export default function ProfessionalInfoSection({ profile, isEditable = false, o
                     placeholder="Enter your qualifications"
                   />
                   <div className={styles.inlineActions}>
-                    <Button variant="secondary" size="small" onClick={() => handleCancel('qualifications')}>
+                    <Button variant="secondary" size="sm" onClick={() => handleCancel('qualifications')}>
                       Cancel
                     </Button>
-                    <Button variant="primary" size="small" onClick={() => handleSave('qualifications')}>
+                    <Button variant="primary" size="sm" onClick={() => handleSave('qualifications')}>
                       Save
                     </Button>
                   </div>

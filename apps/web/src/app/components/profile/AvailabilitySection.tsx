@@ -14,14 +14,14 @@ interface AvailabilitySectionProps {
 export default function AvailabilitySection({ profile, isEditable = false, onSave = () => {} }: AvailabilitySectionProps) {
   const [editingAvailability, setEditingAvailability] = useState(false);
   const [availabilityValue, setAvailabilityValue] = useState(
-    profile.professional_details?.tutor?.availability?.join('\n') || ''
+    (profile.professional_details?.tutor as any)?.availability?.join('\n') || ''
   );
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const availability = profile.professional_details?.tutor?.availability || [];
+  const availability = (profile.professional_details?.tutor as any)?.availability || [];
 
   // Update local state when profile changes
   useEffect(() => {
-    setAvailabilityValue(profile.professional_details?.tutor?.availability?.join('\n') || '');
+    setAvailabilityValue((profile.professional_details?.tutor as any)?.availability?.join('\n') || '');
   }, [profile]);
 
   // Auto-focus textarea when entering edit mode
@@ -37,15 +37,15 @@ export default function AvailabilitySection({ profile, isEditable = false, onSav
         ...profile.professional_details,
         tutor: {
           ...profile.professional_details?.tutor,
-          availability: availabilityValue.split('\n').filter(line => line.trim() !== ''),
-        },
+          availability: availabilityValue.split('\n').filter((line: string) => line.trim() !== ''),
+        } as any,
       },
     });
     setEditingAvailability(false);
   };
 
   const handleCancel = () => {
-    setAvailabilityValue(profile.professional_details?.tutor?.availability?.join('\n') || '');
+    setAvailabilityValue((profile.professional_details?.tutor as any)?.availability?.join('\n') || '');
     setEditingAvailability(false);
   };
 
@@ -64,10 +64,10 @@ export default function AvailabilitySection({ profile, isEditable = false, onSav
               placeholder="Enter one time slot per line&#10;Example: Every Tuesday, 5:00 PM - 7:00 PM"
             />
             <div className={styles.inlineActions}>
-              <Button variant="secondary" size="small" onClick={handleCancel}>
+              <Button variant="secondary" size="sm" onClick={handleCancel}>
                 Cancel
               </Button>
-              <Button variant="primary" size="small" onClick={handleSave}>
+              <Button variant="primary" size="sm" onClick={handleSave}>
                 Save
               </Button>
             </div>
@@ -79,7 +79,7 @@ export default function AvailabilitySection({ profile, isEditable = false, onSav
           >
             {availability.length > 0 ? (
               <ul>
-                {availability.map((slot, index) => (
+                {availability.map((slot: string, index: number) => (
                   <li key={index}>{slot}</li>
                 ))}
               </ul>

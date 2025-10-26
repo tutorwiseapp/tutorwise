@@ -220,7 +220,6 @@ export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormPr
                 <DatePicker
                   selected={selectedDate}
                   onSelect={handleDateChange}
-                  disabled={isSaving}
                 />
               </div>
             ) : (
