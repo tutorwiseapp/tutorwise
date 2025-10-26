@@ -26,7 +26,7 @@ interface ProfileTabsProps {
 }
 
 export default function ProfileTabs({ activeTab = 'Personal Info', onTabChange, activeRole }: ProfileTabsProps) {
-  const tabs = getRoleTabs(activeRole);
+  const tabs = getRoleTabs(activeRole ?? null);
 
   return (
     <div className={styles.profileTabs}>

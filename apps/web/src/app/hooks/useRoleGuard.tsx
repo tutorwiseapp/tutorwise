@@ -18,7 +18,7 @@
  * ```
  */
 
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '../contexts/UserProfileContext';
 
@@ -105,12 +105,11 @@ export function useRoleGuard(
  * );
  * ```
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function withRoleGuard(
+export function withRoleGuard<P extends Record<string, unknown>>(
   allowedRoles: Role[],
-  Component: any
-): any {
-  return function GuardedComponent(props: any) {
+  Component: React.ComponentType<P>
+): React.ComponentType<P> {
+  return function GuardedComponent(props: P) {
     const { isAllowed, isLoading } = useRoleGuard(allowedRoles);
 
     if (isLoading) {

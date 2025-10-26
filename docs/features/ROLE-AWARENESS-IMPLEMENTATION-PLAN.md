@@ -18,9 +18,21 @@ Based on comprehensive analysis of the TutorWise codebase, this document outline
 
 ## Role Definitions
 
-- **Provider (Tutor)**: Creates and manages tutoring listings, earns from sessions
-- **Seeker (Client)**: Browses and books tutoring services, pays for sessions
-- **Agent**: Manages referrals, connects tutors with clients, earns commissions
+- **Provider (Tutor)**: Creates and manages tutoring service listings, earns from sessions
+- **Seeker (Client)**: Creates lesson request listings, browses and books tutoring services, pays for sessions
+- **Agent**: Creates job/tutor/course listings, manages referrals, connects tutors with clients, earns commissions
+
+### Role-Specific Listing Types
+
+Each role can create specific types of listings:
+
+| Role | Listing Types | Description |
+|------|--------------|-------------|
+| **Provider/Tutor** | Tutoring service listings | Offer tutoring services, set rates, availability |
+| **Seeker/Client** | Lesson request listings | Post lesson requests, describe needs, set budget |
+| **Agent** | Job/tutor/course listings | Post job opportunities, tutor profiles, course offerings |
+
+**Important**: All roles have access to `/my-listings` and `/my-listings/create` - the UI adapts based on the active role to show appropriate listing creation forms.
 
 ---
 
@@ -67,20 +79,25 @@ if (!isAllowed) return null; // Will redirect automatically
 
 ---
 
-#### 1.2 Add Role Guards to Provider-Only Pages
+#### 1.2 Add Role Guards to Listings Pages
 
-**Files to Update**:
-- `apps/web/src/app/my-listings/page.tsx`
-- `apps/web/src/app/my-listings/create/page.tsx`
+**Files Updated**:
+- ✅ `apps/web/src/app/my-listings/page.tsx`
+- ✅ `apps/web/src/app/my-listings/create/page.tsx`
 - `apps/web/src/app/my-listings/[id]/edit/page.tsx`
 
-**Changes**:
+**Implementation**:
 ```typescript
-// Add at top of each page component
-useRoleGuard(['provider', 'agent']);
+// All roles can access listing pages
+useRoleGuard(['provider', 'agent', 'seeker']);
 ```
 
-**Reason**: Seekers should not be able to create or manage listings.
+**Reason**: All roles can create listings, but different types:
+- Providers create tutoring service listings
+- Seekers create lesson request listings
+- Agents create job/tutor/course listings
+
+The UI adapts based on `activeRole` to show the appropriate form fields.
 
 ---
 
