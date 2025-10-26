@@ -14,6 +14,7 @@ export async function middleware(request: NextRequest) {
   // Define routes that require authentication
   const protectedRoutes = [
     '/dashboard',
+    '/messages',
     '/profile',
     '/settings',
     '/payments',
