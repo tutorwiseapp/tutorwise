@@ -53,7 +53,7 @@ export default function HybridHeader({ listing, profile, actionsDisabled = false
       case 'seeker':
         return 'Client'; // Client doesn't need specialty displayed
       case 'agent':
-        return 'Agency Representative';
+        return 'Agent';
       case 'provider':
       default:
         return profile?.professional_details?.tutor?.subjects?.[0] || 'Tutor';
