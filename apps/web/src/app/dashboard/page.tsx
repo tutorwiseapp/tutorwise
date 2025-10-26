@@ -28,7 +28,7 @@ const getDashboardLinks = (role: string | null) => {
   ];
 
   const commonLinks = [
-    { href: '/profile', title: 'My Profile', description: 'Update your public-facing profile information.', linkText: 'Edit Profile' },
+    { href: '/my-profile', title: 'My Profile', description: 'Update your public-facing profile information.', linkText: 'Edit Profile' },
     { href: '/settings', title: 'Settings', description: 'Manage account settings and notifications.', linkText: 'Go to Settings' },
   ];
 
