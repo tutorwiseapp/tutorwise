@@ -6,10 +6,8 @@ import type { Profile } from '@/types';
 import { toast } from 'sonner';
 import HybridHeader from '@/app/components/profile/HybridHeader';
 import ProfileTabs from '@/app/components/profile/ProfileTabs';
-import ReviewsSection from '@/app/components/profile/ReviewsSection';
 import PersonalInfoForm from '@/app/components/profile/PersonalInfoForm';
 import ProfessionalInfoForm from '@/app/components/profile/ProfessionalInfoForm';
-import ActivityFeed from '@/app/components/profile/ActivityFeed';
 import styles from './page.module.css';
 
 const ProfileContent = ({
@@ -36,16 +34,7 @@ const ProfileContent = ({
           </div>
         );
       case 'Reviews':
-        return (
-          <div className={styles.mainContent}>
-            <div className={styles.leftColumn}>
-              <ReviewsSection />
-            </div>
-            <div className={styles.rightColumn}>
-              <ActivityFeed />
-            </div>
-          </div>
-        );
+        return null;
       default:
         return (
           <div className={styles.mainContent}>
@@ -60,8 +49,8 @@ const ProfileContent = ({
   return renderTabContent();
 };
 
-export default function MyProfilePage() {
-  const { profile, isLoading, activeRole, refreshProfile } = useUserProfile();
+export default function ProfilePage() {
+  const { profile, isLoading, refreshProfile } = useUserProfile();
   const [activeTab, setActiveTab] = useState('Personal Info');
 
   const handleSave = async (updatedProfile: Partial<Profile>) => {
@@ -81,7 +70,7 @@ export default function MyProfilePage() {
       }
 
       await response.json();
-      await refreshProfile(); // Refresh profile from server
+      await refreshProfile();
       toast.success('Profile updated successfully!');
     } catch (err) {
       console.error('Failed to update profile:', err);
@@ -92,8 +81,6 @@ export default function MyProfilePage() {
 
   const renderProfileContent = () => {
     if (!profile) return null;
-
-    // All roles now use the same unified tab-based layout
     return <ProfileContent profile={profile} onSave={handleSave} activeTab={activeTab} />;
   };
 
