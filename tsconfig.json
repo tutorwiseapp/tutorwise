@@ -20,7 +20,22 @@
     }
   },
   "include": [],
-  "exclude": ["node_modules", "apps", "packages"],
+  "exclude": [
+    "node_modules",
+    "apps",
+    "packages",
+    "cas",
+    "cas/**",
+    "tools",
+    "**/dist",
+    "**/dist/**",
+    "**/*.js",
+    "**/*.mjs",
+    "**/storybook-static",
+    "**/storybook-static/**",
+    "**/*.config.js",
+    "**/*.config.mjs"
+  ],
   "references": [
     { "path": "./apps/web" },
     { "path": "./packages/shared-types" }
