@@ -105,7 +105,7 @@ const DashboardPage = () => {
   // Get formatted role name
   const getFormattedRole = () => {
     switch (activeRole) {
-      case 'seeker': return 'Student';
+      case 'seeker': return 'Client';
       case 'provider': return 'Tutor';
       case 'agent': return 'Agent';
       default: return '';

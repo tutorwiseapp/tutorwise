@@ -13,6 +13,7 @@ import wizardStyles from '@/app/components/onboarding/OnboardingWizard.module.cs
 interface ProfessionalInfoFormProps {
   profile: Profile;
   onSave: (updatedProfile: Partial<Profile>) => Promise<void>;
+  activeRole?: string | null;
 }
 
 type EditingField = 'bio' | 'status' | 'academic_qualifications' | 'key_stages' |
@@ -103,7 +104,7 @@ const deliveryModeOptions = [
 
 const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-export default function ProfessionalInfoForm({ profile, onSave }: ProfessionalInfoFormProps) {
+export default function ProfessionalInfoForm({ profile, onSave, activeRole }: ProfessionalInfoFormProps) {
   const [editingField, setEditingField] = useState<EditingField>(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -486,13 +487,48 @@ export default function ProfessionalInfoForm({ profile, onSave }: ProfessionalIn
     );
   };
 
-  return (
-    <div className={styles.personalInfoForm}>
-      <div className={styles.formContent}>
-        {/* About - Full Width */}
-        <div className={formLayoutStyles.fullWidth}>
-          {renderField('bio', 'About: describe your tutoring or teaching style, strengths, and what areas you specialise in', 'textarea', 'I\'m an experienced mathematics tutor with a Master\'s degree and 10 years of teaching expertise. I make math engaging for students from middle school to college, specialising in algebra, calculus, and geometry. My personalised approach builds strong foundations, boosts problem-solving skills, and instills confidence.')}
+  // Show role-specific content based on activeRole
+  const renderRoleSpecificContent = () => {
+    // For clients (seekers), show a simplified view
+    if (activeRole === 'seeker') {
+      return (
+        <div className={styles.personalInfoForm}>
+          <div className={styles.formContent}>
+            <div className={formLayoutStyles.fullWidth}>
+              {renderField('bio', 'About: Tell tutors about your learning goals and what you\'re looking for', 'textarea', 'I\'m looking for help with improving my understanding of mathematics, particularly in algebra and geometry. I\'m preparing for my GCSE exams and would like to work with a patient tutor who can explain concepts clearly.')}
+            </div>
+            <div style={{ padding: '20px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
+              <p>Additional client-specific fields coming soon...</p>
+            </div>
+          </div>
         </div>
+      );
+    }
+
+    // For agents, show agent-specific fields
+    if (activeRole === 'agent') {
+      return (
+        <div className={styles.personalInfoForm}>
+          <div className={styles.formContent}>
+            <div className={formLayoutStyles.fullWidth}>
+              {renderField('bio', 'About: Describe your agency and the services you provide', 'textarea', 'We are a professional tutoring agency specializing in connecting students with qualified tutors across all subjects and levels. Our mission is to provide high-quality educational support tailored to each student\'s needs.')}
+            </div>
+            <div style={{ padding: '20px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
+              <p>Additional agent-specific fields coming soon...</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Default to provider/tutor fields
+    return (
+      <div className={styles.personalInfoForm}>
+        <div className={styles.formContent}>
+          {/* About - Full Width */}
+          <div className={formLayoutStyles.fullWidth}>
+            {renderField('bio', 'About: describe your tutoring or teaching style, strengths, and what areas you specialise in', 'textarea', 'I\'m an experienced mathematics tutor with a Master\'s degree and 10 years of teaching expertise. I make math engaging for students from middle school to college, specialising in algebra, calculus, and geometry. My personalised approach builds strong foundations, boosts problem-solving skills, and instills confidence.')}
+          </div>
 
         {/* Status and Academic Qualifications - 2 Column */}
         <div className={formLayoutStyles.twoColumnGrid}>
@@ -778,5 +814,8 @@ export default function ProfessionalInfoForm({ profile, onSave }: ProfessionalIn
         </div>
       </div>
     </div>
-  );
+    );
+  };
+
+  return renderRoleSpecificContent();
 }

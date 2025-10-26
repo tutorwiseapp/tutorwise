@@ -13,11 +13,13 @@ import styles from './page.module.css';
 const ProfileContent = ({
   profile,
   onSave,
-  activeTab
+  activeTab,
+  activeRole
 }: {
   profile: Profile;
   onSave: (updatedProfile: Partial<Profile>) => Promise<void>;
   activeTab: string;
+  activeRole: string | null;
 }) => {
   const renderTabContent = () => {
     switch (activeTab) {
@@ -30,7 +32,7 @@ const ProfileContent = ({
       case 'Professional Info':
         return (
           <div className={styles.personalInfoContent}>
-            <ProfessionalInfoForm profile={profile} onSave={onSave} />
+            <ProfessionalInfoForm profile={profile} onSave={onSave} activeRole={activeRole} />
           </div>
         );
       case 'Reviews':
@@ -50,7 +52,7 @@ const ProfileContent = ({
 };
 
 export default function ProfilePage() {
-  const { profile, isLoading, refreshProfile } = useUserProfile();
+  const { profile, isLoading, refreshProfile, activeRole } = useUserProfile();
   const [activeTab, setActiveTab] = useState('Personal Info');
 
   const handleSave = async (updatedProfile: Partial<Profile>) => {
@@ -81,7 +83,7 @@ export default function ProfilePage() {
 
   const renderProfileContent = () => {
     if (!profile) return null;
-    return <ProfileContent profile={profile} onSave={handleSave} activeTab={activeTab} />;
+    return <ProfileContent profile={profile} onSave={handleSave} activeTab={activeTab} activeRole={activeRole} />;
   };
 
   if (isLoading) {
@@ -116,8 +118,9 @@ export default function ProfilePage() {
           actionsDisabled={true}
           isEditable={true}
           onUpdate={handleSave}
+          activeRole={activeRole}
         />
-        <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
+        <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} activeRole={activeRole} />
         {renderProfileContent()}
       </div>
     </div>

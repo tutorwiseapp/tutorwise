@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import Button from '@/app/components/ui/Button';
 import { getMyListings, deleteListing, publishListing, unpublishListing } from '@/lib/api/listings';
 import type { Listing } from '@tutorwise/shared-types';
@@ -14,19 +15,9 @@ import styles from './page.module.css';
 export default function MyListingsPage() {
   const router = useRouter();
   const { user, isLoading: userLoading } = useUserProfile();
+  const { isAllowed, isLoading: roleLoading } = useRoleGuard(['provider', 'agent', 'seeker']);
   const [listings, setListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (!userLoading && !user) {
-      router.push('/login?redirect=/my-listings');
-      return;
-    }
-
-    if (user) {
-      loadListings();
-    }
-  }, [user, userLoading, router]);
 
   const loadListings = async () => {
     try {
@@ -50,6 +41,19 @@ export default function MyListingsPage() {
       setIsLoading(false);
     }
   };
+
+  // Load listings on mount - MUST be before any conditional returns
+  useEffect(() => {
+    if (!userLoading && !user) {
+      router.push('/login?redirect=/my-listings');
+      return;
+    }
+
+    if (user) {
+      loadListings();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, userLoading]);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this listing? This action cannot be undone.')) return;
@@ -101,13 +105,19 @@ export default function MyListingsPage() {
     }
   };
 
-  if (userLoading || isLoading) {
+  // Show loading state
+  if (userLoading || roleLoading || isLoading) {
     return (
       <div className={styles.loading}>
         <div className={styles.spinner}></div>
         <p className={styles.loadingText}>Loading your listings...</p>
       </div>
     );
+  }
+
+  // Role guard handles redirect automatically
+  if (!isAllowed) {
+    return null;
   }
 
   return (

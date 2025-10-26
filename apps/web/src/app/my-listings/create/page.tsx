@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { createListing } from '@/lib/api/listings';
 import type { CreateListingInput } from '@tutorwise/shared-types';
 import { toast } from 'sonner';
@@ -11,11 +12,12 @@ import styles from './page.module.css';
 
 export default function CreateListingPage() {
   const router = useRouter();
-  const { user, activeRole, getRoleDetails, isLoading } = useUserProfile();
+  const { user, activeRole, getRoleDetails, isLoading: userLoading } = useUserProfile();
+  const { isAllowed, isLoading: roleLoading } = useRoleGuard(['provider', 'agent', 'seeker']);
   const [isSaving, setIsSaving] = useState(false);
   const [initialData, setInitialData] = useState<Partial<CreateListingInput>>({});
 
-  // Pre-fill form from role_details if available
+  // Pre-fill form from role_details if available - MUST be before conditional returns
   useEffect(() => {
     async function loadRoleDetails() {
       if (activeRole && (activeRole === 'provider' || activeRole === 'agent')) {
@@ -48,17 +50,26 @@ export default function CreateListingPage() {
     loadRoleDetails();
   }, [activeRole, getRoleDetails]);
 
-  if (isLoading) {
+  // Show loading while checking auth and role
+  if (userLoading || roleLoading) {
     return (
-      <div className={styles.loading}>
-        <div className={styles.spinner}></div>
-        <p>Loading...</p>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
       </div>
     );
   }
 
+  // Redirect if not logged in
   if (!user) {
     router.push('/login?redirect=/listings/create');
+    return null;
+  }
+
+  // Role guard handles redirect automatically
+  if (!isAllowed) {
     return null;
   }
 
