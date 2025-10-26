@@ -13,8 +13,7 @@ import { fileURLToPath } from 'url';
 const projectRoot = path.resolve(__dirname, '../../../');
 const envLocalPath = path.join(projectRoot, '.env.local');
 
-interface Env {
-  [key: string]: string | undefined;
+interface Env extends Record<string, string | undefined | (() => string | undefined) | (() => void)> {
   getSupabaseUrl: () => string | undefined;
   getSupabaseKey: () => string | undefined;
   getGeminiKey: () => string | undefined;

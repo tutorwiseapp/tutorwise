@@ -38,6 +38,14 @@ function log(color: keyof typeof colors, symbol: string, message: string): void 
   console.log(`${colors[color]}${symbol}${colors.reset} ${message}`);
 }
 
+async function applyRule(packageDir: string, rule: Rule, targetPlatform: string): Promise<number> {
+  // TODO: Implement rule application logic
+  // This function should apply the transformation rule to files in packageDir
+  // For now, return 0 to indicate no changes
+  console.warn('applyRule not yet implemented for:', rule.type);
+  return 0;
+}
+
 export async function applyAdaptations(packageDir: string, rulesFile: string, targetPlatform: string): Promise<number> {
   log('blue', '🤖', `Loading adaptation rules: ${path.basename(rulesFile)}`);
   const rules = JSON.parse(fs.readFileSync(rulesFile, 'utf8'));

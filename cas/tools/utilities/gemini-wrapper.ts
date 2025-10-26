@@ -23,11 +23,13 @@ export function runGeminiCLI(args: string[] = []): void {
 
     console.log('✅ API Key loaded successfully');
 
-    const processEnv = { ...process.env, ...env };
+    // Create clean env object without methods
+    const { getSupabaseUrl, getSupabaseKey, getGeminiKey, getPostgresUrl, checkStatus, ...envVars } = env as any;
+    const processEnv = { ...process.env, ...envVars };
 
     const pythonProcess = spawn('python3', ['.ai/scripts/gemini-cli.py', ...args], {
         stdio: 'inherit',
-        env: processEnv,
+        env: processEnv as NodeJS.ProcessEnv,
         cwd: process.cwd()
     });
 
