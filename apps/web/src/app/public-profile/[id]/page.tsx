@@ -7,7 +7,7 @@ import Button from '@/app/components/ui/Button';
 import type { Profile } from '@/types';
 import toast from 'react-hot-toast';
 import HybridHeader from '@/app/components/profile/HybridHeader';
-import ProfileTabs from '@/app/components/profile/ProfileTabs';
+import PublicProfileTabs from '@/app/components/profile/PublicProfileTabs';
 import TutorNarrative from '@/app/components/profile/TutorNarrative';
 import ReviewsSection from '@/app/components/profile/ReviewsSection';
 import AvailabilitySection from '@/app/components/profile/AvailabilitySection';
@@ -17,7 +17,8 @@ import AgentProfile from '@/app/components/profile/AgentProfile';
 import ActivityFeed from '@/app/components/profile/ActivityFeed';
 import styles from './page.module.css';
 
-const TutorProfile = ({ profile }: { profile: Profile }) => (
+// Overview content for each role
+const TutorOverview = ({ profile }: { profile: Profile }) => (
   <div className={styles.mainContent}>
     <div className={styles.leftColumn}>
       <TutorNarrative profile={profile} />
@@ -31,12 +32,87 @@ const TutorProfile = ({ profile }: { profile: Profile }) => (
   </div>
 );
 
+const ClientOverview = ({ profile }: { profile: Profile }) => (
+  <ClientProfile profile={profile} />
+);
+
+const AgentOverview = ({ profile }: { profile: Profile }) => (
+  <AgentProfile profile={profile} />
+);
+
+// Tab content component
+const ProfileTabContent = ({
+  activeTab,
+  profile,
+  activeRole
+}: {
+  activeTab: string;
+  profile: Profile;
+  activeRole: string | null;
+}) => {
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'Overview':
+        // Render Overview based on active role
+        switch (activeRole) {
+          case 'tutor':
+            return <TutorOverview profile={profile} />;
+          case 'agent':
+            return <AgentOverview profile={profile} />;
+          case 'client':
+            return <ClientOverview profile={profile} />;
+          default:
+            return (
+              <div className={styles.mainContent}>
+                <div className={styles.emptyState}>
+                  <p>This profile is still being set up.</p>
+                </div>
+              </div>
+            );
+        }
+
+      case 'Reviews':
+        return (
+          <div className={styles.mainContent}>
+            <div className={styles.leftColumn}>
+              <ReviewsSection />
+            </div>
+          </div>
+        );
+
+      case 'Matching Tutors':
+      case 'Matching Clients':
+      case 'Matching Agents':
+      case 'Matching Listings':
+        return (
+          <div className={styles.mainContent}>
+            <div className={styles.leftColumn}>
+              <p>{activeTab} - Coming soon...</p>
+            </div>
+          </div>
+        );
+
+      default:
+        return (
+          <div className={styles.mainContent}>
+            <div className={styles.leftColumn}>
+              <p>Coming soon...</p>
+            </div>
+          </div>
+        );
+    }
+  };
+
+  return renderTabContent();
+};
+
 export default function PublicProfilePage() {
   const params = useParams();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [activeTab, setActiveTab] = useState('Overview');
 
   const loadProfile = useCallback(async () => {
     if (!params?.id) {
@@ -73,41 +149,6 @@ export default function PublicProfilePage() {
       loadProfile();
     }
   }, [loadProfile, params?.id]);
-
-  const renderProfileContent = () => {
-    if (!profile) return null;
-
-    // Handle profiles with no roles or empty roles array
-    if (!profile.roles || profile.roles.length === 0) {
-      return (
-        <div className={styles.mainContent}>
-          <div className={styles.emptyState}>
-            <p>This profile is still being set up.</p>
-          </div>
-        </div>
-      );
-    }
-
-    // Assuming the primary role is the first one in the array
-    const primaryRole = profile.roles[0];
-
-    switch (primaryRole) {
-      case 'tutor':
-        return <TutorProfile profile={profile} />;
-      case 'agent':
-        return <AgentProfile profile={profile} />;
-      case 'client':
-        return <ClientProfile profile={profile} />;
-      default:
-        return (
-          <div className={styles.mainContent}>
-            <div className={styles.emptyState}>
-              <p>This user has an unknown role.</p>
-            </div>
-          </div>
-        );
-    }
-  };
 
   if (isLoading) {
     return (
@@ -153,12 +194,36 @@ export default function PublicProfilePage() {
     return null;
   }
 
+  // Handle profiles with no roles or empty roles array
+  if (!profile.roles || profile.roles.length === 0) {
+    return (
+      <div className={styles.pageWrapper}>
+        <div className={styles.contentWrapper}>
+          <HybridHeader profile={profile} activeRole={profile.active_role} />
+          <div className={styles.mainContent}>
+            <div className={styles.emptyState}>
+              <p>This profile is still being set up.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.pageWrapper}>
       <div className={styles.contentWrapper}>
         <HybridHeader profile={profile} activeRole={profile.active_role} />
-        <ProfileTabs activeRole={profile.active_role} />
-        {renderProfileContent()}
+        <PublicProfileTabs
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          activeRole={profile.active_role ?? null}
+        />
+        <ProfileTabContent
+          activeTab={activeTab}
+          profile={profile}
+          activeRole={profile.active_role ?? null}
+        />
       </div>
     </div>
   );
