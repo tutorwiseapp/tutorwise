@@ -37,8 +37,8 @@ describe('RoleSelectionStep', () => {
       />
     );
 
-    expect(screen.getByText('Seeker (Looking for tutors)')).toBeInTheDocument();
-    expect(screen.getByText('Provider (Offering tutoring services)')).toBeInTheDocument();
+    expect(screen.getByText('Client (Looking for tutors)')).toBeInTheDocument();
+    expect(screen.getByText('Tutor (Offering tutoring services)')).toBeInTheDocument();
     expect(screen.getByText('Agent (Managing tutoring services)')).toBeInTheDocument();
   });
 
@@ -88,7 +88,7 @@ describe('RoleSelectionStep', () => {
   it('shows pre-selected roles', () => {
     render(
       <RoleSelectionStep
-        selectedRoles={['seeker', 'provider']}
+        selectedRoles={['client', 'tutor']}
         onNext={mockOnNext}
         onBack={mockOnBack}
         onSkip={mockOnSkip}
@@ -154,7 +154,7 @@ describe('RoleSelectionStep', () => {
     fireEvent.click(nextButton);
 
     await waitFor(() => {
-      expect(mockOnNext).toHaveBeenCalledWith(['seeker']);
+      expect(mockOnNext).toHaveBeenCalledWith(['client']);
     });
   });
 
@@ -195,7 +195,7 @@ describe('RoleSelectionStep', () => {
   it('shows loading state', () => {
     render(
       <RoleSelectionStep
-        selectedRoles={['seeker']}
+        selectedRoles={['client']}
         onNext={mockOnNext}
         onBack={mockOnBack}
         onSkip={mockOnSkip}
@@ -209,7 +209,7 @@ describe('RoleSelectionStep', () => {
   it('disables Next button during loading', () => {
     render(
       <RoleSelectionStep
-        selectedRoles={['seeker']}
+        selectedRoles={['client']}
         onNext={mockOnNext}
         onBack={mockOnBack}
         onSkip={mockOnSkip}
