@@ -50,8 +50,8 @@ export default function OnboardingPage() {
 
   const handleRoleSelect = (role: 'client' | 'tutor' | 'agent') => {
     const routeMap = {
-      seeker: '/onboarding/client',
-      provider: '/onboarding/tutor',
+      client: '/onboarding/client',
+      tutor: '/onboarding/tutor',
       agent: '/onboarding/agent'
     };
     router.push(routeMap[role]);
@@ -70,7 +70,7 @@ export default function OnboardingPage() {
         <div className={styles.roleCards}>
           {/* Client Card */}
           <button
-            onClick={() => !hasSeeker && handleRoleSelect('seeker')}
+            onClick={() => !hasSeeker && handleRoleSelect('client')}
             disabled={hasSeeker}
             className={`${styles.roleCard} ${hasSeeker ? styles.disabled : ''}`}
           >
@@ -86,7 +86,7 @@ export default function OnboardingPage() {
 
           {/* Tutor Card */}
           <button
-            onClick={() => !hasProvider && handleRoleSelect('provider')}
+            onClick={() => !hasProvider && handleRoleSelect('tutor')}
             disabled={hasProvider}
             className={`${styles.roleCard} ${hasProvider ? styles.disabled : ''}`}
           >

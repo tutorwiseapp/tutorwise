@@ -404,7 +404,7 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
             onNext={handlePersonalInfoSubmit}
             onSkip={handleSkipHandler}
             isLoading={isLoading}
-            userRole="provider" // For tutor onboarding, always show DBS fields
+            userRole="tutor" // For tutor onboarding, always show DBS fields
           />
         );
       case 'subjects':

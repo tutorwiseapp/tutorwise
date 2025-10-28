@@ -82,7 +82,7 @@ export default function PublicProfilePage() {
     agent: 'Agent',
   };
 
-  const primaryRole = profile.roles?.[0] || 'seeker';
+  const primaryRole = profile.roles?.[0] || 'client';
   const roleLabel = roleLabels[primaryRole] || 'User';
 
   return (

@@ -44,7 +44,7 @@ export default function ClientOnboardingPage() {
     console.log('[ClientOnboardingPage] Onboarding complete, refreshing profile...');
     await refreshProfile();
     console.log('[ClientOnboardingPage] Profile refreshed, setting active role to seeker...');
-    setActiveRole('seeker');
+    setActiveRole('client');
     console.log('[ClientOnboardingPage] Active role set, redirecting to my-profile...');
     router.push('/profile');
   };
@@ -53,7 +53,7 @@ export default function ClientOnboardingPage() {
     console.log('[ClientOnboardingPage] Onboarding skipped, refreshing profile...');
     await refreshProfile();
     console.log('[ClientOnboardingPage] Profile refreshed, setting active role to seeker...');
-    setActiveRole('seeker');
+    setActiveRole('client');
     console.log('[ClientOnboardingPage] Active role set, redirecting to my-profile...');
     router.push('/profile');
   };
