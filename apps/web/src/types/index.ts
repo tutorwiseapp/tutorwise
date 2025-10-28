@@ -37,6 +37,7 @@ export interface Profile {
   dbs_certificate_number?: string; // DBS certificate number (required for UK tutors/agents)
   dbs_certificate_date?: string; // ISO date string - DBS certificate issue date
   dbs_certificate_url?: string; // URL to uploaded DBS certificate document
+  dbs_certificate_document_name?: string; // Original filename of uploaded DBS certificate
   dbs_verified?: boolean; // Whether DBS certificate has been verified by admin
   dbs_verified_at?: string; // ISO date string - when DBS was verified
   // Other fields
@@ -55,7 +56,7 @@ export interface Profile {
   professional_details?: ProfessionalDetails;
 }
 
-export type Role = 'agent' | 'seeker' | 'provider';
+export type Role = 'client' | 'tutor' | 'agent';
 
 /**
  * ==================================================================
@@ -67,6 +68,10 @@ export type OnboardingStep = 'welcome-and-role-selection' | 'role-specific-detai
 export type ClientStep = 'welcome' | 'subjects' | 'preferences' | 'completion';
 export type TutorOnboardingStep = 'welcome' | 'subjects' | 'qualifications' | 'availability' | 'completion';
 export type AgentOnboardingStep = 'welcome' | 'details' | 'services' | 'capacity' | 'completion';
+
+export interface RoleDetails {
+  [key: string]: any;
+}
 
 export interface OnboardingProgress {
   onboarding_completed: boolean;
@@ -136,29 +141,6 @@ export interface LearningPreferencesData {
   learningStyle?: string;
 }
 
-export interface RoleDetails {
-  profile_id: string;
-  role_type: Role;
-  experience?: string;
-  education?: string;
-  certifications?: string[];
-  bio?: string;
-  hourly_rate?: number;
-  availability?: string[];
-  session_types?: string[];
-  subjects?: string[];
-  learning_goals?: string;
-  preferred_style?: string;
-  agency_name?: string;
-  agency_size?: string;
-  years_in_business?: string;
-  description?: string;
-  commission_rate?: number;
-  service_areas?: string[];
-  student_capacity?: string;
-  services?: string[];
-}
-
 /**
  * ==================================================================
  * API & Function Payloads
@@ -185,26 +167,87 @@ export interface ProfessionalDetails {
   tutor?: Partial<TutorProfessionalInfo>;
   agent?: Partial<AgentProfessionalInfo>;
   client?: Partial<ClientProfessionalInfo>;
+  // Backward compatibility - old role names
+  provider?: Partial<TutorProfessionalInfo>;
+  seeker?: Partial<ClientProfessionalInfo>;
 }
 
 export interface TutorProfessionalInfo {
   subjects: string[];
-  levels: string[];
-  experience: number;
-  qualifications: string;
-  hourly_rate: number;
+  levels?: string[];
+  key_stages?: string[];
+  experience?: number;
+  qualifications?: string;
+  hourly_rate?: number;
+  // Additional fields from role_details table
+  status?: string;
+  academic_qualifications?: string[];
+  teaching_professional_qualifications?: string[];
+  teaching_experience?: string;
+  tutoring_experience?: string;
+  session_types?: string[];
+  one_on_one_rate?: number;
+  group_session_rate?: number;
+  delivery_mode?: string[];
+  certifications?: string[];
+  experience_level?: string;
+  teaching_style?: string[];
+  teaching_methods?: string[];
+  professional_background?: string;
+  availability?: any;
+  unavailability?: any;
 }
 
 export interface AgentProfessionalInfo {
-  agency_name: string;
-  specializations: string[];
-  service_areas: string[];
+  // Core Agency Info (from onboarding - required fields)
+  agency_name?: string;                      // Required - agency brand name
+  agency_size?: string;                      // Required - Solo/Small Team/Growing/Established
+  years_in_business?: string;                // Required - 0-1/1-3/3-5/5+ years
+  description?: string;                      // Required - agency description (min 50 chars)
+  services?: string[];                       // Required - at least 1 service (Tutor placement, Background checks, etc.)
+  commission_rate?: string;                  // Required - 10%/15%/20%/25%/30%+
+  service_areas?: string[];                  // Required - Local In-Person/Regional/Online/Hybrid
+  student_capacity?: string;                 // Required - 1-25/25-100/100-500/500+ students
+
+  // Enhanced Profile Fields (from Week 2 spec - optional, user fills in profile)
+  subject_specializations?: string[];        // Optional - matches tutor.subjects & client.subjects for matching
+  education_levels?: string[];               // Optional - matches tutor.key_stages & client.education_level for matching
+  coverage_areas?: string[];                 // Optional - UK regions (London, South East, etc.)
+  number_of_tutors?: string;                 // Optional - current tutor roster size
+  certifications?: string[];                 // Optional - professional credentials/accreditations
+  website?: string;                          // Optional - agency website URL
+  additional_info?: string;                  // Optional - free text for other details
+
+  // Fields used in components
+  professional_background?: string;
+  specializations?: string[];
+  subjects?: string[];
+  commission_preferences?: string;
+
+  // Availability fields (same as client/tutor - reusing calendar design)
+  availability?: any;                       // Optional - when agency is accepting new clients/tutors
+  unavailability?: any;                     // Optional - blackout periods (holidays, capacity limits)
 }
 
 export interface ClientProfessionalInfo {
-  learning_goals: string[];
-  preferred_subjects: string[];
-  student_level: string;
+  subjects?: string[];                   // Required - at least 1 (matches tutor subjects for matching)
+  education_level?: string;              // Required (matches tutor key_stages for matching)
+  learning_goals?: string[];             // Required - at least 1
+  goals?: string[];                      // Alias for learning_goals
+  learning_preferences?: string[];       // Optional - learning style preferences
+  learning_style?: string;               // Learning style preference
+  skill_levels?: string[];               // Skill levels
+  budget_range?: string;                 // Optional - format: "min-max" hourly rate
+  sessions_per_week?: string;            // Optional - desired frequency
+  session_duration?: string;             // Optional - preferred session length
+  schedule_preferences?: string;         // Schedule preferences
+  special_needs?: string[];              // Optional - SEN/special educational needs
+  previous_experience?: string;          // Previous tutoring/learning experience
+  additional_info?: string;              // Optional - free text for other details
+  location?: string;                     // Location preference
+  // Availability fields (reusing tutor calendar design)
+  availability?: any;                   // Availability periods
+  unavailability?: any;                 // Unavailability periods
 }
 
 export interface ColumnDef<T> {

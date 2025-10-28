@@ -6,9 +6,9 @@
  *
  * @example
  * ```tsx
- * // Protect a page for providers and agents only
+ * // Protect a page for tutors and agents only
  * function MyListingsPage() {
- *   const { isAllowed, isLoading } = useRoleGuard(['provider', 'agent']);
+ *   const { isAllowed, isLoading } = useRoleGuard(['tutor', 'agent']);
  *
  *   if (isLoading) return <LoadingSpinner />;
  *   if (!isAllowed) return null; // Will redirect automatically
@@ -21,8 +21,7 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '../contexts/UserProfileContext';
-
-export type Role = 'seeker' | 'provider' | 'agent';
+import type { Role } from '@/types';
 
 interface UseRoleGuardOptions {
   /** Roles allowed to access this page */
@@ -100,7 +99,7 @@ export function useRoleGuard(
  * @example
  * ```tsx
  * const MyListingsPage = withRoleGuard(
- *   ['provider', 'agent'],
+ *   ['tutor', 'agent'],
  *   () => <div>My Listings Content</div>
  * );
  * ```

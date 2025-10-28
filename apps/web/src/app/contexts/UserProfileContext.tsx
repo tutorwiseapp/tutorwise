@@ -4,7 +4,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import type { Profile, OnboardingProgress, RoleDetails, Role } from '@/types';
+import type { Profile, OnboardingProgress, Role } from '@/types';
 import type { User } from '@supabase/supabase-js';
 
 interface RolePreferences {
@@ -31,7 +31,6 @@ interface UserProfileContextType {
   showOnboarding: boolean;
   setShowOnboarding: (show: boolean) => void;
   updateOnboardingProgress: (progress: Partial<OnboardingProgress>) => Promise<void>;
-  getRoleDetails: (role: Role) => Promise<RoleDetails | null>;
   refreshProfile: () => Promise<Profile | null>;
 }
 
@@ -142,29 +141,6 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error('Error updating onboarding progress:', error);
       throw error;
-    }
-  };
-
-  const getRoleDetails = async (role: Role): Promise<RoleDetails | null> => {
-    if (!user?.id) return null;
-
-    try {
-      const { data, error } = await supabase
-        .from('role_details')
-        .select('*')
-        .eq('profile_id', user.id)
-        .eq('role_type', role)
-        .single();
-
-      if (error) {
-        if (error.code === 'PGRST116') return null; // No rows found
-        throw error;
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Error fetching role details:', error);
-      return null;
     }
   };
 
@@ -320,7 +296,6 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
       showOnboarding,
       setShowOnboarding,
       updateOnboardingProgress,
-      getRoleDetails,
       refreshProfile
     }}>
       {children}

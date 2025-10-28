@@ -8,14 +8,14 @@ import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import Button from '@/app/components/ui/Button';
 import { getMyListings, deleteListing, publishListing, unpublishListing } from '@/lib/api/listings';
 import type { Listing } from '@tutorwise/shared-types';
-import { toast } from 'sonner';
+import toast from 'react-hot-toast';
 import ListingCard from './ListingCard';
 import styles from './page.module.css';
 
 export default function MyListingsPage() {
   const router = useRouter();
   const { user, isLoading: userLoading } = useUserProfile();
-  const { isAllowed, isLoading: roleLoading } = useRoleGuard(['provider', 'agent', 'seeker']);
+  const { isAllowed, isLoading: roleLoading } = useRoleGuard(['tutor', 'agent', 'client']);
   const [listings, setListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 

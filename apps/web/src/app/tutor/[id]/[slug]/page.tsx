@@ -6,7 +6,7 @@ import NotFound from '@/app/components/layout/NotFound';
 import Button from '@/app/components/ui/Button';
 import { getListing } from '@/lib/api/listings';
 import type { Listing } from '@tutorwise/shared-types';
-import { toast } from 'sonner';
+import toast from 'react-hot-toast';
 import HybridHeader from '@/app/components/profile/HybridHeader';
 import ProfileTabs from '@/app/components/profile/ProfileTabs';
 import TutorNarrative from '@/app/components/profile/TutorNarrative';

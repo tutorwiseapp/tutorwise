@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useImperativeHandle, forwardRef } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { toast } from 'sonner';
+import toast from 'react-hot-toast';
 import styles from './ImageUpload.module.css';
 
 interface ImageUploadProps {
@@ -80,16 +80,15 @@ const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({ onUploadComp
         <input {...getInputProps()} />
         <p>Drag & drop some files here, or click to select files</p>
       </div>
-      <div className={styles.previewGrid}>
-        {previews.map((preview, index) => (
-          <div key={index} className={styles.preview}>
-            <img src={preview} alt={`preview ${index}`} />
-          </div>
-        ))}
-      </div>
-      <button onClick={handleUpload} disabled={isUploading} className={styles.uploadButton}>
-        {isUploading ? 'Uploading...' : 'Upload Images'}
-      </button>
+      {previews.length > 0 && (
+        <div className={styles.previewGrid}>
+          {previews.map((preview, index) => (
+            <div key={index} className={styles.preview}>
+              <img src={preview} alt={`preview ${index}`} />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 });

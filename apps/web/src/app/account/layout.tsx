@@ -7,7 +7,6 @@ import styles from './account.module.css';
 
 const accountTabs = [
   { href: '/account/personal-info', label: 'Personal Info' },
-  { href: '/account/professional-info', label: 'Professional Info' },
   { href: '/account/settings', label: 'Settings' },
 ];
 

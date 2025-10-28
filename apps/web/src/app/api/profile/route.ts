@@ -48,16 +48,37 @@ export async function POST(req: Request) {
 
     const body = await req.json();
 
+    // Build update object dynamically - only include fields that are provided
+    const updateData: Record<string, any> = {};
+
+    // Legacy fields
+    if (body.full_name !== undefined) updateData.full_name = body.full_name;
+    if (body.bio !== undefined) updateData.bio = body.bio;
+    if (body.categories !== undefined) updateData.categories = body.categories;
+    if (body.achievements !== undefined) updateData.achievements = body.achievements;
+    if (body.cover_photo_url !== undefined) updateData.cover_photo_url = body.cover_photo_url;
+    if (body.custom_picture_url !== undefined) updateData.custom_picture_url = body.custom_picture_url;
+
+    // New fields for professional info
+    if (body.professional_details !== undefined) updateData.professional_details = body.professional_details;
+    if (body.dbs_certificate_number !== undefined) updateData.dbs_certificate_number = body.dbs_certificate_number;
+    if (body.first_name !== undefined) updateData.first_name = body.first_name;
+    if (body.last_name !== undefined) updateData.last_name = body.last_name;
+    if (body.date_of_birth !== undefined) updateData.date_of_birth = body.date_of_birth;
+    if (body.address !== undefined) updateData.address = body.address;
+    if (body.postcode !== undefined) updateData.postcode = body.postcode;
+    if (body.phone_number !== undefined) updateData.phone_number = body.phone_number;
+    if (body.emergency_contact_name !== undefined) updateData.emergency_contact_name = body.emergency_contact_name;
+    if (body.emergency_contact_phone !== undefined) updateData.emergency_contact_phone = body.emergency_contact_phone;
+
+    // Only proceed if there are fields to update
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json({ success: true, message: 'No fields to update' });
+    }
+
     const { data, error } = await supabase
       .from('profiles')
-      .update({
-        full_name: body.full_name,
-        bio: body.bio,
-        categories: body.categories,
-        achievements: body.achievements,
-        cover_photo_url: body.cover_photo_url,
-        custom_picture_url: body.custom_picture_url
-      })
+      .update(updateData)
       .eq('id', user.id)
       .select()
       .single();

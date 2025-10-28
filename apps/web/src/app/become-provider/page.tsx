@@ -50,11 +50,11 @@ const BecomeProviderPage = () => {
     return <Container><p>Loading...</p></Container>;
   }
   
-  if (profile.roles?.includes('provider')) {
+  if (profile.roles?.includes('tutor')) {
     return (
         <Container className={styles.container}>
-            <PageHeader title="You're Already a Provider!" />
-            <Message type='success'>Your provider account is active. You can manage your settings from the payments page.</Message>
+            <PageHeader title="You're Already a Tutor!" />
+            <Message type='success'>Your tutor account is active. You can manage your settings from the payments page.</Message>
             <Link href="/payments"><Button>Go to Payment Settings</Button></Link>
         </Container>
     )

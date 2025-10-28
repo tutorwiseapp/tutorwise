@@ -51,13 +51,31 @@ export default function AgentProfile({ profile, isEditable = false, onSave = () 
             </div>
             
             <div className={styles.detailsSection}>
-              <h3>Specialties</h3>
-              <p className={styles.noDataText}>{profile.categories || 'Not specified.'}</p>
-            </div>
-
-            <div className={styles.detailsSection}>
-              <h3>Achievements</h3>
-              <p className={styles.noDataText}>{profile.achievements || 'No achievements to display.'}</p>
+              <h3>Professional Details</h3>
+              <table className={styles.table}>
+                <tbody>
+                  <tr>
+                    <td className={styles.label}>Professional Background</td>
+                    <td className={styles.value}>{profile.professional_details?.agent?.professional_background || 'N/A'}</td>
+                  </tr>
+                  <tr>
+                    <td className={styles.label}>Specializations</td>
+                    <td className={styles.value}>{profile.professional_details?.agent?.specializations?.join(', ') || 'N/A'}</td>
+                  </tr>
+                  <tr>
+                    <td className={styles.label}>Subject Areas</td>
+                    <td className={styles.value}>{profile.professional_details?.agent?.subjects?.join(', ') || 'N/A'}</td>
+                  </tr>
+                  <tr>
+                    <td className={styles.label}>Commission Preferences</td>
+                    <td className={styles.value}>
+                      {profile.professional_details?.agent?.commission_preferences && Object.keys(profile.professional_details.agent.commission_preferences).length > 0
+                        ? JSON.stringify(profile.professional_details.agent.commission_preferences)
+                        : 'N/A'}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </Card>

@@ -19,7 +19,16 @@ interface ProfessionalInfoFormProps {
 type EditingField = 'bio' | 'status' | 'academic_qualifications' | 'key_stages' |
   'teaching_professional_qualifications' | 'subjects' | 'teaching_experience' |
   'session_type' | 'tutoring_experience' | 'one_on_one_rate' | 'group_session_rate' |
-  'delivery_mode' | 'dbs_certificate' | null;
+  'delivery_mode' | 'dbs_certificate' |
+  // Client fields
+  'subjects_client' | 'education_level' | 'learning_goals' | 'learning_preferences' |
+  'budget_min' | 'budget_max' | 'sessions_per_week' | 'session_duration' |
+  'special_needs' | 'additional_info_client' |
+  // Agent fields
+  'agency_name' | 'agency_size' | 'years_in_business' | 'description' | 'services' |
+  'commission_rate' | 'service_areas' | 'student_capacity' | 'subject_specializations' |
+  'education_levels' | 'coverage_areas' | 'number_of_tutors' | 'certifications' |
+  'website' | 'agent_additional_info' | null;
 
 type FieldType = 'text' | 'select' | 'multiselect' | 'textarea' | 'number';
 
@@ -102,11 +111,75 @@ const deliveryModeOptions = [
   { value: 'Hybrid', label: 'Hybrid' },
 ];
 
+// Client-specific field options
+const educationLevelOptions = [
+  { value: 'Primary Education (KS1-KS2) - Age 5 to 11', label: 'Primary Education (KS1-KS2) - Age 5 to 11' },
+  { value: 'Secondary Education (KS3) - Age 11 to 14', label: 'Secondary Education (KS3) - Age 11 to 14' },
+  { value: 'Secondary Education (KS4) - Age 14 to 16', label: 'Secondary Education (KS4) - Age 14 to 16' },
+  { value: 'A-Levels - Age 16 to 18', label: 'A-Levels - Age 16 to 18' },
+  { value: 'University/Undergraduate', label: 'University/Undergraduate' },
+  { value: 'Postgraduate', label: 'Postgraduate' },
+  { value: 'Adult Education', label: 'Adult Education' },
+];
+
+const learningGoalsOptions = [
+  { value: 'Improve grades', label: 'Improve grades' },
+  { value: 'Exam preparation', label: 'Exam preparation' },
+  { value: 'Catch up on missed work', label: 'Catch up on missed work' },
+  { value: 'Advanced learning', label: 'Advanced learning' },
+  { value: 'Build confidence', label: 'Build confidence' },
+  { value: 'Homework help', label: 'Homework help' },
+  { value: 'Career preparation', label: 'Career preparation' },
+  { value: 'Personal development', label: 'Personal development' },
+];
+
+const learningPreferencesOptions = [
+  { value: 'Visual learning', label: 'Visual learning' },
+  { value: 'Auditory learning', label: 'Auditory learning' },
+  { value: 'Hands-on practice', label: 'Hands-on practice' },
+  { value: 'Reading/writing', label: 'Reading/writing' },
+  { value: 'One-on-one attention', label: 'One-on-one attention' },
+  { value: 'Structured lessons', label: 'Structured lessons' },
+  { value: 'Flexible approach', label: 'Flexible approach' },
+];
+
+const specialNeedsOptions = [
+  { value: 'Dyslexia', label: 'Dyslexia' },
+  { value: 'Dyscalculia', label: 'Dyscalculia' },
+  { value: 'ADHD', label: 'ADHD' },
+  { value: 'Autism Spectrum Disorder (ASD)', label: 'Autism Spectrum Disorder (ASD)' },
+  { value: 'Dyspraxia', label: 'Dyspraxia' },
+  { value: 'Visual Impairment', label: 'Visual Impairment' },
+  { value: 'Hearing Impairment', label: 'Hearing Impairment' },
+  { value: 'Speech and Language Difficulties', label: 'Speech and Language Difficulties' },
+  { value: 'Physical Disabilities', label: 'Physical Disabilities' },
+  { value: 'Emotional and Behavioural Difficulties', label: 'Emotional and Behavioural Difficulties' },
+  { value: 'Gifted and Talented', label: 'Gifted and Talented' },
+  { value: 'English as Additional Language (EAL)', label: 'English as Additional Language (EAL)' },
+];
+
+const sessionsPerWeekOptions = [
+  { value: '1', label: '1' },
+  { value: '2', label: '2' },
+  { value: '3', label: '3' },
+  { value: '4', label: '4' },
+  { value: '5+', label: '5+' },
+];
+
+const sessionDurationOptions = [
+  { value: '30 minutes', label: '30 minutes' },
+  { value: '1 hour', label: '1 hour' },
+  { value: '1.5 hours', label: '1.5 hours' },
+  { value: '2 hours', label: '2 hours' },
+];
+
 const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 export default function ProfessionalInfoForm({ profile, onSave, activeRole }: ProfessionalInfoFormProps) {
   const [editingField, setEditingField] = useState<EditingField>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [uploadedFileName, setUploadedFileName] = useState<string>('');
+  const [fileError, setFileError] = useState<string>('');
 
   // Refs for auto-focus
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null }>({});
@@ -114,6 +187,9 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
   // Form data with multi-select fields as arrays
   const [formData, setFormData] = useState({
     bio: profile.bio || '',
+    dbs_certificate: profile.dbs_certificate_number || '',
+
+    // Tutor fields
     status: '',
     academic_qualifications: [] as string[], // Multi-select
     key_stages: [] as string[], // Multi-select
@@ -125,7 +201,35 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     one_on_one_rate: '',
     group_session_rate: '',
     delivery_mode: [] as string[], // Multi-select
-    dbs_certificate: profile.dbs_certificate_number || '',
+
+    // Agent fields
+    agency_name: '',
+    agency_size: '',
+    years_in_business: '',
+    description: '',
+    services: [] as string[], // Multi-select
+    commission_rate: '',
+    service_areas: [] as string[], // Multi-select
+    student_capacity: '',
+    subject_specializations: [] as string[], // Multi-select
+    education_levels: [] as string[], // Multi-select
+    coverage_areas: [] as string[], // Multi-select
+    number_of_tutors: '',
+    certifications: [] as string[], // Multi-select
+    website: '',
+    agent_additional_info: '',
+
+    // Client fields
+    subjects_client: [] as string[], // Multi-select (different from tutor subjects)
+    education_level: '',
+    learning_goals: [] as string[], // Multi-select
+    learning_preferences: [] as string[], // Multi-select
+    budget_min: '',
+    budget_max: '',
+    sessions_per_week: '',
+    session_duration: '',
+    special_needs: [] as string[], // Multi-select
+    additional_info_client: '', // Textarea (different from generic additional_info)
   });
 
   // Availability state
@@ -146,12 +250,73 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
   // Update form data when profile changes
   useEffect(() => {
+    const agentData = profile.professional_details?.agent;
+    const tutorData = profile.professional_details?.tutor;
+    const clientData = profile.professional_details?.client;
+
     setFormData(prev => ({
       ...prev,
       bio: profile.bio || '',
       dbs_certificate: profile.dbs_certificate_number || '',
+
+      // Agent fields (16 fields)
+      agency_name: agentData?.agency_name || '',
+      agency_size: agentData?.agency_size || '',
+      years_in_business: agentData?.years_in_business || '',
+      description: agentData?.description || '',
+      services: agentData?.services || [],
+      commission_rate: agentData?.commission_rate || '',
+      service_areas: agentData?.service_areas || [],
+      student_capacity: agentData?.student_capacity || '',
+      subject_specializations: agentData?.subject_specializations || [],
+      education_levels: agentData?.education_levels || [],
+      coverage_areas: agentData?.coverage_areas || [],
+      number_of_tutors: agentData?.number_of_tutors || '',
+      certifications: agentData?.certifications || [],
+      website: agentData?.website || '',
+      agent_additional_info: agentData?.additional_info || '',
+
+      // Tutor fields (11 fields)
+      status: tutorData?.status || '',
+      academic_qualifications: tutorData?.academic_qualifications || [],
+      key_stages: tutorData?.key_stages || [],
+      teaching_professional_qualifications: tutorData?.teaching_professional_qualifications || [],
+      subjects: tutorData?.subjects || [],
+      teaching_experience: tutorData?.teaching_experience || '',
+      session_type: tutorData?.session_types || [],
+      tutoring_experience: tutorData?.tutoring_experience || '',
+      one_on_one_rate: tutorData?.one_on_one_rate || '',
+      group_session_rate: tutorData?.group_session_rate || '',
+      delivery_mode: tutorData?.delivery_mode || [],
+
+      // Client fields (10 fields)
+      subjects_client: clientData?.subjects || [],
+      education_level: clientData?.education_level || '',
+      learning_goals: clientData?.learning_goals || [],
+      learning_preferences: clientData?.learning_preferences || [],
+      budget_min: clientData?.budget_range ? clientData.budget_range.split('-')[0] : '',
+      budget_max: clientData?.budget_range ? clientData.budget_range.split('-')[1] : '',
+      sessions_per_week: clientData?.sessions_per_week || '',
+      session_duration: clientData?.session_duration || '',
+      special_needs: clientData?.special_needs || [],
+      additional_info_client: clientData?.additional_info || '',
     }));
-  }, [profile]);
+
+    // Load client availability/unavailability if present
+    if (activeRole === 'seeker' && clientData) {
+      if (clientData.availability) {
+        setAvailabilityPeriods(clientData.availability);
+      }
+      if (clientData.unavailability) {
+        setUnavailabilityPeriods(clientData.unavailability);
+      }
+    }
+
+    // Load DBS certificate file name if present
+    if (profile.dbs_certificate_document_name) {
+      setUploadedFileName(profile.dbs_certificate_document_name);
+    }
+  }, [profile, activeRole]);
 
   // Auto-focus when entering edit mode
   useEffect(() => {
@@ -169,25 +334,157 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     setFormData(prev => ({ ...prev, [field]: values }));
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        setFileError('Please upload a valid image (JPG, PNG) or PDF file');
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        setFileError('File size must be less than 5MB');
+        return;
+      }
+
+      setUploadedFileName(file.name);
+      setFileError('');
+
+      // Save the file name to the profile
+      setIsSaving(true);
+      try {
+        const updateData: Partial<Profile> = {
+          dbs_certificate_document_name: file.name
+        };
+        await onSave(updateData);
+      } catch (error) {
+        console.error('Failed to save DBS certificate:', error);
+        setFileError('Failed to save document. Please try again.');
+      } finally {
+        setIsSaving(false);
+      }
+    }
+  };
+
+  const handleDeleteDocument = async () => {
+    setIsSaving(true);
+    try {
+      const updateData: Partial<Profile> = {
+        dbs_certificate_document_name: ''
+      };
+      await onSave(updateData);
+      setUploadedFileName('');
+      const fileInput = document.getElementById('dbsCertificate') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
+    } catch (error) {
+      console.error('Failed to delete DBS certificate:', error);
+      setFileError('Failed to delete document. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleSaveField = async (field: EditingField) => {
     if (!field) return;
-
-    // Only bio and dbs_certificate are editable for now
-    if (field !== 'bio' && field !== 'dbs_certificate') {
-      // Show "coming soon" message for other fields
-      console.log(`Editing ${field} will be available soon`);
-      setEditingField(null);
-      return;
-    }
 
     setIsSaving(true);
     try {
       let updateData: Partial<Profile> = {};
 
+      // Handle profile-level fields
       if (field === 'bio') {
         updateData = { bio: formData.bio };
       } else if (field === 'dbs_certificate') {
         updateData = { dbs_certificate_number: formData.dbs_certificate };
+      }
+      // Handle client fields
+      else if (['subjects_client', 'education_level', 'learning_goals', 'learning_preferences',
+                 'budget_min', 'budget_max', 'sessions_per_week', 'session_duration',
+                 'special_needs', 'additional_info_client'].includes(field)) {
+        const currentClient = profile.professional_details?.client || {};
+        const fieldValue = formData[field as keyof typeof formData];
+
+        // Special handling for budget fields
+        if (field === 'budget_min' || field === 'budget_max') {
+          const min = field === 'budget_min' ? fieldValue : formData.budget_min;
+          const max = field === 'budget_max' ? fieldValue : formData.budget_max;
+          updateData = {
+            professional_details: {
+              ...profile.professional_details,
+              client: {
+                ...currentClient,
+                budget_range: `${min}-${max}`
+              }
+            }
+          };
+        } else {
+          // Map field names
+          const fieldMapping: Record<string, string> = {
+            'subjects_client': 'subjects',
+            'additional_info_client': 'additional_info'
+          };
+          const dbField = fieldMapping[field] || field;
+
+          updateData = {
+            professional_details: {
+              ...profile.professional_details,
+              client: {
+                ...currentClient,
+                [dbField]: fieldValue
+              }
+            }
+          };
+        }
+      }
+      // Handle agent fields
+      else if (['agency_name', 'agency_size', 'years_in_business', 'description',
+                'commission_rate', 'student_capacity', 'number_of_tutors',
+                'website', 'agent_additional_info'].includes(field)) {
+        const currentAgent = profile.professional_details?.agent || {};
+        const fieldValue = formData[field as keyof typeof formData];
+
+        // Map field names
+        const fieldMapping: Record<string, string> = {
+          'agent_additional_info': 'additional_info'
+        };
+        const dbField = fieldMapping[field] || field;
+
+        updateData = {
+          professional_details: {
+            ...profile.professional_details,
+            agent: {
+              ...currentAgent,
+              [dbField]: fieldValue
+            }
+          }
+        };
+      }
+      // Handle tutor fields
+      else if (['status', 'academic_qualifications', 'key_stages', 'teaching_professional_qualifications',
+                'subjects', 'teaching_experience', 'session_type', 'tutoring_experience',
+                'one_on_one_rate', 'group_session_rate', 'delivery_mode'].includes(field)) {
+        const currentTutor = profile.professional_details?.tutor || {};
+        const fieldValue = formData[field as keyof typeof formData];
+
+        // Map field names (form field name → database field name)
+        const fieldMapping: Record<string, string> = {
+          'session_type': 'session_types' // Form uses singular, DB uses plural
+        };
+        const dbField = fieldMapping[field] || field;
+
+        updateData = {
+          professional_details: {
+            ...profile.professional_details,
+            tutor: {
+              ...currentTutor,
+              [dbField]: fieldValue
+            }
+          }
+        };
       }
 
       await onSave(updateData);
@@ -431,8 +728,8 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                   disabled={isSaving}
                   maxLength={1000}
                   className={`${styles.formInput} ${isSaving ? styles.saving : ''}`}
-                  rows={5}
-                  style={{ resize: 'vertical', minHeight: '120px' }}
+                  rows={2}
+                  style={{ resize: 'vertical', minHeight: '60px' }}
                 />
                 <div style={{
                   fontSize: '0.875rem',
@@ -455,6 +752,11 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                 placeholder={placeholder}
                 disabled={isSaving}
                 className={`${styles.formInput} ${isSaving ? styles.saving : ''}`}
+                style={type === 'number' ? {
+                  MozAppearance: 'textfield',
+                  WebkitAppearance: 'none',
+                  appearance: 'none'
+                } as React.CSSProperties : undefined}
               />
             )}
             {isSaving && (
@@ -489,16 +791,298 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
   // Show role-specific content based on activeRole
   const renderRoleSpecificContent = () => {
-    // For clients (seekers), show a simplified view
+    // For clients (seekers), show complete client professional info
     if (activeRole === 'seeker') {
       return (
         <div className={styles.personalInfoForm}>
           <div className={styles.formContent}>
+            {/* About/Bio - Full Width */}
             <div className={formLayoutStyles.fullWidth}>
-              {renderField('bio', 'About: Tell tutors about your learning goals and what you\'re looking for', 'textarea', 'I\'m looking for help with improving my understanding of mathematics, particularly in algebra and geometry. I\'m preparing for my GCSE exams and would like to work with a patient tutor who can explain concepts clearly.')}
+              {renderField('bio', 'About', 'textarea', 'Tell tutors about your learning goals and what you\'re looking for')}
             </div>
-            <div style={{ padding: '20px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
-              <p>Additional client-specific fields coming soon...</p>
+
+            {/* Subjects and Education Level - 2 Column */}
+            <div className={formLayoutStyles.twoColumnGrid}>
+              {renderField('subjects_client', 'Subjects', 'multiselect', 'Select subjects', subjectsOptions)}
+              {renderField('education_level', 'Education Level', 'select', 'Select your current level', educationLevelOptions)}
+            </div>
+
+            {/* Learning Goals and Learning Preferences - 2 Column */}
+            <div className={formLayoutStyles.twoColumnGrid}>
+              {renderField('learning_goals', 'Learning Goals', 'multiselect', 'Select your goals', learningGoalsOptions)}
+              {renderField('learning_preferences', 'Learning Preferences', 'multiselect', 'Select preferences', learningPreferencesOptions)}
+            </div>
+
+            {/* Budget Range - 2 Column */}
+            <div className={formLayoutStyles.twoColumnGrid}>
+              {renderField('budget_min', 'Minimum Budget (£/hour)', 'number', '£20')}
+              {renderField('budget_max', 'Maximum Budget (£/hour)', 'number', '£50')}
+            </div>
+
+            {/* Sessions Per Week and Session Duration - 2 Column */}
+            <div className={formLayoutStyles.twoColumnGrid}>
+              {renderField('sessions_per_week', 'Sessions Per Week', 'select', 'Select frequency', sessionsPerWeekOptions)}
+              {renderField('session_duration', 'Session Duration', 'select', 'Select duration', sessionDurationOptions)}
+            </div>
+
+            {/* Special Needs - 2 Column (left side only, right side empty) */}
+            <div className={formLayoutStyles.twoColumnGrid}>
+              {renderField('special_needs', 'Special Educational Needs (SEN)', 'multiselect', 'Select if applicable', specialNeedsOptions)}
+              <div></div>
+            </div>
+
+            {/* Availability and Unavailability Periods - 2 Column */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginTop: '32px' }}>
+              {/* Left Column: Availability Period */}
+              <div>
+                <h3 className={styles.subsectionTitle} style={{ marginBottom: '24px' }}>
+                  Availability Period
+                </h3>
+
+                {/* Availability Type */}
+                <div className={wizardStyles.formGroup}>
+                  <label className={wizardStyles.formLabel}>Availability Periods</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <button
+                      type="button"
+                      className={`${wizardStyles.checkboxItem} ${availabilityType === 'recurring' ? wizardStyles.selected : ''}`}
+                      onClick={() => setAvailabilityType('recurring')}
+                    >
+                      Recurring
+                    </button>
+                    <button
+                      type="button"
+                      className={`${wizardStyles.checkboxItem} ${availabilityType === 'one-time' ? wizardStyles.selected : ''}`}
+                      onClick={() => setAvailabilityType('one-time')}
+                    >
+                      One-time
+                    </button>
+                  </div>
+                </div>
+
+                {/* Days of Week (only for recurring) */}
+                {availabilityType === 'recurring' && (
+                  <div className={wizardStyles.formGroup}>
+                    <label className={wizardStyles.formLabel}>Days of Week</label>
+                    {availErrors.days && (
+                      <p className={wizardStyles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
+                        {availErrors.days}
+                      </p>
+                    )}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
+                      {DAYS_OF_WEEK.map(day => (
+                        <button
+                          key={day}
+                          type="button"
+                          className={`${wizardStyles.checkboxItem} ${selectedDays.includes(day) ? wizardStyles.selected : ''}`}
+                          onClick={() => toggleDay(day)}
+                        >
+                          {day}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Date Pickers */}
+                <div className={wizardStyles.formGroup}>
+                  <div style={{ display: 'grid', gridTemplateColumns: availabilityType === 'recurring' ? '1fr 1fr' : '1fr', gap: '16px' }}>
+                    <CustomDateInput
+                      label="From"
+                      value={availFromDate}
+                      onChange={setAvailFromDate}
+                      error={availErrors.dates}
+                      onClearError={() => setAvailErrors(prev => ({ ...prev, dates: undefined }))}
+                    />
+                    {availabilityType === 'recurring' && (
+                      <CustomDateInput
+                        label="To"
+                        value={availToDate}
+                        onChange={setAvailToDate}
+                        onClearError={() => setAvailErrors(prev => ({ ...prev, dates: undefined }))}
+                      />
+                    )}
+                  </div>
+                </div>
+
+                {/* Time Pickers */}
+                <div className={wizardStyles.formGroup}>
+                  {availErrors.times && (
+                    <p className={wizardStyles.errorText} style={{ marginBottom: '8px' }}>
+                      {availErrors.times}
+                    </p>
+                  )}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <CustomTimePicker
+                      label="Start time"
+                      value={startTime}
+                      onChange={setStartTime}
+                      onClearError={() => setAvailErrors(prev => ({ ...prev, times: undefined }))}
+                    />
+                    <CustomTimePicker
+                      label="End time"
+                      value={endTime}
+                      onChange={setEndTime}
+                      onClearError={() => setAvailErrors(prev => ({ ...prev, times: undefined }))}
+                    />
+                  </div>
+                </div>
+
+                {/* Add Button */}
+                <div style={{ marginBottom: '32px' }}>
+                  <button
+                    type="button"
+                    onClick={handleAddAvailability}
+                    className={wizardStyles.buttonPrimary}
+                    style={{ width: '100%' }}
+                  >
+                    Add
+                  </button>
+                </div>
+
+                {/* Summary Sections */}
+                {recurringPeriods.length > 0 && (
+                  <div className={wizardStyles.formGroup}>
+                    <label className={wizardStyles.formLabel}>Recurring Availability</label>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {recurringPeriods.map(period => (
+                        <div
+                          key={period.id}
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '12px 16px',
+                            backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
+                            borderRadius: '8px',
+                            border: '1px solid var(--color-border, #dfe1e5)'
+                          }}
+                        >
+                          <span style={{ fontSize: '0.875rem' }}>{formatAvailabilityText(period)}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveAvailability(period.id)}
+                            className={wizardStyles.buttonSecondary}
+                            style={{ padding: '4px 12px', fontSize: '0.875rem' }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {oneTimePeriods.length > 0 && (
+                  <div className={wizardStyles.formGroup}>
+                    <label className={wizardStyles.formLabel}>One-time Availability</label>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {oneTimePeriods.map(period => (
+                        <div
+                          key={period.id}
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '12px 16px',
+                            backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
+                            borderRadius: '8px',
+                            border: '1px solid var(--color-border, #dfe1e5)'
+                          }}
+                        >
+                          <span style={{ fontSize: '0.875rem' }}>{formatAvailabilityText(period)}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveAvailability(period.id)}
+                            className={wizardStyles.buttonSecondary}
+                            style={{ padding: '4px 12px', fontSize: '0.875rem' }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Right Column: Unavailability Period */}
+              <div>
+                <h3 className={styles.subsectionTitle} style={{ marginBottom: '24px' }}>
+                  Unavailability Period
+                </h3>
+
+                {/* Date Pickers */}
+                <div className={wizardStyles.formGroup}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <CustomDateInput
+                      label="From"
+                      value={unavailFromDate}
+                      onChange={setUnavailFromDate}
+                      error={unavailErrors.dates}
+                      onClearError={() => setUnavailErrors(prev => ({ ...prev, dates: undefined }))}
+                    />
+                    <CustomDateInput
+                      label="To"
+                      value={unavailToDate}
+                      onChange={setUnavailToDate}
+                      onClearError={() => setUnavailErrors(prev => ({ ...prev, dates: undefined }))}
+                    />
+                  </div>
+                </div>
+
+                {/* Add Button */}
+                <div style={{ marginBottom: '32px' }}>
+                  <button
+                    type="button"
+                    onClick={handleAddUnavailability}
+                    className={wizardStyles.buttonPrimary}
+                    style={{ width: '100%' }}
+                  >
+                    Add
+                  </button>
+                </div>
+
+                {/* Summary Section */}
+                {unavailabilityPeriods.length > 0 && (
+                  <div className={wizardStyles.formGroup}>
+                    <label className={wizardStyles.formLabel}>Unavailable Period</label>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {unavailabilityPeriods.map(period => (
+                        <div
+                          key={period.id}
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '12px 16px',
+                            backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
+                            borderRadius: '8px',
+                            border: '1px solid var(--color-border, #dfe1e5)'
+                          }}
+                        >
+                          <span style={{ fontSize: '0.875rem' }}>{formatUnavailabilityText(period)}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveUnavailability(period.id)}
+                            className={wizardStyles.buttonSecondary}
+                            style={{ padding: '4px 12px', fontSize: '0.875rem' }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Note */}
+            <div style={{ marginTop: '32px', padding: '20px', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
+              <p style={{ margin: 0, color: '#6b7280', fontSize: '14px' }}>
+                <strong>Note:</strong> Your availability information from onboarding has been saved. To update your availability, please complete the onboarding process again or contact support.
+              </p>
             </div>
           </div>
         </div>
@@ -510,11 +1094,44 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
       return (
         <div className={styles.personalInfoForm}>
           <div className={styles.formContent}>
-            <div className={formLayoutStyles.fullWidth}>
-              {renderField('bio', 'About: Describe your agency and the services you provide', 'textarea', 'We are a professional tutoring agency specializing in connecting students with qualified tutors across all subjects and levels. Our mission is to provide high-quality educational support tailored to each student\'s needs.')}
+            {/* Agency Name and Agency Size - 2 Column */}
+            <div className={formLayoutStyles.twoColumnGrid}>
+              {renderField('agency_name', 'Agency Name', 'text', 'Enter agency name')}
+              {renderField('agency_size', 'Agency Size', 'text', 'e.g., 5-10 tutors')}
             </div>
-            <div style={{ padding: '20px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
-              <p>Additional agent-specific fields coming soon...</p>
+
+            {/* Years in Business and Commission Rate - 2 Column */}
+            <div className={formLayoutStyles.twoColumnGrid}>
+              {renderField('years_in_business', 'Years in Business', 'text', 'e.g., 5 years')}
+              {renderField('commission_rate', 'Commission Rate', 'text', 'e.g., 15%')}
+            </div>
+
+            {/* About Your Agency - Full Width */}
+            <div className={formLayoutStyles.fullWidth}>
+              {renderField('description', 'About Your Agency', 'textarea', 'Describe your agency and the services you provide')}
+            </div>
+
+            {/* Student Capacity and Number of Tutors - 2 Column */}
+            <div className={formLayoutStyles.twoColumnGrid}>
+              {renderField('student_capacity', 'Student Capacity', 'text', 'e.g., 50 students')}
+              {renderField('number_of_tutors', 'Current Number of Tutors', 'text', 'e.g., 8 tutors')}
+            </div>
+
+            {/* Website - Full Width */}
+            <div className={formLayoutStyles.fullWidth}>
+              {renderField('website', 'Website', 'text', 'https://yourwebsite.com')}
+            </div>
+
+            {/* Additional Information - Full Width */}
+            <div className={formLayoutStyles.fullWidth}>
+              {renderField('agent_additional_info', 'Additional Information', 'textarea', 'Any other information about your agency')}
+            </div>
+
+            {/* Availability Note */}
+            <div style={{ marginTop: '32px', padding: '20px', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
+              <p style={{ margin: 0, color: '#6b7280', fontSize: '14px' }}>
+                <strong>Note:</strong> To manage multi-select fields like Services Offered, Subject Specializations, Education Levels, Coverage Areas, and Certifications, please complete the onboarding process again or contact support.
+              </p>
             </div>
           </div>
         </div>
@@ -527,7 +1144,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
         <div className={styles.formContent}>
           {/* About - Full Width */}
           <div className={formLayoutStyles.fullWidth}>
-            {renderField('bio', 'About: describe your tutoring or teaching style, strengths, and what areas you specialise in', 'textarea', 'I\'m an experienced mathematics tutor with a Master\'s degree and 10 years of teaching expertise. I make math engaging for students from middle school to college, specialising in algebra, calculus, and geometry. My personalised approach builds strong foundations, boosts problem-solving skills, and instills confidence.')}
+            {renderField('bio', 'About', 'textarea', 'Describe your tutoring or teaching style, strengths, and what areas you specialise in')}
           </div>
 
         {/* Status and Academic Qualifications - 2 Column */}
@@ -562,8 +1179,51 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
         {/* Delivery Mode and DBS Certificate - 2 Column */}
         <div className={formLayoutStyles.twoColumnGrid}>
-          {renderField('delivery_mode', 'Delivery Mode', 'multiselect', 'Select delivery mode', deliveryModeOptions)}
-          {renderField('dbs_certificate', 'DBS Certificate', 'text', 'John Smith DBS Cert')}
+          {/* Delivery Mode */}
+          <div>
+            {renderField('delivery_mode', 'Delivery Mode', 'multiselect', 'Select delivery mode', deliveryModeOptions)}
+          </div>
+
+          {/* DBS Certificate Upload */}
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>
+              DBS Certificate
+            </label>
+            <div
+              className={`${styles.documentDisplay} ${styles.editable}`}
+              onClick={() => document.getElementById('dbsCertificate')?.click()}
+            >
+              <input
+                id="dbsCertificate"
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,application/pdf"
+                onChange={handleFileChange}
+                style={{ display: 'none' }}
+              />
+              {uploadedFileName ? (
+                <div className={styles.documentInfo}>
+                  <span className={styles.successText}>✓ {uploadedFileName}</span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteDocument();
+                    }}
+                    className={styles.deleteButton}
+                    disabled={isSaving}
+                  >
+                    {isSaving ? 'Deleting...' : 'Delete'}
+                  </button>
+                </div>
+              ) : (
+                <span className={styles.placeholder}>Click to upload DBS certificate...</span>
+              )}
+            </div>
+            {fileError && <p className={styles.errorText}>{fileError}</p>}
+            <p className={styles.helperText}>
+              Upload your DBS certificate (JPG, PNG, PDF - max 5MB)
+            </p>
+          </div>
         </div>
 
         {/* Availability and Unavailability Periods - 2 Column */}
@@ -811,6 +1471,13 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               </div>
             )}
           </div>
+        </div>
+
+        {/* Availability Note */}
+        <div style={{ marginTop: '32px', padding: '20px', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
+          <p style={{ margin: 0, color: '#6b7280', fontSize: '14px' }}>
+            <strong>Note:</strong> Your availability information from onboarding has been saved. To update your availability, please complete the onboarding process again or contact support.
+          </p>
         </div>
       </div>
     </div>

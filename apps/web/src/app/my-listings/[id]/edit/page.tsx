@@ -6,7 +6,7 @@ import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { getListing, updateListing } from '@/lib/api/listings';
 import type { Listing, UpdateListingInput } from '@tutorwise/shared-types';
-import { toast } from 'sonner';
+import toast from 'react-hot-toast';
 import CreateListingWizard from '@/app/components/listings/CreateListingWizard';
 import styles from '../../create/page.module.css';
 
@@ -14,7 +14,7 @@ export default function EditListingPage() {
   const router = useRouter();
   const params = useParams();
   const { user, isLoading: userLoading } = useUserProfile();
-  const { isAllowed, isLoading: roleLoading } = useRoleGuard(['provider', 'agent', 'seeker']);
+  const { isAllowed, isLoading: roleLoading } = useRoleGuard(['tutor', 'agent', 'client']);
   const [listing, setListing] = useState<Listing | null>(null);
   const [isListingLoading, setIsListingLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);

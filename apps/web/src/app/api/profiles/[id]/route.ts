@@ -27,24 +27,23 @@ export async function GET(
       throw profileError;
     }
 
-    // Fetch all roles for the profile
-    const { data: rolesData, error: rolesError } = await supabase
-      .from('profile_roles')
-      .select('role')
+    // Fetch role details for all roles
+    const { data: roleDetailsData, error: roleDetailsError } = await supabase
+      .from('role_details')
+      .select('*')
       .eq('profile_id', profileId);
 
-    if (rolesError) throw rolesError;
+    // We don't throw an error if role details are not found, as they are optional
+    if (roleDetailsError && roleDetailsError.code !== 'PGRST116') {
+      throw roleDetailsError;
+    }
 
-    // Fetch professional details
-    const { data: professionalDetailsData, error: professionalDetailsError } = await supabase
-      .from('professional_details')
-      .select('*')
-      .eq('profile_id', profileId)
-      .single();
-
-    // We don't throw an error if professional details are not found, as they are optional
-    if (professionalDetailsError && professionalDetailsError.code !== 'PGRST116') {
-      throw professionalDetailsError;
+    // Convert role details array to an object keyed by role_type for easier access
+    const professionalDetails: any = {};
+    if (roleDetailsData && roleDetailsData.length > 0) {
+      roleDetailsData.forEach((detail: any) => {
+        professionalDetails[detail.role_type] = detail;
+      });
     }
 
     // Combine the data into a single profile object
@@ -59,9 +58,11 @@ export async function GET(
       achievements: profileData.achievements,
       avatar_url: profileData.avatar_url,
       cover_photo_url: profileData.cover_photo_url,
+      city: profileData.city,
       created_at: profileData.created_at,
-      roles: rolesData.map(r => r.role),
-      professional_details: professionalDetailsData || null,
+      roles: profileData.roles || [],
+      active_role: profileData.active_role,
+      professional_details: professionalDetails,
       // Email, phone, address, DOB, and emergency contacts are private
     };
 

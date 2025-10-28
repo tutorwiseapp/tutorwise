@@ -18,11 +18,10 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { createClient } from '@/utils/supabase/client';
+import type { Role } from '@/types';
 import GuanMenuIcon from '../ui/nav/GuanMenuIcon';
 import styles from './NavMenu.module.css';
 import getProfileImageUrl from '@/lib/utils/image';
-
-type Role = 'agent' | 'provider' | 'seeker';
 
 interface RoleConfig {
   label: string;
@@ -37,8 +36,8 @@ const NavMenu = () => {
   // Role configuration matching your design
   const roleConfig: Record<Role, RoleConfig> = {
     agent: { label: 'Agent', icon: '🏠' },
-    provider: { label: 'Tutor', icon: '🎓' },
-    seeker: { label: 'Client', icon: '📚' }
+    tutor: { label: 'Tutor', icon: '🎓' },
+    client: { label: 'Client', icon: '📚' }
   } as const;
 
   const handleRoleSwitch = async (role: Role) => {
@@ -154,7 +153,7 @@ const NavMenu = () => {
                 )}
 
                 {/* Role Onboarding Section - Only show roles user doesn't have */}
-                {!availableRoles?.includes('provider') && (
+                {!availableRoles?.includes('tutor') && (
                   <DropdownMenu.Item asChild className={styles.becomeItem}>
                     <Link href="/onboarding">
                       <div className={styles.becomeContent}>
@@ -166,7 +165,7 @@ const NavMenu = () => {
                     </Link>
                   </DropdownMenu.Item>
                 )}
-                {!availableRoles?.includes('seeker') && (
+                {!availableRoles?.includes('client') && (
                   <DropdownMenu.Item asChild className={styles.becomeItem}>
                     <Link href="/onboarding">
                       <div className={styles.becomeContent}>

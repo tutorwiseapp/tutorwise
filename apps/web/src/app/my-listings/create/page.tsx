@@ -6,49 +6,71 @@ import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { createListing } from '@/lib/api/listings';
 import type { CreateListingInput } from '@tutorwise/shared-types';
-import { toast } from 'sonner';
+import toast from 'react-hot-toast';
 import CreateListingForm from '@/app/components/listings/CreateListingForm';
 import styles from './page.module.css';
 
 export default function CreateListingPage() {
   const router = useRouter();
-  const { user, activeRole, getRoleDetails, isLoading: userLoading } = useUserProfile();
-  const { isAllowed, isLoading: roleLoading } = useRoleGuard(['provider', 'agent', 'seeker']);
+  const { user, activeRole, profile, isLoading: userLoading } = useUserProfile();
+  const { isAllowed, isLoading: roleLoading } = useRoleGuard(['tutor', 'agent', 'client']);
   const [isSaving, setIsSaving] = useState(false);
   const [initialData, setInitialData] = useState<Partial<CreateListingInput>>({});
 
-  // Pre-fill form from role_details if available - MUST be before conditional returns
+  // Pre-fill form from professional_details - MUST be before conditional returns
   useEffect(() => {
-    async function loadRoleDetails() {
-      if (activeRole && (activeRole === 'provider' || activeRole === 'agent')) {
-        const roleDetails = await getRoleDetails(activeRole);
-        if (roleDetails) {
-          const prefillData: Partial<CreateListingInput> = {};
+    if (!profile?.professional_details || !activeRole) return;
 
-          // Pre-fill from tutor role_details
-          if (roleDetails.subjects) {
-            prefillData.subjects = roleDetails.subjects as string[];
-          }
-          if (roleDetails.hourly_rate) {
-            prefillData.hourly_rate_min = roleDetails.hourly_rate;
-            prefillData.hourly_rate_max = roleDetails.hourly_rate;
-          }
-          if (roleDetails.certifications) {
-            prefillData.academic_qualifications = roleDetails.certifications;
-          }
-          if (roleDetails.experience) {
-            prefillData.years_of_experience = roleDetails.experience;
-          }
-          if (roleDetails.session_types) {
-            prefillData.teaching_methods = roleDetails.session_types;
-          }
+    const prefillData: Partial<CreateListingInput> = {};
 
-          setInitialData(prefillData);
+    // Pre-fill from professional_details.tutor (for provider role)
+    if (activeRole === 'tutor') {
+      const tutorData = profile.professional_details.tutor;
+      if (tutorData) {
+        if (tutorData.subjects) {
+          prefillData.subjects = tutorData.subjects as string[];
+        }
+        if (tutorData.hourly_rate && Array.isArray(tutorData.hourly_rate)) {
+          prefillData.hourly_rate_min = tutorData.hourly_rate[0];
+          prefillData.hourly_rate_max = tutorData.hourly_rate[1] || tutorData.hourly_rate[0];
+        }
+        if (tutorData.certifications) {
+          prefillData.academic_qualifications = tutorData.certifications;
+        }
+        if (tutorData.experience_level) {
+          prefillData.years_of_experience = tutorData.experience_level;
+        }
+        if (tutorData.teaching_style) {
+          prefillData.teaching_methods = tutorData.teaching_style;
         }
       }
     }
-    loadRoleDetails();
-  }, [activeRole, getRoleDetails]);
+
+    // Pre-fill from professional_details.agent (for agent role)
+    if (activeRole === 'agent') {
+      const agentData = profile.professional_details.agent;
+      if (agentData) {
+        if (agentData.subject_specializations) {
+          prefillData.subjects = agentData.subject_specializations;
+        }
+        if (agentData.description) {
+          prefillData.description = agentData.description;
+        }
+      }
+    }
+
+    // Pre-fill from professional_details.client (for seeker role)
+    if (activeRole === 'client') {
+      const clientData = profile.professional_details.client;
+      if (clientData) {
+        if (clientData.subjects) {
+          prefillData.subjects = clientData.subjects;
+        }
+      }
+    }
+
+    setInitialData(prefillData);
+  }, [profile, activeRole]);
 
   // Show loading while checking auth and role
   if (userLoading || roleLoading) {

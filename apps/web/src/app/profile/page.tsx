@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import type { Profile } from '@/types';
-import { toast } from 'sonner';
+import toast from 'react-hot-toast';
 import HybridHeader from '@/app/components/profile/HybridHeader';
 import ProfileTabs from '@/app/components/profile/ProfileTabs';
 import PersonalInfoForm from '@/app/components/profile/PersonalInfoForm';
@@ -23,20 +23,32 @@ const ProfileContent = ({
 }) => {
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'Personal Info':
+      case 'Overview':
         return (
           <div className={styles.personalInfoContent}>
             <PersonalInfoForm profile={profile} onSave={onSave} />
-          </div>
-        );
-      case 'Professional Info':
-        return (
-          <div className={styles.personalInfoContent}>
             <ProfessionalInfoForm profile={profile} onSave={onSave} activeRole={activeRole} />
           </div>
         );
       case 'Reviews':
-        return null;
+        return (
+          <div className={styles.mainContent}>
+            <div className={styles.leftColumn}>
+              <p>Reviews section - Coming soon...</p>
+            </div>
+          </div>
+        );
+      case 'Matching Tutors':
+      case 'Matching Clients':
+      case 'Matching Agents':
+      case 'Matching Listings':
+        return (
+          <div className={styles.mainContent}>
+            <div className={styles.leftColumn}>
+              <p>{activeTab} - Coming soon...</p>
+            </div>
+          </div>
+        );
       default:
         return (
           <div className={styles.mainContent}>
@@ -53,7 +65,7 @@ const ProfileContent = ({
 
 export default function ProfilePage() {
   const { profile, isLoading, refreshProfile, activeRole } = useUserProfile();
-  const [activeTab, setActiveTab] = useState('Personal Info');
+  const [activeTab, setActiveTab] = useState('Overview');
 
   const handleSave = async (updatedProfile: Partial<Profile>) => {
     if (!profile) return;

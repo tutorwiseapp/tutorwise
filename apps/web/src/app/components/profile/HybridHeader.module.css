@@ -141,6 +141,33 @@
   gap: var(--space-2, 12px); /* Slightly reduced gap */
 }
 
+/* View Public Profile Button */
+.viewPublicProfileButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1, 8px);
+  padding: var(--space-2, 12px) var(--space-3, 16px);
+  background-color: var(--color-background, #ffffff);
+  border: 1px solid var(--color-border, #dfe1e5);
+  border-radius: var(--border-radius-md, 8px);
+  font-size: var(--font-size-sm, 14px);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-primary, #202124);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  justify-self: start;
+}
+
+.viewPublicProfileButton:hover {
+  background-color: var(--color-background-hover, #f8f9fa);
+  border-color: var(--color-border-hover, #c1c3c7);
+}
+
+.viewPublicProfileIcon {
+  flex-shrink: 0;
+}
+
 /* ========================================
    RESPONSIVE DESIGN
    ======================================== */

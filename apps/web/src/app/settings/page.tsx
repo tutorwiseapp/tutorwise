@@ -21,7 +21,7 @@ import settingStyles from './page.module.css';
 
 const SettingsPage = () => {
   const { profile, isLoading } = useUserProfile();
-  const { isAllowed, isLoading: roleLoading } = useRoleGuard(['provider', 'agent', 'seeker']);
+  const { isAllowed, isLoading: roleLoading } = useRoleGuard(['tutor', 'agent', 'client']);
   const router = useRouter();
 
   const [desktopNotificationsEnabled, setDesktopNotificationsEnabled] = useState(true);

@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import NotFound from '@/app/components/layout/NotFound';
 import Button from '@/app/components/ui/Button';
 import type { Profile } from '@/types';
-import { toast } from 'sonner';
+import toast from 'react-hot-toast';
 import HybridHeader from '@/app/components/profile/HybridHeader';
 import ProfileTabs from '@/app/components/profile/ProfileTabs';
 import TutorNarrative from '@/app/components/profile/TutorNarrative';
@@ -77,6 +77,17 @@ export default function PublicProfilePage() {
   const renderProfileContent = () => {
     if (!profile) return null;
 
+    // Handle profiles with no roles or empty roles array
+    if (!profile.roles || profile.roles.length === 0) {
+      return (
+        <div className={styles.mainContent}>
+          <div className={styles.emptyState}>
+            <p>This profile is still being set up.</p>
+          </div>
+        </div>
+      );
+    }
+
     // Assuming the primary role is the first one in the array
     const primaryRole = profile.roles[0];
 
@@ -88,7 +99,13 @@ export default function PublicProfilePage() {
       case 'seeker':
         return <ClientProfile profile={profile} />;
       default:
-        return <p>This user has an unknown role.</p>;
+        return (
+          <div className={styles.mainContent}>
+            <div className={styles.emptyState}>
+              <p>This user has an unknown role.</p>
+            </div>
+          </div>
+        );
     }
   };
 
@@ -139,8 +156,8 @@ export default function PublicProfilePage() {
   return (
     <div className={styles.pageWrapper}>
       <div className={styles.contentWrapper}>
-        <HybridHeader profile={profile} />
-        <ProfileTabs />
+        <HybridHeader profile={profile} activeRole={profile.active_role} />
+        <ProfileTabs activeRole={profile.active_role} />
         {renderProfileContent()}
       </div>
     </div>

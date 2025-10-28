@@ -287,11 +287,59 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
       await updateOnboardingProgress(progressUpdate);
       console.log('[TutorOnboardingWizard] ✓ Database save complete - onboarding marked as completed');
 
+      // Save professional info to professional_details.tutor (for profile auto-population)
+      console.log('[TutorOnboardingWizard] Saving to professional_details.tutor...');
+      const { createClient } = await import('@/utils/supabase/client');
+      const supabase = createClient();
+      const currentProfessionalDetails = profile?.professional_details || {};
+
+      const tutorData = {
+        // From onboarding (8 fields)
+        subjects: subjects || [],
+        experience_level: qualifications.experience || '',
+        education: qualifications.education || '',
+        certifications: qualifications.certifications || [],
+        bio_onboarding: qualifications.bio || '',
+        hourly_rate: data.hourlyRate || 0,
+        session_types: data.sessionTypes || [],
+        availability_slots: data.availability || [],
+
+        // Empty fields (user fills in profile)
+        status: '',
+        academic_qualifications: [],
+        key_stages: [],
+        teaching_professional_qualifications: [],
+        teaching_experience: '',
+        tutoring_experience: '',
+        one_on_one_rate: '',
+        group_session_rate: '',
+        delivery_mode: [],
+
+        // Advanced availability (empty - user fills in profile)
+        availability: [],
+        unavailability: [],
+      };
+
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          professional_details: {
+            ...currentProfessionalDetails,
+            tutor: tutorData
+          }
+        })
+        .eq('id', user!.id);
+
+      if (profileError) {
+        console.error('[TutorOnboardingWizard] Error saving professional_details:', profileError);
+        throw profileError;
+      }
+
+      console.log('[TutorOnboardingWizard] ✓ Saved to professional_details.tutor');
+
       // CRITICAL: Add 'provider' role to user's roles array if not already present
       if (profile && !profile.roles.includes('provider')) {
         console.log('[TutorOnboardingWizard] Adding provider role to user profile...');
-        const { createClient } = await import('@/utils/supabase/client');
-        const supabase = createClient();
         const updatedRoles = [...(profile.roles || []), 'provider'];
         await supabase
           .from('profiles')

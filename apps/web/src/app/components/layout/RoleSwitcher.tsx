@@ -2,11 +2,12 @@
 
 import React, { useState } from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import type { Role } from '@/types';
 
-const roleConfig = {
+const roleConfig: Record<Role, { label: string; color: string }> = {
   agent: { label: 'Agent', color: 'text-purple-600 bg-purple-50' },
-  seeker: { label: 'Student', color: 'text-blue-600 bg-blue-50' },
-  provider: { label: 'Tutor', color: 'text-green-600 bg-green-50' }
+  client: { label: 'Student', color: 'text-blue-600 bg-blue-50' },
+  tutor: { label: 'Tutor', color: 'text-green-600 bg-green-50' }
 };
 
 const RoleSwitcher: React.FC<{ className?: string }> = ({ className = '' }) => {
@@ -17,7 +18,7 @@ const RoleSwitcher: React.FC<{ className?: string }> = ({ className = '' }) => {
 
   const currentRole = roleConfig[activeRole];
 
-  const handleRoleSwitch = async (role: 'agent' | 'seeker' | 'provider') => {
+  const handleRoleSwitch = async (role: Role) => {
     try {
       await switchRole(role);
       setIsOpen(false);

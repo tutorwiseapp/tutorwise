@@ -48,8 +48,8 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
   const [currentStep, setCurrentStep] = useState<ClientStep>(initialStep);
   const [personalInfo, setPersonalInfo] = useState<Partial<PersonalInfoData>>({});
   const [subjects, setSubjects] = useState<string[]>([]);
-  const [preferences, setPreferences] = useState({});
-  const [availability, setAvailability] = useState({});
+  const [preferences, setPreferences] = useState<any>({});
+  const [availability, setAvailability] = useState<any>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isDraftLoaded, setIsDraftLoaded] = useState(false);
 
@@ -222,12 +222,55 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
         }
       }
 
-      // Update the database with client-specific progress and mark as complete
+      // Map onboarding data to professional_details.client structure
+      console.log('[ClientOnboardingWizard] Saving to professional_details.client...');
+      const currentProfessionalDetails = profile?.professional_details || {};
+
+      // Convert onboarding preferences to profile learning_preferences field
+      const learningPreferences = [];
+      if (preferences.learningStyle === 'visual') learningPreferences.push('Visual learning');
+      if (preferences.learningStyle === 'auditory') learningPreferences.push('Auditory learning');
+      if (preferences.learningStyle === 'kinesthetic') learningPreferences.push('Hands-on practice');
+      if (preferences.learningStyle === 'reading') learningPreferences.push('Reading/writing');
+
+      const clientData = {
+        subjects: subjects || [],  // From onboarding subjects step
+        education_level: '',  // User can fill this in profile
+        learning_goals: [],  // User can fill this in profile
+        learning_preferences: learningPreferences,
+        budget_range: '',  // User can fill this in profile
+        sessions_per_week: '',  // User can fill this in profile
+        session_duration: '',  // User can fill this in profile
+        special_needs: [],  // User can fill this in profile
+        additional_info: preferences.location ? `Preferred location: ${preferences.location}` : '',
+        availability: selectedAvailability,  // From onboarding availability step
+        unavailability: null,
+      };
+
+      // Save to professional_details.client (auto-populates profile form)
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          professional_details: {
+            ...currentProfessionalDetails,
+            client: clientData
+          }
+        })
+        .eq('id', user?.id);
+
+      if (profileError) {
+        console.error('[ClientOnboardingWizard] Error saving professional_details:', profileError);
+        throw profileError;
+      }
+
+      console.log('[ClientOnboardingWizard] ✓ Saved to professional_details.client');
+
+      // Also update the onboarding_progress for tracking (keep old structure for reference)
       console.log('[ClientOnboardingWizard] Updating onboarding progress...');
       await updateOnboardingProgress({
         current_step: 'completion',
-        seeker: { ...(profile?.onboarding_progress?.seeker || {}), subjects, preferences, availability: selectedAvailability },
-        onboarding_completed: true,  // Mark as complete for standalone client onboarding
+        seeker: { subjects, preferences, availability: selectedAvailability },
+        onboarding_completed: true,
         completed_at: new Date().toISOString()
       });
       console.log('[ClientOnboardingWizard] Progress updated, clearing draft...');
@@ -236,7 +279,7 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
       await clearDraft(user?.id, DRAFT_KEY);
       console.log('[ClientOnboardingWizard] Draft cleared, calling onComplete...');
 
-      // Call parent's onComplete to redirect to dashboard
+      // Call parent's onComplete to redirect to profile
       onComplete();
     } catch (error) {
       console.error('[ClientOnboardingWizard] Error in handleAvailabilityNext:', error);

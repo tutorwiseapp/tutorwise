@@ -18,7 +18,7 @@ interface HybridHeaderProps {
   activeRole?: string | null;
 }
 
-export default function HybridHeader({ listing, profile, actionsDisabled = false, activeRole }: HybridHeaderProps) {
+export default function HybridHeader({ listing, profile, actionsDisabled = false, isEditable = false, activeRole }: HybridHeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { user, isLoading } = useUserProfile();
@@ -51,18 +51,35 @@ export default function HybridHeader({ listing, profile, actionsDisabled = false
 
     switch (activeRole) {
       case 'seeker':
-        return 'Client'; // Client doesn't need specialty displayed
+        return 'Client';
       case 'agent':
         return 'Agent';
       case 'provider':
+        // Try both 'provider' and 'tutor' keys for backwards compatibility
+        return profile?.professional_details?.provider?.subjects?.[0] ||
+               profile?.professional_details?.tutor?.subjects?.[0] ||
+               'Tutor';
       default:
-        return profile?.professional_details?.tutor?.subjects?.[0] || 'Tutor';
+        // Fallback: check all possible role keys
+        return profile?.professional_details?.provider?.subjects?.[0] ||
+               profile?.professional_details?.tutor?.subjects?.[0] ||
+               profile?.professional_details?.agent?.specializations?.[0] ||
+               'User';
     }
   };
 
   const title = getTitle();
   const location = listing ? listing.location_city : (profile?.city || 'United Kingdom');
-  const hourlyRate = listing ? listing.hourly_rate : (profile?.professional_details?.tutor?.hourly_rate || 'N/A');
+
+  // Get hourly rate from provider or tutor data
+  const getHourlyRate = () => {
+    if (listing) return listing.hourly_rate;
+    return profile?.professional_details?.provider?.hourly_rate?.[0] ||
+           profile?.professional_details?.tutor?.hourly_rate ||
+           'N/A';
+  };
+
+  const hourlyRate = getHourlyRate();
 
   return (
     <div className={styles.hybridHeader}>
@@ -233,6 +250,19 @@ export default function HybridHeader({ listing, profile, actionsDisabled = false
             </>
           )}
         </div>
+
+        {/* View Public Profile Button - Only show when user is viewing their own profile */}
+        {isEditable && profile?.id && (
+          <div className={styles.publicProfileButton} style={{ marginTop: '16px' }}>
+            <Button
+              variant="secondary"
+              onClick={() => router.push(`/public-profile/${profile.id}`)}
+              style={{ width: '100%' }}
+            >
+              👁️ View Public Profile
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

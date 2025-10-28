@@ -244,7 +244,54 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
         }
       }
 
-      // Update the database with agent-specific progress and mark as complete
+      // Map onboarding data to professional_details.agent structure
+      console.log('[AgentOnboardingWizard] Saving to professional_details.agent...');
+      const currentProfessionalDetails = profile?.professional_details || {};
+
+      const agentData = {
+        // Core agency info (from onboarding)
+        agency_name: agencyDetails.agencyName || '',
+        agency_size: agencyDetails.agencySize || '',
+        years_in_business: agencyDetails.yearsInBusiness || '',
+        description: agencyDetails.description || '',
+        services: services || [],
+        commission_rate: data.commissionRate?.toString() || '',
+        service_areas: data.serviceAreas || [],
+        student_capacity: data.studentCapacity || '',
+
+        // Enhanced fields (empty - user fills in profile)
+        subject_specializations: [],
+        education_levels: [],
+        coverage_areas: [],
+        number_of_tutors: '',
+        certifications: [],
+        website: '',
+        additional_info: '',
+
+        // Availability (empty - user adds in profile)
+        availability: [],
+        unavailability: [],
+      };
+
+      // Save to professional_details.agent (auto-populates profile form)
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          professional_details: {
+            ...currentProfessionalDetails,
+            agent: agentData
+          }
+        })
+        .eq('id', user?.id);
+
+      if (profileError) {
+        console.error('[AgentOnboardingWizard] Error saving professional_details:', profileError);
+        throw profileError;
+      }
+
+      console.log('[AgentOnboardingWizard] ✓ Saved to professional_details.agent');
+
+      // Also update the database with agent-specific progress (keep old structure for reference)
       console.log('[AgentOnboardingWizard] Updating onboarding progress...');
       await updateOnboardingProgress({
         current_step: 'completion',

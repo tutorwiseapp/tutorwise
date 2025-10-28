@@ -5,7 +5,8 @@ import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import type { CreateListingInput } from '@tutorwise/shared-types';
 import Button from '@/app/components/ui/Button';
 import ImageUpload, { type ImageUploadRef } from '@/app/components/listings/ImageUpload';
-import { toast } from 'sonner';
+import MultiSelectDropdown from '@/app/components/ui/form/MultiSelectDropdown';
+import toast from 'react-hot-toast';
 import styles from './CreateListings.module.css';
 
 interface CreateListingsProps {
@@ -16,17 +17,48 @@ interface CreateListingsProps {
   isSaving?: boolean;
 }
 
+// Comprehensive subject options
+const SUBJECT_OPTIONS = [
+  { value: 'Mathematics', label: 'Mathematics' },
+  { value: 'English', label: 'English' },
+  { value: 'Science', label: 'Science' },
+  { value: 'Physics', label: 'Physics' },
+  { value: 'Chemistry', label: 'Chemistry' },
+  { value: 'Biology', label: 'Biology' },
+  { value: 'History', label: 'History' },
+  { value: 'Geography', label: 'Geography' },
+  { value: 'Computer Science', label: 'Computer Science' },
+  { value: 'Languages', label: 'Languages' },
+  { value: 'French', label: 'French' },
+  { value: 'Spanish', label: 'Spanish' },
+  { value: 'German', label: 'German' },
+  { value: 'Art & Design', label: 'Art & Design' },
+  { value: 'Music', label: 'Music' },
+  { value: 'Business Studies', label: 'Business Studies' },
+  { value: 'Economics', label: 'Economics' }
+];
+
+// Level/Key Stage options
+const LEVEL_OPTIONS = [
+  { value: 'Primary (KS1-KS2)', label: 'Primary (KS1-KS2) - Age 5-11' },
+  { value: 'Secondary (KS3)', label: 'Secondary (KS3) - Age 11-14' },
+  { value: 'GCSE (KS4)', label: 'GCSE (KS4) - Age 14-16' },
+  { value: 'A-Level', label: 'A-Level - Age 16-18' },
+  { value: 'University', label: 'University/Adult' },
+  { value: 'Professional', label: 'Professional Development' }
+];
+
 // Predefined AI tools list
 const AI_TOOLS_OPTIONS = [
-  'ChatGPT',
-  'Claude',
-  'Grammarly',
-  'Khan Academy',
-  'Quizlet',
-  'Duolingo',
-  'Photomath',
-  'Socratic',
-  'Other'
+  { value: 'ChatGPT', label: 'ChatGPT' },
+  { value: 'Claude', label: 'Claude' },
+  { value: 'Grammarly', label: 'Grammarly' },
+  { value: 'Khan Academy', label: 'Khan Academy' },
+  { value: 'Quizlet', label: 'Quizlet' },
+  { value: 'Duolingo', label: 'Duolingo' },
+  { value: 'Photomath', label: 'Photomath' },
+  { value: 'Socratic', label: 'Socratic' },
+  { value: 'Other', label: 'Other' }
 ];
 
 // Duration options in minutes
@@ -36,6 +68,14 @@ const DURATION_OPTIONS = [
   { value: 60, label: '1 hour' },
   { value: 90, label: '1.5 hours' },
   { value: 120, label: '2 hours' }
+];
+
+// Listing type options
+const LISTING_TYPE_OPTIONS = [
+  { value: 'One-on-One Session', label: 'One-on-One Session', disabled: false },
+  { value: 'Group Session', label: 'Group Session', disabled: true },
+  { value: 'Workshop/Webinar', label: 'Workshop/Webinar', disabled: true },
+  { value: 'Learning Package', label: 'Learning Package', disabled: true }
 ];
 
 // Delivery modes
@@ -52,16 +92,16 @@ export default function CreateListings({
   onSaveDraft,
   isSaving = false
 }: CreateListingsProps) {
-  const { profile, isLoading: isProfileLoading } = useUserProfile();
+  const { profile, activeRole, isLoading: isProfileLoading } = useUserProfile();
   const imageUploadRef = useRef<ImageUploadRef>(null);
 
   // Form state
+  const [listingType, setListingType] = useState('One-on-One Session');
   const [title, setTitle] = useState(formData.title || '');
   const [description, setDescription] = useState(formData.description || '');
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>(formData.subjects || []);
   const [selectedLevels, setSelectedLevels] = useState<string[]>(formData.levels || []);
   const [hourlyRate, setHourlyRate] = useState(formData.hourly_rate?.toString() || '');
-  const [useCustomRate, setUseCustomRate] = useState(false);
   const [deliveryMode, setDeliveryMode] = useState(formData.location_type || 'online');
   const [locationDetails, setLocationDetails] = useState(formData.location_details || '');
   const [freeTrial, setFreeTrial] = useState(formData.free_trial || false);
@@ -75,58 +115,51 @@ export default function CreateListings({
   // Errors
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Profile data
-  const profileSubjects = profile?.professional_details?.tutor?.subjects || [];
-  const profileLevels = (profile?.professional_details?.tutor as any)?.key_stages || [];
-  const profileRate = (profile?.professional_details?.tutor as any)?.one_on_one_rate || null;
-  const profileDeliveryMode = (profile?.professional_details?.tutor as any)?.delivery_mode || null;
-
-  // Initialize with profile data
+  // Profile data - role-aware (for pre-filling only)
   useEffect(() => {
-    if (profile && !formData.hourly_rate) {
-      if (profileRate) {
-        setHourlyRate(profileRate.toString());
+    if (!profile || selectedSubjects.length > 0) return; // Don't override user selections
+
+    let profileSubjects: string[] = [];
+    let profileLevels: string[] = [];
+    let profileRate: number | null = null;
+    let profileDeliveryMode: string | null = null;
+
+    if (profile.professional_details) {
+      if (activeRole === 'tutor' && profile.professional_details.tutor) {
+        profileSubjects = profile.professional_details.tutor.subjects || [];
+        profileLevels = (profile.professional_details.tutor as any)?.key_stages || [];
+        profileRate = (profile.professional_details.tutor as any)?.one_on_one_rate || null;
+        profileDeliveryMode = (profile.professional_details.tutor as any)?.delivery_mode || null;
+      } else if (activeRole === 'agent' && profile.professional_details.agent) {
+        profileSubjects = profile.professional_details.agent.subject_specializations || [];
+      } else if (activeRole === 'client' && profile.professional_details.client) {
+        profileSubjects = profile.professional_details.client.subjects || [];
       }
     }
-    if (profile && !formData.location_type && profileDeliveryMode) {
-      setDeliveryMode(profileDeliveryMode);
+
+    // Pre-fill from profile if available
+    if (profileSubjects.length > 0) setSelectedSubjects(profileSubjects);
+    if (profileLevels.length > 0) setSelectedLevels(profileLevels);
+    if (profileRate && !formData.hourly_rate) setHourlyRate(profileRate.toString());
+    if (profileDeliveryMode && !formData.location_type) {
+      setDeliveryMode(profileDeliveryMode as 'online' | 'hybrid' | 'in_person');
     }
-  }, [profile, profileRate, profileDeliveryMode, formData]);
+  }, [profile, activeRole]);
 
   const handleUploadComplete = (urls: string[]) => {
     setImageUrls(urls);
   };
 
-  const toggleSubject = (subject: string) => {
-    setSelectedSubjects(prev =>
-      prev.includes(subject)
-        ? prev.filter(s => s !== subject)
-        : [...prev, subject]
-    );
+  // Handler for duration dropdown
+  const handleDurationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = parseInt(e.target.value);
+    if (value && !selectedDurations.includes(value)) {
+      setSelectedDurations(prev => [...prev, value]);
+    }
   };
 
-  const toggleLevel = (level: string) => {
-    setSelectedLevels(prev =>
-      prev.includes(level)
-        ? prev.filter(l => l !== level)
-        : [...prev, level]
-    );
-  };
-
-  const toggleAITool = (tool: string) => {
-    setSelectedAITools(prev =>
-      prev.includes(tool)
-        ? prev.filter(t => t !== tool)
-        : [...prev, tool]
-    );
-  };
-
-  const toggleDuration = (duration: number) => {
-    setSelectedDurations(prev =>
-      prev.includes(duration)
-        ? prev.filter(d => d !== duration)
-        : [...prev, duration]
-    );
+  const removeDuration = (duration: number) => {
+    setSelectedDurations(prev => prev.filter(d => d !== duration));
   };
 
   const validate = (): boolean => {
@@ -178,7 +211,7 @@ export default function CreateListings({
     let finalImages = imageUrls;
     if (imageUploadRef.current?.hasUnuploadedFiles()) {
       setIsUploading(true);
-      toast.info('Uploading images...');
+      toast('Uploading images...');
 
       try {
         const uploadedUrls = await imageUploadRef.current.uploadImages();
@@ -197,7 +230,7 @@ export default function CreateListings({
     }
 
     const listingData: Partial<CreateListingInput> = {
-      listing_type: 'Tutor: One-on-One Session',
+      listing_type: `Tutor: ${listingType}`,
       title: title.trim(),
       description: description.trim(),
       subjects: selectedSubjects,
@@ -228,6 +261,7 @@ export default function CreateListings({
     );
   }
 
+  // Profile loading or not exists - show minimal check
   if (!profile) {
     return (
       <div className={styles.errorContainer}>
@@ -238,16 +272,9 @@ export default function CreateListings({
     );
   }
 
-  // Check if profile has required data
-  if (profileSubjects.length === 0) {
-    return (
-      <div className={styles.errorContainer}>
-        <h2>Profile Incomplete</h2>
-        <p>Please add subjects to your profile before creating a listing.</p>
-        <Button onClick={() => window.location.href = '/profile'}>Update Profile</Button>
-      </div>
-    );
-  }
+  // NOTE: Removed strict subject validation check.
+  // Users can create listings even without subjects in profile.
+  // Subjects will be required at form submission time instead.
 
   return (
     <div className={styles.createListingsContainer}>
@@ -261,16 +288,24 @@ export default function CreateListings({
       <div className={styles.twoColumnLayout}>
         {/* LEFT COLUMN - Main Fields */}
         <div className={styles.leftColumn}>
-          {/* Listing Type (Fixed for MVP) */}
+          {/* Listing Type */}
           <div className={styles.formSection}>
             <label className={styles.label}>
-              Listing Type
+              Listing Type <span className={styles.required}>*</span>
             </label>
-            <div className={styles.readOnlyField}>
-              Tutor: One-on-One Session
-            </div>
+            <select
+              value={listingType}
+              onChange={(e) => setListingType(e.target.value)}
+              className={styles.select}
+            >
+              {LISTING_TYPE_OPTIONS.map(({ value, label, disabled }) => (
+                <option key={value} value={value} disabled={disabled}>
+                  {label} {disabled ? '(Coming Soon)' : ''}
+                </option>
+              ))}
+            </select>
             <p className={styles.helperText}>
-              More listing types coming soon!
+              Additional listing types coming soon!
             </p>
           </div>
 
@@ -314,22 +349,6 @@ export default function CreateListings({
             )}
           </div>
 
-          {/* Free Trial */}
-          <div className={styles.formSection}>
-            <label className={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                checked={freeTrial}
-                onChange={(e) => setFreeTrial(e.target.checked)}
-                className={styles.checkbox}
-              />
-              <span>Offer Free Trial Session</span>
-            </label>
-            <p className={styles.helperText}>
-              Attract more students with a free trial lesson
-            </p>
-          </div>
-
           {/* Cancellation Policy */}
           <div className={styles.formSection}>
             <label className={styles.label}>
@@ -348,25 +367,37 @@ export default function CreateListings({
             </p>
           </div>
 
-          {/* Session Durations */}
+          {/* Booking Options - Grouped */}
           <div className={styles.formSection}>
             <label className={styles.label}>
-              Available Session Durations <span className={styles.required}>*</span>
+              Booking Options
             </label>
-            <div className={styles.checkboxGrid}>
-              {DURATION_OPTIONS.map(({ value, label }) => (
-                <label key={value} className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={selectedDurations.includes(value)}
-                    onChange={() => toggleDuration(value)}
-                    className={styles.checkbox}
-                  />
-                  <span>{label}</span>
-                </label>
-              ))}
-            </div>
-            {errors.durations && <p className={styles.errorText}>{errors.durations}</p>}
+
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={freeTrial}
+                onChange={(e) => setFreeTrial(e.target.checked)}
+                className={styles.checkbox}
+              />
+              <span>Offer Free Trial Session</span>
+            </label>
+            <p className={styles.helperText} style={{ marginBottom: '1rem' }}>
+              Attract more students with a free trial lesson
+            </p>
+
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={instantBooking}
+                onChange={(e) => setInstantBooking(e.target.checked)}
+                className={styles.checkbox}
+              />
+              <span>Enable Instant Booking</span>
+            </label>
+            <p className={styles.helperText}>
+              Students can book immediately without approval
+            </p>
           </div>
 
           {/* Location Details */}
@@ -388,72 +419,50 @@ export default function CreateListings({
               </p>
             </div>
           )}
-
-          {/* Images */}
-          <div className={styles.formSection}>
-            <label className={styles.label}>
-              Photos (Optional)
-            </label>
-            <p className={styles.helperText}>
-              Your profile picture is already set as your main image. Add additional photos here.
-            </p>
-            <ImageUpload
-              ref={imageUploadRef}
-              onUploadComplete={handleUploadComplete}
-              existingImages={imageUrls.slice(1)}
-            />
-          </div>
         </div>
 
-        {/* RIGHT COLUMN - Profile Data Selection */}
+        {/* RIGHT COLUMN */}
         <div className={styles.rightColumn}>
-          {/* Subjects from Profile */}
+          {/* Subjects - ALWAYS VISIBLE */}
           <div className={styles.formSection}>
             <label className={styles.label}>
               Subjects <span className={styles.required}>*</span>
             </label>
-            <p className={styles.helperText}>Select from your profile</p>
-            <div className={styles.checkboxList}>
-              {profileSubjects.map((subject: string) => (
-                <label key={subject} className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={selectedSubjects.includes(subject)}
-                    onChange={() => toggleSubject(subject)}
-                    className={styles.checkbox}
-                  />
-                  <span>{subject}</span>
-                </label>
-              ))}
-            </div>
+            <MultiSelectDropdown
+              triggerLabel={
+                selectedSubjects.length > 0
+                  ? selectedSubjects.length === 1
+                    ? selectedSubjects[0]
+                    : `${selectedSubjects.length} subjects selected`
+                  : 'Select subjects'
+              }
+              options={SUBJECT_OPTIONS}
+              selectedValues={selectedSubjects}
+              onSelectionChange={setSelectedSubjects}
+            />
             {errors.subjects && <p className={styles.errorText}>{errors.subjects}</p>}
-            {profileSubjects.length === 0 && (
-              <p className={styles.warningText}>
-                No subjects in profile. <a href="/profile">Update Profile</a>
-              </p>
-            )}
+            <p className={styles.helperText}>Choose one or more subjects you can teach</p>
           </div>
 
-          {/* Levels from Profile */}
+          {/* Levels - ALWAYS VISIBLE */}
           <div className={styles.formSection}>
             <label className={styles.label}>
-              Levels <span className={styles.required}>*</span>
+              Education Levels <span className={styles.required}>*</span>
             </label>
-            <p className={styles.helperText}>Select from your profile</p>
-            <div className={styles.checkboxList}>
-              {profileLevels.map((level: string) => (
-                <label key={level} className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={selectedLevels.includes(level)}
-                    onChange={() => toggleLevel(level)}
-                    className={styles.checkbox}
-                  />
-                  <span>{level}</span>
-                </label>
-              ))}
-            </div>
+            <MultiSelectDropdown
+              triggerLabel={
+                selectedLevels.length > 0
+                  ? selectedLevels.length === 1
+                    ? selectedLevels[0]
+                    : `${selectedLevels.length} levels selected`
+                  : 'Select levels'
+              }
+              options={LEVEL_OPTIONS}
+              selectedValues={selectedLevels}
+              onSelectionChange={setSelectedLevels}
+            />
             {errors.levels && <p className={styles.errorText}>{errors.levels}</p>}
+            <p className={styles.helperText}>Choose education levels you can teach</p>
           </div>
 
           {/* Hourly Rate */}
@@ -461,33 +470,18 @@ export default function CreateListings({
             <label className={styles.label}>
               Hourly Rate (£) <span className={styles.required}>*</span>
             </label>
-            {profileRate && !useCustomRate ? (
-              <div>
-                <div className={styles.rateDisplay}>
-                  £{profileRate}/hour (from profile)
-                </div>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={useCustomRate}
-                    onChange={(e) => setUseCustomRate(e.target.checked)}
-                    className={styles.checkbox}
-                  />
-                  <span>Use custom rate for this listing</span>
-                </label>
-              </div>
-            ) : (
-              <input
-                type="number"
-                value={hourlyRate}
-                onChange={(e) => setHourlyRate(e.target.value)}
-                placeholder="50"
-                className={`${styles.input} ${errors.hourlyRate ? styles.inputError : ''}`}
-                min="0"
-                step="0.01"
-              />
-            )}
+            <input
+              type="number"
+              value={hourlyRate}
+              onChange={(e) => setHourlyRate(e.target.value)}
+              placeholder="50"
+              className={`${styles.input} ${errors.hourlyRate ? styles.inputError : ''}`}
+              min="0"
+              step="1"
+              inputMode="decimal"
+            />
             {errors.hourlyRate && <p className={styles.errorText}>{errors.hourlyRate}</p>}
+            <p className={styles.helperText}>Your rate per hour in GBP</p>
           </div>
 
           {/* Delivery Mode */}
@@ -506,20 +500,44 @@ export default function CreateListings({
             </select>
           </div>
 
-          {/* Instant Booking */}
+          {/* Session Durations - MOVED HERE */}
           <div className={styles.formSection}>
-            <label className={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                checked={instantBooking}
-                onChange={(e) => setInstantBooking(e.target.checked)}
-                className={styles.checkbox}
-              />
-              <span>Enable Instant Booking</span>
+            <label className={styles.label}>
+              Available Session Durations <span className={styles.required}>*</span>
             </label>
-            <p className={styles.helperText}>
-              Students can book immediately without approval
-            </p>
+            <select
+              value=""
+              onChange={handleDurationChange}
+              className={styles.select}
+            >
+              <option value="">Add duration...</option>
+              {DURATION_OPTIONS.map(({ value, label }) => (
+                <option key={value} value={value} disabled={selectedDurations.includes(value)}>
+                  {label}
+                </option>
+              ))}
+            </select>
+            {selectedDurations.length > 0 && (
+              <div className={styles.durationChipsContainer}>
+                {selectedDurations.map(duration => {
+                  const option = DURATION_OPTIONS.find(opt => opt.value === duration);
+                  return (
+                    <span key={duration} className={styles.durationChip}>
+                      {option?.label}
+                      <button
+                        type="button"
+                        onClick={() => removeDuration(duration)}
+                        className={styles.durationChipRemove}
+                        aria-label={`Remove ${option?.label}`}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+            {errors.durations && <p className={styles.errorText}>{errors.durations}</p>}
           </div>
 
           {/* AI Tools Used */}
@@ -527,20 +545,32 @@ export default function CreateListings({
             <label className={styles.label}>
               AI Tools Used (Optional)
             </label>
-            <p className={styles.helperText}>Select tools you use in tutoring</p>
-            <div className={styles.checkboxList}>
-              {AI_TOOLS_OPTIONS.map((tool) => (
-                <label key={tool} className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={selectedAITools.includes(tool)}
-                    onChange={() => toggleAITool(tool)}
-                    className={styles.checkbox}
-                  />
-                  <span>{tool}</span>
-                </label>
-              ))}
-            </div>
+            <MultiSelectDropdown
+              triggerLabel={
+                selectedAITools.length > 0
+                  ? `${selectedAITools.length} tool${selectedAITools.length > 1 ? 's' : ''} selected`
+                  : 'Select AI tools'
+              }
+              options={AI_TOOLS_OPTIONS}
+              selectedValues={selectedAITools}
+              onSelectionChange={setSelectedAITools}
+            />
+            <p className={styles.helperText}>AI tools you incorporate in lessons</p>
+          </div>
+
+          {/* Photos - MOVED HERE */}
+          <div className={styles.formSection}>
+            <label className={styles.label}>
+              Photos (Optional)
+            </label>
+            <p className={styles.helperText}>
+              Your profile picture is already set as your main image. Add additional photos here.
+            </p>
+            <ImageUpload
+              ref={imageUploadRef}
+              onUploadComplete={handleUploadComplete}
+              existingImages={imageUrls.slice(1)}
+            />
           </div>
         </div>
       </div>
