@@ -7,13 +7,13 @@ import styles from './ProfileTabs.module.css';
 const getRoleTabs = (activeRole: string | null) => {
   switch (activeRole) {
     case 'client':
-      return ['Overview', 'Reviews', 'Matching Tutors', 'Matching Agents', 'Matching Listings'];
+      return ['Personal Info', 'Professional Info', 'Reviews', 'Matching Tutors', 'Matching Agents', 'Matching Listings'];
     case 'tutor':
-      return ['Overview', 'Reviews', 'Matching Clients', 'Matching Agents', 'Matching Listings'];
+      return ['Personal Info', 'Professional Info', 'Reviews', 'Matching Clients', 'Matching Agents', 'Matching Listings'];
     case 'agent':
-      return ['Overview', 'Reviews', 'Matching Clients', 'Matching Tutors', 'Matching Listings'];
+      return ['Personal Info', 'Professional Info', 'Reviews', 'Matching Clients', 'Matching Tutors', 'Matching Listings'];
     default:
-      return ['Overview', 'Reviews'];
+      return ['Personal Info', 'Professional Info', 'Reviews'];
   }
 };
 
@@ -23,7 +23,7 @@ interface ProfileTabsProps {
   activeRole?: string | null;
 }
 
-export default function ProfileTabs({ activeTab = 'Overview', onTabChange, activeRole }: ProfileTabsProps) {
+export default function ProfileTabs({ activeTab = 'Personal Info', onTabChange, activeRole }: ProfileTabsProps) {
   const tabs = getRoleTabs(activeRole ?? null);
 
   return (

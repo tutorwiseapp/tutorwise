@@ -23,10 +23,15 @@ const ProfileContent = ({
 }) => {
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'Overview':
+      case 'Personal Info':
         return (
           <div className={styles.personalInfoContent}>
             <PersonalInfoForm profile={profile} onSave={onSave} />
+          </div>
+        );
+      case 'Professional Info':
+        return (
+          <div className={styles.personalInfoContent}>
             <ProfessionalInfoForm profile={profile} onSave={onSave} activeRole={activeRole} />
           </div>
         );
@@ -65,7 +70,7 @@ const ProfileContent = ({
 
 export default function ProfilePage() {
   const { profile, isLoading, refreshProfile, activeRole } = useUserProfile();
-  const [activeTab, setActiveTab] = useState('Overview');
+  const [activeTab, setActiveTab] = useState('Personal Info');
 
   const handleSave = async (updatedProfile: Partial<Profile>) => {
     if (!profile) return;
