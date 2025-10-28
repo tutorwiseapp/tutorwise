@@ -78,7 +78,13 @@ export async function GET(request: NextRequest) {
     // Execute search
     const result = await searchListings(filters);
 
-    return NextResponse.json(result);
+    return NextResponse.json(result, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
+    });
   } catch (error) {
     console.error('Marketplace search error:', error);
     return NextResponse.json(
@@ -102,7 +108,13 @@ export async function POST(request: NextRequest) {
 
     const result = await searchListings(searchParams);
 
-    return NextResponse.json(result);
+    return NextResponse.json(result, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
+    });
   } catch (error) {
     console.error('Marketplace search error:', error);
     return NextResponse.json(

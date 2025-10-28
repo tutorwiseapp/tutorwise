@@ -20,7 +20,12 @@ export default function HomePage() {
   const loadFeaturedTutors = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/marketplace/search?limit=12');
+      const response = await fetch('/api/marketplace/search?limit=12', {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      });
       const data = await response.json();
       setListings(data.listings || []);
     } catch (error) {
@@ -66,7 +71,12 @@ export default function HomePage() {
         params.append('free_trial_only', 'true');
       }
 
-      const response = await fetch(`/api/marketplace/search?${params.toString()}`);
+      const response = await fetch(`/api/marketplace/search?${params.toString()}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      });
       const data = await response.json();
 
       setListings(data.listings || []);
