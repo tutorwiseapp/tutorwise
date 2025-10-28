@@ -74,8 +74,8 @@ export default function HybridHeader({ listing, profile, actionsDisabled = false
   // Get hourly rate from provider or tutor data
   const getHourlyRate = () => {
     if (listing) return listing.hourly_rate;
-    return profile?.professional_details?.provider?.hourly_rate?.[0] ||
-           profile?.professional_details?.tutor?.hourly_rate ||
+    return profile?.professional_details?.tutor?.hourly_rate ||
+           profile?.professional_details?.provider?.hourly_rate ||
            'N/A';
   };
 

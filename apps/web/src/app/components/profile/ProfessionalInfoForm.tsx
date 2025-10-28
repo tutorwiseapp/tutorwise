@@ -285,8 +285,8 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
       teaching_experience: tutorData?.teaching_experience || '',
       session_type: tutorData?.session_types || [],
       tutoring_experience: tutorData?.tutoring_experience || '',
-      one_on_one_rate: tutorData?.one_on_one_rate || '',
-      group_session_rate: tutorData?.group_session_rate || '',
+      one_on_one_rate: tutorData?.one_on_one_rate?.toString() || '',
+      group_session_rate: tutorData?.group_session_rate?.toString() || '',
       delivery_mode: tutorData?.delivery_mode || [],
 
       // Client fields (10 fields)

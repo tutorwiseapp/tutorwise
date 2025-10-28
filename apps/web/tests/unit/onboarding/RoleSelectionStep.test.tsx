@@ -53,15 +53,15 @@ describe('RoleSelectionStep', () => {
       />
     );
 
-    const seekerCheckbox = screen.getByLabelText(/Seeker \(Looking for tutors\)/);
-    expect(seekerCheckbox).not.toBeChecked();
+    const clientCheckbox = screen.getByLabelText(/Client \(Looking for tutors\)/);
+    expect(clientCheckbox).not.toBeChecked();
 
-    fireEvent.click(seekerCheckbox);
-    expect(seekerCheckbox).toBeChecked();
+    fireEvent.click(clientCheckbox);
+    expect(clientCheckbox).toBeChecked();
 
     // Deselect
-    fireEvent.click(seekerCheckbox);
-    expect(seekerCheckbox).not.toBeChecked();
+    fireEvent.click(clientCheckbox);
+    expect(clientCheckbox).not.toBeChecked();
   });
 
   it('allows multiple role selection', () => {
@@ -75,14 +75,14 @@ describe('RoleSelectionStep', () => {
       />
     );
 
-    const seekerCheckbox = screen.getByLabelText(/Seeker \(Looking for tutors\)/);
-    const providerCheckbox = screen.getByLabelText(/Provider \(Offering tutoring services\)/);
+    const clientCheckbox = screen.getByLabelText(/Client \(Looking for tutors\)/);
+    const tutorCheckbox = screen.getByLabelText(/Tutor \(Offering tutoring services\)/);
 
-    fireEvent.click(seekerCheckbox);
-    fireEvent.click(providerCheckbox);
+    fireEvent.click(clientCheckbox);
+    fireEvent.click(tutorCheckbox);
 
-    expect(seekerCheckbox).toBeChecked();
-    expect(providerCheckbox).toBeChecked();
+    expect(clientCheckbox).toBeChecked();
+    expect(tutorCheckbox).toBeChecked();
   });
 
   it('shows pre-selected roles', () => {
@@ -96,11 +96,11 @@ describe('RoleSelectionStep', () => {
       />
     );
 
-    const seekerCheckbox = screen.getByLabelText(/Seeker \(Looking for tutors\)/);
-    const providerCheckbox = screen.getByLabelText(/Provider \(Offering tutoring services\)/);
+    const clientCheckbox = screen.getByLabelText(/Client \(Looking for tutors\)/);
+    const tutorCheckbox = screen.getByLabelText(/Tutor \(Offering tutoring services\)/);
 
-    expect(seekerCheckbox).toBeChecked();
-    expect(providerCheckbox).toBeChecked();
+    expect(clientCheckbox).toBeChecked();
+    expect(tutorCheckbox).toBeChecked();
   });
 
   it('disables Next button when no roles selected', () => {
@@ -129,8 +129,8 @@ describe('RoleSelectionStep', () => {
       />
     );
 
-    const seekerCheckbox = screen.getByLabelText(/Seeker \(Looking for tutors\)/);
-    fireEvent.click(seekerCheckbox);
+    const clientCheckbox = screen.getByLabelText(/Client \(Looking for tutors\)/);
+    fireEvent.click(clientCheckbox);
 
     const nextButton = screen.getByText('Next');
     expect(nextButton).not.toBeDisabled();
@@ -147,8 +147,8 @@ describe('RoleSelectionStep', () => {
       />
     );
 
-    const seekerCheckbox = screen.getByLabelText(/Seeker \(Looking for tutors\)/);
-    fireEvent.click(seekerCheckbox);
+    const clientCheckbox = screen.getByLabelText(/Client \(Looking for tutors\)/);
+    fireEvent.click(clientCheckbox);
 
     const nextButton = screen.getByText('Next');
     fireEvent.click(nextButton);
