@@ -22,7 +22,7 @@ const ClientPersonalInfoStep: React.FC<ClientPersonalInfoStepProps> = ({
       onNext={onNext}
       onSkip={onSkip}
       isLoading={isLoading}
-      userRole="seeker"
+      userRole="client"
     />
   );
 };
