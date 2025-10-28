@@ -22,7 +22,7 @@ function TutorOnboardingPageContent() {
     }
 
     // Redirect to dashboard if user already has the provider role
-    if (!isLoading && profile && availableRoles?.includes('provider')) {
+    if (!isLoading && profile && availableRoles?.includes('tutor')) {
       console.log('[TutorOnboardingPage] User already has provider role, redirecting to dashboard');
       router.push('/dashboard');
       return;

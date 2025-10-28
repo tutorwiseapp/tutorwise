@@ -337,18 +337,18 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
 
       console.log('[TutorOnboardingWizard] ✓ Saved to professional_details.tutor');
 
-      // CRITICAL: Add 'provider' role to user's roles array if not already present
-      if (profile && !profile.roles.includes('provider')) {
-        console.log('[TutorOnboardingWizard] Adding provider role to user profile...');
-        const updatedRoles = [...(profile.roles || []), 'provider'];
+      // CRITICAL: Add 'tutor' role to user's roles array if not already present
+      if (profile && !profile.roles.includes('tutor')) {
+        console.log('[TutorOnboardingWizard] Adding tutor role to user profile...');
+        const updatedRoles = [...(profile.roles || []), 'tutor'];
         await supabase
           .from('profiles')
           .update({
             roles: updatedRoles,
-            active_role: 'provider'
+            active_role: 'tutor'
           })
           .eq('id', user!.id);
-        console.log('[TutorOnboardingWizard] ✓ Provider role added');
+        console.log('[TutorOnboardingWizard] ✓ Tutor role added');
       }
 
       // Generate listing templates for new tutor

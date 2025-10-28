@@ -5,11 +5,11 @@ import React, { useState } from 'react';
 import styles from '../OnboardingWizard.module.css';
 
 interface RoleSelectionStepProps {
-  onNext: (roles: ('seeker' | 'provider' | 'agent')[]) => Promise<void>;
+  onNext: (roles: ('client' | 'tutor' | 'agent')[]) => Promise<void>;
   onBack: () => void;
   onSkip: () => Promise<void>;
   isLoading: boolean;
-  selectedRoles: ('seeker' | 'provider' | 'agent')[];
+  selectedRoles: ('client' | 'tutor' | 'agent')[];
 }
 
 const RoleSelectionStep: React.FC<RoleSelectionStepProps> = ({
@@ -19,7 +19,7 @@ const RoleSelectionStep: React.FC<RoleSelectionStepProps> = ({
   isLoading,
   selectedRoles: initialRoles,
 }) => {
-  const [selectedRoles, setSelectedRoles] = useState<('seeker' | 'provider' | 'agent')[]>(initialRoles);
+  const [selectedRoles, setSelectedRoles] = useState<('client' | 'tutor' | 'agent')[]>(initialRoles);
 
   const handleRoleToggle = (role: 'seeker' | 'provider' | 'agent') => {
     setSelectedRoles((prev) =>
@@ -42,18 +42,18 @@ const RoleSelectionStep: React.FC<RoleSelectionStepProps> = ({
           <label>
             <input
               type="checkbox"
-              checked={selectedRoles.includes('seeker')}
-              onChange={() => handleRoleToggle('seeker')}
+              checked={selectedRoles.includes('client')}
+              onChange={() => handleRoleToggle('client')}
             />
-            Seeker (Looking for tutors)
+            Client (Looking for tutors)
           </label>
           <label>
             <input
               type="checkbox"
-              checked={selectedRoles.includes('provider')}
-              onChange={() => handleRoleToggle('provider')}
+              checked={selectedRoles.includes('tutor')}
+              onChange={() => handleRoleToggle('tutor')}
             />
-            Provider (Offering tutoring services)
+            Tutor (Offering tutoring services)
           </label>
           <label>
             <input

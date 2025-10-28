@@ -20,9 +20,9 @@ export default function AvailabilitySection({ profile, isEditable = false, onSav
   // Get role-specific availability data
   const getRoleData = () => {
     const roles = profile.roles || [];
-    if (roles.includes('provider')) {
+    if (roles.includes('tutor')) {
       return profile.professional_details?.provider || profile.professional_details?.tutor;
-    } else if (roles.includes('seeker')) {
+    } else if (roles.includes('client')) {
       return profile.professional_details?.seeker || profile.professional_details?.client;
     } else if (roles.includes('agent')) {
       return profile.professional_details?.agent;

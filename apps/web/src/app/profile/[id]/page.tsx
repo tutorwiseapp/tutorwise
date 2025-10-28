@@ -220,7 +220,7 @@ export default function PublicProfilePage() {
                     </div>
                     <div className={styles.statLabel}>Joined</div>
                   </div>
-                  {profile.roles?.includes('provider') && (
+                  {profile.roles?.includes('tutor') && (
                     <>
                       <div className={styles.statItem}>
                         <div className={styles.statValue}>4.8★</div>

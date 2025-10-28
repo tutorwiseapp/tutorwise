@@ -92,11 +92,11 @@ export default function PublicProfilePage() {
     const primaryRole = profile.roles[0];
 
     switch (primaryRole) {
-      case 'provider':
+      case 'tutor':
         return <TutorProfile profile={profile} />;
       case 'agent':
         return <AgentProfile profile={profile} />;
-      case 'seeker':
+      case 'client':
         return <ClientProfile profile={profile} />;
       default:
         return (

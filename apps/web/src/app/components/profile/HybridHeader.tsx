@@ -50,11 +50,11 @@ export default function HybridHeader({ listing, profile, actionsDisabled = false
     if (listing) return listing.title;
 
     switch (activeRole) {
-      case 'seeker':
+      case 'client':
         return 'Client';
       case 'agent':
         return 'Agent';
-      case 'provider':
+      case 'tutor':
         // Try both 'provider' and 'tutor' keys for backwards compatibility
         return profile?.professional_details?.provider?.subjects?.[0] ||
                profile?.professional_details?.tutor?.subjects?.[0] ||
@@ -104,7 +104,7 @@ export default function HybridHeader({ listing, profile, actionsDisabled = false
         {/* Stats Card - Role-specific */}
         <Card className={styles.statsCard}>
           <div className={styles.statsGrid}>
-            {activeRole === 'seeker' ? (
+            {activeRole === 'client' ? (
               // Client stats
               <>
                 <div className={styles.statItem}>
@@ -158,7 +158,7 @@ export default function HybridHeader({ listing, profile, actionsDisabled = false
 
         {/* Action Buttons - Role-specific */}
         <div className={styles.actionButtons}>
-          {activeRole === 'seeker' ? (
+          {activeRole === 'client' ? (
             // Client action buttons
             <>
               <Button

@@ -303,7 +303,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     }));
 
     // Load client availability/unavailability if present
-    if (activeRole === 'seeker' && clientData) {
+    if (activeRole === 'client' && clientData) {
       if (clientData.availability) {
         setAvailabilityPeriods(clientData.availability);
       }
@@ -792,7 +792,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
   // Show role-specific content based on activeRole
   const renderRoleSpecificContent = () => {
     // For clients (seekers), show complete client professional info
-    if (activeRole === 'seeker') {
+    if (activeRole === 'client') {
       return (
         <div className={styles.personalInfoForm}>
           <div className={styles.formContent}>

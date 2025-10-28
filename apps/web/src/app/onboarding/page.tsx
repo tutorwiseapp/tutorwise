@@ -44,8 +44,8 @@ export default function OnboardingPage() {
   }
 
   // Check which roles are available
-  const hasSeeker = availableRoles.includes('seeker');
-  const hasProvider = availableRoles.includes('provider');
+  const hasSeeker = availableRoles.includes('client');
+  const hasProvider = availableRoles.includes('tutor');
   const hasAgent = availableRoles.includes('agent');
 
   const handleRoleSelect = (role: 'seeker' | 'provider' | 'agent') => {

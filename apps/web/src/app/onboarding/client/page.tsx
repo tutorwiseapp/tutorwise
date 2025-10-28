@@ -18,7 +18,7 @@ export default function ClientOnboardingPage() {
     }
 
     // Redirect to dashboard if user already has the seeker role
-    if (!isLoading && profile && availableRoles.includes('seeker')) {
+    if (!isLoading && profile && availableRoles.includes('client')) {
       console.log('[ClientOnboardingPage] User already has seeker role, redirecting to dashboard');
       router.push('/dashboard');
       return;

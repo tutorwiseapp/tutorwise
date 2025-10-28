@@ -58,8 +58,8 @@ const getDashboardLinks = (role: string | null) => {
   ];
 
   switch (role) {
-    case 'provider': return providerLinks;
-    case 'seeker': return seekerLinks;
+    case 'tutor': return providerLinks;
+    case 'client': return seekerLinks;
     case 'agent': return agentLinks;
     default: return commonLinks;
   }
@@ -95,8 +95,8 @@ const DashboardPage = () => {
   // Get role-specific dashboard title
   const getDashboardTitle = () => {
     switch (activeRole) {
-      case 'seeker': return 'My Learning Hub';
-      case 'provider': return 'My Teaching Studio';
+      case 'client': return 'My Learning Hub';
+      case 'tutor': return 'My Teaching Studio';
       case 'agent': return 'My Tutoring Agency';
       default: return 'Dashboard';
     }
@@ -105,8 +105,8 @@ const DashboardPage = () => {
   // Get formatted role name
   const getFormattedRole = () => {
     switch (activeRole) {
-      case 'seeker': return 'Client';
-      case 'provider': return 'Tutor';
+      case 'client': return 'Client';
+      case 'tutor': return 'Tutor';
       case 'agent': return 'Agent';
       default: return '';
     }
@@ -117,9 +117,9 @@ const DashboardPage = () => {
   // Welcome message for new users
   const getWelcomeMessage = () => {
     switch (activeRole) {
-      case 'provider':
+      case 'tutor':
         return 'Ready to start teaching? Create your first listing to connect with students!';
-      case 'seeker':
+      case 'client':
         return 'Find the perfect tutor to help you achieve your learning goals!';
       case 'agent':
         return 'Start referring services and earning commissions!';

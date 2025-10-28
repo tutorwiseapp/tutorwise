@@ -60,7 +60,7 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
   });
 
   // Check if DBS fields should be shown (for tutors/providers and agents only)
-  const showDbsFields = userRole === 'provider' || userRole === 'agent';
+  const showDbsFields = userRole === 'tutor' || userRole === 'agent';
 
   // Pre-populate from profile if available
   useEffect(() => {
