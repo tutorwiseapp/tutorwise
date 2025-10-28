@@ -21,7 +21,7 @@ const RoleSelectionStep: React.FC<RoleSelectionStepProps> = ({
 }) => {
   const [selectedRoles, setSelectedRoles] = useState<('client' | 'tutor' | 'agent')[]>(initialRoles);
 
-  const handleRoleToggle = (role: 'seeker' | 'provider' | 'agent') => {
+  const handleRoleToggle = (role: 'client' | 'tutor' | 'agent') => {
     setSelectedRoles((prev) =>
       prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
     );

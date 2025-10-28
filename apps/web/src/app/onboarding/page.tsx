@@ -48,7 +48,7 @@ export default function OnboardingPage() {
   const hasProvider = availableRoles.includes('tutor');
   const hasAgent = availableRoles.includes('agent');
 
-  const handleRoleSelect = (role: 'seeker' | 'provider' | 'agent') => {
+  const handleRoleSelect = (role: 'client' | 'tutor' | 'agent') => {
     const routeMap = {
       seeker: '/onboarding/client',
       provider: '/onboarding/tutor',
