@@ -1,13 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import type { Profile } from '@/types';
-import Image from 'next/image';
-import getProfileImageUrl from '@/lib/utils/image';
 import Card from '@/app/components/ui/Card';
-import Button from '@/app/components/ui/Button';
 import styles from './AgentProfile.module.css';
-import EditAgentDetailsModal from './EditAgentDetailsModal';
 
 interface AgentProfileProps {
   profile: Profile;
@@ -16,134 +11,137 @@ interface AgentProfileProps {
 }
 
 export default function AgentProfile({ profile, isEditable = false, onSave = () => {} }: AgentProfileProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const recentActivity = [
-    { id: 1, text: 'Generated a new link for', subject: 'LearnHub', url: 'https://learnhub.com' },
-    { id: 2, text: 'A referral for', subject: 'SaaSify', url: 'https://saasify.com', status: 'resulted in a new client!' },
-    { id: 3, text: 'Shared a link for', subject: 'DesignCo', url: 'https://designco.com', status: 'via WhatsApp' },
-  ];
+  const agentDetails = profile.professional_details?.agent;
 
   return (
-    <div className={styles.profileGrid}>
-      <aside>
-         <Card className={styles.profileCard}>
-          <div className={styles.coverPhoto} style={{ backgroundImage: profile.cover_photo_url ? `url(${profile.cover_photo_url})` : 'none' }} />
-          <Image
-            src={getProfileImageUrl(profile)}
-            alt={`${profile.full_name}'s profile picture`}
-            width={150} height={150}
-            className={styles.profileAvatar}
-          />
-          <div className={styles.profileBody}>
-            <h2 className={styles.profileName}>{profile.full_name}</h2>
-            <p className={styles.profileId}>ID: {profile.referral_id || profile.id.slice(0, 8)}</p>
-            
-            {isEditable && (
-              <Button variant="secondary" size="sm" onClick={() => setIsModalOpen(true)}>
-                Edit Details
-              </Button>
-            )}
-            
-            <div className={styles.detailsSection}>
-              <h3>About</h3>
-              <p className={styles.profileBio}>{profile.bio || 'This agent has not provided a bio yet.'}</p>
-            </div>
-            
-            <div className={styles.detailsSection}>
-              <h3>Professional Details</h3>
-              <table className={styles.table}>
-                <tbody>
-                  <tr>
-                    <td className={styles.label}>Professional Background</td>
-                    <td className={styles.value}>{profile.professional_details?.agent?.professional_background || 'N/A'}</td>
-                  </tr>
-                  <tr>
-                    <td className={styles.label}>Specializations</td>
-                    <td className={styles.value}>{profile.professional_details?.agent?.specializations?.join(', ') || 'N/A'}</td>
-                  </tr>
-                  <tr>
-                    <td className={styles.label}>Subject Areas</td>
-                    <td className={styles.value}>{profile.professional_details?.agent?.subjects?.join(', ') || 'N/A'}</td>
-                  </tr>
-                  <tr>
-                    <td className={styles.label}>Commission Preferences</td>
-                    <td className={styles.value}>
-                      {profile.professional_details?.agent?.commission_preferences && Object.keys(profile.professional_details.agent.commission_preferences).length > 0
-                        ? JSON.stringify(profile.professional_details.agent.commission_preferences)
-                        : 'N/A'}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+    <div className={styles.mainContent}>
+      {/* Left Column - Professional Info */}
+      <div className={styles.leftColumn}>
+        <Card className={styles.professionalInfoSection}>
+          <h2 className={styles.title}>Professional Info</h2>
+
+          {/* About - Full Width */}
+          <div className={styles.fullWidth}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>About</label>
+              <div className={styles.fieldValue}>
+                {profile.bio || ''}
+              </div>
             </div>
           </div>
-        </Card>
-      </aside>
-      
-      <main>
-        {!isEditable && (
-          <>
-            <Card className={styles.contentCard}>
-              <h3>Actions</h3>
-              <div className={styles.actionsGrid}>
-                <Button variant="primary">Refer Me</Button>
-                <Button variant="secondary">Reward Me</Button>
-              </div>
-            </Card>
 
-            <Card className={styles.contentCard}>
-              <h3>Shares</h3>
-              <div className={styles.sharesGrid}>
-                <Button variant="secondary">Share on WhatsApp</Button>
-                <Button variant="secondary">Share on LinkedIn</Button>
-                <Button variant="secondary">Contact Me</Button>
+          {/* Agency Name and Agency Size - 2 Column */}
+          <div className={styles.twoColumnGrid}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Agency Name</label>
+              <div className={styles.fieldValue}>
+                {agentDetails?.agency_name || ''}
               </div>
-            </Card>
-          </>
-        )}
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Agency Size</label>
+              <div className={styles.fieldValue}>
+                {agentDetails?.agency_size || ''}
+              </div>
+            </div>
+          </div>
 
-        <Card className={styles.contentCard}>
-          <h3>Recent Activity</h3>
-          <div className={styles.activityFeed}>
-            {recentActivity.map(activity => (
-              <div key={activity.id} className={styles.activityItem}>
-                <span>
-                  {activity.text}{' '}
-                  <a href={activity.url} target="_blank" rel="noopener noreferrer" className={styles.activityLink}>
-                    {activity.subject}
+          {/* Years in Business and Commission Rate - 2 Column */}
+          <div className={styles.twoColumnGrid}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Years in Business</label>
+              <div className={styles.fieldValue}>
+                {agentDetails?.years_in_business || ''}
+              </div>
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Commission Rate</label>
+              <div className={styles.fieldValue}>
+                {agentDetails?.commission_rate || ''}
+              </div>
+            </div>
+          </div>
+
+          {/* Professional Background - Full Width */}
+          <div className={styles.fullWidth}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Professional Background</label>
+              <div className={styles.fieldValue}>
+                {agentDetails?.professional_background || ''}
+              </div>
+            </div>
+          </div>
+
+          {/* Specializations and Subject Areas - 2 Column */}
+          <div className={styles.twoColumnGrid}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Specializations</label>
+              <div className={styles.fieldValue}>
+                {agentDetails?.specializations?.join(', ') || ''}
+              </div>
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Subject Areas</label>
+              <div className={styles.fieldValue}>
+                {agentDetails?.subjects?.join(', ') || ''}
+              </div>
+            </div>
+          </div>
+
+          {/* Student Capacity and Number of Tutors - 2 Column */}
+          <div className={styles.twoColumnGrid}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Student Capacity</label>
+              <div className={styles.fieldValue}>
+                {agentDetails?.student_capacity || ''}
+              </div>
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Number of Tutors</label>
+              <div className={styles.fieldValue}>
+                {agentDetails?.number_of_tutors || ''}
+              </div>
+            </div>
+          </div>
+
+          {/* Website - Full Width */}
+          <div className={styles.fullWidth}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Website</label>
+              <div className={styles.fieldValue}>
+                {agentDetails?.website ? (
+                  <a href={agentDetails.website} target="_blank" rel="noopener noreferrer" className={styles.link}>
+                    {agentDetails.website}
                   </a>
-                </span>
-                {activity.status && <span className={styles.activityContext}>{activity.status}</span>}
+                ) : ''}
               </div>
-            ))}
+            </div>
           </div>
         </Card>
+      </div>
 
+      {/* Right Column - Member Info */}
+      <div className={styles.rightColumn}>
         <Card className={styles.contentCard}>
-          <h3>Statistics</h3>
-          <div className={styles.statsList}>
-            <div className={styles.statItem}>
-              <span>Member Since</span>
-              <span className={styles.value}>
-                {profile.created_at ? new Date(profile.created_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'long' }) : 'N/A'}
+          <h3>Member Info</h3>
+          <div className={styles.infoList}>
+            <div className={styles.infoItem}>
+              <span className={styles.infoLabel}>Member Since</span>
+              <span className={styles.infoValue}>
+                {profile.created_at
+                  ? new Date(profile.created_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'long' })
+                  : ''}
               </span>
             </div>
-            <div className={styles.statItem}>
-              <span>Total Referrals</span>
-              <span className={styles.value}>128</span>
-            </div>
+            {profile.city && (
+              <div className={styles.infoItem}>
+                <span className={styles.infoLabel}>Location</span>
+                <span className={styles.infoValue}>{profile.city}</span>
+              </div>
+            )}
           </div>
         </Card>
-      </main>
-      {isEditable && (
-        <EditAgentDetailsModal
-          profile={profile}
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSave={onSave}
-        />
-      )}
+      </div>
     </div>
   );
 };

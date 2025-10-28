@@ -44,7 +44,8 @@ const NavMenu = () => {
     try {
       await switchRole(role);
       setIsOpen(false);
-      router.push('/dashboard');
+      // Force a full page reload to ensure clean state transition
+      window.location.href = '/dashboard';
     } catch (error) {
       console.error('Failed to switch role:', error);
     }
