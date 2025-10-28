@@ -14,74 +14,127 @@ export default function ClientProfile({ profile, isEditable = false, onSave = ()
   // Support both 'seeker' (from database role_type) and 'client' (legacy) keys
   const clientDetails = profile.professional_details?.seeker || profile.professional_details?.client;
 
+  // Extract first name for personalization
+  const firstName = profile.full_name
+    ? profile.full_name.split(' ')[0]
+    : profile.first_name || 'This student';
+
   return (
     <div className={styles.mainContent}>
       <div className={styles.leftColumn}>
-        {/* About Section */}
         <Card className={styles.contentCard}>
-          <h3>About</h3>
-          <p>{profile.bio || 'No introduction provided.'}</p>
-        </Card>
+          {/* About - Full Width */}
+          <div className={styles.fullWidth}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>About</label>
+              <div className={styles.fieldValue}>
+                {profile.bio || ''}
+              </div>
+            </div>
+          </div>
 
-        {/* Learning Preferences */}
-        <Card className={styles.contentCard}>
-          <h3>Learning Preferences</h3>
-          <table className={styles.table}>
-            <tbody>
-              <tr>
-                <td className={styles.label}>Subjects of Interest</td>
-                <td className={styles.value}>
-                  {clientDetails?.subjects?.join(', ') || 'N/A'}
-                </td>
-              </tr>
-              <tr>
-                <td className={styles.label}>Learning Goals</td>
-                <td className={styles.value}>
-                  {clientDetails?.goals?.join(', ') || 'N/A'}
-                </td>
-              </tr>
-              <tr>
-                <td className={styles.label}>Learning Style</td>
-                <td className={styles.value}>
-                  {clientDetails?.learning_style ? clientDetails.learning_style.charAt(0).toUpperCase() + clientDetails.learning_style.slice(1) : 'N/A'}
-                </td>
-              </tr>
-              <tr>
-                <td className={styles.label}>Skill Levels</td>
-                <td className={styles.value}>
-                  {clientDetails?.skill_levels && Object.keys(clientDetails.skill_levels).length > 0
-                    ? JSON.stringify(clientDetails.skill_levels)
-                    : 'N/A'}
-                </td>
-              </tr>
-              <tr>
-                <td className={styles.label}>Budget Range</td>
-                <td className={styles.value}>
-                  {clientDetails?.budget_range && (clientDetails.budget_range as any)?.min && (clientDetails.budget_range as any)?.max
-                    ? `£${(clientDetails.budget_range as any).min} - £${(clientDetails.budget_range as any).max}`
-                    : 'N/A'}
-                </td>
-              </tr>
-              <tr>
-                <td className={styles.label}>Schedule Preferences</td>
-                <td className={styles.value}>
-                  {clientDetails?.schedule_preferences && Object.keys(clientDetails.schedule_preferences).length > 0
-                    ? JSON.stringify(clientDetails.schedule_preferences)
-                    : 'N/A'}
-                </td>
-              </tr>
-              <tr>
-                <td className={styles.label}>Previous Tutoring Experience</td>
-                <td className={styles.value}>
-                  {clientDetails?.previous_experience ? 'Yes' : 'No'}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          {/* Subjects and Education Level - 2 Column */}
+          <div className={styles.twoColumnGrid}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Subjects</label>
+              <div className={styles.fieldValue}>
+                {clientDetails?.subjects?.join(', ') || ''}
+              </div>
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Education Level</label>
+              <div className={styles.fieldValue}>
+                {clientDetails?.education_level || ''}
+              </div>
+            </div>
+          </div>
+
+          {/* Learning Goals and Learning Preferences - 2 Column */}
+          <div className={styles.twoColumnGrid}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Learning Goals</label>
+              <div className={styles.fieldValue}>
+                {clientDetails?.goals?.join(', ') || ''}
+              </div>
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Learning Preferences</label>
+              <div className={styles.fieldValue}>
+                {clientDetails?.learning_preferences?.join(', ') || ''}
+              </div>
+            </div>
+          </div>
+
+          {/* Budget Range - 2 Column */}
+          <div className={styles.twoColumnGrid}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Minimum Budget (£/hour)</label>
+              <div className={styles.fieldValue}>
+                {clientDetails?.budget_range && (clientDetails.budget_range as any)?.min
+                  ? `£${(clientDetails.budget_range as any).min}`
+                  : ''}
+              </div>
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Maximum Budget (£/hour)</label>
+              <div className={styles.fieldValue}>
+                {clientDetails?.budget_range && (clientDetails.budget_range as any)?.max
+                  ? `£${(clientDetails.budget_range as any).max}`
+                  : ''}
+              </div>
+            </div>
+          </div>
+
+          {/* Sessions Per Week and Session Duration - 2 Column */}
+          <div className={styles.twoColumnGrid}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Sessions Per Week</label>
+              <div className={styles.fieldValue}>
+                {clientDetails?.sessions_per_week || ''}
+              </div>
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Session Duration</label>
+              <div className={styles.fieldValue}>
+                {clientDetails?.session_duration || ''}
+              </div>
+            </div>
+          </div>
+
+          {/* Special Educational Needs - 2 Column (left side only) */}
+          <div className={styles.twoColumnGrid}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Special Educational Needs (SEN)</label>
+              <div className={styles.fieldValue}>
+                {clientDetails?.special_needs?.join(', ') || ''}
+              </div>
+            </div>
+            <div></div>
+          </div>
         </Card>
       </div>
+
       <div className={styles.rightColumn}>
-        {/* Add activity feed or other content here if needed */}
+        {/* Member Info Card */}
+        <Card className={styles.contentCard}>
+          <h3>Member Info</h3>
+          <div className={styles.infoList}>
+            <div className={styles.infoItem}>
+              <span className={styles.infoLabel}>Member Since</span>
+              <span className={styles.infoValue}>
+                {profile.created_at
+                  ? new Date(profile.created_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'long' })
+                  : ''}
+              </span>
+            </div>
+            {profile.city && (
+              <div className={styles.infoItem}>
+                <span className={styles.infoLabel}>Location</span>
+                <span className={styles.infoValue}>{profile.city}</span>
+              </div>
+            )}
+          </div>
+        </Card>
       </div>
     </div>
   );
