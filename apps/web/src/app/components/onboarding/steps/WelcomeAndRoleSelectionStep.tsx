@@ -18,12 +18,12 @@ interface WelcomeAndRoleSelectionStepProps {
 
 const roleOptions = [
   {
-    value: 'seeker',
+    value: 'client',
     label: "I'm seeking a tutor",
     description: 'Find and connect with qualified tutors'
   },
   {
-    value: 'provider',
+    value: 'tutor',
     label: "I'm a tutor",
     description: 'Offer your tutoring services'
   },
