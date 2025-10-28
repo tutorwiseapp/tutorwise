@@ -15,14 +15,14 @@ interface TutorPersonalInfoStepProps {
   onNext: (data: PersonalInfoData) => void;
   onSkip?: () => void;
   isLoading?: boolean;
-  userRole?: 'provider' | 'agent' | 'seeker';
+  userRole?: 'tutor' | 'agent' | 'client';
 }
 
 const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
   onNext,
   onSkip,
   isLoading = false,
-  userRole = 'provider'
+  userRole = 'tutor'
 }) => {
   const { profile, user, isLoading: profileLoading } = useUserProfile();
   const [formData, setFormData] = useState<PersonalInfoData>({

@@ -5,7 +5,7 @@ import React, { useEffect } from 'react';
 import styles from './CompletionStep.module.css';
 
 interface CompletionStepProps {
-  selectedRoles: ('agent' | 'seeker' | 'provider')[];
+  selectedRoles: ('agent' | 'client' | 'tutor')[];
   onComplete: () => void;
   isLoading?: boolean;
 }
