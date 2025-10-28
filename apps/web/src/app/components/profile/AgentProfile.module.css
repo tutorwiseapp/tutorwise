@@ -1,148 +1,113 @@
-/*
- * Agent Profile Component Layout
- * Matches private profile design system
- * Layout: 2-column responsive grid
- */
-
-/* Main content grid - two columns on desktop */
-.mainContent {
+.profileGrid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 48px;
-  align-items: start;
+  grid-template-columns: 300px 1fr;
+  gap: 2rem;
 }
 
-.leftColumn {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4, 32px);
-  min-width: 0;
+.profileCard {
+  padding: 0;
 }
 
-.rightColumn {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4, 32px);
-  min-width: 0;
+.coverPhoto {
+  height: 150px;
+  background-size: cover;
+  background-position: center;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 }
 
-/* Responsive: Stack layout on tablet and mobile */
-@media (max-width: 1023px) {
-  .mainContent {
-    grid-template-columns: 1fr;
-    gap: var(--space-4, 32px);
-  }
-
-  .rightColumn {
-    order: -1;
-  }
-
-  .leftColumn {
-    order: 1;
-  }
+.profileAvatar {
+  border-radius: 50%;
+  border: 5px solid white;
+  margin-top: -75px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
 }
 
-@media (max-width: 767px) {
-  .mainContent {
-    gap: var(--space-3, 24px);
-  }
+.profileBody {
+  padding: 1rem;
+  text-align: center;
 }
 
-/* Professional info section */
-.professionalInfoSection {
-  position: relative;
-}
-
-.title {
-  font-size: 1.25rem;
+.profileName {
+  font-size: 1.5rem;
   font-weight: 600;
-  margin-bottom: 1.5rem;
-  color: var(--color-text-primary, #202124);
 }
 
-/* Form layout - matching private profile */
-.fullWidth {
-  width: 100%;
-  margin-bottom: 32px;
+.profileId {
+  color: #666;
+  margin-bottom: 1rem;
 }
 
-.twoColumnGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
-  margin-bottom: 32px;
-}
-
-@media (max-width: 767px) {
-  .twoColumnGrid {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-}
-
-/* Form fields - matching private profile style */
-.formGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.formLabel {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-text-secondary, #5f6368);
-  margin: 0;
-}
-
-.fieldValue {
-  font-size: 16px;
-  color: var(--color-text-primary, #202124);
-  min-height: 24px;
-  padding: 8px 0;
-}
-
-/* Links */
-.link {
-  color: var(--color-primary, #006C67);
+.editProfileLink {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: #00796b;
   text-decoration: none;
 }
 
-.link:hover {
-  text-decoration: underline;
+.detailsSection {
+  margin-bottom: 1rem;
+  text-align: left;
 }
 
-/* Content cards */
-.contentCard {
-  padding: 1.5rem;
-}
-
-.contentCard h3 {
-  font-size: 1.25rem;
+.detailsSection h3 {
+  font-size: 1rem;
   font-weight: 600;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.profileBio, .noDataText {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.contentCard {
   margin-bottom: 1.5rem;
-  color: var(--color-text-primary, #202124);
 }
 
-/* Info list for right column */
-.infoList {
+.actionsGrid, .sharesGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.activityFeed {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 1rem;
 }
 
-.infoItem {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.activityItem {
+  font-size: 0.9rem;
 }
 
-.infoLabel {
-  font-size: 14px;
+.activityLink {
+  color: #00796b;
+  text-decoration: none;
   font-weight: 500;
-  color: var(--color-text-secondary, #5f6368);
 }
 
-.infoValue {
-  font-size: 16px;
-  color: var(--color-text-primary, #202124);
+.activityContext {
+  color: #666;
+  margin-left: 0.5rem;
+}
+
+.statsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.statItem {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.value {
+  font-weight: 600;
 }

@@ -9,11 +9,13 @@ import toast from 'react-hot-toast';
 import HybridHeader from '@/app/components/profile/HybridHeader';
 import PublicProfileTabs from '@/app/components/profile/PublicProfileTabs';
 import TutorNarrative from '@/app/components/profile/TutorNarrative';
+import ClientNarrative from '@/app/components/profile/ClientNarrative';
+import AgentNarrative from '@/app/components/profile/AgentNarrative';
 import ReviewsSection from '@/app/components/profile/ReviewsSection';
 import AvailabilitySection from '@/app/components/profile/AvailabilitySection';
 import ProfessionalInfoSection from '@/app/components/profile/ProfessionalInfoSection';
-import ClientProfile from '@/app/components/profile/ClientProfile';
-import AgentProfile from '@/app/components/profile/AgentProfile';
+import ClientProfessionalInfo from '@/app/components/profile/ClientProfessionalInfo';
+import AgentProfessionalInfo from '@/app/components/profile/AgentProfessionalInfo';
 import ActivityFeed from '@/app/components/profile/ActivityFeed';
 import styles from './page.module.css';
 
@@ -33,11 +35,31 @@ const TutorOverview = ({ profile }: { profile: Profile }) => (
 );
 
 const ClientOverview = ({ profile }: { profile: Profile }) => (
-  <ClientProfile profile={profile} />
+  <div className={styles.mainContent}>
+    <div className={styles.leftColumn}>
+      <ClientNarrative profile={profile} />
+      <ReviewsSection />
+      <AvailabilitySection profile={profile} />
+      <ClientProfessionalInfo profile={profile} />
+    </div>
+    <div className={styles.rightColumn}>
+      <ActivityFeed />
+    </div>
+  </div>
 );
 
 const AgentOverview = ({ profile }: { profile: Profile }) => (
-  <AgentProfile profile={profile} />
+  <div className={styles.mainContent}>
+    <div className={styles.leftColumn}>
+      <AgentNarrative profile={profile} />
+      <ReviewsSection />
+      <AvailabilitySection profile={profile} />
+      <AgentProfessionalInfo profile={profile} />
+    </div>
+    <div className={styles.rightColumn}>
+      <ActivityFeed />
+    </div>
+  </div>
 );
 
 // Tab content component
