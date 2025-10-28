@@ -206,18 +206,18 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
     try {
       setAvailability(selectedAvailability);
 
-      // Add 'seeker' role to user's roles if not already present
+      // Add 'client' role to user's roles if not already present
       const currentRoles = profile?.roles || [];
-      if (!currentRoles.includes('seeker')) {
-        console.log('[ClientOnboardingWizard] Adding seeker role to user profile...');
-        const updatedRoles = [...currentRoles, 'seeker'];
+      if (!currentRoles.includes('client')) {
+        console.log('[ClientOnboardingWizard] Adding client role to user profile...');
+        const updatedRoles = [...currentRoles, 'client'];
         const { error: roleError } = await supabase
           .from('profiles')
           .update({ roles: updatedRoles })
           .eq('id', user?.id);
 
         if (roleError) {
-          console.error('[ClientOnboardingWizard] Error adding seeker role:', roleError);
+          console.error('[ClientOnboardingWizard] Error adding client role:', roleError);
           throw roleError;
         }
       }

@@ -29,14 +29,14 @@ const RoleDetailsStep: React.FC<RoleDetailsStepProps> = ({ role, onNext, onBack 
 
   const renderFields = () => {
     switch (role) {
-      case 'seeker':
+      case 'client':
         return (
           <>
             <input name="learningGoals" onChange={handleChange} placeholder="Learning Goals" />
             <input name="preferredStyle" onChange={handleChange} placeholder="Preferred Learning Style" />
           </>
         );
-      case 'provider':
+      case 'tutor':
         return (
           <>
             <input name="experience" onChange={handleChange} placeholder="Years of Experience" />
