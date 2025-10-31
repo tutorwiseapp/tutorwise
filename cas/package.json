@@ -22,7 +22,8 @@
     "cas:update-plan": "bash scripts/update-dev-plan.sh",
     "cas:view-plan": "cat agents/developer/planning/cas-feature-dev-plan.md",
     "cas:status": "echo '=== CAS Agent Status ===' && ls -lh agents/*/planning/*.md",
-    "cas:help": "cat quick-start-guide.md"
+    "cas:help": "cat quick-start-guide.md",
+    "cas:request": "cat request-cas-task.md"
   },
   "repository": {
     "type": "git",

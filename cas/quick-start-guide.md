@@ -4,6 +4,25 @@
 
 ---
 
+## 🚀 New to CAS? Start Here
+
+**Want CAS to work on your next task?**
+
+```bash
+cd cas && npm run cas:request
+```
+
+Or simply type in Claude Code:
+```
+CAS: [describe your task]
+
+Example: CAS: Create a notification badge component
+```
+
+See [request-cas-task.md](request-cas-task.md) for full guide.
+
+---
+
 ## Daily Workflow
 
 ### When Starting a Feature
