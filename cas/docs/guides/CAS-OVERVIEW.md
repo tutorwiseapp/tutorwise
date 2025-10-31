@@ -135,8 +135,8 @@ Human Vision → CAS Analysis → Autonomous Execution → Self-Management
 
 - **Implementation Summary**: `docs/project-management/autonomous-ai-system-summary.md`
 - **Tools README**: `tools/README.md`
-- **Integration Config**: `.ai/INTEGRATION_CONFIG.md`
-- **Context Map**: `.ai/CONTEXT_MAP.md`
+- **Integration Config**: `.ai/integration-config.md`
+- **Context Map**: `.ai/context-map.md`
 
 ---
 

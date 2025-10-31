@@ -7,10 +7,10 @@ This document maps how all context files work together to enable autonomous AI d
 ```
 .claude/
 ├── CLAUDE.md           # 🎯 Project overview & guidelines
-├── ROADMAP.md          # 🚀 Development priorities & timeline
-├── PATTERNS.md         # 🧩 Code patterns & conventions
-├── ARCHITECTURE.md     # 🏗️ System design & infrastructure
-└── CONTEXT_MAP.md      # 📊 This file - how everything connects
+├── roadmap.md          # 🚀 Development priorities & timeline
+├── patterns.md         # 🧩 Code patterns & conventions
+├── architecture.md     # 🏗️ System design & infrastructure
+└── context-map.md      # 📊 This file - how everything connects
 ```
 
 ## 🔗 **How Context Files Interconnect**
@@ -20,36 +20,36 @@ This document maps how all context files work together to enable autonomous AI d
 - **Used For**: Understanding project scope, preferred technologies, development workflow
 - **Connects To**: All other files reference this as the source of truth
 
-### **ROADMAP.md** → Direction
+### **roadmap.md** → Direction
 - **Purpose**: Feature priorities, timelines, effort estimates
 - **Used For**: Understanding what to build next, dependencies, technical requirements
-- **Connects To**: PATTERNS.md (implementation approach), ARCHITECTURE.md (technical feasibility)
+- **Connects To**: patterns.md (implementation approach), architecture.md (technical feasibility)
 
-### **PATTERNS.md** → Implementation
+### **patterns.md** → Implementation
 - **Purpose**: Code conventions, component structures, best practices
 - **Used For**: Writing consistent code that matches existing codebase
-- **Connects To**: ARCHITECTURE.md (technical constraints), ROADMAP.md (feature requirements)
+- **Connects To**: architecture.md (technical constraints), roadmap.md (feature requirements)
 
-### **ARCHITECTURE.md** → Technical Design
+### **architecture.md** → Technical Design
 - **Purpose**: System design, infrastructure, data flow, security
 - **Used For**: Understanding technical constraints, making architectural decisions
-- **Connects To**: PATTERNS.md (implementation details), ROADMAP.md (scalability planning)
+- **Connects To**: patterns.md (implementation details), roadmap.md (scalability planning)
 
 ## 🎯 **AI Decision Making Framework**
 
 ### **When Asked to Build a Feature:**
 
-1. **Check ROADMAP.md** → Is this feature prioritized? What are the requirements?
-2. **Review ARCHITECTURE.md** → What are the technical constraints and patterns?
-3. **Apply PATTERNS.md** → How should this be implemented consistently?
+1. **Check roadmap.md** → Is this feature prioritized? What are the requirements?
+2. **Review architecture.md** → What are the technical constraints and patterns?
+3. **Apply patterns.md** → How should this be implemented consistently?
 4. **Reference CLAUDE.md** → What are the project preferences and guidelines?
 
 ### **Example: "Add role-based dashboards"**
 
 ```
-ROADMAP.md → Priority P0, 5-7 days effort, depends on auth system
-ARCHITECTURE.md → Use route groups, role detection, protected routes
-PATTERNS.md → Follow component structure, use TypeScript interfaces
+roadmap.md → Priority P0, 5-7 days effort, depends on auth system
+architecture.md → Use route groups, role detection, protected routes
+patterns.md → Follow component structure, use TypeScript interfaces
 CLAUDE.md → Prefer Next.js patterns, use Supabase for auth
 Result → Autonomous implementation with full context
 ```
@@ -81,8 +81,8 @@ types/                → TypeScript definitions, data models
 
 ### **Continuous Learning**
 1. **New code written** → Patterns updated
-2. **Architecture changes** → ARCHITECTURE.md updated
-3. **Priorities shift** → ROADMAP.md updated
+2. **Architecture changes** → architecture.md updated
+3. **Priorities shift** → roadmap.md updated
 4. **Project evolution** → CLAUDE.md updated
 
 ### **Context Validation**
@@ -125,9 +125,9 @@ AI: "What kind of dashboard? What data? What styling?"
 ```
 User: "Add user dashboards"
 AI: *Reads context, understands requirements, implements immediately*
-- Checks ROADMAP.md for role-based dashboard specs
-- Follows PATTERNS.md for component structure
-- Uses ARCHITECTURE.md for route protection
+- Checks roadmap.md for role-based dashboard specs
+- Follows patterns.md for component structure
+- Uses architecture.md for route protection
 - Applies CLAUDE.md preferences
 ```
 
@@ -141,9 +141,9 @@ AI: *Reads context, understands requirements, implements immediately*
 
 ### **Context Coverage**
 - **Project Overview**: ✅ Complete (CLAUDE.md)
-- **Development Roadmap**: ✅ Complete (ROADMAP.md)
-- **Code Patterns**: ✅ Complete (PATTERNS.md)
-- **System Architecture**: ✅ Complete (ARCHITECTURE.md)
+- **Development Roadmap**: ✅ Complete (roadmap.md)
+- **Code Patterns**: ✅ Complete (patterns.md)
+- **System Architecture**: ✅ Complete (architecture.md)
 - **Testing Strategy**: 🟡 Partial (needs E2E setup)
 
 ### **Context Quality Indicators**
@@ -173,9 +173,9 @@ As the project grows, context files will:
 
 ### **For AI Development**
 1. **Always start** with context file review
-2. **Follow established patterns** from PATTERNS.md
-3. **Respect architectural constraints** from ARCHITECTURE.md
-4. **Align with roadmap priorities** from ROADMAP.md
+2. **Follow established patterns** from patterns.md
+3. **Respect architectural constraints** from architecture.md
+4. **Align with roadmap priorities** from roadmap.md
 5. **Maintain project consistency** with CLAUDE.md
 
 ### **For Human Developers**

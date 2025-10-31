@@ -2,19 +2,19 @@
 
 **Migration Date**: 2025-09-25
 **From**: `.claude/` directory structure
-**To**: `.ai/PROMPT.md` unified context file
+**To**: `.ai/prompt.md` unified context file
 
 ## ✅ **Successfully Migrated**
 
-### **Consolidated into `.ai/PROMPT.md`:**
+### **Consolidated into `.ai/prompt.md`:**
 - **CLAUDE.md** → Project overview, architecture, development guidelines
-- **ROADMAP.md** → Development priorities and feature timeline
-- **PATTERNS.md** → Code conventions and component patterns
-- **ARCHITECTURE.md** → System design and infrastructure details
-- **CONTEXT_MAP.md** → How context files interconnect
+- **roadmap.md** → Development priorities and feature timeline
+- **patterns.md** → Code conventions and component patterns
+- **architecture.md** → System design and infrastructure details
+- **context-map.md** → How context files interconnect
 
 ### **Additional Files:**
-- **E2E_TEST_RESULTS.md** → Copied to `.ai/` for reference
+- **e2e-test-results.md** → Copied to `.ai/` for reference
 
 ## 🎯 **Benefits Achieved**
 
@@ -36,19 +36,19 @@
 ```
 .claude/
 ├── CLAUDE.md           # Project overview
-├── ROADMAP.md          # Development roadmap
-├── PATTERNS.md         # Code patterns
-├── ARCHITECTURE.md     # System architecture
-├── CONTEXT_MAP.md      # Context relationships
-└── E2E_TEST_RESULTS.md # Test analysis
+├── roadmap.md          # Development roadmap
+├── patterns.md         # Code patterns
+├── architecture.md     # System architecture
+├── context-map.md      # Context relationships
+└── e2e-test-results.md # Test analysis
 ```
 
 ### **After** (`.ai/` structure):
 ```
 .ai/
-├── PROMPT.md           # 🆕 Unified context (all above merged)
-├── E2E_TEST_RESULTS.md # Test results reference
-└── MIGRATION_NOTES.md  # This summary
+├── prompt.md           # 🆕 Unified context (all above merged)
+├── e2e-test-results.md # Test results reference
+└── migration-notes.md  # This summary
 ```
 
 ## 🚀 **Next Steps**
@@ -60,7 +60,7 @@
 
 ## 📝 **Context Verification**
 
-The new `.ai/PROMPT.md` includes:
+The new `.ai/prompt.md` includes:
 - ✅ Complete project overview and mission
 - ✅ Full system architecture and tech stack
 - ✅ Development roadmap with current priorities

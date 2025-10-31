@@ -1,9 +1,9 @@
 // cas/index.ts
 
-import { startAllServices, stopAllServices } from './packages/core/src/service/service-manager';
-import { registerAllAgents } from './agents/agent-registry';
-import logger from './packages/core/src/utils/logger';
-import taskManager from './agents/src/task-manager';
+import { startAllServices, stopAllServices } from './packages/core/src/service/service-manager.js';
+import { registerAllAgents } from './agents/agent-registry.js';
+import logger from './packages/core/src/utils/logger.js';
+import taskManager from './agents/src/task-manager.js';
 
 async function main() {
   logger.info('[CAS] Initializing...');

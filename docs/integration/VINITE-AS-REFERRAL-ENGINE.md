@@ -319,7 +319,7 @@ tutorwise-monorepo/
     │   ├── agent/              # @cas/agent
     │   └── cli/                # @cas/cli
     └── docs/
-        ├── CAS-ROADMAP.md
+        ├── CAS-roadmap.md
         └── architecture/
 ```
 

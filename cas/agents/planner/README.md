@@ -30,7 +30,7 @@ The Planner agent is the **Strategic PDM** - the autonomous leader combining pro
     - **SUCCESS:** Acknowledges success and archives the learnings.
     - **ITERATE:** Creates a new, prioritized feature task for the Analyst to begin work on an improved version.
     - **REMOVE:** Creates a new task to deprecate and remove a failed feature.
-- **Reference:** [Production Metrics Review Workflow](../../process/PRODUCTION-METRICS-REVIEW-WORKFLOW.md)
+- **Reference:** [Production Metrics Review Workflow](../../process/production-metrics-review-workflow.md)
 
 ### 3. Strategic Feature Prioritization (Product Manager)
 - Prioritize features based on ROI and impact
@@ -515,13 +515,13 @@ Progress Tracking: ✅ Excellent
 
 ## Secret Management
 
-This agent **must not** access `.env` files or environment variables directly. All required secrets (e.g., API keys, credentials) must be requested from the **Engineer Agent** by following the process defined in the [Secret Management Workflow](../../process/SECRET-MANAGEMENT-WORKFLOW.md).
+This agent **must not** access `.env` files or environment variables directly. All required secrets (e.g., API keys, credentials) must be requested from the **Engineer Agent** by following the process defined in the [Secret Management Workflow](../../process/secret-management-workflow.md).
 
 ---
 
 ## Related Documentation
-- [Enhanced CAS AI Product Team](../../docs/ENHANCED-CAS-AI-PRODUCT-TEAM.md)
-- [Week 2 Summary](../../docs/WEEK-2-SUMMARY.md)
+- [Enhanced CAS AI Product Team](../../docs/enhanced-cas-ai-product-team.md)
+- [Week 2 Summary](../../docs/week-2-summary.md)
 
 **Maintained By:** Planner Agent (autonomous)
 **Updated:** After each sprint event, blocker, or milestone

@@ -18,7 +18,11 @@
     "build:web": "npm run build --workspace=@cas/web",
     "build:api": "npm run build --workspace=@cas/api",
     "test": "npm run test --workspaces",
-    "lint": "npm run lint --workspaces"
+    "lint": "npm run lint --workspaces",
+    "cas:update-plan": "bash scripts/update-dev-plan.sh",
+    "cas:view-plan": "cat agents/developer/planning/cas-feature-dev-plan.md",
+    "cas:status": "echo '=== CAS Agent Status ===' && ls -lh agents/*/planning/*.md",
+    "cas:help": "cat quick-start-guide.md"
   },
   "repository": {
     "type": "git",

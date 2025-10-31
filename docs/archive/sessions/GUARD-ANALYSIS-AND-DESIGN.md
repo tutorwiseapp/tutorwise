@@ -168,7 +168,7 @@
 - `tests/e2e/account/professional-info.spec.ts` (E2E test suite)
 - `scripts/setup-test-users.ts` (280 lines - test user creation)
 - `TEST-USERS-COMPLETE.md` (documentation)
-- `.ai/E2E_TEST_RESULTS.md` (test failure documentation)
+- `.ai/e2e-test-results.md` (test failure documentation)
 
 **Status:** ✅ Infrastructure Complete, ⚠️ Tests Failing
 
@@ -263,7 +263,7 @@ Documentation spread across 6 locations:
 4. TEST-USERS-COMPLETE.md                  (root level)
 5. TEST-INFRASTRUCTURE-AUDIT.md            (root level, 782 lines)
 6. STORYBOOK-TESTING-ASSESSMENT.md         (root level)
-7. .ai/E2E_TEST_RESULTS.md                 (error documentation)
+7. .ai/e2e-test-results.md                 (error documentation)
 8. docs/STORYBOOK.md                       (Storybook guide)
 ```
 
@@ -300,7 +300,7 @@ Configuration files at root level:
 guard/                                  # ← Root GUARD directory
 │
 ├── README.md                           # GUARD overview and quick start
-├── ARCHITECTURE.md                     # Detailed architecture documentation
+├── architecture.md                     # Detailed architecture documentation
 │
 ├── apps/                               # Test execution applications
 │   ├── cli/                            # CLI for running GUARD commands

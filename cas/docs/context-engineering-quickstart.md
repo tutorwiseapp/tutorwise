@@ -112,7 +112,7 @@ Check your `.env.local` file has:
 
 - **Status Report**: `docs/tools/cas-status.md`
 - **Full Documentation**: `docs/tools/cas-implementation.md`
-- **Integration Config**: `.ai/INTEGRATION_CONFIG.md`
+- **Integration Config**: `.ai/integration-config.md`
 
 ---
 

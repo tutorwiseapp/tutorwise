@@ -42,8 +42,8 @@ npm run test:calendar-to-jira        # Test calendar sync
 ## Context Files
 
 ### Core Files (4 found)
-- ✅ .ai/PROMPT.md
-- ✅ .ai/INTEGRATION_CONFIG.md
+- ✅ .ai/prompt.md
+- ✅ .ai/integration-config.md
 - ✅ .ai/jira/current-sprint.md
 - ✅ .ai/github/repository-overview.md
 

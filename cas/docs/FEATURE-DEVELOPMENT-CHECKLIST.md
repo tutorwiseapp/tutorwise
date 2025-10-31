@@ -321,7 +321,7 @@ Bash: git add apps/web/package.json apps/web/package-lock.json
 
 - `/DEVELOPMENT-WORKFLOW-IMPROVEMENTS.md` - Full workflow guide
 - `/apps/web/src/app/components/ui/README.md` - UI component library
-- `/cas/docs/CAS-IMPLEMENTATION-TRACKER.md` - Task tracking
+- `/cas/docs/cas-implementation-tracker.md` - Task tracking
 - `/cas/README.md` - CAS architecture
 
 ---

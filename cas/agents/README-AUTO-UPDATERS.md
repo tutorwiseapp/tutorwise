@@ -239,7 +239,7 @@ cas/agents/
 │   │   ├── SystemPlanUpdater.test.ts      # ✅ Test suite
 │   └── planning/
 │       └── cas-system-imp-plan.md     # ✅ Auto-maintained plan
-└── README-AUTO-UPDATERS.md            # ✅ This documentation
+└── readme-auto-updaters.md            # ✅ This documentation
 ```
 
 ---

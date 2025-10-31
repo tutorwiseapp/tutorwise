@@ -17,7 +17,7 @@ The Tester agent writes comprehensive tests, validates functionality, and ensure
 - **Role:** The "Testing Amigo" in the pre-development kick-off.
 - **Process:** Reviews the draft Feature Brief from the Analyst Agent.
 - **Output:** Produces a **Testability Report** that defines the high-level E2E test plan and identifies potential edge cases, failure modes, and test data requirements.
-- **Reference:** [AI Three Amigos Kick-off](../../process/AI-THREE-AMIGOS-KICK-OFF.md)
+- **Reference:** [AI Three Amigos Kick-off](../../process/ai-three-amigos-kick-off.md)
 
 ### 2. E2E (End-to-End) Verification (FINAL GATEKEEPER)
 - **Purpose:** To guarantee that a feature works correctly within the fully integrated, live application environment. This is the final quality gate before a feature is marked as "Done."
@@ -70,10 +70,10 @@ The Tester agent writes comprehensive tests, validates functionality, and ensure
 
 ## Secret Management
 
-This agent **must not** access `.env` files or environment variables directly. All required secrets (e.g., API keys, credentials) must be requested from the **Engineer Agent** by following the process defined in the [Secret Management Workflow](../../process/SECRET-MANAGEMENT-WORKFLOW.md).
+This agent **must not** access `.env` files or environment variables directly. All required secrets (e.g., API keys, credentials) must be requested from the **Engineer Agent** by following the process defined in the [Secret Management Workflow](../../process/secret-management-workflow.md).
 
 ---
 
 ## Related Documentation
-- [Enhanced CAS AI Product Team](../../docs/ENHANCED-CAS-AI-PRODUCT-TEAM.md)
-- [Week 2 Summary](../../docs/WEEK-2-SUMMARY.md)
+- [Enhanced CAS AI Product Team](../../docs/enhanced-cas-ai-product-team.md)
+- [Week 2 Summary](../../docs/week-2-summary.md)

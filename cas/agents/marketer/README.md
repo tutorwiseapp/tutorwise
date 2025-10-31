@@ -24,7 +24,7 @@ The Marketer agent tracks user engagement, analyzes usage patterns, collects fee
     3.  Shares the report with the Analyst and Developer for their review.
     4.  Synthesizes all feedback into a final **Feature Impact Summary** with a recommendation.
 - **Output:** A final recommendation (Success, Iterate, or Remove) for the Planner Agent.
-- **Reference:** [Production Metrics Review Workflow](../../process/PRODUCTION-METRICS-REVIEW-WORKFLOW.md)
+- **Reference:** [Production Metrics Review Workflow](../../process/production-metrics-review-workflow.md)
 
 ### 2. Usage Analytics & Tracking
 - Set up comprehensive event tracking
@@ -79,5 +79,5 @@ This agent **must not** access `.env` files or environment variables directly. A
 ---
 
 ## Related Documentation
-- [Enhanced CAS AI Product Team](../../docs/ENHANCED-CAS-AI-PRODUCT-TEAM.md)
-- [Week 2 Summary](../../docs/WEEK-2-SUMMARY.md)
+- [Enhanced CAS AI Product Team](../../docs/enhanced-cas-ai-product-team.md)
+- [Week 2 Summary](../../docs/week-2-summary.md)

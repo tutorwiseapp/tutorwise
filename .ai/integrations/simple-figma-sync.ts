@@ -140,7 +140,7 @@ class SimpleFigmaSync {
       console.log('   - .ai/figma/design-tokens.md');
       console.log(`   - .ai/figma/files/ (${allFiles.length} files)`);
       console.log(`   - .ai/figma/components/ (${allFiles.reduce((sum, f) => sum + f.components.length, 0)} files)`);
-      console.log('   - Updated .ai/PROMPT.md');
+      console.log('   - Updated .ai/prompt.md');
 
     } catch (error) {
       console.error('❌ Error syncing Figma:', error);
@@ -559,7 +559,7 @@ ${recentFiles.map(file =>
 `;
 
     try {
-      let promptContent = await readFile('.ai/PROMPT.md', 'utf8');
+      let promptContent = await readFile('.ai/prompt.md', 'utf8');
 
       // Remove existing Figma context section
       const contextRegex = /## Figma Design Context \(Auto-generated\)[\s\S]*?---\n/;
@@ -568,9 +568,9 @@ ${recentFiles.map(file =>
       // Add new context section
       promptContent += contextSection;
 
-      await writeFile('.ai/PROMPT.md', promptContent);
+      await writeFile('.ai/prompt.md', promptContent);
     } catch (error) {
-      console.log('Note: Could not update .ai/PROMPT.md - file may not exist');
+      console.log('Note: Could not update .ai/prompt.md - file may not exist');
     }
   }
 

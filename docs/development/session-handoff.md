@@ -26,7 +26,7 @@ I'm continuing work on TutorWise from another session. Major changes were made:
    - Service registry updated with new paths
 
 3. **New Documentation:**
-   - CAS Roadmap: tools/docs/CAS-ROADMAP.md
+   - CAS Roadmap: tools/docs/CAS-roadmap.md
    - CAS Implementation Tracker: tools/docs/CAS-IMPLEMENTATION-TRACKER.md
    - CAS Autonomous Agent: tools/cas/agent/README.md
 
@@ -43,7 +43,7 @@ I'm continuing work on TutorWise from another session. Major changes were made:
    - Neo4j: Port 7687
 
 Please read these key files to restore full context:
-- tools/docs/CAS-ROADMAP.md
+- tools/docs/CAS-roadmap.md
 - .cas-config (project registration)
 - tools/configs/service-registry.json (updated paths)
 ```
@@ -74,7 +74,7 @@ cat tools/REORGANIZATION-SUMMARY.md
 
 ### 4. CAS Roadmap (if working on CAS features)
 ```bash
-cat tools/docs/CAS-ROADMAP.md
+cat tools/docs/CAS-roadmap.md
 ```
 
 ### 5. Service Registry (if working on services)
@@ -213,7 +213,7 @@ Both use the same underlying scripts - just different interfaces.
 
 ## 5. New Documentation
 
-**CAS Roadmap** (tools/docs/CAS-ROADMAP.md)
+**CAS Roadmap** (tools/docs/CAS-roadmap.md)
 - Product vision & strategy
 - Evolution: Tool → Autonomous Manager → Independent Platform
 - Timeline: 2025-2030
@@ -260,7 +260,7 @@ If you're working on these, be aware:
 3. Check: cas health
 
 **If you need context on CAS:**
-1. Read: tools/docs/CAS-ROADMAP.md (high-level vision)
+1. Read: tools/docs/CAS-roadmap.md (high-level vision)
 2. Read: tools/cas/agent/README.md (autonomous agent)
 
 ## 9. Safe to Continue
@@ -342,7 +342,7 @@ CAS evolved significantly:
 4. Roadmap created (2025-2030 vision)
 
 Read these immediately:
-- tools/docs/CAS-ROADMAP.md
+- tools/docs/CAS-roadmap.md
 - tools/cas/agent/README.md
 - .cas-config
 
@@ -420,7 +420,7 @@ cat > SESSION-2025-10-04-SUMMARY.md << 'EOF'
 5. Documented implementation tracker
 
 ## Files Created/Modified:
-- tools/docs/CAS-ROADMAP.md (new)
+- tools/docs/CAS-roadmap.md (new)
 - tools/docs/CAS-IMPLEMENTATION-TRACKER.md (new)
 - tools/cas/agent/* (new autonomous system)
 - .cas-config (project registration)

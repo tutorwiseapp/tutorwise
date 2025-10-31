@@ -22,7 +22,7 @@ The QA agent ensures quality standards, validates usability, and performs visual
 - **Gatekeeping:**
     - **On Success:** Automatically approves the changes and adds a "✅ Visual Verification Passed" status to the PR.
     - **On Failure:** Automatically **blocks the PR** and assigns a task back to the Developer Agent with a report of the visual regressions.
-- **Reference:** [Visual Verification Workflow](../../process/VISUAL-VERIFICATION-WORKFLOW.md)
+- **Reference:** [Visual Verification Workflow](../../process/visual-verification-workflow.md)
 
 ### 2. Accessibility Testing
 - WCAG 2.1 AA compliance validation
@@ -76,10 +76,10 @@ The QA agent ensures quality standards, validates usability, and performs visual
 
 ## Secret Management
 
-This agent **must not** access `.env` files or environment variables directly. All required secrets (e.g., API keys, credentials) must be requested from the **Engineer Agent** by following the process defined in the [Secret Management Workflow](../../process/SECRET-MANAGEMENT-WORKFLOW.md).
+This agent **must not** access `.env` files or environment variables directly. All required secrets (e.g., API keys, credentials) must be requested from the **Engineer Agent** by following the process defined in the [Secret Management Workflow](../../process/secret-management-workflow.md).
 
 ---
 
 ## Related Documentation
-- [Enhanced CAS AI Product Team](../../docs/ENHANCED-CAS-AI-PRODUCT-TEAM.md)
-- [Week 2 Summary](../../docs/WEEK-2-SUMMARY.md)
+- [Enhanced CAS AI Product Team](../../docs/enhanced-cas-ai-product-team.md)
+- [Week 2 Summary](../../docs/week-2-summary.md)

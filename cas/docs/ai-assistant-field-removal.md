@@ -37,7 +37,7 @@ labels: ['ai-generated', 'claude-code', 'documentation', 'auto-sync']
    - Added label verification in test output
 
 ### **Documentation Updated:**
-1. **`.ai/INTEGRATION_CONFIG.md`**
+1. **`.ai/integration-config.md`**
    - Updated Confluence setup section
    - Removed AI Assistant field references
    - Added labels-based tracking information

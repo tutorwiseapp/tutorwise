@@ -230,9 +230,9 @@ cas/
 │   ├── README.md                   # CAS overview
 │   ├── GETTING-STARTED.md          # Setup guide
 │   ├── WORKFLOWS.md                # Common workflows
-│   ├── ENHANCED-CAS-AI-PRODUCT-TEAM.md  # This document
+│   ├── enhanced-cas-ai-product-team.md  # This document
 │   └── guides/
-│       └── CAS-IMPLEMENTATION-TRACKER.md
+│       └── cas-implementation-tracker.md
 │
 └── config/                          # Configuration
     ├── cas.config.ts               # System config
@@ -2388,7 +2388,7 @@ export class LearningModule {
 
 ### References
 
-- [CAS Implementation Tracker](./guides/CAS-IMPLEMENTATION-TRACKER.md)
+- [CAS Implementation Tracker](./guides/cas-implementation-tracker.md)
 - [CAS Restructure Complete](../../CAS-RESTRUCTURE-COMPLETE.md)
 - [Planner Agent README](../agents/planner/README.md)
 - [Feature Development Plan](../agents/developer/planning/cas-feature-dev-plan.md)

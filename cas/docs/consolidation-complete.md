@@ -55,13 +55,13 @@ All CAS components have been **successfully consolidated** into the root `cas/` 
 ```
 cas/docs/
 ├── guides/          ← CAS guides
-│   ├── CAS-ROADMAP.md
-│   ├── CAS-OVERVIEW.md
-│   ├── CAS-IMPLEMENTATION-TRACKER.md
-│   └── CAS-MONOREPO-STRATEGY.md
+│   ├── cas-roadmap.md
+│   ├── cas-overview.md
+│   ├── cas-implementation-tracker.md
+│   └── cas-monorepo-strategy.md
 └── sadd/            ← SADD docs
-    ├── SADD-SOFTWARE-APPLICATION-DISCOVERY-AND-DEVELOPMENT.md
-    └── SADD-PHASE-1-COMPLETE.md
+    ├── sadd-software-application-discovery-and-development.md
+    └── sadd-phase-1-complete.md
 ```
 
 ---
@@ -130,13 +130,13 @@ cas/                                              ← All CAS here
 │
 ├── docs/                                         ← Documentation
 │   ├── guides/
-│   │   ├── CAS-ROADMAP.md
-│   │   ├── CAS-OVERVIEW.md
-│   │   ├── CAS-IMPLEMENTATION-TRACKER.md
-│   │   └── CAS-MONOREPO-STRATEGY.md
+│   │   ├── cas-roadmap.md
+│   │   ├── cas-overview.md
+│   │   ├── cas-implementation-tracker.md
+│   │   └── cas-monorepo-strategy.md
 │   └── sadd/
-│       ├── SADD-SOFTWARE-APPLICATION-DISCOVERY-AND-DEVELOPMENT.md
-│       └── SADD-PHASE-1-COMPLETE.md
+│       ├── sadd-software-application-discovery-and-development.md
+│       └── sadd-phase-1-complete.md
 │
 ├── package.json                                  ← Root package
 └── README.md                                     ← CAS overview

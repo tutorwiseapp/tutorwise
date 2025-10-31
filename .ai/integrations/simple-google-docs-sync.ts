@@ -80,7 +80,7 @@ class SimpleGoogleDocsSync {
       console.log(`📁 Files created:`);
       console.log('   - .ai/google-docs/overview.md');
       console.log(`   - .ai/google-docs/documents/ (${allDocs.length} files)`);
-      console.log('   - Updated .ai/PROMPT.md');
+      console.log('   - Updated .ai/prompt.md');
 
     } catch (error) {
       console.error('❌ Error syncing Google Docs:', error);
@@ -293,7 +293,7 @@ ${recentDocs.map(doc =>
 `;
 
     try {
-      let promptContent = await readFile('.ai/PROMPT.md', 'utf8');
+      let promptContent = await readFile('.ai/prompt.md', 'utf8');
 
       // Remove existing Google Docs context section
       const contextRegex = /## Google Docs Context \(Auto-generated\)[\s\S]*?---\n/;
@@ -302,9 +302,9 @@ ${recentDocs.map(doc =>
       // Add new context section before the end
       promptContent += contextSection;
 
-      await writeFile('.ai/PROMPT.md', promptContent);
+      await writeFile('.ai/prompt.md', promptContent);
     } catch (error) {
-      console.log('Note: Could not update .ai/PROMPT.md - file may not exist');
+      console.log('Note: Could not update .ai/prompt.md - file may not exist');
     }
   }
 

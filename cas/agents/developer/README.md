@@ -17,13 +17,13 @@ The Developer agent implements features from requirements, writes unit tests, cr
 - **Role:** The "Development Amigo" in the pre-development kick-off.
 - **Process:** Reviews the draft Feature Brief from the Analyst Agent.
 - **Output:** Produces a **Feasibility Report** that assesses technical feasibility, clarifies component requirements, and identifies potential blockers.
-- **Reference:** [AI Three Amigos Kick-off](../../process/AI-THREE-AMIGOS-KICK-OFF.md)
+- **Reference:** [AI Three Amigos Kick-off](../../process/ai-three-amigos-kick-off.md)
 
 ### 2. Technical Health Review (NEW - "PRODUCTION METRICS REVIEW")
 - **Role:** The "Is it Healthy?" participant in the post-deployment review.
 - **Process:** Reviews production monitoring data and error logs related to the feature.
 - **Responsibility:** Assesses the feature's technical performance in production, identifying any new errors, performance bottlenecks, or unexpected behavior.
-- **Reference:** [Production Metrics Review Workflow](../../process/PRODUCTION-METRICS-REVIEW-WORKFLOW.md)
+- **Reference:** [Production Metrics Review Workflow](../../process/production-metrics-review-workflow.md)
 
 ### 3. Feature Implementation
 - Implement features based on the **final, signed-off Feature Brief**.
@@ -87,11 +87,11 @@ The Developer agent implements features from requirements, writes unit tests, cr
 
 ## Secret Management
 
-This agent **must not** access `.env` files or environment variables directly. All required secrets (e.g., API keys, credentials) must be requested from the **Engineer Agent** by following the process defined in the [Secret Management Workflow](../../process/SECRET-MANAGEMENT-WORKFLOW.md).
+This agent **must not** access `.env` files or environment variables directly. All required secrets (e.g., API keys, credentials) must be requested from the **Engineer Agent** by following the process defined in the [Secret Management Workflow](../../process/secret-management-workflow.md).
 
 ---
 
 ## Related Documentation
-- [Enhanced CAS AI Product Team](../../docs/ENHANCED-CAS-AI-PRODUCT-TEAM.md)
+- [Enhanced CAS AI Product Team](../../docs/enhanced-cas-ai-product-team.md)
 - [Feature Development Plan](./planning/cas-feature-dev-plan.md)
-- [Week 2 Summary](../../docs/WEEK-2-SUMMARY.md)
+- [Week 2 Summary](../../docs/week-2-summary.md)

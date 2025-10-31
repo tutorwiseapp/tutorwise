@@ -61,7 +61,7 @@ The system will create the following structure:
 ├── calendar/               # Calendar data
 ├── google-docs/            # Google Docs data
 ├── mermaid/               # Mermaid diagrams
-└── PROMPT.md              # Main context file
+└── prompt.md              # Main context file
 ```
 
 ---
@@ -100,7 +100,7 @@ The system will create the following structure:
 ### Generated Files
 - `.ai/jira/current-sprint.md` - Sprint overview
 - `.ai/jira/tickets/TICKET-KEY.md` - Individual ticket details
-- Updates main `.ai/PROMPT.md` with sprint context
+- Updates main `.ai/prompt.md` with sprint context
 
 ### Usage Examples
 ```bash
@@ -144,7 +144,7 @@ cat .ai/jira/current-sprint.md
 
 ### Generated Files
 - `.ai/github/repository-overview.md` - Complete repository context
-- Updates main `.ai/PROMPT.md` with GitHub status
+- Updates main `.ai/prompt.md` with GitHub status
 
 ---
 
@@ -182,7 +182,7 @@ cat .ai/jira/current-sprint.md
 
 ### Generated Files
 - `.ai/calendar/development-schedule.md` - Development schedule
-- Updates main `.ai/PROMPT.md` with calendar context
+- Updates main `.ai/prompt.md` with calendar context
 
 ---
 
@@ -242,7 +242,7 @@ cat .ai/jira/current-sprint.md
 ### Generated Files
 - `.ai/mermaid/overview.md` - Diagrams overview
 - `.ai/mermaid/diagrams/*.html` - Rendered diagram files
-- Updates main `.ai/PROMPT.md` with diagram context
+- Updates main `.ai/prompt.md` with diagram context
 
 ### Example Diagram
 ```mermaid
@@ -457,7 +457,7 @@ node -e "console.log(process.env.GOOGLE_AI_API_KEY ? 'Gemini: OK' : 'Gemini: Mis
 **Validate Context Files**
 ```bash
 # Check main context
-head -20 .ai/PROMPT.md
+head -20 .ai/prompt.md
 
 # Check Jira sync
 ls -la .ai/jira/

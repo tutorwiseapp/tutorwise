@@ -85,7 +85,7 @@ class SimpleMermaidSync {
       if (this.config.outputFormat === 'html' || this.config.outputFormat === 'both') {
         console.log(`   - .ai/mermaid/rendered/ (${allDiagrams.length} HTML files)`);
       }
-      console.log('   - Updated .ai/PROMPT.md');
+      console.log('   - Updated .ai/prompt.md');
 
     } catch (error) {
       console.error('❌ Error syncing Mermaid diagrams:', error);
@@ -436,7 +436,7 @@ ${recentDiagrams.map(diagram =>
 `;
 
     try {
-      let promptContent = await readFile('.ai/PROMPT.md', 'utf8');
+      let promptContent = await readFile('.ai/prompt.md', 'utf8');
 
       // Remove existing Mermaid context section
       const contextRegex = /## Mermaid Diagrams Context \(Auto-generated\)[\s\S]*?---\n/;
@@ -445,9 +445,9 @@ ${recentDiagrams.map(diagram =>
       // Add new context section before the end
       promptContent += contextSection;
 
-      await writeFile('.ai/PROMPT.md', promptContent);
+      await writeFile('.ai/prompt.md', promptContent);
     } catch (error) {
-      console.log('Note: Could not update .ai/PROMPT.md - file may not exist');
+      console.log('Note: Could not update .ai/prompt.md - file may not exist');
     }
   }
 

@@ -167,7 +167,7 @@ cas/packages/sadd/
 │
 ├── package.json                          # NPM package
 ├── README.md                             # Package docs
-└── SADD-SUMMARY.md                       # This file
+└── sadd-summary.md                       # This file
 ```
 
 ---
@@ -231,7 +231,7 @@ git push origin main
 | Automation Engine | ✅ Complete | `src/sadd-apply-adaptations.js` |
 | Feature Catalog | ✅ Complete | `config/sadd-feature-catalog.json` (5 features) |
 | Vinite Rules | ✅ Complete | `adaptations/vinite/*.rules.json` (5 rule sets) |
-| Documentation | ✅ Complete | README.md, SADD-SUMMARY.md |
+| Documentation | ✅ Complete | README.md, sadd-summary.md |
 
 **Phase 1 Result:** Fully functional feature migration system
 
@@ -416,8 +416,8 @@ Central database of applications and features
 
 **Documentation:**
 - Package README: `cas/packages/sadd/README.md`
-- Full Guide: `docs/SADD-SOFTWARE-APPLICATION-DISCOVERY-AND-DEVELOPMENT.md`
-- Phase 1 Status: `docs/SADD-PHASE-1-COMPLETE.md`
+- Full Guide: `docs/sadd-software-application-discovery-and-development.md`
+- Phase 1 Status: `docs/sadd-phase-1-complete.md`
 
 **Issues:**
 - File issues in main CAS repository

@@ -37,7 +37,7 @@ tutorwise/
 │   └── scripts/                      ← TutorWise + some CAS scripts mixed
 │
 └── docs/                             ← 🔴 More CAS docs scattered
-    ├── CAS-ROADMAP.md
+    ├── cas-roadmap.md
     ├── SADD-*.md
     └── ...
 ```
@@ -89,13 +89,13 @@ tutorwise/
 │   │
 │   ├── docs/                                 ← All CAS docs
 │   │   ├── architecture/
-│   │   │   └── CAS-ARCHITECTURE.md
+│   │   │   └── CAS-architecture.md
 │   │   ├── guides/
-│   │   │   ├── CAS-ROADMAP.md                ← From docs/
+│   │   │   ├── cas-roadmap.md                ← From docs/
 │   │   │   └── GETTING-STARTED.md
 │   │   └── sadd/
 │   │       ├── SADD-GUIDE.md                 ← From docs/
-│   │       └── SADD-PHASE-1-COMPLETE.md
+│   │       └── sadd-phase-1-complete.md
 │   │
 │   ├── scripts/                              ← CAS utility scripts
 │   │   ├── install-cas-global.sh
@@ -212,8 +212,8 @@ mv tools/configs/service-registry.json cas/config/
 mkdir -p cas/docs/{architecture,guides,sadd}
 
 # Move CAS docs from root docs/
-mv docs/CAS-ROADMAP.md cas/docs/guides/
-mv docs/CAS-IMPLEMENTATION-TRACKER.md cas/docs/guides/
+mv docs/cas-roadmap.md cas/docs/guides/
+mv docs/cas-implementation-tracker.md cas/docs/guides/
 
 # Move SADD docs
 mv docs/SADD-*.md cas/docs/sadd/

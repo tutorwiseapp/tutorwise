@@ -25,7 +25,7 @@ The Engineer agent is the **AI-DevOps** specialist responsible for system design
     1.  Loads all environment variables at startup.
     2.  Securely provides credentials to other agents on a per-task, as-needed basis.
     3.  Logs all secret access requests for auditing.
-- **Reference:** [Secret Management Workflow](../../process/SECRET-MANAGEMENT-WORKFLOW.md)
+- **Reference:** [Secret Management Workflow](../../process/secret-management-workflow.md)
 
 ### 2. System Design & Architecture
 - Design scalable system architecture
@@ -91,6 +91,6 @@ The Engineer agent is the **AI-DevOps** specialist responsible for system design
 ---
 
 ## Related Documentation
-- [Enhanced CAS AI Product Team](../../docs/ENHANCED-CAS-AI-PRODUCT-TEAM.md)
+- [Enhanced CAS AI Product Team](../../docs/enhanced-cas-ai-product-team.md)
 - [System Implementation Plan](./planning/cas-system-imp-plan.md)
-- [Week 2 Summary](../../docs/WEEK-2-SUMMARY.md)
+- [Week 2 Summary](../../docs/week-2-summary.md)

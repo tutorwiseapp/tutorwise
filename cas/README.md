@@ -118,10 +118,10 @@ cas/
 │   │   └── development-operations.md
 │   ├── development-workflows/      # Development processes
 │   │   └── autonomous-ai-development.md
-│   ├── FIGMA-DESIGN-COMPLIANCE.md
-│   ├── POST-DEPLOYMENT-VERIFICATION.md
-│   ├── TEST-STRATEGY-COMPLETE.md
-│   └── TESTING-QA-PROCESS.md
+│   ├── figma-design-compliance.md
+│   ├── post-deployment-verification.md
+│   ├── test-strategy-complete.md
+│   └── testing-qa-process.md
 │
 └── docs/                           # 📚 CAS Documentation
     ├── README.md
@@ -321,7 +321,7 @@ CAS operates as a complete AI product team with 8 specialized agents:
 
 **Velocity:** 2 features/sprint | Zero blockers
 
-[**📊 Full Week 2 Summary →**](docs/WEEK-2-SUMMARY.md)
+[**📊 Full Week 2 Summary →**](docs/week-2-summary.md)
 
 ---
 
@@ -401,9 +401,9 @@ CAS is designed to work with:
 ## 📚 Documentation
 
 **Enhanced CAS AI Product Team:**
-- [🎯 Enhanced CAS Architecture](docs/ENHANCED-CAS-AI-PRODUCT-TEAM.md) - Complete guide to AI team structure
-- [📊 Week 2 Summary](docs/WEEK-2-SUMMARY.md) - Week 2 achievements and metrics
-- [📋 Implementation Tracker](docs/guides/CAS-IMPLEMENTATION-TRACKER.md) - Milestone tracking
+- [🎯 Enhanced CAS Architecture](docs/enhanced-cas-ai-product-team.md) - Complete guide to AI team structure
+- [📊 Week 2 Summary](docs/week-2-summary.md) - Week 2 achievements and metrics
+- [📋 Implementation Tracker](docs/guides/cas-implementation-tracker.md) - Milestone tracking
 
 **Agent Documentation:**
 - [Planner Agent README](agents/planner/README.md)

@@ -58,7 +58,7 @@ Your Tutorwise project now has a comprehensive AI integration suite that provide
 ├── calendar/               # Calendar data storage
 ├── google-docs/            # Google Docs storage
 ├── mermaid/               # Diagram storage
-└── PROMPT.md              # Main AI context file
+└── prompt.md              # Main AI context file
 
 .claude/                    # Claude Code configuration
 ├── settings.json          # Base Claude Code settings

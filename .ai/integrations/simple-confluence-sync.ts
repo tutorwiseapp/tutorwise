@@ -89,7 +89,7 @@ class SimpleConfluenceSync {
       console.log('   - .ai/confluence/overview.md');
       console.log(`   - .ai/confluence/pages/ (${allPages.length} files)`);
       console.log(`   - .ai/confluence/spaces/ (${this.config.spaceKeys.length} files)`);
-      console.log('   - Updated .ai/PROMPT.md');
+      console.log('   - Updated .ai/prompt.md');
 
     } catch (error) {
       console.error('❌ Error syncing Confluence:', error);
@@ -339,7 +339,7 @@ ${recentPages.map(page =>
 `;
 
     try {
-      let promptContent = await readFile('.ai/PROMPT.md', 'utf8');
+      let promptContent = await readFile('.ai/prompt.md', 'utf8');
 
       // Remove existing Confluence context section
       const contextRegex = /## Confluence Context \(Auto-generated\)[\s\S]*?---\n/;
@@ -348,9 +348,9 @@ ${recentPages.map(page =>
       // Add new context section before the end
       promptContent += contextSection;
 
-      await writeFile('.ai/PROMPT.md', promptContent);
+      await writeFile('.ai/prompt.md', promptContent);
     } catch (error) {
-      console.log('Note: Could not update .ai/PROMPT.md - file may not exist');
+      console.log('Note: Could not update .ai/prompt.md - file may not exist');
     }
   }
 

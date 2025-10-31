@@ -30,7 +30,7 @@ All essential documentation and configuration files that were lost during the gi
 
 ### Script Features
 - **Executable Permissions**: Properly configured for direct execution
-- **Context Integration**: Loads from PROMPT.md, Jira, GitHub, Calendar, Mermaid
+- **Context Integration**: Loads from prompt.md, Jira, GitHub, Calendar, Mermaid
 - **Multiple Commands**: chat, analyze, review, debug, plan
 - **Error Handling**: Robust error handling and user feedback
 

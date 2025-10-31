@@ -82,11 +82,11 @@ tutorwise-monorepo/
 │           │
 │           ├── package.json                               ✅ NPM package
 │           ├── README.md                                  ✅ Package docs
-│           └── SADD-SUMMARY.md                            ✅ This overview
+│           └── sadd-summary.md                            ✅ This overview
 │
 └── docs/
-    ├── SADD-SOFTWARE-APPLICATION-DISCOVERY-AND-DEVELOPMENT.md  ✅ Full guide
-    ├── SADD-PHASE-1-COMPLETE.md                                ✅ Phase 1 status
+    ├── sadd-software-application-discovery-and-development.md  ✅ Full guide
+    ├── sadd-phase-1-complete.md                                ✅ Phase 1 status
     └── SADD-IMPLEMENTATION-COMPLETE.md                         ✅ This file
 ```
 
@@ -276,17 +276,17 @@ SADD is successful if:
    - API reference
    - Configuration
 
-2. **SADD Summary:** `cas/packages/sadd/SADD-SUMMARY.md`
+2. **SADD Summary:** `cas/packages/sadd/sadd-summary.md`
    - Architecture overview
    - Component details
    - Use cases
 
-3. **Full Guide:** `docs/SADD-SOFTWARE-APPLICATION-DISCOVERY-AND-DEVELOPMENT.md`
+3. **Full Guide:** `docs/sadd-software-application-discovery-and-development.md`
    - Comprehensive documentation
    - Workflow examples
    - Rule creation guide
 
-4. **Phase 1 Status:** `docs/SADD-PHASE-1-COMPLETE.md`
+4. **Phase 1 Status:** `docs/sadd-phase-1-complete.md`
    - Implementation checklist
    - Testing guide
 

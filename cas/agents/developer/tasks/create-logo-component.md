@@ -15,9 +15,9 @@ Create a new, reusable `Logo` React component for the `tutorwise` web applicatio
 ## 3. Instructions
 
 1.  **Read the World Model:** Before starting, you must read and understand the following documents:
-    *   `cas/docs/CODEBASE_ANALYSIS.md`
-    *   `cas/docs/DESIGN_SYSTEM.md`
-    *   `cas/docs/PROVEN_PATTERNS.md`
+    *   `cas/docs/codebase-analysis.md`
+    *   `cas/docs/design-system.md`
+    *   `cas/docs/proven-patterns.md`
 
 2.  **Component Implementation:**
     *   Create a new file at `apps/web/src/app/components/shared/Logo.tsx`.

@@ -144,8 +144,8 @@ gh issue create --web   # Use issue templates
 
 ## 📚 **Related Documentation**
 
-- **Project Context**: `.ai/PROMPT.md`
-- **E2E Testing**: `.ai/E2E_TEST_RESULTS.md`
+- **Project Context**: `.ai/prompt.md`
+- **E2E Testing**: `.ai/e2e-test-results.md`
 - **Testing Guide**: `tests/README.md`
 - **TestAssured Platform**: Live monitoring at `/monitoring/test-assured`
 

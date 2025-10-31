@@ -128,8 +128,8 @@ cas/                                  # CAS Platform Root
 │
 ├── docs/                             # Documentation
 │   ├── guides/
-│   │   ├── CAS-ROADMAP.md
-│   │   └── CAS-OVERVIEW.md
+│   │   ├── cas-roadmap.md
+│   │   └── cas-overview.md
 │   └── sadd/
 │       └── SADD-*.md
 │
@@ -220,7 +220,7 @@ npm run dev:all
 ## 📚 Documentation
 
 **Architecture Docs:**
-- [CAS Full-Stack Architecture](CAS-FULLSTACK-ARCHITECTURE.md) - Complete vision
+- [CAS Full-Stack Architecture](CAS-FULLSTACK-architecture.md) - Complete vision
 - [CAS Consolidation Complete](CAS-CONSOLIDATION-COMPLETE.md) - Previous consolidation
 - [CAS README](cas/README.md) - Platform overview
 

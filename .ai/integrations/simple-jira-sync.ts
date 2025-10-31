@@ -54,14 +54,14 @@ class SimpleJiraSync {
         await writeFile(`.ai/jira/tickets/${issue.key}.md`, ticketMd);
       }
 
-      // Write project context to main PROMPT.md
+      // Write project context to main prompt.md
       await this.updateMainContext(sprint);
 
       console.log(`✅ Synced ${sprint.issues.length} issues from sprint: ${sprint.name}`);
       console.log('📁 Files created:');
       console.log('   - .ai/jira/current-sprint.md');
       console.log(`   - .ai/jira/tickets/ (${sprint.issues.length} files)`);
-      console.log('   - Updated .ai/PROMPT.md with Jira context');
+      console.log('   - Updated .ai/prompt.md with Jira context');
 
     } catch (error) {
       console.error('❌ Error syncing Jira data:', error);
@@ -284,7 +284,7 @@ ${sprint.issues?.filter((i: JiraIssue) =>
 
     try {
       const { readFile } = await import('fs/promises');
-      let promptContent = await readFile('.ai/PROMPT.md', 'utf8');
+      let promptContent = await readFile('.ai/prompt.md', 'utf8');
 
       // Remove existing Jira context section
       const contextRegex = /## Current Sprint Context \(Auto-generated from Jira\)[\s\S]*?---\n/;
@@ -293,9 +293,9 @@ ${sprint.issues?.filter((i: JiraIssue) =>
       // Add new context section before the end
       promptContent += contextSection;
 
-      await writeFile('.ai/PROMPT.md', promptContent);
+      await writeFile('.ai/prompt.md', promptContent);
     } catch (error) {
-      console.log('Note: Could not update .ai/PROMPT.md - file may not exist');
+      console.log('Note: Could not update .ai/prompt.md - file may not exist');
     }
   }
 
@@ -348,7 +348,7 @@ async function main() {
     console.log('\n📖 You can now use the synced Jira context in Claude Code:');
     console.log('   • Current sprint overview: .ai/jira/current-sprint.md');
     console.log('   • Individual tickets: .ai/jira/tickets/');
-    console.log('   • Updated main context: .ai/PROMPT.md');
+    console.log('   • Updated main context: .ai/prompt.md');
   } catch (error) {
     console.error('\n💥 Jira sync failed:', error);
     process.exit(1);

@@ -62,7 +62,7 @@ External Services → API Integrations → Data Processing → Context Storage �
 **Files Generated**:
 - `.ai/jira/current-sprint.md` - Sprint overview and progress
 - `.ai/jira/tickets/{TICKET-KEY}.md` - Individual ticket details
-- Updates to `.ai/PROMPT.md` with sprint context
+- Updates to `.ai/prompt.md` with sprint context
 
 **Key Features**:
 - Comprehensive field extraction (40+ fields per ticket)
@@ -86,7 +86,7 @@ External Services → API Integrations → Data Processing → Context Storage �
 
 **Files Generated**:
 - `.ai/github/repository-overview.md` - Complete repository context
-- Updates to `.ai/PROMPT.md` with GitHub status
+- Updates to `.ai/prompt.md` with GitHub status
 
 **Key Features**:
 - Issue and PR tracking
@@ -109,7 +109,7 @@ External Services → API Integrations → Data Processing → Context Storage �
 
 **Files Generated**:
 - `.ai/calendar/development-schedule.md` - Upcoming events and analysis
-- Updates to `.ai/PROMPT.md` with schedule context
+- Updates to `.ai/prompt.md` with schedule context
 
 **Key Features**:
 - Development impact analysis
@@ -155,7 +155,7 @@ External Services → API Integrations → Data Processing → Context Storage �
 **Files Generated**:
 - `.ai/mermaid/overview.md` - Diagrams overview and index
 - `.ai/mermaid/diagrams/{NAME}.html` - Rendered diagram files
-- Updates to `.ai/PROMPT.md` with visual context
+- Updates to `.ai/prompt.md` with visual context
 
 **Key Features**:
 - Multiple diagram type support (flowcharts, sequence, class, etc.)

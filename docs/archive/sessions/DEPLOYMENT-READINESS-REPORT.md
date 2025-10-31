@@ -457,7 +457,7 @@ npx vercel --prod
 4. [Testing Process](process/TESTING-QA-PROCESS.md)
 5. [Test Strategy](process/TEST-STRATEGY-COMPLETE.md)
 6. [Figma Compliance](process/FIGMA-DESIGN-COMPLIANCE.md)
-7. [Profile Template Architecture](docs/features/PROFILE-TEMPLATE-ARCHITECTURE.md)
+7. [Profile Template Architecture](docs/features/PROFILE-TEMPLATE-architecture.md)
 8. [Implementation Action Plan](docs/features/IMPLEMENTATION-ACTION-PLAN.md)
 
 ### Contact

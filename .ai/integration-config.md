@@ -192,7 +192,7 @@ npm run dev:with-context # Sync context + start dev server
 
 ```
 .ai/
-├── PROMPT.md                    # Main context file (auto-updated)
+├── prompt.md                    # Main context file (auto-updated)
 ├── jira/
 │   ├── overview.md
 │   ├── current-sprint.md

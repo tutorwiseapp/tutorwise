@@ -129,7 +129,7 @@ class SimpleCalendarSync {
       console.log('   - .ai/calendar/development-schedule.md');
       console.log(`   - .ai/calendar/calendars/ (${allCalendars.length} files)`);
       console.log(`   - .ai/calendar/events/ (important events)`);
-      console.log('   - Updated .ai/PROMPT.md');
+      console.log('   - Updated .ai/prompt.md');
 
     } catch (error) {
       console.error('❌ Error syncing Google Calendar:', error);
@@ -531,7 +531,7 @@ ${upcomingImportant.map(event => {
 `;
 
     try {
-      let promptContent = await readFile('.ai/PROMPT.md', 'utf8');
+      let promptContent = await readFile('.ai/prompt.md', 'utf8');
 
       // Remove existing Calendar context section
       const contextRegex = /## Google Calendar Context \(Auto-generated\)[\s\S]*?---\n/;
@@ -540,9 +540,9 @@ ${upcomingImportant.map(event => {
       // Add new context section
       promptContent += contextSection;
 
-      await writeFile('.ai/PROMPT.md', promptContent);
+      await writeFile('.ai/prompt.md', promptContent);
     } catch (error) {
-      console.log('Note: Could not update .ai/PROMPT.md - file may not exist');
+      console.log('Note: Could not update .ai/prompt.md - file may not exist');
     }
   }
 

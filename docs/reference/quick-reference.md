@@ -98,7 +98,7 @@ npm run gemini
 ### Generated Context Files
 ```
 .ai/
-├── PROMPT.md                 # Main context
+├── prompt.md                 # Main context
 ├── jira/
 │   ├── current-sprint.md     # Sprint overview
 │   └── tickets/              # Individual tickets
@@ -170,7 +170,7 @@ node -e "console.log('Gemini:', !!process.env.GOOGLE_AI_API_KEY)"
 
 # Validate context files
 ls -la .ai/jira/tickets/
-head -10 .ai/PROMPT.md
+head -10 .ai/prompt.md
 ```
 
 ## API Key Setup Links

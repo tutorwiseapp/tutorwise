@@ -411,7 +411,7 @@ ${project ? `**Current Project**: ${project.title} (${project.items.length} item
 
     try {
       const { readFile } = await import('fs/promises');
-      let promptContent = await readFile('.ai/PROMPT.md', 'utf8');
+      let promptContent = await readFile('.ai/prompt.md', 'utf8');
 
       // Remove existing GitHub context section
       const contextRegex = /## GitHub Repository Context \(Auto-generated\)[\s\S]*?---\n/;
@@ -420,9 +420,9 @@ ${project ? `**Current Project**: ${project.title} (${project.items.length} item
       // Add new context section before the end
       promptContent += contextSection;
 
-      await writeFile('.ai/PROMPT.md', promptContent);
+      await writeFile('.ai/prompt.md', promptContent);
     } catch (error) {
-      console.log('Note: Could not update .ai/PROMPT.md - file may not exist');
+      console.log('Note: Could not update .ai/prompt.md - file may not exist');
     }
   }
 }

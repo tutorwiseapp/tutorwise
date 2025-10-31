@@ -44,7 +44,7 @@ node .ai/integrations/sync-jira.js
 Check that these files are created:
 - `.ai/jira/current-sprint.md` - Sprint overview
 - `.ai/jira/tickets/PROJ-123.md` - Individual ticket files
-- `.ai/PROMPT.md` - Updated with Jira context
+- `.ai/prompt.md` - Updated with Jira context
 
 ## 📋 What Gets Synced
 
@@ -61,7 +61,7 @@ Check that these files are created:
 - Creation/update timestamps
 
 ### Context Integration
-- Key tickets automatically added to main PROMPT.md
+- Key tickets automatically added to main prompt.md
 - Priority items highlighted
 - Active development work summarized
 
@@ -82,7 +82,7 @@ Check that these files are created:
 
 ```
 .ai/
-├── PROMPT.md                    # Updated with Jira context
+├── prompt.md                    # Updated with Jira context
 ├── jira/
 │   ├── current-sprint.md       # Sprint overview
 │   └── tickets/

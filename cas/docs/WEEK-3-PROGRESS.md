@@ -216,7 +216,7 @@ cas/agents/
 ├── planner/
 │   ├── PlannerOrchestrator.ts         # ✅ 665 lines
 │   └── PlannerOrchestrator.test.ts    # ✅ 110 lines
-└── README-AUTO-UPDATERS.md            # ✅ Comprehensive docs
+└── readme-auto-updaters.md            # ✅ Comprehensive docs
 ```
 
 **Total Code:** 1,895 lines of TypeScript

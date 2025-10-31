@@ -517,7 +517,7 @@ export class AgentCommunication {
 ```
 
 **4. Documentation (2 hours)**
-- Update CAS-ROADMAP.md
+- Update CAS-roadmap.md
 - Create agent-specific guides
 - Write workflow examples
 

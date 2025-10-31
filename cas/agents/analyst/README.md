@@ -23,7 +23,7 @@ The Analyst agent is the **Product Analyst** - combining business analysis with 
     - **Design System:** (Colors, typography, spacing)
     - **Component Usage:** (e.g., `<Button>`, `<ProgressDots>`)
 - **Output:** Creates a **Feature Brief** with a "Proven Patterns & Constraints" section.
-- **Reference:** [Contextual Analysis Workflow](../../process/CONTEXTUAL-ANALYSIS-WORKFLOW.md)
+- **Reference:** [Contextual Analysis Workflow](../../process/contextual-analysis-workflow.md)
 
 ### 2. AI Three Amigos Kick-off (NEW - MANDATORY REVIEW GATE)
 - **Role:** Facilitator of the pre-development review process.
@@ -33,13 +33,13 @@ The Analyst agent is the **Product Analyst** - combining business analysis with 
     3.  It synthesizes the feedback and updates the brief.
     4.  It manages the sign-off process from all three agents.
 - **Gate:** A feature cannot proceed to the Planner until this kick-off is complete.
-- **Reference:** [AI Three Amigos Kick-off](../../process/AI-THREE-AMIGOS-KICK-OFF.md)
+- **Reference:** [AI Three Amigos Kick-off](../../process/ai-three-amigos-kick-off.md)
 
 ### 3. Impact Review (NEW - "PRODUCTION METRICS REVIEW")
 - **Role:** The "Did it Work?" participant in the post-deployment review.
 - **Process:** Reviews the **Production Performance Report** from the Marketer Agent.
 - **Responsibility:** Compares the actual production data against the **Success Metrics** defined in the original Feature Brief to determine if the feature achieved its goals.
-- **Reference:** [Production Metrics Review Workflow](../../process/PRODUCTION-METRICS-REVIEW-WORKFLOW.md)
+- **Reference:** [Production Metrics Review Workflow](../../process/production-metrics-review-workflow.md)
 
 ### 4. Market Research & Competitive Analysis
 - Research market trends and opportunities
@@ -160,10 +160,10 @@ As a [role], I want to [action] so that [benefit].
 
 ## Secret Management
 
-This agent **must not** access `.env` files or environment variables directly. All required secrets (e.g., API keys, credentials) must be requested from the **Engineer Agent** by following the process defined in the [Secret Management Workflow](../../process/SECRET-MANAGEMENT-WORKFLOW.md).
+This agent **must not** access `.env` files or environment variables directly. All required secrets (e.g., API keys, credentials) must be requested from the **Engineer Agent** by following the process defined in the [Secret Management Workflow](../../process/secret-management-workflow.md).
 
 ---
 
 ## Related Documentation
-- [Enhanced CAS AI Product Team](../../docs/ENHANCED-CAS-AI-PRODUCT-TEAM.md)
-- [Week 2 Summary](../../docs/WEEK-2-SUMMARY.md)
+- [Enhanced CAS AI Product Team](../../docs/enhanced-cas-ai-product-team.md)
+- [Week 2 Summary](../../docs/week-2-summary.md)

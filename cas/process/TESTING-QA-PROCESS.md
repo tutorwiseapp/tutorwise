@@ -6,8 +6,8 @@
 
 ## Quick Links
 - [E2E Testing Guide](../tests/e2e/README.md) - Complete guide for E2E tests with authentication
-- [Test Strategy](./TEST-STRATEGY-COMPLETE.md) - Comprehensive test strategy document
-- [Figma Compliance](./FIGMA-DESIGN-COMPLIANCE.md) - Design system compliance verification
+- [Test Strategy](./test-strategy-complete.md) - Comprehensive test strategy document
+- [Figma Compliance](./figma-design-compliance.md) - Design system compliance verification
 
 ---
 

@@ -260,7 +260,7 @@ Story Categories:
 
 ## Enhanced CAS AI Product Team - Week 2 Performance
 
-Following the structure defined in [ENHANCED-CAS-AI-PRODUCT-TEAM.md](./ENHANCED-CAS-AI-PRODUCT-TEAM.md):
+Following the structure defined in [enhanced-cas-ai-product-team.md](./enhanced-cas-ai-product-team.md):
 
 ### Planner Agent Performance ✅
 
@@ -491,8 +491,8 @@ Combined: 48/48 passing ✅ | 89.71% average coverage
 6. `apps/web/src/app/account/components/AgentProfessionalInfoForm.stories.tsx` (380 lines)
 
 **Documentation:**
-7. `cas/docs/WEEK-2-SUMMARY.md` (this file)
-8. `cas/docs/ENHANCED-CAS-AI-PRODUCT-TEAM.md` (updated with directory structure improvements)
+7. `cas/docs/week-2-summary.md` (this file)
+8. `cas/docs/enhanced-cas-ai-product-team.md` (updated with directory structure improvements)
 
 ### Modified Files (1)
 

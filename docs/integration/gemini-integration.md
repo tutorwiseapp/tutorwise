@@ -121,7 +121,7 @@ Menu options:
 
 The CLI automatically loads:
 
-- **Main Context**: Project overview from `.ai/PROMPT.md`
+- **Main Context**: Project overview from `.ai/prompt.md`
 - **Jira Tickets**: Current sprint and individual ticket details
 - **GitHub Data**: Repository overview, issues, PRs
 - **Calendar Events**: Development schedule and milestones
