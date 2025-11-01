@@ -165,5 +165,5 @@ This agent **must not** access `.env` files or environment variables directly. A
 ---
 
 ## Related Documentation
-- [Enhanced CAS AI Product Team](../../docs/enhanced-cas-ai-product-team.md)
+- [CAS Architecture Detailed](../../docs/cas-architecture-detailed.md)
 - [Week 2 Summary](../../docs/week-2-summary.md)

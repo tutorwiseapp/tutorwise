@@ -59,7 +59,7 @@ Your question highlighted an important inconsistency:
 **High-priority files** (when updated):
 - `PROVEN_patterns.md` → `proven-patterns.md`
 - `DESIGN_SYSTEM.md` → `design-system.md`
-- `ENHANCED-CAS-AI-PRODUCT-TEAM.md` → `enhanced-cas-ai-product-team.md`
+- `ENHANCED-CAS-AI-PRODUCT-TEAM.md` → `cas-architecture-detailed.md`
 
 **All other files**: Rename gradually as they're updated
 

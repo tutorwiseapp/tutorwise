@@ -17,7 +17,7 @@ Successfully standardized all CAS documentation to use **lowercase-kebab-case.md
 - ❌ Unprofessional appearance
 
 ### After
-- ✅ Consistent: `proven-patterns.md`, `enhanced-cas-ai-product-team.md`, `quick-start-guide.md`
+- ✅ Consistent: `proven-patterns.md`, `cas-architecture-detailed.md`, `quick-start-guide.md`
 - ✅ Clear standard documented
 - ✅ All references updated
 
@@ -34,7 +34,7 @@ Successfully standardized all CAS documentation to use **lowercase-kebab-case.md
 ### Phase 2: High-Priority Docs (4 files)
 - `PROVEN_patterns.md` → `proven-patterns.md`
 - `DESIGN_SYSTEM.md` → `design-system.md`
-- `ENHANCED-CAS-AI-PRODUCT-TEAM.md` → `enhanced-cas-ai-product-team.md`
+- `ENHANCED-CAS-AI-PRODUCT-TEAM.md` → `cas-architecture-detailed.md`
 - `FEATURE-DEVELOPMENT-CHECKLIST.md` → `feature-development-checklist.md`
 
 **Total**: 8 files renamed, 30+ references updated
@@ -61,7 +61,7 @@ cas/docs/
 ├── naming-conventions.md                  ✅ (new)
 ├── proven-patterns.md                     ✅ (renamed from PROVEN_patterns.md)
 ├── design-system.md                       ✅ (renamed from DESIGN_SYSTEM.md)
-├── enhanced-cas-ai-product-team.md        ✅ (renamed from ENHANCED-CAS-AI-PRODUCT-TEAM.md)
+├── cas-architecture-detailed.md        ✅ (renamed from ENHANCED-CAS-AI-PRODUCT-TEAM.md)
 ├── feature-development-checklist.md       ✅ (renamed from FEATURE-DEVELOPMENT-CHECKLIST.md)
 ├── DESIGN_SYSTEM - do not change.md       ⚠️  (kept as backup)
 └── ... (legacy files, rename as updated)
@@ -254,7 +254,7 @@ cat cas/docs/proven-patterns.md
 cat cas/docs/design-system.md
 
 # Enhanced CAS team
-cat cas/docs/enhanced-cas-ai-product-team.md
+cat cas/docs/cas-architecture-detailed.md
 
 # Feature checklist
 cat cas/docs/feature-development-checklist.md
@@ -274,7 +274,7 @@ cat cas/docs/feature-development-checklist.md
 ### Phase 2: High-Priority Docs ✅
 - [x] Rename PROVEN_patterns.md → proven-patterns.md
 - [x] Rename DESIGN_SYSTEM.md → design-system.md
-- [x] Rename ENHANCED-CAS-AI-PRODUCT-TEAM.md → enhanced-cas-ai-product-team.md
+- [x] Rename ENHANCED-CAS-AI-PRODUCT-TEAM.md → cas-architecture-detailed.md
 - [x] Rename FEATURE-DEVELOPMENT-CHECKLIST.md → feature-development-checklist.md
 - [x] Update all references (30+ files)
 

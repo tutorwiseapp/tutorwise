@@ -440,7 +440,7 @@ cas/
 │   ├── proven-patterns.md               Code standards
 │   ├── design-system.md                 UI patterns
 │   ├── feature-development-checklist.md Quality gates
-│   └── enhanced-cas-ai-product-team.md  Full architecture
+│   └── cas-architecture-detailed.md  Full architecture
 │
 └── scripts/
     └── update-dev-plan.sh               Plan timestamp updater
@@ -725,7 +725,11 @@ cat cas/docs/proven-patterns.md
 
 ## Key Documentation
 
-- [Enhanced CAS Team](docs/enhanced-cas-ai-product-team.md) - Full architecture
+**Next Steps**:
+- **[CAS-DESIGN-AND-IMPLEMENTATION.md](CAS-DESIGN-AND-IMPLEMENTATION.md)** - Complete architecture and design (read next!)
+
+**Detailed References**:
+- [CAS Architecture Detailed](docs/cas-architecture-detailed.md) - Full architecture details
 - [Feature Checklist](docs/feature-development-checklist.md) - Quality gates
 - [Proven Patterns](docs/proven-patterns.md) - Code standards
 - [Design System](docs/design-system.md) - UI patterns
@@ -755,7 +759,9 @@ Track these to validate CAS value:
 
 ## Migration Path (Future)
 
-If you decide to implement full autonomous CAS in the future:
+**Want to learn about CAS evolution from framework to full autonomy?**
+
+See **[CAS-DESIGN-AND-IMPLEMENTATION.md](CAS-DESIGN-AND-IMPLEMENTATION.md)** for the complete migration path:
 
 **Phase 1** (Current): ✅ Framework mode
 - Mental model
@@ -798,8 +804,9 @@ If you decide to implement full autonomous CAS in the future:
 
 **Questions?**
 1. Check this guide first
-2. Review agent READMEs in `agents/*/README.md`
-3. Reference [docs/enhanced-cas-ai-product-team.md](docs/enhanced-cas-ai-product-team.md)
+2. Read [CAS-DESIGN-AND-IMPLEMENTATION.md](CAS-DESIGN-AND-IMPLEMENTATION.md) for architecture details
+3. Review agent READMEs in `agents/*/README.md`
+4. Reference [docs/cas-architecture-detailed.md](docs/cas-architecture-detailed.md) for deep technical details
 
 **Found a bug or have suggestions?**
 - Update this guide

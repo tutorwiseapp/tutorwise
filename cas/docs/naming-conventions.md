@@ -50,7 +50,7 @@ All new documentation uses lowercase-kebab-case:
 Rename frequently accessed docs:
 - `PROVEN_patterns.md` → `proven-patterns.md`
 - `DESIGN_SYSTEM.md` → `design-system.md`
-- `ENHANCED-CAS-AI-PRODUCT-TEAM.md` → `enhanced-cas-ai-product-team.md`
+- `ENHANCED-CAS-AI-PRODUCT-TEAM.md` → `cas-architecture-detailed.md`
 - `FEATURE-DEVELOPMENT-CHECKLIST.md` → `feature-development-checklist.md`
 
 ### Phase 3: All Legacy Files (Future)
@@ -88,7 +88,7 @@ cas/
 │   ├── README.md                         # Exception: uppercase
 │   ├── proven-patterns.md                # To be renamed
 │   ├── design-system.md                  # To be renamed
-│   ├── enhanced-cas-ai-product-team.md   # To be renamed
+│   ├── cas-architecture-detailed.md   # To be renamed
 │   ├── feature-development-checklist.md  # To be renamed
 │   └── naming-conventions.md             # This file
 ├── process/
@@ -118,7 +118,7 @@ cas/
 ### Next Session (Optional)
 - [ ] Rename `PROVEN_patterns.md` → `proven-patterns.md`
 - [ ] Rename `DESIGN_SYSTEM.md` → `design-system.md`
-- [ ] Rename `ENHANCED-CAS-AI-PRODUCT-TEAM.md` → `enhanced-cas-ai-product-team.md`
+- [ ] Rename `ENHANCED-CAS-AI-PRODUCT-TEAM.md` → `cas-architecture-detailed.md`
 - [ ] Rename `FEATURE-DEVELOPMENT-CHECKLIST.md` → `feature-development-checklist.md`
 - [ ] Update all internal references
 

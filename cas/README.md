@@ -400,8 +400,8 @@ CAS is designed to work with:
 
 ## 📚 Documentation
 
-**Enhanced CAS AI Product Team:**
-- [🎯 Enhanced CAS Architecture](docs/enhanced-cas-ai-product-team.md) - Complete guide to AI team structure
+**CAS Architecture Detailed:**
+- [🎯 Enhanced CAS Architecture](docs/cas-architecture-detailed.md) - Complete guide to AI team structure
 - [📊 Week 2 Summary](docs/week-2-summary.md) - Week 2 achievements and metrics
 - [📋 Implementation Tracker](docs/guides/cas-implementation-tracker.md) - Milestone tracking
 

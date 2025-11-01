@@ -105,7 +105,7 @@ npm run cas:update-plan      # Update timestamp
 
 | File | When to Use |
 |------|-------------|
-| [docs/enhanced-cas-ai-product-team.md](docs/enhanced-cas-ai-product-team.md) | Understanding architecture |
+| [docs/cas-architecture-detailed.md](docs/cas-architecture-detailed.md) | Understanding architecture |
 | [docs/proven-patterns.md](docs/proven-patterns.md) | Before coding |
 | [docs/design-system.md](docs/design-system.md) | For UI components |
 | [docs/feature-development-checklist.md](docs/feature-development-checklist.md) | Before marking feature complete |
@@ -246,7 +246,7 @@ cat cas/session-template.md
 **Questions?**
 1. Check [quick-start-guide.md](quick-start-guide.md)
 2. Review agent READMEs in `agents/*/README.md`
-3. Reference [docs/enhanced-cas-ai-product-team.md](docs/enhanced-cas-ai-product-team.md)
+3. Reference [docs/cas-architecture-detailed.md](docs/cas-architecture-detailed.md)
 
 **Issues?**
 - Module errors: Check [index.ts](index.ts) has `.js` extensions

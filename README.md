@@ -1,0 +1,426 @@
+# TutorWise
+
+**Full-stack tutoring marketplace platform**
+
+**Version**: 1.0.0
+**Status**: Active Development
+**Last Updated**: 2025-11-01
+
+---
+
+## Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Start development servers
+cd apps/web && npm run dev        # Frontend (Next.js)
+cd apps/api && npm run dev:api    # Backend (FastAPI)
+
+# Run tests
+npm test                          # All tests
+npm run test:unit                 # Unit tests
+npm run test:e2e                  # E2E tests (Playwright)
+```
+
+---
+
+## Project Structure
+
+```
+tutorwise/
+├── apps/
+│   ├── web/              # Next.js 14 frontend
+│   └── api/              # FastAPI backend
+├── packages/
+│   └── shared-types/     # Shared TypeScript types
+├── cas/                  # CAS development framework
+├── tools/                # Development tools
+├── tests/                # Test suites
+└── docs/                 # Documentation
+```
+
+---
+
+## Tech Stack
+
+### Frontend
+- **Next.js 14.2.33** - React framework
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling
+- **Supabase** - Authentication & database
+
+### Backend
+- **FastAPI** - Python web framework
+- **Supabase** - PostgreSQL database
+- **Python 3.11+** - Runtime
+
+### Testing
+- **Jest** - Unit testing
+- **Playwright** - E2E testing
+- **Percy** - Visual regression testing
+- **React Testing Library** - Component testing
+
+---
+
+## Development Workflow
+
+### CAS Framework
+
+TutorWise uses **CAS (Contextual Autonomous System)** as a development framework that models an 8-agent product team to ensure quality and consistency.
+
+**Getting Started with CAS**:
+```bash
+# View CAS user guide
+cd cas && npm run cas:help
+
+# Request CAS assistance
+cd cas && npm run cas:request
+```
+
+**CAS Documentation**:
+- **[cas/CAS-USER-GUIDE.md](cas/CAS-USER-GUIDE.md)** - Daily workflow and commands
+- **[cas/CAS-DESIGN-AND-IMPLEMENTATION.md](cas/CAS-DESIGN-AND-IMPLEMENTATION.md)** - Architecture and design
+- **[cas/docs/cas-architecture-detailed.md](cas/docs/cas-architecture-detailed.md)** - Detailed technical reference
+
+**Quick CAS Usage**:
+```
+In Claude Code, type:
+
+CAS: Create a new notification badge component
+
+CAS will apply 8 agent perspectives:
+  Planner   → What's the priority?
+  Analyst   → What are requirements?
+  Developer → How to implement?
+  Tester    → How to test?
+  QA        → Quality checks?
+  Security  → Security concerns?
+  Engineer  → Infrastructure needs?
+  Marketer  → User value?
+```
+
+**CAS Benefits**:
+- ✅ Systematic quality approach
+- ✅ Proven patterns library
+- ✅ Consistent code quality
+- ✅ Reduced bugs
+- ✅ Better test coverage
+
+---
+
+## Key Features
+
+### User Roles
+- **Tutors** - Offer tutoring services
+- **Clients** - Find and book tutors
+- **Agents** - Manage tutors and clients
+
+### Core Functionality
+- User authentication (Supabase)
+- Profile management (all 3 roles)
+- Professional info templates
+- Listing creation and management
+- Search and discovery
+- Booking system (planned)
+- Payment processing (planned - Stripe)
+
+---
+
+## Documentation
+
+### Getting Started
+- **Project Setup**: See "Quick Start" above
+- **CAS Framework**: [cas/CAS-USER-GUIDE.md](cas/CAS-USER-GUIDE.md)
+- **Development Standards**: [cas/docs/proven-patterns.md](cas/docs/proven-patterns.md)
+- **Design System**: [cas/docs/design-system.md](cas/docs/design-system.md)
+
+### Architecture
+- **CAS Architecture**: [cas/CAS-DESIGN-AND-IMPLEMENTATION.md](cas/CAS-DESIGN-AND-IMPLEMENTATION.md)
+- **Detailed Architecture**: [cas/docs/cas-architecture-detailed.md](cas/docs/cas-architecture-detailed.md)
+- **System Overview**: [cas/docs/guides/cas-overview.md](cas/docs/guides/cas-overview.md)
+
+### Quality Standards
+- **Feature Checklist**: [cas/docs/feature-development-checklist.md](cas/docs/feature-development-checklist.md)
+- **Testing Guide**: [cas/agents/tester/README.md](cas/agents/tester/README.md)
+- **QA Standards**: [cas/agents/qa/README.md](cas/agents/qa/README.md)
+
+### Agent Documentation
+- **Planner** (PM): [cas/agents/planner/README.md](cas/agents/planner/README.md)
+- **Analyst** (BA): [cas/agents/analyst/README.md](cas/agents/analyst/README.md)
+- **Developer** (SWE): [cas/agents/developer/README.md](cas/agents/developer/README.md)
+- **Tester** (QA Eng): [cas/agents/tester/README.md](cas/agents/tester/README.md)
+- **QA** (QA Lead): [cas/agents/qa/README.md](cas/agents/qa/README.md)
+- **Security** (SecEng): [cas/agents/security/README.md](cas/agents/security/README.md)
+- **Engineer** (SysEng): [cas/agents/engineer/README.md](cas/agents/engineer/README.md)
+- **Marketer** (PMM): [cas/agents/marketer/README.md](cas/agents/marketer/README.md)
+
+---
+
+## Commands
+
+### Development
+```bash
+# Frontend
+cd apps/web && npm run dev         # Start Next.js dev server (port 3000)
+cd apps/web && npm run build       # Build for production
+cd apps/web && npm run lint        # Lint code
+
+# Backend
+cd apps/api && npm run dev:api     # Start FastAPI dev server (port 8000)
+cd apps/api && npm run migrate     # Run database migrations
+```
+
+### Testing
+```bash
+# Unit tests
+npm test                           # All unit tests
+npm run test:unit                  # Unit tests only
+npm run test:coverage              # With coverage report
+
+# E2E tests
+npm run test:e2e                   # Playwright tests
+npm run test:e2e -- --headed       # With browser visible
+npm run test:e2e -- --debug        # Debug mode
+
+# Visual regression
+npm run test:visual                # Percy snapshots
+```
+
+### CAS Commands
+```bash
+cd cas
+
+# Documentation
+npm run cas:help                   # View CAS user guide
+npm run cas:request                # How to request CAS tasks
+npm run cas:view-plan              # View current development plan
+npm run cas:status                 # Check agent plan status
+
+# Plan management
+npm run cas:update-plan            # Update plan timestamp
+```
+
+---
+
+## Environment Setup
+
+### Required Environment Variables
+
+**Frontend (.env.local)**:
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+```
+
+**Backend (.env)**:
+```bash
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_key
+DATABASE_URL=your_database_url
+```
+
+See `.env.example` files for complete lists.
+
+---
+
+## Database
+
+**Provider**: Supabase (PostgreSQL)
+
+**Migrations**: Located in `apps/api/migrations/`
+
+**Run migrations**:
+```bash
+cd apps/api
+npm run migrate
+```
+
+**Key tables**:
+- `profiles` - User profiles (all roles)
+- `listings` - Tutor listings
+- `onboarding_progress` - Onboarding state
+- `professional_info` - Professional templates
+
+---
+
+## Testing Strategy
+
+Following **CAS quality standards** with comprehensive test coverage:
+
+### Unit Tests (Jest + React Testing Library)
+- Target: >80% coverage
+- Component rendering
+- Form validation
+- User interactions
+- State management
+
+### E2E Tests (Playwright)
+- User flows
+- Authentication
+- Onboarding
+- Profile management
+- Listing creation
+
+### Visual Regression (Percy)
+- Component snapshots
+- Responsive layouts
+- Cross-browser consistency
+
+**Example**:
+```bash
+# Run full test suite
+npm test                    # Unit tests
+npm run test:e2e           # E2E tests
+npm run test:visual        # Visual regression
+
+# View coverage
+npm run test:coverage
+open coverage/index.html
+```
+
+---
+
+## Code Quality
+
+### Standards
+- **TypeScript** for type safety
+- **ESLint** for code quality
+- **Prettier** for formatting (via ESLint)
+- **Proven Patterns** from CAS framework
+
+### Pre-Commit Checks
+- TypeScript compilation
+- ESLint checks
+- Test execution (unit tests)
+
+### Code Review
+Following **CAS Developer Agent** checklist:
+- [ ] Clean, type-safe TypeScript
+- [ ] Unit tests (>80% coverage target)
+- [ ] Storybook stories for UI components
+- [ ] No console.log statements
+- [ ] Follows proven patterns
+- [ ] Design system compliance
+
+---
+
+## Deployment
+
+### Frontend (Vercel)
+```bash
+cd apps/web
+npm run build
+vercel deploy
+```
+
+### Backend (TBD)
+Backend deployment strategy to be determined.
+
+---
+
+## Contributing
+
+### Workflow
+1. Review [CAS-USER-GUIDE.md](cas/CAS-USER-GUIDE.md) for development approach
+2. Check [proven-patterns.md](cas/docs/proven-patterns.md) before coding
+3. Follow [feature-development-checklist.md](cas/docs/feature-development-checklist.md)
+4. Request CAS assistance: `CAS: [your task]` in Claude Code
+5. Run tests before committing
+6. Create PR following CAS quality standards
+
+### Commit Messages
+```
+feat: Add notification badge component
+fix: Resolve listing search filter bug
+test: Add unit tests for ProfileCard
+docs: Update CAS user guide
+refactor: Extract validation to shared util
+```
+
+**CAS-enhanced commits** (when using CAS framework):
+```
+feat: Add notification badge component
+
+🤖 Generated with CAS (https://github.com/tutorwise/tutorwise/tree/main/cas)
+
+Co-Authored-By: CAS <cas@tutorwise.com>
+```
+
+---
+
+## Support
+
+### Documentation
+1. **User Guide**: [cas/CAS-USER-GUIDE.md](cas/CAS-USER-GUIDE.md)
+2. **Architecture**: [cas/CAS-DESIGN-AND-IMPLEMENTATION.md](cas/CAS-DESIGN-AND-IMPLEMENTATION.md)
+3. **Detailed Reference**: [cas/docs/cas-architecture-detailed.md](cas/docs/cas-architecture-detailed.md)
+4. **Proven Patterns**: [cas/docs/proven-patterns.md](cas/docs/proven-patterns.md)
+
+### Troubleshooting
+- **Build errors**: Check TypeScript compilation with `npm run build`
+- **Test failures**: Run with verbose: `npm test -- --verbose`
+- **Database issues**: Check migration status: `npm run migrate`
+- **CAS questions**: See [cas/CAS-USER-GUIDE.md](cas/CAS-USER-GUIDE.md#troubleshooting)
+
+### Getting Help
+- Review agent READMEs in `cas/agents/*/README.md`
+- Check CAS documentation in `cas/` directory
+- Review implementation summaries in project root (*.md files)
+
+---
+
+## Project Status
+
+**Current Phase**: Active Development
+
+**Recent Completions**:
+- ✅ Authentication system (Supabase)
+- ✅ Profile management (all 3 roles)
+- ✅ Professional info templates
+- ✅ Onboarding flows
+- ✅ Testing infrastructure (Jest, Playwright, Percy)
+- ✅ CAS development framework (hybrid mode)
+
+**In Progress**:
+- Listing creation and management
+- Search and discovery
+- Mobile responsiveness
+
+**Planned**:
+- Booking system
+- Payment processing (Stripe)
+- Messaging system
+- Review and ratings
+
+---
+
+## License
+
+MIT License - See LICENSE file for details
+
+---
+
+## Team
+
+**Development Framework**: CAS (Contextual Autonomous System)
+- **Planner**: Sprint planning and coordination
+- **Analyst**: Requirements and user research
+- **Developer**: Feature implementation
+- **Tester**: Test implementation
+- **QA**: Quality assurance and accessibility
+- **Security**: Security validation
+- **Engineer**: Infrastructure and deployment
+- **Marketer**: Analytics and user engagement
+
+**Human Team**: Michael Quan (Lead Developer)
+
+---
+
+**Last Updated**: 2025-11-01
+**CAS Version**: 2.0 (Hybrid Framework Mode)
+**Next.js Version**: 14.2.33
+**Node Version**: 18.x+
+**Python Version**: 3.11+

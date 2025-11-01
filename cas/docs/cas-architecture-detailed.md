@@ -230,7 +230,7 @@ cas/
 │   ├── README.md                   # CAS overview
 │   ├── GETTING-STARTED.md          # Setup guide
 │   ├── WORKFLOWS.md                # Common workflows
-│   ├── enhanced-cas-ai-product-team.md  # This document
+│   ├── cas-architecture-detailed.md  # This document
 │   └── guides/
 │       └── cas-implementation-tracker.md
 │

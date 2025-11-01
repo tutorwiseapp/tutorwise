@@ -142,7 +142,7 @@ tutorwise/
 │   ├── docs/
 │   │   ├── proven-patterns.md                         ✅
 │   │   ├── design-system.md                           ✅
-│   │   ├── enhanced-cas-ai-product-team.md            ✅
+│   │   ├── cas-architecture-detailed.md            ✅
 │   │   └── ... (24 total files)
 │   └── process/
 │       ├── ai-three-amigos-kick-off.md                ✅

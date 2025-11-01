@@ -33,7 +33,7 @@ Successfully standardized **ALL** CAS documentation files to use `lowercase-keba
 ### Phase 2: High-Priority Docs (4 files)
 - `PROVEN_patterns.md` → `proven-patterns.md`
 - `DESIGN_SYSTEM.md` → `design-system.md`
-- `ENHANCED-CAS-AI-PRODUCT-TEAM.md` → `enhanced-cas-ai-product-team.md`
+- `ENHANCED-CAS-AI-PRODUCT-TEAM.md` → `cas-architecture-detailed.md`
 - `FEATURE-DEVELOPMENT-CHECKLIST.md` → `feature-development-checklist.md`
 
 ### Phase 3: Process Documentation (9 files)
@@ -89,7 +89,7 @@ cas/
 │   ├── naming-conventions.md              ✅
 │   ├── proven-patterns.md                 ✅
 │   ├── design-system.md                   ✅
-│   ├── enhanced-cas-ai-product-team.md    ✅
+│   ├── cas-architecture-detailed.md    ✅
 │   ├── feature-development-checklist.md   ✅
 │   ├── cas-migration-test-report.md       ✅
 │   ├── codebase-analysis.md               ✅

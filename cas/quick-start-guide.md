@@ -136,7 +136,7 @@ cat agents/planner/README.md
 
 ## Key Documentation
 
-- [Enhanced CAS Team](docs/enhanced-cas-ai-product-team.md) - Full architecture
+- [CAS Architecture](docs/cas-architecture-detailed.md) - Full architecture
 - [Feature Checklist](docs/feature-development-checklist.md) - Quality gates
 - [Proven Patterns](docs/proven-patterns.md) - Code standards
 - [Design System](docs/design-system.md) - UI patterns
