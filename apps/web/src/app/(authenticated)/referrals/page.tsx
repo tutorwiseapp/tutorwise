@@ -151,7 +151,6 @@ export default function ReferralsPage() {
         {/* Empty State */}
         {!error && referrals.length === 0 && (
           <div className={styles.emptyState}>
-            <div className={styles.emptyIcon}>👥</div>
             <h3 className={styles.emptyTitle}>No referrals yet</h3>
             <p className={styles.emptyText}>
               {statusFilter === 'all'
@@ -160,7 +159,7 @@ export default function ReferralsPage() {
             </p>
             <div className={styles.emptyActions}>
               <button onClick={handleCopyReferralLink} className={styles.copyButton}>
-                📋 Copy Your Referral Link
+                Copy Your Referral Link
               </button>
             </div>
           </div>

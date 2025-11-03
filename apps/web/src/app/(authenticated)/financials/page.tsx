@@ -141,7 +141,6 @@ export default function FinancialsPage() {
         {/* Empty State */}
         {!error && transactions.length === 0 && (
           <div className={styles.emptyState}>
-            <div className={styles.emptyIcon}>💰</div>
             <h3 className={styles.emptyTitle}>No transactions found</h3>
             <p className={styles.emptyText}>
               Your transaction history will appear here once you start earning or making payments.

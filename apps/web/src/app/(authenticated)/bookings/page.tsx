@@ -153,7 +153,6 @@ export default function BookingsPage() {
         {/* Empty State */}
         {!error && filteredBookings.length === 0 && (
           <div className={styles.emptyState}>
-            <div className={styles.emptyIcon}>📅</div>
             <h3 className={styles.emptyTitle}>No bookings found</h3>
             <p className={styles.emptyText}>
               {filter === 'upcoming'
