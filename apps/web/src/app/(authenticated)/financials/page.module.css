@@ -26,38 +26,44 @@
   margin: 0;
 }
 
-/* Filter Tabs (Status) - Pill Style */
+/* Filter Tabs (Status) - Underline Style with Teal */
 .filterTabs {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
-  padding: 0.5rem;
-  background-color: var(--color-gray-100, #F5F5F5);
-  border-radius: 0.75rem; /* rounded-lg */
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0;
   overflow-x: auto;
+  /* Full width to touch side panels */
+  margin-left: -2rem;
+  margin-right: -2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 
 .filterTab {
   padding: 0.75rem 1.5rem;
-  background: transparent;
+  background: none;
   border: none;
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-gray-700, #4B4B4B);
   cursor: pointer;
-  border-radius: 0.5rem; /* 8px rounded-md */
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
   transition: all 0.2s ease;
   white-space: nowrap;
 }
 
 .filterTab:hover {
+  color: var(--color-primary-default, #006c67);
   background-color: var(--color-primary-light, #E6F0F0);
-  color: var(--color-gray-700, #4B4B4B);
+  border-radius: 0.375rem 0.375rem 0 0; /* Rounded top only */
 }
 
 .filterTabActive {
-  background-color: var(--color-primary-light, #E6F0F0);
   color: var(--color-primary-default, #006c67);
+  border-bottom-color: var(--color-primary-default, #006c67);
   font-weight: 600;
 }
 
