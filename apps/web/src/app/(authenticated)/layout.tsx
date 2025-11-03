@@ -58,14 +58,14 @@ export default function AuthenticatedLayout({
     return null;
   }
 
-  // Render authenticated layout
+  // Render authenticated layout (Header/Footer come from root Layout component)
   return (
     <div className={styles.layoutContainer}>
       {/* Left Column: Main Navigation */}
       <AppSidebar />
 
       {/* Center Column: Page Content (hub pages render their own ContextualSidebar) */}
-      <main className={styles.mainContent}>{children}</main>
+      <div className={styles.mainContent}>{children}</div>
     </div>
   );
 }

@@ -7,9 +7,9 @@
 
 .contextualSidebar {
   width: 300px;
-  height: 100vh;
+  height: calc(100vh - 64px); /* Subtract header height */
   position: fixed;
-  top: 0;
+  top: 64px; /* Start below header */
   right: 0;
   background-color: #f9fafb;
   border-left: 1px solid #e5e7eb;

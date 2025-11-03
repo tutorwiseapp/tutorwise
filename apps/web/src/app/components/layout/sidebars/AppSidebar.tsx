@@ -28,42 +28,42 @@ export default function AppSidebar() {
     {
       href: '/dashboard',
       label: 'Dashboard',
-      icon: '📊',
+      icon: '',
     },
     {
       href: '/marketplace',
       label: 'Marketplace',
-      icon: '🔍',
+      icon: '',
     },
     {
       href: '/bookings',
       label: 'Bookings',
-      icon: '📅',
+      icon: '',
     },
     {
       href: '/financials',
       label: 'Financials',
-      icon: '💰',
+      icon: '',
     },
     {
       href: '/referrals',
       label: 'Referrals',
-      icon: '👥',
+      icon: '',
     },
     {
       href: '/messages',
       label: 'Messages',
-      icon: '💬',
+      icon: '',
     },
     {
       href: '/profile',
       label: 'Profile',
-      icon: '👤',
+      icon: '',
     },
     {
       href: '/settings',
       label: 'Settings',
-      icon: '⚙️',
+      icon: '',
     },
   ];
 
@@ -82,12 +82,6 @@ export default function AppSidebar() {
 
   return (
     <aside className={styles.appSidebar}>
-      <div className={styles.sidebarHeader}>
-        <Link href="/dashboard" className={styles.logoLink}>
-          <span className={styles.logo}>TutorWise</span>
-        </Link>
-      </div>
-
       <nav className={styles.nav}>
         <ul className={styles.navList}>
           {filteredNavItems.map((item) => (
