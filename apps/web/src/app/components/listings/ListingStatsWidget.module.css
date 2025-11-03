@@ -1,0 +1,56 @@
+/*
+ * Filename: src/app/components/listings/ListingStatsWidget.module.css
+ * Purpose: Styles for ListingStatsWidget
+ * Created: 2025-11-03
+ */
+
+.widget {
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 1rem 0;
+}
+
+.loading {
+  font-size: 0.875rem;
+  color: #6b7280;
+  text-align: center;
+  padding: 1rem 0;
+  margin: 0;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.statCard {
+  background-color: var(--color-primary-light, #E6F0F0);
+  border-radius: 0.375rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+.statValue {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--color-primary-default, #006c67);
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}

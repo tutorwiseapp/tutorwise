@@ -15,6 +15,8 @@ import type { Listing } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
 import ListingCard from './ListingCard';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
+import CreateListingWidget from '@/app/components/listings/CreateListingWidget';
+import ListingStatsWidget from '@/app/components/listings/ListingStatsWidget';
 import styles from './page.module.css';
 
 type FilterType = 'all' | 'published' | 'draft' | 'archived' | 'templates';
@@ -280,9 +282,8 @@ export default function ListingsPage() {
 
       {/* Contextual Sidebar (Right Column) */}
       <ContextualSidebar>
-        <div className={styles.sidebarPlaceholder}>
-          <p className={styles.sidebarText}>Listing stats and quick actions will appear here.</p>
-        </div>
+        <CreateListingWidget />
+        <ListingStatsWidget />
       </ContextualSidebar>
     </>
   );
