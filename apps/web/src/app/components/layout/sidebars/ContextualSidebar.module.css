@@ -174,7 +174,7 @@
 .copyButton {
   width: 100%;
   padding: 0.625rem 1rem;
-  background-color: #3b82f6;
+  background-color: var(--color-primary-default, #006c67);
   color: #ffffff;
   border: none;
   border-radius: 0.375rem;
@@ -185,11 +185,11 @@
 }
 
 .copyButton:hover {
-  background-color: #2563eb;
+  background-color: var(--color-primary-dark, #005550);
 }
 
 .copyButton:active {
-  background-color: #1d4ed8;
+  background-color: var(--color-primary-darker, #004440);
 }
 
 /* Mobile: Hide contextual sidebar by default */

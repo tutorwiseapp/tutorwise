@@ -122,7 +122,7 @@
 
 .copyButton {
   padding: 0.75rem 1.5rem;
-  background-color: #3b82f6;
+  background-color: var(--color-primary-default, #006c67);
   color: #ffffff;
   border: none;
   border-radius: 0.5rem;
@@ -133,7 +133,7 @@
 }
 
 .copyButton:hover {
-  background-color: #2563eb;
+  background-color: var(--color-primary-dark, #005550);
 }
 
 /* Sidebar Content */
