@@ -2,12 +2,14 @@
  * Filename: apps/web/src/app/components/bookings/BookingStatsWidget.tsx
  * Purpose: A widget for the ContextualSidebar showing booking stats
  * Created: 2025-11-03
- * Specification: Per user request in booking-hub-enhancement.md
+ * Updated: 2025-11-03 - Refactored to use standard SidebarWidget styling
+ * Specification: Per user request - match ReferralStatsWidget/BalanceSummaryWidget style
  */
 'use client';
 
 import React from 'react';
-import styles from './BookingStatsWidget.module.css';
+import { SidebarWidget } from '@/app/components/layout/sidebars/ContextualSidebar';
+import styles from '@/app/components/layout/sidebars/ContextualSidebar.module.css';
 
 interface BookingStatsWidgetProps {
   pending?: number;
@@ -21,23 +23,22 @@ export const BookingStatsWidget: React.FC<BookingStatsWidgetProps> = ({
   completed = 0,
 }) => {
   return (
-    <div className={styles.statsWidget}>
-      <h4 className={styles.title}>Booking Stats</h4>
-      <ul className={styles.statList}>
-        <li className={styles.statItem}>
-          <span className={styles.statLabel}>Pending Confirmation</span>
-          <strong className={styles.statValue}>{pending}</strong>
-        </li>
-        <li className={styles.statItem}>
-          <span className={styles.statLabel}>Upcoming Sessions</span>
-          <strong className={styles.statValue}>{upcoming}</strong>
-        </li>
-        <li className={styles.statItem}>
-          <span className={styles.statLabel}>Completed Sessions</span>
-          <strong className={styles.statValue}>{completed}</strong>
-        </li>
-      </ul>
-    </div>
+    <SidebarWidget title="Booking Stats">
+      <div className={styles.statsCard}>
+        <div className={styles.statRow}>
+          <span className={styles.statLabel}>Pending Confirmation:</span>
+          <span className={styles.statValue}>{pending}</span>
+        </div>
+        <div className={styles.statRow}>
+          <span className={styles.statLabel}>Upcoming Sessions:</span>
+          <span className={styles.statValue}>{upcoming}</span>
+        </div>
+        <div className={styles.statRow}>
+          <span className={styles.statLabel}>Completed Sessions:</span>
+          <span className={styles.statValue}>{completed}</span>
+        </div>
+      </div>
+    </SidebarWidget>
   );
 };
 
