@@ -120,19 +120,19 @@ const NavMenu = () => {
                   <Link href="/bookings">Bookings</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild className={styles.menuItem}>
-                  <Link href="/financials">Financials</Link>
+                  <Link href="/referrals">Referrals</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild className={styles.menuItem}>
-                  <Link href="/referrals">Referrals</Link>
+                  <Link href="/financials">Financials</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild className={styles.menuItem}>
                   <Link href="/messages">Messages</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild className={styles.menuItem}>
-                  <Link href="/my-network">My network</Link>
+                  <Link href="/my-network">Network</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild className={styles.menuItem}>
-                  <Link href="/my-listings">My listings</Link>
+                  <Link href="/my-listings">Listings</Link>
                 </DropdownMenu.Item>
 
                 <div className={styles.separator12px} />
