@@ -2,11 +2,13 @@
  * Filename: src/app/(authenticated)/financials/page.tsx
  * Purpose: Financials hub page - displays transaction history (SDD v3.6)
  * Created: 2025-11-02
- * Specification: SDD v3.6, Section 4.2 - /financials hub
+ * Updated: 2025-11-03 - Refactored to use URL query parameters for filters (SDD v3.6 compliance)
+ * Specification: SDD v3.6, Section 4.2 - /financials hub, Section 2.0 - Server-side filtering via URL params
  */
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import TransactionCard from '@/app/components/financials/TransactionCard';
 import ContextualSidebar, { BalanceSummaryWidget } from '@/app/components/layout/sidebars/ContextualSidebar';
@@ -16,11 +18,26 @@ import styles from './page.module.css';
 
 export default function FinancialsPage() {
   const { profile } = useUserProfile();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [typeFilter, setTypeFilter] = useState<TransactionType | 'all'>('all');
-  const [statusFilter, setStatusFilter] = useState<TransactionStatus | 'all'>('all');
+
+  // Read filters from URL (SDD v3.6: URL is single source of truth)
+  const typeFilter = (searchParams?.get('type') as TransactionType | null) || 'all';
+  const statusFilter = (searchParams?.get('status') as TransactionStatus | null) || 'all';
+
+  // Update URL when filter changes
+  const handleFilterChange = (filterType: 'type' | 'status', value: string) => {
+    const params = new URLSearchParams(searchParams?.toString() || '');
+    if (value === 'all') {
+      params.delete(filterType);
+    } else {
+      params.set(filterType, value);
+    }
+    router.push(`/financials${params.toString() ? `?${params.toString()}` : ''}`);
+  };
 
   useEffect(() => {
     if (!profile) return;
@@ -97,13 +114,13 @@ export default function FinancialsPage() {
           </p>
         </div>
 
-        {/* Filters */}
+        {/* Filters - Using URL params */}
         <div className={styles.filters}>
           <div className={styles.filterGroup}>
             <label className={styles.filterLabel}>Transaction Type:</label>
             <select
               value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value as TransactionType | 'all')}
+              onChange={(e) => handleFilterChange('type', e.target.value)}
               className={styles.filterSelect}
             >
               <option value="all">All Types</option>
@@ -119,7 +136,7 @@ export default function FinancialsPage() {
             <label className={styles.filterLabel}>Status:</label>
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as TransactionStatus | 'all')}
+              onChange={(e) => handleFilterChange('status', e.target.value)}
               className={styles.filterSelect}
             >
               <option value="all">All Status</option>

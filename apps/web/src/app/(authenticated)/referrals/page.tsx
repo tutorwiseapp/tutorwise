@@ -2,11 +2,13 @@
  * Filename: src/app/(authenticated)/referrals/page.tsx
  * Purpose: Referrals hub page - displays referral lead pipeline (SDD v3.6)
  * Created: 2025-11-02
- * Specification: SDD v3.6, Section 4.3 - /referrals hub
+ * Updated: 2025-11-03 - Refactored to use URL query parameters for filters (SDD v3.6 compliance)
+ * Specification: SDD v3.6, Section 4.3 - /referrals hub, Section 2.0 - Server-side filtering via URL params
  */
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import ReferralCard from '@/app/components/referrals/ReferralCard';
 import ContextualSidebar, {
@@ -19,10 +21,25 @@ import styles from './page.module.css';
 
 export default function ReferralsPage() {
   const { profile } = useUserProfile();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [referrals, setReferrals] = useState<Referral[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<ReferralStatus | 'all'>('all');
+
+  // Read filter from URL (SDD v3.6: URL is single source of truth)
+  const statusFilter = (searchParams?.get('status') as ReferralStatus | null) || 'all';
+
+  // Update URL when filter changes
+  const handleFilterChange = (newStatus: ReferralStatus | 'all') => {
+    const params = new URLSearchParams(searchParams?.toString() || '');
+    if (newStatus === 'all') {
+      params.delete('status');
+    } else {
+      params.set('status', newStatus);
+    }
+    router.push(`/referrals${params.toString() ? `?${params.toString()}` : ''}`);
+  };
 
   useEffect(() => {
     if (!profile) return;
@@ -107,34 +124,34 @@ export default function ReferralsPage() {
           </p>
         </div>
 
-        {/* Status Filter */}
+        {/* Status Filter - Using URL params */}
         <div className={styles.filterTabs}>
           <button
-            onClick={() => setStatusFilter('all')}
+            onClick={() => handleFilterChange('all')}
             className={`${styles.filterTab} ${statusFilter === 'all' ? styles.filterTabActive : ''}`}
           >
             All Leads
           </button>
           <button
-            onClick={() => setStatusFilter('Referred')}
+            onClick={() => handleFilterChange('Referred')}
             className={`${styles.filterTab} ${statusFilter === 'Referred' ? styles.filterTabActive : ''}`}
           >
             Referred
           </button>
           <button
-            onClick={() => setStatusFilter('Signed Up')}
+            onClick={() => handleFilterChange('Signed Up')}
             className={`${styles.filterTab} ${statusFilter === 'Signed Up' ? styles.filterTabActive : ''}`}
           >
             Signed Up
           </button>
           <button
-            onClick={() => setStatusFilter('Converted')}
+            onClick={() => handleFilterChange('Converted')}
             className={`${styles.filterTab} ${statusFilter === 'Converted' ? styles.filterTabActive : ''}`}
           >
             Converted
           </button>
           <button
-            onClick={() => setStatusFilter('Expired')}
+            onClick={() => handleFilterChange('Expired')}
             className={`${styles.filterTab} ${statusFilter === 'Expired' ? styles.filterTabActive : ''}`}
           >
             Expired

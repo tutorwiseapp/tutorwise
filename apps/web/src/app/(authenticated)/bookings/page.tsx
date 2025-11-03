@@ -2,12 +2,13 @@
  * Filename: src/app/(authenticated)/bookings/page.tsx
  * Purpose: Bookings hub page - displays user's bookings (SDD v3.6)
  * Created: 2025-11-02
- * Specification: SDD v3.6, Section 4.1 - /bookings hub
+ * Updated: 2025-11-03 - Refactored to use URL query parameters for filters (SDD v3.6 compliance)
+ * Specification: SDD v3.6, Section 4.1 - /bookings hub, Section 2.0 - Server-side filtering via URL params
  */
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import BookingCard from '@/app/components/bookings/BookingCard';
 import ContextualSidebar, { UpcomingSessionWidget } from '@/app/components/layout/sidebars/ContextualSidebar';
@@ -19,10 +20,24 @@ import styles from './page.module.css';
 export default function BookingsPage() {
   const { profile, activeRole } = useUserProfile();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<'all' | 'upcoming' | 'past'>('all');
+
+  // Read filter from URL (SDD v3.6: URL is single source of truth)
+  const filter = (searchParams?.get('filter') as 'all' | 'upcoming' | 'past') || 'all';
+
+  // Update URL when filter changes
+  const handleFilterChange = (newFilter: 'all' | 'upcoming' | 'past') => {
+    const params = new URLSearchParams(searchParams?.toString() || '');
+    if (newFilter === 'all') {
+      params.delete('filter');
+    } else {
+      params.set('filter', newFilter);
+    }
+    router.push(`/bookings${params.toString() ? `?${params.toString()}` : ''}`);
+  };
 
   useEffect(() => {
     if (!profile) return;
@@ -54,7 +69,7 @@ export default function BookingsPage() {
     fetchBookings();
   }, [profile, activeRole]);
 
-  // Filter bookings
+  // Filter bookings based on URL param
   const filteredBookings = bookings.filter((booking) => {
     const sessionDate = new Date(booking.session_start_time);
     const now = new Date();
@@ -122,22 +137,22 @@ export default function BookingsPage() {
           </p>
         </div>
 
-        {/* Filter Tabs */}
+        {/* Filter Tabs - Using URL params */}
         <div className={styles.filterTabs}>
           <button
-            onClick={() => setFilter('all')}
+            onClick={() => handleFilterChange('all')}
             className={`${styles.filterTab} ${filter === 'all' ? styles.filterTabActive : ''}`}
           >
             All Bookings
           </button>
           <button
-            onClick={() => setFilter('upcoming')}
+            onClick={() => handleFilterChange('upcoming')}
             className={`${styles.filterTab} ${filter === 'upcoming' ? styles.filterTabActive : ''}`}
           >
             Upcoming
           </button>
           <button
-            onClick={() => setFilter('past')}
+            onClick={() => handleFilterChange('past')}
             className={`${styles.filterTab} ${filter === 'past' ? styles.filterTabActive : ''}`}
           >
             Past
