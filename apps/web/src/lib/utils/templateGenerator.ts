@@ -157,41 +157,48 @@ export async function hasExistingTemplates(userId: string): Promise<boolean> {
 }
 
 /**
- * Duplicate a template for editing
- * Creates a copy that is deletable and not marked as a template
+ * Duplicate a listing (template or regular) for editing
+ * Creates a copy that is editable and starts as a draft
  */
 export async function duplicateTemplate(
-  templateId: string,
+  listingId: string,
   userId: string
 ): Promise<string | null> {
   const supabase = createClient();
 
   try {
-    // Get the template
-    const { data: template, error: fetchError } = await supabase
+    // Get the listing (could be template or regular listing)
+    const { data: listing, error: fetchError} = await supabase
       .from('listings')
       .select('*')
-      .eq('id', templateId)
+      .eq('id', listingId)
       .eq('profile_id', userId)
-      .eq('is_template', true)
       .single();
 
-    if (fetchError || !template) {
-      console.error('[TemplateGenerator] Template not found:', fetchError);
+    if (fetchError || !listing) {
+      console.error('[TemplateGenerator] Listing not found:', fetchError);
       return null;
     }
 
-    // Create a duplicate without template flags
+    // Create a duplicate
+    // If it's a template, make the copy editable
+    // If it's a regular listing, just copy it
     const duplicate = {
-      ...template,
+      ...listing,
       id: undefined, // Let DB generate new ID
-      title: `${template.title} (Copy)`,
-      is_template: false,
-      is_deletable: true,
-      template_id: null,
+      title: `${listing.title} (Copy)`,
+      is_template: false, // Copies are never templates
+      is_deletable: true, // Copies are always deletable
+      template_id: null, // Clear template reference
+      status: 'draft', // Copies start as drafts
       created_at: undefined,
       updated_at: undefined,
+      published_at: null, // Clear published date
+      archived_at: null, // Clear archived date
       slug: null, // Force new slug generation
+      view_count: 0, // Reset metrics
+      inquiry_count: 0,
+      booking_count: 0,
     };
 
     const { data: newListing, error: createError } = await supabase
@@ -201,11 +208,11 @@ export async function duplicateTemplate(
       .single();
 
     if (createError || !newListing) {
-      console.error('[TemplateGenerator] Error duplicating template:', createError);
+      console.error('[TemplateGenerator] Error duplicating listing:', createError);
       return null;
     }
 
-    console.log(`[TemplateGenerator] ✓ Duplicated template ${templateId} -> ${newListing.id}`);
+    console.log(`[TemplateGenerator] ✓ Duplicated listing ${listingId} -> ${newListing.id}`);
     return newListing.id;
 
   } catch (error) {
