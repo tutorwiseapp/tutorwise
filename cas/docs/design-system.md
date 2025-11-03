@@ -258,6 +258,27 @@ Standardized elements for user input. All form controls share common styling for
     -   `size`: (`"sm" | "md"`) - Default: `"md"`.
 -   **Styling:** Uses background colors corresponding to status props (e.g., `success` -> `bg-success/10`, `text-success-darker`), small border radius (`rounded-sm`), padding/font size based on `size`.
 
+### 6.3. Tabs Component (`<Tabs>`)
+
+-   **File:** `src/app/components/ui/Tabs.tsx` (to be created)
+-   **Styling:** `src/app/components/ui/Tabs.module.css` (to be created)
+-   **Purpose:** The standard, application-wide component for tabbed navigation or filtering. This is the **single source of truth** and deprecates specialized, feature-specific components like `ProfileTabs.tsx`.
+-   **Visual Style (Pill / Segmented Control):**
+    -   **Container:** A container with a `var(--color-gray-100)` (#F5F5F5) background and `0.75rem` (`rounded-lg`) border radius, with `0.5rem` padding.
+    -   **Inactive Tab:** Transparent background, `var(--color-gray-700)` (#4B4B4B) text, `font-weight: 500`.
+    -   **Hover (Inactive):** A `var(--color-primary-light)` (#E6F0F0) background (light teal) with an `0.5rem` / `8px` (`rounded-md`) corner radius.
+    -   **Active Tab:** A `var(--color-primary-light)` (#E6F0F0) background (light teal) with `var(--color-primary-default)` (#006c67) text (dark teal font) and `font-weight: 600` (`font-semibold`).
+    -   **Spacing:** `0.5rem` gap between tabs, `0.75rem 1.5rem` padding inside each tab button.
+    -   **Transition:** `all 0.2s ease` for smooth hover and active state changes.
+-   **Props:**
+    -   `tabs`: (`Tab[]`) - An array of objects, where `Tab = { id: string, label: string }`.
+    -   `activeTab`: (string) - The `id` of the currently active tab.
+    -   `onTabChange`: (`(tabId: string) => void`) - Callback function for when a tab is clicked.
+-   **Implementation Status:**
+    -   ✅ **Hub Pages (Inline):** Bookings, Referrals, and Financials hub pages currently implement this design inline using CSS modules (as of 2025-11-03).
+    -   🔲 **Reusable Component:** Centralized `<Tabs>` component to be created for reuse across all pages.
+    -   🔲 **Profile Pages:** Profile tab components to be refactored to use the standard design.
+
 *(Includes other components like Message, Chip, Tabs, Breadcrumb, Pagination, ToggleSwitch, DatePicker, TimePicker, MultiSelectDropdown, DataTable, PageHeader, Container, Logo)*
 
 ---
