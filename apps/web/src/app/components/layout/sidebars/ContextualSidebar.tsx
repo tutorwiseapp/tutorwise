@@ -51,11 +51,9 @@ export function UpcomingSessionWidget({ date, time, service, participant }: Upco
     <SidebarWidget title="Next Session">
       <div className={styles.sessionCard}>
         <div className={styles.sessionDate}>
-          <span className={styles.dateIcon}>📅</span>
           <span>{date}</span>
         </div>
         <div className={styles.sessionTime}>
-          <span className={styles.timeIcon}>🕐</span>
           <span>{time}</span>
         </div>
         <div className={styles.sessionService}>{service}</div>
@@ -113,19 +111,19 @@ export function ReferralStatsWidget({
     <SidebarWidget title="Referral Stats">
       <div className={styles.statsCard}>
         <div className={styles.statRow}>
-          <span className={styles.statLabel}>👥 Referred:</span>
+          <span className={styles.statLabel}>Referred:</span>
           <span className={styles.statValue}>{totalReferred}</span>
         </div>
         <div className={styles.statRow}>
-          <span className={styles.statLabel}>✅ Signed Up:</span>
+          <span className={styles.statLabel}>Signed Up:</span>
           <span className={styles.statValue}>{signedUp}</span>
         </div>
         <div className={styles.statRow}>
-          <span className={styles.statLabel}>💎 Converted:</span>
+          <span className={styles.statLabel}>Converted:</span>
           <span className={styles.statValue}>{converted}</span>
         </div>
         <div className={`${styles.statRow} ${styles.statHighlight}`}>
-          <span className={styles.statLabel}>💰 Total Earned:</span>
+          <span className={styles.statLabel}>Total Earned:</span>
           <span className={styles.statValueHighlight}>£{totalEarned.toFixed(2)}</span>
         </div>
       </div>
@@ -146,7 +144,7 @@ export function ReferralLinkWidget({ referralCode, onCopy }: ReferralLinkProps) 
       <div className={styles.referralLinkCard}>
         <div className={styles.referralUrl}>{referralUrl}</div>
         <button onClick={onCopy} className={styles.copyButton}>
-          📋 Copy Link
+          Copy Link
         </button>
       </div>
     </SidebarWidget>

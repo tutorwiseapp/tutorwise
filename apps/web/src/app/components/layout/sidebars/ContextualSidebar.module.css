@@ -193,13 +193,20 @@
 }
 
 /* Mobile: Hide contextual sidebar by default */
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
   .contextualSidebar {
     display: none;
   }
 }
 
-/* Tablet: Narrower contextual sidebar */
+/* Tablet: Narrower contextual sidebar (now visible) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .contextualSidebar {
+    width: 260px;
+  }
+}
+
+/* Small Desktop: Narrower contextual sidebar */
 @media (min-width: 1025px) and (max-width: 1280px) {
   .contextualSidebar {
     width: 260px;

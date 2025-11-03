@@ -64,11 +64,11 @@
   }
 }
 
-/* Tablet: Show AppSidebar, hide ContextualSidebar */
+/* Tablet: Show all 3 columns with narrower widths */
 @media (min-width: 769px) and (max-width: 1024px) {
   .mainContent {
     margin-left: 200px; /* Narrower AppSidebar on tablet */
-    margin-right: 0; /* No ContextualSidebar on tablet */
+    margin-right: 260px; /* Show ContextualSidebar on tablet */
     padding: 1.5rem;
   }
 }

@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import BookingCard from '@/app/components/bookings/BookingCard';
 import ContextualSidebar, { UpcomingSessionWidget } from '@/app/components/layout/sidebars/ContextualSidebar';
+import BookingStatsWidget from '@/app/components/bookings/BookingStatsWidget';
 import { Booking } from '@/types';
 import { createClient } from '@/utils/supabase/client';
 import styles from './page.module.css';
@@ -188,9 +189,10 @@ export default function BookingsPage() {
         )}
       </div>
 
-      {/* Contextual Sidebar (Right Column) */}
-      {nextSession && (
-        <ContextualSidebar>
+      {/* Contextual Sidebar (Right Column) - Always visible */}
+      <ContextualSidebar>
+        {/* Show next session widget if there is an upcoming session */}
+        {nextSession && (
           <UpcomingSessionWidget
             date={new Date(nextSession.session_start_time).toLocaleDateString('en-GB', {
               weekday: 'short',
@@ -208,8 +210,15 @@ export default function BookingsPage() {
                 : nextSession.student?.full_name || 'Unknown'
             }
           />
-        </ContextualSidebar>
-      )}
+        )}
+
+        {/* Booking stats widget - always visible */}
+        <BookingStatsWidget
+          pending={bookings.filter((b) => b.status === 'Pending').length}
+          upcoming={bookings.filter((b) => new Date(b.session_start_time) >= new Date() && b.status !== 'Cancelled').length}
+          completed={bookings.filter((b) => b.status === 'Completed').length}
+        />
+      </ContextualSidebar>
     </>
   );
 }
