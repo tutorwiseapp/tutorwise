@@ -105,7 +105,7 @@ export default function CreateListingPage() {
       localStorage.removeItem('listing_draft');
 
       // Redirect to My Listings page after successful publish
-      router.push('/my-listings');
+      router.push('/listings');
     } catch (error) {
       console.error('Failed to create listing:', error);
       toast.error('Failed to create listing. Please try again.');

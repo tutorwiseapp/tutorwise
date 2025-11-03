@@ -214,9 +214,9 @@ export async function publishListing(id: string): Promise<Listing> {
 }
 
 /**
- * Unpublish a listing (change status to draft or paused)
+ * Unpublish a listing (change status to draft, paused, or archived)
  */
-export async function unpublishListing(id: string, status: 'draft' | 'paused' = 'paused'): Promise<Listing> {
+export async function unpublishListing(id: string, status: 'draft' | 'paused' | 'archived' = 'paused'): Promise<Listing> {
   const supabase = createClient();
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();

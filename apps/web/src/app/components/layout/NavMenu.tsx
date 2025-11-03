@@ -132,7 +132,7 @@ const NavMenu = () => {
                   <Link href="/network">Network</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild className={styles.menuItem}>
-                  <Link href="/my-listings">Listings</Link>
+                  <Link href="/listings">Listings</Link>
                 </DropdownMenu.Item>
 
                 <div className={styles.separator12px} />

@@ -8,7 +8,7 @@ import { getListing, updateListing } from '@/lib/api/listings';
 import type { Listing, UpdateListingInput } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
 import CreateListingWizard from '@/app/components/listings/CreateListingWizard';
-import styles from '../../create/page.module.css';
+import styles from '../../create-listing/page.module.css';
 
 export default function EditListingPage() {
   const router = useRouter();
@@ -24,7 +24,7 @@ export default function EditListingPage() {
   // Load listing data - must be before conditional returns
   useEffect(() => {
     if (!userLoading && !user) {
-      router.push(`/login?redirect=/my-listings/${listingId}/edit`);
+      router.push(`/login?redirect=/listings/${listingId}/edit`);
       return;
     }
 
@@ -40,7 +40,7 @@ export default function EditListingPage() {
         setListing(data);
       } else {
         toast.error('Listing not found');
-        router.push('/my-listings');
+        router.push('/listings');
       }
     } catch (error) {
       console.error('Failed to load listing:', error);
@@ -56,7 +56,7 @@ export default function EditListingPage() {
       const updatedData = { ...data, id: listingId };
       await updateListing(updatedData);
       toast.success('Listing updated successfully!');
-      router.push('/my-listings');
+      router.push('/listings');
     } catch (error) {
       console.error('Failed to update listing:', error);
       toast.error('Failed to update listing. Please try again.');
@@ -66,7 +66,7 @@ export default function EditListingPage() {
   };
 
   const handleCancel = () => {
-    router.push('/my-listings');
+    router.push('/listings');
   };
 
   // Show loading state for all async operations

@@ -31,7 +31,7 @@ export default function AppSidebar() {
     { href: '/financials', label: 'Financials' },
     { href: '/messages', label: 'Messages' },
     { href: '/network', label: 'Network' },
-    { href: '/my-listings', label: 'Listings' },
+    { href: '/listings', label: 'Listings' },
     { href: '/profile', label: 'Profile' },
     { href: '/settings', label: 'Settings' },
   ];

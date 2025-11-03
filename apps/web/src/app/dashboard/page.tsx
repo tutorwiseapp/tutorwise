@@ -38,8 +38,8 @@ const getDashboardLinks = (role: string | null) => {
   const tutorLinks = [
     { href: '/bookings', title: 'Bookings', description: 'Manage your upcoming and past tutoring sessions.', linkText: 'View Bookings' },
     { href: '/financials', title: 'Financials', description: 'Track your earnings, payouts, and commissions.', linkText: 'View Financials' },
-    { href: '/my-listings', title: 'My Listings', description: 'View and manage your tutoring service listings.', linkText: 'View Listings' },
-    { href: '/my-listings/create', title: 'Create New Listing', description: 'Create a new service listing to attract students.', linkText: 'Create Listing' },
+    { href: '/listings', title: 'My Listings', description: 'View and manage your tutoring service listings.', linkText: 'View Listings' },
+    { href: '/create-listing', title: 'Create New Listing', description: 'Create a new service listing to attract students.', linkText: 'Create Listing' },
     { href: '/referrals', title: 'Referrals', description: 'Track your referral pipeline and earn commissions.', linkText: 'View Referrals' },
     { href: '/marketplace', title: 'Browse Marketplace', description: 'See how your listings appear to students.', linkText: 'View Marketplace' },
     ...commonLinks,
