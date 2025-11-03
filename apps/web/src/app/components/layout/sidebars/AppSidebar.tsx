@@ -15,7 +15,6 @@ import styles from './AppSidebar.module.css';
 interface NavItem {
   href: string;
   label: string;
-  icon: string;
   roles?: ('client' | 'tutor' | 'agent')[];
 }
 
@@ -25,46 +24,14 @@ export default function AppSidebar() {
 
   // Main navigation items (SDD v3.6, Section 5.1)
   const navItems: NavItem[] = [
-    {
-      href: '/dashboard',
-      label: 'Dashboard',
-      icon: '',
-    },
-    {
-      href: '/marketplace',
-      label: 'Marketplace',
-      icon: '',
-    },
-    {
-      href: '/bookings',
-      label: 'Bookings',
-      icon: '',
-    },
-    {
-      href: '/financials',
-      label: 'Financials',
-      icon: '',
-    },
-    {
-      href: '/referrals',
-      label: 'Referrals',
-      icon: '',
-    },
-    {
-      href: '/messages',
-      label: 'Messages',
-      icon: '',
-    },
-    {
-      href: '/profile',
-      label: 'Profile',
-      icon: '',
-    },
-    {
-      href: '/settings',
-      label: 'Settings',
-      icon: '',
-    },
+    { href: '/dashboard', label: 'Dashboard' },
+    { href: '/marketplace', label: 'Marketplace' },
+    { href: '/bookings', label: 'Bookings' },
+    { href: '/financials', label: 'Financials' },
+    { href: '/referrals', label: 'Referrals' },
+    { href: '/messages', label: 'Messages' },
+    { href: '/profile', label: 'Profile' },
+    { href: '/settings', label: 'Settings' },
   ];
 
   // Filter items based on role if needed
@@ -92,8 +59,7 @@ export default function AppSidebar() {
                   isActive(item.href) ? styles.navItemActive : ''
                 }`}
               >
-                <span className={styles.navIcon}>{item.icon}</span>
-                <span className={styles.navLabel}>{item.label}</span>
+                {item.label}
               </Link>
             </li>
           ))}

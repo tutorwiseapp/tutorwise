@@ -56,14 +56,6 @@
   font-weight: 600;
 }
 
-.navIcon {
-  display: none; /* Hide icons for professional look */
-}
-
-.navLabel {
-  flex: 1;
-}
-
 /* Role Indicator */
 .roleIndicator {
   padding: 1rem;
