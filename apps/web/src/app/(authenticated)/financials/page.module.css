@@ -61,43 +61,6 @@
   font-weight: 600;
 }
 
-/* Transaction Type Filter (Dropdown) */
-.typeFilterSection {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  padding: 0.75rem 1rem;
-  background-color: #f9fafb;
-  border-radius: 0.5rem;
-  border: 1px solid #e5e7eb;
-}
-
-.typeFilterLabel {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #6b7280;
-  white-space: nowrap;
-}
-
-.typeFilterSelect {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  color: #1f2937;
-  background-color: #ffffff;
-  cursor: pointer;
-  flex: 1;
-  max-width: 300px;
-}
-
-.typeFilterSelect:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
 /* Transactions List */
 .transactionsList {
   display: flex;
@@ -165,15 +128,6 @@
   .filterTab {
     padding: 0.5rem 1rem;
     font-size: 0.8125rem;
-  }
-
-  .typeFilterSection {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .typeFilterSelect {
-    max-width: 100%;
   }
 
   .emptyState {

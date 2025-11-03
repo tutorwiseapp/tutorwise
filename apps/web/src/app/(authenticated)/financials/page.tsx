@@ -24,17 +24,16 @@ export default function FinancialsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Read filters from URL (SDD v3.6: URL is single source of truth)
-  const typeFilter = (searchParams?.get('type') as TransactionType | null) || 'all';
+  // Read filter from URL (SDD v3.6: URL is single source of truth)
   const statusFilter = (searchParams?.get('status') as TransactionStatus | null) || 'all';
 
   // Update URL when filter changes
-  const handleFilterChange = (filterType: 'type' | 'status', value: string) => {
+  const handleFilterChange = (newStatus: TransactionStatus | 'all') => {
     const params = new URLSearchParams(searchParams?.toString() || '');
-    if (value === 'all') {
-      params.delete(filterType);
+    if (newStatus === 'all') {
+      params.delete('status');
     } else {
-      params.set(filterType, value);
+      params.set('status', newStatus);
     }
     router.push(`/financials${params.toString() ? `?${params.toString()}` : ''}`);
   };
@@ -67,11 +66,10 @@ export default function FinancialsPage() {
     fetchTransactions();
   }, [profile]); // Only re-fetch when profile changes, not on filter change
 
-  // Client-side filtering based on URL params
+  // Client-side filtering based on URL param (status only)
   const filteredTransactions = transactions.filter((txn) => {
-    const typeMatch = typeFilter === 'all' || txn.type === typeFilter;
-    const statusMatch = statusFilter === 'all' || txn.status === statusFilter;
-    return typeMatch && statusMatch;
+    if (statusFilter === 'all') return true;
+    return txn.status === statusFilter;
   });
 
   // Calculate balance summary (from ALL transactions, not filtered)
@@ -120,52 +118,35 @@ export default function FinancialsPage() {
         {/* Status Filter Tabs - Using URL params */}
         <div className={styles.filterTabs}>
           <button
-            onClick={() => handleFilterChange('status', 'all')}
+            onClick={() => handleFilterChange('all')}
             className={`${styles.filterTab} ${statusFilter === 'all' ? styles.filterTabActive : ''}`}
           >
             All Status
           </button>
           <button
-            onClick={() => handleFilterChange('status', 'Pending')}
+            onClick={() => handleFilterChange('Pending')}
             className={`${styles.filterTab} ${statusFilter === 'Pending' ? styles.filterTabActive : ''}`}
           >
             Pending
           </button>
           <button
-            onClick={() => handleFilterChange('status', 'Paid')}
+            onClick={() => handleFilterChange('Paid')}
             className={`${styles.filterTab} ${statusFilter === 'Paid' ? styles.filterTabActive : ''}`}
           >
             Paid
           </button>
           <button
-            onClick={() => handleFilterChange('status', 'Failed')}
+            onClick={() => handleFilterChange('Failed')}
             className={`${styles.filterTab} ${statusFilter === 'Failed' ? styles.filterTabActive : ''}`}
           >
             Failed
           </button>
           <button
-            onClick={() => handleFilterChange('status', 'Cancelled')}
+            onClick={() => handleFilterChange('Cancelled')}
             className={`${styles.filterTab} ${statusFilter === 'Cancelled' ? styles.filterTabActive : ''}`}
           >
             Cancelled
           </button>
-        </div>
-
-        {/* Transaction Type Filter - Dropdown for 5 types */}
-        <div className={styles.typeFilterSection}>
-          <label className={styles.typeFilterLabel}>Transaction Type:</label>
-          <select
-            value={typeFilter}
-            onChange={(e) => handleFilterChange('type', e.target.value)}
-            className={styles.typeFilterSelect}
-          >
-            <option value="all">All Types</option>
-            <option value="Booking Payment">Booking Payment</option>
-            <option value="Tutoring Payout">Tutoring Payout</option>
-            <option value="Referral Commission">Referral Commission</option>
-            <option value="Agent Commission">Agent Commission</option>
-            <option value="Platform Fee">Platform Fee</option>
-          </select>
         </div>
 
         {/* Error State */}
