@@ -89,6 +89,7 @@ export interface Listing {
   created_at: string;
   updated_at: string;
   published_at?: string;
+  archived_at?: string; // Timestamp when listing was archived (for 30-day deletion rule)
 }
 
 export interface CreateListingInput {

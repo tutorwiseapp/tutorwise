@@ -60,6 +60,43 @@ export default function ListingCard({
     }
   };
 
+  // Business logic checks
+  const isPublished = listing.status === 'published';
+  const isArchived = listing.status === 'archived';
+
+  // Calculate if listing has been archived for 3+ days (will be 30 days in production)
+  const DAYS_BEFORE_DELETE = 3; // TODO: Change to 30 days in production
+
+  const canDelete = () => {
+    if (isTemplate) return false; // Templates cannot be deleted
+    if (!isArchived) return false; // Only archived listings can be deleted
+    if (!listing.archived_at) return false; // Must have archived_at timestamp
+
+    const archivedDate = new Date(listing.archived_at);
+    const now = new Date();
+    const daysSinceArchived = Math.floor((now.getTime() - archivedDate.getTime()) / (1000 * 60 * 60 * 24));
+
+    return daysSinceArchived >= DAYS_BEFORE_DELETE;
+  };
+
+  // Handle delete with confirmation and validation
+  const handleDeleteClick = () => {
+    if (!canDelete()) {
+      const archivedDate = listing.archived_at ? new Date(listing.archived_at) : null;
+      const daysSinceArchived = archivedDate
+        ? Math.floor((new Date().getTime() - archivedDate.getTime()) / (1000 * 60 * 60 * 24))
+        : 0;
+      const daysRemaining = Math.max(0, DAYS_BEFORE_DELETE - daysSinceArchived);
+
+      alert(`You cannot delete this listing yet. Listings can only be deleted after being archived for ${DAYS_BEFORE_DELETE} days. ${daysRemaining} days remaining.`);
+      return;
+    }
+
+    if (confirm('Are you sure you want to permanently delete this listing? This action cannot be undone.')) {
+      onDelete(listing.id);
+    }
+  };
+
   return (
     <div className={styles.card}>
       {/* Left: Image (192x192) */}
@@ -134,17 +171,21 @@ export default function ListingCard({
               Duplicate
             </Button>
           ) : (
-            // Regular listing: Show all actions
+            // Regular listing: Show all actions with business logic
             <>
+              {/* Edit button - disabled for published listings */}
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={() => router.push(`/edit-listing/${listing.id}`)}
+                disabled={isPublished}
+                title={isPublished ? 'Unpublish listing first to edit' : 'Edit listing'}
               >
                 Edit
               </Button>
 
-              {listing.status === 'published' ? (
+              {/* Publish/Unpublish toggle */}
+              {isPublished ? (
                 <Button
                   variant="secondary"
                   size="sm"
@@ -157,11 +198,14 @@ export default function ListingCard({
                   variant="primary"
                   size="sm"
                   onClick={() => onPublish(listing.id)}
+                  disabled={isArchived}
+                  title={isArchived ? 'Archived listings cannot be published' : 'Publish listing'}
                 >
                   Publish
                 </Button>
               )}
 
+              {/* Duplicate - always available */}
               <Button
                 variant="secondary"
                 size="sm"
@@ -170,20 +214,32 @@ export default function ListingCard({
                 Duplicate
               </Button>
 
-              {listing.status !== 'archived' && (
+              {/* Archive - only for non-archived listings */}
+              {!isArchived && (
                 <Button
                   variant="secondary"
                   size="sm"
                   onClick={() => onArchive(listing.id)}
+                  disabled={isPublished}
+                  title={isPublished ? 'Unpublish listing first to archive' : 'Archive listing'}
                 >
                   Archive
                 </Button>
               )}
 
+              {/* Delete - only for archived listings after waiting period */}
               <Button
                 variant="danger"
                 size="sm"
-                onClick={() => onDelete(listing.id)}
+                onClick={handleDeleteClick}
+                disabled={!isArchived}
+                title={
+                  !isArchived
+                    ? 'Archive listing first to delete'
+                    : canDelete()
+                    ? 'Delete listing permanently'
+                    : `Delete available after ${DAYS_BEFORE_DELETE} days`
+                }
               >
                 Delete
               </Button>
