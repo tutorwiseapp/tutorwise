@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/(authenticated)/my-network/page.tsx
+ * Filename: src/app/(authenticated)/network/page.tsx
  * Purpose: Network hub page - placeholder for future networking feature
  * Created: 2025-11-03
  * Specification: Hub page following SDD v3.6 design patterns
