@@ -2,12 +2,13 @@
  * Filename: src/app/components/listings/ListingStatsWidget.tsx
  * Purpose: Display listing statistics in ContextualSidebar
  * Created: 2025-11-03
- * Specification: SDD v3.6 - ContextualSidebar widget
+ * Specification: SDD v3.6 - ContextualSidebar widget with teal title box
  */
 'use client';
 
 import React, { useEffect, useState } from 'react';
 import { getMyListings } from '@/lib/api/listings';
+import { SidebarWidget } from '@/app/components/layout/sidebars/ContextualSidebar';
 import type { Listing } from '@tutorwise/shared-types';
 import styles from './ListingStatsWidget.module.css';
 
@@ -46,16 +47,14 @@ export default function ListingStatsWidget() {
 
   if (isLoading) {
     return (
-      <div className={styles.widget}>
-        <h4 className={styles.title}>Listing Stats</h4>
+      <SidebarWidget title="Listing Stats">
         <p className={styles.loading}>Loading...</p>
-      </div>
+      </SidebarWidget>
     );
   }
 
   return (
-    <div className={styles.widget}>
-      <h4 className={styles.title}>Listing Stats</h4>
+    <SidebarWidget title="Listing Stats">
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
           <div className={styles.statValue}>{stats.total}</div>
@@ -74,6 +73,6 @@ export default function ListingStatsWidget() {
           <div className={styles.statLabel}>Archived</div>
         </div>
       </div>
-    </div>
+    </SidebarWidget>
   );
 }
