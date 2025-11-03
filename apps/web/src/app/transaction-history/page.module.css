@@ -1,9 +1,0 @@
-.amountPositive {
-  color: var(--color-success, #34a853);
-  font-weight: var(--font-weight-medium, 500);
-}
-
-.amountNegative {
-  color: var(--color-text-primary, #202124);
-  font-weight: var(--font-weight-regular, 400);
-}
