@@ -26,37 +26,39 @@
   margin: 0;
 }
 
-/* Filter Tabs */
+/* Filter Tabs - Pill Style */
 .filterTabs {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 2rem;
-  border-bottom: 2px solid #e5e7eb;
+  padding: 0.5rem;
+  background-color: var(--color-gray-100, #F5F5F5);
+  border-radius: 0.75rem; /* rounded-lg */
   overflow-x: auto;
 }
 
 .filterTab {
   padding: 0.75rem 1.5rem;
-  background: none;
+  background: transparent;
   border: none;
-  border-bottom: 2px solid transparent;
-  color: #6b7280;
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 500;
+  color: var(--color-gray-700, #4B4B4B);
   cursor: pointer;
-  transition: all 0.15s ease-in-out;
+  border-radius: 0.5rem; /* 8px rounded-md */
+  transition: all 0.2s ease;
   white-space: nowrap;
-  margin-bottom: -2px;
 }
 
 .filterTab:hover {
-  color: #1f2937;
-  background-color: #f9fafb;
+  background-color: var(--color-primary-light, #E6F0F0);
+  color: var(--color-gray-700, #4B4B4B);
 }
 
 .filterTabActive {
-  color: #3b82f6;
-  border-bottom-color: #3b82f6;
+  background-color: var(--color-primary-light, #E6F0F0);
+  color: var(--color-primary-default, #006c67);
+  font-weight: 600;
 }
 
 /* Bookings List */
