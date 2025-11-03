@@ -34,9 +34,12 @@
   border-bottom: 2px solid #e5e7eb;
   padding-bottom: 0;
   overflow-x: auto;
-  /* Full width - no max-width constraint */
-  width: 100%;
-  /* No horizontal padding - mainContent already provides it */
+  /* Full width - escape mainContent padding with negative margins */
+  margin-left: -2rem;
+  margin-right: -2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  width: calc(100% + 4rem);
 }
 
 .filterTab {
@@ -127,6 +130,12 @@
 
   .filterTabs {
     gap: 0.25rem;
+    /* Mobile has 1rem padding, adjust negative margins */
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: calc(100% + 2rem);
   }
 
   .filterTab {
@@ -140,5 +149,17 @@
 
   .emptyIcon {
     font-size: 3rem;
+  }
+}
+
+/* Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .filterTabs {
+    /* Tablet has 1.5rem padding */
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    width: calc(100% + 3rem);
   }
 }
