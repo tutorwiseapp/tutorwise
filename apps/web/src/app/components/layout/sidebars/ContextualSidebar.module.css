@@ -11,7 +11,7 @@
   position: fixed;
   top: 64px; /* Start below header */
   right: 0;
-  background-color: #f9fafb;
+  background-color: #ffffff;
   border-left: 1px solid #e5e7eb;
   overflow-y: auto;
   z-index: 30;
@@ -38,7 +38,7 @@
   color: #1f2937;
   padding: 0.75rem 1rem;
   border-bottom: 1px solid #e5e7eb;
-  background-color: #f9fafb;
+  background-color: var(--color-primary-light, #E6F0F0);
   margin: 0;
 }
 
