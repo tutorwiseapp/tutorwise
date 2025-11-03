@@ -47,12 +47,8 @@ export default function FinancialsPage() {
         setIsLoading(true);
         const supabase = createClient();
 
-        // Build query params
-        const params = new URLSearchParams();
-        if (typeFilter !== 'all') params.append('type', typeFilter);
-        if (statusFilter !== 'all') params.append('status', statusFilter);
-
-        const response = await fetch(`/api/financials?${params.toString()}`);
+        // Fetch ALL transactions (no filter params - client-side filtering)
+        const response = await fetch(`/api/financials`);
 
         if (!response.ok) {
           throw new Error('Failed to fetch transactions');
@@ -69,9 +65,16 @@ export default function FinancialsPage() {
     };
 
     fetchTransactions();
-  }, [profile, typeFilter, statusFilter]);
+  }, [profile]); // Only re-fetch when profile changes, not on filter change
 
-  // Calculate balance summary
+  // Client-side filtering based on URL params
+  const filteredTransactions = transactions.filter((txn) => {
+    const typeMatch = typeFilter === 'all' || txn.type === typeFilter;
+    const statusMatch = statusFilter === 'all' || txn.status === statusFilter;
+    return typeMatch && statusMatch;
+  });
+
+  // Calculate balance summary (from ALL transactions, not filtered)
   const balanceSummary = transactions.reduce(
     (acc, txn) => {
       // Only count income transactions (payouts and commissions)
@@ -114,38 +117,55 @@ export default function FinancialsPage() {
           </p>
         </div>
 
-        {/* Filters - Using URL params */}
-        <div className={styles.filters}>
-          <div className={styles.filterGroup}>
-            <label className={styles.filterLabel}>Transaction Type:</label>
-            <select
-              value={typeFilter}
-              onChange={(e) => handleFilterChange('type', e.target.value)}
-              className={styles.filterSelect}
-            >
-              <option value="all">All Types</option>
-              <option value="Booking Payment">Booking Payment</option>
-              <option value="Tutoring Payout">Tutoring Payout</option>
-              <option value="Referral Commission">Referral Commission</option>
-              <option value="Agent Commission">Agent Commission</option>
-              <option value="Platform Fee">Platform Fee</option>
-            </select>
-          </div>
+        {/* Status Filter Tabs - Using URL params */}
+        <div className={styles.filterTabs}>
+          <button
+            onClick={() => handleFilterChange('status', 'all')}
+            className={`${styles.filterTab} ${statusFilter === 'all' ? styles.filterTabActive : ''}`}
+          >
+            All Status
+          </button>
+          <button
+            onClick={() => handleFilterChange('status', 'Pending')}
+            className={`${styles.filterTab} ${statusFilter === 'Pending' ? styles.filterTabActive : ''}`}
+          >
+            Pending
+          </button>
+          <button
+            onClick={() => handleFilterChange('status', 'Paid')}
+            className={`${styles.filterTab} ${statusFilter === 'Paid' ? styles.filterTabActive : ''}`}
+          >
+            Paid
+          </button>
+          <button
+            onClick={() => handleFilterChange('status', 'Failed')}
+            className={`${styles.filterTab} ${statusFilter === 'Failed' ? styles.filterTabActive : ''}`}
+          >
+            Failed
+          </button>
+          <button
+            onClick={() => handleFilterChange('status', 'Cancelled')}
+            className={`${styles.filterTab} ${statusFilter === 'Cancelled' ? styles.filterTabActive : ''}`}
+          >
+            Cancelled
+          </button>
+        </div>
 
-          <div className={styles.filterGroup}>
-            <label className={styles.filterLabel}>Status:</label>
-            <select
-              value={statusFilter}
-              onChange={(e) => handleFilterChange('status', e.target.value)}
-              className={styles.filterSelect}
-            >
-              <option value="all">All Status</option>
-              <option value="Pending">Pending</option>
-              <option value="Paid">Paid</option>
-              <option value="Failed">Failed</option>
-              <option value="Cancelled">Cancelled</option>
-            </select>
-          </div>
+        {/* Transaction Type Filter - Dropdown for 5 types */}
+        <div className={styles.typeFilterSection}>
+          <label className={styles.typeFilterLabel}>Transaction Type:</label>
+          <select
+            value={typeFilter}
+            onChange={(e) => handleFilterChange('type', e.target.value)}
+            className={styles.typeFilterSelect}
+          >
+            <option value="all">All Types</option>
+            <option value="Booking Payment">Booking Payment</option>
+            <option value="Tutoring Payout">Tutoring Payout</option>
+            <option value="Referral Commission">Referral Commission</option>
+            <option value="Agent Commission">Agent Commission</option>
+            <option value="Platform Fee">Platform Fee</option>
+          </select>
         </div>
 
         {/* Error State */}
@@ -156,19 +176,21 @@ export default function FinancialsPage() {
         )}
 
         {/* Empty State */}
-        {!error && transactions.length === 0 && (
+        {!error && filteredTransactions.length === 0 && (
           <div className={styles.emptyState}>
             <h3 className={styles.emptyTitle}>No transactions found</h3>
             <p className={styles.emptyText}>
-              Your transaction history will appear here once you start earning or making payments.
+              {transactions.length === 0
+                ? 'Your transaction history will appear here once you start earning or making payments.'
+                : 'No transactions match your current filters.'}
             </p>
           </div>
         )}
 
         {/* Transactions List */}
-        {!error && transactions.length > 0 && (
+        {!error && filteredTransactions.length > 0 && (
           <div className={styles.transactionsList}>
-            {transactions.map((transaction) => (
+            {filteredTransactions.map((transaction) => (
               <TransactionCard key={transaction.id} transaction={transaction} />
             ))}
           </div>

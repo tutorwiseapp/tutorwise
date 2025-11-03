@@ -26,33 +26,61 @@
   margin: 0;
 }
 
-/* Filters */
-.filters {
+/* Filter Tabs (Status) */
+.filterTabs {
   display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0;
+  overflow-x: auto;
+}
+
+.filterTab {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.filterTab:hover {
+  color: #1f2937;
+  background-color: #f9fafb;
+}
+
+.filterTabActive {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+  font-weight: 600;
+}
+
+/* Transaction Type Filter (Dropdown) */
+.typeFilterSection {
+  display: flex;
+  align-items: center;
   gap: 1rem;
   margin-bottom: 2rem;
-  padding: 1rem;
+  padding: 0.75rem 1rem;
   background-color: #f9fafb;
   border-radius: 0.5rem;
   border: 1px solid #e5e7eb;
 }
 
-.filterGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  flex: 1;
-}
-
-.filterLabel {
-  font-size: 0.75rem;
+.typeFilterLabel {
+  font-size: 0.875rem;
   font-weight: 600;
   color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
+  white-space: nowrap;
 }
 
-.filterSelect {
+.typeFilterSelect {
   padding: 0.5rem 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
@@ -60,9 +88,11 @@
   color: #1f2937;
   background-color: #ffffff;
   cursor: pointer;
+  flex: 1;
+  max-width: 300px;
 }
 
-.filterSelect:focus {
+.typeFilterSelect:focus {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -128,8 +158,22 @@
     font-size: 1.5rem;
   }
 
-  .filters {
+  .filterTabs {
+    gap: 0.25rem;
+  }
+
+  .filterTab {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+  }
+
+  .typeFilterSection {
     flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .typeFilterSelect {
+    max-width: 100%;
   }
 
   .emptyState {

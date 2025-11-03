@@ -49,11 +49,8 @@ export default function ReferralsPage() {
         setIsLoading(true);
         const supabase = createClient();
 
-        // Build query params
-        const params = new URLSearchParams();
-        if (statusFilter !== 'all') params.append('status', statusFilter);
-
-        const response = await fetch(`/api/referrals?${params.toString()}`);
+        // Fetch ALL referrals (no filter params - client-side filtering)
+        const response = await fetch(`/api/referrals`);
 
         if (!response.ok) {
           throw new Error('Failed to fetch referrals');
@@ -70,9 +67,15 @@ export default function ReferralsPage() {
     };
 
     fetchReferrals();
-  }, [profile, statusFilter]);
+  }, [profile]); // Only re-fetch when profile changes, not on filter change
 
-  // Calculate referral stats
+  // Client-side filtering based on URL param
+  const filteredReferrals = referrals.filter((referral) => {
+    if (statusFilter === 'all') return true;
+    return referral.status === statusFilter;
+  });
+
+  // Calculate referral stats (from ALL referrals, not filtered)
   const stats = referrals.reduce(
     (acc, ref) => {
       acc.totalReferred++;
@@ -166,9 +169,9 @@ export default function ReferralsPage() {
         )}
 
         {/* Empty State */}
-        {!error && referrals.length === 0 && (
+        {!error && filteredReferrals.length === 0 && (
           <div className={styles.emptyState}>
-            <h3 className={styles.emptyTitle}>No referrals yet</h3>
+            <h3 className={styles.emptyTitle}>No referrals found</h3>
             <p className={styles.emptyText}>
               {statusFilter === 'all'
                 ? 'Share your referral link to start earning commissions!'
@@ -183,9 +186,9 @@ export default function ReferralsPage() {
         )}
 
         {/* Referrals List */}
-        {!error && referrals.length > 0 && (
+        {!error && filteredReferrals.length > 0 && (
           <div className={styles.referralsList}>
-            {referrals.map((referral) => (
+            {filteredReferrals.map((referral) => (
               <ReferralCard key={referral.id} referral={referral} />
             ))}
           </div>
