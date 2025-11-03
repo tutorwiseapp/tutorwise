@@ -136,9 +136,10 @@ export default function BookingsPage() {
             Manage your tutoring sessions and upcoming appointments
           </p>
         </div>
+      </div>
 
-        {/* Filter Tabs - Using URL params */}
-        <div className={styles.filterTabs}>
+      {/* Filter Tabs - Full width outside container */}
+      <div className={styles.filterTabs}>
           <button
             onClick={() => handleFilterChange('all')}
             className={`${styles.filterTab} ${filter === 'all' ? styles.filterTabActive : ''}`}
@@ -157,8 +158,10 @@ export default function BookingsPage() {
           >
             Past
           </button>
-        </div>
+      </div>
 
+      {/* Content container */}
+      <div className={styles.container}>
         {/* Error State */}
         {error && (
           <div className={styles.error}>

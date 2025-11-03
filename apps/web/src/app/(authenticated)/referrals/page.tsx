@@ -126,9 +126,10 @@ export default function ReferralsPage() {
             Track your referral pipeline and earn 10% commission on first bookings
           </p>
         </div>
+      </div>
 
-        {/* Status Filter - Using URL params */}
-        <div className={styles.filterTabs}>
+      {/* Status Filter - Full width outside container */}
+      <div className={styles.filterTabs}>
           <button
             onClick={() => handleFilterChange('all')}
             className={`${styles.filterTab} ${statusFilter === 'all' ? styles.filterTabActive : ''}`}
@@ -159,8 +160,10 @@ export default function ReferralsPage() {
           >
             Expired
           </button>
-        </div>
+      </div>
 
+      {/* Content container */}
+      <div className={styles.container}>
         {/* Error State */}
         {error && (
           <div className={styles.error}>

@@ -114,9 +114,10 @@ export default function FinancialsPage() {
             Track your earnings, commissions, and payment history
           </p>
         </div>
+      </div>
 
-        {/* Status Filter Tabs - Using URL params */}
-        <div className={styles.filterTabs}>
+      {/* Status Filter Tabs - Full width outside container */}
+      <div className={styles.filterTabs}>
           <button
             onClick={() => handleFilterChange('all')}
             className={`${styles.filterTab} ${statusFilter === 'all' ? styles.filterTabActive : ''}`}
@@ -147,8 +148,10 @@ export default function FinancialsPage() {
           >
             Cancelled
           </button>
-        </div>
+      </div>
 
+      {/* Content container */}
+      <div className={styles.container}>
         {/* Error State */}
         {error && (
           <div className={styles.error}>

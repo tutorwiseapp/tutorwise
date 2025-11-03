@@ -34,9 +34,8 @@
   border-bottom: 2px solid #e5e7eb;
   padding-bottom: 0;
   overflow-x: auto;
-  /* Full width to touch side panels */
-  margin-left: -2rem;
-  margin-right: -2rem;
+  /* Full width - no max-width constraint */
+  width: 100%;
   padding-left: 2rem;
   padding-right: 2rem;
 }
