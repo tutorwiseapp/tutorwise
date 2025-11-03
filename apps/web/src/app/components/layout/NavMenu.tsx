@@ -117,6 +117,15 @@ const NavMenu = () => {
                   <Link href="/dashboard">Dashboard</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild className={styles.menuItem}>
+                  <Link href="/bookings">Bookings</Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item asChild className={styles.menuItem}>
+                  <Link href="/financials">Financials</Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item asChild className={styles.menuItem}>
+                  <Link href="/referrals">Referrals</Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item asChild className={styles.menuItem}>
                   <Link href="/messages">Messages</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild className={styles.menuItem}>

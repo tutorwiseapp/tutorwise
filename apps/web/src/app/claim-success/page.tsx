@@ -55,7 +55,7 @@ const ClaimSuccessPage = () => {
           Congratulations, {claimDetails.userName}! You&apos;ve successfully claimed your reward for <strong>{claimDetails.serviceName}</strong>. We&apos;ve added it to your account.
         </p>
         <div className={styles.buttonGroup}>
-          <Link href="/transaction-history">
+          <Link href="/financials">
             <Button variant="primary">View My Rewards</Button>
           </Link>
           <Link href="/dashboard">

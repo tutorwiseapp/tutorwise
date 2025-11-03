@@ -1,0 +1,92 @@
+/*
+ * Filename: src/app/(authenticated)/layout.module.css
+ * Purpose: Styles for 3-column authenticated layout
+ * Created: 2025-11-02
+ * Specification: SDD v3.6, Section 5.0 - Responsive 3-column layout
+ */
+
+.layoutContainer {
+  display: flex;
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+/* Loading State */
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+.loadingSpinner {
+  text-align: center;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingSpinner p {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Main Content Area (center column) */
+.mainContent {
+  flex: 1;
+  margin-left: 240px; /* Width of AppSidebar on desktop */
+  margin-right: 300px; /* Width of ContextualSidebar on desktop */
+  padding: 2rem;
+  overflow-y: auto;
+  min-height: 100vh;
+}
+
+/* Mobile: Stack layout, no sidebars visible by default */
+@media (max-width: 768px) {
+  .mainContent {
+    margin-left: 0;
+    margin-right: 0;
+    padding: 1rem;
+  }
+}
+
+/* Tablet: Show AppSidebar, hide ContextualSidebar */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .mainContent {
+    margin-left: 200px; /* Narrower AppSidebar on tablet */
+    margin-right: 0; /* No ContextualSidebar on tablet */
+    padding: 1.5rem;
+  }
+}
+
+/* Small Desktop: Show both sidebars with narrower widths */
+@media (min-width: 1025px) and (max-width: 1280px) {
+  .mainContent {
+    margin-left: 200px;
+    margin-right: 260px;
+    padding: 1.5rem;
+  }
+}
+
+/* Large Desktop: Full 3-column layout */
+@media (min-width: 1281px) {
+  .mainContent {
+    margin-left: 240px;
+    margin-right: 300px;
+    padding: 2rem;
+  }
+}

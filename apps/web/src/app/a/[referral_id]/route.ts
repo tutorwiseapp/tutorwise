@@ -1,52 +1,93 @@
 /*
  * Filename: src/app/a/[referral_id]/route.ts
- * Purpose: Handles referral link clicks, records the event, and redirects the user.
- * Change History:
- * C002 - 2025-09-02 : 18:00 - Migrated to use the new Supabase server client.
- * C001 - [Date] : [Time] - Initial creation.
- * Last Modified: 2025-09-02 : 18:00
- * Requirement ID: VIN-APP-02
- * Change Summary: This is the definitive fix for the build error "Can't resolve '@/lib/supabaseClient'". The route has been updated to import and use the new Supabase server client from `@/utils/supabase/server`, aligning it with the modern Supabase SSR architecture.
+ * Purpose: Handles referral link clicks, creates lead-gen record, sets cookie (SDD v3.6)
+ * Created: 2025-11-02 (Updated from legacy)
+ * Specification: SDD v3.6, Section 8.1
+ * Change Summary: Updated to create referral records in new schema and set httpOnly cookie
  */
-import { createClient } from '@/utils/supabase/server'; // --- THIS IS THE DEFINITIVE FIX ---
+import { createClient } from '@/utils/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
+/**
+ * GET /a/[referral_id]
+ * Tracks referral click and redirects to homepage
+ * - For logged-in users: Creates 'Referred' record with referred_profile_id
+ * - For anonymous users: Creates 'Referred' record without referred_profile_id, sets cookie
+ */
 export async function GET(
-  request: NextRequest, 
+  request: NextRequest,
   { params }: { params: { referral_id: string } }
 ) {
   const { referral_id } = params;
-  const destinationUrl = request.nextUrl.searchParams.get('u');
-
-  if (!destinationUrl) {
-    return NextResponse.redirect(new URL('/?error=missing_destination', request.url));
-  }
-  
-  const ipAddress = request.ip ?? '127.0.0.1';
-  const userAgent = request.headers.get('user-agent');
-  const channelOrigin = request.nextUrl.searchParams.get('channel_origin');
-
-  const clickEventData = {
-    referral_id: referral_id,
-    destination_url: destinationUrl,
-    ip_address: ipAddress,
-    user_agent: userAgent,
-    channel_origin: channelOrigin,
-  };
+  const supabase = createClient();
 
   try {
-    const supabase = createClient(); // --- THIS IS THE DEFINITIVE FIX ---
-    const { error } = await supabase
-      .from('ClickLog') // This should probably be 'referrals', but using existing table name
-      .insert([clickEventData]);
+    // 1. Get referrer's profile_id from their referral_code
+    const { data: referrerProfile, error: referrerError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('referral_code', referral_id.toUpperCase())
+      .single();
 
-    if (error) {
-      throw error;
+    if (referrerError || !referrerProfile) {
+      console.error('Invalid referral code:', referral_id);
+      return NextResponse.redirect(new URL('/?error=invalid_referral', request.url));
     }
 
-  } catch (error) {
-    console.error('Supabase Error: Failed to log click event.', error);
-  }
+    const referrer_profile_id = referrerProfile.id;
 
-  return NextResponse.redirect(destinationUrl);
+    // 2. Check if user is logged in
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // 3. Create referral record (SDD v3.6, Section 8.1)
+    if (user) {
+      // REGISTERED USER FUNNEL
+      // Create referral record with referred_profile_id
+      const { error: referralError } = await supabase
+        .from('referrals')
+        .insert({
+          referrer_profile_id,
+          referred_profile_id: user.id,
+          status: 'Referred'
+        });
+
+      if (referralError) {
+        console.error('Error creating referral for logged-in user:', referralError);
+      }
+    } else {
+      // UNREGISTERED USER FUNNEL
+      // Create anonymous referral record and store ID in cookie
+      const { data: referralRecord, error: referralError } = await supabase
+        .from('referrals')
+        .insert({
+          referrer_profile_id,
+          referred_profile_id: null,
+          status: 'Referred'
+        })
+        .select('id')
+        .single();
+
+      if (referralError || !referralRecord) {
+        console.error('Error creating anonymous referral:', referralError);
+      } else {
+        // Set secure, httpOnly cookie (SDD v3.6, Q&A #4)
+        const cookieStore = cookies();
+        cookieStore.set('tutorwise_referral_id', referralRecord.id, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 30 * 24 * 60 * 60, // 30 days
+          path: '/',
+        });
+      }
+    }
+
+    // 4. Redirect to homepage
+    return NextResponse.redirect(new URL('/', request.url));
+
+  } catch (error) {
+    console.error('Referral tracking error:', error);
+    return NextResponse.redirect(new URL('/?error=tracking_failed', request.url));
+  }
 }

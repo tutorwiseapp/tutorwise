@@ -18,49 +18,37 @@ import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import styles from './page.module.css';
 
-// Role-specific dashboard links
+// Role-specific dashboard links (SDD v3.6 - prioritized order)
 const getDashboardLinks = (role: string | null) => {
-  // Referral cards - common to all roles
-  const referralLinks = [
-    { href: '/referral-activities', title: 'My Activity', description: 'Track results of your referral links.', linkText: 'View Activity' },
-    { href: '/transaction-history', title: 'Referral Earnings', description: 'View referral commission payouts received.', linkText: 'View Earnings' },
-    { href: '/payments', title: 'Payments', description: 'Connect your bank account via Stripe to receive payouts.', linkText: 'Manage Payments' },
-  ];
-
   const commonLinks = [
     { href: '/profile', title: 'My Profile', description: 'Update your public-facing profile information.', linkText: 'Edit Profile' },
     { href: '/settings', title: 'Settings', description: 'Manage account settings and notifications.', linkText: 'Go to Settings' },
   ];
 
-  const providerLinks = [
+  // CLIENT: Prioritized by immediate needs
+  const clientLinks = [
+    { href: '/bookings', title: 'Bookings', description: 'View your upcoming and past tutoring sessions.', linkText: 'View Bookings' },
+    { href: '/marketplace', title: 'Find Tutors', description: 'Browse and connect with qualified tutors.', linkText: 'Browse Tutors' },
+    { href: '/financials', title: 'Financials', description: 'Track your payments and transaction history.', linkText: 'View Financials' },
+    { href: '/referrals', title: 'Referrals', description: 'Earn 10% commission by referring others.', linkText: 'View Referrals' },
+    ...commonLinks,
+  ];
+
+  // TUTOR/AGENT: Prioritized by business operations
+  const tutorLinks = [
+    { href: '/bookings', title: 'Bookings', description: 'Manage your upcoming and past tutoring sessions.', linkText: 'View Bookings' },
+    { href: '/financials', title: 'Financials', description: 'Track your earnings, payouts, and commissions.', linkText: 'View Financials' },
     { href: '/my-listings', title: 'My Listings', description: 'View and manage your tutoring service listings.', linkText: 'View Listings' },
     { href: '/my-listings/create', title: 'Create New Listing', description: 'Create a new service listing to attract students.', linkText: 'Create Listing' },
+    { href: '/referrals', title: 'Referrals', description: 'Track your referral pipeline and earn commissions.', linkText: 'View Referrals' },
     { href: '/marketplace', title: 'Browse Marketplace', description: 'See how your listings appear to students.', linkText: 'View Marketplace' },
-    ...referralLinks,
-    ...commonLinks,
-  ];
-
-  const seekerLinks = [
-    { href: '/marketplace', title: 'Find Tutors', description: 'Browse and connect with qualified tutors.', linkText: 'Browse Tutors' },
-    { href: '/bookings', title: 'My Bookings', description: 'View your upcoming and past tutoring sessions.', linkText: 'View Bookings' },
-    ...referralLinks,
-    ...commonLinks,
-  ];
-
-  const agentLinks = [
-    // Agents can do everything - they manage the platform
-    { href: '/marketplace', title: 'Find Tutors', description: 'Browse and connect with qualified tutors.', linkText: 'Browse Tutors' },
-    { href: '/my-listings', title: 'My Listings', description: 'View and manage tutoring service listings.', linkText: 'View Listings' },
-    { href: '/my-listings/create', title: 'Create New Listing', description: 'Create a new service listing.', linkText: 'Create Listing' },
-    { href: '/bookings', title: 'My Bookings', description: 'View upcoming and past tutoring sessions.', linkText: 'View Bookings' },
-    ...referralLinks,
     ...commonLinks,
   ];
 
   switch (role) {
-    case 'tutor': return providerLinks;
-    case 'client': return seekerLinks;
-    case 'agent': return agentLinks;
+    case 'tutor': return tutorLinks;
+    case 'agent': return tutorLinks; // Agents use same order as tutors
+    case 'client': return clientLinks;
     default: return commonLinks;
   }
 };

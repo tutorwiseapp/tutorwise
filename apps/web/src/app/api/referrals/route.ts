@@ -1,52 +1,60 @@
 /*
  * Filename: src/app/api/referrals/route.ts
- * Purpose: Provides a secure API to fetch the user's referral data.
- * Change History:
- * C004 - 2025-09-02 : 19:00 - Migrated to use Supabase server client for authentication.
- * Last Modified: 2025-09-02 : 19:00
- * Requirement ID: VIN-AUTH-MIG-05
- * Change Summary: This route has been fully migrated to Supabase Auth. It now uses the `createClient` from `@/utils/supabase/server` to securely get the user's session from their cookie.
+ * Purpose: Provides GET endpoint for referral lead pipeline (SDD v3.6)
+ * Created: 2025-11-02 (Updated from legacy)
+ * Specification: SDD v3.6, Section 8.3
+ * Change Summary: Updated to use new v3.6 schema with referrer_profile_id
  */
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
-export async function GET() {
+/**
+ * GET /api/referrals
+ * Fetches referral lead pipeline for the authenticated user
+ * Query params:
+ * - status (optional): filters by referral status ('Referred', 'Signed Up', 'Converted', 'Expired')
+ */
+export async function GET(req: Request) {
   const supabase = createClient();
+
   try {
+    // 1. Authenticate user
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      return new NextResponse(
-        JSON.stringify({ status: 'fail', message: 'User is not authenticated.' }),
-        { status: 401 }
-      );
+      return new NextResponse("Unauthorized", { status: 401 });
     }
-    
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('agent_id')
-      .eq('id', user.id)
-      .single();
 
-    if (profileError || !profile) {
-      throw new Error('Could not find a profile for the current user.');
-    }
-    
-    const { data: referrals, error: referralsError } = await supabase
+    // 2. Parse query parameters
+    const { searchParams } = new URL(req.url);
+    const statusFilter = searchParams.get('status');
+
+    // 3. Build query
+    // Note: We join with profiles to get the referred user's name
+    let query = supabase
       .from('referrals')
-      .select('*')
-      .eq('agent_id', profile.agent_id) 
+      .select(`
+        *,
+        referred_user:referred_profile_id(id, full_name, avatar_url),
+        first_booking:booking_id(id, service_name, amount),
+        first_commission:transaction_id(id, amount)
+      `)
+      .eq('referrer_profile_id', user.id);
+
+    // Apply status filter
+    if (statusFilter) {
+      query = query.eq('status', statusFilter);
+    }
+
+    // 4. Execute query with ordering
+    const { data: referrals, error: referralsError } = await query
       .order('created_at', { ascending: false });
 
-    if (referralsError) {
-      throw referralsError;
-    }
-    
-    return NextResponse.json(referrals);
+    if (referralsError) throw referralsError;
+
+    return NextResponse.json({ referrals: referrals || [] });
 
   } catch (error) {
-    return new NextResponse(
-        JSON.stringify({ status: 'fail', message: (error as Error).message }),
-        { status: 500 }
-    );
+    console.error("API GET /api/referrals error:", error);
+    return new NextResponse("Internal Server Error", { status: 500 });
   }
 }

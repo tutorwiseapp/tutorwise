@@ -11,7 +11,9 @@ import React from 'react';
 
 export interface Profile {
   id: string;
-  referral_id: string;
+  referral_id: string; // Legacy referral code (e.g., "JOHN-1234")
+  referral_code?: string; // v3.6 referral code (same format, replaces referral_id)
+  referred_by_profile_id?: string | null; // v3.6: Lifetime attribution - who referred this user
   full_name: string; // Full legal name - derived from first_name + last_name
   first_name?: string;
   last_name?: string;
@@ -311,20 +313,107 @@ export interface Activity {
   link?: string;
 }
 
-export interface Referral {
+/**
+ * ==================================================================
+ * SDD v3.6: Bookings, Referrals, Financials Types
+ * ==================================================================
+ */
+
+// Booking status enum (SDD v3.6, Section 3.2)
+export type BookingStatus = 'Pending' | 'Confirmed' | 'Completed' | 'Cancelled';
+
+// Payment status enum (SDD v3.6, Section 3.2)
+export type PaymentStatus = 'Pending' | 'Paid' | 'Failed' | 'Refunded';
+
+// Transaction type enum (SDD v3.6, Section 3.4)
+export type TransactionType =
+  | 'Booking Payment'           // T-TYPE-1: Full amount paid by client
+  | 'Tutoring Payout'           // T-TYPE-2: Tutor's share (80% or 90%)
+  | 'Referral Commission'       // T-TYPE-3: Referrer's 10% commission
+  | 'Agent Commission'          // T-TYPE-4: Agent's commission
+  | 'Platform Fee';             // T-TYPE-5: Platform's 10% fee
+
+// Transaction status enum (SDD v3.6, Section 3.4)
+export type TransactionStatus = 'Pending' | 'Paid' | 'Failed' | 'Cancelled';
+
+// Referral status enum (SDD v3.6, Section 3.3)
+export type ReferralStatus = 'Referred' | 'Signed Up' | 'Converted' | 'Expired';
+
+// Booking interface (SDD v3.6, Section 3.2)
+export interface Booking {
   id: string;
-  referee_name: string;
-  status: 'Pending' | 'Completed' | 'Expired';
-  reward_amount: number;
-  sent_at: string;
+  student_id: string;
+  tutor_id: string;
+  listing_id?: string;
+  referrer_profile_id?: string | null; // Drives commission split (80/10/10 vs 90/10)
+  service_name: string;
+  session_start_time: string; // ISO timestamp
+  session_duration: number; // In minutes
+  amount: number; // Total amount in GBP
+  status: BookingStatus;
+  payment_status: PaymentStatus;
+  created_at: string;
+  updated_at?: string;
+  // Joined data from API
+  student?: {
+    id: string;
+    full_name: string;
+    avatar_url?: string;
+  };
+  tutor?: {
+    id: string;
+    full_name: string;
+    avatar_url?: string;
+  };
+  listing?: {
+    id: string;
+    title: string;
+  };
 }
 
+// Transaction interface (SDD v3.6, Section 3.4)
 export interface Transaction {
   id: string;
-  date: string;
-  description: string;
-  amount: number;
-  status: 'Completed' | 'Pending' | 'Failed';
+  profile_id: string | null; // NULL for platform fees (T-TYPE-5)
+  booking_id?: string | null;
+  type: TransactionType;
+  description?: string;
+  status: TransactionStatus;
+  amount: number; // In GBP
+  created_at: string;
+  // Joined data from API
+  booking?: {
+    id: string;
+    service_name: string;
+    session_start_time: string;
+  };
+}
+
+// Referral interface (SDD v3.6, Section 3.3)
+export interface Referral {
+  id: string;
+  referrer_profile_id: string; // Person who sent the referral link
+  referred_profile_id?: string | null; // NULL for anonymous clicks
+  status: ReferralStatus;
+  booking_id?: string | null; // First booking that triggered 'Converted'
+  transaction_id?: string | null; // Commission transaction (T-TYPE-3)
+  created_at: string;
+  converted_at?: string | null;
+  // Joined data from API
+  referred_user?: {
+    id: string;
+    full_name: string;
+    avatar_url?: string;
+  } | null;
+  first_booking?: {
+    id: string;
+    service_name: string;
+    amount: number;
+  } | null;
+  first_commission?: {
+    id: string;
+    amount: number;
+  } | null;
 }
 
 export interface NavLink {
