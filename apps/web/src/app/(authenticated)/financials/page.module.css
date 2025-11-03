@@ -36,8 +36,7 @@
   overflow-x: auto;
   /* Full width - no max-width constraint */
   width: 100%;
-  padding-left: 2rem;
-  padding-right: 2rem;
+  /* No horizontal padding - mainContent already provides it */
 }
 
 .filterTab {
