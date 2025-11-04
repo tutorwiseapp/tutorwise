@@ -9,12 +9,12 @@
   align-items: flex-start;
   justify-content: center;
   background-color: var(--color-bg-primary, #ffffff);
-  padding: 0; /* Mobile & tablet: no padding to allow full width */
+  padding: 0; /* No horizontal padding - CreateListings component handles its own max-width */
 }
 
 @media (min-width: 1024px) {
   .listingPage {
-    padding: 2rem 1rem; /* Desktop: add padding */
+    padding: 2rem 0; /* Desktop: vertical padding only, no horizontal padding */
   }
 }
 
