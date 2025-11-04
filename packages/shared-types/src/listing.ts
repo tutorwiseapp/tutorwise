@@ -1,10 +1,18 @@
 /**
  * Listing types for tutor service listings
+ * v4.0: Updated to support dynamic multi-service listings
  */
 
 export type ListingStatus = 'draft' | 'published' | 'unpublished' | 'paused' | 'archived';
 export type LocationType = 'online' | 'in_person' | 'hybrid';
 export type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+
+/**
+ * v4.0: New listing type system for multi-service platform
+ * Supports: One-to-One, Group Session, Workshop/Webinar, Study Package
+ */
+export type ServiceType = 'one-to-one' | 'group-session' | 'workshop' | 'study-package';
+export type PackageType = 'pdf' | 'video' | 'bundle';
 
 export interface TimeSlot {
   start: string; // HH:MM format
@@ -13,6 +21,26 @@ export interface TimeSlot {
 
 export interface Availability {
   [key: string]: TimeSlot[]; // DayOfWeek as key
+}
+
+/**
+ * v4.0: Availability Period (reused from profile system)
+ * Supports both recurring weekly schedules and one-time slots
+ */
+export interface AvailabilityPeriod {
+  id: string;
+  type: 'recurring' | 'one-time';
+  days?: string[]; // For recurring (e.g., ['Monday', 'Wednesday'])
+  fromDate: string;
+  toDate?: string;
+  startTime: string;
+  endTime: string;
+}
+
+export interface UnavailabilityPeriod {
+  id: string;
+  fromDate: string;
+  toDate: string;
 }
 
 export interface PricingPackage {
@@ -92,6 +120,81 @@ export interface Listing {
   archived_at?: string; // Timestamp when listing was archived (for 30-day deletion rule)
 }
 
+/**
+ * v4.0: Service-Specific Field Interfaces
+ * These define the unique fields for each service type
+ */
+
+// Common base fields for all listing types
+export interface BaseListingFields {
+  // Core Details
+  service_name: string;
+  description: string;
+  category: string;
+  amount: number;
+  currency?: string;
+
+  // Media
+  hero_image_url?: string;
+  images?: string[];
+
+  // SEO & Discovery
+  tags?: string[];
+
+  // Status
+  status?: ListingStatus;
+}
+
+// One-to-One Session specific fields
+export interface OneToOneFields {
+  service_type: 'one-to-one';
+  session_duration: number; // in minutes (e.g., 30, 60, 90)
+  availability: AvailabilityPeriod[];
+  max_attendees?: 1; // Always 1 for one-to-one
+}
+
+// Group Session specific fields
+export interface GroupSessionFields {
+  service_type: 'group-session';
+  session_duration: number; // in minutes
+  max_attendees: number; // 2-10
+  availability: AvailabilityPeriod[];
+}
+
+// Workshop/Webinar specific fields
+export interface WorkshopFields {
+  service_type: 'workshop';
+  max_attendees: number; // 10-500
+  event_date: string; // ISO date string
+  start_time: string; // HH:MM format
+  end_time: string; // HH:MM format
+  speaker_bio?: string;
+  event_agenda?: string;
+}
+
+// Study Package specific fields
+export interface StudyPackageFields {
+  service_type: 'study-package';
+  package_type: PackageType; // 'pdf' | 'video' | 'bundle'
+  material_url?: string;
+  material_urls?: string[]; // For bundles with multiple files
+}
+
+/**
+ * v4.0: Discriminated Union for Create Listing Input
+ * TypeScript will enforce that the correct fields are present based on service_type
+ */
+export type CreateListingInputV4 = BaseListingFields & (
+  | OneToOneFields
+  | GroupSessionFields
+  | WorkshopFields
+  | StudyPackageFields
+);
+
+/**
+ * Legacy CreateListingInput (maintained for backward compatibility)
+ * TODO: Migrate all usage to CreateListingInputV4
+ */
 export interface CreateListingInput {
   // Basic Info (required)
   full_name?: string; // Full name of the tutor

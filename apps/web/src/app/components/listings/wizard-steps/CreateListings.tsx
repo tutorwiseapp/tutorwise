@@ -1,10 +1,26 @@
+/*
+ * Filename: apps/web/src/app/components/listings/wizard-steps/CreateListings.tsx
+ * Purpose: Dynamic multi-service listing creation form
+ * Version: 4.0
+ * Updated: 2025-11-04
+ *
+ * Features:
+ * - Support for 4 service types: One-to-One, Group Session, Workshop, Study Package
+ * - Dynamic field rendering based on service type
+ * - Integrated availability management
+ * - Design system compliant
+ */
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import type { CreateListingInput } from '@tutorwise/shared-types';
+import type { CreateListingInput, ServiceType, AvailabilityPeriod } from '@tutorwise/shared-types';
 import Button from '@/app/components/ui/Button';
+import Card from '@/app/components/ui/Card';
+import FormSection from '@/app/components/ui/form/FormSection';
 import ImageUpload, { type ImageUploadRef } from '@/app/components/listings/ImageUpload';
+import AvailabilityFormSection from '@/app/components/listings/AvailabilityFormSection';
 import MultiSelectDropdown from '@/app/components/ui/form/MultiSelectDropdown';
 import toast from 'react-hot-toast';
 import styles from './CreateListings.module.css';
@@ -70,12 +86,30 @@ const DURATION_OPTIONS = [
   { value: 120, label: '2 hours' }
 ];
 
-// Listing type options
-const LISTING_TYPE_OPTIONS = [
-  { value: 'One-on-One Session', label: 'One-on-One Session', disabled: false },
-  { value: 'Group Session', label: 'Group Session', disabled: true },
-  { value: 'Workshop/Webinar', label: 'Workshop/Webinar', disabled: true },
-  { value: 'Learning Package', label: 'Learning Package', disabled: true }
+// v4.0: Service type options (all enabled)
+const SERVICE_TYPE_OPTIONS: Array<{ value: ServiceType; label: string }> = [
+  { value: 'one-to-one', label: 'One-to-One Session' },
+  { value: 'group-session', label: 'Group Session' },
+  { value: 'workshop', label: 'Workshop / Webinar' },
+  { value: 'study-package', label: 'Study Package' }
+];
+
+// Category options
+const CATEGORY_OPTIONS = [
+  { value: 'Mathematics', label: 'Mathematics' },
+  { value: 'English', label: 'English' },
+  { value: 'Science', label: 'Science' },
+  { value: 'Languages', label: 'Languages' },
+  { value: 'Humanities', label: 'Humanities' },
+  { value: 'Arts', label: 'Arts' },
+  { value: 'Professional', label: 'Professional Development' }
+];
+
+// Package type options (for Study Package)
+const PACKAGE_TYPE_OPTIONS = [
+  { value: 'pdf', label: 'PDF / eBook' },
+  { value: 'video', label: 'Video Course' },
+  { value: 'bundle', label: 'Bundle (PDF + Video)' }
 ];
 
 // Delivery modes
@@ -95,13 +129,33 @@ export default function CreateListings({
   const { profile, activeRole, isLoading: isProfileLoading } = useUserProfile();
   const imageUploadRef = useRef<ImageUploadRef>(null);
 
-  // Form state
-  const [listingType, setListingType] = useState('One-on-One Session');
-  const [title, setTitle] = useState(formData.title || '');
+  // v4.0: Form state with new service type fields
+  const [serviceType, setServiceType] = useState<ServiceType>('one-to-one');
+  const [serviceName, setServiceName] = useState(formData.title || '');
   const [description, setDescription] = useState(formData.description || '');
+  const [category, setCategory] = useState('');
+  const [amount, setAmount] = useState(formData.hourly_rate?.toString() || '');
+  const [tags, setTags] = useState<string[]>([]);
+
+  // Service-specific fields
+  const [sessionDuration, setSessionDuration] = useState<number>(60);
+  const [maxAttendees, setMaxAttendees] = useState<number>(5);
+  const [availability, setAvailability] = useState<AvailabilityPeriod[]>([]);
+
+  // Workshop fields
+  const [eventDate, setEventDate] = useState('');
+  const [startTime, setStartTime] = useState('10:00');
+  const [endTime, setEndTime] = useState('16:00');
+  const [speakerBio, setSpeakerBio] = useState('');
+  const [eventAgenda, setEventAgenda] = useState('');
+
+  // Study Package fields
+  const [packageType, setPackageType] = useState<'pdf' | 'video' | 'bundle'>('pdf');
+  const [materialUrl, setMaterialUrl] = useState('');
+
+  // Legacy fields (kept for backward compatibility)
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>(formData.subjects || []);
   const [selectedLevels, setSelectedLevels] = useState<string[]>(formData.levels || []);
-  const [hourlyRate, setHourlyRate] = useState(formData.hourly_rate?.toString() || '');
   const [deliveryMode, setDeliveryMode] = useState(formData.location_type || 'online');
   const [locationDetails, setLocationDetails] = useState(formData.location_details || '');
   const [freeTrial, setFreeTrial] = useState(formData.free_trial || false);
@@ -140,7 +194,7 @@ export default function CreateListings({
     // Pre-fill from profile if available
     if (profileSubjects.length > 0) setSelectedSubjects(profileSubjects);
     if (profileLevels.length > 0) setSelectedLevels(profileLevels);
-    if (profileRate && !formData.hourly_rate) setHourlyRate(profileRate.toString());
+    if (profileRate && !formData.hourly_rate) setAmount(profileRate.toString());
     if (profileDeliveryMode && !formData.location_type) {
       setDeliveryMode(profileDeliveryMode as 'online' | 'hybrid' | 'in_person');
     }
@@ -148,6 +202,23 @@ export default function CreateListings({
 
   const handleUploadComplete = (urls: string[]) => {
     setImageUrls(urls);
+  };
+
+  // v4.0: Load availability from profile
+  const handleLoadAvailabilityFromProfile = () => {
+    if (!profile) return;
+
+    const roleData = activeRole === 'tutor'
+      ? profile.professional_details?.tutor
+      : profile.professional_details?.provider;
+
+    if (roleData && (roleData as any).availability) {
+      const profileAvailability = (roleData as any).availability as AvailabilityPeriod[];
+      setAvailability(profileAvailability);
+      toast.success('Loaded availability from your profile');
+    } else {
+      toast.error('No availability found in your profile');
+    }
   };
 
   // Handler for duration dropdown
@@ -162,13 +233,15 @@ export default function CreateListings({
     setSelectedDurations(prev => prev.filter(d => d !== duration));
   };
 
+  // v4.0: Dynamic validation based on service type
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!title.trim()) {
-      newErrors.title = 'Service title is required';
-    } else if (title.trim().length < 10) {
-      newErrors.title = 'Title must be at least 10 characters';
+    // Common validations
+    if (!serviceName.trim()) {
+      newErrors.serviceName = 'Service name is required';
+    } else if (serviceName.trim().length < 10) {
+      newErrors.serviceName = 'Service name must be at least 10 characters';
     }
 
     if (!description.trim()) {
@@ -177,24 +250,53 @@ export default function CreateListings({
       newErrors.description = 'Description must be at least 50 characters';
     }
 
-    if (selectedSubjects.length === 0) {
-      newErrors.subjects = 'Please select at least one subject from your profile';
+    if (!category) {
+      newErrors.category = 'Please select a category';
     }
 
-    if (selectedLevels.length === 0) {
-      newErrors.levels = 'Please select at least one level from your profile';
+    if (!amount || parseFloat(amount) <= 0) {
+      newErrors.amount = 'Please enter a valid price';
     }
 
-    if (!hourlyRate || parseFloat(hourlyRate) <= 0) {
-      newErrors.hourlyRate = 'Please enter a valid hourly rate';
+    // Service-type specific validations
+    if (serviceType === 'one-to-one' || serviceType === 'group-session') {
+      if (!sessionDuration) {
+        newErrors.sessionDuration = 'Please select a session duration';
+      }
+
+      if (availability.length === 0) {
+        newErrors.availability = 'Please add at least one availability period';
+      }
+
+      if (serviceType === 'group-session') {
+        if (!maxAttendees || maxAttendees < 2 || maxAttendees > 10) {
+          newErrors.maxAttendees = 'Max attendees must be between 2 and 10';
+        }
+      }
     }
 
-    if (selectedDurations.length === 0) {
-      newErrors.durations = 'Please select at least one session duration';
+    if (serviceType === 'workshop') {
+      if (!maxAttendees || maxAttendees < 10 || maxAttendees > 500) {
+        newErrors.maxAttendees = 'Max participants must be between 10 and 500';
+      }
+
+      if (!eventDate) {
+        newErrors.eventDate = 'Event date is required';
+      }
+
+      if (!startTime) {
+        newErrors.startTime = 'Start time is required';
+      }
+
+      if (!endTime) {
+        newErrors.endTime = 'End time is required';
+      }
     }
 
-    if (deliveryMode !== 'online' && !locationDetails.trim()) {
-      newErrors.locationDetails = 'Please provide location details for in-person/hybrid sessions';
+    if (serviceType === 'study-package') {
+      if (!packageType) {
+        newErrors.packageType = 'Please select a package type';
+      }
     }
 
     setErrors(newErrors);
@@ -229,13 +331,70 @@ export default function CreateListings({
       }
     }
 
-    const listingData: Partial<CreateListingInput> = {
-      listing_type: `Tutor: ${listingType}`,
-      title: title.trim(),
+    // v4.0: Build service-type specific data structure
+    const baseData = {
+      service_name: serviceName.trim(),
       description: description.trim(),
+      category,
+      amount: parseFloat(amount),
+      currency: 'GBP',
+      hero_image_url: finalImages[0] || undefined,
+      images: finalImages,
+      tags: tags.length > 0 ? tags : undefined,
+      status: 'draft' as const,
+    };
+
+    let serviceSpecificData: any = {};
+
+    switch (serviceType) {
+      case 'one-to-one':
+        serviceSpecificData = {
+          service_type: 'one-to-one',
+          session_duration: sessionDuration,
+          availability,
+          max_attendees: 1,
+        };
+        break;
+
+      case 'group-session':
+        serviceSpecificData = {
+          service_type: 'group-session',
+          session_duration: sessionDuration,
+          max_attendees: maxAttendees,
+          availability,
+        };
+        break;
+
+      case 'workshop':
+        serviceSpecificData = {
+          service_type: 'workshop',
+          max_attendees: maxAttendees,
+          event_date: eventDate,
+          start_time: startTime,
+          end_time: endTime,
+          speaker_bio: speakerBio.trim() || undefined,
+          event_agenda: eventAgenda.trim() || undefined,
+        };
+        break;
+
+      case 'study-package':
+        serviceSpecificData = {
+          service_type: 'study-package',
+          package_type: packageType,
+          material_url: materialUrl || undefined,
+        };
+        break;
+    }
+
+    const listingData = {
+      ...baseData,
+      ...serviceSpecificData,
+      // Legacy compatibility fields for backward compatibility with existing API
+      title: serviceName.trim(),
+      listing_type: `Tutor: ${SERVICE_TYPE_OPTIONS.find(opt => opt.value === serviceType)?.label}`,
       subjects: selectedSubjects,
       levels: selectedLevels,
-      hourly_rate: parseFloat(hourlyRate),
+      hourly_rate: parseFloat(amount),
       location_type: deliveryMode,
       location_details: locationDetails.trim() || undefined,
       free_trial: freeTrial,
@@ -243,9 +402,7 @@ export default function CreateListings({
       ai_tools_used: selectedAITools.length > 0 ? selectedAITools : undefined,
       cancellation_policy: cancellationPolicy.trim() || undefined,
       duration_options: selectedDurations,
-      images: finalImages,
       full_name: profile?.full_name || '',
-      currency: 'GBP',
       location_country: 'United Kingdom',
       timezone: 'Europe/London'
     };
@@ -281,323 +438,576 @@ export default function CreateListings({
       <div className={styles.header}>
         <h1 className={styles.title}>Create Listing</h1>
         <p className={styles.subtitle}>
-          Create a one-on-one tutoring session listing using your profile information
+          Choose your service type and provide details
         </p>
       </div>
 
-      {/* LISTING TYPE - Full-width at top */}
-      <div className={styles.fullWidthSection}>
-        <div className={styles.formSection}>
-          <label className={styles.label}>
-            Listing Type <span className={styles.required}>*</span>
-          </label>
-          <select
-            value={listingType}
-            onChange={(e) => setListingType(e.target.value)}
-            className={styles.select}
-          >
-            {LISTING_TYPE_OPTIONS.map(({ value, label, disabled }) => (
-              <option key={value} value={value} disabled={disabled}>
-                {label} {disabled ? '(Coming Soon)' : ''}
-              </option>
-            ))}
-          </select>
-          <p className={styles.helperText}>
-            Additional listing types coming soon!
-          </p>
-        </div>
-      </div>
+      {/* CARD 1: Service Type Selector */}
+      <Card>
+        <FormSection
+          title="Service Type"
+          description="Select the type of service you want to offer"
+        >
+          <div className={styles.formSection}>
+            <select
+              value={serviceType}
+              onChange={(e) => setServiceType(e.target.value as ServiceType)}
+              className={styles.select}
+            >
+              {SERVICE_TYPE_OPTIONS.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </FormSection>
+      </Card>
 
-      {/* TWO-COLUMN GRID - Aligned fields only */}
-      <div className={styles.twoColumnLayout}>
-        {/* Service Title */}
-        <div className={styles.formSection}>
-          <label className={styles.label}>
-            Service Title <span className={styles.required}>*</span>
-          </label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g., GCSE Mathematics Tutor - Experienced & Results-Focused"
-            className={`${styles.input} ${errors.title ? styles.inputError : ''}`}
-            maxLength={200}
-          />
-          {errors.title ? (
-            <p className={styles.errorText}>{errors.title}</p>
-          ) : (
-            <p className={styles.helperText}>Min. 10 characters ({title.length}/200)</p>
-          )}
-        </div>
-
-        {/* Subjects */}
-        <div className={styles.formSection}>
-          <label className={styles.label}>
-            Subjects <span className={styles.required}>*</span>
-          </label>
-          <MultiSelectDropdown
-            triggerLabel={
-              selectedSubjects.length > 0
-                ? selectedSubjects.length === 1
-                  ? selectedSubjects[0]
-                  : `${selectedSubjects.length} subjects selected`
-                : 'Select subjects'
-            }
-            options={SUBJECT_OPTIONS}
-            selectedValues={selectedSubjects}
-            onSelectionChange={setSelectedSubjects}
-          />
-          {errors.subjects && <p className={styles.errorText}>{errors.subjects}</p>}
-          <p className={styles.helperText}>Choose one or more subjects you can teach</p>
-        </div>
-
-        {/* Hourly Rate */}
-        <div className={styles.formSection}>
-          <label className={styles.label}>
-            Hourly Rate (£) <span className={styles.required}>*</span>
-          </label>
-          <input
-            type="number"
-            value={hourlyRate}
-            onChange={(e) => setHourlyRate(e.target.value)}
-            placeholder="50"
-            className={`${styles.input} ${errors.hourlyRate ? styles.inputError : ''}`}
-            min="0"
-            step="1"
-            inputMode="decimal"
-          />
-          {errors.hourlyRate && <p className={styles.errorText}>{errors.hourlyRate}</p>}
-          <p className={styles.helperText}>Your rate per hour in GBP</p>
-        </div>
-
-        {/* Education Levels */}
-        <div className={styles.formSection}>
-          <label className={styles.label}>
-            Education Levels <span className={styles.required}>*</span>
-          </label>
-          <MultiSelectDropdown
-            triggerLabel={
-              selectedLevels.length > 0
-                ? selectedLevels.length === 1
-                  ? selectedLevels[0]
-                  : `${selectedLevels.length} levels selected`
-                : 'Select levels'
-            }
-            options={LEVEL_OPTIONS}
-            selectedValues={selectedLevels}
-            onSelectionChange={setSelectedLevels}
-          />
-          {errors.levels && <p className={styles.errorText}>{errors.levels}</p>}
-          <p className={styles.helperText}>Choose education levels you can teach</p>
-        </div>
-
-        {/* Delivery Mode */}
-        <div className={styles.formSection}>
-          <label className={styles.label}>
-            Delivery Mode <span className={styles.required}>*</span>
-          </label>
-          <select
-            value={deliveryMode}
-            onChange={(e) => setDeliveryMode(e.target.value as "online" | "in_person" | "hybrid")}
-            className={styles.select}
-          >
-            {DELIVERY_MODES.map(({ value, label }) => (
-              <option key={value} value={value}>{label}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Session Durations */}
-        <div className={styles.formSection}>
-          <label className={styles.label}>
-            Available Session Durations <span className={styles.required}>*</span>
-          </label>
-          <select
-            value=""
-            onChange={handleDurationChange}
-            className={styles.select}
-          >
-            <option value="">Add duration...</option>
-            {DURATION_OPTIONS.map(({ value, label }) => (
-              <option key={value} value={value} disabled={selectedDurations.includes(value)}>
-                {label}
-              </option>
-            ))}
-          </select>
-          {selectedDurations.length > 0 && (
-            <div className={styles.durationChipsContainer}>
-              {selectedDurations.map(duration => {
-                const option = DURATION_OPTIONS.find(opt => opt.value === duration);
-                return (
-                  <span key={duration} className={styles.durationChip}>
-                    {option?.label}
-                    <button
-                      type="button"
-                      onClick={() => removeDuration(duration)}
-                      className={styles.durationChipRemove}
-                      aria-label={`Remove ${option?.label}`}
-                    >
-                      ×
-                    </button>
-                  </span>
-                );
-              })}
+      {/* CARD 2: Core Details (Dynamic) */}
+      <Card>
+        <FormSection
+          title="Core Details"
+          description="Basic information about your service"
+        >
+          <div className={styles.twoColumnLayout}>
+            {/* Service Name */}
+            <div className={styles.formSection}>
+              <label className={styles.label}>
+                Service Name <span className={styles.required}>*</span>
+              </label>
+              <input
+                type="text"
+                value={serviceName}
+                onChange={(e) => setServiceName(e.target.value)}
+                placeholder="e.g., GCSE Maths Tutor"
+                className={`${styles.input} ${errors.serviceName ? styles.inputError : ''}`}
+                maxLength={200}
+              />
+              {errors.serviceName && <p className={styles.errorText}>{errors.serviceName}</p>}
             </div>
-          )}
-          {errors.durations && <p className={styles.errorText}>{errors.durations}</p>}
-        </div>
-      </div>
 
-      {/* DESCRIPTION - Full-width section */}
-      <div className={styles.fullWidthSection}>
-        <div className={styles.formSection}>
-          <label className={styles.label}>
-            Description <span className={styles.required}>*</span>
-          </label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Describe your teaching approach, experience, and what makes your tutoring effective..."
-            rows={8}
-            className={`${styles.textarea} ${errors.description ? styles.inputError : ''}`}
-            maxLength={2000}
-          />
-          {errors.description ? (
-            <p className={styles.errorText}>{errors.description}</p>
-          ) : (
-            <p className={styles.helperText}>Min. 50 characters ({description.length}/2000)</p>
-          )}
-        </div>
-      </div>
+            {/* Category */}
+            <div className={styles.formSection}>
+              <label className={styles.label}>
+                Category <span className={styles.required}>*</span>
+              </label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className={`${styles.select} ${errors.category ? styles.inputError : ''}`}
+              >
+                <option value="">Select a category...</option>
+                {CATEGORY_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+              {errors.category && <p className={styles.errorText}>{errors.category}</p>}
+            </div>
 
-      {/* CANCELLATION POLICY - Full-width */}
-      <div className={styles.fullWidthSection}>
-        <div className={styles.formSection}>
-          <label className={styles.label}>
-            Cancellation Policy (Optional)
-          </label>
-          <textarea
-            value={cancellationPolicy}
-            onChange={(e) => setCancellationPolicy(e.target.value)}
-            placeholder="e.g., 24-hour cancellation notice required for full refund"
-            rows={3}
-            className={styles.textarea}
-            maxLength={500}
-          />
-          <p className={styles.helperText}>
-            Set clear expectations for cancellations ({cancellationPolicy.length}/500)
-          </p>
-        </div>
-      </div>
+            {/* Price */}
+            <div className={styles.formSection}>
+              <label className={styles.label}>
+                Price (£) <span className={styles.required}>*</span>
+              </label>
+              <input
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="50"
+                className={`${styles.input} ${errors.amount ? styles.inputError : ''}`}
+                min="1"
+                step="1"
+              />
+              {errors.amount && <p className={styles.errorText}>{errors.amount}</p>}
+            </div>
 
-      {/* ADDITIONAL OPTIONS - Two-column layout */}
-      <div className={styles.twoColumnLayout}>
-        {/* Booking Options */}
-        <div className={styles.formSection}>
-          <label className={styles.label}>
-            Booking Options
-          </label>
-          <label className={styles.checkboxLabel}>
-            <input
-              type="checkbox"
-              checked={freeTrial}
-              onChange={(e) => setFreeTrial(e.target.checked)}
-              className={styles.checkbox}
+            {/* Dynamic Field Based on Service Type */}
+            {serviceType === 'one-to-one' && (
+              <div className={styles.formSection}>
+                <label className={styles.label}>
+                  Session Duration <span className={styles.required}>*</span>
+                </label>
+                <select
+                  value={sessionDuration}
+                  onChange={(e) => setSessionDuration(parseInt(e.target.value))}
+                  className={styles.select}
+                >
+                  {DURATION_OPTIONS.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {serviceType === 'group-session' && (
+              <>
+                <div className={styles.formSection}>
+                  <label className={styles.label}>
+                    Max Group Size (2-10) <span className={styles.required}>*</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={maxAttendees}
+                    onChange={(e) => setMaxAttendees(parseInt(e.target.value))}
+                    placeholder="5"
+                    className={`${styles.input} ${errors.maxAttendees ? styles.inputError : ''}`}
+                    min="2"
+                    max="10"
+                  />
+                  {errors.maxAttendees && <p className={styles.errorText}>{errors.maxAttendees}</p>}
+                </div>
+                <div className={styles.formSection}>
+                  <label className={styles.label}>
+                    Session Duration <span className={styles.required}>*</span>
+                  </label>
+                  <select
+                    value={sessionDuration}
+                    onChange={(e) => setSessionDuration(parseInt(e.target.value))}
+                    className={styles.select}
+                  >
+                    {DURATION_OPTIONS.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
+
+            {serviceType === 'workshop' && (
+              <div className={styles.formSection}>
+                <label className={styles.label}>
+                  Max Participants (10-500) <span className={styles.required}>*</span>
+                </label>
+                <input
+                  type="number"
+                  value={maxAttendees}
+                  onChange={(e) => setMaxAttendees(parseInt(e.target.value))}
+                  placeholder="100"
+                  className={`${styles.input} ${errors.maxAttendees ? styles.inputError : ''}`}
+                  min="10"
+                  max="500"
+                />
+                {errors.maxAttendees && <p className={styles.errorText}>{errors.maxAttendees}</p>}
+              </div>
+            )}
+
+            {serviceType === 'study-package' && (
+              <div className={styles.formSection}>
+                <label className={styles.label}>
+                  Package Type <span className={styles.required}>*</span>
+                </label>
+                <select
+                  value={packageType}
+                  onChange={(e) => setPackageType(e.target.value as 'pdf' | 'video' | 'bundle')}
+                  className={styles.select}
+                >
+                  {PACKAGE_TYPE_OPTIONS.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Subjects */}
+            <div className={styles.formSection}>
+              <label className={styles.label}>
+                Subjects <span className={styles.required}>*</span>
+              </label>
+              <MultiSelectDropdown
+                triggerLabel={
+                  selectedSubjects.length > 0
+                    ? selectedSubjects.length === 1
+                      ? selectedSubjects[0]
+                      : `${selectedSubjects.length} subjects selected`
+                    : 'Select subjects'
+                }
+                options={SUBJECT_OPTIONS}
+                selectedValues={selectedSubjects}
+                onSelectionChange={setSelectedSubjects}
+              />
+              {errors.subjects && <p className={styles.errorText}>{errors.subjects}</p>}
+            </div>
+
+            {/* Education Levels */}
+            <div className={styles.formSection}>
+              <label className={styles.label}>
+                Education Levels <span className={styles.required}>*</span>
+              </label>
+              <MultiSelectDropdown
+                triggerLabel={
+                  selectedLevels.length > 0
+                    ? selectedLevels.length === 1
+                      ? selectedLevels[0]
+                      : `${selectedLevels.length} levels selected`
+                    : 'Select levels'
+                }
+                options={LEVEL_OPTIONS}
+                selectedValues={selectedLevels}
+                onSelectionChange={setSelectedLevels}
+              />
+              {errors.levels && <p className={styles.errorText}>{errors.levels}</p>}
+            </div>
+          </div>
+
+          {/* Description - Full Width */}
+          <div className={styles.fullWidthSection}>
+            <div className={styles.formSection}>
+              <label className={styles.label}>
+                Description <span className={styles.required}>*</span>
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Describe your service in detail..."
+                rows={8}
+                className={`${styles.textarea} ${errors.description ? styles.inputError : ''}`}
+                maxLength={2000}
+              />
+              {errors.description ? (
+                <p className={styles.errorText}>{errors.description}</p>
+              ) : (
+                <p className={styles.helperText}>Min. 50 characters ({description.length}/2000)</p>
+              )}
+            </div>
+          </div>
+        </FormSection>
+      </Card>
+
+      {/* CARD 3: Availability (Conditional - one-to-one and group-session) */}
+      {(serviceType === 'one-to-one' || serviceType === 'group-session') && (
+        <Card>
+          <FormSection
+            title="Service Availability"
+            description="Set the weekly hours this specific service is available"
+          >
+            <AvailabilityFormSection
+              value={availability}
+              onChange={setAvailability}
+              onLoadFromProfile={handleLoadAvailabilityFromProfile}
             />
-            <span>Offer Free Trial Session</span>
-          </label>
-          <p className={styles.helperText} style={{ marginBottom: '1rem' }}>
-            Attract more students with a free trial lesson
-          </p>
-          <label className={styles.checkboxLabel}>
-            <input
-              type="checkbox"
-              checked={instantBooking}
-              onChange={(e) => setInstantBooking(e.target.checked)}
-              className={styles.checkbox}
-            />
-            <span>Enable Instant Booking</span>
-          </label>
-          <p className={styles.helperText}>
-            Students can book immediately without approval
-          </p>
-        </div>
+            {errors.availability && <p className={styles.errorText}>{errors.availability}</p>}
+          </FormSection>
+        </Card>
+      )}
 
-        {/* Hero Image Upload */}
-        <div className={styles.formSection}>
-          <label className={styles.label}>
-            Hero Image (Optional)
-          </label>
-          <p className={styles.helperText}>
-            Your profile picture is already set as your main image. Add a hero image here.
-          </p>
+      {/* CARD 4: Workshop Details (Conditional) */}
+      {serviceType === 'workshop' && (
+        <Card>
+          <FormSection
+            title="Workshop Details"
+            description="Set the date, time, and agenda for your event"
+          >
+            <div className={styles.twoColumnLayout}>
+              {/* Event Date */}
+              <div className={styles.formSection}>
+                <label className={styles.label}>
+                  Event Date <span className={styles.required}>*</span>
+                </label>
+                <input
+                  type="date"
+                  value={eventDate}
+                  onChange={(e) => setEventDate(e.target.value)}
+                  className={`${styles.input} ${errors.eventDate ? styles.inputError : ''}`}
+                />
+                {errors.eventDate && <p className={styles.errorText}>{errors.eventDate}</p>}
+              </div>
+
+              {/* Time Range */}
+              <div className={styles.formSection}>
+                <label className={styles.label}>Time</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                  <input
+                    type="time"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                    className={`${styles.input} ${errors.startTime ? styles.inputError : ''}`}
+                  />
+                  <input
+                    type="time"
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                    className={`${styles.input} ${errors.endTime ? styles.inputError : ''}`}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Speaker Bio - Full Width */}
+            <div className={styles.fullWidthSection}>
+              <div className={styles.formSection}>
+                <label className={styles.label}>Speaker Bio (Optional)</label>
+                <textarea
+                  value={speakerBio}
+                  onChange={(e) => setSpeakerBio(e.target.value)}
+                  placeholder="Briefly introduce the speaker(s)..."
+                  rows={3}
+                  className={styles.textarea}
+                  maxLength={500}
+                />
+              </div>
+            </div>
+
+            {/* Event Agenda - Full Width */}
+            <div className={styles.fullWidthSection}>
+              <div className={styles.formSection}>
+                <label className={styles.label}>Event Agenda (Optional)</label>
+                <textarea
+                  value={eventAgenda}
+                  onChange={(e) => setEventAgenda(e.target.value)}
+                  placeholder="Outline the schedule for the event..."
+                  rows={5}
+                  className={styles.textarea}
+                  maxLength={1000}
+                />
+              </div>
+            </div>
+          </FormSection>
+        </Card>
+      )}
+
+      {/* CARD 5: Study Package Materials (Conditional) */}
+      {serviceType === 'study-package' && (
+        <Card>
+          <FormSection
+            title="Study Package Materials"
+            description="Upload your digital materials (clients get access after purchase)"
+          >
+            <div className={styles.formSection}>
+              <label className={styles.label}>Material URL (Optional)</label>
+              <input
+                type="url"
+                value={materialUrl}
+                onChange={(e) => setMaterialUrl(e.target.value)}
+                placeholder="https://example.com/material.pdf"
+                className={styles.input}
+              />
+              <p className={styles.helperText}>
+                Or use the image upload below to upload files
+              </p>
+            </div>
+          </FormSection>
+        </Card>
+      )}
+
+      {/* CARD 6: Booking Options */}
+      <Card>
+        <FormSection
+          title="Booking Options"
+          description="Configure trial sessions and booking settings"
+        >
+          <div className={styles.twoColumnLayout}>
+            <div className={styles.formSection}>
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={freeTrial}
+                  onChange={(e) => setFreeTrial(e.target.checked)}
+                  className={styles.checkbox}
+                />
+                <span>Offer Free Trial Session</span>
+              </label>
+              <p className={styles.helperText}>
+                Attract more students with a free trial lesson
+              </p>
+            </div>
+
+            <div className={styles.formSection}>
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={instantBooking}
+                  onChange={(e) => setInstantBooking(e.target.checked)}
+                  className={styles.checkbox}
+                />
+                <span>Enable Instant Booking</span>
+              </label>
+              <p className={styles.helperText}>
+                Students can book immediately without approval
+              </p>
+            </div>
+
+            {/* Session Durations */}
+            <div className={styles.formSection}>
+              <label className={styles.label}>
+                Available Session Durations <span className={styles.required}>*</span>
+              </label>
+              <select
+                value=""
+                onChange={handleDurationChange}
+                className={styles.select}
+              >
+                <option value="">Add duration...</option>
+                {DURATION_OPTIONS.map(({ value, label }) => (
+                  <option key={value} value={value} disabled={selectedDurations.includes(value)}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+              {selectedDurations.length > 0 && (
+                <div className={styles.durationChipsContainer}>
+                  {selectedDurations.map(duration => {
+                    const option = DURATION_OPTIONS.find(opt => opt.value === duration);
+                    return (
+                      <span key={duration} className={styles.durationChip}>
+                        {option?.label}
+                        <button
+                          type="button"
+                          onClick={() => removeDuration(duration)}
+                          className={styles.durationChipRemove}
+                          aria-label={`Remove ${option?.label}`}
+                        >
+                          ×
+                        </button>
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
+              {errors.durations && <p className={styles.errorText}>{errors.durations}</p>}
+            </div>
+          </div>
+        </FormSection>
+      </Card>
+
+      {/* CARD 7: Location Details (Conditional) */}
+      <Card>
+        <FormSection
+          title="Location Details"
+          description="Set how and where you'll deliver this service"
+        >
+          <div className={styles.twoColumnLayout}>
+            {/* Delivery Mode */}
+            <div className={styles.formSection}>
+              <label className={styles.label}>
+                Delivery Mode <span className={styles.required}>*</span>
+              </label>
+              <select
+                value={deliveryMode}
+                onChange={(e) => setDeliveryMode(e.target.value as "online" | "in_person" | "hybrid")}
+                className={styles.select}
+              >
+                {DELIVERY_MODES.map(({ value, label }) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Location Details - Conditional */}
+            {deliveryMode !== 'online' && (
+              <div className={styles.formSection}>
+                <label className={styles.label}>
+                  Location Details <span className={styles.required}>*</span>
+                </label>
+                <input
+                  type="text"
+                  value={locationDetails}
+                  onChange={(e) => setLocationDetails(e.target.value)}
+                  placeholder="e.g., Central Library Meeting Room, City Centre"
+                  className={`${styles.input} ${errors.locationDetails ? styles.inputError : ''}`}
+                />
+                {errors.locationDetails && <p className={styles.errorText}>{errors.locationDetails}</p>}
+                <p className={styles.helperText}>
+                  Provide specific location information for in-person sessions
+                </p>
+              </div>
+            )}
+          </div>
+        </FormSection>
+      </Card>
+
+      {/* CARD 8: Hero Image Upload */}
+      <Card>
+        <FormSection
+          title="Hero Image"
+          description="Upload a hero image for your service"
+        >
           <ImageUpload
             ref={imageUploadRef}
             onUploadComplete={handleUploadComplete}
             existingImages={imageUrls.slice(1)}
           />
-        </div>
+        </FormSection>
+      </Card>
 
-        {/* Location Details - Conditional */}
-        {deliveryMode !== 'online' && (
+      {/* CARD 9: AI Tools */}
+      <Card>
+        <FormSection
+          title="AI Tools"
+          description="Select AI tools you incorporate into your teaching"
+        >
           <div className={styles.formSection}>
             <label className={styles.label}>
-              Location Details <span className={styles.required}>*</span>
+              AI Tools Used (Optional)
             </label>
-            <input
-              type="text"
-              value={locationDetails}
-              onChange={(e) => setLocationDetails(e.target.value)}
-              placeholder="e.g., Central Library Meeting Room, City Centre"
-              className={`${styles.input} ${errors.locationDetails ? styles.inputError : ''}`}
+            <MultiSelectDropdown
+              triggerLabel={
+                selectedAITools.length > 0
+                  ? `${selectedAITools.length} tool${selectedAITools.length > 1 ? 's' : ''} selected`
+                  : 'Select AI tools'
+              }
+              options={AI_TOOLS_OPTIONS}
+              selectedValues={selectedAITools}
+              onSelectionChange={setSelectedAITools}
             />
-            {errors.locationDetails && <p className={styles.errorText}>{errors.locationDetails}</p>}
-            <p className={styles.helperText}>
-              Provide specific location information for in-person sessions
-            </p>
+            <p className={styles.helperText}>AI tools you incorporate in lessons</p>
           </div>
-        )}
+        </FormSection>
+      </Card>
 
-        {/* AI Tools */}
-        <div className={styles.formSection}>
-          <label className={styles.label}>
-            AI Tools Used (Optional)
-          </label>
-          <MultiSelectDropdown
-            triggerLabel={
-              selectedAITools.length > 0
-                ? `${selectedAITools.length} tool${selectedAITools.length > 1 ? 's' : ''} selected`
-                : 'Select AI tools'
-            }
-            options={AI_TOOLS_OPTIONS}
-            selectedValues={selectedAITools}
-            onSelectionChange={setSelectedAITools}
-          />
-          <p className={styles.helperText}>AI tools you incorporate in lessons</p>
-        </div>
-      </div>
+      {/* CARD 10: Cancellation Policy */}
+      <Card>
+        <FormSection
+          title="Cancellation Policy"
+          description="Set clear expectations for cancellations"
+        >
+          <div className={styles.fullWidthSection}>
+            <div className={styles.formSection}>
+              <label className={styles.label}>
+                Cancellation Policy (Optional)
+              </label>
+              <textarea
+                value={cancellationPolicy}
+                onChange={(e) => setCancellationPolicy(e.target.value)}
+                placeholder="e.g., 24-hour cancellation notice required for full refund"
+                rows={3}
+                className={styles.textarea}
+                maxLength={500}
+              />
+              <p className={styles.helperText}>
+                ({cancellationPolicy.length}/500)
+              </p>
+            </div>
+          </div>
+        </FormSection>
+      </Card>
 
       {/* Action Buttons */}
       <div className={styles.actions}>
         <Button
+          type="button"
           variant="secondary"
           onClick={onCancel}
-          disabled={isUploading || isSaving}
+          disabled={isSaving || isUploading}
         >
           Cancel
         </Button>
         <Button
+          type="button"
           variant="secondary"
           onClick={onSaveDraft}
-          disabled={isUploading || isSaving}
+          disabled={isSaving || isUploading}
         >
           Save Draft
         </Button>
         <Button
+          type="button"
+          variant="primary"
           onClick={handleSubmit}
-          disabled={isUploading || isSaving}
+          disabled={isSaving || isUploading}
+          isLoading={isSaving || isUploading}
         >
-          {isUploading ? 'Uploading...' : isSaving ? 'Publishing...' : 'Publish Listing'}
+          {isSaving || isUploading ? 'Saving...' : 'Publish Listing'}
         </Button>
       </div>
     </div>

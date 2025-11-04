@@ -30,13 +30,13 @@ describe('CreateListingForm Wizard', () => {
     it('should render the Create Listing form', () => {
       render(<CreateListingForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />);
       expect(screen.getByText('Create Listing')).toBeInTheDocument();
-      // Check that Service Title label exists
-      expect(screen.getByText(/Service Title/i)).toBeInTheDocument();
+      // Check that Service Name label exists (v4.0)
+      expect(screen.getByText(/Service Name/i)).toBeInTheDocument();
     });
 
-    it('should show Service Title and Description fields', () => {
+    it('should show Service Name and Description fields', () => {
       renderForm();
-      expect(screen.getByText(/Service Title/i)).toBeInTheDocument();
+      expect(screen.getByText(/Service Name/i)).toBeInTheDocument();
       expect(screen.getByText(/Description/i)).toBeInTheDocument();
     });
   });
@@ -50,28 +50,28 @@ describe('CreateListingForm Wizard', () => {
 
     it('should update description character count on input', async () => {
         const { user } = renderForm();
-        // Find description textarea by placeholder
-        const descInput = screen.getByPlaceholderText(/Describe your teaching approach/i);
+        // Find description textarea by placeholder (v4.0)
+        const descInput = screen.getByPlaceholderText(/Describe your service in detail/i);
         await user.type(descInput, 'Test description');
         // "Test description" is 16 characters
         expect(screen.getByText(/\(16\/2000\)/)).toBeInTheDocument();
     });
 
-    it('should show validation errors for title field', async () => {
+    it('should show validation errors for service name field', async () => {
         const { user } = renderForm();
-        // Find title input by placeholder
-        const titleInput = screen.getByPlaceholderText(/e.g., GCSE Mathematics/i);
+        // Find service name input by placeholder (v4.0)
+        const titleInput = screen.getByPlaceholderText(/e.g., GCSE Maths Tutor/i);
 
-        // Clear title to trigger required
+        // Clear service name to trigger required
         await user.clear(titleInput);
         const submitButton = screen.getByRole('button', {name: /Publish Listing/i});
         await user.click(submitButton);
-        expect(await screen.findByText('Service title is required')).toBeInTheDocument();
+        expect(await screen.findByText('Service name is required')).toBeInTheDocument();
 
-        // Type short title for length error
+        // Type short service name for length error
         await user.type(titleInput, 'short');
         await user.click(submitButton);
-        expect(await screen.findByText('Title must be at least 10 characters')).toBeInTheDocument();
+        expect(await screen.findByText('Service name must be at least 10 characters')).toBeInTheDocument();
 
         expect(mockOnSubmit).not.toHaveBeenCalled();
     });

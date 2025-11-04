@@ -1,14 +1,51 @@
+/*
+ * Filename: src/app/components/ui/form/FormSection.module.css
+ * Purpose: Styles for form section component
+ * Created: 2025-11-04
+ * Updated: 2025-11-04 - Design system compliant v4.0
+ */
+
 .formSection {
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6, 1.5rem); /* 24px between header and content */
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 0.5rem); /* 8px between title and description */
 }
 
 .title {
-  font-size: 1.25rem;
+  font-size: 1.25rem; /* 20px - heading-md */
   font-weight: 600;
-  margin-bottom: 1rem;
-  color: #111827;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.description {
+  font-size: 0.875rem; /* 14px - body-sm */
+  color: var(--color-gray-700, #4B4B4B);
+  opacity: 0.7;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 1rem); /* 16px between form elements */
+}
+
+/* Mobile responsive */
+@media (max-width: 767px) {
+  .title {
+    font-size: 1.125rem; /* 18px on mobile */
+  }
+
+  .description {
+    font-size: 0.8125rem; /* 13px on mobile */
+  }
 }
