@@ -134,9 +134,10 @@ export default function ListingsPage() {
       const newListingId = await duplicateTemplate(listingId, user.id);
 
       if (newListingId) {
-        toast.success('Listing duplicated successfully!');
+        toast.success('Listing duplicated successfully! View it in the Drafts tab.');
         await loadListings();
-        router.push(`/edit-listing/${newListingId}`);
+        // Switch to drafts tab to show the new duplicate
+        handleFilterChange('draft');
       } else {
         toast.error('Failed to duplicate listing');
       }
