@@ -115,18 +115,17 @@ export default function AvailabilityFormSection({
 
   return (
     <div className={styles.container}>
-      {/* Header with Load from Profile button */}
+      {/* Header with Load from Profile link */}
       <div className={styles.header}>
         <h4 className={styles.sectionTitle}>Availability Periods</h4>
         {(onLoadFromProfile || profileAvailability.length > 0) && (
-          <Button
+          <button
             type="button"
-            variant="secondary"
-            size="sm"
             onClick={handleLoadFromProfile}
+            className={styles.loadLink}
           >
             Load from Profile
-          </Button>
+          </button>
         )}
       </div>
 
