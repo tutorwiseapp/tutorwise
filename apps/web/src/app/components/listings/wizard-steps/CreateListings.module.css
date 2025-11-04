@@ -150,7 +150,7 @@
   min-height: 120px;
 }
 
-/* Select Dropdown - Consistent with MultiSelectDropdown */
+/* Select Dropdown - Pixel-perfect match with MultiSelectDropdown using Radix UI ChevronDownIcon */
 .select {
   width: 100%;
   padding: 0.75rem 2.5rem 0.75rem 0.75rem; /* Extra padding-right for chevron */
@@ -160,11 +160,11 @@
   line-height: 1.5;
   color: var(--color-gray-700, #4B4B4B);
   background-color: var(--color-base-white, #FFFFFF);
-  /* ChevronDownIcon - matches MultiSelectDropdown exactly (20px = 1.25rem) */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 15 15' fill='none'%3E%3Cpath d='M4.18179 6.18181C4.35753 6.00608 4.64245 6.00608 4.81819 6.18181L7.49999 8.86362L10.1818 6.18181C10.3575 6.00608 10.6424 6.00608 10.8182 6.18181C10.9939 6.35755 10.9939 6.64247 10.8182 6.81821L7.81819 9.81821C7.73379 9.9026 7.61933 9.95001 7.49999 9.95001C7.38064 9.95001 7.26618 9.9026 7.18179 9.81821L4.18179 6.81821C4.00605 6.64247 4.00605 6.35755 4.18179 6.18181Z' fill='%235f6368'/%3E%3C/svg%3E");
+  /* Exact Radix UI ChevronDownIcon SVG - matches MultiSelectDropdown perfectly */
+  background-image: url("data:image/svg+xml,%3Csvg width='15' height='15' viewBox='0 0 15 15' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11.1581 6.13499C11.3595 5.94644 11.6763 5.95708 11.8651 6.15843C12.0536 6.3599 12.043 6.67669 11.8416 6.86546L7.84165 10.6155C7.64941 10.7954 7.35029 10.7954 7.15805 10.6155L3.15805 6.86546L3.09165 6.78831C2.95746 6.59859 2.96967 6.33468 3.13461 6.15843C3.29985 5.98217 3.56347 5.95169 3.76157 6.07347L3.84165 6.13499L7.49985 9.5637L11.1581 6.13499Z' fill='%235f6368'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 20px; /* 1.25rem - matches MultiSelectDropdown chevron */
+  background-position: right 0.5rem center; /* 8px - matches MultiSelectDropdown margin-left: 0.5rem */
+  background-size: 1.25rem; /* 20px - matches MultiSelectDropdown chevron size */
   appearance: none;
   cursor: pointer;
   transition: all 0.2s ease;
