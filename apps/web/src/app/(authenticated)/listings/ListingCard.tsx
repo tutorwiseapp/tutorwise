@@ -6,11 +6,12 @@
  */
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import type { Listing } from '@tutorwise/shared-types';
 import Button from '@/app/components/ui/Button';
+import ConfirmDialog from '@/app/components/ui/ConfirmDialog';
 import getProfileImageUrl from '@/lib/utils/image';
 import styles from './ListingCard.module.css';
 
@@ -33,6 +34,19 @@ export default function ListingCard({
 }: ListingCardProps) {
   const router = useRouter();
   const isTemplate = listing.is_template === true;
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    variant: 'danger' | 'warning' | 'info';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    variant: 'info',
+  });
 
   // Use the same profile image logic as NavMenu (includes academic avatar fallback)
   const imageUrl = getProfileImageUrl({
@@ -92,11 +106,18 @@ export default function ListingCard({
 
   // Handle delete with confirmation and validation
   const handleDeleteClick = () => {
-    // For drafts, just confirm
+    // For drafts, show confirm dialog
     if (isDraft) {
-      if (confirm('Are you sure you want to delete this draft listing? This action cannot be undone.')) {
-        onDelete(listing.id);
-      }
+      setConfirmDialog({
+        isOpen: true,
+        title: 'Delete Draft Listing?',
+        message: 'Are you sure you want to delete this draft listing? This action cannot be undone.',
+        onConfirm: () => {
+          onDelete(listing.id);
+          setConfirmDialog({ ...confirmDialog, isOpen: false });
+        },
+        variant: 'danger',
+      });
       return;
     }
 
@@ -109,13 +130,28 @@ export default function ListingCard({
           : 0;
         const daysRemaining = Math.max(0, DAYS_BEFORE_DELETE - daysSinceArchived);
 
-        alert(`You cannot delete this listing yet. Listings can only be deleted after being archived for ${DAYS_BEFORE_DELETE} days. ${daysRemaining} days remaining.`);
+        setConfirmDialog({
+          isOpen: true,
+          title: 'Cannot Delete Yet',
+          message: `You cannot delete this listing yet.\n\nListings can only be deleted after being archived for ${DAYS_BEFORE_DELETE} days.\n\n${daysRemaining} ${daysRemaining === 1 ? 'day' : 'days'} remaining.`,
+          onConfirm: () => {
+            setConfirmDialog({ ...confirmDialog, isOpen: false });
+          },
+          variant: 'warning',
+        });
         return;
       }
 
-      if (confirm('Are you sure you want to permanently delete this listing? This action cannot be undone.')) {
-        onDelete(listing.id);
-      }
+      setConfirmDialog({
+        isOpen: true,
+        title: 'Delete Listing Permanently?',
+        message: 'Are you sure you want to permanently delete this listing? This action cannot be undone and all data will be lost.',
+        onConfirm: () => {
+          onDelete(listing.id);
+          setConfirmDialog({ ...confirmDialog, isOpen: false });
+        },
+        variant: 'danger',
+      });
     }
   };
 
@@ -271,6 +307,18 @@ export default function ListingCard({
           ) : null}
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+        onConfirm={confirmDialog.onConfirm}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        variant={confirmDialog.variant}
+        confirmText={confirmDialog.variant === 'warning' ? 'OK' : 'Delete'}
+        cancelText="Cancel"
+      />
     </div>
   );
 }
