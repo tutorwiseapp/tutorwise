@@ -887,8 +887,8 @@ export default function CreateListings({
           title="Location Details"
           description="Set how and where you'll deliver this service"
         >
-          <div className={styles.twoColumnLayout}>
-            {/* Delivery Mode */}
+          {/* Delivery Mode - Full width */}
+          <div className={styles.fullWidthSection}>
             <div className={styles.formSection}>
               <label className={styles.label}>
                 Delivery Mode <span className={styles.required}>*</span>
@@ -903,9 +903,11 @@ export default function CreateListings({
                 ))}
               </select>
             </div>
+          </div>
 
-            {/* Location Details - Conditional */}
-            {deliveryMode !== 'online' && (
+          {/* Location Details - Conditional */}
+          {deliveryMode !== 'online' && (
+            <div className={styles.fullWidthSection}>
               <div className={styles.formSection}>
                 <label className={styles.label}>
                   Location Details <span className={styles.required}>*</span>
@@ -922,8 +924,8 @@ export default function CreateListings({
                   Provide specific location information for in-person sessions
                 </p>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </FormSection>
       </Card>
 
