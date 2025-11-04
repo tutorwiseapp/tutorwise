@@ -24,27 +24,27 @@
   opacity: 0.7;
 }
 
-/* 2-Column Layout - Maintains user's requested layout */
-.twoColumnLayout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem; /* 32px - horizontal spacing as requested */
+/* Full-Width Section - For single-column fields like Listing Type and Description */
+.fullWidthSection {
+  width: 100%;
   margin-bottom: 2rem; /* 32px vertical spacing */
 }
 
+/* 2-Column Layout - Maintains user's requested layout with proper alignment */
+.twoColumnLayout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem; /* 32px - horizontal and vertical spacing */
+  margin-bottom: 2rem; /* 32px vertical spacing */
+  align-items: start; /* CRITICAL: Prevents stretching and ensures proper Y-axis alignment */
+}
+
 /* Tablet: Stack to single column */
-@media (max-width: 1023px) {
+@media (max-width: 767px) {
   .twoColumnLayout {
     grid-template-columns: 1fr;
     gap: 2rem; /* 32px vertical spacing maintained */
   }
-}
-
-.leftColumn,
-.rightColumn {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem; /* 32px vertical spacing between sections as requested */
 }
 
 /* Form Sections - 32px vertical spacing */
@@ -327,11 +327,6 @@
 
   .subtitle {
     font-size: 0.875rem; /* 14px on mobile */
-  }
-
-  .leftColumn,
-  .rightColumn {
-    gap: 1.5rem; /* 24px on mobile - slightly reduced but still generous */
   }
 }
 

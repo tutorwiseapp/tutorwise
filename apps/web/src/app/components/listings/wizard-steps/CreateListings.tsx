@@ -285,293 +285,295 @@ export default function CreateListings({
         </p>
       </div>
 
+      {/* LISTING TYPE - Full-width at top */}
+      <div className={styles.fullWidthSection}>
+        <div className={styles.formSection}>
+          <label className={styles.label}>
+            Listing Type <span className={styles.required}>*</span>
+          </label>
+          <select
+            value={listingType}
+            onChange={(e) => setListingType(e.target.value)}
+            className={styles.select}
+          >
+            {LISTING_TYPE_OPTIONS.map(({ value, label, disabled }) => (
+              <option key={value} value={value} disabled={disabled}>
+                {label} {disabled ? '(Coming Soon)' : ''}
+              </option>
+            ))}
+          </select>
+          <p className={styles.helperText}>
+            Additional listing types coming soon!
+          </p>
+        </div>
+      </div>
+
+      {/* TWO-COLUMN GRID - Aligned fields only */}
       <div className={styles.twoColumnLayout}>
-        {/* LEFT COLUMN - Main Fields */}
-        <div className={styles.leftColumn}>
-          {/* Listing Type */}
-          <div className={styles.formSection}>
-            <label className={styles.label}>
-              Listing Type <span className={styles.required}>*</span>
-            </label>
-            <select
-              value={listingType}
-              onChange={(e) => setListingType(e.target.value)}
-              className={styles.select}
-            >
-              {LISTING_TYPE_OPTIONS.map(({ value, label, disabled }) => (
-                <option key={value} value={value} disabled={disabled}>
-                  {label} {disabled ? '(Coming Soon)' : ''}
-                </option>
-              ))}
-            </select>
-            <p className={styles.helperText}>
-              Additional listing types coming soon!
-            </p>
-          </div>
-
-          {/* Service Title */}
-          <div className={styles.formSection}>
-            <label className={styles.label}>
-              Service Title <span className={styles.required}>*</span>
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g., GCSE Mathematics Tutor - Experienced & Results-Focused"
-              className={`${styles.input} ${errors.title ? styles.inputError : ''}`}
-              maxLength={200}
-            />
-            {errors.title ? (
-              <p className={styles.errorText}>{errors.title}</p>
-            ) : (
-              <p className={styles.helperText}>Min. 10 characters ({title.length}/200)</p>
-            )}
-          </div>
-
-          {/* Description */}
-          <div className={styles.formSection}>
-            <label className={styles.label}>
-              Description <span className={styles.required}>*</span>
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe your teaching approach, experience, and what makes your tutoring effective..."
-              rows={8}
-              className={`${styles.textarea} ${errors.description ? styles.inputError : ''}`}
-              maxLength={2000}
-            />
-            {errors.description ? (
-              <p className={styles.errorText}>{errors.description}</p>
-            ) : (
-              <p className={styles.helperText}>Min. 50 characters ({description.length}/2000)</p>
-            )}
-          </div>
-
-          {/* Cancellation Policy */}
-          <div className={styles.formSection}>
-            <label className={styles.label}>
-              Cancellation Policy (Optional)
-            </label>
-            <textarea
-              value={cancellationPolicy}
-              onChange={(e) => setCancellationPolicy(e.target.value)}
-              placeholder="e.g., 24-hour cancellation notice required for full refund"
-              rows={3}
-              className={styles.textarea}
-              maxLength={500}
-            />
-            <p className={styles.helperText}>
-              Set clear expectations for cancellations ({cancellationPolicy.length}/500)
-            </p>
-          </div>
-
-          {/* Booking Options - Grouped */}
-          <div className={styles.formSection}>
-            <label className={styles.label}>
-              Booking Options
-            </label>
-
-            <label className={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                checked={freeTrial}
-                onChange={(e) => setFreeTrial(e.target.checked)}
-                className={styles.checkbox}
-              />
-              <span>Offer Free Trial Session</span>
-            </label>
-            <p className={styles.helperText} style={{ marginBottom: '1rem' }}>
-              Attract more students with a free trial lesson
-            </p>
-
-            <label className={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                checked={instantBooking}
-                onChange={(e) => setInstantBooking(e.target.checked)}
-                className={styles.checkbox}
-              />
-              <span>Enable Instant Booking</span>
-            </label>
-            <p className={styles.helperText}>
-              Students can book immediately without approval
-            </p>
-          </div>
-
-          {/* Location Details */}
-          {deliveryMode !== 'online' && (
-            <div className={styles.formSection}>
-              <label className={styles.label}>
-                Location Details <span className={styles.required}>*</span>
-              </label>
-              <input
-                type="text"
-                value={locationDetails}
-                onChange={(e) => setLocationDetails(e.target.value)}
-                placeholder="e.g., Central Library Meeting Room, City Centre"
-                className={`${styles.input} ${errors.locationDetails ? styles.inputError : ''}`}
-              />
-              {errors.locationDetails && <p className={styles.errorText}>{errors.locationDetails}</p>}
-              <p className={styles.helperText}>
-                Provide specific location information for in-person sessions
-              </p>
-            </div>
+        {/* Service Title */}
+        <div className={styles.formSection}>
+          <label className={styles.label}>
+            Service Title <span className={styles.required}>*</span>
+          </label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="e.g., GCSE Mathematics Tutor - Experienced & Results-Focused"
+            className={`${styles.input} ${errors.title ? styles.inputError : ''}`}
+            maxLength={200}
+          />
+          {errors.title ? (
+            <p className={styles.errorText}>{errors.title}</p>
+          ) : (
+            <p className={styles.helperText}>Min. 10 characters ({title.length}/200)</p>
           )}
         </div>
 
-        {/* RIGHT COLUMN */}
-        <div className={styles.rightColumn}>
-          {/* Subjects - ALWAYS VISIBLE */}
-          <div className={styles.formSection}>
-            <label className={styles.label}>
-              Subjects <span className={styles.required}>*</span>
-            </label>
-            <MultiSelectDropdown
-              triggerLabel={
-                selectedSubjects.length > 0
-                  ? selectedSubjects.length === 1
-                    ? selectedSubjects[0]
-                    : `${selectedSubjects.length} subjects selected`
-                  : 'Select subjects'
-              }
-              options={SUBJECT_OPTIONS}
-              selectedValues={selectedSubjects}
-              onSelectionChange={setSelectedSubjects}
-            />
-            {errors.subjects && <p className={styles.errorText}>{errors.subjects}</p>}
-            <p className={styles.helperText}>Choose one or more subjects you can teach</p>
-          </div>
+        {/* Subjects */}
+        <div className={styles.formSection}>
+          <label className={styles.label}>
+            Subjects <span className={styles.required}>*</span>
+          </label>
+          <MultiSelectDropdown
+            triggerLabel={
+              selectedSubjects.length > 0
+                ? selectedSubjects.length === 1
+                  ? selectedSubjects[0]
+                  : `${selectedSubjects.length} subjects selected`
+                : 'Select subjects'
+            }
+            options={SUBJECT_OPTIONS}
+            selectedValues={selectedSubjects}
+            onSelectionChange={setSelectedSubjects}
+          />
+          {errors.subjects && <p className={styles.errorText}>{errors.subjects}</p>}
+          <p className={styles.helperText}>Choose one or more subjects you can teach</p>
+        </div>
 
-          {/* Levels - ALWAYS VISIBLE */}
-          <div className={styles.formSection}>
-            <label className={styles.label}>
-              Education Levels <span className={styles.required}>*</span>
-            </label>
-            <MultiSelectDropdown
-              triggerLabel={
-                selectedLevels.length > 0
-                  ? selectedLevels.length === 1
-                    ? selectedLevels[0]
-                    : `${selectedLevels.length} levels selected`
-                  : 'Select levels'
-              }
-              options={LEVEL_OPTIONS}
-              selectedValues={selectedLevels}
-              onSelectionChange={setSelectedLevels}
-            />
-            {errors.levels && <p className={styles.errorText}>{errors.levels}</p>}
-            <p className={styles.helperText}>Choose education levels you can teach</p>
-          </div>
+        {/* Hourly Rate */}
+        <div className={styles.formSection}>
+          <label className={styles.label}>
+            Hourly Rate (£) <span className={styles.required}>*</span>
+          </label>
+          <input
+            type="number"
+            value={hourlyRate}
+            onChange={(e) => setHourlyRate(e.target.value)}
+            placeholder="50"
+            className={`${styles.input} ${errors.hourlyRate ? styles.inputError : ''}`}
+            min="0"
+            step="1"
+            inputMode="decimal"
+          />
+          {errors.hourlyRate && <p className={styles.errorText}>{errors.hourlyRate}</p>}
+          <p className={styles.helperText}>Your rate per hour in GBP</p>
+        </div>
 
-          {/* Hourly Rate */}
+        {/* Education Levels */}
+        <div className={styles.formSection}>
+          <label className={styles.label}>
+            Education Levels <span className={styles.required}>*</span>
+          </label>
+          <MultiSelectDropdown
+            triggerLabel={
+              selectedLevels.length > 0
+                ? selectedLevels.length === 1
+                  ? selectedLevels[0]
+                  : `${selectedLevels.length} levels selected`
+                : 'Select levels'
+            }
+            options={LEVEL_OPTIONS}
+            selectedValues={selectedLevels}
+            onSelectionChange={setSelectedLevels}
+          />
+          {errors.levels && <p className={styles.errorText}>{errors.levels}</p>}
+          <p className={styles.helperText}>Choose education levels you can teach</p>
+        </div>
+
+        {/* Delivery Mode */}
+        <div className={styles.formSection}>
+          <label className={styles.label}>
+            Delivery Mode <span className={styles.required}>*</span>
+          </label>
+          <select
+            value={deliveryMode}
+            onChange={(e) => setDeliveryMode(e.target.value as "online" | "in_person" | "hybrid")}
+            className={styles.select}
+          >
+            {DELIVERY_MODES.map(({ value, label }) => (
+              <option key={value} value={value}>{label}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Session Durations */}
+        <div className={styles.formSection}>
+          <label className={styles.label}>
+            Available Session Durations <span className={styles.required}>*</span>
+          </label>
+          <select
+            value=""
+            onChange={handleDurationChange}
+            className={styles.select}
+          >
+            <option value="">Add duration...</option>
+            {DURATION_OPTIONS.map(({ value, label }) => (
+              <option key={value} value={value} disabled={selectedDurations.includes(value)}>
+                {label}
+              </option>
+            ))}
+          </select>
+          {selectedDurations.length > 0 && (
+            <div className={styles.durationChipsContainer}>
+              {selectedDurations.map(duration => {
+                const option = DURATION_OPTIONS.find(opt => opt.value === duration);
+                return (
+                  <span key={duration} className={styles.durationChip}>
+                    {option?.label}
+                    <button
+                      type="button"
+                      onClick={() => removeDuration(duration)}
+                      className={styles.durationChipRemove}
+                      aria-label={`Remove ${option?.label}`}
+                    >
+                      ×
+                    </button>
+                  </span>
+                );
+              })}
+            </div>
+          )}
+          {errors.durations && <p className={styles.errorText}>{errors.durations}</p>}
+        </div>
+      </div>
+
+      {/* DESCRIPTION - Full-width section */}
+      <div className={styles.fullWidthSection}>
+        <div className={styles.formSection}>
+          <label className={styles.label}>
+            Description <span className={styles.required}>*</span>
+          </label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Describe your teaching approach, experience, and what makes your tutoring effective..."
+            rows={8}
+            className={`${styles.textarea} ${errors.description ? styles.inputError : ''}`}
+            maxLength={2000}
+          />
+          {errors.description ? (
+            <p className={styles.errorText}>{errors.description}</p>
+          ) : (
+            <p className={styles.helperText}>Min. 50 characters ({description.length}/2000)</p>
+          )}
+        </div>
+      </div>
+
+      {/* CANCELLATION POLICY - Full-width */}
+      <div className={styles.fullWidthSection}>
+        <div className={styles.formSection}>
+          <label className={styles.label}>
+            Cancellation Policy (Optional)
+          </label>
+          <textarea
+            value={cancellationPolicy}
+            onChange={(e) => setCancellationPolicy(e.target.value)}
+            placeholder="e.g., 24-hour cancellation notice required for full refund"
+            rows={3}
+            className={styles.textarea}
+            maxLength={500}
+          />
+          <p className={styles.helperText}>
+            Set clear expectations for cancellations ({cancellationPolicy.length}/500)
+          </p>
+        </div>
+      </div>
+
+      {/* ADDITIONAL OPTIONS - Two-column layout */}
+      <div className={styles.twoColumnLayout}>
+        {/* Booking Options */}
+        <div className={styles.formSection}>
+          <label className={styles.label}>
+            Booking Options
+          </label>
+          <label className={styles.checkboxLabel}>
+            <input
+              type="checkbox"
+              checked={freeTrial}
+              onChange={(e) => setFreeTrial(e.target.checked)}
+              className={styles.checkbox}
+            />
+            <span>Offer Free Trial Session</span>
+          </label>
+          <p className={styles.helperText} style={{ marginBottom: '1rem' }}>
+            Attract more students with a free trial lesson
+          </p>
+          <label className={styles.checkboxLabel}>
+            <input
+              type="checkbox"
+              checked={instantBooking}
+              onChange={(e) => setInstantBooking(e.target.checked)}
+              className={styles.checkbox}
+            />
+            <span>Enable Instant Booking</span>
+          </label>
+          <p className={styles.helperText}>
+            Students can book immediately without approval
+          </p>
+        </div>
+
+        {/* Hero Image Upload */}
+        <div className={styles.formSection}>
+          <label className={styles.label}>
+            Hero Image (Optional)
+          </label>
+          <p className={styles.helperText}>
+            Your profile picture is already set as your main image. Add a hero image here.
+          </p>
+          <ImageUpload
+            ref={imageUploadRef}
+            onUploadComplete={handleUploadComplete}
+            existingImages={imageUrls.slice(1)}
+          />
+        </div>
+
+        {/* Location Details - Conditional */}
+        {deliveryMode !== 'online' && (
           <div className={styles.formSection}>
             <label className={styles.label}>
-              Hourly Rate (£) <span className={styles.required}>*</span>
+              Location Details <span className={styles.required}>*</span>
             </label>
             <input
-              type="number"
-              value={hourlyRate}
-              onChange={(e) => setHourlyRate(e.target.value)}
-              placeholder="50"
-              className={`${styles.input} ${errors.hourlyRate ? styles.inputError : ''}`}
-              min="0"
-              step="1"
-              inputMode="decimal"
+              type="text"
+              value={locationDetails}
+              onChange={(e) => setLocationDetails(e.target.value)}
+              placeholder="e.g., Central Library Meeting Room, City Centre"
+              className={`${styles.input} ${errors.locationDetails ? styles.inputError : ''}`}
             />
-            {errors.hourlyRate && <p className={styles.errorText}>{errors.hourlyRate}</p>}
-            <p className={styles.helperText}>Your rate per hour in GBP</p>
-          </div>
-
-          {/* Delivery Mode */}
-          <div className={styles.formSection}>
-            <label className={styles.label}>
-              Delivery Mode <span className={styles.required}>*</span>
-            </label>
-            <select
-              value={deliveryMode}
-              onChange={(e) => setDeliveryMode(e.target.value as "online" | "in_person" | "hybrid")}
-              className={styles.select}
-            >
-              {DELIVERY_MODES.map(({ value, label }) => (
-                <option key={value} value={value}>{label}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Session Durations - MOVED HERE */}
-          <div className={styles.formSection}>
-            <label className={styles.label}>
-              Available Session Durations <span className={styles.required}>*</span>
-            </label>
-            <select
-              value=""
-              onChange={handleDurationChange}
-              className={styles.select}
-            >
-              <option value="">Add duration...</option>
-              {DURATION_OPTIONS.map(({ value, label }) => (
-                <option key={value} value={value} disabled={selectedDurations.includes(value)}>
-                  {label}
-                </option>
-              ))}
-            </select>
-            {selectedDurations.length > 0 && (
-              <div className={styles.durationChipsContainer}>
-                {selectedDurations.map(duration => {
-                  const option = DURATION_OPTIONS.find(opt => opt.value === duration);
-                  return (
-                    <span key={duration} className={styles.durationChip}>
-                      {option?.label}
-                      <button
-                        type="button"
-                        onClick={() => removeDuration(duration)}
-                        className={styles.durationChipRemove}
-                        aria-label={`Remove ${option?.label}`}
-                      >
-                        ×
-                      </button>
-                    </span>
-                  );
-                })}
-              </div>
-            )}
-            {errors.durations && <p className={styles.errorText}>{errors.durations}</p>}
-          </div>
-
-          {/* AI Tools Used */}
-          <div className={styles.formSection}>
-            <label className={styles.label}>
-              AI Tools Used (Optional)
-            </label>
-            <MultiSelectDropdown
-              triggerLabel={
-                selectedAITools.length > 0
-                  ? `${selectedAITools.length} tool${selectedAITools.length > 1 ? 's' : ''} selected`
-                  : 'Select AI tools'
-              }
-              options={AI_TOOLS_OPTIONS}
-              selectedValues={selectedAITools}
-              onSelectionChange={setSelectedAITools}
-            />
-            <p className={styles.helperText}>AI tools you incorporate in lessons</p>
-          </div>
-
-          {/* Photos - MOVED HERE */}
-          <div className={styles.formSection}>
-            <label className={styles.label}>
-              Photos (Optional)
-            </label>
+            {errors.locationDetails && <p className={styles.errorText}>{errors.locationDetails}</p>}
             <p className={styles.helperText}>
-              Your profile picture is already set as your main image. Add additional photos here.
+              Provide specific location information for in-person sessions
             </p>
-            <ImageUpload
-              ref={imageUploadRef}
-              onUploadComplete={handleUploadComplete}
-              existingImages={imageUrls.slice(1)}
-            />
           </div>
+        )}
+
+        {/* AI Tools */}
+        <div className={styles.formSection}>
+          <label className={styles.label}>
+            AI Tools Used (Optional)
+          </label>
+          <MultiSelectDropdown
+            triggerLabel={
+              selectedAITools.length > 0
+                ? `${selectedAITools.length} tool${selectedAITools.length > 1 ? 's' : ''} selected`
+                : 'Select AI tools'
+            }
+            options={AI_TOOLS_OPTIONS}
+            selectedValues={selectedAITools}
+            onSelectionChange={setSelectedAITools}
+          />
+          <p className={styles.helperText}>AI tools you incorporate in lessons</p>
         </div>
       </div>
 
