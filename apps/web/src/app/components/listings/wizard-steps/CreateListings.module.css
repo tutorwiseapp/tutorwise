@@ -1,9 +1,10 @@
 /* CreateListings.module.css - Design System Compliant */
 
 .createListingsContainer {
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 0; /* Vertical padding only - parent handles horizontal spacing */
+  padding: 2rem 1rem; /* Desktop: 32px vertical, 16px horizontal for safety */
 }
 
 .header {
