@@ -3,7 +3,7 @@
 .createListingsContainer {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem; /* 32px - Design system space-lg */
+  padding: 2rem 0; /* Vertical padding only - parent handles horizontal spacing */
 }
 
 .header {
@@ -337,7 +337,7 @@
 /* Mobile Responsive - Design System Breakpoints */
 @media (max-width: 767px) {
   .createListingsContainer {
-    padding: 1rem; /* 16px on mobile */
+    padding: 1rem; /* 16px on all sides for mobile */
   }
 
   .title {
@@ -352,6 +352,6 @@
 /* Tablet: 768px - 1023px */
 @media (min-width: 768px) and (max-width: 1023px) {
   .createListingsContainer {
-    padding: 1.5rem; /* 24px on tablet */
+    padding: 2rem 1.5rem; /* Vertical: 32px, Horizontal: 24px on tablet */
   }
 }
