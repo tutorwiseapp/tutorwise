@@ -96,6 +96,11 @@
   color: #065f46;
 }
 
+.statusUnpublished {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
 .statusDraft {
   background-color: #f3f4f6;
   color: #374151;
@@ -141,8 +146,7 @@
   gap: 1rem;
   font-size: 0.875rem;
   color: #6b7280;
-  padding-top: 0.75rem;
-  border-top: 1px solid #e5e7eb;
+  padding-top: 0.5rem;
 }
 
 .statItem {
@@ -162,7 +166,6 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
   margin-top: auto;
 }
 

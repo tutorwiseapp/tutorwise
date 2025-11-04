@@ -16,6 +16,7 @@ export default function ListingStatsWidget() {
   const [stats, setStats] = useState({
     total: 0,
     published: 0,
+    unpublished: 0,
     drafts: 0,
     archived: 0,
   });
@@ -32,6 +33,7 @@ export default function ListingStatsWidget() {
         setStats({
           total: regularListings.length,
           published: regularListings.filter(l => l.status === 'published').length,
+          unpublished: regularListings.filter(l => l.status === 'unpublished').length,
           drafts: regularListings.filter(l => l.status === 'draft').length,
           archived: regularListings.filter(l => l.status === 'archived').length,
         });
@@ -63,6 +65,10 @@ export default function ListingStatsWidget() {
         <div className={styles.statCard}>
           <div className={styles.statValue}>{stats.published}</div>
           <div className={styles.statLabel}>Published</div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statValue}>{stats.unpublished}</div>
+          <div className={styles.statLabel}>Unpublished</div>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statValue}>{stats.drafts}</div>

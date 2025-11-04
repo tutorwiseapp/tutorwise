@@ -19,7 +19,7 @@ import CreateListingWidget from '@/app/components/listings/CreateListingWidget';
 import ListingStatsWidget from '@/app/components/listings/ListingStatsWidget';
 import styles from './page.module.css';
 
-type FilterType = 'all' | 'published' | 'draft' | 'archived' | 'templates';
+type FilterType = 'all' | 'published' | 'unpublished' | 'draft' | 'archived' | 'templates';
 
 export default function ListingsPage() {
   const router = useRouter();
@@ -106,7 +106,7 @@ export default function ListingsPage() {
 
   const handleUnpublish = async (id: string) => {
     try {
-      await unpublishListing(id, 'draft');
+      await unpublishListing(id, 'unpublished' as 'draft' | 'paused');
       toast.success('Listing unpublished');
       await loadListings();
     } catch (error) {
@@ -158,6 +158,9 @@ export default function ListingsPage() {
     if (filter === 'published') {
       return listing.status === 'published' && listing.is_template !== true;
     }
+    if (filter === 'unpublished') {
+      return listing.status === 'unpublished' && listing.is_template !== true;
+    }
     if (filter === 'draft') {
       return listing.status === 'draft' && listing.is_template !== true;
     }
@@ -208,6 +211,12 @@ export default function ListingsPage() {
           Published
         </button>
         <button
+          onClick={() => handleFilterChange('unpublished')}
+          className={`${styles.filterTab} ${filter === 'unpublished' ? styles.filterTabActive : ''}`}
+        >
+          Unpublished
+        </button>
+        <button
           onClick={() => handleFilterChange('draft')}
           className={`${styles.filterTab} ${filter === 'draft' ? styles.filterTabActive : ''}`}
         >
@@ -246,6 +255,8 @@ export default function ListingsPage() {
                 ? 'No templates available. Templates help you quickly create new listings.'
                 : filter === 'published'
                 ? 'You have no published listings yet.'
+                : filter === 'unpublished'
+                ? 'You have no unpublished listings.'
                 : filter === 'draft'
                 ? 'You have no draft listings.'
                 : filter === 'archived'

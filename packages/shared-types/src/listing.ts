@@ -2,7 +2,7 @@
  * Listing types for tutor service listings
  */
 
-export type ListingStatus = 'draft' | 'published' | 'paused' | 'archived';
+export type ListingStatus = 'draft' | 'published' | 'unpublished' | 'paused' | 'archived';
 export type LocationType = 'online' | 'in_person' | 'hybrid';
 export type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
 
