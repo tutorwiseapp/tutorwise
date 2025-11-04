@@ -1,14 +1,19 @@
 /* CreateListings.module.css - Design System Compliant */
 
 .createListingsContainer {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 2rem; /* 32px - Design system space-lg */
 }
 
 .header {
-  margin-bottom: 2rem; /* 32px vertical spacing */
+  margin-bottom: var(--space-3, 24px); /* 24px - proper card spacing */
   text-align: center;
+}
+
+/* Card Spacing - 24px between cards */
+.createListingsContainer > :not(:last-child) {
+  margin-bottom: var(--space-3, 24px);
 }
 
 .title {
@@ -44,6 +49,20 @@
   .twoColumnLayout {
     grid-template-columns: 1fr;
     gap: 2rem; /* 32px vertical spacing maintained */
+  }
+}
+
+/* Availability/Unavailability 2-Column Grid */
+.availabilityGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4, 32px);
+}
+
+@media (max-width: 767px) {
+  .availabilityGrid {
+    grid-template-columns: 1fr;
+    gap: var(--space-3, 24px);
   }
 }
 

@@ -21,6 +21,7 @@ import Card from '@/app/components/ui/Card';
 import FormSection from '@/app/components/ui/form/FormSection';
 import ImageUpload, { type ImageUploadRef } from '@/app/components/listings/ImageUpload';
 import AvailabilityFormSection from '@/app/components/listings/AvailabilityFormSection';
+import UnavailabilityFormSection from '@/app/components/listings/UnavailabilityFormSection';
 import MultiSelectDropdown from '@/app/components/ui/form/MultiSelectDropdown';
 import toast from 'react-hot-toast';
 import styles from './CreateListings.module.css';
@@ -77,13 +78,21 @@ const AI_TOOLS_OPTIONS = [
   { value: 'Other', label: 'Other' }
 ];
 
-// Duration options in minutes
+// Duration options in minutes - Standardized across all service types
 const DURATION_OPTIONS = [
   { value: 30, label: '30 minutes' },
   { value: 45, label: '45 minutes' },
   { value: 60, label: '1 hour' },
   { value: 90, label: '1.5 hours' },
-  { value: 120, label: '2 hours' }
+  { value: 120, label: '2 hours' },
+  { value: 150, label: '2.5 hours' },
+  { value: 180, label: '3 hours' },
+  { value: 240, label: '4 hours' },
+  { value: 300, label: '5 hours' },
+  { value: 360, label: '6 hours' },
+  { value: 420, label: '7 hours' },
+  { value: 480, label: '8 hours' },
+  { value: 540, label: '9+ hours' }
 ];
 
 // v4.0: Service type options (all enabled)
@@ -141,6 +150,7 @@ export default function CreateListings({
   const [sessionDuration, setSessionDuration] = useState<number>(60);
   const [maxAttendees, setMaxAttendees] = useState<number>(5);
   const [availability, setAvailability] = useState<AvailabilityPeriod[]>([]);
+  const [unavailability, setUnavailability] = useState<Array<{ id: string; fromDate: string; toDate: string }>>([]);
 
   // Workshop fields
   const [eventDate, setEventDate] = useState('');
@@ -575,38 +585,70 @@ export default function CreateListings({
             )}
 
             {serviceType === 'workshop' && (
-              <div className={styles.formSection}>
-                <label className={styles.label}>
-                  Max Participants (10-500) <span className={styles.required}>*</span>
-                </label>
-                <input
-                  type="number"
-                  value={maxAttendees}
-                  onChange={(e) => setMaxAttendees(parseInt(e.target.value))}
-                  placeholder="100"
-                  className={`${styles.input} ${errors.maxAttendees ? styles.inputError : ''}`}
-                  min="10"
-                  max="500"
-                />
-                {errors.maxAttendees && <p className={styles.errorText}>{errors.maxAttendees}</p>}
-              </div>
+              <>
+                <div className={styles.formSection}>
+                  <label className={styles.label}>
+                    Max Participants (10-500) <span className={styles.required}>*</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={maxAttendees}
+                    onChange={(e) => setMaxAttendees(parseInt(e.target.value))}
+                    placeholder="100"
+                    className={`${styles.input} ${errors.maxAttendees ? styles.inputError : ''}`}
+                    min="10"
+                    max="500"
+                  />
+                  {errors.maxAttendees && <p className={styles.errorText}>{errors.maxAttendees}</p>}
+                </div>
+                <div className={styles.formSection}>
+                  <label className={styles.label}>
+                    Session Duration <span className={styles.required}>*</span>
+                  </label>
+                  <select
+                    value={sessionDuration}
+                    onChange={(e) => setSessionDuration(parseInt(e.target.value))}
+                    className={styles.select}
+                  >
+                    {DURATION_OPTIONS.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </>
             )}
 
             {serviceType === 'study-package' && (
-              <div className={styles.formSection}>
-                <label className={styles.label}>
-                  Package Type <span className={styles.required}>*</span>
-                </label>
-                <select
-                  value={packageType}
-                  onChange={(e) => setPackageType(e.target.value as 'pdf' | 'video' | 'bundle')}
-                  className={styles.select}
-                >
-                  {PACKAGE_TYPE_OPTIONS.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
-              </div>
+              <>
+                <div className={styles.formSection}>
+                  <label className={styles.label}>
+                    Package Type <span className={styles.required}>*</span>
+                  </label>
+                  <select
+                    value={packageType}
+                    onChange={(e) => setPackageType(e.target.value as 'pdf' | 'video' | 'bundle')}
+                    className={styles.select}
+                  >
+                    {PACKAGE_TYPE_OPTIONS.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className={styles.formSection}>
+                  <label className={styles.label}>
+                    Session Duration <span className={styles.required}>*</span>
+                  </label>
+                  <select
+                    value={sessionDuration}
+                    onChange={(e) => setSessionDuration(parseInt(e.target.value))}
+                    className={styles.select}
+                  >
+                    {DURATION_OPTIONS.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </>
             )}
 
             {/* Subjects */}
@@ -679,13 +721,22 @@ export default function CreateListings({
         <Card>
           <FormSection
             title="Service Availability"
-            description="Set the weekly hours this specific service is available"
+            description="Set when this service is available and when you're unavailable"
           >
-            <AvailabilityFormSection
-              value={availability}
-              onChange={setAvailability}
-              onLoadFromProfile={handleLoadAvailabilityFromProfile}
-            />
+            <div className={styles.availabilityGrid}>
+              {/* Left Column: Availability Periods */}
+              <AvailabilityFormSection
+                value={availability}
+                onChange={setAvailability}
+                onLoadFromProfile={handleLoadAvailabilityFromProfile}
+              />
+
+              {/* Right Column: Unavailability Periods */}
+              <UnavailabilityFormSection
+                value={unavailability}
+                onChange={setUnavailability}
+              />
+            </div>
             {errors.availability && <p className={styles.errorText}>{errors.availability}</p>}
           </FormSection>
         </Card>
@@ -766,7 +817,7 @@ export default function CreateListings({
         </Card>
       )}
 
-      {/* CARD 5: Study Package Materials (Conditional) */}
+      {/* CARD 4: Study Package Materials (Conditional) */}
       {serviceType === 'study-package' && (
         <Card>
           <FormSection
@@ -790,7 +841,7 @@ export default function CreateListings({
         </Card>
       )}
 
-      {/* CARD 6: Booking Options */}
+      {/* CARD 5: Booking Options */}
       <Card>
         <FormSection
           title="Booking Options"
@@ -826,51 +877,11 @@ export default function CreateListings({
                 Students can book immediately without approval
               </p>
             </div>
-
-            {/* Session Durations */}
-            <div className={styles.formSection}>
-              <label className={styles.label}>
-                Available Session Durations <span className={styles.required}>*</span>
-              </label>
-              <select
-                value=""
-                onChange={handleDurationChange}
-                className={styles.select}
-              >
-                <option value="">Add duration...</option>
-                {DURATION_OPTIONS.map(({ value, label }) => (
-                  <option key={value} value={value} disabled={selectedDurations.includes(value)}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-              {selectedDurations.length > 0 && (
-                <div className={styles.durationChipsContainer}>
-                  {selectedDurations.map(duration => {
-                    const option = DURATION_OPTIONS.find(opt => opt.value === duration);
-                    return (
-                      <span key={duration} className={styles.durationChip}>
-                        {option?.label}
-                        <button
-                          type="button"
-                          onClick={() => removeDuration(duration)}
-                          className={styles.durationChipRemove}
-                          aria-label={`Remove ${option?.label}`}
-                        >
-                          ×
-                        </button>
-                      </span>
-                    );
-                  })}
-                </div>
-              )}
-              {errors.durations && <p className={styles.errorText}>{errors.durations}</p>}
-            </div>
           </div>
         </FormSection>
       </Card>
 
-      {/* CARD 7: Location Details (Conditional) */}
+      {/* CARD 6: Location Details */}
       <Card>
         <FormSection
           title="Location Details"
@@ -916,7 +927,7 @@ export default function CreateListings({
         </FormSection>
       </Card>
 
-      {/* CARD 8: Hero Image Upload */}
+      {/* CARD 7: Hero Image Upload */}
       <Card>
         <FormSection
           title="Hero Image"
@@ -930,7 +941,7 @@ export default function CreateListings({
         </FormSection>
       </Card>
 
-      {/* CARD 9: AI Tools */}
+      {/* CARD 8: AI Tools */}
       <Card>
         <FormSection
           title="AI Tools"
@@ -955,7 +966,7 @@ export default function CreateListings({
         </FormSection>
       </Card>
 
-      {/* CARD 10: Cancellation Policy */}
+      {/* CARD 9: Cancellation Policy */}
       <Card>
         <FormSection
           title="Cancellation Policy"
