@@ -17,6 +17,8 @@ import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
 import StatusBadge from '@/app/components/ui/StatusBadge';
 import toast from 'react-hot-toast';
+import { createBooking } from '@/lib/api/bookings';
+import { createReferral } from '@/lib/api/referrals';
 import styles from './ActionCard.module.css';
 
 interface ActionCardProps {
@@ -33,13 +35,13 @@ export default function ActionCard({ listing, tutorProfile }: ActionCardProps) {
     setIsBooking(true);
 
     try {
-      // TODO: Implement createBooking API call
-      // const booking = await createBooking({
-      //   listing_id: listing.id,
-      //   tutor_id: listing.tutor_id,
-      //   service_type: listing.service_type,
-      //   // ... other booking details
-      // });
+      await createBooking({
+        listing_id: listing.id,
+        tutor_id: listing.profile_id || '',
+        service_type: listing.service_type || 'one-to-one',
+        session_duration: listing.session_duration,
+        notes: '',
+      });
 
       toast.success('Booking request sent!');
       router.push('/bookings'); // Redirect to bookings page
@@ -54,14 +56,20 @@ export default function ActionCard({ listing, tutorProfile }: ActionCardProps) {
   // Handle "Refer & Earn" - creates referral record
   const handleReferAndEarn = async () => {
     try {
-      // TODO: Implement createReferral API call
-      // const referral = await createReferral({
-      //   listing_id: listing.id,
-      //   tutor_id: listing.tutor_id,
-      //   referral_type: 'listing',
-      // });
+      const referral = await createReferral({
+        listing_id: listing.id,
+        tutor_id: listing.profile_id || '',
+        referral_type: 'listing',
+      });
 
-      toast.success('Referral link generated!');
+      // Copy referral link to clipboard
+      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        await navigator.clipboard.writeText(referral.referral_link);
+        toast.success('Referral link copied to clipboard!');
+      } else {
+        toast.success('Referral link generated!');
+      }
+
       router.push('/referrals'); // Redirect to referrals page
     } catch (error) {
       console.error('Referral creation failed:', error);

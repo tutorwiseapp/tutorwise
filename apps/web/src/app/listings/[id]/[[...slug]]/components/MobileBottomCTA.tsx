@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import type { ListingV41 } from '@/types/listing-v4.1';
 import Button from '@/app/components/ui/Button';
 import toast from 'react-hot-toast';
+import { createBooking } from '@/lib/api/bookings';
 import styles from './MobileBottomCTA.module.css';
 
 interface MobileBottomCTAProps {
@@ -25,7 +26,14 @@ export default function MobileBottomCTA({ listing }: MobileBottomCTAProps) {
     setIsBooking(true);
 
     try {
-      // TODO: Implement createBooking API call
+      await createBooking({
+        listing_id: listing.id,
+        tutor_id: listing.profile_id || '',
+        service_type: listing.service_type || 'one-to-one',
+        session_duration: listing.session_duration,
+        notes: '',
+      });
+
       toast.success('Booking request sent!');
       router.push('/bookings');
     } catch (error) {
