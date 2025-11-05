@@ -10,7 +10,62 @@
   padding: var(--space-4, 32px); /* 32px internal padding */
 }
 
-/* Tutor Header */
+/* Tutor Info Card */
+.tutorInfoCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3, 24px);
+}
+
+.tutorAvatarSection {
+  flex-shrink: 0;
+}
+
+.tutorAvatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color-primary-default, #006c67);
+}
+
+.tutorAvatarPlaceholder {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: var(--color-primary-light, #E6F0F0);
+  color: var(--color-primary-default, #006c67);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  border: 2px solid var(--color-primary-default, #006c67);
+}
+
+.tutorNameSection {
+  flex: 1;
+}
+
+.tutorFullName {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 700;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0 0 0.25rem 0;
+}
+
+.tutorRole {
+  font-size: 0.875rem; /* 14px */
+  color: var(--color-gray-700, #4B4B4B);
+  opacity: 0.7;
+  margin: 0;
+}
+
+.tutorActionSection {
+  flex-shrink: 0;
+}
+
+/* Legacy Tutor Header (deprecated) */
 .tutorHeader {
   display: flex;
   justify-content: space-between;
@@ -120,6 +175,37 @@
   color: var(--color-gray-700, #4B4B4B);
   text-align: center;
   margin: 0;
+}
+
+/* Cancellation Policy */
+.policyContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 24px);
+}
+
+.policyItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2, 16px);
+}
+
+.policyIcon {
+  font-size: 1.25rem; /* 20px */
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.policyText {
+  font-size: 1rem; /* 16px */
+  line-height: 1.6;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0;
+}
+
+.policyText strong {
+  font-weight: 600;
+  color: var(--color-gray-700, #4B4B4B);
 }
 
 /* Mobile Responsive */

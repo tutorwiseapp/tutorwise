@@ -50,7 +50,7 @@ export default function ListingAvailabilityCard({
 
   return (
     <Card className={styles.card}>
-      <h4 className={styles.title}>This Listing&apos;s Availability</h4>
+      <h4 className={styles.title}>Service Availability</h4>
 
       {/* Availability Periods */}
       {availability.length > 0 && (

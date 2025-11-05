@@ -9,26 +9,25 @@ import type { ServiceType } from '@tutorwise/shared-types';
 export interface CreateBookingInput {
   listing_id: string;
   tutor_id: string;
-  service_type: ServiceType;
-  booking_date?: string; // For one-to-one and group sessions
-  booking_time?: string; // For one-to-one and group sessions
-  session_duration?: number; // In minutes
-  attendee_count?: number; // For group sessions
-  notes?: string; // Optional message to tutor
+  service_name: string; // Required: name of the service being booked
+  session_start_time: string; // Required: ISO 8601 timestamp
+  session_duration: number; // Required: duration in minutes
+  amount: number; // Required: booking amount
+  referrer_profile_id?: string; // Optional: if booking came from referral
 }
 
 export interface Booking {
   id: string;
-  listing_id: string;
   student_id: string;
   tutor_id: string;
-  service_type: ServiceType;
-  booking_date?: string;
-  booking_time?: string;
-  session_duration?: number;
-  attendee_count?: number;
-  notes?: string;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  listing_id: string;
+  referrer_profile_id?: string;
+  service_name: string;
+  session_start_time: string;
+  session_duration: number;
+  amount: number;
+  status: string; // booking_status_enum
+  payment_status: string; // transaction_status_enum
   created_at: string;
   updated_at: string;
 }
@@ -45,28 +44,25 @@ export async function createBooking(input: CreateBookingInput): Promise<Booking>
     throw new Error('Not authenticated');
   }
 
-  // Validate input based on service type
-  if (
-    (input.service_type === 'one-to-one' || input.service_type === 'group-session') &&
-    (!input.booking_date || !input.booking_time)
-  ) {
-    throw new Error('booking_date and booking_time are required for one-to-one and group sessions');
+  // Validate required fields
+  if (!input.service_name || !input.session_start_time || !input.session_duration || !input.amount) {
+    throw new Error('service_name, session_start_time, session_duration, and amount are required');
   }
 
-  // Create booking record
+  // Create booking record matching the actual database schema
   const { data, error } = await supabase
     .from('bookings')
     .insert({
       listing_id: input.listing_id,
       student_id: user.id,
       tutor_id: input.tutor_id,
-      service_type: input.service_type,
-      booking_date: input.booking_date,
-      booking_time: input.booking_time,
+      service_name: input.service_name,
+      session_start_time: input.session_start_time,
       session_duration: input.session_duration,
-      attendee_count: input.attendee_count,
-      notes: input.notes,
-      status: 'pending',
+      amount: input.amount,
+      referrer_profile_id: input.referrer_profile_id,
+      status: 'Pending',
+      payment_status: 'Pending',
     })
     .select()
     .single();

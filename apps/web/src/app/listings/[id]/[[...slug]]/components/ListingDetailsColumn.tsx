@@ -32,31 +32,37 @@ export default function ListingDetailsColumn({
 }: ListingDetailsColumnProps) {
   return (
     <div className={styles.columnContainer}>
-      {/* Card 1: Tutor Info */}
+      {/* Card 1: Tutor Info Card */}
       <Card className={styles.card}>
-        <div className={styles.tutorHeader}>
-          <div className={styles.avatarSection}>
-            {tutorProfile.avatar_url && (
+        <div className={styles.tutorInfoCard}>
+          <div className={styles.tutorAvatarSection}>
+            {tutorProfile.avatar_url ? (
               <img
                 src={tutorProfile.avatar_url}
                 alt={tutorProfile.full_name}
-                className={styles.avatar}
+                className={styles.tutorAvatar}
               />
+            ) : (
+              <div className={styles.tutorAvatarPlaceholder}>
+                {(tutorProfile.full_name || tutorProfile.first_name || 'T').charAt(0).toUpperCase()}
+              </div>
             )}
-            <div>
-              <h4 className={styles.tutorName}>{listing.title}</h4>
-              <p className={styles.tutorSubtitle}>
-                with {tutorProfile.full_name || tutorProfile.first_name}
-              </p>
-            </div>
           </div>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => window.location.href = `/profile/${tutorProfile.id}`}
-          >
-            View Profile →
-          </Button>
+          <div className={styles.tutorNameSection}>
+            <h4 className={styles.tutorFullName}>
+              {tutorProfile.full_name || `${tutorProfile.first_name} ${tutorProfile.last_name || ''}`.trim()}
+            </h4>
+            <p className={styles.tutorRole}>Professional Tutor</p>
+          </div>
+          <div className={styles.tutorActionSection}>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => window.location.href = `/profile/${tutorProfile.id}`}
+            >
+              View Profile →
+            </Button>
+          </div>
         </div>
       </Card>
 
@@ -68,7 +74,7 @@ export default function ListingDetailsColumn({
 
       {/* Card 4: Description */}
       <Card className={styles.card}>
-        <h4 className={styles.cardTitle}>About this session</h4>
+        <h4 className={styles.cardTitle}>Description</h4>
         <p className={styles.description}>{listing.description}</p>
 
         {/* Subjects */}
@@ -124,6 +130,37 @@ export default function ListingDetailsColumn({
             </Button>
           </>
         )}
+      </Card>
+
+      {/* Card 7: Cancellation Policy */}
+      <Card className={styles.card}>
+        <h4 className={styles.cardTitle}>Cancellation Policy</h4>
+        <div className={styles.policyContent}>
+          <div className={styles.policyItem}>
+            <span className={styles.policyIcon}>✓</span>
+            <p className={styles.policyText}>
+              <strong>Free cancellation</strong> up to 24 hours before the session starts.
+            </p>
+          </div>
+          <div className={styles.policyItem}>
+            <span className={styles.policyIcon}>💰</span>
+            <p className={styles.policyText}>
+              <strong>Full refund</strong> if you cancel within the free cancellation period.
+            </p>
+          </div>
+          <div className={styles.policyItem}>
+            <span className={styles.policyIcon}>⚠️</span>
+            <p className={styles.policyText}>
+              <strong>50% refund</strong> if you cancel within 24 hours of the session.
+            </p>
+          </div>
+          <div className={styles.policyItem}>
+            <span className={styles.policyIcon}>✕</span>
+            <p className={styles.policyText}>
+              <strong>No refund</strong> if you cancel after the session has started.
+            </p>
+          </div>
+        </div>
       </Card>
     </div>
   );

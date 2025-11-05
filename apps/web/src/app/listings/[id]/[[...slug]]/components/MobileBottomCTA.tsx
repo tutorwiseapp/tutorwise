@@ -7,11 +7,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import type { ListingV41 } from '@/types/listing-v4.1';
 import Button from '@/app/components/ui/Button';
 import toast from 'react-hot-toast';
-import { createBooking } from '@/lib/api/bookings';
 import styles from './MobileBottomCTA.module.css';
 
 interface MobileBottomCTAProps {
@@ -19,23 +17,17 @@ interface MobileBottomCTAProps {
 }
 
 export default function MobileBottomCTA({ listing }: MobileBottomCTAProps) {
-  const router = useRouter();
   const [isBooking, setIsBooking] = useState(false);
 
   const handleBookNow = async () => {
     setIsBooking(true);
 
     try {
-      await createBooking({
-        listing_id: listing.id,
-        tutor_id: listing.profile_id || '',
-        service_type: listing.service_type || 'one-to-one',
-        session_duration: listing.session_duration,
-        notes: '',
-      });
+      // TODO: Implement proper booking flow with date/time selection
+      // For now, show placeholder message
+      toast.success('Booking feature coming soon! Full booking flow will be implemented in next release.');
 
-      toast.success('Booking request sent!');
-      router.push('/bookings');
+      // Once booking flow is ready, use the same implementation as ActionCard
     } catch (error) {
       console.error('Booking failed:', error);
       toast.error('Failed to create booking. Please try again.');

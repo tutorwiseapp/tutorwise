@@ -11,14 +11,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import type { ListingV41 } from '@/types/listing-v4.1';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
 import StatusBadge from '@/app/components/ui/StatusBadge';
 import toast from 'react-hot-toast';
-import { createBooking } from '@/lib/api/bookings';
-import { createReferral } from '@/lib/api/referrals';
 import styles from './ActionCard.module.css';
 
 interface ActionCardProps {
@@ -26,25 +23,28 @@ interface ActionCardProps {
   tutorProfile: any;
 }
 
-export default function ActionCard({ listing, tutorProfile }: ActionCardProps) {
-  const router = useRouter();
+export default function ActionCard({ listing }: ActionCardProps) {
   const [isBooking, setIsBooking] = useState(false);
 
-  // Handle "Book Now" - creates booking record
+  // Handle "Book Now" - placeholder until booking flow is implemented
   const handleBookNow = async () => {
     setIsBooking(true);
 
     try {
-      await createBooking({
-        listing_id: listing.id,
-        tutor_id: listing.profile_id || '',
-        service_type: listing.service_type || 'one-to-one',
-        session_duration: listing.session_duration,
-        notes: '',
-      });
+      // TODO: Implement proper booking flow with date/time selection
+      // For now, show placeholder message
+      toast.success('Booking feature coming soon! Full booking flow will be implemented in next release.');
 
-      toast.success('Booking request sent!');
-      router.push('/bookings'); // Redirect to bookings page
+      // Once booking flow is ready, use:
+      // await createBooking({
+      //   listing_id: listing.id,
+      //   tutor_id: listing.profile_id || '',
+      //   service_name: listing.title,
+      //   session_start_time: selectedDateTime, // User-selected date/time
+      //   session_duration: listing.session_duration || 60,
+      //   amount: listing.hourly_rate || 0,
+      // });
+      // router.push('/bookings');
     } catch (error) {
       console.error('Booking failed:', error);
       toast.error('Failed to create booking. Please try again.');
@@ -53,33 +53,27 @@ export default function ActionCard({ listing, tutorProfile }: ActionCardProps) {
     }
   };
 
-  // Handle "Refer & Earn" - creates referral record
-  const handleReferAndEarn = async () => {
+  // Handle "Share" - copies listing URL to clipboard
+  const handleShare = async () => {
+    const listingUrl = `${window.location.origin}/listings/${listing.id}/${listing.slug || ''}`;
+
     try {
-      const referral = await createReferral({
-        listing_id: listing.id,
-        tutor_id: listing.profile_id || '',
-        referral_type: 'listing',
-      });
-
-      // Copy referral link to clipboard
       if (typeof navigator !== 'undefined' && navigator.clipboard) {
-        await navigator.clipboard.writeText(referral.referral_link);
-        toast.success('Referral link copied to clipboard!');
+        await navigator.clipboard.writeText(listingUrl);
+        toast.success('Listing link copied to clipboard!');
       } else {
-        toast.success('Referral link generated!');
+        toast.success('Listing URL ready to share!');
       }
-
-      router.push('/referrals'); // Redirect to referrals page
     } catch (error) {
-      console.error('Referral creation failed:', error);
-      toast.error('Failed to create referral. Please try again.');
+      console.error('Share failed:', error);
+      toast.error('Failed to copy link. Please try again.');
     }
   };
 
-  // Handle "Contact" - opens messaging
-  const handleContact = () => {
-    router.push(`/messages?tutor_id=${listing.profile_id}`);
+  // Handle "Connect" - placeholder for connecting with tutor
+  const handleConnect = () => {
+    toast.success('Connect feature coming soon!');
+    // TODO: Implement real connect functionality
   };
 
   // Render different UI based on service_type
@@ -125,14 +119,14 @@ export default function ActionCard({ listing, tutorProfile }: ActionCardProps) {
 
       {/* Secondary CTAs: Grid layout */}
       <div className={styles.ctaGrid}>
-        <button onClick={handleReferAndEarn} className={styles.ctaButton}>
-          <span className={styles.ctaIcon}>💰</span>
-          <span className={styles.ctaText}>Refer & Earn</span>
+        <button onClick={handleShare} className={styles.ctaButton}>
+          <span className={styles.ctaIcon}>📤</span>
+          <span className={styles.ctaText}>Share</span>
         </button>
 
-        <button onClick={handleContact} className={styles.ctaButton}>
-          <span className={styles.ctaIcon}>💬</span>
-          <span className={styles.ctaText}>Contact</span>
+        <button onClick={handleConnect} className={styles.ctaButtonSecondary}>
+          <span className={styles.ctaIcon}>🔗</span>
+          <span className={styles.ctaText}>Connect</span>
         </button>
       </div>
 
