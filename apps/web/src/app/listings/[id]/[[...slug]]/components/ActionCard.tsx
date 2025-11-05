@@ -62,17 +62,24 @@ export default function ActionCard({ listing }: ActionCardProps) {
       setTimeout(() => {
         router.push('/bookings');
       }, 1500);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Booking failed:', error);
-      toast.error('Failed to create booking. Please try again.');
+
+      // Redirect to login if not authenticated
+      if (error.message === 'Not authenticated') {
+        toast.error('Please login to book this service');
+        router.push('/login');
+      } else {
+        toast.error('Failed to create booking. Please try again.');
+      }
     } finally {
       setIsBooking(false);
     }
   };
 
-  // Handle "Contact" - opens messaging with tutor
+  // Handle "Contact" - placeholder for messaging feature
   const handleContact = () => {
-    window.location.href = `/messages?tutor_id=${listing.profile_id}`;
+    toast.success('Contact feature coming soon!');
   };
 
   // Handle "Connect" - opens connection modal or page

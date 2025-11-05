@@ -6,6 +6,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type { ListingV41 } from '@/types/listing-v4.1';
 import StatusBadge from '@/app/components/ui/StatusBadge';
 import toast from 'react-hot-toast';
@@ -27,6 +28,7 @@ interface ListingHeaderProps {
 export default function ListingHeader({ listing, tutorProfile, tutorStats }: ListingHeaderProps) {
   const [isSaved, setIsSaved] = useState(false);
   const [isCreatingReferral, setIsCreatingReferral] = useState(false);
+  const router = useRouter();
 
   const handleSave = () => {
     // TODO: Implement wishlist/save functionality
@@ -58,22 +60,28 @@ export default function ListingHeader({ listing, tutorProfile, tutorStats }: Lis
     setIsCreatingReferral(true);
 
     try {
-      const referral = await createReferral({
+      await createReferral({
         listing_id: listing.id,
         tutor_id: listing.profile_id || '',
         referral_type: 'listing',
       });
 
-      // Create shareable referral link
-      const referralLink = `${window.location.origin}/listings/${listing.id}?ref=${referral.referral_code}`;
+      toast.success('Referral created successfully! Redirecting to referrals page...');
 
-      // Copy to clipboard
-      await navigator.clipboard.writeText(referralLink);
-
-      toast.success('Referral link created and copied to clipboard! Share it to earn rewards.');
-    } catch (error) {
+      // Redirect to referrals page after short delay
+      setTimeout(() => {
+        router.push('/referrals');
+      }, 1500);
+    } catch (error: any) {
       console.error('Failed to create referral:', error);
-      toast.error('Failed to create referral link. Please try again.');
+
+      // Redirect to login if not authenticated
+      if (error.message === 'Not authenticated') {
+        toast.error('Please login to create a referral link');
+        router.push('/login');
+      } else {
+        toast.error('Failed to create referral link. Please try again.');
+      }
     } finally {
       setIsCreatingReferral(false);
     }

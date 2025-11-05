@@ -54,9 +54,16 @@ export default function MobileBottomCTA({ listing }: MobileBottomCTAProps) {
       setTimeout(() => {
         router.push('/bookings');
       }, 1500);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Booking failed:', error);
-      toast.error('Failed to create booking. Please try again.');
+
+      // Redirect to login if not authenticated
+      if (error.message === 'Not authenticated') {
+        toast.error('Please login to book this service');
+        router.push('/login');
+      } else {
+        toast.error('Failed to create booking. Please try again.');
+      }
     } finally {
       setIsBooking(false);
     }
