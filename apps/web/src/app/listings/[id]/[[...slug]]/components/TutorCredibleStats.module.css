@@ -1,0 +1,73 @@
+/* TutorCredibleStats.module.css */
+
+.card {
+  padding: var(--space-4, 32px);
+}
+
+.title {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 700;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0 0 var(--space-3, 24px) 0;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3, 24px);
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 16px);
+  padding: var(--space-3, 24px);
+  background-color: var(--color-primary-light, #E6F0F0);
+  border-radius: var(--border-radius-md, 8px);
+}
+
+.icon {
+  font-size: 2rem; /* 32px */
+  flex-shrink: 0;
+}
+
+.statContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.value {
+  font-size: 1.5rem; /* 24px */
+  font-weight: 700;
+  color: var(--color-primary-default, #006c67);
+  line-height: 1;
+}
+
+.label {
+  font-size: 0.75rem; /* 12px */
+  font-weight: 500;
+  color: var(--color-gray-700, #4B4B4B);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Mobile Responsive */
+@media (max-width: 767px) {
+  .card {
+    padding: var(--space-3, 24px);
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: var(--space-2, 16px);
+  }
+
+  .statItem {
+    padding: var(--space-2, 16px);
+  }
+
+  .value {
+    font-size: 1.25rem; /* 20px on mobile */
+  }
+}

@@ -1,0 +1,148 @@
+/* ListingDetailsColumn.module.css - Spacing: 32px between cards */
+
+.columnContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 32px); /* 32px vertical spacing between cards */
+}
+
+.card {
+  padding: var(--space-4, 32px); /* 32px internal padding */
+}
+
+/* Tutor Header */
+.tutorHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3, 24px);
+  flex-wrap: wrap;
+}
+
+.avatarSection {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3, 24px);
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color-primary-default, #006c67);
+}
+
+.tutorName {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 700;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0;
+}
+
+.tutorSubtitle {
+  font-size: 0.875rem; /* 14px */
+  color: var(--color-gray-700, #4B4B4B);
+  opacity: 0.7;
+  margin: 0.25rem 0 0 0;
+}
+
+/* Card Title */
+.cardTitle {
+  font-size: 1.25rem; /* 20px */
+  font-weight: 700;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0 0 var(--space-3, 24px) 0;
+}
+
+/* Description */
+.description {
+  font-size: 1rem; /* 16px */
+  line-height: 1.6;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+/* Meta Sections (Subjects, Levels) */
+.metaSection {
+  margin-top: var(--space-4, 32px);
+  padding-top: var(--space-3, 24px);
+  border-top: 1px solid var(--color-gray-200, #E5E7EB);
+}
+
+.metaTitle {
+  font-size: 0.875rem; /* 14px */
+  font-weight: 600;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0 0 var(--space-2, 16px) 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Tag Grid */
+.tagGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem; /* 8px */
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: var(--color-primary-light, #E6F0F0);
+  color: var(--color-primary-default, #006c67);
+  border-radius: var(--border-radius-full, 9999px);
+  font-size: 0.875rem; /* 14px */
+  font-weight: 500;
+}
+
+/* Reviews Placeholder */
+.noReviews {
+  font-size: 0.875rem; /* 14px */
+  color: var(--color-gray-700, #4B4B4B);
+  opacity: 0.7;
+  text-align: center;
+  padding: var(--space-4, 32px);
+  margin: 0;
+}
+
+.reviewsPreview {
+  padding: var(--space-3, 24px);
+  background-color: var(--color-gray-100, #F5F5F5);
+  border-radius: var(--border-radius-md, 8px);
+  margin-bottom: var(--space-3, 24px);
+}
+
+.reviewPlaceholder {
+  font-size: 0.875rem; /* 14px */
+  color: var(--color-gray-700, #4B4B4B);
+  text-align: center;
+  margin: 0;
+}
+
+/* Mobile Responsive */
+@media (max-width: 767px) {
+  .columnContainer {
+    gap: var(--space-3, 24px); /* 24px on mobile */
+  }
+
+  .card {
+    padding: var(--space-3, 24px); /* 24px internal padding on mobile */
+  }
+
+  .tutorHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .avatar {
+    width: 48px;
+    height: 48px;
+  }
+
+  .cardTitle {
+    font-size: 1.125rem; /* 18px on mobile */
+  }
+}

@@ -1,0 +1,201 @@
+/* ActionCard.module.css - Sticky action card with variants */
+
+.actionCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 32px);
+  padding: var(--space-4, 32px);
+  border: 1px solid var(--color-gray-300, #D1D1D1);
+  box-shadow: var(--shadow-lg, 0 8px 16px rgba(0, 0, 0, 0.1));
+}
+
+/* Badge Container */
+.badgeContainer {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: calc(var(--space-3, 24px) * -1); /* Pull up to reduce gap */
+}
+
+/* Variant Content Container */
+.variantContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 24px);
+}
+
+/* Price Section */
+.priceSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 16px);
+  padding: var(--space-3, 24px);
+  background-color: var(--color-primary-light, #E6F0F0);
+  border-radius: var(--border-radius-md, 8px);
+}
+
+.priceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.priceLabel {
+  font-size: 0.875rem; /* 14px */
+  color: var(--color-gray-700, #4B4B4B);
+  font-weight: 500;
+}
+
+.priceValue {
+  font-size: 1.25rem; /* 20px */
+  font-weight: 700;
+  color: var(--color-primary-default, #006c67);
+}
+
+/* Info Rows */
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--space-2, 16px);
+  border-top: 1px solid var(--color-gray-200, #E5E7EB);
+}
+
+.infoLabel {
+  font-size: 0.875rem; /* 14px */
+  color: var(--color-gray-700, #4B4B4B);
+}
+
+.infoValue {
+  font-size: 0.875rem; /* 14px */
+  font-weight: 600;
+  color: var(--color-gray-700, #4B4B4B);
+}
+
+/* Availability Hint */
+.availabilityHint {
+  padding: var(--space-2, 16px);
+  background-color: var(--color-gray-100, #F5F5F5);
+  border-radius: var(--border-radius-sm, 4px);
+}
+
+.hintText {
+  font-size: 0.8125rem; /* 13px */
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0;
+  text-align: center;
+}
+
+/* Workshop Date */
+.workshopDate {
+  padding: var(--space-2, 16px);
+  background-color: var(--color-warning-light, #FFF4E5);
+  border-radius: var(--border-radius-sm, 4px);
+  border-left: 3px solid var(--color-warning-default, #FF9800);
+}
+
+.dateText {
+  font-size: 0.8125rem; /* 13px */
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0;
+}
+
+/* Package Perks */
+.packagePerks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: var(--space-2, 16px);
+  background-color: var(--color-success-light, #E8F5E9);
+  border-radius: var(--border-radius-sm, 4px);
+}
+
+.perkText {
+  font-size: 0.875rem; /* 14px */
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Divider */
+.divider {
+  height: 1px;
+  background-color: var(--color-gray-300, #D1D1D1);
+  margin: var(--space-2, 16px) 0;
+}
+
+/* CTA Grid (Refer & Earn, Contact) */
+.ctaGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2, 16px);
+}
+
+.ctaButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: var(--space-3, 24px) var(--space-2, 16px);
+  background-color: white;
+  border: 1px solid var(--color-gray-300, #D1D1D1);
+  border-radius: var(--border-radius-md, 8px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ctaButton:hover {
+  border-color: var(--color-primary-default, #006c67);
+  background-color: var(--color-primary-light, #E6F0F0);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.ctaIcon {
+  font-size: 1.5rem; /* 24px */
+}
+
+.ctaText {
+  font-size: 0.875rem; /* 14px */
+  font-weight: 600;
+  color: var(--color-gray-700, #4B4B4B);
+  text-align: center;
+}
+
+/* Trust Indicators */
+.trustIndicators {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: var(--space-3, 24px);
+  border-top: 1px solid var(--color-gray-200, #E5E7EB);
+}
+
+.trustText {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem; /* 13px */
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0;
+}
+
+.trustIcon {
+  color: var(--color-success-default, #4CAF50);
+  font-weight: 700;
+}
+
+/* Mobile Responsive */
+@media (max-width: 767px) {
+  .actionCard {
+    padding: var(--space-3, 24px);
+  }
+
+  .priceValue {
+    font-size: 1.125rem; /* 18px on mobile */
+  }
+
+  .ctaGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,184 @@
+/* ListingImageGrid.module.css - Airbnb-style image grid */
+
+/* Main Grid Container */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr; /* Mobile: single column */
+  gap: 0.5rem; /* 8px */
+  height: 300px; /* Mobile height */
+  margin-bottom: var(--space-6, 48px);
+  border-radius: var(--border-radius-lg, 12px);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: 2fr 1fr; /* Desktop: 2/3 + 1/3 */
+    height: 400px; /* Desktop height */
+  }
+}
+
+/* Hero Image (left side, 2 columns) */
+.heroImage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--border-radius-lg, 12px);
+}
+
+/* Gallery Grid (right side, 2 rows) */
+.galleryGrid {
+  display: none; /* Hidden on mobile */
+}
+
+@media (min-width: 768px) {
+  .galleryGrid {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    gap: 0.5rem; /* 8px */
+  }
+}
+
+/* Gallery Images */
+.galleryImage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--border-radius-lg, 12px);
+}
+
+/* All Images */
+.image {
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.heroImage:hover .image,
+.galleryImage:hover .image {
+  transform: scale(1.05);
+}
+
+/* Show All Button */
+.showAllButton {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background-color: white;
+  border: 1px solid var(--color-gray-300, #D1D1D1);
+  border-radius: var(--border-radius-md, 8px);
+  color: var(--color-gray-700, #4B4B4B);
+  font-size: 0.875rem; /* 14px */
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.showAllButton:hover {
+  border-color: var(--color-primary-default, #006c67);
+  background-color: var(--color-primary-light, #E6F0F0);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg, 0 8px 12px rgba(0, 0, 0, 0.15));
+}
+
+.gridIcon {
+  font-size: 1.125rem;
+}
+
+/* Modal Content */
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 32px);
+  padding: var(--space-4, 32px);
+}
+
+/* Modal Image Container */
+.modalImageContainer {
+  position: relative;
+  width: 100%;
+  height: 60vh;
+  background-color: var(--color-gray-100, #F5F5F5);
+  border-radius: var(--border-radius-md, 8px);
+  overflow: hidden;
+}
+
+.modalImage {
+  object-fit: contain;
+}
+
+/* Modal Navigation */
+.modalNav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3, 24px);
+}
+
+.modalCounter {
+  font-size: 0.875rem; /* 14px */
+  font-weight: 600;
+  color: var(--color-gray-700, #4B4B4B);
+}
+
+/* Thumbnail Strip */
+.thumbnailStrip {
+  display: flex;
+  gap: 0.5rem; /* 8px */
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.thumbnail {
+  position: relative;
+  width: 100px;
+  height: 75px;
+  flex-shrink: 0;
+  border-radius: var(--border-radius-sm, 4px);
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.thumbnail:hover {
+  border-color: var(--color-primary-default, #006c67);
+}
+
+.thumbnail.activeThumbnail {
+  border-color: var(--color-primary-default, #006c67);
+  box-shadow: 0 0 0 2px var(--color-primary-light, #E6F0F0);
+}
+
+.thumbnailImage {
+  object-fit: cover;
+}
+
+/* Mobile Responsive */
+@media (max-width: 767px) {
+  .modalContent {
+    padding: var(--space-3, 24px);
+  }
+
+  .modalImageContainer {
+    height: 50vh;
+  }
+
+  .modalNav {
+    flex-direction: column;
+    gap: var(--space-2, 16px);
+  }
+
+  .thumbnail {
+    width: 80px;
+    height: 60px;
+  }
+}

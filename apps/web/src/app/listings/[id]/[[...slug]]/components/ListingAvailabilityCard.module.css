@@ -1,0 +1,81 @@
+/* ListingAvailabilityCard.module.css */
+
+.card {
+  padding: var(--space-4, 32px);
+}
+
+.title {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 700;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0 0 var(--space-4, 32px) 0;
+}
+
+.section {
+  margin-bottom: var(--space-4, 32px);
+}
+
+.sectionTitle {
+  font-size: 0.875rem; /* 14px */
+  font-weight: 600;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0 0 var(--space-2, 16px) 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.periodsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 16px);
+}
+
+.periodItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 16px);
+  padding: var(--space-2, 16px);
+  background-color: var(--color-success-light, #E8F5E9);
+  border-radius: var(--border-radius-md, 8px);
+  border-left: 3px solid var(--color-success-default, #4CAF50);
+}
+
+.unavailableItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 16px);
+  padding: var(--space-2, 16px);
+  background-color: var(--color-error-light, #FFEBEE);
+  border-radius: var(--border-radius-md, 8px);
+  border-left: 3px solid var(--color-error-default, #F44336);
+}
+
+.periodIcon {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.periodText {
+  font-size: 0.875rem; /* 14px */
+  color: var(--color-gray-700, #4B4B4B);
+  line-height: 1.5;
+}
+
+.note {
+  font-size: 0.8125rem; /* 13px */
+  color: var(--color-gray-700, #4B4B4B);
+  opacity: 0.7;
+  padding: var(--space-2, 16px);
+  background-color: var(--color-gray-100, #F5F5F5);
+  border-radius: var(--border-radius-sm, 4px);
+  margin: var(--space-3, 24px) 0 0 0;
+  text-align: center;
+}
+
+/* Mobile Responsive */
+@media (max-width: 767px) {
+  .card {
+    padding: var(--space-3, 24px);
+  }
+}

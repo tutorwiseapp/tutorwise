@@ -11,6 +11,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/profile', request.url))
   }
 
+  // Redirect legacy /tutor/[id]/[slug] to new /listings/[id]/[slug] (v4.1)
+  const tutorRouteMatch = pathname.match(/^\/tutor\/([^/]+)(?:\/([^/]+))?$/);
+  if (tutorRouteMatch) {
+    const [, id, slug] = tutorRouteMatch;
+    const newPath = slug ? `/listings/${id}/${slug}` : `/listings/${id}`;
+    return NextResponse.redirect(new URL(newPath, request.url), 301); // Permanent redirect for SEO
+  }
+
   // Define routes that require authentication
   const protectedRoutes = [
     '/dashboard',

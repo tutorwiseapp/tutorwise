@@ -1,0 +1,61 @@
+/* TutorVerificationCard.module.css */
+
+.card {
+  padding: var(--space-4, 32px);
+}
+
+.title {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 700;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0 0 var(--space-3, 24px) 0;
+}
+
+.verificationGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3, 24px);
+}
+
+.verificationItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: var(--space-2, 16px);
+  background-color: var(--color-gray-100, #F5F5F5);
+  border-radius: var(--border-radius-md, 8px);
+}
+
+.icon {
+  font-size: 1.5rem; /* 24px */
+}
+
+.label {
+  flex: 1;
+  font-size: 0.875rem; /* 14px */
+  font-weight: 500;
+  color: var(--color-gray-700, #4B4B4B);
+}
+
+.checkmark {
+  font-size: 1.25rem; /* 20px */
+  font-weight: 700;
+  color: var(--color-success-default, #4CAF50);
+}
+
+.notVerified {
+  font-size: 1.25rem; /* 20px */
+  color: var(--color-gray-300, #D1D1D1);
+}
+
+/* Mobile Responsive */
+@media (max-width: 767px) {
+  .card {
+    padding: var(--space-3, 24px);
+  }
+
+  .verificationGrid {
+    grid-template-columns: 1fr;
+    gap: var(--space-2, 16px);
+  }
+}

@@ -1,0 +1,66 @@
+/* MobileBottomCTA.module.css - Fixed bottom bar for mobile */
+
+.bottomCTA {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: white;
+  border-top: 1px solid var(--color-gray-300, #D1D1D1);
+  box-shadow: var(--shadow-lg, 0 -4px 12px rgba(0, 0, 0, 0.1));
+  padding: var(--space-3, 24px); /* 24px vertical and horizontal */
+  display: block; /* Visible on mobile */
+}
+
+/* Hide on desktop (768px+) */
+@media (min-width: 768px) {
+  .bottomCTA {
+    display: none;
+  }
+}
+
+.content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3, 24px);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Price Section */
+.priceSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.price {
+  font-size: 1.25rem; /* 20px */
+  font-weight: 700;
+  color: var(--color-primary-default, #006c67);
+}
+
+.instantBadge {
+  font-size: 0.75rem; /* 12px */
+  font-weight: 600;
+  color: var(--color-success-default, #4CAF50);
+}
+
+/* Book Button */
+.bookButton {
+  flex-shrink: 0;
+  min-width: 140px;
+}
+
+/* Tablet */
+@media (min-width: 480px) and (max-width: 767px) {
+  .price {
+    font-size: 1.5rem; /* 24px on tablet */
+  }
+
+  .bookButton {
+    min-width: 180px;
+  }
+}

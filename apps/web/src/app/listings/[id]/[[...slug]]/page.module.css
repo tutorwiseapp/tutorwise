@@ -1,0 +1,48 @@
+/* Listing Details Page v4.1 - Layout Styles */
+
+/* Top Section: Header + Images (1-column) */
+.topSection {
+  margin-bottom: var(--space-6, 48px);
+}
+
+/* Body Section: 2-column grid (desktop) */
+.bodySection {
+  display: grid;
+  grid-template-columns: 1fr; /* Mobile: single column */
+  gap: var(--space-6, 48px);
+  margin-bottom: var(--space-6, 48px);
+}
+
+@media (min-width: 768px) {
+  .bodySection {
+    grid-template-columns: 2fr 1fr; /* Desktop: 2/3 + 1/3 */
+  }
+}
+
+/* Main Column (left side, 2/3 width) */
+.mainColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 32px);
+}
+
+/* Sidebar Column (right side, 1/3 width, sticky on desktop) */
+.sidebarColumn {
+  display: none; /* Hidden on mobile */
+}
+
+@media (min-width: 768px) {
+  .sidebarColumn {
+    display: block;
+    position: sticky;
+    top: var(--space-6, 48px);
+    align-self: flex-start;
+    max-height: calc(100vh - var(--space-6) * 2);
+    overflow-y: auto;
+  }
+}
+
+/* Related Section (1-column full width) */
+.relatedSection {
+  margin-bottom: var(--space-6, 48px);
+}

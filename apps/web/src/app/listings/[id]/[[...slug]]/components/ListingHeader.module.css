@@ -1,0 +1,140 @@
+/* ListingHeader.module.css */
+
+.header {
+  margin-bottom: var(--space-4, 32px);
+}
+
+/* Title */
+.title {
+  font-size: 2rem; /* 32px */
+  font-weight: 700;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0 0 var(--space-3, 24px) 0;
+  line-height: 1.2;
+}
+
+/* Metadata Bar */
+.metadataBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3, 24px);
+}
+
+/* Left Metadata (rating, reviews, location) */
+.leftMetadata {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 16px);
+  flex-wrap: wrap;
+}
+
+/* Rating */
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 600;
+}
+
+.ratingIcon {
+  color: var(--color-warning-default, #FF9800);
+  font-size: 1.125rem;
+}
+
+.ratingValue {
+  color: var(--color-gray-700, #4B4B4B);
+  font-size: 0.875rem; /* 14px */
+}
+
+/* Reviews Link */
+.reviewsLink {
+  color: var(--color-gray-700, #4B4B4B);
+  font-size: 0.875rem; /* 14px */
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.reviewsLink:hover {
+  color: var(--color-primary-default, #006c67);
+}
+
+/* Location */
+.location {
+  color: var(--color-gray-700, #4B4B4B);
+  font-size: 0.875rem; /* 14px */
+}
+
+/* Separator */
+.separator {
+  color: var(--color-gray-300, #D1D1D1);
+  font-size: 0.875rem;
+}
+
+/* Right Metadata (Save & Share buttons) */
+.rightMetadata {
+  display: flex;
+  gap: var(--space-2, 16px);
+}
+
+/* Action Buttons (Save & Share) */
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: none;
+  border: 1px solid var(--color-gray-300, #D1D1D1);
+  border-radius: var(--border-radius-md, 8px);
+  color: var(--color-gray-700, #4B4B4B);
+  font-size: 0.875rem; /* 14px */
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.actionButton:hover {
+  border-color: var(--color-primary-default, #006c67);
+  background-color: var(--color-primary-light, #E6F0F0);
+}
+
+.actionButton.saved {
+  border-color: var(--color-error-default, #F44336);
+  color: var(--color-error-default, #F44336);
+}
+
+.icon {
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+.actionText {
+  display: none; /* Hide text on mobile */
+}
+
+/* Mobile: Hide action button text */
+@media (min-width: 640px) {
+  .actionText {
+    display: inline;
+  }
+}
+
+/* Tablet & Mobile Responsive */
+@media (max-width: 767px) {
+  .title {
+    font-size: 1.5rem; /* 24px on mobile */
+  }
+
+  .metadataBar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2, 16px);
+  }
+
+  .rightMetadata {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
