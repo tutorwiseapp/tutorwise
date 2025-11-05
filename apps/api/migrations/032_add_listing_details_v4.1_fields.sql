@@ -227,14 +227,13 @@ SET slug = generate_listing_slug(
   l.location_city
 )
 FROM profiles p
-WHERE l.tutor_id = p.id
+WHERE l.profile_id = p.id
 AND l.slug IS NULL;
 
 -- Create unique index (allowing multiple listings to have same slug - we'll use id for uniqueness)
 CREATE INDEX IF NOT EXISTS idx_listings_slug ON listings(slug);
 
 COMMENT ON COLUMN listings.slug IS 'SEO-friendly URL slug generated from title + tutor name + city';
-COMMENT ON FUNCTION generate_listing_slug IS 'Generates SEO-friendly slug for listing URLs';
 
 -- ============================================================
 -- 8. SEED PLACEHOLDER REVIEWS (for testing)
@@ -254,7 +253,7 @@ BEGIN
     -- Get a sample user (not the tutor)
     SELECT id INTO sample_reviewer_id
     FROM profiles
-    WHERE id != (SELECT tutor_id FROM listings WHERE id = sample_listing_id)
+    WHERE id != (SELECT profile_id FROM listings WHERE id = sample_listing_id)
     LIMIT 1;
 
     -- Insert 3 placeholder reviews if we found valid IDs
