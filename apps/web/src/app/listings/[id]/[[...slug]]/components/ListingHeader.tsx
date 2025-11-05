@@ -8,6 +8,8 @@
 import { useState } from 'react';
 import type { ListingV41 } from '@/types/listing-v4.1';
 import StatusBadge from '@/app/components/ui/StatusBadge';
+import toast from 'react-hot-toast';
+import { createReferral } from '@/lib/api/referrals';
 import styles from './ListingHeader.module.css';
 
 interface ListingHeaderProps {
@@ -24,6 +26,7 @@ interface ListingHeaderProps {
 
 export default function ListingHeader({ listing, tutorProfile, tutorStats }: ListingHeaderProps) {
   const [isSaved, setIsSaved] = useState(false);
+  const [isCreatingReferral, setIsCreatingReferral] = useState(false);
 
   const handleSave = () => {
     // TODO: Implement wishlist/save functionality
@@ -46,6 +49,33 @@ export default function ListingHeader({ listing, tutorProfile, tutorStats }: Lis
       // Fallback: copy to clipboard
       navigator.clipboard.writeText(window.location.href);
       alert('Link copied to clipboard!');
+    }
+  };
+
+  const handleReferEarn = async () => {
+    if (isCreatingReferral) return;
+
+    setIsCreatingReferral(true);
+
+    try {
+      const referral = await createReferral({
+        listing_id: listing.id,
+        tutor_id: listing.profile_id || '',
+        referral_type: 'listing',
+      });
+
+      // Create shareable referral link
+      const referralLink = `${window.location.origin}/listings/${listing.id}?ref=${referral.referral_code}`;
+
+      // Copy to clipboard
+      await navigator.clipboard.writeText(referralLink);
+
+      toast.success('Referral link created and copied to clipboard! Share it to earn rewards.');
+    } catch (error) {
+      console.error('Failed to create referral:', error);
+      toast.error('Failed to create referral link. Please try again.');
+    } finally {
+      setIsCreatingReferral(false);
     }
   };
 
@@ -102,7 +132,7 @@ export default function ListingHeader({ listing, tutorProfile, tutorStats }: Lis
           } />
         </div>
 
-        {/* Right side: Save & Share buttons */}
+        {/* Right side: Save, Share & Refer buttons */}
         <div className={styles.rightMetadata}>
           {/* Save Button */}
           <button
@@ -122,6 +152,19 @@ export default function ListingHeader({ listing, tutorProfile, tutorStats }: Lis
           >
             <span className={styles.icon}>⤴</span>
             <span className={styles.actionText}>Share</span>
+          </button>
+
+          {/* Refer & Earn Button */}
+          <button
+            onClick={handleReferEarn}
+            className={styles.referButton}
+            aria-label="Create referral link to earn rewards"
+            disabled={isCreatingReferral}
+          >
+            <span className={styles.icon}>🎁</span>
+            <span className={styles.actionText}>
+              {isCreatingReferral ? 'Creating...' : 'Refer & Earn'}
+            </span>
           </button>
         </div>
       </div>

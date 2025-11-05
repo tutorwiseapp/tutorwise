@@ -11,11 +11,13 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type { ListingV41 } from '@/types/listing-v4.1';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
 import StatusBadge from '@/app/components/ui/StatusBadge';
 import toast from 'react-hot-toast';
+import { createBooking } from '@/lib/api/bookings';
 import styles from './ActionCard.module.css';
 
 interface ActionCardProps {
@@ -25,26 +27,41 @@ interface ActionCardProps {
 
 export default function ActionCard({ listing }: ActionCardProps) {
   const [isBooking, setIsBooking] = useState(false);
+  const router = useRouter();
 
-  // Handle "Book Now" - placeholder until booking flow is implemented
+  // Handle "Book Now" - creates real booking entry
   const handleBookNow = async () => {
     setIsBooking(true);
 
     try {
-      // TODO: Implement proper booking flow with date/time selection
-      // For now, show placeholder message
-      toast.success('Booking feature coming soon! Full booking flow will be implemented in next release.');
+      // Generate session start time: 24 hours from now (default booking time)
+      const sessionStartTime = new Date();
+      sessionStartTime.setHours(sessionStartTime.getHours() + 24);
 
-      // Once booking flow is ready, use:
-      // await createBooking({
-      //   listing_id: listing.id,
-      //   tutor_id: listing.profile_id || '',
-      //   service_name: listing.title,
-      //   session_start_time: selectedDateTime, // User-selected date/time
-      //   session_duration: listing.session_duration || 60,
-      //   amount: listing.hourly_rate || 0,
-      // });
-      // router.push('/bookings');
+      // Determine amount based on service type
+      let amount = listing.hourly_rate || 0;
+      if (listing.service_type === 'study-package') {
+        amount = listing.package_price || listing.hourly_rate || 0;
+      } else if (listing.service_type === 'workshop') {
+        amount = listing.package_price || listing.hourly_rate || 0;
+      }
+
+      // Create booking entry
+      await createBooking({
+        listing_id: listing.id,
+        tutor_id: listing.profile_id || '',
+        service_name: listing.title,
+        session_start_time: sessionStartTime.toISOString(),
+        session_duration: listing.session_duration || 60,
+        amount: amount,
+      });
+
+      toast.success('Booking created successfully! Redirecting to your bookings...');
+
+      // Redirect to bookings page after short delay
+      setTimeout(() => {
+        router.push('/bookings');
+      }, 1500);
     } catch (error) {
       console.error('Booking failed:', error);
       toast.error('Failed to create booking. Please try again.');
@@ -53,24 +70,12 @@ export default function ActionCard({ listing }: ActionCardProps) {
     }
   };
 
-  // Handle "Share" - copies listing URL to clipboard
-  const handleShare = async () => {
-    const listingUrl = `${window.location.origin}/listings/${listing.id}/${listing.slug || ''}`;
-
-    try {
-      if (typeof navigator !== 'undefined' && navigator.clipboard) {
-        await navigator.clipboard.writeText(listingUrl);
-        toast.success('Listing link copied to clipboard!');
-      } else {
-        toast.success('Listing URL ready to share!');
-      }
-    } catch (error) {
-      console.error('Share failed:', error);
-      toast.error('Failed to copy link. Please try again.');
-    }
+  // Handle "Contact" - opens messaging with tutor
+  const handleContact = () => {
+    window.location.href = `/messages?tutor_id=${listing.profile_id}`;
   };
 
-  // Handle "Connect" - placeholder for connecting with tutor
+  // Handle "Connect" - opens connection modal or page
   const handleConnect = () => {
     toast.success('Connect feature coming soon!');
     // TODO: Implement real connect functionality
@@ -119,12 +124,12 @@ export default function ActionCard({ listing }: ActionCardProps) {
 
       {/* Secondary CTAs: Grid layout */}
       <div className={styles.ctaGrid}>
-        <button onClick={handleShare} className={styles.ctaButton}>
-          <span className={styles.ctaIcon}>📤</span>
-          <span className={styles.ctaText}>Share</span>
+        <button onClick={handleContact} className={styles.ctaButton}>
+          <span className={styles.ctaIcon}>💬</span>
+          <span className={styles.ctaText}>Contact</span>
         </button>
 
-        <button onClick={handleConnect} className={styles.ctaButtonSecondary}>
+        <button onClick={handleConnect} className={styles.ctaButton}>
           <span className={styles.ctaIcon}>🔗</span>
           <span className={styles.ctaText}>Connect</span>
         </button>

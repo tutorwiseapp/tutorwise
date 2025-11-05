@@ -105,6 +105,35 @@
   color: var(--color-error-default, #F44336);
 }
 
+/* Refer & Earn Button with teal background */
+.referButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #4CAEAD;
+  border: 1px solid #4CAEAD;
+  border-radius: var(--border-radius-md, 8px);
+  color: white;
+  font-size: 0.875rem; /* 14px */
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.referButton:hover {
+  background-color: #3E9A99;
+  border-color: #3E9A99;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(76, 174, 173, 0.3);
+}
+
+.referButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .icon {
   font-size: 1.125rem;
   line-height: 1;

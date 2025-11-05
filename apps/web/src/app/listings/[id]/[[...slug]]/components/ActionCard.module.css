@@ -151,32 +151,6 @@
   box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
 }
 
-/* Secondary CTA Button (Connect) with teal color */
-.ctaButtonSecondary {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: var(--space-3, 24px) var(--space-2, 16px);
-  background-color: var(--color-secondary-default, #4CAEAD);
-  border: 1px solid var(--color-secondary-default, #4CAEAD);
-  border-radius: var(--border-radius-md, 8px);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.ctaButtonSecondary:hover {
-  background-color: #3E9A99;
-  border-color: #3E9A99;
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
-}
-
-.ctaButtonSecondary .ctaText {
-  color: white;
-}
-
 .ctaIcon {
   font-size: 1.5rem; /* 24px */
 }
