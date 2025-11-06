@@ -11,9 +11,9 @@ import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import ReferralCard from '@/app/components/referrals/ReferralCard';
+import ReferralAssetWidget from '@/app/components/referrals/ReferralAssetWidget';
 import ContextualSidebar, {
   ReferralStatsWidget,
-  ReferralLinkWidget,
 } from '@/app/components/layout/sidebars/ContextualSidebar';
 import { Referral, ReferralStatus } from '@/types';
 import { createClient } from '@/utils/supabase/client';
@@ -93,20 +93,6 @@ export default function ReferralsPage() {
     { totalReferred: 0, signedUp: 0, converted: 0, totalEarned: 0 }
   );
 
-  const handleCopyReferralLink = () => {
-    const referralCode = profile?.referral_code || profile?.referral_id || '';
-    const referralUrl = `${window.location.origin}/a/${referralCode}`;
-
-    navigator.clipboard.writeText(referralUrl).then(
-      () => {
-        alert('Referral link copied to clipboard!');
-      },
-      (err) => {
-        console.error('Failed to copy link:', err);
-        alert('Failed to copy link. Please try again.');
-      }
-    );
-  };
 
   if (isLoading) {
     return (
@@ -180,11 +166,6 @@ export default function ReferralsPage() {
                 ? 'Share your referral link to start earning commissions!'
                 : `You have no ${statusFilter.toLowerCase()} referrals.`}
             </p>
-            <div className={styles.emptyActions}>
-              <button onClick={handleCopyReferralLink} className={styles.copyButton}>
-                Copy Your Referral Link
-              </button>
-            </div>
           </div>
         )}
 
@@ -207,10 +188,12 @@ export default function ReferralsPage() {
           totalEarned={stats.totalEarned}
         />
 
-        <ReferralLinkWidget
-          referralCode={profile?.referral_code || profile?.referral_id || ''}
-          onCopy={handleCopyReferralLink}
-        />
+        {profile?.referral_code && (
+          <ReferralAssetWidget
+            referralCode={profile.referral_code}
+            variant="dashboard"
+          />
+        )}
       </ContextualSidebar>
     </>
   );
