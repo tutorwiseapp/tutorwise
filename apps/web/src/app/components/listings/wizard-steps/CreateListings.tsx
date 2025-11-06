@@ -176,8 +176,54 @@ export default function CreateListings({
   const [imageUrls, setImageUrls] = useState<string[]>(formData.images || []);
   const [isUploading, setIsUploading] = useState(false);
 
+  // Phase 4: Referral Partner delegation (SDD v4.3, Section 3.1)
+  const [delegateCommissionTo, setDelegateCommissionTo] = useState<string>('');
+  const [connections, setConnections] = useState<Array<{ id: string; full_name: string; email: string }>>([]);
+  const [isLoadingConnections, setIsLoadingConnections] = useState(false);
+
   // Errors
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Phase 4: Fetch connections for delegation dropdown (SDD v4.3)
+  useEffect(() => {
+    if (!profile) return;
+
+    const fetchConnections = async () => {
+      setIsLoadingConnections(true);
+      try {
+        const { createClient } = await import('@/utils/supabase/client');
+        const supabase = createClient();
+
+        // Fetch accepted connections where user is either requester or receiver
+        const { data, error } = await supabase
+          .from('connections')
+          .select('requester_id, receiver_id, requester:requester_id(id, full_name, email), receiver:receiver_id(id, full_name, email)')
+          .eq('status', 'accepted')
+          .or(`requester_id.eq.${profile.id},receiver_id.eq.${profile.id}`);
+
+        if (error) throw error;
+
+        // Map to connection list (get the OTHER person in the connection)
+        const connectionList = (data || []).map((conn: any) => {
+          const isRequester = conn.requester_id === profile.id;
+          const otherPerson = isRequester ? conn.receiver : conn.requester;
+          return {
+            id: otherPerson.id,
+            full_name: otherPerson.full_name || 'Unknown',
+            email: otherPerson.email
+          };
+        });
+
+        setConnections(connectionList);
+      } catch (error) {
+        console.error('Failed to fetch connections:', error);
+      } finally {
+        setIsLoadingConnections(false);
+      }
+    };
+
+    fetchConnections();
+  }, [profile]);
 
   // Profile data - role-aware (for pre-filling only)
   useEffect(() => {
@@ -414,7 +460,9 @@ export default function CreateListings({
       duration_options: selectedDurations,
       full_name: profile?.full_name || '',
       location_country: 'United Kingdom',
-      timezone: 'Europe/London'
+      timezone: 'Europe/London',
+      // Phase 4: Commission delegation (SDD v4.3, Section 3.1)
+      delegate_commission_to_profile_id: delegateCommissionTo || undefined
     };
 
     onSubmit(listingData);
@@ -929,7 +977,47 @@ export default function CreateListings({
         </FormSection>
       </Card>
 
-      {/* CARD 7: Hero Image Upload */}
+      {/* CARD 7: Referral Partner (Commission Delegation) - SDD v4.3, Section 3.1 */}
+      <Card>
+        <FormSection
+          title="Referral Partner (Optional)"
+          description="Delegate commissions from this listing to a connected agent"
+        >
+          <div className={styles.fullWidthSection}>
+            <div className={styles.formSection}>
+              <label className={styles.label}>
+                Delegate Commissions To
+              </label>
+              <select
+                value={delegateCommissionTo}
+                onChange={(e) => setDelegateCommissionTo(e.target.value)}
+                className={styles.select}
+                disabled={isLoadingConnections}
+              >
+                <option value="">No delegation (you keep all commissions)</option>
+                {connections.length === 0 && !isLoadingConnections && (
+                  <option value="" disabled>No connections available</option>
+                )}
+                {connections.map((conn) => (
+                  <option key={conn.id} value={conn.id}>
+                    {conn.full_name} ({conn.email})
+                  </option>
+                ))}
+              </select>
+              <p className={styles.helperText}>
+                For offline brochures: If you refer a client to this listing using your own referral link, the commission will go to your selected partner instead of you. This enables the &ldquo;Tutor-Led&rdquo; offline referral model (SDD v4.3).
+              </p>
+              {connections.length === 0 && !isLoadingConnections && (
+                <p className={styles.helperText} style={{ color: '#f59e0b', marginTop: '0.5rem' }}>
+                  You have no connections yet. Visit the Network page to connect with agents before using this feature.
+                </p>
+              )}
+            </div>
+          </div>
+        </FormSection>
+      </Card>
+
+      {/* CARD 8: Hero Image Upload */}
       <Card>
         <FormSection
           title="Hero Image"
@@ -943,7 +1031,7 @@ export default function CreateListings({
         </FormSection>
       </Card>
 
-      {/* CARD 8: AI Tools */}
+      {/* CARD 9: AI Tools */}
       <Card>
         <FormSection
           title="AI Tools"
@@ -968,7 +1056,7 @@ export default function CreateListings({
         </FormSection>
       </Card>
 
-      {/* CARD 9: Cancellation Policy */}
+      {/* CARD 10: Cancellation Policy */}
       <Card>
         <FormSection
           title="Cancellation Policy"

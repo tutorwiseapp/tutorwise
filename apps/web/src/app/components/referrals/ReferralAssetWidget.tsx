@@ -47,27 +47,6 @@ export default function ReferralAssetWidget({
     }
   };
 
-  // Download QR code as PNG
-  const downloadQRCode = () => {
-    const canvas = document.getElementById('referral-qr-code') as HTMLCanvasElement;
-    if (!canvas) {
-      toast.error('QR code not found');
-      return;
-    }
-
-    try {
-      const url = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.download = `tutorwise-referral-${referralCode}.png`;
-      link.href = url;
-      link.click();
-      toast.success('QR code downloaded!');
-    } catch (error) {
-      console.error('Failed to download QR code:', error);
-      toast.error('Failed to download QR code');
-    }
-  };
-
   return (
     <div className={`${styles.widget} ${variant === 'onboarding' ? styles.onboarding : ''}`}>
       {/* Header */}
@@ -149,14 +128,14 @@ export default function ReferralAssetWidget({
             </div>
             <div className={styles.buttonGroup}>
               <button
-                onClick={downloadQRCode}
-                className={styles.downloadButton}
+                onClick={() => copyToClipboard(referralUrl, 'QR code link')}
+                className={styles.copyButton}
               >
-                Download QR Code
+                Copy QR Link
               </button>
             </div>
             <p className={styles.hint}>
-              Print this QR code on flyers, brochures, or business cards
+              Share this QR code on social media or save it for printing
             </p>
           </div>
         )}

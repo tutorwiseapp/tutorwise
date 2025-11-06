@@ -5,12 +5,12 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ListingV41 } from '@/types/listing-v4.1';
 import StatusBadge from '@/app/components/ui/StatusBadge';
 import toast from 'react-hot-toast';
-import { createReferral } from '@/lib/api/referrals';
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import styles from './ListingHeader.module.css';
 
 interface ListingHeaderProps {
@@ -27,7 +27,7 @@ interface ListingHeaderProps {
 
 export default function ListingHeader({ listing, tutorProfile, tutorStats }: ListingHeaderProps) {
   const [isSaved, setIsSaved] = useState(false);
-  const [isCreatingReferral, setIsCreatingReferral] = useState(false);
+  const { profile } = useUserProfile();
   const router = useRouter();
 
   const handleSave = () => {
@@ -54,36 +54,35 @@ export default function ListingHeader({ listing, tutorProfile, tutorStats }: Lis
     }
   };
 
+  // Phase 4: Contextual referral link (SDD v4.3, Section 3.2)
+  // Format #2: /a/[code]?redirect=/listings/[id]
   const handleReferEarn = async () => {
-    if (isCreatingReferral) return;
+    // Check if user is logged in
+    if (!profile) {
+      toast.error('Please login to create a referral link');
+      router.push('/login');
+      return;
+    }
 
-    setIsCreatingReferral(true);
+    // Check if user has referral code
+    if (!profile.referral_code) {
+      toast.error('Referral code not found. Please contact support.');
+      return;
+    }
 
     try {
-      await createReferral({
-        listing_id: listing.id,
-        tutor_id: listing.profile_id || '',
-        referral_type: 'listing',
-      });
+      // Generate contextual referral link (Format #2)
+      const origin = window.location.origin;
+      const listingPath = window.location.pathname; // e.g., /listings/123/slug
+      const contextualReferralUrl = `${origin}/a/${profile.referral_code}?redirect=${encodeURIComponent(listingPath)}`;
 
-      toast.success('Referral created successfully! Redirecting to referrals page...');
+      // Copy to clipboard
+      await navigator.clipboard.writeText(contextualReferralUrl);
 
-      // Redirect to referrals page after short delay
-      setTimeout(() => {
-        router.push('/referrals');
-      }, 1500);
-    } catch (error: any) {
-      console.error('Failed to create referral:', error);
-
-      // Redirect to login if not authenticated
-      if (error.message === 'Not authenticated') {
-        toast.error('Please login to create a referral link');
-        router.push('/login');
-      } else {
-        toast.error('Failed to create referral link. Please try again.');
-      }
-    } finally {
-      setIsCreatingReferral(false);
+      toast.success('Contextual referral link copied! Share it to earn 10% commission on bookings.');
+    } catch (error) {
+      console.error('Failed to copy referral link:', error);
+      toast.error('Failed to copy referral link. Please try again.');
     }
   };
 
@@ -166,13 +165,10 @@ export default function ListingHeader({ listing, tutorProfile, tutorStats }: Lis
           <button
             onClick={handleReferEarn}
             className={styles.referButton}
-            aria-label="Create referral link to earn rewards"
-            disabled={isCreatingReferral}
+            aria-label="Copy contextual referral link to earn 10% commission"
           >
             <span className={styles.icon}>🎁</span>
-            <span className={styles.actionText}>
-              {isCreatingReferral ? 'Creating...' : 'Refer & Earn'}
-            </span>
+            <span className={styles.actionText}>Refer & Earn</span>
           </button>
         </div>
       </div>
