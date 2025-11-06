@@ -1,9 +1,10 @@
 /*
  * Filename: src/app/a/[referral_id]/route.ts
- * Purpose: Handles referral link clicks, creates lead-gen record, sets cookie (SDD v3.6)
- * Created: 2025-11-02 (Updated from legacy)
- * Specification: SDD v3.6, Section 8.1
- * Change Summary: Updated to create referral records in new schema and set httpOnly cookie
+ * Purpose: Handles referral link clicks, creates lead-gen record, sets cookie (SDD v3.6/v4.3)
+ * Created: 2025-11-02
+ * Updated: 2025-11-06 - Migration to secure short-codes (SDD v4.3)
+ * Specification: SDD v3.6, Section 8.1 | SDD v4.3, Section 2.1
+ * Change Summary: Now uses secure 7-character referral_code instead of legacy referral_id
  */
 import { createClient } from '@/utils/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
@@ -23,11 +24,12 @@ export async function GET(
   const supabase = createClient();
 
   try {
-    // 1. Get referrer's profile_id from their referral_code
+    // 1. Get referrer's profile_id from their secure referral_code (SDD v4.3)
+    // Note: Codes are case-sensitive (e.g., kRz7Bq2 != krz7bq2)
     const { data: referrerProfile, error: referrerError } = await supabase
       .from('profiles')
       .select('id')
-      .eq('referral_code', referral_id.toUpperCase())
+      .eq('referral_code', referral_id) // Case-sensitive match
       .single();
 
     if (referrerError || !referrerProfile) {
@@ -83,8 +85,12 @@ export async function GET(
       }
     }
 
-    // 4. Redirect to homepage
-    return NextResponse.redirect(new URL('/', request.url));
+    // 4. Redirect to destination (contextual or homepage)
+    // Support Format #2: /a/[code]?redirect=/listings/[id] (SDD v4.3, Issue 4)
+    const redirectPath = request.nextUrl.searchParams.get('redirect');
+    const redirectUrl = redirectPath ? new URL(redirectPath, request.url) : new URL('/', request.url);
+
+    return NextResponse.redirect(redirectUrl);
 
   } catch (error) {
     console.error('Referral tracking error:', error);
