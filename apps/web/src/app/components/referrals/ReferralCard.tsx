@@ -2,12 +2,14 @@
  * Filename: src/app/components/referrals/ReferralCard.tsx
  * Purpose: Display referral lead information in card format (SDD v3.6)
  * Created: 2025-11-02
+ * Updated: 2025-11-06 - Phase 5: Applied design system (SDD v4.3)
  * Specification: SDD v3.6, Section 4.3 - /referrals hub UI
  */
 'use client';
 
 import { Referral, ReferralStatus } from '@/types';
 import Card from '@/app/components/ui/Card';
+import styles from './ReferralCard.module.css';
 
 interface ReferralCardProps {
   referral: Referral;
@@ -30,18 +32,18 @@ export default function ReferralCard({ referral }: ReferralCardProps) {
       })
     : null;
 
-  // Status badge colors
-  const getStatusColor = (status: ReferralStatus) => {
+  // Status badge CSS class
+  const getStatusClass = (status: ReferralStatus) => {
     switch (status) {
       case 'Converted':
-        return 'bg-green-100 text-green-800';
+        return styles.converted;
       case 'Signed Up':
-        return 'bg-blue-100 text-blue-800';
+        return styles.signedUp;
       case 'Expired':
-        return 'bg-red-100 text-red-800';
+        return styles.expired;
       case 'Referred':
       default:
-        return 'bg-yellow-100 text-yellow-800';
+        return styles.referred;
     }
   };
 
@@ -62,90 +64,86 @@ export default function ReferralCard({ referral }: ReferralCardProps) {
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <div className="p-6">
+    <Card className={styles.card}>
+      <div className={styles.cardContent}>
         {/* Header: User Info + Status */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
+        <div className={styles.header}>
+          <div className={styles.userInfo}>
             {referral.referred_user ? (
-              <div className="flex items-center gap-3">
+              <div className={styles.userInfoWithAvatar}>
                 {referral.referred_user.avatar_url && (
                   <img
                     src={referral.referred_user.avatar_url}
                     alt={referral.referred_user.full_name}
-                    className="w-10 h-10 rounded-full object-cover"
+                    className={styles.avatar}
                   />
                 )}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className={styles.userName}>
                     {referral.referred_user.full_name}
                   </h3>
-                  <p className="text-sm text-gray-500">
+                  <p className={styles.userDescription}>
                     {getStatusDescription(referral.status)}
                   </p>
                 </div>
               </div>
             ) : (
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className={styles.userName}>
                   Anonymous Click
                 </h3>
-                <p className="text-sm text-gray-500">
+                <p className={styles.userDescription}>
                   {getStatusDescription(referral.status)}
                 </p>
               </div>
             )}
           </div>
-          <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-              referral.status
-            )}`}
-          >
+          <span className={`${styles.statusBadge} ${getStatusClass(referral.status)}`}>
             {referral.status}
           </span>
         </div>
 
         {/* Referral Details */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm border-t border-gray-200 pt-4">
+        <div className={styles.detailsGrid}>
           <div>
-            <span className="text-gray-500">Referred:</span>{' '}
-            <span className="font-medium text-gray-900">{formattedDate}</span>
+            <span className={styles.detailLabel}>Referred:</span>{' '}
+            <span className={styles.detailValue}>{formattedDate}</span>
           </div>
           {convertedDate && (
             <div>
-              <span className="text-gray-500">Converted:</span>{' '}
-              <span className="font-medium text-gray-900">{convertedDate}</span>
+              <span className={styles.detailLabel}>Converted:</span>{' '}
+              <span className={styles.detailValue}>{convertedDate}</span>
             </div>
           )}
         </div>
 
         {/* Conversion Details (if applicable) */}
         {referral.status === 'Converted' && (
-          <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
-            <h4 className="text-sm font-semibold text-green-900 mb-2">
+          <div className={styles.conversionSection}>
+            <h4 className={styles.conversionTitle}>
               Conversion Details
             </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+            <div className={styles.conversionGrid}>
               {referral.first_booking && (
                 <>
                   <div>
-                    <span className="text-green-700">Service:</span>{' '}
-                    <span className="font-medium text-green-900">
+                    <span className={styles.conversionLabel}>Service:</span>{' '}
+                    <span className={styles.conversionValue}>
                       {referral.first_booking.service_name}
                     </span>
                   </div>
                   <div>
-                    <span className="text-green-700">Booking Amount:</span>{' '}
-                    <span className="font-medium text-green-900">
+                    <span className={styles.conversionLabel}>Booking Amount:</span>{' '}
+                    <span className={styles.conversionValue}>
                       £{referral.first_booking.amount.toFixed(2)}
                     </span>
                   </div>
                 </>
               )}
               {referral.first_commission && (
-                <div className="md:col-span-2">
-                  <span className="text-green-700">Your Commission:</span>{' '}
-                  <span className="font-bold text-green-900">
+                <div className={styles.conversionGridFull}>
+                  <span className={styles.conversionLabel}>Your Commission:</span>{' '}
+                  <span className={styles.commissionValue}>
                     £{referral.first_commission.amount.toFixed(2)}
                   </span>
                 </div>
@@ -155,51 +153,20 @@ export default function ReferralCard({ referral }: ReferralCardProps) {
         )}
 
         {/* Lead Funnel Progress Indicator */}
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <div className="flex items-center justify-between text-xs text-gray-500">
-            <div
-              className={`flex items-center ${
-                referral.status !== 'Referred' ? 'text-green-600' : ''
-              }`}
-            >
-              <div
-                className={`w-3 h-3 rounded-full mr-2 ${
-                  referral.status !== 'Referred'
-                    ? 'bg-green-500'
-                    : 'bg-gray-300'
-                }`}
-              />
+        <div className={styles.progressSection}>
+          <div className={styles.progressTrack}>
+            <div className={`${styles.progressStep} ${referral.status !== 'Referred' ? styles.active : ''}`}>
+              <div className={`${styles.progressDot} ${referral.status !== 'Referred' ? styles.active : ''}`} />
               Referred
             </div>
-            <div className="flex-1 h-0.5 bg-gray-200 mx-2" />
-            <div
-              className={`flex items-center ${
-                referral.status === 'Signed Up' || referral.status === 'Converted'
-                  ? 'text-green-600'
-                  : ''
-              }`}
-            >
-              <div
-                className={`w-3 h-3 rounded-full mr-2 ${
-                  referral.status === 'Signed Up' ||
-                  referral.status === 'Converted'
-                    ? 'bg-green-500'
-                    : 'bg-gray-300'
-                }`}
-              />
+            <div className={styles.progressLine} />
+            <div className={`${styles.progressStep} ${referral.status === 'Signed Up' || referral.status === 'Converted' ? styles.active : ''}`}>
+              <div className={`${styles.progressDot} ${referral.status === 'Signed Up' || referral.status === 'Converted' ? styles.active : ''}`} />
               Signed Up
             </div>
-            <div className="flex-1 h-0.5 bg-gray-200 mx-2" />
-            <div
-              className={`flex items-center ${
-                referral.status === 'Converted' ? 'text-green-600' : ''
-              }`}
-            >
-              <div
-                className={`w-3 h-3 rounded-full mr-2 ${
-                  referral.status === 'Converted' ? 'bg-green-500' : 'bg-gray-300'
-                }`}
-              />
+            <div className={styles.progressLine} />
+            <div className={`${styles.progressStep} ${referral.status === 'Converted' ? styles.active : ''}`}>
+              <div className={`${styles.progressDot} ${referral.status === 'Converted' ? styles.active : ''}`} />
               Converted
             </div>
           </div>

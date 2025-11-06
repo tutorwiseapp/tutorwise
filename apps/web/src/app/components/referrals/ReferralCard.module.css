@@ -1,0 +1,200 @@
+/*
+ * Filename: ReferralCard.module.css
+ * Purpose: Design system compliant styles for referral lead cards
+ * Specification: SDD v4.3, Phase 5 - Design system application
+ */
+
+.card {
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.cardContent {
+  padding: var(--space-4, 32px);
+}
+
+/* Header Section */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--space-3, 24px);
+}
+
+.userInfo {
+  flex: 1;
+}
+
+.userInfoWithAvatar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 16px);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.userName {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 600;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0 0 0.25rem 0;
+}
+
+.userDescription {
+  font-size: 0.875rem; /* 14px */
+  color: var(--color-gray-500, #8E8E8E);
+  margin: 0;
+}
+
+/* Status Badge */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--border-radius-full, 9999px);
+  font-size: 0.75rem; /* 12px */
+  font-weight: 500;
+}
+
+.statusBadge.converted {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.statusBadge.signedUp {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.statusBadge.expired {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.statusBadge.referred {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+/* Referral Details Grid */
+.detailsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2, 16px);
+  font-size: 0.875rem; /* 14px */
+  border-top: 1px solid var(--color-gray-200, #D1D1D1);
+  padding-top: var(--space-3, 24px);
+}
+
+@media (min-width: 768px) {
+  .detailsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.detailLabel {
+  color: var(--color-gray-500, #8E8E8E);
+}
+
+.detailValue {
+  font-weight: 500;
+  color: var(--color-gray-700, #4B4B4B);
+}
+
+/* Conversion Section */
+.conversionSection {
+  margin-top: var(--space-3, 24px);
+  padding: var(--space-2, 16px);
+  background-color: #f0fdf4;
+  border-radius: var(--border-radius-md, 8px);
+  border: 1px solid #bbf7d0;
+}
+
+.conversionTitle {
+  font-size: 0.875rem; /* 14px */
+  font-weight: 600;
+  color: #166534;
+  margin: 0 0 var(--space-2, 16px) 0;
+}
+
+.conversionGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+  font-size: 0.875rem; /* 14px */
+}
+
+@media (min-width: 768px) {
+  .conversionGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.conversionLabel {
+  color: #15803d;
+}
+
+.conversionValue {
+  font-weight: 500;
+  color: #166534;
+}
+
+.commissionValue {
+  font-weight: 700;
+  color: #166534;
+}
+
+.conversionGridFull {
+  grid-column: 1 / -1;
+}
+
+/* Progress Indicator */
+.progressSection {
+  margin-top: var(--space-3, 24px);
+  padding-top: var(--space-3, 24px);
+  border-top: 1px solid var(--color-gray-200, #D1D1D1);
+}
+
+.progressTrack {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem; /* 12px */
+  color: var(--color-gray-500, #8E8E8E);
+}
+
+.progressStep {
+  display: flex;
+  align-items: center;
+}
+
+.progressStep.active {
+  color: #16a34a;
+}
+
+.progressDot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+  background-color: var(--color-gray-300, #D1D1D1);
+}
+
+.progressDot.active {
+  background-color: #16a34a;
+}
+
+.progressLine {
+  flex: 1;
+  height: 2px;
+  background-color: var(--color-gray-200, #D1D1D1);
+  margin: 0 0.5rem;
+}
