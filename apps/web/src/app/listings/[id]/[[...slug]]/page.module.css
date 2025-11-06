@@ -10,7 +10,7 @@
   display: grid;
   grid-template-columns: 1fr; /* Mobile: single column */
   gap: var(--space-6, 48px);
-  margin-bottom: var(--space-6, 48px);
+  margin-bottom: var(--space-4, 32px); /* 32px to match card spacing */
 }
 
 @media (min-width: 768px) {
