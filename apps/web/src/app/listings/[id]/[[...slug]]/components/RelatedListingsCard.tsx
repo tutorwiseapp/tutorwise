@@ -53,17 +53,14 @@ export default function RelatedListingsCard({
     fetchRelated();
   }, [listingId, currentSubjects, currentLocation]);
 
-  if (isLoading) {
+  // Always show the card, but with empty message if no results
+  if (isLoading || relatedListings.length === 0) {
     return (
       <Card className={styles.card}>
         <h4 className={styles.title}>You might also like</h4>
-        <p className={styles.loading}>Loading recommendations...</p>
+        <p className={styles.emptyMessage}>No matching profiles or listings yet.</p>
       </Card>
     );
-  }
-
-  if (relatedListings.length === 0) {
-    return null; // Don't show card if no related listings
   }
 
   return (

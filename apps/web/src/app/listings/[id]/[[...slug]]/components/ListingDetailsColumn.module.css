@@ -105,7 +105,7 @@
 /* Card Title */
 .cardTitle {
   font-size: 1.25rem; /* 20px */
-  font-weight: 700;
+  font-weight: 600; /* Semibold - per design system */
   color: var(--color-gray-700, #4B4B4B);
   margin: 0 0 var(--space-3, 24px) 0;
 }
