@@ -52,7 +52,7 @@
 }
 
 .codeBox {
-  padding: var(--space-3, 24px);
+  padding: var(--space-1, 8px) var(--space-2, 16px);
   background-color: var(--color-primary-light, #E6F0F0);
   border-radius: var(--border-radius-md, 8px);
   text-align: center;
@@ -70,17 +70,14 @@
 /* Tabs */
 .tabs {
   display: flex;
-  gap: var(--space-1, 8px);
-  margin-bottom: var(--space-3, 24px);
+  gap: 0;
+  margin-bottom: var(--space-1, 8px);
   border-bottom: 2px solid var(--color-gray-200, #E5E7EB);
-  max-width: calc(100% - 64px);
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .tab {
   flex: 1;
-  padding: var(--space-2, 16px) var(--space-1, 8px);
+  padding: var(--space-2, 16px) var(--space-2, 16px);
   background: transparent;
   border: none;
   border-bottom: 3px solid transparent;
@@ -91,6 +88,7 @@
   transition: all 0.2s ease;
   position: relative;
   bottom: -2px;
+  text-align: center;
 }
 
 .tab:hover {
@@ -106,22 +104,14 @@
 
 /* Content Area */
 .content {
-  min-height: 300px;
+  min-height: 250px;
 }
 
 .assetSection {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3, 24px);
-}
-
-.label {
-  font-size: 0.875rem; /* 14px */
-  font-weight: 600;
-  color: var(--color-gray-700, #4B4B4B);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: var(--space-1, 8px);
+  gap: var(--space-2, 16px);
+  padding-bottom: var(--space-3, 24px);
 }
 
 /* Input Group */
@@ -135,10 +125,12 @@
   padding: var(--space-2, 16px);
   border: 1px solid var(--color-gray-300, #D1D1D1);
   border-radius: var(--border-radius-md, 8px);
-  font-size: 0.875rem; /* 14px */
+  font-size: 0.8125rem; /* 13px */
   font-family: 'Courier New', monospace;
   color: var(--color-gray-700, #4B4B4B);
   background-color: var(--color-gray-100, #F5F5F5);
+  word-break: break-all;
+  line-height: 1.6;
 }
 
 .input:focus {
@@ -182,12 +174,12 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: var(--space-4, 32px);
+  padding: var(--space-1, 8px);
   background-color: white;
   border: 1px solid var(--color-gray-300, #D1D1D1);
   border-radius: var(--border-radius-md, 8px);
   aspect-ratio: 1 / 1;
-  max-width: 268px;
+  max-width: 216px;
   margin: 0 auto;
 }
 
@@ -198,17 +190,19 @@
 
 /* Code Block */
 .codeBlock {
-  padding: var(--space-3, 24px);
-  background-color: var(--color-gray-900, #1F2937);
+  padding: var(--space-1, 8px) var(--space-2, 16px);
+  background-color: white;
+  border: 1px solid var(--color-gray-300, #D1D1D1);
   border-radius: var(--border-radius-md, 8px);
   overflow-x: auto;
 }
 
 .embedCode {
   font-family: 'Courier New', monospace;
-  font-size: 0.875rem; /* 14px */
-  color: #10B981; /* Green for code */
+  font-size: 0.8125rem; /* 13px */
+  color: var(--color-gray-900, #1F2937);
   word-break: break-all;
+  line-height: 1.6;
 }
 
 /* Button Group */
@@ -219,7 +213,7 @@
 
 .buttonGroup .copyButton {
   width: 100%;
-  max-width: none;
+  max-width: 320px;
   text-align: center;
 }
 

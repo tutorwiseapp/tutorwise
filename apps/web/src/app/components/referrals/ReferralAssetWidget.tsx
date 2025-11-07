@@ -71,19 +71,19 @@ export default function ReferralAssetWidget({
           onClick={() => setActiveTab('link')}
           className={`${styles.tab} ${activeTab === 'link' ? styles.tabActive : ''}`}
         >
-          🔗 Link
+          Link
         </button>
         <button
           onClick={() => setActiveTab('qr')}
           className={`${styles.tab} ${activeTab === 'qr' ? styles.tabActive : ''}`}
         >
-          📱 QR Code
+          QR Code
         </button>
         <button
           onClick={() => setActiveTab('embed')}
           className={`${styles.tab} ${activeTab === 'embed' ? styles.tabActive : ''}`}
         >
-          💻 Embed
+          Embed
         </button>
       </div>
 
@@ -92,7 +92,6 @@ export default function ReferralAssetWidget({
         {/* Link Tab */}
         {activeTab === 'link' && (
           <div className={styles.assetSection}>
-            <label className={styles.label}>Referral Link</label>
             <div className={styles.inputGroup}>
               <input
                 type="text"
@@ -119,7 +118,6 @@ export default function ReferralAssetWidget({
         {/* QR Code Tab */}
         {activeTab === 'qr' && (
           <div className={styles.assetSection}>
-            <label className={styles.label}>QR Code</label>
             <div className={styles.qrContainer}>
               <QRCodeCanvas
                 id="referral-qr-code"
@@ -147,7 +145,6 @@ export default function ReferralAssetWidget({
         {/* Embed Tab */}
         {activeTab === 'embed' && (
           <div className={styles.assetSection}>
-            <label className={styles.label}>Embed Code</label>
             <div className={styles.codeBlock}>
               <code className={styles.embedCode}>{embedCode}</code>
             </div>
