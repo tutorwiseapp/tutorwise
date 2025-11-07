@@ -71,8 +71,11 @@
 .tabs {
   display: flex;
   gap: var(--space-1, 8px);
-  margin-bottom: var(--space-4, 32px);
+  margin-bottom: var(--space-3, 24px);
   border-bottom: 2px solid var(--color-gray-200, #E5E7EB);
+  max-width: calc(100% - 64px);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .tab {
@@ -118,6 +121,7 @@
   color: var(--color-gray-700, #4B4B4B);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  margin-bottom: var(--space-1, 8px);
 }
 
 /* Input Group */
