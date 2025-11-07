@@ -181,14 +181,19 @@
 .qrContainer {
   display: flex;
   justify-content: center;
+  align-items: center;
   padding: var(--space-4, 32px);
   background-color: white;
   border: 1px solid var(--color-gray-300, #D1D1D1);
   border-radius: var(--border-radius-md, 8px);
+  aspect-ratio: 1 / 1;
+  max-width: 268px;
+  margin: 0 auto;
 }
 
 .qrCode {
   border-radius: var(--border-radius-sm, 4px);
+  display: block;
 }
 
 /* Code Block */
