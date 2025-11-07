@@ -13,6 +13,10 @@ import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import ConnectionCard, { Connection } from '@/app/components/network/ConnectionCard';
 import ConnectionRequestModal from '@/app/components/network/ConnectionRequestModal';
 import { useConnectionsRealtime } from '@/app/hooks/useConnectionsRealtime';
+import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
+import NetworkStatsWidget from '@/app/components/network/NetworkStatsWidget';
+import QuickActionsWidget from '@/app/components/network/QuickActionsWidget';
+import ConnectionGroupsWidget from '@/app/components/network/ConnectionGroupsWidget';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
 
@@ -27,6 +31,8 @@ export default function NetworkPage() {
   const [connections, setConnections] = useState<Connection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+  const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
 
   // Stats
   const [stats, setStats] = useState({
@@ -196,73 +202,54 @@ export default function NetworkPage() {
   }
 
   return (
-    <div className={styles.container}>
-      {/* Header */}
-      <div className={styles.header}>
-        <div>
+    <>
+      <div className={styles.container}>
+        {/* Header */}
+        <div className={styles.header}>
           <h1 className={styles.title}>My Network</h1>
           <p className={styles.subtitle}>
             Build your professional tutoring network and amplify your reach
           </p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className={styles.connectButton}
-        >
-          + Connect
-        </button>
-      </div>
 
-      {/* Stats */}
-      <div className={styles.stats}>
-        <div className={styles.statCard}>
-          <div className={styles.statValue}>{stats.total}</div>
-          <div className={styles.statLabel}>Connections</div>
+        {/* Filter Tabs - Same pattern as Listings hub */}
+        <div className={styles.filterTabs}>
+          <button
+            onClick={() => setActiveTab('all')}
+            className={`${styles.filterTab} ${
+              activeTab === 'all' ? styles.filterTabActive : ''
+            }`}
+          >
+            All Connections ({stats.total})
+          </button>
+          <button
+            onClick={() => setActiveTab('pending-received')}
+            className={`${styles.filterTab} ${
+              activeTab === 'pending-received' ? styles.filterTabActive : ''
+            }`}
+          >
+            Requests ({stats.pendingReceived})
+          </button>
+          <button
+            onClick={() => setActiveTab('pending-sent')}
+            className={`${styles.filterTab} ${
+              activeTab === 'pending-sent' ? styles.filterTabActive : ''
+            }`}
+          >
+            Sent ({stats.pendingSent})
+          </button>
         </div>
-        <div className={styles.statCard}>
-          <div className={styles.statValue}>{stats.pendingReceived}</div>
-          <div className={styles.statLabel}>Pending Requests</div>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statValue}>{stats.pendingSent}</div>
-          <div className={styles.statLabel}>Sent Requests</div>
-        </div>
-      </div>
 
-      {/* Tabs */}
-      <div className={styles.tabs}>
-        <button
-          onClick={() => setActiveTab('all')}
-          className={`${styles.tab} ${activeTab === 'all' ? styles.tabActive : ''}`}
-        >
-          All Connections ({stats.total})
-        </button>
-        <button
-          onClick={() => setActiveTab('pending-received')}
-          className={`${styles.tab} ${activeTab === 'pending-received' ? styles.tabActive : ''}`}
-        >
-          Requests ({stats.pendingReceived})
-        </button>
-        <button
-          onClick={() => setActiveTab('pending-sent')}
-          className={`${styles.tab} ${activeTab === 'pending-sent' ? styles.tabActive : ''}`}
-        >
-          Sent ({stats.pendingSent})
-        </button>
-      </div>
-
-      {/* Content */}
-      <div className={styles.content}>
+        {/* Content */}
         {isLoading ? (
-          <div className={styles.loading}>
+          <div className={styles.loadingState}>
             <div className={styles.spinner} />
             <p>Loading connections...</p>
           </div>
         ) : filteredConnections.length === 0 ? (
-          <div className={styles.empty}>
+          <div className={styles.emptyState}>
             {activeTab === 'all' && (
               <>
-                <div className={styles.emptyIcon}>🤝</div>
                 <h3 className={styles.emptyTitle}>No connections yet</h3>
                 <p className={styles.emptyText}>
                   Start building your network by connecting with tutors, agents, and clients.
@@ -277,7 +264,6 @@ export default function NetworkPage() {
             )}
             {activeTab === 'pending-received' && (
               <>
-                <div className={styles.emptyIcon}>📬</div>
                 <h3 className={styles.emptyTitle}>No pending requests</h3>
                 <p className={styles.emptyText}>
                   You&apos;ll see connection requests from others here.
@@ -286,7 +272,6 @@ export default function NetworkPage() {
             )}
             {activeTab === 'pending-sent' && (
               <>
-                <div className={styles.emptyIcon}>⏳</div>
                 <h3 className={styles.emptyTitle}>No sent requests</h3>
                 <p className={styles.emptyText}>
                   Connection requests you send will appear here.
@@ -295,7 +280,7 @@ export default function NetworkPage() {
             )}
           </div>
         ) : (
-          <div className={styles.grid}>
+          <div className={styles.connectionsList}>
             {filteredConnections.map((connection) => (
               <ConnectionCard
                 key={connection.id}
@@ -316,14 +301,33 @@ export default function NetworkPage() {
             ))}
           </div>
         )}
+
+        {/* Connection Request Modal */}
+        <ConnectionRequestModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSuccess={fetchConnections}
+        />
       </div>
 
-      {/* Connection Request Modal */}
-      <ConnectionRequestModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSuccess={fetchConnections}
-      />
-    </div>
+      {/* Contextual Sidebar - Same pattern as Listings hub */}
+      <ContextualSidebar>
+        {/* Stats Cards at Top */}
+        <NetworkStatsWidget
+          stats={stats}
+          connections={filteredConnections}
+        />
+
+        {/* Quick Actions */}
+        <QuickActionsWidget onConnect={() => setIsModalOpen(true)} />
+
+        {/* Connection Groups */}
+        <ConnectionGroupsWidget
+          onGroupSelect={setSelectedGroupId}
+          selectedGroupId={selectedGroupId}
+          onCreateGroup={() => setIsGroupModalOpen(true)}
+        />
+      </ContextualSidebar>
+    </>
   );
 }

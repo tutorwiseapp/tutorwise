@@ -1,0 +1,67 @@
+/**
+ * Filename: apps/web/src/app/components/network/NetworkStatsWidget.module.css
+ * Purpose: Styles for Network Stats cards - Standard Hub Design
+ * Created: 2025-11-07
+ */
+
+/* Stats Cards Container - 2x2 Grid */
+.statsCards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Individual Stat Card */
+.statCard {
+  padding: 1.25rem;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.statCard:hover {
+  border-color: var(--color-primary-default, #006c67);
+  box-shadow: 0 2px 8px rgba(0, 108, 103, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Large Number */
+.statNumber {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-primary-default, #006c67);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+/* Stat Title */
+.statTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+/* Subtext */
+.statSubtext {
+  font-size: 0.75rem;
+  color: #6b7280;
+  line-height: 1.2;
+}
+
+/* Responsive - Stack on very small screens */
+@media (max-width: 360px) {
+  .statsCards {
+    grid-template-columns: 1fr;
+  }
+
+  .statCard {
+    padding: 1rem;
+  }
+
+  .statNumber {
+    font-size: 1.75rem;
+  }
+}
