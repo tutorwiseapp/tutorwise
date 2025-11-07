@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { checkRateLimit, rateLimitHeaders, rateLimitError } from '@/middleware/rateLimiting';
+import { sendConnectionInvitation } from '@/lib/email';
 import { z } from 'zod';
 
 const InviteSchema = z.object({
@@ -110,29 +111,50 @@ export async function POST(request: NextRequest) {
     if (newEmails.length > 0) {
       const referralUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/a/${profile.referral_code}?redirect=/network`;
 
-      // TODO: Integrate with Resend email service
-      // For now, log the invitations
-      console.log(`[invite-by-email] Would send invitations to:`, newEmails);
-      console.log(`[invite-by-email] Referral URL:`, referralUrl);
+      // Send email invitations via Resend
+      const emailPromises = newEmails.map(async (email) => {
+        try {
+          await sendConnectionInvitation({
+            to: email,
+            senderName: profile.full_name,
+            referralUrl,
+          });
+          return { email, success: true };
+        } catch (error) {
+          console.error(`[invite-by-email] Failed to send to ${email}:`, error);
+          return { email, success: false, error };
+        }
+      });
 
-      // Log analytics (using service_role to bypass RLS)
-      const supabaseAdmin = createClient();
+      const emailResults = await Promise.all(emailPromises);
+      const successfulSends = emailResults.filter((r) => r.success).map((r) => r.email);
+      const failedSends = emailResults.filter((r) => !r.success);
 
-      try {
-        await supabaseAdmin.from('network_analytics').insert(
-          newEmails.map(email => ({
-            profile_id: user.id,
-            event_type: 'invite_sent',
-            event_data: { email, via: 'email_invitation' },
-            referral_code: profile.referral_code,
-          }))
-        );
-      } catch (analyticsError) {
-        console.error('[invite-by-email] Analytics error:', analyticsError);
-        // Non-blocking error
+      if (failedSends.length > 0) {
+        console.warn('[invite-by-email] Failed sends:', failedSends);
+        results.errors.push(`Failed to send ${failedSends.length} email(s)`);
       }
 
-      results.sent = newEmails.length;
+      // Log analytics for successful sends (using service_role to bypass RLS)
+      const supabaseAdmin = createClient();
+
+      if (successfulSends.length > 0) {
+        try {
+          await supabaseAdmin.from('network_analytics').insert(
+            successfulSends.map(email => ({
+              profile_id: user.id,
+              event_type: 'invite_sent',
+              event_data: { email, via: 'email_invitation' },
+              referral_code: profile.referral_code,
+            }))
+          );
+        } catch (analyticsError) {
+          console.error('[invite-by-email] Analytics error:', analyticsError);
+          // Non-blocking error
+        }
+      }
+
+      results.sent = successfulSends.length;
     }
 
     return NextResponse.json(

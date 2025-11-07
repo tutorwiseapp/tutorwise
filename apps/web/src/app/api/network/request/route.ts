@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { checkRateLimit, rateLimitHeaders, rateLimitError } from '@/middleware/rateLimiting';
+import { sendConnectionRequestNotification } from '@/lib/email';
 import { z } from 'zod';
 
 const RequestSchema = z.object({
@@ -112,6 +113,41 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error('[network/request] Database error:', error);
       throw error;
+    }
+
+    // Get requester profile for email notifications
+    const { data: requesterProfile } = await supabase
+      .from('profiles')
+      .select('full_name, email')
+      .eq('id', user.id)
+      .single();
+
+    // Send email notifications to receivers (non-blocking)
+    if (requesterProfile && data.length > 0) {
+      const networkUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/network`;
+
+      Promise.all(
+        data.map(async (connection: any) => {
+          try {
+            const receiver = Array.isArray(connection.receiver)
+              ? connection.receiver[0]
+              : connection.receiver;
+
+            if (receiver?.email) {
+              await sendConnectionRequestNotification({
+                to: receiver.email,
+                senderName: requesterProfile.full_name,
+                senderEmail: requesterProfile.email,
+                message: message,
+                networkUrl,
+              });
+            }
+          } catch (emailError) {
+            console.error('[network/request] Email error:', emailError);
+            // Non-blocking error
+          }
+        })
+      ).catch(err => console.error('[network/request] Email batch error:', err));
     }
 
     // Analytics events are automatically logged via trigger (041 migration)

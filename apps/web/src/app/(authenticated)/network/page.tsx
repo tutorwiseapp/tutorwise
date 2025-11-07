@@ -6,12 +6,13 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import ConnectionCard, { Connection } from '@/app/components/network/ConnectionCard';
 import ConnectionRequestModal from '@/app/components/network/ConnectionRequestModal';
+import { useConnectionsRealtime } from '@/app/hooks/useConnectionsRealtime';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
 
@@ -41,7 +42,31 @@ export default function NetworkPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile]);
 
-  const fetchConnections = async () => {
+  // Set up real-time subscriptions
+  useConnectionsRealtime({
+    userId: profile?.id || '',
+    enabled: !!profile,
+    onInsert: () => {
+      toast.success('New connection request received!');
+      fetchConnections();
+    },
+    onUpdate: (payload) => {
+      // Check if connection was accepted
+      if (payload.new.status === 'accepted' && payload.old.status === 'pending') {
+        const isReceiver = payload.new.receiver_id === profile?.id;
+        if (isReceiver) {
+          toast.success('Connection request accepted!');
+        }
+      }
+      fetchConnections();
+    },
+    onDelete: () => {
+      toast('A connection was removed');
+      fetchConnections();
+    },
+  });
+
+  const fetchConnections = useCallback(async () => {
     if (!profile) return;
 
     setIsLoading(true);
@@ -92,7 +117,7 @@ export default function NetworkPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [profile]);
 
   const handleAccept = async (connectionId: string) => {
     try {
