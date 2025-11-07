@@ -71,7 +71,7 @@
 .tabs {
   display: flex;
   gap: 0;
-  margin-bottom: var(--space-1, 8px);
+  margin-bottom: var(--space-2, 16px);
   border-bottom: 2px solid var(--color-gray-200, #E5E7EB);
 }
 
@@ -104,7 +104,7 @@
 
 /* Content Area */
 .content {
-  min-height: 250px;
+  /* Removed min-height for dynamic content sizing */
 }
 
 .assetSection {
@@ -226,36 +226,93 @@
   text-align: center;
 }
 
+/* Checkmark for copied state */
+.checkmark {
+  display: inline-block;
+  margin-right: 0.25rem;
+  font-weight: 700;
+  color: #10B981;
+}
+
+/* Share Buttons */
+.shareButtons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1, 8px);
+  padding: var(--space-2, 16px);
+  background-color: var(--color-gray-50, #F9FAFB);
+  border-radius: var(--border-radius-md, 8px);
+  border: 1px solid var(--color-gray-200, #E5E7EB);
+}
+
+.shareLabel {
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 600;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0 0 var(--space-1, 8px) 0;
+  text-align: center;
+}
+
+.shareButtonGroup {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2, 16px);
+}
+
+.shareButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background-color: white;
+  border: 1px solid var(--color-gray-300, #D1D1D1);
+  border-radius: var(--border-radius-md, 8px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--color-gray-700, #4B4B4B);
+}
+
+.shareButton:hover {
+  background-color: var(--color-primary-default, #006c67);
+  border-color: var(--color-primary-default, #006c67);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.shareButton:active {
+  transform: translateY(0);
+}
+
+.shareIcon {
+  width: 24px;
+  height: 24px;
+}
+
 /* Mobile Responsive */
 @media (max-width: 767px) {
   .widget {
-    padding: var(--space-3, 24px);
+    padding: var(--space-2, 16px);
   }
 
   .onboarding {
-    padding: var(--space-4, 32px);
+    padding: var(--space-3, 24px);
   }
 
   .tabs {
-    flex-direction: column;
-    border-bottom: none;
+    flex-direction: row;
+    flex-wrap: wrap;
   }
 
   .tab {
-    border-bottom: 1px solid var(--color-gray-200, #E5E7EB);
-    border-left: 3px solid transparent;
-    text-align: left;
-    bottom: 0;
-  }
-
-  .tabActive {
-    border-bottom-color: var(--color-gray-200, #E5E7EB);
-    border-left-color: var(--color-primary-default, #006c67);
-    background-color: var(--color-primary-light, #E6F0F0);
+    font-size: 0.8125rem; /* 13px on mobile */
+    padding: var(--space-1, 8px) var(--space-2, 16px);
   }
 
   .code {
-    font-size: 1.25rem; /* 20px on mobile */
+    font-size: 1.125rem; /* 18px on mobile */
+    letter-spacing: 0.05em;
   }
 
   .inputGroup {
@@ -264,13 +321,25 @@
 
   .buttonGroup .copyButton {
     width: 100%;
+    max-width: none;
   }
 
   .qrContainer {
-    padding: var(--space-3, 24px);
+    padding: var(--space-2, 16px);
+    max-width: 200px;
   }
 
-  .content {
-    min-height: 250px;
+  .shareButtonGroup {
+    gap: var(--space-1, 8px);
+  }
+
+  .shareButton {
+    width: 44px;
+    height: 44px;
+  }
+
+  .shareIcon {
+    width: 20px;
+    height: 20px;
   }
 }
