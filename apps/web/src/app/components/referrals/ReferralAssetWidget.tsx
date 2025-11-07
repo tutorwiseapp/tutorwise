@@ -59,8 +59,10 @@ export default function ReferralAssetWidget({
 
       {/* Referral Code Display */}
       <div className={styles.codeDisplay}>
-        <span className={styles.codeLabel}>Your Code:</span>
-        <span className={styles.code}>{referralCode}</span>
+        <span className={styles.codeLabel}>Your Referral Code</span>
+        <div className={styles.codeBox}>
+          <span className={styles.code}>{referralCode}</span>
+        </div>
       </div>
 
       {/* Tab Navigation */}
@@ -99,11 +101,13 @@ export default function ReferralAssetWidget({
                 className={styles.input}
                 onClick={(e) => e.currentTarget.select()}
               />
+            </div>
+            <div className={styles.buttonGroup}>
               <button
                 onClick={() => copyToClipboard(referralUrl, 'Referral link')}
                 className={styles.copyButton}
               >
-                Copy
+                Copy Link
               </button>
             </div>
             <p className={styles.hint}>
@@ -147,12 +151,14 @@ export default function ReferralAssetWidget({
             <div className={styles.codeBlock}>
               <code className={styles.embedCode}>{embedCode}</code>
             </div>
-            <button
-              onClick={() => copyToClipboard(embedCode, 'Embed code')}
-              className={styles.copyButton}
-            >
-              Copy Embed Code
-            </button>
+            <div className={styles.buttonGroup}>
+              <button
+                onClick={() => copyToClipboard(embedCode, 'Embed code')}
+                className={styles.copyButton}
+              >
+                Copy Embed Code
+              </button>
+            </div>
             <p className={styles.hint}>
               Add this HTML snippet to your website, blog, or email signature
             </p>
