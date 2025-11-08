@@ -8,7 +8,7 @@ import Tabs from '@/app/components/ui/Tabs';
 import StatusBadge from '@/app/components/ui/StatusBadge';
 import PageHeader from '@/app/components/ui/PageHeader';
 import styles from './page.module.css';
-import dashboardStyles from '@/app/dashboard/page.module.css';
+import dashboardStyles from '@/app/(authenticated)/dashboard/page.module.css';
 
 type TestStatus = 'idle' | 'pending' | 'success' | 'error';
 type HealthStatus = 'unknown' | 'ok' | 'degraded' | 'error';

@@ -19,10 +19,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
 
   // Hide footer on hub pages (3-column layout pages)
-  const isHubPage = pathname?.startsWith('/bookings') ||
+  const isHubPage = pathname?.startsWith('/dashboard') ||
+                    pathname?.startsWith('/bookings') ||
                     pathname?.startsWith('/financials') ||
                     pathname?.startsWith('/referrals') ||
-                    pathname?.startsWith('/listings');
+                    pathname?.startsWith('/listings') ||
+                    pathname?.startsWith('/reviews') ||
+                    pathname?.startsWith('/messages') ||
+                    pathname?.startsWith('/network');
 
   return (
     <div className={styles.appWrapper}>

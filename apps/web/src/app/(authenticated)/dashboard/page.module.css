@@ -1,9 +1,10 @@
 /*
- * Filename: src/app/dashboard/page.module.css
- * Purpose: Unified dashboard hub with 3-column layout and mobile-first responsive design
- * UPDATED: 2025-11-08 - Added unified hub 3-column layout
+ * Filename: src/app/(authenticated)/dashboard/page.module.css
+ * Purpose: Dashboard hub page styles - role-specific cards and mobile-first responsive design
+ * UPDATED: 2025-11-08 - Refactored to match other hub pages (container pattern)
  *
  * Change History:
+ * C006 - 2025-11-08 : Removed .unifiedHub wrapper, using .container pattern like other hubs
  * C005 - 2025-11-08 : Added unified hub layout with AppSidebar + Center + ContextualSidebar
  * C004 - 2025-10-20 : Added mobile-first responsive spacing and typography
  * C003 - 2025-07-22 : 00:00 - Standardized card content font size to 14px.
@@ -11,22 +12,8 @@
  * C001 - [Date] : [Time] - Initial creation.
  */
 
-/* Unified Hub Layout - 3 Columns */
-.unifiedHub {
-  display: grid;
-  grid-template-columns: 1fr;
-  min-height: 100vh;
-}
-
-/* Desktop: 3-column layout (AppSidebar + Center + ContextualSidebar) */
-@media (min-width: 1200px) {
-  .unifiedHub {
-    grid-template-columns: 250px 1fr 300px;
-  }
-}
-
-/* Center Column */
-.centerColumn {
+/* Container - matches pattern from other hub pages */
+.container {
   padding: 2rem 1rem; /* Mobile padding */
   max-width: 1200px;
   margin: 0 auto;
@@ -34,15 +21,32 @@
 }
 
 @media (min-width: 768px) {
-  .centerColumn {
+  .container {
     padding: 2rem 1.5rem;
   }
 }
 
 @media (min-width: 1200px) {
-  .centerColumn {
+  .container {
     padding: 2rem;
   }
+}
+
+/* Header Section */
+.header {
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
 }
 
 /* Mobile-first grid layout for dashboard cards */
@@ -50,7 +54,6 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem; /* Mobile: 16px */
-  margin-top: 2rem;
 }
 
 /* Tablet: 2 columns */

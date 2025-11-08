@@ -16,7 +16,7 @@ import toast from 'react-hot-toast';
 import Container from '@/app/components/layout/Container';
 import PageHeader from '@/app/components/ui/PageHeader';
 import Checkbox from '@/app/components/ui/form/Checkbox';
-import dashboardStyles from '@/app/dashboard/page.module.css';
+import dashboardStyles from '@/app/(authenticated)/dashboard/page.module.css';
 import settingStyles from './page.module.css';
 
 const SettingsPage = () => {

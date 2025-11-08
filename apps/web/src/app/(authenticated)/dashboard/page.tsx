@@ -1,13 +1,14 @@
 /*
- * Filename: src/app/dashboard/page.tsx
- * Purpose: Unified dashboard hub with 3-column layout (AppSidebar + Cards + Stats)
+ * Filename: src/app/(authenticated)/dashboard/page.tsx
+ * Purpose: Dashboard hub page with role-specific navigation cards and aggregated stats
  * Change History:
+ * C012 - 2025-11-08 : 14:00 - Moved into (authenticated) folder, removed duplicate AppSidebar
  * C011 - 2025-11-08 : 12:00 - Transformed into unified hub with aggregated stats sidebar
  * C010 - 2025-09-01 : 19:00 - Replaced Kinde hook with useUserProfile to get full profile data.
  * C009 - 2025-08-26 : 19:00 - Converted from Server Component to Client Component.
- * Last Modified: 2025-11-08 : 12:00
+ * Last Modified: 2025-11-08 : 14:00
  * Requirement ID: VIN-APP-01
- * Change Summary: Added 3-column unified hub layout with AppSidebar (universal nav), dashboard cards (role-specific), and DashboardStatsWidget (aggregated stats). Preserved all existing role-based logic and onboarding redirects.
+ * Change Summary: Fixed UI duplication by moving into (authenticated) folder. AppSidebar now rendered by parent layout. Dashboard renders only center content + ContextualSidebar.
  */
 'use client';
 
@@ -15,7 +16,6 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import AppSidebar from '@/app/components/layout/sidebars/AppSidebar';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import DashboardStatsWidget from '@/app/components/dashboard/DashboardStatsWidget';
 import PageHeader from '@/app/components/ui/PageHeader';
@@ -78,11 +78,8 @@ const DashboardPage = () => {
   // Show loading while checking authentication and onboarding status
   if (isLoading || !profile || needsOnboarding) {
     return (
-      <div className={styles.unifiedHub}>
-        <AppSidebar />
-        <main className={styles.centerColumn}>
-          <p className={styles.loading}>Loading...</p>
-        </main>
+      <div className={styles.container}>
+        <p className={styles.loading}>Loading...</p>
       </div>
     );
   }
@@ -127,16 +124,13 @@ const DashboardPage = () => {
   };
 
   return (
-    <div className={styles.unifiedHub}>
-      {/* Left Sidebar - Universal Navigation */}
-      <AppSidebar />
-
+    <>
       {/* Center Column - Dashboard Cards */}
-      <main className={styles.centerColumn}>
-        <PageHeader
-          title={getDashboardTitle()}
-          subtitle={`Welcome, ${firstName} (${getFormattedRole()})`}
-        />
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>{getDashboardTitle()}</h1>
+          <p className={styles.subtitle}>Welcome, {firstName} ({getFormattedRole()})</p>
+        </div>
 
         <div className={styles.grid}>
           {dashboardLinks.map((link) => (
@@ -148,13 +142,13 @@ const DashboardPage = () => {
             </Link>
           ))}
         </div>
-      </main>
+      </div>
 
       {/* Right Sidebar - Aggregated Stats */}
       <ContextualSidebar>
         <DashboardStatsWidget />
       </ContextualSidebar>
-    </div>
+    </>
   );
 };
 
