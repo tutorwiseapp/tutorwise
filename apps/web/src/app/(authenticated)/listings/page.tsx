@@ -2,12 +2,14 @@
  * Filename: src/app/(authenticated)/listings/page.tsx
  * Purpose: Listings hub page - displays user's service listings (SDD v3.6)
  * Created: 2025-11-03
+ * Updated: 2025-11-08 - Refactored to use React Query for robust data fetching
  * Specification: SDD v3.6 - Hub page with filter tabs following established pattern
  */
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { getMyListings, deleteListing, publishListing, unpublishListing } from '@/lib/api/listings';
@@ -17,6 +19,8 @@ import ListingCard from './ListingCard';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import CreateListingWidget from '@/app/components/listings/CreateListingWidget';
 import ListingStatsWidget from '@/app/components/listings/ListingStatsWidget';
+import ListingsSkeleton from '@/app/components/listings/ListingsSkeleton';
+import ListingsError from '@/app/components/listings/ListingsError';
 import styles from './page.module.css';
 
 type FilterType = 'all' | 'published' | 'unpublished' | 'draft' | 'archived' | 'templates';
@@ -24,13 +28,133 @@ type FilterType = 'all' | 'published' | 'unpublished' | 'draft' | 'archived' | '
 export default function ListingsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const { user, isLoading: userLoading } = useUserProfile();
   const { isAllowed, isLoading: roleLoading } = useRoleGuard(['tutor', 'agent', 'client']);
-  const [listings, setListings] = useState<Listing[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   // Read filter from URL (SDD v3.6: URL is single source of truth)
   const filter = (searchParams?.get('filter') as FilterType) || 'all';
+
+  // React Query: Fetch listings with automatic retry, caching, and background refetch
+  const {
+    data: rawListings = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['listings', user?.id],
+    queryFn: getMyListings,
+    enabled: !!user && !userLoading,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+  });
+
+  // Sort listings: templates first, then by creation date
+  const listings = useMemo(() => {
+    return [...rawListings].sort((a, b) => {
+      // Templates always come first
+      if (a.is_template && !b.is_template) return -1;
+      if (!a.is_template && b.is_template) return 1;
+
+      // Within same type, sort by creation date (newest first)
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+  }, [rawListings]);
+
+  // Delete mutation with optimistic updates
+  const deleteMutation = useMutation({
+    mutationFn: deleteListing,
+    onMutate: async (id) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['listings', user?.id] });
+
+      // Snapshot current value
+      const previousListings = queryClient.getQueryData(['listings', user?.id]);
+
+      // Optimistically update
+      queryClient.setQueryData(['listings', user?.id], (old: Listing[] = []) =>
+        old.filter((l) => l.id !== id)
+      );
+
+      return { previousListings };
+    },
+    onError: (err, id, context) => {
+      // Rollback on error
+      queryClient.setQueryData(['listings', user?.id], context?.previousListings);
+      toast.error('Failed to delete listing');
+    },
+    onSuccess: () => {
+      toast.success('Listing deleted successfully');
+    },
+    onSettled: () => {
+      // Refetch after mutation
+      queryClient.invalidateQueries({ queryKey: ['listings', user?.id] });
+    },
+  });
+
+  // Publish mutation
+  const publishMutation = useMutation({
+    mutationFn: publishListing,
+    onSuccess: () => {
+      toast.success('Listing published');
+      queryClient.invalidateQueries({ queryKey: ['listings', user?.id] });
+    },
+    onError: () => {
+      toast.error('Failed to publish listing');
+    },
+  });
+
+  // Unpublish mutation
+  const unpublishMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: 'draft' | 'paused' }) =>
+      unpublishListing(id, status),
+    onSuccess: () => {
+      toast.success('Listing unpublished');
+      queryClient.invalidateQueries({ queryKey: ['listings', user?.id] });
+    },
+    onError: () => {
+      toast.error('Failed to unpublish listing');
+    },
+  });
+
+  // Archive mutation
+  const archiveMutation = useMutation({
+    mutationFn: (id: string) => unpublishListing(id, 'archived' as 'draft' | 'paused'),
+    onSuccess: () => {
+      toast.success('Listing archived');
+      queryClient.invalidateQueries({ queryKey: ['listings', user?.id] });
+    },
+    onError: () => {
+      toast.error('Failed to archive listing');
+    },
+  });
+
+  // Filter listings based on URL param
+  const filteredListings = useMemo(() => {
+    return listings.filter((listing) => {
+      if (filter === 'templates') {
+        return listing.is_template === true;
+      }
+      if (filter === 'all') {
+        return listing.is_template !== true; // Exclude templates from "all"
+      }
+      if (filter === 'published') {
+        return listing.status === 'published' && listing.is_template !== true;
+      }
+      if (filter === 'unpublished') {
+        return listing.status === 'unpublished' && listing.is_template !== true;
+      }
+      if (filter === 'draft') {
+        return listing.status === 'draft' && listing.is_template !== true;
+      }
+      if (filter === 'archived') {
+        return listing.status === 'archived' && listing.is_template !== true;
+      }
+      return true;
+    });
+  }, [listings, filter]);
 
   // Update URL when filter changes
   const handleFilterChange = (newFilter: FilterType) => {
@@ -43,101 +167,21 @@ export default function ListingsPage() {
     router.push(`/listings${params.toString() ? `?${params.toString()}` : ''}`, { scroll: false });
   };
 
-  const loadListings = async () => {
-    console.log('[Listings] Starting to load listings...');
-    try {
-      setIsLoading(true);
-
-      // Add timeout to prevent infinite loading
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Request timeout after 10 seconds')), 10000)
-      );
-
-      const data = await Promise.race([
-        getMyListings(),
-        timeoutPromise
-      ]) as Listing[];
-
-      console.log('[Listings] Loaded', data.length, 'listings');
-
-      // Sort listings: templates first, then by creation date
-      const sortedData = data.sort((a, b) => {
-        // Templates always come first
-        if (a.is_template && !b.is_template) return -1;
-        if (!a.is_template && b.is_template) return 1;
-
-        // Within same type, sort by creation date (newest first)
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      });
-
-      setListings(sortedData);
-    } catch (error) {
-      console.error('[Listings] Failed to load listings:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to load listings');
-      setListings([]); // Set empty array on error so UI shows empty state
-    } finally {
-      console.log('[Listings] Setting isLoading to false');
-      setIsLoading(false);
-    }
-  };
-
-  // Load listings on mount
-  useEffect(() => {
-    if (!userLoading && !user) {
-      router.push('/login?redirect=/listings');
-      return;
-    }
-
-    if (user) {
-      loadListings();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, userLoading]);
-
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if (!confirm('Are you sure you want to delete this listing? This action cannot be undone.')) return;
-
-    try {
-      await deleteListing(id);
-      setListings(prev => prev.filter(l => l.id !== id));
-      toast.success('Listing deleted successfully');
-    } catch (error) {
-      console.error('Failed to delete listing:', error);
-      toast.error('Failed to delete listing');
-    }
+    deleteMutation.mutate(id);
   };
 
-  const handlePublish = async (id: string) => {
-    try {
-      await publishListing(id);
-      toast.success('Listing published');
-      await loadListings();
-    } catch (error) {
-      console.error('Failed to publish listing:', error);
-      toast.error('Failed to publish listing');
-    }
+  const handlePublish = (id: string) => {
+    publishMutation.mutate(id);
   };
 
-  const handleUnpublish = async (id: string) => {
-    try {
-      await unpublishListing(id, 'unpublished' as 'draft' | 'paused');
-      toast.success('Listing unpublished');
-      await loadListings();
-    } catch (error) {
-      console.error('Failed to unpublish listing:', error);
-      toast.error('Failed to unpublish listing');
-    }
+  const handleUnpublish = (id: string) => {
+    unpublishMutation.mutate({ id, status: 'unpublished' as 'draft' | 'paused' });
   };
 
-  const handleArchive = async (id: string) => {
-    try {
-      await unpublishListing(id, 'archived' as 'draft' | 'paused');
-      toast.success('Listing archived');
-      await loadListings();
-    } catch (error) {
-      console.error('Failed to archive listing:', error);
-      toast.error('Failed to archive listing');
-    }
+  const handleArchive = (id: string) => {
+    archiveMutation.mutate(id);
   };
 
   const handleDuplicate = async (listingId: string) => {
@@ -149,8 +193,7 @@ export default function ListingsPage() {
 
       if (newListingId) {
         toast.success('Listing duplicated successfully! View it in the Drafts tab.');
-        await loadListings();
-        // Switch to drafts tab to show the new duplicate
+        queryClient.invalidateQueries({ queryKey: ['listings', user?.id] });
         handleFilterChange('draft');
       } else {
         toast.error('Failed to duplicate listing');
@@ -161,41 +204,40 @@ export default function ListingsPage() {
     }
   };
 
-  // Filter listings based on URL param
-  const filteredListings = listings.filter((listing) => {
-    if (filter === 'templates') {
-      return listing.is_template === true;
-    }
-    if (filter === 'all') {
-      return listing.is_template !== true; // Exclude templates from "all"
-    }
-    if (filter === 'published') {
-      return listing.status === 'published' && listing.is_template !== true;
-    }
-    if (filter === 'unpublished') {
-      return listing.status === 'unpublished' && listing.is_template !== true;
-    }
-    if (filter === 'draft') {
-      return listing.status === 'draft' && listing.is_template !== true;
-    }
-    if (filter === 'archived') {
-      return listing.status === 'archived' && listing.is_template !== true;
-    }
-    return true;
-  });
-
-  // Show loading state
+  // Show loading state for auth/role checks
   if (userLoading || roleLoading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Loading your listings...</div>
-      </div>
-    );
+    return <ListingsSkeleton />;
   }
 
   // Role guard handles redirect automatically
   if (!isAllowed) {
     return null;
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <>
+        <ListingsError error={error as Error} onRetry={() => refetch()} />
+        <ContextualSidebar>
+          <CreateListingWidget />
+          <ListingStatsWidget listings={[]} isLoading={false} />
+        </ContextualSidebar>
+      </>
+    );
+  }
+
+  // Show loading skeleton
+  if (isLoading) {
+    return (
+      <>
+        <ListingsSkeleton />
+        <ContextualSidebar>
+          <CreateListingWidget />
+          <ListingStatsWidget listings={[]} isLoading={true} />
+        </ContextualSidebar>
+      </>
+    );
   }
 
   return (
@@ -252,16 +294,8 @@ export default function ListingsPage() {
 
       {/* Content container */}
       <div className={styles.container}>
-        {/* Loading State */}
-        {isLoading && (
-          <div className={styles.loadingState}>
-            <div className={styles.spinner}></div>
-            <p>Loading listings...</p>
-          </div>
-        )}
-
         {/* Empty State */}
-        {!isLoading && filteredListings.length === 0 && (
+        {filteredListings.length === 0 && (
           <div className={styles.emptyState}>
             <h3 className={styles.emptyTitle}>No listings found</h3>
             <p className={styles.emptyText}>
@@ -289,7 +323,7 @@ export default function ListingsPage() {
         )}
 
         {/* Listings List */}
-        {!isLoading && filteredListings.length > 0 && (
+        {filteredListings.length > 0 && (
           <div className={styles.listingsList}>
             {filteredListings.map((listing) => (
               <ListingCard
@@ -309,7 +343,7 @@ export default function ListingsPage() {
       {/* Contextual Sidebar (Right Column) */}
       <ContextualSidebar>
         <CreateListingWidget />
-        <ListingStatsWidget listings={listings} isLoading={isLoading} />
+        <ListingStatsWidget listings={listings} isLoading={false} />
       </ContextualSidebar>
     </>
   );

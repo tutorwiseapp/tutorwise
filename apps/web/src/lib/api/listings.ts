@@ -16,17 +16,13 @@ import type {
  * Get all listings for the current user
  */
 export async function getMyListings(): Promise<Listing[]> {
-  console.log('[getMyListings] Starting API call...');
   const supabase = createClient();
 
-  console.log('[getMyListings] Getting user...');
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    console.error('[getMyListings] Auth error:', authError);
     throw new Error('Not authenticated');
   }
 
-  console.log('[getMyListings] User authenticated, fetching listings for user:', user.id);
   const { data, error } = await supabase
     .from('listings')
     .select(`
@@ -38,12 +34,7 @@ export async function getMyListings(): Promise<Listing[]> {
     .eq('profile_id', user.id)
     .order('created_at', { ascending: false });
 
-  if (error) {
-    console.error('[getMyListings] Supabase error:', error);
-    throw error;
-  }
-
-  console.log('[getMyListings] Successfully fetched', data?.length || 0, 'listings');
+  if (error) throw error;
 
   // Flatten the profile data into the listing object
   return (data || []).map((listing: any) => ({
