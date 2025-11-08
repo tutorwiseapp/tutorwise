@@ -146,10 +146,10 @@ export default function ReviewSubmissionModal({
   const getRevieweeProfile = (revieweeId: string): Profile | undefined => {
     if (!session?.session.booking) return undefined;
 
-    const { client, tutor, referrer } = session.session.booking;
+    const { client, tutor, agent } = session.session.booking;
     if (client?.id === revieweeId) return client;
     if (tutor?.id === revieweeId) return tutor;
-    if (referrer?.id === revieweeId) return referrer;
+    if (agent?.id === revieweeId) return agent;
 
     return undefined;
   };

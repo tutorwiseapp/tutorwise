@@ -29,8 +29,8 @@ export default function PendingReviewCard({ task, currentUserId, onSubmit }: Pro
     if (booking?.tutor && booking.tutor.id !== currentUserId) {
       participants.push({ name: booking.tutor.full_name || 'Tutor', role: 'Tutor' });
     }
-    if (booking?.referrer && booking.referrer.id !== currentUserId) {
-      participants.push({ name: booking.referrer.full_name || 'Agent', role: 'Agent' });
+    if (booking?.agent && booking.agent.id !== currentUserId) {
+      participants.push({ name: booking.agent.full_name || 'Agent', role: 'Agent' });
     }
 
     return participants;

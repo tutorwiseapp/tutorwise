@@ -25,7 +25,7 @@ export interface Booking {
   booking_type?: BookingType;
   client?: Profile;
   tutor?: Profile;
-  referrer?: Profile | null;
+  agent?: Profile | null;
 }
 
 export interface BookingReviewSession {

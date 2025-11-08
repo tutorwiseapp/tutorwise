@@ -44,7 +44,7 @@ export async function GET() {
           amount,
           client:client_id(id, full_name, avatar_url),
           tutor:tutor_id(id, full_name, avatar_url),
-          referrer:referrer_profile_id(id, full_name, avatar_url)
+          agent:agent_profile_id(id, full_name, avatar_url)
         )
       `)
       .eq('status', 'pending')
