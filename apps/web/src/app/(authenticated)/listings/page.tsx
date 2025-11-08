@@ -44,9 +44,21 @@ export default function ListingsPage() {
   };
 
   const loadListings = async () => {
+    console.log('[Listings] Starting to load listings...');
     try {
       setIsLoading(true);
-      const data = await getMyListings();
+
+      // Add timeout to prevent infinite loading
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Request timeout after 10 seconds')), 10000)
+      );
+
+      const data = await Promise.race([
+        getMyListings(),
+        timeoutPromise
+      ]) as Listing[];
+
+      console.log('[Listings] Loaded', data.length, 'listings');
 
       // Sort listings: templates first, then by creation date
       const sortedData = data.sort((a, b) => {
@@ -60,9 +72,11 @@ export default function ListingsPage() {
 
       setListings(sortedData);
     } catch (error) {
-      console.error('Failed to load listings:', error);
-      toast.error('Failed to load listings');
+      console.error('[Listings] Failed to load listings:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to load listings');
+      setListings([]); // Set empty array on error so UI shows empty state
     } finally {
+      console.log('[Listings] Setting isLoading to false');
       setIsLoading(false);
     }
   };
