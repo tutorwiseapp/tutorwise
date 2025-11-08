@@ -56,6 +56,7 @@ export default function ConnectionCard({
   onMessage,
 }: ConnectionCardProps) {
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isOnline, setIsOnline] = React.useState(false);
 
   // Determine which profile to display (the other person)
   const isRequester = connection.requester_id === currentUserId;
@@ -64,6 +65,21 @@ export default function ConnectionCard({
   if (!otherProfile) {
     return null;
   }
+
+  // TODO: Implement Ably presence tracking
+  // useEffect(() => {
+  //   const presenceChannel = `presence:user:${otherProfile.id}`;
+  //   const ablyClient = getAblyClientClient(currentUserId);
+  //   const channel = ablyClient.channels.get(presenceChannel);
+  //
+  //   channel.presence.subscribe('enter', () => setIsOnline(true));
+  //   channel.presence.subscribe('leave', () => setIsOnline(false));
+  //   channel.presence.get((err, members) => {
+  //     setIsOnline(members && members.length > 0);
+  //   });
+  //
+  //   return () => channel.detach();
+  // }, [otherProfile.id, currentUserId]);
 
   const handleAccept = async () => {
     if (!onAccept) return;
@@ -119,19 +135,30 @@ export default function ConnectionCard({
       <div className={styles.header}>
         {/* Avatar */}
         <Link href={`/profile/${otherProfile.id}`} className={styles.avatarLink}>
-          {otherProfile.avatar_url ? (
-            <Image
-              src={otherProfile.avatar_url}
-              alt={otherProfile.full_name}
-              width={64}
-              height={64}
-              className={styles.avatar}
-            />
-          ) : (
-            <div className={styles.avatarPlaceholder}>
-              {otherProfile.full_name.charAt(0).toUpperCase()}
-            </div>
-          )}
+          <div className={styles.avatarWrapper}>
+            {otherProfile.avatar_url ? (
+              <Image
+                src={otherProfile.avatar_url}
+                alt={otherProfile.full_name}
+                width={64}
+                height={64}
+                className={styles.avatar}
+              />
+            ) : (
+              <div className={styles.avatarPlaceholder}>
+                {otherProfile.full_name.charAt(0).toUpperCase()}
+              </div>
+            )}
+            {/* Presence indicator - only for accepted connections */}
+            {variant === 'accepted' && (
+              <div
+                className={`${styles.presenceIndicator} ${
+                  isOnline ? styles.presenceOnline : styles.presenceOffline
+                }`}
+                title={isOnline ? 'Online' : 'Offline'}
+              />
+            )}
+          </div>
         </Link>
 
         {/* Profile Info */}
