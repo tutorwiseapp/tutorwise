@@ -83,112 +83,50 @@ export default function DashboardStatsWidget() {
   };
 
   return (
-    <>
-      {/* Urgent Reviews Widget */}
-      {summary.urgent.pending_reviews > 0 && (
-        <SidebarWidget title="⚠️ Urgent">
-          <div className={styles.statsCard}>
-            <div className={styles.statRow}>
-              <Link href="/reviews" className={styles.statLink}>
-                <span className={styles.statLabel}>Pending Reviews:</span>
-                <span className={styles.statValue}>{summary.urgent.pending_reviews}</span>
-              </Link>
-            </div>
-            {summary.urgent.urgent_reviews > 0 && (
-              <div className={styles.statRow}>
-                <span className={styles.statLabel} style={{ color: 'var(--status-error)' }}>
-                  Due soon:
-                </span>
-                <span className={styles.statValue} style={{ color: 'var(--status-error)' }}>
-                  {summary.urgent.urgent_reviews}
-                </span>
-              </div>
-            )}
-          </div>
-        </SidebarWidget>
-      )}
-
-      {/* Next Session Widget */}
-      {summary.upcoming.next_booking && (
-        <SidebarWidget title="Next Session">
-          <div className={styles.statsCard}>
-            <Link href="/bookings" className={styles.statLink}>
-              <div className={styles.statRow}>
-                <span className={styles.statLabel}>
-                  {summary.upcoming.next_booking.service_name}
-                </span>
-              </div>
-              <div className={styles.statRow}>
-                <span className={styles.statValue}>
-                  {new Date(summary.upcoming.next_booking.session_start_time).toLocaleDateString('en-US', {
-                    weekday: 'short',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                  })}
-                </span>
-              </div>
-            </Link>
-            {summary.upcoming.total_upcoming > 1 && (
-              <div className={styles.statRow}>
-                <Link href="/bookings" className={styles.statLink}>
-                  <span className={styles.statLabel}>
-                    +{summary.upcoming.total_upcoming - 1} more upcoming
-                  </span>
-                </Link>
-              </div>
-            )}
-          </div>
-        </SidebarWidget>
-      )}
-
-      {/* Quick Stats Widget */}
-      <SidebarWidget title="Quick Stats">
-        <div className={styles.statsCard}>
-          {/* Earnings */}
+    <SidebarWidget title="Quick Stats">
+      <div className={styles.statsCard}>
+        {/* Upcoming Sessions */}
+        {summary.upcoming.total_upcoming > 0 && (
           <div className={styles.statRow}>
-            <Link href="/financials" className={styles.statLink}>
-              <span className={styles.statLabel}>Total Earnings:</span>
-              <span className={styles.statValue}>
-                {formatCurrency(summary.financials.total_earnings, summary.financials.currency)}
-              </span>
-            </Link>
+            <span className={styles.statLabel}>Upcoming Sessions:</span>
+            <span className={styles.statValue}>{summary.upcoming.total_upcoming}</span>
           </div>
+        )}
 
-          {/* Rating */}
-          {summary.reputation.total_reviews > 0 && (
-            <div className={styles.statRow}>
-              <Link href="/reviews" className={styles.statLink}>
-                <span className={styles.statLabel}>Average Rating:</span>
-                <span className={styles.statValue}>
-                  ⭐ {summary.reputation.average_rating.toFixed(1)} ({summary.reputation.total_reviews})
-                </span>
-              </Link>
-            </div>
-          )}
+        {/* Pending Reviews */}
+        {summary.urgent.pending_reviews > 0 && (
+          <div className={styles.statRow}>
+            <span className={styles.statLabel}>Pending Reviews:</span>
+            <span className={styles.statValue}>{summary.urgent.pending_reviews}</span>
+          </div>
+        )}
 
-          {/* Upcoming Sessions */}
-          {summary.upcoming.total_upcoming > 0 && (
-            <div className={styles.statRow}>
-              <Link href="/bookings" className={styles.statLink}>
-                <span className={styles.statLabel}>Upcoming Sessions:</span>
-                <span className={styles.statValue}>{summary.upcoming.total_upcoming}</span>
-              </Link>
-            </div>
-          )}
+        {/* Rating */}
+        {summary.reputation.total_reviews > 0 && (
+          <div className={styles.statRow}>
+            <span className={styles.statLabel}>Average Rating:</span>
+            <span className={styles.statValue}>
+              ⭐ {summary.reputation.average_rating.toFixed(1)} ({summary.reputation.total_reviews})
+            </span>
+          </div>
+        )}
 
-          {/* Unread Messages */}
-          {summary.messages.unread_count > 0 && (
-            <div className={styles.statRow}>
-              <Link href="/messages" className={styles.statLink}>
-                <span className={styles.statLabel}>Unread Messages:</span>
-                <span className={styles.statValue}>{summary.messages.unread_count}</span>
-              </Link>
-            </div>
-          )}
+        {/* Unread Messages */}
+        {summary.messages.unread_count > 0 && (
+          <div className={styles.statRow}>
+            <span className={styles.statLabel}>Unread Messages:</span>
+            <span className={styles.statValue}>{summary.messages.unread_count}</span>
+          </div>
+        )}
+
+        {/* Total Earnings - Highlighted */}
+        <div className={`${styles.statRow} ${styles.statHighlight}`}>
+          <span className={styles.statLabel}>Total Earnings:</span>
+          <span className={styles.statValueHighlight}>
+            {formatCurrency(summary.financials.total_earnings, summary.financials.currency)}
+          </span>
         </div>
-      </SidebarWidget>
-    </>
+      </div>
+    </SidebarWidget>
   );
 }
