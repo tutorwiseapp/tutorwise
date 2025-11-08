@@ -90,7 +90,7 @@ export async function GET(
     // 6. Determine who user needs to review (if session is pending)
     let revieweesNeeded: string[] = [];
     if (session.status === 'pending' && !session.submitted_ids?.includes(user.id)) {
-      revieweesNeeded = session.participant_ids.filter((id) => id !== user.id);
+      revieweesNeeded = session.participant_ids.filter((id: string) => id !== user.id);
     }
 
     // 7. Calculate time remaining
