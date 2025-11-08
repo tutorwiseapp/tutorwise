@@ -22,7 +22,8 @@ export default function AppSidebar() {
   const pathname = usePathname();
   const { activeRole } = useUserProfile();
 
-  // Main navigation items (SDD v3.6, Section 5.1)
+  // Universal navigation menu - SAME for all roles (do not reorder or rename)
+  // Client note: Clients can list lesson requests under Listings
   const navItems: NavItem[] = [
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/marketplace', label: 'Marketplace' },
@@ -34,14 +35,9 @@ export default function AppSidebar() {
     { href: '/network', label: 'Network' },
     { href: '/reviews', label: 'Reviews' },
     { href: '/profile', label: 'Profile' },
+    { href: '/payments', label: 'Payments' },
     { href: '/settings', label: 'Settings' },
   ];
-
-  // Filter items based on role if needed
-  const filteredNavItems = navItems.filter((item) => {
-    if (!item.roles) return true;
-    return activeRole && item.roles.includes(activeRole);
-  });
 
   const isActive = (href: string) => {
     if (href === '/dashboard') {
@@ -54,7 +50,7 @@ export default function AppSidebar() {
     <aside className={styles.appSidebar}>
       <nav className={styles.nav}>
         <ul className={styles.navList}>
-          {filteredNavItems.map((item) => (
+          {navItems.map((item) => (
             <li key={item.href}>
               <Link
                 href={item.href}

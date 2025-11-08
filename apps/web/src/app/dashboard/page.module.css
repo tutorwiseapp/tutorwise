@@ -1,20 +1,56 @@
 /*
  * Filename: src/app/dashboard/page.module.css
- * Purpose: Provides a standardized, reusable grid and card system for dashboard-like pages.
- * UPDATED: 2025-10-20 - Added mobile-first responsive design
+ * Purpose: Unified dashboard hub with 3-column layout and mobile-first responsive design
+ * UPDATED: 2025-11-08 - Added unified hub 3-column layout
  *
  * Change History:
+ * C005 - 2025-11-08 : Added unified hub layout with AppSidebar + Center + ContextualSidebar
  * C004 - 2025-10-20 : Added mobile-first responsive spacing and typography
  * C003 - 2025-07-22 : 00:00 - Standardized card content font size to 14px.
  * C002 - 2025-07-21 : 23:30 - Renamed classes to be generic for reusability (e.g., .gridCard).
  * C001 - [Date] : [Time] - Initial creation.
  */
 
-/* Mobile-first grid layout */
+/* Unified Hub Layout - 3 Columns */
+.unifiedHub {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 100vh;
+}
+
+/* Desktop: 3-column layout (AppSidebar + Center + ContextualSidebar) */
+@media (min-width: 1200px) {
+  .unifiedHub {
+    grid-template-columns: 250px 1fr 300px;
+  }
+}
+
+/* Center Column */
+.centerColumn {
+  padding: 2rem 1rem; /* Mobile padding */
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .centerColumn {
+    padding: 2rem 1.5rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .centerColumn {
+    padding: 2rem;
+  }
+}
+
+/* Mobile-first grid layout for dashboard cards */
 .grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem; /* Mobile: 16px */
+  margin-top: 2rem;
 }
 
 /* Tablet: 2 columns */
@@ -32,7 +68,7 @@
   }
 }
 
-/* A standardized, self-contained card for use in grids */
+/* Dashboard cards - entire card is clickable (Option A) */
 .gridCard {
   display: flex;
   flex-direction: column;
@@ -43,6 +79,10 @@
   border: 1px solid var(--color-border, #dfe1e5);
   border-radius: var(--border-radius-md);
   transition: all 0.2s ease-in-out;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  position: relative;
 }
 
 @media (min-width: 640px) {
@@ -60,8 +100,13 @@
 }
 
 .gridCard:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
+}
+
+.gridCard:active {
+  transform: translateY(-2px);
 }
 
 .cardContent h3 {
@@ -90,24 +135,7 @@
   }
 }
 
-.cardLink {
-  margin-top: 1rem; /* Mobile: 16px */
-  font-size: var(--font-size-sm); /* 14px */
-  font-weight: var(--font-weight-medium);
-  color: var(--color-primary);
-  text-decoration: none;
-  align-self: flex-start;
-}
-
-@media (min-width: 768px) {
-  .cardLink {
-    margin-top: var(--space-4); /* Tablet+: 32px */
-  }
-}
-
-.cardLink:hover {
-  text-decoration: underline;
-}
+/* Removed .cardLink - entire card is now clickable (Option A) */
 
 .loading {
   text-align: center;

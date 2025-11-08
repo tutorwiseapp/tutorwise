@@ -1,20 +1,23 @@
 /*
  * Filename: src/app/dashboard/page.tsx
- * Purpose: Serves as the main hub for authenticated users, now using the UserProfileContext.
+ * Purpose: Unified dashboard hub with 3-column layout (AppSidebar + Cards + Stats)
  * Change History:
+ * C011 - 2025-11-08 : 12:00 - Transformed into unified hub with aggregated stats sidebar
  * C010 - 2025-09-01 : 19:00 - Replaced Kinde hook with useUserProfile to get full profile data.
  * C009 - 2025-08-26 : 19:00 - Converted from Server Component to Client Component.
- * Last Modified: 2025-09-01 : 19:00
+ * Last Modified: 2025-11-08 : 12:00
  * Requirement ID: VIN-APP-01
- * Change Summary: This page has been refactored to use the new `useUserProfile` hook. This provides the complete profile data from the Supabase database, including the user's `agent_id`, which resolves the "Agent ID from DB" placeholder bug.
+ * Change Summary: Added 3-column unified hub layout with AppSidebar (universal nav), dashboard cards (role-specific), and DashboardStatsWidget (aggregated stats). Preserved all existing role-based logic and onboarding redirects.
  */
 'use client';
 
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useUserProfile } from '@/app/contexts/UserProfileContext'; // --- THIS IS THE FIX ---
-import Container from '@/app/components/layout/Container';
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import AppSidebar from '@/app/components/layout/sidebars/AppSidebar';
+import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
+import DashboardStatsWidget from '@/app/components/dashboard/DashboardStatsWidget';
 import PageHeader from '@/app/components/ui/PageHeader';
 import styles from './page.module.css';
 
@@ -74,7 +77,14 @@ const DashboardPage = () => {
 
   // Show loading while checking authentication and onboarding status
   if (isLoading || !profile || needsOnboarding) {
-    return <Container><p className={styles.loading}>Loading...</p></Container>;
+    return (
+      <div className={styles.unifiedHub}>
+        <AppSidebar />
+        <main className={styles.centerColumn}>
+          <p className={styles.loading}>Loading...</p>
+        </main>
+      </div>
+    );
   }
 
   const displayName = profile.full_name || 'User';
@@ -117,24 +127,34 @@ const DashboardPage = () => {
   };
 
   return (
-    <Container>
-      <PageHeader
-        title={getDashboardTitle()}
-        subtitle={`Welcome, ${firstName} (${getFormattedRole()})`}
-      />
+    <div className={styles.unifiedHub}>
+      {/* Left Sidebar - Universal Navigation */}
+      <AppSidebar />
 
-      <div className={styles.grid}>
-        {dashboardLinks.map((link) => (
-          <div key={link.href} className={styles.gridCard}>
-            <div className={styles.cardContent}>
-              <h3>{link.title}</h3>
-              <p>{link.description}</p>
-            </div>
-            <Link href={link.href} className={styles.cardLink}>{link.linkText}</Link>
-          </div>
-        ))}
-      </div>
-    </Container>
+      {/* Center Column - Dashboard Cards */}
+      <main className={styles.centerColumn}>
+        <PageHeader
+          title={getDashboardTitle()}
+          subtitle={`Welcome, ${firstName} (${getFormattedRole()})`}
+        />
+
+        <div className={styles.grid}>
+          {dashboardLinks.map((link) => (
+            <Link key={link.href} href={link.href} className={styles.gridCard}>
+              <div className={styles.cardContent}>
+                <h3>{link.title}</h3>
+                <p>{link.description}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </main>
+
+      {/* Right Sidebar - Aggregated Stats */}
+      <ContextualSidebar>
+        <DashboardStatsWidget />
+      </ContextualSidebar>
+    </div>
   );
 };
 
