@@ -2,13 +2,15 @@
  * Filename: apps/web/src/app/components/dashboard/DashboardStatsWidget.tsx
  * Purpose: Aggregated stats widget for dashboard right sidebar
  * Created: 2025-11-08
+ * Updated: 2025-11-08 - Refactored to use standard SidebarWidget styling
  */
 
 'use client';
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import styles from './DashboardStatsWidget.module.css';
+import { SidebarWidget } from '@/app/components/layout/sidebars/ContextualSidebar';
+import styles from '@/app/components/layout/sidebars/ContextualSidebar.module.css';
 
 interface DashboardSummary {
   urgent: {
@@ -59,13 +61,13 @@ export default function DashboardStatsWidget() {
 
   if (isLoading) {
     return (
-      <div className={styles.widget}>
-        <div className={styles.skeleton}>
-          <div className={styles.skeletonLine} />
-          <div className={styles.skeletonLine} />
-          <div className={styles.skeletonLine} />
+      <SidebarWidget title="Quick Stats">
+        <div className={styles.statsCard}>
+          <div className={styles.statRow}>
+            <span className={styles.statLabel}>Loading...</span>
+          </div>
         </div>
-      </div>
+      </SidebarWidget>
     );
   }
 
@@ -81,121 +83,112 @@ export default function DashboardStatsWidget() {
   };
 
   return (
-    <div className={styles.widget}>
-      {/* Urgent Section */}
+    <>
+      {/* Urgent Reviews Widget */}
       {summary.urgent.pending_reviews > 0 && (
-        <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>
-            <span className={styles.urgentIndicator}>⚠️</span>
-            Urgent
-          </h3>
-          <div className={styles.statCard}>
-            <Link href="/reviews" className={styles.statLink}>
-              <div className={styles.statValue}>
-                {summary.urgent.pending_reviews}
-              </div>
-              <div className={styles.statLabel}>
-                Pending Review{summary.urgent.pending_reviews !== 1 ? 's' : ''}
-              </div>
-              {summary.urgent.urgent_reviews > 0 && (
-                <div className={styles.urgentBadge}>
-                  {summary.urgent.urgent_reviews} due soon
-                </div>
-              )}
-            </Link>
-          </div>
-        </div>
-      )}
-
-      {/* Next Session */}
-      {summary.upcoming.next_booking && (
-        <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>Next Session</h3>
-          <div className={styles.nextSessionCard}>
-            <Link
-              href={`/bookings`}
-              className={styles.nextSessionLink}
-            >
-              <div className={styles.sessionName}>
-                {summary.upcoming.next_booking.service_name}
-              </div>
-              <div className={styles.sessionDate}>
-                {new Date(summary.upcoming.next_booking.session_start_time).toLocaleDateString('en-US', {
-                  weekday: 'short',
-                  month: 'short',
-                  day: 'numeric',
-                  hour: 'numeric',
-                  minute: '2-digit',
-                })}
-              </div>
-            </Link>
-          </div>
-          {summary.upcoming.total_upcoming > 1 && (
-            <Link href="/bookings" className={styles.viewMore}>
-              +{summary.upcoming.total_upcoming - 1} more upcoming
-            </Link>
-          )}
-        </div>
-      )}
-
-      {/* Quick Stats */}
-      <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Quick Stats</h3>
-
-        <div className={styles.quickStats}>
-          {/* Earnings */}
-          <Link href="/financials" className={styles.quickStat}>
-            <div className={styles.quickStatIcon}>💰</div>
-            <div className={styles.quickStatContent}>
-              <div className={styles.quickStatValue}>
-                {formatCurrency(summary.financials.total_earnings, summary.financials.currency)}
-              </div>
-              <div className={styles.quickStatLabel}>Total Earnings</div>
+        <SidebarWidget title="⚠️ Urgent">
+          <div className={styles.statsCard}>
+            <div className={styles.statRow}>
+              <Link href="/reviews" className={styles.statLink}>
+                <span className={styles.statLabel}>Pending Reviews:</span>
+                <span className={styles.statValue}>{summary.urgent.pending_reviews}</span>
+              </Link>
             </div>
-          </Link>
+            {summary.urgent.urgent_reviews > 0 && (
+              <div className={styles.statRow}>
+                <span className={styles.statLabel} style={{ color: 'var(--status-error)' }}>
+                  Due soon:
+                </span>
+                <span className={styles.statValue} style={{ color: 'var(--status-error)' }}>
+                  {summary.urgent.urgent_reviews}
+                </span>
+              </div>
+            )}
+          </div>
+        </SidebarWidget>
+      )}
+
+      {/* Next Session Widget */}
+      {summary.upcoming.next_booking && (
+        <SidebarWidget title="Next Session">
+          <div className={styles.statsCard}>
+            <Link href="/bookings" className={styles.statLink}>
+              <div className={styles.statRow}>
+                <span className={styles.statLabel}>
+                  {summary.upcoming.next_booking.service_name}
+                </span>
+              </div>
+              <div className={styles.statRow}>
+                <span className={styles.statValue}>
+                  {new Date(summary.upcoming.next_booking.session_start_time).toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                  })}
+                </span>
+              </div>
+            </Link>
+            {summary.upcoming.total_upcoming > 1 && (
+              <div className={styles.statRow}>
+                <Link href="/bookings" className={styles.statLink}>
+                  <span className={styles.statLabel}>
+                    +{summary.upcoming.total_upcoming - 1} more upcoming
+                  </span>
+                </Link>
+              </div>
+            )}
+          </div>
+        </SidebarWidget>
+      )}
+
+      {/* Quick Stats Widget */}
+      <SidebarWidget title="Quick Stats">
+        <div className={styles.statsCard}>
+          {/* Earnings */}
+          <div className={styles.statRow}>
+            <Link href="/financials" className={styles.statLink}>
+              <span className={styles.statLabel}>Total Earnings:</span>
+              <span className={styles.statValue}>
+                {formatCurrency(summary.financials.total_earnings, summary.financials.currency)}
+              </span>
+            </Link>
+          </div>
 
           {/* Rating */}
           {summary.reputation.total_reviews > 0 && (
-            <Link href="/reviews" className={styles.quickStat}>
-              <div className={styles.quickStatIcon}>⭐</div>
-              <div className={styles.quickStatContent}>
-                <div className={styles.quickStatValue}>
-                  {summary.reputation.average_rating.toFixed(1)}
-                </div>
-                <div className={styles.quickStatLabel}>
-                  Average Rating ({summary.reputation.total_reviews} reviews)
-                </div>
-              </div>
-            </Link>
+            <div className={styles.statRow}>
+              <Link href="/reviews" className={styles.statLink}>
+                <span className={styles.statLabel}>Average Rating:</span>
+                <span className={styles.statValue}>
+                  ⭐ {summary.reputation.average_rating.toFixed(1)} ({summary.reputation.total_reviews})
+                </span>
+              </Link>
+            </div>
           )}
 
-          {/* Messages */}
-          {summary.messages.unread_count > 0 && (
-            <Link href="/messages" className={styles.quickStat}>
-              <div className={styles.quickStatIcon}>💬</div>
-              <div className={styles.quickStatContent}>
-                <div className={styles.quickStatValue}>
-                  {summary.messages.unread_count}
-                </div>
-                <div className={styles.quickStatLabel}>Unread Messages</div>
-              </div>
-            </Link>
-          )}
-
-          {/* Upcoming Bookings */}
+          {/* Upcoming Sessions */}
           {summary.upcoming.total_upcoming > 0 && (
-            <Link href="/bookings" className={styles.quickStat}>
-              <div className={styles.quickStatIcon}>📅</div>
-              <div className={styles.quickStatContent}>
-                <div className={styles.quickStatValue}>
-                  {summary.upcoming.total_upcoming}
-                </div>
-                <div className={styles.quickStatLabel}>Upcoming Sessions</div>
-              </div>
-            </Link>
+            <div className={styles.statRow}>
+              <Link href="/bookings" className={styles.statLink}>
+                <span className={styles.statLabel}>Upcoming Sessions:</span>
+                <span className={styles.statValue}>{summary.upcoming.total_upcoming}</span>
+              </Link>
+            </div>
+          )}
+
+          {/* Unread Messages */}
+          {summary.messages.unread_count > 0 && (
+            <div className={styles.statRow}>
+              <Link href="/messages" className={styles.statLink}>
+                <span className={styles.statLabel}>Unread Messages:</span>
+                <span className={styles.statValue}>{summary.messages.unread_count}</span>
+              </Link>
+            </div>
           )}
         </div>
-      </div>
-    </div>
+      </SidebarWidget>
+    </>
   );
 }
