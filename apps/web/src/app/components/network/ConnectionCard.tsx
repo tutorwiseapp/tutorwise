@@ -11,6 +11,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+import { useAblyPresence } from '@/app/hooks/useAblyPresence';
 import styles from './ConnectionCard.module.css';
 
 export interface Connection {
@@ -56,30 +57,20 @@ export default function ConnectionCard({
   onMessage,
 }: ConnectionCardProps) {
   const [isLoading, setIsLoading] = React.useState(false);
-  const [isOnline, setIsOnline] = React.useState(false);
 
   // Determine which profile to display (the other person)
   const isRequester = connection.requester_id === currentUserId;
   const otherProfile = isRequester ? connection.receiver : connection.requester;
 
+  // Track real-time presence status (only for accepted connections)
+  const { isOnline } = useAblyPresence(
+    variant === 'accepted' ? otherProfile?.id : null,
+    currentUserId
+  );
+
   if (!otherProfile) {
     return null;
   }
-
-  // TODO: Implement Ably presence tracking
-  // useEffect(() => {
-  //   const presenceChannel = `presence:user:${otherProfile.id}`;
-  //   const ablyClient = getAblyClientClient(currentUserId);
-  //   const channel = ablyClient.channels.get(presenceChannel);
-  //
-  //   channel.presence.subscribe('enter', () => setIsOnline(true));
-  //   channel.presence.subscribe('leave', () => setIsOnline(false));
-  //   channel.presence.get((err, members) => {
-  //     setIsOnline(members && members.length > 0);
-  //   });
-  //
-  //   return () => channel.detach();
-  // }, [otherProfile.id, currentUserId]);
 
   const handleAccept = async () => {
     if (!onAccept) return;
@@ -204,7 +195,6 @@ export default function ConnectionCard({
 
         {variant === 'pending-sent' && (
           <div className={styles.pendingBadge}>
-            <span className={styles.pendingIcon}>⏳</span>
             <span className={styles.pendingText}>Pending</span>
           </div>
         )}
@@ -214,9 +204,9 @@ export default function ConnectionCard({
             <button
               onClick={handleMessage}
               className={`${styles.button} ${styles.buttonPrimary}`}
-              title="Send message via Tawk.to"
+              title="Send message"
             >
-              💬 Message
+              Message
             </button>
             <button
               onClick={handleRemove}

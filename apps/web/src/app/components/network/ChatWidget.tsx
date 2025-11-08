@@ -9,7 +9,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChatClient, ChatMessageEvent } from '@ably/chat';
 import toast from 'react-hot-toast';
-import { getChatClient, AblyChannels, MessageType } from '@/lib/ably';
+import { getChatClient, AblyChannels, MessageType, DeliveryStatus } from '@/lib/ably';
+import { useAblyPresence, useAblyPresenceBroadcast } from '@/app/hooks/useAblyPresence';
+import { useAblyTyping } from '@/app/hooks/useAblyTyping';
+import { usePushNotifications, sendMessageNotification } from '@/app/hooks/usePushNotifications';
 import styles from './ChatWidget.module.css';
 
 interface ChatWidgetProps {
@@ -33,6 +36,7 @@ interface ChatMessage {
   content: string;
   timestamp: number;
   read: boolean;
+  deliveryStatus?: DeliveryStatus;
 }
 
 export default function ChatWidget({
@@ -47,6 +51,36 @@ export default function ChatWidget({
   const [chatClient, setChatClient] = useState<ChatClient | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const roomRef = useRef<any>(null);
+
+  // Broadcast current user's presence
+  useAblyPresenceBroadcast(currentUserId, true);
+
+  // Track selected connection's presence status
+  const { isOnline: isOtherUserOnline } = useAblyPresence(
+    selectedConnection?.profile.id,
+    currentUserId
+  );
+
+  // Track typing indicators
+  const channelName = selectedConnection
+    ? AblyChannels.privateChat(currentUserId, selectedConnection.profile.id)
+    : null;
+  const { isOtherUserTyping, startTyping, stopTyping } = useAblyTyping(
+    channelName,
+    currentUserId,
+    'You'
+  );
+
+  // Push notifications
+  const { isSupported, permission, requestPermission, sendNotification } = usePushNotifications();
+
+  // Request notification permission on mount (only once)
+  useEffect(() => {
+    if (isSupported && permission.default) {
+      // Don't auto-request, let user opt-in via a button or setting
+      // requestPermission();
+    }
+  }, [isSupported, permission.default]);
 
   // Initialize Ably Chat client
   useEffect(() => {
@@ -120,6 +154,15 @@ export default function ChatWidget({
 
             setMessages((prev) => [...prev, newMessage]);
 
+            // Send push notification if tab is not focused
+            if (document.hidden && permission.granted && selectedConnection.profile.full_name) {
+              sendMessageNotification(
+                selectedConnection.profile.full_name,
+                newMessage.content,
+                sendNotification
+              );
+            }
+
             // Mark as read if user is viewing conversation
             markAsRead(newMessage.id);
           }
@@ -167,7 +210,28 @@ export default function ChatWidget({
 
     if (!inputMessage.trim() || !selectedConnection || !chatClient) return;
 
+    // Stop typing indicator when sending
+    stopTyping();
+
+    const tempId = crypto.randomUUID();
+    const messageContent = inputMessage.trim();
+    setInputMessage('');
+
+    // Add optimistic message with "sending" status
+    const optimisticMessage: ChatMessage = {
+      id: tempId,
+      senderId: currentUserId,
+      receiverId: selectedConnection.profile.id,
+      type: MessageType.TEXT,
+      content: messageContent,
+      timestamp: Date.now(),
+      read: false,
+      deliveryStatus: DeliveryStatus.SENDING,
+    };
+
+    setMessages((prev) => [...prev, optimisticMessage]);
     setIsSending(true);
+
     try {
       // Persist message to database first
       const response = await fetch('/api/network/chat/send', {
@@ -175,7 +239,7 @@ export default function ChatWidget({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           receiverId: selectedConnection.profile.id,
-          content: inputMessage.trim(),
+          content: messageContent,
           type: MessageType.TEXT,
         }),
       });
@@ -184,35 +248,56 @@ export default function ChatWidget({
 
       const data = await response.json();
 
+      // Update message with real ID and "sent" status
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === tempId
+            ? { ...msg, id: data.message.id, deliveryStatus: DeliveryStatus.SENT }
+            : msg
+        )
+      );
+
       // Publish to Ably channel for real-time delivery
       if (roomRef.current) {
         await roomRef.current.messages.send({
-          text: inputMessage.trim(),
+          text: messageContent,
           metadata: {
             type: MessageType.TEXT,
             messageId: data.message.id,
           },
         });
+
+        // Update to "delivered" status
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === data.message.id
+              ? { ...msg, deliveryStatus: DeliveryStatus.DELIVERED }
+              : msg
+          )
+        );
       }
-
-      // Add to local state
-      const newMessage: ChatMessage = {
-        id: data.message.id,
-        senderId: currentUserId,
-        receiverId: selectedConnection.profile.id,
-        type: MessageType.TEXT,
-        content: inputMessage.trim(),
-        timestamp: Date.now(),
-        read: false,
-      };
-
-      setMessages((prev) => [...prev, newMessage]);
-      setInputMessage('');
     } catch (error) {
       console.error('[ChatWidget] Failed to send message:', error);
       toast.error('Failed to send message');
+
+      // Update message to "failed" status
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === tempId ? { ...msg, deliveryStatus: DeliveryStatus.FAILED } : msg
+        )
+      );
     } finally {
       setIsSending(false);
+    }
+  };
+
+  // Handle input change to trigger typing indicator
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputMessage(e.target.value);
+    if (e.target.value.trim()) {
+      startTyping();
+    } else {
+      stopTyping();
     }
   };
 
@@ -242,14 +327,27 @@ export default function ChatWidget({
             <h3 className={styles.title}>
               {selectedConnection.profile.full_name || 'Unknown User'}
             </h3>
-            <span className={styles.statusOnline}>Online</span>
+            <span className={isOtherUserOnline ? styles.statusOnline : styles.statusOffline}>
+              {isOtherUserOnline ? 'Online' : 'Offline'}
+            </span>
           </div>
         </div>
-        {onClose && (
-          <button onClick={onClose} className={styles.closeButton}>
-            ✕
-          </button>
-        )}
+        <div className={styles.headerActions}>
+          {isSupported && !permission.granted && permission.default && (
+            <button
+              onClick={requestPermission}
+              className={styles.notificationButton}
+              title="Enable notifications"
+            >
+              Enable Notifications
+            </button>
+          )}
+          {onClose && (
+            <button onClick={onClose} className={styles.closeButton}>
+              ✕
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Messages */}
@@ -278,10 +376,26 @@ export default function ChatWidget({
                       hour: '2-digit',
                       minute: '2-digit',
                     })}
+                    {isSent && message.deliveryStatus && (
+                      <span className={styles.deliveryStatus}>
+                        {message.deliveryStatus === DeliveryStatus.SENDING && ' · Sending'}
+                        {message.deliveryStatus === DeliveryStatus.SENT && ' · Sent'}
+                        {message.deliveryStatus === DeliveryStatus.DELIVERED && ' · Delivered'}
+                        {message.deliveryStatus === DeliveryStatus.READ && ' · Read'}
+                        {message.deliveryStatus === DeliveryStatus.FAILED && ' · Failed'}
+                      </span>
+                    )}
                   </div>
                 </div>
               );
             })}
+            {isOtherUserTyping && (
+              <div className={styles.typingIndicator}>
+                <span className={styles.typingDot}></span>
+                <span className={styles.typingDot}></span>
+                <span className={styles.typingDot}></span>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
         )}
@@ -292,7 +406,7 @@ export default function ChatWidget({
         <input
           type="text"
           value={inputMessage}
-          onChange={(e) => setInputMessage(e.target.value)}
+          onChange={handleInputChange}
           placeholder="Type a message..."
           className={styles.input}
           disabled={isSending}

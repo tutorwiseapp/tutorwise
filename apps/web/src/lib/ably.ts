@@ -93,3 +93,20 @@ export interface PresenceData {
   status: 'online' | 'away' | 'offline';
   lastSeen: number;
 }
+
+// Typing event structure
+export interface TypingEvent {
+  userId: string;
+  userName: string;
+  isTyping: boolean;
+  timestamp: number;
+}
+
+// Message delivery status
+export enum DeliveryStatus {
+  SENDING = 'sending',
+  SENT = 'sent',
+  DELIVERED = 'delivered',
+  READ = 'read',
+  FAILED = 'failed',
+}

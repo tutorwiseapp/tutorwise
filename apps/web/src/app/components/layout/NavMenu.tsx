@@ -117,6 +117,9 @@ const NavMenu = () => {
                   <Link href="/dashboard">Dashboard</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild className={styles.menuItem}>
+                  <Link href="/listings">Listings</Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item asChild className={styles.menuItem}>
                   <Link href="/bookings">Bookings</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild className={styles.menuItem}>
@@ -130,9 +133,6 @@ const NavMenu = () => {
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild className={styles.menuItem}>
                   <Link href="/network">Network</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item asChild className={styles.menuItem}>
-                  <Link href="/listings">Listings</Link>
                 </DropdownMenu.Item>
 
                 <div className={styles.separator12px} />

@@ -26,12 +26,12 @@ export default function AppSidebar() {
   const navItems: NavItem[] = [
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/marketplace', label: 'Marketplace' },
+    { href: '/listings', label: 'Listings' },
     { href: '/bookings', label: 'Bookings' },
     { href: '/referrals', label: 'Referrals' },
     { href: '/financials', label: 'Financials' },
     { href: '/messages', label: 'Messages' },
     { href: '/network', label: 'Network' },
-    { href: '/listings', label: 'Listings' },
     { href: '/profile', label: 'Profile' },
     { href: '/settings', label: 'Settings' },
   ];
