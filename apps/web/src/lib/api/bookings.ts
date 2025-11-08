@@ -73,25 +73,19 @@ export async function createBooking(input: CreateBookingInput): Promise<Booking>
 }
 
 /**
- * Get all bookings for the current user (as student)
+ * Get all bookings for the current user
+ * @param role - Either 'tutor' or 'student' to determine which bookings to fetch
  */
-export async function getMyBookings(): Promise<Booking[]> {
-  const supabase = createClient();
+export async function getMyBookings(role: 'tutor' | 'student' = 'student'): Promise<any[]> {
+  // Use the API route which handles the complex joins and relationships
+  const response = await fetch(`/api/bookings?role=${role}`);
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    throw new Error('Not authenticated');
+  if (!response.ok) {
+    throw new Error('Failed to fetch bookings');
   }
 
-  const { data, error } = await supabase
-    .from('bookings')
-    .select('*')
-    .eq('student_id', user.id)
-    .order('created_at', { ascending: false });
-
-  if (error) throw error;
-
-  return (data || []) as Booking[];
+  const data = await response.json();
+  return data.bookings || [];
 }
 
 /**
