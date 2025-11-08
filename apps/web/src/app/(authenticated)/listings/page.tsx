@@ -295,7 +295,7 @@ export default function ListingsPage() {
       {/* Contextual Sidebar (Right Column) */}
       <ContextualSidebar>
         <CreateListingWidget />
-        <ListingStatsWidget />
+        <ListingStatsWidget listings={listings} isLoading={isLoading} />
       </ContextualSidebar>
     </>
   );

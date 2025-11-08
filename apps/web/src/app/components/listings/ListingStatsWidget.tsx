@@ -3,49 +3,36 @@
  * Purpose: Display listing statistics in ContextualSidebar
  * Created: 2025-11-03
  * Specification: SDD v3.6 - ContextualSidebar widget with teal title box
+ *
+ * FIXED: Race condition where independent data fetching caused cards to disappear
+ * Now receives listings as props from parent page for consistent state management
  */
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { getMyListings } from '@/lib/api/listings';
+import React, { useMemo } from 'react';
 import { SidebarWidget } from '@/app/components/layout/sidebars/ContextualSidebar';
 import type { Listing } from '@tutorwise/shared-types';
 import styles from './ListingStatsWidget.module.css';
 
-export default function ListingStatsWidget() {
-  const [stats, setStats] = useState({
-    total: 0,
-    published: 0,
-    unpublished: 0,
-    drafts: 0,
-    archived: 0,
-  });
-  const [isLoading, setIsLoading] = useState(true);
+interface ListingStatsWidgetProps {
+  listings: Listing[];
+  isLoading: boolean;
+}
 
-  useEffect(() => {
-    const loadStats = async () => {
-      try {
-        const listings = await getMyListings();
+export default function ListingStatsWidget({ listings, isLoading }: ListingStatsWidgetProps) {
+  // Calculate stats from props - use useMemo to avoid recalculation on every render
+  const stats = useMemo(() => {
+    // Filter out templates and calculate stats
+    const regularListings = listings.filter(l => !l.is_template);
 
-        // Filter out templates and calculate stats
-        const regularListings = listings.filter(l => !l.is_template);
-
-        setStats({
-          total: regularListings.length,
-          published: regularListings.filter(l => l.status === 'published').length,
-          unpublished: regularListings.filter(l => l.status === 'unpublished').length,
-          drafts: regularListings.filter(l => l.status === 'draft').length,
-          archived: regularListings.filter(l => l.status === 'archived').length,
-        });
-      } catch (error) {
-        console.error('Failed to load listing stats:', error);
-      } finally {
-        setIsLoading(false);
-      }
+    return {
+      total: regularListings.length,
+      published: regularListings.filter(l => l.status === 'published').length,
+      unpublished: regularListings.filter(l => l.status === 'unpublished').length,
+      drafts: regularListings.filter(l => l.status === 'draft').length,
+      archived: regularListings.filter(l => l.status === 'archived').length,
     };
-
-    loadStats();
-  }, []);
+  }, [listings]);
 
   if (isLoading) {
     return (
