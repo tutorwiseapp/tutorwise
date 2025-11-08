@@ -14,12 +14,15 @@ export interface Profile {
   active_role?: string;
 }
 
+export type BookingType = 'direct' | 'referred' | 'agent_job';
+
 export interface Booking {
   id: string;
   service_name: string;
   session_start_time: string;
   session_duration?: number;
   amount?: number;
+  booking_type?: BookingType;
   client?: Profile;
   tutor?: Profile;
   referrer?: Profile | null;

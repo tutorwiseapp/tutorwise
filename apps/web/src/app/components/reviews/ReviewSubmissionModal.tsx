@@ -146,13 +146,67 @@ export default function ReviewSubmissionModal({
   const getRevieweeProfile = (revieweeId: string): Profile | undefined => {
     if (!session?.session.booking) return undefined;
 
-    const { student, tutor, referrer } = session.session.booking;
-    if (student?.id === revieweeId) return student;
+    const { client, tutor, referrer } = session.session.booking;
+    if (client?.id === revieweeId) return client;
     if (tutor?.id === revieweeId) return tutor;
     if (referrer?.id === revieweeId) return referrer;
 
     return undefined;
   };
+
+  const getContextualPrompts = () => {
+    const bookingType = session?.session.booking?.booking_type;
+    const currentUserIsClient = session?.session.booking?.client?.id === currentUserId;
+    const currentUserIsTutor = session?.session.booking?.tutor?.id === currentUserId;
+
+    if (bookingType === 'agent_job') {
+      // Agent hired tutor for a job
+      if (currentUserIsClient) {
+        return {
+          title: 'Review Your Tutor',
+          subtitle: 'Share your experience working with this tutor',
+          placeholder: 'How was the quality of work? Were they professional and reliable?',
+        };
+      } else {
+        return {
+          title: 'Review Your Client',
+          subtitle: 'Share your experience working with this client',
+          placeholder: 'How was the communication? Were requirements clear?',
+        };
+      }
+    } else if (bookingType === 'direct') {
+      // Direct booking: Client ↔ Tutor
+      if (currentUserIsClient) {
+        return {
+          title: 'Review Your Session',
+          subtitle: 'Share your learning experience',
+          placeholder: 'How was the tutoring session? Did it meet your expectations?',
+        };
+      } else {
+        return {
+          title: 'Review Your Student',
+          subtitle: 'Share your teaching experience',
+          placeholder: 'How was the student? Were they engaged and prepared?',
+        };
+      }
+    } else if (bookingType === 'referred') {
+      // Referred: Client ↔ Tutor ↔ Agent (multi-party review)
+      return {
+        title: 'Write Your Reviews',
+        subtitle: 'Share your experience with all participants',
+        placeholder: 'Share your experience...',
+      };
+    }
+
+    // Fallback
+    return {
+      title: 'Write Your Reviews',
+      subtitle: 'Share your experience',
+      placeholder: 'Share your experience...',
+    };
+  };
+
+  const prompts = getContextualPrompts();
 
   if (!isOpen) return null;
 
@@ -168,7 +222,7 @@ export default function ReviewSubmissionModal({
           <>
             {/* Form View */}
             <div className={styles.header}>
-              <h2 className={styles.title}>Write Your Reviews</h2>
+              <h2 className={styles.title}>{prompts.title}</h2>
               <button onClick={onClose} className={styles.closeButton}>
                 ✕
               </button>
@@ -176,6 +230,9 @@ export default function ReviewSubmissionModal({
 
             <div className={styles.content}>
               <p className={styles.subtitle}>
+                {prompts.subtitle}
+              </p>
+              <p className={styles.publishInfo}>
                 Reviews will be published {session?.session.user_has_submitted ? 'when all participants submit' : `in ${session?.session.days_remaining} days or when all participants submit`}
               </p>
 
@@ -229,7 +286,7 @@ export default function ReviewSubmissionModal({
                         id={`comment-${review.reviewee_id}`}
                         value={review.comment}
                         onChange={(e) => handleCommentChange(review.reviewee_id, e.target.value)}
-                        placeholder="Share your experience..."
+                        placeholder={prompts.placeholder}
                         className={styles.textarea}
                         rows={4}
                       />

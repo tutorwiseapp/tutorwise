@@ -69,7 +69,7 @@ export async function POST(req: Request) {
     }
 
     // 5. Validate all reviewee_ids are participants (except current user)
-    const validRevieweeIds = session.participant_ids.filter((id) => id !== user.id);
+    const validRevieweeIds = session.participant_ids.filter((id: string) => id !== user.id);
     for (const review of reviews) {
       if (!validRevieweeIds.includes(review.reviewee_id)) {
         return new NextResponse(
@@ -124,12 +124,18 @@ export async function POST(req: Request) {
 
     // 8. If session was auto-published, send Ably notifications to all participants
     if (updatedSession.status === 'published' && updatedSession.booking) {
-      await notifySessionPublished(
-        updatedSession.participant_ids,
-        session_id,
-        updatedSession.booking.id,
-        updatedSession.booking.service_name
-      );
+      const booking: any = Array.isArray(updatedSession.booking)
+        ? updatedSession.booking[0]
+        : updatedSession.booking;
+
+      if (booking) {
+        await notifySessionPublished(
+          updatedSession.participant_ids,
+          session_id,
+          booking.id,
+          booking.service_name
+        );
+      }
     }
 
     // 9. Log submission to audit_log
