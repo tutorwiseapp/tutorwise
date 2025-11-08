@@ -1,0 +1,144 @@
+/**
+ * Filename: apps/web/src/app/components/reviews/PendingReviewCard.module.css
+ * Purpose: Styles for pending review task cards
+ * Created: 2025-11-08
+ */
+
+.card {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  transition: all 0.15s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #d1d5db;
+}
+
+.card.urgent {
+  border-left: 4px solid #ef4444;
+  background-color: #fef2f2;
+}
+
+.card.warning {
+  border-left: 4px solid #f59e0b;
+  background-color: #fffbeb;
+}
+
+.content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+/* Booking Info */
+.bookingInfo {
+  flex: 1;
+}
+
+.serviceName {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+}
+
+.date {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0 0 1rem 0;
+}
+
+.participants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.label {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.participantName {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background-color: var(--color-primary-light, #E6F0F0);
+  color: var(--color-primary-default, #006c67);
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.deadline {
+  text-align: right;
+}
+
+.deadlineLabel {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+.deadlineSubtext {
+  display: block;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.card.urgent .deadlineLabel {
+  color: #dc2626;
+}
+
+.card.warning .deadlineLabel {
+  color: #d97706;
+}
+
+.submitButton {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--color-primary-default, #006c67);
+  color: #ffffff;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.submitButton:hover {
+  background-color: var(--color-primary-dark, #005550);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .content {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .actions {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .submitButton {
+    width: 100%;
+  }
+}

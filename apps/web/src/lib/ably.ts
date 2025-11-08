@@ -61,6 +61,9 @@ export const AblyChannels = {
 
   // Network-wide updates (for stats, etc.)
   networkUpdates: (userId: string) => `network:updates:${userId}`,
+
+  // Review notifications
+  reviewNotifications: (userId: string) => `notifications:reviews:${userId}`,
 };
 
 // Message types for type safety
