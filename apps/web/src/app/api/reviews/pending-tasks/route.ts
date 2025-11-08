@@ -42,7 +42,7 @@ export async function GET() {
           service_name,
           session_start_time,
           amount,
-          student:student_id(id, full_name, avatar_url),
+          client:client_id(id, full_name, avatar_url),
           tutor:tutor_id(id, full_name, avatar_url),
           referrer:referrer_profile_id(id, full_name, avatar_url)
         )

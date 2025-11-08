@@ -23,8 +23,8 @@ export default function PendingReviewCard({ task, currentUserId, onSubmit }: Pro
   const getOtherParticipants = () => {
     const participants = [];
 
-    if (booking?.student && booking.student.id !== currentUserId) {
-      participants.push({ name: booking.student.full_name || 'Client', role: 'Client' });
+    if (booking?.client && booking.client.id !== currentUserId) {
+      participants.push({ name: booking.client.full_name || 'Client', role: 'Client' });
     }
     if (booking?.tutor && booking.tutor.id !== currentUserId) {
       participants.push({ name: booking.tutor.full_name || 'Tutor', role: 'Tutor' });

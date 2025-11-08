@@ -58,7 +58,7 @@ export async function GET(req: Request) {
 
     // 4. Filter to only show reviews from published sessions
     const publishedReviews = (reviews || []).filter(
-      (review) => review.session?.status === 'published'
+      (review: any) => review.session?.status === 'published'
     );
 
     // 5. Calculate aggregate stats

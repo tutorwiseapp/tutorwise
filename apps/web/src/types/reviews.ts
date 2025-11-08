@@ -20,7 +20,7 @@ export interface Booking {
   session_start_time: string;
   session_duration?: number;
   amount?: number;
-  student?: Profile;
+  client?: Profile;
   tutor?: Profile;
   referrer?: Profile | null;
 }
