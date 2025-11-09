@@ -88,19 +88,19 @@ export function HeroProfileCard() {
           <span className={styles.roleChip}>
             {role.charAt(0).toUpperCase() + role.slice(1)}
           </span>
-          <span className={styles.locationText}>{location}</span>
+          <Link
+            href={`/public-profile/${profile.id}`}
+            className={styles.viewLink}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View
+          </Link>
         </div>
 
-        {/* Quick Action */}
-        <Link
-          href={`/public-profile/${profile.id}`}
-          className={styles.publicProfileLink}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <ExternalLink size={16} />
-          <span>View Public Profile</span>
-        </Link>
+        <div className={styles.locationRow}>
+          <span className={styles.locationText}>{location}</span>
+        </div>
       </div>
     </div>
   );
