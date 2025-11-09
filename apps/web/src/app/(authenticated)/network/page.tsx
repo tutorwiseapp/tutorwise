@@ -173,15 +173,15 @@ export default function NetworkPage() {
     },
   });
 
-  const handleAccept = (connectionId: string) => {
+  const handleAccept = async (connectionId: string) => {
     acceptMutation.mutate(connectionId);
   };
 
-  const handleReject = (connectionId: string) => {
+  const handleReject = async (connectionId: string) => {
     rejectMutation.mutate(connectionId);
   };
 
-  const handleRemove = (connectionId: string) => {
+  const handleRemove = async (connectionId: string) => {
     removeMutation.mutate(connectionId);
   };
 
@@ -316,7 +316,7 @@ export default function NetworkPage() {
               <ConnectionCard
                 key={connection.id}
                 connection={connection}
-                currentUserId={profile.id}
+                currentUserId={profile?.id || ''}
                 variant={
                   activeTab === 'pending-received'
                     ? 'pending-received'
