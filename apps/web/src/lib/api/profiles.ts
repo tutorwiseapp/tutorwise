@@ -53,3 +53,29 @@ export async function getCurrentProfile(): Promise<Profile | null> {
 
   return getProfile(user.id);
 }
+
+/**
+ * Update profile data
+ */
+export async function updateProfile(updates: Partial<Profile>): Promise<Profile> {
+  const supabase = createClient();
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    throw new Error('User not authenticated');
+  }
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .update(updates)
+    .eq('id', user.id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating profile:', error);
+    throw error;
+  }
+
+  return data as Profile;
+}

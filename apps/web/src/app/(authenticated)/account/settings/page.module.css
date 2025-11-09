@@ -1,0 +1,143 @@
+/**
+ * Filename: apps/web/src/app/(authenticated)/account/settings/page.module.css
+ * Purpose: Styles for Settings page (v4.7)
+ * Created: 2025-11-09
+ */
+
+.settingsContainer {
+  width: 100%;
+}
+
+.settingsHeader {
+  margin-bottom: var(--space-6, 48px);
+}
+
+.settingsTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 var(--space-2, 8px) 0;
+}
+
+.settingsSubtitle {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+}
+
+/* Settings Grid */
+.settingsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-4, 32px);
+}
+
+/* Setting Card */
+.settingCard {
+  display: flex;
+  gap: var(--space-4, 16px);
+  padding: var(--space-5, 40px);
+  background: white;
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-lg, 12px);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.settingCard:hover {
+  border-color: var(--color-primary, #3b82f6);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+  transform: translateY(-2px);
+}
+
+.settingCard:focus-visible {
+  outline: 2px solid var(--color-primary, #3b82f6);
+  outline-offset: 2px;
+}
+
+/* Disabled State */
+.cardDisabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Danger State */
+.cardDanger:hover {
+  border-color: #dc2626;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1);
+}
+
+.cardDanger .cardIcon {
+  color: #dc2626;
+}
+
+/* Card Icon */
+.cardIcon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-subtle, #f9fafb);
+  border-radius: var(--radius-md, 8px);
+  color: var(--color-primary, #3b82f6);
+}
+
+/* Card Content */
+.cardContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.cardTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 var(--space-1, 4px) 0;
+}
+
+.cardDescription {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Coming Soon Badge */
+.comingSoonBadge {
+  display: inline-block;
+  margin-top: var(--space-2, 8px);
+  padding: var(--space-1, 4px) var(--space-2, 8px);
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm, 4px);
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+  .settingsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .settingCard {
+    padding: var(--space-4, 32px);
+  }
+
+  .cardIcon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .cardTitle {
+    font-size: 1rem;
+  }
+
+  .cardDescription {
+    font-size: 0.8125rem;
+  }
+}
