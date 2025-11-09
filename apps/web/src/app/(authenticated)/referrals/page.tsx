@@ -2,33 +2,49 @@
  * Filename: src/app/(authenticated)/referrals/page.tsx
  * Purpose: Referrals hub page - displays referral lead pipeline (SDD v3.6)
  * Created: 2025-11-02
- * Updated: 2025-11-03 - Refactored to use URL query parameters for filters (SDD v3.6 compliance)
+ * Updated: 2025-11-09 - Migrated to React Query for robust data fetching
  * Specification: SDD v3.6, Section 4.3 - /referrals hub, Section 2.0 - Server-side filtering via URL params
  */
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { getMyReferrals } from '@/lib/api/referrals';
 import ReferralCard from '@/app/components/referrals/ReferralCard';
 import ReferralAssetWidget from '@/app/components/referrals/ReferralAssetWidget';
 import ContextualSidebar, {
   ReferralStatsWidget,
 } from '@/app/components/layout/sidebars/ContextualSidebar';
+import ReferralsSkeleton from '@/app/components/referrals/ReferralsSkeleton';
+import ReferralsError from '@/app/components/referrals/ReferralsError';
 import { Referral, ReferralStatus } from '@/types';
-import { createClient } from '@/utils/supabase/client';
 import styles from './page.module.css';
 
 export default function ReferralsPage() {
-  const { profile } = useUserProfile();
+  const { profile, isLoading: profileLoading } = useUserProfile();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [referrals, setReferrals] = useState<Referral[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   // Read filter from URL (SDD v3.6: URL is single source of truth)
   const statusFilter = (searchParams?.get('status') as ReferralStatus | null) || 'all';
+
+  // React Query: Fetch referrals with automatic retry, caching, and background refetch
+  const {
+    data: referrals = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['referrals', profile?.id],
+    queryFn: getMyReferrals,
+    enabled: !!profile && !profileLoading,
+    staleTime: 5 * 60 * 1000, // 5 minutes (referrals change less frequently)
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+  });
 
   // Update URL when filter changes
   const handleFilterChange = (newStatus: ReferralStatus | 'all') => {
@@ -38,67 +54,68 @@ export default function ReferralsPage() {
     } else {
       params.set('status', newStatus);
     }
-    router.push(`/referrals${params.toString() ? `?${params.toString()}` : ''}`);
+    router.push(`/referrals${params.toString() ? `?${params.toString()}` : ''}`, { scroll: false });
   };
 
-  useEffect(() => {
-    if (!profile) return;
-
-    const fetchReferrals = async () => {
-      try {
-        setIsLoading(true);
-        const supabase = createClient();
-
-        // Fetch ALL referrals (no filter params - client-side filtering)
-        const response = await fetch(`/api/referrals`);
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch referrals');
-        }
-
-        const data = await response.json();
-        setReferrals(data.referrals || []);
-      } catch (err) {
-        console.error('Error fetching referrals:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load referrals');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchReferrals();
-  }, [profile]); // Only re-fetch when profile changes, not on filter change
-
   // Client-side filtering based on URL param
-  const filteredReferrals = referrals.filter((referral) => {
-    if (statusFilter === 'all') return true;
-    return referral.status === statusFilter;
-  });
+  const filteredReferrals = useMemo(() => {
+    return referrals.filter((referral: any) => {
+      if (statusFilter === 'all') return true;
+      return referral.status === statusFilter;
+    });
+  }, [referrals, statusFilter]);
 
   // Calculate referral stats (from ALL referrals, not filtered)
-  const stats = referrals.reduce(
-    (acc, ref) => {
-      acc.totalReferred++;
-      if (ref.status === 'Signed Up' || ref.status === 'Converted') {
-        acc.signedUp++;
-      }
-      if (ref.status === 'Converted') {
-        acc.converted++;
-        if (ref.first_commission) {
-          acc.totalEarned += ref.first_commission.amount;
+  const stats = useMemo(() => {
+    return referrals.reduce(
+      (acc: any, ref: any) => {
+        acc.totalReferred++;
+        if (ref.status === 'Signed Up' || ref.status === 'Converted') {
+          acc.signedUp++;
         }
-      }
-      return acc;
-    },
-    { totalReferred: 0, signedUp: 0, converted: 0, totalEarned: 0 }
-  );
+        if (ref.status === 'Converted') {
+          acc.converted++;
+          if (ref.first_commission) {
+            acc.totalEarned += ref.first_commission.amount;
+          }
+        }
+        return acc;
+      },
+      { totalReferred: 0, signedUp: 0, converted: 0, totalEarned: 0 }
+    );
+  }, [referrals]);
 
-
-  if (isLoading) {
+  // Show loading state
+  if (profileLoading || isLoading) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Loading referrals...</div>
-      </div>
+      <>
+        <ReferralsSkeleton />
+        <ContextualSidebar>
+          <ReferralStatsWidget
+            totalReferred={0}
+            signedUp={0}
+            converted={0}
+            totalEarned={0}
+          />
+        </ContextualSidebar>
+      </>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <>
+        <ReferralsError error={error as Error} onRetry={() => refetch()} />
+        <ContextualSidebar>
+          <ReferralStatsWidget
+            totalReferred={0}
+            signedUp={0}
+            converted={0}
+            totalEarned={0}
+          />
+        </ContextualSidebar>
+      </>
     );
   }
 
@@ -150,15 +167,8 @@ export default function ReferralsPage() {
 
       {/* Content container */}
       <div className={styles.container}>
-        {/* Error State */}
-        {error && (
-          <div className={styles.error}>
-            <p>{error}</p>
-          </div>
-        )}
-
         {/* Empty State */}
-        {!error && filteredReferrals.length === 0 && (
+        {filteredReferrals.length === 0 && (
           <div className={styles.emptyState}>
             <h3 className={styles.emptyTitle}>No referrals found</h3>
             <p className={styles.emptyText}>
@@ -170,9 +180,9 @@ export default function ReferralsPage() {
         )}
 
         {/* Referrals List */}
-        {!error && filteredReferrals.length > 0 && (
+        {filteredReferrals.length > 0 && (
           <div className={styles.referralsList}>
-            {filteredReferrals.map((referral) => (
+            {filteredReferrals.map((referral: any) => (
               <ReferralCard key={referral.id} referral={referral} />
             ))}
           </div>

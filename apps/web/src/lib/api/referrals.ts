@@ -58,23 +58,16 @@ export async function createReferral(input: CreateReferralInput): Promise<Referr
 /**
  * Get all referrals for the current user
  */
-export async function getMyReferrals(): Promise<Referral[]> {
-  const supabase = createClient();
+export async function getMyReferrals(): Promise<any[]> {
+  // Use the API route which handles the complex joins and relationships
+  const response = await fetch('/api/referrals');
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    throw new Error('Not authenticated');
+  if (!response.ok) {
+    throw new Error('Failed to fetch referrals');
   }
 
-  const { data, error } = await supabase
-    .from('referrals')
-    .select('*')
-    .eq('referrer_profile_id', user.id)
-    .order('created_at', { ascending: false });
-
-  if (error) throw error;
-
-  return (data || []) as Referral[];
+  const data = await response.json();
+  return data.referrals || [];
 }
 
 /**
