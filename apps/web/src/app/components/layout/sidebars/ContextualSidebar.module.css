@@ -7,14 +7,16 @@
 
 .contextualSidebar {
   width: 300px;
-  height: calc(100vh - 65px); /* Subtract header height + border (64px + 1px) */
+  height: calc(100vh - 64px); /* Subtract header height */
   position: fixed;
-  top: 65px; /* Start below header + border */
+  top: 64px; /* Start below header */
   right: 0;
   background-color: #ffffff;
   border-left: 1px solid #e5e7eb;
+  border-top: 1px solid #e5e7eb; /* Ensure connection with header border */
   overflow-y: auto;
   z-index: 30;
+  margin-top: -1px; /* Overlap with header border */
 }
 
 .sidebarContent {
