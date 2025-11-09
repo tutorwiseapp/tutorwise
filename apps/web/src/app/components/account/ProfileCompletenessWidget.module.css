@@ -1,0 +1,139 @@
+/**
+ * Filename: apps/web/src/app/components/account/ProfileCompletenessWidget.module.css
+ * Purpose: Styles for profile completeness widget (v4.7)
+ * Created: 2025-11-09
+ */
+
+.widget {
+  background: white;
+  border-radius: var(--radius-lg, 12px);
+  padding: var(--space-5, 40px);
+  border: 1px solid var(--color-border, #e5e7eb);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4, 32px);
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+.scoreChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1, 4px);
+  padding: var(--space-1, 4px) var(--space-2, 8px);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border-radius: var(--radius-md, 8px);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.progressBar {
+  width: 100%;
+  height: 12px;
+  background: var(--color-bg-subtle, #f3f4f6);
+  border-radius: var(--radius-full, 9999px);
+  overflow: hidden;
+  margin-bottom: var(--space-4, 32px);
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--radius-full, 9999px);
+}
+
+.complete {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  padding: var(--space-3, 12px);
+  background: var(--color-success-light, #d1fae5);
+  border-radius: var(--radius-md, 8px);
+  color: var(--color-success-dark, #047857);
+}
+
+.completeIcon {
+  flex-shrink: 0;
+}
+
+.complete p {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.incomplete {
+  /* No special styling needed */
+}
+
+.incompleteText {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0 0 var(--space-3, 12px) 0;
+}
+
+.sectionsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
+}
+
+.sectionItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+}
+
+.incompleteIcon {
+  flex-shrink: 0;
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+.sectionButton {
+  background: none;
+  border: none;
+  color: var(--color-primary, #3b82f6);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.sectionButton:hover {
+  color: var(--color-primary-dark, #2563eb);
+}
+
+.sectionButton:focus-visible {
+  outline: 2px solid var(--color-primary, #3b82f6);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm, 4px);
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+  .widget {
+    padding: var(--space-4, 32px);
+  }
+
+  .progressBar {
+    height: 10px;
+  }
+}

@@ -1,0 +1,130 @@
+/**
+ * Filename: apps/web/src/app/components/account/RoleStatsCard.module.css
+ * Purpose: Styles for role stats card (v4.7)
+ * Created: 2025-11-09
+ */
+
+.statsCard {
+  background: white;
+  border-radius: var(--radius-lg, 12px);
+  padding: var(--space-5, 40px);
+  border: 1px solid var(--color-border, #e5e7eb);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4, 32px);
+}
+
+.cardTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+.roleIndicator {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1, 4px) var(--space-2, 8px);
+  background: var(--color-primary-light, #eff6ff);
+  color: var(--color-primary, #3b82f6);
+  border-radius: var(--radius-sm, 4px);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.statsGrid {
+  display: grid;
+  gap: var(--space-4, 32px);
+}
+
+.statItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3, 12px);
+}
+
+.statIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: var(--radius-md, 8px);
+  color: white;
+  flex-shrink: 0;
+}
+
+.statContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin-bottom: var(--space-1, 4px);
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+}
+
+.trendIndicator {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.trendUp {
+  color: var(--color-success, #10b981);
+}
+
+.trendDown {
+  color: var(--color-error, #ef4444);
+}
+
+.trendNeutral {
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+.noStats {
+  text-align: center;
+  padding: var(--space-6, 48px) 0;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.noStats p {
+  margin: 0;
+  font-size: 0.9375rem;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+  .statsCard {
+    padding: var(--space-4, 32px);
+  }
+
+  .statsGrid {
+    gap: var(--space-3, 12px);
+  }
+
+  .statValue {
+    font-size: 1.25rem;
+  }
+
+  .statIcon {
+    width: 36px;
+    height: 36px;
+  }
+}

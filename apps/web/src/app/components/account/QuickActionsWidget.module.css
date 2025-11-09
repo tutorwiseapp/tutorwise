@@ -1,0 +1,195 @@
+/**
+ * Filename: apps/web/src/app/components/account/QuickActionsWidget.module.css
+ * Purpose: Styles for quick actions widget (v4.7)
+ * Created: 2025-11-09
+ */
+
+.widget {
+  background: white;
+  border-radius: var(--radius-lg, 12px);
+  padding: var(--space-5, 40px);
+  border: 1px solid var(--color-border, #e5e7eb);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 var(--space-4, 32px) 0;
+}
+
+/* Referral Section */
+.referralSection {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: var(--radius-md, 8px);
+  padding: var(--space-4, 32px);
+  margin-bottom: var(--space-4, 32px);
+}
+
+.referralHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2, 8px);
+}
+
+.referralLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #78350f);
+}
+
+.referralBonus {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #15803d;
+  background: rgba(255, 255, 255, 0.8);
+  padding: var(--space-1, 4px) var(--space-2, 8px);
+  border-radius: var(--radius-sm, 4px);
+}
+
+.referralButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-3, 12px) var(--space-4, 16px);
+  background: white;
+  border: 2px dashed #d97706;
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.referralButton:hover {
+  border-color: #b45309;
+  background: #fffbeb;
+}
+
+.referralButton:focus-visible {
+  outline: 2px solid #d97706;
+  outline-offset: 2px;
+}
+
+.referralCode {
+  font-size: 1.125rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  color: var(--color-text-primary, #111827);
+}
+
+.copiedIcon {
+  color: #15803d;
+}
+
+/* Share Button */
+.shareButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2, 8px);
+  width: 100%;
+  padding: var(--space-3, 12px);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: var(--space-4, 32px);
+}
+
+.shareButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.shareButton:focus-visible {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* Actions Grid */
+.actionsGrid {
+  display: grid;
+  gap: var(--space-2, 8px);
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3, 12px);
+  padding: var(--space-3, 12px);
+  background: var(--color-bg-subtle, #f9fafb);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.actionButton:hover {
+  background: var(--color-bg-hover, #f3f4f6);
+  border-color: var(--color-primary, #3b82f6);
+}
+
+.actionButton:focus-visible {
+  outline: 2px solid var(--color-primary, #3b82f6);
+  outline-offset: 2px;
+}
+
+.actionButtonPrimary {
+  background: var(--color-primary-light, #eff6ff);
+  border-color: var(--color-primary, #3b82f6);
+}
+
+.actionButtonPrimary:hover {
+  background: var(--color-primary-lighter, #dbeafe);
+}
+
+.actionIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: white;
+  border-radius: var(--radius-sm, 4px);
+  color: var(--color-primary, #3b82f6);
+  flex-shrink: 0;
+}
+
+.actionContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.actionLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin-bottom: 2px;
+}
+
+.actionDescription {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+  .widget {
+    padding: var(--space-4, 32px);
+  }
+
+  .referralSection {
+    padding: var(--space-3, 12px);
+  }
+
+  .referralCode {
+    font-size: 1rem;
+  }
+}

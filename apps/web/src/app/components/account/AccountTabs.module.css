@@ -1,0 +1,87 @@
+/**
+ * Filename: apps/web/src/app/components/account/AccountTabs.module.css
+ * Purpose: Styles for Account Hub tabs (v4.7)
+ * Created: 2025-11-09
+ * Pattern: Matches hub tabs from Listings, Network, Reviews pages
+ */
+
+.tabsNav {
+  display: flex;
+  gap: var(--space-1, 4px);
+  border-bottom: 2px solid var(--color-border-light, #e5e7eb);
+  margin-bottom: var(--space-1, 4px);
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+}
+
+.tabsNav::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  padding: var(--space-3, 12px) var(--space-4, 16px);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+  background-color: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  text-decoration: none;
+  white-space: nowrap;
+  position: relative;
+  bottom: -2px; /* Align with border-bottom */
+}
+
+.tab:hover {
+  color: var(--color-text-primary, #111827);
+  background-color: var(--color-bg-hover, #f9fafb);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--color-primary, #3b82f6);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm, 4px);
+}
+
+.tabActive {
+  color: var(--color-primary, #3b82f6);
+  border-bottom-color: var(--color-primary, #3b82f6);
+  background-color: var(--color-bg-subtle, #eff6ff);
+}
+
+.tabIcon {
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+.tabLabel {
+  font-weight: 600;
+}
+
+/* Mobile: Smaller tabs */
+@media (max-width: 640px) {
+  .tab {
+    padding: var(--space-2, 8px) var(--space-3, 12px);
+    font-size: 0.875rem;
+  }
+
+  .tabIcon {
+    font-size: 1rem;
+  }
+
+  .tabLabel {
+    display: none; /* Show icons only on mobile */
+  }
+}
+
+/* Tablet and up: Show full tabs */
+@media (min-width: 641px) {
+  .tabLabel {
+    display: inline;
+  }
+}
