@@ -27,7 +27,7 @@
 }
 
 .headerIcon {
-  color: var(--color-primary, #3b82f6);
+  color: var(--color-primary-default, #006c67);
 }
 
 .widgetTitle {
@@ -101,7 +101,7 @@
 
 .conversationItem:hover {
   background: var(--color-bg-hover, #f3f4f6);
-  border-color: var(--color-primary, #3b82f6);
+  border-color: var(--color-primary-default, #006c67);
 }
 
 /* Avatar */
@@ -197,14 +197,14 @@
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-primary, #3b82f6);
+  color: var(--color-primary-default, #006c67);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .viewAllLink:hover {
-  background: var(--color-primary-lighter, #dbeafe);
-  border-color: var(--color-primary, #3b82f6);
+  background: var(--color-primary-light, #E6F0F0);
+  border-color: var(--color-primary-default, #006c67);
 }
 
 /* Mobile Adjustments */

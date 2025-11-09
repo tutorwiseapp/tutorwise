@@ -30,8 +30,8 @@
   display: inline-flex;
   align-items: center;
   padding: var(--space-1, 4px) var(--space-2, 8px);
-  background: var(--color-primary-light, #eff6ff);
-  color: var(--color-primary, #3b82f6);
+  background: var(--color-primary-light, #E6F0F0);
+  color: var(--color-primary-default, #006c67);
   border-radius: var(--radius-sm, 4px);
   font-size: 0.75rem;
   font-weight: 600;

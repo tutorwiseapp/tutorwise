@@ -2,17 +2,33 @@
  * Filename: apps/web/src/app/(authenticated)/account/settings/page.module.css
  * Purpose: Styles for Settings page (v4.8 - aligned with hub UI)
  * Created: 2025-11-09
- * Updated: 2025-11-09 - Refactored to follow Dashboard hub pattern
+ * Updated: 2025-11-09 - Reduced padding to match referrals hub pattern
  */
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--space-6, 48px) var(--space-5, 40px);
+  padding: 2.5rem 2.5rem 3rem; /* Reduced from 48px/40px to eliminate excessive spacing */
 }
 
 .content {
-  margin-top: var(--space-5, 40px);
+  margin-top: 2rem; /* Reduced from 40px to 32px */
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1.5rem 1rem 2rem; /* Reduced mobile padding */
+  }
+
+  .content {
+    margin-top: 1.5rem;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .container {
+    padding: 2rem 1.5rem 2.5rem; /* Tablet padding */
+  }
 }
 
 /* Settings Grid */
@@ -36,13 +52,13 @@
 }
 
 .settingCard:hover {
-  border-color: var(--color-primary, #3b82f6);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+  border-color: var(--color-primary-default, #006c67);
+  box-shadow: 0 4px 12px rgba(0, 108, 103, 0.1);
   transform: translateY(-2px);
 }
 
 .settingCard:focus-visible {
-  outline: 2px solid var(--color-primary, #3b82f6);
+  outline: 2px solid var(--color-primary-default, #006c67);
   outline-offset: 2px;
 }
 
@@ -71,9 +87,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg-subtle, #f9fafb);
+  background: var(--color-primary-light, #E6F0F0);
   border-radius: var(--radius-md, 8px);
-  color: var(--color-primary, #3b82f6);
+  color: var(--color-primary-default, #006c67);
 }
 
 /* Card Content */

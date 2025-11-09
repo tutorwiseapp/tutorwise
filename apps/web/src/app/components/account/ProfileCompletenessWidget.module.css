@@ -107,7 +107,7 @@
 .sectionButton {
   background: none;
   border: none;
-  color: var(--color-primary, #3b82f6);
+  color: var(--color-primary-default, #006c67);
   font-size: 0.875rem;
   font-weight: 600;
   text-align: left;
@@ -118,11 +118,11 @@
 }
 
 .sectionButton:hover {
-  color: var(--color-primary-dark, #2563eb);
+  color: var(--color-primary-dark, #005954);
 }
 
 .sectionButton:focus-visible {
-  outline: 2px solid var(--color-primary, #3b82f6);
+  outline: 2px solid var(--color-primary-default, #006c67);
   outline-offset: 2px;
   border-radius: var(--radius-sm, 4px);
 }

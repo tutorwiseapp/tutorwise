@@ -1,25 +1,32 @@
 /**
  * Filename: apps/web/src/app/(authenticated)/account/personal-info/page.module.css
  * Purpose: Styles for Personal Info page (Account Hub v4.8)
- * Pattern: Follows Dashboard hub pattern
+ * Pattern: Follows Dashboard hub pattern - aligned with design system
+ * Updated: 2025-11-09 - Reduced padding to match referrals hub pattern
  */
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--space-6, 48px) var(--space-5, 40px);
+  padding: 2.5rem 2.5rem 3rem; /* Reduced from 48px/40px to eliminate excessive spacing */
 }
 
 .content {
-  margin-top: var(--space-5, 40px);
+  margin-top: 2rem; /* Reduced from 40px to 32px */
 }
 
 @media (max-width: 768px) {
   .container {
-    padding: var(--space-4, 32px) var(--space-3, 16px);
+    padding: 1.5rem 1rem 2rem; /* Reduced mobile padding */
   }
 
   .content {
-    margin-top: var(--space-4, 32px);
+    margin-top: 1.5rem;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .container {
+    padding: 2rem 1.5rem 2.5rem; /* Tablet padding */
   }
 }
