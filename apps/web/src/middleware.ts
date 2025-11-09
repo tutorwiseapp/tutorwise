@@ -6,9 +6,9 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Redirect /my-profile to /profile for backward compatibility
-  if (pathname === '/my-profile') {
-    return NextResponse.redirect(new URL('/profile', request.url))
+  // Redirect legacy routes to new Account Hub (v4.7)
+  if (pathname === '/my-profile' || pathname === '/profile') {
+    return NextResponse.redirect(new URL('/account', request.url))
   }
 
   // Redirect legacy /tutor/[id]/[slug] to new /listings/[id]/[slug] (v4.1)
@@ -23,7 +23,7 @@ export async function middleware(request: NextRequest) {
   const protectedRoutes = [
     '/dashboard',
     '/messages',
-    '/profile',
+    '/account',
     '/settings',
     '/payments',
     '/referral-activities',

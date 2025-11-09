@@ -207,7 +207,7 @@ const NavMenu = () => {
 
                 {/* Account Section */}
                 <DropdownMenu.Item asChild className={styles.menuItem}>
-                  <Link href="/profile">Profile</Link>
+                  <Link href="/account">Account</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild className={styles.menuItem}>
                   <Link href="/help-centre">Help centre</Link>
