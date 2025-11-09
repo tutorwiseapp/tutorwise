@@ -19,6 +19,7 @@ import { HeroProfileCard } from '@/app/components/account/HeroProfileCard';
 import { RoleStatsCard } from '@/app/components/account/RoleStatsCard';
 import { ProfileCompletenessWidget } from '@/app/components/account/ProfileCompletenessWidget';
 import { QuickActionsWidget } from '@/app/components/account/QuickActionsWidget';
+import { MessagesWidget } from '@/app/components/account/MessagesWidget';
 import styles from './layout.module.css';
 
 interface AccountLayoutProps {
@@ -51,6 +52,7 @@ export default function AccountLayout({ children }: AccountLayoutProps) {
           <HeroProfileCard />
           <ProfileCompletenessWidget />
           <RoleStatsCard />
+          <MessagesWidget />
           <QuickActionsWidget />
         </aside>
       </div>
