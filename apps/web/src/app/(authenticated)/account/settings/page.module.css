@@ -2,33 +2,16 @@
  * Filename: apps/web/src/app/(authenticated)/account/settings/page.module.css
  * Purpose: Styles for Settings page (v4.8 - aligned with hub UI)
  * Created: 2025-11-09
- * Updated: 2025-11-09 - Reduced padding to match referrals hub pattern
+ * Updated: 2025-11-09 - EXACT COPY of referrals pattern - no container padding
  */
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2.5rem 2.5rem 3rem; /* Reduced from 48px/40px to eliminate excessive spacing */
 }
 
 .content {
-  margin-top: 0; /* Remove top margin - tabs already have margin-bottom */
-}
-
-@media (max-width: 768px) {
-  .container {
-    padding: 1.5rem 1rem 2rem; /* Reduced mobile padding */
-  }
-
-  .content {
-    margin-top: 0;
-  }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-  .container {
-    padding: 2rem 1.5rem 2.5rem; /* Tablet padding */
-  }
+  margin-top: 0;
 }
 
 /* Settings Grid */

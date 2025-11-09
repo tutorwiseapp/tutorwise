@@ -35,9 +35,13 @@ export default function SettingsPage() {
           title="Account Settings"
           subtitle="Manage your personal information, professional details, and account settings"
         />
+      </div>
 
-        <AccountTabs />
+      {/* Tabs - Outside container for full-width effect */}
+      <AccountTabs />
 
+      {/* Content container */}
+      <div className={styles.container}>
         <div className={styles.content}>
           <div className={styles.settingsGrid}>
             {/* Change Password */}
@@ -99,21 +103,11 @@ export default function SettingsPage() {
 
       {/* Right Sidebar - Account Widgets */}
       <ContextualSidebar>
-        <React.Fragment key="hero-profile">
-          <HeroProfileCard />
-        </React.Fragment>
-        <React.Fragment key="profile-completeness">
-          <ProfileCompletenessWidget />
-        </React.Fragment>
-        <React.Fragment key="role-stats">
-          <RoleStatsCard />
-        </React.Fragment>
-        <React.Fragment key="messages">
-          <MessagesWidget />
-        </React.Fragment>
-        <React.Fragment key="quick-actions">
-          <QuickActionsWidget />
-        </React.Fragment>
+        <HeroProfileCard />
+        <ProfileCompletenessWidget />
+        <RoleStatsCard />
+        <MessagesWidget />
+        <QuickActionsWidget />
       </ContextualSidebar>
     </>
   );
