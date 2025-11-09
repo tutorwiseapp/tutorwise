@@ -13,9 +13,10 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Camera, ExternalLink, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useImageUpload } from '@/hooks/useImageUpload';
+import getProfileImageUrl from '@/lib/utils/image';
 import styles from './HeroProfileCard.module.css';
 
 export function HeroProfileCard() {
@@ -38,7 +39,7 @@ export function HeroProfileCard() {
     return null;
   }
 
-  const avatarUrl = profile.avatar_url || '/default-avatar.png';
+  const avatarUrl = getProfileImageUrl(profile);
   const fullName = profile.full_name || 'User';
   const role = profile.active_role || 'member';
   const location = profile.country || 'Location not set';
@@ -61,10 +62,7 @@ export function HeroProfileCard() {
                   <span className={styles.overlayText}>Uploading...</span>
                 </>
               ) : (
-                <>
-                  <Camera className={styles.cameraIcon} size={24} />
-                  <span className={styles.overlayText}>Change Photo</span>
-                </>
+                <span className={styles.overlayText}>Change Photo</span>
               )}
             </div>
           </div>

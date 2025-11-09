@@ -15,9 +15,7 @@ import ProfessionalInfoForm from '@/app/components/profile/ProfessionalInfoForm'
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import { AccountTabs } from '@/app/components/account/AccountTabs';
 import { HeroProfileCard } from '@/app/components/account/HeroProfileCard';
-import { RoleStatsCard } from '@/app/components/account/RoleStatsCard';
 import { ProfileCompletenessWidget } from '@/app/components/account/ProfileCompletenessWidget';
-import { MessagesWidget } from '@/app/components/account/MessagesWidget';
 import { QuickActionsWidget } from '@/app/components/account/QuickActionsWidget';
 import PageHeader from '@/app/components/ui/PageHeader';
 import type { Profile } from '@/types';
@@ -67,8 +65,6 @@ export default function ProfessionalPage() {
       <ContextualSidebar>
         <HeroProfileCard />
         <ProfileCompletenessWidget />
-        <RoleStatsCard />
-        <MessagesWidget />
         <QuickActionsWidget />
       </ContextualSidebar>
     </>

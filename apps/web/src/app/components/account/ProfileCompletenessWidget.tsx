@@ -12,8 +12,6 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import { CheckCircle2, Circle, TrendingUp } from 'lucide-react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import type { Profile } from '@/types';
 import styles from './ProfileCompletenessWidget.module.css';
@@ -120,9 +118,8 @@ function calculateCompleteness(profile: Profile): { score: number; sections: Sec
 
 export function ProfileCompletenessWidget() {
   const { profile } = useUserProfile();
-  const router = useRouter();
 
-  const { score, sections } = useMemo(() => {
+  const { score } = useMemo(() => {
     if (!profile) return { score: 0, sections: [] };
     return calculateCompleteness(profile);
   }, [profile]);
@@ -131,14 +128,11 @@ export function ProfileCompletenessWidget() {
     return null;
   }
 
-  const incompleteSections = sections.filter((s) => !s.completed);
-
   return (
     <div className={styles.widget}>
       <div className={styles.header}>
         <h3 className={styles.title}>Profile Completeness</h3>
         <div className={styles.scoreChip}>
-          <TrendingUp size={14} />
           <span>{score}%</span>
         </div>
       </div>
@@ -154,32 +148,6 @@ export function ProfileCompletenessWidget() {
           role="progressbar"
         />
       </div>
-
-      {score === 100 ? (
-        <div className={styles.complete}>
-          <CheckCircle2 size={20} className={styles.completeIcon} />
-          <p>Your profile is complete! Great job!</p>
-        </div>
-      ) : (
-        <div className={styles.incomplete}>
-          <p className={styles.incompleteText}>
-            Complete these sections to boost your visibility:
-          </p>
-          <ul className={styles.sectionsList}>
-            {incompleteSections.slice(0, 3).map((section) => (
-              <li key={section.id} className={styles.sectionItem}>
-                <Circle size={16} className={styles.incompleteIcon} />
-                <button
-                  onClick={() => router.push(section.route)}
-                  className={styles.sectionButton}
-                >
-                  {section.action}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </div>
   );
 }

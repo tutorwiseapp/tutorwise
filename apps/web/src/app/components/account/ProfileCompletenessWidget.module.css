@@ -7,7 +7,7 @@
 .widget {
   background: white;
   border-radius: var(--radius-lg, 12px);
-  padding: var(--space-5, 40px);
+  padding: var(--space-3, 24px);
   border: 1px solid var(--color-border, #e5e7eb);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
@@ -130,7 +130,7 @@
 /* Mobile Adjustments */
 @media (max-width: 768px) {
   .widget {
-    padding: var(--space-4, 32px);
+    padding: var(--space-2, 16px);
   }
 
   .progressBar {

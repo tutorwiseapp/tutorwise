@@ -8,7 +8,7 @@
   background: white;
   border: 2px solid var(--color-border, #e5e7eb);
   border-radius: var(--radius-lg, 12px);
-  padding: var(--space-5, 40px) var(--space-4, 32px);
+  padding: var(--space-3, 24px);
   color: var(--color-text-primary, #111827);
   position: relative;
   overflow: hidden;
@@ -166,7 +166,7 @@
 /* Mobile Adjustments */
 @media (max-width: 768px) {
   .heroCard {
-    padding: var(--space-4, 32px) var(--space-3, 24px);
+    padding: var(--space-2, 16px);
   }
 
   .avatarContainer {
