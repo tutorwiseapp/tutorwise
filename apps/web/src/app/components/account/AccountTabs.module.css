@@ -9,7 +9,7 @@
 .tabsNav {
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem; /* Reduced from 2rem for tighter spacing */
   border-bottom: 2px solid #e5e7eb;
   padding-bottom: 0;
   overflow-x: auto;
@@ -54,8 +54,11 @@
 
 .tabActive {
   color: var(--color-primary-default, #006c67);
-  border-bottom-color: var(--color-primary-default, #006c67);
-  font-weight: 600;
+  border-bottom: 3px solid var(--color-primary-default, #006c67); /* Thicker border for prominence */
+  margin-bottom: -3px; /* Adjust for thicker border */
+  font-weight: 700; /* Bolder text */
+  background-color: var(--color-primary-light, #E6F0F0);
+  border-radius: 0.375rem 0.375rem 0 0;
 }
 
 /* Responsive */

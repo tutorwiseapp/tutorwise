@@ -99,11 +99,21 @@ export default function SettingsPage() {
 
       {/* Right Sidebar - Account Widgets */}
       <ContextualSidebar>
-        <HeroProfileCard />
-        <ProfileCompletenessWidget />
-        <RoleStatsCard />
-        <MessagesWidget />
-        <QuickActionsWidget />
+        <React.Fragment key="hero-profile">
+          <HeroProfileCard />
+        </React.Fragment>
+        <React.Fragment key="profile-completeness">
+          <ProfileCompletenessWidget />
+        </React.Fragment>
+        <React.Fragment key="role-stats">
+          <RoleStatsCard />
+        </React.Fragment>
+        <React.Fragment key="messages">
+          <MessagesWidget />
+        </React.Fragment>
+        <React.Fragment key="quick-actions">
+          <QuickActionsWidget />
+        </React.Fragment>
       </ContextualSidebar>
     </>
   );

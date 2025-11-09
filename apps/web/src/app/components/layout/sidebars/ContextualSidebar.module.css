@@ -18,10 +18,10 @@
 }
 
 .sidebarContent {
-  padding: 1.5rem 1rem;
+  padding: 2rem 1.25rem; /* Increased top padding for better breathing room */
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem; /* Slightly tighter gap for better visual hierarchy */
 }
 
 /* Widget Styles */
