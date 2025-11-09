@@ -2,21 +2,26 @@
  * Filename: apps/web/src/app/(authenticated)/network/page.tsx
  * Purpose: Network & Connections page - LinkedIn-lite for Tutorwise (SDD v4.5)
  * Created: 2025-11-07
+ * Updated: 2025-11-09 - Migrated to React Query for robust data fetching
  */
 
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/utils/supabase/client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import ConnectionCard, { Connection } from '@/app/components/network/ConnectionCard';
+import { getMyConnections, acceptConnection, rejectConnection, removeConnection } from '@/lib/api/network';
+import { Connection } from '@/app/components/network/ConnectionCard';
+import ConnectionCard from '@/app/components/network/ConnectionCard';
 import ConnectionRequestModal from '@/app/components/network/ConnectionRequestModal';
 import { useConnectionsRealtime } from '@/app/hooks/useConnectionsRealtime';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import NetworkStatsWidget from '@/app/components/network/NetworkStatsWidget';
 import QuickActionsWidget from '@/app/components/network/QuickActionsWidget';
 import ConnectionGroupsWidget from '@/app/components/network/ConnectionGroupsWidget';
+import NetworkSkeleton from '@/app/components/network/NetworkSkeleton';
+import NetworkError from '@/app/components/network/NetworkError';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
 
@@ -24,39 +29,39 @@ type TabType = 'all' | 'pending-received' | 'pending-sent';
 
 export default function NetworkPage() {
   const router = useRouter();
-  const { profile } = useUserProfile();
-  const supabase = createClient();
+  const { profile, isLoading: profileLoading } = useUserProfile();
+  const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState<TabType>('all');
-  const [connections, setConnections] = useState<Connection[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
 
-  // Stats
-  const [stats, setStats] = useState({
-    total: 0,
-    pendingReceived: 0,
-    pendingSent: 0,
+  // React Query: Fetch connections with automatic retry, caching, and background refetch
+  const {
+    data: connections = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['connections', profile?.id],
+    queryFn: getMyConnections,
+    enabled: !!profile && !profileLoading,
+    staleTime: 2 * 60 * 1000, // 2 minutes (connections change frequently with realtime)
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
-  useEffect(() => {
-    if (profile) {
-      fetchConnections();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile]);
-
-  // Set up real-time subscriptions
+  // Set up real-time subscriptions that invalidate queries
   useConnectionsRealtime({
     userId: profile?.id || '',
     enabled: !!profile,
     onInsert: () => {
       toast.success('New connection request received!');
-      fetchConnections();
+      queryClient.invalidateQueries({ queryKey: ['connections', profile?.id] });
     },
-    onUpdate: (payload) => {
+    onUpdate: (payload: any) => {
       // Check if connection was accepted
       if (payload.new.status === 'accepted' && payload.old.status === 'pending') {
         const isReceiver = payload.new.receiver_id === profile?.id;
@@ -64,113 +69,120 @@ export default function NetworkPage() {
           toast.success('Connection request accepted!');
         }
       }
-      fetchConnections();
+      queryClient.invalidateQueries({ queryKey: ['connections', profile?.id] });
     },
     onDelete: () => {
       toast('A connection was removed');
-      fetchConnections();
+      queryClient.invalidateQueries({ queryKey: ['connections', profile?.id] });
     },
   });
 
-  const fetchConnections = useCallback(async () => {
-    if (!profile) return;
-
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('connections')
-        .select(`
-          id,
-          requester_id,
-          receiver_id,
-          status,
-          message,
-          created_at,
-          requester:requester_id(id, full_name, email, avatar_url, bio),
-          receiver:receiver_id(id, full_name, email, avatar_url, bio)
-        `)
-        .or(`requester_id.eq.${profile.id},receiver_id.eq.${profile.id}`)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      // Map the Supabase response to our Connection type (requester and receiver are single objects, not arrays)
-      const mappedConnections: Connection[] = data.map((conn: any) => ({
-        ...conn,
-        requester: Array.isArray(conn.requester) ? conn.requester[0] : conn.requester,
-        receiver: Array.isArray(conn.receiver) ? conn.receiver[0] : conn.receiver,
-      }));
-
-      setConnections(mappedConnections);
-
-      // Calculate stats (use mappedConnections instead of raw data)
-      const accepted = mappedConnections.filter((c) => c.status === 'accepted').length;
-      const pendingReceived = mappedConnections.filter(
-        (c) => c.status === 'pending' && c.receiver_id === profile.id
-      ).length;
-      const pendingSent = mappedConnections.filter(
-        (c) => c.status === 'pending' && c.requester_id === profile.id
-      ).length;
-
-      setStats({
-        total: accepted,
-        pendingReceived,
-        pendingSent,
-      });
-    } catch (error) {
-      console.error('[network] Fetch error:', error);
-      toast.error('Failed to load connections');
-    } finally {
-      setIsLoading(false);
+  // Calculate stats from connections data
+  const stats = useMemo(() => {
+    if (!profile || !connections) {
+      return { total: 0, pendingReceived: 0, pendingSent: 0 };
     }
-  }, [profile]);
 
-  const handleAccept = async (connectionId: string) => {
-    try {
-      const { error } = await supabase
-        .from('connections')
-        .update({ status: 'accepted' })
-        .eq('id', connectionId);
+    const accepted = connections.filter((c: Connection) => c.status === 'accepted').length;
+    const pendingReceived = connections.filter(
+      (c: Connection) => c.status === 'pending' && c.receiver_id === profile.id
+    ).length;
+    const pendingSent = connections.filter(
+      (c: Connection) => c.status === 'pending' && c.requester_id === profile.id
+    ).length;
 
-      if (error) throw error;
+    return {
+      total: accepted,
+      pendingReceived,
+      pendingSent,
+    };
+  }, [connections, profile]);
 
-      await fetchConnections();
-    } catch (error) {
-      console.error('[network] Accept error:', error);
-      throw error;
-    }
+  // Accept connection mutation
+  const acceptMutation = useMutation({
+    mutationFn: acceptConnection,
+    onMutate: async (connectionId) => {
+      await queryClient.cancelQueries({ queryKey: ['connections', profile?.id] });
+      const previousConnections = queryClient.getQueryData(['connections', profile?.id]);
+
+      queryClient.setQueryData(['connections', profile?.id], (old: Connection[] = []) =>
+        old.map((c) => (c.id === connectionId ? { ...c, status: 'accepted' } : c))
+      );
+
+      return { previousConnections };
+    },
+    onError: (err, connectionId, context) => {
+      queryClient.setQueryData(['connections', profile?.id], context?.previousConnections);
+      toast.error('Failed to accept connection');
+    },
+    onSuccess: () => {
+      toast.success('Connection accepted!');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['connections', profile?.id] });
+    },
+  });
+
+  // Reject connection mutation
+  const rejectMutation = useMutation({
+    mutationFn: rejectConnection,
+    onMutate: async (connectionId) => {
+      await queryClient.cancelQueries({ queryKey: ['connections', profile?.id] });
+      const previousConnections = queryClient.getQueryData(['connections', profile?.id]);
+
+      queryClient.setQueryData(['connections', profile?.id], (old: Connection[] = []) =>
+        old.map((c) => (c.id === connectionId ? { ...c, status: 'rejected' } : c))
+      );
+
+      return { previousConnections };
+    },
+    onError: (err, connectionId, context) => {
+      queryClient.setQueryData(['connections', profile?.id], context?.previousConnections);
+      toast.error('Failed to reject connection');
+    },
+    onSuccess: () => {
+      toast.success('Connection rejected');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['connections', profile?.id] });
+    },
+  });
+
+  // Remove connection mutation
+  const removeMutation = useMutation({
+    mutationFn: removeConnection,
+    onMutate: async (connectionId) => {
+      await queryClient.cancelQueries({ queryKey: ['connections', profile?.id] });
+      const previousConnections = queryClient.getQueryData(['connections', profile?.id]);
+
+      queryClient.setQueryData(['connections', profile?.id], (old: Connection[] = []) =>
+        old.filter((c) => c.id !== connectionId)
+      );
+
+      return { previousConnections };
+    },
+    onError: (err, connectionId, context) => {
+      queryClient.setQueryData(['connections', profile?.id], context?.previousConnections);
+      toast.error('Failed to remove connection');
+    },
+    onSuccess: () => {
+      toast.success('Connection removed');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['connections', profile?.id] });
+    },
+  });
+
+  const handleAccept = (connectionId: string) => {
+    acceptMutation.mutate(connectionId);
   };
 
-  const handleReject = async (connectionId: string) => {
-    try {
-      const { error } = await supabase
-        .from('connections')
-        .update({ status: 'rejected' })
-        .eq('id', connectionId);
-
-      if (error) throw error;
-
-      await fetchConnections();
-    } catch (error) {
-      console.error('[network] Reject error:', error);
-      throw error;
-    }
+  const handleReject = (connectionId: string) => {
+    rejectMutation.mutate(connectionId);
   };
 
-  const handleRemove = async (connectionId: string) => {
-    try {
-      const { error } = await supabase
-        .from('connections')
-        .delete()
-        .eq('id', connectionId);
-
-      if (error) throw error;
-
-      await fetchConnections();
-    } catch (error) {
-      console.error('[network] Remove error:', error);
-      throw error;
-    }
+  const handleRemove = (connectionId: string) => {
+    removeMutation.mutate(connectionId);
   };
 
   const handleMessage = (userId: string) => {
@@ -178,26 +190,50 @@ export default function NetworkPage() {
     toast('Chat feature coming soon with Tawk.to integration', { icon: '💬' });
   };
 
-  const filteredConnections = connections.filter((connection) => {
-    if (!profile) return false;
+  const filteredConnections = useMemo(() => {
+    if (!profile) return [];
 
-    switch (activeTab) {
-      case 'all':
-        return connection.status === 'accepted';
-      case 'pending-received':
-        return connection.status === 'pending' && connection.receiver_id === profile.id;
-      case 'pending-sent':
-        return connection.status === 'pending' && connection.requester_id === profile.id;
-      default:
-        return false;
-    }
-  });
+    return connections.filter((connection: Connection) => {
+      switch (activeTab) {
+        case 'all':
+          return connection.status === 'accepted';
+        case 'pending-received':
+          return connection.status === 'pending' && connection.receiver_id === profile.id;
+        case 'pending-sent':
+          return connection.status === 'pending' && connection.requester_id === profile.id;
+        default:
+          return false;
+      }
+    });
+  }, [connections, activeTab, profile]);
 
-  if (!profile) {
+  const handleConnectionSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['connections', profile?.id] });
+  };
+
+  // Show loading state
+  if (profileLoading || isLoading) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Loading...</div>
-      </div>
+      <>
+        <NetworkSkeleton />
+        <ContextualSidebar>
+          <NetworkStatsWidget stats={{ total: 0, pendingReceived: 0, pendingSent: 0 }} connections={[]} />
+          <QuickActionsWidget onConnect={() => setIsModalOpen(true)} />
+        </ContextualSidebar>
+      </>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <>
+        <NetworkError error={error as Error} onRetry={() => refetch()} />
+        <ContextualSidebar>
+          <NetworkStatsWidget stats={{ total: 0, pendingReceived: 0, pendingSent: 0 }} connections={[]} />
+          <QuickActionsWidget onConnect={() => setIsModalOpen(true)} />
+        </ContextualSidebar>
+      </>
     );
   }
 
@@ -241,12 +277,7 @@ export default function NetworkPage() {
         </div>
 
         {/* Content */}
-        {isLoading ? (
-          <div className={styles.loadingState}>
-            <div className={styles.spinner} />
-            <p>Loading connections...</p>
-          </div>
-        ) : filteredConnections.length === 0 ? (
+        {filteredConnections.length === 0 ? (
           <div className={styles.emptyState}>
             {activeTab === 'all' && (
               <>
@@ -306,7 +337,7 @@ export default function NetworkPage() {
         <ConnectionRequestModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          onSuccess={fetchConnections}
+          onSuccess={handleConnectionSuccess}
         />
       </div>
 
