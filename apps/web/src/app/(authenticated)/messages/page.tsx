@@ -2,103 +2,122 @@
  * Filename: apps/web/src/app/(authenticated)/messages/page.tsx
  * Purpose: Messages inbox page - Real-time chat with Ably
  * Created: 2025-11-08
+ * Updated: 2025-11-09 - Migrated to React Query for robust data fetching
  */
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { getConversations, markConversationRead, Conversation } from '@/lib/api/messages';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import ChatWidget from '@/app/components/network/ChatWidget';
+import MessagesSkeleton from '@/app/components/messages/MessagesSkeleton';
+import MessagesError from '@/app/components/messages/MessagesError';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
-
-interface Conversation {
-  id: string;
-  otherUser: {
-    id: string;
-    full_name: string | null;
-    avatar_url: string | null;
-  };
-  lastMessage: {
-    content: string;
-    timestamp: number;
-    read: boolean;
-  } | null;
-  unreadCount: number;
-}
 
 type TabType = 'all' | 'unread';
 
 export default function MessagesPage() {
   const { profile, isLoading: profileLoading } = useUserProfile();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<TabType>('all');
-  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (!profile?.id) return;
+  // React Query: Fetch conversations with automatic retry, caching, and background refetch
+  const {
+    data: conversations = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['conversations', profile?.id],
+    queryFn: getConversations,
+    enabled: !!profile && !profileLoading,
+    staleTime: 1 * 60 * 1000, // 1 minute (messages change frequently)
+    gcTime: 3 * 60 * 1000, // 3 minutes
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+  });
 
-    fetchConversations();
-  }, [profile?.id]);
+  // Mark as read mutation
+  const markReadMutation = useMutation({
+    mutationFn: markConversationRead,
+    onMutate: async (userId) => {
+      await queryClient.cancelQueries({ queryKey: ['conversations', profile?.id] });
+      const previousConversations = queryClient.getQueryData(['conversations', profile?.id]);
 
-  const fetchConversations = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch('/api/network/chat/conversations');
-      if (!response.ok) throw new Error('Failed to fetch conversations');
+      queryClient.setQueryData(['conversations', profile?.id], (old: Conversation[] = []) =>
+        old.map((conv) =>
+          conv.otherUser.id === userId ? { ...conv, unreadCount: 0 } : conv
+        )
+      );
 
-      const data = await response.json();
-      setConversations(data.conversations || []);
-    } catch (error) {
-      console.error('[MessagesPage] Error fetching conversations:', error);
-      toast.error('Failed to load conversations');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      return { previousConversations };
+    },
+    onError: (err, userId, context) => {
+      queryClient.setQueryData(['conversations', profile?.id], context?.previousConversations);
+      toast.error('Failed to mark conversation as read');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['conversations', profile?.id] });
+    },
+  });
 
   const handleSelectConversation = (conversation: Conversation) => {
     setSelectedConversation(conversation);
 
     if (conversation.unreadCount > 0) {
-      markConversationAsRead(conversation.otherUser.id);
+      markReadMutation.mutate(conversation.otherUser.id);
     }
   };
 
-  const markConversationAsRead = async (userId: string) => {
-    try {
-      await fetch('/api/network/chat/mark-conversation-read', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
-      });
+  const filteredConversations = useMemo(() => {
+    return conversations.filter((conv) => {
+      if (activeTab === 'unread') {
+        return conv.unreadCount > 0;
+      }
+      return true;
+    });
+  }, [conversations, activeTab]);
 
-      setConversations((prev) =>
-        prev.map((conv) =>
-          conv.otherUser.id === userId ? { ...conv, unreadCount: 0 } : conv
-        )
-      );
-    } catch (error) {
-      console.error('[MessagesPage] Failed to mark as read:', error);
-    }
-  };
+  const totalUnread = useMemo(() => {
+    return conversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
+  }, [conversations]);
 
-  const filteredConversations = conversations.filter((conv) => {
-    if (activeTab === 'unread') {
-      return conv.unreadCount > 0;
-    }
-    return true;
-  });
-
-  const totalUnread = conversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
-
-  if (profileLoading || !profile) {
+  // Show loading state
+  if (profileLoading || isLoading) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Loading messages...</div>
-      </div>
+      <>
+        <MessagesSkeleton />
+        <ContextualSidebar>
+          <div className={styles.noSelection}>
+            <div className={styles.noSelectionIcon}>💬</div>
+            <p className={styles.noSelectionText}>
+              Select a conversation to start chatting
+            </p>
+          </div>
+        </ContextualSidebar>
+      </>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <>
+        <MessagesError error={error as Error} onRetry={() => refetch()} />
+        <ContextualSidebar>
+          <div className={styles.noSelection}>
+            <div className={styles.noSelectionIcon}>💬</div>
+            <p className={styles.noSelectionText}>
+              Select a conversation to start chatting
+            </p>
+          </div>
+        </ContextualSidebar>
+      </>
     );
   }
 
@@ -131,12 +150,7 @@ export default function MessagesPage() {
           </button>
         </div>
 
-        {isLoading ? (
-          <div className={styles.loadingState}>
-            <div className={styles.spinner} />
-            <p>Loading conversations...</p>
-          </div>
-        ) : filteredConversations.length === 0 ? (
+        {filteredConversations.length === 0 ? (
           <div className={styles.emptyState}>
             {activeTab === 'all' ? (
               <>
@@ -224,7 +238,7 @@ export default function MessagesPage() {
       <ContextualSidebar>
         {selectedConversation ? (
           <ChatWidget
-            currentUserId={profile.id}
+            currentUserId={profile?.id || ''}
             selectedConnection={{
               id: selectedConversation.id,
               profile: selectedConversation.otherUser,
