@@ -1,10 +1,10 @@
 /**
  * Filename: apps/web/src/app/(authenticated)/account/personal-info/page.tsx
- * Purpose: Personal Information tab page (Account Hub v4.7)
+ * Purpose: Personal Information tab page (Account Hub v4.8 - aligned with hub UI)
  * Created: 2025-11-09
+ * Updated: 2025-11-09 - Refactored to follow Dashboard hub pattern
  *
- * Phase 3: Uses existing PersonalInfoForm
- * Future: Will be refactored with hybrid save pattern
+ * Pattern: Uses ContextualSidebar from authenticated layout, not custom layout
  */
 'use client';
 
@@ -12,8 +12,17 @@ import React from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { updateProfile } from '@/lib/api/profiles';
 import PersonalInfoForm from '@/app/components/profile/PersonalInfoForm';
+import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
+import { AccountTabs } from '@/app/components/account/AccountTabs';
+import { HeroProfileCard } from '@/app/components/account/HeroProfileCard';
+import { RoleStatsCard } from '@/app/components/account/RoleStatsCard';
+import { ProfileCompletenessWidget } from '@/app/components/account/ProfileCompletenessWidget';
+import { MessagesWidget } from '@/app/components/account/MessagesWidget';
+import { QuickActionsWidget } from '@/app/components/account/QuickActionsWidget';
+import PageHeader from '@/app/components/ui/PageHeader';
 import type { Profile } from '@/types';
 import toast from 'react-hot-toast';
+import styles from './page.module.css';
 
 export default function PersonalInfoPage() {
   const { profile, refreshProfile } = useUserProfile();
@@ -35,8 +44,29 @@ export default function PersonalInfoPage() {
   }
 
   return (
-    <div>
-      <PersonalInfoForm profile={profile} onSave={handleSave} />
-    </div>
+    <>
+      {/* Center Column - Account Content */}
+      <div className={styles.container}>
+        <PageHeader
+          title="Account Settings"
+          subtitle="Manage your personal information, professional details, and account settings"
+        />
+
+        <AccountTabs />
+
+        <div className={styles.content}>
+          <PersonalInfoForm profile={profile} onSave={handleSave} />
+        </div>
+      </div>
+
+      {/* Right Sidebar - Account Widgets */}
+      <ContextualSidebar>
+        <HeroProfileCard />
+        <ProfileCompletenessWidget />
+        <RoleStatsCard />
+        <MessagesWidget />
+        <QuickActionsWidget />
+      </ContextualSidebar>
+    </>
   );
 }

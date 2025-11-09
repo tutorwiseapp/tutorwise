@@ -1,28 +1,18 @@
 /**
  * Filename: apps/web/src/app/(authenticated)/account/settings/page.module.css
- * Purpose: Styles for Settings page (v4.7)
+ * Purpose: Styles for Settings page (v4.8 - aligned with hub UI)
  * Created: 2025-11-09
+ * Updated: 2025-11-09 - Refactored to follow Dashboard hub pattern
  */
 
-.settingsContainer {
-  width: 100%;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-6, 48px) var(--space-5, 40px);
 }
 
-.settingsHeader {
-  margin-bottom: var(--space-6, 48px);
-}
-
-.settingsTitle {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-text-primary, #111827);
-  margin: 0 0 var(--space-2, 8px) 0;
-}
-
-.settingsSubtitle {
-  font-size: 0.9375rem;
-  color: var(--color-text-secondary, #6b7280);
-  margin: 0;
+.content {
+  margin-top: var(--space-5, 40px);
 }
 
 /* Settings Grid */

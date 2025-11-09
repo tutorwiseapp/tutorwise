@@ -1,0 +1,25 @@
+/**
+ * Filename: apps/web/src/app/(authenticated)/account/personal-info/page.module.css
+ * Purpose: Styles for Personal Info page (Account Hub v4.8)
+ * Pattern: Follows Dashboard hub pattern
+ */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-6, 48px) var(--space-5, 40px);
+}
+
+.content {
+  margin-top: var(--space-5, 40px);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--space-4, 32px) var(--space-3, 16px);
+  }
+
+  .content {
+    margin-top: var(--space-4, 32px);
+  }
+}
