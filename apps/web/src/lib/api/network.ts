@@ -4,25 +4,7 @@
  */
 
 import { createClient } from '@/utils/supabase/client';
-
-export interface ConnectionProfile {
-  id: string;
-  full_name: string | null;
-  email: string | null;
-  avatar_url: string | null;
-  bio: string | null;
-}
-
-export interface Connection {
-  id: string;
-  requester_id: string;
-  receiver_id: string;
-  status: string;
-  message: string | null;
-  created_at: string;
-  requester: ConnectionProfile;
-  receiver: ConnectionProfile;
-}
+import type { Connection } from '@/app/components/network/ConnectionCard';
 
 /**
  * Get all connections for the current user
@@ -55,7 +37,12 @@ export async function getMyConnections(): Promise<Connection[]> {
 
   // Map the Supabase response to our Connection type (requester and receiver are single objects, not arrays)
   const mappedConnections: Connection[] = (data || []).map((conn: any) => ({
-    ...conn,
+    id: conn.id,
+    requester_id: conn.requester_id,
+    receiver_id: conn.receiver_id,
+    status: conn.status as 'pending' | 'accepted' | 'rejected',
+    message: conn.message,
+    created_at: conn.created_at,
     requester: Array.isArray(conn.requester) ? conn.requester[0] : conn.requester,
     receiver: Array.isArray(conn.receiver) ? conn.receiver[0] : conn.receiver,
   }));
