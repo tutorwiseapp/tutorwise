@@ -51,6 +51,27 @@
   padding: 8px 0;
 }
 
+/* Empty state and not specified styling */
+.emptyState {
+  padding: 3rem 2rem;
+  text-align: center;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.emptyStateText {
+  color: #6b7280;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.notSpecified {
+  color: #9ca3af;
+  font-style: italic;
+  font-size: 0.9375rem;
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;

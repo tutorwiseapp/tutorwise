@@ -90,7 +90,6 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   // ===========================================================
   const { data: { user } } = await supabase.auth.getUser();
   const isOwnProfile = user?.id === profile.id;
-  const isAuthenticated = !!user;
 
   // ===========================================================
   // STEP 4: Fetch current user's profile (if authenticated)
@@ -114,6 +113,35 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
 
       <div className={styles.mainContent}>
         <div className={styles.container}>
+          {/* Hero Banner */}
+          <div className={styles.heroSection}>
+            <div className={styles.avatarContainer}>
+              {profile.avatar_url ? (
+                <img
+                  src={profile.avatar_url}
+                  alt={`${profile.full_name}'s avatar`}
+                  className={styles.heroAvatar}
+                />
+              ) : (
+                <div className={styles.heroAvatarPlaceholder}>
+                  {profile.full_name?.charAt(0)?.toUpperCase() || '?'}
+                </div>
+              )}
+            </div>
+            <div className={styles.heroInfo}>
+              <h1 className={styles.heroName}>{profile.full_name}</h1>
+              <div className={styles.heroMeta}>
+                <span className={styles.roleBadge}>
+                  {profile.active_role === 'tutor' ? 'Tutor' :
+                   profile.active_role === 'agent' ? 'Agent' : 'Client'}
+                </span>
+                {profile.bio && (
+                  <p className={styles.heroBio}>{profile.bio}</p>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* UnifiedProfileTabs - Main content area */}
           <UnifiedProfileTabs profile={profile as Profile} />
         </div>
