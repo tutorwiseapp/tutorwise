@@ -6,7 +6,7 @@ import type { Role } from '@/types';
 
 const roleConfig: Record<Role, { label: string; color: string }> = {
   agent: { label: 'Agent', color: 'text-purple-600 bg-purple-50' },
-  client: { label: 'Student', color: 'text-blue-600 bg-blue-50' },
+  client: { label: 'Client', color: 'text-blue-600 bg-blue-50' },
   tutor: { label: 'Tutor', color: 'text-green-600 bg-green-50' }
 };
 

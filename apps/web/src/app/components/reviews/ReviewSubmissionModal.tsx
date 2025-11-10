@@ -184,9 +184,9 @@ export default function ReviewSubmissionModal({
         };
       } else {
         return {
-          title: 'Review Your Student',
+          title: 'Review Your Client',
           subtitle: 'Share your teaching experience',
-          placeholder: 'How was the student? Were they engaged and prepared?',
+          placeholder: 'How was the client? Were they engaged and prepared?',
         };
       }
     } else if (bookingType === 'referred') {

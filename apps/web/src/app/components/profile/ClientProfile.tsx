@@ -17,7 +17,7 @@ export default function ClientProfile({ profile, isEditable = false, onSave = ()
   // Extract first name for personalization
   const firstName = profile.full_name
     ? profile.full_name.split(' ')[0]
-    : profile.first_name || 'This student';
+    : profile.first_name || 'This client';
 
   return (
     <div className={styles.mainContent}>

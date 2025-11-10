@@ -13,7 +13,7 @@ export default function ClientNarrative({ profile, isEditable = false, onSave = 
   // Extract first name from full_name
   const firstName = profile.full_name
     ? profile.full_name.split(' ')[0]
-    : 'Student';
+    : 'Client';
 
   // Support both 'seeker' and 'client' keys for backwards compatibility
   const clientDetails = profile.professional_details?.seeker || profile.professional_details?.client;
