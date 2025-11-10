@@ -40,19 +40,19 @@ export async function GET(
       return NextResponse.redirect(new URL('/?error=invalid_referral', request.url));
     }
 
-    const referrer_profile_id = referrerProfile.id;
+    const agent_profile_id = referrerProfile.id;
 
     // 2. Check if user is logged in
     const { data: { user } } = await supabase.auth.getUser();
 
-    // 3. Create referral record (SDD v3.6, Section 8.1)
+    // 3. Create referral record (SDD v3.6, Section 8.1) (migration 051: referrer_profile_id → agent_profile_id)
     if (user) {
       // REGISTERED USER FUNNEL
       // Create referral record with referred_profile_id
       const { error: referralError } = await supabase
         .from('referrals')
         .insert({
-          referrer_profile_id,
+          agent_profile_id, // Updated from referrer_profile_id (migration 051)
           referred_profile_id: user.id,
           status: 'Referred'
         });
@@ -66,7 +66,7 @@ export async function GET(
       const { data: referralRecord, error: referralError } = await supabase
         .from('referrals')
         .insert({
-          referrer_profile_id,
+          agent_profile_id, // Updated from referrer_profile_id (migration 051)
           referred_profile_id: null,
           status: 'Referred'
         })

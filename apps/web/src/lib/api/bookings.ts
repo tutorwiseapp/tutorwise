@@ -13,7 +13,7 @@ export interface CreateBookingInput {
   session_start_time: string; // Required: ISO 8601 timestamp
   session_duration: number; // Required: duration in minutes
   amount: number; // Required: booking amount
-  referrer_profile_id?: string; // Optional: if booking came from referral
+  agent_profile_id?: string; // Optional: if booking came from agent referral (migration 051)
 }
 
 export interface Booking {
@@ -21,7 +21,7 @@ export interface Booking {
   client_id: string; // Updated from student_id (migration 049)
   tutor_id: string;
   listing_id: string;
-  referrer_profile_id?: string;
+  agent_profile_id?: string; // Updated from referrer_profile_id (migration 051)
   service_name: string;
   session_start_time: string;
   session_duration: number;
@@ -50,19 +50,19 @@ export async function createBooking(input: CreateBookingInput): Promise<Booking>
     throw new Error('service_name, session_start_time, session_duration, and amount are required');
   }
 
-  // Create booking record matching the actual database schema (migration 049: student_id → client_id)
+  // Create booking record matching the actual database schema (migrations 049 & 051)
   const { data, error } = await supabase
     .from('bookings')
     .insert({
       listing_id: input.listing_id,
-      client_id: user.id, // Updated from student_id
+      client_id: user.id, // Updated from student_id (migration 049)
       tutor_id: input.tutor_id,
       service_name: input.service_name,
       session_start_time: input.session_start_time,
       session_duration: input.session_duration,
       amount: input.amount,
-      referrer_profile_id: input.referrer_profile_id,
-      booking_type: input.referrer_profile_id ? 'referred' : 'direct', // Added in migration 049
+      agent_profile_id: input.agent_profile_id, // Updated from referrer_profile_id (migration 051)
+      booking_type: input.agent_profile_id ? 'referred' : 'direct', // Added in migration 049
       status: 'Pending',
       payment_status: 'Pending',
     })
@@ -99,7 +99,7 @@ export async function getMyBookings(): Promise<any[]> {
 
   const activeRole = profile.active_role;
 
-  // Build query based on active role (using correct column names from migration 049)
+  // Build query based on active role (using correct column names from migrations 049 & 051)
   let query = supabase
     .from('bookings')
     .select(`
@@ -107,17 +107,17 @@ export async function getMyBookings(): Promise<any[]> {
       client:client_id(id, full_name, avatar_url),
       tutor:tutor_id(id, full_name, avatar_url),
       listing:listing_id(id, title),
-      referrer:referrer_profile_id(id, full_name)
+      agent:agent_profile_id(id, full_name)
     `);
 
-  // Role-based filtering (migration 049: student_id → client_id)
+  // Role-based filtering (migrations 049 & 051)
   if (activeRole === 'client') {
     query = query.eq('client_id', user.id);
   } else if (activeRole === 'tutor') {
     query = query.eq('tutor_id', user.id);
   } else if (activeRole === 'agent') {
     // Agent sees all bookings where they are involved
-    query = query.or(`client_id.eq.${user.id},tutor_id.eq.${user.id},referrer_profile_id.eq.${user.id}`);
+    query = query.or(`client_id.eq.${user.id},tutor_id.eq.${user.id},agent_profile_id.eq.${user.id}`);
   }
 
   const { data: bookings, error } = await query.order('created_at', { ascending: false });
@@ -162,7 +162,7 @@ export async function cancelBooking(id: string): Promise<Booking> {
     .from('bookings')
     .update({ status: 'cancelled' })
     .eq('id', id)
-    .eq('client_id', user.id) // Only allow clients to cancel their own bookings (migration 049)
+    .eq('client_id', user.id) // Only allow clients to cancel their own bookings (migrations 049 & 051)
     .select()
     .single();
 

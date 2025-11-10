@@ -13,7 +13,7 @@ export interface Profile {
   id: string;
   referral_id: string; // Legacy referral code (e.g., "JOHN-1234")
   referral_code?: string; // v3.6 referral code (same format, replaces referral_id)
-  referred_by_profile_id?: string | null; // v3.6: Lifetime attribution - who referred this user
+  referred_by_agent_id?: string | null; // v3.6: Lifetime attribution - which agent referred this user
   full_name: string; // Full legal name - derived from first_name + last_name
   first_name?: string;
   last_name?: string;
@@ -339,13 +339,13 @@ export type TransactionStatus = 'Pending' | 'Paid' | 'Failed' | 'Cancelled';
 // Referral status enum (SDD v3.6, Section 3.3)
 export type ReferralStatus = 'Referred' | 'Signed Up' | 'Converted' | 'Expired';
 
-// Booking interface (SDD v3.6, Section 3.2) (migration 049: student_id → client_id)
+// Booking interface (SDD v3.6, Section 3.2) (migration 049: student_id → client_id, migration 051: referrer_profile_id → agent_profile_id)
 export interface Booking {
   id: string;
   client_id: string; // Updated from student_id (migration 049)
   tutor_id: string;
   listing_id?: string;
-  referrer_profile_id?: string | null; // Drives commission split (80/10/10 vs 90/10)
+  agent_profile_id?: string | null; // Updated from referrer_profile_id (migration 051) - Drives commission split (80/10/10 vs 90/10)
   booking_type?: 'direct' | 'referred' | 'agent_job'; // Added in migration 049
   service_name: string;
   session_start_time: string; // ISO timestamp
@@ -390,10 +390,10 @@ export interface Transaction {
   };
 }
 
-// Referral interface (SDD v3.6, Section 3.3)
+// Referral interface (SDD v3.6, Section 3.3) (migration 051: referrer_profile_id → agent_profile_id)
 export interface Referral {
   id: string;
-  referrer_profile_id: string; // Person who sent the referral link
+  agent_profile_id: string; // Updated from referrer_profile_id (migration 051) - Agent who sent the referral link
   referred_profile_id?: string | null; // NULL for anonymous clicks
   status: ReferralStatus;
   booking_id?: string | null; // First booking that triggered 'Converted'

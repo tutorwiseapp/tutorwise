@@ -14,7 +14,7 @@ export interface CreateReferralInput {
 
 export interface Referral {
   id: string;
-  referrer_profile_id: string;
+  agent_profile_id: string; // Updated from referrer_profile_id (migration 051)
   referred_profile_id?: string;
   status: string;
   booking_id?: string;
@@ -26,8 +26,8 @@ export interface Referral {
 
 /**
  * Create a new referral entry
- * Note: The actual referrals table only tracks referrer_profile_id and referred_profile_id
- * For now, we create a minimal entry with just the referrer
+ * Note: The actual referrals table only tracks agent_profile_id and referred_profile_id (migration 051)
+ * For now, we create a minimal entry with just the agent (referrer)
  */
 export async function createReferral(input: CreateReferralInput): Promise<Referral> {
   const supabase = createClient();
@@ -38,12 +38,12 @@ export async function createReferral(input: CreateReferralInput): Promise<Referr
     throw new Error('Not authenticated');
   }
 
-  // Create referral record matching the actual database schema
+  // Create referral record matching the actual database schema (migration 051)
   // Note: referred_profile_id is null initially (will be set when someone uses the referral)
   const { data, error } = await supabase
     .from('referrals')
     .insert({
-      referrer_profile_id: user.id,
+      agent_profile_id: user.id, // Updated from referrer_profile_id (migration 051)
       // referred_profile_id will be null initially
       status: 'Referred',
     })
