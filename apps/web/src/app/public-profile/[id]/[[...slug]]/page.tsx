@@ -113,33 +113,9 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
 
       <div className={styles.mainContent}>
         <div className={styles.container}>
-          {/* Hero Banner */}
-          <div className={styles.heroSection}>
-            <div className={styles.avatarContainer}>
-              {profile.avatar_url ? (
-                <img
-                  src={profile.avatar_url}
-                  alt={`${profile.full_name}'s avatar`}
-                  className={styles.heroAvatar}
-                />
-              ) : (
-                <div className={styles.heroAvatarPlaceholder}>
-                  {profile.full_name?.charAt(0)?.toUpperCase() || '?'}
-                </div>
-              )}
-            </div>
-            <div className={styles.heroInfo}>
-              <h1 className={styles.heroName}>{profile.full_name}</h1>
-              <div className={styles.heroMeta}>
-                <span className={styles.roleBadge}>
-                  {profile.active_role === 'tutor' ? 'Tutor' :
-                   profile.active_role === 'agent' ? 'Agent' : 'Client'}
-                </span>
-                {profile.bio && (
-                  <p className={styles.heroBio}>{profile.bio}</p>
-                )}
-              </div>
-            </div>
+          {/* Page Header - matches Account page style */}
+          <div className={styles.pageHeader}>
+            <h1 className={styles.pageTitle}>Public Profile</h1>
           </div>
 
           {/* UnifiedProfileTabs - Main content area */}
@@ -149,15 +125,17 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
 
       {/* Right Sidebar with widgets */}
       <div className={styles.sidebar}>
-        {/* HeroProfileCard in readOnly mode */}
-        <HeroProfileCard readOnly={true} profileData={profile as Profile} />
+        {/* HeroProfileCard - readOnly mode for others, editable for own profile */}
+        <HeroProfileCard readOnly={!isOwnProfile} profileData={profile as Profile} />
 
-        {/* PublicActionCard with context-aware CTAs */}
-        <PublicActionCard
-          profile={profile as Profile}
-          currentUser={currentUserProfile}
-          isOwnProfile={isOwnProfile}
-        />
+        {/* PublicActionCard - only show for other users' profiles */}
+        {!isOwnProfile && (
+          <PublicActionCard
+            profile={profile as Profile}
+            currentUser={currentUserProfile}
+            isOwnProfile={isOwnProfile}
+          />
+        )}
 
         {/* RoleStatsCard showing profile statistics */}
         <RoleStatsCard profile={profile as Profile} />
