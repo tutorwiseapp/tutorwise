@@ -48,7 +48,7 @@ const SettingsPage = () => {
     }
 
     if (Notification.permission === 'granted') {
-      new Notification('Vinite Test Notification', {
+      new Notification('Tutorwise Test Notification', {
         body: 'If you can see this, notifications are working!',
         icon: '/favicon.ico'
       });
@@ -56,7 +56,7 @@ const SettingsPage = () => {
     } else if (Notification.permission !== 'denied') {
       Notification.requestPermission().then((permission) => {
         if (permission === 'granted') {
-          new Notification('Vinite Test Notification', {
+          new Notification('Tutorwise Test Notification', {
             body: 'If you can see this, notifications are working!',
             icon: '/favicon.ico'
           });

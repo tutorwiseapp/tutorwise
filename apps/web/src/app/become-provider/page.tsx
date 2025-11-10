@@ -63,7 +63,7 @@ const BecomeProviderPage = () => {
   return (
     <Container className={styles.container}>
       <PageHeader
-        title="Become a Vinite Provider"
+        title="Become a Tutorwise Provider"
         subtitle="Fill out your details below to start accepting referrals for your service."
       />
       <Card>

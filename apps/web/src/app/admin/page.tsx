@@ -18,7 +18,7 @@ const AdminDashboardPage = () => {
         <Container>
             <PageHeader
                 title="Admin Dashboard"
-                subtitle="Oversee all activity on the Vinite platform."
+                subtitle="Oversee all activity on the Tutorwise platform."
             />
             <StatGrid stats={stats} />
             <Card>

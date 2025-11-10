@@ -43,7 +43,7 @@
 /* 1. The "Cool Brand" Blob */
 .pageWrapper::before {
   width: 600px; height: 600px;
-  /* This blob now blends the two core Vinite brand colors */
+  /* This blob now blends the two core Tutorwise brand colors */
   background-image: radial-gradient(circle at center, var(--color-primary-accent), var(--color-primary));
   animation: moveBlob1 40s infinite alternate ease-in-out;
 }

@@ -1,8 +1,8 @@
 /*
  * Filename: apps/web/src/app/components/referrals/ReferralAssetWidget.tsx
- * Purpose: Vinite-style referral asset widget (SDD v4.3, Section 2.2)
+ * Purpose: Tutorwise-style referral asset widget (SDD v4.3, Section 2.2)
  * Created: 2025-11-06
- * Specification: SDD v4.3, Section 2.2 - Vinite-style UI
+ * Specification: SDD v4.3, Section 2.2 - Tutorwise-style UI
  *
  * This widget provides users with three core referral assets:
  * 1. Referral Link: tutorwise.com/a/[code] [Copy]

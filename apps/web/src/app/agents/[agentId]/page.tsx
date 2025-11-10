@@ -67,7 +67,7 @@ const AgentProfilePage = () => {
   
   const handleShare = (platform: 'whatsapp' | 'linkedin') => {
     if (!agent) return;
-    const text = `Check out ${agent.full_name}'s Vinite referral profile: ${window.location.href}`;
+    const text = `Check out ${agent.full_name}'s Tutorwise referral profile: ${window.location.href}`;
     let url = '';
     if (platform === 'whatsapp') {
       url = `https://wa.me/?text=${encodeURIComponent(text)}`;

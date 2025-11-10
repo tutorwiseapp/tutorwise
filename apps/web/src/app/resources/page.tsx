@@ -16,7 +16,7 @@ const allResources = [
   {
     id: 1,
     category: 'News & Updates',
-    title: 'Vinite Payments Is Here: Get Paid Faster Than Ever',
+    title: 'Tutorwise Payments Is Here: Get Paid Faster Than Ever',
     description: 'We are thrilled to launch our integrated payments system, allowing agents and providers to manage payouts and payments seamlessly.',
     author: 'Jane Doe',
     authorAvatar: 'https://i.pravatar.cc/40?u=jane',
@@ -26,7 +26,7 @@ const allResources = [
   {
     id: 2,
     category: 'How-To Guide',
-    title: 'How to Create the Perfect Sharable Vinite Link',
+    title: 'How to Create the Perfect Sharable Tutorwise Link',
     description: 'Learn the best practices for generating referral links that convert, from choosing the right URL to adding tracking parameters.',
     author: 'John Smith',
     authorAvatar: 'https://i.pravatar.cc/40?u=john',
@@ -36,7 +36,7 @@ const allResources = [
     id: 3,
     category: 'Case Study',
     title: 'How a Local Tutor Earned an Extra £500 a Month',
-    description: 'Discover how a freelance math tutor used Vinite\'s QR codes and WhatsApp sharing to boost her client sign-ups.',
+    description: 'Discover how a freelance math tutor used Tutorwise\'s QR codes and WhatsApp sharing to boost her client sign-ups.',
     author: 'Emily White',
     authorAvatar: 'https://i.pravatar.cc/40?u=emily',
     imageUrl: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070&auto=format&fit=crop',
@@ -70,7 +70,7 @@ const ResourcesPage = () => {
     <Container>
       <PageHeader
         title="Resources & Insights"
-        subtitle="Your hub for news, guides, and stories to help you make the most of Vinite."
+        subtitle="Your hub for news, guides, and stories to help you make the most of Tutorwise."
       />
 
       {/* Featured Article Section */}

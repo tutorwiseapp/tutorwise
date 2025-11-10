@@ -1,6 +1,6 @@
 /*
  * Filename: src/app/refer/page.tsx
- * Purpose: Serves as the public-facing marketing page for the Vinite platform.
+ * Purpose: Serves as the public-facing marketing page for the Tutorwise platform.
  *
  * Change History:
  * C004 - 2025-07-20 : 15:00 - Added dynamic color cycling to the typing animation.
@@ -90,7 +90,7 @@ const ReferPage = () => {
         <Container>
             <div className={styles.heroContent}>
                 <h1 className={styles.heroTitle}>Refer Anything, Anyone, Anywhere.</h1>
-                <p className={styles.subtitle}>Turn Any URL into Sharable, Monetisable, Rewardable Vinite Links in Seconds.<br/>No Sign-Up Required.</p>
+                <p className={styles.subtitle}>Turn Any URL into Sharable, Monetisable, Rewardable Tutorwise Links in Seconds.<br/>No Sign-Up Required.</p>
                 <div className={styles.heroCtaGroup}>
                     <Link href="/" className={`btn btn-primary ${styles.heroCta}`}>Create Your First Link</Link>
                     <div className={styles.heroVisual}>
@@ -118,9 +118,9 @@ const ReferPage = () => {
       <section className={`${styles.section} ${styles.howItWorksSection}`}>
         <Container>
           <h2 className={styles.sectionTitle}>Earn in Three Simple Steps</h2>
-          <p className={styles.sectionSubtitle}>From click to cash, Vinite makes earning as easy as 1-2-3.</p>
+          <p className={styles.sectionSubtitle}>From click to cash, Tutorwise makes earning as easy as 1-2-3.</p>
           <div className={styles.stepsGrid}>
-            <div className={styles.stepCard}><div className={styles.stepIcon}>1</div><h3>Create</h3><p>Paste any URL to generate a unique Vinite Link instantly.</p></div>
+            <div className={styles.stepCard}><div className={styles.stepIcon}>1</div><h3>Create</h3><p>Paste any URL to generate a unique Tutorwise Link instantly.</p></div>
             <div className={styles.stepCard}><div className={styles.stepIcon}>2</div><h3>Share</h3><p>Share your link on social media, in emails, or directly with friends.</p></div>
             <div className={styles.stepCard}><div className={styles.stepIcon}>3</div><h3>Earn</h3><p>Collect rewards for clicks or successful referral actions.</p></div>
           </div>
@@ -131,12 +131,12 @@ const ReferPage = () => {
         <Container>
           <h2 className={styles.sectionTitle}>Trusted by creators and entrepreneurs</h2>
           <div className={styles.testimonialContent}>
-            <p className={styles.testimonialQuote}>“I used to scroll and share links for free — now I earn when people act on my recommendations. Vinite turned my network into a source of real income, without needing to be an influencer.”</p>
+            <p className={styles.testimonialQuote}>&ldquo;I used to scroll and share links for free — now I earn when people act on my recommendations. Tutorwise turned my network into a source of real income, without needing to be an influencer.&rdquo;</p>
             <div className={styles.testimonialAuthor}>
                 <Image src="https://i.pravatar.cc/100?u=jane" alt="Jane Brown" width={60} height={60} className={styles.authorImage} />
                 <div className={styles.authorDetails}>
                     <div className={styles.authorName}>Jane Brown</div>
-                    <div className={styles.authorTitle}>Content Creator & Vinite User</div>
+                    <div className={styles.authorTitle}>Content Creator & Tutorwise User</div>
                 </div>
             </div>
           </div>
@@ -148,7 +148,7 @@ const ReferPage = () => {
           <div className={styles.ctaContainer}>
             <h2 className={styles.sectionTitle}>Ready to start earning?</h2>
             <p className={styles.sectionSubtitle}>It takes less than 30 seconds to create your first referral link. No credit card, no sign-up required.</p>
-            <Link href="/" className={`btn btn-primary ${styles.heroCta}`}>Get Your Free Vinite Link</Link>
+            <Link href="/" className={`btn btn-primary ${styles.heroCta}`}>Get Your Free Tutorwise Link</Link>
           </div>
         </Container>
       </section>

@@ -71,7 +71,7 @@ const ClaimRewardsContent = () => {
                 <h2 className={styles.serviceName}>{pendingReward.serviceName}</h2>
                 <p className={styles.rewardAmount}>Amount: <strong>£{pendingReward.rewardAmount.toFixed(2)}</strong></p>
                 <p className={styles.claimSubtext}>
-                    This will be added to your Vinite account and paid out according to the terms of the referral.
+                    This will be added to your Tutorwise account and paid out according to the terms of the referral.
                 </p>
             </div>
             <Button
@@ -91,7 +91,7 @@ const ClaimRewardsPage = () => {
     <Container variant="form">
       <PageHeader
         title="Claim Your Reward"
-        subtitle="You're just one step away from claiming your Vinite earnings."
+        subtitle="You're just one step away from claiming your Tutorwise earnings."
       />
       <Suspense fallback={<p>Loading reward details...</p>}>
         <ClaimRewardsContent />
