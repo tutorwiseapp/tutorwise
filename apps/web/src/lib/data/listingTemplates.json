@@ -28,7 +28,7 @@
   {
     "template_id": "english-gcse-onetoone",
     "title": "English GCSE One-on-One Session",
-    "description": "A tailored one-on-one tutoring session focused on improving analytical writing, comprehension, and exam preparation for GCSE English Language and Literature. Each session adapts to the student's specific needs, helping them gain clarity, confidence, and precision in their responses.",
+    "description": "A tailored one-on-one tutoring session focused on improving analytical writing, comprehension, and exam preparation for GCSE English Language and Literature. Each session adapts to the client's specific needs, helping them gain clarity, confidence, and precision in their responses.",
     "subjects": ["English"],
     "levels": ["GCSE"],
     "learning_outcomes": [
@@ -90,7 +90,7 @@
   {
     "template_id": "science-tutor-referral",
     "title": "Science Tutor Referral Programme",
-    "description": "Refer a student to our Science Tutoring Programme and earn rewards when they book sessions. The programme offers tailored one-on-one or small group science tutoring designed to simplify complex topics and prepare students for top grades in Biology, Chemistry, and Physics.",
+    "description": "Refer a client to our Science Tutoring Programme and earn rewards when they book sessions. The programme offers tailored one-on-one or small group science tutoring designed to simplify complex topics and prepare students for top grades in Biology, Chemistry, and Physics.",
     "subjects": ["Biology", "Chemistry", "Physics"],
     "levels": ["GCSE", "A-Level"],
     "learning_outcomes": [

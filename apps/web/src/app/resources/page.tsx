@@ -36,7 +36,7 @@ const allResources = [
     id: 3,
     category: 'Case Study',
     title: 'How a Local Tutor Earned an Extra £500 a Month',
-    description: 'Discover how a freelance math tutor used Vinite\'s QR codes and WhatsApp sharing to boost her student sign-ups.',
+    description: 'Discover how a freelance math tutor used Vinite\'s QR codes and WhatsApp sharing to boost her client sign-ups.',
     author: 'Emily White',
     authorAvatar: 'https://i.pravatar.cc/40?u=emily',
     imageUrl: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070&auto=format&fit=crop',
