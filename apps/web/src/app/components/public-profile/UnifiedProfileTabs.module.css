@@ -89,6 +89,84 @@
   font-size: 0.875rem;
 }
 
+/* Loading State */
+.loadingState {
+  padding: 3rem 2rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+/* Services Tab Content */
+.servicesContent {
+  padding: 1rem 0;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-gray-900, #111827);
+  margin-bottom: 1.5rem;
+}
+
+.listingsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Reviews Tab Content */
+.reviewsContent {
+  padding: 1rem 0;
+}
+
+.reviewsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.reviewCard {
+  padding: 1.5rem;
+  background-color: var(--color-gray-50, #f9fafb);
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+  border-radius: 8px;
+}
+
+.reviewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.reviewerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.reviewerName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-gray-900, #111827);
+}
+
+.reviewDate {
+  font-size: 0.875rem;
+  color: var(--color-gray-600, #6b7280);
+}
+
+.reviewRating {
+  font-size: 1.25rem;
+}
+
+.reviewText {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .tabHeaders {
@@ -102,5 +180,13 @@
 
   .placeholderContent {
     padding: 1.5rem 1rem;
+  }
+
+  .listingsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sectionTitle {
+    font-size: 1.25rem;
   }
 }
