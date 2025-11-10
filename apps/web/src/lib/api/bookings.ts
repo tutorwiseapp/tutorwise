@@ -18,7 +18,7 @@ export interface CreateBookingInput {
 
 export interface Booking {
   id: string;
-  student_id: string;
+  client_id: string; // Updated from student_id (migration 049)
   tutor_id: string;
   listing_id: string;
   referrer_profile_id?: string;
@@ -28,6 +28,7 @@ export interface Booking {
   amount: number;
   status: string; // booking_status_enum
   payment_status: string; // transaction_status_enum
+  booking_type?: 'direct' | 'referred' | 'agent_job'; // Added in migration 049
   created_at: string;
   updated_at: string;
 }
@@ -49,18 +50,19 @@ export async function createBooking(input: CreateBookingInput): Promise<Booking>
     throw new Error('service_name, session_start_time, session_duration, and amount are required');
   }
 
-  // Create booking record matching the actual database schema
+  // Create booking record matching the actual database schema (migration 049: student_id → client_id)
   const { data, error } = await supabase
     .from('bookings')
     .insert({
       listing_id: input.listing_id,
-      student_id: user.id,
+      client_id: user.id, // Updated from student_id
       tutor_id: input.tutor_id,
       service_name: input.service_name,
       session_start_time: input.session_start_time,
       session_duration: input.session_duration,
       amount: input.amount,
       referrer_profile_id: input.referrer_profile_id,
+      booking_type: input.referrer_profile_id ? 'referred' : 'direct', // Added in migration 049
       status: 'Pending',
       payment_status: 'Pending',
     })
@@ -98,25 +100,25 @@ export async function getMyBookings(role: 'tutor' | 'student' = 'student'): Prom
 
   const activeRole = profile.active_role;
 
-  // Build query based on active role (matching API route logic)
+  // Build query based on active role (using correct column names from migration 049)
   let query = supabase
     .from('bookings')
     .select(`
       *,
-      student:student_id(id, full_name, avatar_url),
+      client:client_id(id, full_name, avatar_url),
       tutor:tutor_id(id, full_name, avatar_url),
       listing:listing_id(id, title),
       referrer:referrer_profile_id(id, full_name)
     `);
 
-  // Role-based filtering
+  // Role-based filtering (migration 049: student_id → client_id)
   if (activeRole === 'client' || role === 'student') {
-    query = query.eq('student_id', user.id);
+    query = query.eq('client_id', user.id);
   } else if (activeRole === 'tutor' || role === 'tutor') {
     query = query.eq('tutor_id', user.id);
   } else if (activeRole === 'agent') {
     // Agent sees all bookings where they are involved
-    query = query.or(`student_id.eq.${user.id},tutor_id.eq.${user.id},referrer_profile_id.eq.${user.id}`);
+    query = query.or(`client_id.eq.${user.id},tutor_id.eq.${user.id},referrer_profile_id.eq.${user.id}`);
   }
 
   const { data: bookings, error } = await query.order('created_at', { ascending: false });
@@ -161,7 +163,7 @@ export async function cancelBooking(id: string): Promise<Booking> {
     .from('bookings')
     .update({ status: 'cancelled' })
     .eq('id', id)
-    .eq('student_id', user.id) // Only allow students to cancel their own bookings
+    .eq('client_id', user.id) // Only allow clients to cancel their own bookings (migration 049)
     .select()
     .single();
 

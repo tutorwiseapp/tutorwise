@@ -339,13 +339,14 @@ export type TransactionStatus = 'Pending' | 'Paid' | 'Failed' | 'Cancelled';
 // Referral status enum (SDD v3.6, Section 3.3)
 export type ReferralStatus = 'Referred' | 'Signed Up' | 'Converted' | 'Expired';
 
-// Booking interface (SDD v3.6, Section 3.2)
+// Booking interface (SDD v3.6, Section 3.2) (migration 049: student_id → client_id)
 export interface Booking {
   id: string;
-  student_id: string;
+  client_id: string; // Updated from student_id (migration 049)
   tutor_id: string;
   listing_id?: string;
   referrer_profile_id?: string | null; // Drives commission split (80/10/10 vs 90/10)
+  booking_type?: 'direct' | 'referred' | 'agent_job'; // Added in migration 049
   service_name: string;
   session_start_time: string; // ISO timestamp
   session_duration: number; // In minutes
@@ -355,7 +356,7 @@ export interface Booking {
   created_at: string;
   updated_at?: string;
   // Joined data from API
-  student?: {
+  client?: {
     id: string;
     full_name: string;
     avatar_url?: string;

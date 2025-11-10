@@ -65,8 +65,8 @@ export default function BookingCard({
     }
   };
 
-  // Determine who the "other party" is based on view mode
-  const otherParty = viewMode === 'student' ? booking.tutor : booking.student;
+  // Determine who the "other party" is based on view mode (migration 049: student → client)
+  const otherParty = viewMode === 'student' ? booking.tutor : booking.client;
 
   return (
     <Card className="hover:shadow-md transition-shadow">
@@ -79,7 +79,7 @@ export default function BookingCard({
             </h3>
             {otherParty && (
               <p className="text-sm text-gray-600">
-                {viewMode === 'student' ? 'Tutor: ' : 'Student: '}
+                {viewMode === 'student' ? 'Tutor: ' : 'Client: '}
                 <span className="font-medium">{otherParty.full_name}</span>
               </p>
             )}

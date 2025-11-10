@@ -59,7 +59,7 @@ describe('POST /api/bookings', () => {
     mockSupabase.single.mockResolvedValueOnce({
       data: {
         id: mockBookingId,
-        student_id: mockUserId,
+        client_id: mockUserId, // Updated from student_id (migration 049)
         tutor_id: mockTutorId,
         listing_id: mockListingId,
         referrer_profile_id: mockReferrerId,
@@ -100,10 +100,10 @@ describe('POST /api/bookings', () => {
     expect(result.booking.referrer_profile_id).toBe(mockReferrerId);
     expect(result.booking.amount).toBe(50);
 
-    // Verify insert was called with correct data
+    // Verify insert was called with correct data (migration 049: student_id → client_id)
     expect(mockSupabase.insert).toHaveBeenCalledWith(
       expect.objectContaining({
-        student_id: mockUserId,
+        client_id: mockUserId,
         tutor_id: mockTutorId,
         listing_id: mockListingId,
         referrer_profile_id: mockReferrerId,
@@ -135,7 +135,7 @@ describe('POST /api/bookings', () => {
     mockSupabase.single.mockResolvedValueOnce({
       data: {
         id: mockBookingId,
-        student_id: mockUserId,
+        client_id: mockUserId, // Updated from student_id (migration 049)
         tutor_id: mockTutorId,
         listing_id: mockListingId,
         referrer_profile_id: null, // NO REFERRER

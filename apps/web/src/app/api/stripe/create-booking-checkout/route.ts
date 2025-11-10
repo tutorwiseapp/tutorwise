@@ -37,12 +37,12 @@ export async function POST(req: NextRequest) {
       return new NextResponse(JSON.stringify({ error: "booking_id is required" }), { status: 400 });
     }
 
-    // 3. Get booking details
+    // 3. Get booking details (migration 049: student_id → client_id)
     const { data: booking, error: bookingError } = await supabase
       .from('bookings')
-      .select('id, student_id, amount, service_name, payment_status')
+      .select('id, client_id, amount, service_name, payment_status')
       .eq('id', booking_id)
-      .eq('student_id', user.id) // Ensure user owns this booking
+      .eq('client_id', user.id) // Ensure user owns this booking
       .single();
 
     if (bookingError || !booking) {
