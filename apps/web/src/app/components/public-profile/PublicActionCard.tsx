@@ -2,17 +2,20 @@
  * Filename: apps/web/src/app/components/public-profile/PublicActionCard.tsx
  * Purpose: Conversion-focused action card for public profiles (v4.8)
  * Created: 2025-11-10
+ * Updated: 2025-11-10 - Phase 3: Implemented Share Profile with referral tracking
  *
  * Features:
  * - Context-aware CTAs based on viewer auth state
  * - Own profile: "Edit My Profile" button
  * - Other profiles: "Book Session", "Connect", "Message", "Share Profile"
  * - Role-aware button visibility
+ * - Functional Share Profile modal with referral link generation and copy
  */
 'use client';
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Copy, Check, X } from 'lucide-react';
 import Button from '@/app/components/ui/Button';
 import type { Profile } from '@/types';
 import styles from './PublicActionCard.module.css';
@@ -26,6 +29,28 @@ interface PublicActionCardProps {
 export function PublicActionCard({ profile, currentUser, isOwnProfile }: PublicActionCardProps) {
   const router = useRouter();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+
+  // Generate referral link using current user's referral code
+  const getReferralLink = () => {
+    if (!currentUser?.referral_code) return null;
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    // Use /a/[referral_id] route (referral_id is actually the referral_code)
+    return `${baseUrl}/a/${currentUser.referral_code}?redirect=/public-profile/${profile.id}/${profile.slug}`;
+  };
+
+  const handleCopyLink = async () => {
+    const link = getReferralLink();
+    if (!link) return;
+
+    try {
+      await navigator.clipboard.writeText(link);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy link:', error);
+    }
+  };
 
   // If viewing own profile, show edit button
   if (isOwnProfile) {
@@ -66,9 +91,6 @@ export function PublicActionCard({ profile, currentUser, isOwnProfile }: PublicA
 
   const handleShareProfile = () => {
     setIsShareModalOpen(true);
-    // TODO: Implement share modal with referral link
-    console.log('Share profile:', profile.full_name);
-    alert('Share feature coming soon!');
   };
 
   return (
@@ -113,13 +135,61 @@ export function PublicActionCard({ profile, currentUser, isOwnProfile }: PublicA
         </Button>
       </div>
 
-      {/* Share Modal Placeholder */}
+      {/* Share Profile Modal */}
       {isShareModalOpen && (
         <div className={styles.modalOverlay} onClick={() => setIsShareModalOpen(false)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <h3>Share {profile.full_name}&apos;s Profile</h3>
-            <p>Referral link feature coming in Phase 3</p>
-            <Button onClick={() => setIsShareModalOpen(false)}>Close</Button>
+            <div className={styles.modalHeader}>
+              <h3>Share {profile.full_name}&apos;s Profile</h3>
+              <button
+                className={styles.closeButton}
+                onClick={() => setIsShareModalOpen(false)}
+                aria-label="Close modal"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {currentUser?.referral_code ? (
+              <>
+                <p className={styles.modalDescription}>
+                  Share this profile and earn rewards when people sign up through your referral link!
+                </p>
+                <div className={styles.linkContainer}>
+                  <input
+                    type="text"
+                    value={getReferralLink() || ''}
+                    readOnly
+                    className={styles.linkInput}
+                    onClick={(e) => e.currentTarget.select()}
+                  />
+                  <Button
+                    variant={isCopied ? 'secondary' : 'primary'}
+                    onClick={handleCopyLink}
+                    className={styles.copyButton}
+                  >
+                    {isCopied ? (
+                      <>
+                        <Check size={16} />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={16} />
+                        Copy
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className={styles.modalDescription}>
+                  You need to be signed in to generate a referral link.
+                </p>
+                <Button onClick={() => router.push('/login')}>Sign In</Button>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -28,6 +28,7 @@ export default function SignUpPage() {
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [referralCode, setReferralCode] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,6 +37,14 @@ export default function SignUpPage() {
 
   useEffect(() => {
     document.title = 'Sign Up - Tutorwise';
+
+    // Check if there's a referral code in the cookie
+    const cookies = document.cookie.split(';');
+    const referralCookie = cookies.find(cookie => cookie.trim().startsWith('referral_code='));
+    if (referralCookie) {
+      const code = referralCookie.split('=')[1];
+      setReferralCode(code);
+    }
   }, []);
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -54,6 +63,7 @@ export default function SignUpPage() {
             first_name: firstName,
             last_name: lastName,
             full_name: `${firstName} ${lastName}`.trim(),
+            referral_code: referralCode || undefined, // Pass referral code to handle_new_user trigger
           },
         },
       });
@@ -120,6 +130,15 @@ export default function SignUpPage() {
           </FormGroup>
           <FormGroup label="Password" htmlFor="password">
             <Input id="password" name="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          </FormGroup>
+          <FormGroup label="Referral Code (Optional)" htmlFor="referralCode">
+            <Input
+              id="referralCode"
+              name="referralCode"
+              value={referralCode}
+              onChange={(e) => setReferralCode(e.target.value)}
+              placeholder="Enter referral code if you have one"
+            />
           </FormGroup>
           <Button type="submit" variant="primary" fullWidth disabled={isLoading}>
             {isLoading ? 'Creating account...' : 'Sign Up'}

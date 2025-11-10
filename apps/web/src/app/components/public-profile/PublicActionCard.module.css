@@ -60,6 +60,77 @@
   color: #6b7280;
 }
 
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.closeButton:hover {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+.modalDescription {
+  margin: 0 0 1.5rem 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.linkContainer {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.linkInput {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-family: monospace;
+  color: #1f2937;
+  background-color: #f9fafb;
+  cursor: pointer;
+}
+
+.linkInput:focus {
+  outline: none;
+  border-color: var(--color-primary-default, #006c67);
+  background-color: #ffffff;
+}
+
+.copyButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  padding: 0.75rem 1rem;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .actionCard {
