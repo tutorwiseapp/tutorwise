@@ -77,15 +77,53 @@ export async function createBooking(input: CreateBookingInput): Promise<Booking>
  * @param role - Either 'tutor' or 'student' to determine which bookings to fetch
  */
 export async function getMyBookings(role: 'tutor' | 'student' = 'student'): Promise<any[]> {
-  // Use the API route which handles the complex joins and relationships
-  const response = await fetch(`/api/bookings?role=${role}`);
+  const supabase = createClient();
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch bookings');
+  // Get authenticated user
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    throw new Error('Not authenticated');
   }
 
-  const data = await response.json();
-  return data.bookings || [];
+  // Get user's profile to determine active role
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('id, active_role')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile) {
+    throw new Error('Profile not found');
+  }
+
+  const activeRole = profile.active_role;
+
+  // Build query based on active role (matching API route logic)
+  let query = supabase
+    .from('bookings')
+    .select(`
+      *,
+      student:student_id(id, full_name, avatar_url),
+      tutor:tutor_id(id, full_name, avatar_url),
+      listing:listing_id(id, title),
+      referrer:referrer_profile_id(id, full_name)
+    `);
+
+  // Role-based filtering
+  if (activeRole === 'client' || role === 'student') {
+    query = query.eq('student_id', user.id);
+  } else if (activeRole === 'tutor' || role === 'tutor') {
+    query = query.eq('tutor_id', user.id);
+  } else if (activeRole === 'agent') {
+    // Agent sees all bookings where they are involved
+    query = query.or(`student_id.eq.${user.id},tutor_id.eq.${user.id},referrer_profile_id.eq.${user.id}`);
+  }
+
+  const { data: bookings, error } = await query.order('created_at', { ascending: false });
+
+  if (error) throw error;
+
+  return bookings || [];
 }
 
 /**
