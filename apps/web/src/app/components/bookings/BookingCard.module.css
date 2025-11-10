@@ -1,0 +1,240 @@
+/*
+ * Filename: src/app/components/bookings/BookingCard.module.css
+ * Purpose: Styles for BookingCard component
+ * Design: Clean, minimal design matching ListingCard quality with avatar
+ * Base font: 14px | Button gap: 8px | Avatar on left
+ */
+
+.card {
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  height: 100%;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #d1d5db;
+}
+
+.cardContent {
+  padding: 24px;
+  display: flex;
+  gap: 16px;
+}
+
+/* Avatar Section */
+.avatarSection {
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e5e7eb;
+}
+
+/* Main Content */
+.mainContent {
+  flex: 1;
+  min-width: 0; /* Allow text truncation */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header Section */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 16px;
+}
+
+.headerLeft {
+  flex: 1;
+  min-width: 0;
+}
+
+.serviceName {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 6px 0;
+  line-height: 1.4;
+}
+
+.participantInfo {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.participantLabel {
+  font-weight: 400;
+}
+
+.participantName {
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Status Badges */
+.badges {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* Status Colors - matching ListingCard badge style */
+.statusConfirmed {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.statusCompleted {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.statusCancelled {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.statusPending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.paymentPaid {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.paymentFailed {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.paymentRefunded {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.paymentPending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+/* Session Details Grid */
+.details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.detailItem {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.detailLabel {
+  color: #6b7280;
+  font-weight: 400;
+}
+
+.detailValue {
+  color: #111827;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+/* Actions Section */
+.actions {
+  display: flex;
+  gap: 8px; /* Exactly 8px as requested */
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+  margin-top: auto; /* Push to bottom */
+}
+
+.actions button {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .cardContent {
+    padding: 20px;
+    flex-direction: column;
+  }
+
+  .avatarSection {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .avatar {
+    width: 50px;
+    height: 50px;
+  }
+
+  .header {
+    margin-bottom: 12px;
+  }
+
+  .badges {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .serviceName {
+    font-size: 16px;
+  }
+
+  .details {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .actions {
+    flex-direction: column;
+    padding-top: 12px;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  .details {
+    gap: 10px;
+  }
+
+  .avatar {
+    width: 55px;
+    height: 55px;
+  }
+}
