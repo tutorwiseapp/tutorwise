@@ -2,6 +2,7 @@
  * Filename: apps/web/src/app/components/account/RoleStatsCard.tsx
  * Purpose: Role-specific stats card for Account Hub (v4.7)
  * Created: 2025-11-09
+ * Updated: 2025-11-10 - Added profile prop for readOnly mode (v4.8)
  *
  * Displays role-specific metrics:
  * - Tutor: Average Rating, Active Listings, Total Bookings, Total Earned
@@ -13,6 +14,7 @@
 import React from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { Star, TrendingUp, Calendar, DollarSign, Users, Target, CheckCircle } from 'lucide-react';
+import type { Profile } from '@/types';
 import styles from './RoleStatsCard.module.css';
 
 interface StatItemProps {
@@ -41,8 +43,15 @@ function StatItem({ icon, label, value, trend }: StatItemProps) {
   );
 }
 
-export function RoleStatsCard() {
-  const { profile } = useUserProfile();
+interface RoleStatsCardProps {
+  profile?: Profile; // Optional profile for readOnly mode
+}
+
+export function RoleStatsCard({ profile: profileProp }: RoleStatsCardProps = {}) {
+  const { profile: contextProfile } = useUserProfile();
+
+  // Use provided profile in readOnly mode, otherwise use context profile
+  const profile = profileProp || contextProfile;
 
   if (!profile) {
     return null;

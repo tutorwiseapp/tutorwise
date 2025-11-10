@@ -1,13 +1,15 @@
 /**
  * Filename: apps/web/src/app/components/account/HeroProfileCard.tsx
- * Purpose: Hero profile card with avatar, name, role, location (v4.7)
+ * Purpose: Hero profile card with avatar, name, role, location (v4.7, v4.8)
  * Created: 2025-11-09
+ * Updated: 2025-11-10 - Added readOnly mode for public profiles
  *
  * Features:
- * - Large avatar (192x192) with click-to-upload
+ * - Large avatar (192x192) with optional click-to-upload
  * - User's full name, role, and location
- * - Quick action: View Public Profile
+ * - Quick action: View Public Profile (editable mode only)
  * - Integrates with useImageUpload hook
+ * - Supports readOnly mode for public profile viewing (v4.8)
  */
 'use client';
 
@@ -17,18 +19,31 @@ import { Loader2 } from 'lucide-react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import getProfileImageUrl from '@/lib/utils/image';
+import type { Profile } from '@/types';
 import styles from './HeroProfileCard.module.css';
 
-export function HeroProfileCard() {
-  const { profile, refreshProfile } = useUserProfile();
+interface HeroProfileCardProps {
+  readOnly?: boolean;
+  profileData?: Profile; // For readOnly mode, pass profile directly
+}
+
+export function HeroProfileCard({ readOnly = false, profileData }: HeroProfileCardProps = {}) {
+  const { profile: contextProfile, refreshProfile } = useUserProfile();
+
+  // Use provided profileData in readOnly mode, otherwise use context profile
+  const profile = readOnly ? profileData : contextProfile;
 
   const { handleFileSelect: uploadImage, isUploading } = useImageUpload({
     onUploadSuccess: async () => {
-      await refreshProfile();
+      if (!readOnly) {
+        await refreshProfile();
+      }
     },
   });
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (readOnly) return; // No upload in readOnly mode
+
     const file = e.target.files?.[0];
     if (file && profile?.id) {
       await uploadImage(file, profile.id);
@@ -46,36 +61,48 @@ export function HeroProfileCard() {
 
   return (
     <div className={styles.heroCard}>
-      {/* Avatar with Upload */}
+      {/* Avatar with optional Upload */}
       <div className={styles.avatarSection}>
-        <label htmlFor="avatar-upload" className={styles.avatarWrapper}>
+        {readOnly ? (
+          // Read-only mode: Just show avatar
           <div className={styles.avatarContainer}>
             <img
               src={avatarUrl}
               alt={`${fullName}'s avatar`}
               className={styles.avatar}
             />
-            <div className={`${styles.avatarOverlay} ${isUploading ? styles.uploading : ''}`}>
-              {isUploading ? (
-                <>
-                  <Loader2 className={styles.spinnerIcon} size={24} />
-                  <span className={styles.overlayText}>Uploading...</span>
-                </>
-              ) : (
-                <span className={styles.overlayText}>Change Photo</span>
-              )}
-            </div>
           </div>
-          <input
-            id="avatar-upload"
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            disabled={isUploading}
-            className={styles.fileInput}
-            aria-label="Upload profile picture"
-          />
-        </label>
+        ) : (
+          // Editable mode: Avatar with upload
+          <label htmlFor="avatar-upload" className={styles.avatarWrapper}>
+            <div className={styles.avatarContainer}>
+              <img
+                src={avatarUrl}
+                alt={`${fullName}'s avatar`}
+                className={styles.avatar}
+              />
+              <div className={`${styles.avatarOverlay} ${isUploading ? styles.uploading : ''}`}>
+                {isUploading ? (
+                  <>
+                    <Loader2 className={styles.spinnerIcon} size={24} />
+                    <span className={styles.overlayText}>Uploading...</span>
+                  </>
+                ) : (
+                  <span className={styles.overlayText}>Change Photo</span>
+                )}
+              </div>
+            </div>
+            <input
+              id="avatar-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              disabled={isUploading}
+              className={styles.fileInput}
+              aria-label="Upload profile picture"
+            />
+          </label>
+        )}
       </div>
 
       {/* Profile Details */}
@@ -86,14 +113,16 @@ export function HeroProfileCard() {
           <span className={styles.roleChip}>
             {role.charAt(0).toUpperCase() + role.slice(1)}
           </span>
-          <Link
-            href={`/public-profile/${profile.id}`}
-            className={styles.viewLink}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            View
-          </Link>
+          {!readOnly && profile.slug && (
+            <Link
+              href={`/public-profile/${profile.id}/${profile.slug}`}
+              className={styles.viewLink}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View
+            </Link>
+          )}
         </div>
 
         <div className={styles.locationRow}>

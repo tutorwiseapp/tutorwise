@@ -14,6 +14,7 @@ export interface Profile {
   referral_id: string; // Legacy referral code (e.g., "JOHN-1234")
   referral_code?: string; // v3.6 referral code (same format, replaces referral_id)
   referred_by_agent_id?: string | null; // v3.6: Lifetime attribution - which agent referred this user
+  slug?: string; // v4.8: SEO-friendly URL slug (e.g., "john-smith")
   full_name: string; // Full legal name - derived from first_name + last_name
   first_name?: string;
   last_name?: string;

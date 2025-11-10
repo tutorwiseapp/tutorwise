@@ -15,6 +15,10 @@ import { notFound, redirect } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
 import { generateSlug } from '@/lib/utils/slugify';
 import type { Profile } from '@/types';
+import { HeroProfileCard } from '@/app/components/account/HeroProfileCard';
+import { PublicActionCard } from '@/app/components/public-profile/PublicActionCard';
+import { RoleStatsCard } from '@/app/components/account/RoleStatsCard';
+import { UnifiedProfileTabs } from '@/app/components/public-profile/UnifiedProfileTabs';
 import styles from './page.module.css';
 
 interface PublicProfilePageProps {
@@ -106,35 +110,29 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   // ===========================================================
   return (
     <div className={styles.pageContainer}>
-      {/* TODO: Add conditional AppSidebar for authenticated users */}
+      {/* TODO: Add conditional AppSidebar for authenticated users (Phase 3) */}
 
       <div className={styles.mainContent}>
         <div className={styles.container}>
-          <h1 className={styles.title}>{profile.full_name}</h1>
-          <p className={styles.role}>{profile.active_role || 'member'}</p>
-          <p className={styles.bio}>{profile.bio || 'No bio available'}</p>
-
-          {isOwnProfile && (
-            <div className={styles.ownProfileNotice}>
-              <p>This is your profile. <a href="/account/personal-info">Edit Profile</a></p>
-            </div>
-          )}
-
-          {/* TODO: Add UnifiedProfileTabs component */}
-          <div className={styles.tabsPlaceholder}>
-            <p>[UnifiedProfileTabs component will go here]</p>
-            <p>About | Services | Reviews</p>
-          </div>
+          {/* UnifiedProfileTabs - Main content area */}
+          <UnifiedProfileTabs profile={profile as Profile} />
         </div>
       </div>
 
-      {/* TODO: Add ContextualSidebar with widgets */}
+      {/* Right Sidebar with widgets */}
       <div className={styles.sidebar}>
-        <div className={styles.sidebarPlaceholder}>
-          <p>[HeroProfileCard]</p>
-          <p>[PublicActionCard]</p>
-          <p>[RoleStatsCard]</p>
-        </div>
+        {/* HeroProfileCard in readOnly mode */}
+        <HeroProfileCard readOnly={true} profileData={profile as Profile} />
+
+        {/* PublicActionCard with context-aware CTAs */}
+        <PublicActionCard
+          profile={profile as Profile}
+          currentUser={currentUserProfile}
+          isOwnProfile={isOwnProfile}
+        />
+
+        {/* RoleStatsCard showing profile statistics */}
+        <RoleStatsCard profile={profile as Profile} />
       </div>
     </div>
   );
