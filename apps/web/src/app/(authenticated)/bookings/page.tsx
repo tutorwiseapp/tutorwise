@@ -32,7 +32,7 @@ export default function BookingsPage() {
   const filter = (searchParams?.get('filter') as FilterType) || 'all';
 
   // Determine role for API query
-  const roleParam = activeRole === 'tutor' ? 'tutor' : 'student';
+  const roleParam = activeRole === 'tutor' ? 'tutor' : 'client';
 
   // React Query: Fetch bookings with automatic retry, caching, and background refetch
   const {
@@ -141,7 +141,7 @@ export default function BookingsPage() {
   };
 
   // Determine viewMode based on activeRole
-  const viewMode = activeRole === 'tutor' ? 'tutor' : 'student';
+  const viewMode = activeRole === 'tutor' ? 'tutor' : 'client';
 
   // Show loading state
   if (profileLoading || isLoading) {
@@ -256,7 +256,7 @@ export default function BookingsPage() {
             })}
             service={nextSession.service_name}
             participant={
-              viewMode === 'student'
+              viewMode === 'client'
                 ? nextSession.tutor?.full_name || 'Unknown'
                 : nextSession.client?.full_name || 'Unknown'
             }

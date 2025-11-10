@@ -12,7 +12,7 @@ import Button from '@/app/components/ui/Button';
 
 interface BookingCardProps {
   booking: Booking;
-  viewMode: 'student' | 'tutor'; // Role-aware display
+  viewMode: 'client' | 'tutor'; // Role-aware display
   onPayNow?: (bookingId: string) => void;
   onViewDetails?: (bookingId: string) => void;
 }
@@ -66,7 +66,7 @@ export default function BookingCard({
   };
 
   // Determine who the "other party" is based on view mode (migration 049: student → client)
-  const otherParty = viewMode === 'student' ? booking.tutor : booking.client;
+  const otherParty = viewMode === 'client' ? booking.tutor : booking.client;
 
   return (
     <Card className="hover:shadow-md transition-shadow">
@@ -79,7 +79,7 @@ export default function BookingCard({
             </h3>
             {otherParty && (
               <p className="text-sm text-gray-600">
-                {viewMode === 'student' ? 'Tutor: ' : 'Client: '}
+                {viewMode === 'client' ? 'Tutor: ' : 'Client: '}
                 <span className="font-medium">{otherParty.full_name}</span>
               </p>
             )}
@@ -128,8 +128,8 @@ export default function BookingCard({
 
         {/* Actions */}
         <div className="flex gap-2 pt-4 border-t border-gray-200">
-          {/* Student-specific: Show "Pay Now" if Pending */}
-          {viewMode === 'student' &&
+          {/* Client-specific: Show "Pay Now" if Pending */}
+          {viewMode === 'client' &&
             booking.payment_status === 'Pending' &&
             onPayNow && (
               <Button

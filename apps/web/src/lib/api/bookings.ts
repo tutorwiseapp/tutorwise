@@ -76,9 +76,9 @@ export async function createBooking(input: CreateBookingInput): Promise<Booking>
 
 /**
  * Get all bookings for the current user
- * @param role - Either 'tutor' or 'student' to determine which bookings to fetch
+ * @param role - Either 'tutor' or 'client' to determine which bookings to fetch
  */
-export async function getMyBookings(role: 'tutor' | 'student' = 'student'): Promise<any[]> {
+export async function getMyBookings(role: 'tutor' | 'client' = 'client'): Promise<any[]> {
   const supabase = createClient();
 
   // Get authenticated user
@@ -112,7 +112,7 @@ export async function getMyBookings(role: 'tutor' | 'student' = 'student'): Prom
     `);
 
   // Role-based filtering (migration 049: student_id → client_id)
-  if (activeRole === 'client' || role === 'student') {
+  if (activeRole === 'client' || role === 'client') {
     query = query.eq('client_id', user.id);
   } else if (activeRole === 'tutor' || role === 'tutor') {
     query = query.eq('tutor_id', user.id);
