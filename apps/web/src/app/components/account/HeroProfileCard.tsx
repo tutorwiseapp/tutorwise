@@ -28,15 +28,16 @@ interface HeroProfileCardProps {
 }
 
 export function HeroProfileCard({ readOnly = false, profileData }: HeroProfileCardProps = {}) {
-  const { profile: contextProfile, refreshProfile } = useUserProfile();
+  // Always call the hook (React rules), but only use it in editable mode
+  const contextData = useUserProfile();
 
   // Use provided profileData in readOnly mode, otherwise use context profile
-  const profile = readOnly ? profileData : contextProfile;
+  const profile = readOnly ? profileData : contextData?.profile;
 
   const { handleFileSelect: uploadImage, isUploading } = useImageUpload({
     onUploadSuccess: async () => {
-      if (!readOnly) {
-        await refreshProfile();
+      if (!readOnly && contextData?.refreshProfile) {
+        await contextData.refreshProfile();
       }
     },
   });
