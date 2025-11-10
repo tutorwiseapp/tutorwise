@@ -78,69 +78,65 @@ export default function BookingCard({
   return (
     <div className={styles.card}>
       <div className={styles.cardContent}>
-        {/* Avatar Section - Left Side */}
+        {/* Square Avatar - Left Side */}
         <div className={styles.avatarSection}>
           <Image
             src={avatarUrl}
             alt={otherParty?.full_name || 'User'}
-            width={80}
-            height={80}
+            width={120}
+            height={120}
             className={styles.avatar}
           />
         </div>
 
-        {/* Main Content - Right Side */}
+        {/* Main Content - Vertical Layout */}
         <div className={styles.mainContent}>
-          {/* Header: Service Name + Status Badges */}
+          {/* Title */}
           <div className={styles.header}>
-            <div className={styles.headerLeft}>
-              <h3 className={styles.serviceName}>
-                {booking.service_name}
-              </h3>
-              {otherParty && (
-                <p className={styles.participantInfo}>
-                  <span className={styles.participantLabel}>
-                    {viewMode === 'client' ? 'Tutor: ' : 'Client: '}
-                  </span>
-                  <span className={styles.participantName}>
-                    {otherParty.full_name}
-                  </span>
-                </p>
-              )}
-            </div>
-            <div className={styles.badges}>
-              <span className={`${styles.badge} ${getStatusClass(booking.status)}`}>
-                {booking.status}
-              </span>
-              <span className={`${styles.badge} ${getPaymentStatusClass(booking.payment_status)}`}>
-                {booking.payment_status}
-              </span>
-            </div>
+            <h3 className={styles.serviceName}>
+              {booking.service_name}
+            </h3>
+
+            {/* Description - using tutor/client name as description */}
+            {otherParty && (
+              <p className={styles.description}>
+                Session with {otherParty.full_name}
+              </p>
+            )}
+
+            {/* Participant Info */}
+            {otherParty && (
+              <p className={styles.participantInfo}>
+                <span className={styles.participantLabel}>
+                  {viewMode === 'client' ? 'Tutor: ' : 'Client: '}
+                </span>
+                <span className={styles.participantName}>
+                  {otherParty.full_name}
+                </span>
+              </p>
+            )}
           </div>
 
-          {/* Session Details */}
-          <div className={styles.details}>
-            <div className={styles.detailItem}>
-              <span className={styles.detailLabel}>Date:</span>
-              <span className={styles.detailValue}>{formattedDate}</span>
-            </div>
-            <div className={styles.detailItem}>
-              <span className={styles.detailLabel}>Time:</span>
-              <span className={styles.detailValue}>{formattedTime}</span>
-            </div>
-            <div className={styles.detailItem}>
-              <span className={styles.detailLabel}>Duration:</span>
-              <span className={styles.detailValue}>
-                {booking.session_duration} mins
-              </span>
-            </div>
-            <div className={styles.detailItem}>
-              <span className={styles.detailLabel}>Amount:</span>
-              <span className={styles.detailValue}>
-                £{booking.amount.toFixed(2)}
-              </span>
-            </div>
+          {/* Tags Row - Status badges and metadata inline */}
+          <div className={styles.tagsRow}>
+            <span className={`${styles.badge} ${getStatusClass(booking.status)}`}>
+              {booking.status}
+            </span>
+            <span className={`${styles.badge} ${getPaymentStatusClass(booking.payment_status)}`}>
+              {booking.payment_status}
+            </span>
           </div>
+
+          {/* Metadata - Date, Time, Duration, Amount inline */}
+          <p className={styles.metaText}>
+            <span className={styles.metaValue}>{formattedDate}</span>
+            <span className={styles.separator}>·</span>
+            <span className={styles.metaValue}>{formattedTime}</span>
+            <span className={styles.separator}>·</span>
+            <span className={styles.metaValue}>{booking.session_duration} mins</span>
+            <span className={styles.separator}>·</span>
+            <span className={styles.metaValue}>£{booking.amount.toFixed(2)}</span>
+          </p>
 
           {/* Actions */}
           <div className={styles.actions}>

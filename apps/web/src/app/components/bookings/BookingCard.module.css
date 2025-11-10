@@ -31,11 +31,11 @@
 }
 
 .avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
   object-fit: cover;
-  border: 2px solid #e5e7eb;
+  border: none;
 }
 
 /* Main Content */
@@ -48,30 +48,36 @@
 
 /* Header Section */
 .header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  gap: 16px;
-}
-
-.headerLeft {
-  flex: 1;
-  min-width: 0;
+  margin-bottom: 12px;
 }
 
 .serviceName {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   color: #111827;
   margin: 0 0 8px 0;
-  line-height: 1.3;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.description {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .participantInfo {
   font-size: 14px;
   color: #6b7280;
-  margin: 0;
+  margin: 0 0 12px 0;
 }
 
 .participantLabel {
@@ -83,12 +89,23 @@
   color: #374151;
 }
 
-/* Status Badges */
-.badges {
+/* Inline Tags */
+.tagsRow {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .badge {
@@ -99,7 +116,6 @@
   font-size: 12px;
   font-weight: 500;
   white-space: nowrap;
-  text-align: center;
 }
 
 /* Status Colors - matching ListingCard badge style */
@@ -143,40 +159,29 @@
   color: #92400e;
 }
 
-/* Session Details Grid */
-.details {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  margin-bottom: 20px;
-  padding: 16px 0;
-}
-
-.detailItem {
+/* Metadata Text */
+.metaText {
   font-size: 14px;
-  line-height: 1.6;
-  display: flex;
-  align-items: center;
-}
-
-.detailLabel {
   color: #6b7280;
+  margin-bottom: 8px;
   font-weight: 400;
 }
 
-.detailValue {
-  color: #111827;
-  font-weight: 600;
-  margin-left: 6px;
+.metaValue {
+  color: #374151;
+  font-weight: 500;
+}
+
+.separator {
+  margin: 0 6px;
+  color: #d1d5db;
 }
 
 /* Actions Section */
 .actions {
   display: flex;
-  gap: 8px; /* Exactly 8px as requested */
-  padding-top: 16px;
-  border-top: 1px solid #e5e7eb;
-  margin-top: auto; /* Push to bottom */
+  gap: 8px;
+  margin-top: 16px;
 }
 
 .actions button {
@@ -188,42 +193,19 @@
 @media (max-width: 640px) {
   .cardContent {
     padding: 20px;
-    flex-direction: column;
-  }
-
-  .avatarSection {
-    display: flex;
-    align-items: center;
-    gap: 12px;
   }
 
   .avatar {
-    width: 60px;
-    height: 60px;
-  }
-
-  .header {
-    margin-bottom: 12px;
-  }
-
-  .badges {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 6px;
+    width: 100px;
+    height: 100px;
   }
 
   .serviceName {
     font-size: 16px;
   }
 
-  .details {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
   .actions {
     flex-direction: column;
-    padding-top: 12px;
   }
 
   .actions button {
@@ -232,12 +214,8 @@
 }
 
 @media (min-width: 641px) and (max-width: 768px) {
-  .details {
-    gap: 10px;
-  }
-
   .avatar {
-    width: 70px;
-    height: 70px;
+    width: 110px;
+    height: 110px;
   }
 }
