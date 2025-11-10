@@ -83,8 +83,8 @@ export default function BookingCard({
           <Image
             src={avatarUrl}
             alt={otherParty?.full_name || 'User'}
-            width={60}
-            height={60}
+            width={80}
+            height={80}
             className={styles.avatar}
           />
         </div>
