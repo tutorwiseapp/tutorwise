@@ -258,7 +258,7 @@ export default function BookingsPage() {
             participant={
               viewMode === 'student'
                 ? nextSession.tutor?.full_name || 'Unknown'
-                : nextSession.student?.full_name || 'Unknown'
+                : nextSession.client?.full_name || 'Unknown'
             }
           />
         )}
