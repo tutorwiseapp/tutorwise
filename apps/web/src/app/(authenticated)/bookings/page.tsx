@@ -31,9 +31,6 @@ export default function BookingsPage() {
   // Read filter from URL (SDD v3.6: URL is single source of truth)
   const filter = (searchParams?.get('filter') as FilterType) || 'all';
 
-  // Determine role for API query
-  const roleParam = activeRole === 'tutor' ? 'tutor' : 'client';
-
   // React Query: Fetch bookings with automatic retry, caching, and background refetch
   const {
     data: bookings = [],
@@ -41,8 +38,8 @@ export default function BookingsPage() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ['bookings', profile?.id, roleParam],
-    queryFn: () => getMyBookings(roleParam),
+    queryKey: ['bookings', profile?.id, activeRole],
+    queryFn: () => getMyBookings(),
     enabled: !!profile && !profileLoading,
     staleTime: 2 * 60 * 1000, // 2 minutes (bookings change more frequently)
     gcTime: 5 * 60 * 1000, // 5 minutes
@@ -54,24 +51,24 @@ export default function BookingsPage() {
   const cancelMutation = useMutation({
     mutationFn: cancelBooking,
     onMutate: async (id) => {
-      await queryClient.cancelQueries({ queryKey: ['bookings', profile?.id, roleParam] });
-      const previousBookings = queryClient.getQueryData(['bookings', profile?.id, roleParam]);
+      await queryClient.cancelQueries({ queryKey: ['bookings', profile?.id, activeRole] });
+      const previousBookings = queryClient.getQueryData(['bookings', profile?.id, activeRole]);
 
-      queryClient.setQueryData(['bookings', profile?.id, roleParam], (old: any[] = []) =>
+      queryClient.setQueryData(['bookings', profile?.id, activeRole], (old: any[] = []) =>
         old.map((b) => (b.id === id ? { ...b, status: 'Cancelled' } : b))
       );
 
       return { previousBookings };
     },
     onError: (err, id, context) => {
-      queryClient.setQueryData(['bookings', profile?.id, roleParam], context?.previousBookings);
+      queryClient.setQueryData(['bookings', profile?.id, activeRole], context?.previousBookings);
       toast.error('Failed to cancel booking');
     },
     onSuccess: () => {
       toast.success('Booking cancelled successfully');
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['bookings', profile?.id, roleParam] });
+      queryClient.invalidateQueries({ queryKey: ['bookings', profile?.id, activeRole] });
     },
   });
 
