@@ -95,7 +95,11 @@ export async function GET(req: Request) {
 
   } catch (error) {
     console.error("API GET /api/bookings error:", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    console.error("Error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    return new NextResponse(JSON.stringify({ error: error instanceof Error ? error.message : 'Internal Server Error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
 
