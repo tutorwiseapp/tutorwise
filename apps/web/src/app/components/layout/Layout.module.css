@@ -35,11 +35,9 @@
 
 .mainContent {
   /* This is the key property that makes the main content area expand */
-  flex: 1; 
-  display: flex;
-  flex-direction: column;
-  width: 100%;
   flex: 1;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  padding-top: 64px; /* Account for fixed header */
 }
