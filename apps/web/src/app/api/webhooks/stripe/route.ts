@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
 
         // Call the RPC function to process payment atomically
         // (SDD v3.6, Section 8.6)
-        const supabase = createClient();
+        const supabase = await createClient();
 
         const { error: rpcError } = await supabase.rpc('handle_successful_payment', {
           p_booking_id: booking_id
@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
 
         if (booking_id) {
           // Update booking payment_status to 'Failed'
-          const supabase = createClient();
+          const supabase = await createClient();
           await supabase
             .from('bookings')
             .update({ payment_status: 'Failed' })

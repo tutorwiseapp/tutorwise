@@ -16,7 +16,7 @@ import { NextResponse } from 'next/server';
  * - status (optional): filters by transaction status ('Pending', 'Paid', 'Failed', 'Cancelled')
  */
 export async function GET(req: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   try {
     // 1. Authenticate user

@@ -15,7 +15,7 @@ import { stripe } from '@/lib/stripe';
 import Stripe from 'stripe';
 
 export async function POST(req: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
   try {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {

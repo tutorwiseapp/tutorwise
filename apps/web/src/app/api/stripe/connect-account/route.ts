@@ -13,7 +13,7 @@ import { stripe } from '@/lib/stripe';
 import Stripe from 'stripe';
 
 export async function GET(req: NextRequest) {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   try {
     const { data: { user }, error: userError } = await supabase.auth.getUser();

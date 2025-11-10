@@ -17,7 +17,7 @@ export async function GET(
   req: Request,
   { params }: { params: { session_id: string } }
 ) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   try {
     // 1. Authenticate user

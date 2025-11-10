@@ -17,7 +17,7 @@ import { NextResponse } from 'next/server';
  *   - status (optional): Filter by session status ('pending' | 'published')
  */
 export async function GET(req: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   try {
     // 1. Authenticate user

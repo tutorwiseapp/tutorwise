@@ -15,7 +15,7 @@ import { NextResponse } from 'next/server';
  * - status (optional): filters by referral status ('Referred', 'Signed Up', 'Converted', 'Expired')
  */
 export async function GET(req: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   try {
     // 1. Authenticate user

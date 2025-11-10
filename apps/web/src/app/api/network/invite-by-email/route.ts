@@ -17,7 +17,7 @@ const InviteSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Log analytics for successful sends (using service_role to bypass RLS)
-      const supabaseAdmin = createClient();
+      const supabaseAdmin = await createClient();
 
       if (successfulSends.length > 0) {
         try {

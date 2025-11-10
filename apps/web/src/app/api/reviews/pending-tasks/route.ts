@@ -16,7 +16,7 @@ import { NextResponse } from 'next/server';
  * - Only shows sessions where user has not yet submitted
  */
 export async function GET() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   try {
     // 1. Authenticate user

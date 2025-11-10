@@ -14,7 +14,7 @@ import { NextResponse } from 'next/server';
  * Query params: status (optional) - filters by booking status
  */
 export async function GET(req: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   try {
     // 1. Authenticate user
@@ -109,7 +109,7 @@ export async function GET(req: Request) {
  * Body: { tutor_id, listing_id, service_name, session_start_time, session_duration, amount }
  */
 export async function POST(req: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   try {
     // 1. Authenticate user

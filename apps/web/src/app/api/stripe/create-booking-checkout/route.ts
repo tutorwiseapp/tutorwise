@@ -17,7 +17,7 @@ import Stripe from 'stripe';
  * Returns: { sessionId: string, url: string }
  */
 export async function POST(req: NextRequest) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   try {
     // 1. Authenticate user

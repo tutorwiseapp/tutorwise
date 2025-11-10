@@ -24,7 +24,7 @@ interface ReviewSubmission {
  * }
  */
 export async function POST(req: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   try {
     // 1. Authenticate user

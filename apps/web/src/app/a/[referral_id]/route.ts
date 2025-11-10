@@ -21,7 +21,7 @@ export async function GET(
   { params }: { params: { referral_id: string } }
 ) {
   const { referral_id } = params;
-  const supabase = createClient();
+  const supabase = await createClient();
 
   try {
     // 1. Get referrer's profile_id from their secure referral_code (SDD v4.3)

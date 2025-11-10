@@ -16,7 +16,7 @@ import { NextResponse } from 'next/server';
  *   - offset (optional): Pagination offset (default: 0)
  */
 export async function GET(req: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   try {
     // 1. Authenticate user
