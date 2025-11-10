@@ -125,8 +125,8 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
 
       {/* Right Sidebar with widgets */}
       <div className={styles.sidebar}>
-        {/* HeroProfileCard - readOnly mode for others, editable for own profile */}
-        <HeroProfileCard readOnly={!isOwnProfile} profileData={profile as Profile} />
+        {/* HeroProfileCard - always readOnly on public profile page */}
+        <HeroProfileCard readOnly={true} profileData={profile as Profile} />
 
         {/* PublicActionCard - only show for other users' profiles */}
         {!isOwnProfile && (

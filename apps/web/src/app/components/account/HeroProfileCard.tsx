@@ -51,7 +51,14 @@ export function HeroProfileCard({ readOnly = false, profileData }: HeroProfileCa
     }
   };
 
+  // Early return if no profile data available
   if (!profile) {
+    // In readOnly mode, if no profileData was passed, don't render anything
+    if (readOnly) {
+      console.warn('HeroProfileCard: No profileData provided in readOnly mode');
+      return null;
+    }
+    // In editable mode, wait for context to load
     return null;
   }
 
