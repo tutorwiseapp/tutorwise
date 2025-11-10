@@ -8,6 +8,9 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
+// Mark route as dynamic (required for cookies() in Next.js 15)
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/bookings
  * Fetches bookings for the authenticated user based on their active role

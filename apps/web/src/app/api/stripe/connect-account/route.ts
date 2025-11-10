@@ -12,6 +12,9 @@ import { createClient } from '@/utils/supabase/server';
 import { stripe } from '@/lib/stripe';
 import Stripe from 'stripe';
 
+// Mark route as dynamic (required for cookies() in Next.js 15)
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   const supabase = await createClient();
   

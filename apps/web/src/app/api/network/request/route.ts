@@ -10,6 +10,9 @@ import { checkRateLimit, rateLimitHeaders, rateLimitError } from '@/middleware/r
 import { sendConnectionRequestNotification } from '@/lib/email';
 import { z } from 'zod';
 
+// Mark route as dynamic (required for cookies() in Next.js 15)
+export const dynamic = 'force-dynamic';
+
 const RequestSchema = z.object({
   receiver_ids: z.array(z.string().uuid()).min(1).max(10),
   message: z.string().max(500).optional(),

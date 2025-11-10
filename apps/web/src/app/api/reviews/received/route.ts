@@ -8,6 +8,9 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
+// Mark route as dynamic (required for cookies() in Next.js 15)
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/reviews/received
  * Returns all published reviews where the authenticated user is the reviewee

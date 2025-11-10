@@ -4,6 +4,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { SaveProgressPayload, OnboardingProgressResponse } from '@/types';
 
+// Mark route as dynamic (required for cookies() in Next.js 15)
+export const dynamic = 'force-dynamic';
+
 /**
  * API route to save user onboarding progress
  * This endpoint performs a deep merge of onboarding progress to prevent data loss

@@ -11,6 +11,9 @@ import { checkRateLimit, rateLimitHeaders, rateLimitError } from '@/middleware/r
 import { sendConnectionInvitation } from '@/lib/email';
 import { z } from 'zod';
 
+// Mark route as dynamic (required for cookies() in Next.js 15)
+export const dynamic = 'force-dynamic';
+
 const InviteSchema = z.object({
   emails: z.array(z.string().email()).min(1).max(10),
 });
