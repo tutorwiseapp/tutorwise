@@ -16,6 +16,8 @@ interface NavItem {
   href: string;
   label: string;
   roles?: ('client' | 'tutor' | 'agent')[];
+  subItems?: NavItem[];
+  indent?: boolean;
 }
 
 export default function AppSidebar() {
@@ -30,7 +32,15 @@ export default function AppSidebar() {
     { href: '/listings', label: 'Listings' },
     { href: '/bookings', label: 'Bookings' },
     { href: '/referrals', label: 'Referrals' },
-    { href: '/financials', label: 'Financials' },
+    {
+      href: '/financials',
+      label: 'Financials',
+      subItems: [
+        { href: '/financials', label: 'Transactions', indent: true },
+        { href: '/financials/payouts', label: 'Payouts', indent: true },
+        { href: '/financials/disputes', label: 'Disputes', indent: true },
+      ],
+    },
     { href: '/messages', label: 'Messages' },
     { href: '/network', label: 'Network' },
     { href: '/reviews', label: 'Reviews' },
@@ -51,16 +61,35 @@ export default function AppSidebar() {
       <nav className={styles.nav}>
         <ul className={styles.navList}>
           {navItems.map((item) => (
-            <li key={item.href}>
-              <Link
-                href={item.href}
-                className={`${styles.navItem} ${
-                  isActive(item.href) ? styles.navItemActive : ''
-                }`}
-              >
-                {item.label}
-              </Link>
-            </li>
+            <React.Fragment key={item.href}>
+              <li>
+                <Link
+                  href={item.href}
+                  className={`${styles.navItem} ${
+                    isActive(item.href) ? styles.navItemActive : ''
+                  } ${item.indent ? styles.navItemIndent : ''}`}
+                >
+                  {item.label}
+                </Link>
+              </li>
+              {/* Render sub-items if they exist and parent is active */}
+              {item.subItems && isActive(item.href) && (
+                <>
+                  {item.subItems.map((subItem) => (
+                    <li key={subItem.href}>
+                      <Link
+                        href={subItem.href}
+                        className={`${styles.navItem} ${
+                          isActive(subItem.href) ? styles.navItemActive : ''
+                        } ${subItem.indent ? styles.navItemIndent : ''}`}
+                      >
+                        {subItem.label}
+                      </Link>
+                    </li>
+                  ))}
+                </>
+              )}
+            </React.Fragment>
           ))}
         </ul>
       </nav>

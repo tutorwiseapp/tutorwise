@@ -58,6 +58,12 @@
   font-weight: 600;
 }
 
+.navItemIndent {
+  padding-left: 2.5rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
 /* Role Indicator */
 .roleIndicator {
   padding: 1rem;

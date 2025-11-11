@@ -66,6 +66,14 @@ export default function PayoutsPage() {
 
   return (
     <>
+      {/* Page Header */}
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Payouts</h1>
+          <p className={styles.subtitle}>Manage withdrawals and view payout history</p>
+        </div>
+      </div>
+
       <div className={styles.content}>
         {/* Error State */}
         {error && (

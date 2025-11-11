@@ -65,6 +65,14 @@ export default function DisputesPage() {
 
   return (
     <>
+      {/* Page Header */}
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Disputes</h1>
+          <p className={styles.subtitle}>View and manage disputed transactions</p>
+        </div>
+      </div>
+
       <div className={styles.content}>
         {/* Error State */}
         {error && (

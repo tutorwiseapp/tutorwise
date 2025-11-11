@@ -93,6 +93,14 @@ export default function TransactionsPage() {
 
   return (
     <>
+      {/* Page Header */}
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Transactions</h1>
+          <p className={styles.subtitle}>Track your earnings and transaction history</p>
+        </div>
+      </div>
+
       {/* Status Filter Tabs */}
       <div className={styles.filterTabs}>
         <button
