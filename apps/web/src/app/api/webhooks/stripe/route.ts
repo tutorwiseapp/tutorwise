@@ -2,11 +2,16 @@
  * Filename: src/app/api/webhooks/stripe/route.ts
  * Purpose: Handles Stripe webhook events with idempotency and DLQ support
  * Created: 2025-11-02
- * Updated: 2025-11-11 - v4.9: Added idempotency and Dead-Letter Queue (DLQ)
- * Specification: SDD v4.9, Section 3.1 & 3.3
+ * Updated: 2025-11-11 - v4.9: Added payout event handling and production hardening
+ * Specification: SDD v4.9, Section 3.1 & 3.3 - Payment & Payout Processing
  * Change Summary:
  * - v3.6: Calls handle_successful_payment RPC for atomic commission splits
  * - v4.9: Adds stripe_checkout_id for idempotency, DLQ for failed webhooks
+ * - v4.9: Added payout event handlers (paid, failed, canceled, updated)
+ * - v4.9: Production hardening with comprehensive logging and error handling
+ *
+ * CRITICAL: This endpoint handles real-time payment and payout status updates.
+ * All operations must be idempotent and properly logged.
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
@@ -93,6 +98,162 @@ export async function POST(req: NextRequest) {
             .update({ payment_status: 'Failed' })
             .eq('id', booking_id);
         }
+        break;
+      }
+
+      // v4.9: Payout event handlers for withdrawal status tracking
+      case 'payout.paid': {
+        const payout = event.data.object as Stripe.Payout;
+        console.log(`[WEBHOOK:PAYOUT] Payout paid: ${payout.id}`);
+
+        const supabase = await createClient();
+
+        // Update transaction status to 'paid_out'
+        const { error: updateError } = await supabase
+          .from('transactions')
+          .update({
+            status: 'paid_out',
+            description: `Payout completed: ${payout.id}`,
+          })
+          .eq('stripe_payout_id', payout.id);
+
+        if (updateError) {
+          console.error(`[WEBHOOK:PAYOUT] Failed to update transaction:`, updateError);
+          throw updateError;
+        }
+
+        console.log(`[WEBHOOK:PAYOUT] Successfully marked payout ${payout.id} as paid`);
+        break;
+      }
+
+      case 'payout.failed': {
+        const payout = event.data.object as Stripe.Payout;
+        console.error(`[WEBHOOK:PAYOUT] Payout failed: ${payout.id}`, {
+          failure_code: payout.failure_code,
+          failure_message: payout.failure_message,
+        });
+
+        const supabase = await createClient();
+
+        // Update transaction status to 'Failed' and log the reason
+        const { error: updateError } = await supabase
+          .from('transactions')
+          .update({
+            status: 'Failed',
+            description: `Payout failed: ${payout.failure_message || payout.failure_code || 'Unknown error'}`,
+          })
+          .eq('stripe_payout_id', payout.id);
+
+        if (updateError) {
+          console.error(`[WEBHOOK:PAYOUT] Failed to update transaction:`, updateError);
+          throw updateError;
+        }
+
+        // Refund the amount back to user's available balance
+        // Find the withdrawal transaction and create a reversal
+        const { data: failedTransaction } = await supabase
+          .from('transactions')
+          .select('profile_id, amount')
+          .eq('stripe_payout_id', payout.id)
+          .single();
+
+        if (failedTransaction) {
+          // Create reversal transaction to return funds
+          await supabase
+            .from('transactions')
+            .insert({
+              profile_id: failedTransaction.profile_id,
+              type: 'Refund',
+              description: `Payout reversal: ${payout.id} (${payout.failure_message || 'Failed to process'})`,
+              amount: Math.abs(failedTransaction.amount), // Positive to add back
+              status: 'available',
+              available_at: new Date().toISOString(),
+            });
+
+          console.log(`[WEBHOOK:PAYOUT] Created reversal transaction for failed payout`);
+        }
+
+        break;
+      }
+
+      case 'payout.canceled': {
+        const payout = event.data.object as Stripe.Payout;
+        console.warn(`[WEBHOOK:PAYOUT] Payout canceled: ${payout.id}`);
+
+        const supabase = await createClient();
+
+        // Update transaction status to 'Failed'
+        const { error: updateError } = await supabase
+          .from('transactions')
+          .update({
+            status: 'Failed',
+            description: `Payout canceled: ${payout.id}`,
+          })
+          .eq('stripe_payout_id', payout.id);
+
+        if (updateError) {
+          console.error(`[WEBHOOK:PAYOUT] Failed to update transaction:`, updateError);
+          throw updateError;
+        }
+
+        // Refund the amount back to user's available balance
+        const { data: canceledTransaction } = await supabase
+          .from('transactions')
+          .select('profile_id, amount')
+          .eq('stripe_payout_id', payout.id)
+          .single();
+
+        if (canceledTransaction) {
+          await supabase
+            .from('transactions')
+            .insert({
+              profile_id: canceledTransaction.profile_id,
+              type: 'Refund',
+              description: `Payout cancellation reversal: ${payout.id}`,
+              amount: Math.abs(canceledTransaction.amount), // Positive to add back
+              status: 'available',
+              available_at: new Date().toISOString(),
+            });
+
+          console.log(`[WEBHOOK:PAYOUT] Created reversal transaction for canceled payout`);
+        }
+
+        break;
+      }
+
+      case 'payout.updated': {
+        const payout = event.data.object as Stripe.Payout;
+        console.log(`[WEBHOOK:PAYOUT] Payout updated: ${payout.id}`, {
+          status: payout.status,
+          arrival_date: payout.arrival_date,
+        });
+
+        // Update transaction with latest payout status
+        const supabase = await createClient();
+
+        // Map Stripe payout status to our transaction status
+        let transactionStatus: string = 'clearing';
+        if (payout.status === 'paid') {
+          transactionStatus = 'paid_out';
+        } else if (payout.status === 'failed' || payout.status === 'canceled') {
+          transactionStatus = 'Failed';
+        } else if (payout.status === 'in_transit') {
+          transactionStatus = 'paid_out';
+        }
+
+        const { error: updateError } = await supabase
+          .from('transactions')
+          .update({
+            status: transactionStatus,
+            description: `Payout ${payout.status}: ${payout.id}`,
+          })
+          .eq('stripe_payout_id', payout.id);
+
+        if (updateError) {
+          console.error(`[WEBHOOK:PAYOUT] Failed to update transaction:`, updateError);
+          // Non-critical error for status updates
+        }
+
         break;
       }
 
