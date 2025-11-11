@@ -4,8 +4,9 @@
  * Filename: tests/api/stripe-webhook.test.ts
  * Purpose: Smoke test for POST /api/webhooks/stripe endpoint
  * Created: 2025-11-02
- * Specification: SDD v3.6, Section 8.6 - Webhook RPC validation and commission splits
- * CRITICAL: This test validates the entire payment flow and commission logic
+ * Updated: 2025-11-11 - v4.9: Updated for idempotency and DLQ support
+ * Specification: SDD v4.9, Sections 3.1 & 3.3
+ * CRITICAL: This test validates the entire payment flow with idempotency and error handling
  */
 import { POST } from '@/app/api/webhooks/stripe/route';
 import { createClient } from '@/utils/supabase/server';
@@ -33,10 +34,11 @@ describe('POST /api/webhooks/stripe', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Setup mock Supabase client with RPC support
+    // Setup mock Supabase client with RPC support and DLQ
     mockSupabase = {
       rpc: jest.fn(),
       from: jest.fn(() => mockSupabase),
+      insert: jest.fn(() => mockSupabase),
       update: jest.fn(() => mockSupabase),
       eq: jest.fn(() => mockSupabase),
     };
@@ -92,9 +94,10 @@ describe('POST /api/webhooks/stripe', () => {
       expect(response.status).toBe(200);
       expect(result.received).toBe(true);
 
-      // CRITICAL: Verify RPC was called with correct booking_id
+      // CRITICAL: Verify RPC was called with booking_id AND stripe_checkout_id (v4.9)
       expect(mockSupabase.rpc).toHaveBeenCalledWith('handle_successful_payment', {
         p_booking_id: mockBookingId,
+        p_stripe_checkout_id: 'cs_test_session123', // v4.9: Idempotency key
       });
     });
 
@@ -133,7 +136,7 @@ describe('POST /api/webhooks/stripe', () => {
       expect(response.status).toBe(400);
     });
 
-    it('should return 500 if RPC function fails', async () => {
+    it('should log to DLQ and return 200 if RPC function fails (v4.9)', async () => {
       const mockBookingId = '55555555-5555-5555-5555-555555555555';
 
       const mockCheckoutSession: Stripe.Checkout.Session = {
@@ -161,6 +164,12 @@ describe('POST /api/webhooks/stripe', () => {
         error: { message: 'Booking not found or already processed' },
       });
 
+      // Mock DLQ insert success
+      mockSupabase.insert.mockResolvedValue({
+        data: null,
+        error: null,
+      });
+
       const request = new NextRequest('http://localhost:3000/api/webhooks/stripe', {
         method: 'POST',
         headers: {
@@ -170,8 +179,22 @@ describe('POST /api/webhooks/stripe', () => {
       });
 
       const response = await POST(request);
+      const result = await response.json();
 
-      expect(response.status).toBe(500);
+      // v4.9: Returns 200 (not 500) to prevent Stripe retries
+      expect(response.status).toBe(200);
+      expect(result.error).toContain('DLQ');
+
+      // Verify DLQ insert was called
+      expect(mockSupabase.from).toHaveBeenCalledWith('failed_webhooks');
+      expect(mockSupabase.insert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event_id: 'evt_test123',
+          event_type: 'checkout.session.completed',
+          status: 'failed',
+          booking_id: mockBookingId,
+        })
+      );
     });
   });
 
