@@ -391,6 +391,7 @@ export interface Transaction {
   // v4.9 fields
   available_at?: string; // ISO timestamp when funds become available for payout
   stripe_checkout_id?: string | null; // For idempotency (prevents duplicate charges)
+  stripe_payout_id?: string | null; // Stripe payout ID for withdrawals
   // Joined data from API
   booking?: {
     id: string;
