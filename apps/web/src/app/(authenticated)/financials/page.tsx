@@ -1,9 +1,9 @@
 /*
  * Filename: src/app/(authenticated)/financials/page.tsx
- * Purpose: Financials hub page - displays transaction history (SDD v3.6)
+ * Purpose: Transactions tab - displays transaction history with v4.9 status filtering
  * Created: 2025-11-02
- * Updated: 2025-11-03 - Refactored to use URL query parameters for filters (SDD v3.6 compliance)
- * Specification: SDD v3.6, Section 4.2 - /financials hub, Section 2.0 - Server-side filtering via URL params
+ * Updated: 2025-11-11 - v4.9: Refactored for secondary tab navigation and new transaction statuses
+ * Specification: SDD v4.9 - Transactions page with clearing/available/paid_out/disputed/refunded statuses
  */
 'use client';
 
@@ -11,24 +11,32 @@ import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import TransactionCard from '@/app/components/financials/TransactionCard';
-import ContextualSidebar, { BalanceSummaryWidget } from '@/app/components/layout/sidebars/ContextualSidebar';
-import { Transaction, TransactionType, TransactionStatus } from '@/types';
-import { createClient } from '@/utils/supabase/client';
+import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
+import WalletBalanceWidget from '@/app/components/financials/WalletBalanceWidget';
+import { Transaction } from '@/types';
 import styles from './page.module.css';
 
-export default function FinancialsPage() {
+// v4.9 Transaction statuses
+type TransactionStatusV49 = 'clearing' | 'available' | 'paid_out' | 'disputed' | 'refunded' | 'all';
+
+export default function TransactionsPage() {
   const { profile } = useUserProfile();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [balances, setBalances] = useState({
+    available: 0,
+    pending: 0,
+    total: 0,
+  });
 
-  // Read filter from URL (SDD v3.6: URL is single source of truth)
-  const statusFilter = (searchParams?.get('status') as TransactionStatus | null) || 'all';
+  // Read filter from URL
+  const statusFilter = (searchParams?.get('status') as TransactionStatusV49) || 'all';
 
   // Update URL when filter changes
-  const handleFilterChange = (newStatus: TransactionStatus | 'all') => {
+  const handleFilterChange = (newStatus: TransactionStatusV49) => {
     const params = new URLSearchParams(searchParams?.toString() || '');
     if (newStatus === 'all') {
       params.delete('status');
@@ -41,117 +49,92 @@ export default function FinancialsPage() {
   useEffect(() => {
     if (!profile) return;
 
-    const fetchTransactions = async () => {
+    const fetchData = async () => {
       try {
         setIsLoading(true);
-        const supabase = createClient();
 
-        // Fetch ALL transactions (no filter params - client-side filtering)
+        // Fetch transactions and balances from API
         const response = await fetch(`/api/financials`);
 
         if (!response.ok) {
-          throw new Error('Failed to fetch transactions');
+          throw new Error('Failed to fetch financial data');
         }
 
         const data = await response.json();
         setTransactions(data.transactions || []);
+        setBalances(data.balances || { available: 0, pending: 0, total: 0 });
       } catch (err) {
-        console.error('Error fetching transactions:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load transactions');
+        console.error('Error fetching financial data:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load data');
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchTransactions();
-  }, [profile]); // Only re-fetch when profile changes, not on filter change
+    fetchData();
+  }, [profile]);
 
-  // Client-side filtering based on URL param (status only)
+  // Client-side filtering based on URL param
   const filteredTransactions = transactions.filter((txn) => {
     if (statusFilter === 'all') return true;
     return txn.status === statusFilter;
   });
 
-  // Calculate balance summary (from ALL transactions, not filtered)
-  const balanceSummary = transactions.reduce(
-    (acc, txn) => {
-      // Only count income transactions (payouts and commissions)
-      const isIncome =
-        txn.type === 'Tutoring Payout' ||
-        txn.type === 'Referral Commission' ||
-        txn.type === 'Agent Commission';
-
-      if (!isIncome) return acc;
-
-      if (txn.status === 'Paid') {
-        acc.available += txn.amount;
-        acc.total += txn.amount;
-      } else if (txn.status === 'Pending') {
-        acc.pending += txn.amount;
-        acc.total += txn.amount;
-      }
-
-      return acc;
-    },
-    { available: 0, pending: 0, total: 0 }
-  );
-
   if (isLoading) {
     return (
-      <div className={styles.container}>
+      <>
         <div className={styles.loading}>Loading transactions...</div>
-      </div>
+        <ContextualSidebar>
+          <div className={styles.skeletonWidget} />
+        </ContextualSidebar>
+      </>
     );
   }
 
   return (
     <>
-      {/* Main Content */}
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>Financials</h1>
-          <p className={styles.subtitle}>
-            Track your earnings, commissions, and payment history
-          </p>
-        </div>
-      </div>
-
-      {/* Status Filter Tabs - Full width outside container */}
+      {/* Status Filter Tabs */}
       <div className={styles.filterTabs}>
-          <button
-            onClick={() => handleFilterChange('all')}
-            className={`${styles.filterTab} ${statusFilter === 'all' ? styles.filterTabActive : ''}`}
-          >
-            All Status
-          </button>
-          <button
-            onClick={() => handleFilterChange('Pending')}
-            className={`${styles.filterTab} ${statusFilter === 'Pending' ? styles.filterTabActive : ''}`}
-          >
-            Pending
-          </button>
-          <button
-            onClick={() => handleFilterChange('Paid')}
-            className={`${styles.filterTab} ${statusFilter === 'Paid' ? styles.filterTabActive : ''}`}
-          >
-            Paid
-          </button>
-          <button
-            onClick={() => handleFilterChange('Failed')}
-            className={`${styles.filterTab} ${statusFilter === 'Failed' ? styles.filterTabActive : ''}`}
-          >
-            Failed
-          </button>
-          <button
-            onClick={() => handleFilterChange('Cancelled')}
-            className={`${styles.filterTab} ${statusFilter === 'Cancelled' ? styles.filterTabActive : ''}`}
-          >
-            Cancelled
-          </button>
+        <button
+          onClick={() => handleFilterChange('all')}
+          className={`${styles.filterTab} ${statusFilter === 'all' ? styles.filterTabActive : ''}`}
+        >
+          All Status
+        </button>
+        <button
+          onClick={() => handleFilterChange('clearing')}
+          className={`${styles.filterTab} ${statusFilter === 'clearing' ? styles.filterTabActive : ''}`}
+        >
+          Clearing
+        </button>
+        <button
+          onClick={() => handleFilterChange('available')}
+          className={`${styles.filterTab} ${statusFilter === 'available' ? styles.filterTabActive : ''}`}
+        >
+          Available
+        </button>
+        <button
+          onClick={() => handleFilterChange('paid_out')}
+          className={`${styles.filterTab} ${statusFilter === 'paid_out' ? styles.filterTabActive : ''}`}
+        >
+          Paid Out
+        </button>
+        <button
+          onClick={() => handleFilterChange('disputed')}
+          className={`${styles.filterTab} ${statusFilter === 'disputed' ? styles.filterTabActive : ''}`}
+        >
+          Disputed
+        </button>
+        <button
+          onClick={() => handleFilterChange('refunded')}
+          className={`${styles.filterTab} ${statusFilter === 'refunded' ? styles.filterTabActive : ''}`}
+        >
+          Refunded
+        </button>
       </div>
 
-      {/* Content container */}
-      <div className={styles.container}>
+      {/* Main Content */}
+      <div className={styles.content}>
         {/* Error State */}
         {error && (
           <div className={styles.error}>
@@ -183,10 +166,10 @@ export default function FinancialsPage() {
 
       {/* Contextual Sidebar (Right Column) */}
       <ContextualSidebar>
-        <BalanceSummaryWidget
-          available={balanceSummary.available}
-          pending={balanceSummary.pending}
-          total={balanceSummary.total}
+        <WalletBalanceWidget
+          available={balances.available}
+          pending={balances.pending}
+          total={balances.total}
         />
       </ContextualSidebar>
     </>
