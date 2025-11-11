@@ -80,7 +80,7 @@ export interface User {
   email: string
   profile: UserProfile
   referral_code?: string      // Vinite: referral tracking
-  referred_by?: string        // Vinite: referrer tracking
+  referred_by?: string        // Vinite: agent tracking
   referral_rewards?: number   // Vinite: rewards earned
 }
 ```
@@ -92,7 +92,7 @@ export interface User {
 #### Referral Flow
 ```
 TutorWise User → Shares referral link (Vinite) → New user signs up
-→ New user books service (TutorWise) → Referrer gets reward (Vinite)
+→ New user books service (TutorWise) → agent gets reward (Vinite)
 → Payout processed (Shared Stripe)
 ```
 

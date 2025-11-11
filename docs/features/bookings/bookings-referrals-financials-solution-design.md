@@ -320,7 +320,7 @@ This page is for managing the referral pipeline. It is universal for all roles.
   3. Check for the referral cookie.
   4. **Priority 1 (Explicit Claim via Code):** If `referral_code` is present:
     - Find the `referrer_profile_id` from the `profiles` table `WHERE referral_code = [the code]`.
-    - If found, check if an "Anonymous" (`Referred`, `null` `referred_profile_id`) record exists from this referrer via cookie.
+    - If found, check if an "Anonymous" (`Referred`, `null` `referred_profile_id`) record exists from this agent via cookie.
     - If cookie record exists: **Update** that row, setting `referred_profile_id: new.id`, `status: 'Signed Up'`, `signed_up_at: now()`.
     - If no cookie record: **Create** a new row in `referrals` with `status: 'Signed Up'`, `referrer_profile_id`, `referred_profile_id`, and `signed_up_at`.
   5. **Priority 2 (Implicit Claim via Cookie):** If no `referral_code` was provided, check for the referral cookie.
@@ -369,7 +369,7 @@ This page is for managing the referral pipeline. It is universal for all roles.
     2. Create `transactions` row for the client (`type='Booking Payment'`).
     3. Create `transactions` row for the tutor (`type='Tutoring Payout'`).
     4. If `booking.referrer_profile_id` is not null:
-      - Create `transactions` row for the referrer (`type='Referral Commission'`, `amount= +[commission_share]`, `status='Pending'`). Let's say this new transaction's ID is `trans_abc`.
+      - Create `transactions` row for the agent (`type='Referral Commission'`, `amount= +[commission_share]`, `status='Pending'`). Let's say this new transaction's ID is `trans_abc`.
       - **Update Referral Pipeline:** Find the `referrals` record for this user (`WHERE referred_profile_id = booking.student_id AND status != 'Converted'`).
       - **Update** that `referrals` row:
         - Set `status: 'Converted'`
@@ -1932,7 +1932,7 @@ TypeScript
  * Filename: src/app/bookings/components/AgentBookingView.tsx
  * Purpose: Renders the "power-user" view for the 'agent' role.
  * Description: This component shows a comprehensive, filterable view of all
- * associated bookings (as client, tutor, or referrer).
+ * associated bookings (as client, tutor, or agent).
  * It uses a StatGrid, Filter Bar, and a hybrid Card/Table view.
  * Specification: SDD v3.5, Section 6.4
  */
@@ -3008,14 +3008,14 @@ export async function GET(
   const redirectTo = request.url.replace(request.url, '/'); // Redirect to homepage
 
   try {
-    // 1. Check if the referrer ID is valid
-    const { data: referrer, error: referrerError } = await supabase
+    // 1. Check if the agent ID is valid
+    const { data: agent, error: referrerError } = await supabase
       .from('profiles')
       .select('id')
       .eq('id', referrerProfileId)
       .single();
 
-    if (referrerError || !referrer) {
+    if (referrerError || !agent) {
       console.warn(`Referral link with invalid ID: ${referrerProfileId}`);
       // Still redirect, just don't create a referral record
       return NextResponse.redirect(redirectTo);
@@ -3358,13 +3358,13 @@ BEGIN
   -- Priority 1: Check for an EXPLICIT referral code claim
   IF referral_code_input IS NOT NULL AND referral_code_input != '' THEN
     
-    -- Find the referrer who owns this code
+    -- Find the agent who owns this code
     SELECT id INTO referrer_id_from_code
     FROM public.profiles
     WHERE referral_code = UPPER(referral_code_input)
     LIMIT 1;
 
-    -- If the code is valid and found a referrer
+    -- If the code is valid and found a agent
     IF referrer_id_from_code IS NOT NULL THEN
       
       -- Check if this code also matches an existing "Anonymous Lead" cookie
@@ -3377,7 +3377,7 @@ BEGIN
         LIMIT 1;
       END IF;
 
-      -- If the cookie record exists AND the referrer matches the code, update it.
+      -- If the cookie record exists AND the agent matches the code, update it.
       IF referral_row_from_cookie_id IS NOT NULL AND referrer_id_from_cookie = referrer_id_from_code THEN
         -- This is the perfect scenario: cookie tracking AND explicit code match.
         -- We "claim" the anonymous lead.
@@ -3621,10 +3621,10 @@ BEGIN
   VALUES
     (v_booking.tutor_id, p_booking_id, 'Tutoring Payout', 'Payout for ' || v_booking.service_name, 'Pending', p_tutor_share);
 
-  -- 5. If there is a referrer, create commission and update pipeline
+  -- 5. If there is a agent, create commission and update pipeline
   IF v_booking.referrer_profile_id IS NOT NULL AND p_referrer_commission > 0 THEN
     
-    -- 5a. Create the referrer's 'Referral Commission' transaction (T-TYPE-3)
+    -- 5a. Create the agent's 'Referral Commission' transaction (T-TYPE-3)
     INSERT INTO public.transactions
       (profile_id, booking_id, type, description, status, amount)
     VALUES
@@ -3715,12 +3715,12 @@ These two new files are the **backend engine** that powers our entire new system
 
 - **What it is:** This is a database migration that installs a special function (an "RPC" or Remote Procedure Call) named `handle_successful_payment` directly into our Supabase database.
 - **Purpose:** This is the "engine" that does all the work. Its purpose is to execute all five required database changes in a single, **atomic transaction**. "Atomic" means if any *one* step fails (e.g., the referral update fails), the entire operation is rolled back, preventing data corruption.
-- **Why it's needed:** This function guarantees that our entire system stays in sync. It ensures that for every one payment, all the required "dominoes" fall correctly: the booking is marked paid, the client is debited, the tutor is credited, the referrer is credited, and the referral pipeline is updated.
+- **Why it's needed:** This function guarantees that our entire system stays in sync. It ensures that for every one payment, all the required "dominoes" fall correctly: the booking is marked paid, the client is debited, the tutor is credited, the agent is credited, and the referral pipeline is updated.
 - **How it works:** When the "Listener" (File 1) calls this function, it performs these steps in this exact order, as specified in **SDD v3.5, Section 8.6**:
   1. **Updates the** `bookings` **table:** It finds the booking (e.g., `booking_123`) and sets its `payment_status` to **'Paid'**.
   2. **Creates Client Transaction:** It creates a new row in the `transactions` table for the client (e.g., `Type: 'Booking Payment'`, `Amount: -£50.00`).
   3. **Creates Tutor Transaction:** It creates a new row in the `transactions` table for the tutor (e.g., `Type: 'Tutoring Payout'`, `Amount: +£45.00`, `Status: 'Pending'`).
-  4. **Creates Referrer Transaction:** It checks if the booking had a `referrer_profile_id`. If so, it creates a *third* row in the `transactions` table for the referrer (e.g., `Type: 'Referral Commission'`, `Amount: +£5.00'`, `Status: 'Pending'`).
+  4. **Creates agent Transaction:** It checks if the booking had a `referrer_profile_id`. If so, it creates a *third* row in the `transactions` table for the agent (e.g., `Type: 'Referral Commission'`, `Amount: +£5.00'`, `Status: 'Pending'`).
   5. **Updates the Referral Pipeline:** It finds the matching row in the `referrals` table and updates its `status` to **'Converted'**, linking the `booking_id` and the new `transaction_id`.
 
 * * *
@@ -3788,7 +3788,7 @@ export default function ListingDetailPage() {
   const [isBooking, setIsBooking] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
-  // --- (NEW) Get the referrer ID from the URL ---
+  // --- (NEW) Get the agent ID from the URL ---
   // This would be passed from the /a/[referral_id] route or other links
   const referrerId = searchParams.get('ref');
 

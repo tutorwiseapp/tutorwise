@@ -55,7 +55,7 @@ src/app/
 │   ├── signup/          # Registration page
 │   └── callback/        # Auth callback handling
 ├── (dashboard)/         # Protected dashboard routes [PLANNED]
-│   ├── student/         # Student-specific pages
+│   ├── client/          # Client-specific pages
 │   ├── tutor/           # Tutor-specific pages
 │   └── agent/           # Agent-specific pages
 ├── api/                 # API routes (Next.js API)
@@ -113,7 +113,7 @@ tutorwise-railway-backend/
 profiles (
   id UUID PRIMARY KEY,
   email VARCHAR UNIQUE,
-  role VARCHAR CHECK (role IN ('student', 'tutor', 'agent')),
+  role VARCHAR CHECK (role IN ('client', 'tutor', 'agent')),
   created_at TIMESTAMP,
   updated_at TIMESTAMP
 );
@@ -129,7 +129,7 @@ tutors (
 bookings (
   id UUID PRIMARY KEY,
   tutor_id UUID REFERENCES tutors(id),
-  student_id UUID REFERENCES profiles(id),
+  client_id UUID REFERENCES profiles(id),
   scheduled_at TIMESTAMP,
   status VARCHAR
 );
@@ -138,7 +138,7 @@ bookings (
 ### **Neo4j Graph Database**
 ```cypher
 // Relationship-focused data
-// Tutor-Student connections
+// Tutor-Client connections
 // Subject expertise mapping
 // Learning path relationships
 // Recommendation engine data
@@ -267,7 +267,7 @@ Testing Strategy:
 
 ### **Booking Flow (Planned)**
 ```
-1. Student Search → Tutor Database Query
+1. Client Search → Tutor Database Query
 2. Booking Request → Backend Validation
 3. Payment Processing → Stripe API
 4. Confirmation → Email Notifications

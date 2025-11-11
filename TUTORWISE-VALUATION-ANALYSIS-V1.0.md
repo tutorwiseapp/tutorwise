@@ -90,7 +90,7 @@ Marketplace → Network:    Delegation dropdown pulls from accepted connections
 
 **Strengths:**
 - **Atomic Payment Processing** - Idempotent webhook prevents duplicate charges
-- **Three-Way Commission Split** (80% tutor / 10% referrer / 10% platform) - Rare in tutoring platforms
+- **Three-Way Commission Split** (80% tutor / 10% agent / 10% platform) - Rare in tutoring platforms
 - **Lifetime Referral Attribution** - `referred_by_profile_id` stored permanently, never expires
 - **Stripe Connect** - Direct payouts to tutors, PCI-compliant checkout
 - **Multi-Status Pipeline** - Pending → Confirmed → Completed → Cancelled states
@@ -102,7 +102,7 @@ CREATE FUNCTION process_booking_payment(p_booking_id UUID)
 -- Creates 3-5 transactions atomically:
 --   1. Client payment (debit)
 --   2. Tutor payout (80% or 90%)
---   3. Referrer commission (10%, if applicable)
+--   3. agent commission (10%, if applicable)
 --   4. Platform fee (10%)
 -- Updates booking.payment_status = 'Completed'
 ```
@@ -149,7 +149,7 @@ Excellent payment architecture and referral attribution, but missing the communi
 3. **Commission Delegation**
    - Solves the "offline brochure problem"
    - Tutors can print QR codes on flyers and delegate commission to their agent
-   - Prevents commission theft (only works if tutor IS the referrer)
+   - Prevents commission theft (only works if tutor IS the agent)
    - Supports "Tutor-Led" marketing model
 
 4. **Vinite-Style Asset Widget**
@@ -161,7 +161,7 @@ Excellent payment architecture and referral attribution, but missing the communi
 5. **Lifetime Attribution**
    - Stored in `profiles.referred_by_profile_id`
    - Never expires, never changes
-   - All future bookings credit original referrer
+   - All future bookings credit original agent
    - Creates annuity-like commission stream
 
 **Integration with Other Pipelines:**
@@ -341,7 +341,7 @@ Excellent architectural foundation with connections table already implemented. P
 **For Clients:**
 ```
 1. Click referral link (generic or contextual)
-   → Attributed to referrer forever (lifetime attribution)
+   → Attributed to agent forever (lifetime attribution)
    ↓
 2. Natural language search
    → "Find GCSE maths tutor in London under £40 with free trial"
@@ -354,7 +354,7 @@ Excellent architectural foundation with connections table already implemented. P
    → Stripe Checkout (PCI-compliant, secure)
    ↓
 5. Automatic commission split
-   → 80% tutor / 10% referrer / 10% platform (transparent)
+   → 80% tutor / 10% agent / 10% platform (transparent)
    ↓
 6. Rate tutor after session
    → Stats update (average_rating, total_reviews, sessions_taught)
@@ -382,9 +382,9 @@ Tutor Jane creates QR code brochure (Referral Pipeline)
   → Client refers friend Amy via "Refer & Earn" button (Network Pipeline)
   → Amy books Jane's listing: £100
       - Jane (tutor): £80 (80%)
-      - Client (referrer): £10 (10%, lifetime commission)
+      - Client (agent): £10 (10%, lifetime commission)
       - Platform: £10 (10%)
-  → Loop compounds: Amy becomes a referrer
+  → Loop compounds: Amy becomes a agent
 ```
 
 **Example 2: Agent Network Effect**
@@ -464,7 +464,7 @@ New tutor signs up via referral (Referral Pipeline)
 - **Multi-sided network effects:** Tutors + Agents + Clients all benefit from network growth
 - **Commission delegation:** Unique IP that enables "Tutor-Led" offline marketing model
 - **Lifetime attribution:** Creates annuity-like commission streams (high LTV)
-- **Viral mechanics:** Every user becomes a potential referrer (organic growth)
+- **Viral mechanics:** Every user becomes a potential agent (organic growth)
 
 **Business Model Gaps:**
 - Premium features not yet defined (e.g., priority placement, featured listings)
@@ -608,7 +608,7 @@ Month 6:  Critical mass → Organic growth dominates, paid acquisition becomes s
 2. Sees "Refer a Friend, Get £10" in dashboard
 3. Shares link → Friend books
 4. Client gets £10 credit (or cash commission)
-5. Friend becomes referrer → Loop continues (cascade effect)
+5. Friend becomes agent → Loop continues (cascade effect)
 ```
 
 **Compounding Effect (Mathematical Model):**

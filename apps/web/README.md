@@ -1,6 +1,6 @@
 # Tutorwise Web Application
 
-The frontend web application for the Tutorwise educational platform. Built with Next.js 13+ App Router, TypeScript, and Tailwind CSS, this application provides a modern, responsive user interface for tutors, agents, and students.
+The frontend web application for the Tutorwise educational platform. Built with Next.js 13+ App Router, TypeScript, and Tailwind CSS, this application provides a modern, responsive user interface for tutors, agents, and clients.
 
 ## Overview
 
@@ -147,7 +147,7 @@ npm run type-check
 ### User Experience
 
 **Role-Based Dashboards**
-- Dynamic dashboard content based on user role (student, tutor, agent)
+- Dynamic dashboard content based on user role (client, tutor, agent)
 - Role switching functionality for multi-role users
 - Personalized navigation and feature access
 

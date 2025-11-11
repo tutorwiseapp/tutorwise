@@ -67,7 +67,7 @@ This workflow is triggered by the user (the "Agent") *actively* generating a spe
 
 1. **Action (Refer):** Any logged-in user (Client Cathy, Agent Bob, or Tutor Jane) navigates to any public listing or profile page (e.g., Mark's listing).
 2. They click the `Refer & Earn` button located in the `<ActionCard>`.
-3. **Result (Link):** The system generates a unique, tracked URL that combines the *referrer's* code with a redirect to the *current page*.
+3. **Result (Link):** The system generates a unique, tracked URL that combines the *agent's* code with a redirect to the *current page*.
   - **Example Link:** `tutorwise.com/a/cAtHy7bZ?redirect=/listings/[marks-id]`
 4. **Process (Sign Up & Convert):** A new user (John) clicks this link. The *existing* `SDD v3.6` backend handles the entire flow automatically:
   - `apps/web/src/app/a/[referral_id]/route.ts` sets the cookie for **Cathy**.
@@ -140,10 +140,10 @@ WHERE id = v_booking.listing_id;
 -- 2. Set the default recipient
 v_final_commission_recipient_id := v_direct_referrer_id;
 -- 3. Run the new Delegation Check (Refined v4.2.1)
--- This rule ensures delegation *only* happens when the listing owner is also the referrer.
+-- This rule ensures delegation *only* happens when the listing owner is also the agent.
 IF v_listing_delegation_id IS NOT NULL AND v_direct_referrer_id = v_listing_owner_id THEN
   -- This is the "Brochure" use case.
-  -- The referrer was Jane AND she delegated this listing's commission to Bob.
+  -- The agent was Jane AND she delegated this listing's commission to Bob.
   -- Override the recipient to pay the Agent (Bob).
   v_final_commission_recipient_id := v_listing_delegation_id;
 END IF;
@@ -174,11 +174,11 @@ This combined `v4.3` system is now tested against all key use cases.
 
 |     |     |     |     |     |     |     |
 | --- | --- | --- | --- | --- | --- | --- |
-| **Scenario** | **Use Case** | **Setup** | **Referrer** | **Payout Logic** | **Final Recipient** | **Status** |
-| **1: C2C Online** | **Cathy (Client)** refers **John** to **Jane's** listing. | `listing-JANE` has `delegate_commission_to_profile_id = NULL`. | **Cathy** (via `Refer & Earn` button) | `IF (NULL AND [CATHY] = [JANE])` is **FALSE**.<br><br>Pay Direct Referrer. | **Cathy** | ✅ **PASS** |
-| **2: T2C Online** | **Jane (Tutor)** refers **John** to **Mark's** listing. | `listing-MARK` has `delegate_commission_to_profile_id = NULL`. | **Jane** (via `Refer & Earn` button) | `IF (NULL AND [JANE] = [MARK])` is **FALSE**.<br><br>Pay Direct Referrer. | **Jane** | ✅ **PASS** |
+| **Scenario** | **Use Case** | **Setup** | **agent** | **Payout Logic** | **Final Recipient** | **Status** |
+| **1: C2C Online** | **Cathy (Client)** refers **John** to **Jane's** listing. | `listing-JANE` has `delegate_commission_to_profile_id = NULL`. | **Cathy** (via `Refer & Earn` button) | `IF (NULL AND [CATHY] = [JANE])` is **FALSE**.<br><br>Pay Direct agent. | **Cathy** | ✅ **PASS** |
+| **2: T2C Online** | **Jane (Tutor)** refers **John** to **Mark's** listing. | `listing-MARK` has `delegate_commission_to_profile_id = NULL`. | **Jane** (via `Refer & Earn` button) | `IF (NULL AND [JANE] = [MARK])` is **FALSE**.<br><br>Pay Direct agent. | **Jane** | ✅ **PASS** |
 | **3: B2B Offline** (The "Brochure") | **Jane (Tutor)** refers **John** using her *own* brochure from **Bob's** store. | `listing-JANE` has `delegate_commission_to_profile_id = [BOB'S ID]`. | **Jane** (via her generic `.../a/jAnE7kL` QR code) | `IF ([BOB'S ID] AND [JANE] = [JANE])` is **TRUE**.<br><br>Pay Delegate. | **Bob** | ✅ **PASS** |
-| **4: Conflict Test** | **Cathy (Client)** refers **John** to **Jane's** listing (which is delegated to Bob). | `listing-JANE` has `delegate_commission_to_profile_id = [BOB'S ID]`. | **Cathy** (via `Refer & Earn` button) | `IF ([BOB'S ID] AND [CATHY] = [JANE])` is **FALSE**.<br><br>Pay Direct Referrer. | **Cathy** | ✅ **PASS** |
+| **4: Conflict Test** | **Cathy (Client)** refers **John** to **Jane's** listing (which is delegated to Bob). | `listing-JANE` has `delegate_commission_to_profile_id = [BOB'S ID]`. | **Cathy** (via `Refer & Earn` button) | `IF ([BOB'S ID] AND [CATHY] = [JANE])` is **FALSE**.<br><br>Pay Direct agent. | **Cathy** | ✅ **PASS** |
 
 ### 6.0 Conclusion
 

@@ -44,7 +44,7 @@ DECLARE
   cookie_referral_id_input UUID;
   referrer_id_from_code UUID;
   referrer_id_from_cookie UUID;
-  v_referrer_id UUID := NULL; -- The final determined referrer ID
+  v_referrer_id UUID := NULL; -- The final determined agent ID
   
   -- Variables for code generation (Q1)
   v_full_name TEXT := new.raw_user_meta_data ->> 'full_name';
@@ -114,7 +114,7 @@ BEGIN
 
   -- Section 4: Stamp the user and update the lead-gen table
   IF v_referrer_id IS NOT NULL THEN
-    -- (CRITICAL) STAMP THE REFERRER-OF-RECORD for lifetime attribution
+    -- (CRITICAL) STAMP THE agent-OF-RECORD for lifetime attribution
     UPDATE public.profiles
     SET referred_by_profile_id = v_referrer_id
     WHERE id = new.id;
@@ -205,7 +205,7 @@ BEGIN
     v_referrer_commission_amount := v_booking.amount * v_referrer_commission_percent;
     v_tutor_payout_amount := v_booking.amount - v_platform_fee_amount - v_referrer_commission_amount; -- 80%
     
-    -- 3a. Create Referrer's 'Referral Commission' transaction (T-TYPE-3)
+    -- 3a. Create agent's 'Referral Commission' transaction (T-TYPE-3)
     INSERT INTO public.transactions
       (profile_id, booking_id, type, description, status, amount)
     VALUES

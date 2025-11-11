@@ -42,17 +42,17 @@ This design is based on the critical business logic that any user (not just agen
 
 This section formalizes the architectural decisions made to clarify the scope of SDD v3.6.
 
-1. **Commission Model: Lifetime Attribution (Model 3).** We will adopt a "Referrer-of-Record" model. This is the simplest and most powerful incentive.
-  - **Logic:** When a new user signs up with a referral code/link, the referrer's ID is **permanently stamped** onto the new user's `profiles` record in a new `referred_by_profile_id` column.
-  - **Impact:** The referrer will receive a commission (defined as 10% of the booking amount) on *every* future booking that client makes, forever. This provides a strong incentive for both solo referrers and large agencies.
+1. **Commission Model: Lifetime Attribution (Model 3).** We will adopt a "agent-of-Record" model. This is the simplest and most powerful incentive.
+  - **Logic:** When a new user signs up with a referral code/link, the agent's ID is **permanently stamped** onto the new user's `profiles` record in a new `referred_by_profile_id` column.
+  - **Impact:** The agent will receive a commission (defined as 10% of the booking amount) on *every* future booking that client makes, forever. This provides a strong incentive for both solo referrers and large agencies.
 2. **Stripe Payment Flow:** To support this, the booking flow is as follows:
   - When a client clicks "Book Now," we **immediately create a** `bookings` **record** in our database with `payment_status: 'Pending'`.
-  - The `booking` record must be tagged with the client's "Referrer-of-Record" (from their `profile.referred_by_profile_id`).
+  - The `booking` record must be tagged with the client's "agent-of-Record" (from their `profile.referred_by_profile_id`).
   - We then redirect to Stripe checkout, passing our `booking_id` in the metadata.
   - The Stripe Webhook (Section 8.6) uses this `booking_id` to find the record and execute the correct commission split.
 3. **Commission Split:** The business rules for payment are:
   - **Direct Booking:** 90% to Tutor, 10% to Platform.
-  - **Referred Booking:** 80% to Tutor, 10% to Referrer, 10% to Platform.
+  - **Referred Booking:** 80% to Tutor, 10% to agent, 10% to Platform.
 4. **Referral Code Generation:** We will use **Human-readable codes** (e.g., `JANE-123`), as specified in the `handle_new_user` trigger. The MD5 hash logic in the original migration file was a placeholder and will be removed.
 5. **3-Column Layout:** This is a **new, separate layout** implemented in `src/app/(authenticated)/layout.tsx` and will apply *only* to the new hubs (`/bookings`, `/financials`, `/referrals`). It will not replace the existing `Header.tsx`/`NavMenu.tsx` used on public-facing pages.
 6. **Data Migration:** This is a **clean slate**. No data migration is required from old tables.
@@ -116,7 +116,7 @@ To ensure a 100% clean break from legacy systems, this project will create three
 To support robust, lifetime referral tracking, **two** new columns will be added to the existing `profiles` table:
 
 1. `referral_code` (TEXT, Unique, Not Null): A human-readable, unique code (e.g., JANE-123) for explicit referral claims during signup.
-2. `referred_by_profile_id` (UUID, Nullable, FK to `profiles.id`): **(NEW PER Q&A)** The "Referrer-of-Record". This stamps the referrer onto the user's profile permanently at signup. This is the driver for all future commission payments.
+2. `referred_by_profile_id` (UUID, Nullable, FK to `profiles.id`): **(NEW PER Q&A)** The "agent-of-Record". This stamps the agent onto the user's profile permanently at signup. This is the driver for all future commission payments.
 
 #### 4.1 `bookings` Table (NEW)
 
@@ -126,7 +126,7 @@ This NEW table will be created to track all sessions and will be the single sour
 - `student_id` (FK to `profiles.id`)
 - `tutor_id` (FK to `profiles.id`)
 - `listing_id` (FK to `listings.id`)
-- `referrer_profile_id` (UUID, Nullable, FK to `profiles.id`): **(UPDATED)** Tracks the "Referrer-of-Record" for this booking, enabling the 80/10/10 commission split.
+- `referrer_profile_id` (UUID, Nullable, FK to `profiles.id`): **(UPDATED)** Tracks the "agent-of-Record" for this booking, enabling the 80/10/10 commission split.
 - `service_name` (String)
 - `session_start_time` (Timestamp)
 - `session_duration` (Integer, minutes)
@@ -313,7 +313,7 @@ This page is for managing the *lead generation* pipeline. It is universal for al
 
 #### 8.2 `handle_new_user` Trigger (Update)
 
-- **Purpose:** (UPDATED) To "claim" a referral when a new user signs up, updating the `referrals` lead-gen table and **permanently stamping the referrer on the** `profiles` **table for "Lifetime Attribution".**
+- **Purpose:** (UPDATED) To "claim" a referral when a new user signs up, updating the `referrals` lead-gen table and **permanently stamping the agent on the** `profiles` **table for "Lifetime Attribution".**
 - **Logic:** a. This function runs after a new row is inserted in `auth.users`. b. Check for `request.body.referral_code` from the signup form. c. Check for the referral cookie. d. **Priority 1 (Explicit Claim via Code):** If `referral_code` is present: i. Find the `referrer_profile_id` from the `profiles` table WHERE `referral_code` = `[the code]`. ii. **If found, stamp this new user's profile:** `UPDATE public.profiles SET referred_by_profile_id = [referrer_id] WHERE id = new.id;` iii. Check for a cookie record. If a matching cookie record exists, `UPDATE` that `referrals` row to `'Signed Up'`. If not, `INSERT` a new `referrals` row with `status: 'Signed Up'`. e. **Priority 2 (Implicit Claim via Cookie):** If no `referral_code` was provided, check for the referral cookie. i. If cookie is present, get the `referrals.id` from it. ii. Find the "Anonymous Lead" row in the `referrals` table. iii. **If found, get the** `referrer_profile_id` **from that row and stamp the new user's profile:** `UPDATE public.profiles SET referred_by_profile_id = [referrer_id_from_cookie] WHERE id = new.id;` iv. Update that `referrals` row: \* Set `referred_profile_id`: `new.id` \* Set `status`: `'Signed Up'` \* Set `signed_up_at`: `now()`
 
 #### 8.3 GET /api/referrals (New Endpoint)
@@ -346,7 +346,7 @@ This page is for managing the *lead generation* pipeline. It is universal for al
 #### 8.6 POST /api/webhooks/stripe (Critical Integration Update)
 
 - **Purpose:** (UPDATED) To create all necessary transactions based on the **Lifetime Attribution** model (80/10/10 split) and update the referral *lead-gen* pipeline upon successful payment.
-- **Logic:** a. Receive and verify the `payment_intent.succeeded` webhook. b. Get the `booking_id` from the `payment_intent.metadata`. c. **Call the new** `handle_successful_payment` **database function (RPC) passing in** ***only*** **the** `booking_id`**.** This function will atomically: i. Fetch the `booking` record (which includes the `referrer_profile_id`). ii. **If** `booking.referrer_profile_id` **IS PRESENT** (Referred Booking): 1. Create **Client Transaction** (`type='Booking Payment'`, `amount` = -100%) 2. Create **Tutor Transaction** (`type='Tutoring Payout'`, `amount` = +80%) 3. Create **Referrer Transaction** (`type='Referral Commission'`, `amount` = +10%) 4. Create **Platform Fee** (`type='Platform Fee'`, `amount` = -10%) iii. **If** `booking.referrer_profile_id` **IS NULL** (Direct Booking): 1. Create **Client Transaction** (`type='Booking Payment'`, `amount` = -100%) 2. Create **Tutor Transaction** (`type='Tutoring Payout'`, `amount` = +90%) 3. Create **Platform Fee** (`type='Platform Fee'`, `amount` = -10%) iv. Update `bookings` table: set `payment_status` to `'Paid'`. v. **(First conversion only)** Find the `referrals` record for this user (if one exists with `status != 'Converted'`) and update it to `'Converted'`, linking the `booking_id` and `transaction_id`. This completes the *lead-gen* pipeline but does not affect future commissions.
+- **Logic:** a. Receive and verify the `payment_intent.succeeded` webhook. b. Get the `booking_id` from the `payment_intent.metadata`. c. **Call the new** `handle_successful_payment` **database function (RPC) passing in** ***only*** **the** `booking_id`**.** This function will atomically: i. Fetch the `booking` record (which includes the `referrer_profile_id`). ii. **If** `booking.referrer_profile_id` **IS PRESENT** (Referred Booking): 1. Create **Client Transaction** (`type='Booking Payment'`, `amount` = -100%) 2. Create **Tutor Transaction** (`type='Tutoring Payout'`, `amount` = +80%) 3. Create **agent Transaction** (`type='Referral Commission'`, `amount` = +10%) 4. Create **Platform Fee** (`type='Platform Fee'`, `amount` = -10%) iii. **If** `booking.referrer_profile_id` **IS NULL** (Direct Booking): 1. Create **Client Transaction** (`type='Booking Payment'`, `amount` = -100%) 2. Create **Tutor Transaction** (`type='Tutoring Payout'`, `amount` = +90%) 3. Create **Platform Fee** (`type='Platform Fee'`, `amount` = -10%) iv. Update `bookings` table: set `payment_status` to `'Paid'`. v. **(First conversion only)** Find the `referrals` record for this user (if one exists with `status != 'Converted'`) and update it to `'Converted'`, linking the `booking_id` and `transaction_id`. This completes the *lead-gen* pipeline but does not affect future commissions.
 
 ### 9.0 Responsive Design Strategy (RE-WRITTEN)
 
@@ -646,7 +646,7 @@ This section outlines the step-by-step plan, incorporating our architectural dec
   - Update `handle_new_user` trigger to:
     1. Handle "Priority 1 (Code)" and "Priority 2 (Cookie)".
     2. Update `referrals` row to "Signed Up".
-    3. **Stamp the new** `profiles.referred_by_profile_id` with the referrer's ID.
+    3. **Stamp the new** `profiles.referred_by_profile_id` with the agent's ID.
   - **Create** `POST /api/webhooks/stripe` **(Section 8.6)** to call the new RPC.
   - **Create** `handle_successful_payment` **RPC** to execute the **80/10/10 or 90/10** commission split based on the `booking.referrer_profile_id`.
 3. **Create New API Endpoints (Section 8.0)**
@@ -753,7 +753,7 @@ CREATE TYPE referral_status_enum AS ENUM (
 -- SDD v3.6, Section 4.0.1
 ALTER TABLE public.profiles
 ADD COLUMN referral_code TEXT UNIQUE, -- Code generation is handled by the handle_new_user trigger
-ADD COLUMN referred_by_profile_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL; -- (NEW PER Q&A) The "Referrer-of-Record"
+ADD COLUMN referred_by_profile_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL; -- (NEW PER Q&A) The "agent-of-Record"
 
 -- 3. Create NEW 'bookings' Table
 -- SDD Section 4.1
@@ -844,7 +844,7 @@ export type Profile = {
   roles: ('client' | 'tutor' | 'agent')[];
   // (NEW) The user's unique, reusable referral code. SDD Section 4.0.1
   referral_code: string;
-  // (NEW PER Q&A) The "Referrer-of-Record" for lifetime commissions. SDD v3.6
+  // (NEW PER Q&A) The "agent-of-Record" for lifetime commissions. SDD v3.6
   referred_by_profile_id?: string; 
   // ... other profile fields
 };
@@ -1788,7 +1788,7 @@ export default function Signup() {
 #### **File 11 (New): The** `handle_new_user` **Database Trigger**
 
 - **File Path:** `apps/api/migrations/029_update_handle_new_user_trigger_v3_5.sql`
-- **Description:** This file **replaces** the old `handle_new_user` trigger. It implements the full "Lifetime Attribution" logic from SDD v3.6, Section 8.2, stamping the referrer's ID onto the new user's profile.
+- **Description:** This file **replaces** the old `handle_new_user` trigger. It implements the full "Lifetime Attribution" logic from SDD v3.6, Section 8.2, stamping the agent's ID onto the new user's profile.
 
 ```
 SQL
@@ -1817,7 +1817,7 @@ DECLARE
   referrer_id_from_code UUID;
   referrer_id_from_cookie UUID;
   referral_row_from_cookie_id UUID;
-  v_referrer_id UUID; -- The final determined referrer ID
+  v_referrer_id UUID; -- The final determined agent ID
 BEGIN
   -- Section 1: Create the user's public profile
   INSERT INTO public.profiles (id, email, full_name, referral_code)
@@ -1836,7 +1836,7 @@ BEGIN
 
   -- Priority 1: Check for an EXPLICIT referral code claim
   IF referral_code_input IS NOT NULL AND referral_code_input != '' THEN
-    -- Find the referrer who owns this code
+    -- Find the agent who owns this code
     SELECT id INTO referrer_id_from_code
     FROM public.profiles
     WHERE referral_code = UPPER(referral_code_input)
@@ -1864,14 +1864,14 @@ BEGIN
 
   -- Section 3: Stamp the user and update the lead-gen table
   IF v_referrer_id IS NOT NULL THEN
-    -- (NEW PER Q&A) STAMP THE REFERRER-OF-RECORD for lifetime attribution
+    -- (NEW PER Q&A) STAMP THE agent-OF-RECORD for lifetime attribution
     UPDATE public.profiles
     SET referred_by_profile_id = v_referrer_id
     WHERE id = new.id;
 
     -- Now, update the lead-gen 'referrals' table (find-or-create)
     IF cookie_referral_id_input IS NOT NULL THEN
-        -- Check if cookie matches the code referrer, or if it's a cookie-only claim
+        -- Check if cookie matches the code agent, or if it's a cookie-only claim
         UPDATE public.referrals
         SET
           referred_profile_id = new.id,
@@ -2064,7 +2064,7 @@ BEGIN
     v_referrer_commission_amount := v_booking.amount * v_referrer_commission_percent;
     v_tutor_payout_amount := v_booking.amount - v_platform_fee_amount - v_referrer_commission_amount; -- 80%
     
-    -- 3a. Create Referrer's 'Referral Commission' transaction (T-TYPE-3)
+    -- 3a. Create agent's 'Referral Commission' transaction (T-TYPE-3)
     INSERT INTO public.transactions
       (profile_id, booking_id, type, description, status, amount)
     VALUES
@@ -2220,7 +2220,7 @@ export default function ListingDetailPage() {
       session_start_time: selectedDate.toISOString(),
       session_duration: listing.session_duration,
       amount: listing.amount,
-      // 2. (CRITICAL) Pass the "Referrer-of-Record" ID from the user's profile
+      // 2. (CRITICAL) Pass the "agent-of-Record" ID from the user's profile
       referrer_profile_id: userProfile.referred_by_profile_id || null,
     };
 

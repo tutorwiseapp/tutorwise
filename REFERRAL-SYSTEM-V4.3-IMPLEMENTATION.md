@@ -48,13 +48,13 @@ https://tutorwise.io/a/kRz7Bq2?redirect=/listings/123/math-tutoring
 ```
 Client Payment (£100)
 ├─ Tutor: £80 (80%)
-├─ Referrer: £10 (10%)
+├─ agent: £10 (10%)
 └─ Platform: £10 (10%)
 ```
 
 **Delegated Flow (Tutor-Led Offline Model):**
 ```
-Client Payment (£100) - Listing owner IS the referrer
+Client Payment (£100) - Listing owner IS the agent
 ├─ Tutor (Listing Owner): £80 (80%)
 ├─ Delegated Agent: £10 (10%) ← Commission redirected
 └─ Platform: £10 (10%)
@@ -107,7 +107,7 @@ Client Payment (£100) - Listing owner IS the referrer
 
 ### Test Scenarios Verified
 
-| Scenario | Referrer | Listing Owner | Delegation | Result |
+| Scenario | agent | Listing Owner | Delegation | Result |
 |----------|----------|---------------|------------|--------|
 | 1. C2C Online | Cathy | Jane | - | Pay Cathy ✅ |
 | 2. T2C Online | Jane | Mark | - | Pay Jane ✅ |
@@ -130,11 +130,11 @@ INTO v_listing_owner_id, v_listing_delegation_id
 FROM public.listings
 WHERE id = v_booking.listing_id;
 
--- Default: Pay direct referrer
+-- Default: Pay direct agent
 v_final_commission_recipient_id := v_direct_referrer_id;
 
 -- REFINED v4.2.1 DELEGATION CHECK
--- Only delegate if listing owner IS the referrer
+-- Only delegate if listing owner IS the agent
 IF v_listing_delegation_id IS NOT NULL
    AND v_direct_referrer_id = v_listing_owner_id THEN
   v_final_commission_recipient_id := v_listing_delegation_id;
@@ -160,7 +160,7 @@ INSERT INTO public.transactions (
 
 **Business Rules:**
 - Respects lifetime attribution (`referred_by_profile_id`)
-- Delegation only applies when listing owner is the original referrer
+- Delegation only applies when listing owner is the original agent
 - External referrers (Cathy) always receive commission regardless of delegation
 - Prevents commission theft via delegation misconfiguration
 
@@ -357,7 +357,7 @@ const redirectUrl = redirectPath
   ? new URL(redirectPath, request.url)
   : new URL('/', request.url);
 
-// Store referrer in cookie for signup attribution
+// Store agent in cookie for signup attribution
 const response = NextResponse.redirect(redirectUrl);
 response.cookies.set('referral_code', referral_id, {
   maxAge: 60 * 60 * 24 * 30, // 30 days
@@ -660,7 +660,7 @@ Changes:
 Changes:
 - Added delegation logic check
 - Reads delegate_commission_to_profile_id from listings
-- Applies delegation only when listing owner IS referrer
+- Applies delegation only when listing owner IS agent
 - Creates transaction for final commission recipient
 ```
 
@@ -794,7 +794,7 @@ const filteredReferrals = useMemo(() =>
 ### Current Limitations
 
 1. **No Multi-Level Referrals**
-   - Only tracks direct referrer (one level)
+   - Only tracks direct agent (one level)
    - No MLM-style commission cascading
 
 2. **Manual Connection Management**

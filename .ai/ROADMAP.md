@@ -8,7 +8,7 @@
 **Effort**: 5-7 days
 **Dependencies**: Authentication system (✅ Complete)
 
-- [ ] Design dashboard layouts for Student/Tutor/Agent roles based on the existing dashboard
+- [ ] Design dashboard layouts for Client/Tutor/Agent roles based on the existing dashboard
 - [ ] Create protected route structure for role-based access as required
 - [ ] Implement role detection from Supabase user metadata
 - [ ] Assess and enhance the existing dashboard and navigation components
@@ -200,7 +200,7 @@
 
 ### Architecture Decisions
 - Maintain current Next.js + Supabase + Railway architecture
-- Use Neo4j for relationship mapping (tutors, subjects, students)
+- Use Neo4j for relationship mapping (tutors, subjects, clients)
 - Keep Stripe as primary payment processor
 - Leverage existing testing infrastructure
 
