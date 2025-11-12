@@ -107,6 +107,13 @@
   height: 100%;
 }
 
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
 .cardTitle {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semibold);

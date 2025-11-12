@@ -297,13 +297,17 @@ const PaymentsPageContent = () => {
                         </Card>
                         <Card>
                             <div className={styles.cardContent}>
-                                <h3 className={styles.cardTitle}>Saved Cards</h3>
-                                <p className={styles.cardDescription}>
-                                    Set a default card or remove expired ones.
-                                    <Button onClick={handleRefreshCards} variant="ghost" style={{marginLeft: '10px', fontSize: '12px'}}>
+                                <div className={styles.cardHeader}>
+                                    <div>
+                                        <h3 className={styles.cardTitle}>Saved Cards</h3>
+                                        <p className={styles.cardDescription}>
+                                            Set a default card or remove expired ones.
+                                        </p>
+                                    </div>
+                                    <a href="#" onClick={(e) => { e.preventDefault(); handleRefreshCards(); }} className={styles.cardLink}>
                                         Refresh
-                                    </Button>
-                                </p>
+                                    </a>
+                                </div>
                                 <div className={styles.savedCardsList}>
                                     {savedCards.length === 0 ? (
                                         <div className={styles.noCardsMessage}>
