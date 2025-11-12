@@ -438,3 +438,36 @@ export interface BreadcrumbItem {
   label: string;
 }
 
+/**
+ * ==================================================================
+ * SDD v4.6: Profile Graph Types (Unified Relationship Model)
+ * ==================================================================
+ */
+
+// Relationship type enum (v4.6)
+export type RelationshipType =
+  | 'GUARDIAN'         // A Client (Parent) has authority over a Student
+  | 'SOCIAL'           // A mutual "Social Link" (replaces 'connections')
+  | 'BOOKING'          // A Client (Payer) has a completed booking with a Tutor
+  | 'AGENT_DELEGATION' // A Tutor delegates commission to an Agent
+  | 'AGENT_REFERRAL';  // An Agent referred a Client
+
+// Relationship status enum (v4.6)
+export type RelationshipStatus =
+  | 'PENDING'   // Awaiting acceptance (e.g., for a 'SOCIAL' link)
+  | 'ACTIVE'    // The link is current and valid
+  | 'BLOCKED'   // One user has blocked the other
+  | 'COMPLETED'; // The link represents a past event (e.g., 'BOOKING')
+
+// Profile Graph Link interface (v4.6)
+export interface ProfileGraphLink {
+  id: string;
+  source_profile_id: string;
+  target_profile_id: string;
+  relationship_type: RelationshipType;
+  status: RelationshipStatus;
+  metadata?: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}
+
