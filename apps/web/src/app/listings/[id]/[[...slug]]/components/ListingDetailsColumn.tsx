@@ -58,7 +58,10 @@ export default function ListingDetailsColumn({
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => window.location.href = `/profile/${tutorProfile.id}`}
+              onClick={() => {
+                const slug = tutorProfile.slug || tutorProfile.full_name?.toLowerCase().replace(/\s+/g, '-') || 'profile';
+                window.location.href = `/public-profile/${tutorProfile.id}/${slug}`;
+              }}
             >
               View Profile →
             </Button>

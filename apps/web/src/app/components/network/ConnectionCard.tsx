@@ -125,7 +125,10 @@ export default function ConnectionCard({
     <div className={styles.card}>
       <div className={styles.header}>
         {/* Avatar */}
-        <Link href={`/profile/${otherProfile.id}`} className={styles.avatarLink}>
+        <Link
+          href={`/public-profile/${otherProfile.id}/${(otherProfile as any).slug || otherProfile.full_name?.toLowerCase().replace(/\s+/g, '-') || 'profile'}`}
+          className={styles.avatarLink}
+        >
           <div className={styles.avatarWrapper}>
             {otherProfile.avatar_url ? (
               <Image
@@ -154,7 +157,10 @@ export default function ConnectionCard({
 
         {/* Profile Info */}
         <div className={styles.info}>
-          <Link href={`/profile/${otherProfile.id}`} className={styles.nameLink}>
+          <Link
+            href={`/public-profile/${otherProfile.id}/${(otherProfile as any).slug || otherProfile.full_name?.toLowerCase().replace(/\s+/g, '-') || 'profile'}`}
+            className={styles.nameLink}
+          >
             <h3 className={styles.name}>{otherProfile.full_name}</h3>
           </Link>
           <p className={styles.email}>{otherProfile.email}</p>
