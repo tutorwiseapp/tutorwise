@@ -1,63 +1,72 @@
 /*
  * Filename: apps/web/src/app/public-profile/[id]/[[...slug]]/page.module.css
- * Purpose: Styles for public profile page content (v4.8)
+ * Purpose: Styles for public profile page layout (v4.9 Redesign)
  * Created: 2025-11-10
- * Updated: 2025-11-12 - Removed layout styles (now handled by PublicProfileLayout)
+ * Updated: 2025-11-12 - Redesigned to match listing details gold standard
  *
- * Note: Layout is now handled by PublicProfileLayout component
- * This file only contains content-specific styles
+ * Layout Structure:
+ * - Hero Section (1-column full width)
+ * - Body Section (2-column grid: 2fr main + 1fr sidebar)
+ * - Related Section (1-column full width)
+ * - Matches listing details page spacing exactly
  */
 
-/* Content container - no max-width to allow full width usage */
-.container {
-  width: 100%;
+/* Hero Section (1-column) */
+.heroSection {
+  margin-bottom: var(--space-8, 64px); /* 64px vertical spacing */
 }
 
-/* Page Header - matches Account page style */
-.pageHeader {
-  margin-bottom: 2rem;
+/* Body Section: 2-column grid (desktop) */
+.bodySection {
+  display: grid;
+  grid-template-columns: 1fr; /* Mobile: single column */
+  gap: var(--space-8, 64px); /* 64px gap between main and sidebar columns */
+  margin-bottom: var(--space-4, 32px); /* 32px to match card spacing */
 }
 
-.pageTitle {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0;
-  line-height: 1.2;
+@media (min-width: 768px) {
+  .bodySection {
+    grid-template-columns: 2fr 1fr; /* Desktop: 2fr main + 1fr sidebar */
+  }
 }
 
-/* Legacy styles - can be removed if no longer needed */
-
-.ownProfileNotice {
-  padding: 1rem;
-  background-color: #e0f2fe;
-  border: 1px solid #38bdf8;
-  border-radius: 8px;
-  margin-bottom: 2rem;
+/* Main Column (left side, 2fr width) */
+.mainColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 32px); /* 32px horizontal spacing between cards */
 }
 
-.ownProfileNotice p {
-  margin: 0;
-  color: #0c4a6e;
+/* Sidebar Column (right side, 1fr width, sticky on desktop) */
+.sidebarColumn {
+  display: none; /* Hidden on mobile */
 }
 
-.ownProfileNotice a {
-  color: #0284c7;
-  text-decoration: underline;
+@media (min-width: 768px) {
+  .sidebarColumn {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4, 32px); /* 32px horizontal spacing between cards */
+    position: sticky;
+    top: var(--space-6, 48px); /* 48px from top when sticky */
+    align-self: flex-start;
+    max-height: calc(100vh - var(--space-6) * 2);
+    overflow-y: auto;
+  }
 }
 
-.tabsPlaceholder {
-  padding: 2rem;
-  background-color: #f3f4f6;
-  border: 2px dashed #d1d5db;
-  border-radius: 8px;
-  text-align: center;
-  color: #6b7280;
+/* Related Section (1-column full width) */
+.relatedSection {
+  margin-bottom: var(--space-6, 48px);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .pageTitle {
-    font-size: 1.5rem;
+  .heroSection {
+    margin-bottom: var(--space-6, 48px); /* Reduced spacing on mobile */
+  }
+
+  .bodySection {
+    gap: var(--space-4, 32px); /* Reduced gap on mobile */
   }
 }

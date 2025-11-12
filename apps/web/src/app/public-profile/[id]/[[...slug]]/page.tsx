@@ -1,28 +1,28 @@
 /*
  * Filename: apps/web/src/app/public-profile/[id]/[[...slug]]/page.tsx
- * Purpose: Public Profile Page - Server Component (v4.8)
+ * Purpose: Public Profile Page - Server Component (v4.9 Redesign)
  * Created: 2025-11-10
- * Updated: 2025-11-12 - Implemented conditional AppSidebar for authenticated users
+ * Updated: 2025-11-12 - Redesigned to match listing details gold standard
  *
  * Features:
  * - SEO-optimized server-side rendering
  * - Resilient URLs with [id]/[slug] format
  * - 301 redirect if slug doesn't match current profile slug
- * - Context-aware layout: AppSidebar shown for authenticated users, hidden for anonymous
- * - 3-column layout for authenticated users (AppSidebar | Main | Right Sidebar)
- * - 2-column layout for anonymous users (Main | Right Sidebar)
- * - Role-aware content (Tutor/Client/Agent)
+ * - 2-column layout matching listing details page (2fr 1fr)
+ * - No AppSidebar on public profile (anonymous experience)
+ * - Hero section with avatar left, info center, CTAs bottom-right
+ * - Sticky right sidebar with verification, stats, and CTAs
+ * - Mobile-optimized with fixed bottom CTA
  */
 
 import { notFound, redirect } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
 import { generateSlug } from '@/lib/utils/slugify';
 import type { Profile } from '@/types';
-import { HeroProfileCard } from '@/app/components/account/HeroProfileCard';
-import { PublicActionCard } from '@/app/components/public-profile/PublicActionCard';
+import Container from '@/app/components/layout/Container';
+import { ProfileHeroSection } from '@/app/components/public-profile/ProfileHeroSection';
+import { AboutCard } from '@/app/components/public-profile/AboutCard';
 import { RoleStatsCard } from '@/app/components/account/RoleStatsCard';
-import { UnifiedProfileTabs } from '@/app/components/public-profile/UnifiedProfileTabs';
-import { PublicProfileLayout } from '@/app/components/public-profile/PublicProfileLayout';
 import styles from './page.module.css';
 
 interface PublicProfilePageProps {
@@ -90,57 +90,52 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   }
 
   // ===========================================================
-  // STEP 3: Get current user (for context-aware rendering)
+  // STEP 3: Get current user (for isOwnProfile check)
   // ===========================================================
   const { data: { user } } = await supabase.auth.getUser();
   const isOwnProfile = user?.id === profile.id;
 
   // ===========================================================
-  // STEP 4: Fetch current user's profile (if authenticated)
-  // ===========================================================
-  let currentUserProfile: Profile | null = null;
-  if (user) {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-    currentUserProfile = data as Profile;
-  }
-
-  // ===========================================================
-  // STEP 5: Render with context-aware layout (AppSidebar for authenticated users)
+  // STEP 4: Render with 2-column layout (no AppSidebar)
   // ===========================================================
   return (
-    <PublicProfileLayout
-      sidebar={
-        <>
-          {/* HeroProfileCard - always readOnly on public profile page */}
-          <HeroProfileCard readOnly={true} profileData={profile as Profile} />
+    <Container>
+      {/* SECTION 1: Hero Section (1-column) */}
+      <div className={styles.heroSection}>
+        <ProfileHeroSection profile={profile as Profile} isOwnProfile={isOwnProfile} />
+      </div>
 
-          {/* PublicActionCard - only show for other users' profiles */}
-          {!isOwnProfile && (
-            <PublicActionCard
-              profile={profile as Profile}
-              currentUser={currentUserProfile}
-              isOwnProfile={isOwnProfile}
-            />
-          )}
+      {/* SECTION 2: Body (2-column layout) */}
+      <div className={styles.bodySection}>
+        {/* Column 1: Main content (2fr width on desktop) */}
+        <div className={styles.mainColumn}>
+          {/* About Card */}
+          <AboutCard profile={profile as Profile} />
 
-          {/* RoleStatsCard showing profile statistics */}
-          <RoleStatsCard profile={profile as Profile} />
-        </>
-      }
-    >
-      <div className={styles.container}>
-        {/* Page Header - matches Account page style */}
-        <div className={styles.pageHeader}>
-          <h1 className={styles.pageTitle}>Public Profile</h1>
+          {/* TODO: Professional Information Card */}
+          {/* TODO: Availability Card */}
+          {/* TODO: Services Card */}
+          {/* TODO: Reviews Card */}
         </div>
 
-        {/* UnifiedProfileTabs - Main content area */}
-        <UnifiedProfileTabs profile={profile as Profile} />
+        {/* Column 2: Sticky Sidebar (1fr width on desktop) */}
+        <div className={styles.sidebarColumn}>
+          {/* TODO: Verification Card */}
+
+          {/* Profile Stats Card */}
+          <RoleStatsCard profile={profile as Profile} />
+
+          {/* TODO: Get in Touch Card */}
+        </div>
       </div>
-    </PublicProfileLayout>
+
+      {/* SECTION 3: Related Profiles (1-column full width) */}
+      <div className={styles.relatedSection}>
+        {/* TODO: Similar Profiles Card */}
+      </div>
+
+      {/* Mobile-only: Fixed bottom CTA bar */}
+      {/* TODO: MobileBottomCTA component */}
+    </Container>
   );
 }
