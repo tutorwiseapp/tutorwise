@@ -22,6 +22,7 @@ import type { Profile } from '@/types';
 import Container from '@/app/components/layout/Container';
 import { ProfileHeroSection } from '@/app/components/public-profile/ProfileHeroSection';
 import { AboutCard } from '@/app/components/public-profile/AboutCard';
+import { ProfessionalInfoCard } from '@/app/components/public-profile/ProfessionalInfoCard';
 import { RoleStatsCard } from '@/app/components/account/RoleStatsCard';
 import styles from './page.module.css';
 
@@ -112,7 +113,9 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
           {/* About Card */}
           <AboutCard profile={profile as Profile} />
 
-          {/* TODO: Professional Information Card */}
+          {/* Professional Information Card */}
+          <ProfessionalInfoCard profile={profile as Profile} />
+
           {/* TODO: Availability Card */}
           {/* TODO: Services Card */}
           {/* TODO: Reviews Card */}
