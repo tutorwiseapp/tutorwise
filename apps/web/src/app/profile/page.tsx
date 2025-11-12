@@ -1,145 +1,58 @@
+/**
+ * Filename: apps/web/src/app/profile/page.tsx
+ * Purpose: DEPRECATED - Redirects to /account/personal-info
+ * Created: Legacy route (pre-v4.8)
+ * Deprecated: 2025-11-12 (v4.8+ Account Hub consolidation)
+ *
+ * This route is deprecated in favor of the Account Hub at /account/personal-info.
+ * All profile editing functionality has been consolidated under /account/*.
+ *
+ * Route structure:
+ * - /profile → /account/personal-info (this redirect)
+ * - /profile/[id] → /public-profile/[id]/[slug] (public viewing)
+ * - /account/personal-info → Edit personal info
+ * - /account/professional → Edit professional info
+ * - /account/settings → Account settings
+ */
+
 'use client';
 
-import { useState } from 'react';
-import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import type { Profile } from '@/types';
-import toast from 'react-hot-toast';
-import HybridHeader from '@/app/components/profile/HybridHeader';
-import ProfileTabs from '@/app/components/profile/ProfileTabs';
-import PersonalInfoForm from '@/app/components/profile/PersonalInfoForm';
-import ProfessionalInfoForm from '@/app/components/profile/ProfessionalInfoForm';
-import styles from './page.module.css';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
-const ProfileContent = ({
-  profile,
-  onSave,
-  activeTab,
-  activeRole
-}: {
-  profile: Profile;
-  onSave: (updatedProfile: Partial<Profile>) => Promise<void>;
-  activeTab: string;
-  activeRole: string | null;
-}) => {
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'Personal Info':
-        return (
-          <div className={styles.personalInfoContent}>
-            <PersonalInfoForm profile={profile} onSave={onSave} />
-          </div>
-        );
-      case 'Professional Info':
-        return (
-          <div className={styles.personalInfoContent}>
-            <ProfessionalInfoForm profile={profile} onSave={onSave} activeRole={activeRole} />
-          </div>
-        );
-      case 'Reviews':
-        return (
-          <div className={styles.mainContent}>
-            <div className={styles.leftColumn}>
-              <p>Reviews section - Coming soon...</p>
-            </div>
-          </div>
-        );
-      case 'Matching Tutors':
-      case 'Matching Clients':
-      case 'Matching Agents':
-      case 'Matching Listings':
-        return (
-          <div className={styles.mainContent}>
-            <div className={styles.leftColumn}>
-              <p>{activeTab} - Coming soon...</p>
-            </div>
-          </div>
-        );
-      default:
-        return (
-          <div className={styles.mainContent}>
-            <div className={styles.leftColumn}>
-              <p>Coming soon...</p>
-            </div>
-          </div>
-        );
-    }
-  };
+export default function ProfileRedirect() {
+  const router = useRouter();
 
-  return renderTabContent();
-};
-
-export default function ProfilePage() {
-  const { profile, isLoading, refreshProfile, activeRole } = useUserProfile();
-  const [activeTab, setActiveTab] = useState('Personal Info');
-
-  const handleSave = async (updatedProfile: Partial<Profile>) => {
-    if (!profile) return;
-
-    try {
-      const response = await fetch('/api/profile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedProfile),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save profile');
-      }
-
-      await response.json();
-      await refreshProfile();
-      toast.success('Profile updated successfully!');
-    } catch (err) {
-      console.error('Failed to update profile:', err);
-      toast.error('Failed to update profile.');
-      throw err;
-    }
-  };
-
-  const renderProfileContent = () => {
-    if (!profile) return null;
-    return <ProfileContent profile={profile} onSave={handleSave} activeTab={activeTab} activeRole={activeRole} />;
-  };
-
-  if (isLoading) {
-    return (
-      <div className={styles.pageWrapper}>
-        <div className={styles.loadingContainer}>
-          <div className={styles.loadingSpinner}></div>
-          <p className={styles.loadingText}>Loading profile...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!profile) {
-    return (
-      <div className={styles.pageWrapper}>
-        <div className={styles.contentWrapper}>
-          <div className={styles.errorContainer}>
-            <h2 className={styles.errorTitle}>Unable to load profile</h2>
-            <p className={styles.errorMessage}>Could not load your profile. Please try logging in again.</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    // Redirect to account personal-info page
+    router.replace('/account/personal-info');
+  }, [router]);
 
   return (
-    <div className={styles.pageWrapper}>
-      <div className={styles.contentWrapper}>
-        <HybridHeader
-          profile={profile}
-          actionsDisabled={true}
-          isEditable={true}
-          onUpdate={handleSave}
-          activeRole={activeRole}
-        />
-        <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} activeRole={activeRole} />
-        {renderProfileContent()}
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      fontFamily: 'system-ui, -apple-system, sans-serif'
+    }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{
+          width: '40px',
+          height: '40px',
+          border: '3px solid #e5e7eb',
+          borderTopColor: '#3b82f6',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+          margin: '0 auto 16px'
+        }} />
+        <p style={{ color: '#6b7280' }}>Redirecting to Account Settings...</p>
       </div>
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }

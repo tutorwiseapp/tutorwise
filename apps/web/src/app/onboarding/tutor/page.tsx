@@ -65,9 +65,9 @@ function TutorOnboardingPageContent() {
     await refreshProfile();
     console.log('[TutorOnboarding] Profile refreshed, setting active role to provider...');
     setActiveRole('tutor');
-    console.log('[TutorOnboarding] Active role set, redirecting to my-profile...');
+    console.log('[TutorOnboarding] Active role set, redirecting to account settings...');
     // Use Next.js router for proper client-side navigation (preserves session)
-    router.push('/profile');
+    router.push('/account/personal-info');
   };
 
   const handleOnboardingSkip = async () => {
@@ -75,8 +75,8 @@ function TutorOnboardingPageContent() {
     await refreshProfile();
     console.log('[TutorOnboarding] Profile refreshed, setting active role to provider...');
     setActiveRole('tutor');
-    console.log('[TutorOnboarding] Active role set, redirecting to my-profile...');
-    router.push('/profile');
+    console.log('[TutorOnboarding] Active role set, redirecting to account settings...');
+    router.push('/account/personal-info');
   };
 
   return (
