@@ -206,10 +206,10 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
           {/* Verification Card */}
           <VerificationCard profile={profile as Profile} />
 
-          {/* Profile Stats Card - Only show on own profile */}
-          {isOwnProfile && <RoleStatsCard profile={profile as Profile} />}
+          {/* Profile Stats Card - Always show */}
+          <RoleStatsCard profile={profile as Profile} />
 
-          {/* Get in Touch Card - Only show on other people's profiles */}
+          {/* Get in Touch Card - Always show */}
           <GetInTouchCard
             profile={profile as Profile}
             currentUser={currentUserProfile}
