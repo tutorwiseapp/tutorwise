@@ -83,7 +83,7 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 2rem;
-  align-items: start;
+  align-items: stretch;
   margin-bottom: 2rem;
 }
 
@@ -98,6 +98,12 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  height: 100%;
+}
+
+/* First card in each column should take available height if it's the only one */
+.columnStack > :first-child:last-child {
+  flex: 1;
 }
 
 /* Card Content */

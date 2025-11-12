@@ -380,9 +380,6 @@ const PaymentsPageContent = () => {
                         </Card>
                     </div>
                 </div>
-                <p className={styles.footerText}>
-                    All payments are securely processed by Stripe. We do not store your payment information.
-                </p>
             </div>
 
             {/* Contextual Sidebar (Right Column) */}
