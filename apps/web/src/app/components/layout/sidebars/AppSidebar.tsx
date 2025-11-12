@@ -53,9 +53,9 @@ export default function AppSidebar() {
     if (href === '/dashboard') {
       return pathname === href;
     }
-    // For parent items with sub-items, only active on exact match
+    // For parent items with sub-items, never highlight (sub-items will be highlighted instead)
     if (hasSubItems) {
-      return pathname === href;
+      return false;
     }
     return pathname?.startsWith(href);
   };
