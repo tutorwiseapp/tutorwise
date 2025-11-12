@@ -7,7 +7,7 @@
 .statsCard {
   background: white;
   border-radius: var(--radius-lg, 12px);
-  padding: var(--space-5, 40px);
+  padding: var(--space-4, 32px);
   border: 1px solid var(--color-border, #e5e7eb);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
@@ -40,7 +40,7 @@
 
 .statsGrid {
   display: grid;
-  gap: var(--space-4, 32px);
+  gap: var(--space-3, 24px);
 }
 
 .statItem {
@@ -73,7 +73,7 @@
 }
 
 .statValue {
-  font-size: 1.5rem;
+  font-size: 1.375rem;
   font-weight: 700;
   color: var(--color-text-primary, #111827);
   display: flex;

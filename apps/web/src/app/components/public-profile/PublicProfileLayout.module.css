@@ -2,50 +2,54 @@
  * Filename: apps/web/src/app/components/public-profile/PublicProfileLayout.module.css
  * Purpose: Styles for conditional AppSidebar layout on public profiles
  * Created: 2025-11-12
+ * Updated: 2025-11-12 - Fixed AppSidebar overlap and improved grid layout
  *
  * Layout modes:
- * - Anonymous users: 2-column (Main 70% | Right Sidebar 30%)
- * - Authenticated users: 3-column (AppSidebar | Main 60% | Right Sidebar 30%)
+ * - Anonymous users: 2-column grid (Main 2fr | Right Sidebar 1fr)
+ * - Authenticated users: 3-column grid (AppSidebar 240px | Main 2fr | Right Sidebar 1fr)
  */
 
 .layoutContainer {
-  display: flex;
-  min-height: calc(100vh - 80px); /* Subtract header height */
+  display: grid;
+  min-height: calc(100vh - 80px);
   background-color: #f9fafb;
+  gap: 0;
 }
 
 /* Anonymous user layout (2 columns) */
+.anonymous {
+  grid-template-columns: 2fr 1fr;
+}
+
 .anonymous .mainContent {
-  flex: 1;
-  max-width: 70%;
-  padding: 2rem;
+  padding: var(--space-6, 48px);
   background-color: #ffffff;
   overflow-y: auto;
   max-height: calc(100vh - 80px);
 }
 
 .anonymous .rightSidebar {
-  width: 30%;
-  padding: 2rem;
+  padding: var(--space-6, 48px);
   background-color: #ffffff;
   border-left: 1px solid #e5e7eb;
   overflow-y: auto;
   max-height: calc(100vh - 80px);
 }
 
-/* Authenticated user layout (3 columns) */
+/* Authenticated user layout (3 columns: AppSidebar is injected by component) */
+.authenticated {
+  grid-template-columns: 240px 2fr 1fr;
+}
+
 .authenticated .mainContent {
-  flex: 1;
-  max-width: 60%;
-  padding: 2rem;
+  padding: var(--space-6, 48px);
   background-color: #ffffff;
   overflow-y: auto;
   max-height: calc(100vh - 80px);
 }
 
 .authenticated .rightSidebar {
-  width: 30%;
-  padding: 2rem;
+  padding: var(--space-6, 48px);
   background-color: #ffffff;
   border-left: 1px solid #e5e7eb;
   overflow-y: auto;
@@ -54,16 +58,17 @@
 
 /* Responsive */
 @media (max-width: 1024px) {
-  .layoutContainer {
-    flex-direction: column;
+  .anonymous,
+  .authenticated {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
   }
 
   .anonymous .mainContent,
   .anonymous .rightSidebar,
   .authenticated .mainContent,
   .authenticated .rightSidebar {
-    max-width: 100%;
-    width: 100%;
+    max-height: none;
   }
 
   .anonymous .rightSidebar,
@@ -78,6 +83,6 @@
   .anonymous .rightSidebar,
   .authenticated .mainContent,
   .authenticated .rightSidebar {
-    padding: 1rem;
+    padding: var(--space-4, 32px);
   }
 }
