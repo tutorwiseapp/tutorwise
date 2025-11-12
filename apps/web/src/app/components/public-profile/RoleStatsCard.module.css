@@ -1,0 +1,73 @@
+/**
+ * Filename: apps/web/src/app/components/public-profile/RoleStatsCard.module.css
+ * Purpose: Styles for public-facing role stats card
+ * Created: 2025-11-12
+ */
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4, 32px);
+}
+
+.cardTitle {
+  font-size: var(--font-size-lg, 18px);
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+  margin: 0;
+}
+
+.roleIndicator {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: var(--color-teal-50, #e6f7f5);
+  color: var(--color-teal-700, #0d9488);
+  border-radius: 12px;
+  font-size: var(--font-size-sm, 14px);
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4, 32px);
+}
+
+.statItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3, 24px);
+}
+
+.statIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  background-color: var(--color-teal-50, #e6f7f5);
+  border-radius: 8px;
+  color: var(--color-teal-600, #14b8a6);
+}
+
+.statContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statLabel {
+  font-size: var(--font-size-sm, 14px);
+  color: var(--color-text-secondary, #6b7280);
+  font-weight: 500;
+}
+
+.statValue {
+  font-size: var(--font-size-xl, 20px);
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+}

@@ -25,7 +25,7 @@ import { AboutCard } from '@/app/components/public-profile/AboutCard';
 import { ProfessionalInfoCard } from '@/app/components/public-profile/ProfessionalInfoCard';
 import { AvailabilityCard } from '@/app/components/public-profile/AvailabilityCard';
 import { VerificationCard } from '@/app/components/public-profile/VerificationCard';
-import { RoleStatsCard } from '@/app/components/account/RoleStatsCard';
+import { RoleStatsCard } from '@/app/components/public-profile/RoleStatsCard';
 import { GetInTouchCard } from '@/app/components/public-profile/GetInTouchCard';
 import { ServicesCard } from '@/app/components/public-profile/ServicesCard';
 import { ReviewsCard } from '@/app/components/public-profile/ReviewsCard';
@@ -206,7 +206,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
           {/* Verification Card */}
           <VerificationCard profile={profile as Profile} />
 
-          {/* Profile Stats Card - Always show */}
+          {/* Role Stats Card - Always show */}
           <RoleStatsCard profile={profile as Profile} />
 
           {/* Get in Touch Card - Always show */}
