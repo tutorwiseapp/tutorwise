@@ -27,6 +27,8 @@ import { AvailabilityCard } from '@/app/components/public-profile/AvailabilityCa
 import { VerificationCard } from '@/app/components/public-profile/VerificationCard';
 import { RoleStatsCard } from '@/app/components/account/RoleStatsCard';
 import { GetInTouchCard } from '@/app/components/public-profile/GetInTouchCard';
+import { ServicesCard } from '@/app/components/public-profile/ServicesCard';
+import { ReviewsCard } from '@/app/components/public-profile/ReviewsCard';
 import styles from './page.module.css';
 
 interface PublicProfilePageProps {
@@ -113,6 +115,51 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   }
 
   // ===========================================================
+  // STEP 5: Fetch active listings for the profile
+  // ===========================================================
+  const { data: listings } = await supabase
+    .from('listings')
+    .select('id, title, description, price_per_hour, service_type, subject, level, slug, created_at')
+    .eq('profile_id', profile.id)
+    .eq('status', 'published')
+    .order('created_at', { ascending: false });
+
+  // ===========================================================
+  // STEP 6: Fetch reviews for the profile (from listings)
+  // ===========================================================
+  const { data: reviews } = await supabase
+    .from('reviews')
+    .select(`
+      id,
+      rating,
+      title,
+      comment,
+      verified_booking,
+      created_at,
+      reviewer:profiles!reviews_reviewer_id_fkey (
+        id,
+        full_name,
+        avatar_url
+      )
+    `)
+    .in('listing_id', (listings || []).map(l => l.id))
+    .order('created_at', { ascending: false })
+    .limit(10);
+
+  // Transform reviews to include reviewer info
+  const transformedReviews = (reviews || []).map((review: any) => ({
+    id: review.id,
+    reviewer_id: review.reviewer?.id || '',
+    reviewer_name: review.reviewer?.full_name || 'Anonymous',
+    reviewer_avatar_url: review.reviewer?.avatar_url,
+    rating: review.rating,
+    title: review.title,
+    comment: review.comment,
+    verified_booking: review.verified_booking,
+    created_at: review.created_at,
+  }));
+
+  // ===========================================================
   // STEP 5: Render with 2-column layout (no AppSidebar)
   // ===========================================================
   return (
@@ -135,8 +182,11 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
           {/* Availability Card */}
           <AvailabilityCard profile={profile as Profile} />
 
-          {/* TODO: Services Card */}
-          {/* TODO: Reviews Card */}
+          {/* Services Card */}
+          <ServicesCard profile={profile as Profile} listings={listings || []} />
+
+          {/* Reviews Card */}
+          <ReviewsCard profile={profile as Profile} reviews={transformedReviews} />
         </div>
 
         {/* Column 2: Sticky Sidebar (1fr width on desktop) */}
