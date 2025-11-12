@@ -1,31 +1,16 @@
 /*
  * Filename: apps/web/src/app/public-profile/[id]/[[...slug]]/page.module.css
- * Purpose: Styles for public profile page (v4.8)
+ * Purpose: Styles for public profile page content (v4.8)
  * Created: 2025-11-10
+ * Updated: 2025-11-12 - Removed layout styles (now handled by PublicProfileLayout)
  *
- * Layout: Context-aware 2 or 3 column
- * - Anonymous: 2 columns (Main 70% | Sidebar 30%)
- * - Authenticated: 3 columns (AppSidebar | Main 70% | Sidebar 30%)
+ * Note: Layout is now handled by PublicProfileLayout component
+ * This file only contains content-specific styles
  */
 
-.pageContainer {
-  display: flex;
-  min-height: calc(100vh - 80px); /* Subtract header height */
-  background-color: #f9fafb;
-}
-
-.mainContent {
-  flex: 1;
-  max-width: 70%;
-  padding: 2rem;
-  background-color: #ffffff;
-  overflow-y: auto;
-  max-height: calc(100vh - 80px);
-}
-
+/* Content container - no max-width to allow full width usage */
 .container {
-  max-width: 900px;
-  margin: 0 auto;
+  width: 100%;
 }
 
 /* Page Header - matches Account page style */
@@ -70,53 +55,8 @@
   color: #6b7280;
 }
 
-/* Right Sidebar */
-.sidebar {
-  width: 30%;
-  padding: 2rem;
-  background-color: #ffffff;
-  border-left: 1px solid #e5e7eb;
-  overflow-y: auto;
-  max-height: calc(100vh - 80px);
-}
-
-.sidebarPlaceholder {
-  padding: 1.5rem;
-  background-color: #ffffff;
-  border: 2px dashed #d1d5db;
-  border-radius: 8px;
-  text-align: center;
-  color: #6b7280;
-}
-
-.sidebarPlaceholder p {
-  margin: 0.5rem 0;
-}
-
 /* Responsive */
-@media (max-width: 1024px) {
-  .pageContainer {
-    flex-direction: column;
-  }
-
-  .mainContent,
-  .sidebar {
-    max-width: 100%;
-    width: 100%;
-  }
-
-  .sidebar {
-    border-left: none;
-    border-top: 1px solid #e5e7eb;
-  }
-}
-
 @media (max-width: 768px) {
-  .mainContent,
-  .sidebar {
-    padding: 1rem;
-  }
-
   .pageTitle {
     font-size: 1.5rem;
   }
