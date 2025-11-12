@@ -29,11 +29,6 @@ export function MobileBottomCTA({ profile, currentUser, isOwnProfile }: MobileBo
   const [isMessaging, setIsMessaging] = useState(false);
   const [isBooking, setIsBooking] = useState(false);
 
-  // Don't show on own profile
-  if (isOwnProfile) {
-    return null;
-  }
-
   const handleSendMessage = async () => {
     if (!currentUser) {
       toast.error('Please login to send messages');
