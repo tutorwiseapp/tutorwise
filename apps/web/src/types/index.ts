@@ -332,10 +332,15 @@ export type TransactionType =
   | 'Tutoring Payout'           // T-TYPE-2: Tutor's share (80% or 90%)
   | 'Referral Commission'       // T-TYPE-3: Referrer's 10% commission
   | 'Agent Commission'          // T-TYPE-4: Agent's commission
-  | 'Platform Fee';             // T-TYPE-5: Platform's 10% fee
+  | 'Platform Fee'              // T-TYPE-5: Platform's 10% fee
+  | 'Withdrawal';               // T-TYPE-6: v4.9 - User-initiated withdrawal (payout)
 
-// Transaction status enum (SDD v3.6, Section 3.4)
-export type TransactionStatus = 'Pending' | 'Paid' | 'Failed' | 'Cancelled';
+// Transaction status enum (SDD v4.9, Section 3.2 - Updated for clearing period & payout tracking)
+// Legacy statuses: 'Pending' | 'Paid' | 'Failed' | 'Cancelled' (maintained for backwards compatibility)
+// v4.9 statuses: 'clearing' | 'available' | 'paid_out' | 'disputed' | 'refunded'
+export type TransactionStatus =
+  | 'Pending' | 'Paid' | 'Failed' | 'Cancelled'  // Legacy (v3.6)
+  | 'clearing' | 'available' | 'paid_out' | 'disputed' | 'refunded';  // v4.9
 
 // Referral status enum (SDD v3.6, Section 3.3)
 export type ReferralStatus = 'Referred' | 'Signed Up' | 'Converted' | 'Expired';
@@ -373,7 +378,7 @@ export interface Booking {
   };
 }
 
-// Transaction interface (SDD v3.6, Section 3.4)
+// Transaction interface (SDD v4.9, Section 3.2 - Updated for clearing period & payout tracking)
 export interface Transaction {
   id: string;
   profile_id: string | null; // NULL for platform fees (T-TYPE-5)
@@ -383,6 +388,10 @@ export interface Transaction {
   status: TransactionStatus;
   amount: number; // In GBP
   created_at: string;
+  // v4.9 fields
+  available_at?: string; // ISO timestamp when funds become available for payout
+  stripe_checkout_id?: string | null; // For idempotency (prevents duplicate charges)
+  stripe_payout_id?: string | null; // Stripe payout ID for withdrawals
   // Joined data from API
   booking?: {
     id: string;

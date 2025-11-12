@@ -1,0 +1,78 @@
+/*
+ * Filename: src/app/components/financials/WalletBalanceWidget.module.css
+ * Purpose: Styles for WalletBalanceWidget component
+ * Created: 2025-11-11
+ */
+
+.balanceCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.balanceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.balanceRow:not(:last-child) {
+  border-bottom: 1px solid var(--color-gray-200, #e5e7eb);
+}
+
+.balanceLabel {
+  font-size: 0.875rem;
+  color: var(--color-gray-600, #6b7280);
+  font-weight: 500;
+}
+
+.balanceAvailable {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-success-default, #059669);
+}
+
+.balancePending {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-warning-default, #d97706);
+}
+
+.balanceTotal {
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 2px solid var(--color-gray-300, #d1d5db) !important;
+}
+
+.balanceAmountTotal {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary-default, #006c67);
+}
+
+.balanceNote {
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background-color: var(--color-primary-light, #E6F0F0);
+  border-radius: 0.375rem;
+}
+
+.noteText {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  color: var(--color-gray-700, #4B4B4B);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .balanceAvailable,
+  .balancePending {
+    font-size: 1rem;
+  }
+
+  .balanceAmountTotal {
+    font-size: 1.25rem;
+  }
+}

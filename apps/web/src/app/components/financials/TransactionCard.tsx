@@ -26,9 +26,21 @@ export default function TransactionCard({ transaction }: TransactionCardProps) {
     minute: '2-digit',
   });
 
-  // Status badge colors
+  // Status badge colors (v4.9 updated)
   const getStatusColor = (status: TransactionStatus) => {
     switch (status) {
+      // v4.9 statuses
+      case 'available':
+        return 'bg-green-100 text-green-800';
+      case 'clearing':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'paid_out':
+        return 'bg-teal-100 text-teal-800';
+      case 'disputed':
+        return 'bg-red-100 text-red-800';
+      case 'refunded':
+        return 'bg-gray-100 text-gray-800';
+      // Legacy statuses (v3.6)
       case 'Paid':
         return 'bg-green-100 text-green-800';
       case 'Failed':
@@ -54,6 +66,8 @@ export default function TransactionCard({ transaction }: TransactionCardProps) {
         return 'bg-indigo-100 text-indigo-800';
       case 'Platform Fee':
         return 'bg-gray-100 text-gray-800';
+      case 'Withdrawal':
+        return 'bg-teal-100 text-teal-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
