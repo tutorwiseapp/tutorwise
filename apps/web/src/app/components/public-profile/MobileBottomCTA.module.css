@@ -1,0 +1,59 @@
+/**
+ * Filename: MobileBottomCTA.module.css
+ * Purpose: Styles for mobile bottom CTA bar
+ * Created: 2025-11-12
+ */
+
+/* Mobile Bottom CTA Bar */
+.mobileBottomCTA {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  padding: var(--space-3, 24px);
+  z-index: 50;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+  display: block;
+}
+
+/* Hidden on desktop */
+@media (min-width: 768px) {
+  .mobileBottomCTA {
+    display: none;
+  }
+}
+
+/* CTA Container */
+.ctaContainer {
+  display: flex;
+  gap: var(--space-3, 24px);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* CTA Buttons */
+.ctaButton {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .mobileBottomCTA {
+    padding: var(--space-2, 16px);
+  }
+
+  .ctaContainer {
+    gap: var(--space-2, 16px);
+  }
+
+  .ctaButton {
+    font-size: 0.875rem;
+  }
+}

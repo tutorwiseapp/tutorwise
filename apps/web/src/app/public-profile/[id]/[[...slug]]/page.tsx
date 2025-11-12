@@ -29,6 +29,8 @@ import { RoleStatsCard } from '@/app/components/account/RoleStatsCard';
 import { GetInTouchCard } from '@/app/components/public-profile/GetInTouchCard';
 import { ServicesCard } from '@/app/components/public-profile/ServicesCard';
 import { ReviewsCard } from '@/app/components/public-profile/ReviewsCard';
+import { SimilarProfilesCard } from '@/app/components/public-profile/SimilarProfilesCard';
+import { MobileBottomCTA } from '@/app/components/public-profile/MobileBottomCTA';
 import styles from './page.module.css';
 
 interface PublicProfilePageProps {
@@ -160,6 +162,16 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   }));
 
   // ===========================================================
+  // STEP 7: Fetch similar profiles (same role, city, or subjects)
+  // ===========================================================
+  const { data: similarProfiles } = await supabase
+    .from('profiles')
+    .select('id, full_name, avatar_url, city, active_role, slug, professional_details, average_rating, total_reviews')
+    .eq('active_role', profile.active_role)
+    .neq('id', profile.id)
+    .limit(6);
+
+  // ===========================================================
   // STEP 5: Render with 2-column layout (no AppSidebar)
   // ===========================================================
   return (
@@ -208,11 +220,15 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
 
       {/* SECTION 3: Related Profiles (1-column full width) */}
       <div className={styles.relatedSection}>
-        {/* TODO: Similar Profiles Card */}
+        <SimilarProfilesCard profiles={similarProfiles || []} />
       </div>
 
       {/* Mobile-only: Fixed bottom CTA bar */}
-      {/* TODO: MobileBottomCTA component */}
+      <MobileBottomCTA
+        profile={profile as Profile}
+        currentUser={currentUserProfile}
+        isOwnProfile={isOwnProfile}
+      />
     </Container>
   );
 }
