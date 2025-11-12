@@ -20,6 +20,20 @@
 .primaryButton {
   width: 100%;
   margin-bottom: 0;
+  /* Ensure button displays with full teal background */
+  background-color: #2c7a7b !important;
+  color: white !important;
+  border: none !important;
+  font-weight: 500 !important;
+  padding: 0.75rem 1.5rem !important;
+  border-radius: 8px !important;
+  font-size: 1rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background-color: #4CAEAD !important;
 }
 
 /* Divider (matches ActionCard) */
