@@ -139,9 +139,6 @@ export function RoleStatsCard({ profile }: RoleStatsCardProps) {
     <Card>
       <div className={styles.cardHeader}>
         <h3 className={styles.cardTitle}>Profile Stats</h3>
-        <span className={styles.roleIndicator}>
-          {role ? role.charAt(0).toUpperCase() + role.slice(1) : 'Member'}
-        </span>
       </div>
       <div className={styles.statsGrid}>
         {stats}

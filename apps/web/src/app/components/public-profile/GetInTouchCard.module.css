@@ -1,7 +1,8 @@
 /**
  * Filename: GetInTouchCard.module.css
- * Purpose: Styles for Get in Touch card
+ * Purpose: Styles for Get in Touch card (matches listing ActionCard)
  * Created: 2025-11-12
+ * Updated: 2025-11-12 - Redesigned to match ActionCard layout
  */
 
 .getInTouchCard {
@@ -16,18 +17,55 @@
   line-height: 1.2;
 }
 
-.buttonsContainer {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3, 24px);
+.primaryButton {
+  width: 100%;
+  margin-bottom: 0;
 }
 
-.button {
-  width: 100%;
+/* Divider (matches ActionCard) */
+.divider {
+  height: 1px;
+  background-color: var(--color-gray-300, #D1D1D1);
+  margin: var(--space-2, 16px) 0;
+}
+
+/* CTA Grid (Contact and Connect) */
+.ctaGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2, 16px);
+}
+
+.ctaButton {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2, 16px);
+  gap: 0.5rem;
+  padding: var(--space-3, 24px) var(--space-2, 16px);
+  background-color: white;
+  border: 1px solid var(--color-gray-300, #D1D1D1);
+  border-radius: var(--border-radius-md, 8px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ctaButton:hover {
+  border-color: var(--color-primary-default, #006c67);
+  background-color: var(--color-primary-light, #E6F0F0);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.ctaIcon {
+  font-size: 1.5rem; /* 24px */
+}
+
+.ctaText {
+  font-size: 0.875rem; /* 14px */
+  font-weight: 600;
+  color: var(--color-gray-700, #4B4B4B);
+  text-align: center;
 }
 
 /* Responsive */
@@ -40,7 +78,7 @@
     font-size: 1.125rem;
   }
 
-  .buttonsContainer {
-    gap: var(--space-2, 16px);
+  .ctaGrid {
+    grid-template-columns: 1fr;
   }
 }

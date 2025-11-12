@@ -50,8 +50,6 @@
     position: sticky;
     top: var(--space-6, 48px); /* 48px from top when sticky */
     align-self: flex-start;
-    max-height: calc(100vh - var(--space-6) * 2);
-    overflow-y: auto;
   }
 }
 

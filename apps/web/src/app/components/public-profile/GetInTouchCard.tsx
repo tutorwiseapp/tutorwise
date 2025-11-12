@@ -2,10 +2,12 @@
  * Filename: GetInTouchCard.tsx
  * Purpose: Get in Touch card for public profile sidebar
  * Created: 2025-11-12
+ * Updated: 2025-11-12 - Redesigned to match listing page ActionCard layout
  *
- * CTAs:
- * - Send Message (secondary)
- * - Book Session (primary)
+ * Layout:
+ * - Book Session (full width, primary, no icon)
+ * - Divider
+ * - Contact (left) and Connect (right) with emoji icons
  */
 
 'use client';
@@ -15,7 +17,6 @@ import { useRouter } from 'next/navigation';
 import type { Profile } from '@/types';
 import Card from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
-import { MessageCircle, Calendar } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './GetInTouchCard.module.css';
 
@@ -27,26 +28,7 @@ interface GetInTouchCardProps {
 
 export function GetInTouchCard({ profile, currentUser, isOwnProfile }: GetInTouchCardProps) {
   const router = useRouter();
-  const [isMessaging, setIsMessaging] = useState(false);
   const [isBooking, setIsBooking] = useState(false);
-
-  const handleSendMessage = async () => {
-    if (!currentUser) {
-      toast.error('Please login to send messages');
-      router.push('/login');
-      return;
-    }
-
-    setIsMessaging(true);
-    try {
-      // Navigate to messages page with this user
-      router.push(`/messages?userId=${profile.id}`);
-    } catch (error) {
-      toast.error('Failed to open messages');
-    } finally {
-      setIsMessaging(false);
-    }
-  };
 
   const handleBookSession = async () => {
     if (!currentUser) {
@@ -57,8 +39,7 @@ export function GetInTouchCard({ profile, currentUser, isOwnProfile }: GetInTouc
 
     setIsBooking(true);
     try {
-      // Navigate to booking flow (implementation depends on booking system)
-      // For now, show a toast
+      // Navigate to booking flow
       toast.success('Booking feature coming soon!');
       // TODO: Implement booking flow
       // router.push(`/book/${profile.id}`);
@@ -69,30 +50,61 @@ export function GetInTouchCard({ profile, currentUser, isOwnProfile }: GetInTouc
     }
   };
 
+  const handleContact = async () => {
+    if (!currentUser) {
+      toast.error('Please login to send messages');
+      router.push('/login');
+      return;
+    }
+
+    try {
+      // Navigate to messages page with this user
+      router.push(`/messages?userId=${profile.id}`);
+    } catch (error) {
+      toast.error('Failed to open messages');
+    }
+  };
+
+  const handleConnect = () => {
+    if (!currentUser) {
+      toast.error('Please login to connect');
+      router.push('/login');
+      return;
+    }
+
+    toast.success('Connect feature coming soon!');
+    // TODO: Implement connect functionality
+  };
+
   return (
     <Card className={styles.getInTouchCard}>
       <h3 className={styles.cardTitle}>Get in Touch</h3>
 
-      <div className={styles.buttonsContainer}>
-        <Button
-          variant="secondary"
-          onClick={handleSendMessage}
-          disabled={isMessaging}
-          className={styles.button}
-        >
-          <MessageCircle size={20} />
-          Send Message
-        </Button>
+      {/* Primary CTA: Book Session - full width, no icon */}
+      <Button
+        variant="primary"
+        fullWidth
+        onClick={handleBookSession}
+        disabled={isBooking}
+        className={styles.primaryButton}
+      >
+        {isBooking ? 'Processing...' : 'Book Session'}
+      </Button>
 
-        <Button
-          variant="primary"
-          onClick={handleBookSession}
-          disabled={isBooking}
-          className={styles.button}
-        >
-          <Calendar size={20} />
-          Book Session
-        </Button>
+      {/* Divider */}
+      <div className={styles.divider} />
+
+      {/* Secondary CTAs: Contact and Connect */}
+      <div className={styles.ctaGrid}>
+        <button onClick={handleContact} className={styles.ctaButton}>
+          <span className={styles.ctaIcon}>💬</span>
+          <span className={styles.ctaText}>Contact</span>
+        </button>
+
+        <button onClick={handleConnect} className={styles.ctaButton}>
+          <span className={styles.ctaIcon}>🔗</span>
+          <span className={styles.ctaText}>Connect</span>
+        </button>
       </div>
     </Card>
   );
