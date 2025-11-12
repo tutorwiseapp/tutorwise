@@ -1,0 +1,46 @@
+/**
+ * Filename: GetInTouchCard.module.css
+ * Purpose: Styles for Get in Touch card
+ * Created: 2025-11-12
+ */
+
+.getInTouchCard {
+  padding: var(--space-4, 32px);
+}
+
+.cardTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 var(--space-4, 32px) 0;
+  line-height: 1.2;
+}
+
+.buttonsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 24px);
+}
+
+.button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2, 16px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .getInTouchCard {
+    padding: var(--space-3, 24px);
+  }
+
+  .cardTitle {
+    font-size: 1.125rem;
+  }
+
+  .buttonsContainer {
+    gap: var(--space-2, 16px);
+  }
+}

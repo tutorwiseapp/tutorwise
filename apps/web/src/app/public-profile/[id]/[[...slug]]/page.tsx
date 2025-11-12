@@ -24,7 +24,9 @@ import { ProfileHeroSection } from '@/app/components/public-profile/ProfileHeroS
 import { AboutCard } from '@/app/components/public-profile/AboutCard';
 import { ProfessionalInfoCard } from '@/app/components/public-profile/ProfessionalInfoCard';
 import { AvailabilityCard } from '@/app/components/public-profile/AvailabilityCard';
+import { VerificationCard } from '@/app/components/public-profile/VerificationCard';
 import { RoleStatsCard } from '@/app/components/account/RoleStatsCard';
+import { GetInTouchCard } from '@/app/components/public-profile/GetInTouchCard';
 import styles from './page.module.css';
 
 interface PublicProfilePageProps {
@@ -92,13 +94,26 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   }
 
   // ===========================================================
-  // STEP 3: Get current user (for isOwnProfile check)
+  // STEP 3: Get current user (for isOwnProfile check and GetInTouchCard)
   // ===========================================================
   const { data: { user } } = await supabase.auth.getUser();
   const isOwnProfile = user?.id === profile.id;
 
   // ===========================================================
-  // STEP 4: Render with 2-column layout (no AppSidebar)
+  // STEP 4: Fetch current user's profile (if authenticated)
+  // ===========================================================
+  let currentUserProfile: Profile | null = null;
+  if (user) {
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+    currentUserProfile = data as Profile;
+  }
+
+  // ===========================================================
+  // STEP 5: Render with 2-column layout (no AppSidebar)
   // ===========================================================
   return (
     <Container>
@@ -126,12 +141,18 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
 
         {/* Column 2: Sticky Sidebar (1fr width on desktop) */}
         <div className={styles.sidebarColumn}>
-          {/* TODO: Verification Card */}
+          {/* Verification Card */}
+          <VerificationCard profile={profile as Profile} />
 
           {/* Profile Stats Card */}
           <RoleStatsCard profile={profile as Profile} />
 
-          {/* TODO: Get in Touch Card */}
+          {/* Get in Touch Card */}
+          <GetInTouchCard
+            profile={profile as Profile}
+            currentUser={currentUserProfile}
+            isOwnProfile={isOwnProfile}
+          />
         </div>
       </div>
 

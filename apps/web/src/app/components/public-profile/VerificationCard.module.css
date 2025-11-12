@@ -1,0 +1,102 @@
+/**
+ * Filename: VerificationCard.module.css
+ * Purpose: Styles for Verification card
+ * Created: 2025-11-12
+ */
+
+.verificationCard {
+  padding: var(--space-4, 32px);
+}
+
+.cardTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 var(--space-4, 32px) 0;
+  line-height: 1.2;
+}
+
+.verificationsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 32px);
+}
+
+.verificationItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--space-3, 24px);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.verificationItem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.statusContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 16px);
+}
+
+.statusIcon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statusIcon.verified {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.statusIcon.unverified {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.statusText {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statusText.verified {
+  color: #059669;
+}
+
+.statusText.unverified {
+  color: #dc2626;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .verificationCard {
+    padding: var(--space-3, 24px);
+  }
+
+  .cardTitle {
+    font-size: 1.125rem;
+  }
+
+  .verificationsContainer {
+    gap: var(--space-3, 24px);
+  }
+
+  .verificationItem {
+    padding-bottom: var(--space-2, 16px);
+  }
+}
