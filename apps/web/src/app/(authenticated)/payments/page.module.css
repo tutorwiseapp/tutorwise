@@ -101,9 +101,14 @@
   height: 100%;
 }
 
-/* First card in each column should take available height if it's the only one */
-.columnStack > :first-child:last-child {
+/* Make single cards in a column stretch to fill available space */
+.columnStack > :only-child {
   flex: 1;
+}
+
+/* Ensure card content fills the card height */
+.columnStack > :only-child .cardContent {
+  height: 100%;
 }
 
 /* Card Content */
