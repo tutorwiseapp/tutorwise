@@ -378,6 +378,15 @@ const PaymentsPageContent = () => {
                                 </div>
                             </div>
                         </Card>
+                        {/* Hidden spacer card to balance column heights */}
+                        <div style={{ visibility: 'hidden', pointerEvents: 'none', height: 0, overflow: 'hidden' }} aria-hidden="true">
+                            <Card>
+                                <div className={styles.cardContent}>
+                                    <h3 className={styles.cardTitle}>Spacer</h3>
+                                    <p className={styles.cardDescription}>Hidden spacer card</p>
+                                </div>
+                            </Card>
+                        </div>
                     </div>
                 </div>
             </div>
