@@ -77,7 +77,12 @@ export default function AppSidebar() {
                     isActive(item.href, !!item.subItems) ? styles.navItemActive : ''
                   } ${item.indent ? styles.navItemIndent : ''}`}
                 >
-                  {item.label}
+                  <span className={styles.navItemLabel}>{item.label}</span>
+                  {item.subItems && (
+                    <span className={`${styles.chevron} ${isParentActive(item.href) ? styles.chevronExpanded : ''}`}>
+                      ▼
+                    </span>
+                  )}
                 </Link>
               </li>
               {/* Render sub-items if they exist and parent section is active */}
