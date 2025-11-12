@@ -83,7 +83,7 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 2rem;
-  align-items: stretch;
+  align-items: start;
   margin-bottom: 2rem;
 }
 
@@ -98,17 +98,6 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  height: 100%;
-}
-
-/* Make single cards in a column stretch to fill available space */
-.columnStack > :only-child {
-  flex: 1;
-}
-
-/* Ensure card content fills the card height */
-.columnStack > :only-child .cardContent {
-  height: 100%;
 }
 
 /* Card Content */
