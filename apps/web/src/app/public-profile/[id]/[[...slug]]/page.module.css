@@ -60,6 +60,11 @@
   margin-bottom: var(--space-6, 48px);
 }
 
+/* Bottom Spacer (matches listing details page) */
+.bottomSpacer {
+  height: var(--space-6, 48px);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .heroSection {
@@ -68,5 +73,9 @@
 
   .bodySection {
     gap: var(--space-4, 32px); /* Reduced gap on mobile */
+  }
+
+  .bottomSpacer {
+    height: var(--space-4, 32px); /* Reduced spacing on mobile */
   }
 }

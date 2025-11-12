@@ -223,6 +223,9 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
         <SimilarProfilesCard profiles={similarProfiles || []} />
       </div>
 
+      {/* Empty spacer for consistent bottom padding */}
+      <div className={styles.bottomSpacer} />
+
       {/* Mobile-only: Fixed bottom CTA bar */}
       <MobileBottomCTA
         profile={profile as Profile}
