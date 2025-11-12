@@ -24,7 +24,7 @@ import styles from './page.module.css';
 // Role-specific dashboard links (SDD v3.6 - prioritized order)
 const getDashboardLinks = (role: string | null) => {
   const commonLinks = [
-    { href: '/profile', title: 'My Profile', description: 'Update your public-facing profile information.', linkText: 'Edit Profile' },
+    { href: '/account/personal-info', title: 'My Profile', description: 'Update your public-facing profile information.', linkText: 'Edit Profile' },
     { href: '/settings', title: 'Settings', description: 'Manage account settings and notifications.', linkText: 'Go to Settings' },
   ];
 
