@@ -14,6 +14,7 @@ import getStripe from '@/lib/utils/get-stripejs';
 import toast from 'react-hot-toast';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
+import Card from '@/app/components/ui/Card';
 import { getErrorMessage } from '@/lib/utils/getErrorMessage';
 import styles from './page.module.css';
 import Button from '@/app/components/ui/Button';
@@ -272,13 +273,20 @@ const PaymentsPageContent = () => {
                     <h1 className={styles.title}>Payment Settings</h1>
                     <p className={styles.subtitle}>Manage your methods for sending and receiving payments.</p>
                 </div>
+
+                {/* Settings Tab */}
+                <div className={styles.filterTabs}>
+                    <button className={`${styles.filterTab} ${styles.filterTabActive}`}>
+                        Settings
+                    </button>
+                </div>
             </div>
 
             {/* Main Content */}
             <div className={styles.content}>
                 <div className={styles.grid}>
                     <div className={styles.columnStack}>
-                        <div className={styles.card}>
+                        <Card>
                             <div className={styles.cardContent}>
                                 <h3 className={styles.cardTitle}>Sending Payment Methods</h3>
                                 <p className={styles.cardDescription}>Add or manage your credit and debit cards.</p>
@@ -286,14 +294,14 @@ const PaymentsPageContent = () => {
                                    <a href="#" onClick={handleAddNewCard} className={styles.cardLink}>Add a New Card</a>
                                 </div>
                             </div>
-                        </div>
-                        <div className={styles.card}>
+                        </Card>
+                        <Card>
                             <div className={styles.cardContent}>
                                 <h3 className={styles.cardTitle}>Saved Cards</h3>
                                 <p className={styles.cardDescription}>
                                     Set a default card or remove expired ones.
                                     <Button onClick={handleRefreshCards} variant="ghost" style={{marginLeft: '10px', fontSize: '12px'}}>
-                                        🔄 Refresh
+                                        Refresh
                                     </Button>
                                 </p>
                                 <div className={styles.savedCardsList}>
@@ -347,10 +355,10 @@ const PaymentsPageContent = () => {
                                     )}
                                 </div>
                             </div>
-                        </div>
+                        </Card>
                     </div>
                     <div className={styles.columnStack}>
-                        <div className={styles.card}>
+                        <Card>
                              <div className={styles.cardContent}>
                                 <h3 className={styles.cardTitle}>Receiving Payment Methods</h3>
                                 <p className={styles.cardDescription}>Connect a Stripe account to receive your referral earnings.</p>
@@ -365,7 +373,7 @@ const PaymentsPageContent = () => {
                                     )}
                                 </div>
                             </div>
-                        </div>
+                        </Card>
                     </div>
                 </div>
                 <p className={styles.footerText}>
