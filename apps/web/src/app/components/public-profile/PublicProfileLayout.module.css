@@ -1,0 +1,83 @@
+/**
+ * Filename: apps/web/src/app/components/public-profile/PublicProfileLayout.module.css
+ * Purpose: Styles for conditional AppSidebar layout on public profiles
+ * Created: 2025-11-12
+ *
+ * Layout modes:
+ * - Anonymous users: 2-column (Main 70% | Right Sidebar 30%)
+ * - Authenticated users: 3-column (AppSidebar | Main 60% | Right Sidebar 30%)
+ */
+
+.layoutContainer {
+  display: flex;
+  min-height: calc(100vh - 80px); /* Subtract header height */
+  background-color: #f9fafb;
+}
+
+/* Anonymous user layout (2 columns) */
+.anonymous .mainContent {
+  flex: 1;
+  max-width: 70%;
+  padding: 2rem;
+  background-color: #ffffff;
+  overflow-y: auto;
+  max-height: calc(100vh - 80px);
+}
+
+.anonymous .rightSidebar {
+  width: 30%;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-left: 1px solid #e5e7eb;
+  overflow-y: auto;
+  max-height: calc(100vh - 80px);
+}
+
+/* Authenticated user layout (3 columns) */
+.authenticated .mainContent {
+  flex: 1;
+  max-width: 60%;
+  padding: 2rem;
+  background-color: #ffffff;
+  overflow-y: auto;
+  max-height: calc(100vh - 80px);
+}
+
+.authenticated .rightSidebar {
+  width: 30%;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-left: 1px solid #e5e7eb;
+  overflow-y: auto;
+  max-height: calc(100vh - 80px);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .layoutContainer {
+    flex-direction: column;
+  }
+
+  .anonymous .mainContent,
+  .anonymous .rightSidebar,
+  .authenticated .mainContent,
+  .authenticated .rightSidebar {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .anonymous .rightSidebar,
+  .authenticated .rightSidebar {
+    border-left: none;
+    border-top: 1px solid #e5e7eb;
+  }
+}
+
+@media (max-width: 768px) {
+  .anonymous .mainContent,
+  .anonymous .rightSidebar,
+  .authenticated .mainContent,
+  .authenticated .rightSidebar {
+    padding: 1rem;
+  }
+}

@@ -16,7 +16,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Profile } from '@/types';
 import type { Listing } from '@tutorwise/shared-types';
-import TutorNarrative from '../profile/TutorNarrative';
+import TutorProfessionalInfo from '../profile/TutorProfessionalInfo';
 import ClientProfessionalInfo from '../profile/ClientProfessionalInfo';
 import AgentProfessionalInfo from '../profile/AgentProfessionalInfo';
 import ListingCard from '../marketplace/ListingCard';
@@ -96,7 +96,7 @@ export function UnifiedProfileTabs({ profile }: UnifiedProfileTabsProps) {
 
     switch (role) {
       case 'tutor':
-        return <TutorNarrative profile={profile} isEditable={false} />;
+        return <TutorProfessionalInfo profile={profile} isEditable={false} />;
       case 'client':
         return <ClientProfessionalInfo profile={profile} isEditable={false} />;
       case 'agent':

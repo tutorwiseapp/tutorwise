@@ -2,12 +2,15 @@
  * Filename: apps/web/src/app/public-profile/[id]/[[...slug]]/page.tsx
  * Purpose: Public Profile Page - Server Component (v4.8)
  * Created: 2025-11-10
+ * Updated: 2025-11-12 - Implemented conditional AppSidebar for authenticated users
  *
  * Features:
  * - SEO-optimized server-side rendering
  * - Resilient URLs with [id]/[slug] format
  * - 301 redirect if slug doesn't match current profile slug
- * - Context-aware layout (AppSidebar for auth users, hidden for anonymous)
+ * - Context-aware layout: AppSidebar shown for authenticated users, hidden for anonymous
+ * - 3-column layout for authenticated users (AppSidebar | Main | Right Sidebar)
+ * - 2-column layout for anonymous users (Main | Right Sidebar)
  * - Role-aware content (Tutor/Client/Agent)
  */
 
@@ -19,6 +22,7 @@ import { HeroProfileCard } from '@/app/components/account/HeroProfileCard';
 import { PublicActionCard } from '@/app/components/public-profile/PublicActionCard';
 import { RoleStatsCard } from '@/app/components/account/RoleStatsCard';
 import { UnifiedProfileTabs } from '@/app/components/public-profile/UnifiedProfileTabs';
+import { PublicProfileLayout } from '@/app/components/public-profile/PublicProfileLayout';
 import styles from './page.module.css';
 
 interface PublicProfilePageProps {
@@ -105,41 +109,38 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   }
 
   // ===========================================================
-  // STEP 5: Render with context-aware layout
+  // STEP 5: Render with context-aware layout (AppSidebar for authenticated users)
   // ===========================================================
   return (
-    <div className={styles.pageContainer}>
-      {/* TODO: Add conditional AppSidebar for authenticated users (Phase 3) */}
+    <PublicProfileLayout
+      sidebar={
+        <>
+          {/* HeroProfileCard - always readOnly on public profile page */}
+          <HeroProfileCard readOnly={true} profileData={profile as Profile} />
 
-      <div className={styles.mainContent}>
-        <div className={styles.container}>
-          {/* Page Header - matches Account page style */}
-          <div className={styles.pageHeader}>
-            <h1 className={styles.pageTitle}>Public Profile</h1>
-          </div>
+          {/* PublicActionCard - only show for other users' profiles */}
+          {!isOwnProfile && (
+            <PublicActionCard
+              profile={profile as Profile}
+              currentUser={currentUserProfile}
+              isOwnProfile={isOwnProfile}
+            />
+          )}
 
-          {/* UnifiedProfileTabs - Main content area */}
-          <UnifiedProfileTabs profile={profile as Profile} />
+          {/* RoleStatsCard showing profile statistics */}
+          <RoleStatsCard profile={profile as Profile} />
+        </>
+      }
+    >
+      <div className={styles.container}>
+        {/* Page Header - matches Account page style */}
+        <div className={styles.pageHeader}>
+          <h1 className={styles.pageTitle}>Public Profile</h1>
         </div>
+
+        {/* UnifiedProfileTabs - Main content area */}
+        <UnifiedProfileTabs profile={profile as Profile} />
       </div>
-
-      {/* Right Sidebar with widgets */}
-      <div className={styles.sidebar}>
-        {/* HeroProfileCard - always readOnly on public profile page */}
-        <HeroProfileCard readOnly={true} profileData={profile as Profile} />
-
-        {/* PublicActionCard - only show for other users' profiles */}
-        {!isOwnProfile && (
-          <PublicActionCard
-            profile={profile as Profile}
-            currentUser={currentUserProfile}
-            isOwnProfile={isOwnProfile}
-          />
-        )}
-
-        {/* RoleStatsCard showing profile statistics */}
-        <RoleStatsCard profile={profile as Profile} />
-      </div>
-    </div>
+    </PublicProfileLayout>
   );
 }
