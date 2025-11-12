@@ -1,12 +1,9 @@
 /*
- * Filename: src/app/payments/page.tsx
- * Purpose: Allows users to manage payment methods, with robust polling for data consistency.
- * Change History:
- * C069 - 2025-09-07 : Added empty second card to right column for height alignment
- * C065 - 2025-09-01 : 18:00 - Definitive fix for disappearing cards with robust polling mechanism.
- * C064 - 2025-08-26 : 15:00 - Replaced Clerk's useUser hook with Kinde's useKindeBrowserClient.
- * Last Modified: 2025-09-07 : Added empty second card
- * Requirement ID: VIN-PAY-1
+ * Filename: src/app/(authenticated)/payments/page.tsx
+ * Purpose: Payment methods management with 3-column dashboard layout
+ * Created: 2025-09-01
+ * Updated: 2025-11-12 - Moved to authenticated layout group for consistent dashboard experience
+ * Specification: Hub page with AppSidebar, main content, and ContextualSidebar
  */
 'use client';
 
@@ -16,9 +13,7 @@ import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import getStripe from '@/lib/utils/get-stripejs';
 import toast from 'react-hot-toast';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import Container from '@/app/components/layout/Container';
-import PageHeader from '@/app/components/ui/PageHeader';
-import Card from '@/app/components/ui/Card';
+import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import { getErrorMessage } from '@/lib/utils/getErrorMessage';
 import styles from './page.module.css';
 import Button from '@/app/components/ui/Button';
@@ -35,7 +30,7 @@ const PaymentsPageContent = () => {
     const { profile, isLoading: isProfileLoading } = useUserProfile();
     const router = useRouter();
     const searchParams = useSearchParams();
-    
+
     const [stripeAccount, setStripeAccount] = useState<{ details_submitted: boolean } | null>(null);
     const [savedCards, setSavedCards] = useState<SavedCard[]>([]);
     const [defaultPaymentMethodId, setDefaultPaymentMethodId] = useState<string | null>(null);
@@ -45,13 +40,13 @@ const PaymentsPageContent = () => {
     // Enhanced fetchData function with proper race condition handling
     const fetchData = useCallback(async (showLoading = true) => {
         if (!profile) return;
-        
+
         if (showLoading) setIsLoadingData(true);
 
         try {
             const accountPromise = fetch('/api/stripe/get-connect-account', { cache: 'no-store' });
             const promises: Promise<Response>[] = [accountPromise];
-            
+
             if (profile.stripe_customer_id) {
                 const cardsPromise = fetch('/api/stripe/get-cards-by-customer', {
                     method: 'POST',
@@ -79,11 +74,11 @@ const PaymentsPageContent = () => {
                 setDefaultPaymentMethodId(null);
             }
 
-        } catch (error) { 
+        } catch (error) {
             console.error('Error fetching payment data:', error);
             toast.error(getErrorMessage(error));
-        } finally { 
-            if (showLoading) setIsLoadingData(false); 
+        } finally {
+            if (showLoading) setIsLoadingData(false);
         }
     }, [profile]);
 
@@ -122,7 +117,7 @@ const PaymentsPageContent = () => {
                     if (!res.ok) {
                         throw new Error(`Verification API error: ${res.status}`);
                     }
-                    
+
                     const data = await res.json();
                     const newCards: SavedCard[] = data.cards || [];
 
@@ -144,7 +139,7 @@ const PaymentsPageContent = () => {
 
             const poll = setInterval(async () => {
                 attempts++;
-                
+
                 const success = await pollForNewCard();
                 if (success) {
                     clearInterval(poll);
@@ -163,7 +158,7 @@ const PaymentsPageContent = () => {
             return () => clearInterval(poll);
         }
     }, [searchParams, isVerifying, router, savedCards.length, fetchData]);
-    
+
     const handleConnectStripe = async (e: React.MouseEvent) => {
         e.preventDefault();
         const toastId = toast.loading('Redirecting to Stripe...');
@@ -177,7 +172,7 @@ const PaymentsPageContent = () => {
             toast.error(getErrorMessage(error), { id: toastId });
         }
     };
-    
+
     const handleDisconnect = async (e: React.MouseEvent) => {
         e.preventDefault();
         const toastId = toast.loading('Disconnecting your Stripe account...');
@@ -189,7 +184,7 @@ const PaymentsPageContent = () => {
             toast.error(getErrorMessage(error), { id: toastId });
         }
     };
-    
+
     const handleSetDefault = async (paymentMethodId: string) => {
         const toastId = toast.loading('Setting new default...');
         try {
@@ -260,129 +255,149 @@ const PaymentsPageContent = () => {
 
     if (isProfileLoading || isLoadingData) {
         return (
-            <Container>
-                <PageHeader title="Payments" />
-                <p>Loading payment methods...</p>
-            </Container>
+            <>
+              <div className={styles.loading}>Loading payment methods...</div>
+              <ContextualSidebar>
+                <div className={styles.skeletonWidget} />
+              </ContextualSidebar>
+            </>
         );
     }
-    
+
     return (
-        <Container>
-            <PageHeader title="Payments" subtitle="Manage your methods for sending and receiving payments." />
-            <div className={styles.grid}>
-                <div className={styles.columnStack}>
-                    <Card>
-                        <div className={styles.cardContent}>
-                            <h3 className={styles.cardTitle}>Sending Payment Methods</h3>
-                            <p className={styles.cardDescription}>Add or manage your credit and debit cards.</p>
-                            <div className={styles.cardActions}>
-                               <a href="#" onClick={handleAddNewCard} className={styles.cardLink}>Add a New Card</a>
-                            </div>
-                        </div>
-                    </Card>
-                    <Card>
-                        <div className={styles.cardContent}>
-                            <h3 className={styles.cardTitle}>Saved Cards</h3>
-                            <p className={styles.cardDescription}>
-                                Set a default card or remove expired ones.
-                                <Button onClick={handleRefreshCards} variant="ghost" style={{marginLeft: '10px', fontSize: '12px'}}>
-                                    🔄 Refresh
-                                </Button>
-                            </p>
-                            <div className={styles.savedCardsList}>
-                                {savedCards.length === 0 ? (
-                                    <div className={styles.noCardsMessage}>
-                                        {profile?.stripe_customer_id ? 
-                                            "You have no saved cards." : 
-                                            "Add your first card to get started."
-                                        }
-                                    </div>
-                                ) : (
-                                    savedCards.map(card => (
-                                        <div key={card.id} className={styles.savedCard}>
-                                            <span className={styles.cardIcon}></span>
-                                            <div className={styles.savedCardDetails}>
-                                                <span>
-                                                    {card.brand?.toUpperCase()} **** {card.last4}
-                                                    {card.id === defaultPaymentMethodId && (
-                                                        <span className={styles.defaultBadge}>DEFAULT</span>
-                                                    )}
-                                                </span>
-                                                <span className={styles.cardExpiry}>
-                                                    Expires: {String(card.exp_month).padStart(2, '0')}/{card.exp_year}
-                                                </span>
-                                            </div>
-                                            <DropdownMenu.Root>
-                                                <DropdownMenu.Trigger asChild>
-                                                    <button className={styles.manageButton}>Manage</button>
-                                                </DropdownMenu.Trigger>
-                                                <DropdownMenu.Portal>
-                                                    <DropdownMenu.Content className={styles.dropdownContent} sideOffset={5} align="end">
-                                                        {card.id !== defaultPaymentMethodId && (
-                                                            <DropdownMenu.Item 
-                                                                className={styles.dropdownItem} 
-                                                                onSelect={() => handleSetDefault(card.id)}
-                                                            >
-                                                                Set as default
-                                                            </DropdownMenu.Item>
-                                                        )}
-                                                        <DropdownMenu.Item 
-                                                            className={`${styles.dropdownItem} ${styles.destructive}`} 
-                                                            onSelect={() => handleRemove(card.id)}
-                                                        >
-                                                            Remove
-                                                        </DropdownMenu.Item>
-                                                    </DropdownMenu.Content>
-                                                </DropdownMenu.Portal>
-                                            </DropdownMenu.Root>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        </div>
-                    </Card>
-                </div>
-                <div className={styles.columnStack}>
-                    <Card>
-                         <div className={styles.cardContent}>
-                            <h3 className={styles.cardTitle}>Receiving Payment Methods</h3>
-                            <p className={styles.cardDescription}>Connect a Stripe account to receive your referral earnings.</p>
-                            <div className={styles.cardActions}>
-                                 <a href="#" onClick={handleConnectStripe} className={styles.cardLink}>
-                                    {stripeAccount?.details_submitted ? 'Manage Stripe Account' : 'Connect Stripe Account'}
-                                </a>
-                                {stripeAccount?.details_submitted && (
-                                    <a href="#" onClick={handleDisconnect} className={`${styles.cardLink} ${styles.disconnect}`}>
-                                        Disconnect
-                                    </a>
-                                )}
-                            </div>
-                        </div>
-                    </Card>
-                    {/* Empty second card to match left column structure */}
-                    <Card style={{ visibility: 'hidden' }}>
-                        <div className={styles.cardContent}>
-                            <h3 className={styles.cardTitle}>&nbsp;</h3>
-                            <p className={styles.cardDescription}>&nbsp;</p>
-                        </div>
-                    </Card>
+        <>
+            {/* Page Header */}
+            <div className={styles.container}>
+                <div className={styles.header}>
+                    <h1 className={styles.title}>Payment Settings</h1>
+                    <p className={styles.subtitle}>Manage your methods for sending and receiving payments.</p>
                 </div>
             </div>
-            <p className={styles.footerText}>
-                All payments are securely processed by Stripe. We do not store your payment information.
-            </p>
-        </Container>
+
+            {/* Main Content */}
+            <div className={styles.content}>
+                <div className={styles.grid}>
+                    <div className={styles.columnStack}>
+                        <div className={styles.card}>
+                            <div className={styles.cardContent}>
+                                <h3 className={styles.cardTitle}>Sending Payment Methods</h3>
+                                <p className={styles.cardDescription}>Add or manage your credit and debit cards.</p>
+                                <div className={styles.cardActions}>
+                                   <a href="#" onClick={handleAddNewCard} className={styles.cardLink}>Add a New Card</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div className={styles.card}>
+                            <div className={styles.cardContent}>
+                                <h3 className={styles.cardTitle}>Saved Cards</h3>
+                                <p className={styles.cardDescription}>
+                                    Set a default card or remove expired ones.
+                                    <Button onClick={handleRefreshCards} variant="ghost" style={{marginLeft: '10px', fontSize: '12px'}}>
+                                        🔄 Refresh
+                                    </Button>
+                                </p>
+                                <div className={styles.savedCardsList}>
+                                    {savedCards.length === 0 ? (
+                                        <div className={styles.noCardsMessage}>
+                                            {profile?.stripe_customer_id ?
+                                                "You have no saved cards." :
+                                                "Add your first card to get started."
+                                            }
+                                        </div>
+                                    ) : (
+                                        savedCards.map(card => (
+                                            <div key={card.id} className={styles.savedCard}>
+                                                <span className={styles.cardIcon}></span>
+                                                <div className={styles.savedCardDetails}>
+                                                    <span>
+                                                        {card.brand?.toUpperCase()} **** {card.last4}
+                                                        {card.id === defaultPaymentMethodId && (
+                                                            <span className={styles.defaultBadge}>DEFAULT</span>
+                                                        )}
+                                                    </span>
+                                                    <span className={styles.cardExpiry}>
+                                                        Expires: {String(card.exp_month).padStart(2, '0')}/{card.exp_year}
+                                                    </span>
+                                                </div>
+                                                <DropdownMenu.Root>
+                                                    <DropdownMenu.Trigger asChild>
+                                                        <button className={styles.manageButton}>Manage</button>
+                                                    </DropdownMenu.Trigger>
+                                                    <DropdownMenu.Portal>
+                                                        <DropdownMenu.Content className={styles.dropdownContent} sideOffset={5} align="end">
+                                                            {card.id !== defaultPaymentMethodId && (
+                                                                <DropdownMenu.Item
+                                                                    className={styles.dropdownItem}
+                                                                    onSelect={() => handleSetDefault(card.id)}
+                                                                >
+                                                                    Set as default
+                                                                </DropdownMenu.Item>
+                                                            )}
+                                                            <DropdownMenu.Item
+                                                                className={`${styles.dropdownItem} ${styles.destructive}`}
+                                                                onSelect={() => handleRemove(card.id)}
+                                                            >
+                                                                Remove
+                                                            </DropdownMenu.Item>
+                                                        </DropdownMenu.Content>
+                                                    </DropdownMenu.Portal>
+                                                </DropdownMenu.Root>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className={styles.columnStack}>
+                        <div className={styles.card}>
+                             <div className={styles.cardContent}>
+                                <h3 className={styles.cardTitle}>Receiving Payment Methods</h3>
+                                <p className={styles.cardDescription}>Connect a Stripe account to receive your referral earnings.</p>
+                                <div className={styles.cardActions}>
+                                     <a href="#" onClick={handleConnectStripe} className={styles.cardLink}>
+                                        {stripeAccount?.details_submitted ? 'Manage Stripe Account' : 'Connect Stripe Account'}
+                                    </a>
+                                    {stripeAccount?.details_submitted && (
+                                        <a href="#" onClick={handleDisconnect} className={`${styles.cardLink} ${styles.disconnect}`}>
+                                            Disconnect
+                                        </a>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p className={styles.footerText}>
+                    All payments are securely processed by Stripe. We do not store your payment information.
+                </p>
+            </div>
+
+            {/* Contextual Sidebar (Right Column) */}
+            <ContextualSidebar>
+                <div className={styles.sidebarCard}>
+                    <h3 className={styles.sidebarTitle}>Payment Help</h3>
+                    <p className={styles.sidebarText}>
+                        All payments are processed securely through Stripe.
+                    </p>
+                    <p className={styles.sidebarText}>
+                        For payment issues, contact our support team.
+                    </p>
+                </div>
+            </ContextualSidebar>
+        </>
     );
 }
 
 const PaymentsPage = () => {
     return (
         <Suspense fallback={
-            <Container>
-                <PageHeader title="Payments" />
-                <p>Loading...</p>
-            </Container>
+            <>
+                <div className={styles.loading}>Loading...</div>
+                <ContextualSidebar>
+                    <div className={styles.skeletonWidget} />
+                </ContextualSidebar>
+            </>
         }>
             <PaymentsPageContent />
         </Suspense>

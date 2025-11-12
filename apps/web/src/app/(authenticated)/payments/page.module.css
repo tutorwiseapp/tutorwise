@@ -1,0 +1,284 @@
+/*
+ * Filename: src/app/(authenticated)/payments/page.module.css
+ * Purpose: Styles for payments hub page (3-column dashboard layout)
+ * Created: 2025-11-12
+ * Updated: 2025-11-12 - Migrated to authenticated layout group
+ */
+
+/* Page Header Styles */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Content Area */
+.content {
+  /* Wrapper for main content area */
+}
+
+/* Grid Layout */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4, 32px);
+  align-items: start;
+}
+
+@media (min-width: 992px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Column Stacks */
+.columnStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 32px);
+}
+
+/* Card Content */
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.cardTitle {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-1);
+  color: var(--color-text-primary);
+}
+
+.cardDescription {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-md);
+  margin-bottom: var(--space-4);
+  line-height: 1.5;
+  flex-grow: 1;
+}
+
+.cardActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.cardLink {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  align-self: flex-start;
+}
+
+.cardLink:hover {
+  text-decoration: underline;
+}
+
+.disconnect {
+  color: var(--color-error);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Footer Text */
+.footerText {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-top: var(--space-3);
+  grid-column: 1 / -1;
+}
+
+/* Saved Cards List */
+.savedCardsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.noCardsMessage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-3);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--border-radius-md);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  min-height: 60px;
+}
+
+.savedCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+}
+
+.cardIcon {
+  width: 40px;
+  height: 28px;
+  background-color: #f0f0f0;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.savedCardDetails {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  font-size: var(--font-size-sm);
+}
+
+.cardExpiry {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+}
+
+.defaultBadge {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-page);
+  padding: 2px 6px;
+  border-radius: var(--border-radius-sm);
+  margin-left: var(--space-1);
+}
+
+.manageButton {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  letter-spacing: 0.5px;
+}
+
+.manageButton:hover {
+  text-decoration: underline;
+}
+
+/* Dropdown Menu */
+.dropdownContent {
+  min-width: 160px;
+  background-color: var(--color-bg-card);
+  border-radius: var(--border-radius-md);
+  padding: var(--space-1);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  z-index: 50;
+}
+
+.dropdownItem {
+  font-size: var(--font-size-sm);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  outline: none;
+}
+
+.dropdownItem:hover {
+  background-color: var(--color-bg-page);
+}
+
+.destructive {
+  color: var(--color-error);
+}
+
+.destructive:hover {
+  background-color: var(--color-error-bg);
+}
+
+/* Loading State */
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+/* Sidebar Styles */
+.sidebarCard {
+  padding: 1.5rem;
+  background: white;
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.sidebarTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-gray-900, #111827);
+  margin: 0 0 1rem 0;
+}
+
+.sidebarText {
+  font-size: 0.875rem;
+  color: var(--color-gray-600, #6b7280);
+  line-height: 1.5;
+  margin: 0 0 0.75rem 0;
+}
+
+.sidebarText:last-child {
+  margin-bottom: 0;
+}
+
+.skeletonWidget {
+  height: 150px;
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 0.5rem;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .grid {
+    gap: var(--space-3, 24px);
+  }
+
+  .columnStack {
+    gap: var(--space-3, 24px);
+  }
+}
