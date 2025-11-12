@@ -149,7 +149,7 @@
 
 .cardLink {
   color: var(--color-primary);
-  font-weight: var(--font-weight-medium);
+  font-weight: 400; /* Normal weight for inline hyperlinks */
   font-size: var(--font-size-sm);
   text-decoration: none;
   align-self: flex-start;
