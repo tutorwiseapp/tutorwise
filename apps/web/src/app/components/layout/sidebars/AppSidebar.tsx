@@ -49,10 +49,18 @@ export default function AppSidebar() {
     { href: '/settings', label: 'Settings' },
   ];
 
-  const isActive = (href: string) => {
+  const isActive = (href: string, hasSubItems?: boolean) => {
     if (href === '/dashboard') {
       return pathname === href;
     }
+    // For parent items with sub-items, only active on exact match
+    if (hasSubItems) {
+      return pathname === href;
+    }
+    return pathname?.startsWith(href);
+  };
+
+  const isParentActive = (href: string) => {
     return pathname?.startsWith(href);
   };
 
@@ -66,21 +74,21 @@ export default function AppSidebar() {
                 <Link
                   href={item.href}
                   className={`${styles.navItem} ${
-                    isActive(item.href) ? styles.navItemActive : ''
+                    isActive(item.href, !!item.subItems) ? styles.navItemActive : ''
                   } ${item.indent ? styles.navItemIndent : ''}`}
                 >
                   {item.label}
                 </Link>
               </li>
-              {/* Render sub-items if they exist and parent is active */}
-              {item.subItems && isActive(item.href) && (
+              {/* Render sub-items if they exist and parent section is active */}
+              {item.subItems && isParentActive(item.href) && (
                 <>
                   {item.subItems.map((subItem) => (
                     <li key={subItem.href}>
                       <Link
                         href={subItem.href}
                         className={`${styles.navItem} ${
-                          isActive(subItem.href) ? styles.navItemActive : ''
+                          pathname === subItem.href ? styles.navItemActive : ''
                         } ${subItem.indent ? styles.navItemIndent : ''}`}
                       >
                         {subItem.label}
