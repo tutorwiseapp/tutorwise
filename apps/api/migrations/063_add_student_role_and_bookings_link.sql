@@ -12,24 +12,17 @@
 -- ===================================================================
 
 -- ===================================================================
--- SECTION 1: ADD STUDENT ROLE TO ENUM
+-- SECTION 1: ADD STUDENT ROLE (NOTE: Using text[] not enum)
 -- ===================================================================
 
--- Add 'student' to the existing 'user_role' enum
--- We must do this in a separate transaction
+-- NOTE: This database uses text[] for roles, not an enum type.
+-- The 'student' role will be added dynamically when users sign up with student role.
+-- No schema changes needed for the role itself.
+
 DO $$
 BEGIN
-  -- Check if 'student' value already exists
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_enum
-    WHERE enumlabel = 'student'
-    AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'user_role')
-  ) THEN
-    ALTER TYPE public.user_role ADD VALUE 'student';
-    RAISE NOTICE 'Added student role to user_role enum';
-  ELSE
-    RAISE NOTICE 'Student role already exists in user_role enum';
-  END IF;
+  RAISE NOTICE 'Profiles table uses text[] for roles - no enum modification needed';
+  RAISE NOTICE 'Student role will be available for new user signups';
 END $$;
 
 -- ===================================================================
@@ -67,21 +60,10 @@ COMMENT ON COLUMN public.bookings.student_id IS 'v5.0: The profile_id of the use
 
 DO $$
 DECLARE
-  student_role_exists BOOLEAN;
   student_column_exists BOOLEAN;
   null_student_count INTEGER;
+  total_bookings_count INTEGER;
 BEGIN
-  -- Verify student role was added
-  SELECT EXISTS (
-    SELECT 1 FROM pg_enum
-    WHERE enumlabel = 'student'
-    AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'user_role')
-  ) INTO student_role_exists;
-
-  IF NOT student_role_exists THEN
-    RAISE EXCEPTION 'Student role was not added to user_role enum';
-  END IF;
-
   -- Verify student_id column exists
   SELECT EXISTS (
     SELECT 1 FROM information_schema.columns
@@ -94,15 +76,20 @@ BEGIN
     RAISE EXCEPTION 'student_id column was not added to bookings table';
   END IF;
 
-  -- Check for any NULL student_id values (should be none after backfill)
+  -- Check for any NULL student_id values
   SELECT COUNT(*) INTO null_student_count
   FROM public.bookings
   WHERE student_id IS NULL;
 
-  RAISE NOTICE 'Migration 048 completed successfully';
-  RAISE NOTICE 'Student role added: %', student_role_exists;
+  -- Check total bookings
+  SELECT COUNT(*) INTO total_bookings_count
+  FROM public.bookings;
+
+  RAISE NOTICE 'Migration 063 completed successfully';
   RAISE NOTICE 'student_id column added: %', student_column_exists;
+  RAISE NOTICE 'Total bookings: %', total_bookings_count;
   RAISE NOTICE 'Bookings with NULL student_id: %', null_student_count;
+  RAISE NOTICE 'Student role will be available as text[] value in profiles.roles';
 END $$;
 
 -- ===================================================================

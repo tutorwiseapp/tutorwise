@@ -37,6 +37,10 @@ CREATE INDEX IF NOT EXISTS "idx_integration_links_platform"
 -- Enable Row Level Security
 ALTER TABLE public.student_integration_links ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Students can manage their own integration links" ON public.student_integration_links;
+DROP POLICY IF EXISTS "Guardians can view their students integration links" ON public.student_integration_links;
+
 -- RLS Policy: Only the student can manage their own integrations
 CREATE POLICY "Students can manage their own integration links"
     ON public.student_integration_links
