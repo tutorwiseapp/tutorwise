@@ -21,10 +21,13 @@ import { AccountTabs } from '@/app/components/account/AccountTabs';
 import { HeroProfileCard } from '@/app/components/account/HeroProfileCard';
 import { ProfileCompletenessWidget } from '@/app/components/account/ProfileCompletenessWidget';
 import { QuickActionsWidget } from '@/app/components/account/QuickActionsWidget';
+import IntegrationLinksCard from '@/app/components/students/IntegrationLinksCard';
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import PageHeader from '@/app/components/ui/PageHeader';
 import styles from './page.module.css';
 
 export default function SettingsPage() {
+  const { activeRole } = useUserProfile();
   return (
     <>
       {/* Center Column - Account Content */}
@@ -41,6 +44,13 @@ export default function SettingsPage() {
       {/* Content container */}
       <div className={styles.container}>
         <div className={styles.content}>
+          {/* v5.0: Student Integrations - Only visible to student role */}
+          {activeRole === 'student' && (
+            <div style={{ marginBottom: 'var(--space-4, 32px)' }}>
+              <IntegrationLinksCard />
+            </div>
+          )}
+
           <div className={styles.settingsGrid}>
             {/* Change Password */}
             <Link href="/settings/change-password" className={styles.settingCard}>

@@ -62,10 +62,10 @@ export default function NetworkPage() {
       queryClient.invalidateQueries({ queryKey: ['connections', profile?.id] });
     },
     onUpdate: (payload: any) => {
-      // Check if connection was accepted
-      if (payload.new.status === 'accepted' && payload.old.status === 'pending') {
-        const isReceiver = payload.new.receiver_id === profile?.id;
-        if (isReceiver) {
+      // Check if connection was accepted (v4.6: ACTIVE status instead of 'accepted')
+      if (payload.new.status === 'ACTIVE' && payload.old.status === 'PENDING') {
+        const isTarget = payload.new.target_profile_id === profile?.id;
+        if (isTarget) {
           toast.success('Connection request accepted!');
         }
       }

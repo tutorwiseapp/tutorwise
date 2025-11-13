@@ -1,7 +1,8 @@
 /**
  * Filename: apps/web/src/app/hooks/useConnectionsRealtime.tsx
- * Purpose: Real-time subscription hook for connections table using Supabase Realtime
+ * Purpose: Real-time subscription hook for profile_graph table (SOCIAL relationships)
  * Created: 2025-11-07
+ * Updated: 2025-11-12 (v4.6) - Migrated from connections to profile_graph
  */
 
 'use client';
@@ -19,7 +20,8 @@ export interface UseConnectionsRealtimeOptions {
 }
 
 /**
- * Subscribe to real-time changes in the connections table
+ * Subscribe to real-time changes in the profile_graph table (SOCIAL relationships)
+ * v4.6: Now listens to profile_graph instead of connections
  *
  * @example
  * useConnectionsRealtime({
@@ -48,20 +50,23 @@ export function useConnectionsRealtime({
     let channel: RealtimeChannel;
 
     const setupRealtimeSubscription = async () => {
-      // Subscribe to connections where user is either requester or receiver
+      // Subscribe to profile_graph SOCIAL relationships where user is source or target
       channel = supabase
-        .channel(`connections:user-${userId}`)
+        .channel(`profile_graph:social:user-${userId}`)
         .on(
           'postgres_changes',
           {
             event: 'INSERT',
             schema: 'public',
-            table: 'connections',
-            filter: `receiver_id=eq.${userId}`,
+            table: 'profile_graph',
+            filter: `target_profile_id=eq.${userId}`,
           },
           (payload) => {
-            console.log('[realtime] New connection (receiver):', payload);
-            onInsert?.(payload);
+            // Only trigger for SOCIAL relationships
+            if (payload.new && (payload.new as any).relationship_type === 'SOCIAL') {
+              console.log('[realtime] New SOCIAL connection (target):', payload);
+              onInsert?.(payload);
+            }
           }
         )
         .on(
@@ -69,12 +74,15 @@ export function useConnectionsRealtime({
           {
             event: 'INSERT',
             schema: 'public',
-            table: 'connections',
-            filter: `requester_id=eq.${userId}`,
+            table: 'profile_graph',
+            filter: `source_profile_id=eq.${userId}`,
           },
           (payload) => {
-            console.log('[realtime] New connection (requester):', payload);
-            onInsert?.(payload);
+            // Only trigger for SOCIAL relationships
+            if (payload.new && (payload.new as any).relationship_type === 'SOCIAL') {
+              console.log('[realtime] New SOCIAL connection (source):', payload);
+              onInsert?.(payload);
+            }
           }
         )
         .on(
@@ -82,12 +90,15 @@ export function useConnectionsRealtime({
           {
             event: 'UPDATE',
             schema: 'public',
-            table: 'connections',
-            filter: `receiver_id=eq.${userId}`,
+            table: 'profile_graph',
+            filter: `target_profile_id=eq.${userId}`,
           },
           (payload) => {
-            console.log('[realtime] Connection updated (receiver):', payload);
-            onUpdate?.(payload);
+            // Only trigger for SOCIAL relationships
+            if (payload.new && (payload.new as any).relationship_type === 'SOCIAL') {
+              console.log('[realtime] SOCIAL connection updated (target):', payload);
+              onUpdate?.(payload);
+            }
           }
         )
         .on(
@@ -95,12 +106,15 @@ export function useConnectionsRealtime({
           {
             event: 'UPDATE',
             schema: 'public',
-            table: 'connections',
-            filter: `requester_id=eq.${userId}`,
+            table: 'profile_graph',
+            filter: `source_profile_id=eq.${userId}`,
           },
           (payload) => {
-            console.log('[realtime] Connection updated (requester):', payload);
-            onUpdate?.(payload);
+            // Only trigger for SOCIAL relationships
+            if (payload.new && (payload.new as any).relationship_type === 'SOCIAL') {
+              console.log('[realtime] SOCIAL connection updated (source):', payload);
+              onUpdate?.(payload);
+            }
           }
         )
         .on(
@@ -108,12 +122,15 @@ export function useConnectionsRealtime({
           {
             event: 'DELETE',
             schema: 'public',
-            table: 'connections',
-            filter: `receiver_id=eq.${userId}`,
+            table: 'profile_graph',
+            filter: `target_profile_id=eq.${userId}`,
           },
           (payload) => {
-            console.log('[realtime] Connection deleted (receiver):', payload);
-            onDelete?.(payload);
+            // For DELETE, check old record
+            if (payload.old && (payload.old as any).relationship_type === 'SOCIAL') {
+              console.log('[realtime] SOCIAL connection deleted (target):', payload);
+              onDelete?.(payload);
+            }
           }
         )
         .on(
@@ -121,18 +138,21 @@ export function useConnectionsRealtime({
           {
             event: 'DELETE',
             schema: 'public',
-            table: 'connections',
-            filter: `requester_id=eq.${userId}`,
+            table: 'profile_graph',
+            filter: `source_profile_id=eq.${userId}`,
           },
           (payload) => {
-            console.log('[realtime] Connection deleted (requester):', payload);
-            onDelete?.(payload);
+            // For DELETE, check old record
+            if (payload.old && (payload.old as any).relationship_type === 'SOCIAL') {
+              console.log('[realtime] SOCIAL connection deleted (source):', payload);
+              onDelete?.(payload);
+            }
           }
         )
         .subscribe((status) => {
           console.log('[realtime] Subscription status:', status);
           if (status === 'SUBSCRIBED') {
-            console.log(`[realtime] Successfully subscribed to connections for user ${userId}`);
+            console.log(`[realtime] Successfully subscribed to profile_graph (SOCIAL) for user ${userId}`);
           } else if (status === 'CHANNEL_ERROR') {
             console.error('[realtime] Subscription error');
           } else if (status === 'TIMED_OUT') {
@@ -146,7 +166,7 @@ export function useConnectionsRealtime({
     // Cleanup subscription on unmount
     return () => {
       if (channel) {
-        console.log('[realtime] Unsubscribing from connections channel');
+        console.log('[realtime] Unsubscribing from profile_graph channel');
         supabase.removeChannel(channel);
       }
     };
