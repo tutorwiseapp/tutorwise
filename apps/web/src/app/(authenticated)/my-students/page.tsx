@@ -134,11 +134,9 @@ export default function MyStudentsPage() {
   if (profileLoading || isLoading) {
     return (
       <>
-        <div className={styles.container}>
-          <div className={styles.header}>
-            <h1 className={styles.title}>My Students</h1>
-            <p className={styles.subtitle}>Loading...</p>
-          </div>
+        <div className={styles.header}>
+          <h1 className={styles.title}>My Students</h1>
+          <p className={styles.subtitle}>Loading...</p>
         </div>
         <ContextualSidebar>
           <div className={styles.statsCard}>
@@ -154,11 +152,11 @@ export default function MyStudentsPage() {
   if (error) {
     return (
       <>
-        <div className={styles.container}>
-          <div className={styles.header}>
-            <h1 className={styles.title}>My Students</h1>
-            <p className={styles.subtitle}>Failed to load students</p>
-          </div>
+        <div className={styles.header}>
+          <h1 className={styles.title}>My Students</h1>
+          <p className={styles.subtitle}>Failed to load students</p>
+        </div>
+        <div className={styles.content}>
           <div className={styles.errorState}>
             <p className={styles.errorText}>
               {(error as Error).message || 'An error occurred'}
@@ -196,42 +194,40 @@ export default function MyStudentsPage() {
 
   return (
     <>
-      <div className={styles.container}>
-        {/* Header */}
-        <div className={styles.header}>
-          <h1 className={styles.title}>My Students</h1>
-          <p className={styles.subtitle}>
-            {isClient
-              ? 'Manage your children and track their learning progress'
-              : 'Manage students and their learning progress'}
-          </p>
-        </div>
+      {/* Header */}
+      <div className={styles.header}>
+        <h1 className={styles.title}>My Students</h1>
+        <p className={styles.subtitle}>
+          {isClient
+            ? 'Manage your children and track their learning progress'
+            : 'Manage students and their learning progress'}
+        </p>
+      </div>
 
-        {/* Filter Tabs */}
-        {students.length > 0 && (
-          <div className={styles.filterTabs}>
-            <button
-              onClick={() => setActiveTab('all')}
-              className={`${styles.filterTab} ${activeTab === 'all' ? styles.filterTabActive : ''}`}
-            >
-              All Students ({students.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('recently-added')}
-              className={`${styles.filterTab} ${activeTab === 'recently-added' ? styles.filterTabActive : ''}`}
-            >
-              Recently Added ({stats.recentlyAdded})
-            </button>
-            <button
-              onClick={() => setActiveTab('with-integrations')}
-              className={`${styles.filterTab} ${activeTab === 'with-integrations' ? styles.filterTabActive : ''}`}
-            >
-              With Integrations ({stats.withIntegrations})
-            </button>
-          </div>
-        )}
+      {/* Filter Tabs - Always show */}
+      <div className={styles.filterTabs}>
+        <button
+          onClick={() => setActiveTab('all')}
+          className={`${styles.filterTab} ${activeTab === 'all' ? styles.filterTabActive : ''}`}
+        >
+          All Students ({students.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('recently-added')}
+          className={`${styles.filterTab} ${activeTab === 'recently-added' ? styles.filterTabActive : ''}`}
+        >
+          Recently Added ({stats.recentlyAdded})
+        </button>
+        <button
+          onClick={() => setActiveTab('with-integrations')}
+          className={`${styles.filterTab} ${activeTab === 'with-integrations' ? styles.filterTabActive : ''}`}
+        >
+          With Integrations ({stats.withIntegrations})
+        </button>
+      </div>
 
-        {/* Content */}
+      {/* Content */}
+      <div className={styles.content}>
         {students.length === 0 ? (
           <div className={styles.emptyState}>
             <h3 className={styles.emptyTitle}>{emptyStateTitle}</h3>
@@ -270,14 +266,14 @@ export default function MyStudentsPage() {
             ))}
           </div>
         )}
-
-        {/* Student Invite Modal */}
-        <StudentInviteModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSuccess={handleStudentInviteSuccess}
-        />
       </div>
+
+      {/* Student Invite Modal */}
+      <StudentInviteModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={handleStudentInviteSuccess}
+      />
 
       {/* Contextual Sidebar */}
       <ContextualSidebar>

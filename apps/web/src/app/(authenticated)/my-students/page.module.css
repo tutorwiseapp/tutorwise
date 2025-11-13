@@ -1,28 +1,27 @@
 /* My Students page styles (SDD v5.0) */
 /* Based on /network/page.module.css */
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--space-4, 32px);
-}
-
 /* Header */
 .header {
-  margin-bottom: var(--space-4, 32px);
+  margin-bottom: 2rem;
 }
 
 .title {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--color-gray-700, #4B4B4B);
-  margin: 0 0 var(--space-1, 8px) 0;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
 }
 
 .subtitle {
   font-size: 1rem;
-  color: var(--color-gray-500, #8E8E8E);
+  color: #6b7280;
   margin: 0;
+}
+
+/* Content wrapper */
+.content {
+  /* No extra padding - content flows naturally */
 }
 
 /* Filter Tabs - Underline Style with Teal */
@@ -266,10 +265,6 @@
 
 /* Mobile Responsive */
 @media (max-width: 767px) {
-  .container {
-    padding: var(--space-2, 16px);
-  }
-
   .title {
     font-size: 1.5rem;
   }
