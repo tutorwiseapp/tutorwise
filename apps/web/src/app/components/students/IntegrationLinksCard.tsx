@@ -6,7 +6,9 @@
  */
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
 import styles from './IntegrationLinksCard.module.css';
 
 interface Integration {
@@ -15,9 +17,11 @@ interface Integration {
   description: string;
   icon: string;
   connected: boolean;
+  platformName: string; // Backend platform identifier
 }
 
 export default function IntegrationLinksCard() {
+  const searchParams = useSearchParams();
   const [integrations, setIntegrations] = useState<Integration[]>([
     {
       id: 'google-classroom',
@@ -25,42 +29,136 @@ export default function IntegrationLinksCard() {
       description: 'Sync your classes and assignments automatically',
       icon: '📚',
       connected: false,
+      platformName: 'google_classroom',
     },
   ]);
 
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Check for OAuth callback status in URL
+  useEffect(() => {
+    if (!searchParams) return;
+
+    const integration = searchParams.get('integration');
+    const platform = searchParams.get('platform');
+    const message = searchParams.get('message');
+
+    if (integration === 'success' && platform) {
+      setStatusMessage({
+        type: 'success',
+        text: `Successfully connected ${platform.replace('_', ' ')}!`,
+      });
+      // Refresh integration status
+      fetchIntegrations();
+      // Clear message after 5 seconds
+      setTimeout(() => setStatusMessage(null), 5000);
+    } else if (integration === 'error') {
+      setStatusMessage({
+        type: 'error',
+        text: message || 'Failed to connect integration',
+      });
+      setTimeout(() => setStatusMessage(null), 5000);
+    }
+  }, [searchParams]);
+
+  // Fetch current integration status from database
+  const fetchIntegrations = async () => {
+    try {
+      const supabase = createClient();
+      const { data: links, error } = await supabase
+        .from('student_integration_links')
+        .select('platform_name');
+
+      if (!error && links) {
+        const connectedPlatforms = new Set(links.map(link => link.platform_name));
+        setIntegrations(prev =>
+          prev.map(integration => ({
+            ...integration,
+            connected: connectedPlatforms.has(integration.platformName),
+          }))
+        );
+      }
+    } catch (error) {
+      console.error('Error fetching integrations:', error);
+    }
+  };
+
+  // Load integration status on mount
+  useEffect(() => {
+    fetchIntegrations();
+  }, []);
 
   const handleConnect = async (integrationId: string) => {
     setIsConnecting(integrationId);
 
-    // TODO: Implement OAuth flow for Google Classroom
-    // For now, simulate connection with a delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const integration = integrations.find(i => i.id === integrationId);
+      if (!integration) return;
 
-    setIntegrations(prev =>
-      prev.map(integration =>
-        integration.id === integrationId
-          ? { ...integration, connected: true }
-          : integration
-      )
-    );
+      // Call backend API to initiate OAuth flow
+      const response = await fetch(`/api/integrations/connect/${integration.platformName}`, {
+        method: 'POST',
+      });
 
-    setIsConnecting(null);
+      if (!response.ok) {
+        const error = await response.json();
+        setStatusMessage({
+          type: 'error',
+          text: error.error || 'Failed to initiate connection',
+        });
+        setIsConnecting(null);
+        return;
+      }
+
+      const data = await response.json();
+
+      // Redirect to OAuth consent page
+      if (data.authorization_url) {
+        window.location.href = data.authorization_url;
+      }
+    } catch (error) {
+      console.error('Error connecting integration:', error);
+      setStatusMessage({
+        type: 'error',
+        text: 'An error occurred while connecting',
+      });
+      setIsConnecting(null);
+    }
   };
 
   const handleDisconnect = async (integrationId: string) => {
     setIsConnecting(integrationId);
 
-    // TODO: Implement disconnection logic
-    await new Promise(resolve => setTimeout(resolve, 500));
+    try {
+      const integration = integrations.find(i => i.id === integrationId);
+      if (!integration) return;
 
-    setIntegrations(prev =>
-      prev.map(integration =>
-        integration.id === integrationId
-          ? { ...integration, connected: false }
-          : integration
-      )
-    );
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('student_integration_links')
+        .delete()
+        .eq('platform_name', integration.platformName);
+
+      if (error) {
+        setStatusMessage({
+          type: 'error',
+          text: 'Failed to disconnect integration',
+        });
+      } else {
+        setStatusMessage({
+          type: 'success',
+          text: `Disconnected ${integration.name}`,
+        });
+        fetchIntegrations();
+      }
+    } catch (error) {
+      console.error('Error disconnecting integration:', error);
+      setStatusMessage({
+        type: 'error',
+        text: 'An error occurred while disconnecting',
+      });
+    }
 
     setIsConnecting(null);
   };
@@ -73,6 +171,13 @@ export default function IntegrationLinksCard() {
           Connect your learning platforms to sync progress automatically
         </p>
       </div>
+
+      {/* Status Message */}
+      {statusMessage && (
+        <div className={`${styles.statusMessage} ${styles[statusMessage.type]}`}>
+          {statusMessage.text}
+        </div>
+      )}
 
       <div className={styles.integrationsList}>
         {integrations.map(integration => (

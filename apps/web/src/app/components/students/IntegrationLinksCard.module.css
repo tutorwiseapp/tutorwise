@@ -13,6 +13,27 @@
   margin-bottom: var(--space-3, 24px);
 }
 
+/* Status Message */
+.statusMessage {
+  padding: var(--space-2, 16px);
+  border-radius: var(--border-radius-md, 8px);
+  margin-bottom: var(--space-3, 24px);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.statusMessage.success {
+  background: #DEF7EC;
+  color: #03543F;
+  border: 1px solid #84E1BC;
+}
+
+.statusMessage.error {
+  background: #FDE8E8;
+  color: #9B1C1C;
+  border: 1px solid #F98080;
+}
+
 .title {
   font-size: 1.25rem;
   font-weight: 700;
