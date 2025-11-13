@@ -2,6 +2,7 @@
  * Filename: apps/web/src/app/api/network/request/route.ts
  * Purpose: Send connection requests to one or more users (SDD v4.5)
  * Created: 2025-11-07
+ * Updated: 2025-11-12 (v4.6) - Migrated to profile_graph table
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -52,15 +53,16 @@ export async function POST(request: NextRequest) {
 
     const { receiver_ids, message } = validation.data;
 
-    // Check if users exist and are not already connected
+    // Check if users exist and are not already connected (v4.6: using profile_graph)
     const { data: existingConnections } = await supabase
-      .from('connections')
-      .select('receiver_id, status')
-      .eq('requester_id', user.id)
-      .in('receiver_id', receiver_ids);
+      .from('profile_graph')
+      .select('target_profile_id, status')
+      .eq('source_profile_id', user.id)
+      .eq('relationship_type', 'SOCIAL')
+      .in('target_profile_id', receiver_ids);
 
     const existingMap = new Map(
-      existingConnections?.map(c => [c.receiver_id, c.status]) || []
+      existingConnections?.map(c => [c.target_profile_id, c.status]) || []
     );
 
     // Filter out users who are already connected or have pending requests
@@ -94,23 +96,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create connection requests
+    // Create connection requests (v4.6: using profile_graph with SOCIAL relationship)
     const connections = newReceivers.map(receiver_id => ({
-      requester_id: user.id,
-      receiver_id,
-      status: 'pending',
-      message: message || null,
+      source_profile_id: user.id,
+      target_profile_id: receiver_id,
+      relationship_type: 'SOCIAL',
+      status: 'PENDING',
+      metadata: message ? { message } : null,
     }));
 
     const { data, error } = await supabase
-      .from('connections')
+      .from('profile_graph')
       .insert(connections)
       .select(`
         id,
-        receiver_id,
+        target_profile_id,
         status,
         created_at,
-        receiver:receiver_id(id, full_name, email, avatar_url)
+        target:target_profile_id(id, full_name, email, avatar_url)
       `);
 
     if (error) {
@@ -132,13 +135,14 @@ export async function POST(request: NextRequest) {
       Promise.all(
         data.map(async (connection: any) => {
           try {
-            const receiver = Array.isArray(connection.receiver)
-              ? connection.receiver[0]
-              : connection.receiver;
+            // v4.6: Changed from 'receiver' to 'target'
+            const target = Array.isArray(connection.target)
+              ? connection.target[0]
+              : connection.target;
 
-            if (receiver?.email) {
+            if (target?.email) {
               await sendConnectionRequestNotification({
-                to: receiver.email,
+                to: target.email,
                 senderName: requesterProfile.full_name,
                 senderEmail: requesterProfile.email,
                 message: message,
