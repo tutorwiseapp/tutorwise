@@ -2,6 +2,7 @@
  * Filename: apps/web/src/app/(authenticated)/my-students/page.tsx
  * Purpose: My Students page - Guardian Link management (SDD v5.0)
  * Created: 2025-11-12
+ * Updated: 2025-11-13 - Enhanced with tab filtering, rich stats, and improved UX
  * Based on: /network/page.tsx (v4.4)
  */
 
@@ -19,12 +20,16 @@ import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSideba
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
 
+// Tab filter types
+type TabType = 'all' | 'recently-added' | 'with-integrations';
+
 export default function MyStudentsPage() {
   const router = useRouter();
   const { profile, isLoading: profileLoading } = useUserProfile();
   const queryClient = useQueryClient();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>('all');
 
   // React Query: Fetch students with automatic retry, caching, and background refetch
   const {
@@ -80,12 +85,50 @@ export default function MyStudentsPage() {
     queryClient.invalidateQueries({ queryKey: ['students', profile?.id] });
   };
 
-  // Calculate stats
+  // Calculate stats with rich metrics
   const stats = useMemo(() => {
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const recentlyAdded = students.filter((s) => {
+      const createdDate = new Date(s.created_at);
+      return createdDate >= sevenDaysAgo;
+    }).length;
+
+    const withIntegrations = students.filter((s) => {
+      // TODO: Check if student has integration links when that data is available
+      return false; // Placeholder
+    }).length;
+
     return {
       total: students.length,
+      recentlyAdded,
+      withIntegrations,
+      activeThisMonth: 0, // Placeholder for future implementation
     };
   }, [students]);
+
+  // Filter students based on active tab
+  const filteredStudents = useMemo(() => {
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    switch (activeTab) {
+      case 'recently-added':
+        return students.filter((s) => {
+          const createdDate = new Date(s.created_at);
+          return createdDate >= sevenDaysAgo;
+        });
+      case 'with-integrations':
+        return students.filter((s) => {
+          // TODO: Filter by integration links when that data is available
+          return false; // Placeholder - will show empty for now
+        });
+      case 'all':
+      default:
+        return students;
+    }
+  }, [students, activeTab]);
 
   // Show loading state
   if (profileLoading || isLoading) {
@@ -164,15 +207,29 @@ export default function MyStudentsPage() {
           </p>
         </div>
 
-        {/* Quick Action */}
-        <div className={styles.quickAction}>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className={styles.addButton}
-          >
-            + Add Student
-          </button>
-        </div>
+        {/* Filter Tabs */}
+        {students.length > 0 && (
+          <div className={styles.filterTabs}>
+            <button
+              onClick={() => setActiveTab('all')}
+              className={`${styles.filterTab} ${activeTab === 'all' ? styles.filterTabActive : ''}`}
+            >
+              All Students ({students.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('recently-added')}
+              className={`${styles.filterTab} ${activeTab === 'recently-added' ? styles.filterTabActive : ''}`}
+            >
+              Recently Added ({stats.recentlyAdded})
+            </button>
+            <button
+              onClick={() => setActiveTab('with-integrations')}
+              className={`${styles.filterTab} ${activeTab === 'with-integrations' ? styles.filterTabActive : ''}`}
+            >
+              With Integrations ({stats.withIntegrations})
+            </button>
+          </div>
+        )}
 
         {/* Content */}
         {students.length === 0 ? (
@@ -186,9 +243,23 @@ export default function MyStudentsPage() {
               Add Your First Student
             </button>
           </div>
+        ) : filteredStudents.length === 0 ? (
+          <div className={styles.emptyState}>
+            <h3 className={styles.emptyTitle}>No students found</h3>
+            <p className={styles.emptyText}>
+              {activeTab === 'recently-added' && 'No students have been added in the last 7 days.'}
+              {activeTab === 'with-integrations' && 'No students have connected integrations yet.'}
+            </p>
+            <button
+              onClick={() => setActiveTab('all')}
+              className={styles.emptyButton}
+            >
+              View All Students
+            </button>
+          </div>
         ) : (
           <div className={styles.studentsList}>
-            {students.map((student) => (
+            {filteredStudents.map((student) => (
               <StudentCard
                 key={student.id}
                 student={student}
@@ -210,12 +281,24 @@ export default function MyStudentsPage() {
 
       {/* Contextual Sidebar */}
       <ContextualSidebar>
-        {/* Stats Card */}
+        {/* Enhanced Stats Card */}
         <div className={styles.statsCard}>
-          <h3 className={styles.statsTitle}>Statistics</h3>
+          <h3 className={styles.statsTitle}>Student Statistics</h3>
           <div className={styles.statRow}>
-            <span className={styles.statLabel}>Total Students:</span>
+            <span className={styles.statLabel}>Total Students</span>
             <span className={styles.statValue}>{stats.total}</span>
+          </div>
+          <div className={styles.statRow}>
+            <span className={styles.statLabel}>Recently Added</span>
+            <span className={styles.statValue}>{stats.recentlyAdded}</span>
+          </div>
+          <div className={styles.statRow}>
+            <span className={styles.statLabel}>With Integrations</span>
+            <span className={styles.statValue}>{stats.withIntegrations}</span>
+          </div>
+          <div className={styles.statRow}>
+            <span className={styles.statLabel}>Active This Month</span>
+            <span className={styles.statValue}>{stats.activeThisMonth}</span>
           </div>
         </div>
 
@@ -228,6 +311,34 @@ export default function MyStudentsPage() {
           >
             <span className={styles.actionIcon}>➕</span>
             <span className={styles.actionText}>Add Student</span>
+          </button>
+          <button
+            onClick={() => toast('Bulk import coming soon!', { icon: '📤' })}
+            className={styles.actionButton}
+          >
+            <span className={styles.actionIcon}>📤</span>
+            <span className={styles.actionText}>Import Students</span>
+          </button>
+          <button
+            onClick={() => refetch()}
+            className={styles.actionButton}
+          >
+            <span className={styles.actionIcon}>🔄</span>
+            <span className={styles.actionText}>Refresh List</span>
+          </button>
+        </div>
+
+        {/* Student Groups Card (Placeholder for future feature) */}
+        <div className={styles.groupsCard}>
+          <h3 className={styles.groupsTitle}>Student Groups</h3>
+          <p className={styles.groupsText}>
+            Organize your students into groups for better management.
+          </p>
+          <button
+            onClick={() => toast('Student groups coming soon!', { icon: '📁' })}
+            className={styles.createGroupButton}
+          >
+            Create Group
           </button>
         </div>
       </ContextualSidebar>

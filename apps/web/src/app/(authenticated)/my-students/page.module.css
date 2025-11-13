@@ -25,27 +25,44 @@
   margin: 0;
 }
 
-/* Quick Action */
-.quickAction {
-  margin-bottom: var(--space-4, 32px);
+/* Filter Tabs - Underline Style with Teal */
+.filterTabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0;
+  overflow-x: auto;
+  margin-left: -2rem;
+  margin-right: -2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  width: calc(100% + 4rem);
 }
 
-.addButton {
-  background: var(--color-primary-default, #006c67);
-  color: white;
+.filterTab {
+  padding: 0.75rem 1.5rem;
+  background: none;
   border: none;
-  padding: var(--space-2, 16px) var(--space-3, 24px);
-  border-radius: var(--border-radius-md, 8px);
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-700, #4B4B4B);
   cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.addButton:hover {
-  background: var(--color-primary-dark, #005550);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+.filterTab:hover {
+  color: var(--color-primary-default, #006c67);
+  background: rgba(0, 108, 103, 0.05);
+}
+
+.filterTabActive {
+  color: var(--color-primary-default, #006c67);
+  border-bottom-color: var(--color-primary-default, #006c67);
+  font-weight: 600;
 }
 
 /* Students List */
@@ -131,7 +148,8 @@
 
 /* Sidebar Cards */
 .statsCard,
-.actionsCard {
+.actionsCard,
+.groupsCard {
   background: white;
   border: 1px solid var(--color-gray-300, #D1D1D1);
   border-radius: var(--border-radius-lg, 12px);
@@ -140,13 +158,15 @@
 }
 
 .statsTitle,
-.actionsTitle {
+.actionsTitle,
+.groupsTitle {
   font-size: 1.125rem;
   font-weight: 600;
   color: var(--color-gray-700, #4B4B4B);
   margin: 0 0 var(--space-3, 24px) 0;
 }
 
+/* Stats Card */
 .statRow {
   display: flex;
   justify-content: space-between;
@@ -162,6 +182,7 @@
 .statLabel {
   font-size: 0.875rem;
   color: var(--color-gray-500, #8E8E8E);
+  font-weight: 500;
 }
 
 .statValue {
@@ -170,6 +191,7 @@
   color: var(--color-primary-default, #006c67);
 }
 
+/* Actions Card */
 .actionButton {
   display: flex;
   align-items: center;
@@ -182,11 +204,18 @@
   border-radius: var(--border-radius-md, 8px);
   cursor: pointer;
   transition: all 0.2s ease;
+  margin-bottom: var(--space-2, 16px);
+}
+
+.actionButton:last-child {
+  margin-bottom: 0;
 }
 
 .actionButton:hover {
   background: var(--color-primary-default, #006c67);
   color: white;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm, 0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 .actionButton:hover .actionIcon,
@@ -207,6 +236,34 @@
   transition: color 0.2s ease;
 }
 
+/* Groups Card */
+.groupsText {
+  font-size: 0.875rem;
+  color: var(--color-gray-500, #8E8E8E);
+  margin: 0 0 var(--space-3, 24px) 0;
+  line-height: 1.5;
+}
+
+.createGroupButton {
+  width: 100%;
+  padding: var(--space-2, 16px);
+  background: white;
+  border: 1px solid var(--color-gray-300, #D1D1D1);
+  border-radius: var(--border-radius-md, 8px);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gray-700, #4B4B4B);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.createGroupButton:hover {
+  background: var(--color-gray-100, #F3F4F6);
+  border-color: var(--color-gray-400, #9CA3AF);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm, 0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
 /* Mobile Responsive */
 @media (max-width: 767px) {
   .container {
@@ -219,6 +276,19 @@
 
   .subtitle {
     font-size: 0.875rem;
+  }
+
+  .filterTabs {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: calc(100% + 2rem);
+  }
+
+  .filterTab {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
   }
 
   .emptyState,
