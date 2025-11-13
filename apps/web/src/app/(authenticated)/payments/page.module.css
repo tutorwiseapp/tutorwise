@@ -152,15 +152,6 @@
   font-weight: var(--font-weight-medium);
 }
 
-/* Footer Text */
-.footerText {
-  font-size: 0.875rem;
-  color: #6b7280;
-  line-height: 1.6;
-  margin-top: 1rem;
-  text-align: center;
-}
-
 /* Saved Cards List */
 .savedCardsList {
   display: flex;
