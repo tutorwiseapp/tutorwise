@@ -1,9 +1,9 @@
 -- ===================================================================
--- Migration: 003_migrate_connections_to_profile_graph.sql
+-- Migration: 062_migrate_connections_to_profile_graph.sql
 -- Purpose: Migrate existing connections data to the new profile_graph table
 -- Created: 2025-11-12
 -- Author: Senior Architect
--- Prerequisites: 002_add_profile_graph_v4_6.sql must be applied
+-- Prerequisites: 061_add_profile_graph_v4_6.sql must be applied
 -- ===================================================================
 -- This migration copies all data from the legacy 'connections' table
 -- into the new unified 'profile_graph' table with relationship_type='SOCIAL'.
@@ -21,7 +21,7 @@ BEGIN
     WHERE table_schema = 'public'
     AND table_name = 'profile_graph'
   ) THEN
-    RAISE EXCEPTION 'Table profile_graph does not exist. Please apply migration 002_add_profile_graph_v4_6.sql first.';
+    RAISE EXCEPTION 'Table profile_graph does not exist. Please apply migration 061_add_profile_graph_v4_6.sql first.';
   END IF;
 
   -- Verify connections table exists

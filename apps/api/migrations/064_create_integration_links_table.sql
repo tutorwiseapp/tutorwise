@@ -1,5 +1,5 @@
 /**
- * Migration 049: Create student_integration_links table
+ * Migration 064: Create student_integration_links table
  * Purpose: "Data bridge" for external learning platform OAuth integrations (v5.0)
  * Created: 2025-11-13
  *

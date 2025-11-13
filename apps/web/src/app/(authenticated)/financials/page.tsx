@@ -2,38 +2,55 @@
  * Filename: src/app/(authenticated)/financials/page.tsx
  * Purpose: Transactions tab - displays transaction history with v4.9 status filtering
  * Created: 2025-11-02
- * Updated: 2025-11-11 - v4.9: Refactored for secondary tab navigation and new transaction statuses
+ * Updated: 2025-11-13 - Migrated to React Query for robustness and consistency
  * Specification: SDD v4.9 - Transactions page with clearing/available/paid_out/disputed/refunded statuses
  */
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { getFinancials } from '@/lib/api/financials';
 import TransactionCard from '@/app/components/financials/TransactionCard';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import WalletBalanceWidget from '@/app/components/financials/WalletBalanceWidget';
-import { Transaction } from '@/types';
 import styles from './page.module.css';
 
 // v4.9 Transaction statuses
 type TransactionStatusV49 = 'clearing' | 'available' | 'paid_out' | 'disputed' | 'refunded' | 'all';
 
 export default function TransactionsPage() {
-  const { profile } = useUserProfile();
+  const { profile, isLoading: profileLoading } = useUserProfile();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [balances, setBalances] = useState({
-    available: 0,
-    pending: 0,
-    total: 0,
-  });
 
   // Read filter from URL
   const statusFilter = (searchParams?.get('status') as TransactionStatusV49) || 'all';
+
+  // React Query: Fetch financials data
+  const {
+    data: financialsData,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['financials', profile?.id],
+    queryFn: getFinancials,
+    enabled: !!profile && !profileLoading,
+    staleTime: 30 * 1000, // 30 seconds
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    retry: 2,
+    refetchInterval: 60 * 1000, // Auto-refresh every minute
+  });
+
+  const transactions = financialsData?.transactions ?? [];
+  const balances = financialsData?.balances ?? { available: 0, pending: 0, total: 0 };
+
+  // Client-side filtering based on URL param
+  const filteredTransactions = useMemo(() => {
+    if (statusFilter === 'all') return transactions;
+    return transactions.filter((txn) => txn.status === statusFilter);
+  }, [transactions, statusFilter]);
 
   // Update URL when filter changes
   const handleFilterChange = (newStatus: TransactionStatusV49) => {
@@ -46,46 +63,29 @@ export default function TransactionsPage() {
     router.push(`/financials${params.toString() ? `?${params.toString()}` : ''}`);
   };
 
-  useEffect(() => {
-    if (!profile) return;
-
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-
-        // Fetch transactions and balances from API
-        const response = await fetch(`/api/financials`);
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch financial data');
-        }
-
-        const data = await response.json();
-        setTransactions(data.transactions || []);
-        setBalances(data.balances || { available: 0, pending: 0, total: 0 });
-      } catch (err) {
-        console.error('Error fetching financial data:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load data');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [profile]);
-
-  // Client-side filtering based on URL param
-  const filteredTransactions = transactions.filter((txn) => {
-    if (statusFilter === 'all') return true;
-    return txn.status === statusFilter;
-  });
-
-  if (isLoading) {
+  if (profileLoading || isLoading) {
     return (
       <>
         <div className={styles.loading}>Loading transactions...</div>
         <ContextualSidebar>
           <div className={styles.skeletonWidget} />
+        </ContextualSidebar>
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <div className={styles.error}>
+          <p>Failed to load financial data. Please try again.</p>
+        </div>
+        <ContextualSidebar>
+          <WalletBalanceWidget
+            available={0}
+            pending={0}
+            total={0}
+          />
         </ContextualSidebar>
       </>
     );
@@ -143,15 +143,8 @@ export default function TransactionsPage() {
 
       {/* Main Content */}
       <div className={styles.content}>
-        {/* Error State */}
-        {error && (
-          <div className={styles.error}>
-            <p>{error}</p>
-          </div>
-        )}
-
         {/* Empty State */}
-        {!error && filteredTransactions.length === 0 && (
+        {filteredTransactions.length === 0 && (
           <div className={styles.emptyState}>
             <h3 className={styles.emptyTitle}>No transactions found</h3>
             <p className={styles.emptyText}>
@@ -163,7 +156,7 @@ export default function TransactionsPage() {
         )}
 
         {/* Transactions List */}
-        {!error && filteredTransactions.length > 0 && (
+        {filteredTransactions.length > 0 && (
           <div className={styles.transactionsList}>
             {filteredTransactions.map((transaction) => (
               <TransactionCard key={transaction.id} transaction={transaction} />

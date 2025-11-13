@@ -1,5 +1,5 @@
 -- ===================================================================
--- Migration: 002_add_profile_graph_v4_6.sql
+-- Migration: 061_add_profile_graph_v4_6.sql
 -- Purpose: Unified Profile Graph Architecture (v4.6)
 -- Created: 2025-11-12
 -- Author: Senior Architect
@@ -206,7 +206,7 @@ BEGIN
     RAISE EXCEPTION 'Enum relationship_status was not created successfully';
   END IF;
 
-  RAISE NOTICE 'Migration 002_add_profile_graph_v4_6 completed successfully';
+  RAISE NOTICE 'Migration 061_add_profile_graph_v4_6 completed successfully';
 END $$;
 
 -- ===================================================================
