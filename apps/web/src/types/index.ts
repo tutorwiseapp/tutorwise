@@ -59,7 +59,7 @@ export interface Profile {
   professional_details?: ProfessionalDetails;
 }
 
-export type Role = 'client' | 'tutor' | 'agent';
+export type Role = 'client' | 'tutor' | 'agent' | 'student'; // v5.0: Added student role
 
 /**
  * ==================================================================
@@ -469,5 +469,27 @@ export interface ProfileGraphLink {
   metadata?: Record<string, any>;
   created_at: string;
   updated_at: string;
+}
+
+/**
+ * ==================================================================
+ * SDD v5.0: Student/Guardian Link Types
+ * ==================================================================
+ */
+
+// Student interface for Guardian Links (similar to Connection interface pattern)
+export interface StudentLink {
+  id: string; // profile_graph.id
+  guardian_id: string; // source_profile_id
+  student_id: string; // target_profile_id
+  status: 'active'; // Guardian links are always ACTIVE (no pending state)
+  created_at: string;
+  student?: {
+    id: string;
+    full_name: string;
+    email: string;
+    avatar_url?: string;
+    date_of_birth?: string;
+  };
 }
 

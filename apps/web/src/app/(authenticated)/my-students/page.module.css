@@ -1,0 +1,236 @@
+/* My Students page styles (SDD v5.0) */
+/* Based on /network/page.module.css */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-4, 32px);
+}
+
+/* Header */
+.header {
+  margin-bottom: var(--space-4, 32px);
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0 0 var(--space-1, 8px) 0;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--color-gray-500, #8E8E8E);
+  margin: 0;
+}
+
+/* Quick Action */
+.quickAction {
+  margin-bottom: var(--space-4, 32px);
+}
+
+.addButton {
+  background: var(--color-primary-default, #006c67);
+  color: white;
+  border: none;
+  padding: var(--space-2, 16px) var(--space-3, 24px);
+  border-radius: var(--border-radius-md, 8px);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.addButton:hover {
+  background: var(--color-primary-dark, #005550);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+/* Students List */
+.studentsList {
+  display: grid;
+  gap: var(--space-3, 24px);
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: var(--space-6, 48px) var(--space-4, 32px);
+  background: white;
+  border: 1px solid var(--color-gray-300, #D1D1D1);
+  border-radius: var(--border-radius-lg, 12px);
+}
+
+.emptyTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0 0 var(--space-2, 16px) 0;
+}
+
+.emptyText {
+  font-size: 1rem;
+  color: var(--color-gray-500, #8E8E8E);
+  margin: 0 0 var(--space-4, 32px) 0;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.emptyButton {
+  background: var(--color-primary-default, #006c67);
+  color: white;
+  border: none;
+  padding: var(--space-2, 16px) var(--space-4, 32px);
+  border-radius: var(--border-radius-md, 8px);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.emptyButton:hover {
+  background: var(--color-primary-dark, #005550);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+/* Error State */
+.errorState {
+  text-align: center;
+  padding: var(--space-6, 48px) var(--space-4, 32px);
+  background: white;
+  border: 1px solid #DC2626;
+  border-radius: var(--border-radius-lg, 12px);
+}
+
+.errorText {
+  font-size: 1rem;
+  color: #DC2626;
+  margin: 0 0 var(--space-4, 32px) 0;
+}
+
+.retryButton {
+  background: white;
+  color: #DC2626;
+  border: 1px solid #DC2626;
+  padding: var(--space-2, 16px) var(--space-4, 32px);
+  border-radius: var(--border-radius-md, 8px);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.retryButton:hover {
+  background: #DC2626;
+  color: white;
+}
+
+/* Sidebar Cards */
+.statsCard,
+.actionsCard {
+  background: white;
+  border: 1px solid var(--color-gray-300, #D1D1D1);
+  border-radius: var(--border-radius-lg, 12px);
+  padding: var(--space-3, 24px);
+  margin-bottom: var(--space-3, 24px);
+}
+
+.statsTitle,
+.actionsTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0 0 var(--space-3, 24px) 0;
+}
+
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2, 16px) 0;
+  border-bottom: 1px solid var(--color-gray-200, #E5E7EB);
+}
+
+.statRow:last-child {
+  border-bottom: none;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: var(--color-gray-500, #8E8E8E);
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary-default, #006c67);
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2, 16px);
+  width: 100%;
+  padding: var(--space-2, 16px);
+  background: var(--color-primary-light, #E6F0F0);
+  border: 1px solid var(--color-primary-default, #006c67);
+  border-radius: var(--border-radius-md, 8px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.actionButton:hover {
+  background: var(--color-primary-default, #006c67);
+  color: white;
+}
+
+.actionButton:hover .actionIcon,
+.actionButton:hover .actionText {
+  color: white;
+}
+
+.actionIcon {
+  font-size: 1.25rem;
+  color: var(--color-primary-default, #006c67);
+  transition: color 0.2s ease;
+}
+
+.actionText {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-primary-default, #006c67);
+  transition: color 0.2s ease;
+}
+
+/* Mobile Responsive */
+@media (max-width: 767px) {
+  .container {
+    padding: var(--space-2, 16px);
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.875rem;
+  }
+
+  .emptyState,
+  .errorState {
+    padding: var(--space-4, 32px) var(--space-2, 16px);
+  }
+
+  .emptyTitle {
+    font-size: 1.25rem;
+  }
+
+  .emptyText {
+    font-size: 0.875rem;
+  }
+}

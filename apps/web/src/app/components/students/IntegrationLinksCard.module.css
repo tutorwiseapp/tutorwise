@@ -1,0 +1,171 @@
+/* IntegrationLinksCard.module.css - Student integration management (SDD v5.0) */
+
+.card {
+  background: white;
+  border: 1px solid var(--color-gray-300, #D1D1D1);
+  border-radius: var(--border-radius-lg, 12px);
+  padding: var(--space-3, 24px);
+  box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05));
+}
+
+/* Header */
+.header {
+  margin-bottom: var(--space-3, 24px);
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0 0 0.5rem 0;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: var(--color-gray-500, #8E8E8E);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Integrations List */
+.integrationsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 16px);
+  margin-bottom: var(--space-3, 24px);
+}
+
+.integrationItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2, 16px);
+  padding: var(--space-2, 16px);
+  border: 1px solid var(--color-gray-300, #D1D1D1);
+  border-radius: var(--border-radius-md, 8px);
+  transition: all 0.2s ease;
+}
+
+.integrationItem:hover {
+  border-color: var(--color-primary-default, #006c67);
+  box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05));
+}
+
+.integrationInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 16px);
+  flex: 1;
+}
+
+.integrationIcon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.integrationDetails {
+  flex: 1;
+  min-width: 0;
+}
+
+.integrationName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0 0 0.25rem 0;
+}
+
+.integrationDescription {
+  font-size: 0.875rem;
+  color: var(--color-gray-500, #8E8E8E);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.integrationActions {
+  flex-shrink: 0;
+}
+
+/* Buttons */
+.button {
+  padding: var(--space-2, 16px) var(--space-3, 24px);
+  border-radius: var(--border-radius-md, 8px);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  white-space: nowrap;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buttonConnect {
+  background: var(--color-primary-default, #006c67);
+  color: white;
+}
+
+.buttonConnect:hover:not(:disabled) {
+  background: var(--color-primary-dark, #005550);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.buttonDisconnect {
+  background: white;
+  color: var(--color-gray-700, #4B4B4B);
+  border: 1px solid var(--color-gray-300, #D1D1D1);
+}
+
+.buttonDisconnect:hover:not(:disabled) {
+  background: var(--color-gray-100, #F5F5F5);
+  border-color: var(--color-gray-400, #9CA3AF);
+}
+
+/* Info Box */
+.infoBox {
+  background: var(--color-gray-50, #F9FAFB);
+  border-left: 3px solid var(--color-primary-default, #006c67);
+  padding: var(--space-2, 16px);
+  border-radius: var(--border-radius-md, 8px);
+  font-size: 0.875rem;
+  color: var(--color-gray-700, #4B4B4B);
+}
+
+.infoBox strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--color-primary-default, #006c67);
+}
+
+.infoBox p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Mobile Responsive */
+@media (max-width: 767px) {
+  .card {
+    padding: var(--space-2, 16px);
+  }
+
+  .integrationItem {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .integrationInfo {
+    width: 100%;
+  }
+
+  .integrationActions {
+    width: 100%;
+  }
+
+  .button {
+    width: 100%;
+  }
+}

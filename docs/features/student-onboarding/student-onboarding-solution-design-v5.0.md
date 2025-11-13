@@ -2,25 +2,43 @@
 
 **student-onboarding-solution-design-v5.0**
 
-**Prompt**
+### **1\. What to Reuse (The UI/Layout)**
 
-**Analyse my proposed solution in student-onboarding-solution-design-v5.0.md. Review and propose a solution that is functional, reliable, align to the standard dashboard Hub UI/UX and design-system.md. Implement and integrate with the application existing features/files. Ask me any questions.**
+This is a smart way to accelerate development. The new "My Students" page (`/my-students`) can reuse the following components from the existing Network page (`/network`):
 
-  
+- **Page Layout:** The new `/my-students` page can reuse the overall layout of the `/network` page (a main content area with a right-hand sidebar).
+- **Action Widget:** The "Add Student" card can be a new component, `<StudentInviteCard />`, that is modeled directly on the "Add Connection" card within the `<QuickActionsWidget />`.
+- **List Component:** The new `<StudentManagementCard />` (which lists an individual student) can be a visual variant of the existing `<ConnectionCard />`.
 
-This version is now the final specification for the Student Onboarding epic. It incorporates all of our recent decisions, including:
+### **2\. What NOT to Reuse (The Workflow)**
 
-1. **New Prerequisite:** This design is now dependent on `profile-graph-solution-design-v4.6`, which must be implemented first.
-2. **Strategic Context:** The full **Business Case (Section 1.0)** is included, detailing the "Engagement Loop" and "Cost of Performance" metrics.
-3. **Updated Data Model:** The architecture is refactored to use the new `profile_graph` table (v4.6). The `client_student_links` table is **deprecated** and will not be built. All references to the Client-Student link now point to the `GUARDIAN` type in the `profile_graph`.
-4. **Updated Signup Flow:** The **"Client-Led Invitation Flow"** (Section 6.1) is now the *only* method for creating a `student` account, confirming the main signup page (`/signup`) is unchanged.
-5. **Refined UI/UX:** The "My Students" page is confirmed as a new, dedicated page (Section 6.2), and the Student Sidebar is confirmed to be **limited** (Section 6.3), hiding features like Network and Referrals.
+This is the most important part. The AI *must not* copy the "Add Connection" workflow.
+
+- **"Add Connection" (v4.4):**
+  - **Type:** `SOCIAL` link.
+  - **Workflow:** This is a *mutual request*. It creates a `PENDING` link in the `profile_graph` table, which the other user must accept.
+- **"Add Student" (v5.0):**
+  - **Type:** `GUARDIAN` link.
+  - **Workflow:** This is an *authoritative invitation*. It sends an email, and when the student signs up, the link is created as `ACTIVE` immediately. There is no "pending" state for the student to accept or reject.
+
+### **Prompt for the AI Developer**
+
+To be safe, you should give the AI developer a prompt like this:
+
+> "Your task is to build the new "My Students" page, as specified in `student-onboarding-solution-design-v5.0`.
+> 
+> 1. **For the UI/Layout:** You **should** model the new page (`/my-students`) on the existing `/network` page. Reuse the layout and create new "Student" components based on the existing "Connection" components (e.g., `<ConnectionCard />`).
+> 2. **For the Workflow:** You **must not** reuse the "Add Connection" logic. The "Add Student" feature is different. It must call the `POST /api/links/client-student` endpoint and will create a `GUARDIAN` link in the `profile_graph` table, not a `SOCIAL` link."  
+
+This final version incorporates the superior, low-friction booking flow we designed. The key change is in **Section 6.2**, which now **removes the booking modal dropdown** and replaces it with a post-booking **"Assignment Feature."**
+
+This ensures the "adult learner" use case is the default (booking for "Myself" with `student_id` as `NULL`) and that parents can optionally assign bookings to students at their convenience.
 
 * * *
 
 ### **Solution Design: Student Onboarding & Integration (v5.0)**
 
-- **Version:** 5.0
+- **Version:** 5.0 (Revised)
 - **Date:** 2025-11-12
 - **Status:** For Implementation
 - **Owner:** Senior Architect
@@ -70,7 +88,7 @@ This design explicitly confirms:
 2. **Linkage:** The new `profile_graph` (v4.6) table will be used to store **"Guardian Links"** (`relationship_type = 'GUARDIAN'`) between a Client/Tutor and a Student.
 3. **Chat (v4.4):** Remains **unchanged**. The Tutor chats **only** with the Client (Parent).
 4. **Reviews (v4.5):** Remains **unchanged**. The Client (Parent) **is the official participant** who reviews the Tutor on behalf of their student.
-5. **Bookings:** The `bookings` table will be modified to track both the *payer* (`client_id`) and the *attendee* (`student_id`).
+5. **Bookings:** The `bookings` table will be modified to track both the *payer* (`client_id`) and the *attendee* (`student_id`), with the `student_id` being `NULL` by default.
 
 * * *
 
@@ -123,7 +141,7 @@ This diagram shows how the new `student` role fits into our existing architectur
 
 #### 3.2 The 3-Party Transaction (ASCII Diagram)
 
-This diagram shows how a `booking` (our "Booking Link") connects all three parties. This data is essential for populating the `metadata` field of a 'BOOKING' link in the `profile_graph`.
+This diagram shows how a `booking` (our "Booking Link") connects all three parties. The `student_id` is **nullable** and assigned by the Client post-booking.
 
 ```
 +---------------------+
@@ -138,11 +156,11 @@ This diagram shows how a `booking` (our "Booking Link") connects all three parti
 |--------------------------|
 | id: 'B1'                 |
 | client_id: 'C1'  (Payer) |
-| student_id: 'S1' (Attendee)|
+| student_id: NULL (Attendee) |
 | listing_id: 'L1'         |
 '--------------------------'
     | (Attendee)     | (Service)
-    |                |
+    | (Assigned later) |
     v                v
 +---------------------+  .---------------------+
 |   Student (Child)   |  |   `listings` table  |
@@ -165,9 +183,9 @@ This diagram shows how a `booking` (our "Booking Link") connects all three parti
 
 This epic requires two new migrations. **It will NOT create** `client_student_links`, as that table is replaced by the v4.6 `profile_graph`.
 
-#### 4.1 Migration 1: `048_update_bookings_for_students.sql`
+#### 4.1 Migration 1: `048_add_student_role_and_bookings_link.sql`
 
-This migration re-architects the `bookings` table for 3-party transactions.
+This migration adds the `student` role and re-architects the `bookings` table for 3-party transactions.
 
 ```
 SQL
@@ -179,8 +197,9 @@ SQL
 ALTER TYPE public.user_role ADD VALUE IF NOT EXISTS 'student';
 
 -- 2. Add the new student_id column to bookings
+-- It is NULL by default, supporting the "adult learner" use case
 ALTER TABLE public.bookings
-ADD COLUMN IF NOT EXISTS student_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL;
+ADD COLUMN IF NOT EXISTS student_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL DEFAULT NULL;
 
 CREATE INDEX IF NOT EXISTS "idx_bookings_student_id" ON public.bookings(student_id);
 
@@ -193,7 +212,7 @@ WHERE student_id IS NULL;
 
 -- 4. Add comments to clarify the new model
 COMMENT ON COLUMN public.bookings.client_id IS 'The profile_id of the user who paid for the booking (e.g., the Parent).';
-COMMENT ON COLUMN public.bookings.student_id IS 'v5.0: The profile_id of the user attending the lesson (e.g., the Student).';
+COMMENT ON COLUMN public.bookings.student_id IS 'v5.0: The profile_id of the user attending the lesson (e.g., the Student or the Client themselves). Can be NULL initially.';
 
 ```
 
@@ -261,6 +280,15 @@ This feature requires a new API route group for managing Guardian Links and inte
   - **Purpose:** For the Client or Tutor to see their managed students.
   - **Logic:** `SELECT * FROM profile_graph WHERE source_profile_id = auth.uid() AND relationship_type = 'GUARDIAN'`.
   - **Returns:** Array of linked student profiles.
+- `POST /api/bookings/assign`
+  - **Purpose:** **(NEW)** Assigns an attendee (student) to a booking.
+  - **Body:** `{ "booking_id": "...", "student_id": "..." }`
+  - **Logic:** (Protected Route - Client)
+    1. Get `client_id` from session.
+    2. Verify the Client owns the booking (`SELECT 1 FROM bookings WHERE id = [booking_id] AND client_id = auth.uid()`).
+    3. Verify the `student_id` is either the Client's own ID or a valid "Guardian Link" (`SELECT 1 FROM profile_graph WHERE source_profile_id = auth.uid() AND target_profile_id = [student_id] AND relationship_type = 'GUARDIAN'`).
+    4. `UPDATE public.bookings SET student_id = [student_id] WHERE id = [booking_id]`.
+    5. Log to `audit_log`.
 - `POST /api/integrations/connect/[platform]`
   - **Purpose:** (Student Role) Initiates the OAuth flow for a platform (e.g., 'google\_classroom').
   - **Logic:** Generates and returns the external OAuth consent URL.
@@ -293,6 +321,8 @@ This **Client-Led Invitation Flow** is the *only* supported method for creating 
   - A new function (or the API route) *automatically* creates the record in `profile_graph` (e.g., `source_profile_id = [guardian_id_from_token]`, `target_profile_id = [new_student_id]`, `relationship_type = 'GUARDIAN'`, `status = 'ACTIVE'`).
 7. **First-Time Login:** The student uses the main `/login` page, and is redirected to their limited dashboard.
 
+**Note:** The main signup flow at `/signup` and onboarding at `/onboarding` are **unchanged** and will continue to serve Clients, Tutors, and Agents.
+
 #### 6.2 Client (Parent) & Tutor UI
 
 - **File:** `apps/web/src/app/(authenticated)/layout.tsx`
@@ -300,12 +330,18 @@ This **Client-Led Invitation Flow** is the *only* supported method for creating 
 - **New Page:** `apps/web/src/app/(authenticated)/my-students/page.tsx`
 - **New Component:** This page will contain a `<StudentManagementCard />` to list students (from `GET /api/links/my-students`) and invite new ones.
 - **File:** `apps/web/src/app/(authenticated)/bookings/page.tsx` (and Booking Modal)
-- **Change (Client Role):** When a Client creates a *new* booking:
-  1. The UI must first check if they have any linked students (from `GET /api/links/my-students`).
-  2. If they have none, they must be prompted to add a student first.
-  3. If they have one or more, the booking form **must** include a new, **required** `<Select>` field: **"Who is this booking for?"**
-  4. This dropdown will be populated with their linked students.
-  5. The selected `student_id` is passed to the booking creation API.
+- **Change (Client Role - Booking Modal):** The booking modal will **not** be changed. The Client books the session, and the `student_id` is set to `NULL` by default.
+- **New Feature (Booking Assignment):**
+  - **Location:** On the `/bookings` page or Client Dashboard.
+  - **Component:** A new `<UnassignedBookingsWidget />` will be created.
+  - **Logic:**
+    1. Fetches all bookings for the Client where `student_id` is `NULL`.
+    2. Renders a list of these bookings, each with a dropdown: **"Assign Attendee..."**
+    3. The dropdown will contain:
+      - **"Myself (\[Client's Name\])"** (Uses the Client's `profile_id`)
+      - All linked students from `GET /api/links/my-students`.
+      - An option to "\[Add a new student...\]" which links to the `/my-students` page.
+    4. On selection, the component calls the new `POST /api/bookings/assign` endpoint.
 
 #### 6.3 Student (New Role) UI
 
@@ -333,4 +369,4 @@ This v5.0 feature design **depends entirely** on the v4.6 architecture.
 - **v4.3 Referrals:** **No change.** The `on_booking_completed` trigger (migration 045) will correctly identify the `client_id` (Parent) and `agent_id` as participants. The referral is tied to the *paying Client*, which is correct.
 - **v4.4 Network:** **No change in behavior.** The v4.6 architecture refactors the `connections` table into the `profile_graph` table. "Social Links" (v4.4) and "Guardian Links" (v5.0) will co-exist in `profile_graph` as distinct `relationship_type` enums ('SOCIAL' and 'GUARDIAN').
 - **v4.5 Reviews:** **No change.** Our v4.5 design (migration 044) correctly identifies the `participant_ids` as `[client_id, tutor_id, agent_id]` in the `review_sessions` table. This honors our rule that the **Client (Parent) reviews the Tutor**, not the Student.
-- **v4.5 "Junction":** **No change.** The post-review modal will correctly be shown to the **Client (Parent)**, who can then "Rebook" (for their student) or "Refer a Friend" (using their own referral code).
+- **v4.5 "Junction":** **No change.** The post-review modal will correctly be shown to the **Client (Parent)**, who can then "Rebook" (which creates a new booking with `student_id = NULL`) or "Refer a Friend."

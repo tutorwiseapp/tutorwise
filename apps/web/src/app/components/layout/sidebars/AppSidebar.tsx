@@ -15,7 +15,7 @@ import styles from './AppSidebar.module.css';
 interface NavItem {
   href: string;
   label: string;
-  roles?: ('client' | 'tutor' | 'agent')[];
+  roles?: ('client' | 'tutor' | 'agent' | 'student')[];
   subItems?: NavItem[];
   indent?: boolean;
 }
@@ -43,6 +43,7 @@ export default function AppSidebar() {
     },
     { href: '/messages', label: 'Messages' },
     { href: '/network', label: 'Network' },
+    { href: '/my-students', label: 'My Students', roles: ['client', 'tutor'] }, // v5.0: Guardian Links (client/tutor only)
     { href: '/reviews', label: 'Reviews' },
     { href: '/account', label: 'Account' },
     { href: '/payments', label: 'Payments' },
@@ -68,7 +69,13 @@ export default function AppSidebar() {
     <aside className={styles.appSidebar}>
       <nav className={styles.nav}>
         <ul className={styles.navList}>
-          {navItems.map((item) => (
+          {navItems.map((item) => {
+            // Role-based filtering: only show item if no roles specified or current role matches
+            if (item.roles && activeRole && !item.roles.includes(activeRole)) {
+              return null;
+            }
+
+            return (
             <React.Fragment key={item.href}>
               <li>
                 <Link
@@ -103,7 +110,8 @@ export default function AppSidebar() {
                 </>
               )}
             </React.Fragment>
-          ))}
+            );
+          })}
         </ul>
       </nav>
 
