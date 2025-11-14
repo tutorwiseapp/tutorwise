@@ -240,7 +240,7 @@ export default function NetworkPage() {
       <div className={styles.container}>
         {/* Header */}
         <div className={styles.header}>
-          <h1 className={styles.title}>My Network</h1>
+          <h1 className={styles.title}>Network</h1>
           <p className={styles.subtitle}>
             Build your professional tutoring network and amplify your reach
           </p>

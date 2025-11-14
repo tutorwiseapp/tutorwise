@@ -2,11 +2,24 @@
  * Filename: apps/web/src/lib/email.ts
  * Purpose: Email service using Resend API
  * Created: 2025-11-07
+ * Updated: 2025-11-14 - Lazy initialize Resend to avoid build-time errors
  */
 
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization to avoid build-time errors when env var is not set
+let resendClient: Resend | null = null;
+
+function getResendClient(): Resend {
+  if (!resendClient) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      throw new Error('RESEND_API_KEY environment variable is not set');
+    }
+    resendClient = new Resend(apiKey);
+  }
+  return resendClient;
+}
 
 export interface SendEmailOptions {
   to: string | string[];
@@ -23,6 +36,7 @@ export async function sendEmail(options: SendEmailOptions) {
   const { to, subject, html, from, replyTo } = options;
 
   try {
+    const resend = getResendClient();
     const { data, error } = await resend.emails.send({
       from: from || process.env.RESEND_FROM_EMAIL || 'Tutorwise <noreply@tutorwise.io>',
       to: Array.isArray(to) ? to : [to],
