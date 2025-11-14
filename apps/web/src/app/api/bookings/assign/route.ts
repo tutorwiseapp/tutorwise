@@ -6,17 +6,21 @@
  * a booked lesson. The student can be either:
  * 1. The Client themselves (adult learner use case)
  * 2. A linked student via Guardian Link
+ *
+ * Updated v5.1: Refactored to use BookingService (API Solution Design v5.1)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { BookingService } from '@/lib/services/BookingService';
+import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
 
-interface AssignBookingRequest {
-  booking_id: string;
-  student_id: string;
-}
+const AssignSchema = z.object({
+  booking_id: z.string().uuid(),
+  student_id: z.string().uuid(),
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,78 +35,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 2. Parse request body
-    const body: AssignBookingRequest = await request.json();
-    const { booking_id, student_id } = body;
+    // 2. Validate request body
+    const body = await request.json();
+    const validation = AssignSchema.safeParse(body);
 
-    if (!booking_id || !student_id) {
+    if (!validation.success) {
       return NextResponse.json(
-        { error: 'booking_id and student_id are required' },
+        { error: 'Invalid request', details: validation.error.flatten() },
         { status: 400 }
       );
     }
 
-    // 3. Verify the Client owns this booking
-    const { data: booking, error: bookingError } = await supabase
-      .from('bookings')
-      .select('id, client_id, student_id, status')
-      .eq('id', booking_id)
-      .eq('client_id', user.id)
-      .single();
+    const { booking_id, student_id } = validation.data;
 
-    if (bookingError || !booking) {
-      return NextResponse.json(
-        { error: 'Booking not found or you do not have permission to modify it' },
-        { status: 404 }
-      );
-    }
+    // 3. Assign student using BookingService
+    const booking = await BookingService.assignStudent({
+      bookingId: booking_id,
+      clientId: user.id,
+      studentId: student_id,
+    });
 
-    // 4. Verify the student_id is valid:
-    //    a) Either the Client's own ID (adult learner)
-    //    b) OR a valid Guardian Link
-    let isValidStudent = false;
-
-    if (student_id === user.id) {
-      // Adult learner - Client is attending their own lesson
-      isValidStudent = true;
-    } else {
-      // Check for Guardian Link
-      const { data: guardianLink, error: linkError } = await supabase
-        .from('profile_graph')
-        .select('id')
-        .eq('source_profile_id', user.id)
-        .eq('target_profile_id', student_id)
-        .eq('relationship_type', 'GUARDIAN')
-        .eq('status', 'ACTIVE')
-        .single();
-
-      if (!linkError && guardianLink) {
-        isValidStudent = true;
-      }
-    }
-
-    if (!isValidStudent) {
-      return NextResponse.json(
-        { error: 'Invalid student_id. Student must be yourself or a linked student.' },
-        { status: 403 }
-      );
-    }
-
-    // 5. Update the booking with the assigned student
-    const { error: updateError } = await supabase
-      .from('bookings')
-      .update({ student_id })
-      .eq('id', booking_id);
-
-    if (updateError) {
-      console.error('Error assigning student to booking:', updateError);
-      return NextResponse.json(
-        { error: 'Failed to assign student to booking' },
-        { status: 500 }
-      );
-    }
-
-    // 6. TODO: Log to audit_log
+    // 4. TODO: Log to audit_log
     // await logAuditEvent({
     //   action: 'BOOKING_STUDENT_ASSIGNED',
     //   user_id: user.id,
@@ -120,6 +73,20 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error in POST /api/bookings/assign:', error);
+
+    // Handle specific business logic errors
+    if (error instanceof Error) {
+      if (error.message.includes('Booking not found')) {
+        return NextResponse.json({ error: error.message }, { status: 404 });
+      }
+      if (error.message.includes('Unauthorized')) {
+        return NextResponse.json({ error: error.message }, { status: 403 });
+      }
+      if (error.message.includes('Invalid guardian-student link')) {
+        return NextResponse.json({ error: error.message }, { status: 403 });
+      }
+    }
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

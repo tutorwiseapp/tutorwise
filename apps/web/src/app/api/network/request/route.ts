@@ -2,13 +2,13 @@
  * Filename: apps/web/src/app/api/network/request/route.ts
  * Purpose: Send connection requests to one or more users (SDD v4.5)
  * Created: 2025-11-07
- * Updated: 2025-11-12 (v4.6) - Migrated to profile_graph table
+ * Updated: 2025-11-14 (v5.1) - Refactored to use ProfileGraphService
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { checkRateLimit, rateLimitHeaders, rateLimitError } from '@/middleware/rateLimiting';
-import { sendConnectionRequestNotification } from '@/lib/email';
+import { ProfileGraphService } from '@/lib/services/ProfileGraphService';
 import { z } from 'zod';
 
 // Mark route as dynamic (required for cookies() in Next.js 15)
@@ -53,73 +53,12 @@ export async function POST(request: NextRequest) {
 
     const { receiver_ids, message } = validation.data;
 
-    // Check if users exist and are not already connected (v4.6: using profile_graph)
-    const { data: existingConnections } = await supabase
-      .from('profile_graph')
-      .select('target_profile_id, status')
-      .eq('source_profile_id', user.id)
-      .eq('relationship_type', 'SOCIAL')
-      .in('target_profile_id', receiver_ids);
-
-    const existingMap = new Map(
-      existingConnections?.map(c => [c.target_profile_id, c.status]) || []
-    );
-
-    // Filter out users who are already connected or have pending requests
-    const newReceivers = receiver_ids.filter(id => !existingMap.has(id));
-
-    if (newReceivers.length === 0) {
-      return NextResponse.json(
-        { error: 'All users are already connected or have pending requests' },
-        { status: 400 }
-      );
-    }
-
-    // Check for self-connection attempts
-    if (newReceivers.includes(user.id)) {
-      return NextResponse.json(
-        { error: 'Cannot send connection request to yourself' },
-        { status: 400 }
-      );
-    }
-
-    // Verify receiver profiles exist
-    const { data: receiverProfiles, error: profileError } = await supabase
-      .from('profiles')
-      .select('id')
-      .in('id', newReceivers);
-
-    if (profileError || !receiverProfiles || receiverProfiles.length !== newReceivers.length) {
-      return NextResponse.json(
-        { error: 'One or more users not found' },
-        { status: 404 }
-      );
-    }
-
-    // Create connection requests (v4.6: using profile_graph with SOCIAL relationship)
-    const connections = newReceivers.map(receiver_id => ({
-      source_profile_id: user.id,
-      target_profile_id: receiver_id,
-      relationship_type: 'SOCIAL',
-      status: 'PENDING',
-      metadata: message ? { message } : null,
-    }));
-
-    const { data, error } = await supabase
-      .from('profile_graph')
-      .insert(connections)
-      .select(`
-        id,
-        target_profile_id,
-        status,
-        created_at,
-        target:target_profile_id(id, full_name, email, avatar_url)
-      `);
-
-    if (error) {
-      console.error('[network/request] Database error:', error);
-      throw error;
-    }
+    // Create connection requests using ProfileGraphService
+    const data = await ProfileGraphService.createConnectionRequests({
+      requesterId: user.id,
+      receiverIds: receiver_ids,
+      message,
+    });
 
     // Get requester profile for email notifications
     const { data: requesterProfile } = await supabase
@@ -135,17 +74,16 @@ export async function POST(request: NextRequest) {
       Promise.all(
         data.map(async (connection: any) => {
           try {
-            // v4.6: Changed from 'receiver' to 'target'
             const target = Array.isArray(connection.target)
               ? connection.target[0]
               : connection.target;
 
             if (target?.email) {
-              await sendConnectionRequestNotification({
-                to: target.email,
+              await ProfileGraphService.sendConnectionRequestEmail({
                 senderName: requesterProfile.full_name,
                 senderEmail: requesterProfile.email,
-                message: message,
+                receiverEmail: target.email,
+                message,
                 networkUrl,
               });
             }
@@ -172,6 +110,20 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('[network/request] Error:', error);
+
+    // Handle specific business logic errors
+    if (error instanceof Error) {
+      if (error.message.includes('already connected') || error.message.includes('pending requests')) {
+        return NextResponse.json({ error: error.message }, { status: 400 });
+      }
+      if (error.message.includes('yourself')) {
+        return NextResponse.json({ error: error.message }, { status: 400 });
+      }
+      if (error.message.includes('not found')) {
+        return NextResponse.json({ error: error.message }, { status: 404 });
+      }
+    }
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

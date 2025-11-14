@@ -1,7 +1,7 @@
 /**
  * Network API utilities
  * Handles connection fetching and management
- * Updated v4.6: Now uses profile_graph table instead of connections
+ * Updated v5.1: Migrated to server-side API routes with ProfileGraphService
  */
 
 import { createClient } from '@/utils/supabase/client';
@@ -10,6 +10,8 @@ import type { Connection } from '@/app/components/network/ConnectionCard';
 /**
  * Get all connections for the current user
  * v4.6: Queries profile_graph table with relationship_type='SOCIAL'
+ * Note: This function still uses direct Supabase access for read-only operations
+ * which is acceptable per v5.1 design. Writes must go through API routes.
  */
 export async function getMyConnections(): Promise<Connection[]> {
   const supabase = createClient();
@@ -64,48 +66,51 @@ export async function getMyConnections(): Promise<Connection[]> {
 
 /**
  * Accept a connection request
- * v4.6: Updates profile_graph status to ACTIVE
+ * v5.1: Uses server-side API route with ProfileGraphService
  */
 export async function acceptConnection(connectionId: string): Promise<void> {
-  const supabase = createClient();
+  const response = await fetch('/api/network/accept', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ connection_id: connectionId }),
+  });
 
-  const { error } = await supabase
-    .from('profile_graph')
-    .update({ status: 'ACTIVE' })
-    .eq('id', connectionId)
-    .eq('relationship_type', 'SOCIAL');
-
-  if (error) throw error;
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to accept connection');
+  }
 }
 
 /**
  * Reject a connection request
- * v4.6: Updates profile_graph status to BLOCKED
+ * v5.1: Uses server-side API route with ProfileGraphService
  */
 export async function rejectConnection(connectionId: string): Promise<void> {
-  const supabase = createClient();
+  const response = await fetch('/api/network/reject', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ connection_id: connectionId }),
+  });
 
-  const { error } = await supabase
-    .from('profile_graph')
-    .update({ status: 'BLOCKED' })
-    .eq('id', connectionId)
-    .eq('relationship_type', 'SOCIAL');
-
-  if (error) throw error;
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to reject connection');
+  }
 }
 
 /**
  * Remove a connection
- * v4.6: Deletes from profile_graph
+ * v5.1: Uses server-side API route with ProfileGraphService
  */
 export async function removeConnection(connectionId: string): Promise<void> {
-  const supabase = createClient();
+  const response = await fetch('/api/network/remove', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ connection_id: connectionId }),
+  });
 
-  const { error } = await supabase
-    .from('profile_graph')
-    .delete()
-    .eq('id', connectionId)
-    .eq('relationship_type', 'SOCIAL');
-
-  if (error) throw error;
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to remove connection');
+  }
 }
