@@ -8,7 +8,6 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getMyConnections, acceptConnection, rejectConnection, removeConnection } from '@/lib/api/network';
@@ -28,14 +27,12 @@ import styles from './page.module.css';
 type TabType = 'all' | 'pending-received' | 'pending-sent';
 
 export default function NetworkPage() {
-  const router = useRouter();
   const { profile, isLoading: profileLoading } = useUserProfile();
   const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState<TabType>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
-  const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
 
   // React Query: Fetch connections with automatic retry, caching, and background refetch
   const {
@@ -61,7 +58,7 @@ export default function NetworkPage() {
       toast.success('New connection request received!');
       queryClient.invalidateQueries({ queryKey: ['connections', profile?.id] });
     },
-    onUpdate: (payload: any) => {
+    onUpdate: (payload: { new: { status: string; target_profile_id: string }; old: { status: string } }) => {
       // Check if connection was accepted (v4.6: ACTIVE status instead of 'accepted')
       if (payload.new.status === 'ACTIVE' && payload.old.status === 'PENDING') {
         const isTarget = payload.new.target_profile_id === profile?.id;
@@ -185,9 +182,10 @@ export default function NetworkPage() {
     removeMutation.mutate(connectionId);
   };
 
-  const handleMessage = (userId: string) => {
-    // TODO: Integrate with Tawk.to chat
-    toast('Chat feature coming soon with Tawk.to integration', { icon: '💬' });
+  const handleMessage = () => {
+    // Navigate to Messages page for Ably-powered real-time chat
+    toast('Opening messages...', { icon: '💬' });
+    window.location.href = '/messages';
   };
 
   const filteredConnections = useMemo(() => {
@@ -356,7 +354,7 @@ export default function NetworkPage() {
         <ConnectionGroupsWidget
           onGroupSelect={setSelectedGroupId}
           selectedGroupId={selectedGroupId}
-          onCreateGroup={() => setIsGroupModalOpen(true)}
+          onCreateGroup={() => toast('Connection groups coming soon!', { icon: '📁' })}
         />
       </ContextualSidebar>
     </>
