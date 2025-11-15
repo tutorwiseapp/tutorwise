@@ -102,7 +102,12 @@ export class ProfileGraphService {
 
     if (error) throw error;
 
-    return data as ConnectionData[];
+    // Supabase returns joined tables as arrays, so we need to unwrap them
+    return (data || []).map((item: any) => ({
+      ...item,
+      source: Array.isArray(item.source) ? item.source[0] : item.source,
+      target: Array.isArray(item.target) ? item.target[0] : item.target,
+    })) as ConnectionData[];
   }
 
   /**
@@ -167,6 +172,7 @@ export class ProfileGraphService {
       .insert(connections)
       .select(`
         id,
+        source_profile_id,
         target_profile_id,
         status,
         created_at,
@@ -175,7 +181,11 @@ export class ProfileGraphService {
 
     if (error) throw error;
 
-    return data as ConnectionData[];
+    // Supabase returns joined tables as arrays, so we need to unwrap them
+    return (data || []).map((item: any) => ({
+      ...item,
+      target: Array.isArray(item.target) ? item.target[0] : item.target,
+    })) as ConnectionData[];
   }
 
   /**
@@ -286,7 +296,12 @@ export class ProfileGraphService {
 
     if (error) throw error;
 
-    return data as GuardianLinkData[];
+    // Supabase returns joined tables as arrays, so we need to unwrap them
+    return (data || []).map((item: any) => ({
+      ...item,
+      guardian: Array.isArray(item.guardian) ? item.guardian[0] : item.guardian,
+      student: Array.isArray(item.student) ? item.student[0] : item.student,
+    })) as GuardianLinkData[];
   }
 
   /**
@@ -340,7 +355,14 @@ export class ProfileGraphService {
 
       if (error) throw error;
 
-      return data as GuardianLinkData;
+      // Supabase returns joined tables as arrays, so we need to unwrap them
+      const unwrapped = {
+        ...data,
+        guardian: Array.isArray(data.guardian) ? data.guardian[0] : data.guardian,
+        student: Array.isArray(data.student) ? data.student[0] : data.student,
+      };
+
+      return unwrapped as GuardianLinkData;
     } else {
       // Student doesn't exist - store invite metadata for when they sign up
       // For now, we'll create a placeholder record that will be updated when student signs up
