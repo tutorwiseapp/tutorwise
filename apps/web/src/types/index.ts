@@ -43,6 +43,12 @@ export interface Profile {
   dbs_certificate_document_name?: string; // Original filename of uploaded DBS certificate
   dbs_verified?: boolean; // Whether DBS certificate has been verified by admin
   dbs_verified_at?: string; // ISO date string - when DBS was verified
+  dbs_expiry?: string | null; // ISO date string - DBS certificate expiry date (v5.5 CaaS)
+  // Professional details (v5.5 CaaS)
+  qualifications?: string[] | null; // Array of qualifications (e.g., ['QTS', 'PGCE'])
+  teaching_experience?: number | null; // Years of teaching experience
+  degree_level?: 'BACHELORS' | 'MASTERS' | 'PHD' | 'NONE' | null; // Highest degree level
+  bio_video_url?: string | null; // v5.5 CaaS: Credibility Clip - 30s intro video URL
   // Other fields
   bio?: string;
   categories?: string;

@@ -31,6 +31,7 @@ import { ServicesCard } from '@/app/components/public-profile/ServicesCard';
 import { ReviewsCard } from '@/app/components/public-profile/ReviewsCard';
 import { SimilarProfilesCard } from '@/app/components/public-profile/SimilarProfilesCard';
 import { MobileBottomCTA } from '@/app/components/public-profile/MobileBottomCTA';
+import { CredibilityScoreCard } from '@/app/components/caas/CredibilityScoreCard';
 import styles from './page.module.css';
 
 interface PublicProfilePageProps {
@@ -203,6 +204,9 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
 
         {/* Column 2: Sticky Sidebar (1fr width on desktop) */}
         <div className={styles.sidebarColumn}>
+          {/* Credibility Score Card - Only for tutors with calculated scores */}
+          <CredibilityScoreCard profileId={profile.id} />
+
           {/* Verification Card */}
           <VerificationCard profile={profile as Profile} />
 
