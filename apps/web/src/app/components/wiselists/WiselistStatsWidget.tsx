@@ -8,7 +8,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { List, Globe, Users } from 'lucide-react';
 import { SidebarWidget } from '@/app/components/layout/sidebars/ContextualSidebar';
 import styles from '@/app/components/layout/sidebars/ContextualSidebar.module.css';
 
@@ -67,62 +66,39 @@ export function WiselistStatsWidget() {
   return (
     <SidebarWidget title="Your Wiselists">
       <div className={styles.widgetContent}>
-        <div className={styles.statGrid}>
-          <div className={styles.statItem}>
-            <div className={styles.statIcon}>
-              <List size={20} />
-            </div>
-            <div className={styles.statInfo}>
-              <div className={styles.statValue}>{stats.total_wiselists}</div>
-              <div className={styles.statLabel}>
-                {stats.total_wiselists === 1 ? 'Wiselist' : 'Wiselists'}
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.statItem}>
-            <div className={styles.statIcon}>
-              <Globe size={20} />
-            </div>
-            <div className={styles.statInfo}>
-              <div className={styles.statValue}>{stats.public_wiselists}</div>
-              <div className={styles.statLabel}>Public</div>
-            </div>
-          </div>
-
-          {stats.total_items > 0 && (
-            <div className={styles.statItem}>
-              <div className={styles.statIcon}>
-                <List size={20} />
-              </div>
-              <div className={styles.statInfo}>
-                <div className={styles.statValue}>{stats.total_items}</div>
-                <div className={styles.statLabel}>
-                  {stats.total_items === 1 ? 'Item' : 'Items'}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {stats.total_collaborators > 0 && (
-            <div className={styles.statItem}>
-              <div className={styles.statIcon}>
-                <Users size={20} />
-              </div>
-              <div className={styles.statInfo}>
-                <div className={styles.statValue}>{stats.total_collaborators}</div>
-                <div className={styles.statLabel}>
-                  {stats.total_collaborators === 1 ? 'Collaborator' : 'Collaborators'}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {stats.total_wiselists === 0 && (
+        {stats.total_wiselists === 0 ? (
           <p className={styles.widgetText}>
             Create your first wiselist to start organizing your favorite tutors and services!
           </p>
+        ) : (
+          <div className={styles.statsCard}>
+            <div className={styles.statRow}>
+              <span className={styles.statLabel}>
+                {stats.total_wiselists === 1 ? 'Wiselist' : 'Wiselists'}
+              </span>
+              <span className={styles.statValue}>{stats.total_wiselists}</span>
+            </div>
+            <div className={styles.statRow}>
+              <span className={styles.statLabel}>Public</span>
+              <span className={styles.statValue}>{stats.public_wiselists}</span>
+            </div>
+            {stats.total_items > 0 && (
+              <div className={styles.statRow}>
+                <span className={styles.statLabel}>
+                  {stats.total_items === 1 ? 'Item' : 'Items'}
+                </span>
+                <span className={styles.statValue}>{stats.total_items}</span>
+              </div>
+            )}
+            {stats.total_collaborators > 0 && (
+              <div className={styles.statRow}>
+                <span className={styles.statLabel}>
+                  {stats.total_collaborators === 1 ? 'Collaborator' : 'Collaborators'}
+                </span>
+                <span className={styles.statValue}>{stats.total_collaborators}</span>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </SidebarWidget>
