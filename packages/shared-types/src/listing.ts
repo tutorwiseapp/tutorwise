@@ -113,6 +113,9 @@ export interface Listing {
   is_deletable?: boolean;     // Whether this listing can be deleted
   template_id?: string;       // Unique identifier for template type (e.g., "mathematics-gcse-group")
 
+  // v5.9: Free Help Now
+  available_free_help?: boolean; // Whether tutor is currently offering free help sessions
+
   // Timestamps
   created_at: string;
   updated_at: string;

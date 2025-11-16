@@ -9,6 +9,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { Booking, BookingStatus, PaymentStatus } from '@/types';
 import Button from '@/app/components/ui/Button';
 import getProfileImageUrl from '@/lib/utils/image';
@@ -140,6 +141,15 @@ export default function BookingCard({
 
           {/* Actions */}
           <div className={styles.actions}>
+            {/* WiseSpace: Show "Join WiseSpace" for Confirmed bookings (v5.8) */}
+            {booking.status === 'Confirmed' && (
+              <Link href={`/wisespace/${booking.id}`} target="_blank">
+                <Button variant="primary" size="sm">
+                  Join WiseSpace
+                </Button>
+              </Link>
+            )}
+
             {/* Client-specific: Show "Pay Now" if Pending */}
             {viewMode === 'client' &&
               booking.payment_status === 'Pending' &&

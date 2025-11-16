@@ -108,6 +108,30 @@
   text-decoration: underline;
 }
 
+/* v5.9: Free Help Now badge */
+.freeHelpBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  font-weight: 700;
+  font-size: 0.875rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+  }
+  50% {
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.6);
+  }
+}
+
 .subjectLine {
   font-size: 1.125rem;
   color: #374151;
@@ -184,6 +208,35 @@
   box-shadow: 0 2px 4px rgba(0, 108, 103, 0.2);
 }
 
+/* v5.9: Free Help Now button */
+.ctaButtonFreeHelp {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: 2px solid #10b981;
+  border-radius: var(--radius-md, 8px);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+}
+
+.ctaButtonFreeHelp:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  border-color: #059669;
+  box-shadow: 0 6px 10px rgba(16, 185, 129, 0.4);
+  transform: translateY(-2px);
+}
+
+.ctaButtonFreeHelp:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .banner {
@@ -252,7 +305,8 @@
   }
 
   .ctaButton,
-  .ctaButtonPrimary {
+  .ctaButtonPrimary,
+  .ctaButtonFreeHelp {
     flex: 1;
     justify-content: center;
   }

@@ -41,4 +41,7 @@ export interface ListingV41 extends Omit<BaseListing, 'availability'> {
   average_rating?: number;
   response_rate_percentage?: number;
   years_teaching?: number;
+
+  // v5.9: Free Help Now
+  available_free_help?: boolean; // Whether tutor is currently offering free help sessions
 }

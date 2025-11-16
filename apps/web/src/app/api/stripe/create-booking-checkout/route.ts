@@ -84,8 +84,21 @@ export async function POST(req: NextRequest) {
     // 6. Get origin for redirect URLs
     const origin = new URL(req.url).origin;
 
+    // 6a. v5.7: Check for wiselist referrer cookie
+    const wiselistReferrerId = req.cookies.get('wiselist_referrer_id')?.value;
+
     // 7. Create Stripe Checkout Session (PAYMENT MODE)
     // (SDD v3.6, Section 8.6 - booking_id passed in metadata for webhook)
+    const sessionMetadata: Record<string, string> = {
+      booking_id: booking_id, // CRITICAL: This is used by the webhook to find the booking
+      supabase_user_id: user.id,
+    };
+
+    // v5.7: Add wiselist referrer for attribution tracking
+    if (wiselistReferrerId) {
+      sessionMetadata.wiselist_referrer_id = wiselistReferrerId;
+    }
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment', // PAYMENT mode (not setup)
@@ -103,10 +116,7 @@ export async function POST(req: NextRequest) {
           quantity: 1,
         },
       ],
-      metadata: {
-        booking_id: booking_id, // CRITICAL: This is used by the webhook to find the booking
-        supabase_user_id: user.id,
-      },
+      metadata: sessionMetadata,
       success_url: `${origin}/bookings?payment=success`,
       cancel_url: `${origin}/bookings?payment=cancel`,
     });

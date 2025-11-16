@@ -80,6 +80,25 @@ export async function POST(req: NextRequest) {
         }
 
         console.log(`Successfully processed payment for booking ${booking_id}`);
+
+        // v5.7: Save wiselist referrer for attribution tracking
+        const wiselistReferrerId = session.metadata?.wiselist_referrer_id;
+        if (wiselistReferrerId) {
+          console.log(`Recording wiselist referrer ${wiselistReferrerId} for booking ${booking_id}`);
+
+          const { error: referrerError } = await supabase
+            .from('bookings')
+            .update({ booking_referrer_id: wiselistReferrerId })
+            .eq('id', booking_id);
+
+          if (referrerError) {
+            console.error('Failed to save wiselist referrer:', referrerError);
+            // Non-critical error - don't throw
+          } else {
+            console.log(`Successfully recorded wiselist referrer for booking ${booking_id}`);
+          }
+        }
+
         break;
       }
 

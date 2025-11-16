@@ -2,6 +2,7 @@
  * Filename: ProfileHeroSection.tsx
  * Purpose: Hero section for public profile with avatar, name, role, location, and CTAs
  * Created: 2025-11-12
+ * Updated: 2025-11-16 - Added Free Help Now badge and CTA (v5.9)
  *
  * Layout: Light grey banner with avatar on left, info on right, CTAs bottom-right
  */
@@ -10,10 +11,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Heart, Share2, Gift, MapPin, Edit } from 'lucide-react';
+import { Heart, Share2, Gift, MapPin, Edit, Video, Sparkles } from 'lucide-react';
 import type { Profile } from '@/types';
 import toast from 'react-hot-toast';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { VideoModal } from '@/app/components/modals/VideoModal';
 import styles from './ProfileHeroSection.module.css';
 
 interface ProfileHeroSectionProps {
@@ -23,8 +25,13 @@ interface ProfileHeroSectionProps {
 
 export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSectionProps) {
   const [isSaved, setIsSaved] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [isCreatingFreeHelpSession, setIsCreatingFreeHelpSession] = useState(false);
   const { profile: currentUser } = useUserProfile();
   const router = useRouter();
+
+  // v5.9: Check if tutor is offering free help
+  const isFreeHelpAvailable = profile.available_free_help === true;
 
   // Get primary subject from professional details
   const getPrimarySubject = () => {
@@ -96,6 +103,46 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
     }
   };
 
+  // v5.9: Handle Get Free Help Now button
+  const handleGetFreeHelp = async () => {
+    if (!currentUser) {
+      toast.error('Please login to start a free help session');
+      router.push('/login');
+      return;
+    }
+
+    setIsCreatingFreeHelpSession(true);
+    try {
+      const response = await fetch('/api/sessions/create-free-help-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tutorId: profile.id }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 410) {
+          toast.error('This tutor is no longer offering free help');
+        } else if (response.status === 429) {
+          toast.error(data.error || 'Rate limit reached');
+        } else {
+          toast.error(data.error || 'Failed to create session');
+        }
+        return;
+      }
+
+      // Success! Redirect to meet link
+      toast.success('Connecting you now! The tutor has been notified.');
+      window.location.href = data.meetUrl;
+    } catch (error) {
+      console.error('Failed to create free help session:', error);
+      toast.error('Failed to start session. Please try again.');
+    } finally {
+      setIsCreatingFreeHelpSession(false);
+    }
+  };
+
   const roleLabel = profile.active_role
     ? profile.active_role.charAt(0).toUpperCase() + profile.active_role.slice(1)
     : 'Member';
@@ -126,7 +173,7 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
             {profile.full_name || 'Anonymous User'}
           </h1>
 
-          {/* Line 2: Role | Edit */}
+          {/* Line 2: Role | Edit | Free Help Badge */}
           <div className={styles.roleLine}>
             <span className={styles.roleLabel}>{roleLabel}</span>
             {isOwnProfile && (
@@ -139,6 +186,16 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
                   <Edit size={16} />
                   Edit
                 </button>
+              </>
+            )}
+            {/* v5.9: Free Help Now badge */}
+            {!isOwnProfile && isFreeHelpAvailable && (
+              <>
+                <span className={styles.separator}>|</span>
+                <span className={styles.freeHelpBadge}>
+                  <Sparkles size={14} />
+                  Free Help Now
+                </span>
               </>
             )}
           </div>
@@ -161,6 +218,31 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
 
         {/* CTAs on bottom-right */}
         <div className={styles.ctaContainer}>
+          {/* v5.9: Get Free Help Now - Primary CTA when available */}
+          {!isOwnProfile && isFreeHelpAvailable && (
+            <button
+              onClick={handleGetFreeHelp}
+              className={styles.ctaButtonFreeHelp}
+              disabled={isCreatingFreeHelpSession}
+              title="Start free 30-minute session"
+            >
+              <Sparkles size={20} />
+              {isCreatingFreeHelpSession ? 'Connecting...' : 'Get Free Help Now'}
+            </button>
+          )}
+
+          {/* Watch Intro Button - Only show if bio_video_url exists */}
+          {profile.bio_video_url && (
+            <button
+              onClick={() => setShowVideoModal(true)}
+              className={styles.ctaButtonPrimary}
+              title="Watch intro video"
+            >
+              <Video size={20} />
+              Watch Intro
+            </button>
+          )}
+
           <button
             onClick={handleSave}
             className={`${styles.ctaButton} ${isSaved ? styles.ctaButtonActive : ''}`}
@@ -189,6 +271,16 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
           </button>
         </div>
       </div>
+
+      {/* Video Modal */}
+      {profile.bio_video_url && (
+        <VideoModal
+          isOpen={showVideoModal}
+          onClose={() => setShowVideoModal(false)}
+          videoUrl={profile.bio_video_url}
+          title={`${profile.full_name}'s Introduction`}
+        />
+      )}
     </div>
   );
 }

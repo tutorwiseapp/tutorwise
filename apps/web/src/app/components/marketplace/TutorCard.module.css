@@ -84,6 +84,34 @@
   z-index: 2;
 }
 
+/* v5.9: Free Help Now Badge - Replaces trial badge when available */
+.freeHelpBadge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.6);
+  }
+}
+
 /* Heart Save Button - Right */
 .saveButton {
   position: absolute;

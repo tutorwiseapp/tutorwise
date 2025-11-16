@@ -49,8 +49,11 @@ export interface Profile {
   teaching_experience?: number | null; // Years of teaching experience
   degree_level?: 'BACHELORS' | 'MASTERS' | 'PHD' | 'NONE' | null; // Highest degree level
   bio_video_url?: string | null; // v5.5 CaaS: Credibility Clip - 30s intro video URL
+  // v5.9: Free Help Now
+  available_free_help?: boolean; // Whether tutor is currently offering free help sessions
   // Other fields
   bio?: string;
+  headline?: string; // Professional headline/tagline
   categories?: string;
   achievements?: string;
   avatar_url?: string;
@@ -293,6 +296,8 @@ export interface Listing {
   is_template?: boolean; // Whether this is a system-generated template
   is_deletable?: boolean; // Whether this listing can be deleted
   template_id?: string; // Unique identifier for template type
+  slug?: string; // SEO-friendly URL slug
+  available_free_help?: boolean; // v5.9: Whether tutor is currently offering free help sessions
   profile?: {
     full_name: string;
     avatar_url?: string;
@@ -499,3 +504,58 @@ export interface StudentLink {
   };
 }
 
+
+/**
+ * ==================================================================
+ * Wiselists (v5.7) - Save & Share Growth Engine
+ * ==================================================================
+ */
+
+export type WiselistVisibility = 'private' | 'public';
+export type WiselistRole = 'OWNER' | 'EDITOR' | 'VIEWER';
+
+export interface Wiselist {
+  id: string;
+  profile_id: string;
+  name: string;
+  description?: string | null;
+  visibility: WiselistVisibility;
+  slug?: string | null;
+  created_at: string;
+  updated_at: string;
+  // Computed fields (not in database)
+  item_count?: number;
+  collaborator_count?: number;
+  owner?: Profile; // Populated via join
+}
+
+export interface WiselistItem {
+  id: string;
+  wiselist_id: string;
+  profile_id?: string | null;
+  listing_id?: string | null;
+  notes?: string | null;
+  added_by_profile_id: string;
+  created_at: string;
+  // Populated via joins
+  profile?: Profile;
+  listing?: Listing;
+  added_by?: Profile;
+}
+
+export interface WiselistCollaborator {
+  id: string;
+  wiselist_id: string;
+  profile_id: string;
+  role: WiselistRole;
+  invited_by_profile_id?: string | null;
+  created_at: string;
+  // Populated via joins
+  profile?: Profile;
+  invited_by?: Profile;
+}
+
+export interface WiselistWithDetails extends Wiselist {
+  items: WiselistItem[];
+  collaborators: WiselistCollaborator[];
+}

@@ -6,6 +6,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { createClient } from '@/utils/supabase/client';
 import type { Profile, OnboardingProgress, Role } from '@/types';
 import type { User } from '@supabase/supabase-js';
+import { useFreeHelpHeartbeat } from '@/app/hooks/useFreeHelpHeartbeat';
 
 interface RolePreferences {
   lastActiveRole?: Role;
@@ -279,6 +280,20 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
 
   const availableRoles = profile?.roles || [];
   const needsOnboarding = !profile?.onboarding_progress?.onboarding_completed && !!user;
+
+  // v5.9: Free Help Now heartbeat system
+  // Only run heartbeat for tutors who have free help enabled
+  const isFreeHelpEnabled = profile?.available_free_help === true;
+  const isTutor = activeRole === 'tutor';
+
+  useFreeHelpHeartbeat({
+    enabled: isTutor && isFreeHelpEnabled,
+    onExpired: async () => {
+      console.log('[Free Help] Presence expired, updating profile state');
+      // Refresh profile to sync with database
+      await refreshProfile();
+    },
+  });
 
   return (
     <UserProfileContext.Provider value={{

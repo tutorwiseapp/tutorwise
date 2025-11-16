@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import DashboardStatsWidget from '@/app/components/dashboard/DashboardStatsWidget';
+import { PendingLogsWidget } from '@/app/components/dashboard/PendingLogsWidget';
 import PageHeader from '@/app/components/ui/PageHeader';
 import styles from './page.module.css';
 
@@ -146,6 +147,8 @@ const DashboardPage = () => {
 
       {/* Right Sidebar - Aggregated Stats */}
       <ContextualSidebar>
+        {/* WiseSpace v5.8: Pending Actions widget for tutors */}
+        {(activeRole === 'tutor' || activeRole === 'agent') && <PendingLogsWidget />}
         <DashboardStatsWidget />
       </ContextualSidebar>
     </>

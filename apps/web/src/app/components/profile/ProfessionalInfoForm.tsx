@@ -16,7 +16,7 @@ interface ProfessionalInfoFormProps {
   activeRole?: string | null;
 }
 
-type EditingField = 'bio' | 'status' | 'academic_qualifications' | 'key_stages' |
+type EditingField = 'bio' | 'bio_video_url' | 'status' | 'academic_qualifications' | 'key_stages' |
   'teaching_professional_qualifications' | 'subjects' | 'teaching_experience' |
   'session_type' | 'tutoring_experience' | 'one_on_one_rate' | 'group_session_rate' |
   'delivery_mode' | 'dbs_certificate' |
@@ -187,6 +187,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
   // Form data with multi-select fields as arrays
   const [formData, setFormData] = useState({
     bio: profile.bio || '',
+    bio_video_url: profile.bio_video_url || '', // v5.5 CaaS: Credibility Clip
     dbs_certificate: profile.dbs_certificate_number || '',
 
     // Tutor fields
@@ -257,6 +258,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     setFormData(prev => ({
       ...prev,
       bio: profile.bio || '',
+      bio_video_url: profile.bio_video_url || '',
       dbs_certificate: profile.dbs_certificate_number || '',
 
       // Agent fields (16 fields)
@@ -398,6 +400,8 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
       // Handle profile-level fields
       if (field === 'bio') {
         updateData = { bio: formData.bio };
+      } else if (field === 'bio_video_url') {
+        updateData = { bio_video_url: formData.bio_video_url };
       } else if (field === 'dbs_certificate') {
         updateData = { dbs_certificate_number: formData.dbs_certificate };
       }
@@ -1145,6 +1149,11 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
           {/* About - Full Width */}
           <div className={formLayoutStyles.fullWidth}>
             {renderField('bio', 'About', 'textarea', 'Describe your tutoring or teaching style, strengths, and what areas you specialise in')}
+          </div>
+
+          {/* Bio Video URL - Full Width */}
+          <div className={formLayoutStyles.fullWidth}>
+            {renderField('bio_video_url', '30-Second Intro Video (Optional)', 'text', 'Paste YouTube, Loom, or Vimeo URL for +5 CaaS points')}
           </div>
 
         {/* Status and Academic Qualifications - 2 Column */}

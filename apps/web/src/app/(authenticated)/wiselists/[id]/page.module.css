@@ -1,0 +1,203 @@
+/* Wiselist Detail Page - v5.7 */
+
+.container {
+  display: flex;
+  gap: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.mainContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.loading {
+  padding: 60px 20px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.headerIcon {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.headerContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editButton {
+  padding: 8px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.editButton:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.description {
+  font-size: 16px;
+  color: #4b5563;
+  line-height: 1.5;
+  margin: 0 0 12px 0;
+}
+
+.meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.editInput {
+  padding: 10px 14px;
+  font-size: 24px;
+  font-weight: 600;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: white;
+  color: #111827;
+}
+
+.editInput:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.editTextarea {
+  padding: 10px 14px;
+  font-size: 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: white;
+  color: #4b5563;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.editTextarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.editActions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.content {
+  margin-top: 24px;
+}
+
+.empty {
+  padding: 80px 20px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.emptyHint {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+@media (max-width: 1024px) {
+  .container {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .header {
+    margin-bottom: 24px;
+  }
+
+  .headerIcon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .editInput {
+    font-size: 18px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

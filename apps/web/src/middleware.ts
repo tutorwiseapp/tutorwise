@@ -19,6 +19,51 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(newPath, request.url), 301); // Permanent redirect for SEO
   }
 
+  // v5.7: Track wiselist referrals (/w/[slug])
+  // Store wiselist owner's profile_id in cookie for booking attribution
+  const wiselistMatch = pathname.match(/^\/w\/([^/]+)$/);
+  if (wiselistMatch) {
+    const [, slug] = wiselistMatch;
+
+    // Create Supabase client to fetch wiselist owner
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return request.cookies.get(name)?.value
+          },
+          set() {},
+          remove() {},
+        },
+      }
+    );
+
+    try {
+      const { data: wiselist } = await supabase
+        .from('wiselists')
+        .select('profile_id')
+        .eq('slug', slug)
+        .eq('visibility', 'public')
+        .single();
+
+      if (wiselist) {
+        // Set cookie with wiselist referrer for 30 days
+        const response = NextResponse.next();
+        response.cookies.set('wiselist_referrer_id', wiselist.profile_id, {
+          maxAge: 30 * 24 * 60 * 60, // 30 days
+          path: '/',
+          sameSite: 'lax',
+        });
+        return response;
+      }
+    } catch (error) {
+      console.error('Wiselist tracking error:', error);
+      // Continue even if tracking fails
+    }
+  }
+
   // Define routes that require authentication
   const protectedRoutes = [
     '/dashboard',

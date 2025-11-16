@@ -248,7 +248,10 @@ export async function searchListings(params: ListingSearchParams = {}): Promise<
     .select(`
       *,
       profiles:profile_id (
-        avatar_url
+        avatar_url,
+        caas_scores (
+          total_score
+        )
       )
     `, { count: 'exact' })
     .eq('status', 'published');
@@ -302,8 +305,9 @@ export async function searchListings(params: ListingSearchParams = {}): Promise<
   if (sort) {
     query = query.order(sort.field, { ascending: sort.order === 'asc' });
   } else {
-    // Default sort by most recent
-    query = query.order('published_at', { ascending: false });
+    // Default sort: CaaS total_score DESC (highest credibility first), then published_at DESC
+    // Note: Supabase doesn't support ordering by nested fields directly in the query
+    // We'll need to sort in memory after fetching
   }
 
   // Apply pagination
@@ -313,12 +317,27 @@ export async function searchListings(params: ListingSearchParams = {}): Promise<
 
   if (error) throw error;
 
-  // Flatten the profile data into the listing objects
-  const listings = (data || []).map((listing: any) => ({
+  // Flatten the profile data into the listing objects and extract CaaS score
+  let listings = (data || []).map((listing: any) => ({
     ...listing,
     avatar_url: listing.profiles?.avatar_url,
+    caas_total_score: listing.profiles?.caas_scores?.[0]?.total_score || 0,
     profiles: undefined, // Remove the nested object
   })) as Listing[];
+
+  // Apply default sorting by CaaS score if no custom sort specified
+  if (!sort) {
+    listings = listings.sort((a: any, b: any) => {
+      // Primary sort: CaaS score DESC (higher scores first)
+      const scoreDiff = (b.caas_total_score || 0) - (a.caas_total_score || 0);
+      if (scoreDiff !== 0) return scoreDiff;
+
+      // Secondary sort: published_at DESC (more recent first)
+      const aDate = a.published_at ? new Date(a.published_at).getTime() : 0;
+      const bDate = b.published_at ? new Date(b.published_at).getTime() : 0;
+      return bDate - aDate;
+    });
+  }
 
   return {
     listings,
