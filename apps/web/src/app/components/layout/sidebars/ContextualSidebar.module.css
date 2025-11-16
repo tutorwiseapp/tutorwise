@@ -246,6 +246,13 @@
   line-height: 1.5;
 }
 
+.widgetTextTop {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+}
+
 /* Form Styles for Widgets */
 .formGroup {
   margin-bottom: 1rem;

@@ -66,6 +66,11 @@ export function WiselistStatsWidget() {
   return (
     <SidebarWidget title="Your Wiselists">
       <div className={styles.widgetContent}>
+        {stats.total_wiselists === 0 && (
+          <p className={styles.widgetTextTop}>
+            Create your first wiselist to start organizing your favorite tutors and services!
+          </p>
+        )}
         <div className={styles.statsCard}>
           <div className={styles.statRow}>
             <span className={styles.statLabel}>Wiselists</span>
@@ -76,11 +81,6 @@ export function WiselistStatsWidget() {
             <span className={styles.statValue}>{stats.public_wiselists}</span>
           </div>
         </div>
-        {stats.total_wiselists === 0 && (
-          <p className={styles.widgetText}>
-            Create your first wiselist to start organizing your favorite tutors and services!
-          </p>
-        )}
       </div>
     </SidebarWidget>
   );
