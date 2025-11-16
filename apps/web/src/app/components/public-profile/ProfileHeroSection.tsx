@@ -188,11 +188,16 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
                 </button>
               </>
             )}
-            {/* v5.9: Free Help Now badge */}
-            {!isOwnProfile && isFreeHelpAvailable && (
+            {/* v5.9: Free Help Now badge - Always shown for tutors, active/inactive state */}
+            {!isOwnProfile && profile.roles?.includes('tutor') && (
               <>
                 <span className={styles.separator}>|</span>
-                <span className={styles.freeHelpBadge}>
+                <span
+                  className={`${styles.freeHelpBadge} ${
+                    isFreeHelpAvailable ? styles.freeHelpBadgeActive : styles.freeHelpBadgeInactive
+                  }`}
+                  title={isFreeHelpAvailable ? 'Offering free help now!' : 'Free help not currently available'}
+                >
                   <Sparkles size={14} />
                   Free Help Now
                 </span>
