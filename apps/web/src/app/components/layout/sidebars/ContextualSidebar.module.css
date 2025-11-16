@@ -194,6 +194,147 @@
   background-color: var(--color-primary-darker, #004440);
 }
 
+/* Standard Widget Button Styles */
+.primaryButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-primary-default, #006c67);
+  color: #ffffff;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+  width: 100%;
+}
+
+.primaryButton:hover {
+  background-color: var(--color-primary-dark, #005550);
+}
+
+.secondaryButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background-color: #f9fafb;
+  color: var(--color-gray-700, #4B4B4B);
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  width: 100%;
+}
+
+.secondaryButton:hover {
+  background-color: var(--color-primary-light, #E6F0F0);
+  border-color: var(--color-primary-default, #006c67);
+  color: var(--color-primary-default, #006c67);
+}
+
+.widgetText {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+}
+
+/* Form Styles for Widgets */
+.formGroup {
+  margin-bottom: 1rem;
+}
+
+.formLabel {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.required {
+  color: #dc2626;
+}
+
+.formInput,
+.formTextarea,
+.formSelect {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  transition: border-color 0.15s ease-in-out;
+}
+
+.formInput:focus,
+.formTextarea:focus,
+.formSelect:focus {
+  outline: none;
+  border-color: var(--color-primary-default, #006c67);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
+}
+
+.formTextarea {
+  resize: vertical;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.buttonGroup button {
+  flex: 1;
+}
+
+/* Stats Grid for Widgets */
+.statGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border-radius: 0.375rem;
+  border: 1px solid #e5e7eb;
+}
+
+.statIcon {
+  color: var(--color-primary-default, #006c67);
+}
+
+.statInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
 /* Mobile: Hide contextual sidebar by default */
 @media (max-width: 768px) {
   .contextualSidebar {

@@ -10,7 +10,6 @@
 import React, { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { SidebarWidget } from '@/app/components/layout/sidebars/ContextualSidebar';
-import Button from '@/app/components/ui/Button';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import styles from '@/app/components/layout/sidebars/ContextualSidebar.module.css';
@@ -70,15 +69,13 @@ export function CreateWiselistWidget() {
           <p className={styles.widgetText}>
             Save and organize your favorite tutors and services
           </p>
-          <Button
-            variant="primary"
-            size="sm"
+          <button
             onClick={() => setShowForm(true)}
-            className={styles.widgetButton}
+            className={styles.primaryButton}
           >
             <Plus size={16} />
             New Wiselist
-          </Button>
+          </button>
         </div>
       </SidebarWidget>
     );
@@ -129,25 +126,23 @@ export function CreateWiselistWidget() {
         </div>
 
         <div className={styles.buttonGroup}>
-          <Button
-            variant="secondary"
-            size="sm"
+          <button
             onClick={() => {
               setShowForm(false);
               setFormData({ name: '', description: '', visibility: 'private' });
             }}
             disabled={isCreating}
+            className={styles.secondaryButton}
           >
             Cancel
-          </Button>
-          <Button
-            variant="primary"
-            size="sm"
+          </button>
+          <button
             onClick={handleCreate}
             disabled={isCreating || !formData.name.trim()}
+            className={styles.primaryButton}
           >
             {isCreating ? 'Creating...' : 'Create'}
-          </Button>
+          </button>
         </div>
       </div>
     </SidebarWidget>
