@@ -66,39 +66,20 @@ export function WiselistStatsWidget() {
   return (
     <SidebarWidget title="Your Wiselists">
       <div className={styles.widgetContent}>
-        {stats.total_wiselists === 0 ? (
+        <div className={styles.statsCard}>
+          <div className={styles.statRow}>
+            <span className={styles.statLabel}>Wiselists</span>
+            <span className={styles.statValue}>{stats.total_wiselists}</span>
+          </div>
+          <div className={styles.statRow}>
+            <span className={styles.statLabel}>Public</span>
+            <span className={styles.statValue}>{stats.public_wiselists}</span>
+          </div>
+        </div>
+        {stats.total_wiselists === 0 && (
           <p className={styles.widgetText}>
             Create your first wiselist to start organizing your favorite tutors and services!
           </p>
-        ) : (
-          <div className={styles.statsCard}>
-            <div className={styles.statRow}>
-              <span className={styles.statLabel}>
-                {stats.total_wiselists === 1 ? 'Wiselist' : 'Wiselists'}
-              </span>
-              <span className={styles.statValue}>{stats.total_wiselists}</span>
-            </div>
-            <div className={styles.statRow}>
-              <span className={styles.statLabel}>Public</span>
-              <span className={styles.statValue}>{stats.public_wiselists}</span>
-            </div>
-            {stats.total_items > 0 && (
-              <div className={styles.statRow}>
-                <span className={styles.statLabel}>
-                  {stats.total_items === 1 ? 'Item' : 'Items'}
-                </span>
-                <span className={styles.statValue}>{stats.total_items}</span>
-              </div>
-            )}
-            {stats.total_collaborators > 0 && (
-              <div className={styles.statRow}>
-                <span className={styles.statLabel}>
-                  {stats.total_collaborators === 1 ? 'Collaborator' : 'Collaborators'}
-                </span>
-                <span className={styles.statValue}>{stats.total_collaborators}</span>
-              </div>
-            )}
-          </div>
         )}
       </div>
     </SidebarWidget>
