@@ -3,20 +3,20 @@
  * Path: /api/presence/free-help/offline
  * Purpose: Set tutor as unavailable for free help (v5.9)
  * Created: 2025-11-16
+ * Updated: 2025-11-16 - Fixed deprecated Supabase client
  *
  * This endpoint is called when a tutor toggles OFF the "Offer Free Help" switch
  * or when they want to manually go offline. It deletes the Redis key and updates the database.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from '@/utils/supabase/server';
 import { setTutorOffline } from '@/lib/redis';
 
 export async function POST(req: NextRequest) {
   try {
     // 1. Authenticate user
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,

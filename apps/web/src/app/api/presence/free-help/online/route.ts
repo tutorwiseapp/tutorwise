@@ -3,20 +3,20 @@
  * Path: /api/presence/free-help/online
  * Purpose: Set tutor as available for free help (v5.9)
  * Created: 2025-11-16
+ * Updated: 2025-11-16 - Fixed deprecated Supabase client
  *
  * This endpoint is called when a tutor toggles ON the "Offer Free Help" switch.
  * It creates a Redis key with 5-minute TTL and updates the database.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from '@/utils/supabase/server';
 import { setTutorOnline } from '@/lib/redis';
 
 export async function POST(req: NextRequest) {
   try {
     // 1. Authenticate user
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,

@@ -3,6 +3,7 @@
  * Path: /api/presence/free-help/heartbeat
  * Purpose: Refresh tutor's free help presence heartbeat (v5.9)
  * Created: 2025-11-16
+ * Updated: 2025-11-16 - Fixed deprecated Supabase client
  *
  * This endpoint is called every 4 minutes by active client devices to refresh
  * the 5-minute TTL on the Redis key. If the key doesn't exist, it means the
@@ -10,14 +11,13 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from '@/utils/supabase/server';
 import { refreshTutorHeartbeat } from '@/lib/redis';
 
 export async function POST(req: NextRequest) {
   try {
     // 1. Authenticate user
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
