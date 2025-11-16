@@ -50,8 +50,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3. Set tutor online in Redis (5-minute TTL)
-    await setTutorOnline(user.id);
+    // 3. Set tutor online in Redis (5-minute TTL) - gracefully handle if Redis not configured
+    try {
+      await setTutorOnline(user.id);
+    } catch (error) {
+      console.warn('[Free Help] Redis not configured, using database-only mode:', error);
+    }
 
     // 4. Update database flag for marketplace queries
     const { error: updateProfileError } = await supabase

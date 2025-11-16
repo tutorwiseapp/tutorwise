@@ -45,6 +45,7 @@ export default function AppSidebar() {
     { href: '/network', label: 'Network' },
     { href: '/my-students', label: 'My Students', roles: ['client', 'tutor'] }, // v5.0: Guardian Links (client/tutor only)
     { href: '/reviews', label: 'Reviews' },
+    { href: '/wiselists', label: 'Wiselists' }, // v5.7: Pinterest-style Collections
     { href: '/account', label: 'Account' },
     { href: '/payments', label: 'Payments' },
     { href: '/settings', label: 'Settings' },

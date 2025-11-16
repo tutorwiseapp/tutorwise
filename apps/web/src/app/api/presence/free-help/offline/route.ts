@@ -29,8 +29,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Delete Redis key immediately
-    await setTutorOffline(user.id);
+    // 2. Delete Redis key immediately - gracefully handle if Redis not configured
+    try {
+      await setTutorOffline(user.id);
+    } catch (error) {
+      console.warn('[Free Help] Redis not configured, using database-only mode:', error);
+    }
 
     // 3. Update database flag
     const { error: updateProfileError } = await supabase
