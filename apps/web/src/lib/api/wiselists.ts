@@ -16,6 +16,7 @@ import type {
 
 /**
  * Get all wiselists for the current user (owned + collaborated)
+ * Returns wiselists with is_owner flag for [My Lists] / [Shared With Me] filtering
  */
 export async function getMyWiselists(): Promise<Wiselist[]> {
   const supabase = createClient();
@@ -44,10 +45,25 @@ export async function getMyWiselists(): Promise<Wiselist[]> {
 
   if (collabError) throw collabError;
 
-  // Combine and deduplicate
+  // Mark owned lists with is_owner flag
+  const ownedListsWithFlag = (ownedLists || []).map(list => ({
+    ...list,
+    is_owner: true,
+  }));
+
+  // Mark collaborated lists with is_owner flag
+  const collaboratedListsWithFlag = ((collaboratedLists || [])
+    .map((c: any) => c.wiselists)
+    .filter(Boolean) as Wiselist[])
+    .map(list => ({
+      ...list,
+      is_owner: false,
+    }));
+
+  // Combine and return
   const allLists = [
-    ...(ownedLists || []),
-    ...((collaboratedLists || []).map((c: any) => c.wiselists).filter(Boolean)),
+    ...ownedListsWithFlag,
+    ...collaboratedListsWithFlag,
   ];
 
   return allLists as Wiselist[];

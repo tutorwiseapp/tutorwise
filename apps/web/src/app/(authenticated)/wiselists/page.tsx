@@ -20,12 +20,12 @@ import { useRouter } from 'next/navigation';
 import { getMyWiselists, deleteWiselist } from '@/lib/api/wiselists';
 import styles from './page.module.css';
 
-type TabType = 'all' | 'public' | 'private';
+type TabType = 'my-lists' | 'shared-with-me';
 
 export default function WiselistsPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<TabType>('all');
+  const [activeTab, setActiveTab] = useState<TabType>('my-lists');
 
   // React Query: Fetch wiselists with automatic retry, caching, and background refetch
   const {
@@ -42,26 +42,25 @@ export default function WiselistsPage() {
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
-  // Calculate stats
+  // Calculate stats for ownership-based tabs
   const stats = useMemo(() => {
-    const publicWiselists = wiselists.filter((w) => w.visibility === 'public').length;
-    const privateWiselists = wiselists.filter((w) => w.visibility === 'private').length;
+    const myLists = wiselists.filter((w: any) => w.is_owner === true).length;
+    const sharedWithMe = wiselists.filter((w: any) => w.is_owner === false).length;
 
     return {
       total: wiselists.length,
-      public: publicWiselists,
-      private: privateWiselists,
+      myLists,
+      sharedWithMe,
     };
   }, [wiselists]);
 
-  // Filter wiselists based on active tab
+  // Filter wiselists based on ownership (My Lists vs. Shared With Me)
   const filteredWiselists = useMemo(() => {
     switch (activeTab) {
-      case 'public':
-        return wiselists.filter((w) => w.visibility === 'public');
-      case 'private':
-        return wiselists.filter((w) => w.visibility === 'private');
-      case 'all':
+      case 'my-lists':
+        return wiselists.filter((w: any) => w.is_owner === true);
+      case 'shared-with-me':
+        return wiselists.filter((w: any) => w.is_owner === false);
       default:
         return wiselists;
     }
@@ -178,31 +177,23 @@ export default function WiselistsPage() {
           </p>
         </div>
 
-        {/* Filter Tabs - Same pattern as Network/My Students */}
+        {/* Ownership Tabs - [My Lists] / [Shared With Me] */}
         <div className={styles.filterTabs}>
           <button
-            onClick={() => setActiveTab('all')}
+            onClick={() => setActiveTab('my-lists')}
             className={`${styles.filterTab} ${
-              activeTab === 'all' ? styles.filterTabActive : ''
+              activeTab === 'my-lists' ? styles.filterTabActive : ''
             }`}
           >
-            All Wiselists ({stats.total})
+            My Lists ({stats.myLists})
           </button>
           <button
-            onClick={() => setActiveTab('public')}
+            onClick={() => setActiveTab('shared-with-me')}
             className={`${styles.filterTab} ${
-              activeTab === 'public' ? styles.filterTabActive : ''
+              activeTab === 'shared-with-me' ? styles.filterTabActive : ''
             }`}
           >
-            Public ({stats.public})
-          </button>
-          <button
-            onClick={() => setActiveTab('private')}
-            className={`${styles.filterTab} ${
-              activeTab === 'private' ? styles.filterTabActive : ''
-            }`}
-          >
-            Private ({stats.private})
+            Shared With Me ({stats.sharedWithMe})
           </button>
         </div>
 
@@ -218,15 +209,17 @@ export default function WiselistsPage() {
           <div className={styles.emptyState}>
             <h3 className={styles.emptyTitle}>No wiselists found</h3>
             <p className={styles.emptyText}>
-              {activeTab === 'public' && 'You don\'t have any public wiselists yet.'}
-              {activeTab === 'private' && 'You don\'t have any private wiselists yet.'}
+              {activeTab === 'my-lists' && 'You haven\'t created any wiselists yet. Click "New Wiselist" to get started.'}
+              {activeTab === 'shared-with-me' && 'No one has shared a wiselist with you yet.'}
             </p>
-            <button
-              onClick={() => setActiveTab('all')}
-              className={styles.emptyButton}
-            >
-              View All Wiselists
-            </button>
+            {activeTab === 'shared-with-me' && (
+              <button
+                onClick={() => setActiveTab('my-lists')}
+                className={styles.emptyButton}
+              >
+                View My Lists
+              </button>
+            )}
           </div>
         ) : (
           <div className={styles.wiselistsGrid}>
