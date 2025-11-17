@@ -1,116 +1,158 @@
-/* WiselistCard.module.css - v5.7 Wiselists */
+/* WiselistCard.module.css - v5.7.1 HubRowCard Pattern */
 
-.card {
-  display: block;
+/* HubRowCard Container - Horizontal Layout */
+.hubRowCard {
+  display: flex;
+  gap: 20px;
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   padding: 20px;
   transition: all 0.2s ease;
-  cursor: pointer;
-  text-decoration: none;
-  color: inherit;
 }
 
-.card:hover {
+.hubRowCard:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border-color: #d1d5db;
-  transform: translateY(-2px);
 }
 
-.header {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 12px;
-}
-
-.iconWrapper {
+/* Left Column: Avatar (160px fixed width) */
+.avatarColumn {
   flex-shrink: 0;
-  width: 48px;
-  height: 48px;
-  background: #eff6ff;
+  width: 160px;
+}
+
+.avatarLink {
+  display: block;
+  text-decoration: none;
+}
+
+.avatar {
+  width: 160px;
+  height: 160px;
   border-radius: 8px;
+  object-fit: cover;
+}
+
+/* Right Column: Content (4-row structure) */
+.contentColumn {
+  flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0; /* Allows text truncation */
 }
 
-.icon {
-  color: #3b82f6;
+/* Row 1: Header (Title + Badge) */
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
 }
 
-.headerInfo {
+.titleLink {
+  text-decoration: none;
   flex: 1;
   min-width: 0;
 }
 
 .title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: #111827;
-  margin: 0 0 8px 0;
+  margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.meta {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  font-size: 13px;
-  color: #6b7280;
+.title:hover {
+  color: var(--color-primary-default, #006c67);
 }
 
-.metaItem {
+.badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 12px;
+  flex-shrink: 0;
 }
 
+.badgePublic {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badgePrivate {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Row 2: Description */
 .description {
   font-size: 14px;
-  color: #4b5563;
+  color: #6b7280;
   line-height: 1.5;
-  margin: 0 0 16px 0;
+  margin: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.actions {
+/* Row 3: Metadata (bullet-separated) */
+.metadataRow {
   display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.bullet {
+  color: #d1d5db;
+  margin: 0 2px;
+}
+
+/* Row 4: Collaborators */
+.collaboratorsRow {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* Action Dock (bottom, right-aligned) */
+.actionDock {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
   gap: 8px;
   padding-top: 12px;
+  margin-top: auto;
   border-top: 1px solid #f3f4f6;
 }
 
-.actionButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  font-size: 13px;
-  font-weight: 500;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  background: white;
-  color: #374151;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
+/* Responsive: Stack on mobile */
+@media (max-width: 640px) {
+  .hubRowCard {
+    flex-direction: column;
+  }
 
-.actionButton:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
-}
+  .avatarColumn {
+    width: 100%;
+  }
 
-.actionButtonDanger {
-  color: #dc2626;
-}
+  .avatar {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
 
-.actionButtonDanger:hover {
-  background: #fef2f2;
-  border-color: #fca5a5;
+  .actionDock {
+    flex-wrap: wrap;
+  }
 }
