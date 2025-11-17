@@ -149,8 +149,18 @@ export default function WiselistDetailPage({ params }: PageProps) {
     );
   }
 
-  if (!wiselist) {
-    return null;
+  if (error || !wiselist) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.error}>
+          <h2>Wiselist Not Found</h2>
+          <p>The wiselist you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to view it.</p>
+          <Button onClick={() => router.push('/wiselists')} variant="primary">
+            Back to Wiselists
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (

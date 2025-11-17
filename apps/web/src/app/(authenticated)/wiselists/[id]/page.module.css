@@ -19,6 +19,24 @@
   color: #6b7280;
 }
 
+.error {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.error h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+}
+
+.error p {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0 0 1.5rem 0;
+}
+
 .header {
   display: flex;
   align-items: flex-start;
