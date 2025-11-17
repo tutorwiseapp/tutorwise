@@ -27,8 +27,6 @@ const inter = Inter({
   variable: '--font-secondary'
 });
 
-// Material Symbols font now loaded in pages/_document.tsx for optimal performance
-
 export const metadata: Metadata = {
   title: "Tutorwise - Professional Tutoring Platform",
   description: "Connect with professional tutors and educational services for personalized learning experiences.",
@@ -41,6 +39,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${poppins.variable} ${inter.variable}`}>
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap"
+        />
+      </head>
       <body>
         {/* --- THIS IS THE FIX --- */}
         {/* The Providers component creates the correct boundary */}
