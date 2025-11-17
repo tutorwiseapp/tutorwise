@@ -204,9 +204,9 @@ export async function POST(
         );
       }
 
-      // Create a pending invitation record
-      // When the user signs up via the referral link, handle_new_user trigger
-      // will create their profile and link them via profile_graph
+      // Gap 2 (v5.7.1): Create invitation with referral code integration
+      // The referral record in the 'referrals' table will be created automatically
+      // by the handle_new_user trigger when they sign up via the referral link
       const inviteToken = crypto.randomUUID();
 
       const { data: invitation, error: inviteError } = await supabase
@@ -234,12 +234,16 @@ export async function POST(
         throw inviteError;
       }
 
-      // TODO: Send invitation email with referral link
-      // This will be implemented when we add the email service
-      // Email should contain:
-      // - Link: https://tutorwise.com/a/{referral_code}?invite={inviteToken}
-      // - Context: "{inviter_name} invited you to collaborate on '{wiselist_name}'"
-      // - When they sign up, middleware captures invite token and auto-adds them as collaborator
+      // TODO Gap 2: Send invitation email with referral link
+      // This will be implemented when we add the email service (Resend)
+      // Email template should contain:
+      // - Subject: "{inviter_name} invited you to collaborate on TutorWise"
+      // - Body: "{inviter_name} invited you to collaborate on '{wiselist_name}'"
+      // - CTA Link: https://tutorwise.com/a/{referral_code}?invite={inviteToken}
+      // - When they sign up, the referral attribution happens automatically:
+      //   1. handle_new_user trigger creates profile with referred_by_profile_id
+      //   2. handle_new_user trigger creates referral record with status='Signed Up'
+      //   3. Middleware reads invite token and auto-adds them as collaborator
 
       return NextResponse.json({
         invitation: {
@@ -247,8 +251,11 @@ export async function POST(
           email: email.toLowerCase(),
           role: collaboratorRole,
           referral_link: `https://tutorwise.com/a/${inviterProfile.referral_code}?invite=${inviteToken}`,
+          referral_code: inviterProfile.referral_code,
+          wiselist_name: wiselist.name,
+          inviter_name: inviterProfile.full_name,
           status: 'pending',
-          message: 'Invitation created. Email notification will be sent when email service is implemented.',
+          message: 'Invitation created successfully. Referral tracking will be activated when user signs up.',
         },
       }, { status: 201 });
     }
