@@ -148,6 +148,32 @@ export async function getBooking(id: string): Promise<Booking | null> {
 }
 
 /**
+ * Get a single booking by ID with full details (client, tutor, listing, agent)
+ */
+export async function getBookingById(id: string): Promise<any | null> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('bookings')
+    .select(`
+      *,
+      client:client_id(id, full_name, avatar_url),
+      tutor:tutor_id(id, full_name, avatar_url),
+      listing:listing_id(id, title),
+      agent:agent_profile_id(id, full_name)
+    `)
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    if (error.code === 'PGRST116') return null; // Not found
+    throw error;
+  }
+
+  return data;
+}
+
+/**
  * Cancel a booking
  */
 export async function cancelBooking(id: string): Promise<Booking> {
