@@ -298,7 +298,15 @@ run_audit() {
     log_success "=== Audit Completed ==="
     log_info "Audit file: $CURRENT_AUDIT_FILE"
     log_info "Previous baseline: ${latest_audit:-'None'}"
-    log_info "Next scheduled audit: $(date -d '+7 days' +%Y-%m-%d)"
+    # log_info "Next scheduled audit: $(date -d '+7 days' +%Y-%m-%d)"
+
+    # With this (compatible with both):
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        NEXT_DATE=$(date -v+7d +%Y-%m-%d)
+    else
+    NEXT_DATE=$(date -d '+7 days' +%Y-%m-%d)
+    fi
+    log_info "Next scheduled audit: $NEXT_DATE"
 
     # Display current metrics
     echo

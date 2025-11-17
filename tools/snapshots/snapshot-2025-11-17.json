@@ -1,0 +1,40 @@
+{
+  "date": "2025-11-17",
+  "timestamp": "2025-11-17T20:20:05.487Z",
+  "git": {
+    "commits": "262ce4e feat(wiselists): Implement [My Lists] / [Shared With Me] tabs (v5.7.1 UX pattern)\necde1aa fix(wiselists): Use API route instead of direct Supabase query in getWiselist\na449109 fix(wiselists): Change grid layout to vertical stack for HubRowCard v1 pattern\nac1c3b8 fix(build): Remove pages/_document.tsx and move Material Symbols font to App Router layout\ne816cab feat(wiselists): Redesign WiselistCard to match HubRowCard v1 specification\n94853eb fix(wiselists): Fix detail page loading by splitting query into separate calls\nf952157 feat(wiselists-v5.7.1): Implement Gap 2 - Growth Engine Referral Integration\n97a404a feat(wiselists-v5.7.1): Implement Gap 1 - Save Bridge\n93e46bd docs(wiselists): Create comprehensive remediation plan v5.7.1\n26ee44b fix(wiselists): Add error state handling to wiselist detail page\n772d337 fix: Create profile search API endpoint for network connections\nc9f619f fix: Create booking details page to resolve 404 error\ncefa37a feat(wiselists): Move helper text to top with 24px spacing\n1a1c1c9 fix(widgets): Restore standard 16px padding to align with header\ne6b1cc9 fix(widgets): Reduce sidebar widget padding for better fit\n02b57fd feat(wiselists): Always display stats rows for better UX and awareness\n6abad6a feat(wiselists): Update stats widget to horizontal row design\n9f3efdb feat(wiselists): Align Wiselists page with Network/My Students design system\nd72a2f8 feat: Always show Free Help Now badge with active/inactive states\na75e635 fix: Add Wiselists to sidebar and make Free Help work without Redis\n7f8a1f0 fix(free-help): Fix deprecated Supabase client in Free Help API endpoints\n8e494ee feat(v5.5-v5.9): Implement CaaS Engine, Wiselists, WiseSpace, and Free Help Now",
+    "stats": "apps/web/next-env.d.ts                             |   1 -\n .../app/(authenticated)/wiselists/page.module.css  |  10 +-\n .../web/src/app/(authenticated)/wiselists/page.tsx |  65 ++++----\n .../components/wiselists/WiselistCard.module.css   | 158 ++++++++++++--------\n .../src/app/components/wiselists/WiselistCard.tsx  | 164 +++++++++++++--------\n apps/web/src/app/layout.tsx                        |   8 +-\n apps/web/src/lib/api/wiselists.ts                  |  52 ++++---\n apps/web/src/pages/_document.tsx                   |  19 ---\n 8 files changed, 272 insertions(+), 205 deletions(-)",
+    "fileChanges": "M\tapps/web/next-env.d.ts\nM\tapps/web/src/app/(authenticated)/wiselists/page.module.css\nM\tapps/web/src/app/(authenticated)/wiselists/page.tsx\nM\tapps/web/src/app/components/wiselists/WiselistCard.module.css\nM\tapps/web/src/app/components/wiselists/WiselistCard.tsx\nM\tapps/web/src/app/layout.tsx\nM\tapps/web/src/lib/api/wiselists.ts\nD\tapps/web/src/pages/_document.tsx",
+    "additions": "0\t1\tapps/web/next-env.d.ts\n3\t7\tapps/web/src/app/(authenticated)/wiselists/page.module.css\n29\t36\tapps/web/src/app/(authenticated)/wiselists/page.tsx\n100\t58\tapps/web/src/app/components/wiselists/WiselistCard.module.css\n105\t59\tapps/web/src/app/components/wiselists/WiselistCard.tsx\n6\t2\tapps/web/src/app/layout.tsx\n29\t23\tapps/web/src/lib/api/wiselists.ts\n0\t19\tapps/web/src/pages/_document.tsx",
+    "blame": "262ce4e - micquan, 2 hours ago : feat(wiselists): Implement [My Lists] / [Shared With Me] tabs (v5.7.1 UX pattern)\necde1aa - micquan, 2 hours ago : fix(wiselists): Use API route instead of direct Supabase query in getWiselist\na449109 - micquan, 3 hours ago : fix(wiselists): Change grid layout to vertical stack for HubRowCard v1 pattern\nac1c3b8 - micquan, 3 hours ago : fix(build): Remove pages/_document.tsx and move Material Symbols font to App Router layout\ne816cab - micquan, 3 hours ago : feat(wiselists): Redesign WiselistCard to match HubRowCard v1 specification\n94853eb - micquan, 6 hours ago : fix(wiselists): Fix detail page loading by splitting query into separate calls\nf952157 - micquan, 7 hours ago : feat(wiselists-v5.7.1): Implement Gap 2 - Growth Engine Referral Integration\n97a404a - micquan, 7 hours ago : feat(wiselists-v5.7.1): Implement Gap 1 - Save Bridge\n93e46bd - micquan, 8 hours ago : docs(wiselists): Create comprehensive remediation plan v5.7.1\n26ee44b - micquan, 8 hours ago : fix(wiselists): Add error state handling to wiselist detail page\n772d337 - micquan, 9 hours ago : fix: Create profile search API endpoint for network connections\nc9f619f - micquan, 14 hours ago : fix: Create booking details page to resolve 404 error\ncefa37a - micquan, 22 hours ago : feat(wiselists): Move helper text to top with 24px spacing\n1a1c1c9 - micquan, 23 hours ago : fix(widgets): Restore standard 16px padding to align with header\ne6b1cc9 - micquan, 23 hours ago : fix(widgets): Reduce sidebar widget padding for better fit\n02b57fd - micquan, 23 hours ago : feat(wiselists): Always display stats rows for better UX and awareness\n6abad6a - micquan, 23 hours ago : feat(wiselists): Update stats widget to horizontal row design\n9f3efdb - micquan, 23 hours ago : feat(wiselists): Align Wiselists page with Network/My Students design system\nd72a2f8 - micquan, 23 hours ago : feat: Always show Free Help Now badge with active/inactive states\na75e635 - micquan, 23 hours ago : fix: Add Wiselists to sidebar and make Free Help work without Redis\n7f8a1f0 - micquan, 24 hours ago : fix(free-help): Fix deprecated Supabase client in Free Help API endpoints\n8e494ee - micquan, 24 hours ago : feat(v5.5-v5.9): Implement CaaS Engine, Wiselists, WiseSpace, and Free Help Now",
+    "authors": "22 micquan"
+  },
+  "fileCount": {
+    "total": 62575,
+    "typescript": 5301,
+    "react": 340,
+    "javascript": 17823,
+    "markdown": 1791,
+    "css": 214,
+    "json": 1781
+  },
+  "codeMetrics": {
+    "linesOfCode": 169577,
+    "components": 225,
+    "lastUpdated": "2025-11-17T20:20:18.754Z"
+  },
+  "dependencies": {
+    "dependencies": 16,
+    "devDependencies": 17,
+    "scripts": 87,
+    "nodeVersion": "Not specified",
+    "version": "1.0.0"
+  },
+  "security": {
+    "envFilePresent": true,
+    "gitignorePresent": true,
+    "securityDocsPresent": false,
+    "aiRestrictionsPresent": true,
+    "securityScore": 7.5
+  }
+}

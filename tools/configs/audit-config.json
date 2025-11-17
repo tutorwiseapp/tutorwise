@@ -1,18 +1,12 @@
 {
-  "lastAuditDate": "2024-09-30",
-  "lastAuditFile": "docs/project-audit/project-audit-2024-09-30.md",
-  "auditFrequency": "daily",
-  "nextScheduledAudit": "daily at 6:00 AM",
-  "cronSchedule": "0 6 * * *",
-  "automatedExecution": {
-    "enabled": true,
-    "cronJob": "0 6 * * * /Users/michaelquan/projects/tutorwise/tools/scripts/run-daily-audit.sh",
-    "logFile": "/Users/michaelquan/projects/tutorwise/logs/audit-cron.log"
-  },
+  "lastAuditDate": "2025-11-17",
+  "lastAuditFile": "docs/project-audit/project-audit-2025-11-17.md",
+  "auditFrequency": "weekly",
+  "nextScheduledAudit": "",
   "auditHistory": [
     {
-      "date": "2024-09-30",
-      "file": "docs/project-audit/project-audit-2024-09-30.md",
+      "date": "2025-11-17",
+      "file": "docs/project-audit/project-audit-2025-11-17.md",
       "trigger": "manual"
     }
   ],
@@ -24,6 +18,6 @@
   "emailNotifications": {
     "enabled": true,
     "recipient": "tutorwiseapp@gmail.com",
-    "lastSent": "2025-09-30T21:14:19.3NZ"
+    "lastSent": "2025-11-17T20:20:05.3NZ"
   }
 }
