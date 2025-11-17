@@ -21,13 +21,11 @@ function AgentOnboardingPageContent() {
       return;
     }
 
-    // Redirect to dashboard if user already has agent role
-    if (!isLoading && profile && availableRoles?.includes('agent')) {
-      console.log('[AgentOnboardingPage] User already has agent role, redirecting to dashboard');
-      router.push('/dashboard');
-      return;
-    }
-  }, [user, profile, isLoading, availableRoles, router]);
+    // NOTE: We don't redirect here if user has agent role, because the wizard
+    // handles its own completion redirect via onComplete() callback.
+    // This prevents race condition where useEffect redirect conflicts with
+    // the wizard's intended redirect to /account/personal-info.
+  }, [user, isLoading, router]);
 
   // Handle browser back button to prevent auth flow state issues
   useEffect(() => {

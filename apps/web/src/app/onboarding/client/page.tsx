@@ -17,13 +17,11 @@ export default function ClientOnboardingPage() {
       return;
     }
 
-    // Redirect to dashboard if user already has the seeker role
-    if (!isLoading && profile && availableRoles.includes('client')) {
-      console.log('[ClientOnboardingPage] User already has seeker role, redirecting to dashboard');
-      router.push('/dashboard');
-      return;
-    }
-  }, [user, profile, isLoading, availableRoles, router]);
+    // NOTE: We don't redirect here if user has client role, because the wizard
+    // handles its own completion redirect via onComplete() callback.
+    // This prevents race condition where useEffect redirect conflicts with
+    // the wizard's intended redirect to /account/personal-info.
+  }, [user, isLoading, router]);
 
   // Show loading state while checking authentication
   if (isLoading) {

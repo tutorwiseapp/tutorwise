@@ -21,13 +21,11 @@ function TutorOnboardingPageContent() {
       return;
     }
 
-    // Redirect to dashboard if user already has the provider role
-    if (!isLoading && profile && availableRoles?.includes('tutor')) {
-      console.log('[TutorOnboardingPage] User already has provider role, redirecting to dashboard');
-      router.push('/dashboard');
-      return;
-    }
-  }, [user, profile, isLoading, availableRoles, router]);
+    // NOTE: We don't redirect here if user has tutor role, because the wizard
+    // handles its own completion redirect via onComplete() callback.
+    // This prevents race condition where useEffect redirect conflicts with
+    // the wizard's intended redirect to /account/personal-info.
+  }, [user, isLoading, router]);
 
   // Handle browser back button to prevent auth flow state issues
   useEffect(() => {
