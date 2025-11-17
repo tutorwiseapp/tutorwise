@@ -5,6 +5,7 @@ import Link from 'next/link';
 import type { Listing } from '@tutorwise/shared-types';
 import { slugify } from '@/lib/utils/slugify';
 import getProfileImageUrl from '@/lib/utils/image';
+import WiselistSelectionModal from '@/app/components/wiselists/WiselistSelectionModal';
 import styles from './TutorCard.module.css';
 
 interface TutorCardProps {
@@ -13,7 +14,7 @@ interface TutorCardProps {
 
 export default function TutorCard({ listing }: TutorCardProps) {
   const [imageError, setImageError] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
 
   // Use the same profile image logic as NavMenu (includes academic avatar fallback)
   const imageUrl = getProfileImageUrl({
@@ -25,30 +26,10 @@ export default function TutorCard({ listing }: TutorCardProps) {
   const rating = 4.8; // TODO: Get actual rating from reviews
   const reviewCount = 24; // TODO: Get actual review count
 
-  // Check if saved in localStorage on mount
-  useState(() => {
-    const savedTutors = localStorage.getItem('savedTutors');
-    if (savedTutors) {
-      const saved = JSON.parse(savedTutors);
-      setIsSaved(saved.includes(listing.id));
-    }
-  });
-
-  const handleSaveToggle = (e: React.MouseEvent) => {
+  const handleSaveClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-
-    const savedTutors = localStorage.getItem('savedTutors');
-    let saved = savedTutors ? JSON.parse(savedTutors) : [];
-
-    if (isSaved) {
-      saved = saved.filter((id: string) => id !== listing.id);
-    } else {
-      saved.push(listing.id);
-    }
-
-    localStorage.setItem('savedTutors', JSON.stringify(saved));
-    setIsSaved(!isSaved);
+    setShowSaveModal(true);
   };
 
   return (
@@ -80,14 +61,14 @@ export default function TutorCard({ listing }: TutorCardProps) {
           {/* Heart Save Icon - Right */}
           <button
             className={styles.saveButton}
-            onClick={handleSaveToggle}
-            aria-label={isSaved ? 'Remove from saved' : 'Save tutor'}
+            onClick={handleSaveClick}
+            aria-label="Save to wiselist"
           >
             <svg
               width="24"
               height="24"
               viewBox="0 0 24 24"
-              fill={isSaved ? 'currentColor' : 'none'}
+              fill="none"
               stroke="currentColor"
               strokeWidth="2"
               xmlns="http://www.w3.org/2000/svg"
@@ -159,6 +140,17 @@ export default function TutorCard({ listing }: TutorCardProps) {
           </div>
         </div>
       </Link>
+
+      {/* Wiselist Selection Modal */}
+      {showSaveModal && (
+        <WiselistSelectionModal
+          isOpen={showSaveModal}
+          onClose={() => setShowSaveModal(false)}
+          targetType="listing"
+          targetId={listing.id}
+          targetName={listing.title}
+        />
+      )}
     </div>
   );
 }
