@@ -21,33 +21,56 @@ export async function GET(
     const supabase = await createClient();
     const { id } = params;
 
-    // Fetch wiselist with full details
-    const { data, error } = await supabase
+    // First, check if wiselist exists and user has access
+    const { data: basicWiselist, error: basicError } = await supabase
       .from('wiselists')
-      .select(`
-        *,
-        owner:profiles!profile_id(id, full_name, avatar_url, email),
-        items:wiselist_items(
-          *,
-          profile:profiles(id, full_name, avatar_url, bio, city, slug),
-          listing:listings(id, title, description, hourly_rate, slug),
-          added_by:profiles!added_by_profile_id(id, full_name, avatar_url)
-        ),
-        collaborators:wiselist_collaborators(
-          *,
-          profile:profiles!profile_id(id, full_name, avatar_url, email),
-          invited_by:profiles!invited_by_profile_id(id, full_name, avatar_url)
-        )
-      `)
+      .select('*')
       .eq('id', id)
       .single();
 
-    if (error) {
-      if (error.code === 'PGRST116') {
+    if (basicError) {
+      if (basicError.code === 'PGRST116') {
         return NextResponse.json({ error: 'Wiselist not found' }, { status: 404 });
       }
-      throw error;
+      console.error('Basic wiselist fetch error:', basicError);
+      throw basicError;
     }
+
+    // Fetch related data separately to handle potential RLS issues
+    const [itemsResult, collaboratorsResult] = await Promise.all([
+      supabase
+        .from('wiselist_items')
+        .select(`
+          *,
+          profile:profiles(id, full_name, avatar_url, bio, city, slug, active_role),
+          listing:listings(id, title, description, hourly_rate, slug, subjects, levels, location_type, image_url),
+          added_by:profiles!added_by_profile_id(id, full_name, avatar_url)
+        `)
+        .eq('wiselist_id', id),
+      supabase
+        .from('wiselist_collaborators')
+        .select(`
+          *,
+          profile:profiles!profile_id(id, full_name, avatar_url, email),
+          invited_by:profiles!invited_by_profile_id(id, full_name, avatar_url)
+        `)
+        .eq('wiselist_id', id)
+    ]);
+
+    if (itemsResult.error) {
+      console.error('Items fetch error:', itemsResult.error);
+    }
+
+    if (collaboratorsResult.error) {
+      console.error('Collaborators fetch error:', collaboratorsResult.error);
+    }
+
+    // Combine the data
+    const data = {
+      ...basicWiselist,
+      items: itemsResult.data || [],
+      collaborators: collaboratorsResult.data || [],
+    };
 
     // Add computed counts
     const wiselist = {
