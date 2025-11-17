@@ -70,11 +70,11 @@
   font-weight: 600;
 }
 
-/* Wiselists Grid */
+/* Wiselists Grid - Vertical Stack for HubRowCard Pattern */
 .wiselistsGrid {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
 }
 
 /* Loading State */
@@ -148,10 +148,6 @@
 
   .emptyState {
     padding: 3rem 1rem;
-  }
-
-  .wiselistsGrid {
-    grid-template-columns: 1fr;
   }
 }
 
