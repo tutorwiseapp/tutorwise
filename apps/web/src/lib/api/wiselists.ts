@@ -55,30 +55,20 @@ export async function getMyWiselists(): Promise<Wiselist[]> {
 
 /**
  * Get a single wiselist by ID with items and collaborators
+ * Uses API route to avoid RLS issues with complex joins
  */
 export async function getWiselist(id: string): Promise<WiselistWithDetails | null> {
-  const supabase = createClient();
+  const response = await fetch(`/api/wiselists/${id}`);
 
-  const { data, error } = await supabase
-    .from('wiselists')
-    .select(`
-      *,
-      owner:profiles!profile_id(id, full_name, avatar_url),
-      items:wiselist_items(*,
-        profile:profiles(id, full_name, avatar_url, bio, city),
-        listing:listings(id, title, description, hourly_rate),
-        added_by:profiles!added_by_profile_id(id, full_name)
-      ),
-      collaborators:wiselist_collaborators(*,
-        profile:profiles!profile_id(id, full_name, avatar_url, email),
-        invited_by:profiles!invited_by_profile_id(id, full_name)
-      )
-    `)
-    .eq('id', id)
-    .single();
+  if (!response.ok) {
+    if (response.status === 404) {
+      return null;
+    }
+    throw new Error(`Failed to fetch wiselist: ${response.statusText}`);
+  }
 
-  if (error && error.code !== 'PGRST116') throw error;
-  return data as WiselistWithDetails | null;
+  const { wiselist } = await response.json();
+  return wiselist as WiselistWithDetails;
 }
 
 /**
