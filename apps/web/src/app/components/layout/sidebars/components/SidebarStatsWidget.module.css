@@ -29,7 +29,7 @@
 .statsContainer {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2); /* 16px vertical gap */
+  gap: 12px; /* Optimized gap for better density */
 }
 
 .statRow {
@@ -37,6 +37,7 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  min-height: 20px; /* Ensure consistent row height */
 }
 
 .label {

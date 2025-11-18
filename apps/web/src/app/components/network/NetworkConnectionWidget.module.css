@@ -45,15 +45,15 @@
 
 /* Button Base Styles */
 .button {
-  padding: var(--space-2) var(--space-3); /* 16px 24px */
+  padding: 12px 16px; /* Optimized for sidebar width */
   border-radius: var(--radius-md);
-  font-size: var(--text-sm);
+  font-size: 13px; /* Slightly smaller for better fit */
   font-weight: var(--font-medium);
   cursor: pointer;
   border: none;
   transition: all 0.2s ease;
   text-align: center;
-  white-space: nowrap;
+  line-height: 1.4;
 }
 
 /* Primary Button - Full Width */
@@ -88,10 +88,11 @@
 /* Button Row - Split Layout for Secondary Buttons */
 .buttonRow {
   display: flex;
-  gap: var(--space-2); /* 16px gap between buttons */
+  gap: 8px; /* Reduced gap for better fit in 300px sidebar */
   width: 100%;
 }
 
 .buttonRow .button {
   flex: 1; /* Equal width distribution */
+  min-width: 0; /* Allow flex items to shrink below content size */
 }
