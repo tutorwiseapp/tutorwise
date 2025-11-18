@@ -99,10 +99,14 @@
   margin-bottom: 12px;
 }
 
-.buttonRow .button {
+.buttonRow .button:first-child {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+.buttonRow .button:last-child {
   flex: 1;
   min-width: 0;
-  width: auto;
 }
 
 /* Last button - Create Group */
