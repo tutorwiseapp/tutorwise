@@ -99,12 +99,7 @@
   margin-bottom: 12px;
 }
 
-.buttonRow .button:first-child {
-  flex: 0 0 auto;
-  width: auto;
-}
-
-.buttonRow .button:last-child {
+.buttonRow .button {
   flex: 1;
   min-width: 0;
 }
