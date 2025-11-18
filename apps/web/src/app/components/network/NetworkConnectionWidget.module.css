@@ -97,11 +97,15 @@
   gap: 16px;
   padding: 0 16px;
   margin-bottom: 12px;
+  align-items: stretch;
 }
 
 .buttonRow .button {
   flex: 1;
   min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Last button - Create Group */
