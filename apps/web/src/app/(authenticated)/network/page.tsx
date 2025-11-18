@@ -17,8 +17,7 @@ import ConnectionRequestModal from '@/app/components/network/ConnectionRequestMo
 import { useConnectionsRealtime } from '@/app/hooks/useConnectionsRealtime';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import NetworkStatsWidget from '@/app/components/network/NetworkStatsWidget';
-import QuickActionsWidget from '@/app/components/network/QuickActionsWidget';
-import ConnectionGroupsWidget from '@/app/components/network/ConnectionGroupsWidget';
+import NetworkConnectionWidget from '@/app/components/network/NetworkConnectionWidget';
 import NetworkSkeleton from '@/app/components/network/NetworkSkeleton';
 import NetworkError from '@/app/components/network/NetworkError';
 import toast from 'react-hot-toast';
@@ -32,7 +31,6 @@ export default function NetworkPage() {
 
   const [activeTab, setActiveTab] = useState<TabType>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
 
   // React Query: Fetch connections with automatic retry, caching, and background refetch
   const {
@@ -216,7 +214,12 @@ export default function NetworkPage() {
         <NetworkSkeleton />
         <ContextualSidebar>
           <NetworkStatsWidget stats={{ total: 0, pendingReceived: 0, pendingSent: 0 }} connections={[]} />
-          <QuickActionsWidget onConnect={() => setIsModalOpen(true)} />
+          <NetworkConnectionWidget
+            onAddConnection={() => setIsModalOpen(true)}
+            onFindPeople={() => setIsModalOpen(true)}
+            onInviteByEmail={() => toast('Invite by email coming soon!', { icon: '✉️' })}
+            onCreateGroup={() => toast('Connection groups coming soon!', { icon: '📁' })}
+          />
         </ContextualSidebar>
       </>
     );
@@ -229,7 +232,12 @@ export default function NetworkPage() {
         <NetworkError error={error as Error} onRetry={() => refetch()} />
         <ContextualSidebar>
           <NetworkStatsWidget stats={{ total: 0, pendingReceived: 0, pendingSent: 0 }} connections={[]} />
-          <QuickActionsWidget onConnect={() => setIsModalOpen(true)} />
+          <NetworkConnectionWidget
+            onAddConnection={() => setIsModalOpen(true)}
+            onFindPeople={() => setIsModalOpen(true)}
+            onInviteByEmail={() => toast('Invite by email coming soon!', { icon: '✉️' })}
+            onCreateGroup={() => toast('Connection groups coming soon!', { icon: '📁' })}
+          />
         </ContextualSidebar>
       </>
     );
@@ -339,21 +347,19 @@ export default function NetworkPage() {
         />
       </div>
 
-      {/* Contextual Sidebar - Same pattern as Listings hub */}
+      {/* Contextual Sidebar - v2 Design System */}
       <ContextualSidebar>
-        {/* Stats Cards at Top */}
+        {/* Network Stats - Single vertical card with label-value rows */}
         <NetworkStatsWidget
           stats={stats}
           connections={filteredConnections}
         />
 
-        {/* Quick Actions */}
-        <QuickActionsWidget onConnect={() => setIsModalOpen(true)} />
-
-        {/* Connection Groups */}
-        <ConnectionGroupsWidget
-          onGroupSelect={setSelectedGroupId}
-          selectedGroupId={selectedGroupId}
+        {/* Grow Your Network - 4-button action widget */}
+        <NetworkConnectionWidget
+          onAddConnection={() => setIsModalOpen(true)}
+          onFindPeople={() => setIsModalOpen(true)}
+          onInviteByEmail={() => toast('Invite by email coming soon!', { icon: '✉️' })}
           onCreateGroup={() => toast('Connection groups coming soon!', { icon: '📁' })}
         />
       </ContextualSidebar>
