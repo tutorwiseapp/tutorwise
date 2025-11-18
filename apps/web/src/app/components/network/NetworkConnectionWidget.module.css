@@ -94,7 +94,7 @@
 /* Button Row - Split Layout for Secondary Buttons */
 .buttonRow {
   display: flex;
-  gap: 8px;
+  gap: 16px;
   padding: 0 16px;
   margin-bottom: 12px;
 }
@@ -102,6 +102,7 @@
 .buttonRow .button {
   flex: 1;
   min-width: 0;
+  width: auto;
 }
 
 /* Last button - Create Group */
