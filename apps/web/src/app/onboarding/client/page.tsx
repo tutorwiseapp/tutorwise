@@ -17,11 +17,13 @@ export default function ClientOnboardingPage() {
       return;
     }
 
-    // NOTE: We don't redirect here if user has client role, because the wizard
-    // handles its own completion redirect via onComplete() callback.
-    // This prevents race condition where useEffect redirect conflicts with
-    // the wizard's intended redirect to /account/personal-info.
-  }, [user, isLoading, router]);
+    // Redirect to dashboard if user already has the client role
+    if (!isLoading && profile && availableRoles.includes('client')) {
+      console.log('[ClientOnboardingPage] User already has client role, redirecting to dashboard');
+      router.push('/dashboard');
+      return;
+    }
+  }, [user, profile, isLoading, availableRoles, router]);
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -41,19 +43,19 @@ export default function ClientOnboardingPage() {
   const handleOnboardingComplete = async () => {
     console.log('[ClientOnboardingPage] Onboarding complete, refreshing profile...');
     await refreshProfile();
-    console.log('[ClientOnboardingPage] Profile refreshed, setting active role to seeker...');
+    console.log('[ClientOnboardingPage] Profile refreshed, setting active role to client...');
     setActiveRole('client');
-    console.log('[ClientOnboardingPage] Active role set, redirecting to account settings...');
-    router.push('/account/personal-info');
+    console.log('[ClientOnboardingPage] Active role set, redirecting to dashboard...');
+    router.push('/dashboard');
   };
 
   const handleOnboardingSkip = async () => {
     console.log('[ClientOnboardingPage] Onboarding skipped, refreshing profile...');
     await refreshProfile();
-    console.log('[ClientOnboardingPage] Profile refreshed, setting active role to seeker...');
+    console.log('[ClientOnboardingPage] Profile refreshed, setting active role to client...');
     setActiveRole('client');
-    console.log('[ClientOnboardingPage] Active role set, redirecting to account settings...');
-    router.push('/account/personal-info');
+    console.log('[ClientOnboardingPage] Active role set, redirecting to dashboard...');
+    router.push('/dashboard');
   };
 
   return (

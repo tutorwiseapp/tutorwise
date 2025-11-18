@@ -21,11 +21,13 @@ function AgentOnboardingPageContent() {
       return;
     }
 
-    // NOTE: We don't redirect here if user has agent role, because the wizard
-    // handles its own completion redirect via onComplete() callback.
-    // This prevents race condition where useEffect redirect conflicts with
-    // the wizard's intended redirect to /account/personal-info.
-  }, [user, isLoading, router]);
+    // Redirect to dashboard if user already has agent role
+    if (!isLoading && profile && availableRoles?.includes('agent')) {
+      console.log('[AgentOnboardingPage] User already has agent role, redirecting to dashboard');
+      router.push('/dashboard');
+      return;
+    }
+  }, [user, profile, isLoading, availableRoles, router]);
 
   // Handle browser back button to prevent auth flow state issues
   useEffect(() => {
@@ -62,8 +64,8 @@ function AgentOnboardingPageContent() {
     await refreshProfile();
     console.log('[AgentOnboarding] Profile refreshed, setting active role to agent...');
     setActiveRole('agent');
-    console.log('[AgentOnboarding] Active role set, redirecting to account settings...');
-    router.push('/account/personal-info');
+    console.log('[AgentOnboarding] Active role set, redirecting to dashboard...');
+    router.push('/dashboard');
   };
 
   const handleOnboardingSkip = async () => {
@@ -71,8 +73,8 @@ function AgentOnboardingPageContent() {
     await refreshProfile();
     console.log('[AgentOnboarding] Profile refreshed, setting active role to agent...');
     setActiveRole('agent');
-    console.log('[AgentOnboarding] Active role set, redirecting to account settings...');
-    router.push('/account/personal-info');
+    console.log('[AgentOnboarding] Active role set, redirecting to dashboard...');
+    router.push('/dashboard');
   };
 
   return (

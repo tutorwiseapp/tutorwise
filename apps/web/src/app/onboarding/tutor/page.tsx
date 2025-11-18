@@ -21,11 +21,13 @@ function TutorOnboardingPageContent() {
       return;
     }
 
-    // NOTE: We don't redirect here if user has tutor role, because the wizard
-    // handles its own completion redirect via onComplete() callback.
-    // This prevents race condition where useEffect redirect conflicts with
-    // the wizard's intended redirect to /account/personal-info.
-  }, [user, isLoading, router]);
+    // Redirect to dashboard if user already has the tutor role
+    if (!isLoading && profile && availableRoles?.includes('tutor')) {
+      console.log('[TutorOnboardingPage] User already has tutor role, redirecting to dashboard');
+      router.push('/dashboard');
+      return;
+    }
+  }, [user, profile, isLoading, availableRoles, router]);
 
   // Handle browser back button to prevent auth flow state issues
   useEffect(() => {
@@ -61,20 +63,19 @@ function TutorOnboardingPageContent() {
     console.log('[TutorOnboarding] Onboarding complete! Database save already finished.');
     console.log('[TutorOnboarding] Refreshing profile...');
     await refreshProfile();
-    console.log('[TutorOnboarding] Profile refreshed, setting active role to provider...');
+    console.log('[TutorOnboarding] Profile refreshed, setting active role to tutor...');
     setActiveRole('tutor');
-    console.log('[TutorOnboarding] Active role set, redirecting to account settings...');
-    // Use Next.js router for proper client-side navigation (preserves session)
-    router.push('/account/personal-info');
+    console.log('[TutorOnboarding] Active role set, redirecting to dashboard...');
+    router.push('/dashboard');
   };
 
   const handleOnboardingSkip = async () => {
     console.log('[TutorOnboarding] Onboarding skipped, refreshing profile...');
     await refreshProfile();
-    console.log('[TutorOnboarding] Profile refreshed, setting active role to provider...');
+    console.log('[TutorOnboarding] Profile refreshed, setting active role to tutor...');
     setActiveRole('tutor');
-    console.log('[TutorOnboarding] Active role set, redirecting to account settings...');
-    router.push('/account/personal-info');
+    console.log('[TutorOnboarding] Active role set, redirecting to dashboard...');
+    router.push('/dashboard');
   };
 
   return (
