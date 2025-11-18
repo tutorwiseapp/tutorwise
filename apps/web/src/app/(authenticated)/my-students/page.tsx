@@ -177,8 +177,8 @@ export default function MyStudentsPage() {
   }
 
   // Determine role-specific messaging
-  const isClient = profile?.roles.includes('client');
-  const isTutor = profile?.roles.includes('tutor');
+  const isClient = profile?.roles?.includes('client');
+  const isTutor = profile?.roles?.includes('tutor');
 
   const emptyStateTitle = isClient
     ? 'No students yet'
