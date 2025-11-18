@@ -1,14 +1,22 @@
 /**
  * Filename: apps/web/src/app/components/network/NetworkStatsWidget.tsx
- * Purpose: Network statistics widget for sidebar
+ * Purpose: Network statistics widget using SidebarStatsWidget shell
  * Created: 2025-11-07
+ * Updated: 2025-11-18 - Migrated to v2 design system (context-sidebar-ui-design-v2.md)
+ * Design: Section 2.4 - Network Hub Stats Card
+ *
+ * Pattern: Uses SidebarStatsWidget shell
+ * Stats Shown:
+ * - Total Connections
+ * - Pending Requests
+ * - New This Month
  */
 
 'use client';
 
 import React from 'react';
+import SidebarStatsWidget, { StatRow } from '@/app/components/layout/sidebars/components/SidebarStatsWidget';
 import type { Connection } from './ConnectionCard';
-import styles from './NetworkStatsWidget.module.css';
 
 interface NetworkStatsWidgetProps {
   stats: {
@@ -23,6 +31,7 @@ export default function NetworkStatsWidget({
   stats,
   connections,
 }: NetworkStatsWidgetProps) {
+  // Calculate new connections this month
   const newThisMonth = connections.filter(c => {
     const created = new Date(c.created_at);
     const now = new Date();
@@ -30,34 +39,29 @@ export default function NetworkStatsWidget({
            created.getFullYear() === now.getFullYear();
   }).length;
 
+  // Build stats rows following design spec (Section 2.4)
+  const statsRows: StatRow[] = [
+    {
+      label: 'Total Connections',
+      value: stats.total,
+      valueColor: 'default',
+    },
+    {
+      label: 'Pending Requests',
+      value: stats.pendingReceived,
+      valueColor: 'default',
+    },
+    {
+      label: 'New This Month',
+      value: newThisMonth,
+      valueColor: 'default',
+    },
+  ];
+
   return (
-    <>
-      {/* Stats Cards - Standard Hub Design */}
-      <div className={styles.statsCards}>
-        <div className={styles.statCard}>
-          <div className={styles.statNumber}>{stats.total}</div>
-          <div className={styles.statTitle}>Total Connections</div>
-          <div className={styles.statSubtext}>Active network members</div>
-        </div>
-
-        <div className={styles.statCard}>
-          <div className={styles.statNumber}>{stats.pendingReceived}</div>
-          <div className={styles.statTitle}>Pending Requests</div>
-          <div className={styles.statSubtext}>Awaiting your response</div>
-        </div>
-
-        <div className={styles.statCard}>
-          <div className={styles.statNumber}>{stats.pendingSent}</div>
-          <div className={styles.statTitle}>Sent Requests</div>
-          <div className={styles.statSubtext}>Pending acceptance</div>
-        </div>
-
-        <div className={styles.statCard}>
-          <div className={styles.statNumber}>{newThisMonth}</div>
-          <div className={styles.statTitle}>This Month</div>
-          <div className={styles.statSubtext}>New connections</div>
-        </div>
-      </div>
-    </>
+    <SidebarStatsWidget
+      title="Network Stats"
+      stats={statsRows}
+    />
   );
 }

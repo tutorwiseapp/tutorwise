@@ -1,0 +1,70 @@
+/**
+ * Filename: SidebarStatsWidget.module.css
+ * Purpose: Styles for Stats Card Pattern
+ * Design: context-sidebar-ui-design-v2.md Section 3.0
+ *
+ * Design Tokens:
+ * - Card Padding: 16px (var(--space-2))
+ * - Vertical Gap: 16px (var(--space-2))
+ * - Title Font: 18px (text-lg, semibold)
+ * - NO ICONS
+ */
+
+.statsWidget {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-2); /* 16px */
+  width: 100%;
+}
+
+.title {
+  font-size: var(--text-lg); /* 18px */
+  font-weight: var(--font-semibold);
+  color: var(--color-grey-900);
+  margin: 0 0 var(--space-2) 0; /* 16px bottom margin */
+  line-height: 1.4;
+}
+
+.statsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2); /* 16px vertical gap */
+}
+
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.label {
+  font-size: var(--text-sm); /* 14px */
+  color: var(--color-grey-600);
+  font-weight: var(--font-normal);
+}
+
+.value {
+  font-size: var(--text-sm); /* 14px */
+  font-weight: var(--font-medium);
+  text-align: right;
+}
+
+/* Value Color Variants */
+.value.default {
+  color: var(--color-grey-900);
+}
+
+.value.green {
+  color: var(--color-success);
+}
+
+.value.orange {
+  color: var(--color-warning);
+}
+
+.value.blackBold {
+  color: var(--color-grey-900);
+  font-weight: var(--font-semibold);
+}
