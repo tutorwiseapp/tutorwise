@@ -11,19 +11,21 @@
  */
 
 .statsWidget {
-  background: var(--color-white);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: var(--space-2); /* 16px */
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
+  padding: 20px;
   width: 100%;
 }
 
 .title {
-  font-size: var(--text-lg); /* 18px */
-  font-weight: var(--font-semibold);
-  color: var(--color-grey-900);
-  margin: 0 0 var(--space-2) 0; /* 16px bottom margin */
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 16px 0;
   line-height: 1.4;
+  letter-spacing: -0.01em;
 }
 
 .statsContainer {
@@ -41,20 +43,22 @@
 }
 
 .label {
-  font-size: var(--text-sm); /* 14px */
-  color: var(--color-grey-600);
-  font-weight: var(--font-normal);
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 .value {
-  font-size: var(--text-sm); /* 14px */
-  font-weight: var(--font-medium);
+  font-size: 15px;
+  font-weight: 600;
   text-align: right;
+  line-height: 1.5;
 }
 
 /* Value Color Variants */
 .value.default {
-  color: var(--color-grey-900);
+  color: #111827;
 }
 
 .value.green {

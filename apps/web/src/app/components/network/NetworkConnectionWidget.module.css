@@ -17,30 +17,32 @@
  */
 
 .connectionWidget {
-  background: var(--color-white);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: var(--space-2); /* 16px */
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
+  padding: 20px;
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2); /* 16px between elements */
+  gap: 16px;
 }
 
 .title {
-  font-size: var(--text-lg); /* 18px */
-  font-weight: var(--font-semibold);
-  color: var(--color-grey-900);
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
   margin: 0;
   line-height: 1.4;
+  letter-spacing: -0.01em;
 }
 
 .description {
-  font-size: var(--text-sm); /* 14px */
-  color: var(--color-grey-600);
-  line-height: 1.6;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.5;
   margin: 0;
-  margin-bottom: var(--space-1); /* 8px extra gap before buttons */
+  margin-bottom: 4px;
 }
 
 /* Button Base Styles */
@@ -59,30 +61,34 @@
 /* Primary Button - Full Width */
 .button.primary {
   width: 100%;
-  background-color: var(--color-primary);
-  color: var(--color-white);
+  background-color: #006c67;
+  color: #ffffff;
+  font-weight: 600;
 }
 
 .button.primary:hover {
-  background-color: var(--color-primary-dark);
+  background-color: #005550;
   transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .button.primary:active {
   transform: translateY(0);
+  background-color: #004440;
 }
 
 /* Secondary Buttons */
 .button.secondary {
-  background-color: var(--color-grey-100);
-  color: var(--color-grey-900);
-  border: 1px solid var(--color-grey-300);
+  background-color: #f9fafb;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  font-weight: 500;
 }
 
 .button.secondary:hover {
-  background-color: var(--color-grey-200);
-  border-color: var(--color-grey-400);
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+  color: #111827;
 }
 
 /* Button Row - Split Layout for Secondary Buttons */
