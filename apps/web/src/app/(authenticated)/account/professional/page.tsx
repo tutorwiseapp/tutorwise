@@ -14,9 +14,7 @@ import { updateProfile } from '@/lib/api/profiles';
 import ProfessionalInfoForm from '@/app/components/profile/ProfessionalInfoForm';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import { AccountTabs } from '@/app/components/account/AccountTabs';
-import { HeroProfileCard } from '@/app/components/account/HeroProfileCard';
-import { ProfileCompletenessWidget } from '@/app/components/account/ProfileCompletenessWidget';
-import { QuickActionsWidget } from '@/app/components/account/QuickActionsWidget';
+import AccountCard from '@/app/components/account/AccountCard';
 import PageHeader from '@/app/components/ui/PageHeader';
 import type { Profile } from '@/types';
 import toast from 'react-hot-toast';
@@ -61,11 +59,9 @@ export default function ProfessionalPage() {
         </div>
       </div>
 
-      {/* Right Sidebar - Account Widgets */}
+      {/* Right Sidebar - Account Card */}
       <ContextualSidebar>
-        <HeroProfileCard />
-        <ProfileCompletenessWidget />
-        <QuickActionsWidget />
+        <AccountCard />
       </ContextualSidebar>
     </>
   );

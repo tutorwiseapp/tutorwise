@@ -19,9 +19,7 @@ import Link from 'next/link';
 import { Shield, Trash2, Bell, Lock, Heart } from 'lucide-react';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import { AccountTabs } from '@/app/components/account/AccountTabs';
-import { HeroProfileCard } from '@/app/components/account/HeroProfileCard';
-import { ProfileCompletenessWidget } from '@/app/components/account/ProfileCompletenessWidget';
-import { QuickActionsWidget } from '@/app/components/account/QuickActionsWidget';
+import AccountCard from '@/app/components/account/AccountCard';
 import IntegrationLinksCard from '@/app/components/students/IntegrationLinksCard';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import PageHeader from '@/app/components/ui/PageHeader';
@@ -171,11 +169,9 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Right Sidebar - Account Widgets */}
+      {/* Right Sidebar - Account Card */}
       <ContextualSidebar>
-        <HeroProfileCard />
-        <ProfileCompletenessWidget />
-        <QuickActionsWidget />
+        <AccountCard />
       </ContextualSidebar>
     </>
   );

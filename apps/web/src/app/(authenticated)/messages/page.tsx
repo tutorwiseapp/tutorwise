@@ -15,6 +15,8 @@ import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSideba
 import ChatWidget from '@/app/components/network/ChatWidget';
 import MessagesSkeleton from '@/app/components/messages/MessagesSkeleton';
 import MessagesError from '@/app/components/messages/MessagesError';
+import InboxStatsWidget from '@/app/components/messages/InboxStatsWidget';
+import AvailabilityWidget from '@/app/components/messages/AvailabilityWidget';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
 
@@ -93,12 +95,8 @@ export default function MessagesPage() {
       <>
         <MessagesSkeleton />
         <ContextualSidebar>
-          <div className={styles.noSelection}>
-            <div className={styles.noSelectionIcon}>💬</div>
-            <p className={styles.noSelectionText}>
-              Select a conversation to start chatting
-            </p>
-          </div>
+          <InboxStatsWidget unreadCount={0} activeChats={0} archivedCount={0} />
+          <AvailabilityWidget />
         </ContextualSidebar>
       </>
     );
@@ -110,12 +108,8 @@ export default function MessagesPage() {
       <>
         <MessagesError error={error as Error} onRetry={() => refetch()} />
         <ContextualSidebar>
-          <div className={styles.noSelection}>
-            <div className={styles.noSelectionIcon}>💬</div>
-            <p className={styles.noSelectionText}>
-              Select a conversation to start chatting
-            </p>
-          </div>
+          <InboxStatsWidget unreadCount={0} activeChats={0} archivedCount={0} />
+          <AvailabilityWidget />
         </ContextualSidebar>
       </>
     );
@@ -236,23 +230,12 @@ export default function MessagesPage() {
       </div>
 
       <ContextualSidebar>
-        {selectedConversation ? (
-          <ChatWidget
-            currentUserId={profile?.id || ''}
-            selectedConnection={{
-              id: selectedConversation.id,
-              profile: selectedConversation.otherUser,
-            }}
-            onClose={() => setSelectedConversation(null)}
-          />
-        ) : (
-          <div className={styles.noSelection}>
-            <div className={styles.noSelectionIcon}>💬</div>
-            <p className={styles.noSelectionText}>
-              Select a conversation to start chatting
-            </p>
-          </div>
-        )}
+        <InboxStatsWidget
+          unreadCount={totalUnread}
+          activeChats={conversations.length}
+          archivedCount={0}
+        />
+        <AvailabilityWidget />
       </ContextualSidebar>
     </>
   );
