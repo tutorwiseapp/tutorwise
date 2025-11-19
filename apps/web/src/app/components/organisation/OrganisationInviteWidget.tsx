@@ -22,7 +22,7 @@ import toast from 'react-hot-toast';
 import styles from './OrganisationInviteWidget.module.css';
 
 interface OrganisationInviteWidgetProps {
-  organisationId: string;
+  organisationId?: string; // Optional - undefined when no organisation exists
   className?: string;
   onInviteSent?: () => void;
 }
@@ -37,6 +37,11 @@ export default function OrganisationInviteWidget({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!organisationId) {
+      toast.error('Please create an organisation first');
+      return;
+    }
 
     if (!email || !email.includes('@')) {
       toast.error('Please enter a valid email address');
@@ -73,12 +78,16 @@ export default function OrganisationInviteWidget({
     }
   };
 
+  const isDisabled = !organisationId || isLoading;
+
   return (
     <SidebarComplexWidget className={className}>
       <h3 className={styles.title}>Invite Member</h3>
 
       <p className={styles.description}>
-        Invite tutors and teachers to join your organisation.
+        {organisationId
+          ? 'Invite tutors and teachers to join your organisation.'
+          : 'Create an organisation first to invite members.'}
       </p>
 
       <form onSubmit={handleSubmit} className={styles.form}>
@@ -86,15 +95,15 @@ export default function OrganisationInviteWidget({
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email address"
+          placeholder={organisationId ? 'Email address' : 'Create organisation first'}
           className={styles.input}
-          disabled={isLoading}
+          disabled={isDisabled}
           required
         />
 
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={isDisabled}
           className={styles.button}
         >
           {isLoading ? 'Sending...' : 'Send Invite'}

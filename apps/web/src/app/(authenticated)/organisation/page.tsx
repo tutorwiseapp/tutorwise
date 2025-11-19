@@ -284,6 +284,7 @@ export default function OrganisationPage() {
             totalClients={0}
             monthlyRevenue={0}
           />
+          <OrganisationInviteWidget />
         </ContextualSidebar>
       </>
     );
@@ -422,15 +423,13 @@ export default function OrganisationPage() {
           totalClients={stats?.total_clients || 0}
           monthlyRevenue={stats?.monthly_revenue || 0}
         />
-        {organisation && (
-          <OrganisationInviteWidget
-            organisationId={organisation.id}
-            onInviteSent={() => {
-              refetchMembers();
-              queryClient.invalidateQueries({ queryKey: ['organisation-stats', organisation.id] });
-            }}
-          />
-        )}
+        <OrganisationInviteWidget
+          organisationId={organisation?.id}
+          onInviteSent={() => {
+            refetchMembers();
+            queryClient.invalidateQueries({ queryKey: ['organisation-stats', organisation?.id] });
+          }}
+        />
       </ContextualSidebar>
     </>
   );
