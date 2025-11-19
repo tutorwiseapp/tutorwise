@@ -205,6 +205,28 @@ export default function OrganisationPage() {
             <p className={styles.subtitle}>Manage your team and clients</p>
           </div>
 
+          {/* Tab bar - always visible */}
+          <div className={styles.filterTabs}>
+            <button
+              onClick={() => setActiveTab('team')}
+              className={`${styles.filterTab} ${activeTab === 'team' ? styles.filterTabActive : ''}`}
+            >
+              Team (0)
+            </button>
+            <button
+              onClick={() => setActiveTab('clients')}
+              className={`${styles.filterTab} ${activeTab === 'clients' ? styles.filterTabActive : ''}`}
+            >
+              Clients (0)
+            </button>
+            <button
+              onClick={() => setActiveTab('info')}
+              className={`${styles.filterTab} ${activeTab === 'info' ? styles.filterTabActive : ''}`}
+            >
+              Info
+            </button>
+          </div>
+
           <div className={styles.emptyState}>
             <h3 className={styles.emptyTitle}>No Organisation Yet</h3>
             <p className={styles.emptyText}>
