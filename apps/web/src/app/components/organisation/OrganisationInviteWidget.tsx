@@ -4,12 +4,13 @@
  * Created: 2025-11-19
  * Design: context-sidebar-ui-design-v2.md Section 2.12
  *
- * Pattern: Complex Action Card with Form Input
+ * Pattern: Complex Action Card with 4-Button Layout
  * Layout:
- * - Teal Header: "Invite Member"
+ * - Teal Header: "Grow Your Organisation"
  * - Description
- * - Email Input Field
- * - Primary Button: "Send Invite"
+ * - Primary Button: "Invite Member"
+ * - Secondary Split: "Find Tutors" | "Invite by Email"
+ * - Secondary Button: "Create Organisation"
  *
  * NO ICONS - Professional aesthetic
  */
@@ -18,6 +19,7 @@
 
 import React, { useState } from 'react';
 import SidebarComplexWidget from '@/app/components/layout/sidebars/components/SidebarComplexWidget';
+import OrganisationInviteMemberModal from './OrganisationInviteMemberModal';
 import toast from 'react-hot-toast';
 import styles from './OrganisationInviteWidget.module.css';
 
@@ -25,90 +27,113 @@ interface OrganisationInviteWidgetProps {
   organisationId?: string; // Optional - undefined when no organisation exists
   className?: string;
   onInviteSent?: () => void;
+  onOrganisationCreated?: () => void;
 }
 
 export default function OrganisationInviteWidget({
   organisationId,
   className,
   onInviteSent,
+  onOrganisationCreated,
 }: OrganisationInviteWidgetProps) {
-  const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalInitialTab, setModalInitialTab] = useState<'search' | 'email'>('search');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleInviteMember = () => {
     if (!organisationId) {
       toast.error('Please create an organisation first');
       return;
     }
+    setModalInitialTab('search');
+    setIsModalOpen(true);
+  };
 
-    if (!email || !email.includes('@')) {
-      toast.error('Please enter a valid email address');
+  const handleFindTutors = () => {
+    if (!organisationId) {
+      toast.error('Please create an organisation first');
+      return;
+    }
+    setModalInitialTab('search');
+    setIsModalOpen(true);
+  };
+
+  const handleInviteByEmail = () => {
+    if (!organisationId) {
+      toast.error('Please create an organisation first');
+      return;
+    }
+    setModalInitialTab('email');
+    setIsModalOpen(true);
+  };
+
+  const handleCreateOrganisation = async () => {
+    if (organisationId) {
+      toast.error('You already have an organisation');
       return;
     }
 
-    setIsLoading(true);
-
-    try {
-      const response = await fetch('/api/organisation/invite', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          organisationId,
-          email,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to send invitation');
-      }
-
-      toast.success(data.message || 'Invitation sent successfully');
-      setEmail('');
-      onInviteSent?.();
-
-    } catch (error: any) {
-      console.error('[OrganisationInviteWidget] Error:', error);
-      toast.error(error.message || 'Failed to send invitation');
-    } finally {
-      setIsLoading(false);
-    }
+    // TODO: Implement organisation creation modal or flow
+    toast.error('Organisation creation not yet implemented');
   };
 
-  const isDisabled = !organisationId || isLoading;
+  const handleModalSuccess = () => {
+    onInviteSent?.();
+  };
 
   return (
-    <SidebarComplexWidget className={className}>
-      <h3 className={styles.title}>Invite Member</h3>
+    <>
+      <SidebarComplexWidget className={className}>
+        <h3 className={styles.title}>Grow Your Organisation</h3>
 
-      <p className={styles.description}>
-        {organisationId
-          ? 'Invite tutors and teachers to join your organisation.'
-          : 'Create an organisation first to invite members.'}
-      </p>
+        <p className={styles.description}>
+          {organisationId
+            ? 'Invite tutors and teachers to join your organisation.'
+            : 'Create an organisation first to invite members.'}
+        </p>
 
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder={organisationId ? 'Email address' : 'Create organisation first'}
-          className={styles.input}
-          disabled={isDisabled}
-          required
-        />
-
+        {/* Primary Action - Full Width */}
         <button
-          type="submit"
-          disabled={isDisabled}
-          className={styles.button}
+          onClick={handleInviteMember}
+          className={`${styles.button} ${styles.primary}`}
         >
-          {isLoading ? 'Sending...' : 'Send Invite'}
+          Invite Member
         </button>
-      </form>
-    </SidebarComplexWidget>
+
+        {/* Secondary Actions - Split Row */}
+        <div className={styles.buttonRow}>
+          <button
+            onClick={handleFindTutors}
+            className={`${styles.button} ${styles.secondary}`}
+          >
+            Find Tutors
+          </button>
+          <button
+            onClick={handleInviteByEmail}
+            className={`${styles.button} ${styles.secondary}`}
+          >
+            Invite by Email
+          </button>
+        </div>
+
+        {/* Primary Action - Full Width */}
+        <button
+          onClick={handleCreateOrganisation}
+          className={`${styles.button} ${styles.primary}`}
+        >
+          Create Organisation
+        </button>
+      </SidebarComplexWidget>
+
+      {/* Modal */}
+      {organisationId && (
+        <OrganisationInviteMemberModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSuccess={handleModalSuccess}
+          organisationId={organisationId}
+          initialTab={modalInitialTab}
+        />
+      )}
+    </>
   );
 }
