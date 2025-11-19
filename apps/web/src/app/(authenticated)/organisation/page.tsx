@@ -27,6 +27,7 @@ import {
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import OrganisationStatsWidget from '@/app/components/organisation/OrganisationStatsWidget';
 import OrganisationInviteWidget from '@/app/components/organisation/OrganisationInviteWidget';
+import InfoTab from '@/app/components/organisation/InfoTab';
 import HubRowCard from '@/app/components/ui/hub/HubRowCard';
 import Button from '@/app/components/ui/Button';
 import toast from 'react-hot-toast';
@@ -205,7 +206,6 @@ export default function OrganisationPage() {
           </div>
 
           <div className={styles.emptyState}>
-            <div className={styles.emptyIcon}>🏢</div>
             <h3 className={styles.emptyTitle}>No Organisation Yet</h3>
             <p className={styles.emptyText}>
               Create an organisation to manage your team of tutors and track your clients.
@@ -389,37 +389,7 @@ export default function OrganisationPage() {
         {/* Info Tab */}
         {activeTab === 'info' && (
           <div className={styles.content}>
-            <div className={styles.infoSection}>
-              <h3>Organisation Details</h3>
-              <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>Name:</span>
-                <span>{organisation.name}</span>
-              </div>
-              <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>Slug:</span>
-                <span>{organisation.slug || 'Not set'}</span>
-              </div>
-              <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>Description:</span>
-                <span>{organisation.description || 'Not set'}</span>
-              </div>
-              <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>Website:</span>
-                <span>
-                  {organisation.website ? (
-                    <a href={organisation.website} target="_blank" rel="noopener noreferrer">
-                      {organisation.website}
-                    </a>
-                  ) : (
-                    'Not set'
-                  )}
-                </span>
-              </div>
-              <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>Created:</span>
-                <span>{new Date(organisation.created_at).toLocaleDateString()}</span>
-              </div>
-            </div>
+            <InfoTab organisation={organisation} />
           </div>
         )}
       </div>
