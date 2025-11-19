@@ -3,13 +3,13 @@
  * Purpose: Display wiselist statistics in sidebar (v5.7)
  * Path: /app/components/wiselists/WiselistStatsWidget.tsx
  * Created: 2025-11-15
+ * Updated: 2025-11-19 - Migrated to v2 design with SidebarStatsWidget
  */
 
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { SidebarWidget } from '@/app/components/layout/sidebars/ContextualSidebar';
-import styles from '@/app/components/layout/sidebars/ContextualSidebar.module.css';
+import SidebarStatsWidget, { StatRow } from '@/app/components/layout/sidebars/components/SidebarStatsWidget';
 
 interface WiselistStats {
   total_wiselists: number;
@@ -49,39 +49,23 @@ export function WiselistStatsWidget() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <SidebarWidget title="Your Wiselists">
-        <div className={styles.widgetContent}>
-          <p className={styles.widgetText}>Loading...</p>
-        </div>
-      </SidebarWidget>
-    );
-  }
+  const statsData: StatRow[] = [
+    {
+      label: 'Total Wiselists',
+      value: stats?.total_wiselists ?? 0,
+      valueColor: 'default',
+    },
+    {
+      label: 'Public',
+      value: stats?.public_wiselists ?? 0,
+      valueColor: stats?.public_wiselists && stats.public_wiselists > 0 ? 'green' : 'default',
+    },
+    {
+      label: 'Total Items',
+      value: stats?.total_items ?? 0,
+      valueColor: 'default',
+    },
+  ];
 
-  if (!stats) {
-    return null;
-  }
-
-  return (
-    <SidebarWidget title="Your Wiselists">
-      <div className={styles.widgetContent}>
-        {stats.total_wiselists === 0 && (
-          <p className={styles.widgetTextTop}>
-            Create your first wiselist to start organizing your favorite tutors and services!
-          </p>
-        )}
-        <div className={styles.statsCard}>
-          <div className={styles.statRow}>
-            <span className={styles.statLabel}>Wiselists</span>
-            <span className={styles.statValue}>{stats.total_wiselists}</span>
-          </div>
-          <div className={styles.statRow}>
-            <span className={styles.statLabel}>Public</span>
-            <span className={styles.statValue}>{stats.public_wiselists}</span>
-          </div>
-        </div>
-      </div>
-    </SidebarWidget>
-  );
+  return <SidebarStatsWidget title="Your Wiselists" stats={statsData} />;
 }

@@ -132,8 +132,8 @@ export default function WiselistsPage() {
           </div>
         </div>
         <ContextualSidebar>
-          <CreateWiselistWidget />
           <WiselistStatsWidget />
+          <CreateWiselistWidget />
         </ContextualSidebar>
       </>
     );
@@ -159,8 +159,8 @@ export default function WiselistsPage() {
           </div>
         </div>
         <ContextualSidebar>
-          <CreateWiselistWidget />
           <WiselistStatsWidget />
+          <CreateWiselistWidget />
         </ContextualSidebar>
       </>
     );
@@ -237,8 +237,8 @@ export default function WiselistsPage() {
 
       {/* Contextual Sidebar */}
       <ContextualSidebar>
-        <CreateWiselistWidget />
         <WiselistStatsWidget />
+        <CreateWiselistWidget />
       </ContextualSidebar>
     </>
   );

@@ -1,7 +1,7 @@
 /**
- * Filename: NetworkConnectionWidget.module.css
- * Purpose: Styles for Network Connection Widget - 4-Button Layout
- * Design: context-sidebar-ui-design-v2.md Section 2.4 & 3.0
+ * Filename: AgencyTutorWidget.module.css
+ * Purpose: Styles for Organisation Tutor Widget - 4-Button Layout
+ * Design: Mirrors NetworkConnectionWidget styling
  *
  * Layout:
  * - Title + Description
@@ -10,9 +10,8 @@
  * - Secondary Button (Full Width)
  *
  * Design Tokens:
- * - Card Padding: 16px (var(--space-2))
- * - Action Gap: 24px (var(--space-3))
- * - Button Gap: 12px (var(--space-1-5))
+ * - Card Padding: 16px
+ * - Button Gap: 16px
  * - NO ICONS
  *
  * Note: Container styles (shadow, border, radius) provided by SidebarComplexWidget

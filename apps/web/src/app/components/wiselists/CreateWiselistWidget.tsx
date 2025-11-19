@@ -3,16 +3,16 @@
  * Purpose: Sidebar widget to create new wiselist (v5.7)
  * Path: /app/components/wiselists/CreateWiselistWidget.tsx
  * Created: 2025-11-15
+ * Updated: 2025-11-19 - Migrated to v2 design with SidebarActionWidget
  */
 
 'use client';
 
 import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
-import { SidebarWidget } from '@/app/components/layout/sidebars/ContextualSidebar';
+import SidebarActionWidget from '@/app/components/layout/sidebars/components/SidebarActionWidget';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
-import styles from '@/app/components/layout/sidebars/ContextualSidebar.module.css';
+import styles from './CreateWiselistWidget.module.css';
 
 export function CreateWiselistWidget() {
   const router = useRouter();
@@ -64,26 +64,19 @@ export function CreateWiselistWidget() {
 
   if (!showForm) {
     return (
-      <SidebarWidget title="Create Wiselist">
-        <div className={styles.widgetContent}>
-          <p className={styles.widgetText}>
-            Save and organize your favorite tutors and services
-          </p>
-          <button
-            onClick={() => setShowForm(true)}
-            className={styles.primaryButton}
-          >
-            <Plus size={16} />
-            New Wiselist
-          </button>
-        </div>
-      </SidebarWidget>
+      <SidebarActionWidget
+        title="Create Wiselist"
+        description="Save and organize your favorite tutors and services"
+        buttonText="New Wiselist"
+        onButtonClick={() => setShowForm(true)}
+      />
     );
   }
 
   return (
-    <SidebarWidget title="Create Wiselist">
-      <div className={styles.widgetContent}>
+    <div className={styles.formWidget}>
+      <h3 className={styles.title}>Create Wiselist</h3>
+      <div className={styles.formContent}>
         <div className={styles.formGroup}>
           <label className={styles.formLabel}>
             Name <span className={styles.required}>*</span>
@@ -145,6 +138,6 @@ export function CreateWiselistWidget() {
           </button>
         </div>
       </div>
-    </SidebarWidget>
+    </div>
   );
 }

@@ -27,6 +27,7 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import Card from '@/app/components/ui/Card';
 import { getErrorMessage } from '@/lib/utils/getErrorMessage';
+import PaymentHelpWidget from '@/app/components/payments/PaymentHelpWidget';
 import styles from './page.module.css';
 
 const PaymentsPageContent = () => {
@@ -232,7 +233,7 @@ const PaymentsPageContent = () => {
             <>
               <div className={styles.loading}>Loading payment methods...</div>
               <ContextualSidebar>
-                <div className={styles.skeletonWidget} />
+                <PaymentHelpWidget />
               </ContextualSidebar>
             </>
         );
@@ -243,7 +244,7 @@ const PaymentsPageContent = () => {
             <>
               <div className={styles.error}>Failed to load payment data. Please try again.</div>
               <ContextualSidebar>
-                <div className={styles.skeletonWidget} />
+                <PaymentHelpWidget />
               </ContextualSidebar>
             </>
         );
@@ -377,15 +378,7 @@ const PaymentsPageContent = () => {
 
             {/* Contextual Sidebar (Right Column) */}
             <ContextualSidebar>
-                <div className={styles.sidebarCard}>
-                    <h3 className={styles.sidebarTitle}>Payment Help</h3>
-                    <p className={styles.sidebarText}>
-                        All payments are processed securely through Stripe.
-                    </p>
-                    <p className={styles.sidebarText}>
-                        For payment issues, contact our support team.
-                    </p>
-                </div>
+                <PaymentHelpWidget />
             </ContextualSidebar>
         </>
     );
@@ -397,7 +390,7 @@ const PaymentsPage = () => {
             <>
                 <div className={styles.loading}>Loading...</div>
                 <ContextualSidebar>
-                    <div className={styles.skeletonWidget} />
+                    <PaymentHelpWidget />
                 </ContextualSidebar>
             </>
         }>

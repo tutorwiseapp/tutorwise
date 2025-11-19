@@ -7,6 +7,8 @@
  * - The Client themselves (adult learner)
  * - Any linked student via Guardian Link
  * - Option to add a new student
+ *
+ * Updated: 2025-11-19 - Migrated to v2 design with SidebarComplexWidget
  */
 'use client';
 
@@ -16,6 +18,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import { getMyStudents } from '@/lib/api/students';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import SidebarComplexWidget from '@/app/components/layout/sidebars/components/SidebarComplexWidget';
 import toast from 'react-hot-toast';
 import styles from './UnassignedBookingsWidget.module.css';
 
@@ -115,13 +118,11 @@ export default function UnassignedBookingsWidget() {
   }
 
   return (
-    <div className={styles.widget}>
-      <div className={styles.header}>
-        <h3 className={styles.title}>Assign Attendees</h3>
-        <p className={styles.subtitle}>
-          Select who will attend each upcoming lesson
-        </p>
-      </div>
+    <SidebarComplexWidget>
+      <h3 className={styles.title}>Assign Attendees</h3>
+      <p className={styles.subtitle}>
+        Select who will attend each upcoming lesson
+      </p>
 
       {loadingBookings ? (
         <div className={styles.loading}>Loading...</div>
@@ -187,6 +188,6 @@ export default function UnassignedBookingsWidget() {
           </button>
         </div>
       )}
-    </div>
+    </SidebarComplexWidget>
   );
 }

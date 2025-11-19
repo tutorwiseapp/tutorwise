@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -43,6 +43,18 @@ export function useConnectionsRealtime({
   onDelete,
   enabled = true,
 }: UseConnectionsRealtimeOptions) {
+  // Use refs to store callbacks to avoid re-subscribing when callbacks change
+  const onInsertRef = useRef(onInsert);
+  const onUpdateRef = useRef(onUpdate);
+  const onDeleteRef = useRef(onDelete);
+
+  // Update refs when callbacks change
+  useEffect(() => {
+    onInsertRef.current = onInsert;
+    onUpdateRef.current = onUpdate;
+    onDeleteRef.current = onDelete;
+  }, [onInsert, onUpdate, onDelete]);
+
   useEffect(() => {
     if (!enabled || !userId) return;
 
@@ -65,7 +77,7 @@ export function useConnectionsRealtime({
             // Only trigger for SOCIAL relationships
             if (payload.new && (payload.new as any).relationship_type === 'SOCIAL') {
               console.log('[realtime] New SOCIAL connection (target):', payload);
-              onInsert?.(payload);
+              onInsertRef.current?.(payload);
             }
           }
         )
@@ -81,7 +93,7 @@ export function useConnectionsRealtime({
             // Only trigger for SOCIAL relationships
             if (payload.new && (payload.new as any).relationship_type === 'SOCIAL') {
               console.log('[realtime] New SOCIAL connection (source):', payload);
-              onInsert?.(payload);
+              onInsertRef.current?.(payload);
             }
           }
         )
@@ -97,7 +109,7 @@ export function useConnectionsRealtime({
             // Only trigger for SOCIAL relationships
             if (payload.new && (payload.new as any).relationship_type === 'SOCIAL') {
               console.log('[realtime] SOCIAL connection updated (target):', payload);
-              onUpdate?.(payload);
+              onUpdateRef.current?.(payload);
             }
           }
         )
@@ -113,7 +125,7 @@ export function useConnectionsRealtime({
             // Only trigger for SOCIAL relationships
             if (payload.new && (payload.new as any).relationship_type === 'SOCIAL') {
               console.log('[realtime] SOCIAL connection updated (source):', payload);
-              onUpdate?.(payload);
+              onUpdateRef.current?.(payload);
             }
           }
         )
@@ -129,7 +141,7 @@ export function useConnectionsRealtime({
             // For DELETE, check old record
             if (payload.old && (payload.old as any).relationship_type === 'SOCIAL') {
               console.log('[realtime] SOCIAL connection deleted (target):', payload);
-              onDelete?.(payload);
+              onDeleteRef.current?.(payload);
             }
           }
         )
@@ -145,7 +157,7 @@ export function useConnectionsRealtime({
             // For DELETE, check old record
             if (payload.old && (payload.old as any).relationship_type === 'SOCIAL') {
               console.log('[realtime] SOCIAL connection deleted (source):', payload);
-              onDelete?.(payload);
+              onDeleteRef.current?.(payload);
             }
           }
         )
@@ -170,7 +182,7 @@ export function useConnectionsRealtime({
         supabase.removeChannel(channel);
       }
     };
-  }, [userId, enabled, onInsert, onUpdate, onDelete]);
+  }, [userId, enabled]); // Only re-subscribe when userId or enabled changes
 }
 
 /**

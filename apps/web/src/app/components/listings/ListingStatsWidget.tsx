@@ -2,7 +2,7 @@
  * Filename: src/app/components/listings/ListingStatsWidget.tsx
  * Purpose: Display listing statistics in ContextualSidebar
  * Created: 2025-11-03
- * Specification: SDD v3.6 - ContextualSidebar widget with teal title box
+ * Updated: 2025-11-19 - Migrated to v2 design with SidebarStatsWidget
  *
  * FIXED: Race condition where independent data fetching caused cards to disappear
  * Now receives listings as props from parent page for consistent state management
@@ -10,9 +10,8 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { SidebarWidget } from '@/app/components/layout/sidebars/ContextualSidebar';
+import SidebarStatsWidget, { StatRow } from '@/app/components/layout/sidebars/components/SidebarStatsWidget';
 import type { Listing } from '@tutorwise/shared-types';
-import styles from './ListingStatsWidget.module.css';
 
 interface ListingStatsWidgetProps {
   listings: Listing[];
@@ -34,38 +33,33 @@ export default function ListingStatsWidget({ listings, isLoading }: ListingStats
     };
   }, [listings]);
 
-  if (isLoading) {
-    return (
-      <SidebarWidget title="Listing Stats">
-        <p className={styles.loading}>Loading...</p>
-      </SidebarWidget>
-    );
-  }
+  const statsData: StatRow[] = [
+    {
+      label: 'Total',
+      value: stats.total,
+      valueColor: 'default',
+    },
+    {
+      label: 'Published',
+      value: stats.published,
+      valueColor: stats.published > 0 ? 'green' : 'default',
+    },
+    {
+      label: 'Unpublished',
+      value: stats.unpublished,
+      valueColor: 'default',
+    },
+    {
+      label: 'Drafts',
+      value: stats.drafts,
+      valueColor: stats.drafts > 0 ? 'orange' : 'default',
+    },
+    {
+      label: 'Archived',
+      value: stats.archived,
+      valueColor: 'default',
+    },
+  ];
 
-  return (
-    <SidebarWidget title="Listing Stats">
-      <div className={styles.statsGrid}>
-        <div className={styles.statCard}>
-          <div className={styles.statValue}>{stats.total}</div>
-          <div className={styles.statLabel}>Total</div>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statValue}>{stats.published}</div>
-          <div className={styles.statLabel}>Published</div>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statValue}>{stats.unpublished}</div>
-          <div className={styles.statLabel}>Unpublished</div>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statValue}>{stats.drafts}</div>
-          <div className={styles.statLabel}>Drafts</div>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statValue}>{stats.archived}</div>
-          <div className={styles.statLabel}>Archived</div>
-        </div>
-      </div>
-    </SidebarWidget>
-  );
+  return <SidebarStatsWidget title="Listing Stats" stats={statsData} />;
 }

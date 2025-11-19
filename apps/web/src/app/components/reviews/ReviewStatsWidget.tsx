@@ -2,11 +2,14 @@
  * Filename: apps/web/src/app/components/reviews/ReviewStatsWidget.tsx
  * Purpose: Stats widget for Reviews page sidebar
  * Created: 2025-11-08
+ * Updated: 2025-11-19 - Migrated to v2 design with SidebarStatsWidget
  */
 
 'use client';
 
 import React from 'react';
+import SidebarStatsWidget, { StatRow } from '@/app/components/layout/sidebars/components/SidebarStatsWidget';
+import SidebarComplexWidget from '@/app/components/layout/sidebars/components/SidebarComplexWidget';
 import styles from './ReviewStatsWidget.module.css';
 
 interface Props {
@@ -39,36 +42,40 @@ export default function ReviewStatsWidget({ stats, averageRating }: Props) {
     );
   };
 
+  const statsData: StatRow[] = [
+    {
+      label: 'Pending Reviews',
+      value: stats.pendingCount,
+      valueColor: stats.pendingCount > 0 ? 'orange' : 'default',
+    },
+    {
+      label: 'Reviews Received',
+      value: stats.receivedCount,
+      valueColor: 'default',
+    },
+    {
+      label: 'Reviews Given',
+      value: stats.givenCount,
+      valueColor: 'default',
+    },
+  ];
+
   return (
-    <div className={styles.widget}>
-      <h3 className={styles.title}>Your Stats</h3>
-
-      {/* Average Rating */}
-      <div className={styles.ratingSection}>
-        <div className={styles.ratingValue}>{averageRating.toFixed(1)}</div>
-        {renderStars(averageRating)}
-        <p className={styles.ratingSubtext}>
-          Based on {stats.receivedCount} {stats.receivedCount === 1 ? 'review' : 'reviews'}
-        </p>
-      </div>
-
-      <div className={styles.divider} />
-
-      {/* Stats Grid */}
-      <div className={styles.statsGrid}>
-        <div className={styles.statItem}>
-          <div className={styles.statValue}>{stats.pendingCount}</div>
-          <div className={styles.statLabel}>Pending</div>
+    <>
+      {/* Average Rating Widget */}
+      <SidebarComplexWidget>
+        <h3 className={styles.title}>Average Rating</h3>
+        <div className={styles.ratingSection}>
+          <div className={styles.ratingValue}>{averageRating.toFixed(1)}</div>
+          {renderStars(averageRating)}
+          <p className={styles.ratingSubtext}>
+            Based on {stats.receivedCount} {stats.receivedCount === 1 ? 'review' : 'reviews'}
+          </p>
         </div>
-        <div className={styles.statItem}>
-          <div className={styles.statValue}>{stats.receivedCount}</div>
-          <div className={styles.statLabel}>Received</div>
-        </div>
-        <div className={styles.statItem}>
-          <div className={styles.statValue}>{stats.givenCount}</div>
-          <div className={styles.statLabel}>Given</div>
-        </div>
-      </div>
-    </div>
+      </SidebarComplexWidget>
+
+      {/* Stats Widget */}
+      <SidebarStatsWidget title="Your Stats" stats={statsData} />
+    </>
   );
 }

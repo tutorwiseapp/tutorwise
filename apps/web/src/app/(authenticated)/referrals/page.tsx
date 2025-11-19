@@ -14,9 +14,8 @@ import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getMyReferrals } from '@/lib/api/referrals';
 import ReferralCard from '@/app/components/referrals/ReferralCard';
 import ReferralAssetWidget from '@/app/components/referrals/ReferralAssetWidget';
-import ContextualSidebar, {
-  ReferralStatsWidget,
-} from '@/app/components/layout/sidebars/ContextualSidebar';
+import ReferralStatsWidget from '@/app/components/referrals/ReferralStatsWidget';
+import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import ReferralsSkeleton from '@/app/components/referrals/ReferralsSkeleton';
 import ReferralsError from '@/app/components/referrals/ReferralsError';
 import { Referral, ReferralStatus } from '@/types';
@@ -95,7 +94,6 @@ export default function ReferralsPage() {
             totalReferred={0}
             signedUp={0}
             converted={0}
-            totalEarned={0}
           />
         </ContextualSidebar>
       </>
@@ -112,7 +110,6 @@ export default function ReferralsPage() {
             totalReferred={0}
             signedUp={0}
             converted={0}
-            totalEarned={0}
           />
         </ContextualSidebar>
       </>
@@ -195,7 +192,6 @@ export default function ReferralsPage() {
           totalReferred={stats.totalReferred}
           signedUp={stats.signedUp}
           converted={stats.converted}
-          totalEarned={stats.totalEarned}
         />
 
         {profile?.referral_code && (

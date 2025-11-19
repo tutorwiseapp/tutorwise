@@ -2,34 +2,25 @@
  * Filename: src/app/components/listings/ListingStatsWidget.module.css
  * Purpose: Styles for ListingStatsWidget
  * Created: 2025-11-03
+ * Updated: 2025-11-19 - Migrated to v2 design with teal header
  */
 
-.widget {
-  background-color: #ffffff;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  border: 1px solid #e5e7eb;
-}
-
 .title {
-  font-size: 1.125rem;
+  font-size: 14px;
   font-weight: 600;
   color: #1f2937;
-  margin: 0 0 1rem 0;
-}
-
-.loading {
-  font-size: 0.875rem;
-  color: #6b7280;
-  text-align: center;
-  padding: 1rem 0;
+  padding: 12px 16px;
   margin: 0;
+  line-height: 1.4;
+  background-color: #E6F0F0; /* Teal header */
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
+  gap: 12px;
+  padding: 16px;
 }
 
 .statCard {

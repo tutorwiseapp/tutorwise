@@ -1,43 +1,42 @@
 /**
- * Filename: apps/web/src/app/components/network/NetworkConnectionWidget.tsx
- * Purpose: Complex Action Card for Network Hub - 4-Button Layout
+ * Filename: AgencyTutorWidget.tsx
+ * Purpose: Organisation Hub Action Widget - Tutor/Agent Management
  * Created: 2025-11-18
- * Design: context-sidebar-ui-design-v2.md Section 2.4
+ * Design: Uses SidebarComplexWidget pattern (mirrors NetworkConnectionWidget)
  *
- * Pattern: Complex Action Card with Split Hierarchy
  * Button Layout:
- * 1. [Add Connection] - Primary (Full Width)
- * 2. [Find People] [Invite by Email] - Secondary (Split Row)
+ * 1. [Add Connection] - Primary (Full Width) - can add tutor or agent
+ * 2. [Find Tutor] [Invite by Email] - Secondary (Split Row)
  * 3. [Create Group] - Secondary (Full Width)
  *
- * NO ICONS - Professional aesthetic
+ * Note: Reuses Network modal for consistency
  */
 
 'use client';
 
 import React from 'react';
 import SidebarComplexWidget from '../layout/sidebars/components/SidebarComplexWidget';
-import styles from './NetworkConnectionWidget.module.css';
+import styles from './AgencyTutorWidget.module.css';
 
-interface NetworkConnectionWidgetProps {
+interface AgencyTutorWidgetProps {
   onAddConnection: () => void;
-  onFindPeople: () => void;
+  onFindTutor: () => void;
   onInviteByEmail: () => void;
   onCreateGroup: () => void;
 }
 
-export default function NetworkConnectionWidget({
+export default function AgencyTutorWidget({
   onAddConnection,
-  onFindPeople,
+  onFindTutor,
   onInviteByEmail,
   onCreateGroup,
-}: NetworkConnectionWidgetProps) {
+}: AgencyTutorWidgetProps) {
   return (
     <SidebarComplexWidget>
-      <h3 className={styles.title}>Grow Your Network</h3>
+      <h3 className={styles.title}>Manage Your Team</h3>
 
       <p className={styles.description}>
-        Manage your professional circle on Tutorwise.
+        Build and organize your tutoring organisation.
       </p>
 
       {/* Primary Action - Full Width */}
@@ -51,10 +50,10 @@ export default function NetworkConnectionWidget({
       {/* Secondary Actions - Split Row */}
       <div className={styles.buttonRow}>
         <button
-          onClick={onFindPeople}
+          onClick={onFindTutor}
           className={`${styles.button} ${styles.secondary}`}
         >
-          Find People
+          Find Tutor
         </button>
         <button
           onClick={onInviteByEmail}

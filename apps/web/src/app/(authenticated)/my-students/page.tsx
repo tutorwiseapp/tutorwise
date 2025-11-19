@@ -16,6 +16,8 @@ import { getMyStudents, removeStudent } from '@/lib/api/students';
 import type { StudentLink } from '@/types';
 import StudentCard from '@/app/components/students/StudentCard';
 import StudentInviteModal from '@/app/components/students/StudentInviteModal';
+import StudentStatsWidget from '@/app/components/students/StudentStatsWidget';
+import ClientStudentWidget from '@/app/components/students/ClientStudentWidget';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
@@ -139,10 +141,12 @@ export default function MyStudentsPage() {
           <p className={styles.subtitle}>Loading...</p>
         </div>
         <ContextualSidebar>
-          <div className={styles.statsCard}>
-            <h3 className={styles.statsTitle}>Statistics</h3>
-            <p className={styles.statsValue}>Loading...</p>
-          </div>
+          <StudentStatsWidget
+            totalStudents={0}
+            recentlyAdded={0}
+            withIntegrations={0}
+            activeThisMonth={0}
+          />
         </ContextualSidebar>
       </>
     );
@@ -167,10 +171,12 @@ export default function MyStudentsPage() {
           </div>
         </div>
         <ContextualSidebar>
-          <div className={styles.statsCard}>
-            <h3 className={styles.statsTitle}>Statistics</h3>
-            <p className={styles.statsValue}>-</p>
-          </div>
+          <StudentStatsWidget
+            totalStudents={0}
+            recentlyAdded={0}
+            withIntegrations={0}
+            activeThisMonth={0}
+          />
         </ContextualSidebar>
       </>
     );
@@ -277,66 +283,19 @@ export default function MyStudentsPage() {
 
       {/* Contextual Sidebar */}
       <ContextualSidebar>
-        {/* Enhanced Stats Card */}
-        <div className={styles.statsCard}>
-          <h3 className={styles.statsTitle}>Student Statistics</h3>
-          <div className={styles.statRow}>
-            <span className={styles.statLabel}>Total Students</span>
-            <span className={styles.statValue}>{stats.total}</span>
-          </div>
-          <div className={styles.statRow}>
-            <span className={styles.statLabel}>Recently Added</span>
-            <span className={styles.statValue}>{stats.recentlyAdded}</span>
-          </div>
-          <div className={styles.statRow}>
-            <span className={styles.statLabel}>With Integrations</span>
-            <span className={styles.statValue}>{stats.withIntegrations}</span>
-          </div>
-          <div className={styles.statRow}>
-            <span className={styles.statLabel}>Active This Month</span>
-            <span className={styles.statValue}>{stats.activeThisMonth}</span>
-          </div>
-        </div>
+        <StudentStatsWidget
+          totalStudents={stats.total}
+          recentlyAdded={stats.recentlyAdded}
+          withIntegrations={stats.withIntegrations}
+          activeThisMonth={stats.activeThisMonth}
+        />
 
-        {/* Quick Actions Card */}
-        <div className={styles.actionsCard}>
-          <h3 className={styles.actionsTitle}>Quick Actions</h3>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className={styles.actionButton}
-          >
-            <span className={styles.actionIcon}>➕</span>
-            <span className={styles.actionText}>Add Student</span>
-          </button>
-          <button
-            onClick={() => toast('Bulk import coming soon!', { icon: '📤' })}
-            className={styles.actionButton}
-          >
-            <span className={styles.actionIcon}>📤</span>
-            <span className={styles.actionText}>Import Students</span>
-          </button>
-          <button
-            onClick={() => refetch()}
-            className={styles.actionButton}
-          >
-            <span className={styles.actionIcon}>🔄</span>
-            <span className={styles.actionText}>Refresh List</span>
-          </button>
-        </div>
-
-        {/* Student Groups Card (Placeholder for future feature) */}
-        <div className={styles.groupsCard}>
-          <h3 className={styles.groupsTitle}>Student Groups</h3>
-          <p className={styles.groupsText}>
-            Organize your students into groups for better management.
-          </p>
-          <button
-            onClick={() => toast('Student groups coming soon!', { icon: '📁' })}
-            className={styles.createGroupButton}
-          >
-            Create Group
-          </button>
-        </div>
+        <ClientStudentWidget
+          onInviteByEmail={() => setIsModalOpen(true)}
+          onImportStudent={() => toast('Bulk import coming soon!', { icon: '📤' })}
+          onAddStudent={() => setIsModalOpen(true)}
+          onCreateGroup={() => toast('Student groups coming soon!', { icon: '📁' })}
+        />
       </ContextualSidebar>
     </>
   );

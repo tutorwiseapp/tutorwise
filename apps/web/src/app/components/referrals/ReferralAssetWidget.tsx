@@ -15,6 +15,7 @@
 import React, { useState } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
 import toast from 'react-hot-toast';
+import SidebarComplexWidget from '../layout/sidebars/components/SidebarComplexWidget';
 import styles from './ReferralAssetWidget.module.css';
 
 interface ReferralAssetWidgetProps {
@@ -75,14 +76,14 @@ export default function ReferralAssetWidget({
   };
 
   return (
-    <div className={`${styles.widget} ${variant === 'onboarding' ? styles.onboarding : ''}`}>
-      {/* Header */}
-      <div className={styles.header}>
-        <h3 className={styles.title}>Your Referral Assets</h3>
-        <p className={styles.subtitle}>
-          Share your unique code and earn 10% commission on first bookings
-        </p>
-      </div>
+    <SidebarComplexWidget className={variant === 'onboarding' ? styles.onboarding : ''}>
+      {/* Title - Teal header bar */}
+      <h3 className={styles.title}>Your Referral Assets</h3>
+
+      {/* Description - Below header */}
+      <p className={styles.description}>
+        Share your unique code and earn 10% commission on first bookings
+      </p>
 
       {/* Referral Code Display */}
       <div className={styles.codeDisplay}>
@@ -243,6 +244,6 @@ export default function ReferralAssetWidget({
           </div>
         )}
       </div>
-    </div>
+    </SidebarComplexWidget>
   );
 }

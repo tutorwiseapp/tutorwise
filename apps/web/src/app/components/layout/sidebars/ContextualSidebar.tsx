@@ -93,43 +93,7 @@ export function BalanceSummaryWidget({ available, pending, total }: BalanceSumma
 }
 
 // Referrals Hub Widgets
-
-interface ReferralStatsProps {
-  totalReferred: number;
-  signedUp: number;
-  converted: number;
-  totalEarned: number;
-}
-
-export function ReferralStatsWidget({
-  totalReferred,
-  signedUp,
-  converted,
-  totalEarned,
-}: ReferralStatsProps) {
-  return (
-    <SidebarWidget title="Referral Stats">
-      <div className={styles.statsCard}>
-        <div className={styles.statRow}>
-          <span className={styles.statLabel}>Referred:</span>
-          <span className={styles.statValue}>{totalReferred}</span>
-        </div>
-        <div className={styles.statRow}>
-          <span className={styles.statLabel}>Signed Up:</span>
-          <span className={styles.statValue}>{signedUp}</span>
-        </div>
-        <div className={styles.statRow}>
-          <span className={styles.statLabel}>Converted:</span>
-          <span className={styles.statValue}>{converted}</span>
-        </div>
-        <div className={`${styles.statRow} ${styles.statHighlight}`}>
-          <span className={styles.statLabel}>Total Earned:</span>
-          <span className={styles.statValueHighlight}>£{totalEarned.toFixed(2)}</span>
-        </div>
-      </div>
-    </SidebarWidget>
-  );
-}
+// Note: ReferralStatsWidget moved to components/referrals/ReferralStatsWidget.tsx
 
 interface ReferralLinkProps {
   referralCode: string;

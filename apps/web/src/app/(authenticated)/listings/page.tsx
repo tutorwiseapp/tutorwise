@@ -220,8 +220,8 @@ export default function ListingsPage() {
       <>
         <ListingsError error={error as Error} onRetry={() => refetch()} />
         <ContextualSidebar>
-          <CreateListingWidget />
           <ListingStatsWidget listings={[]} isLoading={false} />
+          <CreateListingWidget />
         </ContextualSidebar>
       </>
     );
@@ -233,8 +233,8 @@ export default function ListingsPage() {
       <>
         <ListingsSkeleton />
         <ContextualSidebar>
-          <CreateListingWidget />
           <ListingStatsWidget listings={[]} isLoading={true} />
+          <CreateListingWidget />
         </ContextualSidebar>
       </>
     );
@@ -342,8 +342,8 @@ export default function ListingsPage() {
 
       {/* Contextual Sidebar (Right Column) */}
       <ContextualSidebar>
-        <CreateListingWidget />
         <ListingStatsWidget listings={listings} isLoading={false} />
+        <CreateListingWidget />
       </ContextualSidebar>
     </>
   );

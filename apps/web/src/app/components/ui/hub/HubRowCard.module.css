@@ -1,0 +1,185 @@
+/**
+ * Filename: HubRowCard.module.css
+ * Purpose: Styles for universal Hub row card
+ * Design: hub-row-card-ui-design-v1.md
+ *
+ * Layout Specifications:
+ * - Image Column: 160px (desktop), 120px (tablet)
+ * - Content Column: Flex-grow
+ * - Typography: Title (16px SemiBold), Body (14px Regular), Meta (14px Medium)
+ * - Vertical Rhythm: 12px gaps between rows
+ */
+
+.card {
+  display: flex;
+  gap: 16px;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  padding: 16px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.12), 0 2px 4px 0 rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+/* LEFT COLUMN: Image */
+.imageColumn {
+  position: relative;
+  flex-shrink: 0;
+  width: 160px;
+  height: 160px;
+}
+
+@media (max-width: 768px) {
+  .imageColumn {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.imagePlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f3f4f6;
+  border-radius: 8px;
+  font-size: 48px;
+  font-weight: 600;
+  color: #9ca3af;
+}
+
+.imageBadge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background-color: rgba(0, 0, 0, 0.75);
+  color: #ffffff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* RIGHT COLUMN: Content */
+.contentColumn {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0; /* Prevent flex overflow */
+}
+
+/* Row 1: Header Group */
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.statusBadge {
+  flex-shrink: 0;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.statusBadge.success {
+  background-color: #e8f5e8;
+  color: #137333;
+}
+
+.statusBadge.warning {
+  background-color: #fef7e0;
+  color: #b06000;
+}
+
+.statusBadge.error {
+  background-color: #fce8e6;
+  color: #d93025;
+}
+
+.statusBadge.neutral {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.statusBadge.info {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+/* Row 2: Description */
+.description {
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Row 3: Metadata */
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.metaItem {
+  font-size: 14px;
+  font-weight: 500;
+  color: #4b5563;
+  line-height: 1.4;
+}
+
+.bullet {
+  color: #d1d5db;
+  font-weight: 400;
+}
+
+/* Row 4: Stats */
+.statsRow {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* Action Dock */
+.actionDock {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f3f4f6;
+  margin-top: auto; /* Push to bottom */
+}
