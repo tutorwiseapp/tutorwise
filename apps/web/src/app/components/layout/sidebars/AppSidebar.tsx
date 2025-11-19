@@ -29,6 +29,7 @@ export default function AppSidebar() {
   const navItems: NavItem[] = [
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/marketplace', label: 'Marketplace' },
+    { href: '/organisation', label: 'Organisation', roles: ['agent'] }, // v6.1: Agency/School Management (agent only)
     { href: '/listings', label: 'Listings' },
     { href: '/bookings', label: 'Bookings' },
     { href: '/referrals', label: 'Referrals' },
