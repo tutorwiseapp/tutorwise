@@ -143,3 +143,18 @@ apps/web/src/app/test-*/
 
 # Temporary documentation
 FINAL-DEBUGGING-INSTRUCTIONS.md
+
+# Debug and test files (local development only)
+SIGNUP-DEBUG-REPORT.md
+debug-signup-detailed.js
+debug-trigger.sql
+run-migration-089.js
+run-migration-090.js
+test-full-signup-flow.sql
+test-trigger-directly.sql
+
+# TypeScript build info (build artifact)
+apps/web/tsconfig.tsbuildinfo
+
+# CAS design system docs (work in progress)
+cas/docs/CAS-DESIGN-SYSTEM.md
