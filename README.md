@@ -8,6 +8,35 @@
 
 ---
 
+## <� **Project Overview**
+TutorWise is a production-grade, full-stack EdTech marketplace and CRM ecosystem designed to unify the fragmented tutoring economy. Built on a modern Next.js (Frontend) + FastAPI (Backend) architecture, it features a unique "Single Account, Multi-Role" identity system that allows users to seamlessly switch between Student, Tutor, and Agent personas.
+
+Unlike standard marketplaces, TutorWise integrates a sophisticated "Growth Engine" directly into its core, leveraging a proprietary Profile Graph to power viral referrals, network building, and commission tracking.
+
+Key Pillars & Capabilities
+1. AI-Powered Credibility (CaaS)
+The platform features a built-in Credibility as a Service (CaaS) engine. This system automatically scores tutor reliability and professionalism based on verified "Proof of Work" data points—such as completed sessions and saved artifacts—rather than just subjective reviews.
+
+2. WiseSpace (Hybrid Virtual Classroom)
+A cost-optimized, zero-marginal-cost virtual learning environment. It employs a "Hybrid Model" that embeds a collaborative whiteboard (powered by tldraw and Ably real-time sync) alongside external video conferencing (Google Meet integration), ensuring a robust classroom experience without heavy infrastructure costs.
+
+3. Collaborative Wiselists (Planning & Growth)
+An "Airbnb-style" planning tool that serves as a dual-purpose growth engine. Users can curate and share lists of tutors (e.g., "GCSE Maths Prep"), which drives both viral user acquisition (via external invites) and in-network sales attribution (via tracking cookies and Stripe webhooks).
+
+4. Smart Marketplace & CRM
+Listings: Granular service listings with "Free Help" options and dynamic availability.
+
+Bookings & Payments: Integrated Stripe Connect flow handling complex commission splitting, payouts, and dispute management.
+
+Network: A LinkedIn-style connection graph allowing Agents to manage tutor rosters and students to build educational networks.
+
+5. Contextual Autonomous System (CAS)
+The platform is developed and maintained by CAS, an AI-driven "Product Team" framework. This system utilizes specialized AI agents (Planner, Analyst, Developer, Tester) to auto-maintain project plans, execute code, and enforce "Production-Ready" quality standards through automated auditing.
+
+Short Description: TutorWise is an AI-enhanced tutoring ecosystem that merges a professional marketplace with powerful CRM tools. Featuring the WiseSpace hybrid classroom, CaaS credibility scoring, and Collaborative Wiselists, it empowers Tutors, Students, and Agents to connect, plan, and learn within a single, trust-based network.
+
+---
+
 ## Quick Start
 
 ```bash
