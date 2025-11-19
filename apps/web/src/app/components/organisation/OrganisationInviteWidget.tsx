@@ -1,17 +1,23 @@
 /**
  * Filename: OrganisationInviteWidget.tsx
- * Purpose: Invite members to organisation sidebar widget (v6.1)
+ * Purpose: Invite members to organisation sidebar widget (v6.2)
  * Created: 2025-11-19
  * Design: context-sidebar-ui-design-v2.md Section 2.12
  *
- * Uses SidebarComplexWidget (zero padding wrapper) + internal form
+ * Pattern: Complex Action Card with Form Input
+ * Layout:
+ * - Teal Header: "Invite Member"
+ * - Description
+ * - Email Input Field
+ * - Primary Button: "Send Invite"
+ *
+ * NO ICONS - Professional aesthetic
  */
 
 'use client';
 
 import React, { useState } from 'react';
 import SidebarComplexWidget from '@/app/components/layout/sidebars/components/SidebarComplexWidget';
-import Button from '@/app/components/ui/Button';
 import toast from 'react-hot-toast';
 import styles from './OrganisationInviteWidget.module.css';
 
@@ -69,31 +75,31 @@ export default function OrganisationInviteWidget({
 
   return (
     <SidebarComplexWidget className={className}>
-      <div className={styles.container}>
-        <h3 className={styles.title}>Invite Member</h3>
+      <h3 className={styles.title}>Invite Member</h3>
 
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email address"
-            className={styles.input}
-            disabled={isLoading}
-            required
-          />
+      <p className={styles.description}>
+        Invite tutors and teachers to join your organisation.
+      </p>
 
-          <Button
-            type="submit"
-            variant="primary"
-            size="md"
-            disabled={isLoading}
-            className={styles.button}
-          >
-            {isLoading ? 'Sending...' : 'Send Invite'}
-          </Button>
-        </form>
-      </div>
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email address"
+          className={styles.input}
+          disabled={isLoading}
+          required
+        />
+
+        <button
+          type="submit"
+          disabled={isLoading}
+          className={styles.button}
+        >
+          {isLoading ? 'Sending...' : 'Send Invite'}
+        </button>
+      </form>
     </SidebarComplexWidget>
   );
 }

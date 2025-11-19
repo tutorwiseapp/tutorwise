@@ -1,47 +1,103 @@
-/* OrganisationInviteWidget.module.css - v6.1 */
-
-.container {
-  padding: 16px;
-}
+/**
+ * Filename: OrganisationInviteWidget.module.css
+ * Purpose: Styles for Organisation Invite Widget - Complex Action Card
+ * Design: context-sidebar-ui-design-v2.md Section 2.12
+ *
+ * Layout:
+ * - Teal Header with Title
+ * - Description Text
+ * - Email Input Field
+ * - Primary Button (Full Width)
+ *
+ * Design Tokens:
+ * - Card Padding: 16px (var(--space-2))
+ * - Action Gap: 16px
+ * - NO ICONS
+ *
+ * Note: Container styles (shadow, border, radius) provided by SidebarComplexWidget
+ */
 
 .title {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 600;
-  color: #111827;
-  margin: 0 0 16px 0;
+  color: #1f2937;
+  padding: 12px 16px;
+  margin: 0;
+  line-height: 1.4;
+  background-color: #E6F0F0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.description {
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0;
+  padding: 16px;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+  padding: 0 16px 16px 16px;
 }
 
 .input {
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px 16px;
   font-size: 14px;
   color: #111827;
   background: #ffffff;
   border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border-radius: 8px;
   outline: none;
   transition: border-color 0.2s ease;
 }
 
 .input:focus {
   border-color: var(--color-primary-default, #006c67);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
 }
 
 .input:disabled {
   background: #f3f4f6;
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .input::placeholder {
   color: #9ca3af;
 }
 
+/* Primary Button */
 .button {
   width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  text-align: center;
+  line-height: 1.4;
+  background-color: #006c67;
+  color: #ffffff;
+}
+
+.button:hover:not(:disabled) {
+  background-color: #005550;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(0);
+  background-color: #004440;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
