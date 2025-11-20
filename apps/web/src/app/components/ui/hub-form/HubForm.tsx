@@ -1,14 +1,16 @@
 /**
  * Filename: HubForm.tsx
- * Purpose: Standardized form layout for hub pages (Organisation, Profile, etc.)
+ * Purpose: Gold Standard form layout for hub pages (Organisation, Profile, etc.)
+ * Version: v3 (Borderless, Auto-save)
  * Created: 2025-11-20
- * Design: Matches PersonalInfoForm visual style
+ * Design: Clean/Borderless look with hybrid auto-save + manual safety buttons
  *
  * Compound Components:
- * - HubForm.Root: Form wrapper with white bg, shadow, border
- * - HubForm.Grid: 2-column responsive grid layout
- * - HubForm.Field: Label + Input + Error wrapper
- * - HubForm.Actions: Bottom action bar for Save/Cancel buttons
+ * - HubForm.Root: Transparent container (no box, no shadow)
+ * - HubForm.Section: Optional section grouping with title
+ * - HubForm.Grid: 2-column responsive grid layout (24px gap)
+ * - HubForm.Field: Label + Input/Display + Error wrapper (supports "Click to Edit")
+ * - HubForm.Actions: Bottom action bar for Save/Cancel safety buttons
  */
 
 'use client';
@@ -18,18 +20,14 @@ import styles from './HubForm.module.css';
 
 interface HubFormRootProps {
   children: React.ReactNode;
-  onSubmit?: (e: React.FormEvent) => void;
   className?: string;
 }
 
-function HubFormRoot({ children, onSubmit, className }: HubFormRootProps) {
+function HubFormRoot({ children, className }: HubFormRootProps) {
   return (
-    <form
-      onSubmit={onSubmit}
-      className={`${styles.root} ${className || ''}`}
-    >
+    <div className={`${styles.root} ${className || ''}`}>
       {children}
-    </form>
+    </div>
   );
 }
 
@@ -70,16 +68,31 @@ interface HubFormFieldProps {
   error?: string;
   children: React.ReactNode;
   className?: string;
+  isEditing?: boolean;
+  onClick?: () => void;
 }
 
-function HubFormField({ label, required, error, children, className }: HubFormFieldProps) {
+function HubFormField({
+  label,
+  required,
+  error,
+  children,
+  className,
+  isEditing,
+  onClick
+}: HubFormFieldProps) {
   return (
     <div className={`${styles.field} ${className || ''}`}>
       <label className={styles.label}>
         {label}
         {required && <span className={styles.required}>*</span>}
       </label>
-      {children}
+      <div
+        className={isEditing === false && onClick ? styles.clickableDisplay : undefined}
+        onClick={isEditing === false && onClick ? onClick : undefined}
+      >
+        {children}
+      </div>
       {error && <span className={styles.error}>{error}</span>}
     </div>
   );

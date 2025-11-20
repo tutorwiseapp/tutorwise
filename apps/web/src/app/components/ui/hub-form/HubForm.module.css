@@ -1,32 +1,26 @@
 /**
  * Filename: HubForm.module.css
- * Purpose: Standardized form layout styles
- * Design: Matches PersonalInfoForm visual style
+ * Purpose: Standardized form layout styles (Gold Standard - Borderless)
+ * Design: Clean look matching Account Page (v3)
  *
  * Design Tokens:
- * - Background: White with shadow-sm and border
+ * - Background: Transparent (no box, no shadow, no border)
  * - Grid: 2-column responsive (1fr 1fr on desktop, 1fr on mobile)
  * - Gap: 24px (var(--space-3))
  * - Labels: 14px Medium Gray-700
  * - Fields: Standard input styling
  */
 
-/* Form Root */
+/* Form Root - Transparent Container */
 .root {
-  background-color: #ffffff;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  /* Removed: background-color, box-shadow, border-radius, border */
+  /* This is now just a layout container */
 }
 
-/* Section */
+/* Section - Clean Layout (no borders) */
 .section {
-  padding: var(--space-3, 24px);
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.section:last-child {
-  border-bottom: none;
+  padding: var(--space-3, 24px) 0;
+  /* Removed: border-bottom */
 }
 
 .sectionTitle {
@@ -78,14 +72,13 @@
   margin-top: 4px;
 }
 
-/* Actions Bar */
+/* Actions Bar - Clean (no background, no border) */
 .actions {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  padding: var(--space-3, 24px);
-  background-color: #f9fafb;
-  border-top: 1px solid #e5e7eb;
+  padding: var(--space-3, 24px) 0;
+  /* Removed: background-color, border-top */
 }
 
 /* Input Styles (for use with Field children) */
@@ -128,4 +121,31 @@
 /* Full-width field variant */
 .field.fullWidth {
   grid-column: 1 / -1;
+}
+
+/* Click-to-Edit Display Mode */
+.clickableDisplay {
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #111827;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+}
+
+.clickableDisplay:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.clickableDisplay:empty::before {
+  content: 'Click to add...';
+  color: #9ca3af;
+  font-style: italic;
 }
