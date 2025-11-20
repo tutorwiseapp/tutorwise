@@ -76,7 +76,7 @@
   background-color: rgba(0, 0, 0, 0.8);
 }
 
-/* Display Value (Click-to-Edit) - Plain Text Display */
+/* Display Value (Click-to-Edit) - Plain Text Display (matching PersonalInfoForm) */
 .displayValue {
   padding: 10px 0;
   font-size: 14px;
@@ -87,11 +87,6 @@
   min-height: 22px;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid transparent;
-}
-
-.displayValue:hover {
-  border-bottom-color: #d1d5db;
 }
 
 .placeholder {
