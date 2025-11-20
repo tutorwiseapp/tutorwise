@@ -284,7 +284,9 @@ export default function OrganisationPage() {
             totalClients={0}
             monthlyRevenue={0}
           />
-          <OrganisationInviteWidget />
+          <OrganisationInviteWidget
+            onOrganisationCreated={() => setShowCreateModal(true)}
+          />
         </ContextualSidebar>
       </>
     );

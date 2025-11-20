@@ -72,8 +72,8 @@ export default function OrganisationInviteWidget({
       return;
     }
 
-    // TODO: Implement organisation creation modal or flow
-    toast.error('Organisation creation not yet implemented');
+    // Trigger the creation form in the parent page
+    onOrganisationCreated?.();
   };
 
   const handleModalSuccess = () => {
