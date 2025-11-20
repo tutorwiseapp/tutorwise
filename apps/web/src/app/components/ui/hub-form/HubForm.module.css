@@ -17,10 +17,14 @@
   /* This is now just a layout container */
 }
 
-/* Section - Clean Layout (no borders) */
+/* Section - Clean Layout with divider lines */
 .section {
   padding: var(--space-3, 24px) 0;
-  /* Removed: border-bottom */
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.section:last-child {
+  border-bottom: none;
 }
 
 .sectionTitle {
@@ -125,23 +129,24 @@
 
 /* Click-to-Edit Display Mode */
 .clickableDisplay {
-  padding: 10px 14px;
+  padding: 0.75rem; /* 12px - consistent with input fields */
   font-size: 14px;
   line-height: 1.5;
   color: #111827;
-  background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
+  background-color: #ffffff; /* White background like inputs */
+  border: 1px solid var(--color-border, #d1d5db); /* Darker border */
+  border-radius: var(--border-radius-md, 8px); /* 8px not 6px */
   cursor: pointer;
-  transition: all 0.15s ease;
-  min-height: 42px;
+  transition: all 0.2s ease;
+  min-height: 44px; /* Accessible touch target */
   display: flex;
   align-items: center;
 }
 
 .clickableDisplay:hover {
-  background-color: #f3f4f6;
-  border-color: #d1d5db;
+  background-color: var(--color-bg-hover, #f9fafb); /* Subtle grey on hover */
+  border-color: var(--color-primary, #006C67); /* Teal border */
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.05); /* Subtle glow */
 }
 
 .clickableDisplay:empty::before {

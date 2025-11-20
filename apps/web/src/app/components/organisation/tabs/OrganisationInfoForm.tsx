@@ -1,16 +1,16 @@
 /**
  * Filename: OrganisationInfoForm.tsx
  * Purpose: Organisation Info Form with Gold Standard Auto-save Logic
- * Version: v3 (Hybrid Auto-save + Manual Safety Buttons)
+ * Version: v4 (Pure Auto-save Pattern)
  * Created: 2025-11-20
  * Design: Transplanted from PersonalInfoForm.tsx (Superior Logic) + HubForm (Superior Visuals)
  *
  * Features:
  * - Click-to-Edit pattern for all fields
  * - Auto-save on blur (optimistic update)
- * - Manual Save/Cancel buttons as safety net
  * - Logo upload with immediate auto-save
  * - Validation blocks save (keeps field in edit mode)
+ * - Keyboard shortcuts (Enter to save, Esc to cancel)
  */
 
 'use client';
@@ -19,7 +19,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Organisation, updateOrganisation } from '@/lib/api/organisation';
 import { HubForm } from '@/app/components/ui/hub-form';
-import Button from '@/app/components/ui/Button';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import toast from 'react-hot-toast';
 import styles from './OrganisationInfoForm.module.css';
@@ -217,18 +216,25 @@ export default function OrganisationInfoForm({ organisation }: OrganisationInfoF
   };
 
   // Auto-save on blur
-  const handleBlur = async (field: EditingField) => {
+  const handleBlur = (field: EditingField) => {
     if (!field || field === 'logo') return;
+    if (isSaving) return; // Prevent re-triggering while saving
 
-    // Check if value has changed
-    const currentValue = formData[field as keyof typeof formData];
-    const originalValue = (organisation as any)[field] || '';
+    // Small delay to allow click events to complete (e.g., clicking Save/Cancel buttons)
+    setTimeout(() => {
+      // Check if still editing this field (user might have cancelled or switched fields)
+      if (editingField !== field) return;
 
-    if (currentValue !== originalValue) {
-      await handleSaveField(field);
-    } else {
-      setEditingField(null);
-    }
+      // Check if value has changed
+      const currentValue = formData[field as keyof typeof formData];
+      const originalValue = (organisation as any)[field] || '';
+
+      if (currentValue !== originalValue) {
+        handleSaveField(field);
+      } else {
+        setEditingField(null);
+      }
+    }, 150);
   };
 
   // Keyboard shortcuts
@@ -298,9 +304,9 @@ export default function OrganisationInfoForm({ organisation }: OrganisationInfoF
             />
           )
         ) : (
-          <div className={styles.displayValue}>
+          <>
             {displayValue || <span className={styles.placeholder}>{placeholder || `Click to add ${label.toLowerCase()}...`}</span>}
-          </div>
+          </>
         )}
         {isSaving && isEditing && <span className={styles.savingIndicator}>Saving...</span>}
       </HubForm.Field>
@@ -323,32 +329,30 @@ export default function OrganisationInfoForm({ organisation }: OrganisationInfoF
 
   return (
     <HubForm.Root>
-      {/* Section 1: Identity */}
-      <HubForm.Section title="Identity">
+      {/* Section 1: Logo and Basic Info */}
+      <HubForm.Section>
         <div className={styles.identityLayout}>
           {/* Logo Upload */}
           <div className={styles.logoSection}>
-            <label className={styles.logoLabel}>Logo</label>
-            <div className={styles.logoUpload}>
+            <div className={styles.logoUploadContainer}>
               <div className={styles.logoPreview}>
                 {logoPreview ? (
                   <img src={logoPreview} alt="Organisation logo" className={styles.logoImage} />
                 ) : (
                   <div className={styles.logoPlaceholder}>No logo</div>
                 )}
+                <input
+                  type="file"
+                  id="logo"
+                  accept="image/*"
+                  onChange={handleLogoChange}
+                  className={styles.fileInput}
+                  disabled={isUploadingLogo}
+                />
+                <label htmlFor="logo" className={styles.fileLabel}>
+                  {isUploadingLogo ? 'Uploading...' : 'Upload Logo'}
+                </label>
               </div>
-              <input
-                type="file"
-                id="logo"
-                accept="image/*"
-                onChange={handleLogoChange}
-                className={styles.fileInput}
-                disabled={isUploadingLogo}
-              />
-              <label htmlFor="logo" className={styles.fileLabel}>
-                {isUploadingLogo ? 'Uploading...' : 'Upload Logo'}
-              </label>
-              <p className={styles.hint}>Max 5MB. JPG, PNG, or GIF.</p>
             </div>
           </div>
 
@@ -382,25 +386,25 @@ export default function OrganisationInfoForm({ organisation }: OrganisationInfoF
         </HubForm.Grid>
       </HubForm.Section>
 
-      {/* Safety Buttons */}
-      <HubForm.Actions>
-        <Button
+      {/* Action Buttons */}
+      <div className={styles.actionButtons}>
+        <button
           type="button"
-          variant="secondary"
           onClick={handleCancelAll}
           disabled={!editingField || isSaving}
+          className={`${styles.button} ${styles.secondary}`}
         >
           Cancel
-        </Button>
-        <Button
+        </button>
+        <button
           type="button"
-          variant="primary"
           onClick={handleSaveAll}
           disabled={!editingField || isSaving}
+          className={`${styles.button} ${styles.primary}`}
         >
-          {isSaving ? 'Saving...' : 'Save Changes'}
-        </Button>
-      </HubForm.Actions>
+          {isSaving ? 'Saving...' : 'Save'}
+        </button>
+      </div>
     </HubForm.Root>
   );
 }

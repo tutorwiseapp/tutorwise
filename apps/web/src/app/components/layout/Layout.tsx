@@ -29,7 +29,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                     pathname?.startsWith('/network') ||
                     pathname?.startsWith('/my-students') ||
                     pathname?.startsWith('/payments') ||
-                    pathname?.startsWith('/account');
+                    pathname?.startsWith('/account') ||
+                    pathname?.startsWith('/organisation');
 
   return (
     <div className={styles.appWrapper}>

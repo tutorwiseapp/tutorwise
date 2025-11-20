@@ -24,10 +24,8 @@
   color: #374151;
 }
 
-.logoUpload {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.logoUploadContainer {
+  position: relative;
 }
 
 .logoPreview {
@@ -40,6 +38,7 @@
   align-items: center;
   justify-content: center;
   background-color: #f9fafb;
+  position: relative;
 }
 
 .logoImage {
@@ -59,28 +58,22 @@
 }
 
 .fileLabel {
-  display: inline-block;
-  padding: 8px 16px;
-  font-size: 13px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px;
+  font-size: 12px;
   font-weight: 500;
-  color: #374151;
-  background-color: #ffffff;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  color: #ffffff;
+  background-color: rgba(0, 0, 0, 0.6);
+  text-align: center;
   cursor: pointer;
   transition: all 0.15s ease;
-  width: fit-content;
 }
 
 .fileLabel:hover {
-  background-color: #f9fafb;
-  border-color: #9ca3af;
-}
-
-.hint {
-  font-size: 13px;
-  color: #6b7280;
-  margin: 0;
+  background-color: rgba(0, 0, 0, 0.8);
 }
 
 /* Display Value (Click-to-Edit) - Plain Text Display */
@@ -117,6 +110,63 @@
   color: #006c67;
   font-style: italic;
   margin-top: 4px;
+}
+
+/* Action Buttons Container */
+.actionButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 24px 0 0 0;
+}
+
+/* Button Base Styles - Matching Invite Member Button */
+.button {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Primary Button */
+.button.primary {
+  background-color: #006c67;
+  color: #ffffff;
+}
+
+.button.primary:hover:not(:disabled) {
+  background-color: #005550;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.button.primary:active:not(:disabled) {
+  transform: translateY(0);
+  background-color: #004440;
+}
+
+/* Secondary Button */
+.button.secondary {
+  background-color: #f9fafb;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  font-weight: 500;
+}
+
+.button.secondary:hover:not(:disabled) {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+  color: #111827;
 }
 
 /* Mobile Responsive */
