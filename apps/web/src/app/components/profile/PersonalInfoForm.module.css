@@ -51,13 +51,13 @@
 
 .formInput {
   width: 100%;
-  padding: 0.75rem; /* 12px - close to 8px grid (can be 0.75rem or 1rem/16px) */
-  border: 1px solid var(--color-border, #d1d5db);
-  border-radius: var(--border-radius-md, 8px);
-  font-size: 1rem; /* 16px - text-body-base */
-  color: var(--color-text-primary, #1f2937);
-  background-color: var(--color-bg-input, #ffffff);
-  transition: all 0.2s ease;
+  padding: 10px 14px; /* Matching HubForm/OrganisationInfoForm */
+  border: 1px solid #d1d5db;
+  border-radius: 6px; /* Matching HubForm */
+  font-size: 14px; /* Matching HubForm */
+  color: #111827;
+  background-color: #ffffff;
+  transition: all 0.15s ease;
   line-height: 1.5;
 }
 
@@ -99,29 +99,21 @@ input[type='number'].formInput::-webkit-inner-spin-button {
   margin: 0;
 }
 
-/* Inline Editing Styles */
+/* Display Value (Click-to-Edit) - Plain Text Display (matching OrganisationInfoForm) */
 .displayValue {
-  padding: 0.75rem; /* 12px - consistent with formInput */
-  border: 1px solid transparent;
-  border-radius: var(--border-radius-md, 8px);
-  min-height: 44px; /* Accessible touch target */
+  padding: 10px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #111827;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 22px;
   display: flex;
   align-items: center;
-  color: var(--color-text-primary, #1f2937);
-  background-color: var(--color-bg-input, #ffffff);
-  line-height: 1.5;
 }
 
 .displayValue.editable {
   cursor: pointer;
-  transition: all 0.2s ease;
-  border-color: var(--color-border, #d1d5db);
-}
-
-.displayValue.editable:hover {
-  background-color: var(--color-bg-hover, #f9fafb);
-  border-color: var(--color-primary, #006C67);
-  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.05);
 }
 
 .editingContainer {
@@ -132,6 +124,11 @@ input[type='number'].formInput::-webkit-inner-spin-button {
 }
 
 /* Saving state visual feedback */
+.saving {
+  opacity: 0.6;
+  cursor: wait;
+}
+
 .formInput.saving {
   opacity: 0.7;
   pointer-events: none;
@@ -178,16 +175,20 @@ input[type='number'].formInput::-webkit-inner-spin-button {
   font-style: italic;
 }
 
-/* Document Upload Styles */
+/* Document Upload Styles - Input-like Display */
 .documentDisplay {
-  padding: 0.75rem; /* 12px - consistent with other inputs */
-  border: 1px solid var(--color-border, #d1d5db);
-  border-radius: var(--border-radius-md, 8px);
-  min-height: 44px; /* Accessible touch target */
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #111827;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  min-height: 44px;
   display: flex;
   align-items: center;
-  background-color: var(--color-bg-input, #ffffff);
-  transition: all 0.2s ease;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
 .documentDisplay.editable {
@@ -195,9 +196,7 @@ input[type='number'].formInput::-webkit-inner-spin-button {
 }
 
 .documentDisplay.editable:hover {
-  background-color: var(--color-bg-hover, #f9fafb);
-  border-color: var(--color-primary, #006C67);
-  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.05);
+  border-color: #9ca3af;
 }
 
 .documentInfo {
@@ -282,6 +281,63 @@ input[type='number'].formInput::-webkit-inner-spin-button {
   color: var(--color-text-primary, #1f2937);
   margin-bottom: 0.75rem; /* 12px - spacing before content */
   line-height: 1.6;
+}
+
+/* Action Buttons Container - Matching OrganisationInfoForm */
+.actionButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 24px 0 0 0;
+}
+
+/* Button Base Styles - Matching Invite Member Button */
+.button {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Primary Button */
+.button.primary {
+  background-color: #006c67;
+  color: #ffffff;
+}
+
+.button.primary:hover:not(:disabled) {
+  background-color: #005550;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.button.primary:active:not(:disabled) {
+  transform: translateY(0);
+  background-color: #004440;
+}
+
+/* Secondary Button */
+.button.secondary {
+  background-color: #f9fafb;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  font-weight: 500;
+}
+
+.button.secondary:hover:not(:disabled) {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+  color: #111827;
 }
 
 .actions {

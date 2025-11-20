@@ -3,10 +3,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { format, parse } from 'date-fns';
 import type { Profile } from '@/types';
-import Button from '@/app/components/ui/Button';
+import HubForm from '@/app/components/ui/hub-form/HubForm';
 import DatePicker from '@/app/components/ui/picker/DatePicker';
 import styles from './PersonalInfoForm.module.css';
-import formLayoutStyles from '@/app/components/onboarding/PersonalInfoForm.module.css';
+import hubFormStyles from '@/app/components/ui/hub-form/HubForm.module.css';
 
 interface PersonalInfoFormProps {
   profile: Profile;
@@ -157,19 +157,36 @@ export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormPr
     setEditingField(field);
   };
 
-  // Auto-save on blur (when clicking outside)
-  const handleBlur = async (field: EditingField) => {
-    if (!field || field === 'document') return;
-
-    // Check if value has changed
-    const currentValue = formData[field as keyof typeof formData];
-    const originalValue = (profile as any)[field] || '';
-
-    if (currentValue !== originalValue) {
-      await handleSaveField(field);
-    } else {
-      setEditingField(null);
+  // Safety button handlers (manual save/cancel)
+  const handleSaveAll = async () => {
+    if (editingField && editingField !== 'document') {
+      await handleSaveField(editingField);
     }
+  };
+
+  const handleCancelAll = () => {
+    if (editingField) {
+      handleCancelField(editingField);
+    }
+  };
+
+  // Auto-save on blur with 150ms delay (matching OrganisationInfoForm)
+  const handleBlur = (field: EditingField) => {
+    if (!field || field === 'document') return;
+    if (isSaving) return; // Prevent re-triggering while saving
+
+    setTimeout(() => {
+      if (editingField !== field) return;
+
+      const currentValue = formData[field as keyof typeof formData];
+      const originalValue = (profile as any)[field] || '';
+
+      if (currentValue !== originalValue) {
+        handleSaveField(field);
+      } else {
+        setEditingField(null);
+      }
+    }, 150);
   };
 
   // Handle keyboard shortcuts
@@ -190,25 +207,30 @@ export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormPr
     placeholder?: string,
     options?: { value: string; label: string }[]
   ) => {
+    if (!field) return null;
+
     const fieldKey = field as keyof typeof formData;
     const isEditing = editingField === field;
-    const displayValue = formData[fieldKey] || placeholder || `Click to add ${label.toLowerCase()}...`;
 
     return (
-      <div className={styles.formGroup}>
-        <label className={styles.formLabel}>{label}</label>
+      <HubForm.Field
+        label={label}
+        isEditing={isEditing}
+        onClick={() => !isEditing && handleFieldClick(field)}
+      >
         {isEditing ? (
-          <div className={styles.editingContainer}>
+          <>
             {type === 'select' ? (
               <select
-                ref={(el) => { inputRefs.current[field!] = el; }}
+                ref={(el) => { inputRefs.current[field] = el; }}
+                className={hubFormStyles.input}
                 name={fieldKey}
                 value={formData[fieldKey]}
                 onChange={handleChange}
                 onBlur={() => handleBlur(field)}
                 onKeyDown={(e) => handleKeyDown(e, field)}
                 disabled={isSaving}
-                className={`${styles.formInput} ${isSaving ? styles.saving : ''}`}
+                {...(isSaving && { style: { opacity: 0.6, cursor: 'wait' } })}
               >
                 <option value="">Select {label.toLowerCase()}</option>
                 {options?.map((opt) => (
@@ -224,7 +246,8 @@ export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormPr
               </div>
             ) : (
               <input
-                ref={(el) => { inputRefs.current[field!] = el; }}
+                ref={(el) => { inputRefs.current[field] = el; }}
+                className={hubFormStyles.input}
                 type={type}
                 name={fieldKey}
                 value={formData[fieldKey]}
@@ -233,35 +256,30 @@ export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormPr
                 onKeyDown={(e) => handleKeyDown(e, field)}
                 placeholder={placeholder}
                 disabled={isSaving}
-                className={`${styles.formInput} ${isSaving ? styles.saving : ''}`}
+                {...(isSaving && { style: { opacity: 0.6, cursor: 'wait' } })}
               />
             )}
-            {isSaving && (
-              <div className={styles.savingIndicator}>
-                <span className={styles.savingText}>Saving...</span>
-              </div>
+            {isSaving && editingField === field && (
+              <span className={styles.savingIndicator}>Saving...</span>
             )}
-          </div>
+          </>
         ) : (
-          <div
-            className={`${styles.displayValue} ${styles.editable}`}
-            onClick={() => handleFieldClick(field)}
-          >
+          <>
             {type === 'date' && formData[fieldKey]
               ? format(parse(formData[fieldKey] as string, 'yyyy-MM-dd', new Date()), 'dd MMMM yyyy')
               : formData[fieldKey] || <span className={styles.placeholder}>{placeholder || `Click to add ${label.toLowerCase()}...`}</span>
             }
-          </div>
+          </>
         )}
-      </div>
+      </HubForm.Field>
     );
   };
 
   return (
-    <div className={styles.personalInfoForm}>
-      <div className={styles.formContent}>
-        {/* Name and Gender - 2 Column Layout */}
-        <div className={formLayoutStyles.twoColumnGrid}>
+    <HubForm.Root>
+      {/* Section 1: Name and Gender */}
+      <HubForm.Section>
+        <HubForm.Grid>
           {renderField('first_name', 'First Name', 'text', 'Mike')}
           {renderField('last_name', 'Last Name', 'text', 'Quinn')}
           {renderField('gender', 'Gender', 'select', 'Select gender', [
@@ -271,30 +289,31 @@ export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormPr
             { value: 'Prefer not to say', label: 'Prefer not to say' }
           ])}
           {renderField('date_of_birth', 'Date of Birth', 'date', '01 October 1990')}
-        </div>
+        </HubForm.Grid>
+      </HubForm.Section>
 
-        {/* Email and Phone - 2 Column Layout */}
-        <div className={formLayoutStyles.twoColumnGrid}>
+      {/* Section 2: Contact Information */}
+      <HubForm.Section>
+        <HubForm.Grid>
           {renderField('email', 'Email', 'email', 'mikequinn@gmail.com')}
           {renderField('phone', 'Phone', 'tel', '+44 07575 123456')}
-        </div>
+        </HubForm.Grid>
+      </HubForm.Section>
 
-        {/* Address Fields - 2 Column Layout */}
-        <div className={formLayoutStyles.twoColumnGrid}>
-          <div className={formLayoutStyles.fullWidth}>
-            {renderField('address_line1', 'Address', 'text', '100, The Royal Observatory')}
-          </div>
+      {/* Section 3: Address */}
+      <HubForm.Section>
+        <HubForm.Grid>
+          {renderField('address_line1', 'Address', 'text', '100, The Royal Observatory')}
           {renderField('town', 'Town', 'text', 'Greenwich')}
           {renderField('city', 'City', 'text', 'London')}
           {renderField('country', 'Country', 'text', 'United Kingdom')}
           {renderField('postal_code', 'Postcode/Zip Code', 'text', 'SE10 8XJ')}
-        </div>
+        </HubForm.Grid>
+      </HubForm.Section>
 
-        {/* Identity Verification Document Upload */}
-        <div className={styles.formGroup}>
-          <label className={styles.formLabel}>
-            Upload Identity Verification Document
-          </label>
+      {/* Section 4: Identity Verification Document */}
+      <HubForm.Section>
+        <HubForm.Field label="Upload Identity Verification Document">
           <div
             className={`${styles.documentDisplay} ${styles.editable}`}
             onClick={() => document.getElementById('identityDocument')?.click()}
@@ -328,17 +347,36 @@ export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormPr
           <p className={styles.helperText}>
             Passport, driver&apos;s license, or national ID (JPG, PNG, PDF - max 5MB)
           </p>
-        </div>
+        </HubForm.Field>
+      </HubForm.Section>
 
-        {/* Emergency Contact - 2 Column Layout */}
-        <div className={formLayoutStyles.subsection}>
-          <h3 className={styles.subsectionTitle}>Emergency Contact</h3>
-          <div className={formLayoutStyles.twoColumnGrid}>
-            {renderField('emergency_contact_name', 'Emergency Contact Name', 'text', 'John Doe')}
-            {renderField('emergency_contact_email', 'Emergency Contact Email', 'email', 'emergency@example.com')}
-          </div>
-        </div>
+      {/* Section 5: Emergency Contact */}
+      <HubForm.Section title="Emergency Contact">
+        <HubForm.Grid>
+          {renderField('emergency_contact_name', 'Emergency Contact Name', 'text', 'John Doe')}
+          {renderField('emergency_contact_email', 'Emergency Contact Email', 'email', 'emergency@example.com')}
+        </HubForm.Grid>
+      </HubForm.Section>
+
+      {/* Action Buttons */}
+      <div className={styles.actionButtons}>
+        <button
+          type="button"
+          onClick={handleCancelAll}
+          disabled={!editingField || isSaving}
+          className={`${styles.button} ${styles.secondary}`}
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          onClick={handleSaveAll}
+          disabled={!editingField || isSaving}
+          className={`${styles.button} ${styles.primary}`}
+        >
+          {isSaving ? 'Saving...' : 'Save'}
+        </button>
       </div>
-    </div>
+    </HubForm.Root>
   );
 }
