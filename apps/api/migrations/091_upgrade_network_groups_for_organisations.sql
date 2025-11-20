@@ -9,7 +9,17 @@ ADD COLUMN IF NOT EXISTS type TEXT CHECK (type IN ('personal', 'organisation')) 
 ADD COLUMN IF NOT EXISTS slug TEXT,
 ADD COLUMN IF NOT EXISTS avatar_url TEXT,
 ADD COLUMN IF NOT EXISTS website TEXT,
-ADD COLUMN IF NOT EXISTS settings JSONB DEFAULT '{}';
+ADD COLUMN IF NOT EXISTS settings JSONB DEFAULT '{}',
+-- Contact information
+ADD COLUMN IF NOT EXISTS contact_name TEXT,
+ADD COLUMN IF NOT EXISTS contact_email TEXT,
+ADD COLUMN IF NOT EXISTS contact_phone TEXT,
+-- Address information
+ADD COLUMN IF NOT EXISTS address_line1 TEXT,
+ADD COLUMN IF NOT EXISTS address_town TEXT,
+ADD COLUMN IF NOT EXISTS address_city TEXT,
+ADD COLUMN IF NOT EXISTS address_postcode TEXT,
+ADD COLUMN IF NOT EXISTS address_country TEXT;
 
 -- 2. Update description column to be nullable (it already exists)
 -- The description column was created in migration 039, no change needed
@@ -88,7 +98,13 @@ CREATE TRIGGER ensure_organisation_slug
     WHEN (NEW.type = 'organisation')
     EXECUTE FUNCTION public.ensure_group_slug();
 
--- 10. Comments for documentation
+-- 10. Update RLS to ensure only owner can update organisation details
+CREATE POLICY IF NOT EXISTS "Owner can update organisation details"
+    ON public.connection_groups FOR UPDATE
+    USING (owner_id = auth.uid())
+    WITH CHECK (owner_id = auth.uid());
+
+-- 11. Comments for documentation
 COMMENT ON COLUMN public.connection_groups.type IS
     'Group type: personal (default) or organisation (for agencies/schools/companies)';
 COMMENT ON COLUMN public.connection_groups.slug IS
@@ -99,3 +115,19 @@ COMMENT ON COLUMN public.connection_groups.website IS
     'Organisation website URL';
 COMMENT ON COLUMN public.connection_groups.settings IS
     'JSONB field for future configuration options';
+COMMENT ON COLUMN public.connection_groups.contact_name IS
+    'Primary contact person name for the organisation';
+COMMENT ON COLUMN public.connection_groups.contact_email IS
+    'Primary contact email for the organisation';
+COMMENT ON COLUMN public.connection_groups.contact_phone IS
+    'Primary contact phone number for the organisation';
+COMMENT ON COLUMN public.connection_groups.address_line1 IS
+    'Organisation street address';
+COMMENT ON COLUMN public.connection_groups.address_town IS
+    'Organisation town/suburb';
+COMMENT ON COLUMN public.connection_groups.address_city IS
+    'Organisation city';
+COMMENT ON COLUMN public.connection_groups.address_postcode IS
+    'Organisation postcode/ZIP code';
+COMMENT ON COLUMN public.connection_groups.address_country IS
+    'Organisation country';

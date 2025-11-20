@@ -1,0 +1,131 @@
+/**
+ * Filename: HubForm.module.css
+ * Purpose: Standardized form layout styles
+ * Design: Matches PersonalInfoForm visual style
+ *
+ * Design Tokens:
+ * - Background: White with shadow-sm and border
+ * - Grid: 2-column responsive (1fr 1fr on desktop, 1fr on mobile)
+ * - Gap: 24px (var(--space-3))
+ * - Labels: 14px Medium Gray-700
+ * - Fields: Standard input styling
+ */
+
+/* Form Root */
+.root {
+  background-color: #ffffff;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Section */
+.section {
+  padding: var(--space-3, 24px);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.section:last-child {
+  border-bottom: none;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 var(--space-3, 24px) 0;
+}
+
+/* Grid Layout */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3, 24px);
+}
+
+.gridSingle {
+  grid-template-columns: 1fr;
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Field */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  line-height: 1.4;
+}
+
+.required {
+  color: #dc2626;
+  margin-left: 4px;
+}
+
+.error {
+  font-size: 13px;
+  color: #dc2626;
+  margin-top: 4px;
+}
+
+/* Actions Bar */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: var(--space-3, 24px);
+  background-color: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Input Styles (for use with Field children) */
+.field input[type="text"],
+.field input[type="email"],
+.field input[type="url"],
+.field input[type="tel"],
+.field textarea,
+.field select {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #111827;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  border-color: var(--color-primary-default, #006c67);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.field textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Full-width field variant */
+.field.fullWidth {
+  grid-column: 1 / -1;
+}

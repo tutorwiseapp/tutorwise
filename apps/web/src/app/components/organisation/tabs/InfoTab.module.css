@@ -1,0 +1,91 @@
+/**
+ * Filename: InfoTab.module.css
+ * Purpose: Styles for Organisation Info Tab
+ * Design: Matches PersonalInfoForm layout
+ */
+
+/* Identity Section Layout */
+.identityLayout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 24px);
+}
+
+/* Logo Section */
+.logoSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.logoLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.logoUpload {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.logoPreview {
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  border: 2px dashed #d1d5db;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9fafb;
+}
+
+.logoImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.logoPlaceholder {
+  font-size: 13px;
+  color: #9ca3af;
+  text-align: center;
+}
+
+.fileInput {
+  display: none;
+}
+
+.fileLabel {
+  display: inline-block;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: fit-content;
+}
+
+.fileLabel:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.hint {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .identityLayout {
+    gap: var(--space-2, 16px);
+  }
+}

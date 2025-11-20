@@ -27,7 +27,7 @@ import {
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import OrganisationStatsWidget from '@/app/components/organisation/OrganisationStatsWidget';
 import OrganisationInviteWidget from '@/app/components/organisation/OrganisationInviteWidget';
-import InfoTab from '@/app/components/organisation/InfoTab';
+import InfoTab from '@/app/components/organisation/tabs/InfoTab';
 import HubRowCard from '@/app/components/ui/hub/HubRowCard';
 import Button from '@/app/components/ui/Button';
 import toast from 'react-hot-toast';
@@ -223,7 +223,7 @@ export default function OrganisationPage() {
               onClick={() => setActiveTab('info')}
               className={`${styles.filterTab} ${activeTab === 'info' ? styles.filterTabActive : ''}`}
             >
-              Info
+              Organisation Info
             </button>
           </div>
 
@@ -318,7 +318,7 @@ export default function OrganisationPage() {
             onClick={() => setActiveTab('info')}
             className={`${styles.filterTab} ${activeTab === 'info' ? styles.filterTabActive : ''}`}
           >
-            Info
+            Organisation Info
           </button>
         </div>
 

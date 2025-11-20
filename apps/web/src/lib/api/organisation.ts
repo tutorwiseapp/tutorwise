@@ -20,6 +20,16 @@ export interface Organisation {
   is_favorite: boolean;
   member_count: number;
   settings: Record<string, any>;
+  // Contact fields
+  contact_name?: string | null;
+  contact_email?: string | null;
+  contact_phone?: string | null;
+  // Address fields
+  address_line1?: string | null;
+  address_town?: string | null;
+  address_city?: string | null;
+  address_postcode?: string | null;
+  address_country?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -233,9 +243,18 @@ export async function updateOrganisation(
   organisationId: string,
   updates: {
     name?: string;
+    slug?: string;
     description?: string;
     website?: string;
     avatar_url?: string;
+    contact_name?: string;
+    contact_email?: string;
+    contact_phone?: string;
+    address_line1?: string;
+    address_town?: string;
+    address_city?: string;
+    address_postcode?: string;
+    address_country?: string;
   }
 ): Promise<Organisation> {
   const supabase = createClient();
