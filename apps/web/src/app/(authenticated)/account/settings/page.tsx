@@ -16,7 +16,6 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Shield, Trash2, Bell, Lock, Heart } from 'lucide-react';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import { AccountTabs } from '@/app/components/account/AccountTabs';
 import AccountCard from '@/app/components/account/AccountCard';
@@ -90,9 +89,6 @@ export default function SettingsPage() {
             {/* v5.9: Free Help Now - Only visible to tutors */}
             {activeRole === 'tutor' && (
               <div className={styles.settingCard}>
-                <div className={styles.cardIcon}>
-                  <Heart size={24} />
-                </div>
                 <div className={styles.cardContent}>
                   <h3 className={styles.cardTitle}>Offer Free Help</h3>
                   <p className={styles.cardDescription}>
@@ -114,9 +110,6 @@ export default function SettingsPage() {
             )}
             {/* Change Password */}
             <Link href="/settings/change-password" className={styles.settingCard}>
-              <div className={styles.cardIcon}>
-                <Lock size={24} />
-              </div>
               <div className={styles.cardContent}>
                 <h3 className={styles.cardTitle}>Change Password</h3>
                 <p className={styles.cardDescription}>
@@ -127,9 +120,6 @@ export default function SettingsPage() {
 
             {/* Notification Preferences (Future) */}
             <div className={`${styles.settingCard} ${styles.cardDisabled}`}>
-              <div className={styles.cardIcon}>
-                <Bell size={24} />
-              </div>
               <div className={styles.cardContent}>
                 <h3 className={styles.cardTitle}>Notification Preferences</h3>
                 <p className={styles.cardDescription}>
@@ -141,9 +131,6 @@ export default function SettingsPage() {
 
             {/* Privacy Settings (Future) */}
             <div className={`${styles.settingCard} ${styles.cardDisabled}`}>
-              <div className={styles.cardIcon}>
-                <Shield size={24} />
-              </div>
               <div className={styles.cardContent}>
                 <h3 className={styles.cardTitle}>Privacy Settings</h3>
                 <p className={styles.cardDescription}>
@@ -155,9 +142,6 @@ export default function SettingsPage() {
 
             {/* Delete Account */}
             <Link href="/delete-account" className={`${styles.settingCard} ${styles.cardDanger}`}>
-              <div className={styles.cardIcon}>
-                <Trash2 size={24} />
-              </div>
               <div className={styles.cardContent}>
                 <h3 className={styles.cardTitle}>Delete Account</h3>
                 <p className={styles.cardDescription}>
