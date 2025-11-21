@@ -850,12 +850,8 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
           {/* Availability Section */}
           <HubForm.Section title="Availability">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
-              {/* Left Column: Availability Period */}
+              {/* Left Column: Availability Periods */}
               <div>
-                <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '16px' }}>
-                  Availability Period
-                </h3>
-
                 {/* Availability Type */}
                 <div className={wizardStyles.formGroup}>
                   <label className={wizardStyles.formLabel}>Availability Periods</label>
@@ -917,6 +913,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                         value={availToDate}
                         onChange={setAvailToDate}
                         onClearError={() => setAvailErrors(prev => ({ ...prev, dates: undefined }))}
+                        alignCalendar="right"
                       />
                     )}
                   </div>
@@ -1023,14 +1020,11 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                 )}
               </div>
 
-              {/* Right Column: Unavailability Period */}
+              {/* Right Column: Unavailability Periods */}
               <div>
-                <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '16px' }}>
-                  Unavailability Period
-                </h3>
-
                 {/* Date Pickers */}
                 <div className={wizardStyles.formGroup}>
+                  <label className={wizardStyles.formLabel}>Unavailability Periods</label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                     <CustomDateInput
                       label="From"
@@ -1044,6 +1038,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                       value={unavailToDate}
                       onChange={setUnavailToDate}
                       onClearError={() => setUnavailErrors(prev => ({ ...prev, dates: undefined }))}
+                      alignCalendar="right"
                     />
                   </div>
                 </div>
@@ -1098,7 +1093,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
             {/* Note */}
             <div style={{ marginTop: '32px', padding: '20px', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
               <p style={{ margin: 0, color: '#6b7280', fontSize: '14px' }}>
-                <strong>Note:</strong> Your availability information from onboarding has been saved. To update your availability, please complete the onboarding process again or contact support.
+                Your professional information improves the accuracy and quality of our matching process. Keeping your details complete and current enables us to connect you with the right opportunities.
               </p>
             </div>
           </HubForm.Section>
@@ -1299,8 +1294,8 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
         {/* Rates */}
         <HubForm.Section>
           <HubForm.Grid>
-            {renderField('one_on_one_rate', 'One-on-One Session Rate (per 1 hour session, per student)', 'number', '£50')}
-            {renderField('group_session_rate', 'Group Session Rate (per 1 hour session, per student)', 'number', '£25')}
+            {renderField('one_on_one_rate', 'One-on-One Session Rate (1 hour session, 1 student)', 'number', '£50')}
+            {renderField('group_session_rate', 'Group Session Rate (1 hour session, 1 student)', 'number', '£25')}
           </HubForm.Grid>
         </HubForm.Section>
 
@@ -1370,12 +1365,8 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
         {/* Availability Section */}
         <HubForm.Section title="Availability">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
-            {/* Left Column: Availability Period */}
+            {/* Left Column: Availability Periods */}
             <div>
-              <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '16px' }}>
-                Availability Period
-              </h3>
-
               {/* Availability Type */}
               <div className={wizardStyles.formGroup}>
                 <label className={wizardStyles.formLabel}>Availability Periods</label>
@@ -1437,6 +1428,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                       value={availToDate}
                       onChange={setAvailToDate}
                       onClearError={() => setAvailErrors(prev => ({ ...prev, dates: undefined }))}
+                      alignCalendar="right"
                     />
                   )}
                 </div>
@@ -1543,14 +1535,11 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               )}
             </div>
 
-            {/* Right Column: Unavailability Period */}
+            {/* Right Column: Unavailability Periods */}
             <div>
-              <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '16px' }}>
-                Unavailability Period
-              </h3>
-
               {/* Date Pickers */}
               <div className={wizardStyles.formGroup}>
+                <label className={wizardStyles.formLabel}>Unavailability Periods</label>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <CustomDateInput
                     label="From"
@@ -1564,6 +1553,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                     value={unavailToDate}
                     onChange={setUnavailToDate}
                     onClearError={() => setUnavailErrors(prev => ({ ...prev, dates: undefined }))}
+                    alignCalendar="right"
                   />
                 </div>
               </div>
@@ -1618,7 +1608,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
           {/* Availability Note */}
           <div style={{ marginTop: '32px', padding: '20px', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
             <p style={{ margin: 0, color: '#6b7280', fontSize: '14px' }}>
-              <strong>Note:</strong> Your availability information from onboarding has been saved. To update your availability, please complete the onboarding process again or contact support.
+              Your professional information improves the accuracy and quality of our matching process. Keeping your details complete and current enables us to connect you with the right opportunities.
             </p>
           </div>
         </HubForm.Section>

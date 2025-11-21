@@ -7,9 +7,10 @@ interface CustomCalendarProps {
   value: string; // YYYY-MM-DD format
   onChange: (date: string) => void;
   onClose: () => void;
+  align?: 'left' | 'right'; // Align calendar dropdown to left or right
 }
 
-export default function CustomCalendar({ value, onChange, onClose }: CustomCalendarProps) {
+export default function CustomCalendar({ value, onChange, onClose, align = 'left' }: CustomCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(
     value ? new Date(value + 'T00:00:00') : null
@@ -94,7 +95,7 @@ export default function CustomCalendar({ value, onChange, onClose }: CustomCalen
   const days = getDaysInMonth(currentMonth);
 
   return (
-    <div className={styles.calendarContainer}>
+    <div className={styles.calendarContainer} style={align === 'right' ? { left: 'auto', right: 0 } : {}}>
       <div className={styles.calendarHeader}>
         <button
           type="button"

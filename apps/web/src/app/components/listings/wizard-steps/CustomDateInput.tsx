@@ -10,9 +10,10 @@ interface CustomDateInputProps {
   label: string;
   error?: string;
   onClearError?: () => void;
+  alignCalendar?: 'left' | 'right'; // Align calendar dropdown to left or right
 }
 
-export default function CustomDateInput({ value, onChange, label, error, onClearError }: CustomDateInputProps) {
+export default function CustomDateInput({ value, onChange, label, error, onClearError, alignCalendar = 'left' }: CustomDateInputProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -67,6 +68,7 @@ export default function CustomDateInput({ value, onChange, label, error, onClear
           value={value}
           onChange={handleDateChange}
           onClose={() => setIsOpen(false)}
+          align={alignCalendar}
         />
       )}
     </div>
