@@ -93,15 +93,15 @@ export default function OrganisationInviteMemberModal({
 
       if (response.ok) {
         const data = await response.json();
-        toast.success(`Sent ${data.count} invitation(s)`);
+        toast.success(`Sent ${data.count} invitation request(s)`);
         onSuccess();
         handleClose();
       } else {
         const error = await response.json();
-        toast.error(error.error || 'Failed to send invitations');
+        toast.error(error.error || 'Failed to send invitation requests');
       }
     } catch (error) {
-      toast.error('Failed to send invitations');
+      toast.error('Failed to send invitation requests');
     } finally {
       setIsLoading(false);
     }
@@ -128,7 +128,7 @@ export default function OrganisationInviteMemberModal({
 
     setIsLoading(true);
     try {
-      const response = await fetch('/api/organisation/invite', {
+      const response = await fetch('/api/organisation/invite-by-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -139,15 +139,15 @@ export default function OrganisationInviteMemberModal({
 
       if (response.ok) {
         const data = await response.json();
-        toast.success(data.message || 'Invitations sent');
+        toast.success(data.message || 'Invitation requests sent');
         onSuccess();
         handleClose();
       } else {
         const error = await response.json();
-        toast.error(error.error || 'Failed to send invitations');
+        toast.error(error.error || 'Failed to send invitation requests');
       }
     } catch (error) {
-      toast.error('Failed to send invitations');
+      toast.error('Failed to send invitation requests');
     } finally {
       setIsLoading(false);
     }
@@ -276,7 +276,7 @@ export default function OrganisationInviteMemberModal({
                   className={styles.textarea}
                 />
                 <p className={styles.hint}>
-                  Existing users will receive invitations to join your organisation.
+                  Existing users will receive invitation requests to join your organisation.
                   New users will receive invitation emails to join Tutorwise.
                 </p>
               </div>
@@ -287,7 +287,7 @@ export default function OrganisationInviteMemberModal({
                 disabled={isLoading}
                 className={styles.sendButton}
               >
-                {isLoading ? 'Sending...' : 'Send Invitations'}
+                {isLoading ? 'Sending...' : 'Send Invitation Requests'}
               </button>
             </>
           )}
