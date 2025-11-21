@@ -106,23 +106,23 @@ export async function getOrganisationMembers(organisationId: string): Promise<Or
   }
 
   // Get members via join table
-  // Note: group_members connects to connections (not profiles directly)
-  // We need to query through the connection to get the profile
+  // Note: group_members connects to profile_graph (migrated from connections in v092)
+  // We need to query through the profile_graph to get the profile
   const { data, error } = await supabase
     .from('group_members')
     .select(`
       added_at,
       connection_id,
-      connections!inner(
+      profile_graph!inner(
         id,
-        requester:requester_profile_id(
+        source:source_profile_id(
           id,
           full_name,
           email,
           avatar_url,
           bio
         ),
-        addressee:addressee_profile_id(
+        target:target_profile_id(
           id,
           full_name,
           email,
@@ -138,12 +138,12 @@ export async function getOrganisationMembers(organisationId: string): Promise<Or
   // Map to OrganisationMember format
   // We need to determine which profile is NOT the current user
   const members: OrganisationMember[] = (data || []).map((item: any) => {
-    const connection = item.connections;
-    const requester = connection.requester;
-    const addressee = connection.addressee;
+    const connection = item.profile_graph;
+    const source = Array.isArray(connection.source) ? connection.source[0] : connection.source;
+    const target = Array.isArray(connection.target) ? connection.target[0] : connection.target;
 
     // The member is whichever profile is NOT the current user
-    const memberProfile = requester.id === user.id ? addressee : requester;
+    const memberProfile = source.id === user.id ? target : source;
 
     return {
       id: memberProfile.id,
