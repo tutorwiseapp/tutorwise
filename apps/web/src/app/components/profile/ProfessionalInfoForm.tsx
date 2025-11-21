@@ -2,12 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react';
 import type { Profile } from '@/types';
-import Button from '@/app/components/ui/Button';
+import HubForm from '@/app/components/ui/hub-form/HubForm';
 import MultiSelectDropdown from '@/app/components/ui/form/MultiSelectDropdown';
 import CustomDateInput from '@/app/components/listings/wizard-steps/CustomDateInput';
 import CustomTimePicker from '@/app/components/listings/wizard-steps/CustomTimePicker';
-import styles from './PersonalInfoForm.module.css';
-import formLayoutStyles from '@/app/components/onboarding/PersonalInfoForm.module.css';
+import hubFormStyles from '@/app/components/ui/hub-form/HubForm.module.css';
 import wizardStyles from '@/app/components/onboarding/OnboardingWizard.module.css';
 
 interface ProfessionalInfoFormProps {
@@ -523,28 +522,61 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     setEditingField(field);
   };
 
-  // Auto-save on blur
-  const handleBlur = async (field: EditingField) => {
+  // Safety button handlers (manual save/cancel)
+  const handleSaveAll = async () => {
+    if (editingField) {
+      await handleSaveField(editingField);
+    }
+  };
+
+  const handleCancelAll = () => {
+    if (editingField) {
+      handleCancelField(editingField);
+    }
+  };
+
+  // Auto-save on blur with 150ms delay (matching PersonalInfoForm)
+  const handleBlur = (field: EditingField) => {
     if (!field) return;
+    if (isSaving) return; // Prevent re-triggering while saving
 
-    // Check if value has changed
-    const currentValue = formData[field as keyof typeof formData];
-    let originalValue = '';
+    setTimeout(() => {
+      if (editingField !== field) return;
 
-    if (field === 'bio') {
-      originalValue = profile.bio || '';
-    } else if (field === 'dbs_certificate') {
-      originalValue = profile.dbs_certificate_number || '';
-    } else {
-      const profileValue = (profile.professional_details?.tutor as any)?.[field];
-      originalValue = Array.isArray(profileValue) ? profileValue.join(', ') : profileValue?.toString() || '';
-    }
+      const currentValue = formData[field as keyof typeof formData];
+      let originalValue: any = '';
 
-    if (currentValue !== originalValue) {
-      await handleSaveField(field);
-    } else {
-      setEditingField(null);
-    }
+      if (field === 'bio') {
+        originalValue = profile.bio || '';
+      } else if (field === 'bio_video_url') {
+        originalValue = profile.bio_video_url || '';
+      } else if (field === 'dbs_certificate') {
+        originalValue = profile.dbs_certificate_number || '';
+      } else {
+        // Check all three role data sources
+        const tutorValue = (profile.professional_details?.tutor as any)?.[field];
+        const clientValue = (profile.professional_details?.client as any)?.[field];
+        const agentValue = (profile.professional_details?.agent as any)?.[field];
+
+        originalValue = tutorValue || clientValue || agentValue || '';
+
+        // Handle arrays
+        if (Array.isArray(originalValue)) {
+          originalValue = originalValue;
+        }
+      }
+
+      // Compare values (handle both string and array comparisons)
+      const hasChanged = Array.isArray(currentValue)
+        ? JSON.stringify(currentValue) !== JSON.stringify(originalValue)
+        : currentValue !== originalValue;
+
+      if (hasChanged) {
+        handleSaveField(field);
+      } else {
+        setEditingField(null);
+      }
+    }, 150);
   };
 
   // Handle keyboard shortcuts
@@ -552,7 +584,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     if (e.key === 'Escape') {
       e.preventDefault();
       handleCancelField(field);
-    } else if (e.key === 'Enter' && field !== 'bio') {
+    } else if (e.key === 'Enter' && field !== 'bio' && field !== 'description' && field !== 'additional_info_client' && field !== 'agent_additional_info') {
       e.preventDefault();
       await handleSaveField(field);
     }
@@ -678,6 +710,8 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     placeholder?: string,
     options?: { value: string; label: string }[]
   ) => {
+    if (!field) return null;
+
     const fieldKey = field as keyof typeof formData;
     const isEditing = editingField === field;
     const fieldValue = formData[fieldKey];
@@ -688,10 +722,13 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
       : fieldValue;
 
     return (
-      <div className={styles.formGroup}>
-        <label className={styles.formLabel}>{label}</label>
+      <HubForm.Field
+        label={label}
+        isEditing={isEditing}
+        onClick={() => !isEditing && handleFieldClick(field)}
+      >
         {isEditing ? (
-          <div className={styles.editingContainer}>
+          <>
             {type === 'multiselect' ? (
               <div onBlur={() => handleBlur(field)}>
                 <MultiSelectDropdown
@@ -705,14 +742,14 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               </div>
             ) : type === 'select' ? (
               <select
-                ref={(el) => { inputRefs.current[field!] = el; }}
+                ref={(el) => { inputRefs.current[field] = el; }}
                 name={fieldKey}
                 value={fieldValue as string}
                 onChange={handleChange}
                 onBlur={() => handleBlur(field)}
                 onKeyDown={(e) => handleKeyDown(e, field)}
                 disabled={isSaving}
-                className={`${styles.formInput} ${isSaving ? styles.saving : ''}`}
+                {...(isSaving && { style: { opacity: 0.6, cursor: 'wait' } })}
               >
                 <option value="">Select {label.toLowerCase()}</option>
                 {options?.map((opt) => (
@@ -720,33 +757,22 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                 ))}
               </select>
             ) : type === 'textarea' ? (
-              <>
-                <textarea
-                  ref={(el) => { inputRefs.current[field!] = el; }}
-                  name={fieldKey}
-                  value={fieldValue as string}
-                  onChange={handleChange}
-                  onBlur={() => handleBlur(field)}
-                  onKeyDown={(e) => handleKeyDown(e, field)}
-                  placeholder={placeholder}
-                  disabled={isSaving}
-                  maxLength={1000}
-                  className={`${styles.formInput} ${isSaving ? styles.saving : ''}`}
-                  rows={2}
-                  style={{ resize: 'vertical', minHeight: '60px' }}
-                />
-                <div style={{
-                  fontSize: '0.875rem',
-                  color: '#6b7280',
-                  marginTop: '4px',
-                  textAlign: 'right'
-                }}>
-                  {(fieldValue as string).length}/1000 characters
-                </div>
-              </>
+              <textarea
+                ref={(el) => { inputRefs.current[field] = el; }}
+                name={fieldKey}
+                value={fieldValue as string}
+                onChange={handleChange}
+                onBlur={() => handleBlur(field)}
+                onKeyDown={(e) => handleKeyDown(e, field)}
+                placeholder={placeholder}
+                disabled={isSaving}
+                maxLength={1000}
+                rows={4}
+                {...(isSaving && { style: { opacity: 0.6, cursor: 'wait' } })}
+              />
             ) : (
               <input
-                ref={(el) => { inputRefs.current[field!] = el; }}
+                ref={(el) => { inputRefs.current[field] = el; }}
                 type={type}
                 name={fieldKey}
                 value={fieldValue as string}
@@ -755,41 +781,16 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                 onKeyDown={(e) => handleKeyDown(e, field)}
                 placeholder={placeholder}
                 disabled={isSaving}
-                className={`${styles.formInput} ${isSaving ? styles.saving : ''}`}
-                style={type === 'number' ? {
-                  MozAppearance: 'textfield',
-                  WebkitAppearance: 'none',
-                  appearance: 'none'
-                } as React.CSSProperties : undefined}
+                {...(isSaving && { style: { opacity: 0.6, cursor: 'wait' } })}
               />
             )}
-            {isSaving && (
-              <div className={styles.savingIndicator}>
-                <span className={styles.savingText}>Saving...</span>
-              </div>
-            )}
-          </div>
+          </>
         ) : (
           <>
-            <div
-              className={`${styles.displayValue} ${styles.editable}`}
-              onClick={() => handleFieldClick(field)}
-            >
-              {displayValue || <span className={styles.placeholder}>{placeholder || `Click to add ${label.toLowerCase()}...`}</span>}
-            </div>
-            {type === 'textarea' && displayValue && (
-              <div style={{
-                fontSize: '0.875rem',
-                color: '#6b7280',
-                marginTop: '4px',
-                textAlign: 'right'
-              }}>
-                {(fieldValue as string).length}/1000 characters
-              </div>
-            )}
+            {displayValue || <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>{placeholder || `Click to add ${label.toLowerCase()}...`}</span>}
           </>
         )}
-      </div>
+      </HubForm.Field>
     );
   };
 
@@ -798,48 +799,60 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     // For clients (seekers), show complete client professional info
     if (activeRole === 'client') {
       return (
-        <div className={styles.personalInfoForm}>
-          <div className={styles.formContent}>
-            {/* About/Bio - Full Width */}
-            <div className={formLayoutStyles.fullWidth}>
+        <HubForm.Root>
+          {/* About/Bio */}
+          <HubForm.Section>
+            <HubForm.Grid columns={1}>
               {renderField('bio', 'About', 'textarea', 'Tell tutors about your learning goals and what you\'re looking for')}
-            </div>
+            </HubForm.Grid>
+          </HubForm.Section>
 
-            {/* Subjects and Education Level - 2 Column */}
-            <div className={formLayoutStyles.twoColumnGrid}>
+          {/* Subjects and Education Level */}
+          <HubForm.Section>
+            <HubForm.Grid>
               {renderField('subjects_client', 'Subjects', 'multiselect', 'Select subjects', subjectsOptions)}
               {renderField('education_level', 'Education Level', 'select', 'Select your current level', educationLevelOptions)}
-            </div>
+            </HubForm.Grid>
+          </HubForm.Section>
 
-            {/* Learning Goals and Learning Preferences - 2 Column */}
-            <div className={formLayoutStyles.twoColumnGrid}>
+          {/* Learning Goals and Learning Preferences */}
+          <HubForm.Section>
+            <HubForm.Grid>
               {renderField('learning_goals', 'Learning Goals', 'multiselect', 'Select your goals', learningGoalsOptions)}
               {renderField('learning_preferences', 'Learning Preferences', 'multiselect', 'Select preferences', learningPreferencesOptions)}
-            </div>
+            </HubForm.Grid>
+          </HubForm.Section>
 
-            {/* Budget Range - 2 Column */}
-            <div className={formLayoutStyles.twoColumnGrid}>
+          {/* Budget Range */}
+          <HubForm.Section>
+            <HubForm.Grid>
               {renderField('budget_min', 'Minimum Budget (£/hour)', 'number', '£20')}
               {renderField('budget_max', 'Maximum Budget (£/hour)', 'number', '£50')}
-            </div>
+            </HubForm.Grid>
+          </HubForm.Section>
 
-            {/* Sessions Per Week and Session Duration - 2 Column */}
-            <div className={formLayoutStyles.twoColumnGrid}>
+          {/* Sessions Per Week and Session Duration */}
+          <HubForm.Section>
+            <HubForm.Grid>
               {renderField('sessions_per_week', 'Sessions Per Week', 'select', 'Select frequency', sessionsPerWeekOptions)}
               {renderField('session_duration', 'Session Duration', 'select', 'Select duration', sessionDurationOptions)}
-            </div>
+            </HubForm.Grid>
+          </HubForm.Section>
 
-            {/* Special Needs - 2 Column (left side only, right side empty) */}
-            <div className={formLayoutStyles.twoColumnGrid}>
+          {/* Special Needs */}
+          <HubForm.Section>
+            <HubForm.Grid>
               {renderField('special_needs', 'Special Educational Needs (SEN)', 'multiselect', 'Select if applicable', specialNeedsOptions)}
               <div></div>
-            </div>
+            </HubForm.Grid>
+          </HubForm.Section>
 
-            {/* Availability and Unavailability Periods - 2 Column */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginTop: '32px' }}>
+          {/* Availability Section */}
+          <HubForm.Section title="Availability">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
               {/* Left Column: Availability Period */}
               <div>
-                <h3 className={styles.subsectionTitle} style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '16px' }}>
                   Availability Period
                 </h3>
 
@@ -1012,7 +1025,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
               {/* Right Column: Unavailability Period */}
               <div>
-                <h3 className={styles.subsectionTitle} style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '16px' }}>
                   Unavailability Period
                 </h3>
 
@@ -1088,408 +1101,568 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                 <strong>Note:</strong> Your availability information from onboarding has been saved. To update your availability, please complete the onboarding process again or contact support.
               </p>
             </div>
-          </div>
-        </div>
+          </HubForm.Section>
+
+          {/* Action Buttons */}
+          <HubForm.Actions>
+            <button
+              type="button"
+              onClick={handleCancelAll}
+              disabled={!editingField || isSaving}
+              style={{
+                padding: '10px 24px',
+                fontSize: '14px',
+                fontWeight: 500,
+                color: '#374151',
+                backgroundColor: '#ffffff',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                cursor: editingField && !isSaving ? 'pointer' : 'not-allowed',
+                opacity: editingField && !isSaving ? 1 : 0.5,
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSaveAll}
+              disabled={!editingField || isSaving}
+              style={{
+                padding: '10px 24px',
+                fontSize: '14px',
+                fontWeight: 500,
+                color: '#ffffff',
+                backgroundColor: '#006c67',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: editingField && !isSaving ? 'pointer' : 'not-allowed',
+                opacity: editingField && !isSaving ? 1 : 0.5,
+              }}
+            >
+              {isSaving ? 'Saving...' : 'Save'}
+            </button>
+          </HubForm.Actions>
+        </HubForm.Root>
       );
     }
 
     // For agents, show agent-specific fields
     if (activeRole === 'agent') {
       return (
-        <div className={styles.personalInfoForm}>
-          <div className={styles.formContent}>
-            {/* Agency Name and Agency Size - 2 Column */}
-            <div className={formLayoutStyles.twoColumnGrid}>
+        <HubForm.Root>
+          {/* Agency Name and Agency Size */}
+          <HubForm.Section>
+            <HubForm.Grid>
               {renderField('agency_name', 'Agency Name', 'text', 'Enter agency name')}
               {renderField('agency_size', 'Agency Size', 'text', 'e.g., 5-10 tutors')}
-            </div>
+            </HubForm.Grid>
+          </HubForm.Section>
 
-            {/* Years in Business and Commission Rate - 2 Column */}
-            <div className={formLayoutStyles.twoColumnGrid}>
+          {/* Years in Business and Commission Rate */}
+          <HubForm.Section>
+            <HubForm.Grid>
               {renderField('years_in_business', 'Years in Business', 'text', 'e.g., 5 years')}
               {renderField('commission_rate', 'Commission Rate', 'text', 'e.g., 15%')}
-            </div>
+            </HubForm.Grid>
+          </HubForm.Section>
 
-            {/* About Your Agency - Full Width */}
-            <div className={formLayoutStyles.fullWidth}>
+          {/* About Your Agency */}
+          <HubForm.Section>
+            <HubForm.Grid columns={1}>
               {renderField('description', 'About Your Agency', 'textarea', 'Describe your agency and the services you provide')}
-            </div>
+            </HubForm.Grid>
+          </HubForm.Section>
 
-            {/* Student Capacity and Number of Tutors - 2 Column */}
-            <div className={formLayoutStyles.twoColumnGrid}>
+          {/* Student Capacity and Number of Tutors */}
+          <HubForm.Section>
+            <HubForm.Grid>
               {renderField('student_capacity', 'Student Capacity', 'text', 'e.g., 50 students')}
               {renderField('number_of_tutors', 'Current Number of Tutors', 'text', 'e.g., 8 tutors')}
-            </div>
+            </HubForm.Grid>
+          </HubForm.Section>
 
-            {/* Website - Full Width */}
-            <div className={formLayoutStyles.fullWidth}>
+          {/* Website */}
+          <HubForm.Section>
+            <HubForm.Grid columns={1}>
               {renderField('website', 'Website', 'text', 'https://yourwebsite.com')}
-            </div>
+            </HubForm.Grid>
+          </HubForm.Section>
 
-            {/* Additional Information - Full Width */}
-            <div className={formLayoutStyles.fullWidth}>
+          {/* Additional Information */}
+          <HubForm.Section>
+            <HubForm.Grid columns={1}>
               {renderField('agent_additional_info', 'Additional Information', 'textarea', 'Any other information about your agency')}
-            </div>
+            </HubForm.Grid>
+          </HubForm.Section>
 
-            {/* Availability Note */}
-            <div style={{ marginTop: '32px', padding: '20px', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
+          {/* Availability Note */}
+          <HubForm.Section>
+            <div style={{ padding: '20px', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
               <p style={{ margin: 0, color: '#6b7280', fontSize: '14px' }}>
                 <strong>Note:</strong> To manage multi-select fields like Services Offered, Subject Specializations, Education Levels, Coverage Areas, and Certifications, please complete the onboarding process again or contact support.
               </p>
             </div>
-          </div>
-        </div>
+          </HubForm.Section>
+
+          {/* Action Buttons */}
+          <HubForm.Actions>
+            <button
+              type="button"
+              onClick={handleCancelAll}
+              disabled={!editingField || isSaving}
+              style={{
+                padding: '10px 24px',
+                fontSize: '14px',
+                fontWeight: 500,
+                color: '#374151',
+                backgroundColor: '#ffffff',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                cursor: editingField && !isSaving ? 'pointer' : 'not-allowed',
+                opacity: editingField && !isSaving ? 1 : 0.5,
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSaveAll}
+              disabled={!editingField || isSaving}
+              style={{
+                padding: '10px 24px',
+                fontSize: '14px',
+                fontWeight: 500,
+                color: '#ffffff',
+                backgroundColor: '#006c67',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: editingField && !isSaving ? 'pointer' : 'not-allowed',
+                opacity: editingField && !isSaving ? 1 : 0.5,
+              }}
+            >
+              {isSaving ? 'Saving...' : 'Save'}
+            </button>
+          </HubForm.Actions>
+        </HubForm.Root>
       );
     }
 
     // Default to provider/tutor fields
     return (
-      <div className={styles.personalInfoForm}>
-        <div className={styles.formContent}>
-          {/* About - Full Width */}
-          <div className={formLayoutStyles.fullWidth}>
+      <HubForm.Root>
+        {/* About */}
+        <HubForm.Section>
+          <HubForm.Grid columns={1}>
             {renderField('bio', 'About', 'textarea', 'Describe your tutoring or teaching style, strengths, and what areas you specialise in')}
-          </div>
+          </HubForm.Grid>
+        </HubForm.Section>
 
-          {/* Bio Video URL - Full Width */}
-          <div className={formLayoutStyles.fullWidth}>
+        {/* Bio Video URL */}
+        <HubForm.Section>
+          <HubForm.Grid columns={1}>
             {renderField('bio_video_url', '30-Second Intro Video (Optional)', 'text', 'Paste YouTube, Loom, or Vimeo URL for +5 CaaS points')}
-          </div>
+          </HubForm.Grid>
+        </HubForm.Section>
 
-        {/* Status and Academic Qualifications - 2 Column */}
-        <div className={formLayoutStyles.twoColumnGrid}>
-          {renderField('status', 'Status', 'select', 'Select status', statusOptions)}
-          {renderField('academic_qualifications', 'Academic Qualifications', 'multiselect', 'Select qualifications', academicQualificationsOptions)}
-        </div>
+        {/* Status and Academic Qualifications */}
+        <HubForm.Section>
+          <HubForm.Grid>
+            {renderField('status', 'Status', 'select', 'Select status', statusOptions)}
+            {renderField('academic_qualifications', 'Academic Qualifications', 'multiselect', 'Select qualifications', academicQualificationsOptions)}
+          </HubForm.Grid>
+        </HubForm.Section>
 
-        {/* Key Stages and Teaching Professional Qualifications - 2 Column */}
-        <div className={formLayoutStyles.twoColumnGrid}>
-          {renderField('key_stages', 'Key Stages', 'multiselect', 'Select key stage', keyStagesOptions)}
-          {renderField('teaching_professional_qualifications', 'Teaching Professional Qualifications', 'multiselect', 'Select qualification', teachingProfessionalQualificationsOptions)}
-        </div>
+        {/* Key Stages and Teaching Professional Qualifications */}
+        <HubForm.Section>
+          <HubForm.Grid>
+            {renderField('key_stages', 'Key Stages', 'multiselect', 'Select key stage', keyStagesOptions)}
+            {renderField('teaching_professional_qualifications', 'Teaching Professional Qualifications', 'multiselect', 'Select qualification', teachingProfessionalQualificationsOptions)}
+          </HubForm.Grid>
+        </HubForm.Section>
 
-        {/* Subjects and Teaching Experience - 2 Column */}
-        <div className={formLayoutStyles.twoColumnGrid}>
-          {renderField('subjects', 'Subjects', 'multiselect', 'Mathematics, English', subjectsOptions)}
-          {renderField('teaching_experience', 'Teaching Experience', 'select', 'Select experience', teachingExperienceOptions)}
-        </div>
+        {/* Subjects and Teaching Experience */}
+        <HubForm.Section>
+          <HubForm.Grid>
+            {renderField('subjects', 'Subjects', 'multiselect', 'Mathematics, English', subjectsOptions)}
+            {renderField('teaching_experience', 'Teaching Experience', 'select', 'Select experience', teachingExperienceOptions)}
+          </HubForm.Grid>
+        </HubForm.Section>
 
-        {/* Session Type and Tutoring Experience - 2 Column */}
-        <div className={formLayoutStyles.twoColumnGrid}>
-          {renderField('session_type', 'Session Type', 'multiselect', 'Select session type', sessionTypeOptions)}
-          {renderField('tutoring_experience', 'Tutoring Experience', 'select', 'Select tutoring experience', tutoringExperienceOptions)}
-        </div>
+        {/* Session Type and Tutoring Experience */}
+        <HubForm.Section>
+          <HubForm.Grid>
+            {renderField('session_type', 'Session Type', 'multiselect', 'Select session type', sessionTypeOptions)}
+            {renderField('tutoring_experience', 'Tutoring Experience', 'select', 'Select tutoring experience', tutoringExperienceOptions)}
+          </HubForm.Grid>
+        </HubForm.Section>
 
-        {/* Rates - 2 Column */}
-        <div className={formLayoutStyles.twoColumnGrid}>
-          {renderField('one_on_one_rate', 'One-on-One Session Rate (per 1 hour session, per student)', 'number', '£50')}
-          {renderField('group_session_rate', 'Group Session Rate (per 1 hour session, per student)', 'number', '£25')}
-        </div>
+        {/* Rates */}
+        <HubForm.Section>
+          <HubForm.Grid>
+            {renderField('one_on_one_rate', 'One-on-One Session Rate (per 1 hour session, per student)', 'number', '£50')}
+            {renderField('group_session_rate', 'Group Session Rate (per 1 hour session, per student)', 'number', '£25')}
+          </HubForm.Grid>
+        </HubForm.Section>
 
-        {/* Delivery Mode and DBS Certificate - 2 Column */}
-        <div className={formLayoutStyles.twoColumnGrid}>
-          {/* Delivery Mode */}
-          <div>
+        {/* Delivery Mode and DBS Certificate */}
+        <HubForm.Section>
+          <HubForm.Grid>
             {renderField('delivery_mode', 'Delivery Mode', 'multiselect', 'Select delivery mode', deliveryModeOptions)}
-          </div>
 
-          {/* DBS Certificate Upload */}
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>
-              DBS Certificate
-            </label>
-            <div
-              className={`${styles.documentDisplay} ${styles.editable}`}
-              onClick={() => document.getElementById('dbsCertificate')?.click()}
-            >
-              <input
-                id="dbsCertificate"
-                type="file"
-                accept="image/jpeg,image/jpg,image/png,application/pdf"
-                onChange={handleFileChange}
-                style={{ display: 'none' }}
-              />
-              {uploadedFileName ? (
-                <div className={styles.documentInfo}>
-                  <span className={styles.successText}>✓ {uploadedFileName}</span>
+            {/* DBS Certificate Upload */}
+            <HubForm.Field label="DBS Certificate">
+              <div
+                style={{
+                  padding: '12px',
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  minHeight: '44px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}
+                onClick={() => document.getElementById('dbsCertificate')?.click()}
+              >
+                <input
+                  id="dbsCertificate"
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,application/pdf"
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                />
+                {uploadedFileName ? (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                    <span style={{ color: '#059669', fontSize: '14px' }}>✓ {uploadedFileName}</span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteDocument();
+                      }}
+                      disabled={isSaving}
+                      style={{
+                        padding: '4px 12px',
+                        fontSize: '13px',
+                        color: '#dc2626',
+                        backgroundColor: 'transparent',
+                        border: '1px solid #dc2626',
+                        borderRadius: '4px',
+                        cursor: isSaving ? 'wait' : 'pointer'
+                      }}
+                    >
+                      {isSaving ? 'Deleting...' : 'Delete'}
+                    </button>
+                  </div>
+                ) : (
+                  <span style={{ color: '#9ca3af', fontStyle: 'italic', fontSize: '14px' }}>Click to upload DBS certificate...</span>
+                )}
+              </div>
+              {fileError && <span style={{ color: '#dc2626', fontSize: '13px', marginTop: '4px' }}>{fileError}</span>}
+              <p style={{ margin: '4px 0 0 0', color: '#6b7280', fontSize: '13px' }}>
+                Upload your DBS certificate (JPG, PNG, PDF - max 5MB)
+              </p>
+            </HubForm.Field>
+          </HubForm.Grid>
+        </HubForm.Section>
+
+        {/* Availability Section */}
+        <HubForm.Section title="Availability">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+            {/* Left Column: Availability Period */}
+            <div>
+              <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '16px' }}>
+                Availability Period
+              </h3>
+
+              {/* Availability Type */}
+              <div className={wizardStyles.formGroup}>
+                <label className={wizardStyles.formLabel}>Availability Periods</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <button
                     type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteDocument();
-                    }}
-                    className={styles.deleteButton}
-                    disabled={isSaving}
+                    className={`${wizardStyles.checkboxItem} ${availabilityType === 'recurring' ? wizardStyles.selected : ''}`}
+                    onClick={() => setAvailabilityType('recurring')}
                   >
-                    {isSaving ? 'Deleting...' : 'Delete'}
+                    Recurring
+                  </button>
+                  <button
+                    type="button"
+                    className={`${wizardStyles.checkboxItem} ${availabilityType === 'one-time' ? wizardStyles.selected : ''}`}
+                    onClick={() => setAvailabilityType('one-time')}
+                  >
+                    One-time
                   </button>
                 </div>
-              ) : (
-                <span className={styles.placeholder}>Click to upload DBS certificate...</span>
-              )}
-            </div>
-            {fileError && <p className={styles.errorText}>{fileError}</p>}
-            <p className={styles.helperText}>
-              Upload your DBS certificate (JPG, PNG, PDF - max 5MB)
-            </p>
-          </div>
-        </div>
-
-        {/* Availability and Unavailability Periods - 2 Column */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginTop: '32px' }}>
-          {/* Left Column: Availability Period */}
-          <div>
-            <h3 className={styles.subsectionTitle} style={{ marginBottom: '24px' }}>
-              Availability Period
-            </h3>
-
-            {/* Availability Type */}
-            <div className={wizardStyles.formGroup}>
-              <label className={wizardStyles.formLabel}>Availability Periods</label>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <button
-                  type="button"
-                  className={`${wizardStyles.checkboxItem} ${availabilityType === 'recurring' ? wizardStyles.selected : ''}`}
-                  onClick={() => setAvailabilityType('recurring')}
-                >
-                  Recurring
-                </button>
-                <button
-                  type="button"
-                  className={`${wizardStyles.checkboxItem} ${availabilityType === 'one-time' ? wizardStyles.selected : ''}`}
-                  onClick={() => setAvailabilityType('one-time')}
-                >
-                  One-time
-                </button>
               </div>
-            </div>
 
-            {/* Days of Week (only for recurring) */}
-            {availabilityType === 'recurring' && (
-              <div className={wizardStyles.formGroup}>
-                <label className={wizardStyles.formLabel}>Days of Week</label>
-                {availErrors.days && (
-                  <p className={wizardStyles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
-                    {availErrors.days}
-                  </p>
-                )}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
-                  {DAYS_OF_WEEK.map(day => (
-                    <button
-                      key={day}
-                      type="button"
-                      className={`${wizardStyles.checkboxItem} ${selectedDays.includes(day) ? wizardStyles.selected : ''}`}
-                      onClick={() => toggleDay(day)}
-                    >
-                      {day}
-                    </button>
-                  ))}
+              {/* Days of Week (only for recurring) */}
+              {availabilityType === 'recurring' && (
+                <div className={wizardStyles.formGroup}>
+                  <label className={wizardStyles.formLabel}>Days of Week</label>
+                  {availErrors.days && (
+                    <p className={wizardStyles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
+                      {availErrors.days}
+                    </p>
+                  )}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
+                    {DAYS_OF_WEEK.map(day => (
+                      <button
+                        key={day}
+                        type="button"
+                        className={`${wizardStyles.checkboxItem} ${selectedDays.includes(day) ? wizardStyles.selected : ''}`}
+                        onClick={() => toggleDay(day)}
+                      >
+                        {day}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Date Pickers */}
-            <div className={wizardStyles.formGroup}>
-              <div style={{ display: 'grid', gridTemplateColumns: availabilityType === 'recurring' ? '1fr 1fr' : '1fr', gap: '16px' }}>
-                <CustomDateInput
-                  label="From"
-                  value={availFromDate}
-                  onChange={setAvailFromDate}
-                  error={availErrors.dates}
-                  onClearError={() => setAvailErrors(prev => ({ ...prev, dates: undefined }))}
-                />
-                {availabilityType === 'recurring' && (
+              {/* Date Pickers */}
+              <div className={wizardStyles.formGroup}>
+                <div style={{ display: 'grid', gridTemplateColumns: availabilityType === 'recurring' ? '1fr 1fr' : '1fr', gap: '16px' }}>
                   <CustomDateInput
-                    label="To"
-                    value={availToDate}
-                    onChange={setAvailToDate}
+                    label="From"
+                    value={availFromDate}
+                    onChange={setAvailFromDate}
+                    error={availErrors.dates}
                     onClearError={() => setAvailErrors(prev => ({ ...prev, dates: undefined }))}
                   />
+                  {availabilityType === 'recurring' && (
+                    <CustomDateInput
+                      label="To"
+                      value={availToDate}
+                      onChange={setAvailToDate}
+                      onClearError={() => setAvailErrors(prev => ({ ...prev, dates: undefined }))}
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* Time Pickers */}
+              <div className={wizardStyles.formGroup}>
+                {availErrors.times && (
+                  <p className={wizardStyles.errorText} style={{ marginBottom: '8px' }}>
+                    {availErrors.times}
+                  </p>
                 )}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <CustomTimePicker
+                    label="Start time"
+                    value={startTime}
+                    onChange={setStartTime}
+                    onClearError={() => setAvailErrors(prev => ({ ...prev, times: undefined }))}
+                  />
+                  <CustomTimePicker
+                    label="End time"
+                    value={endTime}
+                    onChange={setEndTime}
+                    onClearError={() => setAvailErrors(prev => ({ ...prev, times: undefined }))}
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Time Pickers */}
-            <div className={wizardStyles.formGroup}>
-              {availErrors.times && (
-                <p className={wizardStyles.errorText} style={{ marginBottom: '8px' }}>
-                  {availErrors.times}
-                </p>
+              {/* Add Button */}
+              <div style={{ marginBottom: '32px' }}>
+                <button
+                  type="button"
+                  onClick={handleAddAvailability}
+                  className={wizardStyles.buttonPrimary}
+                  style={{ width: '100%' }}
+                >
+                  Add
+                </button>
+              </div>
+
+              {/* Summary Sections */}
+              {recurringPeriods.length > 0 && (
+                <div className={wizardStyles.formGroup}>
+                  <label className={wizardStyles.formLabel}>Recurring Availability</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {recurringPeriods.map(period => (
+                      <div
+                        key={period.id}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '12px 16px',
+                          backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
+                          borderRadius: '8px',
+                          border: '1px solid var(--color-border, #dfe1e5)'
+                        }}
+                      >
+                        <span style={{ fontSize: '0.875rem' }}>{formatAvailabilityText(period)}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveAvailability(period.id)}
+                          className={wizardStyles.buttonSecondary}
+                          style={{ padding: '4px 12px', fontSize: '0.875rem' }}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <CustomTimePicker
-                  label="Start time"
-                  value={startTime}
-                  onChange={setStartTime}
-                  onClearError={() => setAvailErrors(prev => ({ ...prev, times: undefined }))}
-                />
-                <CustomTimePicker
-                  label="End time"
-                  value={endTime}
-                  onChange={setEndTime}
-                  onClearError={() => setAvailErrors(prev => ({ ...prev, times: undefined }))}
-                />
-              </div>
+
+              {oneTimePeriods.length > 0 && (
+                <div className={wizardStyles.formGroup}>
+                  <label className={wizardStyles.formLabel}>One-time Availability</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {oneTimePeriods.map(period => (
+                      <div
+                        key={period.id}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '12px 16px',
+                          backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
+                          borderRadius: '8px',
+                          border: '1px solid var(--color-border, #dfe1e5)'
+                        }}
+                      >
+                        <span style={{ fontSize: '0.875rem' }}>{formatAvailabilityText(period)}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveAvailability(period.id)}
+                          className={wizardStyles.buttonSecondary}
+                          style={{ padding: '4px 12px', fontSize: '0.875rem' }}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Add Button */}
-            <div style={{ marginBottom: '32px' }}>
-              <button
-                type="button"
-                onClick={handleAddAvailability}
-                className={wizardStyles.buttonPrimary}
-                style={{ width: '100%' }}
-              >
-                Add
-              </button>
+            {/* Right Column: Unavailability Period */}
+            <div>
+              <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '16px' }}>
+                Unavailability Period
+              </h3>
+
+              {/* Date Pickers */}
+              <div className={wizardStyles.formGroup}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <CustomDateInput
+                    label="From"
+                    value={unavailFromDate}
+                    onChange={setUnavailFromDate}
+                    error={unavailErrors.dates}
+                    onClearError={() => setUnavailErrors(prev => ({ ...prev, dates: undefined }))}
+                  />
+                  <CustomDateInput
+                    label="To"
+                    value={unavailToDate}
+                    onChange={setUnavailToDate}
+                    onClearError={() => setUnavailErrors(prev => ({ ...prev, dates: undefined }))}
+                  />
+                </div>
+              </div>
+
+              {/* Add Button */}
+              <div style={{ marginBottom: '32px' }}>
+                <button
+                  type="button"
+                  onClick={handleAddUnavailability}
+                  className={wizardStyles.buttonPrimary}
+                  style={{ width: '100%' }}
+                >
+                  Add
+                </button>
+              </div>
+
+              {/* Summary Section */}
+              {unavailabilityPeriods.length > 0 && (
+                <div className={wizardStyles.formGroup}>
+                  <label className={wizardStyles.formLabel}>Unavailable Period</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {unavailabilityPeriods.map(period => (
+                      <div
+                        key={period.id}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '12px 16px',
+                          backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
+                          borderRadius: '8px',
+                          border: '1px solid var(--color-border, #dfe1e5)'
+                        }}
+                      >
+                        <span style={{ fontSize: '0.875rem' }}>{formatUnavailabilityText(period)}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveUnavailability(period.id)}
+                          className={wizardStyles.buttonSecondary}
+                          style={{ padding: '4px 12px', fontSize: '0.875rem' }}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-
-            {/* Summary Sections */}
-            {recurringPeriods.length > 0 && (
-              <div className={wizardStyles.formGroup}>
-                <label className={wizardStyles.formLabel}>Recurring Availability</label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {recurringPeriods.map(period => (
-                    <div
-                      key={period.id}
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '12px 16px',
-                        backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
-                        borderRadius: '8px',
-                        border: '1px solid var(--color-border, #dfe1e5)'
-                      }}
-                    >
-                      <span style={{ fontSize: '0.875rem' }}>{formatAvailabilityText(period)}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveAvailability(period.id)}
-                        className={wizardStyles.buttonSecondary}
-                        style={{ padding: '4px 12px', fontSize: '0.875rem' }}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {oneTimePeriods.length > 0 && (
-              <div className={wizardStyles.formGroup}>
-                <label className={wizardStyles.formLabel}>One-time Availability</label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {oneTimePeriods.map(period => (
-                    <div
-                      key={period.id}
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '12px 16px',
-                        backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
-                        borderRadius: '8px',
-                        border: '1px solid var(--color-border, #dfe1e5)'
-                      }}
-                    >
-                      <span style={{ fontSize: '0.875rem' }}>{formatAvailabilityText(period)}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveAvailability(period.id)}
-                        className={wizardStyles.buttonSecondary}
-                        style={{ padding: '4px 12px', fontSize: '0.875rem' }}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* Right Column: Unavailability Period */}
-          <div>
-            <h3 className={styles.subsectionTitle} style={{ marginBottom: '24px' }}>
-              Unavailability Period
-            </h3>
-
-            {/* Date Pickers */}
-            <div className={wizardStyles.formGroup}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <CustomDateInput
-                  label="From"
-                  value={unavailFromDate}
-                  onChange={setUnavailFromDate}
-                  error={unavailErrors.dates}
-                  onClearError={() => setUnavailErrors(prev => ({ ...prev, dates: undefined }))}
-                />
-                <CustomDateInput
-                  label="To"
-                  value={unavailToDate}
-                  onChange={setUnavailToDate}
-                  onClearError={() => setUnavailErrors(prev => ({ ...prev, dates: undefined }))}
-                />
-              </div>
-            </div>
-
-            {/* Add Button */}
-            <div style={{ marginBottom: '32px' }}>
-              <button
-                type="button"
-                onClick={handleAddUnavailability}
-                className={wizardStyles.buttonPrimary}
-                style={{ width: '100%' }}
-              >
-                Add
-              </button>
-            </div>
-
-            {/* Summary Section */}
-            {unavailabilityPeriods.length > 0 && (
-              <div className={wizardStyles.formGroup}>
-                <label className={wizardStyles.formLabel}>Unavailable Period</label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {unavailabilityPeriods.map(period => (
-                    <div
-                      key={period.id}
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '12px 16px',
-                        backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
-                        borderRadius: '8px',
-                        border: '1px solid var(--color-border, #dfe1e5)'
-                      }}
-                    >
-                      <span style={{ fontSize: '0.875rem' }}>{formatUnavailabilityText(period)}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveUnavailability(period.id)}
-                        className={wizardStyles.buttonSecondary}
-                        style={{ padding: '4px 12px', fontSize: '0.875rem' }}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+          {/* Availability Note */}
+          <div style={{ marginTop: '32px', padding: '20px', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
+            <p style={{ margin: 0, color: '#6b7280', fontSize: '14px' }}>
+              <strong>Note:</strong> Your availability information from onboarding has been saved. To update your availability, please complete the onboarding process again or contact support.
+            </p>
           </div>
-        </div>
+        </HubForm.Section>
 
-        {/* Availability Note */}
-        <div style={{ marginTop: '32px', padding: '20px', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
-          <p style={{ margin: 0, color: '#6b7280', fontSize: '14px' }}>
-            <strong>Note:</strong> Your availability information from onboarding has been saved. To update your availability, please complete the onboarding process again or contact support.
-          </p>
-        </div>
-      </div>
-    </div>
+        {/* Action Buttons */}
+        <HubForm.Actions>
+          <button
+            type="button"
+            onClick={handleCancelAll}
+            disabled={!editingField || isSaving}
+            style={{
+              padding: '10px 24px',
+              fontSize: '14px',
+              fontWeight: 500,
+              color: '#374151',
+              backgroundColor: '#ffffff',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              cursor: editingField && !isSaving ? 'pointer' : 'not-allowed',
+              opacity: editingField && !isSaving ? 1 : 0.5,
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSaveAll}
+            disabled={!editingField || isSaving}
+            style={{
+              padding: '10px 24px',
+              fontSize: '14px',
+              fontWeight: 500,
+              color: '#ffffff',
+              backgroundColor: '#006c67',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: editingField && !isSaving ? 'pointer' : 'not-allowed',
+              opacity: editingField && !isSaving ? 1 : 0.5,
+            }}
+          >
+            {isSaving ? 'Saving...' : 'Save'}
+          </button>
+        </HubForm.Actions>
+      </HubForm.Root>
     );
   };
 
