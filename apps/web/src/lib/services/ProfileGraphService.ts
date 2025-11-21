@@ -190,14 +190,15 @@ export class ProfileGraphService {
 
   /**
    * Accept a connection request (update status to ACTIVE)
+   * If the request has organisation metadata, also add user to the organisation's team
    */
   static async acceptConnection(connectionId: string, userId: string): Promise<void> {
     const supabase = await createClient();
 
-    // Verify user is the target (receiver) of the connection
+    // Verify user is the target (receiver) of the connection and get metadata
     const { data: connection, error: fetchError } = await supabase
       .from('profile_graph')
-      .select('target_profile_id')
+      .select('target_profile_id, metadata')
       .eq('id', connectionId)
       .eq('relationship_type', 'SOCIAL')
       .single();
@@ -207,6 +208,7 @@ export class ProfileGraphService {
       throw new Error('Unauthorized: You can only accept requests sent to you');
     }
 
+    // Update status to ACTIVE
     const { error } = await supabase
       .from('profile_graph')
       .update({ status: 'ACTIVE' })
@@ -214,6 +216,26 @@ export class ProfileGraphService {
       .eq('relationship_type', 'SOCIAL');
 
     if (error) throw error;
+
+    // Check if this is an organisation invite
+    const metadata = connection.metadata as any;
+    if (metadata && metadata.type === 'organisation_invite' && metadata.organisation_id) {
+      // Auto-add user to organisation's team via group_members
+      // Note: We need the connection_id from the original profile_graph row
+      // Since this connection is now ACTIVE, we can add it to group_members
+      const { error: groupMemberError } = await supabase
+        .from('group_members')
+        .insert({
+          group_id: metadata.organisation_id,
+          connection_id: connectionId,
+          added_at: new Date().toISOString(),
+        });
+
+      // Log error but don't throw - connection is already accepted
+      if (groupMemberError) {
+        console.error('[ProfileGraphService] Failed to add user to organisation team:', groupMemberError);
+      }
+    }
   }
 
   /**
