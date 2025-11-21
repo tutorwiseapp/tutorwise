@@ -49,7 +49,6 @@ export default function AppSidebar() {
     { href: '/wiselists', label: 'Wiselists' }, // v5.7: Pinterest-style Collections
     { href: '/account', label: 'Account' },
     { href: '/payments', label: 'Payments' },
-    { href: '/settings', label: 'Settings' },
   ];
 
   const isActive = (href: string, hasSubItems?: boolean) => {

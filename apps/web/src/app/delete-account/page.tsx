@@ -131,10 +131,10 @@ const DeleteAccountPage = () => {
           <Button
             type="submit"
             fullWidth
-            className={styles.dangerButton}
+            variant="primary"
             disabled={confirmationText !== 'DELETE' || isDeleting}
           >
-            {isDeleting ? 'Deleting Account and All Data...' : 'Delete My Account Permanently'}
+            {isDeleting ? 'Deleting Account and All Data...' : 'Delete'}
           </Button>
         </form>
       </Card>

@@ -11,6 +11,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/account', request.url))
   }
 
+  // Redirect legacy /settings to /account/settings (v4.8)
+  if (pathname === '/settings') {
+    return NextResponse.redirect(new URL('/account/settings', request.url))
+  }
+
   // Redirect legacy /tutor/[id]/[slug] to new /listings/[id]/[slug] (v4.1)
   const tutorRouteMatch = pathname.match(/^\/tutor\/([^/]+)(?:\/([^/]+))?$/);
   if (tutorRouteMatch) {
@@ -69,7 +74,6 @@ export async function middleware(request: NextRequest) {
     '/dashboard',
     '/messages',
     '/account',
-    '/settings',
     '/payments',
     '/referral-activities',
     '/transaction-history',
