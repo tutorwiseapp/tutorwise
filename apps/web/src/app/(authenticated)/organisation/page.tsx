@@ -28,7 +28,7 @@ import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSideba
 import OrganisationStatsWidget from '@/app/components/organisation/OrganisationStatsWidget';
 import OrganisationInviteWidget from '@/app/components/organisation/OrganisationInviteWidget';
 import InfoTab from '@/app/components/organisation/tabs/InfoTab';
-import HubRowCard from '@/app/components/ui/hub/HubRowCard';
+import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
 import Button from '@/app/components/ui/Button';
 import toast from 'react-hot-toast';
 import getProfileImageUrl from '@/lib/utils/image';
