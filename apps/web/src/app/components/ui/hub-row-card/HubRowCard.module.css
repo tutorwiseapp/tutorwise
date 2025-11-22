@@ -92,7 +92,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   min-width: 0; /* Allows text truncation */
 }
 
@@ -199,7 +199,7 @@
   justify-content: flex-end;
   align-items: center;
   gap: 8px;
-  padding-top: 12px;
+  padding-top: 8px;
   border-top: 1px solid #f3f4f6;
 }
 
