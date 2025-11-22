@@ -137,6 +137,13 @@ export default function BookingsPage() {
     cancelMutation.mutate(bookingId);
   };
 
+  const handleReschedule = (bookingId: string) => {
+    // TODO: Implement reschedule modal/flow
+    toast('Reschedule functionality coming soon. Please contact support for now.', {
+      icon: 'ℹ️',
+    });
+  };
+
   // Determine viewMode based on activeRole
   const viewMode = activeRole === 'tutor' ? 'tutor' : 'client';
 
@@ -229,8 +236,11 @@ export default function BookingsPage() {
                 key={booking.id}
                 booking={booking}
                 viewMode={viewMode}
+                isOnline={true} // TODO: Determine from booking.delivery_mode or listing settings
                 onPayNow={activeRole === 'client' ? handlePayNow : undefined}
                 onViewDetails={handleViewDetails}
+                onReschedule={handleReschedule}
+                onCancel={handleCancel}
               />
             ))}
           </div>
