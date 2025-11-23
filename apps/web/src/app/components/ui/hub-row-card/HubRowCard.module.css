@@ -229,13 +229,13 @@
   .imageIconPlaceholder {
     width: 100%;
     height: auto;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 1 / 1; /* Square for avatars on mobile */
   }
 
   .image {
     width: 100%;
     height: auto;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 1 / 1; /* Square for avatars on mobile */
   }
 
   .actionDock {
