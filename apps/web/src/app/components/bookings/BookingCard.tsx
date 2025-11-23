@@ -168,7 +168,7 @@ export default function BookingCard({
       meta={metadata}
       stats={<span>£{booking.amount.toFixed(2)}</span>}
       actions={actions}
-      imageHref={otherParty?.id ? `/profile/${otherParty.id}` : undefined}
+      imageHref={otherParty?.id ? `/public-profile/${otherParty.id}` : undefined}
       titleHref={`/bookings/${booking.id}`}
     />
   );
