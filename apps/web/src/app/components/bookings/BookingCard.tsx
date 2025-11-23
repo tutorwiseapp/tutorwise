@@ -68,9 +68,15 @@ export default function BookingCard({
   const avatarUrl = otherParty ? getProfileImageUrl(otherParty) : null;
   const fallbackChar = otherParty?.full_name?.substring(0, 1).toUpperCase() || '?';
 
-  // Build metadata array
+  // Build metadata array with user name as a clickable link
   const metadata = [
-    otherParty?.full_name || 'Unknown',
+    otherParty?.id ? (
+      <Link key="name" href={`/profile/${otherParty.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+        <span style={{ cursor: 'pointer' }}>{otherParty.full_name || 'Unknown'}</span>
+      </Link>
+    ) : (
+      'Unknown'
+    ),
     formattedDate,
     formattedTime,
     `${booking.session_duration} mins`,
@@ -165,7 +171,8 @@ export default function BookingCard({
       meta={metadata}
       stats={<span>£{booking.amount.toFixed(2)}</span>}
       actions={actions}
-      href={`/bookings/${booking.id}`}
+      imageHref={otherParty?.id ? `/profile/${otherParty.id}` : undefined}
+      titleHref={`/bookings/${booking.id}`}
     />
   );
 }

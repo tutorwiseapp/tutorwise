@@ -182,6 +182,16 @@
   color: #6b7280;
 }
 
+.metadataRow a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.metadataRow a:hover {
+  color: var(--color-primary-default, #006c67);
+}
+
 .bullet {
   color: #d1d5db;
   margin: 0 2px;

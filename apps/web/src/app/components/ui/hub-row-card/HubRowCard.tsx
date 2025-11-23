@@ -36,7 +36,7 @@ export interface HubRowCardProps {
     variant: 'success' | 'warning' | 'error' | 'neutral' | 'info';
   };
   description?: string;
-  meta?: string[];         // Array of strings, auto-joined by bullets
+  meta?: (string | React.ReactNode)[];         // Array of strings or ReactNodes, auto-joined by bullets
 
   // RIGHT COLUMN - STATS / CONTEXT
   stats?: React.ReactNode; // Flexible slot for Text or Stats
@@ -45,7 +45,9 @@ export interface HubRowCardProps {
   actions?: React.ReactNode; // Slot for Buttons
 
   // INTERACTION
-  href?: string;           // Optional link for avatar and title
+  imageHref?: string;      // Optional link for avatar/image (e.g., user profile)
+  titleHref?: string;      // Optional link for title (e.g., booking/listing details)
+  href?: string;           // Legacy: Optional link for both avatar and title (deprecated, use imageHref/titleHref)
 }
 
 export default function HubRowCard({
@@ -56,8 +58,14 @@ export default function HubRowCard({
   meta,
   stats,
   actions,
+  imageHref,
+  titleHref,
   href,
 }: HubRowCardProps) {
+  // Support legacy href prop (falls back to both imageHref and titleHref)
+  const finalImageHref = imageHref || href;
+  const finalTitleHref = titleHref || href;
+
   // Render image content (either Next.js Image or fallback)
   const renderImageContent = () => {
     if (image.src) {
@@ -104,8 +112,8 @@ export default function HubRowCard({
 
   // Render avatar/image column with optional link
   const imageContent = renderImageContent();
-  const imageElement = href ? (
-    <Link href={href} className={styles.imageLink}>
+  const imageElement = finalImageHref ? (
+    <Link href={finalImageHref} className={styles.imageLink}>
       {imageContent}
     </Link>
   ) : (
@@ -113,8 +121,8 @@ export default function HubRowCard({
   );
 
   // Render title with optional link
-  const titleElement = href ? (
-    <Link href={href} className={styles.titleLink}>
+  const titleElement = finalTitleHref ? (
+    <Link href={finalTitleHref} className={styles.titleLink}>
       <h3 className={styles.title}>{title}</h3>
     </Link>
   ) : (
@@ -163,7 +171,7 @@ export default function HubRowCard({
           <div className={styles.metadataRow}>
             {meta.map((item, index) => (
               <React.Fragment key={index}>
-                <span>{item}</span>
+                {typeof item === 'string' ? <span>{item}</span> : item}
                 {index < meta.length - 1 && (
                   <span className={styles.bullet}>•</span>
                 )}
