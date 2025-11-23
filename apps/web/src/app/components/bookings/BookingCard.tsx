@@ -68,15 +68,12 @@ export default function BookingCard({
   const avatarUrl = otherParty ? getProfileImageUrl(otherParty) : null;
   const fallbackChar = otherParty?.full_name?.substring(0, 1).toUpperCase() || '?';
 
-  // Build metadata array with user name as a clickable link
+  // Build description with role prefix
+  const rolePrefix = viewMode === 'client' ? 'Tutor' : 'Client';
+  const description = otherParty ? `${rolePrefix}: ${otherParty.full_name}` : undefined;
+
+  // Build metadata array with only date, time, and duration
   const metadata = [
-    otherParty?.id ? (
-      <Link key="name" href={`/profile/${otherParty.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
-        <span style={{ cursor: 'pointer' }}>{otherParty.full_name || 'Unknown'}</span>
-      </Link>
-    ) : (
-      'Unknown'
-    ),
     formattedDate,
     formattedTime,
     `${booking.session_duration} mins`,
@@ -167,7 +164,7 @@ export default function BookingCard({
         label: booking.status,
         variant: getStatusVariant(booking.status),
       }}
-      description={otherParty ? `Session with ${otherParty.full_name}` : undefined}
+      description={description}
       meta={metadata}
       stats={<span>£{booking.amount.toFixed(2)}</span>}
       actions={actions}
