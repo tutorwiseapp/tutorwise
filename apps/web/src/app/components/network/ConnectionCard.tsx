@@ -2,17 +2,17 @@
  * Filename: apps/web/src/app/components/network/ConnectionCard.tsx
  * Purpose: Display individual connection with actions (Accept/Reject/Remove/Message)
  * Created: 2025-11-07
+ * Updated: 2025-11-24 - Migrated to HubRowCard standard with LinkedIn Lite 4-line rhythm
  * Specification: SDD v4.5, Section 4.2
  */
 
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { useAblyPresence } from '@/app/hooks/useAblyPresence';
-import styles from './ConnectionCard.module.css';
+import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
+import Button from '@/app/components/ui/Button';
 
 export interface Connection {
   id: string;
@@ -72,6 +72,15 @@ export default function ConnectionCard({
     return null;
   }
 
+  // Format date helper
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
+
   const handleAccept = async () => {
     if (!onAccept) return;
     setIsLoading(true);
@@ -121,123 +130,95 @@ export default function ConnectionCard({
     onMessage(otherProfile.id);
   };
 
-  return (
-    <div className={styles.card}>
-      <div className={styles.header}>
-        {/* Avatar */}
-        <Link
-          href={`/public-profile/${otherProfile.id}/${(otherProfile as any).slug || otherProfile.full_name?.toLowerCase().replace(/\s+/g, '-') || 'profile'}`}
-          className={styles.avatarLink}
-        >
-          <div className={styles.avatarWrapper}>
-            {otherProfile.avatar_url ? (
-              <Image
-                src={otherProfile.avatar_url}
-                alt={otherProfile.full_name}
-                width={64}
-                height={64}
-                className={styles.avatar}
-              />
-            ) : (
-              <div className={styles.avatarPlaceholder}>
-                {otherProfile.full_name.charAt(0).toUpperCase()}
-              </div>
-            )}
-            {/* Presence indicator - only for accepted connections */}
-            {variant === 'accepted' && (
-              <div
-                className={`${styles.presenceIndicator} ${
-                  isOnline ? styles.presenceOnline : styles.presenceOffline
-                }`}
-                title={isOnline ? 'Online' : 'Offline'}
-              />
-            )}
-          </div>
-        </Link>
+  // Map variant to status
+  const getStatus = () => {
+    if (variant === 'pending-received') {
+      return { label: 'Request Received', variant: 'info' as const };
+    }
+    if (variant === 'pending-sent') {
+      return { label: 'Request Sent', variant: 'neutral' as const };
+    }
+    return { label: 'Connected', variant: 'success' as const };
+  };
 
-        {/* Profile Info */}
-        <div className={styles.info}>
-          <Link
-            href={`/public-profile/${otherProfile.id}/${(otherProfile as any).slug || otherProfile.full_name?.toLowerCase().replace(/\s+/g, '-') || 'profile'}`}
-            className={styles.nameLink}
+  // Line 2: Description (Priority context for Request Received, Bio otherwise)
+  const description = variant === 'pending-received' && connection.message
+    ? connection.message
+    : otherProfile.bio;
+
+  // Line 3: Meta array (Email and Date)
+  const meta = [
+    otherProfile.email,
+    formatDate(connection.created_at),
+  ];
+
+  // Line 4: Presence indicator (only for accepted connections)
+  if (variant === 'accepted') {
+    meta.push(isOnline ? '🟢 Online' : '⚪ Offline');
+  }
+
+  // Actions based on variant
+  const actions = (
+    <>
+      {variant === 'pending-received' && (
+        <>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={handleAccept}
+            disabled={isLoading}
           >
-            <h3 className={styles.name}>{otherProfile.full_name}</h3>
-          </Link>
-          <p className={styles.email}>{otherProfile.email}</p>
-          {otherProfile.bio && (
-            <p className={styles.bio}>{otherProfile.bio}</p>
-          )}
-        </div>
-      </div>
-
-      {/* Connection Message */}
-      {connection.message && variant === 'pending-received' && (
-        <div className={styles.message}>
-          <p className={styles.messageLabel}>Message:</p>
-          <p className={styles.messageText}>{connection.message}</p>
-        </div>
+            {isLoading ? 'Accepting...' : 'Accept'}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleReject}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Rejecting...' : 'Reject'}
+          </Button>
+        </>
       )}
 
-      {/* Actions */}
-      <div className={styles.actions}>
-        {variant === 'pending-received' && (
-          <>
-            <button
-              onClick={handleAccept}
-              disabled={isLoading}
-              className={`${styles.button} ${styles.buttonPrimary}`}
-            >
-              {isLoading ? 'Accepting...' : 'Accept'}
-            </button>
-            <button
-              onClick={handleReject}
-              disabled={isLoading}
-              className={`${styles.button} ${styles.buttonSecondary}`}
-            >
-              {isLoading ? 'Rejecting...' : 'Reject'}
-            </button>
-          </>
-        )}
+      {variant === 'accepted' && (
+        <>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={handleMessage}
+          >
+            Message
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleRemove}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Removing...' : 'Remove'}
+          </Button>
+        </>
+      )}
 
-        {variant === 'pending-sent' && (
-          <div className={styles.pendingBadge}>
-            <span className={styles.pendingText}>Pending</span>
-          </div>
-        )}
+      {/* No actions for pending-sent */}
+    </>
+  );
 
-        {variant === 'accepted' && (
-          <>
-            <button
-              onClick={handleMessage}
-              className={`${styles.button} ${styles.buttonPrimary}`}
-              title="Send message"
-            >
-              Message
-            </button>
-            <button
-              onClick={handleRemove}
-              disabled={isLoading}
-              className={`${styles.button} ${styles.buttonDanger}`}
-            >
-              {isLoading ? 'Removing...' : 'Remove'}
-            </button>
-          </>
-        )}
-      </div>
-
-      {/* Timestamp */}
-      <div className={styles.footer}>
-        <span className={styles.timestamp}>
-          {variant === 'pending-received' && 'Received '}
-          {variant === 'pending-sent' && 'Sent '}
-          {variant === 'accepted' && 'Connected '}
-          {new Date(connection.created_at).toLocaleDateString('en-GB', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
-          })}
-        </span>
-      </div>
-    </div>
+  return (
+    <HubRowCard
+      image={{
+        src: otherProfile.avatar_url || null,
+        alt: otherProfile.full_name,
+        fallbackChar: otherProfile.full_name?.charAt(0).toUpperCase(),
+      }}
+      title={otherProfile.full_name}
+      status={getStatus()}
+      description={description}
+      meta={meta}
+      actions={actions}
+      imageHref={`/public-profile/${otherProfile.id}`}
+      titleHref={`/public-profile/${otherProfile.id}`}
+    />
   );
 }
