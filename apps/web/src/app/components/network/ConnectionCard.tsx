@@ -60,15 +60,15 @@ export default function ConnectionCard({
 
   // Determine which profile to display (the other person)
   const isRequester = connection.requester_id === currentUserId;
-  const otherProfile = isRequester ? connection.receiver : connection.requester;
+  const otherParty = isRequester ? connection.receiver : connection.requester;
 
   // Track real-time presence status (only for accepted connections)
   const { isOnline } = useAblyPresence(
-    variant === 'accepted' ? otherProfile?.id : null,
+    variant === 'accepted' ? otherParty?.id : null,
     currentUserId
   );
 
-  if (!otherProfile) {
+  if (!otherParty) {
     return null;
   }
 
@@ -86,7 +86,7 @@ export default function ConnectionCard({
     setIsLoading(true);
     try {
       await onAccept(connection.id);
-      toast.success(`You are now connected with ${otherProfile.full_name}`);
+      toast.success(`You are now connected with ${otherParty.full_name}`);
     } catch (error) {
       toast.error('Failed to accept connection request');
     } finally {
@@ -110,7 +110,7 @@ export default function ConnectionCard({
   const handleRemove = async () => {
     if (!onRemove) return;
     const confirmed = window.confirm(
-      `Are you sure you want to remove ${otherProfile.full_name} from your connections?`
+      `Are you sure you want to remove ${otherParty.full_name} from your connections?`
     );
     if (!confirmed) return;
 
@@ -127,7 +127,7 @@ export default function ConnectionCard({
 
   const handleMessage = () => {
     if (!onMessage) return;
-    onMessage(otherProfile.id);
+    onMessage(otherParty.id);
   };
 
   // Map variant to status
@@ -144,11 +144,11 @@ export default function ConnectionCard({
   // Line 2: Description (Priority context for Request Received, Bio otherwise)
   const description = variant === 'pending-received' && connection.message
     ? connection.message
-    : otherProfile.bio || 'There is no data...';
+    : otherParty.bio || 'There is no data...';
 
   // Line 3: Meta array (Email and Date only)
   const meta = [
-    otherProfile.email,
+    otherParty.email,
     formatDate(connection.created_at),
   ];
 
@@ -208,18 +208,18 @@ export default function ConnectionCard({
   return (
     <HubRowCard
       image={{
-        src: otherProfile.avatar_url || null,
-        alt: otherProfile.full_name,
-        fallbackChar: otherProfile.full_name?.charAt(0).toUpperCase(),
+        src: otherParty.avatar_url || null,
+        alt: otherParty.full_name,
+        fallbackChar: otherParty.full_name?.charAt(0).toUpperCase(),
       }}
-      title={otherProfile.full_name}
+      title={otherParty.full_name}
       status={getStatus()}
       description={description}
       meta={meta}
       stats={stats}
       actions={actions}
-      imageHref={`/public-profile/${otherProfile.id}`}
-      titleHref={`/public-profile/${otherProfile.id}`}
+      imageHref={`/public-profile/${otherParty.id}`}
+      titleHref={`/public-profile/${otherParty.id}`}
     />
   );
 }
