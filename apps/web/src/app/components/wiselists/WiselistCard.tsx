@@ -61,9 +61,9 @@ export default function WiselistCard({
   // Build stats (Item count)
   const itemCount = wiselist.item_count || 0;
   const stats = (
-    <div className="flex flex-col items-end">
-      <span className="text-2xl font-bold text-gray-900">{itemCount}</span>
-      <span className="text-xs text-gray-500 uppercase">
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+      <span style={{ fontSize: '24px', fontWeight: 700, color: '#111827' }}>{itemCount}</span>
+      <span style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
         {itemCount === 1 ? 'Item' : 'Items'}
       </span>
     </div>
