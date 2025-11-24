@@ -146,19 +146,16 @@ export default function ConnectionCard({
     ? connection.message
     : otherProfile.bio || 'There is no data...';
 
-  // Line 3: Meta array (Email and Date)
-  const metaLine3 = [
+  // Line 3: Meta array (Email and Date only)
+  const meta = [
     otherProfile.email,
     formatDate(connection.created_at),
   ];
 
-  // Line 4: Presence indicator (only for accepted connections)
-  const metaLine4 = variant === 'accepted'
-    ? [isOnline ? '🟢 Online' : '⚪ Offline']
-    : [];
-
-  // Combine meta arrays
-  const meta = [...metaLine3, ...metaLine4];
+  // Line 4: Presence indicator (passed as stats for visual separation)
+  const stats = variant === 'accepted'
+    ? <span>{isOnline ? '🟢 Online' : '⚪ Offline'}</span>
+    : undefined;
 
   // Actions based on variant
   const actions = (
@@ -219,6 +216,7 @@ export default function ConnectionCard({
       status={getStatus()}
       description={description}
       meta={meta}
+      stats={stats}
       actions={actions}
       imageHref={`/public-profile/${otherProfile.id}`}
       titleHref={`/public-profile/${otherProfile.id}`}
