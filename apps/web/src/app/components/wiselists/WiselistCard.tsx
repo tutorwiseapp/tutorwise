@@ -58,15 +58,12 @@ export default function WiselistCard({
     `${wiselist.collaborator_count || 0} Collaborators`,
   ];
 
-  // Build stats (Item count)
+  // Build stats (Item count) - Line 4 in content area, left-aligned like other cards
   const itemCount = wiselist.item_count || 0;
   const stats = (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
-      <span style={{ fontSize: '24px', fontWeight: 700, color: '#111827' }}>{itemCount}</span>
-      <span style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-        {itemCount === 1 ? 'Item' : 'Items'}
-      </span>
-    </div>
+    <span>
+      {itemCount} {itemCount === 1 ? 'Item' : 'Items'}
+    </span>
   );
 
   // Handle delete with confirmation
