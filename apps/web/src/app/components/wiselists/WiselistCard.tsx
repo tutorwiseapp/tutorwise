@@ -1,27 +1,16 @@
-/**
- * Filename: WiselistCard.tsx
- * Purpose: Display wiselist in HubRowCard format (v5.7.1)
- * Path: /app/components/wiselists/WiselistCard.tsx
+/*
+ * Filename: src/app/components/wiselists/WiselistCard.tsx
+ * Purpose: Display wiselist in card format (SDD v3.6)
  * Created: 2025-11-15
- * Updated: 2025-11-17 - Redesigned to match HubRowCard v1 specification
- *
- * Follows hub-row-card-ui-design-v1.md section 2.6:
- * - NO icon (removed List icon from left column)
- * - 160px owner avatar column (left)
- * - 4-row content structure (right): Title + Badge, Description, Metadata, Collaborators
- * - Action dock (bottom): Edit + Share buttons
+ * Updated: 2025-11-24 - Migrated to HubRowCard standard
+ * Specification: SDD v3.6 - Horizontal card layout with HubRowCard component
  */
-
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { Wiselist } from '@/types';
-import { Lock, Globe, Edit2, Share2 } from 'lucide-react';
+import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
 import Button from '@/app/components/ui/Button';
-import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import getProfileImageUrl from '@/lib/utils/image';
-import styles from './WiselistCard.module.css';
 
 interface WiselistCardProps {
   wiselist: Wiselist;
@@ -34,126 +23,107 @@ export default function WiselistCard({
   onDelete,
   onShare,
 }: WiselistCardProps) {
-  const { profile } = useUserProfile();
   const isPublic = wiselist.visibility === 'public';
-  const itemCount = wiselist.item_count || 0;
-  const collabCount = wiselist.collaborator_count || 0;
 
-  // Get owner avatar (current user for now, until we have owner data in the wiselist)
-  const ownerAvatarUrl = profile ? getProfileImageUrl(profile) : '/images/default-avatar.png';
+  // Get list initials (first letter of first 2 words)
+  const getInitials = (name: string) =>
+    name
+      .split(' ')
+      .map((word) => word[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
 
-  const handleDelete = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  // Format date to match application standard
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
 
+  // Map visibility to HubRowCard status variant
+  const getStatusVariant = (): 'success' | 'neutral' => {
+    return isPublic ? 'success' : 'neutral';
+  };
+
+  const getStatusLabel = (): string => {
+    return isPublic ? 'Public' : 'Private';
+  };
+
+  // Build metadata array
+  const meta = [
+    `Updated ${formatDate(wiselist.updated_at || wiselist.created_at)}`,
+    `${wiselist.collaborator_count || 0} Collaborators`,
+  ];
+
+  // Build stats (Item count)
+  const stats = (
+    <div className="flex flex-col items-end">
+      <span className="text-2xl font-bold text-gray-900">
+        {wiselist.item_count || 0}
+      </span>
+      <span className="text-xs text-gray-500 uppercase">Items</span>
+    </div>
+  );
+
+  // Handle delete with confirmation
+  const handleDelete = () => {
+    if (!onDelete) return;
     if (confirm(`Delete "${wiselist.name}"? This action cannot be undone.`)) {
-      onDelete?.(wiselist.id);
+      onDelete(wiselist.id);
     }
   };
 
-  const handleShare = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onShare?.(wiselist.id);
-  };
+  // Build actions
+  const actions = (
+    <>
+      {/* Edit button wrapped in Link */}
+      <Link href={`/wiselists/${wiselist.id}`}>
+        <Button variant="secondary" size="sm">
+          Edit
+        </Button>
+      </Link>
 
-  const handleEdit = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    window.location.href = `/wiselists/${wiselist.id}`;
-  };
+      {/* Share button - only if public and handler provided */}
+      {isPublic && onShare && (
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => onShare(wiselist.id)}
+        >
+          Share
+        </Button>
+      )}
+
+      {/* Delete button - only if handler provided */}
+      {onDelete && (
+        <Button variant="ghost" size="sm" onClick={handleDelete}>
+          Delete
+        </Button>
+      )}
+    </>
+  );
 
   return (
-    <div className={styles.hubRowCard}>
-      {/* Left Column: Owner Avatar (160px fixed) */}
-      <div className={styles.avatarColumn}>
-        <Link href={`/wiselists/${wiselist.id}`} className={styles.avatarLink}>
-          <Image
-            src={ownerAvatarUrl}
-            alt={profile?.full_name || 'Owner'}
-            width={160}
-            height={160}
-            className={styles.avatar}
-          />
-        </Link>
-      </div>
-
-      {/* Right Column: Content (4-row structure) */}
-      <div className={styles.contentColumn}>
-        {/* Row 1: Header (Title + Badge) */}
-        <div className={styles.headerRow}>
-          <Link href={`/wiselists/${wiselist.id}`} className={styles.titleLink}>
-            <h3 className={styles.title}>{wiselist.name}</h3>
-          </Link>
-          <span className={`${styles.badge} ${isPublic ? styles.badgePublic : styles.badgePrivate}`}>
-            {isPublic ? (
-              <>
-                <Globe size={12} />
-                Public
-              </>
-            ) : (
-              <>
-                <Lock size={12} />
-                Private
-              </>
-            )}
-          </span>
-        </div>
-
-        {/* Row 2: Description */}
-        {wiselist.description && (
-          <p className={styles.description}>{wiselist.description}</p>
-        )}
-
-        {/* Row 3: Metadata (bullet-separated) */}
-        <div className={styles.metadataRow}>
-          <span>
-            {itemCount} {itemCount === 1 ? 'Item' : 'Items'}
-          </span>
-          <span className={styles.bullet}>•</span>
-          <span>
-            Updated {new Date(wiselist.updated_at || wiselist.created_at).toLocaleDateString()}
-          </span>
-        </div>
-
-        {/* Row 4: Collaborators */}
-        {collabCount > 0 && (
-          <div className={styles.collaboratorsRow}>
-            <span>Collaborators: {collabCount}</span>
-          </div>
-        )}
-
-        {/* Action Dock */}
-        <div className={styles.actionDock}>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={handleEdit}
-          >
-            <Edit2 size={16} />
-            Edit
-          </Button>
-          {isPublic && (
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={handleShare}
-            >
-              <Share2 size={16} />
-              Share
-            </Button>
-          )}
-          {onDelete && (
-            <Button
-              variant="danger"
-              size="sm"
-              onClick={handleDelete}
-            >
-              Delete
-            </Button>
-          )}
-        </div>
-      </div>
-    </div>
+    <HubRowCard
+      image={{
+        src: null,
+        alt: wiselist.name,
+        fallbackChar: getInitials(wiselist.name),
+      }}
+      title={wiselist.name}
+      status={{
+        label: getStatusLabel(),
+        variant: getStatusVariant(),
+      }}
+      description={wiselist.description || undefined}
+      meta={meta}
+      stats={stats}
+      actions={actions}
+      imageHref={`/wiselists/${wiselist.id}`}
+      titleHref={`/wiselists/${wiselist.id}`}
+    />
   );
 }
