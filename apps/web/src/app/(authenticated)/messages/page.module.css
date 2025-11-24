@@ -87,17 +87,22 @@
 
 /* Error State */
 .error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
   padding: 2rem;
   text-align: center;
   background-color: #fef2f2;
   border: 1px solid #fecaca;
   border-radius: 0.5rem;
-  margin-top: 1rem;
+  margin: 1rem;
 }
 
 .error p {
   color: #991b1b;
   margin: 0;
+  font-size: 0.875rem;
 }
 
 /* Mobile Responsive (< 768px) */
