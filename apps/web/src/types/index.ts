@@ -408,6 +408,18 @@ export interface Transaction {
     id: string;
     service_name: string;
     session_start_time: string;
+    client_id: string;
+    tutor_id: string;
+    client?: {
+      id: string;
+      full_name: string;
+      avatar_url?: string;
+    };
+    tutor?: {
+      id: string;
+      full_name: string;
+      avatar_url?: string;
+    };
   };
 }
 

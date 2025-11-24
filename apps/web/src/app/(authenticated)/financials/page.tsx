@@ -156,10 +156,14 @@ export default function TransactionsPage() {
         )}
 
         {/* Transactions List */}
-        {filteredTransactions.length > 0 && (
+        {filteredTransactions.length > 0 && profile && (
           <div className={styles.transactionsList}>
             {filteredTransactions.map((transaction) => (
-              <TransactionCard key={transaction.id} transaction={transaction} />
+              <TransactionCard
+                key={transaction.id}
+                transaction={transaction}
+                currentUserId={profile.id}
+              />
             ))}
           </div>
         )}

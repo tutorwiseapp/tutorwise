@@ -34,12 +34,20 @@ export async function GET(req: Request) {
     const typeFilter = searchParams.get('type');
     const statusFilter = searchParams.get('status');
 
-    // 3. Build query
+    // 3. Build query (v4.9: Include nested client and tutor profiles for TransactionCard)
     let query = supabase
       .from('transactions')
       .select(`
         *,
-        booking:booking_id(id, service_name, session_start_time)
+        booking:booking_id(
+          id,
+          service_name,
+          session_start_time,
+          client_id,
+          tutor_id,
+          client:client_id(id, full_name, avatar_url),
+          tutor:tutor_id(id, full_name, avatar_url)
+        )
       `)
       .eq('profile_id', user.id);
 

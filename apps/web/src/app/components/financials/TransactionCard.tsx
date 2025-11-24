@@ -1,151 +1,191 @@
 /*
  * Filename: src/app/components/financials/TransactionCard.tsx
- * Purpose: Display transaction information in card format (SDD v3.6)
+ * Purpose: Display transaction information in card format (SDD v4.9)
  * Created: 2025-11-02
- * Specification: SDD v3.6, Section 4.2 - /financials hub UI
+ * Updated: 2025-11-24 - Migrated to HubRowCard standard with 3-role counterparty logic
+ * Specification: SDD v4.9 - Horizontal card layout with HubRowCard component
  */
 'use client';
 
-import { Transaction, TransactionType, TransactionStatus } from '@/types';
-import Card from '@/app/components/ui/Card';
+import { Transaction, TransactionStatus } from '@/types';
+import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
+import Button from '@/app/components/ui/Button';
+import getProfileImageUrl from '@/lib/utils/image';
 
 interface TransactionCardProps {
   transaction: Transaction;
+  currentUserId: string;
 }
 
-export default function TransactionCard({ transaction }: TransactionCardProps) {
-  // Format date/time
-  const transactionDate = new Date(transaction.created_at);
-  const formattedDate = transactionDate.toLocaleDateString('en-GB', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-  const formattedTime = transactionDate.toLocaleTimeString('en-GB', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+export default function TransactionCard({ transaction, currentUserId }: TransactionCardProps) {
+  // Determine counterparty (3-role logic: Client, Tutor, Agent)
+  const determineCounterparty = () => {
+    // System transactions (no person)
+    if (transaction.type === 'Withdrawal') {
+      return { name: 'Withdrawal', id: null, avatar_url: null, fallbackChar: 'W' };
+    }
+    if (transaction.type === 'Platform Fee') {
+      return { name: 'TutorWise', id: null, avatar_url: null, fallbackChar: 'T' };
+    }
 
-  // Status badge colors (v4.9 updated)
-  const getStatusColor = (status: TransactionStatus) => {
-    switch (status) {
-      // v4.9 statuses
+    // Booking-related transactions
+    if (transaction.booking) {
+      const booking = transaction.booking;
+
+      // If I am Tutor: Counterparty is Client
+      if (booking.tutor_id === currentUserId) {
+        return {
+          name: booking.client?.full_name || 'Client',
+          id: booking.client?.id || null,
+          avatar_url: booking.client?.avatar_url || null,
+          fallbackChar: booking.client?.full_name?.charAt(0).toUpperCase() || 'C'
+        };
+      }
+
+      // If I am Client: Counterparty is Tutor
+      if (booking.client_id === currentUserId) {
+        return {
+          name: booking.tutor?.full_name || 'Tutor',
+          id: booking.tutor?.id || null,
+          avatar_url: booking.tutor?.avatar_url || null,
+          fallbackChar: booking.tutor?.full_name?.charAt(0).toUpperCase() || 'T'
+        };
+      }
+
+      // If I am Agent: Counterparty is Tutor (primary) or Client (fallback)
+      const agent = booking.tutor || booking.client;
+      return {
+        name: agent?.full_name || 'Unknown',
+        id: agent?.id || null,
+        avatar_url: agent?.avatar_url || null,
+        fallbackChar: agent?.full_name?.charAt(0).toUpperCase() || '?'
+      };
+    }
+
+    // Fallback for non-booking transactions
+    return { name: 'Unknown', id: null, avatar_url: null, fallbackChar: '?' };
+  };
+
+  const counterparty = determineCounterparty();
+  const isSystemTransaction = !counterparty.id;
+
+  // Format date helper (en-GB standard)
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
+
+  // Format time helper (24-hour format)
+  const formatTime = (dateString: string) => {
+    return new Date(dateString).toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  };
+
+  // Map status to HubRowCard status variant (v4.9)
+  const getStatus = (): { label: string; variant: 'success' | 'warning' | 'error' | 'neutral' | 'info' } => {
+    switch (transaction.status) {
       case 'available':
-        return 'bg-green-100 text-green-800';
-      case 'clearing':
-        return 'bg-yellow-100 text-yellow-800';
       case 'paid_out':
-        return 'bg-teal-100 text-teal-800';
-      case 'disputed':
-        return 'bg-red-100 text-red-800';
-      case 'refunded':
-        return 'bg-gray-100 text-gray-800';
-      // Legacy statuses (v3.6)
       case 'Paid':
-        return 'bg-green-100 text-green-800';
-      case 'Failed':
-        return 'bg-red-100 text-red-800';
-      case 'Cancelled':
-        return 'bg-gray-100 text-gray-800';
+        return { label: transaction.status, variant: 'success' };
+      case 'clearing':
       case 'Pending':
+        return { label: transaction.status, variant: 'warning' };
+      case 'Failed':
+      case 'disputed':
+        return { label: transaction.status, variant: 'error' };
+      case 'refunded':
+      case 'Cancelled':
+        return { label: transaction.status, variant: 'neutral' };
       default:
-        return 'bg-yellow-100 text-yellow-800';
+        return { label: transaction.status, variant: 'neutral' };
     }
   };
 
-  // Transaction type colors and icons
-  const getTypeColor = (type: TransactionType) => {
-    switch (type) {
-      case 'Booking Payment':
-        return 'bg-blue-100 text-blue-800';
-      case 'Tutoring Payout':
-        return 'bg-green-100 text-green-800';
-      case 'Referral Commission':
-        return 'bg-purple-100 text-purple-800';
-      case 'Agent Commission':
-        return 'bg-indigo-100 text-indigo-800';
-      case 'Platform Fee':
-        return 'bg-gray-100 text-gray-800';
-      case 'Withdrawal':
-        return 'bg-teal-100 text-teal-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+  // Get image properties (Person or System)
+  const getImage = () => {
+    if (isSystemTransaction) {
+      return {
+        src: null,
+        alt: counterparty.name,
+        fallbackChar: counterparty.fallbackChar,
+      };
     }
+
+    return {
+      src: counterparty.avatar_url ? getProfileImageUrl({
+        id: counterparty.id!,
+        avatar_url: counterparty.avatar_url,
+      }) : null,
+      alt: counterparty.name,
+      fallbackChar: counterparty.fallbackChar,
+    };
   };
 
-  // Determine if this is a credit (incoming) or debit (outgoing)
+  // Build title (service name or description)
+  const title = transaction.booking?.service_name || transaction.description || counterparty.name;
+
+  // Build description (transaction type - already human-readable)
+  const description = transaction.type;
+
+  // Build metadata array
+  const meta = [
+    formatDate(transaction.created_at),
+    formatTime(transaction.created_at),
+    `#${transaction.id.slice(0, 8)}`
+  ];
+
+  // Determine credit/debit for amount display
   const isCredit =
-    transaction.type === 'Tutoring Payout' ||
+    (transaction.type === 'Booking Payment' && transaction.booking?.tutor_id === currentUserId) ||
     transaction.type === 'Referral Commission' ||
     transaction.type === 'Agent Commission';
 
-  return (
-    <Card className="hover:shadow-md transition-shadow">
-      <div className="p-6">
-        {/* Header: Type + Status */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(
-                  transaction.type
-                )}`}
-              >
-                {transaction.type}
-              </span>
-              <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                  transaction.status
-                )}`}
-              >
-                {transaction.status}
-              </span>
-            </div>
-            {transaction.description && (
-              <p className="text-sm text-gray-600 mt-2">
-                {transaction.description}
-              </p>
-            )}
-          </div>
-          <div className="text-right">
-            <p
-              className={`text-xl font-bold ${
-                isCredit ? 'text-green-600' : 'text-gray-900'
-              }`}
-            >
-              {isCredit ? '+' : ''}£{transaction.amount.toFixed(2)}
-            </p>
-          </div>
-        </div>
+  const isDebit =
+    (transaction.type === 'Booking Payment' && transaction.booking?.client_id === currentUserId) ||
+    transaction.type === 'Platform Fee' ||
+    transaction.type === 'Withdrawal';
 
-        {/* Transaction Details */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-          <div>
-            <span className="text-gray-500">Date:</span>{' '}
-            <span className="font-medium text-gray-900">{formattedDate}</span>
-          </div>
-          <div>
-            <span className="text-gray-500">Time:</span>{' '}
-            <span className="font-medium text-gray-900">{formattedTime}</span>
-          </div>
-          {transaction.booking && (
-            <>
-              <div className="md:col-span-2">
-                <span className="text-gray-500">Related Booking:</span>{' '}
-                <span className="font-medium text-gray-900">
-                  {transaction.booking.service_name}
-                </span>
-              </div>
-            </>
-          )}
-          <div className="md:col-span-2">
-            <span className="text-gray-500">Transaction ID:</span>{' '}
-            <span className="font-mono text-xs text-gray-600">
-              {transaction.id.slice(0, 8)}...
-            </span>
-          </div>
-        </div>
-      </div>
-    </Card>
+  // Build stats (amount with explicit signs and Tailwind color overrides)
+  const stats = (
+    <span className={`text-lg font-bold ${isCredit ? 'text-emerald-600' : 'text-gray-900'}`}>
+      {isCredit ? '+' : ''}{isDebit && transaction.type !== 'Withdrawal' ? '-' : ''}£{transaction.amount.toFixed(2)}
+    </span>
+  );
+
+  // Build actions
+  const actions = (
+    <>
+      {transaction.booking_id && (
+        <Button variant="secondary" size="sm" href={`/bookings/${transaction.booking_id}`}>
+          View Booking
+        </Button>
+      )}
+      {(transaction.status === 'disputed' || transaction.status === 'Failed') && (
+        <Button variant="ghost" size="sm" href="/help-centre">
+          Support
+        </Button>
+      )}
+    </>
+  );
+
+  return (
+    <HubRowCard
+      image={getImage()}
+      title={title}
+      status={getStatus()}
+      description={description}
+      meta={meta}
+      stats={stats}
+      actions={actions}
+      imageHref={isSystemTransaction ? undefined : `/public-profile/${counterparty.id}`}
+      titleHref={isSystemTransaction ? undefined : `/public-profile/${counterparty.id}`}
+    />
   );
 }
