@@ -2,18 +2,18 @@
  * Filename: src/app/(authenticated)/listings/ListingCard.tsx
  * Purpose: Horizontal listing card for hub view (SDD v3.6)
  * Created: 2025-11-03
- * Specification: SDD v3.6 - Horizontal card layout with 192x192 image
+ * Updated: 2025-11-24 - Migrated to HubRowCard standard
+ * Specification: SDD v3.6 - Horizontal card layout with HubRowCard component
  */
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import type { Listing } from '@tutorwise/shared-types';
 import Button from '@/app/components/ui/Button';
 import ConfirmDialog from '@/app/components/ui/ConfirmDialog';
+import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
 import getProfileImageUrl from '@/lib/utils/image';
-import styles from './ListingCard.module.css';
 
 interface ListingCardProps {
   listing: Listing;
@@ -54,26 +54,28 @@ export default function ListingCard({
     avatar_url: listing.avatar_url,
   });
 
-  // Format price
-  const formattedPrice = new Intl.NumberFormat('en-GB', {
-    style: 'currency',
-    currency: 'GBP',
-  }).format(listing.hourly_rate || 0);
-
-  // Get status badge styling
-  const getStatusColor = (status?: string) => {
+  // Map status to HubRowCard status variant
+  const getStatusVariant = (status?: string): 'success' | 'warning' | 'error' | 'neutral' | 'info' => {
     switch (status) {
       case 'published':
-        return styles.statusPublished;
+        return 'success';
       case 'unpublished':
-        return styles.statusUnpublished;
+        return 'info';
       case 'draft':
-        return styles.statusDraft;
+        return 'neutral';
       case 'archived':
-        return styles.statusArchived;
+        return 'warning';
       default:
-        return styles.statusDraft;
+        return 'neutral';
     }
+  };
+
+  // Format location type to human-readable string
+  const formatLocationType = (locationType?: string): string => {
+    if (!locationType) return 'Not specified';
+    if (locationType === 'online') return 'Online';
+    if (locationType === 'in_person') return 'In Person';
+    return locationType;
   };
 
   // Business logic checks
@@ -155,158 +157,147 @@ export default function ListingCard({
     }
   };
 
+  // Build badge (Template badge only - Featured not yet implemented in Listing type)
+  const badge = isTemplate ? 'Template' : undefined;
+
+  // Build metadata array
+  const subjects = listing.subjects?.join(', ') || 'No subjects';
+  const levels = listing.levels?.join(', ');
+  const meta = [
+    subjects,
+    levels,
+    `£${listing.hourly_rate}/hr`,
+    formatLocationType(listing.location_type),
+  ].filter(Boolean);
+
+  // Build stats ReactNode (hidden for templates)
+  const stats = !isTemplate ? (
+    <div className="flex gap-3 text-sm text-gray-600">
+      <span>
+        <span className="font-semibold text-gray-900">{listing.view_count || 0}</span> views
+      </span>
+      <span>
+        <span className="font-semibold text-gray-900">{listing.inquiry_count || 0}</span> inquiries
+      </span>
+      <span>
+        <span className="font-semibold text-gray-900">{listing.booking_count || 0}</span> bookings
+      </span>
+    </div>
+  ) : undefined;
+
+  // Build actions (conditional based on status and template)
+  const actions = (
+    <>
+      {isTemplate ? (
+        // Template: Only show Duplicate button
+        <Button
+          variant="primary"
+          size="sm"
+          onClick={() => onDuplicate(listing.id)}
+        >
+          Duplicate
+        </Button>
+      ) : isDraft ? (
+        // Draft: Publish, Edit, Delete
+        <>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => onPublish(listing.id)}
+          >
+            Publish
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => router.push(`/edit-listing/${listing.id}`)}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={handleDeleteClick}
+          >
+            Delete
+          </Button>
+        </>
+      ) : isPublished ? (
+        // Published: Unpublish, Archive
+        <>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => onUnpublish(listing.id)}
+          >
+            Unpublish
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => onArchive(listing.id)}
+          >
+            Archive
+          </Button>
+        </>
+      ) : isUnpublished ? (
+        // Unpublished: Publish, Archive
+        <>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => onPublish(listing.id)}
+          >
+            Publish
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => onArchive(listing.id)}
+          >
+            Archive
+          </Button>
+        </>
+      ) : isArchived ? (
+        // Archived: Delete only (after 3-day wait)
+        <Button
+          variant="danger"
+          size="sm"
+          onClick={handleDeleteClick}
+          disabled={!canDelete()}
+          title={
+            canDelete()
+              ? 'Delete listing permanently'
+              : `Delete available after ${DAYS_BEFORE_DELETE} days`
+          }
+        >
+          Delete
+        </Button>
+      ) : null}
+    </>
+  );
+
   return (
-    <div className={styles.card}>
-      {/* Left: Image (192x192) */}
-      <div className={styles.imageWrapper}>
-        <Image
-          src={imageUrl}
-          alt={listing.full_name || listing.title}
-          width={192}
-          height={192}
-          className={styles.image}
-        />
-        {isTemplate && (
-          <div className={styles.templateBadge}>
-            Template
-          </div>
-        )}
-      </div>
-
-      {/* Right: Content */}
-      <div className={styles.content}>
-        {/* Top Section: Title, Description, Meta */}
-        <div className={styles.topSection}>
-          <div className={styles.headerRow}>
-            <h3 className={styles.title}>{listing.title}</h3>
-            <span className={`${styles.statusBadge} ${getStatusColor(listing.status)}`}>
-              {listing.status || 'draft'}
-            </span>
-          </div>
-
-          <p className={styles.description}>
-            {listing.description}
-          </p>
-
-          <div className={styles.meta}>
-            <span className={styles.metaItem}>
-              {listing.subjects?.join(', ') || 'No subjects'}
-            </span>
-            <span className={styles.metaDivider}>•</span>
-            <span className={styles.metaItem}>
-              {formattedPrice}/hr
-            </span>
-            <span className={styles.metaDivider}>•</span>
-            <span className={styles.metaItem}>
-              {listing.location_type || 'Not specified'}
-            </span>
-          </div>
-
-          {!isTemplate && (
-            <div className={styles.stats}>
-              <span className={styles.statItem}>
-                <span className={styles.statValue}>{listing.view_count || 0}</span> views
-              </span>
-              <span className={styles.statItem}>
-                <span className={styles.statValue}>{listing.inquiry_count || 0}</span> inquiries
-              </span>
-              <span className={styles.statItem}>
-                <span className={styles.statValue}>{listing.booking_count || 0}</span> bookings
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Bottom Section: Actions */}
-        <div className={styles.actions}>
-          {isTemplate ? (
-            // Template: Only show Duplicate button
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => onDuplicate(listing.id)}
-            >
-              Duplicate
-            </Button>
-          ) : isDraft ? (
-            // Draft: Publish, Edit, Delete
-            <>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => onPublish(listing.id)}
-              >
-                Publish
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => router.push(`/edit-listing/${listing.id}`)}
-              >
-                Edit
-              </Button>
-              <Button
-                variant="danger"
-                size="sm"
-                onClick={handleDeleteClick}
-              >
-                Delete
-              </Button>
-            </>
-          ) : isPublished ? (
-            // Published: Unpublish, Archive
-            <>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => onUnpublish(listing.id)}
-              >
-                Unpublish
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => onArchive(listing.id)}
-              >
-                Archive
-              </Button>
-            </>
-          ) : isUnpublished ? (
-            // Unpublished: Publish, Archive
-            <>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => onPublish(listing.id)}
-              >
-                Publish
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => onArchive(listing.id)}
-              >
-                Archive
-              </Button>
-            </>
-          ) : isArchived ? (
-            // Archived: Delete only (after 3-day wait)
-            <Button
-              variant="danger"
-              size="sm"
-              onClick={handleDeleteClick}
-              disabled={!canDelete()}
-              title={
-                canDelete()
-                  ? 'Delete listing permanently'
-                  : `Delete available after ${DAYS_BEFORE_DELETE} days`
-              }
-            >
-              Delete
-            </Button>
-          ) : null}
-        </div>
-      </div>
+    <>
+      <HubRowCard
+        image={{
+          src: listing.images?.[0] || imageUrl,
+          alt: listing.title,
+          fallbackChar: listing.title?.charAt(0).toUpperCase(),
+          badge: badge,
+        }}
+        title={listing.title}
+        status={{
+          label: listing.status || 'draft',
+          variant: getStatusVariant(listing.status),
+        }}
+        description={listing.description}
+        meta={meta}
+        stats={stats}
+        actions={actions}
+        imageHref={`/listings/${listing.id}`}
+        titleHref={`/listings/${listing.id}`}
+      />
 
       {/* Confirmation Dialog */}
       <ConfirmDialog
@@ -319,6 +310,6 @@ export default function ListingCard({
         confirmText={confirmDialog.variant === 'warning' ? 'OK' : 'Delete'}
         cancelText="Cancel"
       />
-    </div>
+    </>
   );
 }
