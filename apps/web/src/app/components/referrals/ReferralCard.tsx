@@ -2,176 +2,156 @@
  * Filename: src/app/components/referrals/ReferralCard.tsx
  * Purpose: Display referral lead information in card format (SDD v3.6)
  * Created: 2025-11-02
- * Updated: 2025-11-06 - Phase 5: Applied design system (SDD v4.3)
+ * Updated: 2025-11-24 - Migrated to HubRowCard standard
  * Specification: SDD v3.6, Section 4.3 - /referrals hub UI
  */
 'use client';
 
 import { Referral, ReferralStatus } from '@/types';
-import Card from '@/app/components/ui/Card';
-import styles from './ReferralCard.module.css';
+import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
+import Button from '@/app/components/ui/Button';
+import getProfileImageUrl from '@/lib/utils/image';
 
 interface ReferralCardProps {
   referral: Referral;
+  onViewDetails?: (id: string) => void;
+  onRemind?: (id: string) => void;
+  onArchive?: (id: string) => void;
 }
 
-export default function ReferralCard({ referral }: ReferralCardProps) {
-  // Format date/time
-  const createdDate = new Date(referral.created_at);
-  const formattedDate = createdDate.toLocaleDateString('en-GB', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
+export default function ReferralCard({
+  referral,
+  onViewDetails,
+  onRemind,
+  onArchive
+}: ReferralCardProps) {
+  // Format dates
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-GB', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
 
-  const convertedDate = referral.converted_at
-    ? new Date(referral.converted_at).toLocaleDateString('en-GB', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      })
-    : null;
-
-  // Status badge CSS class
-  const getStatusClass = (status: ReferralStatus) => {
+  // Map status to HubRowCard status variant
+  const getStatusVariant = (status: ReferralStatus): 'success' | 'warning' | 'error' | 'neutral' | 'info' => {
     switch (status) {
       case 'Converted':
-        return styles.converted;
+        return 'success';
       case 'Signed Up':
-        return styles.signedUp;
+        return 'info';
       case 'Expired':
-        return styles.expired;
+        return 'error';
       case 'Referred':
       default:
-        return styles.referred;
+        return 'neutral';
     }
   };
 
   // Get status description
-  const getStatusDescription = (status: ReferralStatus) => {
+  const getStatusDescription = (status: ReferralStatus): string => {
     switch (status) {
       case 'Referred':
-        return 'Link clicked, awaiting signup';
+        return 'Link clicked';
       case 'Signed Up':
-        return 'User created account';
+        return 'Account created';
       case 'Converted':
         return 'First booking completed';
       case 'Expired':
-        return 'Link expired (30 days)';
+        return 'Link expired';
       default:
         return '';
     }
   };
 
+  // Get image properties
+  const avatarUrl = referral.referred_user
+    ? getProfileImageUrl(referral.referred_user)
+    : null;
+  const fallbackChar = referral.referred_user ? referral.referred_user.full_name?.charAt(0).toUpperCase() : '?';
+  const imageHref = referral.referred_user ? `/public-profile/${referral.referred_user.id}` : undefined;
+
+  // Build title
+  const title = referral.referred_user?.full_name || 'Anonymous Lead';
+
+  // Build description
+  const description = getStatusDescription(referral.status);
+
+  // Build metadata array
+  const meta = [
+    `Referred: ${formatDate(referral.created_at)}`,
+    referral.converted_at ? `Converted: ${formatDate(referral.converted_at)}` : null,
+    referral.status === 'Converted' && referral.first_booking ? `Service: ${referral.first_booking.service_name}` : null,
+  ].filter(Boolean) as string[];
+
+  // Build stats (Commission)
+  const stats = (
+    <div className="flex flex-col items-end">
+      <span className="text-xs text-gray-500 uppercase tracking-wider">Commission</span>
+      <span className={`font-bold ${referral.first_commission ? 'text-emerald-600' : 'text-gray-400'}`}>
+        {referral.first_commission ? `£${referral.first_commission.amount.toFixed(2)}` : '--'}
+      </span>
+    </div>
+  );
+
+  // Build actions
+  const actions = (
+    <>
+      {/* Primary Action: Remind button for 'Referred' status */}
+      {referral.status === 'Referred' && (
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => onRemind?.(referral.id)}
+          disabled={!onRemind}
+        >
+          Remind
+        </Button>
+      )}
+
+      {/* Always show View Details */}
+      {onViewDetails && (
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => onViewDetails(referral.id)}
+        >
+          View Details
+        </Button>
+      )}
+
+      {/* Archive button if handler provided */}
+      {onArchive && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onArchive(referral.id)}
+        >
+          Archive
+        </Button>
+      )}
+    </>
+  );
+
   return (
-    <Card className={styles.card}>
-      <div className={styles.cardContent}>
-        {/* Header: User Info + Status */}
-        <div className={styles.header}>
-          <div className={styles.userInfo}>
-            {referral.referred_user ? (
-              <div className={styles.userInfoWithAvatar}>
-                {referral.referred_user.avatar_url && (
-                  <img
-                    src={referral.referred_user.avatar_url}
-                    alt={referral.referred_user.full_name}
-                    className={styles.avatar}
-                  />
-                )}
-                <div>
-                  <h3 className={styles.userName}>
-                    {referral.referred_user.full_name}
-                  </h3>
-                  <p className={styles.userDescription}>
-                    {getStatusDescription(referral.status)}
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div>
-                <h3 className={styles.userName}>
-                  Anonymous Click
-                </h3>
-                <p className={styles.userDescription}>
-                  {getStatusDescription(referral.status)}
-                </p>
-              </div>
-            )}
-          </div>
-          <span className={`${styles.statusBadge} ${getStatusClass(referral.status)}`}>
-            {referral.status}
-          </span>
-        </div>
-
-        {/* Referral Details */}
-        <div className={styles.detailsGrid}>
-          <div>
-            <span className={styles.detailLabel}>Referred:</span>{' '}
-            <span className={styles.detailValue}>{formattedDate}</span>
-          </div>
-          {convertedDate && (
-            <div>
-              <span className={styles.detailLabel}>Converted:</span>{' '}
-              <span className={styles.detailValue}>{convertedDate}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Conversion Details (if applicable) */}
-        {referral.status === 'Converted' && (
-          <div className={styles.conversionSection}>
-            <h4 className={styles.conversionTitle}>
-              Conversion Details
-            </h4>
-            <div className={styles.conversionGrid}>
-              {referral.first_booking && (
-                <>
-                  <div>
-                    <span className={styles.conversionLabel}>Service:</span>{' '}
-                    <span className={styles.conversionValue}>
-                      {referral.first_booking.service_name}
-                    </span>
-                  </div>
-                  <div>
-                    <span className={styles.conversionLabel}>Booking Amount:</span>{' '}
-                    <span className={styles.conversionValue}>
-                      £{referral.first_booking.amount.toFixed(2)}
-                    </span>
-                  </div>
-                </>
-              )}
-              {referral.first_commission && (
-                <div className={styles.conversionGridFull}>
-                  <span className={styles.conversionLabel}>Your Commission:</span>{' '}
-                  <span className={styles.commissionValue}>
-                    £{referral.first_commission.amount.toFixed(2)}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Lead Funnel Progress Indicator */}
-        <div className={styles.progressSection}>
-          <div className={styles.progressTrack}>
-            <div className={`${styles.progressStep} ${referral.status !== 'Referred' ? styles.active : ''}`}>
-              <div className={`${styles.progressDot} ${referral.status !== 'Referred' ? styles.active : ''}`} />
-              Referred
-            </div>
-            <div className={styles.progressLine} />
-            <div className={`${styles.progressStep} ${referral.status === 'Signed Up' || referral.status === 'Converted' ? styles.active : ''}`}>
-              <div className={`${styles.progressDot} ${referral.status === 'Signed Up' || referral.status === 'Converted' ? styles.active : ''}`} />
-              Signed Up
-            </div>
-            <div className={styles.progressLine} />
-            <div className={`${styles.progressStep} ${referral.status === 'Converted' ? styles.active : ''}`}>
-              <div className={`${styles.progressDot} ${referral.status === 'Converted' ? styles.active : ''}`} />
-              Converted
-            </div>
-          </div>
-        </div>
-      </div>
-    </Card>
+    <HubRowCard
+      image={{
+        src: avatarUrl,
+        alt: title,
+        fallbackChar: fallbackChar,
+      }}
+      title={title}
+      status={{
+        label: referral.status,
+        variant: getStatusVariant(referral.status),
+      }}
+      description={description}
+      meta={meta}
+      stats={stats}
+      actions={actions}
+      imageHref={imageHref}
+      titleHref={onViewDetails ? undefined : imageHref}
+    />
   );
 }
