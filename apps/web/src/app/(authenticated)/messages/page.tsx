@@ -119,6 +119,14 @@ export default function MessagesPage() {
 
   return (
     <>
+      {/* Page Header */}
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Messages</h1>
+          <p className={styles.subtitle}>Chat with your connections in real-time</p>
+        </div>
+      </div>
+
       {/* Main Content: Split-Pane Layout */}
       <div className={styles.splitPane}>
         {/* Left Pane: Conversation List (30%) */}
@@ -127,10 +135,6 @@ export default function MessagesPage() {
             isMobileThreadView ? styles.leftPaneHidden : ''
           }`}
         >
-          <div className={styles.leftPaneHeader}>
-            <h1 className={styles.title}>Messages</h1>
-            <p className={styles.subtitle}>Chat with your connections</p>
-          </div>
           <ConversationList
             conversations={conversations}
             currentUserId={profile.id}
@@ -153,7 +157,6 @@ export default function MessagesPage() {
             />
           ) : (
             <div className={styles.noSelection}>
-              <div className={styles.noSelectionIcon}>💬</div>
               <p className={styles.noSelectionText}>
                 Select a conversation to start chatting
               </p>
