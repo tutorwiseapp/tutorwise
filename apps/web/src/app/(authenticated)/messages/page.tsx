@@ -1,257 +1,182 @@
 /**
  * Filename: apps/web/src/app/(authenticated)/messages/page.tsx
- * Purpose: Messages inbox page - Real-time chat with Ably
+ * Purpose: Messages Hub - 2-Way Chat with Split-Pane Layout
  * Created: 2025-11-08
- * Updated: 2025-11-09 - Migrated to React Query for robust data fetching
+ * Updated: 2025-11-24 - Complete rewrite with Split-Pane layout and new components
+ * Specification: Real-time chat with Split-Pane design (30% List / 70% Thread)
  */
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import React, { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { getConversations, markConversationRead, Conversation } from '@/lib/api/messages';
+import { getConversations, type Conversation } from '@/lib/api/messages';
+import { useAblyPresenceBroadcast } from '@/app/hooks/useAblyPresence';
+import ConversationList from '@/app/components/messages/ConversationList';
+import ChatThread from '@/app/components/messages/ChatThread';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
-import ChatWidget from '@/app/components/network/ChatWidget';
-import MessagesSkeleton from '@/app/components/messages/MessagesSkeleton';
-import MessagesError from '@/app/components/messages/MessagesError';
 import InboxStatsWidget from '@/app/components/messages/InboxStatsWidget';
 import AvailabilityWidget from '@/app/components/messages/AvailabilityWidget';
-import toast from 'react-hot-toast';
+import ChatContextWidget from '@/app/components/messages/ChatContextWidget';
 import styles from './page.module.css';
-
-type TabType = 'all' | 'unread';
 
 export default function MessagesPage() {
   const { profile, isLoading: profileLoading } = useUserProfile();
-  const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<TabType>('all');
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+  const [isMobileThreadView, setIsMobileThreadView] = useState(false);
 
-  // React Query: Fetch conversations with automatic retry, caching, and background refetch
+  // Broadcast current user's presence
+  useAblyPresenceBroadcast(profile?.id || '', !!profile);
+
+  // React Query: Fetch conversations with 30s polling
   const {
     data: conversations = [],
     isLoading,
     error,
-    refetch,
   } = useQuery({
     queryKey: ['conversations', profile?.id],
     queryFn: getConversations,
     enabled: !!profile && !profileLoading,
-    staleTime: 1 * 60 * 1000, // 1 minute (messages change frequently)
-    gcTime: 3 * 60 * 1000, // 3 minutes
+    staleTime: 30 * 1000, // 30 seconds
+    gcTime: 5 * 60 * 1000, // 5 minutes
     retry: 2,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+    refetchInterval: 30 * 1000, // Poll every 30 seconds
   });
 
-  // Mark as read mutation
-  const markReadMutation = useMutation({
-    mutationFn: markConversationRead,
-    onMutate: async (userId) => {
-      await queryClient.cancelQueries({ queryKey: ['conversations', profile?.id] });
-      const previousConversations = queryClient.getQueryData(['conversations', profile?.id]);
+  // Find selected conversation
+  const selectedConversation = conversations.find(
+    (conv) => conv.id === selectedConversationId
+  );
 
-      queryClient.setQueryData(['conversations', profile?.id], (old: Conversation[] = []) =>
-        old.map((conv) =>
-          conv.otherUser.id === userId ? { ...conv, unreadCount: 0 } : conv
-        )
-      );
+  // Calculate stats for InboxStatsWidget
+  const totalUnread = conversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
+  const activeChats = conversations.length;
 
-      return { previousConversations };
-    },
-    onError: (err, userId, context) => {
-      queryClient.setQueryData(['conversations', profile?.id], context?.previousConversations);
-      toast.error('Failed to mark conversation as read');
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['conversations', profile?.id] });
-    },
-  });
-
-  const handleSelectConversation = (conversation: Conversation) => {
-    setSelectedConversation(conversation);
-
-    if (conversation.unreadCount > 0) {
-      markReadMutation.mutate(conversation.otherUser.id);
-    }
+  // Handle conversation selection
+  const handleSelectConversation = (conversationId: string) => {
+    setSelectedConversationId(conversationId);
+    setIsMobileThreadView(true);
   };
 
-  const filteredConversations = useMemo(() => {
-    return conversations.filter((conv) => {
-      if (activeTab === 'unread') {
-        return conv.unreadCount > 0;
+  // Handle back button (mobile)
+  const handleBack = () => {
+    setIsMobileThreadView(false);
+  };
+
+  // Reset mobile view when screen size changes
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsMobileThreadView(false);
       }
-      return true;
-    });
-  }, [conversations, activeTab]);
+    };
 
-  const totalUnread = useMemo(() => {
-    return conversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
-  }, [conversations]);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  // Show loading state
   if (profileLoading || isLoading) {
     return (
       <>
-        <MessagesSkeleton />
+        <div className={styles.container}>
+          <div className={styles.header}>
+            <h1 className={styles.title}>Messages</h1>
+            <p className={styles.subtitle}>Loading conversations...</p>
+          </div>
+        </div>
         <ContextualSidebar>
           <InboxStatsWidget unreadCount={0} activeChats={0} archivedCount={0} />
-          <AvailabilityWidget />
+          {profile && <AvailabilityWidget currentUserId={profile.id} />}
         </ContextualSidebar>
       </>
     );
   }
 
-  // Show error state
   if (error) {
     return (
       <>
-        <MessagesError error={error as Error} onRetry={() => refetch()} />
+        <div className={styles.container}>
+          <div className={styles.header}>
+            <h1 className={styles.title}>Messages</h1>
+            <p className={styles.subtitle}>Failed to load conversations</p>
+          </div>
+          <div className={styles.error}>
+            <p>Unable to load your conversations. Please try refreshing the page.</p>
+          </div>
+        </div>
         <ContextualSidebar>
           <InboxStatsWidget unreadCount={0} activeChats={0} archivedCount={0} />
-          <AvailabilityWidget />
+          {profile && <AvailabilityWidget currentUserId={profile.id} />}
         </ContextualSidebar>
       </>
     );
+  }
+
+  if (!profile) {
+    return null;
   }
 
   return (
     <>
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>Messages</h1>
-          <p className={styles.subtitle}>
-            Chat with your connections in real-time
-          </p>
+      {/* Main Content: Split-Pane Layout */}
+      <div className={styles.splitPane}>
+        {/* Left Pane: Conversation List (30%) */}
+        <div
+          className={`${styles.leftPane} ${
+            isMobileThreadView ? styles.leftPaneHidden : ''
+          }`}
+        >
+          <div className={styles.leftPaneHeader}>
+            <h1 className={styles.title}>Messages</h1>
+            <p className={styles.subtitle}>Chat with your connections</p>
+          </div>
+          <ConversationList
+            conversations={conversations}
+            currentUserId={profile.id}
+            selectedConversationId={selectedConversationId}
+            onSelectConversation={handleSelectConversation}
+          />
         </div>
 
-        <div className={styles.filterTabs}>
-          <button
-            onClick={() => setActiveTab('all')}
-            className={`${styles.filterTab} ${
-              activeTab === 'all' ? styles.filterTabActive : ''
-            }`}
-          >
-            All Conversations ({conversations.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('unread')}
-            className={`${styles.filterTab} ${
-              activeTab === 'unread' ? styles.filterTabActive : ''
-            }`}
-          >
-            Unread ({totalUnread})
-          </button>
+        {/* Right Pane: Chat Thread (70%) */}
+        <div
+          className={`${styles.rightPane} ${
+            isMobileThreadView ? styles.rightPaneFullscreen : ''
+          }`}
+        >
+          {selectedConversation ? (
+            <ChatThread
+              currentUserId={profile.id}
+              otherUser={selectedConversation.otherUser}
+              onBack={isMobileThreadView ? handleBack : undefined}
+            />
+          ) : (
+            <div className={styles.noSelection}>
+              <div className={styles.noSelectionIcon}>💬</div>
+              <p className={styles.noSelectionText}>
+                Select a conversation to start chatting
+              </p>
+            </div>
+          )}
         </div>
-
-        {filteredConversations.length === 0 ? (
-          <div className={styles.emptyState}>
-            {activeTab === 'all' ? (
-              <>
-                <div className={styles.emptyIcon}>💬</div>
-                <h3 className={styles.emptyTitle}>No messages yet</h3>
-                <p className={styles.emptyText}>
-                  Start a conversation by visiting your{' '}
-                  <a href="/network" className={styles.emptyLink}>
-                    Network
-                  </a>{' '}
-                  and messaging a connection.
-                </p>
-              </>
-            ) : (
-              <>
-                <div className={styles.emptyIcon}>✅</div>
-                <h3 className={styles.emptyTitle}>All caught up!</h3>
-                <p className={styles.emptyText}>
-                  You have no unread messages.
-                </p>
-              </>
-            )}
-          </div>
-        ) : (
-          <div className={styles.conversationsList}>
-            {filteredConversations.map((conversation) => (
-              <button
-                key={conversation.id}
-                onClick={() => handleSelectConversation(conversation)}
-                className={`${styles.conversationCard} ${
-                  selectedConversation?.id === conversation.id
-                    ? styles.conversationCardActive
-                    : ''
-                }`}
-              >
-                <div className={styles.conversationAvatar}>
-                  {conversation.otherUser.avatar_url ? (
-                    <img
-                      src={conversation.otherUser.avatar_url}
-                      alt={conversation.otherUser.full_name || 'User'}
-                      className={styles.avatar}
-                    />
-                  ) : (
-                    <div className={styles.avatarPlaceholder}>
-                      {conversation.otherUser.full_name?.charAt(0).toUpperCase() || '?'}
-                    </div>
-                  )}
-                  {conversation.unreadCount > 0 && (
-                    <div className={styles.unreadBadge}>
-                      {conversation.unreadCount}
-                    </div>
-                  )}
-                </div>
-
-                <div className={styles.conversationInfo}>
-                  <div className={styles.conversationHeader}>
-                    <h3 className={styles.conversationName}>
-                      {conversation.otherUser.full_name || 'Unknown User'}
-                    </h3>
-                    {conversation.lastMessage && (
-                      <span className={styles.conversationTime}>
-                        {formatTime(conversation.lastMessage.timestamp)}
-                      </span>
-                    )}
-                  </div>
-
-                  {conversation.lastMessage && (
-                    <p
-                      className={`${styles.conversationPreview} ${
-                        !conversation.lastMessage.read && conversation.unreadCount > 0
-                          ? styles.conversationPreviewUnread
-                          : ''
-                      }`}
-                    >
-                      {conversation.lastMessage.content}
-                    </p>
-                  )}
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
+      {/* Contextual Sidebar (Right Column) */}
       <ContextualSidebar>
-        <InboxStatsWidget
-          unreadCount={totalUnread}
-          activeChats={conversations.length}
-          archivedCount={0}
-        />
-        <AvailabilityWidget />
+        {selectedConversation ? (
+          <ChatContextWidget otherUser={selectedConversation.otherUser} />
+        ) : (
+          <>
+            <InboxStatsWidget
+              unreadCount={totalUnread}
+              activeChats={activeChats}
+              archivedCount={0}
+            />
+            <AvailabilityWidget currentUserId={profile.id} />
+          </>
+        )}
       </ContextualSidebar>
     </>
   );
-}
-
-function formatTime(timestamp: number): string {
-  const now = Date.now();
-  const diff = now - timestamp;
-
-  if (diff < 60000) return 'Just now';
-  if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
-  if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
-  if (diff < 604800000) return Math.floor(diff / 86400000) + 'd ago';
-
-  return new Date(timestamp).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-  });
 }

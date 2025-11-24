@@ -2,24 +2,34 @@
  * Filename: apps/web/src/app/components/messages/AvailabilityWidget.tsx
  * Purpose: Chat availability widget for Messages Hub (v2 design)
  * Created: 2025-11-19
+ * Updated: 2025-11-24 - Wired to useAblyPresenceBroadcast for real presence updates
  * Design: Toggle buttons for Online/Away/Offline status
  *
  * Features:
  * - Three-state toggle: Online, Away, Offline
+ * - Real-time presence broadcasting via Ably
  * - Description text explaining availability management
  * - Teal header with v2 design
  * - NO ICONS (clean professional look)
  */
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAblyPresenceBroadcast } from '@/app/hooks/useAblyPresence';
 import SidebarComplexWidget from '@/app/components/layout/sidebars/components/SidebarComplexWidget';
 import styles from './AvailabilityWidget.module.css';
 
 type AvailabilityStatus = 'online' | 'away' | 'offline';
 
-export default function AvailabilityWidget() {
+interface AvailabilityWidgetProps {
+  currentUserId: string;
+}
+
+export default function AvailabilityWidget({ currentUserId }: AvailabilityWidgetProps) {
   const [status, setStatus] = useState<AvailabilityStatus>('offline');
+
+  // Broadcast presence when status is 'online' or 'away'
+  useAblyPresenceBroadcast(currentUserId, status !== 'offline');
 
   return (
     <SidebarComplexWidget>
