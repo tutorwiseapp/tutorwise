@@ -59,12 +59,13 @@ export default function WiselistCard({
   ];
 
   // Build stats (Item count)
+  const itemCount = wiselist.item_count || 0;
   const stats = (
     <div className="flex flex-col items-end">
-      <span className="text-2xl font-bold text-gray-900">
-        {wiselist.item_count || 0}
+      <span className="text-2xl font-bold text-gray-900">{itemCount}</span>
+      <span className="text-xs text-gray-500 uppercase">
+        {itemCount === 1 ? 'Item' : 'Items'}
       </span>
-      <span className="text-xs text-gray-500 uppercase">Items</span>
     </div>
   );
 
@@ -86,12 +87,13 @@ export default function WiselistCard({
         </Button>
       </Link>
 
-      {/* Share button - only if public and handler provided */}
-      {isPublic && onShare && (
+      {/* Share button - always shown if public, disabled if no handler */}
+      {isPublic && (
         <Button
           variant="secondary"
           size="sm"
-          onClick={() => onShare(wiselist.id)}
+          onClick={() => onShare?.(wiselist.id)}
+          disabled={!onShare}
         >
           Share
         </Button>
