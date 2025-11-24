@@ -2,13 +2,17 @@
  * Filename: apps/web/src/app/components/reviews/PendingReviewCard.tsx
  * Purpose: Card component for pending review tasks
  * Created: 2025-11-08
+ * Updated: 2025-11-24 - Migrated to HubRowCard standard
+ * Specification: SDD v4.5 - Horizontal card layout with HubRowCard component
  */
 
 'use client';
 
 import React from 'react';
 import type { PendingReviewTask } from '@/types/reviews';
-import styles from './PendingReviewCard.module.css';
+import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
+import Button from '@/app/components/ui/Button';
+import getProfileImageUrl from '@/lib/utils/image';
 
 interface Props {
   task: PendingReviewTask;
@@ -19,73 +23,74 @@ interface Props {
 export default function PendingReviewCard({ task, currentUserId, onSubmit }: Props) {
   const booking = task.booking;
 
-  // Determine display name and role based on booking participants
-  const getOtherParticipants = () => {
-    const participants = [];
+  if (!booking) {
+    return null;
+  }
 
-    if (booking?.client && booking.client.id !== currentUserId) {
-      participants.push({ name: booking.client.full_name || 'Client', role: 'Client' });
-    }
-    if (booking?.tutor && booking.tutor.id !== currentUserId) {
-      participants.push({ name: booking.tutor.full_name || 'Tutor', role: 'Tutor' });
-    }
-    if (booking?.agent && booking.agent.id !== currentUserId) {
-      participants.push({ name: booking.agent.full_name || 'Agent', role: 'Agent' });
-    }
+  // Determine subject: person to be reviewed (if currentUser === tutor, subject is client)
+  const subject = booking.tutor?.id === currentUserId ? booking.client : booking.tutor;
 
-    return participants;
+  if (!subject) {
+    return null;
+  }
+
+  // Format date helper (en-GB standard)
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
   };
 
-  const participants = getOtherParticipants();
-  const urgencyClass = task.days_remaining <= 1 ? styles.urgent : task.days_remaining <= 3 ? styles.warning : '';
+  // Map status based on urgency (days_remaining)
+  const getStatus = (): { label: string; variant: 'success' | 'warning' | 'error' | 'neutral' | 'info' } => {
+    if (task.days_remaining <= 1) {
+      return { label: 'Due Today', variant: 'error' };
+    }
+    if (task.days_remaining <= 3) {
+      return { label: 'Due Soon', variant: 'warning' };
+    }
+    return { label: 'Pending', variant: 'neutral' };
+  };
+
+  // Get image properties
+  const avatarUrl = getProfileImageUrl({
+    id: subject.id,
+    avatar_url: subject.avatar_url ?? undefined,
+  });
+  const fallbackChar = subject.full_name?.charAt(0).toUpperCase() || '?';
+
+  // Build title (booking.service_name)
+  const title = booking.service_name || 'Unknown Service';
+
+  // Build description
+  const description = `Rate your experience with ${subject.full_name}`;
+
+  // Build metadata array
+  const meta = [`Session: ${formatDate(booking.session_start_time)}`];
+
+  // Build actions
+  const actions = (
+    <Button variant="primary" size="sm" onClick={() => onSubmit(task.id)}>
+      Write Review
+    </Button>
+  );
 
   return (
-    <div className={`${styles.card} ${urgencyClass}`}>
-      <div className={styles.content}>
-        {/* Left Section - Booking Info */}
-        <div className={styles.bookingInfo}>
-          <h3 className={styles.serviceName}>{booking?.service_name || 'Unknown Service'}</h3>
-          <p className={styles.date}>
-            Session: {booking?.session_start_time
-              ? new Date(booking.session_start_time).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
-                })
-              : 'Unknown date'
-            }
-          </p>
-          <div className={styles.participants}>
-            <span className={styles.label}>Review {participants.length} {participants.length === 1 ? 'person' : 'people'}:</span>
-            {participants.map((p, i) => (
-              <span key={i} className={styles.participantName}>
-                {p.name}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Right Section - Action & Deadline */}
-        <div className={styles.actions}>
-          <div className={styles.deadline}>
-            <span className={styles.deadlineLabel}>
-              {task.days_remaining === 0 ? 'Due today' : `${task.days_remaining} days left`}
-            </span>
-            <span className={styles.deadlineSubtext}>
-              Auto-publish: {new Date(task.publish_at).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric'
-              })}
-            </span>
-          </div>
-          <button
-            onClick={() => onSubmit(task.id)}
-            className={styles.submitButton}
-          >
-            Write Reviews
-          </button>
-        </div>
-      </div>
-    </div>
+    <HubRowCard
+      image={{
+        src: avatarUrl,
+        alt: subject.full_name || 'Subject',
+        fallbackChar: fallbackChar,
+      }}
+      title={title}
+      status={getStatus()}
+      description={description}
+      meta={meta}
+      actions={actions}
+      imageHref={`/public-profile/${subject.id}`}
+      titleHref={`/public-profile/${subject.id}`}
+    />
   );
 }
