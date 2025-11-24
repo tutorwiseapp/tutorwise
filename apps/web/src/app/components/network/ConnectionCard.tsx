@@ -144,18 +144,21 @@ export default function ConnectionCard({
   // Line 2: Description (Priority context for Request Received, Bio otherwise)
   const description = variant === 'pending-received' && connection.message
     ? connection.message
-    : otherProfile.bio;
+    : otherProfile.bio || 'There is no data...';
 
   // Line 3: Meta array (Email and Date)
-  const meta = [
+  const metaLine3 = [
     otherProfile.email,
     formatDate(connection.created_at),
   ];
 
   // Line 4: Presence indicator (only for accepted connections)
-  if (variant === 'accepted') {
-    meta.push(isOnline ? '🟢 Online' : '⚪ Offline');
-  }
+  const metaLine4 = variant === 'accepted'
+    ? [isOnline ? '🟢 Online' : '⚪ Offline']
+    : [];
+
+  // Combine meta arrays
+  const meta = [...metaLine3, ...metaLine4];
 
   // Actions based on variant
   const actions = (
