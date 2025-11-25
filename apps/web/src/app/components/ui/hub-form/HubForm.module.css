@@ -19,11 +19,11 @@
 
 /* Section - Clean Layout without divider lines */
 .section {
-  padding: var(--space-3, 24px) 0;
+  /* Removed padding to eliminate extra space between sections */
 }
 
 .section:last-child {
-  padding-bottom: 0;
+  /* No special styling needed */
 }
 
 .sectionTitle {
