@@ -16,16 +16,21 @@
   /* NEW: Use flex column to control section spacing externally */
   display: flex;
   flex-direction: column;
-  gap: var(--space-2, 16px); /* Adds exactly 16px between sections */
+  gap: var(--space-3, 24px); /* Adds exactly 16px between sections */
   width: 100%;
 }
 
 /* Section - Clean Layout without divider lines */
 .section {
   /* RESET: Remove all margins/padding so the .root gap takes full control */
-  padding: 0;
+  /* padding: var(--space-2, 16px) 0; */
   margin: 0;
   width: 100%; /* Ensure grid inside stays full width */
+}
+
+/* Margin from the last section if 0 then it sits flush with actions */
+.section:last-child {
+  margin-bottom: 16;
 }
 
 .sectionTitle {
