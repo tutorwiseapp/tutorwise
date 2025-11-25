@@ -19,17 +19,13 @@
 
 /* Section - Clean Layout without divider lines */
 .section {
-  /* OLD: padding: var(--space-2, 16px) 0; */
-  
-  /* NEW: Increase top padding for better separation from previous fields */
-  padding-top: var(--space-5, 40px); 
-  padding-bottom: var(--space-2, 16px);
-  
-  /* Ensure no collapsing margins interfere */
-  display: block;
+  /* Increase top padding to create breathing room above the heading */
+  padding-top: var(--space-2, 16px); 
+  padding-bottom: 0;
+  margin-bottom: var(--space-3, 24px);
 }
 
-/* Optional: Ensure the first section doesn't have huge top space if not needed */
+/* Keep the first section flush with the top */
 .section:first-child {
   padding-top: 0;
 }
