@@ -1336,20 +1336,34 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                   <HubForm.Field label="Document Type">
-                    <Select
-                      value={formData.proof_of_address_type}
-                      onChange={(e) => {
-                        setFormData(prev => ({ ...prev, proof_of_address_type: e.target.value }));
-                        handleBlur('proof_of_address_type');
-                      }}
-                      options={[
-                        { value: 'Utility Bill', label: 'Utility Bill' },
-                        { value: 'Bank Statement', label: 'Bank Statement' },
-                        { value: 'Tax Bill', label: 'Tax Bill' },
-                        { value: 'Solicitor Letter', label: 'Solicitor Letter' },
-                      ]}
-                      placeholder="Select document type"
-                    />
+                    <div style={{ position: 'relative' }}>
+                      <Select
+                        value={formData.proof_of_address_type}
+                        onChange={(e) => {
+                          setFormData(prev => ({ ...prev, proof_of_address_type: e.target.value }));
+                          handleBlur('proof_of_address_type');
+                        }}
+                        options={[
+                          { value: 'Utility Bill', label: 'Utility Bill' },
+                          { value: 'Bank Statement', label: 'Bank Statement' },
+                          { value: 'Tax Bill', label: 'Tax Bill' },
+                          { value: 'Solicitor Letter', label: 'Solicitor Letter' },
+                        ]}
+                        placeholder="Select document type"
+                      />
+                      <div style={{
+                        position: 'absolute',
+                        right: '12px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        pointerEvents: 'none',
+                        color: '#6b7280'
+                      }}>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
+                    </div>
                   </HubForm.Field>
                   <HubForm.Field label="Issue Date">
                     <DatePicker
@@ -1381,26 +1395,28 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                   {renderField('identity_document_number', 'Document Number', 'text', 'Enter passport or license number')}
-                  <HubForm.Field label="Issue Date">
-                    <DatePicker
-                      selected={formData.identity_issue_date ? new Date(formData.identity_issue_date) : undefined}
-                      onSelect={(date) => {
-                        setFormData(prev => ({ ...prev, identity_issue_date: date ? date.toISOString().split('T')[0] : '' }));
-                        handleBlur('identity_issue_date');
-                      }}
-                      placeholder="Select issue date"
-                    />
-                  </HubForm.Field>
-                  <HubForm.Field label="Expiry Date (Optional)">
-                    <DatePicker
-                      selected={formData.identity_expiry_date ? new Date(formData.identity_expiry_date) : undefined}
-                      onSelect={(date) => {
-                        setFormData(prev => ({ ...prev, identity_expiry_date: date ? date.toISOString().split('T')[0] : '' }));
-                        handleBlur('identity_expiry_date');
-                      }}
-                      placeholder="Select expiry date"
-                    />
-                  </HubForm.Field>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                    <HubForm.Field label="Issue Date">
+                      <DatePicker
+                        selected={formData.identity_issue_date ? new Date(formData.identity_issue_date) : undefined}
+                        onSelect={(date) => {
+                          setFormData(prev => ({ ...prev, identity_issue_date: date ? date.toISOString().split('T')[0] : '' }));
+                          handleBlur('identity_issue_date');
+                        }}
+                        placeholder="Select issue date"
+                      />
+                    </HubForm.Field>
+                    <HubForm.Field label="Expiry Date (Optional)">
+                      <DatePicker
+                        selected={formData.identity_expiry_date ? new Date(formData.identity_expiry_date) : undefined}
+                        onSelect={(date) => {
+                          setFormData(prev => ({ ...prev, identity_expiry_date: date ? date.toISOString().split('T')[0] : '' }));
+                          handleBlur('identity_expiry_date');
+                        }}
+                        placeholder="Select expiry date"
+                      />
+                    </HubForm.Field>
+                  </div>
                 </div>
               </HubForm.Grid>
             </div>
@@ -1421,26 +1437,28 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                   {renderField('dbs_certificate_number', 'Certificate Number', 'text', 'Enter DBS certificate number')}
-                  <HubForm.Field label="Issue Date">
-                    <DatePicker
-                      selected={formData.dbs_certificate_date ? new Date(formData.dbs_certificate_date) : undefined}
-                      onSelect={(date) => {
-                        setFormData(prev => ({ ...prev, dbs_certificate_date: date ? date.toISOString().split('T')[0] : '' }));
-                        handleBlur('dbs_certificate_date');
-                      }}
-                      placeholder="Select issue date"
-                    />
-                  </HubForm.Field>
-                  <HubForm.Field label="Expiry Date (Optional)">
-                    <DatePicker
-                      selected={formData.dbs_expiry_date ? new Date(formData.dbs_expiry_date) : undefined}
-                      onSelect={(date) => {
-                        setFormData(prev => ({ ...prev, dbs_expiry_date: date ? date.toISOString().split('T')[0] : '' }));
-                        handleBlur('dbs_expiry_date');
-                      }}
-                      placeholder="Select expiry date"
-                    />
-                  </HubForm.Field>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                    <HubForm.Field label="Issue Date">
+                      <DatePicker
+                        selected={formData.dbs_certificate_date ? new Date(formData.dbs_certificate_date) : undefined}
+                        onSelect={(date) => {
+                          setFormData(prev => ({ ...prev, dbs_certificate_date: date ? date.toISOString().split('T')[0] : '' }));
+                          handleBlur('dbs_certificate_date');
+                        }}
+                        placeholder="Select issue date"
+                      />
+                    </HubForm.Field>
+                    <HubForm.Field label="Expiry Date (Optional)">
+                      <DatePicker
+                        selected={formData.dbs_expiry_date ? new Date(formData.dbs_expiry_date) : undefined}
+                        onSelect={(date) => {
+                          setFormData(prev => ({ ...prev, dbs_expiry_date: date ? date.toISOString().split('T')[0] : '' }));
+                          handleBlur('dbs_expiry_date');
+                        }}
+                        placeholder="Select expiry date"
+                      />
+                    </HubForm.Field>
+                  </div>
                 </div>
               </HubForm.Grid>
             </div>
@@ -1580,20 +1598,34 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 <HubForm.Field label="Document Type">
-                  <Select
-                    value={formData.proof_of_address_type}
-                    onChange={(e) => {
-                      setFormData(prev => ({ ...prev, proof_of_address_type: e.target.value }));
-                      handleBlur('proof_of_address_type');
-                    }}
-                    options={[
-                      { value: 'Utility Bill', label: 'Utility Bill' },
-                      { value: 'Bank Statement', label: 'Bank Statement' },
-                      { value: 'Tax Bill', label: 'Tax Bill' },
-                      { value: 'Solicitor Letter', label: 'Solicitor Letter' },
-                    ]}
-                    placeholder="Select document type"
-                  />
+                  <div style={{ position: 'relative' }}>
+                    <Select
+                      value={formData.proof_of_address_type}
+                      onChange={(e) => {
+                        setFormData(prev => ({ ...prev, proof_of_address_type: e.target.value }));
+                        handleBlur('proof_of_address_type');
+                      }}
+                      options={[
+                        { value: 'Utility Bill', label: 'Utility Bill' },
+                        { value: 'Bank Statement', label: 'Bank Statement' },
+                        { value: 'Tax Bill', label: 'Tax Bill' },
+                        { value: 'Solicitor Letter', label: 'Solicitor Letter' },
+                      ]}
+                      placeholder="Select document type"
+                    />
+                    <div style={{
+                      position: 'absolute',
+                      right: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      pointerEvents: 'none',
+                      color: '#6b7280'
+                    }}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                  </div>
                 </HubForm.Field>
                 <HubForm.Field label="Issue Date">
                   <DatePicker
@@ -1625,26 +1657,28 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 {renderField('identity_document_number', 'Document Number', 'text', 'Enter passport or license number')}
-                <HubForm.Field label="Issue Date">
-                  <DatePicker
-                    selected={formData.identity_issue_date ? new Date(formData.identity_issue_date) : undefined}
-                    onSelect={(date) => {
-                      setFormData(prev => ({ ...prev, identity_issue_date: date ? date.toISOString().split('T')[0] : '' }));
-                      handleBlur('identity_issue_date');
-                    }}
-                    placeholder="Select issue date"
-                  />
-                </HubForm.Field>
-                <HubForm.Field label="Expiry Date (Optional)">
-                  <DatePicker
-                    selected={formData.identity_expiry_date ? new Date(formData.identity_expiry_date) : undefined}
-                    onSelect={(date) => {
-                      setFormData(prev => ({ ...prev, identity_expiry_date: date ? date.toISOString().split('T')[0] : '' }));
-                      handleBlur('identity_expiry_date');
-                    }}
-                    placeholder="Select expiry date"
-                  />
-                </HubForm.Field>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                  <HubForm.Field label="Issue Date">
+                    <DatePicker
+                      selected={formData.identity_issue_date ? new Date(formData.identity_issue_date) : undefined}
+                      onSelect={(date) => {
+                        setFormData(prev => ({ ...prev, identity_issue_date: date ? date.toISOString().split('T')[0] : '' }));
+                        handleBlur('identity_issue_date');
+                      }}
+                      placeholder="Select issue date"
+                    />
+                  </HubForm.Field>
+                  <HubForm.Field label="Expiry Date (Optional)">
+                    <DatePicker
+                      selected={formData.identity_expiry_date ? new Date(formData.identity_expiry_date) : undefined}
+                      onSelect={(date) => {
+                        setFormData(prev => ({ ...prev, identity_expiry_date: date ? date.toISOString().split('T')[0] : '' }));
+                        handleBlur('identity_expiry_date');
+                      }}
+                      placeholder="Select expiry date"
+                    />
+                  </HubForm.Field>
+                </div>
               </div>
             </HubForm.Grid>
           </div>
@@ -1665,26 +1699,28 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 {renderField('dbs_certificate_number', 'Certificate Number', 'text', 'Enter DBS certificate number')}
-                <HubForm.Field label="Issue Date">
-                  <DatePicker
-                    selected={formData.dbs_certificate_date ? new Date(formData.dbs_certificate_date) : undefined}
-                    onSelect={(date) => {
-                      setFormData(prev => ({ ...prev, dbs_certificate_date: date ? date.toISOString().split('T')[0] : '' }));
-                      handleBlur('dbs_certificate_date');
-                    }}
-                    placeholder="Select issue date"
-                  />
-                </HubForm.Field>
-                <HubForm.Field label="Expiry Date (Optional)">
-                  <DatePicker
-                    selected={formData.dbs_expiry_date ? new Date(formData.dbs_expiry_date) : undefined}
-                    onSelect={(date) => {
-                      setFormData(prev => ({ ...prev, dbs_expiry_date: date ? date.toISOString().split('T')[0] : '' }));
-                      handleBlur('dbs_expiry_date');
-                    }}
-                    placeholder="Select expiry date"
-                  />
-                </HubForm.Field>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                  <HubForm.Field label="Issue Date">
+                    <DatePicker
+                      selected={formData.dbs_certificate_date ? new Date(formData.dbs_certificate_date) : undefined}
+                      onSelect={(date) => {
+                        setFormData(prev => ({ ...prev, dbs_certificate_date: date ? date.toISOString().split('T')[0] : '' }));
+                        handleBlur('dbs_certificate_date');
+                      }}
+                      placeholder="Select issue date"
+                    />
+                  </HubForm.Field>
+                  <HubForm.Field label="Expiry Date (Optional)">
+                    <DatePicker
+                      selected={formData.dbs_expiry_date ? new Date(formData.dbs_expiry_date) : undefined}
+                      onSelect={(date) => {
+                        setFormData(prev => ({ ...prev, dbs_expiry_date: date ? date.toISOString().split('T')[0] : '' }));
+                        handleBlur('dbs_expiry_date');
+                      }}
+                      placeholder="Select expiry date"
+                    />
+                  </HubForm.Field>
+                </div>
               </div>
             </HubForm.Grid>
           </div>
