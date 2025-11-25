@@ -31,6 +31,7 @@
 /* Margin from the last section if 0 then it sits flush with actions */
 .section:last-child {
   margin-bottom: 16;
+  margin-top: 16;
 }
 
 .sectionTitle {
