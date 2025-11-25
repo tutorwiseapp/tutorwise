@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react';
 import type { Profile } from '@/types';
 import HubForm from '@/app/components/ui/hub-form/HubForm';
 import MultiSelectDropdown from '@/app/components/ui/form/MultiSelectDropdown';
-import CustomDateInput from '@/app/components/listings/wizard-steps/CustomDateInput';
 import CustomTimePicker from '@/app/components/listings/wizard-steps/CustomTimePicker';
 import DatePicker from '@/app/components/ui/picker/DatePicker';
 import Select from '@/app/components/ui/form/Select';
@@ -1027,22 +1026,33 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
                 {/* Date Pickers */}
                 <div className={wizardStyles.formGroup}>
+                  {availErrors.dates && (
+                    <p className={wizardStyles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
+                      {availErrors.dates}
+                    </p>
+                  )}
                   <div style={{ display: 'grid', gridTemplateColumns: availabilityType === 'recurring' ? '1fr 1fr' : '1fr', gap: '16px' }}>
-                    <CustomDateInput
-                      label="From"
-                      value={availFromDate}
-                      onChange={setAvailFromDate}
-                      error={availErrors.dates}
-                      onClearError={() => setAvailErrors(prev => ({ ...prev, dates: undefined }))}
-                    />
-                    {availabilityType === 'recurring' && (
-                      <CustomDateInput
-                        label="To"
-                        value={availToDate}
-                        onChange={setAvailToDate}
-                        onClearError={() => setAvailErrors(prev => ({ ...prev, dates: undefined }))}
-                        alignCalendar="right"
+                    <HubForm.Field label="From">
+                      <DatePicker
+                        selected={availFromDate ? new Date(availFromDate) : undefined}
+                        onSelect={(date) => {
+                          setAvailFromDate(date ? date.toISOString().split('T')[0] : '');
+                          setAvailErrors(prev => ({ ...prev, dates: undefined }));
+                        }}
+                        placeholder="Select start date"
                       />
+                    </HubForm.Field>
+                    {availabilityType === 'recurring' && (
+                      <HubForm.Field label="To">
+                        <DatePicker
+                          selected={availToDate ? new Date(availToDate) : undefined}
+                          onSelect={(date) => {
+                            setAvailToDate(date ? date.toISOString().split('T')[0] : '');
+                            setAvailErrors(prev => ({ ...prev, dates: undefined }));
+                          }}
+                          placeholder="Select end date"
+                        />
+                      </HubForm.Field>
                     )}
                   </div>
                 </div>
@@ -1153,21 +1163,32 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                 {/* Date Pickers */}
                 <div className={wizardStyles.formGroup}>
                   <label className={wizardStyles.formLabel}>Unavailability Periods</label>
+                  {unavailErrors.dates && (
+                    <p className={wizardStyles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
+                      {unavailErrors.dates}
+                    </p>
+                  )}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                    <CustomDateInput
-                      label="From"
-                      value={unavailFromDate}
-                      onChange={setUnavailFromDate}
-                      error={unavailErrors.dates}
-                      onClearError={() => setUnavailErrors(prev => ({ ...prev, dates: undefined }))}
-                    />
-                    <CustomDateInput
-                      label="To"
-                      value={unavailToDate}
-                      onChange={setUnavailToDate}
-                      onClearError={() => setUnavailErrors(prev => ({ ...prev, dates: undefined }))}
-                      alignCalendar="right"
-                    />
+                    <HubForm.Field label="From">
+                      <DatePicker
+                        selected={unavailFromDate ? new Date(unavailFromDate) : undefined}
+                        onSelect={(date) => {
+                          setUnavailFromDate(date ? date.toISOString().split('T')[0] : '');
+                          setUnavailErrors(prev => ({ ...prev, dates: undefined }));
+                        }}
+                        placeholder="Select start date"
+                      />
+                    </HubForm.Field>
+                    <HubForm.Field label="To">
+                      <DatePicker
+                        selected={unavailToDate ? new Date(unavailToDate) : undefined}
+                        onSelect={(date) => {
+                          setUnavailToDate(date ? date.toISOString().split('T')[0] : '');
+                          setUnavailErrors(prev => ({ ...prev, dates: undefined }));
+                        }}
+                        placeholder="Select end date"
+                      />
+                    </HubForm.Field>
                   </div>
                 </div>
 
@@ -1395,7 +1416,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                   {renderField('identity_document_number', 'Document Number', 'text', 'Enter passport or license number')}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                     <HubForm.Field label="Issue Date">
                       <DatePicker
                         selected={formData.identity_issue_date ? new Date(formData.identity_issue_date) : undefined}
@@ -1437,7 +1458,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                   {renderField('dbs_certificate_number', 'Certificate Number', 'text', 'Enter DBS certificate number')}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                     <HubForm.Field label="Issue Date">
                       <DatePicker
                         selected={formData.dbs_certificate_date ? new Date(formData.dbs_certificate_date) : undefined}
@@ -1657,7 +1678,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 {renderField('identity_document_number', 'Document Number', 'text', 'Enter passport or license number')}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <HubForm.Field label="Issue Date">
                     <DatePicker
                       selected={formData.identity_issue_date ? new Date(formData.identity_issue_date) : undefined}
@@ -1699,7 +1720,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 {renderField('dbs_certificate_number', 'Certificate Number', 'text', 'Enter DBS certificate number')}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <HubForm.Field label="Issue Date">
                     <DatePicker
                       selected={formData.dbs_certificate_date ? new Date(formData.dbs_certificate_date) : undefined}
@@ -1778,22 +1799,33 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
               {/* Date Pickers */}
               <div className={wizardStyles.formGroup}>
+                {availErrors.dates && (
+                  <p className={wizardStyles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
+                    {availErrors.dates}
+                  </p>
+                )}
                 <div style={{ display: 'grid', gridTemplateColumns: availabilityType === 'recurring' ? '1fr 1fr' : '1fr', gap: '16px' }}>
-                  <CustomDateInput
-                    label="From"
-                    value={availFromDate}
-                    onChange={setAvailFromDate}
-                    error={availErrors.dates}
-                    onClearError={() => setAvailErrors(prev => ({ ...prev, dates: undefined }))}
-                  />
-                  {availabilityType === 'recurring' && (
-                    <CustomDateInput
-                      label="To"
-                      value={availToDate}
-                      onChange={setAvailToDate}
-                      onClearError={() => setAvailErrors(prev => ({ ...prev, dates: undefined }))}
-                      alignCalendar="right"
+                  <HubForm.Field label="From">
+                    <DatePicker
+                      selected={availFromDate ? new Date(availFromDate) : undefined}
+                      onSelect={(date) => {
+                        setAvailFromDate(date ? date.toISOString().split('T')[0] : '');
+                        setAvailErrors(prev => ({ ...prev, dates: undefined }));
+                      }}
+                      placeholder="Select start date"
                     />
+                  </HubForm.Field>
+                  {availabilityType === 'recurring' && (
+                    <HubForm.Field label="To">
+                      <DatePicker
+                        selected={availToDate ? new Date(availToDate) : undefined}
+                        onSelect={(date) => {
+                          setAvailToDate(date ? date.toISOString().split('T')[0] : '');
+                          setAvailErrors(prev => ({ ...prev, dates: undefined }));
+                        }}
+                        placeholder="Select end date"
+                      />
+                    </HubForm.Field>
                   )}
                 </div>
               </div>
@@ -1904,21 +1936,32 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               {/* Date Pickers */}
               <div className={wizardStyles.formGroup}>
                 <label className={wizardStyles.formLabel}>Unavailability Periods</label>
+                {unavailErrors.dates && (
+                  <p className={wizardStyles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
+                    {unavailErrors.dates}
+                  </p>
+                )}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                  <CustomDateInput
-                    label="From"
-                    value={unavailFromDate}
-                    onChange={setUnavailFromDate}
-                    error={unavailErrors.dates}
-                    onClearError={() => setUnavailErrors(prev => ({ ...prev, dates: undefined }))}
-                  />
-                  <CustomDateInput
-                    label="To"
-                    value={unavailToDate}
-                    onChange={setUnavailToDate}
-                    onClearError={() => setUnavailErrors(prev => ({ ...prev, dates: undefined }))}
-                    alignCalendar="right"
-                  />
+                  <HubForm.Field label="From">
+                    <DatePicker
+                      selected={unavailFromDate ? new Date(unavailFromDate) : undefined}
+                      onSelect={(date) => {
+                        setUnavailFromDate(date ? date.toISOString().split('T')[0] : '');
+                        setUnavailErrors(prev => ({ ...prev, dates: undefined }));
+                      }}
+                      placeholder="Select start date"
+                    />
+                  </HubForm.Field>
+                  <HubForm.Field label="To">
+                    <DatePicker
+                      selected={unavailToDate ? new Date(unavailToDate) : undefined}
+                      onSelect={(date) => {
+                        setUnavailToDate(date ? date.toISOString().split('T')[0] : '');
+                        setUnavailErrors(prev => ({ ...prev, dates: undefined }));
+                      }}
+                      placeholder="Select end date"
+                    />
+                  </HubForm.Field>
                 </div>
               </div>
 
