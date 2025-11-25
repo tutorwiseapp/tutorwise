@@ -7,7 +7,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import type { Conversation } from '@/lib/api/messages';
 import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
 import getProfileImageUrl from '@/lib/utils/image';
@@ -19,37 +19,97 @@ interface ConversationListProps {
   currentUserId: string;
   selectedConversationId: string | null;
   onSelectConversation: (userId: string) => void;
+  hasError?: boolean;
 }
+
+type FilterTab = 'all' | 'unread' | 'archived';
 
 export default function ConversationList({
   conversations,
   currentUserId,
   selectedConversationId,
   onSelectConversation,
+  hasError = false,
 }: ConversationListProps) {
-  if (conversations.length === 0) {
-    return (
-      <div className={styles.empty}>
-        <h3 className={styles.emptyTitle}>No conversations yet</h3>
-        <p className={styles.emptyText}>
-          Start a conversation from your Network connections to see them here.
-        </p>
-      </div>
-    );
-  }
+  const [activeTab, setActiveTab] = useState<FilterTab>('all');
+
+  // Filter conversations based on active tab
+  const filteredConversations = useMemo(() => {
+    switch (activeTab) {
+      case 'unread':
+        return conversations.filter(conv => conv.unreadCount > 0);
+      case 'archived':
+        return []; // TODO: Add archived conversations support
+      case 'all':
+      default:
+        return conversations;
+    }
+  }, [conversations, activeTab]);
 
   return (
-    <div className={styles.list}>
-      {conversations.map((conversation) => (
-        <ConversationListItem
-          key={conversation.id}
-          conversation={conversation}
-          currentUserId={currentUserId}
-          isSelected={conversation.id === selectedConversationId}
-          onSelect={onSelectConversation}
-        />
-      ))}
-    </div>
+    <>
+      {/* Tab Bar */}
+      <div className={styles.tabBar}>
+        <button
+          className={`${styles.tab} ${activeTab === 'all' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('all')}
+        >
+          All
+        </button>
+        <button
+          className={`${styles.tab} ${activeTab === 'unread' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('unread')}
+        >
+          Unread
+          {conversations.filter(c => c.unreadCount > 0).length > 0 && (
+            <span className={styles.tabBadge}>
+              {conversations.filter(c => c.unreadCount > 0).length}
+            </span>
+          )}
+        </button>
+        <button
+          className={`${styles.tab} ${activeTab === 'archived' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('archived')}
+        >
+          Archived
+        </button>
+      </div>
+
+      {/* Error Banner (if error) */}
+      {hasError && (
+        <div className={styles.errorBanner}>
+          <p>⚠️ Unable to load conversations</p>
+        </div>
+      )}
+
+      {/* Conversation List */}
+      {filteredConversations.length === 0 ? (
+        <div className={styles.empty}>
+          <h3 className={styles.emptyTitle}>
+            {activeTab === 'unread' ? 'No unread messages' :
+             activeTab === 'archived' ? 'No archived conversations' :
+             'No conversations yet'}
+          </h3>
+          <p className={styles.emptyText}>
+            {activeTab === 'all'
+              ? 'Start a conversation from your Network connections to see them here.'
+              : 'Conversations matching this filter will appear here.'}
+          </p>
+        </div>
+      ) : (
+        <div className={styles.list}>
+          {filteredConversations.map((conversation) => (
+            <ConversationListItem
+              key={conversation.id}
+              conversation={conversation}
+              currentUserId={currentUserId}
+              isSelected={conversation.id === selectedConversationId}
+              onSelect={onSelectConversation}
+            />
+          ))}
+        </div>
+      )}
+    </>
   );
 }
 

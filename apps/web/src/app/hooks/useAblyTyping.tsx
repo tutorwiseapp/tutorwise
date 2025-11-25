@@ -46,6 +46,12 @@ export function useAblyTyping(
         // Initialize Ably client
         ablyClientRef.current = getAblyClientClient(currentUserId);
 
+        // Gracefully handle missing Ably configuration
+        if (!ablyClientRef.current) {
+          console.warn('[useAblyTyping] Ably not configured - typing indicators disabled');
+          return;
+        }
+
         // Get typing channel (append :typing to conversation channel)
         const typingChannelName = `${channelName}:typing`;
         channelRef.current = ablyClientRef.current.channels.get(typingChannelName);

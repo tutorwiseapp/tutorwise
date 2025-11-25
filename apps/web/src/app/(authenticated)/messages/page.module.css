@@ -5,12 +5,12 @@
  * Updated: 2025-11-24 - Complete rewrite for Split-Pane design
  */
 
-/* Split-Pane Layout (Desktop) */
+/* Split-Pane Layout (Desktop) - Auto-height like WhatsApp */
 .splitPane {
   display: grid;
   grid-template-columns: 30% 70%;
-  height: calc(100vh - 200px);
-  min-height: 600px;
+  height: calc(100vh - 280px); /* Reduced from 200px for better spacing */
+  max-height: 800px;
   gap: 0;
   border: 1px solid var(--color-border, #e5e7eb);
   border-radius: 0.5rem;
@@ -85,24 +85,24 @@
   margin: 0;
 }
 
-/* Error State */
+/* Error State - Small, subtle banner */
 .error {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  padding: 2rem;
+  padding: 0.75rem 1rem;
   text-align: center;
   background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 0.5rem;
+  border-left: 3px solid #f87171;
   margin: 1rem;
+  border-radius: 0.25rem;
 }
 
 .error p {
   color: #991b1b;
   margin: 0;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
 }
 
 /* Mobile Responsive (< 768px) */

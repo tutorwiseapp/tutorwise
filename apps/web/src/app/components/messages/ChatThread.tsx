@@ -68,7 +68,11 @@ export default function ChatThread({
       try {
         const client = await getChatClient(currentUserId);
         if (mounted) {
-          setChatClient(client);
+          if (client) {
+            setChatClient(client);
+          } else {
+            console.warn('[ChatThread] Ably Chat not configured - real-time features disabled');
+          }
         }
       } catch (error) {
         console.error('[ChatThread] Failed to initialize chat:', error);

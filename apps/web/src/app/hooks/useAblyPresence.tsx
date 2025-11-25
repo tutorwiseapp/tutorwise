@@ -43,6 +43,12 @@ export function useAblyPresence(
         // Initialize Ably client
         ablyClient = getAblyClientClient(currentUserId);
 
+        // Gracefully handle missing Ably configuration
+        if (!ablyClient) {
+          console.warn('[useAblyPresence] Ably not configured - presence tracking disabled');
+          return;
+        }
+
         // Get presence channel for target user
         const channelName = AblyChannels.userPresence(targetUserId);
         channel = ablyClient.channels.get(channelName);
@@ -125,6 +131,12 @@ export function useAblyPresenceBroadcast(
       try {
         // Initialize Ably client
         ablyClient = getAblyClientClient(currentUserId);
+
+        // Gracefully handle missing Ably configuration
+        if (!ablyClient) {
+          console.warn('[useAblyPresenceBroadcast] Ably not configured - presence broadcasting disabled');
+          return;
+        }
 
         // Get presence channel for current user
         const channelName = AblyChannels.userPresence(currentUserId);

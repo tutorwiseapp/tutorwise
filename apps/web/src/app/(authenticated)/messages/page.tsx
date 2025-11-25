@@ -93,44 +93,7 @@ export default function MessagesPage() {
     );
   }
 
-  if (error) {
-    return (
-      <>
-        {/* Page Header */}
-        <div className={styles.container}>
-          <div className={styles.header}>
-            <h1 className={styles.title}>Messages</h1>
-            <p className={styles.subtitle}>Chat with your connections in real-time</p>
-          </div>
-        </div>
-
-        {/* Main Content: Split-Pane Layout with Error */}
-        <div className={styles.splitPane}>
-          {/* Left Pane: Empty state with error */}
-          <div className={styles.leftPane}>
-            <div className={styles.error}>
-              <p>Unable to load conversations. Please refresh the page.</p>
-            </div>
-          </div>
-
-          {/* Right Pane: No Selection */}
-          <div className={styles.rightPane}>
-            <div className={styles.noSelection}>
-              <p className={styles.noSelectionText}>
-                Select a conversation to start chatting
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Contextual Sidebar */}
-        <ContextualSidebar>
-          <InboxStatsWidget unreadCount={0} activeChats={0} archivedCount={0} />
-          {profile && <AvailabilityWidget currentUserId={profile.id} />}
-        </ContextualSidebar>
-      </>
-    );
-  }
+  // Note: We show error as a subtle banner, but don't prevent the rest of the UI from rendering
 
   if (!profile) {
     return null;
@@ -159,6 +122,7 @@ export default function MessagesPage() {
             currentUserId={profile.id}
             selectedConversationId={selectedConversationId}
             onSelectConversation={handleSelectConversation}
+            hasError={!!error}
           />
         </div>
 

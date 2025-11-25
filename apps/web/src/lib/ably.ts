@@ -22,11 +22,12 @@ export function getAblyServerClient(): Ably.Realtime {
 }
 
 // Client-side Ably client (uses token auth for security)
-export function getAblyClientClient(userId: string): Ably.Realtime {
+export function getAblyClientClient(userId: string): Ably.Realtime | null {
   const apiKey = process.env.NEXT_PUBLIC_ABLY_API_KEY;
 
   if (!apiKey) {
-    throw new Error('NEXT_PUBLIC_ABLY_API_KEY is not configured');
+    console.warn('[Ably] NEXT_PUBLIC_ABLY_API_KEY is not configured - real-time features disabled');
+    return null;
   }
 
   return new Ably.Realtime({
@@ -37,8 +38,12 @@ export function getAblyClientClient(userId: string): Ably.Realtime {
 }
 
 // Chat client for messaging features
-export async function getChatClient(userId: string): Promise<ChatClient> {
+export async function getChatClient(userId: string): Promise<ChatClient | null> {
   const realtimeClient = getAblyClientClient(userId);
+
+  if (!realtimeClient) {
+    return null;
+  }
 
   const chatClient = new ChatClient(realtimeClient);
 
