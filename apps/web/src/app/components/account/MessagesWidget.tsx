@@ -23,13 +23,18 @@ import styles from './MessagesWidget.module.css';
 export function MessagesWidget() {
   const { profile } = useUserProfile();
 
-  // Fetch conversations
+  // Fetch conversations with anti-flashing measures
   const { data: conversations = [], isLoading } = useQuery({
     queryKey: ['conversations', profile?.id],
     queryFn: getConversations,
     enabled: !!profile?.id,
     staleTime: 30 * 1000, // 30 seconds (messages are real-time with Ably)
-    gcTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    retry: 2,
+    refetchInterval: (data) => (data ? 30 * 1000 : false), // Stop polling on error
+    refetchOnWindowFocus: false, // Prevent refetch on window focus
+    refetchOnMount: false, // Prevent refetch on mount if data exists
+    refetchOnReconnect: false, // Prevent refetch on reconnect
   });
 
   // Calculate unread count
