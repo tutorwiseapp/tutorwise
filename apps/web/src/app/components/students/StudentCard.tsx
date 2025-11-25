@@ -2,16 +2,17 @@
  * Filename: apps/web/src/app/components/students/StudentCard.tsx
  * Purpose: Display individual student (Guardian Link) with actions (SDD v5.0)
  * Created: 2025-11-12
+ * Updated: 2025-11-25 - Migrated to HubRowCard standard
  * Based on: ConnectionCard.tsx (v4.4)
  */
 
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
 import toast from 'react-hot-toast';
-import styles from './StudentCard.module.css';
+import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
+import Button from '@/app/components/ui/Button';
+import getProfileImageUrl from '@/lib/utils/image';
 
 export interface StudentCardData {
   id: string; // profile_graph.id
@@ -43,13 +44,14 @@ export default function StudentCard({
 }: StudentCardProps) {
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const studentProfile = student.student;
-
-  if (!studentProfile) {
+  // Safety check
+  if (!student.student) {
     return null;
   }
 
-  // Calculate age from date_of_birth if available
+  const profile = student.student;
+
+  // Calculate age from date_of_birth
   const getAge = (dob?: string) => {
     if (!dob) return null;
     const birthDate = new Date(dob);
@@ -62,12 +64,14 @@ export default function StudentCard({
     return age;
   };
 
-  const age = getAge(studentProfile.date_of_birth);
+  const age = getAge(profile.date_of_birth);
+  const joinedYear = new Date(student.created_at).getFullYear();
 
+  // Handle remove action
   const handleRemove = async () => {
     if (!onRemove) return;
     const confirmed = window.confirm(
-      `Are you sure you want to remove ${studentProfile.full_name} from your students? This will not delete their account, only unlink them from yours.`
+      `Are you sure you want to remove ${profile.full_name} from your students? This will not delete their account, only unlink them from yours.`
     );
     if (!confirmed) return;
 
@@ -82,79 +86,77 @@ export default function StudentCard({
     }
   };
 
-  const handleViewProgress = () => {
-    if (!onViewProgress) return;
-    onViewProgress(studentProfile.id);
-  };
+  // Image properties
+  const avatarUrl = profile.avatar_url
+    ? getProfileImageUrl({
+        id: profile.id,
+        avatar_url: profile.avatar_url,
+      })
+    : null;
 
-  return (
-    <div className={styles.card}>
-      <div className={styles.header}>
-        {/* Avatar */}
-        <Link
-          href={`/public-profile/${studentProfile.id}/${studentProfile.full_name?.toLowerCase().replace(/\s+/g, '-') || 'profile'}`}
-          className={styles.avatarLink}
-        >
-          <div className={styles.avatarWrapper}>
-            {studentProfile.avatar_url ? (
-              <Image
-                src={studentProfile.avatar_url}
-                alt={studentProfile.full_name}
-                width={64}
-                height={64}
-                className={styles.avatar}
-              />
-            ) : (
-              <div className={styles.avatarPlaceholder}>
-                {studentProfile.full_name.charAt(0).toUpperCase()}
-              </div>
-            )}
-          </div>
-        </Link>
+  const fallbackChar = profile.full_name?.charAt(0).toUpperCase() || '?';
 
-        {/* Profile Info */}
-        <div className={styles.info}>
-          <Link
-            href={`/public-profile/${studentProfile.id}/${studentProfile.full_name?.toLowerCase().replace(/\s+/g, '-') || 'profile'}`}
-            className={styles.nameLink}
-          >
-            <h3 className={styles.name}>{studentProfile.full_name}</h3>
-          </Link>
-          <p className={styles.email}>{studentProfile.email}</p>
-          {age && (
-            <p className={styles.age}>Age: {age} years</p>
-          )}
-        </div>
+  // Stats component (Age + Joined Year)
+  const statsComponent = (
+    <div className="flex items-center gap-6">
+      {/* Stat 1: Age */}
+      <div className="flex flex-col items-end">
+        <span className="text-lg font-bold text-gray-900">{age || '--'}</span>
+        <span className="text-xs text-gray-500 uppercase tracking-wider">Age</span>
       </div>
-
-      {/* Actions */}
-      <div className={styles.actions}>
-        <button
-          onClick={handleViewProgress}
-          className={`${styles.button} ${styles.buttonPrimary}`}
-          title="View learning progress"
-        >
-          View Progress
-        </button>
-        <button
-          onClick={handleRemove}
-          disabled={isLoading}
-          className={`${styles.button} ${styles.buttonDanger}`}
-        >
-          {isLoading ? 'Removing...' : 'Remove'}
-        </button>
-      </div>
-
-      {/* Footer */}
-      <div className={styles.footer}>
-        <span className={styles.timestamp}>
-          Linked {new Date(student.created_at).toLocaleDateString('en-GB', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
-          })}
-        </span>
+      {/* Stat 2: Joined Year */}
+      <div className="flex flex-col items-end">
+        <span className="text-lg font-bold text-gray-900">{joinedYear}</span>
+        <span className="text-xs text-gray-500 uppercase tracking-wider">Joined</span>
       </div>
     </div>
+  );
+
+  // Actions component
+  const actionsComponent = (
+    <>
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={() => onViewProgress?.(profile.id)}
+      >
+        View Progress
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleRemove}
+        disabled={isLoading}
+      >
+        {isLoading ? 'Removing...' : 'Remove'}
+      </Button>
+    </>
+  );
+
+  return (
+    <HubRowCard
+      image={{
+        src: avatarUrl,
+        alt: profile.full_name,
+        fallbackChar: fallbackChar,
+      }}
+      imageHref={`/public-profile/${profile.id}`}
+      title={profile.full_name}
+      titleHref={`/public-profile/${profile.id}`}
+      status={{
+        label: 'Active',
+        variant: 'success',
+      }}
+      description={profile.email}
+      meta={[
+        `Linked ${new Date(student.created_at).toLocaleDateString('en-GB', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        })}`,
+      ]}
+      stats={statsComponent}
+      actions={actionsComponent}
+    />
   );
 }
