@@ -13,21 +13,19 @@
 
 /* Form Root - Transparent Container */
 .root {
-  /* Removed: background-color, box-shadow, border-radius, border */
-  /* This is now just a layout container */
+  /* NEW: Use flex column to control section spacing externally */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 16px); /* Adds exactly 16px between sections */
+  width: 100%;
 }
 
 /* Section - Clean Layout without divider lines */
 .section {
-  /* Increase top padding to create breathing room above the heading */
-  padding-top: var(--space-2, 16px); 
-  padding-bottom: 0;
-  margin-bottom: var(--space-3, 24px);
-}
-
-/* Keep the first section flush with the top */
-.section:first-child {
-  padding-top: 0;
+  /* RESET: Remove all margins/padding so the .root gap takes full control */
+  padding: 0;
+  margin: 0;
+  width: 100%; /* Ensure grid inside stays full width */
 }
 
 .sectionTitle {
