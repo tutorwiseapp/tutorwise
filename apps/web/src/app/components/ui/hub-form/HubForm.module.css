@@ -19,7 +19,7 @@
 
 /* Section - Clean Layout without divider lines */
 .section {
-  /* Removed padding to eliminate extra space between sections */
+  padding: var(--space-3, 16px) 0;
 }
 
 .section:last-child {
