@@ -15,14 +15,12 @@ interface PersonalInfoFormProps {
 
 type EditingField = 'first_name' | 'last_name' | 'gender' | 'date_of_birth' | 'email' | 'phone' |
   'address_line1' | 'town' | 'city' | 'country' | 'postal_code' |
-  'emergency_contact_name' | 'emergency_contact_email' | 'document' | null;
+  'emergency_contact_name' | 'emergency_contact_email' | null;
 
 export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormProps) {
   const [editingField, setEditingField] = useState<EditingField>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [uploadedFileName, setUploadedFileName] = useState<string>('');
-  const [fileError, setFileError] = useState<string>('');
 
   // Refs for auto-focus
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | HTMLSelectElement | null }>({});
@@ -41,7 +39,6 @@ export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormPr
     postal_code: profile.postal_code || '',
     emergency_contact_name: profile.emergency_contact_name || '',
     emergency_contact_email: profile.emergency_contact_email || '',
-    identity_verification_document_name: profile.identity_verification_document_name || '',
   });
 
   // Initialize date picker when profile loads
@@ -53,9 +50,6 @@ export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormPr
       } catch (e) {
         console.error('Error parsing date of birth:', e);
       }
-    }
-    if (profile.identity_verification_document_name) {
-      setUploadedFileName(profile.identity_verification_document_name);
     }
   }, [profile]);
 
@@ -81,41 +75,8 @@ export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormPr
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
-      if (!allowedTypes.includes(file.type)) {
-        setFileError('Please upload a valid image (JPG, PNG) or PDF file');
-        return;
-      }
-
-      // Validate file size (max 5MB)
-      const maxSize = 5 * 1024 * 1024;
-      if (file.size > maxSize) {
-        setFileError('File size must be less than 5MB');
-        return;
-      }
-
-      setUploadedFileName(file.name);
-      setFileError('');
-      // TODO: Upload file and get URL
-    }
-  };
-
-  const handleDeleteDocument = () => {
-    setUploadedFileName('');
-    setFormData(prev => ({
-      ...prev,
-      identity_verification_document_name: ''
-    }));
-    const fileInput = document.getElementById('identityDocument') as HTMLInputElement;
-    if (fileInput) fileInput.value = '';
-  };
-
   const handleSaveField = async (field: EditingField) => {
-    if (!field || field === 'document') return;
+    if (!field) return;
 
     setIsSaving(true);
     try {
@@ -159,7 +120,7 @@ export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormPr
 
   // Safety button handlers (manual save/cancel)
   const handleSaveAll = async () => {
-    if (editingField && editingField !== 'document') {
+    if (editingField) {
       await handleSaveField(editingField);
     }
   };
@@ -172,7 +133,7 @@ export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormPr
 
   // Auto-save on blur with 150ms delay (matching OrganisationInfoForm)
   const handleBlur = (field: EditingField) => {
-    if (!field || field === 'document') return;
+    if (!field) return;
     if (isSaving) return; // Prevent re-triggering while saving
 
     setTimeout(() => {
@@ -194,7 +155,7 @@ export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormPr
     if (e.key === 'Escape') {
       e.preventDefault();
       handleCancelField(field);
-    } else if (e.key === 'Enter' && field !== 'document') {
+    } else if (e.key === 'Enter') {
       e.preventDefault();
       await handleSaveField(field);
     }
@@ -311,46 +272,7 @@ export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormPr
         </HubForm.Grid>
       </HubForm.Section>
 
-      {/* Section 4: Identity Verification Document */}
-      <HubForm.Section>
-        <HubForm.Field label="Upload Identity Verification Document">
-          <div
-            className={`${styles.documentDisplay} ${styles.editable}`}
-            onClick={() => document.getElementById('identityDocument')?.click()}
-          >
-            <input
-              id="identityDocument"
-              type="file"
-              accept="image/jpeg,image/jpg,image/png,application/pdf"
-              onChange={handleFileChange}
-              style={{ display: 'none' }}
-            />
-            {uploadedFileName ? (
-              <div className={styles.documentInfo}>
-                <span className={styles.successText}>✓ {uploadedFileName}</span>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteDocument();
-                  }}
-                  className={styles.deleteButton}
-                >
-                  Delete
-                </button>
-              </div>
-            ) : (
-              <span className={styles.placeholder}>Click to upload document...</span>
-            )}
-          </div>
-          {fileError && <p className={styles.errorText}>{fileError}</p>}
-          <p className={styles.helperText}>
-            Passport, driver&apos;s license, or national ID (JPG, PNG, PDF - max 5MB)
-          </p>
-        </HubForm.Field>
-      </HubForm.Section>
-
-      {/* Section 5: Emergency Contact */}
+      {/* Section 4: Emergency Contact */}
       <HubForm.Section title="Emergency Contact">
         <HubForm.Grid>
           {renderField('emergency_contact_name', 'Emergency Contact Name', 'text', 'John Doe')}

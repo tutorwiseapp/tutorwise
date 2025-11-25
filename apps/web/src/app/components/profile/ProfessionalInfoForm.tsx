@@ -1427,7 +1427,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                         placeholder="Select issue date"
                       />
                     </HubForm.Field>
-                    <HubForm.Field label="Expiry Date (Optional)">
+                    <HubForm.Field label="Expiry Date">
                       <DatePicker
                         selected={formData.identity_expiry_date ? new Date(formData.identity_expiry_date) : undefined}
                         onSelect={(date) => {
@@ -1469,7 +1469,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                         placeholder="Select issue date"
                       />
                     </HubForm.Field>
-                    <HubForm.Field label="Expiry Date (Optional)">
+                    <HubForm.Field label="Expiry Date">
                       <DatePicker
                         selected={formData.dbs_expiry_date ? new Date(formData.dbs_expiry_date) : undefined}
                         onSelect={(date) => {
@@ -1689,7 +1689,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                       placeholder="Select issue date"
                     />
                   </HubForm.Field>
-                  <HubForm.Field label="Expiry Date (Optional)">
+                  <HubForm.Field label="Expiry Date">
                     <DatePicker
                       selected={formData.identity_expiry_date ? new Date(formData.identity_expiry_date) : undefined}
                       onSelect={(date) => {
@@ -1731,7 +1731,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                       placeholder="Select issue date"
                     />
                   </HubForm.Field>
-                  <HubForm.Field label="Expiry Date (Optional)">
+                  <HubForm.Field label="Expiry Date">
                     <DatePicker
                       selected={formData.dbs_expiry_date ? new Date(formData.dbs_expiry_date) : undefined}
                       onSelect={(date) => {
