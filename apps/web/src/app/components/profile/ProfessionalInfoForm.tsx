@@ -6,6 +6,9 @@ import HubForm from '@/app/components/ui/hub-form/HubForm';
 import MultiSelectDropdown from '@/app/components/ui/form/MultiSelectDropdown';
 import CustomDateInput from '@/app/components/listings/wizard-steps/CustomDateInput';
 import CustomTimePicker from '@/app/components/listings/wizard-steps/CustomTimePicker';
+import DatePicker from '@/app/components/ui/picker/DatePicker';
+import Select from '@/app/components/ui/form/Select';
+import { useDocumentUpload } from '@/hooks/useDocumentUpload';
 import hubFormStyles from '@/app/components/ui/hub-form/HubForm.module.css';
 import wizardStyles from '@/app/components/onboarding/OnboardingWizard.module.css';
 
@@ -27,7 +30,11 @@ type EditingField = 'bio' | 'bio_video_url' | 'status' | 'academic_qualification
   'agency_name' | 'agency_size' | 'years_in_business' | 'description' | 'services' |
   'commission_rate' | 'service_areas' | 'student_capacity' | 'subject_specializations' |
   'education_levels' | 'coverage_areas' | 'number_of_tutors' | 'certifications' |
-  'website' | 'agent_additional_info' | null;
+  'website' | 'agent_additional_info' |
+  // Trust & Verification fields
+  'proof_of_address_type' | 'address_document_issue_date' |
+  'identity_document_number' | 'identity_issue_date' | 'identity_expiry_date' |
+  'dbs_certificate_number' | 'dbs_certificate_date' | 'dbs_expiry_date' | null;
 
 type FieldType = 'text' | 'select' | 'multiselect' | 'textarea' | 'number';
 
@@ -230,6 +237,16 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     session_duration: '',
     special_needs: [] as string[], // Multi-select
     additional_info_client: '', // Textarea (different from generic additional_info)
+
+    // Trust & Verification fields
+    proof_of_address_type: '',
+    address_document_issue_date: '',
+    identity_document_number: '',
+    identity_issue_date: '',
+    identity_expiry_date: '',
+    dbs_certificate_number: '',
+    dbs_certificate_date: '',
+    dbs_expiry_date: '',
   });
 
   // Availability state
@@ -301,6 +318,16 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
       session_duration: clientData?.session_duration || '',
       special_needs: clientData?.special_needs || [],
       additional_info_client: clientData?.additional_info || '',
+
+      // Trust & Verification fields
+      proof_of_address_type: profile.proof_of_address_type || '',
+      address_document_issue_date: profile.address_document_issue_date || '',
+      identity_document_number: profile.identity_document_number || '',
+      identity_issue_date: profile.identity_issue_date || '',
+      identity_expiry_date: profile.identity_expiry_date || '',
+      dbs_certificate_number: profile.dbs_certificate_number || '',
+      dbs_certificate_date: profile.dbs_certificate_date || '',
+      dbs_expiry_date: profile.dbs_expiry_date || '',
     }));
 
     // Load client availability/unavailability if present
@@ -403,6 +430,13 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
         updateData = { bio_video_url: formData.bio_video_url };
       } else if (field === 'dbs_certificate') {
         updateData = { dbs_certificate_number: formData.dbs_certificate };
+      }
+      // Handle Trust & Verification fields (profile-level)
+      else if (['proof_of_address_type', 'address_document_issue_date',
+                'identity_document_number', 'identity_issue_date', 'identity_expiry_date',
+                'dbs_certificate_number', 'dbs_certificate_date', 'dbs_expiry_date'].includes(field)) {
+        const fieldValue = formData[field as keyof typeof formData];
+        updateData = { [field]: fieldValue };
       }
       // Handle client fields
       else if (['subjects_client', 'education_level', 'learning_goals', 'learning_preferences',
@@ -702,6 +736,114 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
   const recurringPeriods = availabilityPeriods.filter(p => p.type === 'recurring');
   const oneTimePeriods = availabilityPeriods.filter(p => p.type === 'one-time');
+
+  // DocumentUploadField component for Trust & Verification
+  const DocumentUploadField = ({
+    label,
+    documentType,
+    currentDocumentUrl,
+    onUploadSuccess,
+    children,
+  }: {
+    label: string;
+    documentType: 'identity' | 'dbs' | 'address';
+    currentDocumentUrl?: string | null;
+    onUploadSuccess: (url: string) => void;
+    children: React.ReactNode;
+  }) => {
+    const [uploadedFileName, setUploadedFileName] = useState<string>('');
+    const [uploading, setUploading] = useState(false);
+
+    const { handleFileSelect, error: uploadError } = useDocumentUpload({
+      documentType,
+      onUploadSuccess: async (url) => {
+        onUploadSuccess(url);
+        setUploadedFileName('Document uploaded');
+      },
+      onUploadError: (error) => {
+        console.error(`Upload error for ${documentType}:`, error);
+      },
+    });
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file && profile.id) {
+        setUploading(true);
+        try {
+          await handleFileSelect(file, profile.id);
+        } finally {
+          setUploading(false);
+        }
+      }
+    };
+
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        {/* Left Column: Document Upload (span-4) */}
+        <div className="md:col-span-4">
+          <HubForm.Field label={label}>
+            <div
+              style={{
+                padding: '24px',
+                backgroundColor: '#ffffff',
+                border: '2px dashed #d1d5db',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                minHeight: '120px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+              }}
+              onClick={() => document.getElementById(`${documentType}Upload`)?.click()}
+            >
+              <input
+                id={`${documentType}Upload`}
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,application/pdf"
+                onChange={handleFileChange}
+                style={{ display: 'none' }}
+              />
+              {uploading ? (
+                <span style={{ color: '#6b7280', fontSize: '14px' }}>Uploading...</span>
+              ) : currentDocumentUrl || uploadedFileName ? (
+                <>
+                  <span style={{ color: '#059669', fontSize: '16px', fontWeight: '500' }}>
+                    ✓ Document uploaded
+                  </span>
+                  <span style={{ color: '#6b7280', fontSize: '13px' }}>
+                    Click to replace
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span style={{ color: '#9ca3af', fontSize: '16px', fontWeight: '500' }}>
+                    Click to upload
+                  </span>
+                  <span style={{ color: '#9ca3af', fontSize: '13px' }}>
+                    JPG, PNG, PDF (max 10MB)
+                  </span>
+                </>
+              )}
+            </div>
+            {uploadError && (
+              <span style={{ color: '#dc2626', fontSize: '13px', marginTop: '4px' }}>
+                {uploadError}
+              </span>
+            )}
+          </HubForm.Field>
+        </div>
+
+        {/* Right Column: Data Entry Fields (span-8) */}
+        <div className="md:col-span-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {children}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const renderField = (
     field: EditingField,
@@ -1190,6 +1332,141 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
             </HubForm.Grid>
           </HubForm.Section>
 
+          {/* Trust & Verification */}
+          <HubForm.Section title="Trust & Verification">
+            {/* 1. Proof of Address */}
+            <div style={{ marginBottom: '32px' }}>
+              <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#111827' }}>
+                Proof of Address
+              </h4>
+              <DocumentUploadField
+                label="Address Document"
+                documentType="address"
+                currentDocumentUrl={profile.proof_of_address_url}
+                onUploadSuccess={async (url) => {
+                  await onSave({ proof_of_address_url: url });
+                }}
+              >
+                <div className="md:col-span-1">
+                  <HubForm.Field label="Document Type">
+                    <Select
+                      value={formData.proof_of_address_type}
+                      onChange={(e) => {
+                        setFormData(prev => ({ ...prev, proof_of_address_type: e.target.value }));
+                        handleBlur('proof_of_address_type');
+                      }}
+                      options={[
+                        { value: 'Utility Bill', label: 'Utility Bill' },
+                        { value: 'Bank Statement', label: 'Bank Statement' },
+                        { value: 'Tax Bill', label: 'Tax Bill' },
+                        { value: 'Solicitor Letter', label: 'Solicitor Letter' },
+                      ]}
+                      placeholder="Select document type"
+                    />
+                  </HubForm.Field>
+                </div>
+                <div className="md:col-span-1">
+                  <HubForm.Field label="Issue Date">
+                    <DatePicker
+                      selected={formData.address_document_issue_date ? new Date(formData.address_document_issue_date) : undefined}
+                      onSelect={(date) => {
+                        setFormData(prev => ({ ...prev, address_document_issue_date: date ? date.toISOString().split('T')[0] : '' }));
+                        handleBlur('address_document_issue_date');
+                      }}
+                      placeholder="Select issue date"
+                    />
+                  </HubForm.Field>
+                </div>
+              </DocumentUploadField>
+            </div>
+
+            {/* 2. Government ID */}
+            <div style={{ marginBottom: '32px' }}>
+              <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#111827' }}>
+                Government ID (Passport or Driving License)
+              </h4>
+              <DocumentUploadField
+                label="ID Document"
+                documentType="identity"
+                currentDocumentUrl={profile.identity_verification_document_url}
+                onUploadSuccess={async (url) => {
+                  await onSave({ identity_verification_document_url: url });
+                }}
+              >
+                <div className="md:col-span-2">
+                  {renderField('identity_document_number', 'Document Number', 'text', 'Enter passport or license number')}
+                </div>
+                <div className="md:col-span-1">
+                  <HubForm.Field label="Issue Date">
+                    <DatePicker
+                      selected={formData.identity_issue_date ? new Date(formData.identity_issue_date) : undefined}
+                      onSelect={(date) => {
+                        setFormData(prev => ({ ...prev, identity_issue_date: date ? date.toISOString().split('T')[0] : '' }));
+                        handleBlur('identity_issue_date');
+                      }}
+                      placeholder="Select issue date"
+                    />
+                  </HubForm.Field>
+                </div>
+                <div className="md:col-span-1">
+                  <HubForm.Field label="Expiry Date (Optional)">
+                    <DatePicker
+                      selected={formData.identity_expiry_date ? new Date(formData.identity_expiry_date) : undefined}
+                      onSelect={(date) => {
+                        setFormData(prev => ({ ...prev, identity_expiry_date: date ? date.toISOString().split('T')[0] : '' }));
+                        handleBlur('identity_expiry_date');
+                      }}
+                      placeholder="Select expiry date"
+                    />
+                  </HubForm.Field>
+                </div>
+              </DocumentUploadField>
+            </div>
+
+            {/* 3. DBS Certificate */}
+            <div>
+              <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#111827' }}>
+                DBS Certificate
+              </h4>
+              <DocumentUploadField
+                label="DBS Document"
+                documentType="dbs"
+                currentDocumentUrl={profile.dbs_certificate_url}
+                onUploadSuccess={async (url) => {
+                  await onSave({ dbs_certificate_url: url });
+                }}
+              >
+                <div className="md:col-span-2">
+                  {renderField('dbs_certificate_number', 'Certificate Number', 'text', 'Enter DBS certificate number')}
+                </div>
+                <div className="md:col-span-1">
+                  <HubForm.Field label="Issue Date">
+                    <DatePicker
+                      selected={formData.dbs_certificate_date ? new Date(formData.dbs_certificate_date) : undefined}
+                      onSelect={(date) => {
+                        setFormData(prev => ({ ...prev, dbs_certificate_date: date ? date.toISOString().split('T')[0] : '' }));
+                        handleBlur('dbs_certificate_date');
+                      }}
+                      placeholder="Select issue date"
+                    />
+                  </HubForm.Field>
+                </div>
+                <div className="md:col-span-1">
+                  <HubForm.Field label="Expiry Date (Optional)">
+                    <DatePicker
+                      selected={formData.dbs_expiry_date ? new Date(formData.dbs_expiry_date) : undefined}
+                      onSelect={(date) => {
+                        setFormData(prev => ({ ...prev, dbs_expiry_date: date ? date.toISOString().split('T')[0] : '' }));
+                        handleBlur('dbs_expiry_date');
+                      }}
+                      placeholder="Select expiry date"
+                    />
+                  </HubForm.Field>
+                </div>
+              </DocumentUploadField>
+            </div>
+          </HubForm.Section>
+
           {/* Availability Note */}
           <HubForm.Section>
             <div style={{ padding: '20px', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
@@ -1299,67 +1576,146 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
           </HubForm.Grid>
         </HubForm.Section>
 
-        {/* Delivery Mode and DBS Certificate */}
+        {/* Delivery Mode */}
         <HubForm.Section>
-          <HubForm.Grid>
+          <HubForm.Grid columns={1}>
             {renderField('delivery_mode', 'Delivery Mode', 'multiselect', 'Select delivery mode', deliveryModeOptions)}
-
-            {/* DBS Certificate Upload */}
-            <HubForm.Field label="DBS Certificate">
-              <div
-                style={{
-                  padding: '12px',
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  minHeight: '44px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between'
-                }}
-                onClick={() => document.getElementById('dbsCertificate')?.click()}
-              >
-                <input
-                  id="dbsCertificate"
-                  type="file"
-                  accept="image/jpeg,image/jpg,image/png,application/pdf"
-                  onChange={handleFileChange}
-                  style={{ display: 'none' }}
-                />
-                {uploadedFileName ? (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                    <span style={{ color: '#059669', fontSize: '14px' }}>✓ {uploadedFileName}</span>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteDocument();
-                      }}
-                      disabled={isSaving}
-                      style={{
-                        padding: '4px 12px',
-                        fontSize: '13px',
-                        color: '#dc2626',
-                        backgroundColor: 'transparent',
-                        border: '1px solid #dc2626',
-                        borderRadius: '4px',
-                        cursor: isSaving ? 'wait' : 'pointer'
-                      }}
-                    >
-                      {isSaving ? 'Deleting...' : 'Delete'}
-                    </button>
-                  </div>
-                ) : (
-                  <span style={{ color: '#9ca3af', fontStyle: 'italic', fontSize: '14px' }}>Click to upload DBS certificate...</span>
-                )}
-              </div>
-              {fileError && <span style={{ color: '#dc2626', fontSize: '13px', marginTop: '4px' }}>{fileError}</span>}
-              <p style={{ margin: '4px 0 0 0', color: '#6b7280', fontSize: '13px' }}>
-                Upload your DBS certificate (JPG, PNG, PDF - max 5MB)
-              </p>
-            </HubForm.Field>
           </HubForm.Grid>
+        </HubForm.Section>
+
+        {/* Trust & Verification */}
+        <HubForm.Section title="Trust & Verification">
+          {/* 1. Proof of Address */}
+          <div style={{ marginBottom: '32px' }}>
+            <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#111827' }}>
+              Proof of Address
+            </h4>
+            <DocumentUploadField
+              label="Address Document"
+              documentType="address"
+              currentDocumentUrl={profile.proof_of_address_url}
+              onUploadSuccess={async (url) => {
+                await onSave({ proof_of_address_url: url });
+              }}
+            >
+              <div className="md:col-span-1">
+                <HubForm.Field label="Document Type">
+                  <Select
+                    value={formData.proof_of_address_type}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, proof_of_address_type: e.target.value }));
+                      handleBlur('proof_of_address_type');
+                    }}
+                    options={[
+                      { value: 'Utility Bill', label: 'Utility Bill' },
+                      { value: 'Bank Statement', label: 'Bank Statement' },
+                      { value: 'Tax Bill', label: 'Tax Bill' },
+                      { value: 'Solicitor Letter', label: 'Solicitor Letter' },
+                    ]}
+                    placeholder="Select document type"
+                  />
+                </HubForm.Field>
+              </div>
+              <div className="md:col-span-1">
+                <HubForm.Field label="Issue Date">
+                  <DatePicker
+                    selected={formData.address_document_issue_date ? new Date(formData.address_document_issue_date) : undefined}
+                    onSelect={(date) => {
+                      setFormData(prev => ({ ...prev, address_document_issue_date: date ? date.toISOString().split('T')[0] : '' }));
+                      handleBlur('address_document_issue_date');
+                    }}
+                    placeholder="Select issue date"
+                  />
+                </HubForm.Field>
+              </div>
+            </DocumentUploadField>
+          </div>
+
+          {/* 2. Government ID */}
+          <div style={{ marginBottom: '32px' }}>
+            <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#111827' }}>
+              Government ID (Passport or Driving License)
+            </h4>
+            <DocumentUploadField
+              label="ID Document"
+              documentType="identity"
+              currentDocumentUrl={profile.identity_verification_document_url}
+              onUploadSuccess={async (url) => {
+                await onSave({ identity_verification_document_url: url });
+              }}
+            >
+              <div className="md:col-span-2">
+                {renderField('identity_document_number', 'Document Number', 'text', 'Enter passport or license number')}
+              </div>
+              <div className="md:col-span-1">
+                <HubForm.Field label="Issue Date">
+                  <DatePicker
+                    selected={formData.identity_issue_date ? new Date(formData.identity_issue_date) : undefined}
+                    onSelect={(date) => {
+                      setFormData(prev => ({ ...prev, identity_issue_date: date ? date.toISOString().split('T')[0] : '' }));
+                      handleBlur('identity_issue_date');
+                    }}
+                    placeholder="Select issue date"
+                  />
+                </HubForm.Field>
+              </div>
+              <div className="md:col-span-1">
+                <HubForm.Field label="Expiry Date (Optional)">
+                  <DatePicker
+                    selected={formData.identity_expiry_date ? new Date(formData.identity_expiry_date) : undefined}
+                    onSelect={(date) => {
+                      setFormData(prev => ({ ...prev, identity_expiry_date: date ? date.toISOString().split('T')[0] : '' }));
+                      handleBlur('identity_expiry_date');
+                    }}
+                    placeholder="Select expiry date"
+                  />
+                </HubForm.Field>
+              </div>
+            </DocumentUploadField>
+          </div>
+
+          {/* 3. DBS Certificate */}
+          <div>
+            <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#111827' }}>
+              DBS Certificate
+            </h4>
+            <DocumentUploadField
+              label="DBS Document"
+              documentType="dbs"
+              currentDocumentUrl={profile.dbs_certificate_url}
+              onUploadSuccess={async (url) => {
+                await onSave({ dbs_certificate_url: url });
+              }}
+            >
+              <div className="md:col-span-2">
+                {renderField('dbs_certificate_number', 'Certificate Number', 'text', 'Enter DBS certificate number')}
+              </div>
+              <div className="md:col-span-1">
+                <HubForm.Field label="Issue Date">
+                  <DatePicker
+                    selected={formData.dbs_certificate_date ? new Date(formData.dbs_certificate_date) : undefined}
+                    onSelect={(date) => {
+                      setFormData(prev => ({ ...prev, dbs_certificate_date: date ? date.toISOString().split('T')[0] : '' }));
+                      handleBlur('dbs_certificate_date');
+                    }}
+                    placeholder="Select issue date"
+                  />
+                </HubForm.Field>
+              </div>
+              <div className="md:col-span-1">
+                <HubForm.Field label="Expiry Date (Optional)">
+                  <DatePicker
+                    selected={formData.dbs_expiry_date ? new Date(formData.dbs_expiry_date) : undefined}
+                    onSelect={(date) => {
+                      setFormData(prev => ({ ...prev, dbs_expiry_date: date ? date.toISOString().split('T')[0] : '' }));
+                      handleBlur('dbs_expiry_date');
+                    }}
+                    placeholder="Select expiry date"
+                  />
+                </HubForm.Field>
+              </div>
+            </DocumentUploadField>
+          </div>
         </HubForm.Section>
 
         {/* Availability Section */}

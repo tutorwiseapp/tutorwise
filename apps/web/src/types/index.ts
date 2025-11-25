@@ -36,6 +36,9 @@ export interface Profile {
   identity_verification_document_name?: string; // Original filename of uploaded document
   identity_verified?: boolean; // Whether identity has been verified by admin
   identity_verified_at?: string; // ISO date string - when identity was verified
+  identity_document_number?: string; // Passport or driver's license number (Migration 093)
+  identity_issue_date?: string; // ISO date string - ID issue date (Migration 093)
+  identity_expiry_date?: string; // ISO date string - ID expiry date (Migration 093)
   // DBS certificate (required for tutors/agents only)
   dbs_certificate_number?: string; // DBS certificate number (required for UK tutors/agents)
   dbs_certificate_date?: string; // ISO date string - DBS certificate issue date
@@ -44,6 +47,12 @@ export interface Profile {
   dbs_verified?: boolean; // Whether DBS certificate has been verified by admin
   dbs_verified_at?: string; // ISO date string - when DBS was verified
   dbs_expiry?: string | null; // ISO date string - DBS certificate expiry date (v5.5 CaaS)
+  dbs_expiry_date?: string; // ISO date string - DBS certificate expiry date (Migration 093)
+  // Proof of address (Migration 093)
+  proof_of_address_url?: string; // URL to uploaded proof of address document
+  proof_of_address_type?: string; // Type: 'Utility Bill', 'Bank Statement', 'Tax Bill', 'Solicitor Letter'
+  address_document_issue_date?: string; // ISO date string - Must be within last 3 months
+  proof_of_address_verified?: boolean; // Whether proof of address has been verified by admin
   // Professional details (v5.5 CaaS)
   qualifications?: string[] | null; // Array of qualifications (e.g., ['QTS', 'PGCE'])
   teaching_experience?: number | null; // Years of teaching experience

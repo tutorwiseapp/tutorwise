@@ -170,3 +170,65 @@ export async function compressImage(file: File, maxWidth = 800, quality = 0.8): 
     };
   });
 }
+
+/**
+ * Upload verification document to Supabase Storage
+ * Supports PDFs and images for identity verification, DBS certificates, and proof of address
+ */
+export async function uploadVerificationDocument(
+  file: File,
+  userId: string,
+  documentType: 'identity' | 'dbs' | 'address'
+): Promise<UploadResult> {
+  const supabase = createClient();
+
+  // Generate unique filename
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${userId}-${documentType}-${Date.now()}.${fileExt}`;
+  const filePath = `verification-documents/${fileName}`;
+
+  // Upload file to Storage
+  const { error: uploadError } = await supabase.storage
+    .from('user-uploads')
+    .upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: false,
+    });
+
+  if (uploadError) {
+    throw new Error(`Upload failed: ${uploadError.message}`);
+  }
+
+  // Get public URL
+  const { data: { publicUrl } } = supabase.storage
+    .from('user-uploads')
+    .getPublicUrl(filePath);
+
+  return {
+    url: publicUrl,
+    path: filePath,
+  };
+}
+
+/**
+ * Validate verification document file
+ * Allows PDFs and images, with larger size limit than regular images
+ */
+export function validateDocumentFile(file: File): { valid: boolean; error?: string } {
+  const maxSize = 10 * 1024 * 1024; // 10MB for documents
+  if (file.size > maxSize) {
+    return { valid: false, error: 'Document must be less than 10MB' };
+  }
+
+  const allowedTypes = [
+    'application/pdf',
+    'image/jpeg',
+    'image/png',
+    'image/jpg',
+  ];
+  if (!allowedTypes.includes(file.type)) {
+    return { valid: false, error: 'Only PDF, JPEG, and PNG files allowed' };
+  }
+
+  return { valid: true };
+}
