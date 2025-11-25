@@ -8,7 +8,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getConversations, type Conversation } from '@/lib/api/messages';
@@ -21,10 +21,14 @@ import AvailabilityWidget from '@/app/components/messages/AvailabilityWidget';
 import ChatContextWidget from '@/app/components/messages/ChatContextWidget';
 import styles from './page.module.css';
 
+type FilterTab = 'all' | 'unread' | 'archived';
+
 export default function MessagesPage() {
   const { profile, isLoading: profileLoading } = useUserProfile();
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [isMobileThreadView, setIsMobileThreadView] = useState(false);
+  const [activeTab, setActiveTab] = useState<FilterTab>('all');
+  const [hasShownError, setHasShownError] = useState(false);
 
   // Broadcast current user's presence
   useAblyPresenceBroadcast(profile?.id || '', !!profile);
@@ -42,7 +46,30 @@ export default function MessagesPage() {
     gcTime: 5 * 60 * 1000, // 5 minutes
     retry: 2,
     refetchInterval: 30 * 1000, // Poll every 30 seconds
+    refetchOnWindowFocus: false, // Prevent flashing on window focus
   });
+
+  // Show error banner only once to prevent flashing
+  useEffect(() => {
+    if (error && !hasShownError) {
+      setHasShownError(true);
+    } else if (!error && hasShownError) {
+      setHasShownError(false);
+    }
+  }, [error, hasShownError]);
+
+  // Filter conversations based on active tab
+  const filteredConversations = useMemo(() => {
+    switch (activeTab) {
+      case 'unread':
+        return conversations.filter(conv => conv.unreadCount > 0);
+      case 'archived':
+        return []; // TODO: Add archived conversations support
+      case 'all':
+      default:
+        return conversations;
+    }
+  }, [conversations, activeTab]);
 
   // Find selected conversation
   const selectedConversation = conversations.find(
@@ -109,6 +136,31 @@ export default function MessagesPage() {
         </div>
       </div>
 
+      {/* Filter Tabs */}
+      <div className={styles.filterTabs}>
+        <button
+          className={`${styles.filterTab} ${activeTab === 'all' ? styles.filterTabActive : ''}`}
+          onClick={() => setActiveTab('all')}
+        >
+          All
+        </button>
+        <button
+          className={`${styles.filterTab} ${activeTab === 'unread' ? styles.filterTabActive : ''}`}
+          onClick={() => setActiveTab('unread')}
+        >
+          Unread
+          {totalUnread > 0 && (
+            <span className={styles.tabBadge}>{totalUnread}</span>
+          )}
+        </button>
+        <button
+          className={`${styles.filterTab} ${activeTab === 'archived' ? styles.filterTabActive : ''}`}
+          onClick={() => setActiveTab('archived')}
+        >
+          Archived
+        </button>
+      </div>
+
       {/* Main Content: Split-Pane Layout */}
       <div className={styles.splitPane}>
         {/* Left Pane: Conversation List (30%) */}
@@ -118,11 +170,11 @@ export default function MessagesPage() {
           }`}
         >
           <ConversationList
-            conversations={conversations}
+            conversations={filteredConversations}
             currentUserId={profile.id}
             selectedConversationId={selectedConversationId}
             onSelectConversation={handleSelectConversation}
-            hasError={!!error}
+            hasError={hasShownError}
           />
         </div>
 
