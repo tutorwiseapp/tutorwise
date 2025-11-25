@@ -33,7 +33,7 @@
 .formContent {
   display: flex;
   flex-direction: column;
-  gap: 2rem; /* 32px - 8px grid system */
+  gap: 1.5rem; /* 24px - consistent with HubForm */
 }
 
 .formGroup {
@@ -363,7 +363,7 @@ input[type='number'].formInput::-webkit-inner-spin-button {
   }
 
   .formContent {
-    gap: 2rem; /* 32px on mobile - consistent with desktop */
+    gap: 1.5rem; /* 24px on mobile - consistent with HubForm */
   }
 
   .actions {

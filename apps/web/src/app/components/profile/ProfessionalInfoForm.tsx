@@ -976,7 +976,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
           {/* Availability Section */}
           <HubForm.Section title="Availability">
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
               {/* Left Column: Availability Periods */}
               <div>
                 {/* Availability Type */}
@@ -1743,7 +1743,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
         {/* Availability Section */}
         <HubForm.Section title="Availability">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
             {/* Left Column: Availability Periods */}
             <div>
               {/* Availability Type */}
