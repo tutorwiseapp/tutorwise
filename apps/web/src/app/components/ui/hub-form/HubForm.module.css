@@ -19,23 +19,26 @@
 
 /* Section - Clean Layout without divider lines */
 .section {
-  /* OLD: padding: var(--space-2, 16px) 0;  <-- Causes 16+16=32px gap */
+  /* OLD: padding: var(--space-2, 16px) 0; */
   
-  /* NEW: Only add bottom spacing matching the grid gap */
-  padding: 0;
-  margin-bottom: var(--space-3, 24px); 
+  /* NEW: Increase top padding for better separation from previous fields */
+  padding-top: var(--space-5, 40px); 
+  padding-bottom: var(--space-2, 16px);
+  
+  /* Ensure no collapsing margins interfere */
+  display: block;
 }
 
-/* Remove margin from the last section so it sits flush with actions */
-.section:last-child {
-  margin-bottom: 0;
+/* Optional: Ensure the first section doesn't have huge top space if not needed */
+.section:first-child {
+  padding-top: 0;
 }
 
 .sectionTitle {
   font-size: 16px;
   font-weight: 600;
   color: #1f2937;
-  margin: 0 0 var(--space-4, 32px) 0;
+  margin: 0 0 var(--space-3, 24px) 0;
 }
 
 /* Grid Layout */
