@@ -45,8 +45,10 @@ export default function MessagesPage() {
     staleTime: 30 * 1000, // 30 seconds
     gcTime: 5 * 60 * 1000, // 5 minutes
     retry: 2,
-    refetchInterval: 30 * 1000, // Poll every 30 seconds
+    refetchInterval: (data) => (data ? 30 * 1000 : false), // Stop polling on error
     refetchOnWindowFocus: false, // Prevent flashing on window focus
+    refetchOnMount: false, // Prevent refetch on mount if data exists
+    refetchOnReconnect: false, // Prevent refetch on reconnect
   });
 
   // Show error banner only once to prevent flashing

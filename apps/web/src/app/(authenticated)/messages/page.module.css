@@ -9,8 +9,7 @@
 .splitPane {
   display: grid;
   grid-template-columns: 30% 70%;
-  height: calc(100vh - 280px); /* Reduced from 200px for better spacing */
-  max-height: 800px;
+  height: calc(100vh - 400px); /* Reduced by 120px from 280px */
   gap: 0;
   border: 1px solid var(--color-border, #e5e7eb);
   border-radius: 0.5rem;
@@ -62,6 +61,12 @@
   border-bottom: 2px solid #e5e7eb;
   padding-bottom: 0;
   overflow-x: auto;
+  /* Full width - escape mainContent padding with negative margins */
+  margin-left: -2rem;
+  margin-right: -2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  width: calc(100% + 4rem);
 }
 
 .filterTab {
