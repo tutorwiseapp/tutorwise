@@ -19,11 +19,16 @@
 
 /* Section - Clean Layout without divider lines */
 .section {
-  padding: var(--space-1, 8px) 0;
+  /* OLD: padding: var(--space-2, 16px) 0;  <-- Causes 16+16=32px gap */
+  
+  /* NEW: Only add bottom spacing matching the grid gap */
+  padding: 0;
+  margin-bottom: var(--space-3, 24px); 
 }
 
+/* Remove margin from the last section so it sits flush with actions */
 .section:last-child {
-  /* No special styling needed */
+  margin-bottom: 0;
 }
 
 .sectionTitle {
