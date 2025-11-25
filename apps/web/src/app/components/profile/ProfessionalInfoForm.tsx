@@ -1547,41 +1547,42 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
           </HubForm.Grid>
         </HubForm.Section>
 
-        {/* Bio Video URL */}
+        {/* 30-Second Intro Video and Status */}
         <HubForm.Section>
-          <HubForm.Grid columns={1}>
+          <HubForm.Grid>
             {renderField('bio_video_url', '30-Second Intro Video (Optional)', 'text', 'Paste YouTube, Loom, or Vimeo URL for +5 CaaS points')}
+            {renderField('status', 'Status', 'select', 'Select status', statusOptions)}
           </HubForm.Grid>
         </HubForm.Section>
 
-        {/* Status and Academic Qualifications */}
+        {/* Key Stages and Academic Qualifications */}
         <HubForm.Section>
           <HubForm.Grid>
-            {renderField('status', 'Status', 'select', 'Select status', statusOptions)}
+            {renderField('key_stages', 'Key Stages', 'multiselect', 'Select key stage', keyStagesOptions)}
             {renderField('academic_qualifications', 'Academic Qualifications', 'multiselect', 'Select qualifications', academicQualificationsOptions)}
           </HubForm.Grid>
         </HubForm.Section>
 
-        {/* Key Stages and Teaching Professional Qualifications */}
+        {/* Subjects and Teaching Professional Qualifications */}
         <HubForm.Section>
           <HubForm.Grid>
-            {renderField('key_stages', 'Key Stages', 'multiselect', 'Select key stage', keyStagesOptions)}
+            {renderField('subjects', 'Subjects', 'multiselect', 'Mathematics, English', subjectsOptions)}
             {renderField('teaching_professional_qualifications', 'Teaching Professional Qualifications', 'multiselect', 'Select qualification', teachingProfessionalQualificationsOptions)}
           </HubForm.Grid>
         </HubForm.Section>
 
-        {/* Subjects and Teaching Experience */}
+        {/* Session Type and Teaching Experience */}
         <HubForm.Section>
           <HubForm.Grid>
-            {renderField('subjects', 'Subjects', 'multiselect', 'Mathematics, English', subjectsOptions)}
+            {renderField('session_type', 'Session Type', 'multiselect', 'Select session type', sessionTypeOptions)}
             {renderField('teaching_experience', 'Teaching Experience', 'select', 'Select experience', teachingExperienceOptions)}
           </HubForm.Grid>
         </HubForm.Section>
 
-        {/* Session Type and Tutoring Experience */}
+        {/* Delivery Mode and Tutoring Experience */}
         <HubForm.Section>
           <HubForm.Grid>
-            {renderField('session_type', 'Session Type', 'multiselect', 'Select session type', sessionTypeOptions)}
+            {renderField('delivery_mode', 'Delivery Mode', 'multiselect', 'Select delivery mode', deliveryModeOptions)}
             {renderField('tutoring_experience', 'Tutoring Experience', 'select', 'Select tutoring experience', tutoringExperienceOptions)}
           </HubForm.Grid>
         </HubForm.Section>
@@ -1591,13 +1592,6 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
           <HubForm.Grid>
             {renderField('one_on_one_rate', 'One-on-One Session Rate (1 hour session, 1 student)', 'number', '£50')}
             {renderField('group_session_rate', 'Group Session Rate (1 hour session, 1 student)', 'number', '£25')}
-          </HubForm.Grid>
-        </HubForm.Section>
-
-        {/* Delivery Mode */}
-        <HubForm.Section>
-          <HubForm.Grid columns={1}>
-            {renderField('delivery_mode', 'Delivery Mode', 'multiselect', 'Select delivery mode', deliveryModeOptions)}
           </HubForm.Grid>
         </HubForm.Section>
 
