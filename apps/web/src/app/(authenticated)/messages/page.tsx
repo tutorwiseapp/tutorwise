@@ -33,7 +33,7 @@ export default function MessagesPage() {
   // Broadcast current user's presence
   useAblyPresenceBroadcast(profile?.id || '', !!profile);
 
-  // React Query: Fetch conversations with 30s polling
+  // React Query: Fetch conversations (real-time updates via Ably, no polling needed)
   const {
     data: conversations = [],
     isLoading,
@@ -42,11 +42,10 @@ export default function MessagesPage() {
     queryKey: ['conversations', profile?.id],
     queryFn: getConversations,
     enabled: !!profile && !profileLoading,
-    staleTime: 30 * 1000, // 30 seconds
+    staleTime: Infinity, // Keep data fresh indefinitely (Ably handles real-time updates)
     gcTime: 5 * 60 * 1000, // 5 minutes
     retry: 2,
-    refetchInterval: (data) => (data ? 30 * 1000 : false), // Stop polling on error
-    refetchOnWindowFocus: false, // Prevent flashing on window focus
+    refetchOnWindowFocus: false, // Prevent refetch on window focus
     refetchOnMount: false, // Prevent refetch on mount if data exists
     refetchOnReconnect: false, // Prevent refetch on reconnect
   });
