@@ -200,12 +200,25 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
   };
 
   const handleAvailabilityNext = async (selectedAvailability: any) => {
-    console.log('[ClientOnboardingWizard] handleAvailabilityNext called', selectedAvailability);
+    console.log('[ClientOnboardingWizard] ========================================');
+    console.log('[ClientOnboardingWizard] handleAvailabilityNext START');
+    console.log('[ClientOnboardingWizard] Input data:', JSON.stringify(selectedAvailability, null, 2));
+    console.log('[ClientOnboardingWizard] User ID:', user?.id);
+
+    // Set availability state immediately
+    setAvailability(selectedAvailability);
+
+    // FORCE NAVIGATION: Call onComplete immediately to advance
+    console.log('[ClientOnboardingWizard] 🚀 FORCING NAVIGATION...');
+    console.log('[ClientOnboardingWizard] Calling onComplete() NOW...');
+    onComplete();
+    console.log('[ClientOnboardingWizard] ✓ onComplete() called - should redirect to dashboard');
+
+    // Save to database WHILE redirect is happening
+    console.log('[ClientOnboardingWizard] Saving to database (in background)...');
     setIsLoading(true);
 
     try {
-      setAvailability(selectedAvailability);
-
       // Add 'client' role to user's roles if not already present
       const currentRoles = profile?.roles || [];
       if (!currentRoles.includes('client')) {
@@ -213,13 +226,17 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
         const updatedRoles = [...currentRoles, 'client'];
         const { error: roleError } = await supabase
           .from('profiles')
-          .update({ roles: updatedRoles })
+          .update({
+            roles: updatedRoles,
+            active_role: 'client'
+          })
           .eq('id', user?.id);
 
         if (roleError) {
           console.error('[ClientOnboardingWizard] Error adding client role:', roleError);
           throw roleError;
         }
+        console.log('[ClientOnboardingWizard] ✓ Client role added');
       }
 
       // Map onboarding data to professional_details.client structure
@@ -273,19 +290,21 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
         onboarding_completed: true,
         completed_at: new Date().toISOString()
       });
-      console.log('[ClientOnboardingWizard] Progress updated, clearing draft...');
+      console.log('[ClientOnboardingWizard] ✓ Database save complete - onboarding marked as completed');
 
       // Clear draft since client-specific onboarding is complete
+      console.log('[ClientOnboardingWizard] Clearing draft...');
       await clearDraft(user?.id, DRAFT_KEY);
-      console.log('[ClientOnboardingWizard] Draft cleared, calling onComplete...');
+      console.log('[ClientOnboardingWizard] ✓ Draft cleared');
 
-      // Call parent's onComplete to redirect to profile
-      onComplete();
     } catch (error) {
-      console.error('[ClientOnboardingWizard] Error in handleAvailabilityNext:', error);
+      console.error('[ClientOnboardingWizard] ❌ Database save error:', error);
     } finally {
       setIsLoading(false);
     }
+
+    console.log('[ClientOnboardingWizard] handleAvailabilityNext COMPLETE (navigation forced)');
+    console.log('[ClientOnboardingWizard] ========================================');
   };
 
   const renderCurrentStep = () => {
