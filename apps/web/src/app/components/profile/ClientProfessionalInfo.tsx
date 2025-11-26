@@ -11,8 +11,7 @@ interface ClientProfessionalInfoProps {
 }
 
 export default function ClientProfessionalInfo({ profile, isEditable = false, onSave = () => {} }: ClientProfessionalInfoProps) {
-  // Support both 'seeker' and 'client' keys for backwards compatibility
-  const clientDetails = profile.professional_details?.seeker || profile.professional_details?.client;
+  const clientDetails = profile.professional_details?.client;
 
   // Check if profile is empty
   const hasAnyDetails = clientDetails && (

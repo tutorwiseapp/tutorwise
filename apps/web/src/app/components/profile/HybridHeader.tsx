@@ -55,14 +55,11 @@ export default function HybridHeader({ listing, profile, actionsDisabled = false
       case 'agent':
         return 'Agent';
       case 'tutor':
-        // Try both 'provider' and 'tutor' keys for backwards compatibility
-        return profile?.professional_details?.provider?.subjects?.[0] ||
-               profile?.professional_details?.tutor?.subjects?.[0] ||
+        return profile?.professional_details?.tutor?.subjects?.[0] ||
                'Tutor';
       default:
         // Fallback: check all possible role keys
-        return profile?.professional_details?.provider?.subjects?.[0] ||
-               profile?.professional_details?.tutor?.subjects?.[0] ||
+        return profile?.professional_details?.tutor?.subjects?.[0] ||
                profile?.professional_details?.agent?.specializations?.[0] ||
                'User';
     }
@@ -71,12 +68,10 @@ export default function HybridHeader({ listing, profile, actionsDisabled = false
   const title = getTitle();
   const location = listing ? listing.location_city : (profile?.city || 'United Kingdom');
 
-  // Get hourly rate from provider or tutor data
+  // Get hourly rate from tutor data
   const getHourlyRate = () => {
     if (listing) return listing.hourly_rate;
-    return profile?.professional_details?.tutor?.hourly_rate ||
-           profile?.professional_details?.provider?.hourly_rate ||
-           'N/A';
+    return profile?.professional_details?.tutor?.hourly_rate || 'N/A';
   };
 
   const hourlyRate = getHourlyRate();

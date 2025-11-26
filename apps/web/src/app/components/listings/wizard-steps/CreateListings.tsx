@@ -264,9 +264,7 @@ export default function CreateListings({
   const handleLoadAvailabilityFromProfile = () => {
     if (!profile) return;
 
-    const roleData = activeRole === 'tutor'
-      ? profile.professional_details?.tutor
-      : profile.professional_details?.provider;
+    const roleData = profile.professional_details?.tutor;
 
     if (roleData && (roleData as any).availability) {
       const profileAvailability = (roleData as any).availability as AvailabilityPeriod[];

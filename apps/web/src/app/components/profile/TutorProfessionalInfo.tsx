@@ -11,8 +11,7 @@ interface TutorProfessionalInfoProps {
 }
 
 export default function TutorProfessionalInfo({ profile, isEditable = false, onSave = () => {} }: TutorProfessionalInfoProps) {
-  // Support both 'provider' and 'tutor' keys for backwards compatibility
-  const tutorDetails = profile.professional_details?.tutor || profile.professional_details?.provider;
+  const tutorDetails = profile.professional_details?.tutor;
 
   // Check if profile is empty
   const hasAnyDetails = tutorDetails && (

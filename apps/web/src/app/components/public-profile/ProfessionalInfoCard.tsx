@@ -22,9 +22,9 @@ interface ProfessionalInfoCardProps {
 export function ProfessionalInfoCard({ profile }: ProfessionalInfoCardProps) {
   const role = profile.active_role || profile.roles?.[0];
 
-  // Check professional_details to determine which component to render (supports legacy keys)
-  const hasTutorDetails = profile.professional_details?.tutor || profile.professional_details?.provider;
-  const hasClientDetails = profile.professional_details?.client || profile.professional_details?.seeker;
+  // Check professional_details to determine which component to render
+  const hasTutorDetails = profile.professional_details?.tutor;
+  const hasClientDetails = profile.professional_details?.client;
   const hasAgentDetails = profile.professional_details?.agent;
 
   // Render role-specific professional info based on available data
@@ -44,7 +44,7 @@ export function ProfessionalInfoCard({ profile }: ProfessionalInfoCardProps) {
 // TUTOR PROFESSIONAL INFO
 // ============================================================
 function TutorProfessionalInfo({ profile }: { profile: Profile }) {
-  const tutorDetails = profile.professional_details?.tutor || profile.professional_details?.provider;
+  const tutorDetails = profile.professional_details?.tutor;
 
   // Check if profile has any details
   const hasAnyDetails = tutorDetails && (
@@ -168,7 +168,7 @@ function TutorProfessionalInfo({ profile }: { profile: Profile }) {
 // CLIENT PROFESSIONAL INFO
 // ============================================================
 function ClientProfessionalInfo({ profile }: { profile: Profile }) {
-  const clientDetails = profile.professional_details?.client || profile.professional_details?.seeker;
+  const clientDetails = profile.professional_details?.client;
 
   // Check if profile has any details
   const hasAnyDetails = clientDetails && (

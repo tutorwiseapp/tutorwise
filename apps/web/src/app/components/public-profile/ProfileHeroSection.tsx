@@ -36,7 +36,6 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
   // Get primary subject from professional details
   const getPrimarySubject = () => {
     const details = profile.professional_details?.tutor ||
-                    profile.professional_details?.provider ||
                     profile.professional_details?.client ||
                     profile.professional_details?.agent;
 

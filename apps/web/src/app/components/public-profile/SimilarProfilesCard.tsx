@@ -62,7 +62,7 @@ export function SimilarProfilesCard({ profiles = [] }: SimilarProfilesCardProps)
             : 'Client';
 
           // Get primary subject/service
-          const tutorDetails = profile.professional_details?.tutor || profile.professional_details?.provider;
+          const tutorDetails = profile.professional_details?.tutor;
           const clientDetails = profile.professional_details?.client;
           const agentDetails = profile.professional_details?.agent;
 

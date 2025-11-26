@@ -11,8 +11,7 @@ interface ProfessionalInfoSectionProps {
 }
 
 export default function ProfessionalInfoSection({ profile, isEditable = false, onSave = () => {} }: ProfessionalInfoSectionProps) {
-  // Support both 'provider' and 'tutor' keys for backwards compatibility
-  const tutorDetails = profile.professional_details?.provider || profile.professional_details?.tutor;
+  const tutorDetails = profile.professional_details?.tutor;
 
   return (
     <Card className={styles.professionalInfoSection}>

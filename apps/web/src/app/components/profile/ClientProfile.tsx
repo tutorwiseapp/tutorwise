@@ -11,8 +11,7 @@ interface ClientProfileProps {
 }
 
 export default function ClientProfile({ profile, isEditable = false, onSave = () => {} }: ClientProfileProps) {
-  // Support both 'seeker' (from database role_type) and 'client' (legacy) keys
-  const clientDetails = profile.professional_details?.seeker || profile.professional_details?.client;
+  const clientDetails = profile.professional_details?.client;
 
   // Extract first name for personalization
   const firstName = profile.full_name

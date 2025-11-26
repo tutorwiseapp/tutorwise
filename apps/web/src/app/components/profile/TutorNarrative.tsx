@@ -29,11 +29,7 @@ export default function TutorNarrative({ profile, isEditable = false, onSave = (
       <div className={styles.section}>
         <h3 className={styles.title}>Subjects & Specializations</h3>
         <div className={styles.tagContainer}>
-          {profile.professional_details?.provider?.subjects && profile.professional_details.provider.subjects.length > 0 ? (
-            profile.professional_details.provider.subjects.map((subject: string) => (
-              <span key={subject} className={styles.tag}>{subject}</span>
-            ))
-          ) : profile.professional_details?.tutor?.subjects && profile.professional_details.tutor.subjects.length > 0 ? (
+          {profile.professional_details?.tutor?.subjects && profile.professional_details.tutor.subjects.length > 0 ? (
             profile.professional_details.tutor.subjects.map((subject: string) => (
               <span key={subject} className={styles.tag}>{subject}</span>
             ))

@@ -56,13 +56,13 @@ export async function POST(request: NextRequest) {
       ...existingProgress,
       ...payload.progress,
       // Merge role-specific progress deeply
-      seeker: {
-        ...existingProgress.seeker,
-        ...payload.progress.seeker,
+      client: {
+        ...existingProgress.client,
+        ...payload.progress.client,
       },
-      provider: {
-        ...existingProgress.provider,
-        ...payload.progress.provider,
+      tutor: {
+        ...existingProgress.tutor,
+        ...payload.progress.tutor,
       },
       agent: {
         ...existingProgress.agent,

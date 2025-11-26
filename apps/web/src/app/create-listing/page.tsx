@@ -59,7 +59,7 @@ export default function CreateListingPage() {
       }
     }
 
-    // Pre-fill from professional_details.client (for seeker role)
+    // Pre-fill from professional_details.client (for client role)
     if (activeRole === 'client') {
       const clientData = profile.professional_details.client;
       if (clientData) {

@@ -188,9 +188,6 @@ export interface ProfessionalDetails {
   tutor?: Partial<TutorProfessionalInfo>;
   agent?: Partial<AgentProfessionalInfo>;
   client?: Partial<ClientProfessionalInfo>;
-  // Backward compatibility - old role names
-  provider?: Partial<TutorProfessionalInfo>;
-  seeker?: Partial<ClientProfessionalInfo>;
 }
 
 export interface TutorProfessionalInfo {

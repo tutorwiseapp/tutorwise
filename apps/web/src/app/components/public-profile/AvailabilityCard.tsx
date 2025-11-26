@@ -22,9 +22,7 @@ export function AvailabilityCard({ profile }: AvailabilityCardProps) {
   // Get professional details (supports legacy keys)
   const professionalDetails =
     profile.professional_details?.tutor ||
-    profile.professional_details?.provider ||
     profile.professional_details?.client ||
-    profile.professional_details?.seeker ||
     profile.professional_details?.agent;
 
   const availability = professionalDetails?.availability;
