@@ -412,7 +412,7 @@ export default function OrganisationInfoForm({ organisation }: OrganisationInfoF
         </HubForm.Grid>
         <HubForm.Grid>
           {renderField('website', 'Website', 'url', 'https://www.abctutoring.com')}
-          {renderField('default_commission_rate', 'Default Commission Rate (%)', 'text', 'e.g., 15.50')}
+          {renderField('default_commission_rate', 'Commission Rate (%)', 'text', '20.00 default')}
         </HubForm.Grid>
       </HubForm.Section>
 
