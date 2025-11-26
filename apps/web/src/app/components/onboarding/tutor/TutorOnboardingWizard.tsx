@@ -258,34 +258,44 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
 
     // Set availability state immediately
     setAvailability(data);
+    setIsLoading(true);
 
-    // FORCE NAVIGATION: Call onComplete immediately to advance to CompletionStep
+    // CRITICAL: Set onboarding_completed flag FIRST before calling onComplete()
+    // This ensures dashboard won't redirect back to onboarding
+    console.log('[TutorOnboardingWizard] Setting onboarding_completed flag...');
+    try {
+      await updateOnboardingProgress({
+        onboarding_completed: true,
+        completed_at: new Date().toISOString()
+      });
+      console.log('[TutorOnboardingWizard] ✓ onboarding_completed flag set');
+    } catch (error) {
+      console.error('[TutorOnboardingWizard] ❌ Failed to set onboarding_completed:', error);
+    }
+
+    // NOW call onComplete to trigger redirect
     console.log('[TutorOnboardingWizard] 🚀 FORCING NAVIGATION to CompletionStep...');
     console.log('[TutorOnboardingWizard] Calling onComplete() NOW...');
     onComplete();
     console.log('[TutorOnboardingWizard] ✓ onComplete() called - should advance to CompletionStep');
 
-    // Save to database WHILE CompletionStep is showing (2 second success message)
-    // This gives us time to complete the save before redirecting to dashboard
-    console.log('[TutorOnboardingWizard] Saving to database (will complete during CompletionStep)...');
-    setIsLoading(true);
+    // Continue saving other data in background
+    console.log('[TutorOnboardingWizard] Saving remaining data to database (in background)...');
 
     try {
-      console.log('[TutorOnboardingWizard] Database save: Preparing progress update...');
+      console.log('[TutorOnboardingWizard] Database save: Preparing progress update with provider data...');
       const progressUpdate = {
         current_step: 'completion',
         provider: {
           subjects,
           ...(Object.keys(qualifications).length > 0 && { qualifications: qualifications as QualificationsData }),
           availability: data
-        },
-        onboarding_completed: true,
-        completed_at: new Date().toISOString()
+        }
       };
 
-      console.log('[TutorOnboardingWizard] Database save: Updating onboarding progress...');
+      console.log('[TutorOnboardingWizard] Database save: Updating onboarding progress with provider data...');
       await updateOnboardingProgress(progressUpdate);
-      console.log('[TutorOnboardingWizard] ✓ Database save complete - onboarding marked as completed');
+      console.log('[TutorOnboardingWizard] ✓ Database save complete');
 
       // Save professional info to professional_details.tutor (for profile auto-population)
       console.log('[TutorOnboardingWizard] Saving to professional_details.tutor...');

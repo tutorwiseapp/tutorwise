@@ -229,16 +229,29 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
 
     // Set capacity state immediately
     setCapacity(data);
+    setIsLoading(true);
 
-    // FORCE NAVIGATION: Call onComplete immediately to advance
+    // CRITICAL: Set onboarding_completed flag FIRST before calling onComplete()
+    // This ensures dashboard won't redirect back to onboarding
+    console.log('[AgentOnboardingWizard] Setting onboarding_completed flag...');
+    try {
+      await updateOnboardingProgress({
+        onboarding_completed: true,
+        completed_at: new Date().toISOString()
+      });
+      console.log('[AgentOnboardingWizard] ✓ onboarding_completed flag set');
+    } catch (error) {
+      console.error('[AgentOnboardingWizard] ❌ Failed to set onboarding_completed:', error);
+    }
+
+    // NOW call onComplete to trigger redirect
     console.log('[AgentOnboardingWizard] 🚀 FORCING NAVIGATION...');
     console.log('[AgentOnboardingWizard] Calling onComplete() NOW...');
     onComplete();
     console.log('[AgentOnboardingWizard] ✓ onComplete() called - should redirect to dashboard');
 
-    // Save to database WHILE redirect is happening
-    console.log('[AgentOnboardingWizard] Saving to database (in background)...');
-    setIsLoading(true);
+    // Continue saving other data in background
+    console.log('[AgentOnboardingWizard] Saving remaining data to database (in background)...');
 
     try {
       // Add 'agent' role to user's roles if not already present
@@ -309,14 +322,12 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
       console.log('[AgentOnboardingWizard] ✓ Saved to professional_details.agent');
 
       // Also update the database with agent-specific progress (keep old structure for reference)
-      console.log('[AgentOnboardingWizard] Updating onboarding progress...');
+      console.log('[AgentOnboardingWizard] Updating onboarding progress with agent data...');
       await updateOnboardingProgress({
         current_step: 'completion',
-        agent: { ...(Object.keys(agencyDetails).length > 0 && { details: agencyDetails as AgencyDetailsData }), services, capacity: data },
-        onboarding_completed: true,  // Mark as complete for standalone agent onboarding
-        completed_at: new Date().toISOString()
+        agent: { ...(Object.keys(agencyDetails).length > 0 && { details: agencyDetails as AgencyDetailsData }), services, capacity: data }
       });
-      console.log('[AgentOnboardingWizard] ✓ Database save complete - onboarding marked as completed');
+      console.log('[AgentOnboardingWizard] ✓ Database save complete');
 
       // Clear draft since agent-specific onboarding is complete
       console.log('[AgentOnboardingWizard] Clearing draft...');

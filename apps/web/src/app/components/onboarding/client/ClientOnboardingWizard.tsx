@@ -207,16 +207,29 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
 
     // Set availability state immediately
     setAvailability(selectedAvailability);
+    setIsLoading(true);
 
-    // FORCE NAVIGATION: Call onComplete immediately to advance
+    // CRITICAL: Set onboarding_completed flag FIRST before calling onComplete()
+    // This ensures dashboard won't redirect back to onboarding
+    console.log('[ClientOnboardingWizard] Setting onboarding_completed flag...');
+    try {
+      await updateOnboardingProgress({
+        onboarding_completed: true,
+        completed_at: new Date().toISOString()
+      });
+      console.log('[ClientOnboardingWizard] ✓ onboarding_completed flag set');
+    } catch (error) {
+      console.error('[ClientOnboardingWizard] ❌ Failed to set onboarding_completed:', error);
+    }
+
+    // NOW call onComplete to trigger redirect
     console.log('[ClientOnboardingWizard] 🚀 FORCING NAVIGATION...');
     console.log('[ClientOnboardingWizard] Calling onComplete() NOW...');
     onComplete();
     console.log('[ClientOnboardingWizard] ✓ onComplete() called - should redirect to dashboard');
 
-    // Save to database WHILE redirect is happening
-    console.log('[ClientOnboardingWizard] Saving to database (in background)...');
-    setIsLoading(true);
+    // Continue saving other data in background
+    console.log('[ClientOnboardingWizard] Saving remaining data to database (in background)...');
 
     try {
       // Add 'client' role to user's roles if not already present
@@ -283,14 +296,12 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
       console.log('[ClientOnboardingWizard] ✓ Saved to professional_details.client');
 
       // Also update the onboarding_progress for tracking (keep old structure for reference)
-      console.log('[ClientOnboardingWizard] Updating onboarding progress...');
+      console.log('[ClientOnboardingWizard] Updating onboarding progress with seeker data...');
       await updateOnboardingProgress({
         current_step: 'completion',
-        seeker: { subjects, preferences, availability: selectedAvailability },
-        onboarding_completed: true,
-        completed_at: new Date().toISOString()
+        seeker: { subjects, preferences, availability: selectedAvailability }
       });
-      console.log('[ClientOnboardingWizard] ✓ Database save complete - onboarding marked as completed');
+      console.log('[ClientOnboardingWizard] ✓ Database save complete');
 
       // Clear draft since client-specific onboarding is complete
       console.log('[ClientOnboardingWizard] Clearing draft...');
