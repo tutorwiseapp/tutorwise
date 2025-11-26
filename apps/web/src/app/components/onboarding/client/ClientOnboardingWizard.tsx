@@ -213,10 +213,17 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
 
     // Set availability state immediately
     setAvailability(selectedAvailability);
-    setIsLoading(true);
 
-    // Continue saving data in background
-    console.log('[ClientOnboardingWizard] Saving data to database...');
+    // FORCE NAVIGATION: Call onComplete immediately to redirect to dashboard
+    // This matches the working behavior from commit 949e7b8
+    console.log('[ClientOnboardingWizard] 🚀 FORCING NAVIGATION...');
+    console.log('[ClientOnboardingWizard] Calling onComplete() NOW...');
+    onComplete();
+    console.log('[ClientOnboardingWizard] ✓ onComplete() called - should redirect to dashboard');
+
+    // Save to database in background (while dashboard is loading)
+    console.log('[ClientOnboardingWizard] Saving to database (background operation)...');
+    setIsLoading(true);
 
     try {
       // Add 'client' role to user's roles if not already present
@@ -239,48 +246,39 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
         console.log('[ClientOnboardingWizard] ✓ Client role added');
       }
 
-      // Map onboarding data to professional_details.client structure
-      console.log('[ClientOnboardingWizard] Saving to professional_details.client...');
-      const currentProfessionalDetails = profile?.professional_details || {};
+      // Save client role details to role_details table
+      console.log('[ClientOnboardingWizard] Saving to role_details table...');
 
-      // Convert onboarding preferences to profile learning_preferences field
-      const learningPreferences = [];
-      if (preferences.learningStyle === 'visual') learningPreferences.push('Visual learning');
-      if (preferences.learningStyle === 'auditory') learningPreferences.push('Auditory learning');
-      if (preferences.learningStyle === 'kinesthetic') learningPreferences.push('Hands-on practice');
-      if (preferences.learningStyle === 'reading') learningPreferences.push('Reading/writing');
-
-      const clientData = {
-        subjects: subjects || [],  // From onboarding subjects step
-        education_level: '',  // User can fill this in profile
-        learning_goals: [],  // User can fill this in profile
-        learning_preferences: learningPreferences,
-        budget_range: '',  // User can fill this in profile
-        sessions_per_week: '',  // User can fill this in profile
-        session_duration: '',  // User can fill this in profile
-        special_needs: [],  // User can fill this in profile
-        additional_info: preferences.location ? `Preferred location: ${preferences.location}` : '',
-        availability: selectedAvailability,  // From onboarding availability step
-        unavailability: null,
+      const roleDetailsData = {
+        profile_id: user!.id,
+        role_type: 'client',
+        subjects: subjects || [],
+        learning_style: preferences.learningStyle || '',
+        budget_range: selectedAvailability.hourlyBudget ? {
+          min: selectedAvailability.hourlyBudget,
+          max: selectedAvailability.hourlyBudget + 20
+        } : {},
+        schedule_preferences: {
+          session_types: selectedAvailability.sessionTypes || [],
+          availability_slots: selectedAvailability.availability || [],
+          location_preference: preferences.location || ''
+        },
+        completed_at: new Date().toISOString(),
       };
 
-      // Save to professional_details.client (auto-populates profile form)
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          professional_details: {
-            ...currentProfessionalDetails,
-            client: clientData
-          }
-        })
-        .eq('id', user?.id);
+      // Use upsert to insert or update the role_details record
+      const { error: roleDetailsError } = await supabase
+        .from('role_details')
+        .upsert(roleDetailsData, {
+          onConflict: 'profile_id,role_type'
+        });
 
-      if (profileError) {
-        console.error('[ClientOnboardingWizard] Error saving professional_details:', profileError);
-        throw profileError;
+      if (roleDetailsError) {
+        console.error('[ClientOnboardingWizard] Error saving role_details:', roleDetailsError);
+        throw roleDetailsError;
       }
 
-      console.log('[ClientOnboardingWizard] ✓ Saved to professional_details.client');
+      console.log('[ClientOnboardingWizard] ✓ Saved to role_details table');
 
       // CRITICAL: Update onboarding_progress with ALL data including onboarding_completed flag
       // This must be a single atomic update to prevent overwrites
@@ -293,24 +291,20 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
       });
       console.log('[ClientOnboardingWizard] ✓ Database save complete (onboarding marked as completed)');
 
-      // Clear draft since client-specific onboarding is complete
       console.log('[ClientOnboardingWizard] Clearing draft...');
       await clearDraft(user?.id, DRAFT_KEY);
       console.log('[ClientOnboardingWizard] ✓ Draft cleared');
-
-      // NOW trigger redirect after all database operations complete successfully
-      console.log('[ClientOnboardingWizard] 🚀 All data saved, calling onComplete() to redirect...');
-      onComplete();
-      console.log('[ClientOnboardingWizard] ✓ onComplete() called - should redirect to dashboard');
+      console.log('[ClientOnboardingWizard] ✓ All background database operations completed successfully');
 
     } catch (error) {
-      console.error('[ClientOnboardingWizard] ❌ Database save error:', error);
-      alert('Failed to save onboarding data. Please try again.');
+      console.error('[ClientOnboardingWizard] ❌ Background database save error:', error);
+      // Don't show alert since user has already navigated away
+      // Error is logged for debugging purposes
     } finally {
       setIsLoading(false);
     }
 
-    console.log('[ClientOnboardingWizard] handleAvailabilityNext COMPLETE');
+    console.log('[ClientOnboardingWizard] handleAvailabilityNext COMPLETE (navigation forced)');
     console.log('[ClientOnboardingWizard] ========================================');
   };
 

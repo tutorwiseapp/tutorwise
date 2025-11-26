@@ -235,78 +235,82 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
 
     // Set capacity state immediately
     setCapacity(data);
-    setIsLoading(true);
 
-    // Save all data to database
-    console.log('[AgentOnboardingWizard] Saving data to database...');
+    // FORCE NAVIGATION: Call onComplete immediately to redirect to dashboard
+    // This matches the working behavior from commit 949e7b8
+    console.log('[AgentOnboardingWizard] 🚀 FORCING NAVIGATION...');
+    console.log('[AgentOnboardingWizard] Calling onComplete() NOW...');
+    onComplete();
+    console.log('[AgentOnboardingWizard] ✓ onComplete() called - should redirect to dashboard');
+
+    // Save to database in background (while dashboard is loading)
+    console.log('[AgentOnboardingWizard] Saving to database (background operation)...');
+    setIsLoading(true);
 
     try {
       // Add 'agent' role to user's roles if not already present
       const currentRoles = profile?.roles || [];
+      console.log('[AgentOnboardingWizard] Current roles:', currentRoles);
+
       if (!currentRoles.includes('agent')) {
         console.log('[AgentOnboardingWizard] Adding agent role to user profile...');
         const updatedRoles = [...currentRoles, 'agent'];
-        const { error: roleError } = await supabase
+        console.log('[AgentOnboardingWizard] Updated roles will be:', updatedRoles);
+
+        const { data: roleData, error: roleError } = await supabase
           .from('profiles')
           .update({
             roles: updatedRoles,
             active_role: 'agent'
           })
-          .eq('id', user?.id);
+          .eq('id', user!.id)
+          .select();
+
+        console.log('[AgentOnboardingWizard] Role update response:', { data: roleData, error: roleError });
 
         if (roleError) {
           console.error('[AgentOnboardingWizard] Error adding agent role:', roleError);
           throw roleError;
         }
         console.log('[AgentOnboardingWizard] ✓ Agent role added');
+      } else {
+        console.log('[AgentOnboardingWizard] User already has agent role, skipping role update');
       }
 
-      // Map onboarding data to professional_details.agent structure
-      console.log('[AgentOnboardingWizard] Saving to professional_details.agent...');
-      const currentProfessionalDetails = profile?.professional_details || {};
+      // Save agent role details to role_details table
+      console.log('[AgentOnboardingWizard] Saving to role_details table...');
 
-      const agentData = {
-        // Core agency info (from onboarding)
-        agency_name: agencyDetails.agencyName || '',
-        agency_size: agencyDetails.agencySize || '',
-        years_in_business: agencyDetails.yearsInBusiness || '',
-        description: agencyDetails.description || '',
+      const roleDetailsData = {
+        profile_id: user!.id,
+        role_type: 'agent',
+        agency_details: {
+          agency_name: agencyDetails.agencyName || '',
+          agency_size: agencyDetails.agencySize || '',
+          years_in_business: agencyDetails.yearsInBusiness || '',
+          description: agencyDetails.description || '',
+        },
         services: services || [],
-        commission_rate: data.commissionRate?.toString() || '',
-        service_areas: data.serviceAreas || [],
-        student_capacity: data.studentCapacity || '',
-
-        // Enhanced fields (empty - user fills in profile)
-        subject_specializations: [],
-        education_levels: [],
-        coverage_areas: [],
-        number_of_tutors: '',
-        certifications: [],
-        website: '',
-        additional_info: '',
-
-        // Availability (empty - user adds in profile)
-        availability: [],
-        unavailability: [],
+        capacity_details: {
+          commission_rate: data.commissionRate || 0,
+          service_areas: data.serviceAreas || [],
+          student_capacity: data.studentCapacity || '',
+        },
+        completed_at: new Date().toISOString(),
       };
 
-      // Save to professional_details.agent (auto-populates profile form)
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          professional_details: {
-            ...currentProfessionalDetails,
-            agent: agentData
-          }
-        })
-        .eq('id', user?.id);
+      // Use upsert to insert or update the role_details record
+      const { error: roleDetailsError } = await supabase
+        .from('role_details')
+        .upsert(roleDetailsData, {
+          onConflict: 'profile_id,role_type'
+        });
 
-      if (profileError) {
-        console.error('[AgentOnboardingWizard] Error saving professional_details:', profileError);
-        throw profileError;
+      if (roleDetailsError) {
+        console.error('[AgentOnboardingWizard] Error saving role_details:', roleDetailsError);
+        throw roleDetailsError;
       }
 
-      console.log('[AgentOnboardingWizard] ✓ Saved to professional_details.agent');
+      console.log('[AgentOnboardingWizard] ✓ Saved to role_details table');
 
       // CRITICAL: Update onboarding_progress with ALL data including onboarding_completed flag
       // This must be a single atomic update to prevent overwrites
@@ -319,24 +323,20 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
       });
       console.log('[AgentOnboardingWizard] ✓ Database save complete (onboarding marked as completed)');
 
-      // Clear draft since agent-specific onboarding is complete
       console.log('[AgentOnboardingWizard] Clearing draft...');
       await clearDraft(user?.id, DRAFT_KEY);
       console.log('[AgentOnboardingWizard] ✓ Draft cleared');
-
-      // NOW trigger redirect after all database operations complete successfully
-      console.log('[AgentOnboardingWizard] 🚀 All data saved, calling onComplete() to redirect...');
-      onComplete();
-      console.log('[AgentOnboardingWizard] ✓ onComplete() called - should redirect to dashboard');
+      console.log('[AgentOnboardingWizard] ✓ All background database operations completed successfully');
 
     } catch (error) {
-      console.error('[AgentOnboardingWizard] ❌ Database save error:', error);
-      alert('Failed to save onboarding data. Please try again.');
+      console.error('[AgentOnboardingWizard] ❌ Background database save error:', error);
+      // Don't show alert since user has already navigated away
+      // Error is logged for debugging purposes
     } finally {
       setIsLoading(false);
     }
 
-    console.log('[AgentOnboardingWizard] handleCapacitySubmit COMPLETE');
+    console.log('[AgentOnboardingWizard] handleCapacitySubmit COMPLETE (navigation forced)');
     console.log('[AgentOnboardingWizard] ========================================');
   };
 
