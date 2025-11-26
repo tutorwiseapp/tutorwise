@@ -269,22 +269,31 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
 
       // Add 'tutor' role to user's roles if not already present
       const currentRoles = profile?.roles || [];
+      console.log('[TutorOnboardingWizard] Current roles:', currentRoles);
+
       if (!currentRoles.includes('tutor')) {
         console.log('[TutorOnboardingWizard] Adding tutor role to user profile...');
         const updatedRoles = [...currentRoles, 'tutor'];
-        const { error: roleError } = await supabase
+        console.log('[TutorOnboardingWizard] Updated roles will be:', updatedRoles);
+
+        const { data: roleData, error: roleError } = await supabase
           .from('profiles')
           .update({
             roles: updatedRoles,
             active_role: 'tutor'
           })
-          .eq('id', user!.id);
+          .eq('id', user!.id)
+          .select();
+
+        console.log('[TutorOnboardingWizard] Role update response:', { data: roleData, error: roleError });
 
         if (roleError) {
           console.error('[TutorOnboardingWizard] Error adding tutor role:', roleError);
           throw roleError;
         }
         console.log('[TutorOnboardingWizard] ✓ Tutor role added');
+      } else {
+        console.log('[TutorOnboardingWizard] User already has tutor role, skipping role update');
       }
 
       // Save professional info to professional_details.tutor (for profile auto-population)
