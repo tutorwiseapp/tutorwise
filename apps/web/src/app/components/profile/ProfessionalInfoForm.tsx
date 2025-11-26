@@ -1254,13 +1254,13 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               onClick={handleCancelAll}
               disabled={!editingField || isSaving}
               style={{
-                padding: '10px 24px',
+                padding: '12px 16px',
                 fontSize: '14px',
-                fontWeight: 500,
+                fontWeight: 600,
                 color: '#374151',
                 backgroundColor: '#ffffff',
                 border: '1px solid #d1d5db',
-                borderRadius: '6px',
+                borderRadius: '8px',
                 cursor: editingField && !isSaving ? 'pointer' : 'not-allowed',
                 opacity: editingField && !isSaving ? 1 : 0.5,
               }}
@@ -1272,13 +1272,13 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               onClick={handleSaveAll}
               disabled={!editingField || isSaving}
               style={{
-                padding: '10px 24px',
+                padding: '12px 16px',
                 fontSize: '14px',
-                fontWeight: 500,
+                fontWeight: 600,
                 color: '#ffffff',
                 backgroundColor: '#006c67',
                 border: 'none',
-                borderRadius: '6px',
+                borderRadius: '8px',
                 cursor: editingField && !isSaving ? 'pointer' : 'not-allowed',
                 opacity: editingField && !isSaving ? 1 : 0.5,
               }}
@@ -1501,13 +1501,13 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               onClick={handleCancelAll}
               disabled={!editingField || isSaving}
               style={{
-                padding: '10px 24px',
+                padding: '12px 16px',
                 fontSize: '14px',
-                fontWeight: 500,
+                fontWeight: 600,
                 color: '#374151',
                 backgroundColor: '#ffffff',
                 border: '1px solid #d1d5db',
-                borderRadius: '6px',
+                borderRadius: '8px',
                 cursor: editingField && !isSaving ? 'pointer' : 'not-allowed',
                 opacity: editingField && !isSaving ? 1 : 0.5,
               }}
@@ -1519,13 +1519,13 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               onClick={handleSaveAll}
               disabled={!editingField || isSaving}
               style={{
-                padding: '10px 24px',
+                padding: '12px 16px',
                 fontSize: '14px',
-                fontWeight: 500,
+                fontWeight: 600,
                 color: '#ffffff',
                 backgroundColor: '#006c67',
                 border: 'none',
-                borderRadius: '6px',
+                borderRadius: '8px',
                 cursor: editingField && !isSaving ? 'pointer' : 'not-allowed',
                 opacity: editingField && !isSaving ? 1 : 0.5,
               }}
