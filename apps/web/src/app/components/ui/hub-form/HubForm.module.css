@@ -16,7 +16,7 @@
   /* NEW: Use flex column to control section spacing externally */
   display: flex;
   flex-direction: column;
-  gap: var(--space-3, 24px); /* Adds exactly 16px between sections */
+  gap: var(--space-3, 24px); /* Adds exactly 24px between sections */
   width: 100%;
 }
 
@@ -26,6 +26,11 @@
   /* padding: var(--space-2, 16px) 0; */
   margin: 0;
   width: 100%; /* Ensure grid inside stays full width */
+
+  /* NEW: Add flex column with gap to space multiple grids within a section */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 24px); /* 24px gap between grids within the same section */
 }
 
 /* Margin from the last section if 0 then it sits flush with actions */
