@@ -23,14 +23,8 @@
 /* Section - Clean Layout without divider lines */
 .section {
   /* RESET: Remove all margins/padding so the .root gap takes full control */
-  /* padding: var(--space-2, 16px) 0; */
   margin: 0;
   width: 100%; /* Ensure grid inside stays full width */
-
-  /* NEW: Add flex column with gap to space multiple grids within a section */
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3, 24px); /* 24px gap between grids within the same section */
 }
 
 /* Margin from the last section if 0 then it sits flush with actions */
@@ -42,7 +36,12 @@
   font-size: 16px;
   font-weight: 600;
   color: #1f2937;
-  margin: 0; /* Remove margin-bottom - let section flex gap handle spacing */
+  margin: 0 0 var(--space-3, 24px) 0; /* 24px spacing below title */
+}
+
+/* Section Content - for multiple grids within a section */
+.section > *:not(.sectionTitle) + *:not(.sectionTitle) {
+  margin-top: var(--space-3, 24px); /* 24px gap between multiple child elements */
 }
 
 /* Grid Layout */
