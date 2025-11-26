@@ -365,7 +365,7 @@ export default function OrganisationInfoForm({ organisation }: OrganisationInfoF
       </HubForm.Section>
 
       {/* Section 2: Details */}
-      <HubForm.Section title="Details">
+      <HubForm.Section>
         <HubForm.Grid columns={1}>
           {renderField('description', 'Description', 'textarea', 'ABC Tutoring is specialising in...', true)}
           {renderField('website', 'Website', 'url', 'https://www.abctutoring.com')}
@@ -373,7 +373,7 @@ export default function OrganisationInfoForm({ organisation }: OrganisationInfoF
       </HubForm.Section>
 
       {/* Section 3: Contact & Location */}
-      <HubForm.Section title="Contact & Location">
+      <HubForm.Section>
         <HubForm.Grid>
           {renderField('contact_name', 'Contact Name', 'text', 'John Smith')}
           {renderField('contact_email', 'Email Address', 'email', 'johnsmith@abc.com')}
