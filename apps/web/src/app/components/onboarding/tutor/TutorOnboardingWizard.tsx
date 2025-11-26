@@ -264,26 +264,31 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
     console.log('[TutorOnboardingWizard] Saving data to database...');
 
     try {
-      console.log('[TutorOnboardingWizard] Database save: Preparing progress update with tutor data...');
-      const progressUpdate = {
-        current_step: 'completion',
-        onboarding_completed: true,
-        completed_at: new Date().toISOString(),
-        tutor: {
-          subjects,
-          ...(Object.keys(qualifications).length > 0 && { qualifications: qualifications as QualificationsData }),
-          availability: data
-        }
-      };
+      const { createClient } = await import('@/utils/supabase/client');
+      const supabase = createClient();
 
-      console.log('[TutorOnboardingWizard] Database save: Updating onboarding progress (with completion flag)...');
-      await updateOnboardingProgress(progressUpdate);
-      console.log('[TutorOnboardingWizard] ✓ Database save complete (onboarding marked as completed)');
+      // Add 'tutor' role to user's roles if not already present
+      const currentRoles = profile?.roles || [];
+      if (!currentRoles.includes('tutor')) {
+        console.log('[TutorOnboardingWizard] Adding tutor role to user profile...');
+        const updatedRoles = [...currentRoles, 'tutor'];
+        const { error: roleError } = await supabase
+          .from('profiles')
+          .update({
+            roles: updatedRoles,
+            active_role: 'tutor'
+          })
+          .eq('id', user!.id);
+
+        if (roleError) {
+          console.error('[TutorOnboardingWizard] Error adding tutor role:', roleError);
+          throw roleError;
+        }
+        console.log('[TutorOnboardingWizard] ✓ Tutor role added');
+      }
 
       // Save professional info to professional_details.tutor (for profile auto-population)
       console.log('[TutorOnboardingWizard] Saving to professional_details.tutor...');
-      const { createClient } = await import('@/utils/supabase/client');
-      const supabase = createClient();
       const currentProfessionalDetails = profile?.professional_details || {};
 
       const tutorData = {
@@ -330,19 +335,20 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
 
       console.log('[TutorOnboardingWizard] ✓ Saved to professional_details.tutor');
 
-      // CRITICAL: Add 'tutor' role to user's roles array if not already present
-      if (profile && !profile.roles.includes('tutor')) {
-        console.log('[TutorOnboardingWizard] Adding tutor role to user profile...');
-        const updatedRoles = [...(profile.roles || []), 'tutor'];
-        await supabase
-          .from('profiles')
-          .update({
-            roles: updatedRoles,
-            active_role: 'tutor'
-          })
-          .eq('id', user!.id);
-        console.log('[TutorOnboardingWizard] ✓ Tutor role added');
-      }
+      // CRITICAL: Update onboarding_progress with ALL data including onboarding_completed flag
+      // This must be a single atomic update to prevent overwrites
+      console.log('[TutorOnboardingWizard] Updating onboarding progress (with completion flag)...');
+      await updateOnboardingProgress({
+        current_step: 'completion',
+        onboarding_completed: true,
+        completed_at: new Date().toISOString(),
+        tutor: {
+          subjects,
+          ...(Object.keys(qualifications).length > 0 && { qualifications: qualifications as QualificationsData }),
+          availability: data
+        }
+      });
+      console.log('[TutorOnboardingWizard] ✓ Database save complete (onboarding marked as completed)');
 
       // Generate listing templates for new tutor
       console.log('[TutorOnboardingWizard] Generating listing templates...');
