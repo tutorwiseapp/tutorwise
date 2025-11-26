@@ -32,6 +32,7 @@ type EditingFieldValue =
   | 'slug'
   | 'description'
   | 'website'
+  | 'default_commission_rate'
   | 'contact_name'
   | 'contact_email'
   | 'contact_phone'
@@ -59,6 +60,7 @@ export default function OrganisationInfoForm({ organisation }: OrganisationInfoF
     slug: organisation.slug || '',
     description: organisation.description || '',
     website: organisation.website || '',
+    default_commission_rate: organisation.settings?.default_commission_rate?.toString() || '',
     contact_name: organisation.contact_name || '',
     contact_email: organisation.contact_email || '',
     contact_phone: organisation.contact_phone || '',
@@ -76,6 +78,7 @@ export default function OrganisationInfoForm({ organisation }: OrganisationInfoF
       slug: organisation.slug || '',
       description: organisation.description || '',
       website: organisation.website || '',
+      default_commission_rate: organisation.settings?.default_commission_rate?.toString() || '',
       contact_name: organisation.contact_name || '',
       contact_email: organisation.contact_email || '',
       contact_phone: organisation.contact_phone || '',
@@ -165,6 +168,16 @@ export default function OrganisationInfoForm({ organisation }: OrganisationInfoF
       return 'Please enter a valid email address';
     }
 
+    if (field === 'default_commission_rate' && value) {
+      const numValue = parseFloat(value);
+      if (isNaN(numValue)) {
+        return 'Commission rate must be a valid number';
+      }
+      if (numValue < 0 || numValue > 100) {
+        return 'Commission rate must be between 0 and 100';
+      }
+    }
+
     return null;
   };
 
@@ -182,9 +195,24 @@ export default function OrganisationInfoForm({ organisation }: OrganisationInfoF
 
     setIsSaving(true);
     try {
-      const updates = {
-        [field]: formData[field as keyof typeof formData] || undefined,
-      };
+      let updates: any;
+
+      // Special handling for default_commission_rate (stored in settings)
+      if (field === 'default_commission_rate') {
+        const value = formData[field];
+        const numValue = value ? parseFloat(value) : null;
+        updates = {
+          settings: {
+            ...organisation.settings,
+            default_commission_rate: numValue,
+          },
+        };
+      } else {
+        updates = {
+          [field]: formData[field as keyof typeof formData] || undefined,
+        };
+      }
+
       await updateMutation.mutateAsync(updates);
       setEditingField(null);
       setValidationErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -201,10 +229,17 @@ export default function OrganisationInfoForm({ organisation }: OrganisationInfoF
     if (!field) return;
 
     // Reset field to organisation value
-    setFormData((prev) => ({
-      ...prev,
-      [field]: (organisation as any)[field] || '',
-    }));
+    if (field === 'default_commission_rate') {
+      setFormData((prev) => ({
+        ...prev,
+        default_commission_rate: organisation.settings?.default_commission_rate?.toString() || '',
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: (organisation as any)[field] || '',
+      }));
+    }
 
     setEditingField(null);
     setValidationErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -227,7 +262,13 @@ export default function OrganisationInfoForm({ organisation }: OrganisationInfoF
 
       // Check if value has changed
       const currentValue = formData[field as keyof typeof formData];
-      const originalValue = (organisation as any)[field] || '';
+      let originalValue: string;
+
+      if (field === 'default_commission_rate') {
+        originalValue = organisation.settings?.default_commission_rate?.toString() || '';
+      } else {
+        originalValue = (organisation as any)[field] || '';
+      }
 
       if (currentValue !== originalValue) {
         handleSaveField(field);
@@ -368,7 +409,10 @@ export default function OrganisationInfoForm({ organisation }: OrganisationInfoF
       <HubForm.Section>
         <HubForm.Grid columns={1}>
           {renderField('description', 'Description', 'textarea', 'ABC Tutoring is specialising in...', true)}
+        </HubForm.Grid>
+        <HubForm.Grid>
           {renderField('website', 'Website', 'url', 'https://www.abctutoring.com')}
+          {renderField('default_commission_rate', 'Default Commission Rate (%)', 'text', 'e.g., 15.50')}
         </HubForm.Grid>
       </HubForm.Section>
 

@@ -28,11 +28,13 @@ import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSideba
 import OrganisationStatsWidget from '@/app/components/organisation/OrganisationStatsWidget';
 import OrganisationInviteWidget from '@/app/components/organisation/OrganisationInviteWidget';
 import InfoTab from '@/app/components/organisation/tabs/InfoTab';
+import ManageMemberModal from '@/app/components/organisation/ManageMemberModal';
 import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
 import Button from '@/app/components/ui/Button';
 import toast from 'react-hot-toast';
 import getProfileImageUrl from '@/lib/utils/image';
 import styles from './page.module.css';
+import type { OrganisationMember } from '@/lib/api/organisation';
 
 type TabType = 'team' | 'clients' | 'info';
 
@@ -43,6 +45,7 @@ export default function OrganisationPage() {
 
   const [activeTab, setActiveTab] = useState<TabType>('team');
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [managingMember, setManagingMember] = useState<OrganisationMember | null>(null);
 
   // Fetch organisation
   const {
@@ -355,6 +358,13 @@ export default function OrganisationPage() {
                         <Button
                           variant="secondary"
                           size="sm"
+                          onClick={() => setManagingMember(member)}
+                        >
+                          Manage
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="sm"
                           onClick={() => handleRemoveMember(member.id, member.full_name || member.email)}
                         >
                           Remove
@@ -433,6 +443,17 @@ export default function OrganisationPage() {
           }}
         />
       </ContextualSidebar>
+
+      {/* Manage Member Modal */}
+      {managingMember && (
+        <ManageMemberModal
+          isOpen={true}
+          onClose={() => setManagingMember(null)}
+          member={managingMember}
+          organisationId={organisation.id}
+          defaultCommissionRate={organisation.settings?.default_commission_rate ?? null}
+        />
+      )}
     </>
   );
 }
