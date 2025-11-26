@@ -36,6 +36,7 @@ export interface Organisation {
 
 export interface OrganisationMember {
   id: string;
+  connection_id: string; // The profile_graph relationship ID (composite key)
   full_name: string | null;
   email: string;
   avatar_url: string | null;
@@ -44,6 +45,10 @@ export interface OrganisationMember {
   location: string | null;
   active_students_count?: number;
   added_at: string;
+  // Agency management fields (v6.3)
+  commission_rate: number | null; // Individual override rate (%). If null, uses org default
+  internal_notes: string | null; // Private notes for agency owner
+  is_verified: boolean; // Internal verification flag
 }
 
 export interface OrganisationStats {
@@ -113,6 +118,9 @@ export async function getOrganisationMembers(organisationId: string): Promise<Or
     .select(`
       added_at,
       connection_id,
+      commission_rate,
+      internal_notes,
+      is_verified,
       profile_graph!inner(
         id,
         source:source_profile_id(
@@ -147,6 +155,7 @@ export async function getOrganisationMembers(organisationId: string): Promise<Or
 
     return {
       id: memberProfile.id,
+      connection_id: item.connection_id,
       full_name: memberProfile.full_name,
       email: memberProfile.email,
       avatar_url: memberProfile.avatar_url,
@@ -154,6 +163,10 @@ export async function getOrganisationMembers(organisationId: string): Promise<Or
       role: null, // TODO: Extract from profile metadata
       location: null, // TODO: Extract from profile metadata
       added_at: item.added_at,
+      // Agency management fields
+      commission_rate: item.commission_rate,
+      internal_notes: item.internal_notes,
+      is_verified: item.is_verified || false,
     };
   });
 
@@ -307,6 +320,100 @@ export async function removeMember(organisationId: string, connectionId: string)
     .eq('connection_id', connectionId);
 
   if (error) throw error;
+}
+
+/**
+ * Update member settings (commission rate, verification status, notes)
+ * Only the organisation owner can call this function
+ */
+export async function updateMemberSettings(
+  organisationId: string,
+  connectionId: string,
+  updates: {
+    commission_rate?: number | null;
+    internal_notes?: string | null;
+    is_verified?: boolean;
+  }
+): Promise<OrganisationMember> {
+  const supabase = createClient();
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    throw new Error('Not authenticated');
+  }
+
+  // Verify ownership (only owner can manage member settings)
+  const { data: org, error: orgError } = await supabase
+    .from('connection_groups')
+    .select('profile_id')
+    .eq('id', organisationId)
+    .single();
+
+  if (orgError || !org || org.profile_id !== user.id) {
+    throw new Error('Unauthorized: Only the agency owner can manage member settings.');
+  }
+
+  // Validate commission_rate if provided
+  if (updates.commission_rate !== undefined && updates.commission_rate !== null) {
+    if (updates.commission_rate < 0 || updates.commission_rate > 100) {
+      throw new Error('Commission rate must be between 0 and 100');
+    }
+  }
+
+  // Perform update
+  const { data, error } = await supabase
+    .from('group_members')
+    .update(updates)
+    .eq('group_id', organisationId)
+    .eq('connection_id', connectionId)
+    .select(`
+      added_at,
+      connection_id,
+      commission_rate,
+      internal_notes,
+      is_verified,
+      profile_graph!inner(
+        id,
+        source:source_profile_id(
+          id,
+          full_name,
+          email,
+          avatar_url,
+          bio
+        ),
+        target:target_profile_id(
+          id,
+          full_name,
+          email,
+          avatar_url,
+          bio
+        )
+      )
+    `)
+    .single();
+
+  if (error) throw error;
+
+  // Map to OrganisationMember format (same logic as getOrganisationMembers)
+  const connection = data.profile_graph as any;
+  const source = Array.isArray(connection.source) ? connection.source[0] : connection.source;
+  const target = Array.isArray(connection.target) ? connection.target[0] : connection.target;
+  const memberProfile = source.id === user.id ? target : source;
+
+  return {
+    id: memberProfile.id,
+    connection_id: data.connection_id,
+    full_name: memberProfile.full_name,
+    email: memberProfile.email,
+    avatar_url: memberProfile.avatar_url,
+    bio: memberProfile.bio,
+    role: null,
+    location: null,
+    added_at: data.added_at,
+    commission_rate: data.commission_rate,
+    internal_notes: data.internal_notes,
+    is_verified: data.is_verified || false,
+  };
 }
 
 /**
