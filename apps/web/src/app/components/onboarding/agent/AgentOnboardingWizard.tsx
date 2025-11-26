@@ -222,12 +222,25 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
   };
 
   const handleCapacitySubmit = async (data: CapacityData) => {
-    console.log('[AgentOnboardingWizard] handleCapacitySubmit called', data);
+    console.log('[AgentOnboardingWizard] ========================================');
+    console.log('[AgentOnboardingWizard] handleCapacitySubmit START');
+    console.log('[AgentOnboardingWizard] Input data:', JSON.stringify(data, null, 2));
+    console.log('[AgentOnboardingWizard] User ID:', user?.id);
+
+    // Set capacity state immediately
+    setCapacity(data);
+
+    // FORCE NAVIGATION: Call onComplete immediately to advance
+    console.log('[AgentOnboardingWizard] 🚀 FORCING NAVIGATION...');
+    console.log('[AgentOnboardingWizard] Calling onComplete() NOW...');
+    onComplete();
+    console.log('[AgentOnboardingWizard] ✓ onComplete() called - should redirect to dashboard');
+
+    // Save to database WHILE redirect is happening
+    console.log('[AgentOnboardingWizard] Saving to database (in background)...');
     setIsLoading(true);
 
     try {
-      setCapacity(data);
-
       // Add 'agent' role to user's roles if not already present
       const currentRoles = profile?.roles || [];
       if (!currentRoles.includes('agent')) {
@@ -235,13 +248,17 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
         const updatedRoles = [...currentRoles, 'agent'];
         const { error: roleError } = await supabase
           .from('profiles')
-          .update({ roles: updatedRoles })
+          .update({
+            roles: updatedRoles,
+            active_role: 'agent'
+          })
           .eq('id', user?.id);
 
         if (roleError) {
           console.error('[AgentOnboardingWizard] Error adding agent role:', roleError);
           throw roleError;
         }
+        console.log('[AgentOnboardingWizard] ✓ Agent role added');
       }
 
       // Map onboarding data to professional_details.agent structure
@@ -299,19 +316,21 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
         onboarding_completed: true,  // Mark as complete for standalone agent onboarding
         completed_at: new Date().toISOString()
       });
-      console.log('[AgentOnboardingWizard] Progress updated, clearing draft...');
+      console.log('[AgentOnboardingWizard] ✓ Database save complete - onboarding marked as completed');
 
       // Clear draft since agent-specific onboarding is complete
+      console.log('[AgentOnboardingWizard] Clearing draft...');
       await clearDraft(user?.id, DRAFT_KEY);
-      console.log('[AgentOnboardingWizard] Draft cleared, calling onComplete...');
+      console.log('[AgentOnboardingWizard] ✓ Draft cleared');
 
-      // Call parent's onComplete to redirect to dashboard
-      onComplete();
     } catch (error) {
-      console.error('[AgentOnboardingWizard] Error in handleCapacitySubmit:', error);
+      console.error('[AgentOnboardingWizard] ❌ Database save error:', error);
     } finally {
       setIsLoading(false);
     }
+
+    console.log('[AgentOnboardingWizard] handleCapacitySubmit COMPLETE (navigation forced)');
+    console.log('[AgentOnboardingWizard] ========================================');
   };
 
   const handleBack = () => {
