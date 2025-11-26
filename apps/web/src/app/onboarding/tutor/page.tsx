@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, Suspense } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import TutorOnboardingWizard from '@/app/components/onboarding/tutor/TutorOnboardingWizard';
@@ -10,6 +10,7 @@ function TutorOnboardingPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, profile, isLoading, availableRoles, refreshProfile, setActiveRole } = useUserProfile();
+  const [isCompleting, setIsCompleting] = useState(false);
 
   // Get step from URL parameters for auto-resume functionality
   const resumeStep = searchParams?.get('step');
@@ -22,12 +23,13 @@ function TutorOnboardingPageContent() {
     }
 
     // Redirect to dashboard if user already has the tutor role
-    if (!isLoading && profile && availableRoles?.includes('tutor')) {
+    // BUT NOT during the completion process (prevents race condition)
+    if (!isLoading && profile && availableRoles?.includes('tutor') && !isCompleting) {
       console.log('[TutorOnboardingPage] User already has tutor role, redirecting to dashboard');
       router.push('/dashboard');
       return;
     }
-  }, [user, profile, isLoading, availableRoles, router]);
+  }, [user, profile, isLoading, availableRoles, router, isCompleting]);
 
   // Handle browser back button to prevent auth flow state issues
   useEffect(() => {
@@ -61,6 +63,7 @@ function TutorOnboardingPageContent() {
 
   const handleOnboardingComplete = async () => {
     console.log('[TutorOnboarding] Onboarding complete! Database save already finished.');
+    setIsCompleting(true); // Prevent race condition with useEffect redirect
     console.log('[TutorOnboarding] Refreshing profile...');
     await refreshProfile();
     console.log('[TutorOnboarding] Profile refreshed, setting active role to tutor...');

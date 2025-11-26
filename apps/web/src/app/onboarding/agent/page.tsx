@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, Suspense } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import AgentOnboardingWizard from '@/app/components/onboarding/agent/AgentOnboardingWizard';
@@ -10,6 +10,7 @@ function AgentOnboardingPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, profile, isLoading, availableRoles, refreshProfile, setActiveRole } = useUserProfile();
+  const [isCompleting, setIsCompleting] = useState(false);
 
   // Get step from URL parameters for auto-resume functionality
   const resumeStep = searchParams?.get('step');
@@ -22,12 +23,13 @@ function AgentOnboardingPageContent() {
     }
 
     // Redirect to dashboard if user already has agent role
-    if (!isLoading && profile && availableRoles?.includes('agent')) {
+    // BUT NOT during the completion process (prevents race condition)
+    if (!isLoading && profile && availableRoles?.includes('agent') && !isCompleting) {
       console.log('[AgentOnboardingPage] User already has agent role, redirecting to dashboard');
       router.push('/dashboard');
       return;
     }
-  }, [user, profile, isLoading, availableRoles, router]);
+  }, [user, profile, isLoading, availableRoles, router, isCompleting]);
 
   // Handle browser back button to prevent auth flow state issues
   useEffect(() => {
@@ -61,6 +63,7 @@ function AgentOnboardingPageContent() {
 
   const handleOnboardingComplete = async () => {
     console.log('[AgentOnboarding] Onboarding complete, refreshing profile...');
+    setIsCompleting(true); // Prevent race condition with useEffect redirect
     await refreshProfile();
     console.log('[AgentOnboarding] Profile refreshed, setting active role to agent...');
     setActiveRole('agent');
