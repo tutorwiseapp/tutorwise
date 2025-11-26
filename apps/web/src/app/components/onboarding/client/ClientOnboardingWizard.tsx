@@ -177,7 +177,7 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
     // Update database in background (don't await)
     updateOnboardingProgress({
       current_step: 'preferences',
-      seeker: { ...(profile?.onboarding_progress?.seeker || {}), subjects: selectedSubjects }
+      client: { ...(profile?.onboarding_progress?.client || {}), subjects: selectedSubjects }
     }).catch(error => {
       console.error('[ClientOnboardingWizard] Error updating progress:', error);
     });
@@ -193,7 +193,7 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
     // Update database in background (don't await)
     updateOnboardingProgress({
       current_step: 'availability',
-      seeker: { ...(profile?.onboarding_progress?.seeker || {}), subjects, preferences: selectedPreferences }
+      client: { ...(profile?.onboarding_progress?.client || {}), subjects, preferences: selectedPreferences }
     }).catch(error => {
       console.error('[ClientOnboardingWizard] Error updating progress:', error);
     });
@@ -283,7 +283,7 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
         current_step: 'completion',
         onboarding_completed: true,
         completed_at: new Date().toISOString(),
-        seeker: { subjects, preferences, availability: selectedAvailability }
+        client: { subjects, preferences, availability: selectedAvailability }
       });
       console.log('[ClientOnboardingWizard] ✓ Database save complete (onboarding marked as completed)');
 

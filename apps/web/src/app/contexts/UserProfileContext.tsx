@@ -114,13 +114,13 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
       const updatedProgress: OnboardingProgress = {
         ...currentProgress,
         ...progress,
-        seeker: {
-          ...(currentProgress.seeker || {}),
-          ...(progress.seeker || {}),
+        client: {
+          ...(currentProgress.client || {}),
+          ...(progress.client || {}),
         },
-        provider: {
-          ...(currentProgress.provider || {}),
-          ...(progress.provider || {}),
+        tutor: {
+          ...(currentProgress.tutor || {}),
+          ...(progress.tutor || {}),
         },
         agent: {
           ...(currentProgress.agent || {}),

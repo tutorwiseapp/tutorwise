@@ -226,7 +226,7 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
     // Update database in background (don't await)
     updateOnboardingProgress({
       current_step: 'qualifications',
-      provider: { subjects: selectedSubjects }
+      tutor: { subjects: selectedSubjects }
     }).catch(error => {
       console.error('[TutorOnboardingWizard] Error updating progress:', error);
     });
@@ -242,7 +242,7 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
     // Update database in background (don't await)
     updateOnboardingProgress({
       current_step: 'availability',
-      provider: { subjects, qualifications: data }
+      tutor: { subjects, qualifications: data }
     }).catch(error => {
       console.error('[TutorOnboardingWizard] Error updating progress:', error);
     });
@@ -264,12 +264,12 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
     console.log('[TutorOnboardingWizard] Saving data to database...');
 
     try {
-      console.log('[TutorOnboardingWizard] Database save: Preparing progress update with provider data...');
+      console.log('[TutorOnboardingWizard] Database save: Preparing progress update with tutor data...');
       const progressUpdate = {
         current_step: 'completion',
         onboarding_completed: true,
         completed_at: new Date().toISOString(),
-        provider: {
+        tutor: {
           subjects,
           ...(Object.keys(qualifications).length > 0 && { qualifications: qualifications as QualificationsData }),
           availability: data

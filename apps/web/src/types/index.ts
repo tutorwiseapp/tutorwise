@@ -101,8 +101,8 @@ export interface OnboardingProgress {
   last_updated?: string;
   abandoned_at?: string;
   skipped?: boolean;
-  seeker?: SeekerProgress;
-  provider?: TutorProgress;
+  client?: ClientProgress;
+  tutor?: TutorProgress;
   agent?: AgentProgress;
   role_specific_progress?: {
     roleDetailsProgress?: Record<string, Partial<RoleDetails>>;
@@ -112,7 +112,7 @@ export interface OnboardingProgress {
   [key: string]: any;
 }
 
-export interface SeekerProgress {
+export interface ClientProgress {
   subjects?: string[];
   preferences?: LearningPreferencesData;
   availability?: any;
