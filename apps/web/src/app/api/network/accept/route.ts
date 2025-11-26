@@ -58,6 +58,14 @@ export async function POST(request: NextRequest) {
       if (error.message.includes('not found')) {
         return NextResponse.json({ error: 'Connection not found' }, { status: 404 });
       }
+      // Handle partial success case - connection accepted but org team add failed
+      if (error.message.includes('failed to join organisation team')) {
+        return NextResponse.json({
+          success: false,
+          error: 'Connection accepted but you were not added to the organisation team. Please contact the organisation owner.',
+          partialSuccess: true,
+        }, { status: 500 });
+      }
     }
 
     return NextResponse.json(

@@ -223,18 +223,57 @@ export class ProfileGraphService {
       // Auto-add user to organisation's team via group_members
       // Note: We need the connection_id from the original profile_graph row
       // Since this connection is now ACTIVE, we can add it to group_members
-      const { error: groupMemberError } = await supabase
+      console.log('[ProfileGraphService] Organisation invite detected - adding user to team', {
+        organisationId: metadata.organisation_id,
+        organisationName: metadata.organisation_name,
+        connectionId,
+        userId,
+      });
+
+      const { data: insertData, error: groupMemberError } = await supabase
         .from('group_members')
         .insert({
           group_id: metadata.organisation_id,
           connection_id: connectionId,
           added_at: new Date().toISOString(),
+        })
+        .select();
+
+      if (groupMemberError) {
+        console.error('[ProfileGraphService] ❌ CRITICAL: Failed to add user to organisation team!');
+        console.error('[ProfileGraphService] Error details:', {
+          code: groupMemberError.code,
+          message: groupMemberError.message,
+          details: groupMemberError.details,
+          hint: groupMemberError.hint,
+          organisationId: metadata.organisation_id,
+          connectionId,
         });
 
-      // Log error but don't throw - connection is already accepted
-      if (groupMemberError) {
-        console.error('[ProfileGraphService] Failed to add user to organisation team:', groupMemberError);
+        // Log to analytics for monitoring
+        try {
+          await supabase.from('network_analytics').insert({
+            profile_id: userId,
+            event_type: 'organisation_auto_add_failed',
+            event_data: {
+              organisation_id: metadata.organisation_id,
+              connection_id: connectionId,
+              error: groupMemberError.message,
+              error_code: groupMemberError.code,
+            },
+          });
+        } catch (analyticsError) {
+          console.error('[ProfileGraphService] Failed to log analytics:', analyticsError);
+        }
+
+        // IMPORTANT: Throw error with context so caller can handle appropriately
+        throw new Error(`Connection accepted but failed to join organisation team: ${groupMemberError.message}`);
       }
+
+      console.log('[ProfileGraphService] ✓ Successfully added user to organisation team:', {
+        organisation: metadata.organisation_name,
+        memberId: insertData?.[0]?.connection_id,
+      });
     }
   }
 
