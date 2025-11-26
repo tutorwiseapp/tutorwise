@@ -231,27 +231,8 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
     setCapacity(data);
     setIsLoading(true);
 
-    // CRITICAL: Set onboarding_completed flag FIRST before calling onComplete()
-    // This ensures dashboard won't redirect back to onboarding
-    console.log('[AgentOnboardingWizard] Setting onboarding_completed flag...');
-    try {
-      await updateOnboardingProgress({
-        onboarding_completed: true,
-        completed_at: new Date().toISOString()
-      });
-      console.log('[AgentOnboardingWizard] ✓ onboarding_completed flag set');
-    } catch (error) {
-      console.error('[AgentOnboardingWizard] ❌ Failed to set onboarding_completed:', error);
-    }
-
-    // NOW call onComplete to trigger redirect
-    console.log('[AgentOnboardingWizard] 🚀 FORCING NAVIGATION...');
-    console.log('[AgentOnboardingWizard] Calling onComplete() NOW...');
-    onComplete();
-    console.log('[AgentOnboardingWizard] ✓ onComplete() called - should redirect to dashboard');
-
-    // Continue saving other data in background
-    console.log('[AgentOnboardingWizard] Saving remaining data to database (in background)...');
+    // Save all data to database
+    console.log('[AgentOnboardingWizard] Saving data to database...');
 
     try {
       // Add 'agent' role to user's roles if not already present
@@ -321,26 +302,35 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
 
       console.log('[AgentOnboardingWizard] ✓ Saved to professional_details.agent');
 
-      // Also update the database with agent-specific progress (keep old structure for reference)
-      console.log('[AgentOnboardingWizard] Updating onboarding progress with agent data...');
+      // CRITICAL: Update onboarding_progress with ALL data including onboarding_completed flag
+      // This must be a single atomic update to prevent overwrites
+      console.log('[AgentOnboardingWizard] Updating onboarding progress (with completion flag)...');
       await updateOnboardingProgress({
         current_step: 'completion',
+        onboarding_completed: true,
+        completed_at: new Date().toISOString(),
         agent: { ...(Object.keys(agencyDetails).length > 0 && { details: agencyDetails as AgencyDetailsData }), services, capacity: data }
       });
-      console.log('[AgentOnboardingWizard] ✓ Database save complete');
+      console.log('[AgentOnboardingWizard] ✓ Database save complete (onboarding marked as completed)');
 
       // Clear draft since agent-specific onboarding is complete
       console.log('[AgentOnboardingWizard] Clearing draft...');
       await clearDraft(user?.id, DRAFT_KEY);
       console.log('[AgentOnboardingWizard] ✓ Draft cleared');
 
+      // NOW trigger redirect after all database operations complete successfully
+      console.log('[AgentOnboardingWizard] 🚀 All data saved, calling onComplete() to redirect...');
+      onComplete();
+      console.log('[AgentOnboardingWizard] ✓ onComplete() called - should redirect to dashboard');
+
     } catch (error) {
       console.error('[AgentOnboardingWizard] ❌ Database save error:', error);
+      alert('Failed to save onboarding data. Please try again.');
     } finally {
       setIsLoading(false);
     }
 
-    console.log('[AgentOnboardingWizard] handleCapacitySubmit COMPLETE (navigation forced)');
+    console.log('[AgentOnboardingWizard] handleCapacitySubmit COMPLETE');
     console.log('[AgentOnboardingWizard] ========================================');
   };
 

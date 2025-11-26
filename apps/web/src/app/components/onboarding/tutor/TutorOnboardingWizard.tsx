@@ -260,32 +260,15 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
     setAvailability(data);
     setIsLoading(true);
 
-    // CRITICAL: Set onboarding_completed flag FIRST before calling onComplete()
-    // This ensures dashboard won't redirect back to onboarding
-    console.log('[TutorOnboardingWizard] Setting onboarding_completed flag...');
-    try {
-      await updateOnboardingProgress({
-        onboarding_completed: true,
-        completed_at: new Date().toISOString()
-      });
-      console.log('[TutorOnboardingWizard] ✓ onboarding_completed flag set');
-    } catch (error) {
-      console.error('[TutorOnboardingWizard] ❌ Failed to set onboarding_completed:', error);
-    }
-
-    // NOW call onComplete to trigger redirect
-    console.log('[TutorOnboardingWizard] 🚀 FORCING NAVIGATION to CompletionStep...');
-    console.log('[TutorOnboardingWizard] Calling onComplete() NOW...');
-    onComplete();
-    console.log('[TutorOnboardingWizard] ✓ onComplete() called - should advance to CompletionStep');
-
-    // Continue saving other data in background
-    console.log('[TutorOnboardingWizard] Saving remaining data to database (in background)...');
+    // Save all data to database
+    console.log('[TutorOnboardingWizard] Saving data to database...');
 
     try {
       console.log('[TutorOnboardingWizard] Database save: Preparing progress update with provider data...');
       const progressUpdate = {
         current_step: 'completion',
+        onboarding_completed: true,
+        completed_at: new Date().toISOString(),
         provider: {
           subjects,
           ...(Object.keys(qualifications).length > 0 && { qualifications: qualifications as QualificationsData }),
@@ -293,9 +276,9 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
         }
       };
 
-      console.log('[TutorOnboardingWizard] Database save: Updating onboarding progress with provider data...');
+      console.log('[TutorOnboardingWizard] Database save: Updating onboarding progress (with completion flag)...');
       await updateOnboardingProgress(progressUpdate);
-      console.log('[TutorOnboardingWizard] ✓ Database save complete');
+      console.log('[TutorOnboardingWizard] ✓ Database save complete (onboarding marked as completed)');
 
       // Save professional info to professional_details.tutor (for profile auto-population)
       console.log('[TutorOnboardingWizard] Saving to professional_details.tutor...');
@@ -388,13 +371,19 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
       await clearDraft(user?.id, DRAFT_KEY);
       console.log('[TutorOnboardingWizard] ✓ Draft cleared');
 
+      // NOW trigger redirect after all database operations complete successfully
+      console.log('[TutorOnboardingWizard] 🚀 All data saved, calling onComplete() to redirect...');
+      onComplete();
+      console.log('[TutorOnboardingWizard] ✓ onComplete() called - should redirect to dashboard');
+
     } catch (error) {
       console.error('[TutorOnboardingWizard] ❌ Database save error:', error);
+      alert('Failed to save onboarding data. Please try again.');
     } finally {
       setIsLoading(false);
     }
 
-    console.log('[TutorOnboardingWizard] handleAvailabilitySubmit COMPLETE (navigation forced)');
+    console.log('[TutorOnboardingWizard] handleAvailabilitySubmit COMPLETE');
     console.log('[TutorOnboardingWizard] ========================================');
   };
 
