@@ -70,20 +70,26 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
     loadSavedDraft();
   }, [user?.id, isDraftLoaded]);
 
-  // Prepare form data for auto-save
-  const formData: ClientDraftData = {
+  // Prepare form data for auto-save - memoized to prevent unnecessary re-renders
+  const formData = React.useMemo<ClientDraftData>(() => ({
     personalInfo,
     subjects,
     preferences,
     availability,
-  };
+  }), [personalInfo, subjects, preferences, availability]);
+
+  // Memoize shouldSave callback to prevent recreation on every render
+  const shouldSave = React.useCallback(
+    (data: ClientDraftData) => !!data.personalInfo?.firstName || data.subjects.length > 0,
+    []
+  );
 
   // Auto-save draft every 30 seconds (with database sync)
   const { saveDraft } = useAutoSaveDraft<ClientDraftData>(
     user?.id,
     DRAFT_KEY,
     formData,
-    (data) => !!data.personalInfo?.firstName || data.subjects.length > 0 // Save if user has started filling personal info or selected subjects
+    shouldSave
   );
 
   // Save current step whenever it changes

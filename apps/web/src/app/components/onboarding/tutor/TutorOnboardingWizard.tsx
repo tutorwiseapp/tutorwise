@@ -86,20 +86,26 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
     loadSavedDraft();
   }, [user?.id, isDraftLoaded]);
 
-  // Prepare form data for auto-save
-  const formData: TutorDraftData = {
+  // Prepare form data for auto-save - memoized to prevent unnecessary re-renders
+  const formData = React.useMemo<TutorDraftData>(() => ({
     personalInfo,
     subjects,
     qualifications,
     availability,
-  };
+  }), [personalInfo, subjects, qualifications, availability]);
+
+  // Memoize shouldSave callback to prevent recreation on every render
+  const shouldSave = React.useCallback(
+    (data: TutorDraftData) => !!data.personalInfo?.firstName || data.subjects.length > 0,
+    []
+  );
 
   // Auto-save draft every 30 seconds (with database sync)
   const { saveDraft } = useAutoSaveDraft<TutorDraftData>(
     user?.id,
     DRAFT_KEY,
     formData,
-    (data) => !!data.personalInfo?.firstName || data.subjects.length > 0 // Save if user has started filling personal info or selected subjects
+    shouldSave
   );
 
   // Save current step whenever it changes
@@ -258,10 +264,17 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
 
     // Set availability state immediately
     setAvailability(data);
-    setIsLoading(true);
 
-    // Save all data to database
-    console.log('[TutorOnboardingWizard] Saving data to database...');
+    // FORCE NAVIGATION: Call onComplete immediately to redirect to dashboard
+    // This matches the working behavior from commit 949e7b8
+    console.log('[TutorOnboardingWizard] 🚀 FORCING NAVIGATION...');
+    console.log('[TutorOnboardingWizard] Calling onComplete() NOW...');
+    onComplete();
+    console.log('[TutorOnboardingWizard] ✓ onComplete() called - should redirect to dashboard');
+
+    // Save to database in background (while dashboard is loading)
+    console.log('[TutorOnboardingWizard] Saving to database (background operation)...');
+    setIsLoading(true);
 
     try {
       const { createClient } = await import('@/utils/supabase/client');
@@ -296,53 +309,40 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
         console.log('[TutorOnboardingWizard] User already has tutor role, skipping role update');
       }
 
-      // Save professional info to professional_details.tutor (for profile auto-population)
-      console.log('[TutorOnboardingWizard] Saving to professional_details.tutor...');
-      const currentProfessionalDetails = profile?.professional_details || {};
+      // Save tutor role details to role_details table
+      console.log('[TutorOnboardingWizard] Saving to role_details table...');
 
-      const tutorData = {
-        // From onboarding (8 fields)
+      const roleDetailsData = {
+        profile_id: user!.id,
+        role_type: 'tutor',
         subjects: subjects || [],
-        experience_level: qualifications.experience || '',
-        education: qualifications.education || '',
-        certifications: qualifications.certifications || [],
-        bio_onboarding: qualifications.bio || '',
+        qualifications: {
+          experience_level: qualifications.experience || '',
+          education: qualifications.education || '',
+          certifications: qualifications.certifications || [],
+          bio: qualifications.bio || '',
+        },
         hourly_rate: data.hourlyRate || 0,
-        session_types: data.sessionTypes || [],
-        availability_slots: data.availability || [],
-
-        // Empty fields (user fills in profile)
-        status: '',
-        academic_qualifications: [],
-        key_stages: [],
-        teaching_professional_qualifications: [],
-        teaching_experience: '',
-        tutoring_experience: '',
-        one_on_one_rate: '',
-        group_session_rate: '',
-        delivery_mode: [],
-
-        // Advanced availability (empty - user fills in profile)
-        availability: [],
-        unavailability: [],
+        availability: {
+          session_types: data.sessionTypes || [],
+          availability_slots: data.availability || [],
+        },
+        completed_at: new Date().toISOString(),
       };
 
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          professional_details: {
-            ...currentProfessionalDetails,
-            tutor: tutorData
-          }
-        })
-        .eq('id', user!.id);
+      // Use upsert to insert or update the role_details record
+      const { error: roleDetailsError } = await supabase
+        .from('role_details')
+        .upsert(roleDetailsData, {
+          onConflict: 'profile_id,role_type'
+        });
 
-      if (profileError) {
-        console.error('[TutorOnboardingWizard] Error saving professional_details:', profileError);
-        throw profileError;
+      if (roleDetailsError) {
+        console.error('[TutorOnboardingWizard] Error saving role_details:', roleDetailsError);
+        throw roleDetailsError;
       }
 
-      console.log('[TutorOnboardingWizard] ✓ Saved to professional_details.tutor');
+      console.log('[TutorOnboardingWizard] ✓ Saved to role_details table');
 
       // CRITICAL: Update onboarding_progress with ALL data including onboarding_completed flag
       // This must be a single atomic update to prevent overwrites
@@ -382,23 +382,20 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
         // Non-critical error - don't block onboarding completion
       }
 
-      console.log('[TutorOnboardingWizard] Database save: Clearing draft...');
+      console.log('[TutorOnboardingWizard] Clearing draft...');
       await clearDraft(user?.id, DRAFT_KEY);
       console.log('[TutorOnboardingWizard] ✓ Draft cleared');
-
-      // NOW trigger redirect after all database operations complete successfully
-      console.log('[TutorOnboardingWizard] 🚀 All data saved, calling onComplete() to redirect...');
-      onComplete();
-      console.log('[TutorOnboardingWizard] ✓ onComplete() called - should redirect to dashboard');
+      console.log('[TutorOnboardingWizard] ✓ All background database operations completed successfully');
 
     } catch (error) {
-      console.error('[TutorOnboardingWizard] ❌ Database save error:', error);
-      alert('Failed to save onboarding data. Please try again.');
+      console.error('[TutorOnboardingWizard] ❌ Background database save error:', error);
+      // Don't show alert since user has already navigated away
+      // Error is logged for debugging purposes
     } finally {
       setIsLoading(false);
     }
 
-    console.log('[TutorOnboardingWizard] handleAvailabilitySubmit COMPLETE');
+    console.log('[TutorOnboardingWizard] handleAvailabilitySubmit COMPLETE (navigation forced)');
     console.log('[TutorOnboardingWizard] ========================================');
   };
 

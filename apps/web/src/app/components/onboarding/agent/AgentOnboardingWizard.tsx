@@ -68,20 +68,26 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
     loadSavedDraft();
   }, [user?.id, isDraftLoaded]);
 
-  // Prepare form data for auto-save
-  const formData: AgentDraftData = {
+  // Prepare form data for auto-save - memoized to prevent unnecessary re-renders
+  const formData = React.useMemo<AgentDraftData>(() => ({
     personalInfo,
     agencyDetails,
     services,
     capacity,
-  };
+  }), [personalInfo, agencyDetails, services, capacity]);
+
+  // Memoize shouldSave callback to prevent recreation on every render
+  const shouldSave = React.useCallback(
+    (data: AgentDraftData) => !!data.personalInfo?.firstName || Object.keys(data.agencyDetails).length > 0,
+    []
+  );
 
   // Auto-save draft every 30 seconds (with database sync)
   const { saveDraft } = useAutoSaveDraft<AgentDraftData>(
     user?.id,
     DRAFT_KEY,
     formData,
-    (data) => !!data.personalInfo?.firstName || Object.keys(data.agencyDetails).length > 0 // Save if user has started filling personal info or agency details
+    shouldSave
   );
 
   // Save current step whenever it changes
