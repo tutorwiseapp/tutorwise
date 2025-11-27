@@ -245,39 +245,60 @@ export async function getOrganisationMembers(organisationId: string): Promise<Or
   );
 
   // Map to OrganisationMember format
-  const members: OrganisationMember[] = (data || []).map((item: any) => {
-    const memberProfile = item.member_profile;
+  let members: OrganisationMember[] = [];
+  try {
+    members = (data || []).map((item: any) => {
+      const memberProfile = item.member_profile;
 
-    // Get analytics for this member
-    const analytics = analyticsMap.get(memberProfile.id) ?? {
-      member_id: memberProfile.id,
-      total_revenue: 0,
-      last_session_at: null,
-      active_students: 0,
-    };
+      // Get analytics for this member
+      const analytics = analyticsMap.get(memberProfile.id) ?? {
+        member_id: memberProfile.id,
+        total_revenue: 0,
+        last_session_at: null,
+        active_students: 0,
+      };
 
-    return {
-      id: memberProfile.id,
-      connection_id: item.connection_id,
-      full_name: memberProfile.full_name,
-      email: memberProfile.email,
-      avatar_url: memberProfile.avatar_url,
-      bio: memberProfile.bio,
-      role: 'Tutor', // Default to Tutor for organisation members
-      location: memberProfile.city || null,
-      added_at: item.added_at,
-      // Agency management fields
-      commission_rate: item.commission_rate,
-      internal_notes: item.internal_notes,
-      is_verified: item.is_verified || false,
-      // Analytics fields
-      total_revenue: Number(analytics.total_revenue) || 0,
-      last_session_at: analytics.last_session_at,
-      active_students_count: analytics.active_students || 0,
-      // Verification documents
-      dbs_certificate_url: memberProfile.dbs_certificate_url,
-      identity_verification_document_url: memberProfile.identity_verification_document_url,
-    };
+      return {
+        id: memberProfile.id,
+        connection_id: item.connection_id,
+        full_name: memberProfile.full_name,
+        email: memberProfile.email,
+        avatar_url: memberProfile.avatar_url,
+        bio: memberProfile.bio,
+        role: 'Tutor', // Default to Tutor for organisation members
+        location: memberProfile.city || null,
+        added_at: item.added_at,
+        // Agency management fields
+        commission_rate: item.commission_rate,
+        internal_notes: item.internal_notes,
+        is_verified: item.is_verified || false,
+        // Analytics fields
+        total_revenue: Number(analytics.total_revenue) || 0,
+        last_session_at: analytics.last_session_at,
+        active_students_count: analytics.active_students || 0,
+        // Verification documents
+        dbs_certificate_url: memberProfile.dbs_certificate_url,
+        identity_verification_document_url: memberProfile.identity_verification_document_url,
+      };
+    });
+  } catch (mappingError) {
+    console.error('[getOrganisationMembers] ❌ Error during final mapping:', mappingError);
+    console.error('[getOrganisationMembers] Data that caused error:', {
+      dataLength: data?.length,
+      data: JSON.stringify(data, null, 2),
+    });
+    throw mappingError;
+  }
+
+  console.log('[getOrganisationMembers] 🔍 Final members array before return:', {
+    length: members.length,
+    memberIds: members.map(m => m.id),
+    firstMember: members[0] ? {
+      id: members[0].id,
+      full_name: members[0].full_name,
+      email: members[0].email,
+      connection_id: members[0].connection_id,
+    } : null,
   });
 
   return members;
