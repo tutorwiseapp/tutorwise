@@ -121,6 +121,8 @@ export async function getOrganisationMembers(organisationId: string): Promise<Or
   // Get members via join table
   // Note: group_members connects to profile_graph (migrated from connections in v092)
   // We need to query through the profile_graph to get the profile
+  console.log('[getOrganisationMembers] Fetching members for organisation:', organisationId);
+
   const { data, error } = await supabase
     .from('group_members')
     .select(`
@@ -129,7 +131,7 @@ export async function getOrganisationMembers(organisationId: string): Promise<Or
       commission_rate,
       internal_notes,
       is_verified,
-      profile_graph!inner(
+      profile_graph:connection_id!inner(
         id,
         source:source_profile_id(
           id,
@@ -157,7 +159,16 @@ export async function getOrganisationMembers(organisationId: string): Promise<Or
     `)
     .eq('group_id', organisationId);
 
-  if (error) throw error;
+  console.log('[getOrganisationMembers] Query result:', {
+    memberCount: data?.length || 0,
+    hasError: !!error,
+    errorDetails: error ? { code: error.code, message: error.message } : null
+  });
+
+  if (error) {
+    console.error('[getOrganisationMembers] ❌ Failed to fetch members:', error);
+    throw error;
+  }
 
   // Fetch analytics for all members using the database function
   const { data: analyticsData, error: analyticsError } = await supabase
@@ -422,7 +433,7 @@ export async function updateMemberSettings(
       commission_rate,
       internal_notes,
       is_verified,
-      profile_graph!inner(
+      profile_graph:connection_id!inner(
         id,
         source:source_profile_id(
           id,
