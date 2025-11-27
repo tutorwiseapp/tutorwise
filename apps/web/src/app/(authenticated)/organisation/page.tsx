@@ -29,10 +29,10 @@ import OrganisationStatsWidget from '@/app/components/organisation/OrganisationS
 import OrganisationInviteWidget from '@/app/components/organisation/OrganisationInviteWidget';
 import InfoTab from '@/app/components/organisation/tabs/InfoTab';
 import ManageMemberModal from '@/app/components/organisation/ManageMemberModal';
+import MemberCard from '@/app/components/organisation/MemberCard';
 import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
 import Button from '@/app/components/ui/Button';
 import toast from 'react-hot-toast';
-import getProfileImageUrl from '@/lib/utils/image';
 import styles from './page.module.css';
 import type { OrganisationMember } from '@/lib/api/organisation';
 
@@ -337,47 +337,12 @@ export default function OrganisationPage() {
             ) : (
               <div className={styles.cardList}>
                 {members.map((member) => (
-                  <HubRowCard
+                  <MemberCard
                     key={member.id}
-                    image={{
-                      src: member.avatar_url,
-                      alt: member.full_name || 'Team member',
-                      fallbackChar: member.full_name?.substring(0, 2).toUpperCase() || '??',
-                    }}
-                    title={member.full_name || member.email}
-                    description={member.bio || undefined}
-                    meta={[
-                      member.role || 'Member',
-                      member.location || 'Location not set',
-                    ].filter(Boolean)}
-                    stats={
-                      <span>Active Students: {member.active_students_count || 0}</span>
-                    }
-                    actions={
-                      <>
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => setManagingMember(member)}
-                        >
-                          Manage
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => handleRemoveMember(member.id, member.full_name || member.email)}
-                        >
-                          Remove
-                        </Button>
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          onClick={() => handleMessageMember(member.id)}
-                        >
-                          Message
-                        </Button>
-                      </>
-                    }
+                    member={member}
+                    onMessage={handleMessageMember}
+                    onRemove={handleRemoveMember}
+                    onManage={setManagingMember}
                   />
                 ))}
               </div>

@@ -43,12 +43,19 @@ export interface OrganisationMember {
   bio: string | null;
   role: string | null;
   location: string | null;
-  active_students_count?: number;
   added_at: string;
   // Agency management fields (v6.3)
   commission_rate: number | null; // Individual override rate (%). If null, uses org default
   internal_notes: string | null; // Private notes for agency owner
   is_verified: boolean; // Internal verification flag
+  // Analytics fields (v6.4)
+  total_revenue: number; // Total revenue from referral commissions
+  last_session_at: string | null; // Most recent session date
+  active_students_count: number; // Count of distinct students with confirmed/completed bookings
+  // Verification documents (v6.4)
+  dbs_certificate_url: string | null;
+  identity_verification_document_url: string | null;
+  address_verification_document_url: string | null;
 }
 
 export interface OrganisationStats {
@@ -90,6 +97,7 @@ export async function getMyOrganisation(): Promise<Organisation | null> {
 /**
  * Get all members of an organisation
  * Joins group_members with profiles to get full member details
+ * v6.4: Added analytics and verification document fields
  */
 export async function getOrganisationMembers(organisationId: string): Promise<OrganisationMember[]> {
   const supabase = createClient();
@@ -128,20 +136,46 @@ export async function getOrganisationMembers(organisationId: string): Promise<Or
           full_name,
           email,
           avatar_url,
-          bio
+          bio,
+          city,
+          dbs_certificate_url,
+          identity_verification_document_url,
+          address_verification_document_url
         ),
         target:target_profile_id(
           id,
           full_name,
           email,
           avatar_url,
-          bio
+          bio,
+          city,
+          dbs_certificate_url,
+          identity_verification_document_url,
+          address_verification_document_url
         )
       )
     `)
     .eq('group_id', organisationId);
 
   if (error) throw error;
+
+  // Fetch analytics for all members using the database function
+  const { data: analyticsData, error: analyticsError } = await supabase
+    .rpc('get_agency_member_analytics', { org_id: organisationId });
+
+  if (analyticsError) {
+    console.error('[getOrganisationMembers] Analytics fetch error:', analyticsError);
+  }
+
+  // Create a map for quick analytics lookup
+  const analyticsMap = new Map<string, {
+    member_id: string;
+    total_revenue: number;
+    last_session_at: string | null;
+    active_students: number;
+  }>(
+    (analyticsData || []).map((a: any) => [a.member_id, a])
+  );
 
   // Map to OrganisationMember format
   // We need to determine which profile is NOT the current user
@@ -153,6 +187,14 @@ export async function getOrganisationMembers(organisationId: string): Promise<Or
     // The member is whichever profile is NOT the current user
     const memberProfile = source.id === user.id ? target : source;
 
+    // Get analytics for this member
+    const analytics = analyticsMap.get(memberProfile.id) ?? {
+      member_id: memberProfile.id,
+      total_revenue: 0,
+      last_session_at: null,
+      active_students: 0,
+    };
+
     return {
       id: memberProfile.id,
       connection_id: item.connection_id,
@@ -160,13 +202,21 @@ export async function getOrganisationMembers(organisationId: string): Promise<Or
       email: memberProfile.email,
       avatar_url: memberProfile.avatar_url,
       bio: memberProfile.bio,
-      role: null, // TODO: Extract from profile metadata
-      location: null, // TODO: Extract from profile metadata
+      role: 'Tutor', // Default to Tutor for organisation members
+      location: memberProfile.city || null,
       added_at: item.added_at,
       // Agency management fields
       commission_rate: item.commission_rate,
       internal_notes: item.internal_notes,
       is_verified: item.is_verified || false,
+      // Analytics fields
+      total_revenue: Number(analytics.total_revenue) || 0,
+      last_session_at: analytics.last_session_at,
+      active_students_count: analytics.active_students || 0,
+      // Verification documents
+      dbs_certificate_url: memberProfile.dbs_certificate_url,
+      identity_verification_document_url: memberProfile.identity_verification_document_url,
+      address_verification_document_url: memberProfile.address_verification_document_url,
     };
   });
 
@@ -379,14 +429,22 @@ export async function updateMemberSettings(
           full_name,
           email,
           avatar_url,
-          bio
+          bio,
+          city,
+          dbs_certificate_url,
+          identity_verification_document_url,
+          address_verification_document_url
         ),
         target:target_profile_id(
           id,
           full_name,
           email,
           avatar_url,
-          bio
+          bio,
+          city,
+          dbs_certificate_url,
+          identity_verification_document_url,
+          address_verification_document_url
         )
       )
     `)
@@ -407,12 +465,20 @@ export async function updateMemberSettings(
     email: memberProfile.email,
     avatar_url: memberProfile.avatar_url,
     bio: memberProfile.bio,
-    role: null,
-    location: null,
+    role: 'Tutor',
+    location: memberProfile.city || null,
     added_at: data.added_at,
     commission_rate: data.commission_rate,
     internal_notes: data.internal_notes,
     is_verified: data.is_verified || false,
+    // Analytics fields - not fetched in update, set to defaults
+    total_revenue: 0,
+    last_session_at: null,
+    active_students_count: 0,
+    // Verification documents - not fetched in update
+    dbs_certificate_url: memberProfile.dbs_certificate_url || null,
+    identity_verification_document_url: memberProfile.identity_verification_document_url || null,
+    address_verification_document_url: memberProfile.address_verification_document_url || null,
   };
 }
 
