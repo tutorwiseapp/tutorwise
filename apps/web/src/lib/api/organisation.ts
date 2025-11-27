@@ -200,7 +200,10 @@ export async function getOrganisationMembers(organisationId: string): Promise<Or
 
   const data = groupMembersData.map((groupMember: any) => {
     const connection = connectionsMap.get(groupMember.connection_id);
-    if (!connection) return null;
+    if (!connection) {
+      console.warn('[getOrganisationMembers] Connection not found for:', groupMember.connection_id);
+      return null;
+    }
 
     // Find the member profile (the one that's NOT the current user)
     const memberProfileId = connection.source_profile_id === user.id
@@ -208,15 +211,16 @@ export async function getOrganisationMembers(organisationId: string): Promise<Or
       : connection.source_profile_id;
 
     const memberProfile = profilesMap.get(memberProfileId);
-    if (!memberProfile) return null;
+    if (!memberProfile) {
+      console.warn('[getOrganisationMembers] Profile not found for member:', memberProfileId);
+      return null;
+    }
 
+    // Return the member profile directly - no need for complex source/target mapping
     return {
       ...groupMember,
-      profile_graph: {
-        id: connection.id,
-        source: connection.source_profile_id === user.id ? null : memberProfile,
-        target: connection.target_profile_id === user.id ? null : memberProfile,
-      }
+      member_profile: memberProfile,
+      connection_id: connection.id,
     };
   }).filter(Boolean);
 
@@ -241,14 +245,8 @@ export async function getOrganisationMembers(organisationId: string): Promise<Or
   );
 
   // Map to OrganisationMember format
-  // We need to determine which profile is NOT the current user
   const members: OrganisationMember[] = (data || []).map((item: any) => {
-    const connection = item.profile_graph;
-    const source = Array.isArray(connection.source) ? connection.source[0] : connection.source;
-    const target = Array.isArray(connection.target) ? connection.target[0] : connection.target;
-
-    // The member is whichever profile is NOT the current user
-    const memberProfile = source.id === user.id ? target : source;
+    const memberProfile = item.member_profile;
 
     // Get analytics for this member
     const analytics = analyticsMap.get(memberProfile.id) ?? {
