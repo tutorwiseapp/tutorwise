@@ -5,7 +5,7 @@
  * Pattern: Service Layer (API Solution Design v5.1)
  */
 
-import { createClient } from '@/utils/supabase/server';
+import { createClient, createServiceRoleClient } from '@/utils/supabase/server';
 import { sendConnectionRequestNotification, sendConnectionInvitation } from '@/lib/email';
 
 /**
@@ -230,7 +230,13 @@ export class ProfileGraphService {
         userId,
       });
 
-      const { data: insertData, error: groupMemberError } = await supabase
+      // CRITICAL FIX: Use service role client to bypass RLS
+      // The RLS policy on group_members only allows organisation owners to INSERT
+      // But when a member accepts an invite, they're not the owner yet
+      // So we need to use service role credentials to perform the insert
+      const serviceRoleClient = createServiceRoleClient();
+
+      const { data: insertData, error: groupMemberError} = await serviceRoleClient
         .from('group_members')
         .insert({
           group_id: metadata.organisation_id,

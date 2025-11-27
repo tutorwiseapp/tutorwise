@@ -3,6 +3,7 @@
  * Purpose: Creates a Supabase client for use in server environments (API Routes, Server Components).
  */
 import { createServerClient } from '@supabase/ssr'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 
 export async function createClient() {
@@ -35,6 +36,30 @@ export async function createClient() {
           }
         },
       },
+    }
+  )
+}
+
+/**
+ * Creates a Supabase client with service role credentials
+ * This bypasses Row Level Security (RLS) policies
+ *
+ * SECURITY WARNING: Only use this for trusted server-side operations
+ * Never expose service role credentials to the client
+ */
+export function createServiceRoleClient() {
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY environment variable is not set');
+  }
+
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
     }
   )
 }
