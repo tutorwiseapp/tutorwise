@@ -51,16 +51,17 @@ export default function MemberCard({
   ];
 
   // Line 4: Performance - Stats row
+  // Follow same pattern as meta row with consistent 24px visual spacing
   const stats = (
-    <div className="flex gap-3 text-xs text-gray-600">
-      <span className="font-medium text-gray-900">
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#6b7280' }}>
+      <span style={{ fontWeight: '500', color: '#111827' }}>
         Active Students: {otherParty.active_students_count || 0}
       </span>
-      <span>•</span>
-      <span className="font-medium text-green-700">
+      <span style={{ color: '#d1d5db', margin: '0 2px' }}>•</span>
+      <span style={{ fontWeight: '500', color: '#137333' }}>
         Revenue: £{(otherParty.total_revenue || 0).toLocaleString()}
       </span>
-      <span>•</span>
+      <span style={{ color: '#d1d5db', margin: '0 2px' }}>•</span>
       <span>Last Session: {formatTimeAgo(otherParty.last_session_at)}</span>
     </div>
   );
