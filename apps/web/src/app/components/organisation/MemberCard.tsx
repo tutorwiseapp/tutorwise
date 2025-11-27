@@ -32,8 +32,7 @@ export default function MemberCard({
   // Line 1: Identity & Trust - Status Badge
   const isVerified =
     !!otherParty.dbs_certificate_url &&
-    !!otherParty.identity_verification_document_url &&
-    !!otherParty.address_verification_document_url;
+    !!otherParty.identity_verification_document_url;
 
   const status = isVerified
     ? { label: 'Verified', variant: 'success' as const }

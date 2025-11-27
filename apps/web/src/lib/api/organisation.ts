@@ -55,7 +55,6 @@ export interface OrganisationMember {
   // Verification documents (v6.4)
   dbs_certificate_url: string | null;
   identity_verification_document_url: string | null;
-  address_verification_document_url: string | null;
 }
 
 export interface OrganisationStats {
@@ -123,52 +122,105 @@ export async function getOrganisationMembers(organisationId: string): Promise<Or
   // We need to query through the profile_graph to get the profile
   console.log('[getOrganisationMembers] Fetching members for organisation:', organisationId);
 
-  const { data, error } = await supabase
+  // First, get all group_members records for this organisation
+  const { data: groupMembersData, error: groupMembersError } = await supabase
     .from('group_members')
-    .select(`
-      added_at,
-      connection_id,
-      commission_rate,
-      internal_notes,
-      is_verified,
-      profile_graph:connection_id!inner(
-        id,
-        source:source_profile_id(
-          id,
-          full_name,
-          email,
-          avatar_url,
-          bio,
-          city,
-          dbs_certificate_url,
-          identity_verification_document_url,
-          address_verification_document_url
-        ),
-        target:target_profile_id(
-          id,
-          full_name,
-          email,
-          avatar_url,
-          bio,
-          city,
-          dbs_certificate_url,
-          identity_verification_document_url,
-          address_verification_document_url
-        )
-      )
-    `)
+    .select('added_at, connection_id, commission_rate, internal_notes, is_verified')
     .eq('group_id', organisationId);
 
-  console.log('[getOrganisationMembers] Query result:', {
-    memberCount: data?.length || 0,
-    hasError: !!error,
-    errorDetails: error ? { code: error.code, message: error.message } : null
+  if (groupMembersError) {
+    console.error('[getOrganisationMembers] ❌ Failed to fetch group_members:', groupMembersError);
+    throw groupMembersError;
+  }
+
+  console.log('[getOrganisationMembers] Found group_members:', groupMembersData?.length || 0);
+
+  if (!groupMembersData || groupMembersData.length === 0) {
+    return [];
+  }
+
+  // Now fetch the profile_graph connections for these connection_ids
+  const connectionIds = groupMembersData.map(gm => gm.connection_id);
+  const { data: connectionsData, error: connectionsError } = await supabase
+    .from('profile_graph')
+    .select(`
+      id,
+      source_profile_id,
+      target_profile_id
+    `)
+    .in('id', connectionIds);
+
+  if (connectionsError) {
+    console.error('[getOrganisationMembers] ❌ Failed to fetch connections:', connectionsError);
+    throw connectionsError;
+  }
+
+  console.log('[getOrganisationMembers] Found connections:', connectionsData?.length || 0);
+
+  // Get all unique profile IDs (excluding the current user)
+  const profileIds = new Set<string>();
+  (connectionsData || []).forEach((conn: any) => {
+    if (conn.source_profile_id !== user.id) profileIds.add(conn.source_profile_id);
+    if (conn.target_profile_id !== user.id) profileIds.add(conn.target_profile_id);
   });
 
-  if (error) {
-    console.error('[getOrganisationMembers] ❌ Failed to fetch members:', error);
-    throw error;
+  console.log('[getOrganisationMembers] Fetching profiles:', profileIds.size);
+
+  // Fetch all profiles in one query
+  const { data: profilesData, error: profilesError } = await supabase
+    .from('profiles')
+    .select(`
+      id,
+      full_name,
+      email,
+      avatar_url,
+      bio,
+      city,
+      dbs_certificate_url,
+      identity_verification_document_url
+    `)
+    .in('id', Array.from(profileIds));
+
+  if (profilesError) {
+    console.error('[getOrganisationMembers] ❌ Failed to fetch profiles:', profilesError);
+    throw profilesError;
   }
+
+  console.log('[getOrganisationMembers] Found profiles:', profilesData?.length || 0);
+
+  // Create a map of profile_id -> profile data
+  const profilesMap = new Map(
+    (profilesData || []).map((p: any) => [p.id, p])
+  );
+
+  // Create a map of connection_id -> connection data
+  const connectionsMap = new Map(
+    (connectionsData || []).map((c: any) => [c.id, c])
+  );
+
+  const data = groupMembersData.map((groupMember: any) => {
+    const connection = connectionsMap.get(groupMember.connection_id);
+    if (!connection) return null;
+
+    // Find the member profile (the one that's NOT the current user)
+    const memberProfileId = connection.source_profile_id === user.id
+      ? connection.target_profile_id
+      : connection.source_profile_id;
+
+    const memberProfile = profilesMap.get(memberProfileId);
+    if (!memberProfile) return null;
+
+    return {
+      ...groupMember,
+      profile_graph: {
+        id: connection.id,
+        source: connection.source_profile_id === user.id ? null : memberProfile,
+        target: connection.target_profile_id === user.id ? null : memberProfile,
+      }
+    };
+  }).filter(Boolean);
+
+  console.log('[getOrganisationMembers] Mapped members:', data?.length || 0);
 
   // Fetch analytics for all members using the database function
   const { data: analyticsData, error: analyticsError } = await supabase
@@ -227,7 +279,6 @@ export async function getOrganisationMembers(organisationId: string): Promise<Or
       // Verification documents
       dbs_certificate_url: memberProfile.dbs_certificate_url,
       identity_verification_document_url: memberProfile.identity_verification_document_url,
-      address_verification_document_url: memberProfile.address_verification_document_url,
     };
   });
 
@@ -443,8 +494,7 @@ export async function updateMemberSettings(
           bio,
           city,
           dbs_certificate_url,
-          identity_verification_document_url,
-          address_verification_document_url
+          identity_verification_document_url
         ),
         target:target_profile_id(
           id,
@@ -454,8 +504,7 @@ export async function updateMemberSettings(
           bio,
           city,
           dbs_certificate_url,
-          identity_verification_document_url,
-          address_verification_document_url
+          identity_verification_document_url
         )
       )
     `)
@@ -489,7 +538,6 @@ export async function updateMemberSettings(
     // Verification documents - not fetched in update
     dbs_certificate_url: memberProfile.dbs_certificate_url || null,
     identity_verification_document_url: memberProfile.identity_verification_document_url || null,
-    address_verification_document_url: memberProfile.address_verification_document_url || null,
   };
 }
 
