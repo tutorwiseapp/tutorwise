@@ -10,6 +10,7 @@
 import Link from 'next/link';
 import { Wiselist } from '@/types';
 import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
+import StatsRow from '@/app/components/ui/hub-row-card/StatsRow';
 import Button from '@/app/components/ui/Button';
 
 interface WiselistCardProps {
@@ -61,9 +62,14 @@ export default function WiselistCard({
   // Build stats (Item count) - Line 4 in content area, left-aligned like other cards
   const itemCount = wiselist.item_count || 0;
   const stats = (
-    <span>
-      {itemCount} {itemCount === 1 ? 'Item' : 'Items'}
-    </span>
+    <StatsRow
+      stats={[
+        { value: `${itemCount} ${itemCount === 1 ? 'Item' : 'Items'}`, hideLabel: true },
+        // Future: Add more stats here
+        // { label: 'Views', value: wiselist.view_count },
+        // { label: 'Shares', value: wiselist.share_count },
+      ]}
+    />
   );
 
   // Handle delete with confirmation

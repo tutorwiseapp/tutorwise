@@ -12,6 +12,7 @@ import React from 'react';
 import { Star } from 'lucide-react';
 import type { ProfileReview } from '@/types/reviews';
 import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
+import StatsRow from '@/app/components/ui/hub-row-card/StatsRow';
 import getProfileImageUrl from '@/lib/utils/image';
 
 interface Props {
@@ -66,8 +67,8 @@ export default function ProfileReviewCard({ review, variant }: Props) {
   const serviceName = review.session?.booking?.service_name || 'Unknown Service';
   const meta = [serviceName, formatDate(review.created_at)];
 
-  // Build stats (star rating display)
-  const stats = (
+  // Build stats (star rating display with optional future stats)
+  const starRating = (
     <div className="flex items-center gap-1">
       <div className="flex items-center gap-0.5">
         {[...Array(5)].map((_, i) => (
@@ -81,6 +82,17 @@ export default function ProfileReviewCard({ review, variant }: Props) {
       </div>
       <span className="font-bold text-gray-900">{review.rating}.0</span>
     </div>
+  );
+
+  const stats = (
+    <StatsRow
+      stats={[
+        { value: starRating, hideLabel: true },
+        // Future: Add more stats here
+        // { label: 'Helpful', value: review.helpful_count },
+        // { label: 'Verified', value: review.verified ? 'Yes' : 'No' },
+      ]}
+    />
   );
 
   return (

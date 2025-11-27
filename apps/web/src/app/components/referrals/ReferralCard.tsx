@@ -9,6 +9,7 @@
 
 import { Referral, ReferralStatus } from '@/types';
 import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
+import StatsRow from '@/app/components/ui/hub-row-card/StatsRow';
 import Button from '@/app/components/ui/Button';
 import getProfileImageUrl from '@/lib/utils/image';
 
@@ -85,14 +86,21 @@ export default function ReferralCard({
     referral.status === 'Converted' && referral.first_booking ? `Service: ${referral.first_booking.service_name}` : null,
   ].filter(Boolean) as string[];
 
-  // Build stats (Commission)
+  // Build stats (Commission) - converted from columnar to inline bullet-separated
+  const commissionColor = referral.first_commission ? '#137333' : '#9ca3af'; // emerald-600 : gray-400
+  const commissionValue = referral.first_commission
+    ? `£${referral.first_commission.amount.toFixed(2)}`
+    : '--';
+
   const stats = (
-    <div className="flex flex-col items-end">
-      <span className="text-xs text-gray-500 uppercase tracking-wider">Commission</span>
-      <span className={`font-bold ${referral.first_commission ? 'text-emerald-600' : 'text-gray-400'}`}>
-        {referral.first_commission ? `£${referral.first_commission.amount.toFixed(2)}` : '--'}
-      </span>
-    </div>
+    <StatsRow
+      stats={[
+        { label: 'Commission', value: commissionValue, color: commissionColor },
+        // Future: Add more stats here
+        // { label: 'Status', value: referral.status },
+        // { label: 'Converted', value: referral.converted_at ? formatDate(referral.converted_at) : '--' },
+      ]}
+    />
   );
 
   // Build actions

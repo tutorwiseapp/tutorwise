@@ -9,6 +9,7 @@
 
 import { Transaction, TransactionStatus } from '@/types';
 import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
+import StatsRow from '@/app/components/ui/hub-row-card/StatsRow';
 import Button from '@/app/components/ui/Button';
 import getProfileImageUrl from '@/lib/utils/image';
 
@@ -152,11 +153,23 @@ export default function TransactionCard({ transaction, currentUserId }: Transact
     transaction.type === 'Platform Fee' ||
     transaction.type === 'Withdrawal';
 
-  // Build stats (amount with explicit signs and Tailwind color overrides)
+  // Build stats (amount with explicit signs and consistent spacing for future expansion)
+  const amountColor = isCredit ? '#137333' : '#111827'; // emerald-600 : gray-900
+  const amountPrefix = isCredit ? '+' : (isDebit && transaction.type !== 'Withdrawal' ? '-' : '');
+
   const stats = (
-    <span className={`text-lg font-bold ${isCredit ? 'text-emerald-600' : 'text-gray-900'}`}>
-      {isCredit ? '+' : ''}{isDebit && transaction.type !== 'Withdrawal' ? '-' : ''}£{transaction.amount.toFixed(2)}
-    </span>
+    <StatsRow
+      stats={[
+        {
+          value: `${amountPrefix}£${transaction.amount.toFixed(2)}`,
+          color: amountColor,
+          hideLabel: true,
+        },
+        // Future: Add more stats here
+        // { label: 'Fee', value: `£${transaction.fee}` },
+        // { label: 'Net', value: `£${transaction.net}` },
+      ]}
+    />
   );
 
   // Build actions

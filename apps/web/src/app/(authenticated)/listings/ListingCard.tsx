@@ -13,6 +13,7 @@ import type { Listing } from '@tutorwise/shared-types';
 import Button from '@/app/components/ui/Button';
 import ConfirmDialog from '@/app/components/ui/ConfirmDialog';
 import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
+import StatsRow from '@/app/components/ui/hub-row-card/StatsRow';
 import getProfileImageUrl from '@/lib/utils/image';
 
 interface ListingCardProps {
@@ -172,17 +173,13 @@ export default function ListingCard({
 
   // Build stats ReactNode (hidden for templates)
   const stats = !isTemplate ? (
-    <div className="flex gap-3 text-sm text-gray-600">
-      <span>
-        <span className="font-semibold text-gray-900">{listing.view_count || 0}</span> views
-      </span>
-      <span>
-        <span className="font-semibold text-gray-900">{listing.inquiry_count || 0}</span> inquiries
-      </span>
-      <span>
-        <span className="font-semibold text-gray-900">{listing.booking_count || 0}</span> bookings
-      </span>
-    </div>
+    <StatsRow
+      stats={[
+        { value: `${listing.view_count || 0} views`, hideLabel: true },
+        { value: `${listing.inquiry_count || 0} inquiries`, hideLabel: true },
+        { value: `${listing.booking_count || 0} bookings`, hideLabel: true },
+      ]}
+    />
   ) : undefined;
 
   // Build actions (conditional based on status and template)

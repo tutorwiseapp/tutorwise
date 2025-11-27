@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { Booking, BookingStatus, PaymentStatus } from '@/types';
 import Button from '@/app/components/ui/Button';
 import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
+import StatsRow from '@/app/components/ui/hub-row-card/StatsRow';
 import getProfileImageUrl from '@/lib/utils/image';
 
 interface BookingCardProps {
@@ -166,7 +167,16 @@ export default function BookingCard({
       }}
       description={description}
       meta={metadata}
-      stats={<span>£{booking.amount.toFixed(2)}</span>}
+      stats={
+        <StatsRow
+          stats={[
+            { value: `£${booking.amount.toFixed(2)}`, hideLabel: true },
+            // Future: Add more stats here
+            // { label: 'Duration', value: `${booking.session_duration}min` },
+            // { label: 'Status', value: booking.payment_status },
+          ]}
+        />
+      }
       actions={actions}
       imageHref={otherParty?.id ? `/public-profile/${otherParty.id}` : undefined}
       titleHref={`/bookings/${booking.id}`}

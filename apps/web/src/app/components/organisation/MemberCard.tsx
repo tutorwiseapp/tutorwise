@@ -9,6 +9,7 @@
 
 import React from 'react';
 import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
+import StatsRow from '@/app/components/ui/hub-row-card/StatsRow';
 import Button from '@/app/components/ui/Button';
 import { OrganisationMember } from '@/lib/api/organisation';
 import { formatTimeAgo } from '@/lib/utils/dateUtils';
@@ -50,20 +51,15 @@ export default function MemberCard({
       : 'Default Comm.',
   ];
 
-  // Line 4: Performance - Stats row
-  // Follow same pattern as meta row with consistent 24px visual spacing
+  // Line 4: Performance - Stats row using StatsRow component
   const stats = (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#6b7280' }}>
-      <span style={{ fontWeight: '500', color: '#111827' }}>
-        Active Students: {otherParty.active_students_count || 0}
-      </span>
-      <span style={{ color: '#d1d5db', margin: '0 2px' }}>•</span>
-      <span style={{ fontWeight: '500', color: '#137333' }}>
-        Revenue: £{(otherParty.total_revenue || 0).toLocaleString()}
-      </span>
-      <span style={{ color: '#d1d5db', margin: '0 2px' }}>•</span>
-      <span>Last Session: {formatTimeAgo(otherParty.last_session_at)}</span>
-    </div>
+    <StatsRow
+      stats={[
+        { label: 'Active Students', value: otherParty.active_students_count || 0 },
+        { label: 'Revenue', value: `£${(otherParty.total_revenue || 0).toLocaleString()}`, color: '#137333' },
+        { label: 'Last Session', value: formatTimeAgo(otherParty.last_session_at) },
+      ]}
+    />
   );
 
   // Actions

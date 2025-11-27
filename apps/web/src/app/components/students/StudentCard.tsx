@@ -11,6 +11,7 @@
 import React from 'react';
 import toast from 'react-hot-toast';
 import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
+import StatsRow from '@/app/components/ui/hub-row-card/StatsRow';
 import Button from '@/app/components/ui/Button';
 import getProfileImageUrl from '@/lib/utils/image';
 
@@ -96,20 +97,16 @@ export default function StudentCard({
 
   const fallbackChar = profile.full_name?.charAt(0).toUpperCase() || '?';
 
-  // Stats component (Age + Joined Year)
+  // Stats component (Age + Joined Year) - converted from columnar to inline bullet-separated
   const statsComponent = (
-    <div className="flex items-center gap-6">
-      {/* Stat 1: Age */}
-      <div className="flex flex-col items-end">
-        <span className="text-lg font-bold text-gray-900">{age || '--'}</span>
-        <span className="text-xs text-gray-500 uppercase tracking-wider">Age</span>
-      </div>
-      {/* Stat 2: Joined Year */}
-      <div className="flex flex-col items-end">
-        <span className="text-lg font-bold text-gray-900">{joinedYear}</span>
-        <span className="text-xs text-gray-500 uppercase tracking-wider">Joined</span>
-      </div>
-    </div>
+    <StatsRow
+      stats={[
+        { label: 'Age', value: age || '--' },
+        { label: 'Joined', value: joinedYear },
+        // Future: Add more stats here
+        // { label: 'Sessions', value: studentData.session_count },
+      ]}
+    />
   );
 
   // Actions component

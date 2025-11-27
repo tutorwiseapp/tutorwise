@@ -12,6 +12,7 @@ import React from 'react';
 import toast from 'react-hot-toast';
 import { useAblyPresence } from '@/app/hooks/useAblyPresence';
 import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
+import StatsRow from '@/app/components/ui/hub-row-card/StatsRow';
 import Button from '@/app/components/ui/Button';
 
 export interface Connection {
@@ -153,9 +154,16 @@ export default function ConnectionCard({
   ];
 
   // Line 4: Presence indicator (passed as stats for visual separation)
-  const stats = variant === 'accepted'
-    ? <span>{isOnline ? '🟢 Online' : '⚪ Offline'}</span>
-    : undefined;
+  const stats = variant === 'accepted' ? (
+    <StatsRow
+      stats={[
+        { value: isOnline ? '🟢 Online' : '⚪ Offline', hideLabel: true },
+        // Future: Add more stats here
+        // { label: 'Messages', value: connectionData.message_count },
+        // { label: 'Connected', value: formatTimeAgo(connection.created_at) },
+      ]}
+    />
+  ) : undefined;
 
   // Actions based on variant
   const actions = (
