@@ -342,12 +342,9 @@ export default function ListingsPage() {
   return (
     <HubPageLayout
       header={
-        <div className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between mb-2">
-            {/* Left: Title */}
-            <h1 className="text-2xl font-bold text-gray-900">Listings</h1>
-
-            {/* Right: Actions */}
+        <HubHeader
+          title="Listings"
+          actions={
             <div className="flex items-center gap-2">
               {/* Primary Action: Create Listing */}
               <Button
@@ -395,37 +392,37 @@ export default function ListingsPage() {
                 )}
               </div>
             </div>
+          }
+        />
+      }
+      filters={
+        <div className="flex gap-2 max-w-2xl w-full">
+          {/* Search Input */}
+          <div className="flex-1 relative min-w-0">
+            <input
+              type="search"
+              placeholder="Search listings..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
           </div>
 
-          {/* Search + Filters Section - Between Title and Tabs */}
-          <div className="flex gap-2 max-w-2xl mx-auto mt-4">
-            {/* Search Input */}
-            <div className="flex-1 relative min-w-0">
-              <input
-                type="search"
-                placeholder="Search listings..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-
-            {/* Sort Dropdown */}
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortType)}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white min-w-[180px] flex-shrink-0"
-            >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="views-high">Views: High to Low</option>
-              <option value="views-low">Views: Low to High</option>
-              <option value="bookings-high">Bookings: High to Low</option>
-              <option value="bookings-low">Bookings: Low to High</option>
-            </select>
-          </div>
+          {/* Sort Dropdown */}
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortType)}
+            className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white min-w-[180px] flex-shrink-0"
+          >
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="views-high">Views: High to Low</option>
+            <option value="views-low">Views: Low to High</option>
+            <option value="bookings-high">Bookings: High to Low</option>
+            <option value="bookings-low">Bookings: Low to High</option>
+          </select>
         </div>
       }
       tabs={
