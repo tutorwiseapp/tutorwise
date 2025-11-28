@@ -6,3 +6,5 @@
 
 export { default as HubPageLayout } from './HubPageLayout';
 export { default as HubHeader } from './HubHeader';
+export { default as HubTabs } from './HubTabs';
+export type { HubTab } from './HubTabs';

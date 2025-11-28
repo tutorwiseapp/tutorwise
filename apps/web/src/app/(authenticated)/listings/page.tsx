@@ -15,7 +15,7 @@ import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { getMyListings, deleteListing, publishListing, unpublishListing } from '@/lib/api/listings';
 import type { Listing } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
-import { HubPageLayout, HubHeader } from '@/app/components/ui/hub-layout';
+import { HubPageLayout, HubHeader, HubTabs, HubTab } from '@/app/components/ui/hub-layout';
 import ListingCard from './ListingCard';
 import ListingStatsWidget from '@/app/components/listings/ListingStatsWidget';
 import CreateListingWidget from '@/app/components/listings/CreateListingWidget';
@@ -421,68 +421,17 @@ export default function ListingsPage() {
         />
       }
       tabs={
-        <div className="flex gap-2 px-8 py-0 overflow-x-auto">
-          <button
-            onClick={() => handleFilterChange('all')}
-            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
-              filter === 'all'
-                ? 'text-teal-600 border-teal-600'
-                : 'text-gray-600 hover:text-gray-900 border-transparent'
-            }`}
-          >
-            All Listings ({tabCounts.all})
-          </button>
-          <button
-            onClick={() => handleFilterChange('published')}
-            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
-              filter === 'published'
-                ? 'text-teal-600 border-teal-600'
-                : 'text-gray-600 hover:text-gray-900 border-transparent'
-            }`}
-          >
-            Published ({tabCounts.published})
-          </button>
-          <button
-            onClick={() => handleFilterChange('unpublished')}
-            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
-              filter === 'unpublished'
-                ? 'text-teal-600 border-teal-600'
-                : 'text-gray-600 hover:text-gray-900 border-transparent'
-            }`}
-          >
-            Unpublished ({tabCounts.unpublished})
-          </button>
-          <button
-            onClick={() => handleFilterChange('draft')}
-            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
-              filter === 'draft'
-                ? 'text-teal-600 border-teal-600'
-                : 'text-gray-600 hover:text-gray-900 border-transparent'
-            }`}
-          >
-            Drafts ({tabCounts.draft})
-          </button>
-          <button
-            onClick={() => handleFilterChange('archived')}
-            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
-              filter === 'archived'
-                ? 'text-teal-600 border-teal-600'
-                : 'text-gray-600 hover:text-gray-900 border-transparent'
-            }`}
-          >
-            Archived ({tabCounts.archived})
-          </button>
-          <button
-            onClick={() => handleFilterChange('templates')}
-            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
-              filter === 'templates'
-                ? 'text-teal-600 border-teal-600'
-                : 'text-gray-600 hover:text-gray-900 border-transparent'
-            }`}
-          >
-            Templates ({tabCounts.templates})
-          </button>
-        </div>
+        <HubTabs
+          tabs={[
+            { id: 'all', label: 'All Listings', count: tabCounts.all, active: filter === 'all' },
+            { id: 'published', label: 'Published', count: tabCounts.published, active: filter === 'published' },
+            { id: 'unpublished', label: 'Unpublished', count: tabCounts.unpublished, active: filter === 'unpublished' },
+            { id: 'draft', label: 'Drafts', count: tabCounts.draft, active: filter === 'draft' },
+            { id: 'archived', label: 'Archived', count: tabCounts.archived, active: filter === 'archived' },
+            { id: 'templates', label: 'Templates', count: tabCounts.templates, active: filter === 'templates' },
+          ]}
+          onTabChange={(tabId) => handleFilterChange(tabId as FilterType)}
+        />
       }
       sidebar={
         <ContextualSidebar>
