@@ -23,7 +23,6 @@ import ListingsSkeleton from '@/app/components/listings/ListingsSkeleton';
 import ListingsError from '@/app/components/listings/ListingsError';
 import Pagination from '@/app/components/ui/Pagination';
 import Button from '@/app/components/ui/Button';
-import { ChevronDown } from 'lucide-react';
 
 type FilterType = 'all' | 'published' | 'unpublished' | 'draft' | 'archived' | 'templates';
 type SortType = 'newest' | 'oldest' | 'price-high' | 'price-low' | 'views-high' | 'views-low' | 'bookings-high' | 'bookings-low';
@@ -343,9 +342,12 @@ export default function ListingsPage() {
   return (
     <HubPageLayout
       header={
-        <HubHeader
-          title="Listings"
-          actions={
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
+          <div className="flex items-center justify-between mb-2">
+            {/* Left: Title */}
+            <h1 className="text-2xl font-bold text-gray-900">Listings</h1>
+
+            {/* Right: Actions */}
             <div className="flex items-center gap-2">
               {/* Primary Action: Create Listing */}
               <Button
@@ -393,37 +395,42 @@ export default function ListingsPage() {
                 )}
               </div>
             </div>
-          }
-        />
-      }
-      filters={
-        <div className="flex gap-2 max-w-2xl w-full">
-          {/* Search Input */}
-          <div className="flex-1 relative min-w-0">
-            <input
-              type="search"
-              placeholder="Search listings..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
           </div>
 
-          {/* Sort Dropdown */}
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as SortType)}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white min-w-[180px] flex-shrink-0"
-          >
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="price-high">Price: High to Low</option>
-            <option value="price-low">Price: Low to High</option>
-            <option value="views-high">Views: High to Low</option>
-            <option value="views-low">Views: Low to High</option>
-            <option value="bookings-high">Bookings: High to Low</option>
-            <option value="bookings-low">Bookings: Low to High</option>
-          </select>
+          {/* Subtitle */}
+          <p className="text-base text-gray-600 mb-4">
+            Create, edit, and manage all your tutoring service listings from one place
+          </p>
+
+          {/* Search + Filters Section - Between Title and Tabs */}
+          <div className="flex gap-2 max-w-2xl mx-auto">
+            {/* Search Input */}
+            <div className="flex-1 relative min-w-0">
+              <input
+                type="search"
+                placeholder="Search listings..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+
+            {/* Sort Dropdown */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortType)}
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white min-w-[180px] flex-shrink-0"
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="views-high">Views: High to Low</option>
+              <option value="views-low">Views: Low to High</option>
+              <option value="bookings-high">Bookings: High to Low</option>
+              <option value="bookings-low">Bookings: Low to High</option>
+            </select>
+          </div>
         </div>
       }
       tabs={
@@ -539,7 +546,7 @@ export default function ListingsPage() {
 
         {/* Listings List */}
         {paginatedListings.length > 0 && (
-          <div className="space-y-4">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {paginatedListings.map((listing) => (
               <ListingCard
                 key={listing.id}
