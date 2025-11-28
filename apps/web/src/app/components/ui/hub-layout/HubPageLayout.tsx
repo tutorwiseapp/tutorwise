@@ -1,23 +1,23 @@
 /**
  * Filename: apps/web/src/app/components/ui/hub-layout/HubPageLayout.tsx
- * Purpose: Responsive 3-Column "Inverted U" Grid for Hub Pages
+ * Purpose: Standard Hub Page Layout matching Bookings page structure
  * Created: 2025-11-28
- * Pattern: Desktop (3-col), Tablet (2-col), Mobile (stacked)
+ * Updated: 2025-11-28 - Aligned with Bookings layout pattern
+ * Pattern: Header + Tabs (full-width) + Content (container) + Sidebar
  *
  * Layout Structure:
- * - Header: Sticky top (z-20)
- * - Tabs: Sticky below header (z-10)
- * - Content: Scrollable center column
- * - Sidebar: Fixed 320px right column (desktop), stacked below content (mobile)
+ * - Header: Title + optional filters + Actions (from HubHeader)
+ * - Tabs: Full-width underline tabs (Bookings style)
+ * - Content: Max-width container (1200px) with listings
+ * - Sidebar: Fixed-width right column (320px) with widgets
  *
  * Usage:
  * <HubPageLayout
- *   header={<HubHeader title="Listings" />}
- *   tabs={<HubTabs items={['Active', 'Draft']} />}
- *   sidebar={<ListingStatsWidget />}
+ *   header={<HubHeader title="Listings" filters={...} actions={...} />}
+ *   tabs={<div>Tab buttons</div>}
+ *   sidebar={<>Stats + Widgets</>}
  * >
- *   <HubRowCard ... />
- *   <HubRowCard ... />
+ *   <div>Content cards</div>
  * </HubPageLayout>
  */
 
@@ -26,62 +26,42 @@
 import React, { ReactNode } from 'react';
 
 interface HubPageLayoutProps {
-  header: ReactNode; // Fixed top area
-  filters?: ReactNode; // Optional filters/search row between header and tabs
-  tabs?: ReactNode; // Optional sticky navigation below header
-  children: ReactNode; // Scrollable list content
+  header: ReactNode; // HubHeader component
+  tabs?: ReactNode; // Optional tab navigation
+  children: ReactNode; // Content area (cards, lists, etc.)
   sidebar?: ReactNode; // Optional right contextual column
 }
 
 export default function HubPageLayout({
   header,
-  filters,
   tabs,
   children,
   sidebar,
 }: HubPageLayoutProps) {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Desktop Layout: 3-Column Grid (Center + Right Sidebar) */}
-      {/* Mobile/Tablet: Stacked Layout */}
-      <div className="flex-1 flex flex-col lg:flex-row">
-        {/* Center Column: Header + Filters + Tabs + Content */}
-        <main className="flex-1 min-w-0 flex flex-col">
-          {/* Sticky Header (z-20) */}
-          <div className="sticky top-0 z-20">
-            {header}
-          </div>
+    <>
+      {/* Header (full-width) */}
+      {header}
 
-          {/* Filters Row (between header and tabs) - Optional */}
-          {filters && (
-            <div className="bg-white border-b border-gray-200 px-6 py-3 flex justify-center">
-              {filters}
-            </div>
-          )}
+      {/* Tabs (full-width with negative margins to escape padding) */}
+      {tabs && (
+        <div className="bg-gray-50 border-b-2 border-gray-200">
+          {tabs}
+        </div>
+      )}
 
-          {/* Sticky Tabs (z-10) - Optional */}
-          {tabs && (
-            <nav
-              className="sticky top-16 z-10 bg-gray-50/95 backdrop-blur-sm border-b border-gray-200"
-              aria-label="Hub navigation"
-            >
-              {tabs}
-            </nav>
-          )}
-
-          {/* Scrollable Content Area */}
-          <div className="flex-1 overflow-y-auto">
+      {/* Main Layout: Content + Sidebar */}
+      <div className="flex-1 flex flex-col lg:flex-row bg-gray-50">
+        {/* Content Column */}
+        <main className="flex-1 min-w-0 px-8 py-8 lg:px-8">
+          <div className="max-w-screen-xl mx-auto">
             {children}
           </div>
         </main>
 
-        {/* Right Sidebar: Desktop (320px fixed), Mobile (stacked below content) */}
-        {sidebar && (
-          <aside className="w-full lg:w-80 lg:flex-shrink-0 lg:border-l lg:border-gray-200 bg-white">
-            {sidebar}
-          </aside>
-        )}
+        {/* Right Sidebar */}
+        {sidebar}
       </div>
-    </div>
+    </>
   );
 }

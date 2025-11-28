@@ -2,7 +2,7 @@
  * Filename: src/app/(authenticated)/listings/page.tsx
  * Purpose: Listings hub page - displays user's service listings (SDD v3.6)
  * Created: 2025-11-03
- * Updated: 2025-11-28 - Migrated to "Gold Standard" Hub Architecture with HubPageLayout
+ * Updated: 2025-11-28 - Migrated to HubPageLayout with Gold Standard Hub Architecture
  * Specification: SDD v3.6 - Ultra-Dense Single-Row Header with comprehensive filtering
  */
 'use client';
@@ -22,6 +22,7 @@ import CreateListingWidget from '@/app/components/listings/CreateListingWidget';
 import ListingsSkeleton from '@/app/components/listings/ListingsSkeleton';
 import ListingsError from '@/app/components/listings/ListingsError';
 import Pagination from '@/app/components/ui/Pagination';
+import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import Button from '@/app/components/ui/Button';
 
 type FilterType = 'all' | 'published' | 'unpublished' | 'draft' | 'archived' | 'templates';
@@ -297,7 +298,19 @@ export default function ListingsPage() {
 
   // Show loading state for auth/role checks
   if (userLoading || roleLoading) {
-    return <ListingsSkeleton />;
+    return (
+      <HubPageLayout
+        header={<HubHeader title="Listings" subtitle="Manage your service offerings and track their performance" />}
+        sidebar={
+          <ContextualSidebar>
+            <ListingStatsWidget listings={[]} isLoading={true} />
+            <CreateListingWidget />
+          </ContextualSidebar>
+        }
+      >
+        <ListingsSkeleton />
+      </HubPageLayout>
+    );
   }
 
   // Role guard handles redirect automatically
@@ -309,32 +322,15 @@ export default function ListingsPage() {
   if (error) {
     return (
       <HubPageLayout
-        header={<HubHeader title="Listings" />}
+        header={<HubHeader title="Listings" subtitle="Manage your service offerings and track their performance" />}
         sidebar={
-          <>
+          <ContextualSidebar>
             <ListingStatsWidget listings={[]} isLoading={false} />
             <CreateListingWidget />
-          </>
+          </ContextualSidebar>
         }
       >
         <ListingsError error={error as Error} onRetry={() => refetch()} />
-      </HubPageLayout>
-    );
-  }
-
-  // Show loading skeleton
-  if (isLoading) {
-    return (
-      <HubPageLayout
-        header={<HubHeader title="Listings" />}
-        sidebar={
-          <>
-            <ListingStatsWidget listings={[]} isLoading={true} />
-            <CreateListingWidget />
-          </>
-        }
-      >
-        <ListingsSkeleton />
       </HubPageLayout>
     );
   }
@@ -343,7 +339,36 @@ export default function ListingsPage() {
     <HubPageLayout
       header={
         <HubHeader
-          title="Listings ✓ UPDATED"
+          title="Listings"
+          subtitle="Manage your service offerings and track their performance"
+          filters={
+            <div className="flex gap-3 w-full">
+              {/* Search Input */}
+              <input
+                type="search"
+                placeholder="Search listings..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              />
+
+              {/* Sort Dropdown */}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortType)}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white min-w-[200px]"
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="views-high">Views: High to Low</option>
+                <option value="views-low">Views: Low to High</option>
+                <option value="bookings-high">Bookings: High to Low</option>
+                <option value="bookings-low">Bookings: Low to High</option>
+              </select>
+            </div>
+          }
           actions={
             <div className="flex items-center gap-2">
               {/* Primary Action: Create Listing */}
@@ -395,94 +420,64 @@ export default function ListingsPage() {
           }
         />
       }
-      filters={
-        <div className="flex gap-2 max-w-2xl w-full">
-          {/* Search Input */}
-          <div className="flex-1 relative min-w-0">
-            <input
-              type="search"
-              placeholder="Search listings..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          {/* Sort Dropdown */}
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as SortType)}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white min-w-[180px] flex-shrink-0"
-          >
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="price-high">Price: High to Low</option>
-            <option value="price-low">Price: Low to High</option>
-            <option value="views-high">Views: High to Low</option>
-            <option value="views-low">Views: Low to High</option>
-            <option value="bookings-high">Bookings: High to Low</option>
-            <option value="bookings-low">Bookings: Low to High</option>
-          </select>
-        </div>
-      }
       tabs={
-        <div className="flex gap-0 px-6 py-0 overflow-x-auto">
+        <div className="flex gap-2 px-8 py-0 overflow-x-auto">
           <button
             onClick={() => handleFilterChange('all')}
-            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
               filter === 'all'
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-600 hover:text-gray-900 border-b-2 border-transparent'
+                ? 'text-teal-600 border-teal-600'
+                : 'text-gray-600 hover:text-gray-900 border-transparent'
             }`}
           >
             All Listings ({tabCounts.all})
           </button>
           <button
             onClick={() => handleFilterChange('published')}
-            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
               filter === 'published'
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-600 hover:text-gray-900 border-b-2 border-transparent'
+                ? 'text-teal-600 border-teal-600'
+                : 'text-gray-600 hover:text-gray-900 border-transparent'
             }`}
           >
             Published ({tabCounts.published})
           </button>
           <button
             onClick={() => handleFilterChange('unpublished')}
-            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
               filter === 'unpublished'
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-600 hover:text-gray-900 border-b-2 border-transparent'
+                ? 'text-teal-600 border-teal-600'
+                : 'text-gray-600 hover:text-gray-900 border-transparent'
             }`}
           >
             Unpublished ({tabCounts.unpublished})
           </button>
           <button
             onClick={() => handleFilterChange('draft')}
-            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
               filter === 'draft'
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-600 hover:text-gray-900 border-b-2 border-transparent'
+                ? 'text-teal-600 border-teal-600'
+                : 'text-gray-600 hover:text-gray-900 border-transparent'
             }`}
           >
             Drafts ({tabCounts.draft})
           </button>
           <button
             onClick={() => handleFilterChange('archived')}
-            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
               filter === 'archived'
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-600 hover:text-gray-900 border-b-2 border-transparent'
+                ? 'text-teal-600 border-teal-600'
+                : 'text-gray-600 hover:text-gray-900 border-transparent'
             }`}
           >
             Archived ({tabCounts.archived})
           </button>
           <button
             onClick={() => handleFilterChange('templates')}
-            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
               filter === 'templates'
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-600 hover:text-gray-900 border-b-2 border-transparent'
+                ? 'text-teal-600 border-teal-600'
+                : 'text-gray-600 hover:text-gray-900 border-transparent'
             }`}
           >
             Templates ({tabCounts.templates})
@@ -490,81 +485,78 @@ export default function ListingsPage() {
         </div>
       }
       sidebar={
-        <>
-          <ListingStatsWidget listings={rawListings} isLoading={false} />
+        <ContextualSidebar>
+          <ListingStatsWidget listings={rawListings} isLoading={isLoading} />
           <CreateListingWidget />
-        </>
+        </ContextualSidebar>
       }
     >
-      {/* Content Area */}
-      <div className="p-6">
-        {/* Empty State */}
-        {paginatedListings.length === 0 && !searchQuery && (
-          <div className="text-center py-12">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No listings found</h3>
-            <p className="text-gray-600 mb-6">
-              {filter === 'templates'
-                ? 'No templates available. Templates help you quickly create new listings.'
-                : filter === 'published'
-                ? 'You have no published listings yet.'
-                : filter === 'unpublished'
-                ? 'You have no unpublished listings.'
-                : filter === 'draft'
-                ? 'You have no draft listings.'
-                : filter === 'archived'
-                ? 'You have no archived listings.'
-                : 'You have no listings yet. Create your first listing to get started.'}
-            </p>
-            {filter === 'all' && (
-              <Button
-                variant="primary"
-                onClick={() => router.push('/create-listing')}
-              >
-                Create Your First Listing
-              </Button>
-            )}
-          </div>
-        )}
+      {/* Empty State */}
+      {paginatedListings.length === 0 && !searchQuery && (
+        <div className="text-center py-16 px-4">
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">No listings found</h3>
+          <p className="text-gray-600 mb-6">
+            {filter === 'templates'
+              ? 'No templates available. Templates help you quickly create new listings.'
+              : filter === 'published'
+              ? 'You have no published listings yet.'
+              : filter === 'unpublished'
+              ? 'You have no unpublished listings.'
+              : filter === 'draft'
+              ? 'You have no draft listings.'
+              : filter === 'archived'
+              ? 'You have no archived listings.'
+              : 'You have no listings yet. Create your first listing to get started.'}
+          </p>
+          {filter === 'all' && (
+            <Button
+              variant="primary"
+              onClick={() => router.push('/create-listing')}
+            >
+              Create Your First Listing
+            </Button>
+          )}
+        </div>
+      )}
 
-        {/* Search Empty State */}
-        {paginatedListings.length === 0 && searchQuery && (
-          <div className="text-center py-12">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No results found</h3>
-            <p className="text-gray-600">
-              No listings match your search &ldquo;{searchQuery}&rdquo;. Try a different search term.
-            </p>
-          </div>
-        )}
+      {/* Search Empty State */}
+      {paginatedListings.length === 0 && searchQuery && (
+        <div className="text-center py-16 px-4">
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">No results found</h3>
+          <p className="text-gray-600">
+            No listings match your search &ldquo;{searchQuery}&rdquo;. Try a different search term.
+          </p>
+        </div>
+      )}
 
-        {/* Listings List */}
-        {paginatedListings.length > 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {paginatedListings.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                listing={listing}
-                onDelete={handleDelete}
-                onPublish={handlePublish}
-                onUnpublish={handleUnpublish}
-                onArchive={handleArchive}
-                onDuplicate={handleDuplicate}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Pagination */}
-        {totalItems > ITEMS_PER_PAGE && (
-          <div className="mt-6">
-            <Pagination
-              currentPage={currentPage}
-              totalItems={totalItems}
-              itemsPerPage={ITEMS_PER_PAGE}
-              onPageChange={setCurrentPage}
+      {/* Listings List */}
+      {paginatedListings.length > 0 && (
+        <div className="flex flex-col gap-4">
+          {paginatedListings.map((listing) => (
+            <ListingCard
+              key={listing.id}
+              listing={listing}
+              onDelete={handleDelete}
+              onPublish={handlePublish}
+              onUnpublish={handleUnpublish}
+              onArchive={handleArchive}
+              onDuplicate={handleDuplicate}
             />
-          </div>
-        )}
-      </div>
+          ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalItems > ITEMS_PER_PAGE && (
+        <div className="mt-8">
+          <Pagination
+            currentPage={currentPage}
+            totalItems={totalItems}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onPageChange={setCurrentPage}
+          />
+        </div>
+      )}
     </HubPageLayout>
   );
 }
