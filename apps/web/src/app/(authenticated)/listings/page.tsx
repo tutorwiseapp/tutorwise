@@ -15,10 +15,13 @@ import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { getMyListings, deleteListing, publishListing, unpublishListing } from '@/lib/api/listings';
 import type { Listing } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
-import { HubPageLayout, HubHeader, HubTabs, HubTab } from '@/app/components/ui/hub-layout';
+import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/ui/hub-layout';
+import type { HubTab } from '@/app/components/ui/hub-layout';
+import styles from './page.module.css';
+import filterStyles from './filters.module.css';
+import actionStyles from './actions.module.css';
 import ListingCard from './ListingCard';
 import ListingStatsWidget from '@/app/components/listings/ListingStatsWidget';
-import CreateListingWidget from '@/app/components/listings/CreateListingWidget';
 import ListingsSkeleton from '@/app/components/listings/ListingsSkeleton';
 import ListingsError from '@/app/components/listings/ListingsError';
 import Pagination from '@/app/components/ui/Pagination';
@@ -26,7 +29,7 @@ import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSideba
 import Button from '@/app/components/ui/Button';
 
 type FilterType = 'all' | 'published' | 'unpublished' | 'draft' | 'archived' | 'templates';
-type SortType = 'newest' | 'oldest' | 'price-high' | 'price-low' | 'views-high' | 'views-low' | 'bookings-high' | 'bookings-low';
+type SortType = 'newest' | 'oldest' | 'price-high' | 'price-low' | 'views-high' | 'views-low';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -188,10 +191,6 @@ export default function ListingsPage() {
         return sorted.sort((a, b) => (b.view_count || 0) - (a.view_count || 0));
       case 'views-low':
         return sorted.sort((a, b) => (a.view_count || 0) - (b.view_count || 0));
-      case 'bookings-high':
-        return sorted.sort((a, b) => (b.booking_count || 0) - (a.booking_count || 0));
-      case 'bookings-low':
-        return sorted.sort((a, b) => (a.booking_count || 0) - (b.booking_count || 0));
       default:
         return sorted;
     }
@@ -304,7 +303,6 @@ export default function ListingsPage() {
         sidebar={
           <ContextualSidebar>
             <ListingStatsWidget listings={[]} isLoading={true} />
-            <CreateListingWidget />
           </ContextualSidebar>
         }
       >
@@ -326,7 +324,6 @@ export default function ListingsPage() {
         sidebar={
           <ContextualSidebar>
             <ListingStatsWidget listings={[]} isLoading={false} />
-            <CreateListingWidget />
           </ContextualSidebar>
         }
       >
@@ -340,23 +337,22 @@ export default function ListingsPage() {
       header={
         <HubHeader
           title="Listings"
-          subtitle="Manage your service offerings and track their performance"
           filters={
-            <div className="flex gap-3 w-full">
+            <div className={filterStyles.filtersContainer}>
               {/* Search Input */}
               <input
                 type="search"
                 placeholder="Search listings..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                className={filterStyles.searchInput}
               />
 
               {/* Sort Dropdown */}
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortType)}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white min-w-[200px]"
+                className={filterStyles.sortSelect}
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
@@ -364,13 +360,11 @@ export default function ListingsPage() {
                 <option value="price-low">Price: Low to High</option>
                 <option value="views-high">Views: High to Low</option>
                 <option value="views-low">Views: Low to High</option>
-                <option value="bookings-high">Bookings: High to Low</option>
-                <option value="bookings-low">Bookings: Low to High</option>
               </select>
             </div>
           }
           actions={
-            <div className="flex items-center gap-2">
+            <>
               {/* Primary Action: Create Listing */}
               <Button
                 variant="primary"
@@ -381,7 +375,7 @@ export default function ListingsPage() {
               </Button>
 
               {/* Secondary Actions: Dropdown Menu */}
-              <div className="relative">
+              <div className={actionStyles.dropdownContainer}>
                 <Button
                   variant="secondary"
                   size="sm"
@@ -394,21 +388,21 @@ export default function ListingsPage() {
                   <>
                     {/* Backdrop to close menu */}
                     <div
-                      className="fixed inset-0 z-10"
+                      className={actionStyles.backdrop}
                       onClick={() => setShowActionsMenu(false)}
                     />
 
                     {/* Dropdown Menu */}
-                    <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-20">
+                    <div className={actionStyles.dropdownMenu} style={{ display: 'block' }}>
                       <button
                         onClick={handleViewPublicProfile}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        className={actionStyles.menuButton}
                       >
                         View Public Profile
                       </button>
                       <button
                         onClick={handleExportCSV}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors border-t border-gray-100"
+                        className={actionStyles.menuButton}
                       >
                         Export CSV
                       </button>
@@ -416,7 +410,7 @@ export default function ListingsPage() {
                   </>
                 )}
               </div>
-            </div>
+            </>
           }
         />
       }
@@ -436,76 +430,77 @@ export default function ListingsPage() {
       sidebar={
         <ContextualSidebar>
           <ListingStatsWidget listings={rawListings} isLoading={isLoading} />
-          <CreateListingWidget />
         </ContextualSidebar>
       }
     >
-      {/* Empty State */}
-      {paginatedListings.length === 0 && !searchQuery && (
-        <div className="text-center py-16 px-4">
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">No listings found</h3>
-          <p className="text-gray-600 mb-6">
-            {filter === 'templates'
-              ? 'No templates available. Templates help you quickly create new listings.'
-              : filter === 'published'
-              ? 'You have no published listings yet.'
-              : filter === 'unpublished'
-              ? 'You have no unpublished listings.'
-              : filter === 'draft'
-              ? 'You have no draft listings.'
-              : filter === 'archived'
-              ? 'You have no archived listings.'
-              : 'You have no listings yet. Create your first listing to get started.'}
-          </p>
-          {filter === 'all' && (
-            <Button
-              variant="primary"
-              onClick={() => router.push('/create-listing')}
-            >
-              Create Your First Listing
-            </Button>
-          )}
-        </div>
-      )}
+      <div className={styles.container}>
+        {/* Empty State */}
+        {paginatedListings.length === 0 && !searchQuery && (
+          <div className={styles.emptyState}>
+            <h3 className={styles.emptyTitle}>No listings found</h3>
+            <p className={styles.emptyText}>
+              {filter === 'templates'
+                ? 'No templates available. Templates help you quickly create new listings.'
+                : filter === 'published'
+                ? 'You have no published listings yet.'
+                : filter === 'unpublished'
+                ? 'You have no unpublished listings.'
+                : filter === 'draft'
+                ? 'You have no draft listings.'
+                : filter === 'archived'
+                ? 'You have no archived listings.'
+                : 'You have no listings yet. Create your first listing to get started.'}
+            </p>
+            {filter === 'all' && (
+              <Button
+                variant="primary"
+                onClick={() => router.push('/create-listing')}
+              >
+                Create Your First Listing
+              </Button>
+            )}
+          </div>
+        )}
 
-      {/* Search Empty State */}
-      {paginatedListings.length === 0 && searchQuery && (
-        <div className="text-center py-16 px-4">
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">No results found</h3>
-          <p className="text-gray-600">
-            No listings match your search &ldquo;{searchQuery}&rdquo;. Try a different search term.
-          </p>
-        </div>
-      )}
+        {/* Search Empty State */}
+        {paginatedListings.length === 0 && searchQuery && (
+          <div className={styles.emptyState}>
+            <h3 className={styles.emptyTitle}>No results found</h3>
+            <p className={styles.emptyText}>
+              No listings match your search &ldquo;{searchQuery}&rdquo;. Try a different search term.
+            </p>
+          </div>
+        )}
 
-      {/* Listings List */}
-      {paginatedListings.length > 0 && (
-        <div className="flex flex-col gap-4">
-          {paginatedListings.map((listing) => (
-            <ListingCard
-              key={listing.id}
-              listing={listing}
-              onDelete={handleDelete}
-              onPublish={handlePublish}
-              onUnpublish={handleUnpublish}
-              onArchive={handleArchive}
-              onDuplicate={handleDuplicate}
+        {/* Listings List */}
+        {paginatedListings.length > 0 && (
+          <div className={styles.listingsList}>
+            {paginatedListings.map((listing) => (
+              <ListingCard
+                key={listing.id}
+                listing={listing}
+                onDelete={handleDelete}
+                onPublish={handlePublish}
+                onUnpublish={handleUnpublish}
+                onArchive={handleArchive}
+                onDuplicate={handleDuplicate}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalItems > ITEMS_PER_PAGE && (
+          <div className={styles.paginationContainer}>
+            <Pagination
+              currentPage={currentPage}
+              totalItems={totalItems}
+              itemsPerPage={ITEMS_PER_PAGE}
+              onPageChange={setCurrentPage}
             />
-          ))}
-        </div>
-      )}
-
-      {/* Pagination */}
-      {totalItems > ITEMS_PER_PAGE && (
-        <div className="mt-8">
-          <Pagination
-            currentPage={currentPage}
-            totalItems={totalItems}
-            itemsPerPage={ITEMS_PER_PAGE}
-            onPageChange={setCurrentPage}
-          />
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </HubPageLayout>
   );
 }

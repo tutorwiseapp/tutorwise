@@ -1,0 +1,93 @@
+/**
+ * Filename: apps/web/src/app/components/ui/hub-layout/HubHeader.module.css
+ * Purpose: Styles for HubHeader component
+ * Created: 2025-11-28
+ */
+
+.header {
+  background-color: #ffffff;
+  margin-bottom: 2rem;
+}
+
+.headerRow {
+  padding-left: 0;
+  padding-right: 0;
+  height: 5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.titleSection {
+  min-width: 0;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: #4b5563;
+  margin-top: 0.125rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actionsSection {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+.filtersRow {
+  background-color: #ffffff;
+  padding: 1rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.filtersInner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .headerRow {
+    padding-left: 0;
+    padding-right: 0;
+    height: auto;
+    min-height: 4rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .actionsSection {
+    margin-left: 0;
+  }
+
+  .filtersRow {
+    padding: 1rem 0;
+  }
+
+  .filtersInner {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

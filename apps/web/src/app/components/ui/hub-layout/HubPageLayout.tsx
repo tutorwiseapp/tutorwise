@@ -2,7 +2,7 @@
  * Filename: apps/web/src/app/components/ui/hub-layout/HubPageLayout.tsx
  * Purpose: Standard Hub Page Layout matching Bookings page structure
  * Created: 2025-11-28
- * Updated: 2025-11-28 - Aligned with Bookings layout pattern
+ * Updated: 2025-11-28 - Converted to CSS Modules for consistency
  * Pattern: Header + Tabs (full-width) + Content (container) + Sidebar
  *
  * Layout Structure:
@@ -24,6 +24,7 @@
 'use client';
 
 import React, { ReactNode } from 'react';
+import styles from './HubPageLayout.module.css';
 
 interface HubPageLayoutProps {
   header: ReactNode; // HubHeader component
@@ -43,18 +44,14 @@ export default function HubPageLayout({
       {/* Header (full-width) */}
       {header}
 
-      {/* Tabs (full-width with negative margins to escape padding) */}
-      {tabs && (
-        <div className="bg-gray-50 border-b-2 border-gray-200">
-          {tabs}
-        </div>
-      )}
+      {/* Tabs (full-width) */}
+      {tabs}
 
       {/* Main Layout: Content + Sidebar */}
-      <div className="flex-1 flex flex-col lg:flex-row bg-gray-50">
+      <div className={styles.mainLayout}>
         {/* Content Column */}
-        <main className="flex-1 min-w-0 px-8 py-8 lg:px-8">
-          <div className="max-w-screen-xl mx-auto">
+        <main className={styles.contentColumn}>
+          <div className={styles.contentInner}>
             {children}
           </div>
         </main>

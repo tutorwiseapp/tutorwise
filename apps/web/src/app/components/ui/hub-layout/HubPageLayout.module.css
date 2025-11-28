@@ -1,0 +1,29 @@
+/**
+ * Filename: apps/web/src/app/components/ui/hub-layout/HubPageLayout.module.css
+ * Purpose: Styles for HubPageLayout component
+ * Created: 2025-11-28
+ */
+
+.mainLayout {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+}
+
+@media (min-width: 1024px) {
+  .mainLayout {
+    flex-direction: row;
+  }
+}
+
+.contentColumn {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+}
+
+.contentInner {
+  width: 100%;
+  padding: 0;
+}

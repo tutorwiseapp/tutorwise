@@ -17,6 +17,7 @@
 'use client';
 
 import React from 'react';
+import styles from './HubTabs.module.css';
 
 export interface HubTab {
   id: string;
@@ -32,16 +33,12 @@ interface HubTabsProps {
 
 export default function HubTabs({ tabs, onTabChange }: HubTabsProps) {
   return (
-    <div className="flex gap-2 px-8 py-0 overflow-x-auto">
+    <div className={styles.filterTabs}>
       {tabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
-          className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
-            tab.active
-              ? 'text-teal-600 border-teal-600'
-              : 'text-gray-600 hover:text-gray-900 border-transparent'
-          }`}
+          className={`${styles.filterTab} ${tab.active ? styles.filterTabActive : ''}`}
         >
           {tab.label}
           {tab.count !== undefined && ` (${tab.count})`}

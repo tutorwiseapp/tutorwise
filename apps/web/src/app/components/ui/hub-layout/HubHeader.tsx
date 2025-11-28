@@ -2,7 +2,7 @@
  * Filename: apps/web/src/app/components/ui/hub-layout/HubHeader.tsx
  * Purpose: Ultra-Dense Header for Hub Pages with Title, Filters, and Actions
  * Created: 2025-11-28
- * Updated: 2025-11-28 - Added filters row support
+ * Updated: 2025-11-28 - Converted to CSS Modules for consistency
  * Pattern: Two-row layout - Row 1: Title + Actions | Row 2: Filters (centered)
  *
  * Usage:
@@ -17,6 +17,7 @@
 'use client';
 
 import React, { ReactNode } from 'react';
+import styles from './HubHeader.module.css';
 
 interface HubHeaderProps {
   title: string;
@@ -27,16 +28,16 @@ interface HubHeaderProps {
 
 export default function HubHeader({ title, subtitle, filters, actions }: HubHeaderProps) {
   return (
-    <header className="bg-white border-b border-gray-200">
+    <header className={styles.header}>
       {/* Row 1: Title + Actions */}
-      <div className="px-6 h-16 flex items-center justify-between">
+      <div className={styles.headerRow}>
         {/* Left: Title + Subtitle */}
-        <div className="min-w-0">
-          <h1 className="text-2xl font-bold text-gray-900 truncate">
+        <div className={styles.titleSection}>
+          <h1 className={styles.title}>
             {title}
           </h1>
           {subtitle && (
-            <p className="text-sm text-gray-600 mt-0.5 truncate">
+            <p className={styles.subtitle}>
               {subtitle}
             </p>
           )}
@@ -44,7 +45,7 @@ export default function HubHeader({ title, subtitle, filters, actions }: HubHead
 
         {/* Right: Actions (optional) */}
         {actions && (
-          <div className="flex items-center gap-2 shrink-0 ml-4">
+          <div className={styles.actionsSection}>
             {actions}
           </div>
         )}
@@ -52,8 +53,8 @@ export default function HubHeader({ title, subtitle, filters, actions }: HubHead
 
       {/* Row 2: Filters (centered, optional) */}
       {filters && (
-        <div className="bg-white border-t border-gray-200 px-6 py-3 flex justify-center">
-          <div className="w-full max-w-2xl">
+        <div className={styles.filtersRow}>
+          <div className={styles.filtersInner}>
             {filters}
           </div>
         </div>
