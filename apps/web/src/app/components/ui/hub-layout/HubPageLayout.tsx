@@ -27,6 +27,7 @@ import React, { ReactNode } from 'react';
 
 interface HubPageLayoutProps {
   header: ReactNode; // Fixed top area
+  filters?: ReactNode; // Optional filters/search row between header and tabs
   tabs?: ReactNode; // Optional sticky navigation below header
   children: ReactNode; // Scrollable list content
   sidebar?: ReactNode; // Optional right contextual column
@@ -34,6 +35,7 @@ interface HubPageLayoutProps {
 
 export default function HubPageLayout({
   header,
+  filters,
   tabs,
   children,
   sidebar,
@@ -43,12 +45,19 @@ export default function HubPageLayout({
       {/* Desktop Layout: 3-Column Grid (Center + Right Sidebar) */}
       {/* Mobile/Tablet: Stacked Layout */}
       <div className="flex-1 flex flex-col lg:flex-row">
-        {/* Center Column: Header + Tabs + Content */}
+        {/* Center Column: Header + Filters + Tabs + Content */}
         <main className="flex-1 min-w-0 flex flex-col">
           {/* Sticky Header (z-20) */}
           <div className="sticky top-0 z-20">
             {header}
           </div>
+
+          {/* Filters Row (between header and tabs) - Optional */}
+          {filters && (
+            <div className="bg-white border-b border-gray-200 px-6 py-3 flex justify-center">
+              {filters}
+            </div>
+          )}
 
           {/* Sticky Tabs (z-10) - Optional */}
           {tabs && (

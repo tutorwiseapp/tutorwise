@@ -23,7 +23,7 @@ import ListingsSkeleton from '@/app/components/listings/ListingsSkeleton';
 import ListingsError from '@/app/components/listings/ListingsError';
 import Pagination from '@/app/components/ui/Pagination';
 import Button from '@/app/components/ui/Button';
-import { Search, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
 type FilterType = 'all' | 'published' | 'unpublished' | 'draft' | 'archived' | 'templates';
 type SortType = 'newest' | 'oldest' | 'price-high' | 'price-low' | 'views-high' | 'views-low' | 'bookings-high' | 'bookings-low';
@@ -363,7 +363,7 @@ export default function ListingsPage() {
                   size="sm"
                   onClick={() => setShowActionsMenu(!showActionsMenu)}
                 >
-                  <ChevronDown className="w-4 h-4" />
+                  ⋮
                 </Button>
 
                 {showActionsMenu && (
@@ -394,38 +394,37 @@ export default function ListingsPage() {
               </div>
             </div>
           }
-        >
-          {/* Center Slot: Search & Sort */}
-          <div className="flex gap-2 w-full">
-            {/* Search Input */}
-            <div className="flex-1 relative min-w-0">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="search"
-                placeholder="Search listings..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-
-            {/* Sort Dropdown */}
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortType)}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white min-w-[180px] flex-shrink-0"
-            >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="views-high">Views: High to Low</option>
-              <option value="views-low">Views: Low to High</option>
-              <option value="bookings-high">Bookings: High to Low</option>
-              <option value="bookings-low">Bookings: Low to High</option>
-            </select>
+        />
+      }
+      filters={
+        <div className="flex gap-2 max-w-2xl w-full">
+          {/* Search Input */}
+          <div className="flex-1 relative min-w-0">
+            <input
+              type="search"
+              placeholder="Search listings..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
           </div>
-        </HubHeader>
+
+          {/* Sort Dropdown */}
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortType)}
+            className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white min-w-[180px] flex-shrink-0"
+          >
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="views-high">Views: High to Low</option>
+            <option value="views-low">Views: Low to High</option>
+            <option value="bookings-high">Bookings: High to Low</option>
+            <option value="bookings-low">Bookings: Low to High</option>
+          </select>
+        </div>
       }
       tabs={
         <div className="flex gap-0 px-6 py-0 overflow-x-auto">
