@@ -397,13 +397,8 @@ export default function ListingsPage() {
             </div>
           </div>
 
-          {/* Subtitle */}
-          <p className="text-base text-gray-600 mb-4">
-            Create, edit, and manage all your tutoring service listings from one place
-          </p>
-
           {/* Search + Filters Section - Between Title and Tabs */}
-          <div className="flex gap-2 max-w-2xl mx-auto">
+          <div className="flex gap-2 max-w-2xl mx-auto mt-4">
             {/* Search Input */}
             <div className="flex-1 relative min-w-0">
               <input
