@@ -343,7 +343,7 @@ export default function ListingsPage() {
     <HubPageLayout
       header={
         <HubHeader
-          title="Listings"
+          title="Listings ✓ UPDATED"
           actions={
             <div className="flex items-center gap-2">
               {/* Primary Action: Create Listing */}
