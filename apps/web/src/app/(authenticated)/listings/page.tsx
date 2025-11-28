@@ -396,9 +396,9 @@ export default function ListingsPage() {
           }
         >
           {/* Center Slot: Search & Sort */}
-          <div className="flex gap-2 w-full max-w-2xl">
+          <div className="flex gap-2 w-full">
             {/* Search Input */}
-            <div className="flex-1 relative">
+            <div className="flex-1 relative min-w-0">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="search"
@@ -413,7 +413,7 @@ export default function ListingsPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortType)}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white min-w-[180px] flex-shrink-0"
             >
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
