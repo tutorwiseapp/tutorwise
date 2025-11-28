@@ -1,14 +1,13 @@
 /**
  * Filename: apps/web/src/app/components/ui/hub-layout/HubHeader.tsx
- * Purpose: Ultra-Dense Header for Hub Pages with Title, Filters, and Actions
+ * Purpose: Header for Hub Pages with Title, Filters, and Actions
  * Created: 2025-11-28
- * Updated: 2025-11-28 - Converted to CSS Modules for consistency
+ * Updated: 2025-11-28 - Optimized: Removed subtitle, removed wrapper divs
  * Pattern: Two-row layout - Row 1: Title + Actions | Row 2: Filters (centered)
  *
  * Usage:
  * <HubHeader
  *   title="Listings"
- *   subtitle="Manage your service offerings"
  *   filters={<>Search + Sort</>}
  *   actions={<Button>+ Create</Button>}
  * />
@@ -21,26 +20,20 @@ import styles from './HubHeader.module.css';
 
 interface HubHeaderProps {
   title: string;
-  subtitle?: string;
   filters?: ReactNode; // Optional centered filters row (search/sort)
   actions?: ReactNode; // Right slot (buttons/menu)
 }
 
-export default function HubHeader({ title, subtitle, filters, actions }: HubHeaderProps) {
+export default function HubHeader({ title, filters, actions }: HubHeaderProps) {
   return (
     <header className={styles.header}>
       {/* Row 1: Title + Actions */}
       <div className={styles.headerRow}>
-        {/* Left: Title + Subtitle */}
+        {/* Left: Title */}
         <div className={styles.titleSection}>
           <h1 className={styles.title}>
             {title}
           </h1>
-          {subtitle && (
-            <p className={styles.subtitle}>
-              {subtitle}
-            </p>
-          )}
         </div>
 
         {/* Right: Actions (optional) */}
@@ -54,9 +47,7 @@ export default function HubHeader({ title, subtitle, filters, actions }: HubHead
       {/* Row 2: Filters (centered, optional) */}
       {filters && (
         <div className={styles.filtersRow}>
-          <div className={styles.filtersInner}>
-            {filters}
-          </div>
+          {filters}
         </div>
       )}
     </header>

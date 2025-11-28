@@ -299,7 +299,7 @@ export default function ListingsPage() {
   if (userLoading || roleLoading) {
     return (
       <HubPageLayout
-        header={<HubHeader title="Listings" subtitle="Manage your service offerings and track their performance" />}
+        header={<HubHeader title="Listings" />}
         sidebar={
           <ContextualSidebar>
             <ListingStatsWidget listings={[]} isLoading={true} />
@@ -320,7 +320,7 @@ export default function ListingsPage() {
   if (error) {
     return (
       <HubPageLayout
-        header={<HubHeader title="Listings" subtitle="Manage your service offerings and track their performance" />}
+        header={<HubHeader title="Listings" />}
         sidebar={
           <ContextualSidebar>
             <ListingStatsWidget listings={[]} isLoading={false} />

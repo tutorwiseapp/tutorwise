@@ -32,15 +32,6 @@
   margin: 0;
 }
 
-.subtitle {
-  font-size: 0.875rem;
-  color: #4b5563;
-  margin-top: 0.125rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .actionsSection {
   display: flex;
   align-items: center;
@@ -55,12 +46,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.filtersInner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 /* Mobile Responsive */
@@ -84,9 +69,6 @@
 
   .filtersRow {
     padding: 1rem 0;
-  }
-
-  .filtersInner {
     width: 100%;
     justify-content: flex-start;
   }

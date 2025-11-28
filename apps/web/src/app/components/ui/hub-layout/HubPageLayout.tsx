@@ -51,9 +51,7 @@ export default function HubPageLayout({
       <div className={styles.mainLayout}>
         {/* Content Column */}
         <main className={styles.contentColumn}>
-          <div className={styles.contentInner}>
-            {children}
-          </div>
+          {children}
         </main>
 
         {/* Right Sidebar */}
