@@ -2,12 +2,12 @@
  * Filename: src/app/(authenticated)/listings/page.tsx
  * Purpose: Listings hub page - displays user's service listings (SDD v3.6)
  * Created: 2025-11-03
- * Updated: 2025-11-08 - Refactored to use React Query for robust data fetching
- * Specification: SDD v3.6 - Hub page with filter tabs following established pattern
+ * Updated: 2025-11-28 - Migrated to "Gold Standard" Hub Architecture with HubPageLayout
+ * Specification: SDD v3.6 - Ultra-Dense Single-Row Header with comprehensive filtering
  */
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
@@ -15,15 +15,20 @@ import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { getMyListings, deleteListing, publishListing, unpublishListing } from '@/lib/api/listings';
 import type { Listing } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
+import { HubPageLayout, HubHeader } from '@/app/components/ui/hub-layout';
 import ListingCard from './ListingCard';
-import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
-import CreateListingWidget from '@/app/components/listings/CreateListingWidget';
 import ListingStatsWidget from '@/app/components/listings/ListingStatsWidget';
+import CreateListingWidget from '@/app/components/listings/CreateListingWidget';
 import ListingsSkeleton from '@/app/components/listings/ListingsSkeleton';
 import ListingsError from '@/app/components/listings/ListingsError';
-import styles from './page.module.css';
+import Pagination from '@/app/components/ui/Pagination';
+import Button from '@/app/components/ui/Button';
+import { Search, ChevronDown } from 'lucide-react';
 
 type FilterType = 'all' | 'published' | 'unpublished' | 'draft' | 'archived' | 'templates';
+type SortType = 'newest' | 'oldest' | 'price-high' | 'price-low' | 'views-high' | 'views-low' | 'bookings-high' | 'bookings-low';
+
+const ITEMS_PER_PAGE = 5;
 
 export default function ListingsPage() {
   const router = useRouter();
@@ -32,10 +37,14 @@ export default function ListingsPage() {
   const { user, isLoading: userLoading } = useUserProfile();
   const { isAllowed, isLoading: roleLoading } = useRoleGuard(['tutor', 'agent', 'client']);
 
-  // Read filter from URL (SDD v3.6: URL is single source of truth)
+  // URL state management
   const filter = (searchParams?.get('filter') as FilterType) || 'all';
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortType>('newest');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
 
-  // React Query: Fetch listings with automatic retry, caching, and background refetch
+  // React Query: Fetch listings
   const {
     data: rawListings = [],
     isLoading,
@@ -45,43 +54,24 @@ export default function ListingsPage() {
     queryKey: ['listings', user?.id],
     queryFn: getMyListings,
     enabled: !!user && !userLoading,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
-  // Sort listings: templates first, then by creation date
-  const listings = useMemo(() => {
-    return [...rawListings].sort((a, b) => {
-      // Templates always come first
-      if (a.is_template && !b.is_template) return -1;
-      if (!a.is_template && b.is_template) return 1;
-
-      // Within same type, sort by creation date (newest first)
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    });
-  }, [rawListings]);
-
-  // Delete mutation with optimistic updates
+  // Mutations
   const deleteMutation = useMutation({
     mutationFn: deleteListing,
     onMutate: async (id) => {
-      // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: ['listings', user?.id] });
-
-      // Snapshot current value
       const previousListings = queryClient.getQueryData(['listings', user?.id]);
-
-      // Optimistically update
       queryClient.setQueryData(['listings', user?.id], (old: Listing[] = []) =>
         old.filter((l) => l.id !== id)
       );
-
       return { previousListings };
     },
     onError: (err, id, context) => {
-      // Rollback on error
       queryClient.setQueryData(['listings', user?.id], context?.previousListings);
       toast.error('Failed to delete listing');
     },
@@ -89,12 +79,10 @@ export default function ListingsPage() {
       toast.success('Listing deleted successfully');
     },
     onSettled: () => {
-      // Refetch after mutation
       queryClient.invalidateQueries({ queryKey: ['listings', user?.id] });
     },
   });
 
-  // Publish mutation
   const publishMutation = useMutation({
     mutationFn: publishListing,
     onSuccess: () => {
@@ -106,7 +94,6 @@ export default function ListingsPage() {
     },
   });
 
-  // Unpublish mutation
   const unpublishMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: 'draft' | 'paused' }) =>
       unpublishListing(id, status),
@@ -119,7 +106,6 @@ export default function ListingsPage() {
     },
   });
 
-  // Archive mutation
   const archiveMutation = useMutation({
     mutationFn: (id: string) => unpublishListing(id, 'archived' as 'draft' | 'paused'),
     onSuccess: () => {
@@ -131,14 +117,27 @@ export default function ListingsPage() {
     },
   });
 
-  // Filter listings based on URL param
-  const filteredListings = useMemo(() => {
-    return listings.filter((listing) => {
+  // Calculate tab counts
+  const tabCounts = useMemo(() => {
+    const regularListings = rawListings.filter(l => !l.is_template);
+    return {
+      all: regularListings.length,
+      published: regularListings.filter(l => l.status === 'published').length,
+      unpublished: regularListings.filter(l => l.status === 'unpublished').length,
+      draft: regularListings.filter(l => l.status === 'draft').length,
+      archived: regularListings.filter(l => l.status === 'archived').length,
+      templates: rawListings.filter(l => l.is_template).length,
+    };
+  }, [rawListings]);
+
+  // Filter listings based on tab
+  const filteredByTab = useMemo(() => {
+    return rawListings.filter((listing) => {
       if (filter === 'templates') {
         return listing.is_template === true;
       }
       if (filter === 'all') {
-        return listing.is_template !== true; // Exclude templates from "all"
+        return listing.is_template !== true;
       }
       if (filter === 'published') {
         return listing.status === 'published' && listing.is_template !== true;
@@ -154,7 +153,60 @@ export default function ListingsPage() {
       }
       return true;
     });
-  }, [listings, filter]);
+  }, [rawListings, filter]);
+
+  // Apply client-side search
+  const searchedListings = useMemo(() => {
+    if (!searchQuery.trim()) return filteredByTab;
+
+    const query = searchQuery.toLowerCase();
+    return filteredByTab.filter((listing) => {
+      const title = listing.title?.toLowerCase() || '';
+      const subjects = listing.subjects?.join(' ').toLowerCase() || '';
+      const description = listing.description?.toLowerCase() || '';
+
+      return title.includes(query) ||
+             subjects.includes(query) ||
+             description.includes(query);
+    });
+  }, [filteredByTab, searchQuery]);
+
+  // Apply sorting
+  const sortedListings = useMemo(() => {
+    const sorted = [...searchedListings];
+
+    switch (sortBy) {
+      case 'newest':
+        return sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      case 'oldest':
+        return sorted.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      case 'price-high':
+        return sorted.sort((a, b) => (b.hourly_rate || 0) - (a.hourly_rate || 0));
+      case 'price-low':
+        return sorted.sort((a, b) => (a.hourly_rate || 0) - (b.hourly_rate || 0));
+      case 'views-high':
+        return sorted.sort((a, b) => (b.view_count || 0) - (a.view_count || 0));
+      case 'views-low':
+        return sorted.sort((a, b) => (a.view_count || 0) - (b.view_count || 0));
+      case 'bookings-high':
+        return sorted.sort((a, b) => (b.booking_count || 0) - (a.booking_count || 0));
+      case 'bookings-low':
+        return sorted.sort((a, b) => (a.booking_count || 0) - (b.booking_count || 0));
+      default:
+        return sorted;
+    }
+  }, [searchedListings, sortBy]);
+
+  // Pagination logic
+  const totalItems = sortedListings.length;
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedListings = sortedListings.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filter/search/sort changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, searchQuery, sortBy]);
 
   // Update URL when filter changes
   const handleFilterChange = (newFilter: FilterType) => {
@@ -204,6 +256,46 @@ export default function ListingsPage() {
     }
   };
 
+  const handleExportCSV = () => {
+    // Create CSV content
+    const headers = ['Title', 'Status', 'Hourly Rate', 'Views', 'Inquiries', 'Bookings', 'Created At'];
+    const rows = sortedListings.map(listing => [
+      listing.title || '',
+      listing.status || '',
+      `£${listing.hourly_rate || 0}`,
+      listing.view_count || 0,
+      listing.inquiry_count || 0,
+      listing.booking_count || 0,
+      new Date(listing.created_at).toLocaleDateString('en-GB'),
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(',')),
+    ].join('\n');
+
+    // Download CSV
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `listings-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success('Listings exported successfully');
+    setShowActionsMenu(false);
+  };
+
+  const handleViewPublicProfile = () => {
+    if (user?.id) {
+      router.push(`/public-profile/${user.id}`);
+      setShowActionsMenu(false);
+    }
+  };
+
   // Show loading state for auth/role checks
   if (userLoading || roleLoading) {
     return <ListingsSkeleton />;
@@ -217,88 +309,202 @@ export default function ListingsPage() {
   // Show error state
   if (error) {
     return (
-      <>
+      <HubPageLayout
+        header={<HubHeader title="Listings" />}
+        sidebar={
+          <>
+            <ListingStatsWidget listings={[]} isLoading={false} />
+            <CreateListingWidget />
+          </>
+        }
+      >
         <ListingsError error={error as Error} onRetry={() => refetch()} />
-        <ContextualSidebar>
-          <ListingStatsWidget listings={[]} isLoading={false} />
-          <CreateListingWidget />
-        </ContextualSidebar>
-      </>
+      </HubPageLayout>
     );
   }
 
   // Show loading skeleton
   if (isLoading) {
     return (
-      <>
+      <HubPageLayout
+        header={<HubHeader title="Listings" />}
+        sidebar={
+          <>
+            <ListingStatsWidget listings={[]} isLoading={true} />
+            <CreateListingWidget />
+          </>
+        }
+      >
         <ListingsSkeleton />
-        <ContextualSidebar>
-          <ListingStatsWidget listings={[]} isLoading={true} />
-          <CreateListingWidget />
-        </ContextualSidebar>
-      </>
+      </HubPageLayout>
     );
   }
 
   return (
-    <>
-      {/* Main Content */}
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>Listings</h1>
-          <p className={styles.subtitle}>
-            Manage your tutoring service listings and offerings
-          </p>
+    <HubPageLayout
+      header={
+        <HubHeader
+          title="Listings"
+          actions={
+            <div className="flex items-center gap-2">
+              {/* Primary Action: Create Listing */}
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => router.push('/create-listing')}
+              >
+                Create Listing
+              </Button>
+
+              {/* Secondary Actions: Dropdown Menu */}
+              <div className="relative">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setShowActionsMenu(!showActionsMenu)}
+                >
+                  <ChevronDown className="w-4 h-4" />
+                </Button>
+
+                {showActionsMenu && (
+                  <>
+                    {/* Backdrop to close menu */}
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setShowActionsMenu(false)}
+                    />
+
+                    {/* Dropdown Menu */}
+                    <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-20">
+                      <button
+                        onClick={handleViewPublicProfile}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        View Public Profile
+                      </button>
+                      <button
+                        onClick={handleExportCSV}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors border-t border-gray-100"
+                      >
+                        Export CSV
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          }
+        >
+          {/* Center Slot: Search & Sort */}
+          <div className="flex gap-2 w-full max-w-2xl">
+            {/* Search Input */}
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="search"
+                placeholder="Search listings..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+
+            {/* Sort Dropdown */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortType)}
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="views-high">Views: High to Low</option>
+              <option value="views-low">Views: Low to High</option>
+              <option value="bookings-high">Bookings: High to Low</option>
+              <option value="bookings-low">Bookings: Low to High</option>
+            </select>
+          </div>
+        </HubHeader>
+      }
+      tabs={
+        <div className="flex gap-0 px-6 py-0 overflow-x-auto">
+          <button
+            onClick={() => handleFilterChange('all')}
+            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+              filter === 'all'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-600 hover:text-gray-900 border-b-2 border-transparent'
+            }`}
+          >
+            All Listings ({tabCounts.all})
+          </button>
+          <button
+            onClick={() => handleFilterChange('published')}
+            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+              filter === 'published'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-600 hover:text-gray-900 border-b-2 border-transparent'
+            }`}
+          >
+            Published ({tabCounts.published})
+          </button>
+          <button
+            onClick={() => handleFilterChange('unpublished')}
+            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+              filter === 'unpublished'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-600 hover:text-gray-900 border-b-2 border-transparent'
+            }`}
+          >
+            Unpublished ({tabCounts.unpublished})
+          </button>
+          <button
+            onClick={() => handleFilterChange('draft')}
+            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+              filter === 'draft'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-600 hover:text-gray-900 border-b-2 border-transparent'
+            }`}
+          >
+            Drafts ({tabCounts.draft})
+          </button>
+          <button
+            onClick={() => handleFilterChange('archived')}
+            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+              filter === 'archived'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-600 hover:text-gray-900 border-b-2 border-transparent'
+            }`}
+          >
+            Archived ({tabCounts.archived})
+          </button>
+          <button
+            onClick={() => handleFilterChange('templates')}
+            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+              filter === 'templates'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-600 hover:text-gray-900 border-b-2 border-transparent'
+            }`}
+          >
+            Templates ({tabCounts.templates})
+          </button>
         </div>
-      </div>
-
-      {/* Filter Tabs - Full width outside container */}
-      <div className={styles.filterTabs}>
-        <button
-          onClick={() => handleFilterChange('all')}
-          className={`${styles.filterTab} ${filter === 'all' ? styles.filterTabActive : ''}`}
-        >
-          All Listings
-        </button>
-        <button
-          onClick={() => handleFilterChange('published')}
-          className={`${styles.filterTab} ${filter === 'published' ? styles.filterTabActive : ''}`}
-        >
-          Published
-        </button>
-        <button
-          onClick={() => handleFilterChange('unpublished')}
-          className={`${styles.filterTab} ${filter === 'unpublished' ? styles.filterTabActive : ''}`}
-        >
-          Unpublished
-        </button>
-        <button
-          onClick={() => handleFilterChange('draft')}
-          className={`${styles.filterTab} ${filter === 'draft' ? styles.filterTabActive : ''}`}
-        >
-          Drafts
-        </button>
-        <button
-          onClick={() => handleFilterChange('archived')}
-          className={`${styles.filterTab} ${filter === 'archived' ? styles.filterTabActive : ''}`}
-        >
-          Archived
-        </button>
-        <button
-          onClick={() => handleFilterChange('templates')}
-          className={`${styles.filterTab} ${filter === 'templates' ? styles.filterTabActive : ''}`}
-        >
-          Templates
-        </button>
-      </div>
-
-      {/* Content container */}
-      <div className={styles.container}>
+      }
+      sidebar={
+        <>
+          <ListingStatsWidget listings={rawListings} isLoading={false} />
+          <CreateListingWidget />
+        </>
+      }
+    >
+      {/* Content Area */}
+      <div className="p-6">
         {/* Empty State */}
-        {filteredListings.length === 0 && (
-          <div className={styles.emptyState}>
-            <h3 className={styles.emptyTitle}>No listings found</h3>
-            <p className={styles.emptyText}>
+        {paginatedListings.length === 0 && !searchQuery && (
+          <div className="text-center py-12">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No listings found</h3>
+            <p className="text-gray-600 mb-6">
               {filter === 'templates'
                 ? 'No templates available. Templates help you quickly create new listings.'
                 : filter === 'published'
@@ -312,20 +518,30 @@ export default function ListingsPage() {
                 : 'You have no listings yet. Create your first listing to get started.'}
             </p>
             {filter === 'all' && (
-              <button
+              <Button
+                variant="primary"
                 onClick={() => router.push('/create-listing')}
-                className={styles.emptyButton}
               >
                 Create Your First Listing
-              </button>
+              </Button>
             )}
           </div>
         )}
 
+        {/* Search Empty State */}
+        {paginatedListings.length === 0 && searchQuery && (
+          <div className="text-center py-12">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No results found</h3>
+            <p className="text-gray-600">
+              No listings match your search &ldquo;{searchQuery}&rdquo;. Try a different search term.
+            </p>
+          </div>
+        )}
+
         {/* Listings List */}
-        {filteredListings.length > 0 && (
-          <div className={styles.listingsList}>
-            {filteredListings.map((listing) => (
+        {paginatedListings.length > 0 && (
+          <div className="space-y-4">
+            {paginatedListings.map((listing) => (
               <ListingCard
                 key={listing.id}
                 listing={listing}
@@ -338,13 +554,19 @@ export default function ListingsPage() {
             ))}
           </div>
         )}
-      </div>
 
-      {/* Contextual Sidebar (Right Column) */}
-      <ContextualSidebar>
-        <ListingStatsWidget listings={listings} isLoading={false} />
-        <CreateListingWidget />
-      </ContextualSidebar>
-    </>
+        {/* Pagination */}
+        {totalItems > ITEMS_PER_PAGE && (
+          <div className="mt-6">
+            <Pagination
+              currentPage={currentPage}
+              totalItems={totalItems}
+              itemsPerPage={ITEMS_PER_PAGE}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        )}
+      </div>
+    </HubPageLayout>
   );
 }
