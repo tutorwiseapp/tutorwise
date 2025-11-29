@@ -366,14 +366,12 @@ export default function BookingsPage() {
         )}
 
         {/* Pagination */}
-        {totalItems > ITEMS_PER_PAGE && (
-          <HubPagination
-            currentPage={currentPage}
-            totalItems={totalItems}
-            itemsPerPage={ITEMS_PER_PAGE}
-            onPageChange={setCurrentPage}
-          />
-        )}
+        <HubPagination
+          currentPage={currentPage}
+          totalItems={totalItems}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </HubPageLayout>
   );
@@ -450,9 +448,8 @@ interface HubPaginationProps {
 ```
 
 **Features:**
-- Shows "X-Y of Z results" summary
-- Previous/Next buttons
-- Automatically hides if ≤1 page
+- Shows "X-Y of Z results" summary (always visible)
+- Previous/Next buttons (hidden when ≤1 page)
 - Disabled state for first/last page
 - Consistent styling with hub components
 
@@ -472,15 +469,13 @@ useEffect(() => {
   setCurrentPage(1);
 }, [filter, searchQuery]);
 
-// Render
-{totalItems > ITEMS_PER_PAGE && (
-  <HubPagination
-    currentPage={currentPage}
-    totalItems={totalItems}
-    itemsPerPage={ITEMS_PER_PAGE}
-    onPageChange={setCurrentPage}
-  />
-)}
+// Render - Always include pagination (no conditional check needed)
+<HubPagination
+  currentPage={currentPage}
+  totalItems={totalItems}
+  itemsPerPage={ITEMS_PER_PAGE}
+  onPageChange={setCurrentPage}
+/>
 ```
 
 ---

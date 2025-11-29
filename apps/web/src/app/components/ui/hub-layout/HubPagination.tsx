@@ -2,7 +2,8 @@
  * Filename: apps/web/src/app/components/ui/hub-layout/HubPagination.tsx
  * Purpose: Pagination component for Hub Pages
  * Created: 2025-11-28
- * Pattern: Shows "X-Y of Z results" + Previous/Next buttons
+ * Updated: 2025-11-29 - Always show summary, hide buttons when ≤1 page
+ * Pattern: Shows "X-Y of Z results" (always) + Previous/Next buttons (only if >1 page)
  *
  * Usage:
  * <HubPagination
@@ -11,6 +12,8 @@
  *   itemsPerPage={5}
  *   onPageChange={(page) => setCurrentPage(page)}
  * />
+ *
+ * Note: Always renders. Summary text always visible. Buttons hidden when ≤1 page.
  */
 
 'use client';
@@ -32,12 +35,8 @@ export default function HubPagination({
   onPageChange,
 }: HubPaginationProps) {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startItem = (currentPage - 1) * itemsPerPage + 1;
+  const startItem = totalItems > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
-
-  if (totalPages <= 1) {
-    return null; // Don't render pagination if there's only one page
-  }
 
   return (
     <div className={styles.paginationContainer}>
@@ -46,22 +45,24 @@ export default function HubPagination({
         <span className={styles.bold}>{endItem}</span> of{' '}
         <span className={styles.bold}>{totalItems}</span> results
       </p>
-      <div className={styles.buttons}>
-        <button
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-          className={styles.button}
-        >
-          Previous
-        </button>
-        <button
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className={styles.button}
-        >
-          Next
-        </button>
-      </div>
+      {totalPages > 1 && (
+        <div className={styles.buttons}>
+          <button
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={styles.button}
+          >
+            Previous
+          </button>
+          <button
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={styles.button}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }

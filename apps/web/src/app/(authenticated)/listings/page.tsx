@@ -489,16 +489,14 @@ export default function ListingsPage() {
         )}
 
         {/* Pagination */}
-        {totalItems > ITEMS_PER_PAGE && (
-          <div className={styles.paginationContainer}>
-            <HubPagination
-              currentPage={currentPage}
-              totalItems={totalItems}
-              itemsPerPage={ITEMS_PER_PAGE}
-              onPageChange={setCurrentPage}
-            />
-          </div>
-        )}
+        <div className={styles.paginationContainer}>
+          <HubPagination
+            currentPage={currentPage}
+            totalItems={totalItems}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onPageChange={setCurrentPage}
+          />
+        </div>
       </div>
     </HubPageLayout>
   );
