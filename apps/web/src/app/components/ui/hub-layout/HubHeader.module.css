@@ -17,7 +17,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
 }
 
 .titleSection {
@@ -59,7 +58,6 @@
     min-height: 4rem;
     flex-wrap: wrap;
     gap: 0;
-    margin-bottom: 1rem;
   }
 
   .title {
