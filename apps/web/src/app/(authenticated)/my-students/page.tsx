@@ -2,8 +2,8 @@
  * Filename: apps/web/src/app/(authenticated)/my-students/page.tsx
  * Purpose: My Students page - Guardian Link management (SDD v5.0)
  * Created: 2025-11-12
- * Updated: 2025-11-13 - Enhanced with tab filtering, rich stats, and improved UX
- * Based on: /network/page.tsx (v4.4)
+ * Updated: 2025-11-29 - Migrated to Hub Layout Architecture with HubPageLayout, HubHeader, HubTabs, HubPagination
+ * Based on: /network/page.tsx (Hub Architecture)
  */
 
 'use client';
@@ -17,13 +17,20 @@ import type { StudentLink } from '@/types';
 import StudentCard from '@/app/components/students/StudentCard';
 import StudentInviteModal from '@/app/components/students/StudentInviteModal';
 import StudentStatsWidget from '@/app/components/students/StudentStatsWidget';
-import ClientStudentWidget from '@/app/components/students/ClientStudentWidget';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
+import type { HubTab } from '@/app/components/ui/hub-layout';
+import Button from '@/app/components/ui/Button';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
+import filterStyles from '@/app/components/ui/hub-layout/hub-filters.module.css';
+import actionStyles from '@/app/components/ui/hub-layout/hub-actions.module.css';
 
 // Tab filter types
 type TabType = 'all' | 'recently-added' | 'with-integrations';
+type SortType = 'newest' | 'oldest' | 'name-asc' | 'name-desc';
+
+const ITEMS_PER_PAGE = 5;
 
 export default function MyStudentsPage() {
   const router = useRouter();
@@ -32,6 +39,10 @@ export default function MyStudentsPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortType>('newest');
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // React Query: Fetch students with automatic retry, caching, and background refetch
   const {
@@ -89,6 +100,8 @@ export default function MyStudentsPage() {
 
   // Calculate stats with rich metrics
   const stats = useMemo(() => {
+    if (!students) return { total: 0, recentlyAdded: 0, withIntegrations: 0, activeThisMonth: 0 };
+
     const now = new Date();
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
@@ -110,167 +123,350 @@ export default function MyStudentsPage() {
     };
   }, [students]);
 
-  // Filter students based on active tab
+  // Action handlers
+  const handleInviteStudent = () => {
+    setIsModalOpen(true);
+    setShowActionsMenu(false);
+  };
+
+  const handleImportStudents = () => {
+    toast('Bulk import coming soon!', { icon: '📤' });
+    setShowActionsMenu(false);
+  };
+
+  const handleCreateGroup = () => {
+    toast('Student groups coming soon!', { icon: '📁' });
+    setShowActionsMenu(false);
+  };
+
+  const handleExportCSV = () => {
+    if (!filteredStudents.length) {
+      toast.error('No students to export');
+      return;
+    }
+
+    const headers = ['Name', 'Email', 'Added On', 'Status'];
+    const rows = filteredStudents.map(student => [
+      student.student?.full_name || '',
+      student.student?.email || '',
+      new Date(student.created_at).toLocaleDateString('en-GB'),
+      student.status || 'active',
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(',')),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `students-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success('Students exported successfully');
+    setShowActionsMenu(false);
+  };
+
+  // Filter and sort students
   const filteredStudents = useMemo(() => {
+    if (!students) return [];
+
     const now = new Date();
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-    switch (activeTab) {
-      case 'recently-added':
-        return students.filter((s) => {
-          const createdDate = new Date(s.created_at);
+    // Tab filtering
+    let filtered = students.filter((student) => {
+      switch (activeTab) {
+        case 'recently-added':
+          const createdDate = new Date(student.created_at);
           return createdDate >= sevenDaysAgo;
-        });
-      case 'with-integrations':
-        return students.filter((s) => {
+        case 'with-integrations':
           // TODO: Filter by integration links when that data is available
-          return false; // Placeholder - will show empty for now
-        });
-      case 'all':
-      default:
-        return students;
+          return false; // Placeholder
+        case 'all':
+        default:
+          return true;
+      }
+    });
+
+    // Search filtering
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((student) => {
+        const name = student.student?.full_name?.toLowerCase() || '';
+        const email = student.student?.email?.toLowerCase() || '';
+        return name.includes(query) || email.includes(query);
+      });
     }
-  }, [students, activeTab]);
+
+    // Sorting
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'newest':
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case 'oldest':
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case 'name-asc':
+          return (a.student?.full_name || '').localeCompare(b.student?.full_name || '');
+        case 'name-desc':
+          return (b.student?.full_name || '').localeCompare(a.student?.full_name || '');
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [students, activeTab, searchQuery, sortBy]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredStudents.length / ITEMS_PER_PAGE);
+  const paginatedStudents = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return filteredStudents.slice(startIndex, endIndex);
+  }, [filteredStudents, currentPage]);
+
+  // Reset to page 1 when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, searchQuery, sortBy]);
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId as TabType);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Determine role-specific messaging
+  const isClient = profile?.roles?.includes('client');
+
+  const emptyStateTitle = 'No students yet';
+  const emptyStateMessage = isClient
+    ? 'Add your child to start tracking their learning progress.'
+    : 'Invite students to manage their learning path.';
 
   // Show loading state
   if (profileLoading || isLoading) {
     return (
-      <>
-        <div className={styles.header}>
-          <h1 className={styles.title}>My Students</h1>
-          <p className={styles.subtitle}>Loading...</p>
+      <HubPageLayout
+        header={<HubHeader title="My Students" />}
+        sidebar={
+          <ContextualSidebar>
+            <StudentStatsWidget
+              totalStudents={0}
+              recentlyAdded={0}
+              withIntegrations={0}
+              activeThisMonth={0}
+            />
+          </ContextualSidebar>
+        }
+      >
+        <div className={styles.loadingState}>
+          <div className={styles.spinner}></div>
+          <p>Loading students...</p>
         </div>
-        <ContextualSidebar>
-          <StudentStatsWidget
-            totalStudents={0}
-            recentlyAdded={0}
-            withIntegrations={0}
-            activeThisMonth={0}
-          />
-        </ContextualSidebar>
-      </>
+      </HubPageLayout>
     );
   }
 
   // Show error state
   if (error) {
     return (
-      <>
-        <div className={styles.header}>
-          <h1 className={styles.title}>My Students</h1>
-          <p className={styles.subtitle}>Failed to load students</p>
+      <HubPageLayout
+        header={<HubHeader title="My Students" />}
+        sidebar={
+          <ContextualSidebar>
+            <StudentStatsWidget
+              totalStudents={0}
+              recentlyAdded={0}
+              withIntegrations={0}
+              activeThisMonth={0}
+            />
+          </ContextualSidebar>
+        }
+      >
+        <div className={styles.errorState}>
+          <p className={styles.errorText}>
+            {(error as Error).message || 'An error occurred'}
+          </p>
+          <button onClick={() => refetch()} className={styles.retryButton}>
+            Try Again
+          </button>
         </div>
-        <div className={styles.content}>
-          <div className={styles.errorState}>
-            <p className={styles.errorText}>
-              {(error as Error).message || 'An error occurred'}
-            </p>
-            <button onClick={() => refetch()} className={styles.retryButton}>
-              Try Again
-            </button>
-          </div>
-        </div>
-        <ContextualSidebar>
-          <StudentStatsWidget
-            totalStudents={0}
-            recentlyAdded={0}
-            withIntegrations={0}
-            activeThisMonth={0}
-          />
-        </ContextualSidebar>
-      </>
+      </HubPageLayout>
     );
   }
 
-  // Determine role-specific messaging
-  const isClient = profile?.roles?.includes('client');
-  const isTutor = profile?.roles?.includes('tutor');
-
-  const emptyStateTitle = isClient
-    ? 'No students yet'
-    : isTutor
-    ? 'No students yet'
-    : 'No students yet';
-
-  const emptyStateMessage = isClient
-    ? 'Add your child to start tracking their learning progress.'
-    : isTutor
-    ? 'Invite students to manage their learning path.'
-    : 'Invited students will appear here.';
-
   return (
-    <>
-      {/* Header */}
-      <div className={styles.header}>
-        <h1 className={styles.title}>My Students</h1>
-        <p className={styles.subtitle}>
-          {isClient
-            ? 'Manage your children and track their learning progress'
-            : 'Manage students and their learning progress'}
-        </p>
-      </div>
+    <HubPageLayout
+      header={
+        <HubHeader
+          title="My Students"
+          filters={
+            <div className={filterStyles.filtersContainer}>
+              {/* Search Input */}
+              <input
+                type="search"
+                placeholder="Search students..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={filterStyles.searchInput}
+              />
 
-      {/* Filter Tabs - Always show */}
-      <div className={styles.filterTabs}>
-        <button
-          onClick={() => setActiveTab('all')}
-          className={`${styles.filterTab} ${activeTab === 'all' ? styles.filterTabActive : ''}`}
-        >
-          All Students ({students.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('recently-added')}
-          className={`${styles.filterTab} ${activeTab === 'recently-added' ? styles.filterTabActive : ''}`}
-        >
-          Recently Added ({stats.recentlyAdded})
-        </button>
-        <button
-          onClick={() => setActiveTab('with-integrations')}
-          className={`${styles.filterTab} ${activeTab === 'with-integrations' ? styles.filterTabActive : ''}`}
-        >
-          With Integrations ({stats.withIntegrations})
-        </button>
-      </div>
+              {/* Sort Dropdown */}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortType)}
+                className={filterStyles.filterSelect}
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="name-asc">Name (A-Z)</option>
+                <option value="name-desc">Name (Z-A)</option>
+              </select>
+            </div>
+          }
+          actions={
+            <>
+              {/* Primary Action Button */}
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => setIsModalOpen(true)}
+              >
+                Add Student
+              </Button>
 
-      {/* Content */}
-      <div className={styles.content}>
-        {students.length === 0 ? (
+              {/* Secondary Actions: Dropdown Menu */}
+              <div className={actionStyles.dropdownContainer}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setShowActionsMenu(!showActionsMenu)}
+                >
+                  ⋮
+                </Button>
+
+                {showActionsMenu && (
+                  <>
+                    {/* Backdrop to close menu */}
+                    <div
+                      className={actionStyles.backdrop}
+                      onClick={() => setShowActionsMenu(false)}
+                    />
+
+                    {/* Dropdown Menu */}
+                    <div className={actionStyles.dropdownMenu}>
+                      <button
+                        onClick={handleInviteStudent}
+                        className={actionStyles.menuButton}
+                      >
+                        Invite by Email
+                      </button>
+                      <button
+                        onClick={handleImportStudents}
+                        className={actionStyles.menuButton}
+                      >
+                        Import Students
+                      </button>
+                      <button
+                        onClick={handleCreateGroup}
+                        className={actionStyles.menuButton}
+                      >
+                        Create Group
+                      </button>
+                      <button
+                        onClick={handleExportCSV}
+                        className={actionStyles.menuButton}
+                      >
+                        Export CSV
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
+          }
+        />
+      }
+      tabs={
+        <HubTabs
+          tabs={[
+            { id: 'all', label: 'All Students', count: stats.total, active: activeTab === 'all' },
+            { id: 'recently-added', label: 'Recently Added', count: stats.recentlyAdded, active: activeTab === 'recently-added' },
+            { id: 'with-integrations', label: 'With Integrations', count: stats.withIntegrations, active: activeTab === 'with-integrations' },
+          ]}
+          onTabChange={handleTabChange}
+        />
+      }
+      sidebar={
+        <ContextualSidebar>
+          <StudentStatsWidget
+            totalStudents={stats.total}
+            recentlyAdded={stats.recentlyAdded}
+            withIntegrations={stats.withIntegrations}
+            activeThisMonth={stats.activeThisMonth}
+          />
+        </ContextualSidebar>
+      }
+    >
+      <div className={styles.container}>
+        {/* Content */}
+        {filteredStudents.length === 0 ? (
           <div className={styles.emptyState}>
-            <h3 className={styles.emptyTitle}>{emptyStateTitle}</h3>
-            <p className={styles.emptyText}>{emptyStateMessage}</p>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className={styles.emptyButton}
-            >
-              Add Your First Student
-            </button>
-          </div>
-        ) : filteredStudents.length === 0 ? (
-          <div className={styles.emptyState}>
-            <h3 className={styles.emptyTitle}>No students found</h3>
-            <p className={styles.emptyText}>
-              {activeTab === 'recently-added' && 'No students have been added in the last 7 days.'}
-              {activeTab === 'with-integrations' && 'No students have connected integrations yet.'}
-            </p>
-            <button
-              onClick={() => setActiveTab('all')}
-              className={styles.emptyButton}
-            >
-              View All Students
-            </button>
+            {students.length === 0 ? (
+              <>
+                <h3 className={styles.emptyTitle}>{emptyStateTitle}</h3>
+                <p className={styles.emptyText}>{emptyStateMessage}</p>
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className={styles.emptyButton}
+                >
+                  Add Your First Student
+                </button>
+              </>
+            ) : (
+              <>
+                <h3 className={styles.emptyTitle}>No students found</h3>
+                <p className={styles.emptyText}>
+                  {activeTab === 'recently-added' && 'No students have been added in the last 7 days.'}
+                  {activeTab === 'with-integrations' && 'No students have connected integrations yet.'}
+                  {searchQuery && `No students match "${searchQuery}"`}
+                </p>
+              </>
+            )}
           </div>
         ) : (
-          <div className={styles.studentsList}>
-            {filteredStudents.map((student) => (
-              <StudentCard
-                key={student.id}
-                student={student}
-                currentUserId={profile?.id || ''}
-                onRemove={handleRemove}
-                onViewProgress={handleViewProgress}
+          <>
+            <div className={styles.studentsList}>
+              {paginatedStudents.map((student) => (
+                <StudentCard
+                  key={student.id}
+                  student={student}
+                  currentUserId={profile?.id || ''}
+                  onRemove={handleRemove}
+                  onViewProgress={handleViewProgress}
+                />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {filteredStudents.length > ITEMS_PER_PAGE && (
+              <HubPagination
+                currentPage={currentPage}
+                totalItems={filteredStudents.length}
+                itemsPerPage={ITEMS_PER_PAGE}
+                onPageChange={handlePageChange}
               />
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
 
@@ -280,23 +476,6 @@ export default function MyStudentsPage() {
         onClose={() => setIsModalOpen(false)}
         onSuccess={handleStudentInviteSuccess}
       />
-
-      {/* Contextual Sidebar */}
-      <ContextualSidebar>
-        <StudentStatsWidget
-          totalStudents={stats.total}
-          recentlyAdded={stats.recentlyAdded}
-          withIntegrations={stats.withIntegrations}
-          activeThisMonth={stats.activeThisMonth}
-        />
-
-        <ClientStudentWidget
-          onInviteByEmail={() => setIsModalOpen(true)}
-          onImportStudent={() => toast('Bulk import coming soon!', { icon: '📤' })}
-          onAddStudent={() => setIsModalOpen(true)}
-          onCreateGroup={() => toast('Student groups coming soon!', { icon: '📁' })}
-        />
-      </ContextualSidebar>
-    </>
+    </HubPageLayout>
   );
 }
