@@ -20,7 +20,7 @@ import ReviewStatsWidget from '@/app/components/reviews/ReviewStatsWidget';
 import ReviewSubmissionModal from '@/app/components/reviews/ReviewSubmissionModal';
 import ReviewsSkeleton from '@/app/components/reviews/ReviewsSkeleton';
 import ReviewsError from '@/app/components/reviews/ReviewsError';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/ui/hub-layout';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
 import type { HubTab } from '@/app/components/ui/hub-layout';
 import toast from 'react-hot-toast';
 import type {
@@ -31,6 +31,8 @@ import styles from './page.module.css';
 
 type TabType = 'pending' | 'received' | 'given';
 
+const ITEMS_PER_PAGE = 5;
+
 export default function ReviewsPage() {
   const router = useRouter();
   const { profile, isLoading: profileLoading } = useUserProfile();
@@ -38,6 +40,7 @@ export default function ReviewsPage() {
 
   const [activeTab, setActiveTab] = useState<TabType>('pending');
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // React Query: Fetch pending review tasks
   const {
@@ -135,6 +138,22 @@ export default function ReviewsPage() {
     setActiveTab(tabId as TabType);
   };
 
+  // Pagination logic for each tab
+  const getPaginatedItems = <T,>(items: T[]) => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return items.slice(startIndex, endIndex);
+  };
+
+  const paginatedPendingTasks = getPaginatedItems(pendingTasks);
+  const paginatedReceivedReviews = getPaginatedItems(receivedReviews);
+  const paginatedGivenReviews = getPaginatedItems(givenReviews);
+
+  // Reset to page 1 when tab changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
+
   const emptyStats = {
     pendingCount: 0,
     receivedCount: 0,
@@ -220,16 +239,24 @@ export default function ReviewsPage() {
                   </p>
                 </div>
               ) : (
-                <div className={styles.reviewsList}>
-                  {pendingTasks.map((task) => (
-                    <PendingReviewCard
-                      key={task.id}
-                      task={task}
-                      currentUserId={profile.id}
-                      onSubmit={handleOpenReviewModal}
-                    />
-                  ))}
-                </div>
+                <>
+                  <div className={styles.reviewsList}>
+                    {paginatedPendingTasks.map((task) => (
+                      <PendingReviewCard
+                        key={task.id}
+                        task={task}
+                        currentUserId={profile.id}
+                        onSubmit={handleOpenReviewModal}
+                      />
+                    ))}
+                  </div>
+                  <HubPagination
+                    currentPage={currentPage}
+                    totalItems={pendingTasks.length}
+                    itemsPerPage={ITEMS_PER_PAGE}
+                    onPageChange={setCurrentPage}
+                  />
+                </>
               )
             )}
 
@@ -243,15 +270,23 @@ export default function ReviewsPage() {
                   </p>
                 </div>
               ) : (
-                <div className={styles.reviewsList}>
-                  {receivedReviews.map((review) => (
-                    <ProfileReviewCard
-                      key={review.id}
-                      review={review}
-                      variant="received"
-                    />
-                  ))}
-                </div>
+                <>
+                  <div className={styles.reviewsList}>
+                    {paginatedReceivedReviews.map((review) => (
+                      <ProfileReviewCard
+                        key={review.id}
+                        review={review}
+                        variant="received"
+                      />
+                    ))}
+                  </div>
+                  <HubPagination
+                    currentPage={currentPage}
+                    totalItems={receivedReviews.length}
+                    itemsPerPage={ITEMS_PER_PAGE}
+                    onPageChange={setCurrentPage}
+                  />
+                </>
               )
             )}
 
@@ -265,15 +300,23 @@ export default function ReviewsPage() {
                   </p>
                 </div>
               ) : (
-                <div className={styles.reviewsList}>
-                  {givenReviews.map((review) => (
-                    <ProfileReviewCard
-                      key={review.id}
-                      review={review}
-                      variant="given"
-                    />
-                  ))}
-                </div>
+                <>
+                  <div className={styles.reviewsList}>
+                    {paginatedGivenReviews.map((review) => (
+                      <ProfileReviewCard
+                        key={review.id}
+                        review={review}
+                        variant="given"
+                      />
+                    ))}
+                  </div>
+                  <HubPagination
+                    currentPage={currentPage}
+                    totalItems={givenReviews.length}
+                    itemsPerPage={ITEMS_PER_PAGE}
+                    onPageChange={setCurrentPage}
+                  />
+                </>
               )
             )}
           </>

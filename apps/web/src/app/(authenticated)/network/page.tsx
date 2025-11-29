@@ -20,12 +20,14 @@ import NetworkStatsWidget from '@/app/components/network/NetworkStatsWidget';
 import NetworkConnectionWidget from '@/app/components/network/NetworkConnectionWidget';
 import NetworkSkeleton from '@/app/components/network/NetworkSkeleton';
 import NetworkError from '@/app/components/network/NetworkError';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/ui/hub-layout';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
 import type { HubTab } from '@/app/components/ui/hub-layout';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
 
 type TabType = 'all' | 'pending-received' | 'pending-sent';
+
+const ITEMS_PER_PAGE = 5;
 
 export default function NetworkPage() {
   const { profile, isLoading: profileLoading } = useUserProfile();
@@ -33,6 +35,7 @@ export default function NetworkPage() {
 
   const [activeTab, setActiveTab] = useState<TabType>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // React Query: Fetch connections with automatic retry, caching, and background refetch
   const {
@@ -205,6 +208,17 @@ export default function NetworkPage() {
     });
   }, [connections, activeTab, profile]);
 
+  // Pagination logic
+  const totalItems = filteredConnections.length;
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedConnections = filteredConnections.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filter changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
+
   const handleConnectionSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ['connections', profile?.id] });
   };
@@ -324,26 +338,36 @@ export default function NetworkPage() {
             )}
           </div>
         ) : (
-          <div className={styles.connectionsList}>
-            {filteredConnections.map((connection) => (
-              <ConnectionCard
-                key={connection.id}
-                connection={connection}
-                currentUserId={profile?.id || ''}
-                variant={
-                  activeTab === 'pending-received'
-                    ? 'pending-received'
-                    : activeTab === 'pending-sent'
-                    ? 'pending-sent'
-                    : 'accepted'
-                }
-                onAccept={handleAccept}
-                onReject={handleReject}
-                onRemove={handleRemove}
-                onMessage={handleMessage}
-              />
-            ))}
-          </div>
+          <>
+            <div className={styles.connectionsList}>
+              {paginatedConnections.map((connection) => (
+                <ConnectionCard
+                  key={connection.id}
+                  connection={connection}
+                  currentUserId={profile?.id || ''}
+                  variant={
+                    activeTab === 'pending-received'
+                      ? 'pending-received'
+                      : activeTab === 'pending-sent'
+                      ? 'pending-sent'
+                      : 'accepted'
+                  }
+                  onAccept={handleAccept}
+                  onReject={handleReject}
+                  onRemove={handleRemove}
+                  onMessage={handleMessage}
+                />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            <HubPagination
+              currentPage={currentPage}
+              totalItems={totalItems}
+              itemsPerPage={ITEMS_PER_PAGE}
+              onPageChange={setCurrentPage}
+            />
+          </>
         )}
 
         {/* Connection Request Modal */}
