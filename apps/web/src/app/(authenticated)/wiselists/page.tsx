@@ -3,7 +3,7 @@
  * Purpose: Wiselists hub page (v5.7)
  * Path: /wiselists
  * Created: 2025-11-15
- * Updated: 2025-11-16 - Aligned with Network/My Students design system
+ * Updated: 2025-11-29 - Migrated to Hub Layout Architecture with HubPageLayout, HubHeader, HubTabs, HubPagination
  */
 
 'use client';
@@ -14,18 +14,30 @@ import WiselistCard from '@/app/components/wiselists/WiselistCard';
 import { CreateWiselistWidget } from '@/app/components/wiselists/CreateWiselistWidget';
 import { WiselistStatsWidget } from '@/app/components/wiselists/WiselistStatsWidget';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
+import Button from '@/app/components/ui/Button';
 import { Wiselist } from '@/types';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { getMyWiselists, deleteWiselist } from '@/lib/api/wiselists';
 import styles from './page.module.css';
+import filterStyles from '@/app/components/ui/hub-layout/hub-filters.module.css';
+import actionStyles from '@/app/components/ui/hub-layout/hub-actions.module.css';
 
 type TabType = 'my-lists' | 'shared-with-me';
+type SortType = 'newest' | 'oldest' | 'name-asc' | 'name-desc';
+
+const ITEMS_PER_PAGE = 5;
 
 export default function WiselistsPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<TabType>('my-lists');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortType>('newest');
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // React Query: Fetch wiselists with automatic retry, caching, and background refetch
   const {
@@ -54,17 +66,61 @@ export default function WiselistsPage() {
     };
   }, [wiselists]);
 
-  // Filter wiselists based on ownership (My Lists vs. Shared With Me)
+  // Filter wiselists based on ownership, search, and sort
   const filteredWiselists = useMemo(() => {
+    let filtered = [...wiselists];
+
+    // Filter by ownership (tab)
     switch (activeTab) {
       case 'my-lists':
-        return wiselists.filter((w: any) => w.is_owner === true);
+        filtered = filtered.filter((w: any) => w.is_owner === true);
+        break;
       case 'shared-with-me':
-        return wiselists.filter((w: any) => w.is_owner === false);
-      default:
-        return wiselists;
+        filtered = filtered.filter((w: any) => w.is_owner === false);
+        break;
     }
-  }, [wiselists, activeTab]);
+
+    // Search filtering (by name or description)
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((w: any) => {
+        const name = w.name?.toLowerCase() || '';
+        const description = w.description?.toLowerCase() || '';
+        return name.includes(query) || description.includes(query);
+      });
+    }
+
+    // Sorting
+    filtered.sort((a: any, b: any) => {
+      switch (sortBy) {
+        case 'newest':
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case 'oldest':
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case 'name-asc':
+          return (a.name || '').localeCompare(b.name || '');
+        case 'name-desc':
+          return (b.name || '').localeCompare(a.name || '');
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [wiselists, activeTab, searchQuery, sortBy]);
+
+  // Pagination
+  const totalItems = filteredWiselists.length;
+  const paginatedWiselists = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return filteredWiselists.slice(startIndex, endIndex);
+  }, [filteredWiselists, currentPage]);
+
+  // Reset to page 1 when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, searchQuery, sortBy]);
 
   // Delete mutation with optimistic updates
   const deleteMutation = useMutation({
@@ -121,125 +177,252 @@ export default function WiselistsPage() {
     }
   };
 
+  // Action handlers
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId as TabType);
+  };
+
+  const handleCreateWiselist = () => {
+    setShowCreateModal(true);
+    toast('Create wiselist functionality will be implemented!', { icon: '📝' });
+    setShowActionsMenu(false);
+  };
+
+  const handleImportFavorites = () => {
+    toast('Import favorites functionality coming soon!', { icon: '⭐' });
+    setShowActionsMenu(false);
+  };
+
+  const handleManageCategories = () => {
+    toast('Manage categories functionality coming soon!', { icon: '🏷️' });
+    setShowActionsMenu(false);
+  };
+
+  const handleExportCSV = () => {
+    if (!filteredWiselists.length) {
+      toast.error('No wiselists to export');
+      return;
+    }
+
+    const headers = ['Name', 'Description', 'Items', 'Visibility', 'Created'];
+    const rows = filteredWiselists.map((w: any) => [
+      w.name || '',
+      w.description || '',
+      w.item_count || 0,
+      w.is_public ? 'Public' : 'Private',
+      new Date(w.created_at).toLocaleDateString('en-GB'),
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(',')),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `wiselists-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success('Wiselists exported successfully');
+    setShowActionsMenu(false);
+  };
+
   // Show loading state
   if (isLoading) {
     return (
-      <>
+      <HubPageLayout
+        header={<HubHeader title="My Wiselists" />}
+        sidebar={
+          <ContextualSidebar>
+            <WiselistStatsWidget />
+            <CreateWiselistWidget />
+          </ContextualSidebar>
+        }
+      >
         <div className={styles.container}>
-          <div className={styles.header}>
-            <h1 className={styles.title}>My Wiselists</h1>
-            <p className={styles.subtitle}>Loading wiselists...</p>
-          </div>
+          <div className={styles.loading}>Loading wiselists...</div>
         </div>
-        <ContextualSidebar>
-          <WiselistStatsWidget />
-          <CreateWiselistWidget />
-        </ContextualSidebar>
-      </>
+      </HubPageLayout>
     );
   }
 
   // Show error state
   if (error) {
     return (
-      <>
+      <HubPageLayout
+        header={<HubHeader title="My Wiselists" />}
+        sidebar={
+          <ContextualSidebar>
+            <WiselistStatsWidget />
+            <CreateWiselistWidget />
+          </ContextualSidebar>
+        }
+      >
         <div className={styles.container}>
-          <div className={styles.header}>
-            <h1 className={styles.title}>My Wiselists</h1>
-            <p className={styles.subtitle}>Save and organize your favorite tutors and services</p>
-          </div>
-          <div className={styles.emptyState}>
-            <h3 className={styles.emptyTitle}>Failed to load wiselists</h3>
-            <p className={styles.emptyText}>
-              {error instanceof Error ? error.message : 'Unknown error'}
-            </p>
+          <div className={styles.error}>
+            <p>Failed to load wiselists. Please try again.</p>
             <button onClick={() => refetch()} className={styles.emptyButton}>
               Retry
             </button>
           </div>
         </div>
-        <ContextualSidebar>
-          <WiselistStatsWidget />
-          <CreateWiselistWidget />
-        </ContextualSidebar>
-      </>
+      </HubPageLayout>
     );
   }
 
   return (
-    <>
-      <div className={styles.container}>
-        {/* Header - No icon */}
-        <div className={styles.header}>
-          <h1 className={styles.title}>My Wiselists</h1>
-          <p className={styles.subtitle}>
-            Save and organize your favorite tutors and services
-          </p>
-        </div>
+    <HubPageLayout
+      header={
+        <HubHeader
+          title="My Wiselists"
+          filters={
+            <div className={filterStyles.filtersContainer}>
+              {/* Search Input */}
+              <input
+                type="search"
+                placeholder="Search by name or description..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={filterStyles.searchInput}
+              />
 
-        {/* Ownership Tabs - [My Lists] / [Shared With Me] */}
-        <div className={styles.filterTabs}>
-          <button
-            onClick={() => setActiveTab('my-lists')}
-            className={`${styles.filterTab} ${
-              activeTab === 'my-lists' ? styles.filterTabActive : ''
-            }`}
-          >
-            My Lists ({stats.myLists})
-          </button>
-          <button
-            onClick={() => setActiveTab('shared-with-me')}
-            className={`${styles.filterTab} ${
-              activeTab === 'shared-with-me' ? styles.filterTabActive : ''
-            }`}
-          >
-            Shared With Me ({stats.sharedWithMe})
-          </button>
-        </div>
-
-        {/* Content */}
-        {wiselists.length === 0 ? (
-          <div className={styles.emptyState}>
-            <h3 className={styles.emptyTitle}>No wiselists yet</h3>
-            <p className={styles.emptyText}>
-              Create your first wiselist to start saving and organizing tutors and services
-            </p>
-          </div>
-        ) : filteredWiselists.length === 0 ? (
-          <div className={styles.emptyState}>
-            <h3 className={styles.emptyTitle}>No wiselists found</h3>
-            <p className={styles.emptyText}>
-              {activeTab === 'my-lists' && 'You haven\'t created any wiselists yet. Click "New Wiselist" to get started.'}
-              {activeTab === 'shared-with-me' && 'No one has shared a wiselist with you yet.'}
-            </p>
-            {activeTab === 'shared-with-me' && (
-              <button
-                onClick={() => setActiveTab('my-lists')}
-                className={styles.emptyButton}
+              {/* Sort Dropdown */}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortType)}
+                className={filterStyles.filterSelect}
               >
-                View My Lists
-              </button>
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="name-asc">Name (A-Z)</option>
+                <option value="name-desc">Name (Z-A)</option>
+              </select>
+            </div>
+          }
+          actions={
+            <>
+              {/* Primary Action Button */}
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleCreateWiselist}
+              >
+                Create Wiselist
+              </Button>
+
+              {/* Secondary Actions: Dropdown Menu */}
+              <div className={actionStyles.dropdownContainer}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setShowActionsMenu(!showActionsMenu)}
+                >
+                  ⋮
+                </Button>
+
+                {showActionsMenu && (
+                  <>
+                    {/* Backdrop to close menu */}
+                    <div
+                      className={actionStyles.backdrop}
+                      onClick={() => setShowActionsMenu(false)}
+                    />
+
+                    {/* Dropdown Menu */}
+                    <div className={actionStyles.dropdownMenu}>
+                      <button
+                        onClick={handleImportFavorites}
+                        className={actionStyles.menuButton}
+                      >
+                        Import Favorites
+                      </button>
+                      <button
+                        onClick={handleManageCategories}
+                        className={actionStyles.menuButton}
+                      >
+                        Manage Categories
+                      </button>
+                      <button
+                        onClick={handleExportCSV}
+                        className={actionStyles.menuButton}
+                      >
+                        Export CSV
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
+          }
+        />
+      }
+      tabs={
+        <HubTabs
+          tabs={[
+            { id: 'my-lists', label: 'My Lists', count: stats.myLists, active: activeTab === 'my-lists' },
+            { id: 'shared-with-me', label: 'Shared With Me', count: stats.sharedWithMe, active: activeTab === 'shared-with-me' },
+          ]}
+          onTabChange={handleTabChange}
+        />
+      }
+      sidebar={
+        <ContextualSidebar>
+          <WiselistStatsWidget />
+          <CreateWiselistWidget />
+        </ContextualSidebar>
+      }
+    >
+      <div className={styles.container}>
+        {/* Empty State */}
+        {paginatedWiselists.length === 0 ? (
+          <div className={styles.emptyState}>
+            {wiselists.length === 0 ? (
+              <>
+                <h3 className={styles.emptyTitle}>No wiselists yet</h3>
+                <p className={styles.emptyText}>
+                  Create your first wiselist to start saving and organizing tutors and services
+                </p>
+              </>
+            ) : (
+              <>
+                <h3 className={styles.emptyTitle}>No wiselists found</h3>
+                <p className={styles.emptyText}>
+                  No wiselists match your current filters. Try adjusting your search or filters.
+                </p>
+              </>
             )}
           </div>
         ) : (
-          <div className={styles.wiselistsGrid}>
-            {filteredWiselists.map((wiselist) => (
-              <WiselistCard
-                key={wiselist.id}
-                wiselist={wiselist}
-                onDelete={handleDelete}
-                onShare={handleShare}
+          <>
+            {/* Wiselists Grid */}
+            <div className={styles.wiselistsGrid}>
+              {paginatedWiselists.map((wiselist) => (
+                <WiselistCard
+                  key={wiselist.id}
+                  wiselist={wiselist}
+                  onDelete={handleDelete}
+                  onShare={handleShare}
+                />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {filteredWiselists.length > ITEMS_PER_PAGE && (
+              <HubPagination
+                currentPage={currentPage}
+                totalItems={totalItems}
+                itemsPerPage={ITEMS_PER_PAGE}
+                onPageChange={setCurrentPage}
               />
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
-
-      {/* Contextual Sidebar */}
-      <ContextualSidebar>
-        <WiselistStatsWidget />
-        <CreateWiselistWidget />
-      </ContextualSidebar>
-    </>
+    </HubPageLayout>
   );
 }

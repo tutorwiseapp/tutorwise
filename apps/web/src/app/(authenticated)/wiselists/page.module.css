@@ -82,6 +82,17 @@
   text-align: center;
   padding: 3rem;
   color: #6b7280;
+  font-size: 1rem;
+}
+
+/* Error State */
+.error {
+  padding: 1rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  color: #991b1b;
+  margin-bottom: 1rem;
 }
 
 /* Empty State */
@@ -123,6 +134,11 @@
 
 .emptyButton:hover {
   background-color: var(--color-primary-dark, #005550);
+}
+
+/* Pagination Container */
+.paginationContainer {
+  margin-top: 2rem;
 }
 
 /* Responsive */
