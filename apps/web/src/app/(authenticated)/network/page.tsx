@@ -199,7 +199,7 @@ export default function NetworkPage() {
   };
 
   const filteredConnections = useMemo(() => {
-    if (!profile) return [];
+    if (!profile || !connections) return [];
 
     let filtered = connections.filter((connection: Connection) => {
       // Tab filtering
