@@ -22,14 +22,19 @@ import ReviewsSkeleton from '@/app/components/reviews/ReviewsSkeleton';
 import ReviewsError from '@/app/components/reviews/ReviewsError';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
 import type { HubTab } from '@/app/components/ui/hub-layout';
+import Button from '@/app/components/ui/Button';
 import toast from 'react-hot-toast';
 import type {
   PendingReviewTask,
   ProfileReview,
 } from '@/types/reviews';
 import styles from './page.module.css';
+import filterStyles from '@/app/components/ui/hub-layout/hub-filters.module.css';
+import actionStyles from '@/app/components/ui/hub-layout/hub-actions.module.css';
 
 type TabType = 'pending' | 'received' | 'given';
+type RatingFilter = 'all' | '5' | '4' | '3' | '2' | '1';
+type DateFilter = 'all' | '7days' | '30days' | '3months' | '6months' | '1year';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -41,6 +46,10 @@ export default function ReviewsPage() {
   const [activeTab, setActiveTab] = useState<TabType>('pending');
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [ratingFilter, setRatingFilter] = useState<RatingFilter>('all');
+  const [dateFilter, setDateFilter] = useState<DateFilter>('all');
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
 
   // React Query: Fetch pending review tasks
   const {
@@ -138,6 +147,59 @@ export default function ReviewsPage() {
     setActiveTab(tabId as TabType);
   };
 
+  // Filter helper function
+  const filterReviews = (reviews: ProfileReview[]) => {
+    let filtered = [...reviews];
+
+    // Search filtering
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(review => {
+        const reviewerName = review.reviewer?.full_name?.toLowerCase() || '';
+        const revieweeName = review.reviewee?.full_name?.toLowerCase() || '';
+        const comment = review.comment?.toLowerCase() || '';
+        return reviewerName.includes(query) || revieweeName.includes(query) || comment.includes(query);
+      });
+    }
+
+    // Rating filtering
+    if (ratingFilter !== 'all') {
+      const rating = parseInt(ratingFilter);
+      filtered = filtered.filter(review => review.rating === rating);
+    }
+
+    // Date filtering
+    if (dateFilter !== 'all') {
+      const now = new Date();
+      const cutoffDate = new Date();
+
+      switch (dateFilter) {
+        case '7days':
+          cutoffDate.setDate(now.getDate() - 7);
+          break;
+        case '30days':
+          cutoffDate.setDate(now.getDate() - 30);
+          break;
+        case '3months':
+          cutoffDate.setMonth(now.getMonth() - 3);
+          break;
+        case '6months':
+          cutoffDate.setMonth(now.getMonth() - 6);
+          break;
+        case '1year':
+          cutoffDate.setFullYear(now.getFullYear() - 1);
+          break;
+      }
+
+      filtered = filtered.filter(review => new Date(review.created_at) >= cutoffDate);
+    }
+
+    return filtered;
+  };
+
+  const filteredReceivedReviews = filterReviews(receivedReviews);
+  const filteredGivenReviews = filterReviews(givenReviews);
+
   // Pagination logic for each tab
   const getPaginatedItems = <T,>(items: T[]) => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -146,13 +208,72 @@ export default function ReviewsPage() {
   };
 
   const paginatedPendingTasks = getPaginatedItems(pendingTasks);
-  const paginatedReceivedReviews = getPaginatedItems(receivedReviews);
-  const paginatedGivenReviews = getPaginatedItems(givenReviews);
+  const paginatedReceivedReviews = getPaginatedItems(filteredReceivedReviews);
+  const paginatedGivenReviews = getPaginatedItems(filteredGivenReviews);
 
   // Reset to page 1 when tab changes
   React.useEffect(() => {
     setCurrentPage(1);
   }, [activeTab]);
+
+  const handleExportCSV = () => {
+    let dataToExport: ProfileReview[] = [];
+    let filename = 'reviews';
+
+    switch (activeTab) {
+      case 'received':
+        dataToExport = filteredReceivedReviews;
+        filename = 'received-reviews';
+        break;
+      case 'given':
+        dataToExport = filteredGivenReviews;
+        filename = 'given-reviews';
+        break;
+      default:
+        return;
+    }
+
+    // Create CSV content
+    const headers = ['Reviewer', 'Reviewee', 'Rating', 'Review', 'Date'];
+    const rows = dataToExport.map(review => [
+      review.reviewer?.full_name || '',
+      review.reviewee?.full_name || '',
+      review.rating?.toString() || '',
+      (review.comment || '').replace(/,/g, ';'), // Replace commas to avoid CSV issues
+      new Date(review.created_at).toLocaleDateString('en-GB'),
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(',')),
+    ].join('\n');
+
+    // Download CSV
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${filename}-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success('Reviews exported successfully');
+    setShowActionsMenu(false);
+  };
+
+  const handleViewPublicProfile = () => {
+    if (profile?.id) {
+      router.push(`/public-profile/${profile.id}`);
+      setShowActionsMenu(false);
+    }
+  };
+
+  const handleRequestReview = () => {
+    toast('Manual review request coming soon!', { icon: '📝' });
+    setShowActionsMenu(false);
+  };
 
   const emptyStats = {
     pendingCount: 0,
@@ -199,7 +320,101 @@ export default function ReviewsPage() {
 
   return (
     <HubPageLayout
-      header={<HubHeader title="Reviews & Ratings" />}
+      header={
+        <HubHeader
+          title="Reviews & Ratings"
+          filters={
+            <div className={filterStyles.filtersContainer}>
+              {/* Search Input */}
+              <input
+                type="search"
+                placeholder="Search reviews..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={filterStyles.searchInput}
+              />
+
+              {/* Rating Filter */}
+              <select
+                value={ratingFilter}
+                onChange={(e) => setRatingFilter(e.target.value as RatingFilter)}
+                className={filterStyles.filterSelect}
+              >
+                <option value="all">All Ratings</option>
+                <option value="5">5 Stars ⭐⭐⭐⭐⭐</option>
+                <option value="4">4 Stars ⭐⭐⭐⭐</option>
+                <option value="3">3 Stars ⭐⭐⭐</option>
+                <option value="2">2 Stars ⭐⭐</option>
+                <option value="1">1 Star ⭐</option>
+              </select>
+
+              {/* Date Range Filter */}
+              <select
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value as DateFilter)}
+                className={filterStyles.filterSelect}
+              >
+                <option value="all">All Time</option>
+                <option value="7days">Last 7 Days</option>
+                <option value="30days">Last 30 Days</option>
+                <option value="3months">Last 3 Months</option>
+                <option value="6months">Last 6 Months</option>
+                <option value="1year">Last Year</option>
+              </select>
+            </div>
+          }
+          actions={
+            <>
+              {/* Primary Action: Request Review */}
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleRequestReview}
+              >
+                Request Review
+              </Button>
+
+              {/* Secondary Actions: Dropdown Menu */}
+              <div className={actionStyles.dropdownContainer}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setShowActionsMenu(!showActionsMenu)}
+                >
+                  ⋮
+                </Button>
+
+                {showActionsMenu && (
+                  <>
+                    {/* Backdrop to close menu */}
+                    <div
+                      className={actionStyles.backdrop}
+                      onClick={() => setShowActionsMenu(false)}
+                    />
+
+                    {/* Dropdown Menu */}
+                    <div className={actionStyles.dropdownMenu} style={{ display: 'block' }}>
+                      <button
+                        onClick={handleViewPublicProfile}
+                        className={actionStyles.menuButton}
+                      >
+                        View Public Profile
+                      </button>
+                      <button
+                        onClick={handleExportCSV}
+                        className={actionStyles.menuButton}
+                        disabled={activeTab === 'pending'}
+                      >
+                        Export CSV
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
+          }
+        />
+      }
       tabs={
         <HubTabs
           tabs={[
@@ -282,7 +497,7 @@ export default function ReviewsPage() {
                   </div>
                   <HubPagination
                     currentPage={currentPage}
-                    totalItems={receivedReviews.length}
+                    totalItems={filteredReceivedReviews.length}
                     itemsPerPage={ITEMS_PER_PAGE}
                     onPageChange={setCurrentPage}
                   />
@@ -312,7 +527,7 @@ export default function ReviewsPage() {
                   </div>
                   <HubPagination
                     currentPage={currentPage}
-                    totalItems={givenReviews.length}
+                    totalItems={filteredGivenReviews.length}
                     itemsPerPage={ITEMS_PER_PAGE}
                     onPageChange={setCurrentPage}
                   />

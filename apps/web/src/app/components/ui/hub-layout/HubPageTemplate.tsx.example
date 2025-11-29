@@ -1,0 +1,324 @@
+/**
+ * Hub Page Template - Gold Standard Hub Architecture
+ * Copy this file to create new hub pages following the complete pattern
+ *
+ * Complete Pattern: HubPageLayout = HubHeader (Title + Filters + Actions) + HubTabs + HubPagination
+ *
+ * Instructions:
+ * 1. Copy this file to your page location (e.g., apps/web/src/app/(authenticated)/[pagename]/page.tsx)
+ * 2. Copy the accompanying page.module.css for container styles
+ * 3. Update the types, state, and logic for your specific data
+ * 4. Customize filters and actions based on your page needs
+ */
+
+'use client';
+
+import React, { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
+import Button from '@/app/components/ui/Button';
+import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
+import toast from 'react-hot-toast';
+import styles from './page.module.css';
+import filterStyles from '@/app/components/ui/hub-layout/hub-filters.module.css';
+import actionStyles from '@/app/components/ui/hub-layout/hub-actions.module.css';
+
+// Types
+type TabType = 'all' | 'active' | 'inactive';
+type SortType = 'newest' | 'oldest' | 'name-asc' | 'name-desc';
+
+const ITEMS_PER_PAGE = 5;
+
+export default function TemplatePage() {
+  const router = useRouter();
+  const { profile, isLoading: profileLoading } = useUserProfile();
+  const queryClient = useQueryClient();
+
+  // State
+  const [activeTab, setActiveTab] = useState<TabType>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortType>('newest');
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
+
+  // React Query: Fetch data
+  const {
+    data: items = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['items', profile?.id],
+    queryFn: async () => {
+      // Replace with your API call
+      return [];
+    },
+    enabled: !!profile && !profileLoading,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 2,
+  });
+
+  // Filtering and sorting logic
+  const filteredItems = useMemo(() => {
+    if (!profile) return [];
+
+    let filtered = [...items];
+
+    // Tab filtering
+    // TODO: Add your tab filtering logic
+
+    // Search filtering
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(item => {
+        // TODO: Add your search logic
+        return true;
+      });
+    }
+
+    // Sorting
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'newest':
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case 'oldest':
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        // TODO: Add more sort options
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [items, activeTab, profile, searchQuery, sortBy]);
+
+  // Pagination logic
+  const totalItems = filteredItems.length;
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedItems = filteredItems.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filter changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, searchQuery, sortBy]);
+
+  // Stats for tabs
+  const stats = useMemo(() => ({
+    all: items.length,
+    active: items.filter(i => i.status === 'active').length,
+    inactive: items.filter(i => i.status === 'inactive').length,
+  }), [items]);
+
+  // Action handlers
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId as TabType);
+  };
+
+  const handleExportCSV = () => {
+    // Create CSV content
+    const headers = ['Name', 'Status', 'Created'];
+    const rows = filteredItems.map(item => [
+      item.name || '',
+      item.status || '',
+      new Date(item.created_at).toLocaleDateString('en-GB'),
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(',')),
+    ].join('\n');
+
+    // Download CSV
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `export-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success('Data exported successfully');
+    setShowActionsMenu(false);
+  };
+
+  const handleViewPublicProfile = () => {
+    if (profile?.id) {
+      router.push(`/public-profile/${profile.id}`);
+      setShowActionsMenu(false);
+    }
+  };
+
+  // Loading state
+  if (profileLoading || isLoading) {
+    return (
+      <HubPageLayout
+        header={<HubHeader title="Page Title" />}
+        sidebar={
+          <ContextualSidebar>
+            {/* Add your sidebar widgets here */}
+          </ContextualSidebar>
+        }
+      >
+        <div className={styles.container}>
+          <p>Loading...</p>
+        </div>
+      </HubPageLayout>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <HubPageLayout
+        header={<HubHeader title="Page Title" />}
+        sidebar={
+          <ContextualSidebar>
+            {/* Add your sidebar widgets here */}
+          </ContextualSidebar>
+        }
+      >
+        <div className={styles.container}>
+          <p>Error: {(error as Error).message}</p>
+          <button onClick={() => refetch()}>Retry</button>
+        </div>
+      </HubPageLayout>
+    );
+  }
+
+  // Main render
+  return (
+    <HubPageLayout
+      header={
+        <HubHeader
+          title="Page Title"
+          filters={
+            <div className={filterStyles.filtersContainer}>
+              {/* Search Input */}
+              <input
+                type="search"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={filterStyles.searchInput}
+              />
+
+              {/* Sort Dropdown */}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortType)}
+                className={filterStyles.filterSelect}
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="name-asc">Name (A-Z)</option>
+                <option value="name-desc">Name (Z-A)</option>
+              </select>
+            </div>
+          }
+          actions={
+            <>
+              {/* Primary Action Button */}
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => toast('Primary action clicked')}
+              >
+                Primary Action
+              </Button>
+
+              {/* Secondary Actions: Dropdown Menu */}
+              <div className={actionStyles.dropdownContainer}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setShowActionsMenu(!showActionsMenu)}
+                >
+                  ⋮
+                </Button>
+
+                {showActionsMenu && (
+                  <>
+                    {/* Backdrop to close menu */}
+                    <div
+                      className={actionStyles.backdrop}
+                      onClick={() => setShowActionsMenu(false)}
+                    />
+
+                    {/* Dropdown Menu */}
+                    <div className={actionStyles.dropdownMenu} style={{ display: 'block' }}>
+                      <button
+                        onClick={handleViewPublicProfile}
+                        className={actionStyles.menuButton}
+                      >
+                        View Public Profile
+                      </button>
+                      <button
+                        onClick={handleExportCSV}
+                        className={actionStyles.menuButton}
+                      >
+                        Export CSV
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
+          }
+        />
+      }
+      tabs={
+        <HubTabs
+          tabs={[
+            { id: 'all', label: 'All', count: stats.all, active: activeTab === 'all' },
+            { id: 'active', label: 'Active', count: stats.active, active: activeTab === 'active' },
+            { id: 'inactive', label: 'Inactive', count: stats.inactive, active: activeTab === 'inactive' },
+          ]}
+          onTabChange={handleTabChange}
+        />
+      }
+      sidebar={
+        <ContextualSidebar>
+          {/* Add your sidebar widgets here */}
+        </ContextualSidebar>
+      }
+    >
+      <div className={styles.container}>
+        {/* Empty State */}
+        {paginatedItems.length === 0 ? (
+          <div className={styles.emptyState}>
+            <h3 className={styles.emptyTitle}>No items found</h3>
+            <p className={styles.emptyText}>
+              Try adjusting your search or filters.
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Items List */}
+            <div className={styles.itemsList}>
+              {paginatedItems.map((item) => (
+                <div key={item.id}>
+                  {/* TODO: Replace with your item card component */}
+                  <p>{item.name}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            <HubPagination
+              currentPage={currentPage}
+              totalItems={totalItems}
+              itemsPerPage={ITEMS_PER_PAGE}
+              onPageChange={setCurrentPage}
+            />
+          </>
+        )}
+      </div>
+    </HubPageLayout>
+  );
+}

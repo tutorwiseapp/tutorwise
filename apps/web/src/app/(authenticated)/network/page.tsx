@@ -22,10 +22,14 @@ import NetworkSkeleton from '@/app/components/network/NetworkSkeleton';
 import NetworkError from '@/app/components/network/NetworkError';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
 import type { HubTab } from '@/app/components/ui/hub-layout';
+import Button from '@/app/components/ui/Button';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
+import filterStyles from '@/app/components/ui/hub-layout/hub-filters.module.css';
+import actionStyles from '@/app/components/ui/hub-layout/hub-actions.module.css';
 
 type TabType = 'all' | 'pending-received' | 'pending-sent';
+type SortType = 'newest' | 'oldest' | 'name-asc' | 'name-desc';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -36,6 +40,9 @@ export default function NetworkPage() {
   const [activeTab, setActiveTab] = useState<TabType>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortType>('newest');
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
 
   // React Query: Fetch connections with automatic retry, caching, and background refetch
   const {
@@ -194,7 +201,8 @@ export default function NetworkPage() {
   const filteredConnections = useMemo(() => {
     if (!profile) return [];
 
-    return connections.filter((connection: Connection) => {
+    let filtered = connections.filter((connection: Connection) => {
+      // Tab filtering
       switch (activeTab) {
         case 'all':
           return connection.status === 'accepted';
@@ -206,7 +214,45 @@ export default function NetworkPage() {
           return false;
       }
     });
-  }, [connections, activeTab, profile]);
+
+    // Search filtering
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((connection: Connection) => {
+        const otherProfile = connection.requester_id === profile.id ? connection.receiver : connection.requester;
+        const name = otherProfile?.full_name?.toLowerCase() || '';
+        const email = otherProfile?.email?.toLowerCase() || '';
+        return name.includes(query) || email.includes(query);
+      });
+    }
+
+    // Sorting
+    filtered.sort((a: Connection, b: Connection) => {
+      const aProfile = a.requester_id === profile.id ? a.receiver : a.requester;
+      const bProfile = b.requester_id === profile.id ? b.receiver : b.requester;
+
+      switch (sortBy) {
+        case 'newest':
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case 'oldest':
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case 'name-asc': {
+          const aName = aProfile?.full_name || '';
+          const bName = bProfile?.full_name || '';
+          return aName.localeCompare(bName);
+        }
+        case 'name-desc': {
+          const aName = aProfile?.full_name || '';
+          const bName = bProfile?.full_name || '';
+          return bName.localeCompare(aName);
+        }
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [connections, activeTab, profile, searchQuery, sortBy]);
 
   // Pagination logic
   const totalItems = filteredConnections.length;
@@ -225,6 +271,61 @@ export default function NetworkPage() {
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId as TabType);
+  };
+
+  const handleExportCSV = () => {
+    // Create CSV content
+    const headers = ['Name', 'Email', 'Status', 'Connected On'];
+    const rows = filteredConnections.map(connection => {
+      const otherProfile = connection.requester_id === profile?.id ? connection.receiver : connection.requester;
+      return [
+        otherProfile?.full_name || '',
+        otherProfile?.email || '',
+        connection.status || '',
+        new Date(connection.created_at).toLocaleDateString('en-GB'),
+      ];
+    });
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(',')),
+    ].join('\n');
+
+    // Download CSV
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `connections-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success('Connections exported successfully');
+    setShowActionsMenu(false);
+  };
+
+  const handleViewPublicProfile = () => {
+    if (profile?.id) {
+      window.location.href = `/public-profile/${profile.id}`;
+      setShowActionsMenu(false);
+    }
+  };
+
+  const handleInviteByEmail = () => {
+    toast('Invite by email coming soon!', { icon: '✉️' });
+    setShowActionsMenu(false);
+  };
+
+  const handleFindPeople = () => {
+    setIsModalOpen(true);
+    setShowActionsMenu(false);
+  };
+
+  const handleCreateGroup = () => {
+    toast('Connection groups coming soon!', { icon: '📁' });
+    setShowActionsMenu(false);
   };
 
   // Show loading state
@@ -273,7 +374,102 @@ export default function NetworkPage() {
 
   return (
     <HubPageLayout
-      header={<HubHeader title="Network" />}
+      header={
+        <HubHeader
+          title="Network"
+          filters={
+            <div className={filterStyles.filtersContainer}>
+              {/* Search Input */}
+              <input
+                type="search"
+                placeholder="Search connections..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={filterStyles.searchInput}
+              />
+
+              {/* Sort Dropdown */}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortType)}
+                className={filterStyles.filterSelect}
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="name-asc">Name (A-Z)</option>
+                <option value="name-desc">Name (Z-A)</option>
+              </select>
+            </div>
+          }
+          actions={
+            <>
+              {/* Primary Action: Add Connection */}
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => setIsModalOpen(true)}
+              >
+                Add Connection
+              </Button>
+
+              {/* Secondary Actions: Dropdown Menu */}
+              <div className={actionStyles.dropdownContainer}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setShowActionsMenu(!showActionsMenu)}
+                >
+                  ⋮
+                </Button>
+
+                {showActionsMenu && (
+                  <>
+                    {/* Backdrop to close menu */}
+                    <div
+                      className={actionStyles.backdrop}
+                      onClick={() => setShowActionsMenu(false)}
+                    />
+
+                    {/* Dropdown Menu */}
+                    <div className={actionStyles.dropdownMenu} style={{ display: 'block' }}>
+                      <button
+                        onClick={handleInviteByEmail}
+                        className={actionStyles.menuButton}
+                      >
+                        Invite by Email
+                      </button>
+                      <button
+                        onClick={handleFindPeople}
+                        className={actionStyles.menuButton}
+                      >
+                        Find People
+                      </button>
+                      <button
+                        onClick={handleCreateGroup}
+                        className={actionStyles.menuButton}
+                      >
+                        Create Group
+                      </button>
+                      <button
+                        onClick={handleViewPublicProfile}
+                        className={actionStyles.menuButton}
+                      >
+                        View Public Profile
+                      </button>
+                      <button
+                        onClick={handleExportCSV}
+                        className={actionStyles.menuButton}
+                      >
+                        Export CSV
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
+          }
+        />
+      }
       tabs={
         <HubTabs
           tabs={[

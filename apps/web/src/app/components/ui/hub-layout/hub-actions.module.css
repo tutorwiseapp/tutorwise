@@ -1,0 +1,54 @@
+/**
+ * Filename: apps/web/src/app/components/ui/hub-layout/hub-actions.module.css
+ * Purpose: Shared action button and dropdown menu styles for all Hub Pages
+ * Created: 2025-11-29
+ * Pattern: CSS Modules for consistent dropdown behavior across all hub pages
+ */
+
+.dropdownContainer {
+  position: relative !important;
+  display: inline-block;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+}
+
+.dropdownMenu {
+  position: absolute !important;
+  top: calc(100% + 0.5rem) !important;
+  right: 0 !important;
+  width: 14rem !important;
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 0.375rem !important;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+  z-index: 20 !important;
+  display: block !important;
+}
+
+.dropdownMenuHidden {
+  display: none !important;
+}
+
+.menuButton {
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: #374151;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.menuButton:hover {
+  background-color: #f9fafb;
+}
+
+.menuButton:not(:first-child) {
+  border-top: 1px solid #f3f4f6;
+}

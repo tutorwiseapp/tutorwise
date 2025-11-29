@@ -613,6 +613,245 @@ If you encounter issues during migration:
 
 ---
 
-**Last Updated:** 2025-11-28
-**Version:** 1.1
-**Components:** HubPageLayout v1.0, HubHeader v1.0, HubTabs v1.0, HubPagination v1.0
+## Adding Filters and Actions
+
+### Hub Header Complete Pattern
+
+The complete Hub Header pattern includes:
+1. **Title** (left)
+2. **Filters** (center) - Search input + dropdown filters
+3. **Actions** (right) - Primary button + secondary dropdown menu
+
+```tsx
+import filterStyles from '@/app/components/ui/hub-layout/hub-filters.module.css';
+import actionStyles from '@/app/components/ui/hub-layout/hub-actions.module.css';
+import Button from '@/app/components/ui/Button';
+
+<HubHeader
+  title="Network"
+  filters={
+    <div className={filterStyles.filtersContainer}>
+      {/* Search Input - 320px wide */}
+      <input
+        type="search"
+        placeholder="Search..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className={filterStyles.searchInput}
+      />
+
+      {/* Filter Dropdowns - 180px wide each */}
+      <select
+        value={sortBy}
+        onChange={(e) => setSortBy(e.target.value)}
+        className={filterStyles.filterSelect}
+      >
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+        <option value="name-asc">Name (A-Z)</option>
+        <option value="name-desc">Name (Z-A)</option>
+      </select>
+    </div>
+  }
+  actions={
+    <>
+      {/* Primary Action Button */}
+      <Button
+        variant="primary"
+        size="sm"
+        onClick={() => setIsModalOpen(true)}
+      >
+        Add Connection
+      </Button>
+
+      {/* Secondary Actions: Dropdown Menu */}
+      <div className={actionStyles.dropdownContainer}>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => setShowActionsMenu(!showActionsMenu)}
+        >
+          ⋮
+        </Button>
+
+        {showActionsMenu && (
+          <>
+            {/* Backdrop to close menu */}
+            <div
+              className={actionStyles.backdrop}
+              onClick={() => setShowActionsMenu(false)}
+            />
+
+            {/* Dropdown Menu */}
+            <div className={actionStyles.dropdownMenu}>
+              <button
+                onClick={handleViewPublicProfile}
+                className={actionStyles.menuButton}
+              >
+                View Public Profile
+              </button>
+              <button
+                onClick={handleExportCSV}
+                className={actionStyles.menuButton}
+              >
+                Export CSV
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  }
+/>
+```
+
+### Shared Filter Styles
+
+Use `hub-filters.module.css` for consistent filter styling:
+
+```tsx
+import filterStyles from '@/app/components/ui/hub-layout/hub-filters.module.css';
+
+// filtersContainer - Flex container with 0.75rem gap
+// searchInput - 320px wide, 42px height, flat design
+// filterSelect - 180px wide, 42px height, no dropdown arrow
+```
+
+**Features:**
+- Flat design with consistent 8px border radius
+- Focus state: teal border (#4CAEAD)
+- Mobile responsive: stacks vertically, full width
+- No dropdown arrows on selects (clean appearance)
+
+### Shared Action Styles
+
+Use `hub-actions.module.css` for consistent dropdown menus:
+
+```tsx
+import actionStyles from '@/app/components/ui/hub-layout/hub-actions.module.css';
+
+// dropdownContainer - Relative positioning for dropdown
+// backdrop - Fixed overlay to close menu
+// dropdownMenu - Absolute positioned menu (14rem wide)
+// menuButton - Menu item button with hover effect
+```
+
+**Features:**
+- 14rem (224px) wide dropdown
+- Box shadow for depth
+- Hover effect on menu items (#f9fafb background)
+- Auto-close on backdrop click
+- Border between menu items
+
+### Complete Examples by Page Type
+
+#### Network Page Pattern
+- **Filters:** Search (by name/email/org) + Sort (newest/oldest/name)
+- **Actions:** Add Connection + Dropdown (Invite/Find/Create/Profile/Export)
+
+#### Reviews Page Pattern
+- **Filters:** Search (by reviewer/text) + Rating (all/5/4/3/2/1) + Date (7d/30d/3m/6m/1y)
+- **Actions:** Request Review + Dropdown (View Profile/Export CSV)
+
+#### Listings Page Pattern
+- **Filters:** Search (by title) + Sort (newest/oldest/price/views)
+- **Actions:** Create Listing + Dropdown (View Profile/Export CSV)
+
+### CSV Export Pattern
+
+```tsx
+const handleExportCSV = () => {
+  // Create CSV content
+  const headers = ['Column1', 'Column2', 'Column3'];
+  const rows = filteredData.map(item => [
+    item.field1 || '',
+    item.field2 || '',
+    new Date(item.created_at).toLocaleDateString('en-GB'),
+  ]);
+
+  const csvContent = [
+    headers.join(','),
+    ...rows.map(row => row.join(',')),
+  ].join('\n');
+
+  // Download CSV
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', `export-${new Date().toISOString().split('T')[0]}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  toast.success('Data exported successfully');
+  setShowActionsMenu(false);
+};
+```
+
+### Search and Filter Logic Pattern
+
+```tsx
+// State
+const [searchQuery, setSearchQuery] = useState('');
+const [sortBy, setSortBy] = useState('newest');
+
+// Filter logic
+const filteredItems = useMemo(() => {
+  let filtered = [...items];
+
+  // Search filtering
+  if (searchQuery.trim()) {
+    const query = searchQuery.toLowerCase();
+    filtered = filtered.filter(item => {
+      const name = item.name?.toLowerCase() || '';
+      const email = item.email?.toLowerCase() || '';
+      return name.includes(query) || email.includes(query);
+    });
+  }
+
+  // Sorting
+  filtered.sort((a, b) => {
+    switch (sortBy) {
+      case 'newest':
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      case 'oldest':
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      case 'name-asc':
+        return (a.name || '').localeCompare(b.name || '');
+      case 'name-desc':
+        return (b.name || '').localeCompare(a.name || '');
+      default:
+        return 0;
+    }
+  });
+
+  return filtered;
+}, [items, searchQuery, sortBy]);
+
+// Reset page when filters change
+useEffect(() => {
+  setCurrentPage(1);
+}, [searchQuery, sortBy]);
+```
+
+---
+
+## Quick Start Template
+
+Use `HubPageTemplate.tsx.example` as a starting point for new hub pages. It includes:
+- Complete imports
+- State management
+- Filter and search logic
+- Pagination
+- CSV export
+- All Hub components properly configured
+
+**Location:** `/apps/web/src/app/components/ui/hub-layout/HubPageTemplate.tsx.example`
+
+---
+
+**Last Updated:** 2025-11-29
+**Version:** 2.0
+**Components:** HubPageLayout v1.0, HubHeader v1.1 (with filters/actions), HubTabs v1.0, HubPagination v1.0
