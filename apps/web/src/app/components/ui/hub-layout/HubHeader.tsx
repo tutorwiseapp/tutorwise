@@ -2,15 +2,17 @@
  * Filename: apps/web/src/app/components/ui/hub-layout/HubHeader.tsx
  * Purpose: Header for Hub Pages with Title, Filters, and Actions
  * Created: 2025-11-28
- * Updated: 2025-11-29 - Optimized spacing: Title→Filters 24px, Filters→Tabs 16px
+ * Updated: 2025-11-29 - Optimized spacing: HubHeader→Tabs 8px (0.5rem)
  * Pattern: Two-row layout - Row 1: Title + Actions | Row 2: Filters (centered)
  *
  * Usage:
  * <HubHeader
  *   title="Listings"
- *   filters={<>Search + Sort</>}
+ *   filters={<>Search + Sort</>}  // Filters are centered horizontally
  *   actions={<Button>+ Create</Button>}
  * />
+ *
+ * Note: Filter children should NOT have width: 100% - let them size naturally for centering
  */
 
 'use client';

@@ -2,12 +2,12 @@
  * Filename: apps/web/src/app/components/ui/hub-layout/HubHeader.module.css
  * Purpose: Styles for HubHeader component
  * Created: 2025-11-28
- * Updated: 2025-11-29 - Optimized spacing: Title→Filters 24px, HubHeader→Tabs 16px
+ * Updated: 2025-11-29 - Optimized spacing: HubHeader→Tabs 8px (reduced by 24px from 32px)
  */
 
 .header {
   background-color: #ffffff;
-  margin-bottom: 2rem;
+  margin-bottom: 0.5rem;
 }
 
 .headerRow {
