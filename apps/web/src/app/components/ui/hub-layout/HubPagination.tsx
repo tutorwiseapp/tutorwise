@@ -68,6 +68,11 @@ export default function HubPagination({
 
   const pageNumbers = getPageNumbers();
 
+  // Don't render anything if no items
+  if (totalItems === 0) {
+    return null;
+  }
+
   return (
     <div className={styles.paginationContainer}>
       <p className={styles.summary}>
