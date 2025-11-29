@@ -2,15 +2,22 @@
  * Filename: apps/web/src/app/components/ui/hub-layout/HubPagination.module.css
  * Purpose: Styles for HubPagination component
  * Created: 2025-11-28
+ * Updated: 2025-11-29 - Page numbers with teal highlighting
  */
 
 .paginationContainer {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
+  gap: 16px;
   padding: 16px 0;
   margin-top: 16px;
   border-top: 1px solid var(--page-bg);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.summary {
   font-size: 14px;
   color: var(--text-secondary);
 }
@@ -20,29 +27,82 @@
   color: var(--text-primary);
 }
 
-.buttons {
+/* Page Numbers Container */
+.pageNumbers {
   display: flex;
+  align-items: center;
   gap: 8px;
 }
 
-.button {
-  height: 36px;
-  padding: 0 16px;
+/* Arrow Buttons (Previous/Next) */
+.arrowButton {
+  width: 40px;
+  height: 40px;
   border-radius: 8px;
-  border: 1px solid var(--light-gray-border);
-  background-color: var(--white);
+  border: 1px solid #dfe1e5;
+  background-color: #ffffff;
   cursor: pointer;
-  font-weight: 500;
-  color: var(--text-primary);
-  transition: background-color 0.2s ease;
+  font-size: 14px;
+  color: #5f6368;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
-.button:hover:not(:disabled) {
-  background-color: var(--page-bg);
+.arrowButton:hover:not(:disabled) {
+  background-color: #f8f9fa;
+  border-color: #dadce0;
 }
 
-.button:disabled {
-  color: var(--text-secondary);
-  opacity: 0.6;
+.arrowButton:disabled {
+  color: #dadce0;
   cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Page Number Buttons */
+.pageButton {
+  min-width: 40px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #5f6368;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.pageButton:hover {
+  background-color: #f8f9fa;
+}
+
+/* Active Page Button - Teal Highlight */
+.pageButtonActive {
+  background-color: var(--color-primary-default, #006c67);
+  color: #ffffff;
+  border-color: var(--color-primary-default, #006c67);
+}
+
+.pageButtonActive:hover {
+  background-color: var(--color-primary-default, #006c67);
+  opacity: 0.9;
+}
+
+/* Ellipsis */
+.ellipsis {
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #5f6368;
+  user-select: none;
 }

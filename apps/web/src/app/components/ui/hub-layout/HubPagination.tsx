@@ -2,8 +2,8 @@
  * Filename: apps/web/src/app/components/ui/hub-layout/HubPagination.tsx
  * Purpose: Pagination component for Hub Pages
  * Created: 2025-11-28
- * Updated: 2025-11-29 - Always show summary, hide buttons when ≤1 page
- * Pattern: Shows "X-Y of Z results" (always) + Previous/Next buttons (only if >1 page)
+ * Updated: 2025-11-29 - Page numbers with arrows, ellipsis, and teal highlighting
+ * Pattern: Shows "X-Y of Z results" + Page numbers (1, 2, ..., 12) + Previous/Next arrows
  *
  * Usage:
  * <HubPagination
@@ -13,7 +13,7 @@
  *   onPageChange={(page) => setCurrentPage(page)}
  * />
  *
- * Note: Always renders. Summary text always visible. Buttons hidden when ≤1 page.
+ * Note: Current page highlighted in teal. Shows ellipsis when many pages.
  */
 
 'use client';
@@ -38,6 +38,36 @@ export default function HubPagination({
   const startItem = totalItems > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+
+    if (totalPages <= 7) {
+      // Show all pages if 7 or fewer
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Always show first page
+      pages.push(1);
+
+      if (currentPage <= 3) {
+        // Near start: 1 2 3 4 ... last
+        pages.push(2, 3, 4, '...', totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        // Near end: 1 ... last-3 last-2 last-1 last
+        pages.push('...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        // Middle: 1 ... current-1 current current+1 ... last
+        pages.push('...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+      }
+    }
+
+    return pages;
+  };
+
+  const pageNumbers = getPageNumbers();
+
   return (
     <div className={styles.paginationContainer}>
       <p className={styles.summary}>
@@ -46,20 +76,50 @@ export default function HubPagination({
         <span className={styles.bold}>{totalItems}</span> results
       </p>
       {totalPages > 1 && (
-        <div className={styles.buttons}>
+        <div className={styles.pageNumbers}>
+          {/* Previous Arrow */}
           <button
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className={styles.button}
+            className={styles.arrowButton}
+            aria-label="Previous page"
           >
-            Previous
+            ◁
           </button>
+
+          {/* Page Number Buttons */}
+          {pageNumbers.map((page, index) => {
+            if (page === '...') {
+              return (
+                <span key={`ellipsis-${index}`} className={styles.ellipsis}>
+                  ...
+                </span>
+              );
+            }
+
+            return (
+              <button
+                key={page}
+                onClick={() => onPageChange(page as number)}
+                className={`${styles.pageButton} ${
+                  currentPage === page ? styles.pageButtonActive : ''
+                }`}
+                aria-label={`Page ${page}`}
+                aria-current={currentPage === page ? 'page' : undefined}
+              >
+                {page}
+              </button>
+            );
+          })}
+
+          {/* Next Arrow */}
           <button
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className={styles.button}
+            className={styles.arrowButton}
+            aria-label="Next page"
           >
-            Next
+            ▷
           </button>
         </div>
       )}

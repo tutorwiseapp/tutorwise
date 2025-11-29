@@ -449,9 +449,12 @@ interface HubPaginationProps {
 
 **Features:**
 - Shows "X-Y of Z results" summary (always visible)
-- Previous/Next buttons (hidden when ≤1 page)
-- Disabled state for first/last page
-- Consistent styling with hub components
+- Page number buttons with teal highlighting for current page
+- Previous/Next arrow buttons (◁ ▷)
+- Ellipsis (...) for skipped pages when many pages exist
+- Smart pagination: shows 1, 2, 3, 4, ..., last when near start
+- Hidden when ≤1 page
+- Disabled arrows at first/last page
 
 **Usage:**
 ```tsx
