@@ -84,7 +84,7 @@ This guide helps migrate hub pages (like Bookings, Financials, Referrals) from t
 ### 1. Import Hub Components
 
 ```tsx
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/ui/hub-layout';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
 import type { HubTab } from '@/app/components/ui/hub-layout';
 ```
 
@@ -267,17 +267,58 @@ export default function BookingsPage() {
 ```tsx
 'use client';
 
-import React, { useState } from 'react';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/ui/hub-layout';
+import React, { useState, useMemo } from 'react';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
 import type { HubTab } from '@/app/components/ui/hub-layout';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
-import Button from '@/app/components/ui/Button';
+import BookingStatsWidget from '@/app/components/bookings/BookingStatsWidget';
+import BookingCard from '@/app/components/bookings/BookingCard';
 import styles from './page.module.css';
 
 type FilterType = 'all' | 'upcoming' | 'past';
 
+const ITEMS_PER_PAGE = 5;
+
 export default function BookingsPage() {
   const [filter, setFilter] = useState<FilterType>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [bookings, setBookings] = useState([]); // Your data here
+
+  // Filter bookings based on tab
+  const filteredBookings = useMemo(() => {
+    return bookings.filter((booking) => {
+      const sessionDate = new Date(booking.session_start_time);
+      const now = new Date();
+
+      if (filter === 'upcoming') {
+        return sessionDate >= now && booking.status !== 'Cancelled';
+      } else if (filter === 'past') {
+        return sessionDate < now || booking.status === 'Completed';
+      }
+      return true; // 'all'
+    });
+  }, [bookings, filter]);
+
+  // Calculate tab counts
+  const tabCounts = useMemo(() => {
+    const now = new Date();
+    return {
+      all: bookings.length,
+      upcoming: bookings.filter((b) => new Date(b.session_start_time) >= now && b.status !== 'Cancelled').length,
+      past: bookings.filter((b) => new Date(b.session_start_time) < now || b.status === 'Completed').length,
+    };
+  }, [bookings]);
+
+  // Pagination logic
+  const totalItems = filteredBookings.length;
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedBookings = filteredBookings.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filter changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [filter]);
 
   const handleFilterChange = (tabId: string) => {
     setFilter(tabId as FilterType);
@@ -285,34 +326,54 @@ export default function BookingsPage() {
 
   return (
     <HubPageLayout
-      header={
-        <HubHeader
-          title="Bookings"
-          actions={
-            <Button variant="primary" size="sm" onClick={() => router.push('/create-booking')}>
-              + New Booking
-            </Button>
-          }
-        />
-      }
+      header={<HubHeader title="Bookings" />}
       tabs={
         <HubTabs
           tabs={[
-            { id: 'all', label: 'All Bookings', count: 10, active: filter === 'all' },
-            { id: 'upcoming', label: 'Upcoming', count: 5, active: filter === 'upcoming' },
-            { id: 'past', label: 'Past', count: 3, active: filter === 'past' },
+            { id: 'all', label: 'All Bookings', count: tabCounts.all, active: filter === 'all' },
+            { id: 'upcoming', label: 'Upcoming', count: tabCounts.upcoming, active: filter === 'upcoming' },
+            { id: 'past', label: 'Past', count: tabCounts.past, active: filter === 'past' },
           ]}
           onTabChange={handleFilterChange}
         />
       }
       sidebar={
         <ContextualSidebar>
-          <BookingStatsWidget bookings={bookings} />
+          <BookingStatsWidget
+            pending={bookings.filter((b) => b.status === 'Pending').length}
+            upcoming={tabCounts.upcoming}
+            completed={bookings.filter((b) => b.status === 'Completed').length}
+          />
         </ContextualSidebar>
       }
     >
-      <div className={styles.bookingsList}>
-        {/* Booking cards */}
+      <div className={styles.container}>
+        {/* Empty State */}
+        {paginatedBookings.length === 0 && (
+          <div className={styles.emptyState}>
+            <h3>No bookings found</h3>
+            <p>You have no {filter === 'all' ? '' : filter} bookings yet.</p>
+          </div>
+        )}
+
+        {/* Bookings List */}
+        {paginatedBookings.length > 0 && (
+          <div className={styles.bookingsList}>
+            {paginatedBookings.map((booking) => (
+              <BookingCard key={booking.id} booking={booking} />
+            ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalItems > ITEMS_PER_PAGE && (
+          <HubPagination
+            currentPage={currentPage}
+            totalItems={totalItems}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </div>
     </HubPageLayout>
   );
@@ -376,6 +437,51 @@ interface HubTabsProps {
 - Full-width with negative margins (escapes padding)
 - Overflow scroll on mobile
 - Optional count badges
+
+### HubPagination
+
+```tsx
+interface HubPaginationProps {
+  currentPage: number;       // Current page number (1-indexed)
+  totalItems: number;        // Total number of items
+  itemsPerPage: number;      // Items per page (typically 5)
+  onPageChange: (page: number) => void;  // Page change handler
+}
+```
+
+**Features:**
+- Shows "X-Y of Z results" summary
+- Previous/Next buttons
+- Automatically hides if ≤1 page
+- Disabled state for first/last page
+- Consistent styling with hub components
+
+**Usage:**
+```tsx
+const ITEMS_PER_PAGE = 5;
+const [currentPage, setCurrentPage] = useState(1);
+
+// Pagination logic
+const totalItems = filteredData.length;
+const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+const endIndex = startIndex + ITEMS_PER_PAGE;
+const paginatedData = filteredData.slice(startIndex, endIndex);
+
+// Reset to page 1 when filters change
+useEffect(() => {
+  setCurrentPage(1);
+}, [filter, searchQuery]);
+
+// Render
+{totalItems > ITEMS_PER_PAGE && (
+  <HubPagination
+    currentPage={currentPage}
+    totalItems={totalItems}
+    itemsPerPage={ITEMS_PER_PAGE}
+    onPageChange={setCurrentPage}
+  />
+)}
+```
 
 ---
 
@@ -509,5 +615,5 @@ If you encounter issues during migration:
 ---
 
 **Last Updated:** 2025-11-28
-**Version:** 1.0
-**Components:** HubPageLayout v1.0, HubHeader v1.0, HubTabs v1.0
+**Version:** 1.1
+**Components:** HubPageLayout v1.0, HubHeader v1.0, HubTabs v1.0, HubPagination v1.0

@@ -3,7 +3,7 @@
 import React, { useState, useMemo, Fragment } from 'react';
 // Corrected: Removed unused `ColumnDef` import, as it is defined in the props interface directly.
 import { DataTableProps } from '@/types';
-import Pagination from '../Pagination';
+import { HubPagination } from '../hub-layout';
 import styles from './DataTable.module.css';
 
 const ITEMS_PER_PAGE = 10;
@@ -84,7 +84,7 @@ export function DataTable<T extends { id: number | string }>({
           </tbody>
         </table>
       </div>
-      <Pagination currentPage={currentPage} totalItems={data.length} itemsPerPage={ITEMS_PER_PAGE} onPageChange={(page) => setCurrentPage(page)} />
+      <HubPagination currentPage={currentPage} totalItems={data.length} itemsPerPage={ITEMS_PER_PAGE} onPageChange={(page) => setCurrentPage(page)} />
     </div>
   );
 }

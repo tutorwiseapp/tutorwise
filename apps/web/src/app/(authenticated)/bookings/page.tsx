@@ -2,12 +2,12 @@
  * Filename: src/app/(authenticated)/bookings/page.tsx
  * Purpose: Bookings hub page - displays user's bookings (SDD v3.6)
  * Created: 2025-11-02
- * Updated: 2025-11-08 - Refactored to use React Query for robust data fetching
+ * Updated: 2025-11-28 - Migrated to HubPageLayout with Gold Standard Hub Architecture
  * Specification: SDD v3.6, Section 4.1 - /bookings hub, Section 2.0 - Server-side filtering via URL params
  */
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
@@ -17,16 +17,21 @@ import ContextualSidebar, { UpcomingSessionWidget } from '@/app/components/layou
 import BookingStatsWidget from '@/app/components/bookings/BookingStatsWidget';
 import BookingsSkeleton from '@/app/components/bookings/BookingsSkeleton';
 import BookingsError from '@/app/components/bookings/BookingsError';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
+import type { HubTab } from '@/app/components/ui/hub-layout';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
 
 type FilterType = 'all' | 'upcoming' | 'past';
+
+const ITEMS_PER_PAGE = 5;
 
 export default function BookingsPage() {
   const { profile, activeRole, isLoading: profileLoading } = useUserProfile();
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Read filter from URL (SDD v3.6: URL is single source of truth)
   const filter = (searchParams?.get('filter') as FilterType) || 'all';
@@ -86,6 +91,27 @@ export default function BookingsPage() {
       return true; // 'all'
     });
   }, [bookings, filter]);
+
+  // Calculate tab counts
+  const tabCounts = useMemo(() => {
+    const now = new Date();
+    return {
+      all: bookings.length,
+      upcoming: bookings.filter((b: any) => new Date(b.session_start_time) >= now && b.status !== 'Cancelled').length,
+      past: bookings.filter((b: any) => new Date(b.session_start_time) < now || b.status === 'Completed').length,
+    };
+  }, [bookings]);
+
+  // Pagination logic
+  const totalItems = filteredBookings.length;
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedBookings = filteredBookings.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filter changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [filter]);
 
   // Get next upcoming session for sidebar
   const nextSession = useMemo(() => {
@@ -150,64 +176,83 @@ export default function BookingsPage() {
   // Show loading state
   if (profileLoading || isLoading) {
     return (
-      <>
+      <HubPageLayout
+        header={<HubHeader title="Bookings" />}
+        sidebar={
+          <ContextualSidebar>
+            <BookingStatsWidget pending={0} upcoming={0} completed={0} />
+          </ContextualSidebar>
+        }
+      >
         <BookingsSkeleton />
-        <ContextualSidebar>
-          <BookingStatsWidget pending={0} upcoming={0} completed={0} />
-        </ContextualSidebar>
-      </>
+      </HubPageLayout>
     );
   }
 
   // Show error state
   if (error) {
     return (
-      <>
+      <HubPageLayout
+        header={<HubHeader title="Bookings" />}
+        sidebar={
+          <ContextualSidebar>
+            <BookingStatsWidget pending={0} upcoming={0} completed={0} />
+          </ContextualSidebar>
+        }
+      >
         <BookingsError error={error as Error} onRetry={() => refetch()} />
-        <ContextualSidebar>
-          <BookingStatsWidget pending={0} upcoming={0} completed={0} />
-        </ContextualSidebar>
-      </>
+      </HubPageLayout>
     );
   }
 
   return (
-    <>
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>Bookings</h1>
-          <p className={styles.subtitle}>
-            Manage your tutoring sessions and upcoming appointments
-          </p>
-        </div>
-      </div>
+    <HubPageLayout
+      header={<HubHeader title="Bookings" />}
+      tabs={
+        <HubTabs
+          tabs={[
+            { id: 'all', label: 'All Bookings', count: tabCounts.all, active: filter === 'all' },
+            { id: 'upcoming', label: 'Upcoming', count: tabCounts.upcoming, active: filter === 'upcoming' },
+            { id: 'past', label: 'Past', count: tabCounts.past, active: filter === 'past' },
+          ]}
+          onTabChange={(tabId) => handleFilterChange(tabId as FilterType)}
+        />
+      }
+      sidebar={
+        <ContextualSidebar>
+          {/* Show next session widget if there is an upcoming session */}
+          {nextSession && (
+            <UpcomingSessionWidget
+              date={new Date(nextSession.session_start_time).toLocaleDateString('en-GB', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+              })}
+              time={new Date(nextSession.session_start_time).toLocaleTimeString('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+              service={nextSession.service_name}
+              participant={
+                viewMode === 'client'
+                  ? nextSession.tutor?.full_name || 'Unknown'
+                  : nextSession.client?.full_name || 'Unknown'
+              }
+            />
+          )}
 
-      {/* Filter Tabs - Full width outside container */}
-      <div className={styles.filterTabs}>
-          <button
-            onClick={() => handleFilterChange('all')}
-            className={`${styles.filterTab} ${filter === 'all' ? styles.filterTabActive : ''}`}
-          >
-            All Bookings
-          </button>
-          <button
-            onClick={() => handleFilterChange('upcoming')}
-            className={`${styles.filterTab} ${filter === 'upcoming' ? styles.filterTabActive : ''}`}
-          >
-            Upcoming
-          </button>
-          <button
-            onClick={() => handleFilterChange('past')}
-            className={`${styles.filterTab} ${filter === 'past' ? styles.filterTabActive : ''}`}
-          >
-            Past
-          </button>
-      </div>
-
-      {/* Content container */}
+          {/* Booking stats widget - always visible */}
+          <BookingStatsWidget
+            pending={bookings.filter((b: any) => b.status === 'Pending').length}
+            upcoming={tabCounts.upcoming}
+            completed={bookings.filter((b: any) => b.status === 'Completed').length}
+          />
+        </ContextualSidebar>
+      }
+    >
       <div className={styles.container}>
         {/* Empty State */}
-        {filteredBookings.length === 0 && (
+        {paginatedBookings.length === 0 && (
           <div className={styles.emptyState}>
             <h3 className={styles.emptyTitle}>No bookings found</h3>
             <p className={styles.emptyText}>
@@ -229,9 +274,9 @@ export default function BookingsPage() {
         )}
 
         {/* Bookings List */}
-        {filteredBookings.length > 0 && (
+        {paginatedBookings.length > 0 && (
           <div className={styles.bookingsList}>
-            {filteredBookings.map((booking: any) => (
+            {paginatedBookings.map((booking: any) => (
               <BookingCard
                 key={booking.id}
                 booking={booking}
@@ -245,38 +290,19 @@ export default function BookingsPage() {
             ))}
           </div>
         )}
-      </div>
 
-      {/* Contextual Sidebar (Right Column) - Always visible */}
-      <ContextualSidebar>
-        {/* Show next session widget if there is an upcoming session */}
-        {nextSession && (
-          <UpcomingSessionWidget
-            date={new Date(nextSession.session_start_time).toLocaleDateString('en-GB', {
-              weekday: 'short',
-              month: 'short',
-              day: 'numeric',
-            })}
-            time={new Date(nextSession.session_start_time).toLocaleTimeString('en-GB', {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-            service={nextSession.service_name}
-            participant={
-              viewMode === 'client'
-                ? nextSession.tutor?.full_name || 'Unknown'
-                : nextSession.client?.full_name || 'Unknown'
-            }
-          />
+        {/* Pagination */}
+        {totalItems > ITEMS_PER_PAGE && (
+          <div className={styles.paginationContainer}>
+            <HubPagination
+              currentPage={currentPage}
+              totalItems={totalItems}
+              itemsPerPage={ITEMS_PER_PAGE}
+              onPageChange={setCurrentPage}
+            />
+          </div>
         )}
-
-        {/* Booking stats widget - always visible */}
-        <BookingStatsWidget
-          pending={bookings.filter((b: any) => b.status === 'Pending').length}
-          upcoming={bookings.filter((b: any) => new Date(b.session_start_time) >= new Date() && b.status !== 'Cancelled').length}
-          completed={bookings.filter((b: any) => b.status === 'Completed').length}
-        />
-      </ContextualSidebar>
-    </>
+      </div>
+    </HubPageLayout>
   );
 }

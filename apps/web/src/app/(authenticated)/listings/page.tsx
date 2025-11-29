@@ -15,7 +15,7 @@ import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { getMyListings, deleteListing, publishListing, unpublishListing } from '@/lib/api/listings';
 import type { Listing } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/ui/hub-layout';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
 import type { HubTab } from '@/app/components/ui/hub-layout';
 import styles from './page.module.css';
 import filterStyles from './filters.module.css';
@@ -24,7 +24,6 @@ import ListingCard from './ListingCard';
 import ListingStatsWidget from '@/app/components/listings/ListingStatsWidget';
 import ListingsSkeleton from '@/app/components/listings/ListingsSkeleton';
 import ListingsError from '@/app/components/listings/ListingsError';
-import Pagination from '@/app/components/ui/Pagination';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import Button from '@/app/components/ui/Button';
 
@@ -492,7 +491,7 @@ export default function ListingsPage() {
         {/* Pagination */}
         {totalItems > ITEMS_PER_PAGE && (
           <div className={styles.paginationContainer}>
-            <Pagination
+            <HubPagination
               currentPage={currentPage}
               totalItems={totalItems}
               itemsPerPage={ITEMS_PER_PAGE}
