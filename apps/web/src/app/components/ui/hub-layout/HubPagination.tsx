@@ -2,8 +2,8 @@
  * Filename: apps/web/src/app/components/ui/hub-layout/HubPagination.tsx
  * Purpose: Pagination component for Hub Pages
  * Created: 2025-11-28
- * Updated: 2025-11-29 - Page numbers with arrows, ellipsis, and teal highlighting
- * Pattern: Shows "X-Y of Z results" + Page numbers (1, 2, ..., 12) + Previous/Next arrows
+ * Updated: 2025-11-29 - Page numbers with arrows, ellipsis, and teal highlighting (no summary text)
+ * Pattern: Page numbers (1, 2, ..., 12) + Previous/Next arrows (◁ ▷)
  *
  * Usage:
  * <HubPagination
@@ -13,7 +13,11 @@
  *   onPageChange={(page) => setCurrentPage(page)}
  * />
  *
- * Note: Current page highlighted in teal. Shows ellipsis when many pages.
+ * Note:
+ * - Current page highlighted in teal
+ * - Shows ellipsis (...) when many pages
+ * - Always visible (even with 1 page), hidden only when 0 items
+ * - Auto-adjusts to content (no fixed position)
  */
 
 'use client';

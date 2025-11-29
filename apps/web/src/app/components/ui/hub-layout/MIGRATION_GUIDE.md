@@ -448,13 +448,14 @@ interface HubPaginationProps {
 ```
 
 **Features:**
-- Shows "X-Y of Z results" summary (always visible)
-- Page number buttons with teal highlighting for current page
+- Page number buttons (1, 2, 3, ..., 12) with teal highlighting for current page
 - Previous/Next arrow buttons (◁ ▷)
 - Ellipsis (...) for skipped pages when many pages exist
 - Smart pagination: shows 1, 2, 3, 4, ..., last when near start
-- Hidden when ≤1 page
+- Always visible (even with 1 page), hidden only when 0 items
+- Auto-adjusts to content position (no fixed height)
 - Disabled arrows at first/last page
+- No summary text ("Showing X-Y of Z") - just page navigation
 
 **Usage:**
 ```tsx
