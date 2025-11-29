@@ -2,7 +2,7 @@
  * Filename: apps/web/src/app/components/ui/hub-layout/HubHeader.tsx
  * Purpose: Header for Hub Pages with Title, Filters, and Actions
  * Created: 2025-11-28
- * Updated: 2025-11-28 - Optimized: Removed subtitle, removed wrapper divs
+ * Updated: 2025-11-29 - Optimized spacing: Title→Filters 24px, Filters→Tabs 16px
  * Pattern: Two-row layout - Row 1: Title + Actions | Row 2: Filters (centered)
  *
  * Usage:

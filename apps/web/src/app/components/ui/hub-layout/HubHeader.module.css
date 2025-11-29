@@ -2,6 +2,7 @@
  * Filename: apps/web/src/app/components/ui/hub-layout/HubHeader.module.css
  * Purpose: Styles for HubHeader component
  * Created: 2025-11-28
+ * Updated: 2025-11-29 - Optimized spacing: Title→Filters 24px, HubHeader→Tabs 16px
  */
 
 .header {
@@ -16,6 +17,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 1.5rem;
 }
 
 .titleSection {
@@ -56,7 +58,8 @@
     height: auto;
     min-height: 4rem;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0;
+    margin-bottom: 1rem;
   }
 
   .title {
