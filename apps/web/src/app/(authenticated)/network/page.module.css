@@ -1,73 +1,17 @@
 /*
  * Filename: src/app/(authenticated)/network/page.module.css
- * Purpose: Styles for /network hub page (aligned with Hub UI pattern)
+ * Purpose: Styles for /network hub page
  * Created: 2025-11-07
- * Specification: Following SDD v3.6 Hub layout pattern
+ * Updated: 2025-11-29 - Migrated to Hub Layout Architecture, removed obsolete header/tab styles
  */
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0;
 }
 
-.header {
-  margin-bottom: 2rem;
-}
-
-.title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0 0 0.5rem 0;
-}
-
-.subtitle {
-  font-size: 1rem;
-  color: #6b7280;
-  margin: 0;
-}
-
-/* Filter Tabs - Underline Style with Teal (matches Listings hub) */
-.filterTabs {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
-  border-bottom: 2px solid #e5e7eb;
-  padding-bottom: 0;
-  overflow-x: auto;
-  /* Full width - escape mainContent padding with negative margins */
-  margin-left: -2rem;
-  margin-right: -2rem;
-  padding-left: 2rem;
-  padding-right: 2rem;
-  width: calc(100% + 4rem);
-}
-
-.filterTab {
-  padding: 0.75rem 1.5rem;
-  background: none;
-  border: none;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-gray-700, #4B4B4B);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.filterTab:hover {
-  color: var(--color-primary-default, #006c67);
-  background-color: var(--color-primary-light, #E6F0F0);
-  border-radius: 0.375rem 0.375rem 0 0;
-}
-
-.filterTabActive {
-  color: var(--color-primary-default, #006c67);
-  border-bottom-color: var(--color-primary-default, #006c67);
-  font-weight: 600;
-}
+/* Legacy styles removed - now handled by HubHeader and HubTabs components */
 
 /* Connections List - Vertical stack */
 .connectionsList {

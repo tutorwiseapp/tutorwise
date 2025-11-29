@@ -2,7 +2,7 @@
  * Filename: apps/web/src/app/(authenticated)/reviews/page.tsx
  * Purpose: Reviews & Ratings Hub - Mutual review system (v4.5)
  * Created: 2025-11-08
- * Updated: 2025-11-08 - Migrated to React Query
+ * Updated: 2025-11-29 - Migrated to Hub Layout Architecture with HubPageLayout, HubHeader, HubTabs
  * Related: reviews-solution-design-v4.5.md
  */
 
@@ -20,6 +20,8 @@ import ReviewStatsWidget from '@/app/components/reviews/ReviewStatsWidget';
 import ReviewSubmissionModal from '@/app/components/reviews/ReviewSubmissionModal';
 import ReviewsSkeleton from '@/app/components/reviews/ReviewsSkeleton';
 import ReviewsError from '@/app/components/reviews/ReviewsError';
+import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/ui/hub-layout';
+import type { HubTab } from '@/app/components/ui/hub-layout';
 import toast from 'react-hot-toast';
 import type {
   PendingReviewTask,
@@ -129,6 +131,10 @@ export default function ReviewsPage() {
     refetchGiven();
   };
 
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId as TabType);
+  };
+
   const emptyStats = {
     pendingCount: 0,
     receivedCount: 0,
@@ -139,24 +145,32 @@ export default function ReviewsPage() {
   // Show loading state
   if (profileLoading || isLoading) {
     return (
-      <>
+      <HubPageLayout
+        header={<HubHeader title="Reviews & Ratings" />}
+        sidebar={
+          <ContextualSidebar>
+            <ReviewStatsWidget stats={emptyStats} averageRating={0} />
+          </ContextualSidebar>
+        }
+      >
         <ReviewsSkeleton />
-        <ContextualSidebar>
-          <ReviewStatsWidget stats={emptyStats} averageRating={0} />
-        </ContextualSidebar>
-      </>
+      </HubPageLayout>
     );
   }
 
   // Show error state
   if (error) {
     return (
-      <>
+      <HubPageLayout
+        header={<HubHeader title="Reviews & Ratings" />}
+        sidebar={
+          <ContextualSidebar>
+            <ReviewStatsWidget stats={emptyStats} averageRating={0} />
+          </ContextualSidebar>
+        }
+      >
         <ReviewsError error={error as Error} onRetry={handleRetry} />
-        <ContextualSidebar>
-          <ReviewStatsWidget stats={emptyStats} averageRating={0} />
-        </ContextualSidebar>
-      </>
+      </HubPageLayout>
     );
   }
 
@@ -165,43 +179,28 @@ export default function ReviewsPage() {
   }
 
   return (
-    <>
+    <HubPageLayout
+      header={<HubHeader title="Reviews & Ratings" />}
+      tabs={
+        <HubTabs
+          tabs={[
+            { id: 'pending', label: 'Pending', count: stats.pendingCount, active: activeTab === 'pending' },
+            { id: 'received', label: 'Received', count: stats.receivedCount, active: activeTab === 'received' },
+            { id: 'given', label: 'Given', count: stats.givenCount, active: activeTab === 'given' },
+          ]}
+          onTabChange={handleTabChange}
+        />
+      }
+      sidebar={
+        <ContextualSidebar>
+          <ReviewStatsWidget
+            stats={stats}
+            averageRating={stats.averageRating}
+          />
+        </ContextualSidebar>
+      }
+    >
       <div className={styles.container}>
-        {/* Header */}
-        <div className={styles.header}>
-          <h1 className={styles.title}>Reviews & Ratings</h1>
-          <p className={styles.subtitle}>
-            Manage your reviews and build your reputation on Tutorwise
-          </p>
-        </div>
-
-        {/* Filter Tabs */}
-        <div className={styles.filterTabs}>
-          <button
-            onClick={() => setActiveTab('pending')}
-            className={`${styles.filterTab} ${
-              activeTab === 'pending' ? styles.filterTabActive : ''
-            }`}
-          >
-            Pending ({stats.pendingCount})
-          </button>
-          <button
-            onClick={() => setActiveTab('received')}
-            className={`${styles.filterTab} ${
-              activeTab === 'received' ? styles.filterTabActive : ''
-            }`}
-          >
-            Received ({stats.receivedCount})
-          </button>
-          <button
-            onClick={() => setActiveTab('given')}
-            className={`${styles.filterTab} ${
-              activeTab === 'given' ? styles.filterTabActive : ''
-            }`}
-          >
-            Given ({stats.givenCount})
-          </button>
-        </div>
 
         {/* Content */}
         {isLoading ? (
@@ -291,14 +290,6 @@ export default function ReviewsPage() {
           />
         )}
       </div>
-
-      {/* Contextual Sidebar */}
-      <ContextualSidebar>
-        <ReviewStatsWidget
-          stats={stats}
-          averageRating={stats.averageRating}
-        />
-      </ContextualSidebar>
-    </>
+    </HubPageLayout>
   );
 }

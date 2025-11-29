@@ -2,7 +2,7 @@
  * Filename: apps/web/src/app/(authenticated)/network/page.tsx
  * Purpose: Network & Connections page - LinkedIn-lite for Tutorwise (SDD v4.5)
  * Created: 2025-11-07
- * Updated: 2025-11-09 - Migrated to React Query for robust data fetching
+ * Updated: 2025-11-29 - Migrated to Hub Layout Architecture with HubPageLayout, HubHeader, HubTabs
  */
 
 'use client';
@@ -20,6 +20,8 @@ import NetworkStatsWidget from '@/app/components/network/NetworkStatsWidget';
 import NetworkConnectionWidget from '@/app/components/network/NetworkConnectionWidget';
 import NetworkSkeleton from '@/app/components/network/NetworkSkeleton';
 import NetworkError from '@/app/components/network/NetworkError';
+import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/ui/hub-layout';
+import type { HubTab } from '@/app/components/ui/hub-layout';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
 
@@ -207,31 +209,76 @@ export default function NetworkPage() {
     queryClient.invalidateQueries({ queryKey: ['connections', profile?.id] });
   };
 
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId as TabType);
+  };
+
   // Show loading state
   if (profileLoading || isLoading) {
     return (
-      <>
+      <HubPageLayout
+        header={<HubHeader title="Network" />}
+        sidebar={
+          <ContextualSidebar>
+            <NetworkStatsWidget stats={{ total: 0, pendingReceived: 0, pendingSent: 0 }} connections={[]} />
+            <NetworkConnectionWidget
+              onAddConnection={() => setIsModalOpen(true)}
+              onFindPeople={() => setIsModalOpen(true)}
+              onInviteByEmail={() => toast('Invite by email coming soon!', { icon: '✉️' })}
+              onCreateGroup={() => toast('Connection groups coming soon!', { icon: '📁' })}
+            />
+          </ContextualSidebar>
+        }
+      >
         <NetworkSkeleton />
-        <ContextualSidebar>
-          <NetworkStatsWidget stats={{ total: 0, pendingReceived: 0, pendingSent: 0 }} connections={[]} />
-          <NetworkConnectionWidget
-            onAddConnection={() => setIsModalOpen(true)}
-            onFindPeople={() => setIsModalOpen(true)}
-            onInviteByEmail={() => toast('Invite by email coming soon!', { icon: '✉️' })}
-            onCreateGroup={() => toast('Connection groups coming soon!', { icon: '📁' })}
-          />
-        </ContextualSidebar>
-      </>
+      </HubPageLayout>
     );
   }
 
   // Show error state
   if (error) {
     return (
-      <>
+      <HubPageLayout
+        header={<HubHeader title="Network" />}
+        sidebar={
+          <ContextualSidebar>
+            <NetworkStatsWidget stats={{ total: 0, pendingReceived: 0, pendingSent: 0 }} connections={[]} />
+            <NetworkConnectionWidget
+              onAddConnection={() => setIsModalOpen(true)}
+              onFindPeople={() => setIsModalOpen(true)}
+              onInviteByEmail={() => toast('Invite by email coming soon!', { icon: '✉️' })}
+              onCreateGroup={() => toast('Connection groups coming soon!', { icon: '📁' })}
+            />
+          </ContextualSidebar>
+        }
+      >
         <NetworkError error={error as Error} onRetry={() => refetch()} />
+      </HubPageLayout>
+    );
+  }
+
+  return (
+    <HubPageLayout
+      header={<HubHeader title="Network" />}
+      tabs={
+        <HubTabs
+          tabs={[
+            { id: 'all', label: 'All Connections', count: stats.total, active: activeTab === 'all' },
+            { id: 'pending-received', label: 'Requests', count: stats.pendingReceived, active: activeTab === 'pending-received' },
+            { id: 'pending-sent', label: 'Sent', count: stats.pendingSent, active: activeTab === 'pending-sent' },
+          ]}
+          onTabChange={handleTabChange}
+        />
+      }
+      sidebar={
         <ContextualSidebar>
-          <NetworkStatsWidget stats={{ total: 0, pendingReceived: 0, pendingSent: 0 }} connections={[]} />
+          {/* Network Stats - Single vertical card with label-value rows */}
+          <NetworkStatsWidget
+            stats={stats}
+            connections={filteredConnections}
+          />
+
+          {/* Grow Your Network - 4-button action widget */}
           <NetworkConnectionWidget
             onAddConnection={() => setIsModalOpen(true)}
             onFindPeople={() => setIsModalOpen(true)}
@@ -239,49 +286,9 @@ export default function NetworkPage() {
             onCreateGroup={() => toast('Connection groups coming soon!', { icon: '📁' })}
           />
         </ContextualSidebar>
-      </>
-    );
-  }
-
-  return (
-    <>
+      }
+    >
       <div className={styles.container}>
-        {/* Header */}
-        <div className={styles.header}>
-          <h1 className={styles.title}>Network</h1>
-          <p className={styles.subtitle}>
-            Build your professional tutoring network and amplify your reach
-          </p>
-        </div>
-
-        {/* Filter Tabs - Same pattern as Listings hub */}
-        <div className={styles.filterTabs}>
-          <button
-            onClick={() => setActiveTab('all')}
-            className={`${styles.filterTab} ${
-              activeTab === 'all' ? styles.filterTabActive : ''
-            }`}
-          >
-            All Connections ({stats.total})
-          </button>
-          <button
-            onClick={() => setActiveTab('pending-received')}
-            className={`${styles.filterTab} ${
-              activeTab === 'pending-received' ? styles.filterTabActive : ''
-            }`}
-          >
-            Requests ({stats.pendingReceived})
-          </button>
-          <button
-            onClick={() => setActiveTab('pending-sent')}
-            className={`${styles.filterTab} ${
-              activeTab === 'pending-sent' ? styles.filterTabActive : ''
-            }`}
-          >
-            Sent ({stats.pendingSent})
-          </button>
-        </div>
-
         {/* Content */}
         {filteredConnections.length === 0 ? (
           <div className={styles.emptyState}>
@@ -346,23 +353,6 @@ export default function NetworkPage() {
           onSuccess={handleConnectionSuccess}
         />
       </div>
-
-      {/* Contextual Sidebar - v2 Design System */}
-      <ContextualSidebar>
-        {/* Network Stats - Single vertical card with label-value rows */}
-        <NetworkStatsWidget
-          stats={stats}
-          connections={filteredConnections}
-        />
-
-        {/* Grow Your Network - 4-button action widget */}
-        <NetworkConnectionWidget
-          onAddConnection={() => setIsModalOpen(true)}
-          onFindPeople={() => setIsModalOpen(true)}
-          onInviteByEmail={() => toast('Invite by email coming soon!', { icon: '✉️' })}
-          onCreateGroup={() => toast('Connection groups coming soon!', { icon: '📁' })}
-        />
-      </ContextualSidebar>
-    </>
+    </HubPageLayout>
   );
 }
