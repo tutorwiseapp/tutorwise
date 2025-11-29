@@ -17,7 +17,6 @@ import ConnectionRequestModal from '@/app/components/network/ConnectionRequestMo
 import { useConnectionsRealtime } from '@/app/hooks/useConnectionsRealtime';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import NetworkStatsWidget from '@/app/components/network/NetworkStatsWidget';
-import NetworkConnectionWidget from '@/app/components/network/NetworkConnectionWidget';
 import NetworkSkeleton from '@/app/components/network/NetworkSkeleton';
 import NetworkError from '@/app/components/network/NetworkError';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
@@ -336,12 +335,6 @@ export default function NetworkPage() {
         sidebar={
           <ContextualSidebar>
             <NetworkStatsWidget stats={{ total: 0, pendingReceived: 0, pendingSent: 0 }} connections={[]} />
-            <NetworkConnectionWidget
-              onAddConnection={() => setIsModalOpen(true)}
-              onFindPeople={() => setIsModalOpen(true)}
-              onInviteByEmail={() => toast('Invite by email coming soon!', { icon: '✉️' })}
-              onCreateGroup={() => toast('Connection groups coming soon!', { icon: '📁' })}
-            />
           </ContextualSidebar>
         }
       >
@@ -358,12 +351,6 @@ export default function NetworkPage() {
         sidebar={
           <ContextualSidebar>
             <NetworkStatsWidget stats={{ total: 0, pendingReceived: 0, pendingSent: 0 }} connections={[]} />
-            <NetworkConnectionWidget
-              onAddConnection={() => setIsModalOpen(true)}
-              onFindPeople={() => setIsModalOpen(true)}
-              onInviteByEmail={() => toast('Invite by email coming soon!', { icon: '✉️' })}
-              onCreateGroup={() => toast('Connection groups coming soon!', { icon: '📁' })}
-            />
           </ContextualSidebar>
         }
       >
@@ -486,14 +473,6 @@ export default function NetworkPage() {
           <NetworkStatsWidget
             stats={stats}
             connections={filteredConnections}
-          />
-
-          {/* Grow Your Network - 4-button action widget */}
-          <NetworkConnectionWidget
-            onAddConnection={() => setIsModalOpen(true)}
-            onFindPeople={() => setIsModalOpen(true)}
-            onInviteByEmail={() => toast('Invite by email coming soon!', { icon: '✉️' })}
-            onCreateGroup={() => toast('Connection groups coming soon!', { icon: '📁' })}
           />
         </ContextualSidebar>
       }
