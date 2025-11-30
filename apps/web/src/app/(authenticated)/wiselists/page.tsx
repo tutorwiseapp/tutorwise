@@ -11,6 +11,7 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import WiselistCard from '@/app/components/wiselists/WiselistCard';
+import CreateWiselistModal from '@/app/components/wiselists/CreateWiselistModal';
 import { CreateWiselistWidget } from '@/app/components/wiselists/CreateWiselistWidget';
 import { WiselistStatsWidget } from '@/app/components/wiselists/WiselistStatsWidget';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
@@ -184,7 +185,6 @@ export default function WiselistsPage() {
 
   const handleCreateWiselist = () => {
     setShowCreateModal(true);
-    toast('Create wiselist functionality will be implemented!', { icon: '📝' });
     setShowActionsMenu(false);
   };
 
@@ -423,6 +423,15 @@ export default function WiselistsPage() {
           </>
         )}
       </div>
+
+      {/* Create Wiselist Modal */}
+      <CreateWiselistModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={() => {
+          // Refresh handled by modal via queryClient.invalidateQueries
+        }}
+      />
     </HubPageLayout>
   );
 }
