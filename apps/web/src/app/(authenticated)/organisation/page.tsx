@@ -305,6 +305,21 @@ export default function OrganisationPage() {
     setShowActionsMenu(false);
   };
 
+  const handleInviteByEmail = () => {
+    setShowInviteModal(true);
+    setShowActionsMenu(false);
+  };
+
+  const handleFindPeople = () => {
+    toast('Find people functionality coming soon!', { icon: '🔍' });
+    setShowActionsMenu(false);
+  };
+
+  const handleCreateGroup = () => {
+    toast('Organisation groups coming soon!', { icon: '📁' });
+    setShowActionsMenu(false);
+  };
+
   const handleCreateOrganisation = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -516,6 +531,24 @@ export default function OrganisationPage() {
 
                     {/* Dropdown Menu */}
                     <div className={actionStyles.dropdownMenu}>
+                      <button
+                        onClick={handleInviteByEmail}
+                        className={actionStyles.menuButton}
+                      >
+                        Invite by Email
+                      </button>
+                      <button
+                        onClick={handleFindPeople}
+                        className={actionStyles.menuButton}
+                      >
+                        Find People
+                      </button>
+                      <button
+                        onClick={handleCreateGroup}
+                        className={actionStyles.menuButton}
+                      >
+                        Create Group
+                      </button>
                       <button
                         onClick={handleViewPublicProfile}
                         className={actionStyles.menuButton}
