@@ -12,7 +12,6 @@ import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import WiselistCard from '@/app/components/wiselists/WiselistCard';
 import CreateWiselistModal from '@/app/components/wiselists/CreateWiselistModal';
-import { CreateWiselistWidget } from '@/app/components/wiselists/CreateWiselistWidget';
 import { WiselistStatsWidget } from '@/app/components/wiselists/WiselistStatsWidget';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
@@ -240,7 +239,6 @@ export default function WiselistsPage() {
         sidebar={
           <ContextualSidebar>
             <WiselistStatsWidget />
-            <CreateWiselistWidget />
           </ContextualSidebar>
         }
       >
@@ -259,7 +257,6 @@ export default function WiselistsPage() {
         sidebar={
           <ContextualSidebar>
             <WiselistStatsWidget />
-            <CreateWiselistWidget />
           </ContextualSidebar>
         }
       >
@@ -373,7 +370,6 @@ export default function WiselistsPage() {
       sidebar={
         <ContextualSidebar>
           <WiselistStatsWidget />
-          <CreateWiselistWidget />
         </ContextualSidebar>
       }
     >
