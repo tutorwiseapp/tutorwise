@@ -27,7 +27,7 @@ import {
 } from '@/lib/api/organisation';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import OrganisationStatsWidget from '@/app/components/organisation/OrganisationStatsWidget';
-import OrganisationInviteWidget from '@/app/components/organisation/OrganisationInviteWidget';
+import OrganisationInviteMemberModal from '@/app/components/organisation/OrganisationInviteMemberModal';
 import InfoTab from '@/app/components/organisation/tabs/InfoTab';
 import ManageMemberModal from '@/app/components/organisation/ManageMemberModal';
 import MemberCard from '@/app/components/organisation/MemberCard';
@@ -394,9 +394,6 @@ export default function OrganisationPage() {
               totalClients={0}
               monthlyRevenue={0}
             />
-            <OrganisationInviteWidget
-              onOrganisationCreated={() => setShowCreateModal(true)}
-            />
           </ContextualSidebar>
         }
       >
@@ -557,13 +554,6 @@ export default function OrganisationPage() {
             totalClients={stats?.total_clients || 0}
             monthlyRevenue={stats?.monthly_revenue || 0}
           />
-          <OrganisationInviteWidget
-            organisationId={organisation?.id}
-            onInviteSent={() => {
-              refetchMembers();
-              queryClient.invalidateQueries({ queryKey: ['organisation-stats', organisation?.id] });
-            }}
-          />
         </ContextualSidebar>
       }
     >
@@ -700,12 +690,16 @@ export default function OrganisationPage() {
         />
       )}
 
-      {/* Invite Modal - triggered by header action */}
-      {showInviteModal && organisation && (
-        <div style={{ display: 'none' }}>
-          {/* OrganisationInviteWidget is in sidebar, this is just for the state */}
-        </div>
-      )}
+      {/* Invite Member Modal */}
+      <OrganisationInviteMemberModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        onSuccess={() => {
+          refetchMembers();
+          queryClient.invalidateQueries({ queryKey: ['organisation-stats', organisation?.id] });
+        }}
+        organisationId={organisation.id}
+      />
     </HubPageLayout>
   );
 }
