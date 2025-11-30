@@ -81,77 +81,22 @@
  * ✓ Add comment about legacy styles being removed
  *
  * ============================================================================
- * COMPLETE EXAMPLE (Network page pattern):
+ * COMPLETE EXAMPLE (See Network page for live implementation):
  * ============================================================================
  *
- * <HubPageLayout
- *   header={
- *     <HubHeader
- *       title="Page Title"
- *       filters={
- *         <div className={filterStyles.filtersContainer}>
- *           <input
- *             type="search"
- *             placeholder="Search..."
- *             value={searchQuery}
- *             onChange={(e) => setSearchQuery(e.target.value)}
- *             className={filterStyles.searchInput}
- *           />
- *           <select
- *             value={sortBy}
- *             onChange={(e) => setSortBy(e.target.value as SortType)}
- *             className={filterStyles.filterSelect}
- *           >
- *             <option value="newest">Newest First</option>
- *             <option value="oldest">Oldest First</option>
- *           </select>
- *         </div>
- *       }
- *       actions={
- *         <>
- *           <Button variant="primary" size="sm" onClick={handlePrimaryAction}>
- *             Primary Action
- *           </Button>
- *           <div className={actionStyles.dropdownContainer}>
- *             <Button variant="secondary" size="sm" onClick={() => setShowActionsMenu(!showActionsMenu)}>
- *               ⋮
- *             </Button>
- *             {showActionsMenu && (
- *               <>
- *                 <div className={actionStyles.backdrop} onClick={() => setShowActionsMenu(false)} />
- *                 <div className={actionStyles.dropdownMenu}>
- *                   <button onClick={handleAction1} className={actionStyles.menuButton}>
- *                     Action 1
- *                   </button>
- *                 </div>
- *               </>
- *             )}
- *           </div>
- *         </>
- *       }
- *     />
- *   }
- *   tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
- *   sidebar={<ContextualSidebar>...</ContextualSidebar>}
- * >
- *   {/* Empty state */}
- *   {filteredItems.length === 0 && <EmptyState />}
+ * Structure:
+ * - HubPageLayout wrapper
+ *   - header prop: HubHeader with title, filters (search + sort), and actions
+ *   - tabs prop: HubTabs with tabs array and onTabChange handler
+ *   - sidebar prop: ContextualSidebar with stats widgets
+ *   - children: Empty state OR (list + pagination)
  *
- *   {/* List with pagination */}
- *   {filteredItems.length > 0 && (
- *     <>
- *       <div className={styles.itemsList}>
- *         {paginatedItems.map(item => <ItemCard key={item.id} item={item} />)}
- *       </div>
- *       <HubPagination
- *         currentPage={currentPage}
- *         totalItems={totalItems}
- *         itemsPerPage={ITEMS_PER_PAGE}
- *         onPageChange={setCurrentPage}
- *       />
- *     </>
- *   )}
- * </HubPageLayout>
+ * Key Pattern:
+ * - Filters in HubHeader: search input + sort select in filterStyles.filtersContainer
+ * - Actions in HubHeader: primary button + secondary dropdown menu
+ * - Content: Conditional rendering - empty state OR list with pagination
+ * - Pagination: ALWAYS after list, inside the non-empty conditional
+ * - Map function: Use paginatedItems NOT filteredItems
  *
  * ============================================================================
  * REFERENCE IMPLEMENTATIONS:
