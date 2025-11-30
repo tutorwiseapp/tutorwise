@@ -5,8 +5,8 @@
  * Updated: 2025-11-30 - Initial creation
  *
  * Design Tokens:
- * - Avatar: 136px diameter (desktop), 90px (mobile)
- * - Header height: 9.5rem (152px) - matches Listings header with filters
+ * - Avatar: 120px diameter
+ * - Header height: 5rem (80px) - matches standard HubHeader
  * - Profile name: 2rem (32px)
  * - Role chip: teal background with white text
  * - View link: teal color with underline
@@ -20,9 +20,10 @@
 .headerRow {
   padding-left: 0;
   padding-right: 0;
-  height: 9.5rem;
+  padding-top: 1.25rem;
+  padding-bottom: 2rem;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 2rem;
 }
@@ -30,10 +31,11 @@
 /* Profile Section (Left) */
 .profileSection {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 1.5rem;
   min-width: 0;
   flex: 1;
+  padding-top: 1.5rem;
 }
 
 /* Avatar */
@@ -57,7 +59,7 @@
 .profileInfo {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
   min-width: 0;
 }
 
@@ -137,12 +139,11 @@
 
   .profileSection {
     gap: 1rem;
-    align-items: flex-start;
   }
 
   .avatarContainer {
-    width: 90px;
-    height: 90px;
+    width: 80px;
+    height: 80px;
   }
 
   .fullName {
