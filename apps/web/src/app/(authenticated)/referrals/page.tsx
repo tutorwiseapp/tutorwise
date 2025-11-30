@@ -18,13 +18,18 @@ import ReferralStatsWidget from '@/app/components/referrals/ReferralStatsWidget'
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import ReferralsSkeleton from '@/app/components/referrals/ReferralsSkeleton';
 import ReferralsError from '@/app/components/referrals/ReferralsError';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/ui/hub-layout';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
 import type { HubTab } from '@/app/components/ui/hub-layout';
 import Button from '@/app/components/ui/Button';
 import toast from 'react-hot-toast';
 import { Referral, ReferralStatus } from '@/types';
 import styles from './page.module.css';
 import actionStyles from '@/app/components/ui/hub-layout/hub-actions.module.css';
+import filterStyles from '@/app/components/ui/hub-layout/hub-filters.module.css';
+
+type SortType = 'newest' | 'oldest' | 'name-asc' | 'name-desc';
+
+const ITEMS_PER_PAGE = 10;
 
 export default function ReferralsPage() {
   const { profile, isLoading: profileLoading } = useUserProfile();
@@ -34,8 +39,11 @@ export default function ReferralsPage() {
   // Read filter from URL (SDD v3.6: URL is single source of truth)
   const statusFilter = (searchParams?.get('status') as ReferralStatus | null) || 'all';
 
-  // State for actions menu
+  // State for actions menu, search, sort, and pagination
   const [showActionsMenu, setShowActionsMenu] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortType>('newest');
+  const [currentPage, setCurrentPage] = useState(1);
 
   // React Query: Fetch referrals with automatic retry, caching, and background refetch
   const {
@@ -64,13 +72,61 @@ export default function ReferralsPage() {
     router.push(`/referrals${params.toString() ? `?${params.toString()}` : ''}`, { scroll: false });
   };
 
-  // Client-side filtering based on URL param
+  // Client-side filtering, searching, and sorting
   const filteredReferrals = useMemo(() => {
-    return referrals.filter((referral: any) => {
-      if (statusFilter === 'all') return true;
-      return referral.status === statusFilter;
+    let filtered = referrals.filter((referral: any) => {
+      // Status filter
+      if (statusFilter !== 'all' && referral.status !== statusFilter) {
+        return false;
+      }
+      return true;
     });
-  }, [referrals, statusFilter]);
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((referral: any) => {
+        const name = referral.referred_user?.full_name?.toLowerCase() || '';
+        const email = referral.referred_user?.email?.toLowerCase() || '';
+        return name.includes(query) || email.includes(query);
+      });
+    }
+
+    // Sorting
+    filtered.sort((a: any, b: any) => {
+      switch (sortBy) {
+        case 'newest':
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case 'oldest':
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case 'name-asc': {
+          const aName = a.referred_user?.full_name || '';
+          const bName = b.referred_user?.full_name || '';
+          return aName.localeCompare(bName);
+        }
+        case 'name-desc': {
+          const aName = a.referred_user?.full_name || '';
+          const bName = b.referred_user?.full_name || '';
+          return bName.localeCompare(aName);
+        }
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [referrals, statusFilter, searchQuery, sortBy]);
+
+  // Pagination logic
+  const totalItems = filteredReferrals.length;
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedReferrals = filteredReferrals.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filter changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter]);
 
   // Calculate referral stats (from ALL referrals, not filtered)
   const stats = useMemo(() => {
@@ -163,6 +219,30 @@ export default function ReferralsPage() {
       header={
         <HubHeader
           title="Referrals"
+          filters={
+            <div className={filterStyles.filtersContainer}>
+              {/* Search Input */}
+              <input
+                type="search"
+                placeholder="Search referrals..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={filterStyles.searchInput}
+              />
+
+              {/* Sort Dropdown */}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortType)}
+                className={filterStyles.filterSelect}
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="name-asc">Name (A-Z)</option>
+                <option value="name-desc">Name (Z-A)</option>
+              </select>
+            </div>
+          }
           actions={
             <>
               {/* Primary Action Button (Placeholder) */}
@@ -246,11 +326,21 @@ export default function ReferralsPage() {
 
       {/* Referrals List */}
       {filteredReferrals.length > 0 && (
-        <div className={styles.referralsList}>
-          {filteredReferrals.map((referral: any) => (
-            <ReferralCard key={referral.id} referral={referral} />
-          ))}
-        </div>
+        <>
+          <div className={styles.referralsList}>
+            {paginatedReferrals.map((referral: any) => (
+              <ReferralCard key={referral.id} referral={referral} />
+            ))}
+          </div>
+
+          {/* Pagination */}
+          <HubPagination
+            currentPage={currentPage}
+            totalItems={totalItems}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onPageChange={setCurrentPage}
+          />
+        </>
       )}
     </HubPageLayout>
   );
