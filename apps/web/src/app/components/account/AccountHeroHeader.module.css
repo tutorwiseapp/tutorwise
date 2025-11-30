@@ -23,7 +23,7 @@
   padding-top: 2rem;
   padding-bottom: 2rem;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 2rem;
 }
@@ -31,10 +31,11 @@
 /* Profile Section (Left) */
 .profileSection {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 1.5rem;
   min-width: 0;
   flex: 1;
+  padding-top: 0.5rem;
 }
 
 /* Avatar */
