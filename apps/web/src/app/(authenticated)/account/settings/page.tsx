@@ -2,7 +2,7 @@
  * Filename: apps/web/src/app/(authenticated)/account/settings/page.tsx
  * Purpose: Account Settings tab page (Account Hub v4.8 - aligned with hub UI)
  * Created: 2025-11-09
- * Updated: 2025-11-16 - Added Free Help Now toggle (v5.9)
+ * Updated: 2025-11-30 - Migrated to Hub Layout Architecture with HubPageLayout, HubHeader, HubTabs
  *
  * Pattern: Uses ContextualSidebar from authenticated layout, not custom layout
  * Features:
@@ -16,18 +16,23 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
-import { AccountTabs } from '@/app/components/account/AccountTabs';
 import AccountCard from '@/app/components/account/AccountCard';
 import IntegrationLinksCard from '@/app/components/students/IntegrationLinksCard';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import PageHeader from '@/app/components/ui/PageHeader';
+import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/ui/hub-layout';
+import type { HubTab } from '@/app/components/ui/hub-layout';
+import Button from '@/app/components/ui/Button';
 import styles from './page.module.css';
+import actionStyles from '@/app/components/ui/hub-layout/hub-actions.module.css';
 
 export default function SettingsPage() {
   const { activeRole, profile } = useUserProfile();
+  const pathname = usePathname();
   const [isFreeHelpEnabled, setIsFreeHelpEnabled] = useState(false);
   const [isTogglingFreeHelp, setIsTogglingFreeHelp] = useState(false);
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
 
   // Load initial free help status
   useEffect(() => {
@@ -62,101 +67,169 @@ export default function SettingsPage() {
     }
   };
 
+  // Action handlers
+  const handleBuildMyBusiness = () => {
+    window.location.href = '/referrals';
+  };
+
+  const handleGrowMyNetwork = () => {
+    setShowActionsMenu(false);
+    window.location.href = '/network';
+  };
+
+  const handlePlanMyBookings = () => {
+    setShowActionsMenu(false);
+    window.location.href = '/wiselists';
+  };
+
+  // Prepare tabs data
+  const tabs: HubTab[] = [
+    { id: 'personal-info', label: 'Personal Info', active: pathname === '/account/personal-info' },
+    { id: 'professional', label: 'Professional Info', active: pathname === '/account/professional' },
+    { id: 'settings', label: 'Settings', active: pathname === '/account/settings' },
+  ];
+
+  const handleTabChange = (tabId: string) => {
+    window.location.href = `/account/${tabId}`;
+  };
+
   return (
-    <>
-      {/* Center Column - Account Content */}
-      <div className={styles.container}>
-        <PageHeader
+    <HubPageLayout
+      header={
+        <HubHeader
           title="Account Settings"
-          subtitle="Manage your personal information, professional details, and account settings"
+          actions={
+            <>
+              {/* Primary Action: Build My Business */}
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleBuildMyBusiness}
+              >
+                Build My Business
+              </Button>
+
+              {/* Secondary Actions: Dropdown Menu */}
+              <div className={actionStyles.dropdownContainer}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setShowActionsMenu(!showActionsMenu)}
+                >
+                  ⋮
+                </Button>
+
+                {showActionsMenu && (
+                  <>
+                    {/* Backdrop to close menu */}
+                    <div
+                      className={actionStyles.backdrop}
+                      onClick={() => setShowActionsMenu(false)}
+                    />
+
+                    {/* Dropdown Menu */}
+                    <div className={actionStyles.dropdownMenu} style={{ display: 'block' }}>
+                      <button
+                        onClick={handleGrowMyNetwork}
+                        className={actionStyles.menuButton}
+                      >
+                        Grow My Network
+                      </button>
+                      <button
+                        onClick={handlePlanMyBookings}
+                        className={actionStyles.menuButton}
+                      >
+                        Plan My Bookings
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
+          }
         />
-      </div>
+      }
+      tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
+      sidebar={
+        <ContextualSidebar>
+          <AccountCard />
+        </ContextualSidebar>
+      }
+    >
+      <div className={styles.content}>
+        {/* v5.0: Student Integrations - Only visible to student role */}
+        {activeRole === 'student' && (
+          <div style={{ marginBottom: 'var(--space-4, 32px)' }}>
+            <IntegrationLinksCard />
+          </div>
+        )}
 
-      {/* Tabs - Outside container for full-width effect */}
-      <AccountTabs />
-
-      {/* Content container */}
-      <div className={styles.container}>
-        <div className={styles.content}>
-          {/* v5.0: Student Integrations - Only visible to student role */}
-          {activeRole === 'student' && (
-            <div style={{ marginBottom: 'var(--space-4, 32px)' }}>
-              <IntegrationLinksCard />
+        <div className={styles.settingsGrid}>
+          {/* v5.9: Free Help Now - Only visible to tutors */}
+          {activeRole === 'tutor' && (
+            <div className={styles.settingCard}>
+              <div className={styles.cardContent}>
+                <h3 className={styles.cardTitle}>Offer Free Help</h3>
+                <p className={styles.cardDescription}>
+                  Offer 30-minute free sessions to students. Build your reputation and help the community.
+                </p>
+              </div>
+              <div className={styles.toggleWrapper}>
+                <label className={styles.toggle}>
+                  <input
+                    type="checkbox"
+                    checked={isFreeHelpEnabled}
+                    onChange={handleFreeHelpToggle}
+                    disabled={isTogglingFreeHelp}
+                  />
+                  <span className={styles.toggleSlider}></span>
+                </label>
+              </div>
             </div>
           )}
-
-          <div className={styles.settingsGrid}>
-            {/* v5.9: Free Help Now - Only visible to tutors */}
-            {activeRole === 'tutor' && (
-              <div className={styles.settingCard}>
-                <div className={styles.cardContent}>
-                  <h3 className={styles.cardTitle}>Offer Free Help</h3>
-                  <p className={styles.cardDescription}>
-                    Offer 30-minute free sessions to students. Build your reputation and help the community.
-                  </p>
-                </div>
-                <div className={styles.toggleWrapper}>
-                  <label className={styles.toggle}>
-                    <input
-                      type="checkbox"
-                      checked={isFreeHelpEnabled}
-                      onChange={handleFreeHelpToggle}
-                      disabled={isTogglingFreeHelp}
-                    />
-                    <span className={styles.toggleSlider}></span>
-                  </label>
-                </div>
-              </div>
-            )}
-            {/* Change Password */}
-            <Link href="/settings/change-password" className={styles.settingCard}>
-              <div className={styles.cardContent}>
-                <h3 className={styles.cardTitle}>Change Password</h3>
-                <p className={styles.cardDescription}>
-                  Update your password to keep your account secure
-                </p>
-              </div>
-            </Link>
-
-            {/* Notification Preferences (Future) */}
-            <div className={`${styles.settingCard} ${styles.cardDisabled}`}>
-              <div className={styles.cardContent}>
-                <h3 className={styles.cardTitle}>Notification Preferences</h3>
-                <p className={styles.cardDescription}>
-                  Manage email and push notification settings
-                </p>
-                <span className={styles.comingSoonBadge}>Coming Soon</span>
-              </div>
+          {/* Change Password */}
+          <Link href="/settings/change-password" className={styles.settingCard}>
+            <div className={styles.cardContent}>
+              <h3 className={styles.cardTitle}>Change Password</h3>
+              <p className={styles.cardDescription}>
+                Update your password to keep your account secure
+              </p>
             </div>
+          </Link>
 
-            {/* Privacy Settings (Future) */}
-            <div className={`${styles.settingCard} ${styles.cardDisabled}`}>
-              <div className={styles.cardContent}>
-                <h3 className={styles.cardTitle}>Privacy Settings</h3>
-                <p className={styles.cardDescription}>
-                  Control who can see your profile and activity
-                </p>
-                <span className={styles.comingSoonBadge}>Coming Soon</span>
-              </div>
+          {/* Notification Preferences (Future) */}
+          <div className={`${styles.settingCard} ${styles.cardDisabled}`}>
+            <div className={styles.cardContent}>
+              <h3 className={styles.cardTitle}>Notification Preferences</h3>
+              <p className={styles.cardDescription}>
+                Manage email and push notification settings
+              </p>
+              <span className={styles.comingSoonBadge}>Coming Soon</span>
             </div>
-
-            {/* Delete Account */}
-            <Link href="/delete-account" className={`${styles.settingCard} ${styles.cardDanger}`}>
-              <div className={styles.cardContent}>
-                <h3 className={styles.cardTitle}>Delete Account</h3>
-                <p className={styles.cardDescription}>
-                  Permanently delete your account and all associated data
-                </p>
-              </div>
-            </Link>
           </div>
+
+          {/* Privacy Settings (Future) */}
+          <div className={`${styles.settingCard} ${styles.cardDisabled}`}>
+            <div className={styles.cardContent}>
+              <h3 className={styles.cardTitle}>Privacy Settings</h3>
+              <p className={styles.cardDescription}>
+                Control who can see your profile and activity
+              </p>
+              <span className={styles.comingSoonBadge}>Coming Soon</span>
+            </div>
+          </div>
+
+          {/* Delete Account */}
+          <Link href="/delete-account" className={`${styles.settingCard} ${styles.cardDanger}`}>
+            <div className={styles.cardContent}>
+              <h3 className={styles.cardTitle}>Delete Account</h3>
+              <p className={styles.cardDescription}>
+                Permanently delete your account and all associated data
+              </p>
+            </div>
+          </Link>
         </div>
       </div>
-
-      {/* Right Sidebar - Account Card */}
-      <ContextualSidebar>
-        <AccountCard />
-      </ContextualSidebar>
-    </>
+    </HubPageLayout>
   );
 }
