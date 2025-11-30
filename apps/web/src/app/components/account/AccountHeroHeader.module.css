@@ -31,7 +31,7 @@
 /* Profile Section (Left) */
 .profileSection {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 1.5rem;
   min-width: 0;
   flex: 1;
@@ -41,8 +41,8 @@
 /* Avatar */
 .avatarContainer {
   flex-shrink: 0;
-  width: 120px;
-  height: 120px;
+  width: 152px;
+  height: 152px;
   border-radius: 50%;
   overflow: hidden;
   border: 4px solid #e5e7eb;
@@ -59,7 +59,7 @@
 .profileInfo {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.5rem;
   min-width: 0;
 }
 
@@ -139,10 +139,11 @@
 
   .profileSection {
     gap: 1rem;
+    align-items: flex-start;
   }
 
   .avatarContainer {
-    width: 80px;
+    width: 100px;
     height: 80px;
   }
 
