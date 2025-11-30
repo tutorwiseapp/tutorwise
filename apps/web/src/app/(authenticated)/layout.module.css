@@ -51,7 +51,7 @@
   flex: 1;
   margin-left: 240px; /* Width of AppSidebar on desktop */
   margin-right: 300px; /* Width of ContextualSidebar on desktop */
-  padding: 2rem;
+  padding: 0 2rem 2rem 2rem; /* Reduced top padding from 2rem to 0 (32px reduction) */
   overflow-y: auto;
 }
 
@@ -60,7 +60,7 @@
   .mainContent {
     margin-left: 0;
     margin-right: 0;
-    padding: 1rem;
+    padding: 0 1rem 1rem 1rem; /* Removed top padding */
   }
 }
 
@@ -69,7 +69,7 @@
   .mainContent {
     margin-left: 200px; /* Narrower AppSidebar on tablet */
     margin-right: 260px; /* Show ContextualSidebar on tablet */
-    padding: 1.5rem;
+    padding: 0 1.5rem 1.5rem 1.5rem; /* Removed top padding */
   }
 }
 
@@ -78,7 +78,7 @@
   .mainContent {
     margin-left: 200px;
     margin-right: 260px;
-    padding: 1.5rem;
+    padding: 0 1.5rem 1.5rem 1.5rem; /* Removed top padding */
   }
 }
 
@@ -87,6 +87,6 @@
   .mainContent {
     margin-left: 240px;
     margin-right: 300px;
-    padding: 2rem;
+    padding: 0 2rem 2rem 2rem; /* Removed top padding */
   }
 }
