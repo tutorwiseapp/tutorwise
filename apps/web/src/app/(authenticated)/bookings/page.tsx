@@ -19,10 +19,14 @@ import BookingsSkeleton from '@/app/components/bookings/BookingsSkeleton';
 import BookingsError from '@/app/components/bookings/BookingsError';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
 import type { HubTab } from '@/app/components/ui/hub-layout';
+import Button from '@/app/components/ui/Button';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
+import filterStyles from '@/app/components/ui/hub-layout/hub-filters.module.css';
+import actionStyles from '@/app/components/ui/hub-layout/hub-actions.module.css';
 
 type FilterType = 'all' | 'upcoming' | 'past';
+type SortType = 'date-desc' | 'date-asc' | 'status';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -32,6 +36,9 @@ export default function BookingsPage() {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortType>('date-desc');
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
 
   // Read filter from URL (SDD v3.6: URL is single source of truth)
   const filter = (searchParams?.get('filter') as FilterType) || 'all';
@@ -77,9 +84,9 @@ export default function BookingsPage() {
     },
   });
 
-  // Filter bookings based on URL param
+  // Filter and sort bookings based on URL param, search, and sort
   const filteredBookings = useMemo(() => {
-    return bookings.filter((booking: any) => {
+    let filtered = bookings.filter((booking: any) => {
       const sessionDate = new Date(booking.session_start_time);
       const now = new Date();
 
@@ -90,7 +97,34 @@ export default function BookingsPage() {
       }
       return true; // 'all'
     });
-  }, [bookings, filter]);
+
+    // Search filtering (by service name, tutor/client name)
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((booking: any) => {
+        const serviceName = booking.service_name?.toLowerCase() || '';
+        const tutorName = booking.tutor?.full_name?.toLowerCase() || '';
+        const clientName = booking.client?.full_name?.toLowerCase() || '';
+        return serviceName.includes(query) || tutorName.includes(query) || clientName.includes(query);
+      });
+    }
+
+    // Sorting
+    filtered.sort((a: any, b: any) => {
+      switch (sortBy) {
+        case 'date-desc':
+          return new Date(b.session_start_time).getTime() - new Date(a.session_start_time).getTime();
+        case 'date-asc':
+          return new Date(a.session_start_time).getTime() - new Date(b.session_start_time).getTime();
+        case 'status':
+          return (a.status || '').localeCompare(b.status || '');
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [bookings, filter, searchQuery, sortBy]);
 
   // Calculate tab counts
   const tabCounts = useMemo(() => {
@@ -108,10 +142,10 @@ export default function BookingsPage() {
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const paginatedBookings = filteredBookings.slice(startIndex, endIndex);
 
-  // Reset to page 1 when filter changes
+  // Reset to page 1 when filter, search, or sort changes
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [filter]);
+  }, [filter, searchQuery, sortBy]);
 
   // Get next upcoming session for sidebar
   const nextSession = useMemo(() => {
@@ -170,6 +204,52 @@ export default function BookingsPage() {
     });
   };
 
+  // Action handlers for header
+  const handleNewBooking = () => {
+    router.push('/marketplace');
+    setShowActionsMenu(false);
+  };
+
+  const handleExportCSV = () => {
+    if (!filteredBookings.length) {
+      toast.error('No bookings to export');
+      return;
+    }
+
+    const headers = ['Date', 'Time', 'Service', activeRole === 'tutor' ? 'Client' : 'Tutor', 'Status', 'Amount'];
+    const rows = filteredBookings.map((b: any) => [
+      new Date(b.session_start_time).toLocaleDateString('en-GB'),
+      new Date(b.session_start_time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+      b.service_name || '',
+      activeRole === 'tutor' ? (b.client?.full_name || '') : (b.tutor?.full_name || ''),
+      b.status || '',
+      b.total_price ? `£${b.total_price.toFixed(2)}` : '',
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(',')),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `bookings-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success('Bookings exported successfully');
+    setShowActionsMenu(false);
+  };
+
+  const handleSyncCalendar = () => {
+    toast('Calendar sync functionality coming soon!', { icon: '📅' });
+    setShowActionsMenu(false);
+  };
+
   // Determine viewMode based on activeRole
   const viewMode = activeRole === 'tutor' ? 'tutor' : 'client';
 
@@ -207,7 +287,83 @@ export default function BookingsPage() {
 
   return (
     <HubPageLayout
-      header={<HubHeader title="Bookings" />}
+      header={
+        <HubHeader
+          title="Bookings"
+          filters={
+            <div className={filterStyles.filtersContainer}>
+              {/* Search Input */}
+              <input
+                type="search"
+                placeholder="Search bookings..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={filterStyles.searchInput}
+              />
+
+              {/* Sort Dropdown */}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortType)}
+                className={filterStyles.filterSelect}
+              >
+                <option value="date-desc">Newest First</option>
+                <option value="date-asc">Oldest First</option>
+                <option value="status">By Status</option>
+              </select>
+            </div>
+          }
+          actions={
+            <>
+              {/* Primary Action Button */}
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleNewBooking}
+              >
+                New Booking
+              </Button>
+
+              {/* Secondary Actions: Dropdown Menu */}
+              <div className={actionStyles.dropdownContainer}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setShowActionsMenu(!showActionsMenu)}
+                >
+                  ⋮
+                </Button>
+
+                {showActionsMenu && (
+                  <>
+                    {/* Backdrop to close menu */}
+                    <div
+                      className={actionStyles.backdrop}
+                      onClick={() => setShowActionsMenu(false)}
+                    />
+
+                    {/* Dropdown Menu */}
+                    <div className={actionStyles.dropdownMenu}>
+                      <button
+                        onClick={handleSyncCalendar}
+                        className={actionStyles.menuButton}
+                      >
+                        Sync Calendar
+                      </button>
+                      <button
+                        onClick={handleExportCSV}
+                        className={actionStyles.menuButton}
+                      >
+                        Export CSV
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
+          }
+        />
+      }
       tabs={
         <HubTabs
           tabs={[
