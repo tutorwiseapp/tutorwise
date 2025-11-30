@@ -6,7 +6,7 @@
  *
  * Design Tokens:
  * - Avatar: 136px diameter (desktop), 90px (mobile)
- * - Header height: 5rem (80px) - matches standard HubHeader
+ * - Header height: 9.5rem (152px) - matches Listings header with filters
  * - Profile name: 2rem (32px)
  * - Role chip: teal background with white text
  * - View link: teal color with underline
@@ -20,7 +20,7 @@
 .headerRow {
   padding-left: 0;
   padding-right: 0;
-  height: 5rem;
+  height: 9.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
