@@ -15,7 +15,8 @@ import { updateProfile } from '@/lib/api/profiles';
 import ProfessionalInfoForm from '@/app/components/profile/ProfessionalInfoForm';
 import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
 import AccountCard from '@/app/components/account/AccountCard';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/ui/hub-layout';
+import AccountHeroHeader from '@/app/components/account/AccountHeroHeader';
+import { HubPageLayout, HubTabs } from '@/app/components/ui/hub-layout';
 import type { HubTab } from '@/app/components/ui/hub-layout';
 import Button from '@/app/components/ui/Button';
 import type { Profile } from '@/types';
@@ -69,7 +70,7 @@ export default function ProfessionalPage() {
   if (!profile) {
     return (
       <HubPageLayout
-        header={<HubHeader title="Account Settings" />}
+        header={<AccountHeroHeader />}
         tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
         sidebar={
           <ContextualSidebar>
@@ -85,8 +86,7 @@ export default function ProfessionalPage() {
   return (
     <HubPageLayout
       header={
-        <HubHeader
-          title="Account Settings"
+        <AccountHeroHeader
           actions={
             <>
               {/* Primary Action: Build My Business */}
