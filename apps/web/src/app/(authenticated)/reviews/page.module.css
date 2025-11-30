@@ -53,9 +53,9 @@
 .emptyState {
   text-align: center;
   padding: 4rem 2rem;
-  background-color: #f9fafb;
+  background-color: #ffffff;
   border-radius: 0.5rem;
-  border: 1px dashed #d1d5db;
+  border: 1px solid #e5e7eb;
 }
 
 .emptyTitle {

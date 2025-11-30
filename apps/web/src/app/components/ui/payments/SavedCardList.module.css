@@ -43,8 +43,9 @@
     padding: var(--space-3) 0;
     color: var(--color-text-secondary);
     font-size: var(--font-size-sm);
-    border: 1px dashed var(--color-border);
+    border: 1px solid #e5e7eb;
     border-radius: var(--border-radius-md);
+    background-color: #ffffff;
     flex-grow: 1;
 }
 
