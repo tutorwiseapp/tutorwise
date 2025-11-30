@@ -1,15 +1,26 @@
 /**
  * Filename: apps/web/src/app/(authenticated)/account/personal-info/page.module.css
  * Purpose: Styles for Personal Info page (Account Hub v4.8)
- * Pattern: EXACT COPY of referrals pattern - no container padding
- * Updated: 2025-11-09 - Copied from referrals/page.module.css
+ * Created: 2025-11-09
+ * Updated: 2025-11-30 - Migrated to Hub Layout Architecture, removed obsolete styles
  */
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0;
 }
+
+/* Legacy header and tab styles removed - now handled by HubHeader and HubTabs components */
 
 .content {
   margin-top: 0;
+}
+
+/* Loading State */
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+  font-size: 1rem;
 }
