@@ -50,8 +50,8 @@
 .mainContent {
   flex: 1;
   margin-left: 240px; /* Width of AppSidebar on desktop */
-  margin-right: 300px; /* Width of ContextualSidebar on desktop */
-  padding: 0.75rem 2rem 2rem 2rem; /* Top padding 0.75rem (12px), reduced from original 2rem (32px) by 20px */
+  margin-right: 0; /* No margin - HubSidebar is in page flow, not fixed */
+  padding: 0; /* No padding - Hub components handle their own spacing */
   overflow-y: auto;
 }
 
@@ -60,7 +60,7 @@
   .mainContent {
     margin-left: 0;
     margin-right: 0;
-    padding: 0.5rem 1rem 1rem 1rem; /* Top padding 0.5rem (8px) */
+    padding: 0; /* No padding - Hub components handle their own spacing */
   }
 }
 
@@ -68,8 +68,8 @@
 @media (min-width: 769px) and (max-width: 1024px) {
   .mainContent {
     margin-left: 200px; /* Narrower AppSidebar on tablet */
-    margin-right: 260px; /* Show ContextualSidebar on tablet */
-    padding: 0.5rem 1.5rem 1.5rem 1.5rem; /* Top padding 0.5rem (8px) */
+    margin-right: 0; /* No margin - HubSidebar is in page flow, not fixed */
+    padding: 0; /* No padding - Hub components handle their own spacing */
   }
 }
 
@@ -77,8 +77,8 @@
 @media (min-width: 1025px) and (max-width: 1280px) {
   .mainContent {
     margin-left: 200px;
-    margin-right: 260px;
-    padding: 0.5rem 1.5rem 1.5rem 1.5rem; /* Top padding 0.5rem (8px) */
+    margin-right: 0; /* No margin - HubSidebar is in page flow, not fixed */
+    padding: 0; /* No padding - Hub components handle their own spacing */
   }
 }
 
@@ -86,7 +86,7 @@
 @media (min-width: 1281px) {
   .mainContent {
     margin-left: 240px;
-    margin-right: 300px;
-    padding: 0.75rem 2rem 2rem 2rem; /* Top padding 0.75rem (12px), reduced from original 2rem (32px) by 20px */
+    margin-right: 0; /* No margin - HubSidebar is in page flow, not fixed */
+    padding: 0; /* No padding - Hub components handle their own spacing */
   }
 }

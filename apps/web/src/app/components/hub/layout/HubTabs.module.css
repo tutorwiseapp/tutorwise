@@ -1,0 +1,71 @@
+/**
+ * Filename: apps/web/src/app/components/ui/hub-layout/HubTabs.module.css
+ * Purpose: Styles for HubTabs component - Matches Bookings page filter tabs exactly
+ * Created: 2025-11-28
+ * Updated: 2025-11-28 - Updated to match Bookings page style guide
+ */
+
+/* Outer container - Border extends full width from left edge to right edge */
+.filterTabsContainer {
+  position: relative;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 1rem;
+}
+
+/* Inner wrapper - Contains tab buttons with padding for alignment */
+.filterTabs {
+  display: flex;
+  gap: 0.5rem;
+  padding-left: 1rem; /* Align tabs with header content */
+  padding-right: 1rem; /* Add right padding for symmetry */
+  overflow-x: auto;
+  position: relative;
+}
+
+.filterTab {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-700, #4B4B4B);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  position: relative;
+  z-index: 1; /* Tabs appear above the border line */
+}
+
+.filterTab:hover {
+  color: var(--color-primary-default, #006c67);
+  background-color: var(--color-primary-light, #E6F0F0);
+  border-radius: 0.375rem 0.375rem 0 0; /* Rounded top only */
+}
+
+.filterTabActive {
+  color: var(--color-primary-default, #006c67);
+  border-bottom-color: var(--color-primary-default, #006c67);
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .filterTabsContainer {
+    margin-bottom: 1.5rem;
+  }
+
+  .filterTabs {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .filterTabs {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
