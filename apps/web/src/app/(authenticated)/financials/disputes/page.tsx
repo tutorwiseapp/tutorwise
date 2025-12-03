@@ -2,21 +2,32 @@
  * Filename: src/app/(authenticated)/financials/disputes/page.tsx
  * Purpose: Disputes tab - view and manage disputed transactions with status filtering
  * Created: 2025-11-11
- * Updated: 2025-11-11 - Added dispute status filter tabs per SDD v4.9
+ * Updated: 2025-12-03 - Migrated to HubPageLayout, HubTabs, HubRowCard with client avatars, HubEmptyState
  * Specification: SDD v4.9, Section 3.4 - Disputes & Chargebacks with status tabs
+ * Change History:
+ * C001 - 2025-12-03 : Migrated to Hub Layout Architecture with HubRowCard and client avatars
  */
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
+import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import HubRowCard from '@/app/components/hub/content/HubRowCard/HubRowCard';
+import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import WalletBalanceWidget from '@/app/components/feature/financials/WalletBalanceWidget';
+import Button from '@/app/components/ui/actions/Button';
 import { Transaction } from '@/types';
+import toast from 'react-hot-toast';
 import styles from '../page.module.css';
+import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
+import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
 // Dispute statuses per SDD v4.9 ASCII Diagram 3
 type DisputeStatus = 'action_required' | 'under_review' | 'won' | 'lost' | 'all';
+type DateRangeType = 'all' | '7days' | '30days' | '3months' | '6months' | '1year';
 
 export default function DisputesPage() {
   const { profile } = useUserProfile();
@@ -30,6 +41,9 @@ export default function DisputesPage() {
     pending: 0,
     total: 0,
   });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [dateRange, setDateRange] = useState<DateRangeType>('all');
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
 
   // Read filter from URL
   const statusFilter = (searchParams?.get('status') as DisputeStatus) || 'all';
@@ -73,148 +87,319 @@ export default function DisputesPage() {
     fetchDisputes();
   }, [profile]);
 
-  // Client-side filtering based on URL param
-  // Map internal status to dispute filter statuses
-  const filteredDisputes = disputes.filter((dispute) => {
-    if (statusFilter === 'all') return true;
+  // Client-side filtering based on URL param + search + date range
+  const filteredDisputes = useMemo(() => {
+    let filtered = disputes;
 
-    // Map dispute statuses to our filter categories
-    const status = dispute.status?.toLowerCase();
-    if (statusFilter === 'action_required') return status === 'disputed' || status === 'action_required';
-    if (statusFilter === 'under_review') return status === 'under_review' || status === 'reviewing';
-    if (statusFilter === 'won') return status === 'won' || status === 'resolved';
-    if (statusFilter === 'lost') return status === 'lost' || status === 'failed';
+    // Status filtering
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter((dispute) => {
+        const status = dispute.status?.toLowerCase();
+        if (statusFilter === 'action_required') return status === 'disputed' || status === 'action_required';
+        if (statusFilter === 'under_review') return status === 'under_review' || status === 'reviewing';
+        if (statusFilter === 'won') return status === 'won' || status === 'resolved';
+        if (statusFilter === 'lost') return status === 'lost' || status === 'failed';
+        return false;
+      });
+    }
 
-    return false;
-  });
+    // Search filtering
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((dispute) =>
+        dispute.description?.toLowerCase().includes(query)
+      );
+    }
+
+    // Date range filtering
+    if (dateRange !== 'all') {
+      const cutoffDate = new Date();
+      switch (dateRange) {
+        case '7days':
+          cutoffDate.setDate(cutoffDate.getDate() - 7);
+          break;
+        case '30days':
+          cutoffDate.setDate(cutoffDate.getDate() - 30);
+          break;
+        case '3months':
+          cutoffDate.setMonth(cutoffDate.getMonth() - 3);
+          break;
+        case '6months':
+          cutoffDate.setMonth(cutoffDate.getMonth() - 6);
+          break;
+        case '1year':
+          cutoffDate.setFullYear(cutoffDate.getFullYear() - 1);
+          break;
+      }
+      filtered = filtered.filter((dispute) => new Date(dispute.created_at) >= cutoffDate);
+    }
+
+    return filtered;
+  }, [disputes, statusFilter, searchQuery, dateRange]);
+
+  // Action handlers
+  const handleContactSupport = () => {
+    toast('Redirecting to support...', { icon: '💬' });
+  };
+
+  const handleExportCSV = () => {
+    if (!filteredDisputes.length) {
+      toast.error('No disputes to export');
+      return;
+    }
+
+    const headers = ['Date', 'Description', 'Amount', 'Status'];
+    const rows = filteredDisputes.map(dispute => [
+      new Date(dispute.created_at).toLocaleDateString('en-GB'),
+      dispute.description || '',
+      `£${Math.abs(dispute.amount).toFixed(2)}`,
+      dispute.status || '',
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(',')),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `disputes-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success('Disputes exported successfully');
+    setShowActionsMenu(false);
+  };
+
+  // Calculate tab counts
+  const tabCounts = useMemo(() => {
+    const counts = {
+      all: disputes.length,
+      action_required: 0,
+      under_review: 0,
+      won: 0,
+      lost: 0,
+    };
+
+    disputes.forEach((dispute) => {
+      const status = dispute.status?.toLowerCase();
+      if (status === 'disputed' || status === 'action_required') counts.action_required++;
+      if (status === 'under_review' || status === 'reviewing') counts.under_review++;
+      if (status === 'won' || status === 'resolved') counts.won++;
+      if (status === 'lost' || status === 'failed') counts.lost++;
+    });
+
+    return counts;
+  }, [disputes]);
+
+  // Prepare tabs data
+  const tabs: HubTab[] = [
+    { id: 'all', label: 'All', count: tabCounts.all, active: statusFilter === 'all' },
+    { id: 'action_required', label: 'Action Required', count: tabCounts.action_required, active: statusFilter === 'action_required' },
+    { id: 'under_review', label: 'Under Review', count: tabCounts.under_review, active: statusFilter === 'under_review' },
+    { id: 'won', label: 'Won', count: tabCounts.won, active: statusFilter === 'won' },
+    { id: 'lost', label: 'Lost', count: tabCounts.lost, active: statusFilter === 'lost' },
+  ];
+
+  // Get status variant for badge
+  const getStatusVariant = (status: string): 'success' | 'warning' | 'error' | 'neutral' | 'info' => {
+    const lowerStatus = status?.toLowerCase();
+    if (lowerStatus === 'won' || lowerStatus === 'resolved') return 'success';
+    if (lowerStatus === 'disputed' || lowerStatus === 'action_required') return 'error';
+    if (lowerStatus === 'under_review' || lowerStatus === 'reviewing') return 'warning';
+    if (lowerStatus === 'lost' || lowerStatus === 'failed') return 'neutral';
+    return 'neutral';
+  };
 
   if (isLoading) {
     return (
-      <>
+      <HubPageLayout
+        header={<HubHeader title="Disputes" subtitle="View and manage disputed transactions" />}
+        sidebar={
+          <HubSidebar>
+            <div className={styles.skeletonWidget} />
+          </HubSidebar>
+        }
+      >
         <div className={styles.loading}>Loading disputes...</div>
-        <HubSidebar>
-          <div className={styles.skeletonWidget} />
-        </HubSidebar>
-      </>
+      </HubPageLayout>
     );
   }
 
   return (
-    <>
-      {/* Page Header */}
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>Disputes</h1>
-          <p className={styles.subtitle}>View and manage disputed transactions</p>
-        </div>
-      </div>
+    <HubPageLayout
+      header={
+        <HubHeader
+          title="Disputes"
+          subtitle="View and manage disputed transactions"
+          filters={
+            <div className={filterStyles.filtersContainer}>
+              {/* Search Input */}
+              <input
+                type="search"
+                placeholder="Search disputes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={filterStyles.searchInput}
+              />
 
-      {/* Status Filter Tabs */}
-      <div className={styles.filterTabs}>
-        <button
-          onClick={() => handleFilterChange('all')}
-          className={`${styles.filterTab} ${statusFilter === 'all' ? styles.filterTabActive : ''}`}
-        >
-          All
-        </button>
-        <button
-          onClick={() => handleFilterChange('action_required')}
-          className={`${styles.filterTab} ${statusFilter === 'action_required' ? styles.filterTabActive : ''}`}
-        >
-          Action Required
-        </button>
-        <button
-          onClick={() => handleFilterChange('under_review')}
-          className={`${styles.filterTab} ${statusFilter === 'under_review' ? styles.filterTabActive : ''}`}
-        >
-          Under Review
-        </button>
-        <button
-          onClick={() => handleFilterChange('won')}
-          className={`${styles.filterTab} ${statusFilter === 'won' ? styles.filterTabActive : ''}`}
-        >
-          Won
-        </button>
-        <button
-          onClick={() => handleFilterChange('lost')}
-          className={`${styles.filterTab} ${statusFilter === 'lost' ? styles.filterTabActive : ''}`}
-        >
-          Lost
-        </button>
-      </div>
-
-      <div className={styles.content}>
-        {/* Error State */}
-        {error && (
-          <div className={styles.error}>
-            <p>{error}</p>
-          </div>
-        )}
-
-        {/* Disputes Overview */}
-        {filteredDisputes.length === 0 ? (
-          <div className={styles.emptyState}>
-            <h3 className={styles.emptyTitle}>No disputes found</h3>
-            <p className={styles.emptyText}>
-              {disputes.length === 0
-                ? 'Great news! You have no disputed transactions.'
-                : `No disputes match your current filter (${statusFilter}).`}
-            </p>
-          </div>
-        ) : (
-          <div className={styles.section}>
-            <h2 className={styles.sectionTitle}>Disputed Transactions</h2>
-            <div className={styles.disputesList}>
-              {filteredDisputes.map((dispute) => (
-                <div key={dispute.id} className={styles.disputeCard}>
-                  <div className={styles.disputeHeader}>
-                    <span className={`${styles.statusBadge} ${styles.statusDisputed}`}>
-                      Disputed
-                    </span>
-                    <p className={styles.disputeDate}>
-                      {new Date(dispute.created_at).toLocaleDateString('en-GB', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric',
-                      })}
-                    </p>
-                  </div>
-                  <div className={styles.disputeMain}>
-                    <div>
-                      <p className={styles.disputeDescription}>{dispute.description}</p>
-                      <p className={styles.disputeType}>{dispute.type}</p>
-                    </div>
-                    <p className={styles.disputeAmount}>
-                      £{Math.abs(dispute.amount).toFixed(2)}
-                    </p>
-                  </div>
-                  <div className={styles.disputeActions}>
-                    <button className={styles.disputeButton} disabled>
-                      View Details
-                    </button>
-                    <button className={styles.disputeButton} disabled>
-                      Submit Evidence
-                    </button>
-                  </div>
-                  <p className={styles.disputeNote}>
-                    <strong>Note:</strong> Dispute management will be available in Phase 3.
-                    Please contact support for assistance.
-                  </p>
-                </div>
-              ))}
+              {/* Date Range Dropdown */}
+              <select
+                value={dateRange}
+                onChange={(e) => setDateRange(e.target.value as DateRangeType)}
+                className={filterStyles.filterSelect}
+              >
+                <option value="all">All Time</option>
+                <option value="7days">Last 7 Days</option>
+                <option value="30days">Last 30 Days</option>
+                <option value="3months">Last 3 Months</option>
+                <option value="6months">Last 6 Months</option>
+                <option value="1year">Last Year</option>
+              </select>
             </div>
+          }
+          actions={
+            <>
+              {/* Primary Action Button */}
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleContactSupport}
+              >
+                Contact Support
+              </Button>
+
+              {/* Secondary Actions: Dropdown Menu */}
+              <div className={actionStyles.dropdownContainer}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setShowActionsMenu(!showActionsMenu)}
+                >
+                  ⋮
+                </Button>
+
+                {showActionsMenu && (
+                  <>
+                    {/* Backdrop to close menu */}
+                    <div
+                      className={actionStyles.backdrop}
+                      onClick={() => setShowActionsMenu(false)}
+                    />
+
+                    {/* Dropdown Menu */}
+                    <div className={actionStyles.dropdownMenu}>
+                      <button
+                        onClick={handleExportCSV}
+                        className={actionStyles.menuButton}
+                      >
+                        Export CSV
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
+          }
+        />
+      }
+      tabs={
+        <HubTabs
+          tabs={tabs}
+          onTabChange={(tabId) => handleFilterChange(tabId as DisputeStatus)}
+        />
+      }
+      sidebar={
+        <HubSidebar>
+          <WalletBalanceWidget
+            available={balances.available}
+            pending={balances.pending}
+            total={balances.total}
+          />
+        </HubSidebar>
+      }
+    >
+      {/* Error State */}
+      {error && (
+        <div className={styles.error}>
+          <p>{error}</p>
+        </div>
+      )}
+
+      {/* Disputes List - HubRowCard with client avatars */}
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>
+          {statusFilter === 'all' ? 'Disputed Transactions' : `${statusFilter.replace('_', ' ').charAt(0).toUpperCase()}${statusFilter.replace('_', ' ').slice(1)} Disputes`}
+        </h2>
+
+        {filteredDisputes.length === 0 ? (
+          disputes.length === 0 ? (
+            <HubEmptyState
+              title="No disputes yet"
+              description="Great news! You have no disputed transactions."
+            />
+          ) : (
+            <HubEmptyState
+              title="No disputes found"
+              description={`No disputes match your current filter (${statusFilter.replace('_', ' ')}).`}
+            />
+          )
+        ) : (
+          <div className={styles.disputesList}>
+            {filteredDisputes.map((dispute) => {
+              // Extract client info from dispute metadata (placeholder - adjust based on actual data structure)
+              const clientName = dispute.metadata?.client_name || 'Client';
+              const clientAvatar = dispute.metadata?.client_avatar || null;
+              const clientInitial = clientName.charAt(0).toUpperCase();
+
+              return (
+                <HubRowCard
+                  key={dispute.id}
+                  image={{
+                    src: clientAvatar,
+                    alt: clientName,
+                    fallbackChar: clientInitial,
+                  }}
+                  title={`£${Math.abs(dispute.amount).toFixed(2)} Disputed`}
+                  status={{
+                    label: dispute.status || 'Disputed',
+                    variant: getStatusVariant(dispute.status || ''),
+                  }}
+                  description={dispute.description}
+                  meta={[
+                    `Client: ${clientName}`,
+                    `Opened ${new Date(dispute.created_at).toLocaleDateString('en-GB', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    })}`,
+                    dispute.type || 'Dispute',
+                  ]}
+                  stats={
+                    <p className={styles.disputeNote}>
+                      <strong>Note:</strong> Dispute management will be available in Phase 3. Please contact support for assistance.
+                    </p>
+                  }
+                  actions={
+                    <>
+                      <Button variant="secondary" size="sm" disabled>
+                        View Details
+                      </Button>
+                      <Button variant="secondary" size="sm" disabled>
+                        Submit Evidence
+                      </Button>
+                    </>
+                  }
+                />
+              );
+            })}
           </div>
         )}
       </div>
-
-      {/* Contextual Sidebar */}
-      <HubSidebar>
-        <WalletBalanceWidget
-          available={balances.available}
-          pending={balances.pending}
-          total={balances.total}
-        />
-      </HubSidebar>
-    </>
+    </HubPageLayout>
   );
 }
