@@ -2,108 +2,16 @@
  * Filename: src/app/(authenticated)/referrals/page.module.css
  * Purpose: Styles for /referrals hub page
  * Created: 2025-11-02
- * Updated: 2025-11-30 - Migrated to Hub Layout Architecture, removed obsolete header/tab styles
+ * Updated: 2025-12-03 - Migrated to HubEmptyState component, removed obsolete empty state styles
+ * Change History:
+ * C003 - 2025-12-03 : Migrated to HubEmptyState component, removed empty state styles (65 lines)
+ * C002 - 2025-11-30 : Migrated to Hub Layout Architecture, removed obsolete header/tab styles
+ * C001 - 2025-11-02 : Initial creation
  */
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-/* Legacy header and tab styles removed - now handled by HubHeader and HubTabs components */
 
 /* Referrals List */
 .referralsList {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-
-/* Loading State */
-.loading {
-  text-align: center;
-  padding: 3rem;
-  color: #6b7280;
-  font-size: 1rem;
-}
-
-/* Error State */
-.error {
-  padding: 1rem;
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 0.5rem;
-  color: #991b1b;
-  margin-bottom: 1rem;
-}
-
-/* Empty State */
-.emptyState {
-  text-align: center;
-  padding: 4rem 2rem;
-  background-color: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-}
-
-.emptyIcon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-}
-
-.emptyTitle {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 0.5rem 0;
-}
-
-.emptyText {
-  font-size: 1rem;
-  color: #6b7280;
-  margin: 0 0 1.5rem 0;
-}
-
-.emptyActions {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-}
-
-.copyButton {
-  padding: 0.75rem 1.5rem;
-  background-color: var(--color-primary-default, #006c67);
-  color: #ffffff;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.15s ease-in-out;
-}
-
-.copyButton:hover {
-  background-color: var(--color-primary-dark, #005550);
-}
-
-/* Sidebar Content */
-.sidebarContent {
-  /* No styles needed - this is just a wrapper for widgets */
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .emptyState {
-    padding: 3rem 1rem;
-  }
-
-  .emptyIcon {
-    font-size: 3rem;
-  }
-
-  .emptyActions {
-    flex-direction: column;
-    align-items: stretch;
-  }
 }

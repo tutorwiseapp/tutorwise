@@ -2,8 +2,12 @@
  * Filename: src/app/(authenticated)/referrals/page.tsx
  * Purpose: Referrals hub page - displays referral lead pipeline (SDD v3.6)
  * Created: 2025-11-02
- * Updated: 2025-11-30 - Migrated to Hub Layout Architecture with HubPageLayout, HubHeader, HubTabs
+ * Updated: 2025-12-03 - Migrated to HubEmptyState component (Phase 2 migration complete)
  * Specification: SDD v3.6, Section 4.3 - /referrals hub, Section 2.0 - Server-side filtering via URL params
+ * Change History:
+ * C003 - 2025-12-03 : Migrated to HubEmptyState component, removed custom empty state markup
+ * C002 - 2025-11-30 : Migrated to Hub Layout Architecture with HubPageLayout, HubHeader, HubTabs
+ * C001 - 2025-11-02 : Initial creation
  */
 'use client';
 
@@ -19,6 +23,7 @@ import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import ReferralsSkeleton from '@/app/components/feature/referrals/ReferralsSkeleton';
 import ReferralsError from '@/app/components/feature/referrals/ReferralsError';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
+import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import type { HubTab } from '@/app/components/hub/layout';
 import Button from '@/app/components/ui/actions/Button';
 import toast from 'react-hot-toast';
@@ -314,14 +319,14 @@ export default function ReferralsPage() {
     >
       {/* Empty State */}
       {filteredReferrals.length === 0 && (
-        <div className={styles.emptyState}>
-          <h3 className={styles.emptyTitle}>No referrals found</h3>
-          <p className={styles.emptyText}>
-            {statusFilter === 'all'
+        <HubEmptyState
+          title="No referrals found"
+          description={
+            statusFilter === 'all'
               ? 'Share your referral link to start earning commissions!'
-              : `You have no ${statusFilter.toLowerCase()} referrals.`}
-          </p>
-        </div>
+              : `You have no ${statusFilter.toLowerCase()} referrals.`
+          }
+        />
       )}
 
       {/* Referrals List */}
