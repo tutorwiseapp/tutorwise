@@ -7,6 +7,11 @@
  * C001 - 2025-12-03 : Migrated to HubPageLayout, removed header/tab/container styles
  */
 
+/* Payment Header */
+.paymentHeader {
+  height: 9.5rem;
+}
+
 /* Grid Layout */
 .grid {
   display: grid;

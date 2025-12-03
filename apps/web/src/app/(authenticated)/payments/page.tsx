@@ -240,7 +240,7 @@ const PaymentsPageContent = () => {
     if (isProfileLoading || isLoading) {
         return (
             <HubPageLayout
-                header={<HubHeader title="Payment Settings" />}
+                header={<HubHeader title="Payment Settings" className={styles.paymentHeader} />}
                 sidebar={
                     <HubSidebar>
                         <PaymentHelpWidget />
@@ -255,7 +255,7 @@ const PaymentsPageContent = () => {
     if (error) {
         return (
             <HubPageLayout
-                header={<HubHeader title="Payment Settings" />}
+                header={<HubHeader title="Payment Settings" className={styles.paymentHeader} />}
                 sidebar={
                     <HubSidebar>
                         <PaymentHelpWidget />
@@ -272,6 +272,7 @@ const PaymentsPageContent = () => {
             header={
                 <HubHeader
                     title="Payment Settings"
+                    className={styles.paymentHeader}
                 />
             }
             tabs={
@@ -403,7 +404,7 @@ const PaymentsPage = () => {
     return (
         <Suspense fallback={
             <HubPageLayout
-                header={<HubHeader title="Payment Settings" />}
+                header={<HubHeader title="Payment Settings" className={styles.paymentHeader} />}
                 sidebar={
                     <HubSidebar>
                         <PaymentHelpWidget />
