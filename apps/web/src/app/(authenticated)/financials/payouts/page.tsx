@@ -327,37 +327,6 @@ export default function PayoutsPage() {
         </div>
       )}
 
-      {/* Payouts Overview - Grid Cards (shown on "All" tab) */}
-      {statusFilter === 'all' && (
-        <div className={styles.payoutsOverview}>
-          <div className={styles.overviewCard}>
-            <h3 className={styles.overviewTitle}>Available to Withdraw</h3>
-            <p className={styles.overviewAmount}>£{balances.available.toFixed(2)}</p>
-            <p className={styles.overviewSubtext}>
-              Funds are available 7 days after service completion
-            </p>
-          </div>
-
-          <div className={styles.overviewCard}>
-            <h3 className={styles.overviewTitle}>In Clearing</h3>
-            <p className={styles.overviewAmount}>£{balances.pending.toFixed(2)}</p>
-            <p className={styles.overviewSubtext}>
-              Funds will become available soon
-            </p>
-          </div>
-
-          <div className={styles.overviewCard}>
-            <h3 className={styles.overviewTitle}>Total Withdrawn</h3>
-            <p className={styles.overviewAmount}>
-              £{payouts.reduce((sum, p) => sum + Math.abs(p.amount), 0).toFixed(2)}
-            </p>
-            <p className={styles.overviewSubtext}>
-              {payouts.length} {payouts.length === 1 ? 'payout' : 'payouts'}
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* Payout History - HubRowCard List */}
       {filteredPayouts.length === 0 ? (
           payouts.length === 0 ? (
