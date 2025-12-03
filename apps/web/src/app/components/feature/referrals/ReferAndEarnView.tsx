@@ -182,7 +182,7 @@ export default function ReferAndEarnView({ referralCode }: ReferAndEarnViewProps
       {/* Action Buttons */}
       <div className={styles.actionButtons}>
         <Button
-          variant="secondary"
+          variant="primary"
           size="md"
           onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`Join Tutorwise! ${referralUrl}`)}`, '_blank')}
         >
@@ -190,7 +190,7 @@ export default function ReferAndEarnView({ referralCode }: ReferAndEarnViewProps
           Refer on WhatsApp
         </Button>
         <Button
-          variant="secondary"
+          variant="primary"
           size="md"
           onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralUrl)}`, '_blank')}
         >
@@ -198,7 +198,7 @@ export default function ReferAndEarnView({ referralCode }: ReferAndEarnViewProps
           Refer on Facebook
         </Button>
         <Button
-          variant="secondary"
+          variant="primary"
           size="md"
           onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(referralUrl)}`, '_blank')}
         >
