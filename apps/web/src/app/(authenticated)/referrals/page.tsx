@@ -234,6 +234,7 @@ export default function ReferralsPage() {
       header={
         <HubHeader
           title="Referrals"
+          subtitle={activeTab === 'refer-and-earn' ? 'Refer & Earn 10% Commission' : undefined}
           filters={
             activeTab === 'leads' ? (
               <div className={filterStyles.filtersContainer}>

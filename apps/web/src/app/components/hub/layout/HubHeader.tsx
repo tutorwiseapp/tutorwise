@@ -22,11 +22,12 @@ import styles from './HubHeader.module.css';
 
 interface HubHeaderProps {
   title: string;
+  subtitle?: string; // Optional subtitle below title
   filters?: ReactNode; // Optional centered filters row (search/sort)
   actions?: ReactNode; // Right slot (buttons/menu)
 }
 
-export default function HubHeader({ title, filters, actions }: HubHeaderProps) {
+export default function HubHeader({ title, subtitle, filters, actions }: HubHeaderProps) {
   return (
     <header className={styles.header}>
       {/* Row 1: Title + Actions */}
@@ -36,6 +37,9 @@ export default function HubHeader({ title, filters, actions }: HubHeaderProps) {
           <h1 className={styles.title}>
             {title}
           </h1>
+          {subtitle && (
+            <p className={styles.subtitle}>{subtitle}</p>
+          )}
         </div>
 
         {/* Right: Actions (optional) */}

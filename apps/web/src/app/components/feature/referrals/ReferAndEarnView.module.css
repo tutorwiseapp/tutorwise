@@ -14,16 +14,16 @@
 }
 
 .title {
-  font-size: 1.75rem;
-  font-weight: 700;
+  font-size: 1.125rem;
+  font-weight: 600;
   color: var(--color-text-primary, #1f2937);
   margin: 0 0 0.5rem 0;
 }
 
 .description {
-  font-size: 1rem;
+  font-size: 0.875rem;
   color: var(--color-text-secondary, #6b7280);
-  line-height: 1.6;
+  line-height: 1.5;
   margin: 0;
 }
 
@@ -45,14 +45,18 @@
 }
 
 .codeBox {
-  padding: 1rem 2rem;
+  height: 48px;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background-color: var(--color-primary-light, #E6F0F0);
-  border-radius: var(--border-radius-md, 8px);
+  border-radius: 8px;
   border: 2px solid var(--color-primary-default, #006c67);
 }
 
 .code {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
   font-family: 'Courier New', monospace;
   color: var(--color-primary-default, #006c67);
@@ -78,31 +82,39 @@
 .card {
   background: white;
   border: 1px solid var(--color-border, #e5e7eb);
-  border-radius: var(--border-radius-lg, 12px);
+  border-radius: 8px;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  transition: box-shadow 0.2s ease;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
 }
 
 .card:hover {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-color: var(--color-primary-default, #006c67);
+  transform: translateY(-2px);
 }
 
 .cardHeader {
-  margin-bottom: 1.25rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
 }
 
 .cardTitle {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--color-text-primary, #1f2937);
   margin: 0 0 0.5rem 0;
 }
 
 .cardDescription {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: var(--color-text-secondary, #6b7280);
   line-height: 1.5;
   margin: 0;
@@ -111,8 +123,10 @@
 .cardContent {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 1rem;
   flex-grow: 1;
+  width: 100%;
 }
 
 /* Input */
@@ -120,19 +134,15 @@
   width: 100%;
   padding: 0.75rem 1rem;
   border: 1px solid var(--color-gray-300, #D1D1D1);
-  border-radius: var(--border-radius-md, 8px);
-  font-size: 0.875rem;
+  border-radius: 8px;
+  font-size: 0.8125rem;
   font-family: 'Courier New', monospace;
   color: var(--color-gray-700, #4B4B4B);
   background-color: var(--color-gray-100, #F5F5F5);
   word-break: break-all;
   line-height: 1.6;
-}
-
-.input:focus {
-  outline: none;
-  border-color: var(--color-primary-default, #006c67);
-  background-color: white;
+  text-align: center;
+  pointer-events: none;
 }
 
 /* QR Container */
@@ -143,14 +153,14 @@
   padding: 1rem;
   background-color: white;
   border: 1px solid var(--color-gray-300, #D1D1D1);
-  border-radius: var(--border-radius-md, 8px);
-  aspect-ratio: 1 / 1;
-  max-width: 232px;
+  border-radius: 8px;
+  width: 232px;
+  height: 232px;
   margin: 0 auto;
 }
 
 .qrCode {
-  border-radius: var(--border-radius-sm, 4px);
+  border-radius: 4px;
   display: block;
 }
 
@@ -159,24 +169,30 @@
   padding: 0.75rem 1rem;
   background-color: white;
   border: 1px solid var(--color-gray-300, #D1D1D1);
-  border-radius: var(--border-radius-md, 8px);
+  border-radius: 8px;
   overflow-x: auto;
   flex-grow: 1;
+  width: 100%;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
 }
 
 .embedCode {
   font-family: 'Courier New', monospace;
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   color: var(--color-gray-900, #1F2937);
   word-break: break-all;
   line-height: 1.6;
   display: block;
+  text-align: center;
 }
 
-/* Copy Button */
+/* Copy Button - Hidden */
 .copyButton {
-  width: 100%;
-  margin-top: auto;
+  display: none;
 }
 
 /* Checkmark for copied state */
@@ -185,6 +201,25 @@
   margin-right: 0.25rem;
   font-weight: 700;
   color: #10B981;
+}
+
+/* Copied feedback overlay */
+.copiedOverlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(16, 185, 129, 0.95);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 10;
+  pointer-events: none;
 }
 
 /* Action Buttons (Social Sharing) */
