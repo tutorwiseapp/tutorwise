@@ -206,6 +206,22 @@ export default function ReferAndEarnView({ referralCode }: ReferAndEarnViewProps
           Refer on LinkedIn
         </Button>
       </div>
+
+      {/* Referral Program Information */}
+      <div className={styles.programInfo}>
+        <p className={styles.infoParagraph}>
+          <strong>Share:</strong> Copy and share your link, QR code, or embed snippet anywhere – tutors or clients.
+        </p>
+        <p className={styles.infoParagraph}>
+          <strong>Track:</strong> Anyone who signs up through your link appears instantly in your referral dashboard.
+        </p>
+        <p className={styles.infoParagraph}>
+          <strong>Earn:</strong> Each time they complete a paid lesson, your commission is added automatically.
+        </p>
+        <p className={styles.termsNote}>
+          Commissions apply to completed and paid bookings only. Terms apply.
+        </p>
+      </div>
     </div>
   );
 }

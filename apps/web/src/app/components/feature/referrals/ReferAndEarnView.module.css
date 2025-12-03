@@ -234,6 +234,38 @@
   margin-top: 1rem;
 }
 
+/* Program Information Section */
+.programInfo {
+  margin-top: 3rem;
+  padding: 1.5rem;
+  background-color: var(--color-gray-50, #FAFAFA);
+  border-radius: 8px;
+  border: 1px solid var(--color-gray-200, #E5E5E5);
+}
+
+.infoParagraph {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-text-primary, #1f2937);
+  margin: 0 0 0.75rem 0;
+}
+
+.infoParagraph:last-of-type {
+  margin-bottom: 1rem;
+}
+
+.infoParagraph strong {
+  font-weight: 600;
+  color: var(--color-primary-default, #006c67);
+}
+
+.termsNote {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #6b7280);
+  font-style: italic;
+  margin: 0;
+}
+
 /* Mobile Responsive */
 @media (max-width: 767px) {
   .container {
@@ -298,5 +330,20 @@
 
   .actionButtons button {
     width: 100%;
+  }
+
+  /* Program info responsive */
+  .programInfo {
+    margin-top: 2rem;
+    padding: 1rem;
+  }
+
+  .infoParagraph {
+    font-size: 0.8125rem;
+    margin-bottom: 0.625rem;
+  }
+
+  .termsNote {
+    font-size: 0.6875rem;
   }
 }
