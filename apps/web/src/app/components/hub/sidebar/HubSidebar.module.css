@@ -1,0 +1,345 @@
+/*
+ * Filename: src/app/components/hub/sidebar/HubSidebar.module.css
+ * Purpose: Styles for HubSidebar (right column - hub-specific widgets)
+ * Created: 2025-11-02
+ * Updated: 2025-12-02 - Fixed width to 320px, changed to sticky positioning
+ * Specification: SDD v3.6, Section 5.2 - Responsive 3-column layout
+ */
+
+.hubSidebar {
+  width: 100%;
+  background-color: #ffffff;
+  /* Positioning is now handled by HubPageLayout grid */
+}
+
+/* Legacy class name support */
+.contextualSidebar {
+  width: 100%;
+  background-color: #ffffff;
+  /* Positioning is now handled by HubPageLayout grid */
+}
+
+.sidebarContent {
+  padding: 2rem 1.25rem; /* Increased top padding for better breathing room */
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem; /* Slightly tighter gap for better visual hierarchy */
+}
+
+/* Widget Styles */
+.widget {
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.widgetTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: var(--color-primary-light, #E6F0F0);
+  margin: 0;
+}
+
+.widgetContent {
+  padding: 1rem;
+}
+
+/* Upcoming Session Widget */
+.sessionCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.sessionDate,
+.sessionTime {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6b7280;
+}
+
+.dateIcon,
+.timeIcon {
+  font-size: 1rem;
+}
+
+.sessionService {
+  font-weight: 600;
+  color: #1f2937;
+  margin-top: 0.5rem;
+}
+
+.sessionParticipant {
+  color: #6b7280;
+  font-size: 0.8125rem;
+}
+
+/* Balance Summary Widget */
+.balanceCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.balanceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.balanceLabel {
+  color: #6b7280;
+}
+
+.balanceAmount {
+  font-weight: 600;
+  color: #059669;
+}
+
+.balancePending {
+  font-weight: 600;
+  color: #d97706;
+}
+
+.balanceTotal {
+  padding-top: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 0.25rem;
+}
+
+.balanceAmountTotal {
+  font-weight: 700;
+  color: #1f2937;
+  font-size: 1rem;
+}
+
+/* Referral Stats Widget */
+.statsCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.statLabel {
+  color: #6b7280;
+}
+
+.statValue {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.statHighlight {
+  padding-top: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 0.25rem;
+}
+
+.statValueHighlight {
+  font-weight: 700;
+  color: #059669;
+  font-size: 1rem;
+}
+
+/* Referral Link Widget */
+.referralLinkCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.referralUrl {
+  padding: 0.75rem;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-family: monospace;
+  color: #1f2937;
+  word-break: break-all;
+}
+
+.copyButton {
+  width: 100%;
+  padding: 0.625rem 1rem;
+  background-color: var(--color-primary-default, #006c67);
+  color: #ffffff;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.copyButton:hover {
+  background-color: var(--color-primary-dark, #005550);
+}
+
+.copyButton:active {
+  background-color: var(--color-primary-darker, #004440);
+}
+
+/* Standard Widget Button Styles */
+.primaryButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-primary-default, #006c67);
+  color: #ffffff;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+  width: 100%;
+}
+
+.primaryButton:hover {
+  background-color: var(--color-primary-dark, #005550);
+}
+
+.secondaryButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background-color: #f9fafb;
+  color: var(--color-gray-700, #4B4B4B);
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  width: 100%;
+}
+
+.secondaryButton:hover {
+  background-color: var(--color-primary-light, #E6F0F0);
+  border-color: var(--color-primary-default, #006c67);
+  color: var(--color-primary-default, #006c67);
+}
+
+.widgetText {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+}
+
+.widgetTextTop {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+}
+
+/* Form Styles for Widgets */
+.formGroup {
+  margin-bottom: 1rem;
+}
+
+.formLabel {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.required {
+  color: #dc2626;
+}
+
+.formInput,
+.formTextarea,
+.formSelect {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  transition: border-color 0.15s ease-in-out;
+}
+
+.formInput:focus,
+.formTextarea:focus,
+.formSelect:focus {
+  outline: none;
+  border-color: var(--color-primary-default, #006c67);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
+}
+
+.formTextarea {
+  resize: vertical;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.buttonGroup button {
+  flex: 1;
+}
+
+/* Stats Grid for Widgets */
+.statGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border-radius: 0.375rem;
+  border: 1px solid #e5e7eb;
+}
+
+.statIcon {
+  color: var(--color-primary-default, #006c67);
+}
+
+.statInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+/* Responsive behavior is now handled by HubPageLayout.module.css grid */

@@ -1,0 +1,88 @@
+/**
+ * Filename: SidebarQuickActionsWidget.module.css
+ * Purpose: Styles for Quick Actions Pattern
+ * Design: Standard shell with teal header + clickable rows
+ *
+ * Design Tokens:
+ * - Card Padding: 16px (var(--space-2))
+ * - Row Gap: 0 (rows are full-width clickable)
+ * - Title Font: 14px semibold
+ * - Teal Header Background: #E6F0F0
+ */
+
+.quickActionsWidget {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  width: 100%;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  padding: 12px 16px;
+  margin: 0;
+  line-height: 1.4;
+  background-color: #E6F0F0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.actionsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0; /* No gap - rows are full-width clickable */
+}
+
+.actionRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f3f4f6;
+  text-align: left;
+}
+
+.actionRow:last-child {
+  border-bottom: none;
+}
+
+.actionRow:hover {
+  background-color: #f9fafb;
+}
+
+.actionRow:active {
+  background-color: #f3f4f6;
+}
+
+.icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #6b7280;
+}
+
+.label {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.chevron {
+  flex-shrink: 0;
+  font-size: 24px;
+  font-weight: 300;
+  color: #9ca3af;
+  line-height: 1;
+}
