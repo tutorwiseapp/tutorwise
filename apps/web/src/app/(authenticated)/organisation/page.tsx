@@ -2,8 +2,11 @@
  * Filename: apps/web/src/app/(authenticated)/organisation/page.tsx
  * Purpose: Organisation Hub - Agency/School Management (v6.1)
  * Created: 2025-11-19
- * Updated: 2025-11-29 - Migrated to Hub Layout Architecture with HubPageLayout, HubHeader, HubTabs, HubPagination
+ * Updated: 2025-12-03 - Migrated Team and Clients tabs to HubEmptyState component
  * Reference: organisation-solution-design-v6.md
+ * Change History:
+ * C002 - 2025-12-03 : Migrated Team and Clients tab empty states to HubEmptyState component
+ * C001 - 2025-11-29 : Migrated to Hub Layout Architecture with HubPageLayout, HubHeader, HubTabs, HubPagination
  *
  * Features:
  * - Team management (tutors/teachers)
@@ -32,6 +35,7 @@ import InfoTab from '@/app/components/feature/organisation/tabs/InfoTab';
 import ManageMemberModal from '@/app/components/feature/organisation/ManageMemberModal';
 import MemberCard from '@/app/components/feature/organisation/MemberCard';
 import HubRowCard from '@/app/components/hub/content/HubRowCard/HubRowCard';
+import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import Button from '@/app/components/ui/actions/Button';
@@ -597,23 +601,17 @@ export default function OrganisationPage() {
             {membersLoading ? (
               <div className={styles.loading}>Loading team...</div>
             ) : paginatedMembers.length === 0 ? (
-              <div className={styles.emptyState}>
-                {members.length === 0 ? (
-                  <>
-                    <h3 className={styles.emptyTitle}>No Team Members Yet</h3>
-                    <p className={styles.emptyText}>
-                      Use the invite widget to add members to your team.
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <h3 className={styles.emptyTitle}>No Members Found</h3>
-                    <p className={styles.emptyText}>
-                      No team members match your current search.
-                    </p>
-                  </>
-                )}
-              </div>
+              members.length === 0 ? (
+                <HubEmptyState
+                  title="No Team Members Yet"
+                  description="Use the invite widget to add members to your team."
+                />
+              ) : (
+                <HubEmptyState
+                  title="No Members Found"
+                  description="No team members match your current search."
+                />
+              )
             ) : (
               <>
                 <div className={styles.cardList}>
@@ -648,23 +646,17 @@ export default function OrganisationPage() {
             {clientsLoading ? (
               <div className={styles.loading}>Loading clients...</div>
             ) : paginatedClients.length === 0 ? (
-              <div className={styles.emptyState}>
-                {clients.length === 0 ? (
-                  <>
-                    <h3 className={styles.emptyTitle}>No Clients Yet</h3>
-                    <p className={styles.emptyText}>
-                      Clients will appear here when your team members connect with students.
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <h3 className={styles.emptyTitle}>No Clients Found</h3>
-                    <p className={styles.emptyText}>
-                      No clients match your current search.
-                    </p>
-                  </>
-                )}
-              </div>
+              clients.length === 0 ? (
+                <HubEmptyState
+                  title="No Clients Yet"
+                  description="Clients will appear here when your team members connect with students."
+                />
+              ) : (
+                <HubEmptyState
+                  title="No Clients Found"
+                  description="No clients match your current search."
+                />
+              )
             ) : (
               <>
                 <div className={styles.cardList}>

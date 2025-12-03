@@ -1,4 +1,9 @@
-/* Organisation Hub Page - v6.2 (Aligned with Network hub) */
+/*
+ * Organisation Hub Page - v6.2 (Aligned with Network hub)
+ * Updated: 2025-12-03 - Migrated Team and Clients tabs to HubEmptyState
+ * Note: Most empty state styles (.emptyState, .emptyTitle, .emptyText, .emptyButton) are still needed
+ *       for the "No Organisation" state which includes an embedded create form
+ */
 
 .container {
   max-width: 1200px;
@@ -114,13 +119,6 @@
 
 .emptyButton:hover {
   background-color: var(--color-primary-dark, #005550);
-}
-
-.emptyTabState {
-  padding: 40px 20px;
-  text-align: center;
-  color: #6b7280;
-  font-size: 14px;
 }
 
 /* Create Organisation Form */
@@ -246,10 +244,6 @@
   .filterTab {
     padding: 0.625rem 1rem;
     font-size: 0.8125rem;
-  }
-
-  .emptyState {
-    padding: 3rem 1rem;
   }
 
   .infoLabel {
