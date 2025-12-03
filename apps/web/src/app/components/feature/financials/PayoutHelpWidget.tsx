@@ -18,7 +18,7 @@ import styles from './PayoutHelpWidget.module.css';
 export default function PayoutHelpWidget() {
   return (
     <HubComplexCard>
-      <h3 className={styles.title}>How withdrawals work:</h3>
+      <h3 className={styles.title}>How Withdrawals Work</h3>
       <div className={styles.content}>
         <ul className={styles.list}>
           <li className={styles.listItem}>
