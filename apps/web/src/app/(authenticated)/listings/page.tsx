@@ -17,6 +17,7 @@ import type { Listing } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
+import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import styles from './page.module.css';
 import filterStyles from './filters.module.css';
 import actionStyles from './actions.module.css';
@@ -434,41 +435,33 @@ export default function ListingsPage() {
     >
       {/* Empty State */}
       {paginatedListings.length === 0 && !searchQuery && (
-          <div className={styles.emptyState}>
-            <h3 className={styles.emptyTitle}>No listings found</h3>
-            <p className={styles.emptyText}>
-              {filter === 'templates'
-                ? 'No templates available. Templates help you quickly create new listings.'
-                : filter === 'published'
-                ? 'You have no published listings yet.'
-                : filter === 'unpublished'
-                ? 'You have no unpublished listings.'
-                : filter === 'draft'
-                ? 'You have no draft listings.'
-                : filter === 'archived'
-                ? 'You have no archived listings.'
-                : 'You have no listings yet. Create your first listing to get started.'}
-            </p>
-            {filter === 'all' && (
-              <Button
-                variant="primary"
-                onClick={() => router.push('/create-listing')}
-              >
-                Create Your First Listing
-              </Button>
-            )}
-          </div>
-        )}
+        <HubEmptyState
+          title="No listings found"
+          description={
+            filter === 'templates'
+              ? 'No templates available. Templates help you quickly create new listings.'
+              : filter === 'published'
+              ? 'You have no published listings yet.'
+              : filter === 'unpublished'
+              ? 'You have no unpublished listings.'
+              : filter === 'draft'
+              ? 'You have no draft listings.'
+              : filter === 'archived'
+              ? 'You have no archived listings.'
+              : 'You have no listings yet. Create your first listing to get started.'
+          }
+          actionLabel={filter === 'all' ? 'Create Your First Listing' : undefined}
+          onAction={filter === 'all' ? () => router.push('/create-listing') : undefined}
+        />
+      )}
 
-        {/* Search Empty State */}
-        {paginatedListings.length === 0 && searchQuery && (
-          <div className={styles.emptyState}>
-            <h3 className={styles.emptyTitle}>No results found</h3>
-            <p className={styles.emptyText}>
-              No listings match your search &ldquo;{searchQuery}&rdquo;. Try a different search term.
-            </p>
-          </div>
-        )}
+      {/* Search Empty State */}
+      {paginatedListings.length === 0 && searchQuery && (
+        <HubEmptyState
+          title="No results found"
+          description={`No listings match your search "${searchQuery}". Try a different search term.`}
+        />
+      )}
 
         {/* Listings List */}
         {paginatedListings.length > 0 && (

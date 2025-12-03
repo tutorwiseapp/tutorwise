@@ -3,6 +3,7 @@
  * Created: 2025-11-03
  * Updated: 2025-11-29 - Migrated to Hub Layout Architecture, removed obsolete header/tab styles. ONLY specific overrides remain.
  * Updated: 2025-12-02 - Added pagination container with consistent 1rem spacing
+ * Updated: 2025-12-03 - Removed empty state styles (now using HubEmptyState component)
  */
 
 .listingsList {
@@ -14,31 +15,4 @@
 /* Pagination Container */
 .paginationContainer {
   margin-top: 1rem;
-}
-
-/* Empty State */
-.emptyState {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 2rem;
-  text-align: center;
-  background-color: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.emptyTitle {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 0.5rem 0;
-}
-
-.emptyText {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin: 0 0 1.5rem 0;
 }

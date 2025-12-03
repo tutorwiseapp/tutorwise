@@ -19,6 +19,7 @@ import BookingsSkeleton from '@/app/components/feature/bookings/BookingsSkeleton
 import BookingsError from '@/app/components/feature/bookings/BookingsError';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
+import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import Button from '@/app/components/ui/actions/Button';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
@@ -408,25 +409,19 @@ export default function BookingsPage() {
     >
       {/* Empty State */}
       {paginatedBookings.length === 0 && (
-          <div className={styles.emptyState}>
-            <h3 className={styles.emptyTitle}>No bookings found</h3>
-            <p className={styles.emptyText}>
-              {filter === 'upcoming'
-                ? 'You have no upcoming sessions scheduled.'
-                : filter === 'past'
-                ? 'You have no past sessions.'
-                : 'You have no bookings yet.'}
-            </p>
-            {activeRole === 'client' && (
-              <button
-                onClick={() => router.push('/marketplace')}
-                className={styles.emptyButton}
-              >
-                Browse Marketplace
-              </button>
-            )}
-          </div>
-        )}
+        <HubEmptyState
+          title="No bookings found"
+          description={
+            filter === 'upcoming'
+              ? 'You have no upcoming sessions scheduled.'
+              : filter === 'past'
+              ? 'You have no past sessions.'
+              : 'You have no bookings yet.'
+          }
+          actionLabel={activeRole === 'client' ? 'Browse Marketplace' : undefined}
+          onAction={activeRole === 'client' ? () => router.push('/marketplace') : undefined}
+        />
+      )}
 
         {/* Bookings List */}
         {paginatedBookings.length > 0 && (

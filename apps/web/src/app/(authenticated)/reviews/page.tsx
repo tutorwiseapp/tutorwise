@@ -28,7 +28,7 @@ import type { PendingReviewTask, ProfileReview } from '@/types/reviews';
 import styles from './page.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
-import HubEmptyState from '@/app/components/hub/content/HubRowCard/HubRowCard';
+import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 
 type TabType = 'pending' | 'received' | 'given';
 type RatingFilter = 'all' | '5' | '4' | '3' | '2' | '1';
@@ -445,12 +445,10 @@ export default function ReviewsPage() {
             {/* Pending Tab */}
             {activeTab === 'pending' && (
               pendingTasks.length === 0 ? (
-                <div className={styles.emptyState}>
-                  <h3 className={styles.emptyTitle}>No pending reviews</h3>
-                  <p className={styles.emptyText}>
-                    You&apos;ll see review requests here when you complete bookings.
-                  </p>
-                </div>
+                <HubEmptyState
+                  title="No pending reviews"
+                  description="You'll see review requests here when you complete bookings."
+                />
               ) : (
                 <>
                   <div className={styles.reviewsList}>
@@ -476,12 +474,10 @@ export default function ReviewsPage() {
             {/* Received Tab */}
             {activeTab === 'received' && (
               receivedReviews.length === 0 ? (
-                <div className={styles.emptyState}>
-                  <h3 className={styles.emptyTitle}>No reviews received yet</h3>
-                  <p className={styles.emptyText}>
-                    Reviews from clients and collaborators will appear here.
-                  </p>
-                </div>
+                <HubEmptyState
+                  title="No reviews received yet"
+                  description="Reviews from clients and collaborators will appear here."
+                />
               ) : (
                 <>
                   <div className={styles.reviewsList}>
@@ -506,12 +502,10 @@ export default function ReviewsPage() {
             {/* Given Tab */}
             {activeTab === 'given' && (
               givenReviews.length === 0 ? (
-                <div className={styles.emptyState}>
-                  <h3 className={styles.emptyTitle}>No reviews given yet</h3>
-                  <p className={styles.emptyText}>
-                    Reviews you write will appear here.
-                  </p>
-                </div>
+                <HubEmptyState
+                  title="No reviews given yet"
+                  description="Reviews you write will appear here."
+                />
               ) : (
                 <>
                   <div className={styles.reviewsList}>

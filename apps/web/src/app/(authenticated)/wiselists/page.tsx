@@ -15,6 +15,7 @@ import CreateWiselistModal from '@/app/components/feature/wiselists/CreateWiseli
 import { WiselistStatsWidget } from '@/app/components/feature/wiselists/WiselistStatsWidget';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
+import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import Button from '@/app/components/ui/actions/Button';
 import { Wiselist } from '@/types';
 import { toast } from 'react-hot-toast';
@@ -376,23 +377,14 @@ export default function WiselistsPage() {
       <div className={styles.container}>
         {/* Empty State */}
         {paginatedWiselists.length === 0 ? (
-          <div className={styles.emptyState}>
-            {wiselists.length === 0 ? (
-              <>
-                <h3 className={styles.emptyTitle}>No wiselists yet</h3>
-                <p className={styles.emptyText}>
-                  Create your first wiselist to start saving and organizing tutors and services
-                </p>
-              </>
-            ) : (
-              <>
-                <h3 className={styles.emptyTitle}>No wiselists found</h3>
-                <p className={styles.emptyText}>
-                  No wiselists match your current filters. Try adjusting your search or filters.
-                </p>
-              </>
-            )}
-          </div>
+          <HubEmptyState
+            title={wiselists.length === 0 ? 'No wiselists yet' : 'No wiselists found'}
+            description={
+              wiselists.length === 0
+                ? 'Create your first wiselist to start saving and organizing tutors and services'
+                : 'No wiselists match your current filters. Try adjusting your search or filters.'
+            }
+          />
         ) : (
           <>
             {/* Wiselists Grid */}

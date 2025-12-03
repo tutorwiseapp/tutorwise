@@ -21,6 +21,7 @@ import NetworkSkeleton from '@/app/components/feature/network/NetworkSkeleton';
 import NetworkError from '@/app/components/feature/network/NetworkError';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
+import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import Button from '@/app/components/ui/actions/Button';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
@@ -480,38 +481,28 @@ export default function NetworkPage() {
       <div className={styles.container}>
         {/* Content */}
         {filteredConnections.length === 0 ? (
-          <div className={styles.emptyState}>
+          <>
             {activeTab === 'all' && (
-              <>
-                <h3 className={styles.emptyTitle}>No connections yet</h3>
-                <p className={styles.emptyText}>
-                  Start building your network by connecting with tutors, agents, and clients.
-                </p>
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className={styles.emptyButton}
-                >
-                  Find Connections
-                </button>
-              </>
+              <HubEmptyState
+                title="No connections yet"
+                description="Start building your network by connecting with tutors, agents, and clients."
+                actionLabel="Find Connections"
+                onAction={() => setIsModalOpen(true)}
+              />
             )}
             {activeTab === 'pending-received' && (
-              <>
-                <h3 className={styles.emptyTitle}>No pending requests</h3>
-                <p className={styles.emptyText}>
-                  You&apos;ll see connection requests from others here.
-                </p>
-              </>
+              <HubEmptyState
+                title="No pending requests"
+                description="You'll see connection requests from others here."
+              />
             )}
             {activeTab === 'pending-sent' && (
-              <>
-                <h3 className={styles.emptyTitle}>No sent requests</h3>
-                <p className={styles.emptyText}>
-                  Connection requests you send will appear here.
-                </p>
-              </>
+              <HubEmptyState
+                title="No sent requests"
+                description="Connection requests you send will appear here."
+              />
             )}
-          </div>
+          </>
         ) : (
           <>
             <div className={styles.connectionsList}>

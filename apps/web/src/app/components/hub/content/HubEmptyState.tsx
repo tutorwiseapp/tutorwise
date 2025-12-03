@@ -1,5 +1,12 @@
+/**
+ * Filename: apps/web/src/app/components/hub/content/HubEmptyState.tsx
+ * Purpose: Centralized empty state component for all hub pages
+ * Created: 2025-12-03
+ * Pattern: Replaces 200+ lines of duplicated empty state CSS across hub pages
+ */
+
 import React from 'react';
-import Button from '@/app/components/ui/actions/Button'; // Assuming generic button exists
+import Button from '@/app/components/ui/actions/Button';
 import styles from './HubEmptyState.module.css';
 
 interface HubEmptyStateProps {
@@ -7,25 +14,25 @@ interface HubEmptyStateProps {
   description: string;
   actionLabel?: string;
   onAction?: () => void;
-  icon?: React.ReactNode; // Optional custom icon
+  icon?: React.ReactNode;
 }
 
-export const HubEmptyState = ({ 
-  title, 
-  description, 
-  actionLabel, 
+export default function HubEmptyState({
+  title,
+  description,
+  actionLabel,
   onAction,
-  icon 
-}: HubEmptyStateProps) => {
+  icon
+}: HubEmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 bg-white border border-gray-200 rounded-lg text-center">
-      {icon && <div className="mb-4 text-gray-400">{icon}</div>}
-      
-      <h3 className="text-lg font-semibold text-gray-900 mb-1">
+    <div className={styles.container}>
+      {icon && <div className={styles.icon}>{icon}</div>}
+
+      <h3 className={styles.title}>
         {title}
       </h3>
-      
-      <p className="text-gray-500 max-w-sm mb-6">
+
+      <p className={styles.description}>
         {description}
       </p>
 
@@ -36,4 +43,4 @@ export const HubEmptyState = ({
       )}
     </div>
   );
-};
+}
