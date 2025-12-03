@@ -10,6 +10,7 @@
 import React, { useState } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
 import toast from 'react-hot-toast';
+import { MessageCircle, Facebook, Linkedin } from 'lucide-react';
 import Button from '@/app/components/ui/actions/Button';
 import styles from './ReferAndEarnView.module.css';
 
@@ -185,21 +186,24 @@ export default function ReferAndEarnView({ referralCode }: ReferAndEarnViewProps
           size="md"
           onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`Join Tutorwise! ${referralUrl}`)}`, '_blank')}
         >
-          Share on WhatsApp
+          <MessageCircle size={18} style={{ marginRight: '8px' }} />
+          Refer on WhatsApp
         </Button>
         <Button
           variant="secondary"
           size="md"
           onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralUrl)}`, '_blank')}
         >
-          Share on Facebook
+          <Facebook size={18} style={{ marginRight: '8px' }} />
+          Refer on Facebook
         </Button>
         <Button
           variant="secondary"
           size="md"
           onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(referralUrl)}`, '_blank')}
         >
-          Share on LinkedIn
+          <Linkedin size={18} style={{ marginRight: '8px' }} />
+          Refer on LinkedIn
         </Button>
       </div>
     </div>
