@@ -15,6 +15,9 @@ import { getMyBookings, cancelBooking } from '@/lib/api/bookings';
 import BookingCard from '@/app/components/feature/bookings/BookingCard';
 import HubSidebar, { UpcomingSessionWidget } from '@/app/components/hub/sidebar/HubSidebar';
 import BookingStatsWidget from '@/app/components/feature/bookings/BookingStatsWidget';
+import BookingHelpWidget from '@/app/components/feature/bookings/BookingHelpWidget';
+import BookingTipWidget from '@/app/components/feature/bookings/BookingTipWidget';
+import BookingVideoWidget from '@/app/components/feature/bookings/BookingVideoWidget';
 import BookingsSkeleton from '@/app/components/feature/bookings/BookingsSkeleton';
 import BookingsError from '@/app/components/feature/bookings/BookingsError';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
@@ -262,6 +265,9 @@ export default function BookingsPage() {
         sidebar={
           <HubSidebar>
             <BookingStatsWidget pending={0} upcoming={0} completed={0} />
+            <BookingHelpWidget />
+            <BookingTipWidget />
+            <BookingVideoWidget />
           </HubSidebar>
         }
       >
@@ -278,6 +284,9 @@ export default function BookingsPage() {
         sidebar={
           <HubSidebar>
             <BookingStatsWidget pending={0} upcoming={0} completed={0} />
+            <BookingHelpWidget />
+            <BookingTipWidget />
+            <BookingVideoWidget />
           </HubSidebar>
         }
       >
@@ -404,6 +413,11 @@ export default function BookingsPage() {
             upcoming={tabCounts.upcoming}
             completed={bookings.filter((b: any) => b.status === 'Completed').length}
           />
+
+          {/* Help, Tip, and Video widgets */}
+          <BookingHelpWidget />
+          <BookingTipWidget />
+          <BookingVideoWidget />
         </HubSidebar>
       }
     >
