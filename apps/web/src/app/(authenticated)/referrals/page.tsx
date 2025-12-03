@@ -162,14 +162,25 @@ export default function ReferralsPage() {
     );
   }, [referrals]);
 
-  // Prepare tabs data
+  // Calculate counts for each status
+  const statusCounts = useMemo(() => {
+    return {
+      all: referrals.length,
+      Referred: referrals.filter((r: any) => r.status === 'Referred').length,
+      'Signed Up': referrals.filter((r: any) => r.status === 'Signed Up').length,
+      Converted: referrals.filter((r: any) => r.status === 'Converted').length,
+      Expired: referrals.filter((r: any) => r.status === 'Expired').length,
+    };
+  }, [referrals]);
+
+  // Prepare tabs data with count badges
   const tabs: HubTab[] = [
     { id: 'refer-and-earn', label: 'Refer & Earn', active: activeTab === 'refer-and-earn' },
-    { id: 'all', label: 'All Leads', active: activeTab === 'leads' && statusFilter === 'all' },
-    { id: 'Referred', label: 'Referred', active: activeTab === 'leads' && statusFilter === 'Referred' },
-    { id: 'Signed Up', label: 'Signed Up', active: activeTab === 'leads' && statusFilter === 'Signed Up' },
-    { id: 'Converted', label: 'Converted', active: activeTab === 'leads' && statusFilter === 'Converted' },
-    { id: 'Expired', label: 'Expired', active: activeTab === 'leads' && statusFilter === 'Expired' },
+    { id: 'all', label: `All Leads (${statusCounts.all})`, active: activeTab === 'leads' && statusFilter === 'all' },
+    { id: 'Referred', label: `Referred (${statusCounts.Referred})`, active: activeTab === 'leads' && statusFilter === 'Referred' },
+    { id: 'Signed Up', label: `Signed Up (${statusCounts['Signed Up']})`, active: activeTab === 'leads' && statusFilter === 'Signed Up' },
+    { id: 'Converted', label: `Converted (${statusCounts.Converted})`, active: activeTab === 'leads' && statusFilter === 'Converted' },
+    { id: 'Expired', label: `Expired (${statusCounts.Expired})`, active: activeTab === 'leads' && statusFilter === 'Expired' },
   ];
 
   // Action handlers (placeholder for now)
