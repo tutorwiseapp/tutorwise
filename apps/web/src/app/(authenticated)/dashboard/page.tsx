@@ -8,7 +8,7 @@
  * C009 - 2025-08-26 : 19:00 - Converted from Server Component to Client Component.
  * Last Modified: 2025-11-08 : 14:00
  * Requirement ID: VIN-APP-01
- * Change Summary: Fixed UI duplication by moving into (authenticated) folder. AppSidebar now rendered by parent layout. Dashboard renders only center content + ContextualSidebar.
+ * Change Summary: Fixed UI duplication by moving into (authenticated) folder. AppSidebar now rendered by parent layout. Dashboard renders only center content + HubSidebar.
  */
 'use client';
 
@@ -16,10 +16,10 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
-import DashboardStatsWidget from '@/app/components/dashboard/DashboardStatsWidget';
-import { PendingLogsWidget } from '@/app/components/dashboard/PendingLogsWidget';
-import PageHeader from '@/app/components/ui/PageHeader';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import DashboardStatsWidget from '@/app/components/feature/dashboard/DashboardStatsWidget';
+import { PendingLogsWidget } from '@/app/components/feature/dashboard/PendingLogsWidget';
+import PageHeader from '@/app/components/ui/data-display/PageHeader';
 import styles from './page.module.css';
 
 // Role-specific dashboard links (SDD v3.6 - prioritized order)
@@ -146,11 +146,11 @@ const DashboardPage = () => {
       </div>
 
       {/* Right Sidebar - Aggregated Stats */}
-      <ContextualSidebar>
+      <HubSidebar>
         {/* WiseSpace v5.8: Pending Actions widget for tutors */}
         {(activeRole === 'tutor' || activeRole === 'agent') && <PendingLogsWidget />}
         <DashboardStatsWidget />
-      </ContextualSidebar>
+      </HubSidebar>
     </>
   );
 };

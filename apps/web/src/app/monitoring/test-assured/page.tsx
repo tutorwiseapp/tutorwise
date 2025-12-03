@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Container from '@/app/components/layout/Container';
-import Card from '@/app/components/ui/Card';
-import Button from '@/app/components/ui/Button';
-import Tabs from '@/app/components/ui/Tabs';
-import StatusBadge from '@/app/components/ui/StatusBadge';
-import PageHeader from '@/app/components/ui/PageHeader';
+import Card from '@/app/components/ui/data-display/Card';
+import Button from '@/app/components/ui/actions/Button';
+import Tabs from '@/app/components/ui/navigation/Tabs';
+import StatusBadge from '@/app/components/ui/data-display/StatusBadge';
+import PageHeader from '@/app/components/ui/data-display/PageHeader';
 import styles from './page.module.css';
 import dashboardStyles from '@/app/(authenticated)/dashboard/page.module.css';
 

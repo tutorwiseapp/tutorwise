@@ -15,7 +15,7 @@ import { getBookingById } from '@/lib/api/bookings';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import Image from 'next/image';
 import getProfileImageUrl from '@/lib/utils/image';
-import Button from '@/app/components/ui/Button';
+import Button from '@/app/components/ui/actions/Button';
 import styles from './page.module.css';
 
 interface PageProps {

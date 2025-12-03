@@ -3,7 +3,7 @@
  * Purpose: Payment methods management with 3-column dashboard layout
  * Created: 2025-09-01
  * Updated: 2025-11-13 - Migrated to React Query for robustness and consistency
- * Specification: Hub page with AppSidebar, main content, and ContextualSidebar
+ * Specification: Hub page with AppSidebar, main content, and HubSidebar
  */
 'use client';
 
@@ -24,10 +24,10 @@ import {
 import getStripe from '@/lib/utils/get-stripejs';
 import toast from 'react-hot-toast';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
-import Card from '@/app/components/ui/Card';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import Card from '@/app/components/ui/data-display/Card';
 import { getErrorMessage } from '@/lib/utils/getErrorMessage';
-import PaymentHelpWidget from '@/app/components/payments/PaymentHelpWidget';
+import PaymentHelpWidget from '@/app/components/feature/payments/PaymentHelpWidget';
 import styles from './page.module.css';
 
 const PaymentsPageContent = () => {
@@ -232,9 +232,9 @@ const PaymentsPageContent = () => {
         return (
             <>
               <div className={styles.loading}>Loading payment methods...</div>
-              <ContextualSidebar>
+              <HubSidebar>
                 <PaymentHelpWidget />
-              </ContextualSidebar>
+              </HubSidebar>
             </>
         );
     }
@@ -243,9 +243,9 @@ const PaymentsPageContent = () => {
         return (
             <>
               <div className={styles.error}>Failed to load payment data. Please try again.</div>
-              <ContextualSidebar>
+              <HubSidebar>
                 <PaymentHelpWidget />
-              </ContextualSidebar>
+              </HubSidebar>
             </>
         );
     }
@@ -377,9 +377,9 @@ const PaymentsPageContent = () => {
             </div>
 
             {/* Contextual Sidebar (Right Column) */}
-            <ContextualSidebar>
+            <HubSidebar>
                 <PaymentHelpWidget />
-            </ContextualSidebar>
+            </HubSidebar>
         </>
     );
 }
@@ -389,9 +389,9 @@ const PaymentsPage = () => {
         <Suspense fallback={
             <>
                 <div className={styles.loading}>Loading...</div>
-                <ContextualSidebar>
+                <HubSidebar>
                     <PaymentHelpWidget />
-                </ContextualSidebar>
+                </HubSidebar>
             </>
         }>
             <PaymentsPageContent />

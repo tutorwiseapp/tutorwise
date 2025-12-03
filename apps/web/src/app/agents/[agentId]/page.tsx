@@ -8,8 +8,8 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import getProfileImageUrl from '@/lib/utils/image';
 import Container from '@/app/components/layout/Container';
-import Card from '@/app/components/ui/Card';
-import Button from '@/app/components/ui/Button';
+import Card from '@/app/components/ui/data-display/Card';
+import Button from '@/app/components/ui/actions/Button';
 import styles from './page.module.css';
 import { useUserProfile } from '@/app/contexts/UserProfileContext'; // Use Supabase context
 

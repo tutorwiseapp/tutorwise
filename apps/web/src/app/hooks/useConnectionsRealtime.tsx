@@ -205,7 +205,7 @@ export function useConnectionsRealtime({
  *
  *   try {
  *     await supabase
- *       .from('connections')
+ *       .from('profile_graph')
  *       .update({ status: 'accepted' })
  *       .eq('id', connectionId);
  *   } catch (error) {

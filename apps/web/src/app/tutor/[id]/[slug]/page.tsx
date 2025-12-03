@@ -3,17 +3,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import NotFound from '@/app/components/layout/NotFound';
-import Button from '@/app/components/ui/Button';
+import Button from '@/app/components/ui/actions/Button';
 import { getListing } from '@/lib/api/listings';
 import type { Listing } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
-import HybridHeader from '@/app/components/profile/HybridHeader';
-import ProfileTabs from '@/app/components/profile/ProfileTabs';
-import TutorNarrative from '@/app/components/profile/TutorNarrative';
-import ReviewsSection from '@/app/components/profile/ReviewsSection';
-import AvailabilitySection from '@/app/components/profile/AvailabilitySection';
-import ProfessionalInfoSection from '@/app/components/profile/ProfessionalInfoSection';
-import ActivityFeed from '@/app/components/profile/ActivityFeed';
+import HybridHeader from '@/app/components/feature/profile/HybridHeader';
+import ProfileTabs from '@/app/components/feature/profile/ProfileTabs';
+import TutorNarrative from '@/app/components/feature/profile/TutorNarrative';
+import ReviewsSection from '@/app/components/feature/profile/ReviewsSection';
+import AvailabilitySection from '@/app/components/feature/profile/AvailabilitySection';
+import ProfessionalInfoSection from '@/app/components/feature/profile/ProfessionalInfoSection';
+import ActivityFeed from '@/app/components/feature/profile/ActivityFeed';
 import styles from './page.module.css';
 
 export default function ListingDetailsPage() {

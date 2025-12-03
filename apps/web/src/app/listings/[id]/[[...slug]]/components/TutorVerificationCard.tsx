@@ -5,7 +5,7 @@
 
 'use client';
 
-import Card from '@/app/components/ui/Card';
+import Card from '@/app/components/ui/data-display/Card';
 import styles from './TutorVerificationCard.module.css';
 
 interface TutorVerificationCardProps {

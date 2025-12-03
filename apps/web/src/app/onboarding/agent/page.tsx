@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import AgentOnboardingWizard from '@/app/components/onboarding/agent/AgentOnboardingWizard';
+import AgentOnboardingWizard from '@/app/components/feature/onboarding/agent/AgentOnboardingWizard';
 import styles from '../page.module.css';
 
 function AgentOnboardingPageContent() {

@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import Container from '@/app/components/layout/Container';
-import PageHeader from '@/app/components/ui/PageHeader';
-import Card from '@/app/components/ui/Card';
-import FormGroup from '@/app/components/ui/form/FormGroup';
-import Input from '@/app/components/ui/form/Input';
-import Button from '@/app/components/ui/Button';
-import Message from '@/app/components/ui/Message';
+import PageHeader from '@/app/components/ui/data-display/PageHeader';
+import Card from '@/app/components/ui/data-display/Card';
+import FormGroup from '@/app/components/ui/forms/FormGroup';
+import Input from '@/app/components/ui/forms/Input';
+import Button from '@/app/components/ui/actions/Button';
+import Message from '@/app/components/ui/feedback/Message';
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');

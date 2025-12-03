@@ -10,19 +10,19 @@
 
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import WiselistCard from '@/app/components/wiselists/WiselistCard';
-import CreateWiselistModal from '@/app/components/wiselists/CreateWiselistModal';
-import { WiselistStatsWidget } from '@/app/components/wiselists/WiselistStatsWidget';
-import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
-import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
-import Button from '@/app/components/ui/Button';
+import WiselistCard from '@/app/components/feature/wiselists/WiselistCard';
+import CreateWiselistModal from '@/app/components/feature/wiselists/CreateWiselistModal';
+import { WiselistStatsWidget } from '@/app/components/feature/wiselists/WiselistStatsWidget';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
+import Button from '@/app/components/ui/actions/Button';
 import { Wiselist } from '@/types';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { getMyWiselists, deleteWiselist } from '@/lib/api/wiselists';
 import styles from './page.module.css';
-import filterStyles from '@/app/components/ui/hub-layout/hub-filters.module.css';
-import actionStyles from '@/app/components/ui/hub-layout/hub-actions.module.css';
+import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
+import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
 type TabType = 'my-lists' | 'shared-with-me';
 type SortType = 'newest' | 'oldest' | 'name-asc' | 'name-desc';
@@ -237,9 +237,9 @@ export default function WiselistsPage() {
       <HubPageLayout
         header={<HubHeader title="My Wiselists" />}
         sidebar={
-          <ContextualSidebar>
+          <HubSidebar>
             <WiselistStatsWidget />
-          </ContextualSidebar>
+          </HubSidebar>
         }
       >
         <div className={styles.container}>
@@ -255,9 +255,9 @@ export default function WiselistsPage() {
       <HubPageLayout
         header={<HubHeader title="My Wiselists" />}
         sidebar={
-          <ContextualSidebar>
+          <HubSidebar>
             <WiselistStatsWidget />
-          </ContextualSidebar>
+          </HubSidebar>
         }
       >
         <div className={styles.container}>
@@ -368,9 +368,9 @@ export default function WiselistsPage() {
         />
       }
       sidebar={
-        <ContextualSidebar>
+        <HubSidebar>
           <WiselistStatsWidget />
-        </ContextualSidebar>
+        </HubSidebar>
       }
     >
       <div className={styles.container}>

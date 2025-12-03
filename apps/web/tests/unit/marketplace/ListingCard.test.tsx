@@ -1,7 +1,7 @@
 // apps/web/tests/unit/marketplace/ListingCard.test.tsx
 
 import { render, screen } from '@testing-library/react';
-import ListingCard from '@/app/components/marketplace/ListingCard';
+import ListingCard from '@/app/components/feature/marketplace/ListingCard';
 import type { Listing } from '@tutorwise/shared-types';
 
 // Mock Next.js Link component

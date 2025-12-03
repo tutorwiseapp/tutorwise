@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import TutorOnboardingWizard from '@/app/components/onboarding/tutor/TutorOnboardingWizard';
+import TutorOnboardingWizard from '@/app/components/feature/onboarding/tutor/TutorOnboardingWizard';
 import styles from '../page.module.css';
 
 function TutorOnboardingPageContent() {

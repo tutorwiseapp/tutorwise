@@ -7,7 +7,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Card from '@/app/components/ui/Card';
+import Card from '@/app/components/ui/data-display/Card';
 import { searchListings } from '@/lib/api/listings';
 import type { ListingV41 } from '@/types/listing-v4.1';
 import styles from './RelatedListingsCard.module.css';

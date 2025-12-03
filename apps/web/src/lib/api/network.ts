@@ -5,7 +5,7 @@
  */
 
 import { createClient } from '@/utils/supabase/client';
-import type { Connection } from '@/app/components/network/ConnectionCard';
+import type { Connection } from '@/app/components/feature/network/ConnectionCard';
 
 /**
  * Get all connections for the current user

@@ -12,16 +12,16 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getFinancials } from '@/lib/api/financials';
-import TransactionCard from '@/app/components/financials/TransactionCard';
-import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
-import WalletBalanceWidget from '@/app/components/financials/WalletBalanceWidget';
-import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
-import type { HubTab } from '@/app/components/ui/hub-layout';
-import Button from '@/app/components/ui/Button';
+import TransactionCard from '@/app/components/feature/financials/TransactionCard';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import WalletBalanceWidget from '@/app/components/feature/financials/WalletBalanceWidget';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
+import type { HubTab } from '@/app/components/hub/layout';
+import Button from '@/app/components/ui/actions/Button';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
-import filterStyles from '@/app/components/ui/hub-layout/hub-filters.module.css';
-import actionStyles from '@/app/components/ui/hub-layout/hub-actions.module.css';
+import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
+import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
 // v4.9 Transaction statuses
 type TransactionStatusV49 = 'clearing' | 'available' | 'paid_out' | 'disputed' | 'refunded' | 'all';
@@ -206,9 +206,9 @@ export default function TransactionsPage() {
       <HubPageLayout
         header={<HubHeader title="Transactions" />}
         sidebar={
-          <ContextualSidebar>
+          <HubSidebar>
             <div className={styles.skeletonWidget} />
-          </ContextualSidebar>
+          </HubSidebar>
         }
       >
         <div className={styles.container}>
@@ -224,13 +224,13 @@ export default function TransactionsPage() {
       <HubPageLayout
         header={<HubHeader title="Transactions" />}
         sidebar={
-          <ContextualSidebar>
+          <HubSidebar>
             <WalletBalanceWidget
               available={0}
               pending={0}
               total={0}
             />
-          </ContextualSidebar>
+          </HubSidebar>
         }
       >
         <div className={styles.container}>
@@ -350,13 +350,13 @@ export default function TransactionsPage() {
         />
       }
       sidebar={
-        <ContextualSidebar>
+        <HubSidebar>
           <WalletBalanceWidget
             available={balances.available}
             pending={balances.pending}
             total={balances.total}
           />
-        </ContextualSidebar>
+        </HubSidebar>
       }
     >
       <div className={styles.container}>

@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import type { Listing } from '@tutorwise/shared-types';
 import { parseSearchQuery, queryToFilters } from '@/lib/services/gemini';
-import HeroSection from '@/app/components/marketplace/HeroSection';
-import FilterChips, { FilterState } from '@/app/components/marketplace/FilterChips';
-import MarketplaceGrid from '@/app/components/marketplace/MarketplaceGrid';
+import HeroSection from '@/app/components/feature/marketplace/HeroSection';
+import FilterChips, { FilterState } from '@/app/components/feature/marketplace/FilterChips';
+import MarketplaceGrid from '@/app/components/feature/marketplace/MarketplaceGrid';
 import styles from './page.module.css';
 
 export default function MarketplacePage() {

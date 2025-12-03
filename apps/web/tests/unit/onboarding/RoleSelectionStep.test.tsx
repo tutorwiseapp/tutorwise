@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import RoleSelectionStep from '@/app/components/onboarding/steps/RoleSelectionStep';
+import RoleSelectionStep from '@/app/components/feature/onboarding/steps/RoleSelectionStep';
 
 describe('RoleSelectionStep', () => {
   const mockOnNext = jest.fn();

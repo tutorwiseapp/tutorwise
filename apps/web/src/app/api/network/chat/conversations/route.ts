@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     // 1. Get all accepted connections
     const { data: connections, error: connectionsError } = await supabase
-      .from('connections')
+      .from('profile_graph')
       .select(
         `
         id,

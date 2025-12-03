@@ -15,7 +15,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Profile } from '@/types';
-import Card from '@/app/components/ui/Card';
+import Card from '@/app/components/ui/data-display/Card';
 import styles from './ProfileSidebar.module.css';
 import getProfileImageUrl from '@/lib/utils/image';
 

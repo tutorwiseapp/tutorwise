@@ -8,7 +8,7 @@
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0;
+  padding: 2rem;
 }
 
 /* Legacy header and tab styles removed - now handled by HubHeader and HubTabs components */

@@ -1,7 +1,7 @@
 'use client';
 
 import Container from '@/app/components/layout/Container';
-import PageHeader from '@/app/components/ui/PageHeader';
+import PageHeader from '@/app/components/ui/data-display/PageHeader';
 import styles from './page.module.css';
 
 const PrivacyPolicyPage = () => {

@@ -4,7 +4,7 @@
  * Created: 2025-11-09
  * Updated: 2025-11-30 - Migrated to Hub Layout Architecture with HubPageLayout, HubHeader, HubTabs
  *
- * Pattern: Uses ContextualSidebar from authenticated layout, not custom layout
+ * Pattern: Uses HubSidebar from authenticated layout, not custom layout
  * Features:
  * - Offer Free Help (tutors only) - v5.9
  * - Change Password
@@ -17,16 +17,16 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
-import AccountCard from '@/app/components/account/AccountCard';
-import AccountHeroHeader from '@/app/components/account/AccountHeroHeader';
-import IntegrationLinksCard from '@/app/components/students/IntegrationLinksCard';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import AccountCard from '@/app/components/feature/account/AccountCard';
+import AccountHeroHeader from '@/app/components/feature/account/AccountHeroHeader';
+import IntegrationLinksCard from '@/app/components/feature/students/IntegrationLinksCard';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { HubPageLayout, HubTabs } from '@/app/components/ui/hub-layout';
-import type { HubTab } from '@/app/components/ui/hub-layout';
-import Button from '@/app/components/ui/Button';
+import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
+import type { HubTab } from '@/app/components/hub/layout';
+import Button from '@/app/components/ui/actions/Button';
 import styles from './page.module.css';
-import actionStyles from '@/app/components/ui/hub-layout/hub-actions.module.css';
+import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
 export default function SettingsPage() {
   const { activeRole, profile } = useUserProfile();
@@ -151,9 +151,9 @@ export default function SettingsPage() {
       }
       tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
       sidebar={
-        <ContextualSidebar>
+        <HubSidebar>
           <AccountCard />
-        </ContextualSidebar>
+        </HubSidebar>
       }
     >
       <div className={styles.content}>

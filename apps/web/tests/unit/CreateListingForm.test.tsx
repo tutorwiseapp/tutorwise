@@ -2,7 +2,7 @@
 
 import { render, screen, fireEvent, waitFor } from '../test-utils';
 import { jest } from '@jest/globals';
-import CreateListingForm from '@/app/components/listings/CreateListingForm';
+import CreateListingForm from '@/app/components/feature/listings/CreateListingForm';
 import userEvent from '@testing-library/user-event';
 
 describe('CreateListingForm Wizard', () => {

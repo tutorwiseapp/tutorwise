@@ -12,10 +12,10 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { List, Lock, Globe, Edit2 } from 'lucide-react';
-import WiselistItemCard from '@/app/components/wiselists/WiselistItemCard';
-import { ShareCollaborateWidget } from '@/app/components/wiselists/ShareCollaborateWidget';
-import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
-import Button from '@/app/components/ui/Button';
+import WiselistItemCard from '@/app/components/feature/wiselists/WiselistItemCard';
+import { ShareCollaborateWidget } from '@/app/components/feature/wiselists/ShareCollaborateWidget';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import Button from '@/app/components/ui/actions/Button';
 import { WiselistWithDetails } from '@/types';
 import { toast } from 'react-hot-toast';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
@@ -279,7 +279,7 @@ export default function WiselistDetailPage({ params }: PageProps) {
         </div>
       </div>
 
-      <ContextualSidebar>
+      <HubSidebar>
         <ShareCollaborateWidget
           wiselistId={wiselist.id}
           slug={wiselist.slug}
@@ -287,7 +287,7 @@ export default function WiselistDetailPage({ params }: PageProps) {
           isOwner={!!isOwner}
           onVisibilityChange={handleVisibilityChange}
         />
-      </ContextualSidebar>
+      </HubSidebar>
     </div>
   );
 }

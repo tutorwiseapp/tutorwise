@@ -2,9 +2,9 @@
 
 import React from 'react';
 import Container from '@/app/components/layout/Container';
-import PageHeader from '@/app/components/ui/PageHeader';
-import StatGrid from '@/app/components/ui/reports/StatGrid';
-import Card from '@/app/components/ui/Card';
+import PageHeader from '@/app/components/ui/data-display/PageHeader';
+import StatGrid from '@/app/components/ui/data-display/StatGrid';
+import Card from '@/app/components/ui/data-display/Card';
 
 const stats = [
     { title: 'Total Links', value: '1,245', icon: <span className="material-symbols-outlined">link</span> },

@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     // Verify connection exists and is accepted
     const { data: connection, error: connectionError } = await supabase
-      .from('connections')
+      .from('profile_graph')
       .select('id')
       .eq('status', 'accepted')
       .or(

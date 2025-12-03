@@ -4,7 +4,7 @@
  * Created: 2025-11-15
  *
  * This layout provides a clean, full-screen experience for the virtual classroom.
- * Unlike the main app layout, it does NOT render AppSidebar or ContextualSidebar.
+ * Unlike the main app layout, it does NOT render AppSidebar or HubSidebar.
  */
 
 import { ReactNode } from 'react';

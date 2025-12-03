@@ -8,10 +8,10 @@
  * with a 3-column structure:
  * - Left: AppSidebar (main navigation)
  * - Center: Page content (children)
- * - Right: ContextualSidebar (rendered by individual pages)
+ * - Right: HubSidebar (rendered by individual pages)
  *
- * Note: Hub pages are responsible for rendering their own ContextualSidebar
- * content using the ContextualSidebar component and widgets.
+ * Note: Hub pages are responsible for rendering their own HubSidebar
+ * content using the HubSidebar component and widgets.
  *
  * Security: This layout enforces authentication - only logged-in users
  * can access hub pages. No role restrictions (all roles can access).
@@ -21,7 +21,7 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import AppSidebar from '@/app/components/layout/sidebars/AppSidebar';
+import AppSidebar from '@/app/components/layout/AppSidebar';
 import styles from './layout.module.css';
 
 interface AuthenticatedLayoutProps {
@@ -64,7 +64,7 @@ export default function AuthenticatedLayout({
       {/* Left Column: Main Navigation */}
       <AppSidebar />
 
-      {/* Center Column: Page Content (hub pages render their own ContextualSidebar) */}
+      {/* Center Column: Page Content (hub pages render their own HubSidebar) */}
       <div className={styles.mainContent}>{children}</div>
     </div>
   );

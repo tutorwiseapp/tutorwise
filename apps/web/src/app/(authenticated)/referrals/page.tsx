@@ -12,20 +12,20 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getMyReferrals } from '@/lib/api/referrals';
-import ReferralCard from '@/app/components/referrals/ReferralCard';
-import ReferralAssetWidget from '@/app/components/referrals/ReferralAssetWidget';
-import ReferralStatsWidget from '@/app/components/referrals/ReferralStatsWidget';
-import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
-import ReferralsSkeleton from '@/app/components/referrals/ReferralsSkeleton';
-import ReferralsError from '@/app/components/referrals/ReferralsError';
-import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
-import type { HubTab } from '@/app/components/ui/hub-layout';
-import Button from '@/app/components/ui/Button';
+import ReferralCard from '@/app/components/feature/referrals/ReferralCard';
+import ReferralAssetWidget from '@/app/components/feature/referrals/ReferralAssetWidget';
+import ReferralStatsWidget from '@/app/components/feature/referrals/ReferralStatsWidget';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import ReferralsSkeleton from '@/app/components/feature/referrals/ReferralsSkeleton';
+import ReferralsError from '@/app/components/feature/referrals/ReferralsError';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
+import type { HubTab } from '@/app/components/hub/layout';
+import Button from '@/app/components/ui/actions/Button';
 import toast from 'react-hot-toast';
 import { Referral, ReferralStatus } from '@/types';
 import styles from './page.module.css';
-import actionStyles from '@/app/components/ui/hub-layout/hub-actions.module.css';
-import filterStyles from '@/app/components/ui/hub-layout/hub-filters.module.css';
+import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
+import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 
 type SortType = 'newest' | 'oldest' | 'name-asc' | 'name-desc';
 
@@ -179,13 +179,13 @@ export default function ReferralsPage() {
         header={<HubHeader title="Referrals" />}
         tabs={<HubTabs tabs={tabs} onTabChange={handleFilterChange} />}
         sidebar={
-          <ContextualSidebar>
+          <HubSidebar>
             <ReferralStatsWidget
               totalReferred={0}
               signedUp={0}
               converted={0}
             />
-          </ContextualSidebar>
+          </HubSidebar>
         }
       >
         <ReferralsSkeleton />
@@ -200,13 +200,13 @@ export default function ReferralsPage() {
         header={<HubHeader title="Referrals" />}
         tabs={<HubTabs tabs={tabs} onTabChange={handleFilterChange} />}
         sidebar={
-          <ContextualSidebar>
+          <HubSidebar>
             <ReferralStatsWidget
               totalReferred={0}
               signedUp={0}
               converted={0}
             />
-          </ContextualSidebar>
+          </HubSidebar>
         }
       >
         <ReferralsError error={error as Error} onRetry={() => refetch()} />
@@ -296,7 +296,7 @@ export default function ReferralsPage() {
       }
       tabs={<HubTabs tabs={tabs} onTabChange={handleFilterChange} />}
       sidebar={
-        <ContextualSidebar>
+        <HubSidebar>
           <ReferralStatsWidget
             totalReferred={stats.totalReferred}
             signedUp={stats.signedUp}
@@ -309,7 +309,7 @@ export default function ReferralsPage() {
               variant="dashboard"
             />
           )}
-        </ContextualSidebar>
+        </HubSidebar>
       }
     >
       {/* Empty State */}

@@ -9,7 +9,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ListingV41 } from '@/types/listing-v4.1';
-import Button from '@/app/components/ui/Button';
+import Button from '@/app/components/ui/actions/Button';
 import toast from 'react-hot-toast';
 import { createBooking } from '@/lib/api/bookings';
 import styles from './MobileBottomCTA.module.css';

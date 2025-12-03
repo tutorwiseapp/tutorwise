@@ -19,7 +19,7 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { createClient } from '@/utils/supabase/client';
 import type { Role } from '@/types';
-import GuanMenuIcon from '../ui/nav/GuanMenuIcon';
+import GuanMenuIcon from '@/app/components/ui/navigation/GuanMenuIcon';
 import styles from './NavMenu.module.css';
 import getProfileImageUrl from '@/lib/utils/image';
 

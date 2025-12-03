@@ -14,17 +14,17 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getMyStudents, removeStudent } from '@/lib/api/students';
 import type { StudentLink } from '@/types';
-import StudentCard from '@/app/components/students/StudentCard';
-import StudentInviteModal from '@/app/components/students/StudentInviteModal';
-import StudentStatsWidget from '@/app/components/students/StudentStatsWidget';
-import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
-import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
-import type { HubTab } from '@/app/components/ui/hub-layout';
-import Button from '@/app/components/ui/Button';
+import StudentCard from '@/app/components/feature/students/StudentCard';
+import StudentInviteModal from '@/app/components/feature/students/StudentInviteModal';
+import StudentStatsWidget from '@/app/components/feature/students/StudentStatsWidget';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
+import type { HubTab } from '@/app/components/hub/layout';
+import Button from '@/app/components/ui/actions/Button';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
-import filterStyles from '@/app/components/ui/hub-layout/hub-filters.module.css';
-import actionStyles from '@/app/components/ui/hub-layout/hub-actions.module.css';
+import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
+import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
 // Tab filter types
 type TabType = 'all' | 'recently-added' | 'with-integrations';
@@ -258,14 +258,14 @@ export default function MyStudentsPage() {
       <HubPageLayout
         header={<HubHeader title="My Students" />}
         sidebar={
-          <ContextualSidebar>
+          <HubSidebar>
             <StudentStatsWidget
               totalStudents={0}
               recentlyAdded={0}
               withIntegrations={0}
               activeThisMonth={0}
             />
-          </ContextualSidebar>
+          </HubSidebar>
         }
       >
         <div className={styles.loadingState}>
@@ -282,14 +282,14 @@ export default function MyStudentsPage() {
       <HubPageLayout
         header={<HubHeader title="My Students" />}
         sidebar={
-          <ContextualSidebar>
+          <HubSidebar>
             <StudentStatsWidget
               totalStudents={0}
               recentlyAdded={0}
               withIntegrations={0}
               activeThisMonth={0}
             />
-          </ContextualSidebar>
+          </HubSidebar>
         }
       >
         <div className={styles.errorState}>
@@ -407,14 +407,14 @@ export default function MyStudentsPage() {
         />
       }
       sidebar={
-        <ContextualSidebar>
+        <HubSidebar>
           <StudentStatsWidget
             totalStudents={stats.total}
             recentlyAdded={stats.recentlyAdded}
             withIntegrations={stats.withIntegrations}
             activeThisMonth={stats.activeThisMonth}
           />
-        </ContextualSidebar>
+        </HubSidebar>
       }
     >
       <div className={styles.container}>

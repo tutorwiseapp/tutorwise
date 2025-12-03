@@ -25,20 +25,20 @@ import {
   createOrganisation,
   removeMember,
 } from '@/lib/api/organisation';
-import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
-import OrganisationStatsWidget from '@/app/components/organisation/OrganisationStatsWidget';
-import OrganisationInviteMemberModal from '@/app/components/organisation/OrganisationInviteMemberModal';
-import InfoTab from '@/app/components/organisation/tabs/InfoTab';
-import ManageMemberModal from '@/app/components/organisation/ManageMemberModal';
-import MemberCard from '@/app/components/organisation/MemberCard';
-import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
-import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
-import type { HubTab } from '@/app/components/ui/hub-layout';
-import Button from '@/app/components/ui/Button';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import OrganisationStatsWidget from '@/app/components/feature/organisation/OrganisationStatsWidget';
+import OrganisationInviteMemberModal from '@/app/components/feature/organisation/OrganisationInviteMemberModal';
+import InfoTab from '@/app/components/feature/organisation/tabs/InfoTab';
+import ManageMemberModal from '@/app/components/feature/organisation/ManageMemberModal';
+import MemberCard from '@/app/components/feature/organisation/MemberCard';
+import HubRowCard from '@/app/components/hub/content/HubRowCard/HubRowCard';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
+import type { HubTab } from '@/app/components/hub/layout';
+import Button from '@/app/components/ui/actions/Button';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
-import filterStyles from '@/app/components/ui/hub-layout/hub-filters.module.css';
-import actionStyles from '@/app/components/ui/hub-layout/hub-actions.module.css';
+import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
+import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 import type { OrganisationMember } from '@/lib/api/organisation';
 
 type TabType = 'team' | 'clients' | 'info';
@@ -345,13 +345,13 @@ export default function OrganisationPage() {
       <HubPageLayout
         header={<HubHeader title="Organisation" />}
         sidebar={
-          <ContextualSidebar>
+          <HubSidebar>
             <OrganisationStatsWidget
               teamSize={0}
               totalClients={0}
               monthlyRevenue={0}
             />
-          </ContextualSidebar>
+          </HubSidebar>
         }
       >
         <div className={styles.container}>
@@ -367,13 +367,13 @@ export default function OrganisationPage() {
       <HubPageLayout
         header={<HubHeader title="Organisation" />}
         sidebar={
-          <ContextualSidebar>
+          <HubSidebar>
             <OrganisationStatsWidget
               teamSize={0}
               totalClients={0}
               monthlyRevenue={0}
             />
-          </ContextualSidebar>
+          </HubSidebar>
         }
       >
         <div className={styles.container}>
@@ -403,13 +403,13 @@ export default function OrganisationPage() {
           />
         }
         sidebar={
-          <ContextualSidebar>
+          <HubSidebar>
             <OrganisationStatsWidget
               teamSize={0}
               totalClients={0}
               monthlyRevenue={0}
             />
-          </ContextualSidebar>
+          </HubSidebar>
         }
       >
         <div className={styles.container}>
@@ -581,13 +581,13 @@ export default function OrganisationPage() {
         />
       }
       sidebar={
-        <ContextualSidebar>
+        <HubSidebar>
           <OrganisationStatsWidget
             teamSize={stats?.team_size || 0}
             totalClients={stats?.total_clients || 0}
             monthlyRevenue={stats?.monthly_revenue || 0}
           />
-        </ContextualSidebar>
+        </HubSidebar>
       }
     >
       <div className={styles.container}>

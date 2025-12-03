@@ -6,9 +6,9 @@ import Image from 'next/image';
 
 // VDL Component Imports
 import Container from '@/app/components/layout/Container';
-import PageHeader from '@/app/components/ui/PageHeader';
-import Card from '@/app/components/ui/Card';
-import Button from '@/app/components/ui/Button';
+import PageHeader from '@/app/components/ui/data-display/PageHeader';
+import Card from '@/app/components/ui/data-display/Card';
+import Button from '@/app/components/ui/actions/Button';
 import styles from './page.module.css';
 
 // Mock Data for Resources

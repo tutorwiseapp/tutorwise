@@ -4,10 +4,10 @@ import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import Container from '@/app/components/layout/Container';
-import Card from '@/app/components/ui/Card';
-import Button from '@/app/components/ui/Button';
-import PageHeader from '@/app/components/ui/PageHeader';
-import Message from '@/app/components/ui/Message';
+import Card from '@/app/components/ui/data-display/Card';
+import Button from '@/app/components/ui/actions/Button';
+import PageHeader from '@/app/components/ui/data-display/PageHeader';
+import Message from '@/app/components/ui/feedback/Message';
 import styles from './page.module.css';
 
 interface PendingReward {

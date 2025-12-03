@@ -7,7 +7,7 @@ import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { getListing, updateListing } from '@/lib/api/listings';
 import type { Listing, UpdateListingInput } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
-import CreateListingWizard from '@/app/components/listings/CreateListingWizard';
+import CreateListingWizard from '@/app/components/feature/listings/CreateListingWizard';
 import styles from '../../create-listing/page.module.css';
 
 export default function EditListingPage() {

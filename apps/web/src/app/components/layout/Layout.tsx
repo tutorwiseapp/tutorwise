@@ -6,6 +6,7 @@
  * The component's styling has been correctly moved to a dedicated CSS module. All redundant
  * and incorrect font definitions have been removed.
  * Updated: 2025-11-03 - Hide footer on hub pages (bookings, financials, referrals)
+ * Updated: 2025-12-02 - Hide header on hub pages to prevent double header with HubHeader
  */
 'use client';
 
@@ -18,7 +19,7 @@ import styles from './Layout.module.css'; // This import will now find the file
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
 
-  // Hide footer on hub pages (3-column layout pages)
+  // Hide header and footer on hub pages (3-column layout pages)
   const isHubPage = pathname?.startsWith('/dashboard') ||
                     pathname?.startsWith('/bookings') ||
                     pathname?.startsWith('/financials') ||

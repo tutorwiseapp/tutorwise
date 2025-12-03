@@ -1,0 +1,177 @@
+/**
+ * Filename: apps/web/src/app/components/account/AccountHeroHeader.module.css
+ * Purpose: Styles for Account Hero Header
+ * Created: 2025-11-30
+ * Updated: 2025-11-30 - Initial creation
+ *
+ * Design Tokens:
+ * - Avatar: 120px diameter
+ * - Header height: 5rem (80px) - matches standard HubHeader
+ * - Profile name: 2rem (32px)
+ * - Role chip: teal background with white text
+ * - View link: teal color with underline
+ */
+
+.header {
+  background-color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.headerRow {
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+/* Profile Section (Left) */
+.profileSection {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  min-width: 0;
+  flex: 1;
+  padding-top: 1rem;
+  padding-bottom: 0.3rem;
+
+}
+
+/* Avatar */
+.avatarContainer {
+  flex-shrink: 0;
+  width: 136px;
+  height: 136px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid #e5e7eb;
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Profile Info */
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.fullName {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.roleLocationRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.roleChip {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background-color: #006c67;
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 4px;
+  line-height: 1.4;
+}
+
+.viewLink {
+  color: #006c67;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: underline;
+  line-height: 1.4;
+  transition: color 0.2s ease;
+}
+
+.viewLink:hover {
+  color: #004d49;
+}
+
+.location {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Actions Section (Right) */
+.actionsSection {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding-top: 1.25rem; 
+}
+
+/* Loading State */
+.loadingText {
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .headerRow {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    height: auto;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+  }
+
+/* Profile Section (Left) */
+  .profileSection {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+    flex: 1;
+    padding-top: 1rem;
+  }
+
+  .avatarContainer {
+    width: 120px;
+    height: 120px;
+  }
+
+  .fullName {
+    font-size: 1.5rem;
+  }
+
+ .actionsSection {
+    margin-left: 0;
+
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 1rem;
+    width: 100%;
+    justify-content: flex-start;
+
+  }
+}

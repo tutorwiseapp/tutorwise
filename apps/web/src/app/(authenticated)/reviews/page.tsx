@@ -13,24 +13,22 @@ import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getPendingReviewTasks, getReceivedReviews, getGivenReviews, submitReview } from '@/lib/api/reviews';
-import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
-import PendingReviewCard from '@/app/components/reviews/PendingReviewCard';
-import ProfileReviewCard from '@/app/components/reviews/ProfileReviewCard';
-import ReviewStatsWidget from '@/app/components/reviews/ReviewStatsWidget';
-import ReviewSubmissionModal from '@/app/components/reviews/ReviewSubmissionModal';
-import ReviewsSkeleton from '@/app/components/reviews/ReviewsSkeleton';
-import ReviewsError from '@/app/components/reviews/ReviewsError';
-import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
-import type { HubTab } from '@/app/components/ui/hub-layout';
-import Button from '@/app/components/ui/Button';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import PendingReviewCard from '@/app/components/feature/reviews/PendingReviewCard';
+import ProfileReviewCard from '@/app/components/feature/reviews/ProfileReviewCard';
+import ReviewStatsWidget from '@/app/components/feature/reviews/ReviewStatsWidget';
+import ReviewSubmissionModal from '@/app/components/feature/reviews/ReviewSubmissionModal';
+import ReviewsSkeleton from '@/app/components/feature/reviews/ReviewsSkeleton';
+import ReviewsError from '@/app/components/feature/reviews/ReviewsError';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
+import type { HubTab } from '@/app/components/hub/layout';
+import Button from '@/app/components/ui/actions/Button';
 import toast from 'react-hot-toast';
-import type {
-  PendingReviewTask,
-  ProfileReview,
-} from '@/types/reviews';
+import type { PendingReviewTask, ProfileReview } from '@/types/reviews';
 import styles from './page.module.css';
-import filterStyles from '@/app/components/ui/hub-layout/hub-filters.module.css';
-import actionStyles from '@/app/components/ui/hub-layout/hub-actions.module.css';
+import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
+import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
+import HubEmptyState from '@/app/components/hub/content/HubRowCard/HubRowCard';
 
 type TabType = 'pending' | 'received' | 'given';
 type RatingFilter = 'all' | '5' | '4' | '3' | '2' | '1';
@@ -288,9 +286,9 @@ export default function ReviewsPage() {
       <HubPageLayout
         header={<HubHeader title="Reviews & Ratings" />}
         sidebar={
-          <ContextualSidebar>
+          <HubSidebar>
             <ReviewStatsWidget stats={emptyStats} averageRating={0} />
-          </ContextualSidebar>
+          </HubSidebar>
         }
       >
         <ReviewsSkeleton />
@@ -304,9 +302,9 @@ export default function ReviewsPage() {
       <HubPageLayout
         header={<HubHeader title="Reviews & Ratings" />}
         sidebar={
-          <ContextualSidebar>
+          <HubSidebar>
             <ReviewStatsWidget stats={emptyStats} averageRating={0} />
-          </ContextualSidebar>
+          </HubSidebar>
         }
       >
         <ReviewsError error={error as Error} onRetry={handleRetry} />
@@ -426,12 +424,12 @@ export default function ReviewsPage() {
         />
       }
       sidebar={
-        <ContextualSidebar>
+        <HubSidebar>
           <ReviewStatsWidget
             stats={stats}
             averageRating={stats.averageRating}
           />
-        </ContextualSidebar>
+        </HubSidebar>
       }
     >
       <div className={styles.container}>

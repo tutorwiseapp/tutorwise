@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import ClientOnboardingWizard from '@/app/components/onboarding/client/ClientOnboardingWizard';
+import ClientOnboardingWizard from '@/app/components/feature/onboarding/client/ClientOnboardingWizard';
 import styles from './page.module.css';
 
 export default function ClientOnboardingPage() {

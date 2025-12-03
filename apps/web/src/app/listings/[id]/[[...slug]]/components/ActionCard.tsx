@@ -13,9 +13,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ListingV41 } from '@/types/listing-v4.1';
-import Card from '@/app/components/ui/Card';
-import Button from '@/app/components/ui/Button';
-import StatusBadge from '@/app/components/ui/StatusBadge';
+import Card from '@/app/components/ui/data-display/Card';
+import Button from '@/app/components/ui/actions/Button';
+import StatusBadge from '@/app/components/ui/data-display/StatusBadge';
 import toast from 'react-hot-toast';
 import { createBooking } from '@/lib/api/bookings';
 import styles from './ActionCard.module.css';

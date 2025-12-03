@@ -2,7 +2,7 @@
 
 import { render, screen, fireEvent } from '@testing-library/react';
 import { jest } from '@jest/globals';
-import SearchFilters from '@/app/components/marketplace/SearchFilters';
+import SearchFilters from '@/app/components/feature/marketplace/SearchFilters';
 import type { ListingFilters } from '@tutorwise/shared-types';
 
 describe('SearchFilters', () => {

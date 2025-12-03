@@ -12,18 +12,18 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getMyBookings, cancelBooking } from '@/lib/api/bookings';
-import BookingCard from '@/app/components/bookings/BookingCard';
-import ContextualSidebar, { UpcomingSessionWidget } from '@/app/components/layout/sidebars/ContextualSidebar';
-import BookingStatsWidget from '@/app/components/bookings/BookingStatsWidget';
-import BookingsSkeleton from '@/app/components/bookings/BookingsSkeleton';
-import BookingsError from '@/app/components/bookings/BookingsError';
-import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
-import type { HubTab } from '@/app/components/ui/hub-layout';
-import Button from '@/app/components/ui/Button';
+import BookingCard from '@/app/components/feature/bookings/BookingCard';
+import HubSidebar, { UpcomingSessionWidget } from '@/app/components/hub/sidebar/HubSidebar';
+import BookingStatsWidget from '@/app/components/feature/bookings/BookingStatsWidget';
+import BookingsSkeleton from '@/app/components/feature/bookings/BookingsSkeleton';
+import BookingsError from '@/app/components/feature/bookings/BookingsError';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
+import type { HubTab } from '@/app/components/hub/layout';
+import Button from '@/app/components/ui/actions/Button';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
-import filterStyles from '@/app/components/ui/hub-layout/hub-filters.module.css';
-import actionStyles from '@/app/components/ui/hub-layout/hub-actions.module.css';
+import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
+import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
 type FilterType = 'all' | 'upcoming' | 'past';
 type SortType = 'date-desc' | 'date-asc' | 'status';
@@ -259,9 +259,9 @@ export default function BookingsPage() {
       <HubPageLayout
         header={<HubHeader title="Bookings" />}
         sidebar={
-          <ContextualSidebar>
+          <HubSidebar>
             <BookingStatsWidget pending={0} upcoming={0} completed={0} />
-          </ContextualSidebar>
+          </HubSidebar>
         }
       >
         <BookingsSkeleton />
@@ -275,9 +275,9 @@ export default function BookingsPage() {
       <HubPageLayout
         header={<HubHeader title="Bookings" />}
         sidebar={
-          <ContextualSidebar>
+          <HubSidebar>
             <BookingStatsWidget pending={0} upcoming={0} completed={0} />
-          </ContextualSidebar>
+          </HubSidebar>
         }
       >
         <BookingsError error={error as Error} onRetry={() => refetch()} />
@@ -375,7 +375,7 @@ export default function BookingsPage() {
         />
       }
       sidebar={
-        <ContextualSidebar>
+        <HubSidebar>
           {/* Show next session widget if there is an upcoming session */}
           {nextSession && (
             <UpcomingSessionWidget
@@ -403,12 +403,11 @@ export default function BookingsPage() {
             upcoming={tabCounts.upcoming}
             completed={bookings.filter((b: any) => b.status === 'Completed').length}
           />
-        </ContextualSidebar>
+        </HubSidebar>
       }
     >
-      <div className={styles.container}>
-        {/* Empty State */}
-        {paginatedBookings.length === 0 && (
+      {/* Empty State */}
+      {paginatedBookings.length === 0 && (
           <div className={styles.emptyState}>
             <h3 className={styles.emptyTitle}>No bookings found</h3>
             <p className={styles.emptyText}>
@@ -447,15 +446,14 @@ export default function BookingsPage() {
           </div>
         )}
 
-        {/* Pagination */}
-        <div className={styles.paginationContainer}>
-          <HubPagination
-            currentPage={currentPage}
-            totalItems={totalItems}
-            itemsPerPage={ITEMS_PER_PAGE}
-            onPageChange={setCurrentPage}
-          />
-        </div>
+      {/* Pagination */}
+      <div className={styles.paginationContainer}>
+        <HubPagination
+          currentPage={currentPage}
+          totalItems={totalItems}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </HubPageLayout>
   );

@@ -7,7 +7,7 @@
 
 import { UserProfileProvider } from './contexts/UserProfileContext';
 import QueryProvider from './providers/QueryProvider';
-import ErrorBoundary from './components/ErrorBoundary';
+import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import React from 'react';
 
 export function Providers({ children }: { children: React.ReactNode }) {

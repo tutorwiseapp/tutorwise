@@ -13,7 +13,7 @@
 'use-client';
 
 import React from 'react';
-import Button from '@/app/components/ui/Button';
+import Button from '@/app/components/ui/actions/Button';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import styles from './SavedCardList.module.css';
 

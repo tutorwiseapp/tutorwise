@@ -35,7 +35,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Profile } from '@/types';
-import Card from '@/app/components/ui/Card';
+import Card from '@/app/components/ui/data-display/Card';
 import getProfileImageUrl from '@/lib/utils/image';
 import styles from './ProfileCard.module.css';
 

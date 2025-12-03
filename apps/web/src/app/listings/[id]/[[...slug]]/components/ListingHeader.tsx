@@ -8,7 +8,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ListingV41 } from '@/types/listing-v4.1';
-import StatusBadge from '@/app/components/ui/StatusBadge';
+import StatusBadge from '@/app/components/ui/data-display/StatusBadge';
 import toast from 'react-hot-toast';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import styles from './ListingHeader.module.css';

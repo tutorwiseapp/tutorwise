@@ -6,8 +6,8 @@
 
 'use client';
 
-import { WiseSpaceHeader } from '@/app/components/wisespace/WiseSpaceHeader';
-import { EmbeddedWhiteboard } from '@/app/components/wisespace/EmbeddedWhiteboard';
+import { WiseSpaceHeader } from '@/app/components/feature/wisespace/WiseSpaceHeader';
+import { EmbeddedWhiteboard } from '@/app/components/feature/wisespace/EmbeddedWhiteboard';
 import { AblyProvider } from 'ably/react';
 import * as Ably from 'ably';
 

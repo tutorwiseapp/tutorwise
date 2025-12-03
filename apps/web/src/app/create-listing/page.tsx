@@ -7,7 +7,7 @@ import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { createListing } from '@/lib/api/listings';
 import type { CreateListingInput } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
-import CreateListingForm from '@/app/components/listings/CreateListingForm';
+import CreateListingForm from '@/app/components/feature/listings/CreateListingForm';
 import styles from './page.module.css';
 
 export default function CreateListingPage() {

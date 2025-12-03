@@ -40,4 +40,5 @@
   flex-direction: column;
   width: 100%;
   padding-top: 64px; /* Account for fixed header */
+  overflow: hidden; /* Prevent content from extending beyond viewport */
 }

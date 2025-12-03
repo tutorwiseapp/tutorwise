@@ -4,7 +4,7 @@
  * Created: 2025-11-09
  * Updated: 2025-11-30 - Migrated to Hub Layout Architecture with HubPageLayout, HubHeader, HubTabs
  *
- * Pattern: Uses ContextualSidebar from authenticated layout, not custom layout
+ * Pattern: Uses HubSidebar from authenticated layout, not custom layout
  */
 'use client';
 
@@ -12,17 +12,17 @@ import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { updateProfile } from '@/lib/api/profiles';
-import PersonalInfoForm from '@/app/components/profile/PersonalInfoForm';
-import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
-import AccountCard from '@/app/components/account/AccountCard';
-import AccountHeroHeader from '@/app/components/account/AccountHeroHeader';
-import { HubPageLayout, HubTabs } from '@/app/components/ui/hub-layout';
-import type { HubTab } from '@/app/components/ui/hub-layout';
-import Button from '@/app/components/ui/Button';
+import PersonalInfoForm from '@/app/components/feature/profile/PersonalInfoForm';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import AccountCard from '@/app/components/feature/account/AccountCard';
+import AccountHeroHeader from '@/app/components/feature/account/AccountHeroHeader';
+import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
+import type { HubTab } from '@/app/components/hub/layout';
+import Button from '@/app/components/ui/actions/Button';
 import type { Profile } from '@/types';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
-import actionStyles from '@/app/components/ui/hub-layout/hub-actions.module.css';
+import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
 export default function PersonalInfoPage() {
   const { profile, refreshProfile } = useUserProfile();
@@ -73,9 +73,9 @@ export default function PersonalInfoPage() {
         header={<AccountHeroHeader />}
         tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
         sidebar={
-          <ContextualSidebar>
+          <HubSidebar>
             <AccountCard />
-          </ContextualSidebar>
+          </HubSidebar>
         }
       >
         <div className={styles.loading}>Loading...</div>
@@ -140,9 +140,9 @@ export default function PersonalInfoPage() {
       }
       tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
       sidebar={
-        <ContextualSidebar>
+        <HubSidebar>
           <AccountCard />
-        </ContextualSidebar>
+        </HubSidebar>
       }
     >
       <div className={styles.content}>

@@ -128,7 +128,7 @@ export async function POST(
 
     // Verify all connections belong to the user
     const { data: connections, error: connectionsError } = await supabase
-      .from('connections')
+      .from('profile_graph')
       .select('id')
       .in('id', connection_ids)
       .or(`requester_id.eq.${user.id},receiver_id.eq.${user.id}`)

@@ -10,9 +10,9 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
-import WalletBalanceWidget from '@/app/components/financials/WalletBalanceWidget';
-import PayoutActionsWidget from '@/app/components/financials/PayoutActionsWidget';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import WalletBalanceWidget from '@/app/components/feature/financials/WalletBalanceWidget';
+import PayoutActionsWidget from '@/app/components/feature/financials/PayoutActionsWidget';
 import { Transaction } from '@/types';
 import styles from '../page.module.css';
 
@@ -93,9 +93,9 @@ export default function PayoutsPage() {
     return (
       <>
         <div className={styles.loading}>Loading payouts...</div>
-        <ContextualSidebar>
+        <HubSidebar>
           <div className={styles.skeletonWidget} />
-        </ContextualSidebar>
+        </HubSidebar>
       </>
     );
   }
@@ -226,14 +226,14 @@ export default function PayoutsPage() {
       </div>
 
       {/* Contextual Sidebar */}
-      <ContextualSidebar>
+      <HubSidebar>
         <WalletBalanceWidget
           available={balances.available}
           pending={balances.pending}
           total={balances.total}
         />
         <PayoutActionsWidget availableBalance={balances.available} />
-      </ContextualSidebar>
+      </HubSidebar>
     </>
   );
 }

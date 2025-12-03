@@ -10,10 +10,10 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Listing } from '@tutorwise/shared-types';
-import Button from '@/app/components/ui/Button';
-import ConfirmDialog from '@/app/components/ui/ConfirmDialog';
-import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
-import StatsRow from '@/app/components/ui/hub-row-card/StatsRow';
+import Button from '@/app/components/ui/actions/Button';
+import ConfirmDialog from '@/app/components/ui/feedback/ConfirmDialog';
+import HubRowCard from '@/app/components/hub/content/HubRowCard/HubRowCard';
+import StatsRow from '@/app/components/hub/content/HubRowCard/StatsRow';
 import getProfileImageUrl from '@/lib/utils/image';
 
 interface ListingCardProps {

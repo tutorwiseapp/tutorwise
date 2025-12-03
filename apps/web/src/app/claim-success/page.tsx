@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import Container from '@/app/components/layout/Container';
-import Card from '@/app/components/ui/Card';
-import Button from '@/app/components/ui/Button';
+import Card from '@/app/components/ui/data-display/Card';
+import Button from '@/app/components/ui/actions/Button';
 import styles from './page.module.css';
 
 interface ClaimDetails {

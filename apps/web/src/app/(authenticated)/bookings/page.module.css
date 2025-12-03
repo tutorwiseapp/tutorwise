@@ -1,77 +1,52 @@
 /*
  * Filename: src/app/(authenticated)/bookings/page.module.css
- * Purpose: Styles for /bookings hub page
  * Created: 2025-11-02
- * Updated: 2025-11-29 - Migrated to Hub Layout Architecture, removed obsolete header/tab styles
+ * Updated: 2025-11-29 - Migrated to Hub Layout Architecture, removed obsolete header/tab styles. ONLY specific overrides remain.
+ * Updated: 2025-12-02 - Added container padding for proper spacing from sidebar
+ * Note: Layout, Header, Tabs, and EmptyStates are now handled by global Hub components.
  */
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0;
-}
-
-/* Legacy styles removed - now handled by HubHeader and HubTabs components */
-
-/* Bookings List */
+/* Bookings List Wrapper */
 .bookingsList {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-/* Loading State */
-.loading {
-  text-align: center;
-  padding: 3rem;
-  color: #6b7280;
-  font-size: 1rem;
-}
-
-/* Error State */
-.error {
-  padding: 1rem;
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 0.5rem;
-  color: #991b1b;
-  margin-bottom: 1rem;
-}
-
 /* Empty State */
 .emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
   text-align: center;
-  padding: 4rem 2rem;
-  background: white;
-  border: 1px solid var(--color-gray-300, #D1D1D1);
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
-}
-
-.emptyIcon {
-  font-size: 4rem;
   margin-bottom: 1rem;
 }
 
 .emptyTitle {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: #1f2937;
   margin: 0 0 0.5rem 0;
 }
 
 .emptyText {
-  font-size: 1rem;
+  font-size: 0.875rem;
   color: #6b7280;
   margin: 0 0 1.5rem 0;
 }
 
 .emptyButton {
-  padding: 0.75rem 1.5rem;
+  padding: 0.625rem 1.25rem;
   background-color: var(--color-primary-default, #006c67);
   color: #ffffff;
   border: none;
-  border-radius: 0.5rem;
-  font-size: 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.15s ease-in-out;
@@ -83,16 +58,16 @@
 
 /* Pagination Container */
 .paginationContainer {
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .emptyState {
-    padding: 3rem 1rem;
-  }
-
-  .emptyIcon {
-    font-size: 3rem;
-  }
+/* Error State (Keep if using custom error boundary within the list) */
+.error {
+  padding: 1rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  color: #991b1b;
+  margin-bottom: 1rem;
 }
+

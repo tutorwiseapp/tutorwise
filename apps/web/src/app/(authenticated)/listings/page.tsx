@@ -15,17 +15,17 @@ import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { getMyListings, deleteListing, publishListing, unpublishListing } from '@/lib/api/listings';
 import type { Listing } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
-import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/ui/hub-layout';
-import type { HubTab } from '@/app/components/ui/hub-layout';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
+import type { HubTab } from '@/app/components/hub/layout';
 import styles from './page.module.css';
 import filterStyles from './filters.module.css';
 import actionStyles from './actions.module.css';
 import ListingCard from './ListingCard';
-import ListingStatsWidget from '@/app/components/listings/ListingStatsWidget';
-import ListingsSkeleton from '@/app/components/listings/ListingsSkeleton';
-import ListingsError from '@/app/components/listings/ListingsError';
-import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
-import Button from '@/app/components/ui/Button';
+import ListingStatsWidget from '@/app/components/feature/listings/ListingStatsWidget';
+import ListingsSkeleton from '@/app/components/feature/listings/ListingsSkeleton';
+import ListingsError from '@/app/components/feature/listings/ListingsError';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import Button from '@/app/components/ui/actions/Button';
 
 type FilterType = 'all' | 'published' | 'unpublished' | 'draft' | 'archived' | 'templates';
 type SortType = 'newest' | 'oldest' | 'price-high' | 'price-low' | 'views-high' | 'views-low';
@@ -300,9 +300,9 @@ export default function ListingsPage() {
       <HubPageLayout
         header={<HubHeader title="Listings" />}
         sidebar={
-          <ContextualSidebar>
+          <HubSidebar>
             <ListingStatsWidget listings={[]} isLoading={true} />
-          </ContextualSidebar>
+          </HubSidebar>
         }
       >
         <ListingsSkeleton />
@@ -321,9 +321,9 @@ export default function ListingsPage() {
       <HubPageLayout
         header={<HubHeader title="Listings" />}
         sidebar={
-          <ContextualSidebar>
+          <HubSidebar>
             <ListingStatsWidget listings={[]} isLoading={false} />
-          </ContextualSidebar>
+          </HubSidebar>
         }
       >
         <ListingsError error={error as Error} onRetry={() => refetch()} />
@@ -427,14 +427,13 @@ export default function ListingsPage() {
         />
       }
       sidebar={
-        <ContextualSidebar>
+        <HubSidebar>
           <ListingStatsWidget listings={rawListings} isLoading={isLoading} />
-        </ContextualSidebar>
+        </HubSidebar>
       }
     >
-      <div className={styles.container}>
-        {/* Empty State */}
-        {paginatedListings.length === 0 && !searchQuery && (
+      {/* Empty State */}
+      {paginatedListings.length === 0 && !searchQuery && (
           <div className={styles.emptyState}>
             <h3 className={styles.emptyTitle}>No listings found</h3>
             <p className={styles.emptyText}>
@@ -488,15 +487,14 @@ export default function ListingsPage() {
           </div>
         )}
 
-        {/* Pagination */}
-        <div className={styles.paginationContainer}>
-          <HubPagination
-            currentPage={currentPage}
-            totalItems={totalItems}
-            itemsPerPage={ITEMS_PER_PAGE}
-            onPageChange={setCurrentPage}
-          />
-        </div>
+      {/* Pagination */}
+      <div className={styles.paginationContainer}>
+        <HubPagination
+          currentPage={currentPage}
+          totalItems={totalItems}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </HubPageLayout>
   );

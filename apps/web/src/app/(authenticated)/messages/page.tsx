@@ -13,12 +13,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getConversations, type Conversation } from '@/lib/api/messages';
 import { useAblyPresenceBroadcast } from '@/app/hooks/useAblyPresence';
-import ConversationList from '@/app/components/messages/ConversationList';
-import ChatThread from '@/app/components/messages/ChatThread';
-import ContextualSidebar from '@/app/components/layout/sidebars/ContextualSidebar';
-import InboxStatsWidget from '@/app/components/messages/InboxStatsWidget';
-import AvailabilityWidget from '@/app/components/messages/AvailabilityWidget';
-import ChatContextWidget from '@/app/components/messages/ChatContextWidget';
+import ConversationList from '@/app/components/feature/messages/ConversationList';
+import ChatThread from '@/app/components/feature/messages/ChatThread';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import InboxStatsWidget from '@/app/components/feature/messages/InboxStatsWidget';
+import AvailabilityWidget from '@/app/components/feature/messages/AvailabilityWidget';
+import ChatContextWidget from '@/app/components/feature/messages/ChatContextWidget';
 import styles from './page.module.css';
 
 type FilterTab = 'all' | 'unread' | 'archived';
@@ -113,10 +113,10 @@ export default function MessagesPage() {
             <p className={styles.subtitle}>Loading conversations...</p>
           </div>
         </div>
-        <ContextualSidebar>
+        <HubSidebar>
           <InboxStatsWidget unreadCount={0} activeChats={0} archivedCount={0} />
           {profile && <AvailabilityWidget currentUserId={profile.id} />}
-        </ContextualSidebar>
+        </HubSidebar>
       </>
     );
   }
@@ -202,7 +202,7 @@ export default function MessagesPage() {
       </div>
 
       {/* Contextual Sidebar (Right Column) */}
-      <ContextualSidebar>
+      <HubSidebar>
         {selectedConversation ? (
           <ChatContextWidget otherUser={selectedConversation.otherUser} />
         ) : (
@@ -215,7 +215,7 @@ export default function MessagesPage() {
             <AvailabilityWidget currentUserId={profile.id} />
           </>
         )}
-      </ContextualSidebar>
+      </HubSidebar>
     </>
   );
 }
