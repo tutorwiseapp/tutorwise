@@ -19,6 +19,9 @@ import { getMyReferrals } from '@/lib/api/referrals';
 import ReferralCard from '@/app/components/feature/referrals/ReferralCard';
 import ReferAndEarnView from '@/app/components/feature/referrals/ReferAndEarnView';
 import ReferralStatsWidget from '@/app/components/feature/referrals/ReferralStatsWidget';
+import ReferralHelpWidget from '@/app/components/feature/referrals/ReferralHelpWidget';
+import ReferralTipWidget from '@/app/components/feature/referrals/ReferralTipWidget';
+import ReferralVideoWidget from '@/app/components/feature/referrals/ReferralVideoWidget';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import ReferralsSkeleton from '@/app/components/feature/referrals/ReferralsSkeleton';
 import ReferralsError from '@/app/components/feature/referrals/ReferralsError';
@@ -211,6 +214,9 @@ export default function ReferralsPage() {
               signedUp={0}
               converted={0}
             />
+            <ReferralHelpWidget />
+            <ReferralTipWidget />
+            <ReferralVideoWidget />
           </HubSidebar>
         }
       >
@@ -232,6 +238,9 @@ export default function ReferralsPage() {
               signedUp={0}
               converted={0}
             />
+            <ReferralHelpWidget />
+            <ReferralTipWidget />
+            <ReferralVideoWidget />
           </HubSidebar>
         }
       >
@@ -334,6 +343,9 @@ export default function ReferralsPage() {
             signedUp={stats.signedUp}
             converted={stats.converted}
           />
+          <ReferralHelpWidget />
+          <ReferralTipWidget />
+          <ReferralVideoWidget />
         </HubSidebar>
       }
     >
