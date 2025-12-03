@@ -2,8 +2,11 @@
  * Filename: src/app/(authenticated)/financials/page.tsx
  * Purpose: Transactions tab - displays transaction history with v4.9 status filtering
  * Created: 2025-11-02
- * Updated: 2025-11-29 - Migrated to Hub Layout Architecture with HubPageLayout, HubHeader, HubTabs, HubPagination
+ * Updated: 2025-12-03 - Migrated to HubEmptyState component (Phase 2 migration complete)
  * Specification: SDD v4.9 - Transactions page with clearing/available/paid_out/disputed/refunded statuses
+ * Change History:
+ * C002 - 2025-12-03 : Migrated to HubEmptyState component, removed custom empty state markup
+ * C001 - 2025-11-29 : Migrated to Hub Layout Architecture with HubPageLayout, HubHeader, HubTabs, HubPagination
  */
 'use client';
 
@@ -16,6 +19,7 @@ import TransactionCard from '@/app/components/feature/financials/TransactionCard
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import WalletBalanceWidget from '@/app/components/feature/financials/WalletBalanceWidget';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
+import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import type { HubTab } from '@/app/components/hub/layout';
 import Button from '@/app/components/ui/actions/Button';
 import toast from 'react-hot-toast';
@@ -362,23 +366,17 @@ export default function TransactionsPage() {
       <div className={styles.container}>
         {/* Empty State */}
         {paginatedTransactions.length === 0 ? (
-          <div className={styles.emptyState}>
-            {transactions.length === 0 ? (
-              <>
-                <h3 className={styles.emptyTitle}>No transactions yet</h3>
-                <p className={styles.emptyText}>
-                  Your transaction history will appear here once you start earning or making payments.
-                </p>
-              </>
-            ) : (
-              <>
-                <h3 className={styles.emptyTitle}>No transactions found</h3>
-                <p className={styles.emptyText}>
-                  No transactions match your current filters. Try adjusting your search or filters.
-                </p>
-              </>
-            )}
-          </div>
+          transactions.length === 0 ? (
+            <HubEmptyState
+              title="No transactions yet"
+              description="Your transaction history will appear here once you start earning or making payments."
+            />
+          ) : (
+            <HubEmptyState
+              title="No transactions found"
+              description="No transactions match your current filters. Try adjusting your search or filters."
+            />
+          )
         ) : (
           <>
             {/* Transactions List */}

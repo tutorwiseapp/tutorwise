@@ -2,6 +2,10 @@
  * Filename: src/app/(authenticated)/financials/page.module.css
  * Purpose: Styles for /financials hub page
  * Created: 2025-11-02
+ * Updated: 2025-12-03 - Migrated to HubEmptyState component, removed obsolete empty state styles
+ * Change History:
+ * C002 - 2025-12-03 : Migrated to HubEmptyState component, removed empty state styles (26 lines)
+ * C001 - 2025-11-29 : Migrated to Hub Layout Architecture, removed obsolete header/tab styles
  */
 
 .container {
@@ -91,33 +95,6 @@
   border-radius: 0.5rem;
   color: #991b1b;
   margin-bottom: 1rem;
-}
-
-/* Empty State */
-.emptyState {
-  text-align: center;
-  padding: 4rem 2rem;
-  background: white;
-  border: 1px solid var(--color-gray-300, #D1D1D1);
-  border-radius: 0.5rem;
-}
-
-.emptyIcon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-}
-
-.emptyTitle {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 0.5rem 0;
-}
-
-.emptyText {
-  font-size: 1rem;
-  color: #6b7280;
-  margin: 0;
 }
 
 /* Sidebar Content */
@@ -384,14 +361,6 @@
   .filterTab {
     padding: 0.5rem 1rem;
     font-size: 0.8125rem;
-  }
-
-  .emptyState {
-    padding: 3rem 1rem;
-  }
-
-  .emptyIcon {
-    font-size: 3rem;
   }
 
   .payoutsOverview {
