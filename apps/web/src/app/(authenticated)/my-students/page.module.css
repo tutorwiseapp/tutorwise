@@ -1,29 +1,15 @@
-/* My Students page styles (SDD v5.0) */
-/* Based on /network/page.module.css */
-
-/* Header */
-.header {
-  margin-bottom: 2rem;
-}
-
-.title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0 0 0.5rem 0;
-}
-
-.subtitle {
-  font-size: 1rem;
-  color: #6b7280;
-  margin: 0;
-}
+/*
+ * Filename: apps/web/src/app/(authenticated)/my-students/page.module.css
+ * Purpose: My Students page styles (SDD v5.0)
+ * Created: 2025-11-12
+ * Updated: 2025-12-03 - Migrated to HubEmptyState component, removed obsolete empty state styles
+ * Change History:
+ * C003 - 2025-12-03 : Migrated to HubEmptyState component, removed empty state styles (42 lines)
+ * C002 - 2025-11-29 : Migrated to Hub Layout Architecture, removed header/title styles
+ * C001 - 2025-11-12 : Initial creation based on /network/page.module.css
+ */
 
 /* Content wrapper */
-.content {
-  /* No extra padding - content flows naturally */
-}
-
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -96,49 +82,6 @@
 .studentsList {
   display: grid;
   gap: var(--space-3, 24px);
-}
-
-/* Empty State */
-.emptyState {
-  text-align: center;
-  padding: var(--space-6, 48px) var(--space-4, 32px);
-  background: white;
-  border: 1px solid var(--color-gray-300, #D1D1D1);
-  border-radius: 8px;
-}
-
-.emptyTitle {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-gray-700, #4B4B4B);
-  margin: 0 0 var(--space-2, 16px) 0;
-}
-
-.emptyText {
-  font-size: 1rem;
-  color: var(--color-gray-500, #8E8E8E);
-  margin: 0 0 var(--space-4, 32px) 0;
-  max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.emptyButton {
-  background: var(--color-primary-default, #006c67);
-  color: white;
-  border: none;
-  padding: var(--space-2, 16px) var(--space-4, 32px);
-  border-radius: var(--border-radius-md, 8px);
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.emptyButton:hover {
-  background: var(--color-primary-dark, #005550);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
 }
 
 /* Error State */
@@ -293,14 +236,6 @@
 
 /* Mobile Responsive */
 @media (max-width: 767px) {
-  .title {
-    font-size: 1.5rem;
-  }
-
-  .subtitle {
-    font-size: 0.875rem;
-  }
-
   .filterTabs {
     margin-left: -1rem;
     margin-right: -1rem;
@@ -314,16 +249,7 @@
     font-size: 0.8125rem;
   }
 
-  .emptyState,
   .errorState {
     padding: var(--space-4, 32px) var(--space-2, 16px);
-  }
-
-  .emptyTitle {
-    font-size: 1.25rem;
-  }
-
-  .emptyText {
-    font-size: 0.875rem;
   }
 }

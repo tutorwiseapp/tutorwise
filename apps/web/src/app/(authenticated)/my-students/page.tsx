@@ -2,8 +2,12 @@
  * Filename: apps/web/src/app/(authenticated)/my-students/page.tsx
  * Purpose: My Students page - Guardian Link management (SDD v5.0)
  * Created: 2025-11-12
- * Updated: 2025-11-29 - Migrated to Hub Layout Architecture with HubPageLayout, HubHeader, HubTabs, HubPagination
+ * Updated: 2025-12-03 - Migrated to HubEmptyState component (Phase 2 migration complete)
  * Based on: /network/page.tsx (Hub Architecture)
+ * Change History:
+ * C003 - 2025-12-03 : Migrated to HubEmptyState component, removed custom empty state markup
+ * C002 - 2025-11-29 : Migrated to Hub Layout Architecture with HubPageLayout, HubHeader, HubTabs, HubPagination
+ * C001 - 2025-11-12 : Initial creation
  */
 
 'use client';
@@ -19,6 +23,7 @@ import StudentInviteModal from '@/app/components/feature/students/StudentInviteM
 import StudentStatsWidget from '@/app/components/feature/students/StudentStatsWidget';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
+import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import type { HubTab } from '@/app/components/hub/layout';
 import Button from '@/app/components/ui/actions/Button';
 import toast from 'react-hot-toast';
@@ -420,29 +425,27 @@ export default function MyStudentsPage() {
       <div className={styles.container}>
         {/* Content */}
         {filteredStudents.length === 0 ? (
-          <div className={styles.emptyState}>
-            {students.length === 0 ? (
-              <>
-                <h3 className={styles.emptyTitle}>{emptyStateTitle}</h3>
-                <p className={styles.emptyText}>{emptyStateMessage}</p>
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className={styles.emptyButton}
-                >
-                  Add Your First Student
-                </button>
-              </>
-            ) : (
-              <>
-                <h3 className={styles.emptyTitle}>No students found</h3>
-                <p className={styles.emptyText}>
-                  {activeTab === 'recently-added' && 'No students have been added in the last 7 days.'}
-                  {activeTab === 'with-integrations' && 'No students have connected integrations yet.'}
-                  {searchQuery && `No students match "${searchQuery}"`}
-                </p>
-              </>
-            )}
-          </div>
+          students.length === 0 ? (
+            <HubEmptyState
+              title={emptyStateTitle}
+              description={emptyStateMessage}
+              actionLabel="Add Your First Student"
+              onAction={() => setIsModalOpen(true)}
+            />
+          ) : (
+            <HubEmptyState
+              title="No students found"
+              description={
+                activeTab === 'recently-added'
+                  ? 'No students have been added in the last 7 days.'
+                  : activeTab === 'with-integrations'
+                  ? 'No students have connected integrations yet.'
+                  : searchQuery
+                  ? `No students match "${searchQuery}"`
+                  : 'No students found for the selected filter.'
+              }
+            />
+          )
         ) : (
           <>
             <div className={styles.studentsList}>
