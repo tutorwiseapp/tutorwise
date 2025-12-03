@@ -15,3 +15,8 @@
   flex-direction: column;
   gap: 1rem;
 }
+
+.referralHeader {
+  height: 14rem;
+  margin-top: -3rem;
+}
