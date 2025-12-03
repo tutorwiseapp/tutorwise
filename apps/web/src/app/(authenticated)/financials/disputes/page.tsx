@@ -9,7 +9,7 @@
  */
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
@@ -38,6 +38,7 @@ export default function DisputesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [dateRange, setDateRange] = useState<DateRangeType>('all');
   const [showActionsMenu, setShowActionsMenu] = useState(false);
+  const [hasShownError, setHasShownError] = useState(false);
 
   // Read filter from URL
   const statusFilter = (searchParams?.get('status') as DisputeStatus) || 'all';
@@ -57,6 +58,15 @@ export default function DisputesPage() {
 
   const disputes = data?.transactions || [];
   const balances = data?.balances || { available: 0, pending: 0, total: 0 };
+
+  // Show error banner only once to prevent flashing (like Messages page)
+  useEffect(() => {
+    if (error && !hasShownError) {
+      setHasShownError(true);
+    } else if (!error && hasShownError) {
+      setHasShownError(false);
+    }
+  }, [error, hasShownError]);
 
   // Update URL when filter changes
   const handleFilterChange = (newStatus: DisputeStatus) => {
@@ -304,10 +314,10 @@ export default function DisputesPage() {
         </HubSidebar>
       }
     >
-      {/* Error State */}
-      {error && (
-        <div className={styles.error}>
-          <p>{error instanceof Error ? error.message : 'Failed to load disputes'}</p>
+      {/* Subtle Error Banner (like Messages page) */}
+      {hasShownError && (
+        <div className={styles.errorBanner}>
+          <p>⚠️ Unable to load disputes</p>
         </div>
       )}
 

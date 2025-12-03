@@ -87,14 +87,20 @@
   font-size: 1rem;
 }
 
-/* Error State */
-.error {
-  padding: 1rem;
+/* Subtle Error Banner (matches Messages page) */
+.errorBanner {
+  padding: 0.625rem 1rem;
   background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 0.5rem;
+  border-left: 3px solid #f87171;
+  margin: 0.75rem 0;
+  border-radius: 0.25rem;
+}
+
+.errorBanner p {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
   color: #991b1b;
-  margin-bottom: 1rem;
 }
 
 /* Sidebar Content */
