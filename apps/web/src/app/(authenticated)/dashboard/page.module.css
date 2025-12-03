@@ -1,9 +1,10 @@
 /*
  * Filename: src/app/(authenticated)/dashboard/page.module.css
  * Purpose: Dashboard hub page styles - role-specific cards and mobile-first responsive design
- * UPDATED: 2025-11-08 - Refactored to match other hub pages (container pattern)
+ * UPDATED: 2025-12-03 - Migrated to Hub Layout Architecture, removed obsolete header/container styles
  *
  * Change History:
+ * C007 - 2025-12-03 : Migrated to Hub Layout Architecture - removed .container, .header, .title (now in HubHeader)
  * C006 - 2025-11-08 : Removed .unifiedHub wrapper, using .container pattern like other hubs
  * C005 - 2025-11-08 : Added unified hub layout with AppSidebar + Center + ContextualSidebar
  * C004 - 2025-10-20 : Added mobile-first responsive spacing and typography
@@ -12,27 +13,11 @@
  * C001 - [Date] : [Time] - Initial creation.
  */
 
-/* Container - matches pattern from other hub pages */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* Header Section */
-.header {
-  margin-bottom: 2rem;
-}
-
-.title {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-}
-
+/* Welcome subtitle */
 .subtitle {
   font-size: 1rem;
   color: var(--text-secondary);
+  margin-bottom: 2rem;
 }
 
 /* Mobile-first grid layout for dashboard cards */

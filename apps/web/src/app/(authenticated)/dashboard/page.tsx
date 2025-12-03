@@ -2,13 +2,14 @@
  * Filename: src/app/(authenticated)/dashboard/page.tsx
  * Purpose: Dashboard hub page with role-specific navigation cards and aggregated stats
  * Change History:
+ * C013 - 2025-12-03 : Migrated to Hub Layout Architecture (HubPageLayout + HubHeader)
  * C012 - 2025-11-08 : 14:00 - Moved into (authenticated) folder, removed duplicate AppSidebar
  * C011 - 2025-11-08 : 12:00 - Transformed into unified hub with aggregated stats sidebar
  * C010 - 2025-09-01 : 19:00 - Replaced Kinde hook with useUserProfile to get full profile data.
  * C009 - 2025-08-26 : 19:00 - Converted from Server Component to Client Component.
- * Last Modified: 2025-11-08 : 14:00
+ * Last Modified: 2025-12-03
  * Requirement ID: VIN-APP-01
- * Change Summary: Fixed UI duplication by moving into (authenticated) folder. AppSidebar now rendered by parent layout. Dashboard renders only center content + HubSidebar.
+ * Change Summary: Migrated to use HubPageLayout and HubHeader for consistent UX. Dashboard-specific grid layout preserved.
  */
 'use client';
 
@@ -16,10 +17,10 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import DashboardStatsWidget from '@/app/components/feature/dashboard/DashboardStatsWidget';
 import { PendingLogsWidget } from '@/app/components/feature/dashboard/PendingLogsWidget';
-import PageHeader from '@/app/components/ui/data-display/PageHeader';
 import styles from './page.module.css';
 
 // Role-specific dashboard links (SDD v3.6 - prioritized order)
@@ -79,9 +80,11 @@ const DashboardPage = () => {
   // Show loading while checking authentication and onboarding status
   if (isLoading || !profile || needsOnboarding) {
     return (
-      <div className={styles.container}>
+      <HubPageLayout
+        header={<HubHeader title="Dashboard" />}
+      >
         <p className={styles.loading}>Loading...</p>
-      </div>
+      </HubPageLayout>
     );
   }
 
@@ -110,48 +113,44 @@ const DashboardPage = () => {
 
   const dashboardLinks = getDashboardLinks(activeRole);
 
-  // Welcome message for new users
-  const getWelcomeMessage = () => {
-    switch (activeRole) {
-      case 'tutor':
-        return 'Ready to start teaching? Create your first listing to connect with students!';
-      case 'client':
-        return 'Find the perfect tutor to help you achieve your learning goals!';
-      case 'agent':
-        return 'Start referring services and earning commissions!';
-      default:
-        return 'Your dashboard is ready to use!';
-    }
-  };
-
   return (
-    <>
-      {/* Center Column - Dashboard Cards */}
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>{getDashboardTitle()}</h1>
-          <p className={styles.subtitle}>Welcome, {firstName} ({getFormattedRole()})</p>
-        </div>
+    <HubPageLayout
+      header={
+        <HubHeader
+          title={getDashboardTitle()}
+        />
+      }
+      tabs={
+        <HubTabs
+          tabs={[
+            { id: 'overview', label: 'Overview', active: true }
+          ]}
+          onTabChange={() => {}}  // Single tab, no switching needed
+        />
+      }
+      sidebar={
+        <HubSidebar>
+          {/* WiseSpace v5.8: Pending Actions widget for tutors */}
+          {(activeRole === 'tutor' || activeRole === 'agent') && <PendingLogsWidget />}
+          <DashboardStatsWidget />
+        </HubSidebar>
+      }
+    >
+      {/* Welcome message */}
+      <p className={styles.subtitle}>Welcome, {firstName} ({getFormattedRole()})</p>
 
-        <div className={styles.grid}>
-          {dashboardLinks.map((link) => (
-            <Link key={link.href} href={link.href} className={styles.gridCard}>
-              <div className={styles.cardContent}>
-                <h3>{link.title}</h3>
-                <p>{link.description}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
+      {/* Dashboard Cards Grid */}
+      <div className={styles.grid}>
+        {dashboardLinks.map((link) => (
+          <Link key={link.href} href={link.href} className={styles.gridCard}>
+            <div className={styles.cardContent}>
+              <h3>{link.title}</h3>
+              <p>{link.description}</p>
+            </div>
+          </Link>
+        ))}
       </div>
-
-      {/* Right Sidebar - Aggregated Stats */}
-      <HubSidebar>
-        {/* WiseSpace v5.8: Pending Actions widget for tutors */}
-        {(activeRole === 'tutor' || activeRole === 'agent') && <PendingLogsWidget />}
-        <DashboardStatsWidget />
-      </HubSidebar>
-    </>
+    </HubPageLayout>
   );
 };
 
