@@ -312,12 +312,7 @@ export default function DisputesPage() {
       )}
 
       {/* Disputes List - HubRowCard with client avatars */}
-      <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>
-          {statusFilter === 'all' ? 'Disputed Transactions' : `${statusFilter.replace('_', ' ').charAt(0).toUpperCase()}${statusFilter.replace('_', ' ').slice(1)} Disputes`}
-        </h2>
-
-        {filteredDisputes.length === 0 ? (
+      {filteredDisputes.length === 0 ? (
           disputes.length === 0 ? (
             <HubEmptyState
               title="No disputes yet"
@@ -379,7 +374,6 @@ export default function DisputesPage() {
             })}
           </div>
         )}
-      </div>
     </HubPageLayout>
   );
 }

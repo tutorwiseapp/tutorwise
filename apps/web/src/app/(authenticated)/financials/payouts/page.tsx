@@ -349,12 +349,7 @@ export default function PayoutsPage() {
       )}
 
       {/* Payout History - HubRowCard List */}
-      <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>
-          {statusFilter === 'all' ? 'Payout History' : `${statusFilter.replace('_', ' ').charAt(0).toUpperCase()}${statusFilter.replace('_', ' ').slice(1)} Payouts`}
-        </h2>
-
-        {filteredPayouts.length === 0 ? (
+      {filteredPayouts.length === 0 ? (
           payouts.length === 0 ? (
             <HubEmptyState
               title="No payouts yet"
@@ -399,7 +394,6 @@ export default function PayoutsPage() {
             ))}
           </div>
         )}
-      </div>
     </HubPageLayout>
   );
 }
