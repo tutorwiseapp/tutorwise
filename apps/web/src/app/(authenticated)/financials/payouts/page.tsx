@@ -21,6 +21,8 @@ import HubRowCard from '@/app/components/hub/content/HubRowCard/HubRowCard';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import WalletBalanceWidget from '@/app/components/feature/financials/WalletBalanceWidget';
 import PayoutHelpWidget from '@/app/components/feature/financials/PayoutHelpWidget';
+import PayoutTipWidget from '@/app/components/feature/financials/PayoutTipWidget';
+import PayoutVideoWidget from '@/app/components/feature/financials/PayoutVideoWidget';
 import Button from '@/app/components/ui/actions/Button';
 import { Transaction } from '@/types';
 import toast from 'react-hot-toast';
@@ -317,6 +319,8 @@ export default function PayoutsPage() {
             total={balances.total}
           />
           <PayoutHelpWidget />
+          <PayoutTipWidget />
+          <PayoutVideoWidget />
         </HubSidebar>
       }
     >
