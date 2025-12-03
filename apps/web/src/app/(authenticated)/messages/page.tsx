@@ -2,8 +2,12 @@
  * Filename: apps/web/src/app/(authenticated)/messages/page.tsx
  * Purpose: Messages Hub - 2-Way Chat with Split-Pane Layout
  * Created: 2025-11-08
- * Updated: 2025-11-24 - Complete rewrite with Split-Pane layout and new components
+ * Updated: 2025-12-03 - Migrated to Hub Layout Architecture (Phase 2 migration complete)
  * Specification: Real-time chat with Split-Pane design (30% List / 70% Thread)
+ * Change History:
+ * C003 - 2025-12-03 : Migrated to HubPageLayout with custom split-pane content
+ * C002 - 2025-11-24 : Complete rewrite with Split-Pane layout and new components
+ * C001 - 2025-11-08 : Initial creation
  */
 
 'use client';
@@ -15,10 +19,13 @@ import { getConversations, type Conversation } from '@/lib/api/messages';
 import { useAblyPresenceBroadcast } from '@/app/hooks/useAblyPresence';
 import ConversationList from '@/app/components/feature/messages/ConversationList';
 import ChatThread from '@/app/components/feature/messages/ChatThread';
+import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import InboxStatsWidget from '@/app/components/feature/messages/InboxStatsWidget';
 import AvailabilityWidget from '@/app/components/feature/messages/AvailabilityWidget';
 import ChatContextWidget from '@/app/components/feature/messages/ChatContextWidget';
+import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
+import type { HubTab } from '@/app/components/hub/layout';
 import styles from './page.module.css';
 
 type FilterTab = 'all' | 'unread' | 'archived';
@@ -81,6 +88,13 @@ export default function MessagesPage() {
   const totalUnread = conversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
   const activeChats = conversations.length;
 
+  // Prepare tabs data
+  const tabs: HubTab[] = [
+    { id: 'all', label: 'All', active: activeTab === 'all' },
+    { id: 'unread', label: 'Unread', count: totalUnread, active: activeTab === 'unread' },
+    { id: 'archived', label: 'Archived', active: activeTab === 'archived' },
+  ];
+
   // Handle conversation selection
   const handleSelectConversation = (conversationId: string) => {
     setSelectedConversationId(conversationId);
@@ -106,18 +120,17 @@ export default function MessagesPage() {
 
   if (profileLoading || isLoading) {
     return (
-      <>
-        <div className={styles.container}>
-          <div className={styles.header}>
-            <h1 className={styles.title}>Messages</h1>
-            <p className={styles.subtitle}>Loading conversations...</p>
-          </div>
-        </div>
-        <HubSidebar>
-          <InboxStatsWidget unreadCount={0} activeChats={0} archivedCount={0} />
-          {profile && <AvailabilityWidget currentUserId={profile.id} />}
-        </HubSidebar>
-      </>
+      <HubPageLayout
+        header={<HubHeader title="Messages" />}
+        sidebar={
+          <HubSidebar>
+            <InboxStatsWidget unreadCount={0} activeChats={0} archivedCount={0} />
+            {profile && <AvailabilityWidget currentUserId={profile.id} />}
+          </HubSidebar>
+        }
+      >
+        <p className={styles.loading}>Loading conversations...</p>
+      </HubPageLayout>
     );
   }
 
@@ -128,40 +141,31 @@ export default function MessagesPage() {
   }
 
   return (
-    <>
-      {/* Page Header */}
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>Messages</h1>
-          <p className={styles.subtitle}>Chat with your connections in real-time</p>
-        </div>
-      </div>
-
-      {/* Filter Tabs */}
-      <div className={styles.filterTabs}>
-        <button
-          className={`${styles.filterTab} ${activeTab === 'all' ? styles.filterTabActive : ''}`}
-          onClick={() => setActiveTab('all')}
-        >
-          All
-        </button>
-        <button
-          className={`${styles.filterTab} ${activeTab === 'unread' ? styles.filterTabActive : ''}`}
-          onClick={() => setActiveTab('unread')}
-        >
-          Unread
-          {totalUnread > 0 && (
-            <span className={styles.tabBadge}>{totalUnread}</span>
+    <HubPageLayout
+      header={<HubHeader title="Messages" />}
+      tabs={
+        <HubTabs
+          tabs={tabs}
+          onTabChange={(tabId) => setActiveTab(tabId as FilterTab)}
+        />
+      }
+      sidebar={
+        <HubSidebar>
+          {selectedConversation ? (
+            <ChatContextWidget otherUser={selectedConversation.otherUser} />
+          ) : (
+            <>
+              <InboxStatsWidget
+                unreadCount={totalUnread}
+                activeChats={activeChats}
+                archivedCount={0}
+              />
+              <AvailabilityWidget currentUserId={profile.id} />
+            </>
           )}
-        </button>
-        <button
-          className={`${styles.filterTab} ${activeTab === 'archived' ? styles.filterTabActive : ''}`}
-          onClick={() => setActiveTab('archived')}
-        >
-          Archived
-        </button>
-      </div>
-
+        </HubSidebar>
+      }
+    >
       {/* Main Content: Split-Pane Layout */}
       <div className={styles.splitPane}>
         {/* Left Pane: Conversation List (30%) */}
@@ -192,30 +196,13 @@ export default function MessagesPage() {
               onBack={isMobileThreadView ? handleBack : undefined}
             />
           ) : (
-            <div className={styles.noSelection}>
-              <p className={styles.noSelectionText}>
-                Select a conversation to start chatting
-              </p>
-            </div>
+            <HubEmptyState
+              title="No conversation selected"
+              description="Select a conversation to start chatting"
+            />
           )}
         </div>
       </div>
-
-      {/* Contextual Sidebar (Right Column) */}
-      <HubSidebar>
-        {selectedConversation ? (
-          <ChatContextWidget otherUser={selectedConversation.otherUser} />
-        ) : (
-          <>
-            <InboxStatsWidget
-              unreadCount={totalUnread}
-              activeChats={activeChats}
-              archivedCount={0}
-            />
-            <AvailabilityWidget currentUserId={profile.id} />
-          </>
-        )}
-      </HubSidebar>
-    </>
+    </HubPageLayout>
   );
 }

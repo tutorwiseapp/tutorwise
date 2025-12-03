@@ -2,7 +2,11 @@
  * Filename: apps/web/src/app/(authenticated)/messages/page.module.css
  * Purpose: Styles for Messages Hub with Split-Pane Layout
  * Created: 2025-11-08
- * Updated: 2025-11-24 - Complete rewrite for Split-Pane design
+ * Updated: 2025-12-03 - Migrated to Hub Layout Architecture, removed obsolete header/tab/empty state styles
+ * Change History:
+ * C003 - 2025-12-03 : Migrated to HubPageLayout, removed header/tabs/container/noSelection styles (95 lines)
+ * C002 - 2025-11-24 : Complete rewrite for Split-Pane design
+ * C001 - 2025-11-08 : Initial creation
  */
 
 /* Split-Pane Layout (Desktop) - Auto-height like WhatsApp */
@@ -42,106 +46,11 @@
   width: 100%;
 }
 
-/* Container (Hero Section) */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* Header Styles */
-.header {
-  margin-bottom: 2rem;
-}
-
-/* Filter Tabs - Underline Style with Teal */
-.filterTabs {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
-  border-bottom: 2px solid #e5e7eb;
-  padding-bottom: 0;
-  overflow-x: auto;
-  /* Full width - escape mainContent padding with negative margins */
-  margin-left: -2rem;
-  margin-right: -2rem;
-  padding-left: 2rem;
-  padding-right: 2rem;
-  width: calc(100% + 4rem);
-}
-
-.filterTab {
-  padding: 0.75rem 1.5rem;
-  background: none;
-  border: none;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-gray-700, #4B4B4B);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.filterTab:hover {
-  color: var(--color-primary-default, #006c67);
-  background-color: var(--color-primary-light, #E6F0F0);
-  border-radius: 0.375rem 0.375rem 0 0;
-}
-
-.filterTabActive {
-  color: var(--color-primary-default, #006c67);
-  border-bottom-color: var(--color-primary-default, #006c67);
-  font-weight: 600;
-}
-
-.tabBadge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 1.125rem;
-  height: 1.125rem;
-  padding: 0 0.25rem;
-  background-color: #f59e0b;
-  color: white;
-  font-size: 0.625rem;
-  font-weight: 700;
-  border-radius: 9999px;
-  margin-left: 0.25rem;
-}
-
-.title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0 0 0.5rem 0;
-}
-
-.subtitle {
-  font-size: 1rem;
-  color: #6b7280;
-  margin: 0;
-}
-
-/* No Selection State */
-.noSelection {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 3rem 2rem;
+/* Loading State */
+.loading {
   text-align: center;
-  background-color: #f9fafb;
-}
-
-.noSelectionText {
-  font-size: 0.9375rem;
+  padding: 3rem;
   color: #6b7280;
-  margin: 0;
 }
 
 /* Error State - Small, subtle banner */
@@ -187,15 +96,6 @@
     width: 100%;
     height: 100%;
   }
-
-  .title {
-    font-size: 1.25rem;
-  }
-
-  .subtitle {
-    font-size: 0.8125rem;
-  }
-
 }
 
 /* Tablet Responsive (768px - 1024px) */
