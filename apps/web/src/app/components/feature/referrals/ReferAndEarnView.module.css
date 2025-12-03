@@ -263,8 +263,34 @@
     padding: 1.25rem;
   }
 
+  /* Make input (referral link) responsive while maintaining square shape */
+  .input {
+    width: 100%;
+    max-width: 280px;
+    height: 280px;
+    font-size: 0.875rem;
+    padding: 1.5rem;
+  }
+
+  /* Make QR container responsive */
   .qrContainer {
-    max-width: 200px;
+    width: 100%;
+    max-width: 280px;
+    height: 280px;
+  }
+
+  /* Make code block responsive while maintaining square-ish shape */
+  .codeBlock {
+    width: 100%;
+    max-width: 280px;
+    min-height: 280px;
+    height: auto;
+    padding: 1.5rem;
+  }
+
+  .embedCode {
+    font-size: 0.6875rem;
+    line-height: 1.8;
   }
 
   .actionButtons {
