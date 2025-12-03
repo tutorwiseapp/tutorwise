@@ -21,7 +21,7 @@ export default function ReferralVideoWidget() {
       <h3 className={styles.title}>Video Tutorial</h3>
       <div className={styles.content}>
         <p className={styles.text}>
-          🎥 Watch our video guide on maximizing your referral earnings.
+          Watch our video guide on maximizing your referral earnings.
         </p>
         <p className={styles.placeholder}>
           [Video content coming soon]

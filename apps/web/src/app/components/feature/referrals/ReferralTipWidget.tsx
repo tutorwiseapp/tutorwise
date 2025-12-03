@@ -21,7 +21,7 @@ export default function ReferralTipWidget() {
       <h3 className={styles.title}>Referral Tips</h3>
       <div className={styles.content}>
         <p className={styles.text}>
-          💡 Share your referral link on social media to reach more people and increase your earnings.
+          Share your referral link on social media to reach more people and increase your earnings.
         </p>
       </div>
     </HubComplexCard>
