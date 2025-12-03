@@ -9,8 +9,6 @@
 
 import React from 'react';
 import HubStatsCard, { StatRow } from '@/app/components/hub/sidebar/cards/HubStatsCard';
-import HubComplexCard from '@/app/components/hub/sidebar/cards/HubComplexCard';
-import styles from './WalletBalanceWidget.module.css';
 
 interface WalletBalanceWidgetProps {
   available: number;
@@ -37,18 +35,5 @@ export default function WalletBalanceWidget({ available, pending, total }: Walle
     },
   ];
 
-  return (
-    <>
-      <HubStatsCard title="Wallet Balance" stats={stats} />
-
-      {/* Info note widget */}
-      <HubComplexCard>
-        <div className={styles.balanceNote}>
-          <p className={styles.noteText}>
-            Funds become available 7 days after service completion
-          </p>
-        </div>
-      </HubComplexCard>
-    </>
-  );
+  return <HubStatsCard title="Wallet Balance" stats={stats} />;
 }
