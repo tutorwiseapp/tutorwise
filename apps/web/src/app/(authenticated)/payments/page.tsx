@@ -32,6 +32,8 @@ import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import Card from '@/app/components/ui/data-display/Card';
 import { getErrorMessage } from '@/lib/utils/getErrorMessage';
 import PaymentHelpWidget from '@/app/components/feature/payments/PaymentHelpWidget';
+import PaymentTipWidget from '@/app/components/feature/payments/PaymentTipWidget';
+import PaymentVideoWidget from '@/app/components/feature/payments/PaymentVideoWidget';
 import styles from './page.module.css';
 
 const PaymentsPageContent = () => {
@@ -244,6 +246,8 @@ const PaymentsPageContent = () => {
                 sidebar={
                     <HubSidebar>
                         <PaymentHelpWidget />
+                        <PaymentTipWidget />
+                        <PaymentVideoWidget />
                     </HubSidebar>
                 }
             >
@@ -259,6 +263,8 @@ const PaymentsPageContent = () => {
                 sidebar={
                     <HubSidebar>
                         <PaymentHelpWidget />
+                        <PaymentTipWidget />
+                        <PaymentVideoWidget />
                     </HubSidebar>
                 }
             >
@@ -284,6 +290,8 @@ const PaymentsPageContent = () => {
             sidebar={
                 <HubSidebar>
                     <PaymentHelpWidget />
+                    <PaymentTipWidget />
+                    <PaymentVideoWidget />
                 </HubSidebar>
             }
         >
@@ -408,6 +416,8 @@ const PaymentsPage = () => {
                 sidebar={
                     <HubSidebar>
                         <PaymentHelpWidget />
+                        <PaymentTipWidget />
+                        <PaymentVideoWidget />
                     </HubSidebar>
                 }
             >
