@@ -163,24 +163,24 @@ export default function ReferralsPage() {
   }, [referrals]);
 
   // Calculate counts for each status
-  const statusCounts = useMemo(() => {
+  const tabCounts = useMemo(() => {
     return {
       all: referrals.length,
-      Referred: referrals.filter((r: any) => r.status === 'Referred').length,
-      'Signed Up': referrals.filter((r: any) => r.status === 'Signed Up').length,
-      Converted: referrals.filter((r: any) => r.status === 'Converted').length,
-      Expired: referrals.filter((r: any) => r.status === 'Expired').length,
+      referred: referrals.filter((r: any) => r.status === 'Referred').length,
+      signedUp: referrals.filter((r: any) => r.status === 'Signed Up').length,
+      converted: referrals.filter((r: any) => r.status === 'Converted').length,
+      expired: referrals.filter((r: any) => r.status === 'Expired').length,
     };
   }, [referrals]);
 
-  // Prepare tabs data with count badges
+  // Prepare tabs data with count property (HubTabs will format as "Label (count)")
   const tabs: HubTab[] = [
     { id: 'refer-and-earn', label: 'Refer & Earn', active: activeTab === 'refer-and-earn' },
-    { id: 'all', label: `All Leads (${statusCounts.all})`, active: activeTab === 'leads' && statusFilter === 'all' },
-    { id: 'Referred', label: `Referred (${statusCounts.Referred})`, active: activeTab === 'leads' && statusFilter === 'Referred' },
-    { id: 'Signed Up', label: `Signed Up (${statusCounts['Signed Up']})`, active: activeTab === 'leads' && statusFilter === 'Signed Up' },
-    { id: 'Converted', label: `Converted (${statusCounts.Converted})`, active: activeTab === 'leads' && statusFilter === 'Converted' },
-    { id: 'Expired', label: `Expired (${statusCounts.Expired})`, active: activeTab === 'leads' && statusFilter === 'Expired' },
+    { id: 'all', label: 'All Leads', count: tabCounts.all, active: activeTab === 'leads' && statusFilter === 'all' },
+    { id: 'Referred', label: 'Referred', count: tabCounts.referred, active: activeTab === 'leads' && statusFilter === 'Referred' },
+    { id: 'Signed Up', label: 'Signed Up', count: tabCounts.signedUp, active: activeTab === 'leads' && statusFilter === 'Signed Up' },
+    { id: 'Converted', label: 'Converted', count: tabCounts.converted, active: activeTab === 'leads' && statusFilter === 'Converted' },
+    { id: 'Expired', label: 'Expired', count: tabCounts.expired, active: activeTab === 'leads' && statusFilter === 'Expired' },
   ];
 
   // Action handlers (placeholder for now)
