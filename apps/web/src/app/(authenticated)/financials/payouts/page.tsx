@@ -20,7 +20,6 @@ import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubRowCard from '@/app/components/hub/content/HubRowCard/HubRowCard';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import WalletBalanceWidget from '@/app/components/feature/financials/WalletBalanceWidget';
-import PayoutActionsWidget from '@/app/components/feature/financials/PayoutActionsWidget';
 import PayoutHelpWidget from '@/app/components/feature/financials/PayoutHelpWidget';
 import Button from '@/app/components/ui/actions/Button';
 import { Transaction } from '@/types';
@@ -317,7 +316,6 @@ export default function PayoutsPage() {
             pending={balances.pending}
             total={balances.total}
           />
-          <PayoutActionsWidget availableBalance={balances.available} />
           <PayoutHelpWidget />
         </HubSidebar>
       }
