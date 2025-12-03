@@ -10,7 +10,7 @@
 import React, { useState } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
 import toast from 'react-hot-toast';
-import { MessageCircle, Facebook, Linkedin } from 'lucide-react';
+import { FaWhatsapp, FaFacebook, FaLinkedin } from 'react-icons/fa';
 import Button from '@/app/components/ui/actions/Button';
 import styles from './ReferAndEarnView.module.css';
 
@@ -186,7 +186,7 @@ export default function ReferAndEarnView({ referralCode }: ReferAndEarnViewProps
           size="md"
           onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`Join Tutorwise! ${referralUrl}`)}`, '_blank')}
         >
-          <MessageCircle size={18} style={{ marginRight: '8px' }} />
+          <FaWhatsapp size={18} style={{ marginRight: '8px' }} />
           Refer on WhatsApp
         </Button>
         <Button
@@ -194,7 +194,7 @@ export default function ReferAndEarnView({ referralCode }: ReferAndEarnViewProps
           size="md"
           onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralUrl)}`, '_blank')}
         >
-          <Facebook size={18} style={{ marginRight: '8px' }} />
+          <FaFacebook size={18} style={{ marginRight: '8px' }} />
           Refer on Facebook
         </Button>
         <Button
@@ -202,7 +202,7 @@ export default function ReferAndEarnView({ referralCode }: ReferAndEarnViewProps
           size="md"
           onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(referralUrl)}`, '_blank')}
         >
-          <Linkedin size={18} style={{ marginRight: '8px' }} />
+          <FaLinkedin size={18} style={{ marginRight: '8px' }} />
           Refer on LinkedIn
         </Button>
       </div>
