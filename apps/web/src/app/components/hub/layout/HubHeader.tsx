@@ -25,13 +25,14 @@ interface HubHeaderProps {
   subtitle?: string; // Optional subtitle below title
   filters?: ReactNode; // Optional centered filters row (search/sort)
   actions?: ReactNode; // Right slot (buttons/menu)
+  className?: string; // Optional custom className for headerRow
 }
 
-export default function HubHeader({ title, subtitle, filters, actions }: HubHeaderProps) {
+export default function HubHeader({ title, subtitle, filters, actions, className }: HubHeaderProps) {
   return (
     <header className={styles.header}>
       {/* Row 1: Title + Actions */}
-      <div className={styles.headerRow}>
+      <div className={`${styles.headerRow} ${className || ''}`}>
         {/* Left: Title */}
         <div className={styles.titleSection}>
           <h1 className={styles.title}>
