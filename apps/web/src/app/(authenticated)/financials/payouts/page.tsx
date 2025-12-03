@@ -9,9 +9,11 @@
  */
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { getPayouts } from '@/lib/api/financials';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
@@ -31,23 +33,31 @@ type PayoutStatus = 'pending' | 'in_transit' | 'paid' | 'failed' | 'all';
 type DateRangeType = 'all' | '7days' | '30days' | '3months' | '6months' | '1year';
 
 export default function PayoutsPage() {
-  const { profile } = useUserProfile();
+  const { profile, isLoading: profileLoading } = useUserProfile();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [payouts, setPayouts] = useState<Transaction[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [balances, setBalances] = useState({
-    available: 0,
-    pending: 0,
-    total: 0,
-  });
   const [searchQuery, setSearchQuery] = useState('');
   const [dateRange, setDateRange] = useState<DateRangeType>('all');
   const [showActionsMenu, setShowActionsMenu] = useState(false);
 
   // Read filter from URL
   const statusFilter = (searchParams?.get('status') as PayoutStatus) || 'all';
+
+  // Fetch payouts with React Query
+  const {
+    data,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['payouts', profile?.id],
+    queryFn: getPayouts,
+    enabled: !!profile && !profileLoading,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  const payouts = data?.transactions || [];
+  const balances = data?.balances || { available: 0, pending: 0, total: 0 };
 
   // Update URL when filter changes
   const handleFilterChange = (newStatus: PayoutStatus) => {
@@ -59,34 +69,6 @@ export default function PayoutsPage() {
     }
     router.push(`/financials/payouts${params.toString() ? `?${params.toString()}` : ''}`);
   };
-
-  useEffect(() => {
-    if (!profile) return;
-
-    const fetchPayouts = async () => {
-      try {
-        setIsLoading(true);
-
-        // Fetch payout history (Withdrawal transactions)
-        const response = await fetch(`/api/financials?type=Withdrawal`);
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch payouts');
-        }
-
-        const data = await response.json();
-        setPayouts(data.transactions || []);
-        setBalances(data.balances || { available: 0, pending: 0, total: 0 });
-      } catch (err) {
-        console.error('Error fetching payouts:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load payouts');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchPayouts();
-  }, [profile]);
 
   // Client-side filtering based on URL param + search + date range
   const filteredPayouts = useMemo(() => {
@@ -223,7 +205,7 @@ export default function PayoutsPage() {
   if (isLoading) {
     return (
       <HubPageLayout
-        header={<HubHeader title="Payouts" subtitle="Manage withdrawals and view payout history" />}
+        header={<HubHeader title="Payouts" />}
         sidebar={
           <HubSidebar>
             <div className={styles.skeletonWidget} />
@@ -240,7 +222,6 @@ export default function PayoutsPage() {
       header={
         <HubHeader
           title="Payouts"
-          subtitle="Manage withdrawals and view payout history"
           filters={
             <div className={filterStyles.filtersContainer}>
               {/* Search Input */}
@@ -332,7 +313,7 @@ export default function PayoutsPage() {
       {/* Error State */}
       {error && (
         <div className={styles.error}>
-          <p>{error}</p>
+          <p>{error instanceof Error ? error.message : 'Failed to load payouts'}</p>
         </div>
       )}
 

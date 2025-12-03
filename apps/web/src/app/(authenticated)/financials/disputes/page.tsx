@@ -9,9 +9,11 @@
  */
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { getDisputes } from '@/lib/api/financials';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
@@ -30,23 +32,31 @@ type DisputeStatus = 'action_required' | 'under_review' | 'won' | 'lost' | 'all'
 type DateRangeType = 'all' | '7days' | '30days' | '3months' | '6months' | '1year';
 
 export default function DisputesPage() {
-  const { profile } = useUserProfile();
+  const { profile, isLoading: profileLoading } = useUserProfile();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [disputes, setDisputes] = useState<Transaction[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [balances, setBalances] = useState({
-    available: 0,
-    pending: 0,
-    total: 0,
-  });
   const [searchQuery, setSearchQuery] = useState('');
   const [dateRange, setDateRange] = useState<DateRangeType>('all');
   const [showActionsMenu, setShowActionsMenu] = useState(false);
 
   // Read filter from URL
   const statusFilter = (searchParams?.get('status') as DisputeStatus) || 'all';
+
+  // Fetch disputes with React Query
+  const {
+    data,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['disputes', profile?.id],
+    queryFn: getDisputes,
+    enabled: !!profile && !profileLoading,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  const disputes = data?.transactions || [];
+  const balances = data?.balances || { available: 0, pending: 0, total: 0 };
 
   // Update URL when filter changes
   const handleFilterChange = (newStatus: DisputeStatus) => {
@@ -58,34 +68,6 @@ export default function DisputesPage() {
     }
     router.push(`/financials/disputes${params.toString() ? `?${params.toString()}` : ''}`);
   };
-
-  useEffect(() => {
-    if (!profile) return;
-
-    const fetchDisputes = async () => {
-      try {
-        setIsLoading(true);
-
-        // Fetch disputed transactions
-        const response = await fetch(`/api/financials?status=disputed`);
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch disputes');
-        }
-
-        const data = await response.json();
-        setDisputes(data.transactions || []);
-        setBalances(data.balances || { available: 0, pending: 0, total: 0 });
-      } catch (err) {
-        console.error('Error fetching disputes:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load disputes');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchDisputes();
-  }, [profile]);
 
   // Client-side filtering based on URL param + search + date range
   const filteredDisputes = useMemo(() => {
@@ -218,7 +200,7 @@ export default function DisputesPage() {
   if (isLoading) {
     return (
       <HubPageLayout
-        header={<HubHeader title="Disputes" subtitle="View and manage disputed transactions" />}
+        header={<HubHeader title="Disputes" />}
         sidebar={
           <HubSidebar>
             <div className={styles.skeletonWidget} />
@@ -235,7 +217,6 @@ export default function DisputesPage() {
       header={
         <HubHeader
           title="Disputes"
-          subtitle="View and manage disputed transactions"
           filters={
             <div className={filterStyles.filtersContainer}>
               {/* Search Input */}
@@ -326,7 +307,7 @@ export default function DisputesPage() {
       {/* Error State */}
       {error && (
         <div className={styles.error}>
-          <p>{error}</p>
+          <p>{error instanceof Error ? error.message : 'Failed to load disputes'}</p>
         </div>
       )}
 
@@ -351,16 +332,15 @@ export default function DisputesPage() {
         ) : (
           <div className={styles.disputesList}>
             {filteredDisputes.map((dispute) => {
-              // Extract client info from dispute metadata (placeholder - adjust based on actual data structure)
-              const clientName = dispute.metadata?.client_name || 'Client';
-              const clientAvatar = dispute.metadata?.client_avatar || null;
-              const clientInitial = clientName.charAt(0).toUpperCase();
+              // TODO: Extract client info from dispute when backend provides it
+              const clientName = 'Client'; // Placeholder - will be populated from backend
+              const clientInitial = 'C';    // Placeholder initial
 
               return (
                 <HubRowCard
                   key={dispute.id}
                   image={{
-                    src: clientAvatar,
+                    src: null,
                     alt: clientName,
                     fallbackChar: clientInitial,
                   }}

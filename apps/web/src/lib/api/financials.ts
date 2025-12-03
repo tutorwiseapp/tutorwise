@@ -37,3 +37,43 @@ export async function getFinancials(): Promise<FinancialsData> {
     balances: data.balances || { available: 0, pending: 0, total: 0 },
   };
 }
+
+/**
+ * Fetch payout transactions (Withdrawals)
+ */
+export async function getPayouts(): Promise<FinancialsData> {
+  const response = await fetch('/api/financials?type=Withdrawal', {
+    cache: 'no-store'
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch payouts');
+  }
+
+  const data = await response.json();
+
+  return {
+    transactions: data.transactions || [],
+    balances: data.balances || { available: 0, pending: 0, total: 0 },
+  };
+}
+
+/**
+ * Fetch disputed transactions
+ */
+export async function getDisputes(): Promise<FinancialsData> {
+  const response = await fetch('/api/financials?status=disputed', {
+    cache: 'no-store'
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch disputes');
+  }
+
+  const data = await response.json();
+
+  return {
+    transactions: data.transactions || [],
+    balances: data.balances || { available: 0, pending: 0, total: 0 },
+  };
+}
