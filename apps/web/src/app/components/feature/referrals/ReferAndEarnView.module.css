@@ -37,9 +37,9 @@
 }
 
 .codeLabel {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--color-gray-700, #4B4B4B);
+  font-size: 1rem; /* 16px - var(--font-size-base) */
+  font-weight: 500; /* Medium - var(--font-weight-medium) */
+  color: #5f6368; /* var(--color-text-secondary) */
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
