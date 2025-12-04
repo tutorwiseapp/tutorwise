@@ -24,6 +24,9 @@ import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import InboxStatsWidget from '@/app/components/feature/messages/InboxStatsWidget';
 import AvailabilityWidget from '@/app/components/feature/messages/AvailabilityWidget';
 import ChatContextWidget from '@/app/components/feature/messages/ChatContextWidget';
+import MessageHelpWidget from '@/app/components/feature/messages/MessageHelpWidget';
+import MessageTipWidget from '@/app/components/feature/messages/MessageTipWidget';
+import MessageVideoWidget from '@/app/components/feature/messages/MessageVideoWidget';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import type { HubTab } from '@/app/components/hub/layout';
 import styles from './page.module.css';
@@ -126,6 +129,9 @@ export default function MessagesPage() {
           <HubSidebar>
             <InboxStatsWidget unreadCount={0} activeChats={0} archivedCount={0} />
             {profile && <AvailabilityWidget currentUserId={profile.id} />}
+            <MessageHelpWidget />
+            <MessageTipWidget />
+            <MessageVideoWidget />
           </HubSidebar>
         }
       >
@@ -152,7 +158,17 @@ export default function MessagesPage() {
       sidebar={
         <HubSidebar>
           {selectedConversation ? (
-            <ChatContextWidget otherUser={selectedConversation.otherUser} />
+            <>
+              <ChatContextWidget otherUser={selectedConversation.otherUser} />
+              <InboxStatsWidget
+                unreadCount={totalUnread}
+                activeChats={activeChats}
+                archivedCount={0}
+              />
+              <MessageHelpWidget />
+              <MessageTipWidget />
+              <MessageVideoWidget />
+            </>
           ) : (
             <>
               <InboxStatsWidget
@@ -160,7 +176,9 @@ export default function MessagesPage() {
                 activeChats={activeChats}
                 archivedCount={0}
               />
-              <AvailabilityWidget currentUserId={profile.id} />
+              <MessageHelpWidget />
+              <MessageTipWidget />
+              <MessageVideoWidget />
             </>
           )}
         </HubSidebar>
