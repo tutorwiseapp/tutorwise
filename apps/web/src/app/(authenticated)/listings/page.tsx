@@ -23,6 +23,9 @@ import filterStyles from './filters.module.css';
 import actionStyles from './actions.module.css';
 import ListingCard from './ListingCard';
 import ListingStatsWidget from '@/app/components/feature/listings/ListingStatsWidget';
+import ListingHelpWidget from '@/app/components/feature/listings/ListingHelpWidget';
+import ListingTipWidget from '@/app/components/feature/listings/ListingTipWidget';
+import ListingVideoWidget from '@/app/components/feature/listings/ListingVideoWidget';
 import ListingsSkeleton from '@/app/components/feature/listings/ListingsSkeleton';
 import ListingsError from '@/app/components/feature/listings/ListingsError';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
@@ -303,6 +306,9 @@ export default function ListingsPage() {
         sidebar={
           <HubSidebar>
             <ListingStatsWidget listings={[]} isLoading={true} />
+            <ListingHelpWidget />
+            <ListingTipWidget />
+            <ListingVideoWidget />
           </HubSidebar>
         }
       >
@@ -324,6 +330,9 @@ export default function ListingsPage() {
         sidebar={
           <HubSidebar>
             <ListingStatsWidget listings={[]} isLoading={false} />
+            <ListingHelpWidget />
+            <ListingTipWidget />
+            <ListingVideoWidget />
           </HubSidebar>
         }
       >
@@ -430,6 +439,9 @@ export default function ListingsPage() {
       sidebar={
         <HubSidebar>
           <ListingStatsWidget listings={rawListings} isLoading={isLoading} />
+          <ListingHelpWidget />
+          <ListingTipWidget />
+          <ListingVideoWidget />
         </HubSidebar>
       }
     >
