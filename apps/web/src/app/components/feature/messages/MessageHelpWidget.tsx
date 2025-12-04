@@ -20,17 +20,15 @@ export default function MessageHelpWidget() {
     <HubComplexCard>
       <h3 className={styles.title}>How Messages Work</h3>
       <div className={styles.content}>
-        <ul className={styles.list}>
-          <li className={styles.listItem}>
-            Send and receive messages with students and tutors
-          </li>
-          <li className={styles.listItem}>
-            All conversations are organized by contact
-          </li>
-          <li className={styles.listItem}>
-            Get notifications for new messages
-          </li>
-        </ul>
+        <p className={styles.text}>
+          Send and receive messages with students and tutors.
+        </p>
+        <p className={styles.text}>
+          All conversations are organized by contact.
+        </p>
+        <p className={styles.text}>
+          Get notifications for new messages.
+        </p>
       </div>
     </HubComplexCard>
   );

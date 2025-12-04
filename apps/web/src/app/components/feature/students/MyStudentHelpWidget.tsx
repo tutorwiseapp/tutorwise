@@ -15,17 +15,15 @@ export default function MyStudentHelpWidget() {
     <HubComplexCard>
       <h3 className={styles.title}>Managing Your Students</h3>
       <div className={styles.content}>
-        <ul className={styles.list}>
-          <li className={styles.listItem}>
-            Add students to track their progress and bookings
-          </li>
-          <li className={styles.listItem}>
-            Invite students to join Tutorwise for easier scheduling
-          </li>
-          <li className={styles.listItem}>
-            View all bookings and sessions for each student
-          </li>
-        </ul>
+        <p className={styles.text}>
+          Add students to track their progress and bookings.
+        </p>
+        <p className={styles.text}>
+          Invite students to join Tutorwise for easier scheduling.
+        </p>
+        <p className={styles.text}>
+          View all bookings and sessions for each student.
+        </p>
       </div>
     </HubComplexCard>
   );

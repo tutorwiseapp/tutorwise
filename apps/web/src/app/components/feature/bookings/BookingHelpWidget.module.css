@@ -1,12 +1,12 @@
 /**
  * Filename: BookingHelpWidget.module.css
  * Purpose: Styles for Booking Help Widget
- * Design: Teal header + bulleted list content
+ * Design: Teal header + paragraph content (no bullets)
  *
- * Pattern: Title + List content
+ * Pattern: Title + Paragraph content
  * - Teal header (#E6F0F0)
  * - Standard 16px padding for content
- * - Clean typography for list items
+ * - Clean typography for paragraphs with spacing
  *
  * Note: Container styles (shadow, border, radius) provided by HubComplexCard
  */
@@ -26,19 +26,13 @@
   padding: 16px; /* Standard padding for HubComplexCard children */
 }
 
-.list {
-  margin: 0;
-  padding-left: 20px;
-  list-style-type: disc;
-}
-
-.listItem {
+.text {
   font-size: 14px;
   color: #6b7280;
   line-height: 1.5;
-  margin-bottom: 8px;
+  margin: 0 0 12px 0;
 }
 
-.listItem:last-child {
+.text:last-child {
   margin-bottom: 0;
 }

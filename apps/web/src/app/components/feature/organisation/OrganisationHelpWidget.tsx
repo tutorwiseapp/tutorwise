@@ -15,17 +15,15 @@ export default function OrganisationHelpWidget() {
     <HubComplexCard>
       <h3 className={styles.title}>Managing Your Organisation</h3>
       <div className={styles.content}>
-        <ul className={styles.list}>
-          <li className={styles.listItem}>
-            Invite team members to collaborate and manage bookings together
-          </li>
-          <li className={styles.listItem}>
-            Assign roles and permissions to control access levels
-          </li>
-          <li className={styles.listItem}>
-            Track organisation performance and team member activity
-          </li>
-        </ul>
+        <p className={styles.text}>
+          Invite team members to collaborate and manage bookings together.
+        </p>
+        <p className={styles.text}>
+          Assign roles and permissions to control access levels.
+        </p>
+        <p className={styles.text}>
+          Track organisation performance and team member activity.
+        </p>
       </div>
     </HubComplexCard>
   );

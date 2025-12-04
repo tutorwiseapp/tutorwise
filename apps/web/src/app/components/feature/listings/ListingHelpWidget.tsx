@@ -20,17 +20,15 @@ export default function ListingHelpWidget() {
     <HubComplexCard>
       <h3 className={styles.title}>How Listings Work</h3>
       <div className={styles.content}>
-        <ul className={styles.list}>
-          <li className={styles.listItem}>
-            Create listings to showcase your tutoring services
-          </li>
-          <li className={styles.listItem}>
-            Set your availability, pricing, and session details
-          </li>
-          <li className={styles.listItem}>
-            Publish listings to attract students
-          </li>
-        </ul>
+        <p className={styles.text}>
+          Create listings to showcase your tutoring services.
+        </p>
+        <p className={styles.text}>
+          Set your availability, pricing, and session details.
+        </p>
+        <p className={styles.text}>
+          Publish listings to attract students.
+        </p>
       </div>
     </HubComplexCard>
   );

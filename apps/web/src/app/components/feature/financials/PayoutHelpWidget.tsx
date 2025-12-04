@@ -20,17 +20,15 @@ export default function PayoutHelpWidget() {
     <HubComplexCard>
       <h3 className={styles.title}>How Withdrawals Work</h3>
       <div className={styles.content}>
-        <ul className={styles.list}>
-          <li className={styles.listItem}>
-            Funds are available 7 days after service completion
-          </li>
-          <li className={styles.listItem}>
-            Withdrawals are processed within 2-3 business days
-          </li>
-          <li className={styles.listItem}>
-            Funds are sent to your registered bank account
-          </li>
-        </ul>
+        <p className={styles.text}>
+          Funds are available 7 days after service completion.
+        </p>
+        <p className={styles.text}>
+          Withdrawals are processed within 2-3 business days.
+        </p>
+        <p className={styles.text}>
+          Funds are sent to your registered bank account.
+        </p>
       </div>
     </HubComplexCard>
   );

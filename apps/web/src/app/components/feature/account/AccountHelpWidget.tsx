@@ -15,17 +15,15 @@ export default function AccountHelpWidget() {
     <HubComplexCard>
       <h3 className={styles.title}>Managing Your Account</h3>
       <div className={styles.content}>
-        <ul className={styles.list}>
-          <li className={styles.listItem}>
-            Keep your personal information up to date for accurate billing and communication
-          </li>
-          <li className={styles.listItem}>
-            Update your professional details to enhance your profile credibility
-          </li>
-          <li className={styles.listItem}>
-            Configure notification preferences to stay informed about important updates
-          </li>
-        </ul>
+        <p className={styles.text}>
+          Keep your personal information up to date for accurate billing and communication.
+        </p>
+        <p className={styles.text}>
+          Update your professional details to enhance your profile credibility.
+        </p>
+        <p className={styles.text}>
+          Configure notification preferences to stay informed about important updates.
+        </p>
       </div>
     </HubComplexCard>
   );

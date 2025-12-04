@@ -20,17 +20,15 @@ export default function BookingHelpWidget() {
     <HubComplexCard>
       <h3 className={styles.title}>How Bookings Work</h3>
       <div className={styles.content}>
-        <ul className={styles.list}>
-          <li className={styles.listItem}>
-            View and manage all your upcoming and past bookings
-          </li>
-          <li className={styles.listItem}>
-            Track booking status from confirmed to completed
-          </li>
-          <li className={styles.listItem}>
-            Communicate with clients through booking details
-          </li>
-        </ul>
+        <p className={styles.text}>
+          View and manage all your upcoming and past bookings.
+        </p>
+        <p className={styles.text}>
+          Track booking status from confirmed to completed.
+        </p>
+        <p className={styles.text}>
+          Communicate with clients through booking details.
+        </p>
       </div>
     </HubComplexCard>
   );

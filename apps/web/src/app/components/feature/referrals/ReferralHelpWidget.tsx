@@ -20,14 +20,12 @@ export default function ReferralHelpWidget() {
     <HubComplexCard>
       <h3 className={styles.title}>How Referrals Work</h3>
       <div className={styles.content}>
-        <ul className={styles.list}>
-          <li className={styles.listItem}>
-            Supply-side agent: Grow your earnings by inviting tutors with your link — earn 10% on every lesson they teach or product they sell.
-          </li>
-          <li className={styles.listItem}>
-            Demand-side agent: Share your link or QR code in stores or WhatsApp to bring in new learners — earn 10% when referred clients book and pay.
-          </li>
-        </ul>
+        <p className={styles.text}>
+          Supply-side agent: Grow your earnings by inviting tutors with your link — earn 10% on every lesson they teach or product they sell.
+        </p>
+        <p className={styles.text}>
+          Demand-side agent: Share your link or QR code in stores or WhatsApp to bring in new learners — earn 10% when referred clients book and pay.
+        </p>
       </div>
     </HubComplexCard>
   );

@@ -20,17 +20,15 @@ export default function ReviewHelpWidget() {
     <HubComplexCard>
       <h3 className={styles.title}>How Reviews Work</h3>
       <div className={styles.content}>
-        <ul className={styles.list}>
-          <li className={styles.listItem}>
-            Receive reviews from students after completed sessions
-          </li>
-          <li className={styles.listItem}>
-            Build your reputation with positive feedback
-          </li>
-          <li className={styles.listItem}>
-            Respond to reviews professionally
-          </li>
-        </ul>
+        <p className={styles.text}>
+          Receive reviews from students after completed sessions.
+        </p>
+        <p className={styles.text}>
+          Build your reputation with positive feedback.
+        </p>
+        <p className={styles.text}>
+          Respond to reviews professionally.
+        </p>
       </div>
     </HubComplexCard>
   );

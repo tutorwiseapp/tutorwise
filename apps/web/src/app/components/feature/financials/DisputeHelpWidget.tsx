@@ -20,17 +20,15 @@ export default function DisputeHelpWidget() {
     <HubComplexCard>
       <h3 className={styles.title}>How Disputes Work</h3>
       <div className={styles.content}>
-        <ul className={styles.list}>
-          <li className={styles.listItem}>
-            File a dispute if you encounter issues with a transaction
-          </li>
-          <li className={styles.listItem}>
-            Provide evidence and details to support your claim
-          </li>
-          <li className={styles.listItem}>
-            Our support team will review and resolve disputes fairly
-          </li>
-        </ul>
+        <p className={styles.text}>
+          File a dispute if you encounter issues with a transaction.
+        </p>
+        <p className={styles.text}>
+          Provide evidence and details to support your claim.
+        </p>
+        <p className={styles.text}>
+          Our support team will review and resolve disputes fairly.
+        </p>
       </div>
     </HubComplexCard>
   );

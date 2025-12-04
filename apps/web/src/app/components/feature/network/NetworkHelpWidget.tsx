@@ -20,17 +20,15 @@ export default function NetworkHelpWidget() {
     <HubComplexCard>
       <h3 className={styles.title}>How Network Works</h3>
       <div className={styles.content}>
-        <ul className={styles.list}>
-          <li className={styles.listItem}>
-            Connect with other tutors and educational professionals
-          </li>
-          <li className={styles.listItem}>
-            Build your professional network
-          </li>
-          <li className={styles.listItem}>
-            Collaborate and share opportunities
-          </li>
-        </ul>
+        <p className={styles.text}>
+          Connect with other tutors and educational professionals.
+        </p>
+        <p className={styles.text}>
+          Build your professional network.
+        </p>
+        <p className={styles.text}>
+          Collaborate and share opportunities.
+        </p>
       </div>
     </HubComplexCard>
   );

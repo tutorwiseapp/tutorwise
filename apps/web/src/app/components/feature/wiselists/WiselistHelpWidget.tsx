@@ -20,17 +20,15 @@ export default function WiselistHelpWidget() {
     <HubComplexCard>
       <h3 className={styles.title}>How Wiselists Work</h3>
       <div className={styles.content}>
-        <ul className={styles.list}>
-          <li className={styles.listItem}>
-            Create collections of tutors for different subjects or needs
-          </li>
-          <li className={styles.listItem}>
-            Save favorite tutors for easy access
-          </li>
-          <li className={styles.listItem}>
-            Share lists with others
-          </li>
-        </ul>
+        <p className={styles.text}>
+          Create collections of tutors for different subjects or needs.
+        </p>
+        <p className={styles.text}>
+          Save favorite tutors for easy access.
+        </p>
+        <p className={styles.text}>
+          Share lists with others.
+        </p>
       </div>
     </HubComplexCard>
   );
