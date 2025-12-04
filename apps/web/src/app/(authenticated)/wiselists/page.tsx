@@ -13,6 +13,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import WiselistCard from '@/app/components/feature/wiselists/WiselistCard';
 import CreateWiselistModal from '@/app/components/feature/wiselists/CreateWiselistModal';
 import { WiselistStatsWidget } from '@/app/components/feature/wiselists/WiselistStatsWidget';
+import WiselistHelpWidget from '@/app/components/feature/wiselists/WiselistHelpWidget';
+import WiselistTipWidget from '@/app/components/feature/wiselists/WiselistTipWidget';
+import WiselistVideoWidget from '@/app/components/feature/wiselists/WiselistVideoWidget';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
@@ -240,6 +243,9 @@ export default function WiselistsPage() {
         sidebar={
           <HubSidebar>
             <WiselistStatsWidget />
+            <WiselistHelpWidget />
+            <WiselistTipWidget />
+            <WiselistVideoWidget />
           </HubSidebar>
         }
       >
@@ -258,6 +264,9 @@ export default function WiselistsPage() {
         sidebar={
           <HubSidebar>
             <WiselistStatsWidget />
+            <WiselistHelpWidget />
+            <WiselistTipWidget />
+            <WiselistVideoWidget />
           </HubSidebar>
         }
       >

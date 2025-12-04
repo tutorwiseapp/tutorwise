@@ -17,6 +17,9 @@ import ConnectionRequestModal from '@/app/components/feature/network/ConnectionR
 import { useConnectionsRealtime } from '@/app/hooks/useConnectionsRealtime';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import NetworkStatsWidget from '@/app/components/feature/network/NetworkStatsWidget';
+import NetworkHelpWidget from '@/app/components/feature/network/NetworkHelpWidget';
+import NetworkTipWidget from '@/app/components/feature/network/NetworkTipWidget';
+import NetworkVideoWidget from '@/app/components/feature/network/NetworkVideoWidget';
 import NetworkSkeleton from '@/app/components/feature/network/NetworkSkeleton';
 import NetworkError from '@/app/components/feature/network/NetworkError';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
@@ -336,6 +339,9 @@ export default function NetworkPage() {
         sidebar={
           <HubSidebar>
             <NetworkStatsWidget stats={{ total: 0, pendingReceived: 0, pendingSent: 0 }} connections={[]} />
+            <NetworkHelpWidget />
+            <NetworkTipWidget />
+            <NetworkVideoWidget />
           </HubSidebar>
         }
       >
@@ -352,6 +358,9 @@ export default function NetworkPage() {
         sidebar={
           <HubSidebar>
             <NetworkStatsWidget stats={{ total: 0, pendingReceived: 0, pendingSent: 0 }} connections={[]} />
+            <NetworkHelpWidget />
+            <NetworkTipWidget />
+            <NetworkVideoWidget />
           </HubSidebar>
         }
       >
@@ -475,6 +484,9 @@ export default function NetworkPage() {
             stats={stats}
             connections={filteredConnections}
           />
+          <NetworkHelpWidget />
+          <NetworkTipWidget />
+          <NetworkVideoWidget />
         </HubSidebar>
       }
     >

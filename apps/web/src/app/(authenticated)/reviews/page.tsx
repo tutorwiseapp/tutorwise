@@ -17,6 +17,9 @@ import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import PendingReviewCard from '@/app/components/feature/reviews/PendingReviewCard';
 import ProfileReviewCard from '@/app/components/feature/reviews/ProfileReviewCard';
 import ReviewStatsWidget from '@/app/components/feature/reviews/ReviewStatsWidget';
+import ReviewHelpWidget from '@/app/components/feature/reviews/ReviewHelpWidget';
+import ReviewTipWidget from '@/app/components/feature/reviews/ReviewTipWidget';
+import ReviewVideoWidget from '@/app/components/feature/reviews/ReviewVideoWidget';
 import ReviewSubmissionModal from '@/app/components/feature/reviews/ReviewSubmissionModal';
 import ReviewsSkeleton from '@/app/components/feature/reviews/ReviewsSkeleton';
 import ReviewsError from '@/app/components/feature/reviews/ReviewsError';
@@ -288,6 +291,9 @@ export default function ReviewsPage() {
         sidebar={
           <HubSidebar>
             <ReviewStatsWidget stats={emptyStats} averageRating={0} />
+            <ReviewHelpWidget />
+            <ReviewTipWidget />
+            <ReviewVideoWidget />
           </HubSidebar>
         }
       >
@@ -304,6 +310,9 @@ export default function ReviewsPage() {
         sidebar={
           <HubSidebar>
             <ReviewStatsWidget stats={emptyStats} averageRating={0} />
+            <ReviewHelpWidget />
+            <ReviewTipWidget />
+            <ReviewVideoWidget />
           </HubSidebar>
         }
       >
