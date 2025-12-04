@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/(authenticated)/account/professional/page.tsx
+ * Filename: apps/web/src/app/(authenticated)/account/professional-info/page.tsx
  * Purpose: Professional Information tab page (Account Hub v4.8 - aligned with hub UI)
  * Created: 2025-11-09
  * Updated: 2025-11-30 - Migrated to Hub Layout Architecture with HubPageLayout, HubHeader, HubTabs
@@ -61,7 +61,7 @@ export default function ProfessionalPage() {
   // Prepare tabs data
   const tabs: HubTab[] = [
     { id: 'personal-info', label: 'Personal Info', active: pathname === '/account/personal-info' },
-    { id: 'professional', label: 'Professional Info', active: pathname === '/account/professional' },
+    { id: 'professional-info', label: 'Professional Info', active: pathname === '/account/professional-info' },
     { id: 'settings', label: 'Settings', active: pathname === '/account/settings' },
   ];
 

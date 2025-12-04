@@ -88,7 +88,7 @@ export default function SettingsPage() {
   // Prepare tabs data
   const tabs: HubTab[] = [
     { id: 'personal-info', label: 'Personal Info', active: pathname === '/account/personal-info' },
-    { id: 'professional', label: 'Professional Info', active: pathname === '/account/professional' },
+    { id: 'professional-info', label: 'Professional Info', active: pathname === '/account/professional-info' },
     { id: 'settings', label: 'Settings', active: pathname === '/account/settings' },
   ];
 
