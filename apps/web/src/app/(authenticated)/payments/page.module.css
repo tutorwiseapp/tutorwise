@@ -9,7 +9,8 @@
 
 /* Payment Header */
 .paymentHeader {
-  height: 9.5rem;
+  height: 14rem;
+  margin-top: -3rem;
 }
 
 /* Grid Layout */

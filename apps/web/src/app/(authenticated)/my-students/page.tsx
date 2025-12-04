@@ -21,6 +21,9 @@ import type { StudentLink } from '@/types';
 import StudentCard from '@/app/components/feature/students/StudentCard';
 import StudentInviteModal from '@/app/components/feature/students/StudentInviteModal';
 import StudentStatsWidget from '@/app/components/feature/students/StudentStatsWidget';
+import MyStudentHelpWidget from '@/app/components/feature/students/MyStudentHelpWidget';
+import MyStudentTipWidget from '@/app/components/feature/students/MyStudentTipWidget';
+import MyStudentVideoWidget from '@/app/components/feature/students/MyStudentVideoWidget';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
@@ -270,6 +273,9 @@ export default function MyStudentsPage() {
               withIntegrations={0}
               activeThisMonth={0}
             />
+            <MyStudentHelpWidget />
+            <MyStudentTipWidget />
+            <MyStudentVideoWidget />
           </HubSidebar>
         }
       >
@@ -294,6 +300,9 @@ export default function MyStudentsPage() {
               withIntegrations={0}
               activeThisMonth={0}
             />
+            <MyStudentHelpWidget />
+            <MyStudentTipWidget />
+            <MyStudentVideoWidget />
           </HubSidebar>
         }
       >
@@ -419,6 +428,9 @@ export default function MyStudentsPage() {
             withIntegrations={stats.withIntegrations}
             activeThisMonth={stats.activeThisMonth}
           />
+          <MyStudentHelpWidget />
+          <MyStudentTipWidget />
+          <MyStudentVideoWidget />
         </HubSidebar>
       }
     >

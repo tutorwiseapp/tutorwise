@@ -1,0 +1,32 @@
+/**
+ * Filename: AccountHelpWidget.tsx
+ * Purpose: Account Hub Help Widget
+ * Created: 2025-12-03
+ */
+
+'use client';
+
+import React from 'react';
+import HubComplexCard from '@/app/components/hub/sidebar/cards/HubComplexCard';
+import styles from './AccountHelpWidget.module.css';
+
+export default function AccountHelpWidget() {
+  return (
+    <HubComplexCard>
+      <h3 className={styles.title}>Managing Your Account</h3>
+      <div className={styles.content}>
+        <ul className={styles.list}>
+          <li className={styles.listItem}>
+            Keep your personal information up to date for accurate billing and communication
+          </li>
+          <li className={styles.listItem}>
+            Update your professional details to enhance your profile credibility
+          </li>
+          <li className={styles.listItem}>
+            Configure notification preferences to stay informed about important updates
+          </li>
+        </ul>
+      </div>
+    </HubComplexCard>
+  );
+}

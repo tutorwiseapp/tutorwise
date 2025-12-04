@@ -30,6 +30,9 @@ import {
 } from '@/lib/api/organisation';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import OrganisationStatsWidget from '@/app/components/feature/organisation/OrganisationStatsWidget';
+import OrganisationHelpWidget from '@/app/components/feature/organisation/OrganisationHelpWidget';
+import OrganisationTipWidget from '@/app/components/feature/organisation/OrganisationTipWidget';
+import OrganisationVideoWidget from '@/app/components/feature/organisation/OrganisationVideoWidget';
 import OrganisationInviteMemberModal from '@/app/components/feature/organisation/OrganisationInviteMemberModal';
 import InfoTab from '@/app/components/feature/organisation/tabs/InfoTab';
 import ManageMemberModal from '@/app/components/feature/organisation/ManageMemberModal';
@@ -355,6 +358,9 @@ export default function OrganisationPage() {
               totalClients={0}
               monthlyRevenue={0}
             />
+            <OrganisationHelpWidget />
+            <OrganisationTipWidget />
+            <OrganisationVideoWidget />
           </HubSidebar>
         }
       >
@@ -377,6 +383,9 @@ export default function OrganisationPage() {
               totalClients={0}
               monthlyRevenue={0}
             />
+            <OrganisationHelpWidget />
+            <OrganisationTipWidget />
+            <OrganisationVideoWidget />
           </HubSidebar>
         }
       >
@@ -413,6 +422,9 @@ export default function OrganisationPage() {
               totalClients={0}
               monthlyRevenue={0}
             />
+            <OrganisationHelpWidget />
+            <OrganisationTipWidget />
+            <OrganisationVideoWidget />
           </HubSidebar>
         }
       >
@@ -591,6 +603,9 @@ export default function OrganisationPage() {
             totalClients={stats?.total_clients || 0}
             monthlyRevenue={stats?.monthly_revenue || 0}
           />
+          <OrganisationHelpWidget />
+          <OrganisationTipWidget />
+          <OrganisationVideoWidget />
         </HubSidebar>
       }
     >

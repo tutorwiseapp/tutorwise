@@ -20,6 +20,9 @@ import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubRowCard from '@/app/components/hub/content/HubRowCard/HubRowCard';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import WalletBalanceWidget from '@/app/components/feature/financials/WalletBalanceWidget';
+import DisputeHelpWidget from '@/app/components/feature/financials/DisputeHelpWidget';
+import DisputeTipWidget from '@/app/components/feature/financials/DisputeTipWidget';
+import DisputeVideoWidget from '@/app/components/feature/financials/DisputeVideoWidget';
 import Button from '@/app/components/ui/actions/Button';
 import { Transaction } from '@/types';
 import toast from 'react-hot-toast';
@@ -214,6 +217,9 @@ export default function DisputesPage() {
         sidebar={
           <HubSidebar>
             <div className={styles.skeletonWidget} />
+            <DisputeHelpWidget />
+            <DisputeTipWidget />
+            <DisputeVideoWidget />
           </HubSidebar>
         }
       >
@@ -311,6 +317,9 @@ export default function DisputesPage() {
             pending={balances.pending}
             total={balances.total}
           />
+          <DisputeHelpWidget />
+          <DisputeTipWidget />
+          <DisputeVideoWidget />
         </HubSidebar>
       }
     >

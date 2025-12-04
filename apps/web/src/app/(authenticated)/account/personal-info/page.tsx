@@ -16,6 +16,9 @@ import PersonalInfoForm from '@/app/components/feature/profile/PersonalInfoForm'
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import AccountCard from '@/app/components/feature/account/AccountCard';
 import AccountHeroHeader from '@/app/components/feature/account/AccountHeroHeader';
+import AccountHelpWidget from '@/app/components/feature/account/AccountHelpWidget';
+import AccountTipWidget from '@/app/components/feature/account/AccountTipWidget';
+import AccountVideoWidget from '@/app/components/feature/account/AccountVideoWidget';
 import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import Button from '@/app/components/ui/actions/Button';
@@ -75,6 +78,9 @@ export default function PersonalInfoPage() {
         sidebar={
           <HubSidebar>
             <AccountCard />
+            <AccountHelpWidget />
+            <AccountTipWidget />
+            <AccountVideoWidget />
           </HubSidebar>
         }
       >
@@ -142,6 +148,9 @@ export default function PersonalInfoPage() {
       sidebar={
         <HubSidebar>
           <AccountCard />
+          <AccountHelpWidget />
+          <AccountTipWidget />
+          <AccountVideoWidget />
         </HubSidebar>
       }
     >

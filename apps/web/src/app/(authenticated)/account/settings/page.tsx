@@ -20,6 +20,9 @@ import { usePathname } from 'next/navigation';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import AccountCard from '@/app/components/feature/account/AccountCard';
 import AccountHeroHeader from '@/app/components/feature/account/AccountHeroHeader';
+import AccountHelpWidget from '@/app/components/feature/account/AccountHelpWidget';
+import AccountTipWidget from '@/app/components/feature/account/AccountTipWidget';
+import AccountVideoWidget from '@/app/components/feature/account/AccountVideoWidget';
 import IntegrationLinksCard from '@/app/components/feature/students/IntegrationLinksCard';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
@@ -153,6 +156,9 @@ export default function SettingsPage() {
       sidebar={
         <HubSidebar>
           <AccountCard />
+          <AccountHelpWidget />
+          <AccountTipWidget />
+          <AccountVideoWidget />
         </HubSidebar>
       }
     >
