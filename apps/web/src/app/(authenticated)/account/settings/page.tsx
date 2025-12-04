@@ -101,6 +101,7 @@ export default function SettingsPage() {
       header={
         <HubHeader
           title="Account"
+          className={styles.accountHeader}
           actions={
             <>
               {/* Primary Action: Build My Business */}

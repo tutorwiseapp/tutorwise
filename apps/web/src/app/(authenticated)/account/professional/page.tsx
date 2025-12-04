@@ -72,7 +72,7 @@ export default function ProfessionalPage() {
   if (!profile) {
     return (
       <HubPageLayout
-        header={<HubHeader title="Account" />}
+        header={<HubHeader title="Account" className={styles.accountHeader} />}
         tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
         sidebar={
           <HubSidebar>
@@ -93,6 +93,7 @@ export default function ProfessionalPage() {
       header={
         <HubHeader
           title="Account"
+          className={styles.accountHeader}
           actions={
             <>
               {/* Primary Action: Build My Business */}

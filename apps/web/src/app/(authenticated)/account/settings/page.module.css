@@ -11,6 +11,11 @@
   padding: 0;
 }
 
+.accountHeader {
+  height: 14rem;
+  margin-top: -3rem;
+}
+
 /* Legacy header and tab styles removed - now handled by HubHeader and HubTabs components */
 
 .content {
