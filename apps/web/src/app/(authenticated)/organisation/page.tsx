@@ -34,7 +34,7 @@ import OrganisationHelpWidget from '@/app/components/feature/organisation/Organi
 import OrganisationTipWidget from '@/app/components/feature/organisation/OrganisationTipWidget';
 import OrganisationVideoWidget from '@/app/components/feature/organisation/OrganisationVideoWidget';
 import OrganisationInviteMemberModal from '@/app/components/feature/organisation/OrganisationInviteMemberModal';
-import InfoTab from '@/app/components/feature/organisation/tabs/InfoTab';
+import OrganisationInfoTab from '@/app/components/feature/organisation/OrganisationInfoTab';
 import ManageMemberModal from '@/app/components/feature/organisation/ManageMemberModal';
 import MemberCard from '@/app/components/feature/organisation/MemberCard';
 import HubRowCard from '@/app/components/hub/content/HubRowCard/HubRowCard';
@@ -714,7 +714,7 @@ export default function OrganisationPage() {
         {/* Info Tab */}
         {activeTab === 'info' && (
           <div className={styles.content}>
-            <InfoTab organisation={organisation} />
+            <OrganisationInfoTab organisation={organisation} />
           </div>
         )}
       </div>
