@@ -18,8 +18,9 @@ import AccountCard from '@/app/components/feature/account/AccountCard';
 import AccountHelpWidget from '@/app/components/feature/account/AccountHelpWidget';
 import AccountTipWidget from '@/app/components/feature/account/AccountTipWidget';
 import AccountVideoWidget from '@/app/components/feature/account/AccountVideoWidget';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
+import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
+import AccountHeroHeader from '@/app/components/feature/account/AccountHeroHeader';
 import Button from '@/app/components/ui/actions/Button';
 import type { Profile } from '@/types';
 import toast from 'react-hot-toast';
@@ -44,8 +45,12 @@ export default function ProfessionalPage() {
   };
 
   // Action handlers
-  const handleBuildMyBusiness = () => {
-    window.location.href = '/referrals';
+  const handleViewPublicProfile = () => {
+    if (profile?.id && profile?.slug) {
+      window.open(`/public-profile/${profile.id}/${profile.slug}`, '_blank');
+    } else if (profile?.id) {
+      window.open(`/public-profile/${profile.id}`, '_blank');
+    }
   };
 
   const handleGrowMyNetwork = () => {
@@ -72,7 +77,7 @@ export default function ProfessionalPage() {
   if (!profile) {
     return (
       <HubPageLayout
-        header={<HubHeader title="Account" className={styles.accountHeader} />}
+        header={<AccountHeroHeader />}
         tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
         sidebar={
           <HubSidebar>
@@ -91,18 +96,16 @@ export default function ProfessionalPage() {
   return (
     <HubPageLayout
       header={
-        <HubHeader
-          title="Account"
-          className={styles.accountHeader}
+        <AccountHeroHeader
           actions={
             <>
-              {/* Primary Action: Build My Business */}
+              {/* Primary Action: View Public Profile */}
               <Button
                 variant="primary"
                 size="sm"
-                onClick={handleBuildMyBusiness}
+                onClick={handleViewPublicProfile}
               >
-                Build My Business
+                View Public Profile
               </Button>
 
               {/* Secondary Actions: Dropdown Menu */}
