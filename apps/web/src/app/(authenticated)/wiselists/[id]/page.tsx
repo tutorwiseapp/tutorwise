@@ -1,9 +1,9 @@
 /**
  * Filename: page.tsx
- * Purpose: Wiselist detail page (v5.7)
+ * Purpose: Wiselist detail page (v5.8)
  * Path: /wiselists/[id]
  * Created: 2025-11-15
- * Updated: 2025-11-16 - Migrated to React Query for robust data fetching
+ * Updated: 2025-12-04 - Migrated to Hub Layout Architecture with HubPageLayout
  */
 
 'use client';
@@ -14,7 +14,11 @@ import { useRouter } from 'next/navigation';
 import { List, Lock, Globe, Edit2 } from 'lucide-react';
 import WiselistItemCard from '@/app/components/feature/wiselists/WiselistItemCard';
 import { ShareCollaborateWidget } from '@/app/components/feature/wiselists/ShareCollaborateWidget';
+import WiselistHelpWidget from '@/app/components/feature/wiselists/WiselistHelpWidget';
+import WiselistTipWidget from '@/app/components/feature/wiselists/WiselistTipWidget';
+import WiselistVideoWidget from '@/app/components/feature/wiselists/WiselistVideoWidget';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import { HubPageLayout, HubHeader } from '@/app/components/hub/layout';
 import Button from '@/app/components/ui/actions/Button';
 import { WiselistWithDetails } from '@/types';
 import { toast } from 'react-hot-toast';
@@ -143,15 +147,33 @@ export default function WiselistDetailPage({ params }: PageProps) {
 
   if (isLoading) {
     return (
-      <div className={styles.container}>
+      <HubPageLayout
+        header={<HubHeader title="Wiselist" />}
+        sidebar={
+          <HubSidebar>
+            <WiselistHelpWidget />
+            <WiselistTipWidget />
+            <WiselistVideoWidget />
+          </HubSidebar>
+        }
+      >
         <div className={styles.loading}>Loading wiselist...</div>
-      </div>
+      </HubPageLayout>
     );
   }
 
   if (error || !wiselist) {
     return (
-      <div className={styles.container}>
+      <HubPageLayout
+        header={<HubHeader title="Wiselist Not Found" />}
+        sidebar={
+          <HubSidebar>
+            <WiselistHelpWidget />
+            <WiselistTipWidget />
+            <WiselistVideoWidget />
+          </HubSidebar>
+        }
+      >
         <div className={styles.error}>
           <h2>Wiselist Not Found</h2>
           <p>The wiselist you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to view it.</p>
@@ -159,135 +181,142 @@ export default function WiselistDetailPage({ params }: PageProps) {
             Back to Wiselists
           </Button>
         </div>
-      </div>
+      </HubPageLayout>
     );
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.mainContent}>
-        <header className={styles.header}>
-          <div className={styles.headerIcon}>
-            <List size={32} />
-          </div>
-
-          <div className={styles.headerContent}>
-            {isEditing ? (
-              <div className={styles.editForm}>
-                <input
-                  type="text"
-                  value={editData.name}
-                  onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                  className={styles.editInput}
-                  maxLength={100}
-                />
-                <textarea
-                  value={editData.description}
-                  onChange={(e) => setEditData({ ...editData, description: e.target.value })}
-                  className={styles.editTextarea}
-                  rows={2}
-                  maxLength={500}
-                  placeholder="Description (optional)"
-                />
-                <div className={styles.editActions}>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => {
-                      setIsEditing(false);
-                      setEditData({
-                        name: wiselist.name,
-                        description: wiselist.description || '',
-                      });
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button variant="primary" size="sm" onClick={handleSaveEdit}>
-                    Save
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className={styles.headerTop}>
-                  <h1 className={styles.title}>{wiselist.name}</h1>
-                  {isOwner && (
-                    <button
-                      onClick={() => setIsEditing(true)}
-                      className={styles.editButton}
-                      title="Edit wiselist"
-                    >
-                      <Edit2 size={18} />
-                    </button>
-                  )}
-                </div>
-
-                {wiselist.description && (
-                  <p className={styles.description}>{wiselist.description}</p>
-                )}
-
-                <div className={styles.meta}>
-                  <span className={styles.metaItem}>
-                    {wiselist.visibility === 'public' ? (
-                      <>
-                        <Globe size={16} />
-                        Public
-                      </>
-                    ) : (
-                      <>
-                        <Lock size={16} />
-                        Private
-                      </>
-                    )}
-                  </span>
-                  <span className={styles.metaItem}>
-                    {wiselist.items.length} {wiselist.items.length === 1 ? 'item' : 'items'}
-                  </span>
-                  {wiselist.collaborators.length > 0 && (
-                    <span className={styles.metaItem}>
-                      {wiselist.collaborators.length}{' '}
-                      {wiselist.collaborators.length === 1 ? 'collaborator' : 'collaborators'}
-                    </span>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        </header>
-
-        <div className={styles.content}>
-          {wiselist.items.length === 0 ? (
-            <div className={styles.empty}>
-              <p>This wiselist is empty</p>
-              <p className={styles.emptyHint}>
-                Browse tutors and services to add them to this wiselist
-              </p>
-            </div>
-          ) : (
-            <div className={styles.grid}>
-              {wiselist.items.map((item) => (
-                <WiselistItemCard
-                  key={item.id}
-                  item={item}
-                  onRemove={handleRemoveItem}
-                  canEdit={!!isOwner}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <HubSidebar>
-        <ShareCollaborateWidget
-          wiselistId={wiselist.id}
-          slug={wiselist.slug}
-          visibility={wiselist.visibility}
-          isOwner={!!isOwner}
-          onVisibilityChange={handleVisibilityChange}
+    <HubPageLayout
+      header={
+        <HubHeader
+          title={isEditing ? 'Edit Wiselist' : wiselist.name}
+          actions={
+            <>
+              {isOwner && !isEditing && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setIsEditing(true)}
+                >
+                  <Edit2 size={18} style={{ marginRight: '6px' }} />
+                  Edit Details
+                </Button>
+              )}
+            </>
+          }
         />
-      </HubSidebar>
-    </div>
+      }
+      sidebar={
+        <HubSidebar>
+          <ShareCollaborateWidget
+            wiselistId={wiselist.id}
+            slug={wiselist.slug}
+            visibility={wiselist.visibility}
+            isOwner={!!isOwner}
+            onVisibilityChange={handleVisibilityChange}
+          />
+          <WiselistHelpWidget />
+          <WiselistTipWidget />
+          <WiselistVideoWidget />
+        </HubSidebar>
+      }
+    >
+      <div className={styles.content}>
+        {/* Edit Form */}
+        {isEditing && (
+          <div className={styles.editForm}>
+            <input
+              type="text"
+              value={editData.name}
+              onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+              className={styles.editInput}
+              maxLength={100}
+              placeholder="Wiselist name"
+            />
+            <textarea
+              value={editData.description}
+              onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+              className={styles.editTextarea}
+              rows={2}
+              maxLength={500}
+              placeholder="Description (optional)"
+            />
+            <div className={styles.editActions}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  setIsEditing(false);
+                  setEditData({
+                    name: wiselist.name,
+                    description: wiselist.description || '',
+                  });
+                }}
+              >
+                Cancel
+              </Button>
+              <Button variant="primary" size="sm" onClick={handleSaveEdit}>
+                Save Changes
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Wiselist Info */}
+        {!isEditing && (
+          <>
+            {wiselist.description && (
+              <p className={styles.description}>{wiselist.description}</p>
+            )}
+
+            <div className={styles.meta}>
+              <span className={styles.metaItem}>
+                {wiselist.visibility === 'public' ? (
+                  <>
+                    <Globe size={16} />
+                    Public
+                  </>
+                ) : (
+                  <>
+                    <Lock size={16} />
+                    Private
+                  </>
+                )}
+              </span>
+              <span className={styles.metaItem}>
+                {wiselist.items.length} {wiselist.items.length === 1 ? 'item' : 'items'}
+              </span>
+              {wiselist.collaborators.length > 0 && (
+                <span className={styles.metaItem}>
+                  {wiselist.collaborators.length}{' '}
+                  {wiselist.collaborators.length === 1 ? 'collaborator' : 'collaborators'}
+                </span>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* Wiselist Items */}
+        {wiselist.items.length === 0 ? (
+          <div className={styles.empty}>
+            <p>This wiselist is empty</p>
+            <p className={styles.emptyHint}>
+              Browse tutors and services to add them to this wiselist
+            </p>
+          </div>
+        ) : (
+          <div className={styles.grid}>
+            {wiselist.items.map((item) => (
+              <WiselistItemCard
+                key={item.id}
+                item={item}
+                onRemove={handleRemoveItem}
+                canEdit={!!isOwner}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </HubPageLayout>
   );
 }
