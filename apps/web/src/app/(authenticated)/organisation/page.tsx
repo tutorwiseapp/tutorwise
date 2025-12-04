@@ -51,7 +51,7 @@ import type { OrganisationMember } from '@/lib/api/organisation';
 type TabType = 'team' | 'clients' | 'info';
 type SortType = 'newest' | 'oldest' | 'name-asc' | 'name-desc';
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 4;
 
 export default function OrganisationPage() {
   const { profile, isLoading: profileLoading } = useUserProfile();

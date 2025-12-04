@@ -34,7 +34,7 @@ import Button from '@/app/components/ui/actions/Button';
 type FilterType = 'all' | 'published' | 'unpublished' | 'draft' | 'archived' | 'templates';
 type SortType = 'newest' | 'oldest' | 'price-high' | 'price-low' | 'views-high' | 'views-low';
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 4;
 
 export default function ListingsPage() {
   const router = useRouter();

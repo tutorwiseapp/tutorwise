@@ -31,7 +31,7 @@ import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 type TabType = 'my-lists' | 'shared-with-me';
 type SortType = 'newest' | 'oldest' | 'name-asc' | 'name-desc';
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 4;
 
 export default function WiselistsPage() {
   const router = useRouter();

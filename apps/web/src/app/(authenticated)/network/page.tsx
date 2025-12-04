@@ -34,7 +34,7 @@ import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 type TabType = 'all' | 'pending-received' | 'pending-sent';
 type SortType = 'newest' | 'oldest' | 'name-asc' | 'name-desc';
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 4;
 
 export default function NetworkPage() {
   const { profile, isLoading: profileLoading } = useUserProfile();

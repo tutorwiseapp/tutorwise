@@ -37,7 +37,7 @@ type TabType = 'pending' | 'received' | 'given';
 type RatingFilter = 'all' | '5' | '4' | '3' | '2' | '1';
 type DateFilter = 'all' | '7days' | '30days' | '3months' | '6months' | '1year';
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 4;
 
 export default function ReviewsPage() {
   const router = useRouter();

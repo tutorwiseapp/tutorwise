@@ -32,7 +32,7 @@ import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 type FilterType = 'all' | 'upcoming' | 'past';
 type SortType = 'date-desc' | 'date-asc' | 'status';
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 4;
 
 export default function BookingsPage() {
   const { profile, activeRole, isLoading: profileLoading } = useUserProfile();

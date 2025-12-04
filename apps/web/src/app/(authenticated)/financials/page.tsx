@@ -32,7 +32,7 @@ type TransactionStatusV49 = 'clearing' | 'available' | 'paid_out' | 'disputed' |
 type DateRangeType = 'all' | '7days' | '30days' | '3months' | '6months' | '1year';
 type TransactionType = 'all' | 'income' | 'expense';
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 4;
 
 export default function TransactionsPage() {
   const { profile, isLoading: profileLoading } = useUserProfile();
