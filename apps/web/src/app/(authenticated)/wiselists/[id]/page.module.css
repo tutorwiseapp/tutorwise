@@ -1,4 +1,4 @@
-/* Wiselist Detail Page - v5.8 - Hub Layout Architecture */
+/* Wiselist Detail Page - v5.9 - Hub Layout Architecture with Dashboard-style Grid */
 
 .loading {
   padding: 60px 20px;
@@ -24,15 +24,37 @@
   margin: 0 0 1.5rem 0;
 }
 
+/* Horizontal divider - extends to full width of mainArea */
+.headerDivider {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: -1rem -1rem 1.5rem -1rem; /* Negative margins to extend to edges */
+}
+
 .content {
   /* HubPageLayout provides the padding */
 }
 
+/* Info card for wiselist metadata */
+.infoCard {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
 .description {
-  font-size: 16px;
+  font-size: 0.875rem; /* 14px on mobile */
   color: #4b5563;
   line-height: 1.5;
-  margin: 0 0 16px 0;
+  margin: 0 0 12px 0;
+}
+
+@media (min-width: 768px) {
+  .description {
+    font-size: 1rem; /* 16px on tablet+ */
+  }
 }
 
 .meta {
@@ -41,7 +63,7 @@
   flex-wrap: wrap;
   font-size: 14px;
   color: #6b7280;
-  margin-bottom: 24px;
+  margin: 0; /* Remove bottom margin since we're in a card */
 }
 
 .metaItem {
@@ -112,18 +134,31 @@
   color: #9ca3af;
 }
 
+/* Dashboard-style responsive grid */
 .grid {
   display: grid;
-  gap: 20px;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: 1fr;
+  gap: 1rem; /* Mobile: 16px */
 }
 
-@media (max-width: 768px) {
+/* Tablet: 2 columns */
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem; /* Tablet: 24px */
+  }
+}
+
+/* Desktop: 3 columns */
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Mobile-specific overrides */
+@media (max-width: 767px) {
   .editInput {
     font-size: 16px;
-  }
-
-  .grid {
-    grid-template-columns: 1fr;
   }
 }

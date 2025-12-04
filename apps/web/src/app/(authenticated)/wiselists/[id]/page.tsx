@@ -11,13 +11,14 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { List, Lock, Globe, Edit2 } from 'lucide-react';
+import { Lock, Globe, Edit2 } from 'lucide-react';
 import WiselistItemCard from '@/app/components/feature/wiselists/WiselistItemCard';
 import { ShareCollaborateWidget } from '@/app/components/feature/wiselists/ShareCollaborateWidget';
 import WiselistHelpWidget from '@/app/components/feature/wiselists/WiselistHelpWidget';
 import WiselistTipWidget from '@/app/components/feature/wiselists/WiselistTipWidget';
 import WiselistVideoWidget from '@/app/components/feature/wiselists/WiselistVideoWidget';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import { HubPageLayout, HubHeader } from '@/app/components/hub/layout';
 import Button from '@/app/components/ui/actions/Button';
 import { WiselistWithDetails } from '@/types';
@@ -192,6 +193,13 @@ export default function WiselistDetailPage({ params }: PageProps) {
           title={isEditing ? 'Edit Wiselist' : wiselist.name}
           actions={
             <>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push('/wiselists')}
+              >
+                ← Back
+              </Button>
               {isOwner && !isEditing && (
                 <Button
                   variant="secondary"
@@ -221,6 +229,9 @@ export default function WiselistDetailPage({ params }: PageProps) {
         </HubSidebar>
       }
     >
+      {/* Horizontal divider for visual separation */}
+      <div className={styles.headerDivider}></div>
+
       <div className={styles.content}>
         {/* Edit Form */}
         {isEditing && (
@@ -262,9 +273,9 @@ export default function WiselistDetailPage({ params }: PageProps) {
           </div>
         )}
 
-        {/* Wiselist Info */}
+        {/* Wiselist Info Card */}
         {!isEditing && (
-          <>
+          <div className={styles.infoCard}>
             {wiselist.description && (
               <p className={styles.description}>{wiselist.description}</p>
             )}
@@ -293,17 +304,17 @@ export default function WiselistDetailPage({ params }: PageProps) {
                 </span>
               )}
             </div>
-          </>
+          </div>
         )}
 
         {/* Wiselist Items */}
         {wiselist.items.length === 0 ? (
-          <div className={styles.empty}>
-            <p>This wiselist is empty</p>
-            <p className={styles.emptyHint}>
-              Browse tutors and services to add them to this wiselist
-            </p>
-          </div>
+          <HubEmptyState
+            title="This wiselist is empty"
+            description="Browse tutors and services to add them to this wiselist"
+            actionLabel="Browse Marketplace"
+            onAction={() => router.push('/marketplace')}
+          />
         ) : (
           <div className={styles.grid}>
             {wiselist.items.map((item) => (
