@@ -188,71 +188,13 @@ export default function AccountCard() {
     <HubComplexCard>
       {/* Teal Header */}
       <div className={styles.header}>
-        <h3 className={styles.title}>Your Account</h3>
-      </div>
-
-      {/* Profile Section */}
-      <div className={styles.profileSection}>
-        {/* Avatar with Upload */}
-        <label htmlFor="avatar-upload" className={styles.avatarWrapper}>
-          <div className={styles.avatarContainer}>
-            <img
-              src={avatarUrl}
-              alt={`${fullName}'s avatar`}
-              className={styles.avatar}
-            />
-            <div className={`${styles.avatarOverlay} ${isUploading ? styles.uploading : ''}`}>
-              {isUploading ? (
-                <>
-                  <Loader2 className={styles.spinnerIcon} size={24} />
-                  <span className={styles.overlayText}>Uploading...</span>
-                </>
-              ) : (
-                <span className={styles.overlayText}>Change Photo</span>
-              )}
-            </div>
-          </div>
-          <input
-            id="avatar-upload"
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            disabled={isUploading}
-            className={styles.fileInput}
-            aria-label="Upload profile picture"
-          />
-        </label>
-
-        {/* Profile Details */}
-        <div className={styles.profileDetails}>
-          <h2 className={styles.fullName}>{fullName}</h2>
-
-          <div className={styles.roleLocationRow}>
-            <span className={styles.roleChip}>
-              {role.charAt(0).toUpperCase() + role.slice(1)}
-            </span>
-            {profile.slug && (
-              <Link
-                href={`/public-profile/${profile.id}/${profile.slug}`}
-                className={styles.viewLink}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                View
-              </Link>
-            )}
-          </div>
-
-          <div className={styles.locationRow}>
-            <span className={styles.locationText}>{location}</span>
-          </div>
-        </div>
+        <h3 className={styles.title}>Profile Completeness</h3>
       </div>
 
       {/* Profile Completeness Section */}
       <div className={styles.completenessSection}>
         <div className={styles.completenessHeader}>
-          <span className={styles.completenessTitle}>Profile Completeness</span>
+          <span className={styles.completenessLabel}>Progress Status</span>
           <span className={styles.scoreChip}>{score}%</span>
         </div>
         <div className={styles.progressBar}>
@@ -265,33 +207,6 @@ export default function AccountCard() {
             role="progressbar"
           />
         </div>
-      </div>
-
-      {/* Quick Actions Section */}
-      <div className={styles.actionsSection}>
-        <h4 className={styles.actionsTitle}>Quick Actions</h4>
-
-        {/* Primary Button - Share Profile */}
-        <button onClick={handleShareProfile} className={styles.primaryButton}>
-          Share Your Profile
-        </button>
-
-        {/* Secondary Buttons */}
-        <button
-          onClick={() => router.push('/network')}
-          className={styles.secondaryButton}
-        >
-          Grow Your Network
-        </button>
-
-        <button
-          onClick={() => {
-            toast('Coming soon: Boost your profile!', { icon: '🚀' });
-          }}
-          className={styles.secondaryButton}
-        >
-          Boost Your Profile
-        </button>
       </div>
     </HubComplexCard>
   );
