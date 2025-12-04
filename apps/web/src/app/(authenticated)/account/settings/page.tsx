@@ -19,13 +19,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import AccountCard from '@/app/components/feature/account/AccountCard';
-import AccountHeroHeader from '@/app/components/feature/account/AccountHeroHeader';
 import AccountHelpWidget from '@/app/components/feature/account/AccountHelpWidget';
 import AccountTipWidget from '@/app/components/feature/account/AccountTipWidget';
 import AccountVideoWidget from '@/app/components/feature/account/AccountVideoWidget';
 import IntegrationLinksCard from '@/app/components/feature/students/IntegrationLinksCard';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
+import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import Button from '@/app/components/ui/actions/Button';
 import styles from './page.module.css';
@@ -100,7 +99,8 @@ export default function SettingsPage() {
   return (
     <HubPageLayout
       header={
-        <AccountHeroHeader
+        <HubHeader
+          title="Account"
           actions={
             <>
               {/* Primary Action: Build My Business */}

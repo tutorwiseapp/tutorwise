@@ -15,11 +15,10 @@ import { updateProfile } from '@/lib/api/profiles';
 import ProfessionalInfoForm from '@/app/components/feature/profile/ProfessionalInfoForm';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import AccountCard from '@/app/components/feature/account/AccountCard';
-import AccountHeroHeader from '@/app/components/feature/account/AccountHeroHeader';
 import AccountHelpWidget from '@/app/components/feature/account/AccountHelpWidget';
 import AccountTipWidget from '@/app/components/feature/account/AccountTipWidget';
 import AccountVideoWidget from '@/app/components/feature/account/AccountVideoWidget';
-import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
+import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import Button from '@/app/components/ui/actions/Button';
 import type { Profile } from '@/types';
@@ -73,7 +72,7 @@ export default function ProfessionalPage() {
   if (!profile) {
     return (
       <HubPageLayout
-        header={<AccountHeroHeader />}
+        header={<HubHeader title="Account" />}
         tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
         sidebar={
           <HubSidebar>
@@ -92,7 +91,8 @@ export default function ProfessionalPage() {
   return (
     <HubPageLayout
       header={
-        <AccountHeroHeader
+        <HubHeader
+          title="Account"
           actions={
             <>
               {/* Primary Action: Build My Business */}
