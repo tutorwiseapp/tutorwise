@@ -22,13 +22,10 @@ export default function ReferralHelpWidget() {
       <div className={styles.content}>
         <ul className={styles.list}>
           <li className={styles.listItem}>
-            Share your unique referral link with tutors or clients
+            Supply-side agent: Grow your earnings by inviting tutors with your link — earn 10% on every lesson they teach or product they sell.
           </li>
           <li className={styles.listItem}>
-            Earn 10% commission on their first paid booking
-          </li>
-          <li className={styles.listItem}>
-            Track all referrals in your dashboard
+            Demand-side agent: Share your link or QR code in stores or WhatsApp to bring in new learners — earn 10% when referred clients book and pay.
           </li>
         </ul>
       </div>
