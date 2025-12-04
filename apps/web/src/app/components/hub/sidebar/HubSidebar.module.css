@@ -2,8 +2,9 @@
  * Filename: src/app/components/hub/sidebar/HubSidebar.module.css
  * Purpose: Styles for HubSidebar (right column - hub-specific widgets)
  * Created: 2025-11-02
- * Updated: 2025-12-02 - Fixed width to 320px, changed to sticky positioning
+ * Updated: 2025-12-04 - Priority 2: Removed feature-specific styles (moved to feature folders)
  * Specification: SDD v3.6, Section 5.2 - Responsive 3-column layout
+ * Architecture: Tier 2 (Hub System) - Pure layout styles, no feature-specific styling
  */
 
 .hubSidebar {
@@ -26,7 +27,7 @@
   gap: 1.25rem; /* Slightly tighter gap for better visual hierarchy */
 }
 
-/* Widget Styles */
+/* Generic Widget Wrapper Styles */
 .widget {
   background-color: #ffffff;
   border-radius: 0.5rem;
@@ -48,153 +49,7 @@
   padding: 1rem;
 }
 
-/* Upcoming Session Widget */
-.sessionCard {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-}
-
-.sessionDate,
-.sessionTime {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #6b7280;
-}
-
-.dateIcon,
-.timeIcon {
-  font-size: 1rem;
-}
-
-.sessionService {
-  font-weight: 600;
-  color: #1f2937;
-  margin-top: 0.5rem;
-}
-
-.sessionParticipant {
-  color: #6b7280;
-  font-size: 0.8125rem;
-}
-
-/* Balance Summary Widget */
-.balanceCard {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.balanceRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.875rem;
-}
-
-.balanceLabel {
-  color: #6b7280;
-}
-
-.balanceAmount {
-  font-weight: 600;
-  color: #059669;
-}
-
-.balancePending {
-  font-weight: 600;
-  color: #d97706;
-}
-
-.balanceTotal {
-  padding-top: 0.75rem;
-  border-top: 1px solid #e5e7eb;
-  margin-top: 0.25rem;
-}
-
-.balanceAmountTotal {
-  font-weight: 700;
-  color: #1f2937;
-  font-size: 1rem;
-}
-
-/* Referral Stats Widget */
-.statsCard {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.statRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.875rem;
-}
-
-.statLabel {
-  color: #6b7280;
-}
-
-.statValue {
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.statHighlight {
-  padding-top: 0.75rem;
-  border-top: 1px solid #e5e7eb;
-  margin-top: 0.25rem;
-}
-
-.statValueHighlight {
-  font-weight: 700;
-  color: #059669;
-  font-size: 1rem;
-}
-
-/* Referral Link Widget */
-.referralLinkCard {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.referralUrl {
-  padding: 0.75rem;
-  background-color: #f3f4f6;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.375rem;
-  font-size: 0.75rem;
-  font-family: monospace;
-  color: #1f2937;
-  word-break: break-all;
-}
-
-.copyButton {
-  width: 100%;
-  padding: 0.625rem 1rem;
-  background-color: var(--color-primary-default, #006c67);
-  color: #ffffff;
-  border: none;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.15s ease-in-out;
-}
-
-.copyButton:hover {
-  background-color: var(--color-primary-dark, #005550);
-}
-
-.copyButton:active {
-  background-color: var(--color-primary-darker, #004440);
-}
-
-/* Standard Widget Button Styles */
+/* Standard Widget Button Styles - Reusable by any feature widget */
 .primaryButton {
   display: flex;
   align-items: center;
@@ -253,7 +108,7 @@
   line-height: 1.5;
 }
 
-/* Form Styles for Widgets */
+/* Form Styles for Widgets - Reusable by any feature widget */
 .formGroup {
   margin-bottom: 1rem;
 }
@@ -303,7 +158,7 @@
   flex: 1;
 }
 
-/* Stats Grid for Widgets */
+/* Stats Grid for Widgets - Reusable by any feature widget */
 .statGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;

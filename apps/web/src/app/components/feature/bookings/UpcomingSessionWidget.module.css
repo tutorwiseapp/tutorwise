@@ -1,0 +1,52 @@
+/**
+ * Filename: apps/web/src/app/components/feature/bookings/UpcomingSessionWidget.module.css
+ * Purpose: Styles for UpcomingSessionWidget
+ * Created: 2025-12-04 (Moved from HubSidebar.module.css)
+ */
+
+.widget {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.widgetTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.75rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.widgetContent {
+  font-size: 0.875rem;
+}
+
+.sessionCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sessionDate {
+  font-weight: 600;
+  color: #111827;
+}
+
+.sessionTime {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.sessionService {
+  color: #111827;
+  font-weight: 500;
+}
+
+.sessionParticipant {
+  color: #6b7280;
+  font-size: 0.875rem;
+}

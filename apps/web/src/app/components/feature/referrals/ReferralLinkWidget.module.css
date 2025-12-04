@@ -1,0 +1,63 @@
+/**
+ * Filename: apps/web/src/app/components/feature/referrals/ReferralLinkWidget.module.css
+ * Purpose: Styles for ReferralLinkWidget
+ * Created: 2025-12-04 (Moved from HubSidebar.module.css)
+ */
+
+.widget {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.widgetTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.75rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.widgetContent {
+  font-size: 0.875rem;
+}
+
+.referralLinkCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.referralUrl {
+  background-color: #f9fafb;
+  padding: 0.75rem;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #111827;
+  word-break: break-all;
+}
+
+.copyButton {
+  background-color: #006c67;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.copyButton:hover {
+  background-color: #005550;
+}
+
+.copyButton:active {
+  background-color: #004440;
+}

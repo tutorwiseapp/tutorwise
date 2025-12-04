@@ -1,0 +1,67 @@
+/**
+ * Filename: apps/web/src/app/components/feature/financials/BalanceSummaryWidget.module.css
+ * Purpose: Styles for BalanceSummaryWidget
+ * Created: 2025-12-04 (Moved from HubSidebar.module.css)
+ */
+
+.widget {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.widgetTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.75rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.widgetContent {
+  font-size: 0.875rem;
+}
+
+.balanceCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.balanceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.balanceLabel {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.balanceAmount {
+  color: #059669;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.balancePending {
+  color: #f59e0b;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.balanceTotal {
+  padding-top: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 0.25rem;
+}
+
+.balanceAmountTotal {
+  color: #111827;
+  font-weight: 700;
+  font-size: 1.125rem;
+}
