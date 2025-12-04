@@ -37,7 +37,7 @@ import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 
 type SortType = 'newest' | 'oldest' | 'name-asc' | 'name-desc';
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 4;
 
 export default function ReferralsPage() {
   const { profile, isLoading: profileLoading } = useUserProfile();
