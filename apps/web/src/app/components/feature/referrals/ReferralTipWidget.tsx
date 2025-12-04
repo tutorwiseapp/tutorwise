@@ -21,7 +21,10 @@ export default function ReferralTipWidget() {
       <h3 className={styles.title}>Referral Tips</h3>
       <div className={styles.content}>
         <p className={styles.text}>
-          Share your referral link on social media to reach more people and increase your earnings.
+          Recommend trusted tutors from your network using the Refer & Earn button, and earn 10% on every session they deliver.
+        </p>
+        <p className={styles.text}>
+          Share your referral link on social media or promote your QR code offline to reach more people and increase your earnings.
         </p>
       </div>
     </HubComplexCard>
