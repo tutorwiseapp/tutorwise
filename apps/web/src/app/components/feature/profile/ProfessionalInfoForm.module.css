@@ -1,0 +1,98 @@
+/*
+ * Filename: ProfessionalInfoForm.module.css
+ * Purpose: Styles for Professional Info Form (extracted from OnboardingWizard for decoupling)
+ * Created: 2025-12-04
+ */
+
+/* Form styles - Using 8px-based spacing */
+.formGroup {
+  margin-bottom: 32px; /* 8px × 4 */
+}
+
+.formLabel {
+  display: block;
+  font-weight: 500;
+  color: var(--color-text-primary, #1f2937);
+  margin-bottom: 8px; /* 8px × 1 */
+  font-size: 0.875rem;
+}
+
+.errorText {
+  font-size: 0.875rem;
+  color: var(--color-error, #dc2626);
+  margin-bottom: 8px; /* 8px × 1 */
+  display: block;
+}
+
+.checkboxItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px; /* 8px × 1.5 and 8px × 2 */
+  background-color: var(--color-bg-secondary, #f9fafb);
+  border: 2px solid var(--color-border, #dfe1e5);
+  border-radius: 8px; /* 8px × 1 */
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+  min-height: 44px;
+  user-select: none;
+}
+
+.checkboxItem:hover {
+  background-color: var(--color-primary-light, #E0F2F1);
+  border-color: var(--color-primary, #006C67);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 108, 103, 0.1);
+}
+
+.checkboxItem:active {
+  transform: translateY(0);
+}
+
+.checkboxItem.selected {
+  background-color: var(--color-primary, #006C67);
+  color: white;
+  border-color: var(--color-primary, #006C67);
+  box-shadow: 0 2px 8px rgba(0, 108, 103, 0.2);
+}
+
+.checkboxItem.selected:hover {
+  background-color: #005a56;
+  border-color: #005a56;
+}
+
+/* Button styles - using existing button system */
+.buttonPrimary {
+  background-color: var(--color-primary, #006C67);
+  color: white;
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-md, 8px);
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  font-size: 1rem;
+}
+
+.buttonPrimary:hover:not(:disabled) {
+  background-color: var(--color-primary-dark, #004D40);
+}
+
+.buttonSecondary {
+  background-color: transparent;
+  color: var(--color-primary, #006C67);
+  border: 1px solid var(--color-primary, #006C67);
+  border-radius: var(--border-radius-md, 8px);
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  font-size: 1rem;
+}
+
+.buttonSecondary:hover:not(:disabled) {
+  background-color: var(--color-primary-light, #E0F2F1);
+}

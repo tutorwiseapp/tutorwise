@@ -9,7 +9,7 @@ import DatePicker from '@/app/components/ui/forms/DatePicker';
 import Select from '@/app/components/ui/forms/Select';
 import { useDocumentUpload } from '@/hooks/useDocumentUpload';
 import hubFormStyles from '@/app/components/hub/form/HubForm.module.css';
-import wizardStyles from '@/app/components/feature/onboarding/OnboardingWizard.module.css';
+import styles from './ProfessionalInfoForm.module.css';
 
 interface ProfessionalInfoFormProps {
   profile: Profile;
@@ -980,19 +980,19 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               {/* Left Column: Availability Periods */}
               <div>
                 {/* Availability Type */}
-                <div className={wizardStyles.formGroup}>
-                  <label className={wizardStyles.formLabel}>Availability Periods</label>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Availability Periods</label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <button
                       type="button"
-                      className={`${wizardStyles.checkboxItem} ${availabilityType === 'recurring' ? wizardStyles.selected : ''}`}
+                      className={`${styles.checkboxItem} ${availabilityType === 'recurring' ? styles.selected : ''}`}
                       onClick={() => setAvailabilityType('recurring')}
                     >
                       Recurring
                     </button>
                     <button
                       type="button"
-                      className={`${wizardStyles.checkboxItem} ${availabilityType === 'one-time' ? wizardStyles.selected : ''}`}
+                      className={`${styles.checkboxItem} ${availabilityType === 'one-time' ? styles.selected : ''}`}
                       onClick={() => setAvailabilityType('one-time')}
                     >
                       One-time
@@ -1002,10 +1002,10 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
                 {/* Days of Week (only for recurring) */}
                 {availabilityType === 'recurring' && (
-                  <div className={wizardStyles.formGroup}>
-                    <label className={wizardStyles.formLabel}>Days of Week</label>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Days of Week</label>
                     {availErrors.days && (
-                      <p className={wizardStyles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
+                      <p className={styles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
                         {availErrors.days}
                       </p>
                     )}
@@ -1014,7 +1014,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                         <button
                           key={day}
                           type="button"
-                          className={`${wizardStyles.checkboxItem} ${selectedDays.includes(day) ? wizardStyles.selected : ''}`}
+                          className={`${styles.checkboxItem} ${selectedDays.includes(day) ? styles.selected : ''}`}
                           onClick={() => toggleDay(day)}
                         >
                           {day}
@@ -1025,9 +1025,9 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                 )}
 
                 {/* Date Pickers */}
-                <div className={wizardStyles.formGroup}>
+                <div className={styles.formGroup}>
                   {availErrors.dates && (
-                    <p className={wizardStyles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
+                    <p className={styles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
                       {availErrors.dates}
                     </p>
                   )}
@@ -1058,9 +1058,9 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                 </div>
 
                 {/* Time Pickers */}
-                <div className={wizardStyles.formGroup}>
+                <div className={styles.formGroup}>
                   {availErrors.times && (
-                    <p className={wizardStyles.errorText} style={{ marginBottom: '8px' }}>
+                    <p className={styles.errorText} style={{ marginBottom: '8px' }}>
                       {availErrors.times}
                     </p>
                   )}
@@ -1085,7 +1085,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                   <button
                     type="button"
                     onClick={handleAddAvailability}
-                    className={wizardStyles.buttonPrimary}
+                    className={styles.buttonPrimary}
                     style={{ width: '100%' }}
                   >
                     Add
@@ -1094,8 +1094,8 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
                 {/* Summary Sections */}
                 {recurringPeriods.length > 0 && (
-                  <div className={wizardStyles.formGroup}>
-                    <label className={wizardStyles.formLabel}>Recurring Availability</label>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Recurring Availability</label>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {recurringPeriods.map(period => (
                         <div
@@ -1114,7 +1114,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                           <button
                             type="button"
                             onClick={() => handleRemoveAvailability(period.id)}
-                            className={wizardStyles.buttonSecondary}
+                            className={styles.buttonSecondary}
                             style={{ padding: '4px 12px', fontSize: '0.875rem' }}
                           >
                             Remove
@@ -1126,8 +1126,8 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                 )}
 
                 {oneTimePeriods.length > 0 && (
-                  <div className={wizardStyles.formGroup}>
-                    <label className={wizardStyles.formLabel}>One-time Availability</label>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>One-time Availability</label>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {oneTimePeriods.map(period => (
                         <div
@@ -1146,7 +1146,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                           <button
                             type="button"
                             onClick={() => handleRemoveAvailability(period.id)}
-                            className={wizardStyles.buttonSecondary}
+                            className={styles.buttonSecondary}
                             style={{ padding: '4px 12px', fontSize: '0.875rem' }}
                           >
                             Remove
@@ -1161,10 +1161,10 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               {/* Right Column: Unavailability Periods */}
               <div>
                 {/* Date Pickers */}
-                <div className={wizardStyles.formGroup}>
-                  <label className={wizardStyles.formLabel}>Unavailability Periods</label>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Unavailability Periods</label>
                   {unavailErrors.dates && (
-                    <p className={wizardStyles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
+                    <p className={styles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
                       {unavailErrors.dates}
                     </p>
                   )}
@@ -1197,7 +1197,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                   <button
                     type="button"
                     onClick={handleAddUnavailability}
-                    className={wizardStyles.buttonPrimary}
+                    className={styles.buttonPrimary}
                     style={{ width: '100%' }}
                   >
                     Add
@@ -1206,8 +1206,8 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
                 {/* Summary Section */}
                 {unavailabilityPeriods.length > 0 && (
-                  <div className={wizardStyles.formGroup}>
-                    <label className={wizardStyles.formLabel}>Unavailable Period</label>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Unavailable Period</label>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {unavailabilityPeriods.map(period => (
                         <div
@@ -1226,7 +1226,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                           <button
                             type="button"
                             onClick={() => handleRemoveUnavailability(period.id)}
-                            className={wizardStyles.buttonSecondary}
+                            className={styles.buttonSecondary}
                             style={{ padding: '4px 12px', fontSize: '0.875rem' }}
                           >
                             Remove
@@ -1747,19 +1747,19 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
             {/* Left Column: Availability Periods */}
             <div>
               {/* Availability Type */}
-              <div className={wizardStyles.formGroup}>
-                <label className={wizardStyles.formLabel}>Availability Periods</label>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Availability Periods</label>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <button
                     type="button"
-                    className={`${wizardStyles.checkboxItem} ${availabilityType === 'recurring' ? wizardStyles.selected : ''}`}
+                    className={`${styles.checkboxItem} ${availabilityType === 'recurring' ? styles.selected : ''}`}
                     onClick={() => setAvailabilityType('recurring')}
                   >
                     Recurring
                   </button>
                   <button
                     type="button"
-                    className={`${wizardStyles.checkboxItem} ${availabilityType === 'one-time' ? wizardStyles.selected : ''}`}
+                    className={`${styles.checkboxItem} ${availabilityType === 'one-time' ? styles.selected : ''}`}
                     onClick={() => setAvailabilityType('one-time')}
                   >
                     One-time
@@ -1769,10 +1769,10 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
               {/* Days of Week (only for recurring) */}
               {availabilityType === 'recurring' && (
-                <div className={wizardStyles.formGroup}>
-                  <label className={wizardStyles.formLabel}>Days of Week</label>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Days of Week</label>
                   {availErrors.days && (
-                    <p className={wizardStyles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
+                    <p className={styles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
                       {availErrors.days}
                     </p>
                   )}
@@ -1781,7 +1781,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                       <button
                         key={day}
                         type="button"
-                        className={`${wizardStyles.checkboxItem} ${selectedDays.includes(day) ? wizardStyles.selected : ''}`}
+                        className={`${styles.checkboxItem} ${selectedDays.includes(day) ? styles.selected : ''}`}
                         onClick={() => toggleDay(day)}
                       >
                         {day}
@@ -1792,9 +1792,9 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               )}
 
               {/* Date Pickers */}
-              <div className={wizardStyles.formGroup}>
+              <div className={styles.formGroup}>
                 {availErrors.dates && (
-                  <p className={wizardStyles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
+                  <p className={styles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
                     {availErrors.dates}
                   </p>
                 )}
@@ -1825,9 +1825,9 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               </div>
 
               {/* Time Pickers */}
-              <div className={wizardStyles.formGroup}>
+              <div className={styles.formGroup}>
                 {availErrors.times && (
-                  <p className={wizardStyles.errorText} style={{ marginBottom: '8px' }}>
+                  <p className={styles.errorText} style={{ marginBottom: '8px' }}>
                     {availErrors.times}
                   </p>
                 )}
@@ -1852,7 +1852,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                 <button
                   type="button"
                   onClick={handleAddAvailability}
-                  className={wizardStyles.buttonPrimary}
+                  className={styles.buttonPrimary}
                   style={{ width: '100%' }}
                 >
                   Add
@@ -1861,8 +1861,8 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
               {/* Summary Sections */}
               {recurringPeriods.length > 0 && (
-                <div className={wizardStyles.formGroup}>
-                  <label className={wizardStyles.formLabel}>Recurring Availability</label>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Recurring Availability</label>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {recurringPeriods.map(period => (
                       <div
@@ -1881,7 +1881,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                         <button
                           type="button"
                           onClick={() => handleRemoveAvailability(period.id)}
-                          className={wizardStyles.buttonSecondary}
+                          className={styles.buttonSecondary}
                           style={{ padding: '4px 12px', fontSize: '0.875rem' }}
                         >
                           Remove
@@ -1893,8 +1893,8 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               )}
 
               {oneTimePeriods.length > 0 && (
-                <div className={wizardStyles.formGroup}>
-                  <label className={wizardStyles.formLabel}>One-time Availability</label>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>One-time Availability</label>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {oneTimePeriods.map(period => (
                       <div
@@ -1913,7 +1913,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                         <button
                           type="button"
                           onClick={() => handleRemoveAvailability(period.id)}
-                          className={wizardStyles.buttonSecondary}
+                          className={styles.buttonSecondary}
                           style={{ padding: '4px 12px', fontSize: '0.875rem' }}
                         >
                           Remove
@@ -1928,10 +1928,10 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
             {/* Right Column: Unavailability Periods */}
             <div>
               {/* Date Pickers */}
-              <div className={wizardStyles.formGroup}>
-                <label className={wizardStyles.formLabel}>Unavailability Periods</label>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Unavailability Periods</label>
                 {unavailErrors.dates && (
-                  <p className={wizardStyles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
+                  <p className={styles.errorText} style={{ marginTop: '8px', marginBottom: '8px' }}>
                     {unavailErrors.dates}
                   </p>
                 )}
@@ -1964,7 +1964,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                 <button
                   type="button"
                   onClick={handleAddUnavailability}
-                  className={wizardStyles.buttonPrimary}
+                  className={styles.buttonPrimary}
                   style={{ width: '100%' }}
                 >
                   Add
@@ -1973,8 +1973,8 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
               {/* Summary Section */}
               {unavailabilityPeriods.length > 0 && (
-                <div className={wizardStyles.formGroup}>
-                  <label className={wizardStyles.formLabel}>Unavailable Period</label>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Unavailable Period</label>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {unavailabilityPeriods.map(period => (
                       <div
@@ -1993,7 +1993,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                         <button
                           type="button"
                           onClick={() => handleRemoveUnavailability(period.id)}
-                          className={wizardStyles.buttonSecondary}
+                          className={styles.buttonSecondary}
                           style={{ padding: '4px 12px', fontSize: '0.875rem' }}
                         >
                           Remove
