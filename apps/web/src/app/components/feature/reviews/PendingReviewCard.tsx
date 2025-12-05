@@ -1,16 +1,15 @@
 /**
  * Filename: apps/web/src/app/components/feature/reviews/PendingReviewCard.tsx
- * Purpose: Card component for pending review tasks
+ * Purpose: Card component for pending review tasks in detail card format with HubDetailCard
  * Created: 2025-11-08
- * Updated: 2025-11-24 - Migrated to HubRowCard standard
- * Specification: SDD v4.5 - Horizontal card layout with HubRowCard component
+ * Updated: 2025-12-05 - Migrated to HubDetailCard standard (consistent with BookingCard/WiselistCard)
  */
 
 'use client';
 
 import React from 'react';
 import type { PendingReviewTask } from '@/types/reviews';
-import HubRowCard from '@/app/components/hub/content/HubRowCard/HubRowCard';
+import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import Button from '@/app/components/ui/actions/Button';
 import getProfileImageUrl from '@/lib/utils/image';
 
@@ -67,8 +66,19 @@ export default function PendingReviewCard({ task, currentUserId, onSubmit }: Pro
   // Build description
   const description = `Rate your experience with ${subject.full_name}`;
 
-  // Build metadata array
-  const meta = [`Session: ${formatDate(booking.session_start_time)}`];
+  // Build details grid - 3x3 grid for balance with 160px avatar
+  const details = [
+    // Row 1: Subject, Session Date, Days Remaining
+    { label: 'Subject', value: subject.full_name || 'Unknown' },
+    { label: 'Session', value: formatDate(booking.session_start_time) },
+    { label: 'Due In', value: `${task.days_remaining} ${task.days_remaining === 1 ? 'day' : 'days'}` },
+    // Row 2: Service, Status, Task ID
+    { label: 'Service', value: booking.service_name || 'Unknown Service' },
+    { label: 'Status', value: getStatus().label },
+    { label: 'Task ID', value: task.id.substring(0, 8) },
+    // Row 3: Subject ID (full width)
+    { label: 'Subject ID', value: subject.id.substring(0, 16), fullWidth: true },
+  ];
 
   // Build actions
   const actions = (
@@ -78,19 +88,19 @@ export default function PendingReviewCard({ task, currentUserId, onSubmit }: Pro
   );
 
   return (
-    <HubRowCard
+    <HubDetailCard
       image={{
         src: avatarUrl,
         alt: subject.full_name || 'Subject',
         fallbackChar: fallbackChar,
       }}
+      imageHref={`/public-profile/${subject.id}`}
       title={title}
+      titleHref={`/public-profile/${subject.id}`}
       status={getStatus()}
       description={description}
-      meta={meta}
+      details={details}
       actions={actions}
-      imageHref={`/public-profile/${subject.id}`}
-      titleHref={`/public-profile/${subject.id}`}
     />
   );
 }

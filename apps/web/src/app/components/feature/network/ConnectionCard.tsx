@@ -1,9 +1,8 @@
 /**
  * Filename: apps/web/src/app/components/feature/network/ConnectionCard.tsx
- * Purpose: Display individual connection with actions (Accept/Reject/Remove/Message)
+ * Purpose: Display individual connection in detail card format with HubDetailCard
  * Created: 2025-11-07
- * Updated: 2025-11-24 - Migrated to HubRowCard standard with LinkedIn Lite 4-line rhythm
- * Specification: SDD v4.5, Section 4.2
+ * Updated: 2025-12-05 - Migrated to HubDetailCard standard (consistent with BookingCard/WiselistCard)
  */
 
 'use client';
@@ -11,8 +10,7 @@
 import React from 'react';
 import toast from 'react-hot-toast';
 import { useAblyPresence } from '@/app/hooks/useAblyPresence';
-import HubRowCard from '@/app/components/hub/content/HubRowCard/HubRowCard';
-import StatsRow from '@/app/components/hub/content/HubRowCard/StatsRow';
+import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import Button from '@/app/components/ui/actions/Button';
 
 export interface Connection {
@@ -142,28 +140,30 @@ export default function ConnectionCard({
     return { label: 'Connected', variant: 'success' as const };
   };
 
-  // Line 2: Description (Priority context for Request Received, Bio otherwise)
+  // Description (Priority context for Request Received, Bio otherwise)
   const description = variant === 'pending-received' && connection.message
     ? connection.message
     : otherParty.bio || 'There is no data...';
 
-  // Line 3: Meta array (Email and Date only)
-  const meta = [
-    otherParty.email,
-    formatDate(connection.created_at),
+  // Build details grid - 3x3 grid for balance with 160px avatar
+  const details = [
+    // Row 1: Email, Status, Online
+    { label: 'Email', value: otherParty.email },
+    { label: 'Status', value: getStatus().label },
+    { label: 'Online', value: variant === 'accepted' ? (isOnline ? '🟢 Online' : '⚪ Offline') : '--' },
+    // Row 2: Connected, Type, --
+    { label: 'Connected', value: formatDate(connection.created_at) },
+    { label: 'Type', value: isRequester ? 'You requested' : 'They requested' },
+    { label: 'ID', value: connection.id.substring(0, 8) },
+    // Row 3: Message status (full width if has message)
+    ...(connection.message ? [
+      { label: 'Message', value: connection.message, fullWidth: true },
+    ] : [
+      { label: 'Message', value: 'No message' },
+      { label: '', value: '' },
+      { label: '', value: '' },
+    ]),
   ];
-
-  // Line 4: Presence indicator (passed as stats for visual separation)
-  const stats = variant === 'accepted' ? (
-    <StatsRow
-      stats={[
-        { value: isOnline ? '🟢 Online' : '⚪ Offline', hideLabel: true },
-        // Future: Add more stats here
-        // { label: 'Messages', value: connectionData.message_count },
-        // { label: 'Connected', value: formatTimeAgo(connection.created_at) },
-      ]}
-    />
-  ) : undefined;
 
   // Actions based on variant
   const actions = (
@@ -214,7 +214,7 @@ export default function ConnectionCard({
   );
 
   return (
-    <HubRowCard
+    <HubDetailCard
       image={{
         src: otherParty.avatar_url || null,
         alt: otherParty.full_name,
@@ -223,8 +223,7 @@ export default function ConnectionCard({
       title={otherParty.full_name}
       status={getStatus()}
       description={description}
-      meta={meta}
-      stats={stats}
+      details={details}
       actions={actions}
       imageHref={`/public-profile/${otherParty.id}`}
       titleHref={`/public-profile/${otherParty.id}`}

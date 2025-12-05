@@ -1,15 +1,14 @@
 /*
  * Filename: src/app/components/financials/TransactionCard.tsx
- * Purpose: Display transaction information in card format (SDD v4.9)
+ * Purpose: Display transaction information in detail card format with HubDetailCard
  * Created: 2025-11-02
- * Updated: 2025-11-24 - Migrated to HubRowCard standard with 3-role counterparty logic
- * Specification: SDD v4.9 - Horizontal card layout with HubRowCard component
+ * Updated: 2025-12-05 - Migrated to HubDetailCard standard (consistent with BookingCard/WiselistCard)
+ * Specification: Expanded detail card layout with HubDetailCard component
  */
 'use client';
 
 import { Transaction, TransactionStatus } from '@/types';
-import HubRowCard from '@/app/components/hub/content/HubRowCard/HubRowCard';
-import StatsRow from '@/app/components/hub/content/HubRowCard/StatsRow';
+import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import Button from '@/app/components/ui/actions/Button';
 import getProfileImageUrl from '@/lib/utils/image';
 
@@ -88,7 +87,7 @@ export default function TransactionCard({ transaction, currentUserId }: Transact
     });
   };
 
-  // Map status to HubRowCard status variant (v4.9)
+  // Map status to HubDetailCard status variant
   const getStatus = (): { label: string; variant: 'success' | 'warning' | 'error' | 'neutral' | 'info' } => {
     switch (transaction.status) {
       case 'available':
@@ -135,13 +134,6 @@ export default function TransactionCard({ transaction, currentUserId }: Transact
   // Build description (transaction type - already human-readable)
   const description = transaction.type;
 
-  // Build metadata array
-  const meta = [
-    formatDate(transaction.created_at),
-    formatTime(transaction.created_at),
-    `#${transaction.id.slice(0, 8)}`
-  ];
-
   // Determine credit/debit for amount display
   const isCredit =
     (transaction.type === 'Booking Payment' && transaction.booking?.tutor_id === currentUserId) ||
@@ -153,24 +145,23 @@ export default function TransactionCard({ transaction, currentUserId }: Transact
     transaction.type === 'Platform Fee' ||
     transaction.type === 'Withdrawal';
 
-  // Build stats (amount with explicit signs and consistent spacing for future expansion)
-  const amountColor = isCredit ? '#137333' : '#111827'; // emerald-600 : gray-900
   const amountPrefix = isCredit ? '+' : (isDebit && transaction.type !== 'Withdrawal' ? '-' : '');
+  const amountDisplay = `${amountPrefix}£${transaction.amount.toFixed(2)}`;
+  const amountType = isCredit ? 'Credit' : (isDebit ? 'Debit' : 'Transfer');
 
-  const stats = (
-    <StatsRow
-      stats={[
-        {
-          value: `${amountPrefix}£${transaction.amount.toFixed(2)}`,
-          color: amountColor,
-          hideLabel: true,
-        },
-        // Future: Add more stats here
-        // { label: 'Fee', value: `£${transaction.fee}` },
-        // { label: 'Net', value: `£${transaction.net}` },
-      ]}
-    />
-  );
+  // Build details grid - 3x3 grid for balance with 160px avatar
+  const details = [
+    // Row 1: Amount, Type, Status
+    { label: 'Amount', value: amountDisplay },
+    { label: 'Type', value: amountType },
+    { label: 'Status', value: transaction.status },
+    // Row 2: Date, Time, Counterparty
+    { label: 'Date', value: formatDate(transaction.created_at) },
+    { label: 'Time', value: formatTime(transaction.created_at) },
+    { label: 'Counterparty', value: counterparty.name },
+    // Row 3: Transaction ID (full width)
+    { label: 'Transaction ID', value: `#${transaction.id.slice(0, 8)}`, fullWidth: true },
+  ];
 
   // Build actions
   const actions = (
@@ -189,13 +180,12 @@ export default function TransactionCard({ transaction, currentUserId }: Transact
   );
 
   return (
-    <HubRowCard
+    <HubDetailCard
       image={getImage()}
       title={title}
       status={getStatus()}
       description={description}
-      meta={meta}
-      stats={stats}
+      details={details}
       actions={actions}
       imageHref={isSystemTransaction ? undefined : `/public-profile/${counterparty.id}`}
       titleHref={isSystemTransaction ? undefined : `/public-profile/${counterparty.id}`}

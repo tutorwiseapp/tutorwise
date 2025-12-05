@@ -1,15 +1,15 @@
 /**
  * Filename: apps/web/src/app/components/messages/ConversationList.tsx
- * Purpose: Conversation list component for Messages Hub
+ * Purpose: Conversation list component for Messages Hub with HubDetailCard
  * Created: 2025-11-24
- * Specification: Display conversations with HubRowCard styling
+ * Updated: 2025-12-05 - Migrated to HubDetailCard standard (consistent with BookingCard/WiselistCard)
  */
 
 'use client';
 
 import React from 'react';
 import type { Conversation } from '@/lib/api/messages';
-import HubRowCard from '@/app/components/hub/content/HubRowCard/HubRowCard';
+import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import getProfileImageUrl from '@/lib/utils/image';
 import { useAblyPresence } from '@/app/hooks/useAblyPresence';
 import styles from './ConversationList.module.css';
@@ -117,13 +117,27 @@ function ConversationListItem({
   // Build description (last message preview)
   const description = conversation.lastMessage?.content || 'No messages yet';
 
-  // Build metadata
-  const meta = conversation.lastMessage
-    ? [formatTimestamp(conversation.lastMessage.timestamp)]
-    : ['No messages'];
+  // Format last message timestamp
+  const lastMessageTime = conversation.lastMessage
+    ? formatTimestamp(conversation.lastMessage.timestamp)
+    : 'No messages';
 
-  // Build stats (unread count)
-  const stats = conversation.unreadCount > 0 ? (
+  // Build details grid - 3x3 grid for balance with 160px avatar
+  const details = [
+    // Row 1: Last Message, Status, Unread
+    { label: 'Last Message', value: lastMessageTime },
+    { label: 'Status', value: isOnline ? 'Online' : 'Offline' },
+    { label: 'Unread', value: conversation.unreadCount > 0 ? `${conversation.unreadCount}` : '0' },
+    // Row 2: User ID (full width)
+    { label: 'User ID', value: otherUser.id.substring(0, 8), fullWidth: true },
+    // Empty fields for grid balance
+    { label: '', value: '' },
+    { label: '', value: '' },
+    { label: '', value: '' },
+  ];
+
+  // Unread badge display (only if unread > 0)
+  const unreadBadge = conversation.unreadCount > 0 ? (
     <span className={styles.unreadBadge}>{conversation.unreadCount}</span>
   ) : undefined;
 
@@ -132,7 +146,7 @@ function ConversationListItem({
       className={`${styles.item} ${isSelected ? styles.itemSelected : ''}`}
       onClick={() => onSelect(conversation.id)}
     >
-      <HubRowCard
+      <HubDetailCard
         image={{
           src: avatarUrl,
           alt: title,
@@ -141,9 +155,10 @@ function ConversationListItem({
         title={title}
         status={status}
         description={description}
-        meta={meta}
-        stats={stats}
+        details={details}
       />
+      {/* Display unread badge if exists */}
+      {unreadBadge && <div className={styles.unreadBadgeOverlay}>{unreadBadge}</div>}
     </div>
   );
 }

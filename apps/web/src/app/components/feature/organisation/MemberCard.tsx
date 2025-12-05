@@ -1,15 +1,14 @@
 /**
  * Filename: MemberCard.tsx
- * Purpose: Organisation member card following HubRowCard standard
+ * Purpose: Organisation member card in detail card format with HubDetailCard
  * Created: 2025-11-26
- * Design: 4-line rhythm with Identity, Narrative, Context, Performance
+ * Updated: 2025-12-05 - Migrated to HubDetailCard standard (consistent with BookingCard/WiselistCard)
  */
 
 'use client';
 
 import React from 'react';
-import HubRowCard from '@/app/components/hub/content/HubRowCard/HubRowCard';
-import StatsRow from '@/app/components/hub/content/HubRowCard/StatsRow';
+import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import Button from '@/app/components/ui/actions/Button';
 import { OrganisationMember } from '@/lib/api/organisation';
 import { formatTimeAgo } from '@/lib/utils/dateUtils';
@@ -30,7 +29,7 @@ export default function MemberCard({
   // Standardization: Alias for consistency with other Hub Row Cards
   const otherParty = member;
 
-  // Line 1: Identity & Trust - Status Badge
+  // Identity & Trust - Status Badge
   const isVerified =
     !!otherParty.dbs_certificate_url &&
     !!otherParty.identity_verification_document_url;
@@ -39,28 +38,27 @@ export default function MemberCard({
     ? { label: 'Verified', variant: 'success' as const }
     : { label: 'Unverified', variant: 'neutral' as const };
 
-  // Line 2: Narrative - Description
+  // Description
   const description = otherParty.bio || 'There is no data available...';
 
-  // Line 3: Context - Meta array
-  const meta = [
-    otherParty.role || 'Member',
-    otherParty.location || 'Location not set',
-    otherParty.commission_rate
-      ? `${otherParty.commission_rate}% Comm.`
-      : 'Default Comm.',
+  // Build details grid - 3x3 grid for balance with 160px avatar
+  const details = [
+    // Row 1: Role, Location, Commission
+    { label: 'Role', value: otherParty.role || 'Member' },
+    { label: 'Location', value: otherParty.location || 'Not set' },
+    {
+      label: 'Commission',
+      value: otherParty.commission_rate ? `${otherParty.commission_rate}%` : 'Default'
+    },
+    // Row 2: Active Students, Revenue, Last Session
+    { label: 'Students', value: `${otherParty.active_students_count || 0}` },
+    { label: 'Revenue', value: `£${(otherParty.total_revenue || 0).toLocaleString()}` },
+    { label: 'Last Session', value: formatTimeAgo(otherParty.last_session_at) },
+    // Row 3: Email, Verified, ID
+    { label: 'Email', value: otherParty.email },
+    { label: 'Verified', value: isVerified ? 'Yes' : 'No' },
+    { label: 'ID', value: otherParty.id.substring(0, 8) },
   ];
-
-  // Line 4: Performance - Stats row using StatsRow component
-  const stats = (
-    <StatsRow
-      stats={[
-        { label: 'Active Students', value: otherParty.active_students_count || 0 },
-        { label: 'Revenue', value: `£${(otherParty.total_revenue || 0).toLocaleString()}`, color: '#137333' },
-        { label: 'Last Session', value: formatTimeAgo(otherParty.last_session_at) },
-      ]}
-    />
-  );
 
   // Actions
   const actions = (
@@ -90,7 +88,7 @@ export default function MemberCard({
   );
 
   return (
-    <HubRowCard
+    <HubDetailCard
       image={{
         src: otherParty.avatar_url,
         alt: otherParty.full_name || 'Team member',
@@ -101,8 +99,7 @@ export default function MemberCard({
       titleHref={`/public-profile/${otherParty.id}`}
       status={status}
       description={description}
-      meta={meta}
-      stats={stats}
+      details={details}
       actions={actions}
     />
   );

@@ -1,9 +1,8 @@
 /**
  * Filename: apps/web/src/app/components/feature/reviews/ProfileReviewCard.tsx
- * Purpose: Card component for displaying received/given reviews
+ * Purpose: Card component for displaying received/given reviews in detail card format with HubDetailCard
  * Created: 2025-11-08
- * Updated: 2025-11-24 - Migrated to HubRowCard standard
- * Specification: SDD v4.5 - Horizontal card layout with HubRowCard component
+ * Updated: 2025-12-05 - Migrated to HubDetailCard standard (consistent with BookingCard/WiselistCard)
  */
 
 'use client';
@@ -11,8 +10,7 @@
 import React from 'react';
 import { Star } from 'lucide-react';
 import type { ProfileReview } from '@/types/reviews';
-import HubRowCard from '@/app/components/hub/content/HubRowCard/HubRowCard';
-import StatsRow from '@/app/components/hub/content/HubRowCard/StatsRow';
+import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import getProfileImageUrl from '@/lib/utils/image';
 
 interface Props {
@@ -63,52 +61,56 @@ export default function ProfileReviewCard({ review, variant }: Props) {
   // Build description (comment)
   const description = review.comment || undefined;
 
-  // Build metadata array
-  const serviceName = review.session?.booking?.service_name || 'Unknown Service';
-  const meta = [serviceName, formatDate(review.created_at)];
-
-  // Build stats (star rating display with optional future stats)
-  const starRating = (
-    <div className="flex items-center gap-1">
-      <div className="flex items-center gap-0.5">
-        {[...Array(5)].map((_, i) => (
-          <Star
-            key={i}
-            className={`w-4 h-4 ${
-              i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200'
-            }`}
-          />
-        ))}
-      </div>
-      <span className="font-bold text-gray-900">{review.rating}.0</span>
+  // Build star rating display
+  const starRatingDisplay = (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+      {[...Array(5)].map((_, i) => (
+        <Star
+          key={i}
+          style={{
+            width: '16px',
+            height: '16px',
+            fill: i < review.rating ? '#FBBF24' : '#E5E7EB',
+            color: i < review.rating ? '#FBBF24' : '#E5E7EB',
+          }}
+        />
+      ))}
+      <span style={{ fontWeight: 'bold', color: '#111827', marginLeft: '4px' }}>
+        {review.rating}.0
+      </span>
     </div>
   );
 
-  const stats = (
-    <StatsRow
-      stats={[
-        { value: starRating, hideLabel: true },
-        // Future: Add more stats here
-        // { label: 'Helpful', value: review.helpful_count },
-        // { label: 'Verified', value: review.verified ? 'Yes' : 'No' },
-      ]}
-    />
-  );
+  // Build details grid - 3x3 grid for balance with 160px avatar
+  const serviceName = review.session?.booking?.service_name || 'Unknown Service';
+  const details = [
+    // Row 1: Rating, Service, Status
+    { label: 'Rating', value: starRatingDisplay },
+    { label: 'Service', value: serviceName },
+    { label: 'Status', value: getStatus().label },
+    // Row 2: Reviewer, Date, Verified
+    { label: variant === 'received' ? 'From' : 'To', value: profile.full_name || 'Anonymous' },
+    { label: 'Date', value: formatDate(review.created_at) },
+    { label: 'Verified', value: isPending ? 'No' : 'Yes' },
+    // Row 3: Profile ID, Review ID
+    { label: 'Profile ID', value: profile.id.substring(0, 8) },
+    { label: 'Review ID', value: review.id.substring(0, 8) },
+    { label: '', value: '' },
+  ];
 
   return (
-    <HubRowCard
+    <HubDetailCard
       image={{
         src: avatarUrl,
         alt: title,
         fallbackChar: fallbackChar,
       }}
+      imageHref={`/public-profile/${profile.id}`}
       title={title}
+      titleHref={`/public-profile/${profile.id}`}
       status={getStatus()}
       description={description}
-      meta={meta}
-      stats={stats}
-      imageHref={`/public-profile/${profile.id}`}
-      titleHref={`/public-profile/${profile.id}`}
+      details={details}
     />
   );
 }

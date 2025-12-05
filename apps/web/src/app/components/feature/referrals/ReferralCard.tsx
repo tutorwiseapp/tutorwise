@@ -1,15 +1,14 @@
 /*
  * Filename: src/app/components/referrals/ReferralCard.tsx
- * Purpose: Display referral lead information in card format (SDD v3.6)
+ * Purpose: Display referral lead information in detail card format with HubDetailCard
  * Created: 2025-11-02
- * Updated: 2025-11-24 - Migrated to HubRowCard standard
- * Specification: SDD v3.6, Section 4.3 - /referrals hub UI
+ * Updated: 2025-12-05 - Migrated to HubDetailCard standard (consistent with BookingCard/WiselistCard)
+ * Specification: Expanded detail card layout with HubDetailCard component
  */
 'use client';
 
 import { Referral, ReferralStatus } from '@/types';
-import HubRowCard from '@/app/components/hub/content/HubRowCard/HubRowCard';
-import StatsRow from '@/app/components/hub/content/HubRowCard/StatsRow';
+import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import Button from '@/app/components/ui/actions/Button';
 import getProfileImageUrl from '@/lib/utils/image';
 
@@ -35,7 +34,7 @@ export default function ReferralCard({
     });
   };
 
-  // Map status to HubRowCard status variant
+  // Map status to HubDetailCard status variant
   const getStatusVariant = (status: ReferralStatus): 'success' | 'warning' | 'error' | 'neutral' | 'info' => {
     switch (status) {
       case 'Converted':
@@ -79,29 +78,29 @@ export default function ReferralCard({
   // Build description
   const description = getStatusDescription(referral.status);
 
-  // Build metadata array
-  const meta = [
-    `Referred: ${formatDate(referral.created_at)}`,
-    referral.converted_at ? `Converted: ${formatDate(referral.converted_at)}` : null,
-    referral.status === 'Converted' && referral.first_booking ? `Service: ${referral.first_booking.service_name}` : null,
-  ].filter(Boolean) as string[];
-
-  // Build stats (Commission) - converted from columnar to inline bullet-separated
-  const commissionColor = referral.first_commission ? '#137333' : '#9ca3af'; // emerald-600 : gray-400
+  // Commission value
   const commissionValue = referral.first_commission
     ? `£${referral.first_commission.amount.toFixed(2)}`
     : '--';
 
-  const stats = (
-    <StatsRow
-      stats={[
-        { label: 'Commission', value: commissionValue, color: commissionColor },
-        // Future: Add more stats here
-        // { label: 'Status', value: referral.status },
-        // { label: 'Converted', value: referral.converted_at ? formatDate(referral.converted_at) : '--' },
-      ]}
-    />
-  );
+  // Build details grid - 3x3 grid for balance with 160px avatar
+  const details = [
+    // Row 1: Status, Referred, Commission
+    { label: 'Status', value: referral.status },
+    { label: 'Referred', value: formatDate(referral.created_at) },
+    { label: 'Commission', value: commissionValue },
+    // Row 2: Converted, Service, --
+    { label: 'Converted', value: referral.converted_at ? formatDate(referral.converted_at) : '--' },
+    {
+      label: 'Service',
+      value: referral.status === 'Converted' && referral.first_booking ? referral.first_booking.service_name : '--'
+    },
+    { label: 'Lead Type', value: referral.referred_user ? 'Named' : 'Anonymous' },
+    // Row 3: User ID, Link Status, Referral ID
+    { label: 'User ID', value: referral.referred_user?.id.substring(0, 8) || '--' },
+    { label: 'Link Status', value: referral.status === 'Expired' ? 'Expired' : 'Active' },
+    { label: 'Referral ID', value: referral.id.substring(0, 8) },
+  ];
 
   // Build actions
   const actions = (
@@ -143,7 +142,7 @@ export default function ReferralCard({
   );
 
   return (
-    <HubRowCard
+    <HubDetailCard
       image={{
         src: avatarUrl,
         alt: title,
@@ -155,8 +154,7 @@ export default function ReferralCard({
         variant: getStatusVariant(referral.status),
       }}
       description={description}
-      meta={meta}
-      stats={stats}
+      details={details}
       actions={actions}
       imageHref={imageHref}
       titleHref={onViewDetails ? undefined : imageHref}
