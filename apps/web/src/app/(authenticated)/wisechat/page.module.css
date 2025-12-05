@@ -21,11 +21,45 @@
   margin-bottom: 16px;
 }
 
-/* Split-pane layout */
+/* Availability buttons in header */
+.availabilityButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.availabilityButton {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.availabilityButton:hover {
+  border-color: #9ca3af;
+  background: #f9fafb;
+}
+
+.availabilityButtonActive {
+  background: #0d9488;
+  color: #ffffff;
+  border-color: #0d9488;
+}
+
+.availabilityButtonActive:hover {
+  background: #0f766e;
+  border-color: #0f766e;
+}
+
+/* Split-pane layout - Reduced height by 200px */
 .splitPane {
   display: flex;
-  height: calc(100vh - 200px); /* Adjust based on header height */
-  min-height: 600px;
+  height: calc(100vh - 400px);
+  min-height: 400px;
   background: #ffffff;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
@@ -73,12 +107,6 @@
   background: #f9fafb;
 }
 
-.noSelectionIcon {
-  font-size: 64px;
-  margin-bottom: 16px;
-  opacity: 0.3;
-}
-
 .noSelectionTitle {
   font-size: 20px;
   font-weight: 600;
@@ -95,9 +123,21 @@
 
 /* Mobile responsiveness */
 @media (max-width: 768px) {
+  .availabilityButtons {
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .availabilityButton {
+    padding: 10px 16px;
+    width: 100%;
+  }
+
   .splitPane {
-    height: calc(100vh - 140px);
-    min-height: 500px;
+    height: calc(100vh - 280px);
+    min-height: 300px;
+    border-radius: 0;
   }
 
   .listPane {
@@ -118,10 +158,28 @@
     display: flex;
     width: 100%;
   }
+
+  .noSelectionTitle {
+    font-size: 18px;
+  }
 }
 
 /* Tablet responsiveness */
 @media (min-width: 769px) and (max-width: 1024px) {
+  .availabilityButtons {
+    gap: 6px;
+  }
+
+  .availabilityButton {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .splitPane {
+    height: calc(100vh - 350px);
+    min-height: 350px;
+  }
+
   .listPane {
     width: 35%;
     min-width: 300px;

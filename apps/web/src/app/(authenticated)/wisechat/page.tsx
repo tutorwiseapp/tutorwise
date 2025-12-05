@@ -17,15 +17,18 @@ import WiseChatThread from '@/app/components/feature/wisechat/WiseChatThread';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import InboxStatsWidget from '@/app/components/feature/messages/InboxStatsWidget';
-import AvailabilityWidget from '@/app/components/feature/messages/AvailabilityWidget';
 import ChatContextWidget from '@/app/components/feature/messages/ChatContextWidget';
 import MessageHelpWidget from '@/app/components/feature/messages/MessageHelpWidget';
 import MessageTipWidget from '@/app/components/feature/messages/MessageTipWidget';
 import MessageVideoWidget from '@/app/components/feature/messages/MessageVideoWidget';
 import type { HubTab } from '@/app/components/hub/layout';
+import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import styles from './page.module.css';
 
 type FilterTab = 'all' | 'unread' | 'archived';
+type AvailabilityStatus = 'online' | 'away' | 'offline';
+
+type SortOption = 'recent' | 'name' | 'unread';
 
 export default function WiseChatPage() {
   const { profile, isLoading: profileLoading } = useUserProfile();
@@ -33,9 +36,12 @@ export default function WiseChatPage() {
   const [isMobileThreadView, setIsMobileThreadView] = useState(false);
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const [hasShownError, setHasShownError] = useState(false);
+  const [availabilityStatus, setAvailabilityStatus] = useState<AvailabilityStatus>('offline');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortOption>('recent');
 
-  // Broadcast current user's presence
-  useAblyPresenceBroadcast(profile?.id || '', !!profile);
+  // Broadcast current user's presence based on availability status
+  useAblyPresenceBroadcast(profile?.id || '', availabilityStatus !== 'offline');
 
   // Fetch conversations
   const {
@@ -63,18 +69,48 @@ export default function WiseChatPage() {
     }
   }, [error, hasShownError]);
 
-  // Filter conversations based on active tab
+  // Filter and sort conversations
   const filteredConversations = useMemo(() => {
+    // 1. Filter by tab
+    let filtered = conversations;
     switch (activeTab) {
       case 'unread':
-        return conversations.filter(conv => conv.unreadCount > 0);
+        filtered = conversations.filter(conv => conv.unreadCount > 0);
+        break;
       case 'archived':
-        return [];
+        filtered = [];
+        break;
       case 'all':
       default:
-        return conversations;
+        filtered = conversations;
     }
-  }, [conversations, activeTab]);
+
+    // 2. Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(conv =>
+        conv.otherUser.full_name?.toLowerCase().includes(query) ||
+        conv.lastMessage?.content?.toLowerCase().includes(query)
+      );
+    }
+
+    // 3. Sort conversations
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return (a.otherUser.full_name || '').localeCompare(b.otherUser.full_name || '');
+        case 'unread':
+          return b.unreadCount - a.unreadCount;
+        case 'recent':
+        default:
+          const aTime = a.lastMessage?.timestamp || 0;
+          const bTime = b.lastMessage?.timestamp || 0;
+          return bTime - aTime;
+      }
+    });
+
+    return sorted;
+  }, [conversations, activeTab, searchQuery, sortBy]);
 
   // Find selected conversation
   const selectedConversation = conversations.find(
@@ -115,14 +151,72 @@ export default function WiseChatPage() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Filter controls for header
+  const filterControls = (
+    <div className={filterStyles.filtersContainer}>
+      <input
+        type="search"
+        placeholder="Search conversations..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className={filterStyles.searchInput}
+      />
+      <select
+        value={sortBy}
+        onChange={(e) => setSortBy(e.target.value as SortOption)}
+        className={filterStyles.filterSelect}
+      >
+        <option value="recent">Most Recent</option>
+        <option value="name">Name (A-Z)</option>
+        <option value="unread">Unread First</option>
+      </select>
+    </div>
+  );
+
+  // Availability buttons for header actions
+  const availabilityActions = (
+    <div className={styles.availabilityButtons}>
+      <button
+        onClick={() => setAvailabilityStatus('online')}
+        className={`${styles.availabilityButton} ${
+          availabilityStatus === 'online' ? styles.availabilityButtonActive : ''
+        }`}
+      >
+        Online
+      </button>
+      <button
+        onClick={() => setAvailabilityStatus('away')}
+        className={`${styles.availabilityButton} ${
+          availabilityStatus === 'away' ? styles.availabilityButtonActive : ''
+        }`}
+      >
+        Away
+      </button>
+      <button
+        onClick={() => setAvailabilityStatus('offline')}
+        className={`${styles.availabilityButton} ${
+          availabilityStatus === 'offline' ? styles.availabilityButtonActive : ''
+        }`}
+      >
+        Offline
+      </button>
+    </div>
+  );
+
   if (profileLoading || isLoading) {
     return (
       <HubPageLayout
-        header={<HubHeader title="WiseChat" subtitle="Real-time messaging" />}
+        header={
+          <HubHeader
+            title="WiseChat"
+            subtitle="Real-time messaging"
+            filters={filterControls}
+            actions={availabilityActions}
+          />
+        }
         sidebar={
           <HubSidebar>
             <InboxStatsWidget unreadCount={0} activeChats={0} archivedCount={0} />
-            {profile && <AvailabilityWidget currentUserId={profile.id} />}
             <MessageHelpWidget />
             <MessageTipWidget />
             <MessageVideoWidget />
@@ -140,7 +234,14 @@ export default function WiseChatPage() {
 
   return (
     <HubPageLayout
-      header={<HubHeader title="WiseChat" subtitle="Real-time messaging" />}
+      header={
+        <HubHeader
+          title="WiseChat"
+          subtitle="Real-time messaging"
+          filters={filterControls}
+          actions={availabilityActions}
+        />
+      }
       tabs={<HubTabs tabs={tabs} onTabChange={(tabId) => setActiveTab(tabId as FilterTab)} />}
       sidebar={
         <HubSidebar>
@@ -154,7 +255,6 @@ export default function WiseChatPage() {
               otherUser={selectedConversation.otherUser}
             />
           )}
-          <AvailabilityWidget currentUserId={profile.id} />
           <MessageHelpWidget />
           <MessageTipWidget />
           <MessageVideoWidget />
@@ -190,7 +290,6 @@ export default function WiseChatPage() {
             />
           ) : (
             <div className={styles.noSelection}>
-              <div className={styles.noSelectionIcon}>💬</div>
               <h3 className={styles.noSelectionTitle}>No conversation selected</h3>
               <p className={styles.noSelectionText}>
                 Select a conversation from the list to start chatting
