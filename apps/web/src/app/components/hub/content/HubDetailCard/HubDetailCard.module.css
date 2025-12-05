@@ -159,6 +159,7 @@
   flex-direction: row;
   align-items: baseline;
   gap: 8px;
+  padding-right: 32px; /* Removed padding */
   min-width: 0; /* Allow text truncation in nested flex items */
 }
 
@@ -176,7 +177,7 @@
 }
 
 .detailValue {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #1f2937;
   flex: 1;
