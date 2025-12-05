@@ -10,12 +10,17 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { Calendar, User, CreditCard, FileText, ArrowLeft } from 'lucide-react';
+import { Calendar, User, CreditCard, FileText } from 'lucide-react';
 import { getBookingById } from '@/lib/api/bookings';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import Image from 'next/image';
 import getProfileImageUrl from '@/lib/utils/image';
 import Button from '@/app/components/ui/actions/Button';
+import { HubPageLayout, HubHeader } from '@/app/components/hub/layout';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import BookingHelpWidget from '@/app/components/feature/bookings/BookingHelpWidget';
+import BookingTipWidget from '@/app/components/feature/bookings/BookingTipWidget';
+import BookingVideoWidget from '@/app/components/feature/bookings/BookingVideoWidget';
 import styles from './page.module.css';
 
 interface PageProps {
@@ -90,15 +95,33 @@ export default function BookingDetailPage({ params }: PageProps) {
 
   if (isLoading) {
     return (
-      <div className={styles.container}>
+      <HubPageLayout
+        header={<HubHeader title="Booking Details" className={styles.bookingDetailHeader} />}
+        sidebar={
+          <HubSidebar>
+            <BookingHelpWidget />
+            <BookingTipWidget />
+            <BookingVideoWidget />
+          </HubSidebar>
+        }
+      >
         <div className={styles.loading}>Loading booking details...</div>
-      </div>
+      </HubPageLayout>
     );
   }
 
   if (error || !booking) {
     return (
-      <div className={styles.container}>
+      <HubPageLayout
+        header={<HubHeader title="Booking Not Found" className={styles.bookingDetailHeader} />}
+        sidebar={
+          <HubSidebar>
+            <BookingHelpWidget />
+            <BookingTipWidget />
+            <BookingVideoWidget />
+          </HubSidebar>
+        }
+      >
         <div className={styles.error}>
           <h2>Booking Not Found</h2>
           <p>The booking you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to view it.</p>
@@ -106,34 +129,77 @@ export default function BookingDetailPage({ params }: PageProps) {
             Back to Bookings
           </Button>
         </div>
-      </div>
+      </HubPageLayout>
     );
   }
 
   return (
-    <>
-      <div className={styles.container}>
-        <div className={styles.mainContent}>
-          {/* Back button */}
-          <button onClick={() => router.push('/bookings')} className={styles.backButton}>
-            <ArrowLeft size={20} />
-            Back to Bookings
-          </button>
+    <HubPageLayout
+      header={
+        <HubHeader
+          title={booking.service_name}
+          className={styles.bookingDetailHeader}
+          actions={
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push('/bookings')}
+              >
+                ← Back
+              </Button>
+              <Button
+                onClick={() => router.push(`/wisespace/${booking.id}`)}
+                variant="primary"
+                size="sm"
+                disabled={booking.status !== 'Confirmed'}
+              >
+                Join WiseSpace
+              </Button>
+              {viewMode === 'client' && (
+                <Button
+                  onClick={async () => {
+                    const response = await fetch('/api/stripe/create-booking-checkout', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ booking_id: booking.id }),
+                    });
+                    const { url } = await response.json();
+                    if (url) window.location.href = url;
+                  }}
+                  variant="primary"
+                  size="sm"
+                  disabled={booking.payment_status !== 'Pending'}
+                >
+                  Pay Now
+                </Button>
+              )}
+            </>
+          }
+        />
+      }
+      sidebar={
+        <HubSidebar>
+          <BookingHelpWidget />
+          <BookingTipWidget />
+          <BookingVideoWidget />
+        </HubSidebar>
+      }
+    >
+      {/* Horizontal divider for visual separation */}
+      <div className={styles.headerDivider}></div>
 
-          {/* Header */}
-          <header className={styles.header}>
-            <div className={styles.headerContent}>
-              <h1 className={styles.title}>{booking.service_name}</h1>
-              <div className={styles.badges}>
-                <span className={`${styles.badge} ${getStatusClass(booking.status)}`}>
-                  {booking.status}
-                </span>
-                <span className={`${styles.badge} ${getPaymentStatusClass(booking.payment_status)}`}>
-                  {booking.payment_status}
-                </span>
-              </div>
-            </div>
-          </header>
+      {/* Status badges info card */}
+      <div className={styles.infoCard}>
+        <div className={styles.badges}>
+          <span className={`${styles.badge} ${getStatusClass(booking.status)}`}>
+            {booking.status}
+          </span>
+          <span className={`${styles.badge} ${getPaymentStatusClass(booking.payment_status)}`}>
+            {booking.payment_status}
+          </span>
+        </div>
+      </div>
 
           {/* Main details grid */}
           <div className={styles.detailsGrid}>
@@ -252,36 +318,6 @@ export default function BookingDetailPage({ params }: PageProps) {
               </div>
             </div>
           </div>
-
-          {/* Actions */}
-          <div className={styles.actions}>
-            {booking.status === 'Confirmed' && (
-              <Button
-                onClick={() => router.push(`/wisespace/${booking.id}`)}
-                variant="primary"
-              >
-                Join WiseSpace
-              </Button>
-            )}
-            {viewMode === 'client' && booking.payment_status === 'Pending' && (
-              <Button
-                onClick={async () => {
-                  const response = await fetch('/api/stripe/create-booking-checkout', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ booking_id: booking.id }),
-                  });
-                  const { url } = await response.json();
-                  if (url) window.location.href = url;
-                }}
-                variant="primary"
-              >
-                Pay Now
-              </Button>
-            )}
-          </div>
-        </div>
-      </div>
-    </>
+    </HubPageLayout>
   );
 }
