@@ -160,7 +160,6 @@ export default function WiselistCard({
         padding: '4px 8px',
         border: '1px solid #d1d5db',
         borderRadius: '4px',
-        marginBottom: '4px', // Gap between name and description in edit mode
       }}
     />
   ) : (
