@@ -1,0 +1,230 @@
+/* HubDetailCard.module.css - Detail-specific card component */
+
+/* Card Container - Horizontal Layout */
+.card {
+  display: flex;
+  gap: 20px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.2s ease;
+}
+
+/* Left Column: Image/Avatar (160px fixed width) */
+.imageColumn {
+  flex-shrink: 0;
+  width: 160px;
+}
+
+.imageLink {
+  display: block;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.imageLink:hover {
+  opacity: 0.8;
+}
+
+.imageWrapper {
+  position: relative;
+  width: 160px;
+  height: 160px;
+}
+
+.image {
+  width: 160px;
+  height: 160px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.imageFallback {
+  width: 160px;
+  height: 160px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #006c67 0%, #00a89d 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fallbackChar {
+  font-size: 48px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.imagePlaceholder {
+  width: 160px;
+  height: 160px;
+  border-radius: 8px;
+  background-color: #f3f4f6;
+}
+
+/* Right Column: Content */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0; /* Allows text truncation */
+}
+
+/* Header: Title + Badge */
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.titleLink {
+  text-decoration: none;
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.titleLink:hover .title {
+  color: var(--color-primary-default, #006c67);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.badgeSuccess {
+  background: #e8f5e8;
+  color: #137333;
+}
+
+.badgeWarning {
+  background: #fef7e0;
+  color: #b06000;
+}
+
+.badgeError {
+  background: #fce8e6;
+  color: #d93025;
+}
+
+.badgeNeutral {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.badgeInfo {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+/* Description */
+.description {
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Details Grid (2-column responsive) */
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 4px;
+  padding-top: 16px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.detailRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detailRowFull {
+  grid-column: 1 / -1; /* Span full width */
+}
+
+.detailLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.detailValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* Action Dock (bottom, right-aligned) */
+.actionDock {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid #f3f4f6;
+  margin-top: auto;
+}
+
+/* Responsive: Stack on mobile */
+@media (max-width: 640px) {
+  .card {
+    flex-direction: column;
+  }
+
+  .imageColumn {
+    width: 100%;
+  }
+
+  .imageWrapper,
+  .imageFallback,
+  .imagePlaceholder {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+
+  .image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+
+  .detailsGrid {
+    grid-template-columns: 1fr; /* Stack to 1 column on mobile */
+  }
+
+  .actionDock {
+    flex-wrap: wrap;
+  }
+}
+
+/* Tablet: Keep 2-column grid */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .detailsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

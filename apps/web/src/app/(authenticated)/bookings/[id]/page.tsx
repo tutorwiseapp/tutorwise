@@ -21,6 +21,7 @@ import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import BookingHelpWidget from '@/app/components/feature/bookings/BookingHelpWidget';
 import BookingTipWidget from '@/app/components/feature/bookings/BookingTipWidget';
 import BookingVideoWidget from '@/app/components/feature/bookings/BookingVideoWidget';
+import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import styles from './page.module.css';
 
 interface PageProps {
@@ -91,6 +92,45 @@ export default function BookingDetailPage({ params }: PageProps) {
       default:
         return styles.paymentPending;
     }
+  };
+
+  // Get status variant for HubDetailCard badges
+  const getStatusVariant = (status: string): 'success' | 'warning' | 'error' | 'neutral' | 'info' => {
+    switch (status) {
+      case 'Confirmed':
+        return 'info';
+      case 'Completed':
+        return 'success';
+      case 'Cancelled':
+        return 'error';
+      case 'Pending':
+      default:
+        return 'warning';
+    }
+  };
+
+  const getPaymentStatusVariant = (status: string): 'success' | 'warning' | 'error' | 'neutral' | 'info' => {
+    switch (status) {
+      case 'Paid':
+        return 'success';
+      case 'Failed':
+        return 'error';
+      case 'Refunded':
+        return 'info';
+      case 'Pending':
+      default:
+        return 'warning';
+    }
+  };
+
+  // Get initials for fallback avatar
+  const getInitials = (name: string | null | undefined): string => {
+    if (!name) return '?';
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
   };
 
   if (isLoading) {
@@ -201,7 +241,55 @@ export default function BookingDetailPage({ params }: PageProps) {
         </div>
       </div>
 
-          {/* Main details grid */}
+      {/* NEW: HubDetailCard for comparison */}
+      {otherParty && (
+        <HubDetailCard
+          image={{
+            src: getProfileImageUrl(otherParty),
+            alt: otherParty.full_name || 'User',
+            fallbackChar: getInitials(otherParty.full_name),
+          }}
+          imageHref={`/public-profile/${otherParty.id}`}
+          title={booking.service_name}
+          titleHref={booking.listing_id ? `/listings/${booking.listing_id}` : undefined}
+          status={{
+            label: booking.status,
+            variant: getStatusVariant(booking.status),
+          }}
+          description={`${formattedDate} at ${formattedTime}`}
+          details={[
+            { label: 'Duration', value: `${booking.session_duration} minutes` },
+            { label: 'Amount', value: `£${booking.amount.toFixed(2)}` },
+            { label: 'Payment Status', value: booking.payment_status },
+            { label: 'Booking Type', value: booking.booking_type === 'direct' ? 'Direct Booking' : booking.booking_type === 'referred' ? 'Referred Booking' : 'Agent Job' },
+            { label: 'Booking ID', value: booking.id },
+            { label: 'Created', value: new Date(booking.created_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' }) },
+            ...(booking.agent ? [{ label: 'Agent', value: booking.agent.full_name }] : []),
+          ]}
+          actions={
+            <>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => router.push(`/public-profile/${otherParty.id}`)}
+              >
+                View Profile
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => router.push(`/messages?user=${otherParty.id}`)}
+              >
+                Message
+              </Button>
+            </>
+          }
+        />
+      )}
+
+      <div style={{ height: '2rem' }}></div>
+
+          {/* ORIGINAL: Main details grid */}
           <div className={styles.detailsGrid}>
             {/* Participant card */}
             {otherParty && (
