@@ -23,7 +23,7 @@ import Button from '@/app/components/ui/actions/Button';
 import { Wiselist } from '@/types';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
-import { getMyWiselists, deleteWiselist } from '@/lib/api/wiselists';
+import { getMyWiselists, deleteWiselist, updateWiselist } from '@/lib/api/wiselists';
 import styles from './page.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
@@ -126,6 +126,35 @@ export default function WiselistsPage() {
     setCurrentPage(1);
   }, [activeTab, searchQuery, sortBy]);
 
+  // Update mutation with optimistic updates
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: { name: string; description: string } }) =>
+      updateWiselist(id, data),
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: ['wiselists'] });
+      const previousWiselists = queryClient.getQueryData(['wiselists']);
+
+      queryClient.setQueryData(['wiselists'], (old: Wiselist[] = []) =>
+        old.map((w) => (w.id === id ? { ...w, ...data } : w))
+      );
+
+      return { previousWiselists };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousWiselists) {
+        queryClient.setQueryData(['wiselists'], context.previousWiselists);
+      }
+      console.error('Update wiselist error:', err);
+      toast.error('Failed to update wiselist');
+    },
+    onSuccess: () => {
+      toast.success('Wiselist updated');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['wiselists'] });
+    },
+  });
+
   // Delete mutation with optimistic updates
   const deleteMutation = useMutation({
     mutationFn: deleteWiselist,
@@ -159,6 +188,10 @@ export default function WiselistsPage() {
       queryClient.invalidateQueries({ queryKey: ['wiselists'] });
     },
   });
+
+  const handleUpdate = (id: string, data: { name: string; description: string }) => {
+    updateMutation.mutate({ id, data });
+  };
 
   const handleDelete = (id: string) => {
     deleteMutation.mutate(id);
@@ -402,6 +435,7 @@ export default function WiselistsPage() {
                 <WiselistCard
                   key={wiselist.id}
                   wiselist={wiselist}
+                  onUpdate={handleUpdate}
                   onDelete={handleDelete}
                   onShare={handleShare}
                 />

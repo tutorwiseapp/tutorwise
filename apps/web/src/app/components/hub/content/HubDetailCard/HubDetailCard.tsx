@@ -35,7 +35,7 @@ export interface HubDetailCardProps {
   };
 
   // RIGHT COLUMN - Header
-  title: string;
+  title: string | React.ReactNode; // Can be string or React node (e.g., input field for editing)
   status?: {
     label: string;
     variant: 'success' | 'warning' | 'error' | 'neutral' | 'info';
@@ -105,10 +105,12 @@ export default function HubDetailCard({
   // Render title with optional link
   const titleElement = titleHref ? (
     <Link href={titleHref} className={styles.titleLink}>
-      <h3 className={styles.title}>{title}</h3>
+      {typeof title === 'string' ? <h3 className={styles.title}>{title}</h3> : title}
     </Link>
-  ) : (
+  ) : typeof title === 'string' ? (
     <h3 className={styles.title}>{title}</h3>
+  ) : (
+    title
   );
 
   // Get badge class based on variant
