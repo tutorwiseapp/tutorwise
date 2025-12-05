@@ -144,10 +144,10 @@
   margin: 0;
 }
 
-/* Details Grid (2-column responsive) - Removed divider, tighter spacing */
+/* Details Grid (3-column responsive) - Removed divider, tighter spacing */
 .detailsGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 4px; /* Reduced from 12px to 4px */
   margin-top: 4px; /* Reduced gap from description to grid */
   padding-top: 0; /* Removed padding */
@@ -219,7 +219,7 @@
   }
 
   .detailsGrid {
-    grid-template-columns: 1fr; /* Stack to 1 column on mobile */
+    grid-template-columns: repeat(2, 1fr); /* Stack to 2 columns on mobile */
   }
 
   .actionDock {
@@ -227,9 +227,9 @@
   }
 }
 
-/* Tablet: Keep 2-column grid */
+/* Tablet: Keep 3-column grid */
 @media (min-width: 641px) and (max-width: 1024px) {
   .detailsGrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
