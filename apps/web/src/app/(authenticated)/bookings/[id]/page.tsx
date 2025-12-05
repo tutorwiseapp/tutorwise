@@ -256,7 +256,13 @@ export default function BookingDetailPage({ params }: PageProps) {
             label: booking.status,
             variant: getStatusVariant(booking.status),
           }}
-          description={`${viewMode === 'client' ? 'Tutor' : 'Client'}: ${otherParty.full_name}`}
+          description={
+            <>
+              {`${viewMode === 'client' ? 'Tutor' : 'Client'}: ${otherParty.full_name}`}
+              <br />
+              {`Agent: ${booking.agent?.full_name || 'No Agent'}`}
+            </>
+          }
           details={[
             {
               label: 'Date',
@@ -272,7 +278,24 @@ export default function BookingDetailPage({ params }: PageProps) {
             { label: 'Amount', value: `£${booking.amount.toFixed(2)}` },
             { label: 'Payment Status', value: booking.payment_status },
             { label: 'Booking Type', value: booking.booking_type === 'direct' ? 'Direct Booking' : booking.booking_type === 'referred' ? 'Referred Booking' : 'Agent Job' },
-            { label: 'Booking ID', value: booking.id },
+            {
+              label: 'Booking ID',
+              value: (
+                <span
+                  title={booking.id}
+                  style={{
+                    display: 'block',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    cursor: 'help'
+                  }}
+                >
+                  {booking.id}
+                </span>
+              ),
+              fullWidth: true
+            },
             {
               label: 'Created',
               value: new Date(booking.created_at).toLocaleDateString('en-GB', {
@@ -281,7 +304,6 @@ export default function BookingDetailPage({ params }: PageProps) {
                 day: 'numeric'
               })
             },
-            ...(booking.agent ? [{ label: 'Agent', value: booking.agent.full_name }] : []),
           ]}
           actions={
             <>

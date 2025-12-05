@@ -40,7 +40,7 @@ export interface HubDetailCardProps {
     label: string;
     variant: 'success' | 'warning' | 'error' | 'neutral' | 'info';
   };
-  description?: string; // Summary line (e.g., "Monday, 5 December 2025 at 14:00")
+  description?: string | React.ReactNode; // Summary line (can be string or React nodes for multi-line)
 
   // RIGHT COLUMN - Details Grid
   details: DetailField[]; // Array of label-value pairs for 2-column grid
