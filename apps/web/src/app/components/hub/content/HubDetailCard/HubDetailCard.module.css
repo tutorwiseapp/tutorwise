@@ -156,8 +156,9 @@
 
 .detailRow {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 8px;
 }
 
 .detailRowFull {
@@ -170,12 +171,14 @@
   color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.025em;
+  flex-shrink: 0;
 }
 
 .detailValue {
   font-size: 14px;
   font-weight: 600;
   color: #1f2937;
+  flex: 1;
 }
 
 /* Action Dock (bottom, right-aligned) */

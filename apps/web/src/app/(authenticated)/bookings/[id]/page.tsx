@@ -258,14 +258,29 @@ export default function BookingDetailPage({ params }: PageProps) {
           }}
           description={`${viewMode === 'client' ? 'Tutor' : 'Client'}: ${otherParty.full_name}`}
           details={[
-            { label: 'Date', value: formattedDate },
+            {
+              label: 'Date',
+              value: sessionDate?.toLocaleDateString('en-GB', {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+              }) || 'N/A'
+            },
             { label: 'Time', value: formattedTime },
             { label: 'Duration', value: `${booking.session_duration} minutes` },
             { label: 'Amount', value: `£${booking.amount.toFixed(2)}` },
             { label: 'Payment Status', value: booking.payment_status },
             { label: 'Booking Type', value: booking.booking_type === 'direct' ? 'Direct Booking' : booking.booking_type === 'referred' ? 'Referred Booking' : 'Agent Job' },
             { label: 'Booking ID', value: booking.id },
-            { label: 'Created', value: new Date(booking.created_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' }) },
+            {
+              label: 'Created',
+              value: new Date(booking.created_at).toLocaleDateString('en-GB', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+              })
+            },
             ...(booking.agent ? [{ label: 'Agent', value: booking.agent.full_name }] : []),
           ]}
           actions={
@@ -324,17 +339,6 @@ export default function BookingDetailPage({ params }: PageProps) {
                 size="sm"
               >
                 Cancel
-              </Button>
-
-              {/* View Details - scrolls to original cards below */}
-              <Button
-                onClick={() => {
-                  document.querySelector(`.${styles.detailsGrid}`)?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                variant="secondary"
-                size="sm"
-              >
-                View Details
               </Button>
             </>
           }
