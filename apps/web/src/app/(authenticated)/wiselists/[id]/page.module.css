@@ -1,5 +1,11 @@
 /* Wiselist Detail Page - v5.9 - Hub Layout Architecture with Dashboard-style Grid */
 
+/* Custom Header Height */
+.wiselistDetailHeader {
+  height: 14rem;
+  margin-top: -3rem;
+}
+
 .loading {
   padding: 60px 20px;
   text-align: center;

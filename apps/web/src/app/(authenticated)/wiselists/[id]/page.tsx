@@ -149,7 +149,7 @@ export default function WiselistDetailPage({ params }: PageProps) {
   if (isLoading) {
     return (
       <HubPageLayout
-        header={<HubHeader title="Wiselist" />}
+        header={<HubHeader title="Wiselist" className={styles.wiselistDetailHeader} />}
         sidebar={
           <HubSidebar>
             <WiselistHelpWidget />
@@ -166,7 +166,7 @@ export default function WiselistDetailPage({ params }: PageProps) {
   if (error || !wiselist) {
     return (
       <HubPageLayout
-        header={<HubHeader title="Wiselist Not Found" />}
+        header={<HubHeader title="Wiselist Not Found" className={styles.wiselistDetailHeader} />}
         sidebar={
           <HubSidebar>
             <WiselistHelpWidget />
@@ -191,6 +191,7 @@ export default function WiselistDetailPage({ params }: PageProps) {
       header={
         <HubHeader
           title={isEditing ? 'Edit Wiselist' : wiselist.name}
+          className={styles.wiselistDetailHeader}
           actions={
             <>
               <Button
