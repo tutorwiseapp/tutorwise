@@ -193,9 +193,6 @@ export default function BookingsPage() {
     }
   };
 
-  const handleViewDetails = (bookingId: string) => {
-    router.push(`/bookings/${bookingId}`);
-  };
 
   const handleCancel = (bookingId: string) => {
     if (!confirm('Are you sure you want to cancel this booking?')) return;
@@ -448,7 +445,6 @@ export default function BookingsPage() {
                 viewMode={viewMode}
                 isOnline={true} // TODO: Determine from booking.delivery_mode or listing settings
                 onPayNow={activeRole === 'client' ? handlePayNow : undefined}
-                onViewDetails={handleViewDetails}
                 onReschedule={handleReschedule}
                 onCancel={handleCancel}
               />
