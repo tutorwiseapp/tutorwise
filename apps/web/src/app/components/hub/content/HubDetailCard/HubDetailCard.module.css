@@ -199,38 +199,134 @@
 @media (max-width: 640px) {
   .card {
     flex-direction: column;
+    padding: 16px; /* Reduce padding on mobile */
+    gap: 16px; /* Increase gap between image and content */
   }
 
   .imageColumn {
     width: 100%;
+    display: flex;
+    justify-content: center; /* Center avatar on mobile */
   }
 
   .imageWrapper,
   .imageFallback,
   .imagePlaceholder {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1 / 1;
+    width: 120px; /* Smaller avatar on mobile */
+    height: 120px;
   }
 
   .image {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1 / 1;
+    width: 120px;
+    height: 120px;
+    border-radius: 8px;
+  }
+
+  .fallbackChar {
+    font-size: 36px; /* Smaller fallback text */
+  }
+
+  .title {
+    font-size: 18px; /* Larger title on mobile for readability */
+    white-space: normal; /* Allow title to wrap on mobile */
+    line-height: 1.3;
+  }
+
+  .description {
+    font-size: 14px; /* Slightly larger description on mobile */
+    line-height: 1.5;
+  }
+
+  .content {
+    gap: 8px; /* More spacing between content sections on mobile */
+  }
+
+  .headerRow {
+    flex-direction: column; /* Stack title and badge vertically */
+    align-items: flex-start;
+    gap: 8px;
   }
 
   .detailsGrid {
-    grid-template-columns: repeat(2, 1fr); /* Stack to 2 columns on mobile */
+    grid-template-columns: 1fr; /* Single column on mobile for better readability */
+    gap: 8px; /* More spacing between rows on mobile */
+    margin-top: 8px;
+  }
+
+  .detailRow {
+    gap: 8px;
+    padding: 8px 0; /* Add vertical padding for touch targets */
+    border-bottom: 1px solid #f3f4f6; /* Subtle divider between rows */
+  }
+
+  .detailRow:last-child {
+    border-bottom: none;
+  }
+
+  .detailLabel {
+    font-size: 13px; /* Slightly larger labels on mobile */
+    min-width: 80px; /* Ensure labels have consistent width */
+  }
+
+  .detailValue {
+    font-size: 14px; /* Larger values on mobile */
   }
 
   .actionDock {
     flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 12px;
+    margin-top: 8px;
+  }
+
+  .actionDock button {
+    flex: 1 1 calc(50% - 4px); /* 2 buttons per row on mobile */
+    min-width: 120px;
   }
 }
 
-/* Tablet: Keep 3-column grid */
+/* Tablet: Optimize for medium screens */
 @media (min-width: 641px) and (max-width: 1024px) {
+  .card {
+    padding: 18px;
+    gap: 18px;
+  }
+
+  .imageColumn {
+    width: 140px; /* Slightly smaller avatar on tablet */
+  }
+
+  .imageWrapper,
+  .imageFallback,
+  .imagePlaceholder {
+    width: 140px;
+    height: 140px;
+  }
+
+  .image {
+    width: 140px;
+    height: 140px;
+  }
+
+  .fallbackChar {
+    font-size: 42px;
+  }
+
+  .title {
+    font-size: 16px;
+  }
+
   .detailsGrid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr); /* 2 columns on tablet for better readability */
+    gap: 4px;
+  }
+
+  .detailRow {
+    gap: 6px;
+  }
+
+  .actionDock {
+    flex-wrap: wrap;
+    gap: 8px;
   }
 }
