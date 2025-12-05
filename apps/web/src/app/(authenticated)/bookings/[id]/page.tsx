@@ -293,8 +293,9 @@ export default function BookingDetailPage({ params }: PageProps) {
               )
             },
             { label: 'Amount', value: `£${booking.amount.toFixed(2)}` },
-            // Row 3: Payment, Created, Agent
+            // Row 3: Payment, Agent, Created
             { label: 'Payment', value: booking.payment_status },
+            { label: 'Agent', value: booking.agent?.full_name || 'No Agent' },
             {
               label: 'Created',
               value: new Date(booking.created_at).toLocaleDateString('en-GB', {
@@ -303,7 +304,6 @@ export default function BookingDetailPage({ params }: PageProps) {
                 year: 'numeric'
               })
             },
-            { label: 'Agent', value: booking.agent?.full_name || 'No Agent' },
           ]}
           actions={
             <>
