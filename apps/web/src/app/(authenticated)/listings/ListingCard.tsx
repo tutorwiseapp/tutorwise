@@ -1,9 +1,9 @@
 /*
  * Filename: src/app/(authenticated)/listings/ListingCard.tsx
- * Purpose: Horizontal listing card for hub view (SDD v3.6)
+ * Purpose: Display listing information in detail card format with HubDetailCard
  * Created: 2025-11-03
- * Updated: 2025-11-24 - Migrated to HubRowCard standard
- * Specification: SDD v3.6 - Horizontal card layout with HubRowCard component
+ * Updated: 2025-12-05 - Migrated to HubDetailCard standard (consistent with BookingCard/WiselistCard)
+ * Specification: Expanded detail card layout with HubDetailCard component
  */
 'use client';
 
@@ -12,8 +12,7 @@ import { useRouter } from 'next/navigation';
 import type { Listing } from '@tutorwise/shared-types';
 import Button from '@/app/components/ui/actions/Button';
 import ConfirmDialog from '@/app/components/ui/feedback/ConfirmDialog';
-import HubRowCard from '@/app/components/hub/content/HubRowCard/HubRowCard';
-import StatsRow from '@/app/components/hub/content/HubRowCard/StatsRow';
+import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import getProfileImageUrl from '@/lib/utils/image';
 
 interface ListingCardProps {
@@ -55,7 +54,7 @@ export default function ListingCard({
     avatar_url: listing.avatar_url,
   });
 
-  // Map status to HubRowCard status variant
+  // Map status to HubDetailCard status variant
   const getStatusVariant = (status?: string): 'success' | 'warning' | 'error' | 'neutral' | 'info' => {
     switch (status) {
       case 'published':
@@ -158,29 +157,35 @@ export default function ListingCard({
     }
   };
 
-  // Build badge (Template badge only - Featured not yet implemented in Listing type)
-  const badge = isTemplate ? 'Template' : undefined;
-
-  // Build metadata array
+  // Build description
   const subjects = listing.subjects?.join(', ') || 'No subjects';
-  const levels = listing.levels?.join(', ');
-  const meta = [
-    subjects,
-    levels,
-    `£${listing.hourly_rate}/hr`,
-    formatLocationType(listing.location_type),
-  ].filter(Boolean);
+  const levels = listing.levels?.join(', ') || '';
+  const description = `${subjects}${levels ? ` • ${levels}` : ''}`;
 
-  // Build stats ReactNode (hidden for templates)
-  const stats = !isTemplate ? (
-    <StatsRow
-      stats={[
-        { value: `${listing.view_count || 0} views`, hideLabel: true },
-        { value: `${listing.inquiry_count || 0} inquiries`, hideLabel: true },
-        { value: `${listing.booking_count || 0} bookings`, hideLabel: true },
-      ]}
-    />
-  ) : undefined;
+  // Build details grid - 3x3 grid matching BookingCard pattern
+  const details = [
+    // Row 1: Rate, Type, Template
+    { label: 'Rate', value: `£${listing.hourly_rate}/hr` },
+    { label: 'Type', value: formatLocationType(listing.location_type) },
+    { label: 'Template', value: isTemplate ? 'Yes' : 'No' },
+    // Row 2: Views, Inquiries, Bookings (hidden for templates)
+    ...(isTemplate ? [
+      { label: 'Views', value: '--' },
+      { label: 'Inquiries', value: '--' },
+      { label: 'Bookings', value: '--' },
+    ] : [
+      { label: 'Views', value: `${listing.view_count || 0}` },
+      { label: 'Inquiries', value: `${listing.inquiry_count || 0}` },
+      { label: 'Bookings', value: `${listing.booking_count || 0}` },
+    ]),
+    // Row 3: Status, Created, Updated (or Archived if applicable)
+    { label: 'Status', value: listing.status || 'draft' },
+    { label: 'Created', value: new Date(listing.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) },
+    {
+      label: isArchived ? 'Archived' : 'Updated',
+      value: new Date(isArchived && listing.archived_at ? listing.archived_at : listing.updated_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    },
+  ];
 
   // Build actions (conditional based on status and template)
   const actions = (
@@ -276,21 +281,19 @@ export default function ListingCard({
 
   return (
     <>
-      <HubRowCard
+      <HubDetailCard
         image={{
           src: listing.images?.[0] || imageUrl,
           alt: listing.title,
           fallbackChar: listing.title?.charAt(0).toUpperCase(),
-          badge: badge,
         }}
         title={listing.title}
         status={{
           label: listing.status || 'draft',
           variant: getStatusVariant(listing.status),
         }}
-        description={listing.description}
-        meta={meta}
-        stats={stats}
+        description={description}
+        details={details}
         actions={actions}
         imageHref={`/listings/${listing.id}`}
         titleHref={`/listings/${listing.id}`}

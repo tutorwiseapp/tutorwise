@@ -68,7 +68,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px; /* Standard gap for content spacing (title, description, etc.) */
+  gap: 0px; /* Standard gap for content spacing (title, description, etc.) */
   min-width: 0; /* Allows text truncation */
 }
 
@@ -269,9 +269,13 @@
     margin-top: 4px;
   }
 
-  .actionDock button {
-    flex: 1 1 calc(50% - 4px); /* 2 buttons per row on mobile */
+  .actionDock > * {
+    flex: 1 1 calc(50% - 4px); /* 2 items per row on mobile (equal width) */
     min-width: 120px;
+  }
+
+  .actionDock > * > button {
+    width: 100%; /* Buttons inside links should be full width */
   }
 }
 

@@ -1,17 +1,15 @@
 /**
  * Filename: apps/web/src/app/components/students/StudentCard.tsx
- * Purpose: Display individual student (Guardian Link) with actions (SDD v5.0)
+ * Purpose: Display individual student (Guardian Link) in detail card format with HubDetailCard
  * Created: 2025-11-12
- * Updated: 2025-11-25 - Migrated to HubRowCard standard
- * Based on: ConnectionCard.tsx (v4.4)
+ * Updated: 2025-12-05 - Migrated to HubDetailCard standard (consistent with BookingCard/WiselistCard)
  */
 
 'use client';
 
 import React from 'react';
 import toast from 'react-hot-toast';
-import HubRowCard from '@/app/components/hub/content/HubRowCard/HubRowCard';
-import StatsRow from '@/app/components/hub/content/HubRowCard/StatsRow';
+import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import Button from '@/app/components/ui/actions/Button';
 import getProfileImageUrl from '@/lib/utils/image';
 
@@ -97,20 +95,26 @@ export default function StudentCard({
 
   const fallbackChar = profile.full_name?.charAt(0).toUpperCase() || '?';
 
-  // Stats component (Age + Joined Year) - converted from columnar to inline bullet-separated
-  const statsComponent = (
-    <StatsRow
-      stats={[
-        { label: 'Age', value: age || '--' },
-        { label: 'Joined', value: joinedYear },
-        // Future: Add more stats here
-        // { label: 'Sessions', value: studentData.session_count },
-      ]}
-    />
-  );
+  // Build details grid - 2 rows
+  const details = [
+    // Row 1: Age, Joined, Status
+    { label: 'Age', value: age ? `${age}` : '--' },
+    { label: 'Joined', value: `${joinedYear}` },
+    { label: 'Status', value: 'Active' },
+    // Row 2: Linked, Email (full width)
+    {
+      label: 'Linked',
+      value: new Date(student.created_at).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      })
+    },
+    { label: 'Email', value: profile.email, fullWidth: true },
+  ];
 
   // Actions component
-  const actionsComponent = (
+  const actions = (
     <>
       <Button
         variant="secondary"
@@ -131,7 +135,7 @@ export default function StudentCard({
   );
 
   return (
-    <HubRowCard
+    <HubDetailCard
       image={{
         src: avatarUrl,
         alt: profile.full_name,
@@ -145,15 +149,8 @@ export default function StudentCard({
         variant: 'success',
       }}
       description={profile.email}
-      meta={[
-        `Linked ${new Date(student.created_at).toLocaleDateString('en-GB', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric',
-        })}`,
-      ]}
-      stats={statsComponent}
-      actions={actionsComponent}
+      details={details}
+      actions={actions}
     />
   );
 }
