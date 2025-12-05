@@ -213,6 +213,7 @@
     width: 100%; /* Full width on mobile */
     height: auto;
     aspect-ratio: 1 / 1; /* Square shape */
+    border-radius: 8px;
   }
 
   .image {
@@ -298,6 +299,7 @@
     width: 100%; /* Full width on tablet */
     height: auto;
     aspect-ratio: 1 / 1; /* Square shape */
+    border-radius: 8px;
   }
 
   .image {
