@@ -8,11 +8,13 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { ChatClient, ChatMessageEvent } from '@ably/chat';
 import toast from 'react-hot-toast';
 import { getChatClient, AblyChannels, MessageType, DeliveryStatus } from '@/lib/ably';
 import { useAblyPresence } from '@/app/hooks/useAblyPresence';
 import { useAblyTyping } from '@/app/hooks/useAblyTyping';
+import getProfileImageUrl from '@/lib/utils/image';
 import styles from './ChatThread.module.css';
 
 interface ChatThreadProps {
@@ -268,20 +270,31 @@ export default function ChatThread({
     }
   };
 
+  // Get avatar URL
+  const avatarUrl = otherUser.avatar_url
+    ? getProfileImageUrl({ id: otherUser.id, avatar_url: otherUser.avatar_url })
+    : null;
+
   return (
     <div className={styles.thread}>
       {/* Header */}
       <div className={styles.header}>
         {onBack && (
-          <button onClick={onBack} className={styles.backButton}>
+          <button onClick={onBack} className={styles.backButtonMobile}>
             ← Back
           </button>
         )}
+        <Link href={`/tutor/${otherUser.id}`} className={styles.headerLink}>
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={otherUser.full_name || 'User'} className={styles.headerAvatar} />
+          ) : (
+            <div className={styles.headerAvatarFallback}>
+              {(otherUser.full_name || 'U').charAt(0).toUpperCase()}
+            </div>
+          )}
+        </Link>
         <div className={styles.headerInfo}>
           <h2 className={styles.title}>{otherUser.full_name || 'Unknown User'}</h2>
-          <span className={isOtherUserOnline ? styles.statusOnline : styles.statusOffline}>
-            {isOtherUserOnline ? '🟢 Online' : '⚪ Offline'}
-          </span>
         </div>
       </div>
 

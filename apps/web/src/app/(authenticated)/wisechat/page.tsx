@@ -26,8 +26,6 @@ import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import styles from './page.module.css';
 
 type FilterTab = 'all' | 'unread' | 'archived';
-type AvailabilityStatus = 'online' | 'away' | 'offline';
-
 type SortOption = 'recent' | 'name' | 'unread';
 
 export default function WiseChatPage() {
@@ -36,12 +34,11 @@ export default function WiseChatPage() {
   const [isMobileThreadView, setIsMobileThreadView] = useState(false);
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const [hasShownError, setHasShownError] = useState(false);
-  const [availabilityStatus, setAvailabilityStatus] = useState<AvailabilityStatus>('offline');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('recent');
 
-  // Broadcast current user's presence based on availability status
-  useAblyPresenceBroadcast(profile?.id || '', availabilityStatus !== 'offline');
+  // Always broadcast presence (users are always reachable for messages)
+  useAblyPresenceBroadcast(profile?.id || '', !!profile);
 
   // Fetch conversations
   const {
@@ -173,45 +170,13 @@ export default function WiseChatPage() {
     </div>
   );
 
-  // Availability buttons for header actions
-  const availabilityActions = (
-    <div className={styles.availabilityButtons}>
-      <button
-        onClick={() => setAvailabilityStatus('online')}
-        className={`${styles.availabilityButton} ${
-          availabilityStatus === 'online' ? styles.availabilityButtonActive : ''
-        }`}
-      >
-        Online
-      </button>
-      <button
-        onClick={() => setAvailabilityStatus('away')}
-        className={`${styles.availabilityButton} ${
-          availabilityStatus === 'away' ? styles.availabilityButtonActive : ''
-        }`}
-      >
-        Away
-      </button>
-      <button
-        onClick={() => setAvailabilityStatus('offline')}
-        className={`${styles.availabilityButton} ${
-          availabilityStatus === 'offline' ? styles.availabilityButtonActive : ''
-        }`}
-      >
-        Offline
-      </button>
-    </div>
-  );
-
   if (profileLoading || isLoading) {
     return (
       <HubPageLayout
         header={
           <HubHeader
             title="WiseChat"
-            subtitle="Real-time messaging"
             filters={filterControls}
-            actions={availabilityActions}
           />
         }
         sidebar={
@@ -237,9 +202,7 @@ export default function WiseChatPage() {
       header={
         <HubHeader
           title="WiseChat"
-          subtitle="Real-time messaging"
           filters={filterControls}
-          actions={availabilityActions}
         />
       }
       tabs={<HubTabs tabs={tabs} onTabChange={(tabId) => setActiveTab(tabId as FilterTab)} />}
@@ -250,11 +213,6 @@ export default function WiseChatPage() {
             activeChats={activeChats}
             archivedCount={0}
           />
-          {selectedConversation && (
-            <ChatContextWidget
-              otherUser={selectedConversation.otherUser}
-            />
-          )}
           <MessageHelpWidget />
           <MessageTipWidget />
           <MessageVideoWidget />

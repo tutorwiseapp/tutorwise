@@ -17,7 +17,9 @@
   flex-shrink: 0; /* Prevent header from shrinking */
 }
 
-.backButton {
+/* Back button - Mobile only */
+.backButtonMobile {
+  display: none;
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;
@@ -29,9 +31,43 @@
   transition: all 0.15s ease;
 }
 
-.backButton:hover {
+.backButtonMobile:hover {
   background-color: var(--color-bg-hover, #f9fafb);
   color: var(--color-text-primary, #111827);
+}
+
+/* Show back button on mobile and tablet */
+@media (max-width: 1024px) {
+  .backButtonMobile {
+    display: block;
+  }
+}
+
+/* Header avatar link */
+.headerLink {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.headerAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.headerAvatarFallback {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .headerInfo {
@@ -45,20 +81,6 @@
   font-weight: 600;
   color: var(--color-text-primary, #111827);
   margin: 0;
-}
-
-.statusOnline,
-.statusOffline {
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.statusOnline {
-  color: #10b981;
-}
-
-.statusOffline {
-  color: #9ca3af;
 }
 
 .messagesContainer {
