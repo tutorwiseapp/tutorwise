@@ -42,7 +42,7 @@ export default function AppSidebar() {
         { href: '/financials/disputes', label: 'Disputes', indent: true },
       ],
     },
-    { href: '/wisechat', label: 'Messages' },
+    { href: '/messages', label: 'Messages' },
     { href: '/network', label: 'Network' },
     { href: '/my-students', label: 'My Students', roles: ['client', 'tutor'] }, // v5.0: Guardian Links (client/tutor only)
     { href: '/reviews', label: 'Reviews' },

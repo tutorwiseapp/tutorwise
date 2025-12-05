@@ -1,6 +1,6 @@
 /**
- * Filename: WiseChatConversationList.tsx
- * Purpose: WhatsApp-style conversation list for WiseChat
+ * Filename: ConversationList.tsx
+ * Purpose: WhatsApp-style conversation list for Messages
  * Created: 2025-12-05
  * Specification: Clean, minimal conversation list with avatars, names, previews, and timestamps
  */
@@ -11,21 +11,21 @@ import React from 'react';
 import type { Conversation } from '@/lib/api/messages';
 import getProfileImageUrl from '@/lib/utils/image';
 import { useAblyPresence } from '@/app/hooks/useAblyPresence';
-import styles from './WiseChatConversationList.module.css';
+import styles from './ConversationList.module.css';
 
-interface WiseChatConversationListProps {
+interface ConversationListProps {
   conversations: Conversation[];
   currentUserId: string;
   selectedConversationId: string | null;
   onSelectConversation: (conversationId: string) => void;
 }
 
-export default function WiseChatConversationList({
+export default function ConversationList({
   conversations,
   currentUserId,
   selectedConversationId,
   onSelectConversation,
-}: WiseChatConversationListProps) {
+}: ConversationListProps) {
   if (conversations.length === 0) {
     return (
       <div className={styles.empty}>

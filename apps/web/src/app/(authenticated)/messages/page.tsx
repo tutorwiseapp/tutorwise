@@ -1,6 +1,6 @@
 /**
- * Filename: apps/web/src/app/(authenticated)/wisechat/page.tsx
- * Purpose: WiseChat - WhatsApp-style messaging interface
+ * Filename: apps/web/src/app/(authenticated)/messages/page.tsx
+ * Purpose: Messages - WhatsApp-style messaging interface
  * Created: 2025-12-05
  * Specification: Clean 2-pane split layout (30% conversations / 70% chat thread)
  */
@@ -12,8 +12,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getConversations } from '@/lib/api/messages';
 import { useAblyPresenceBroadcast } from '@/app/hooks/useAblyPresence';
-import WiseChatConversationList from '@/app/components/feature/wisechat/WiseChatConversationList';
-import WiseChatThread from '@/app/components/feature/wisechat/WiseChatThread';
+import ConversationList from '@/app/components/feature/messages/ConversationList';
+import ChatThread from '@/app/components/feature/messages/ChatThread';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import InboxStatsWidget from '@/app/components/feature/messages/InboxStatsWidget';
@@ -27,7 +27,7 @@ import styles from './page.module.css';
 type FilterTab = 'all' | 'unread' | 'archived';
 type SortOption = 'recent' | 'name' | 'unread';
 
-export default function WiseChatPage() {
+export default function MessagesPage() {
   const { profile, isLoading: profileLoading } = useUserProfile();
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [isMobileThreadView, setIsMobileThreadView] = useState(false);
@@ -177,7 +177,7 @@ export default function WiseChatPage() {
       <HubPageLayout
         header={
           <HubHeader
-            title="WiseChat"
+            title="Messages"
             filters={filterControls}
           />
         }
@@ -203,7 +203,7 @@ export default function WiseChatPage() {
     <HubPageLayout
       header={
         <HubHeader
-          title="WiseChat"
+          title="Messages"
           filters={filterControls}
         />
       }
@@ -232,7 +232,7 @@ export default function WiseChatPage() {
       <div className={styles.splitPane}>
         {/* Conversation list pane (30%) */}
         <div className={`${styles.listPane} ${isMobileThreadView ? styles.listPaneHidden : ''}`}>
-          <WiseChatConversationList
+          <ConversationList
             conversations={filteredConversations}
             currentUserId={profile.id}
             selectedConversationId={selectedConversationId}
@@ -243,7 +243,7 @@ export default function WiseChatPage() {
         {/* Chat thread pane (70%) */}
         <div className={`${styles.threadPane} ${isMobileThreadView ? styles.threadPaneMobile : ''}`}>
           {selectedConversation ? (
-            <WiseChatThread
+            <ChatThread
               currentUserId={profile.id}
               otherUser={selectedConversation.otherUser}
               onBack={handleBack}
