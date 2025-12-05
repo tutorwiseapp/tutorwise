@@ -10,14 +10,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { getConversations, type Conversation } from '@/lib/api/messages';
+import { getConversations } from '@/lib/api/messages';
 import { useAblyPresenceBroadcast } from '@/app/hooks/useAblyPresence';
 import WiseChatConversationList from '@/app/components/feature/wisechat/WiseChatConversationList';
 import WiseChatThread from '@/app/components/feature/wisechat/WiseChatThread';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import InboxStatsWidget from '@/app/components/feature/messages/InboxStatsWidget';
-import ChatContextWidget from '@/app/components/feature/messages/ChatContextWidget';
 import MessageHelpWidget from '@/app/components/feature/messages/MessageHelpWidget';
 import MessageTipWidget from '@/app/components/feature/messages/MessageTipWidget';
 import MessageVideoWidget from '@/app/components/feature/messages/MessageVideoWidget';
