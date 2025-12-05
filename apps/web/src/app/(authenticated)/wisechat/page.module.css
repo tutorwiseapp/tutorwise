@@ -1,0 +1,129 @@
+/**
+ * WiseChat page.module.css
+ * WhatsApp-style split-pane layout
+ */
+
+/* Loading state */
+.loading {
+  padding: 24px;
+  text-align: center;
+  color: #6b7280;
+}
+
+/* Error banner */
+.errorBanner {
+  padding: 12px 16px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #991b1b;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+/* Split-pane layout */
+.splitPane {
+  display: flex;
+  height: calc(100vh - 200px); /* Adjust based on header height */
+  min-height: 600px;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+/* List pane (30%) */
+.listPane {
+  width: 30%;
+  min-width: 280px;
+  max-width: 400px;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.listPaneHidden {
+  display: none;
+}
+
+/* Thread pane (70%) */
+.threadPane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #f9fafb;
+  overflow: hidden;
+}
+
+.threadPaneMobile {
+  width: 100%;
+}
+
+/* No selection state */
+.noSelection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 48px 24px;
+  text-align: center;
+  background: #f9fafb;
+}
+
+.noSelectionIcon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  opacity: 0.3;
+}
+
+.noSelectionTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 8px 0;
+}
+
+.noSelectionText {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+  max-width: 400px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .splitPane {
+    height: calc(100vh - 140px);
+    min-height: 500px;
+  }
+
+  .listPane {
+    width: 100%;
+    max-width: none;
+    border-right: none;
+  }
+
+  .listPaneHidden {
+    display: none;
+  }
+
+  .threadPane {
+    display: none;
+  }
+
+  .threadPaneMobile {
+    display: flex;
+    width: 100%;
+  }
+}
+
+/* Tablet responsiveness */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .listPane {
+    width: 35%;
+    min-width: 300px;
+  }
+}
