@@ -31,15 +31,16 @@ export async function GET(request: NextRequest) {
       .select(
         `
         id,
-        requester_id,
-        receiver_id,
+        source_profile_id,
+        target_profile_id,
         created_at,
-        requester:requester_id(id, full_name, avatar_url),
-        receiver:receiver_id(id, full_name, avatar_url)
+        source:source_profile_id(id, full_name, avatar_url),
+        target:target_profile_id(id, full_name, avatar_url)
       `
       )
-      .eq('status', 'accepted')
-      .or(`requester_id.eq.${user.id},receiver_id.eq.${user.id}`);
+      .eq('status', 'ACTIVE')
+      .eq('relationship_type', 'SOCIAL')
+      .or(`source_profile_id.eq.${user.id},target_profile_id.eq.${user.id}`);
 
     if (connectionsError) {
       console.error('[ConversationsAPI] Error fetching connections:', connectionsError);
@@ -77,9 +78,9 @@ export async function GET(request: NextRequest) {
     const conversationsMap = new Map<string, any>();
 
     connections?.forEach((conn: any) => {
-      const isRequester = conn.requester_id === user.id;
-      const otherUserId = isRequester ? conn.receiver_id : conn.requester_id;
-      const otherUser = isRequester ? conn.receiver : conn.requester;
+      const isSource = conn.source_profile_id === user.id;
+      const otherUserId = isSource ? conn.target_profile_id : conn.source_profile_id;
+      const otherUser = isSource ? conn.target : conn.source;
 
       conversationsMap.set(otherUserId, {
         id: otherUserId,
