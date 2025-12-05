@@ -128,7 +128,10 @@ export default function WiseChatPage() {
   // Handle conversation selection
   const handleSelectConversation = (conversationId: string) => {
     setSelectedConversationId(conversationId);
-    setIsMobileThreadView(true);
+    // Only switch to thread view on mobile (max-width: 768px)
+    if (window.innerWidth <= 768) {
+      setIsMobileThreadView(true);
+    }
   };
 
   // Handle back button (mobile)
