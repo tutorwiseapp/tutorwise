@@ -256,13 +256,7 @@ export default function BookingDetailPage({ params }: PageProps) {
             label: booking.status,
             variant: getStatusVariant(booking.status),
           }}
-          description={
-            <>
-              {`${viewMode === 'client' ? 'Tutor' : 'Client'}: ${otherParty.full_name}`}
-              <br />
-              {`Agent: ${booking.agent?.full_name || 'No Agent'}`}
-            </>
-          }
+          description={`${viewMode === 'client' ? 'Tutor' : 'Client'}: ${otherParty.full_name} | Agent: ${booking.agent?.full_name || 'No Agent'}`}
           details={[
             {
               label: 'Date',
