@@ -179,6 +179,7 @@
   font-weight: 600;
   color: #1f2937;
   flex: 1;
+  min-width: 0; /* Allow text truncation in flex context */
 }
 
 /* Action Dock (bottom, right-aligned) */
