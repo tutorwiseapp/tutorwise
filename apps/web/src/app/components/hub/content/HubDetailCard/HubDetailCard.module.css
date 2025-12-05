@@ -205,21 +205,21 @@
 
   .imageColumn {
     width: 100%;
-    display: flex;
-    justify-content: center;
   }
 
   .imageWrapper,
   .imageFallback,
   .imagePlaceholder {
-    width: 160px; /* Keep full size avatar */
-    height: 160px;
+    width: 100%; /* Full width on mobile */
+    height: auto;
+    aspect-ratio: 1 / 1; /* Square shape */
   }
 
   .image {
-    width: 160px;
-    height: 160px;
+    width: 100%;
+    height: 100%;
     border-radius: 8px;
+    object-fit: cover;
   }
 
   .fallbackChar {
@@ -283,28 +283,32 @@
 /* Tablet: Optimize for medium screens */
 @media (min-width: 641px) and (max-width: 1024px) {
   .card {
+    flex-direction: column; /* Stack vertically on tablet */
     padding: 18px;
     gap: 18px;
   }
 
   .imageColumn {
-    width: 140px; /* Slightly smaller avatar on tablet */
+    width: 100%; /* Full width on tablet */
   }
 
   .imageWrapper,
   .imageFallback,
   .imagePlaceholder {
-    width: 140px;
-    height: 140px;
+    width: 100%; /* Full width on tablet */
+    height: auto;
+    aspect-ratio: 1 / 1; /* Square shape */
   }
 
   .image {
-    width: 140px;
-    height: 140px;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    object-fit: cover;
   }
 
   .fallbackChar {
-    font-size: 42px;
+    font-size: 72px; /* Larger for wider layout */
   }
 
   .title {
