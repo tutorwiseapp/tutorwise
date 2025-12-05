@@ -149,7 +149,6 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 4px;
-  column-gap: 32px; /* Horizontal gap between columns */
   margin-top: 4px; /* Reduced gap from description to grid */
   padding-top: 0; /* Removed padding */
   border-top: none; /* Removed divider line */
