@@ -251,13 +251,15 @@ export default function BookingDetailPage({ params }: PageProps) {
           }}
           imageHref={`/public-profile/${otherParty.id}`}
           title={booking.service_name}
-          titleHref={booking.listing_id ? `/listings/${booking.listing_id}` : undefined}
+          titleHref={`/bookings/${booking.id}`}
           status={{
             label: booking.status,
             variant: getStatusVariant(booking.status),
           }}
-          description={`${formattedDate} at ${formattedTime}`}
+          description={`${viewMode === 'client' ? 'Tutor' : 'Client'}: ${otherParty.full_name}`}
           details={[
+            { label: 'Date', value: formattedDate },
+            { label: 'Time', value: formattedTime },
             { label: 'Duration', value: `${booking.session_duration} minutes` },
             { label: 'Amount', value: `£${booking.amount.toFixed(2)}` },
             { label: 'Payment Status', value: booking.payment_status },
@@ -268,19 +270,71 @@ export default function BookingDetailPage({ params }: PageProps) {
           ]}
           actions={
             <>
+              {/* Join WiseSpace: Always shown, disabled if not Confirmed */}
               <Button
-                variant="secondary"
+                onClick={() => router.push(`/wisespace/${booking.id}`)}
+                variant="primary"
                 size="sm"
-                onClick={() => router.push(`/public-profile/${otherParty.id}`)}
+                disabled={booking.status !== 'Confirmed'}
               >
-                View Profile
+                Join WiseSpace
               </Button>
+
+              {/* Client-specific: Pay Now button */}
+              {viewMode === 'client' && (
+                <Button
+                  onClick={async () => {
+                    const response = await fetch('/api/stripe/create-booking-checkout', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ booking_id: booking.id }),
+                    });
+                    const { url } = await response.json();
+                    if (url) window.location.href = url;
+                  }}
+                  variant="primary"
+                  size="sm"
+                  disabled={booking.payment_status !== 'Pending'}
+                >
+                  Pay Now
+                </Button>
+              )}
+
+              {/* Reschedule button - placeholder */}
               <Button
+                onClick={() => {
+                  // TODO: Implement reschedule functionality
+                  alert('Reschedule functionality coming soon');
+                }}
                 variant="secondary"
                 size="sm"
-                onClick={() => router.push(`/messages?user=${otherParty.id}`)}
               >
-                Message
+                Reschedule
+              </Button>
+
+              {/* Cancel button - placeholder */}
+              <Button
+                onClick={() => {
+                  // TODO: Implement cancel functionality
+                  if (confirm('Are you sure you want to cancel this booking?')) {
+                    alert('Cancel functionality coming soon');
+                  }
+                }}
+                variant="secondary"
+                size="sm"
+              >
+                Cancel
+              </Button>
+
+              {/* View Details - scrolls to original cards below */}
+              <Button
+                onClick={() => {
+                  document.querySelector(`.${styles.detailsGrid}`)?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                variant="secondary"
+                size="sm"
+              >
+                View Details
               </Button>
             </>
           }
