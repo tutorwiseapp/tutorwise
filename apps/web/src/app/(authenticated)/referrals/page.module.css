@@ -16,7 +16,9 @@
   gap: 1rem;
 }
 
-.referralHeader {
-  height: 14rem;
-  margin-top: -3rem;
+/* Taller header for Refer & Earn tab only */
+.referralHeaderTall {
+  height: 12rem;
+  margin-top: -2rem;
 }
+
