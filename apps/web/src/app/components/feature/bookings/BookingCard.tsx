@@ -2,16 +2,18 @@
  * Filename: src/app/components/feature/bookings/BookingCard.tsx
  * Purpose: Display booking information in detail card format with HubDetailCard
  * Created: 2025-11-02
- * Updated: 2025-12-05 - Migrated to HubDetailCard standard (consistent with WiselistCard)
+ * Updated: 2025-12-06 - Added BookingDetailModal for viewing all 19 fields
  * Specification: Expanded detail card layout with HubDetailCard component
  * Design: Uses HubDetailCard component for consistent visual layout across all hubs
  */
 'use client';
 
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { Booking, BookingStatus } from '@/types';
 import Button from '@/app/components/ui/actions/Button';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
+import BookingDetailModal from './BookingDetailModal';
 import getProfileImageUrl from '@/lib/utils/image';
 
 interface BookingCardProps {
@@ -31,6 +33,9 @@ export default function BookingCard({
   onReschedule,
   onCancel,
 }: BookingCardProps) {
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   // Format date/time
   const sessionDate = new Date(booking.session_start_time);
   const formattedTime = sessionDate.toLocaleTimeString('en-GB', {
@@ -73,6 +78,9 @@ export default function BookingCard({
   const rolePrefix = viewMode === 'client' ? 'Tutor' : 'Client';
   const description = otherParty ? `${rolePrefix}: ${otherParty.full_name}` : undefined;
 
+  // Get agent name if available
+  const agentName = booking.agent?.full_name || 'No Agent';
+
   // Build details grid - 3x3 grid matching design
   const details = [
     // Row 1: Date, Time, Duration
@@ -87,10 +95,10 @@ export default function BookingCard({
     },
     { label: 'Time', value: formattedTime },
     { label: 'Duration', value: `${booking.session_duration} mins` },
-    // Row 2: Amount, Payment, Status
+    // Row 2: Amount, Payment, Agent (Status removed - shown in badge)
     { label: 'Amount', value: `£${booking.amount.toFixed(2)}` },
     { label: 'Payment', value: booking.payment_status },
-    { label: 'Status', value: booking.status },
+    { label: 'Agent', value: agentName },
     // Row 3: Type, Created, ID (truncated)
     {
       label: 'Type',
@@ -144,6 +152,15 @@ export default function BookingCard({
         </Button>
       </Link>
 
+      {/* View Details button - opens modal with all 19 fields */}
+      <Button
+        onClick={() => setIsModalOpen(true)}
+        variant="secondary"
+        size="sm"
+      >
+        View Details
+      </Button>
+
       {/* Client-specific: Show "Pay Now" if Pending */}
       {viewMode === 'client' &&
         booking.payment_status === 'Pending' &&
@@ -182,21 +199,31 @@ export default function BookingCard({
   );
 
   return (
-    <HubDetailCard
-      image={{
-        src: avatarUrl,
-        alt: otherParty?.full_name || 'User',
-        fallbackChar: fallbackChar,
-      }}
-      title={booking.service_name}
-      status={{
-        label: booking.status,
-        variant: getStatusVariant(booking.status),
-      }}
-      description={description}
-      details={details}
-      actions={actions}
-      imageHref={otherParty?.id ? `/public-profile/${otherParty.id}` : undefined}
-    />
+    <>
+      <HubDetailCard
+        image={{
+          src: avatarUrl,
+          alt: otherParty?.full_name || 'User',
+          fallbackChar: fallbackChar,
+        }}
+        title={booking.service_name}
+        status={{
+          label: booking.status,
+          variant: getStatusVariant(booking.status),
+        }}
+        description={description}
+        details={details}
+        actions={actions}
+        imageHref={otherParty?.id ? `/public-profile/${otherParty.id}` : undefined}
+      />
+
+      {/* Booking Detail Modal */}
+      <BookingDetailModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        booking={booking}
+        viewMode={viewMode}
+      />
+    </>
   );
 }

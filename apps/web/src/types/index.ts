@@ -389,6 +389,11 @@ export interface Booking {
     full_name: string;
     avatar_url?: string;
   };
+  agent?: {
+    id: string;
+    full_name: string;
+    avatar_url?: string;
+  } | null;
   listing?: {
     id: string;
     title: string;

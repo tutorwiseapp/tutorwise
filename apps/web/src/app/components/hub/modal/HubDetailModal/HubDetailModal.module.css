@@ -1,0 +1,171 @@
+/* HubDetailModal.module.css - Generic modal for detailed entity views */
+
+/* Overlay */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-2, 16px);
+}
+
+/* Modal Container */
+.modal {
+  background: white;
+  border-radius: var(--border-radius-lg, 12px);
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg, 0 10px 25px rgba(0, 0, 0, 0.2));
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: var(--space-4, 32px);
+  border-bottom: 1px solid var(--color-gray-200, #E5E7EB);
+  gap: var(--space-3, 24px);
+}
+
+.headerContent {
+  flex: 1;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0 0 var(--space-1, 8px) 0;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: var(--color-gray-500, #8E8E8E);
+  margin: 0;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--color-gray-500, #8E8E8E);
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius-md, 8px);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.closeButton:hover {
+  background: var(--color-gray-100, #F5F5F5);
+  color: var(--color-gray-700, #4B4B4B);
+}
+
+/* Content */
+.content {
+  padding: var(--space-4, 32px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 32px);
+}
+
+/* Section */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 24px);
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0;
+  padding-bottom: var(--space-2, 16px);
+  border-bottom: 1px solid var(--color-gray-200, #E5E7EB);
+}
+
+/* Fields Grid - 2 columns */
+.fieldsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3, 24px);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1, 8px);
+}
+
+.fieldLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-gray-500, #8E8E8E);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fieldValue {
+  font-size: 0.875rem;
+  color: var(--color-gray-700, #4B4B4B);
+  word-break: break-word;
+}
+
+/* Actions */
+.actions {
+  padding: var(--space-3, 24px) var(--space-4, 32px);
+  border-top: 1px solid var(--color-gray-200, #E5E7EB);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2, 16px);
+}
+
+/* Mobile Responsive */
+@media (max-width: 767px) {
+  .modal {
+    max-height: 95vh;
+    border-radius: var(--border-radius-md, 8px);
+  }
+
+  .header {
+    padding: var(--space-3, 24px);
+  }
+
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .content {
+    padding: var(--space-3, 24px);
+    gap: var(--space-3, 24px);
+  }
+
+  .fieldsGrid {
+    grid-template-columns: 1fr;
+    gap: var(--space-2, 16px);
+  }
+
+  .actions {
+    padding: var(--space-2, 16px) var(--space-3, 24px);
+    flex-direction: column;
+  }
+
+  .actions > * {
+    width: 100%;
+  }
+}

@@ -2,12 +2,15 @@
  * Filename: DisputeCard.tsx
  * Purpose: Display dispute information in detail card format with HubDetailCard
  * Created: 2025-12-06
+ * Updated: 2025-12-06 - Added DisputeDetailModal for viewing all transaction fields
  * Specification: Dispute card following HubDetailCard pattern (consistent with TransactionCard)
  */
 'use client';
 
+import React, { useState } from 'react';
 import { Transaction } from '@/types';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
+import DisputeDetailModal from './DisputeDetailModal';
 import Button from '@/app/components/ui/actions/Button';
 
 interface DisputeCardProps {
@@ -15,6 +18,8 @@ interface DisputeCardProps {
 }
 
 export default function DisputeCard({ dispute }: DisputeCardProps) {
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
   // Format date helper (en-GB standard)
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-GB', {
@@ -84,22 +89,31 @@ export default function DisputeCard({ dispute }: DisputeCardProps) {
   ];
 
   return (
-    <HubDetailCard
-      image={image}
-      title={title}
-      description={description}
-      status={getStatus()}
-      details={details}
-      actions={
-        <>
-          <Button variant="secondary" size="sm" disabled>
-            View Details
-          </Button>
-          <Button variant="secondary" size="sm" disabled>
-            Submit Evidence
-          </Button>
-        </>
-      }
-    />
+    <>
+      <HubDetailCard
+        image={image}
+        title={title}
+        description={description}
+        status={getStatus()}
+        details={details}
+        actions={
+          <>
+            <Button variant="secondary" size="sm" onClick={() => setIsModalOpen(true)}>
+              View Details
+            </Button>
+            <Button variant="secondary" size="sm" disabled>
+              Submit Evidence
+            </Button>
+          </>
+        }
+      />
+
+      {/* Dispute Detail Modal */}
+      <DisputeDetailModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        dispute={dispute}
+      />
+    </>
   );
 }

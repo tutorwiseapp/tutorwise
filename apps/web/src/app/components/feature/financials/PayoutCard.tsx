@@ -2,12 +2,15 @@
  * Filename: PayoutCard.tsx
  * Purpose: Display payout information in detail card format with HubDetailCard
  * Created: 2025-12-06
+ * Updated: 2025-12-06 - Added PayoutDetailModal for viewing all transaction fields
  * Specification: Payout card following HubDetailCard pattern (consistent with TransactionCard)
  */
 'use client';
 
+import React, { useState } from 'react';
 import { Transaction } from '@/types';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
+import PayoutDetailModal from './PayoutDetailModal';
 import Button from '@/app/components/ui/actions/Button';
 
 interface PayoutCardProps {
@@ -15,6 +18,8 @@ interface PayoutCardProps {
 }
 
 export default function PayoutCard({ payout }: PayoutCardProps) {
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
   // Format date helper (en-GB standard)
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-GB', {
@@ -80,17 +85,26 @@ export default function PayoutCard({ payout }: PayoutCardProps) {
   ];
 
   return (
-    <HubDetailCard
-      image={image}
-      title={title}
-      description={description}
-      status={getStatus()}
-      details={details}
-      actions={
-        <Button variant="secondary" size="sm">
-          View Details
-        </Button>
-      }
-    />
+    <>
+      <HubDetailCard
+        image={image}
+        title={title}
+        description={description}
+        status={getStatus()}
+        details={details}
+        actions={
+          <Button variant="secondary" size="sm" onClick={() => setIsModalOpen(true)}>
+            View Details
+          </Button>
+        }
+      />
+
+      {/* Payout Detail Modal */}
+      <PayoutDetailModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        payout={payout}
+      />
+    </>
   );
 }

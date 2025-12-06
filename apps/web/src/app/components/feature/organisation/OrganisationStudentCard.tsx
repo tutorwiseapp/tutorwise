@@ -2,11 +2,14 @@
  * Filename: OrganisationStudentCard.tsx
  * Purpose: Display organisation student information in detail card format with HubDetailCard
  * Created: 2025-12-06
+ * Updated: 2025-12-06 - Added OrganisationStudentDetailModal for viewing all student fields
  * Specification: Organisation student card following HubDetailCard pattern (consistent with MemberCard)
  */
 'use client';
 
+import React, { useState } from 'react';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
+import OrganisationStudentDetailModal from './OrganisationStudentDetailModal';
 import Button from '@/app/components/ui/actions/Button';
 import getProfileImageUrl from '@/lib/utils/image';
 
@@ -16,6 +19,7 @@ interface OrganisationStudent {
   email: string;
   avatar_url?: string | null;
   tutor_name?: string;
+  tutor_id?: string;
   since: string;
 }
 
@@ -24,6 +28,8 @@ interface OrganisationStudentCardProps {
 }
 
 export default function OrganisationStudentCard({ client }: OrganisationStudentCardProps) {
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
   // Format date helper (en-GB standard)
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-GB', {
@@ -66,16 +72,25 @@ export default function OrganisationStudentCard({ client }: OrganisationStudentC
   ];
 
   return (
-    <HubDetailCard
-      image={image}
-      title={title}
-      description={description}
-      details={details}
-      actions={
-        <Button variant="primary" size="sm">
-          View Details
-        </Button>
-      }
-    />
+    <>
+      <HubDetailCard
+        image={image}
+        title={title}
+        description={description}
+        details={details}
+        actions={
+          <Button variant="primary" size="sm" onClick={() => setIsModalOpen(true)}>
+            View Details
+          </Button>
+        }
+      />
+
+      {/* Student Detail Modal */}
+      <OrganisationStudentDetailModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        student={client}
+      />
+    </>
   );
 }
