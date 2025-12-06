@@ -37,7 +37,7 @@ import OrganisationInviteMemberModal from '@/app/components/feature/organisation
 import OrganisationInfoTab from '@/app/components/feature/organisation/OrganisationInfoTab';
 import ManageMemberModal from '@/app/components/feature/organisation/ManageMemberModal';
 import MemberCard from '@/app/components/feature/organisation/MemberCard';
-import HubRowCard from '@/app/components/hub/content/HubRowCard/HubRowCard';
+import OrganisationStudentCard from '@/app/components/feature/organisation/OrganisationStudentCard';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
@@ -676,23 +676,9 @@ export default function OrganisationPage() {
               <>
                 <div className={styles.cardList}>
                   {paginatedClients.map((client: any) => (
-                    <HubRowCard
+                    <OrganisationStudentCard
                       key={client.id}
-                      image={{
-                        src: client.avatar_url,
-                        alt: client.full_name || 'Student',
-                        fallbackChar: client.full_name?.substring(0, 2).toUpperCase() || 'ST',
-                      }}
-                      title={client.full_name || client.email}
-                      meta={[
-                        `Student of ${client.tutor_name}`,
-                        `Since ${new Date(client.since).toLocaleDateString()}`,
-                      ]}
-                      actions={
-                        <Button variant="primary" size="sm">
-                          View Details
-                        </Button>
-                      }
+                      client={client}
                     />
                   ))}
                 </div>

@@ -17,12 +17,12 @@ import { getDisputes } from '@/lib/api/financials';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import HubRowCard from '@/app/components/hub/content/HubRowCard/HubRowCard';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import WalletBalanceWidget from '@/app/components/feature/financials/WalletBalanceWidget';
 import DisputeHelpWidget from '@/app/components/feature/financials/DisputeHelpWidget';
 import DisputeTipWidget from '@/app/components/feature/financials/DisputeTipWidget';
 import DisputeVideoWidget from '@/app/components/feature/financials/DisputeVideoWidget';
+import DisputeCard from '@/app/components/feature/financials/DisputeCard';
 import Button from '@/app/components/ui/actions/Button';
 import { Transaction } from '@/types';
 import toast from 'react-hot-toast';
@@ -345,52 +345,12 @@ export default function DisputesPage() {
           )
         ) : (
           <div className={styles.disputesList}>
-            {filteredDisputes.map((dispute) => {
-              // TODO: Extract client info from dispute when backend provides it
-              const clientName = 'Client'; // Placeholder - will be populated from backend
-              const clientInitial = 'C';    // Placeholder initial
-
-              return (
-                <HubRowCard
-                  key={dispute.id}
-                  image={{
-                    src: null,
-                    alt: clientName,
-                    fallbackChar: clientInitial,
-                  }}
-                  title={`£${Math.abs(dispute.amount).toFixed(2)} Disputed`}
-                  status={{
-                    label: dispute.status || 'Disputed',
-                    variant: getStatusVariant(dispute.status || ''),
-                  }}
-                  description={dispute.description}
-                  meta={[
-                    `Client: ${clientName}`,
-                    `Opened ${new Date(dispute.created_at).toLocaleDateString('en-GB', {
-                      day: 'numeric',
-                      month: 'short',
-                      year: 'numeric',
-                    })}`,
-                    dispute.type || 'Dispute',
-                  ]}
-                  stats={
-                    <p className={styles.disputeNote}>
-                      <strong>Note:</strong> Dispute management will be available in Phase 3. Please contact support for assistance.
-                    </p>
-                  }
-                  actions={
-                    <>
-                      <Button variant="secondary" size="sm" disabled>
-                        View Details
-                      </Button>
-                      <Button variant="secondary" size="sm" disabled>
-                        Submit Evidence
-                      </Button>
-                    </>
-                  }
-                />
-              );
-            })}
+            {filteredDisputes.map((dispute) => (
+              <DisputeCard
+                key={dispute.id}
+                dispute={dispute}
+              />
+            ))}
           </div>
         )}
     </HubPageLayout>

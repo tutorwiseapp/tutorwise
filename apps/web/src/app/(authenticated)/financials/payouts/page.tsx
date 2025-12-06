@@ -17,12 +17,12 @@ import { getPayouts } from '@/lib/api/financials';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import HubRowCard from '@/app/components/hub/content/HubRowCard/HubRowCard';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import WalletBalanceWidget from '@/app/components/feature/financials/WalletBalanceWidget';
 import PayoutHelpWidget from '@/app/components/feature/financials/PayoutHelpWidget';
 import PayoutTipWidget from '@/app/components/feature/financials/PayoutTipWidget';
 import PayoutVideoWidget from '@/app/components/feature/financials/PayoutVideoWidget';
+import PayoutCard from '@/app/components/feature/financials/PayoutCard';
 import Button from '@/app/components/ui/actions/Button';
 import { Transaction } from '@/types';
 import toast from 'react-hot-toast';
@@ -347,32 +347,9 @@ export default function PayoutsPage() {
         ) : (
           <div className={styles.payoutsList}>
             {filteredPayouts.map((payout) => (
-              <HubRowCard
+              <PayoutCard
                 key={payout.id}
-                image={{
-                  src: null,
-                  alt: 'Bank Account',
-                  fallbackChar: '💳',
-                }}
-                title={`£${Math.abs(payout.amount).toFixed(2)}`}
-                status={{
-                  label: payout.status || 'Unknown',
-                  variant: getStatusVariant(payout.status || ''),
-                }}
-                description={payout.description}
-                meta={[
-                  `Requested on ${new Date(payout.created_at).toLocaleDateString('en-GB', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric',
-                  })}`,
-                  payout.type || 'Withdrawal',
-                ]}
-                actions={
-                  <Button variant="secondary" size="sm">
-                    View Details
-                  </Button>
-                }
+                payout={payout}
               />
             ))}
           </div>
