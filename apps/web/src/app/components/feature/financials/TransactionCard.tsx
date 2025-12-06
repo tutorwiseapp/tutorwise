@@ -2,13 +2,15 @@
  * Filename: src/app/components/financials/TransactionCard.tsx
  * Purpose: Display transaction information in detail card format with HubDetailCard
  * Created: 2025-11-02
- * Updated: 2025-12-05 - Migrated to HubDetailCard standard (consistent with BookingCard/WiselistCard)
+ * Updated: 2025-12-06 - Added TransactionDetailModal for viewing all transaction fields
  * Specification: Expanded detail card layout with HubDetailCard component
  */
 'use client';
 
+import React, { useState } from 'react';
 import { Transaction, TransactionStatus } from '@/types';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
+import TransactionDetailModal from './TransactionDetailModal';
 import Button from '@/app/components/ui/actions/Button';
 import getProfileImageUrl from '@/lib/utils/image';
 
@@ -18,6 +20,8 @@ interface TransactionCardProps {
 }
 
 export default function TransactionCard({ transaction, currentUserId }: TransactionCardProps) {
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
   // Determine counterparty (3-role logic: Client, Tutor, Agent)
   const determineCounterparty = () => {
     // System transactions (no person)
@@ -166,6 +170,9 @@ export default function TransactionCard({ transaction, currentUserId }: Transact
   // Build actions
   const actions = (
     <>
+      <Button variant="secondary" size="sm" onClick={() => setIsModalOpen(true)}>
+        View Details
+      </Button>
       {transaction.booking_id && (
         <Button variant="secondary" size="sm" href={`/bookings/${transaction.booking_id}`}>
           View Booking
@@ -180,15 +187,25 @@ export default function TransactionCard({ transaction, currentUserId }: Transact
   );
 
   return (
-    <HubDetailCard
-      image={getImage()}
-      title={title}
-      status={getStatus()}
-      description={description}
-      details={details}
-      actions={actions}
-      imageHref={isSystemTransaction ? undefined : `/public-profile/${counterparty.id}`}
-      titleHref={isSystemTransaction ? undefined : `/public-profile/${counterparty.id}`}
-    />
+    <>
+      <HubDetailCard
+        image={getImage()}
+        title={title}
+        status={getStatus()}
+        description={description}
+        details={details}
+        actions={actions}
+        imageHref={isSystemTransaction ? undefined : `/public-profile/${counterparty.id}`}
+        titleHref={isSystemTransaction ? undefined : `/public-profile/${counterparty.id}`}
+      />
+
+      {/* Transaction Detail Modal */}
+      <TransactionDetailModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        transaction={transaction}
+        currentUserId={currentUserId}
+      />
+    </>
   );
 }

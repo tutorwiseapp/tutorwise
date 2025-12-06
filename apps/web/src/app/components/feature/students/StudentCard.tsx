@@ -2,14 +2,15 @@
  * Filename: apps/web/src/app/components/students/StudentCard.tsx
  * Purpose: Display individual student (Guardian Link) in detail card format with HubDetailCard
  * Created: 2025-11-12
- * Updated: 2025-12-05 - Migrated to HubDetailCard standard (consistent with BookingCard/WiselistCard)
+ * Updated: 2025-12-06 - Added StudentDetailModal for viewing all student fields
  */
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
+import StudentDetailModal from './StudentDetailModal';
 import Button from '@/app/components/ui/actions/Button';
 import getProfileImageUrl from '@/lib/utils/image';
 
@@ -41,7 +42,8 @@ export default function StudentCard({
   onRemove,
   onViewProgress,
 }: StudentCardProps) {
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Safety check
   if (!student.student) {
@@ -119,6 +121,13 @@ export default function StudentCard({
       <Button
         variant="secondary"
         size="sm"
+        onClick={() => setIsModalOpen(true)}
+      >
+        View Details
+      </Button>
+      <Button
+        variant="secondary"
+        size="sm"
         onClick={() => onViewProgress?.(profile.id)}
       >
         View Progress
@@ -135,22 +144,31 @@ export default function StudentCard({
   );
 
   return (
-    <HubDetailCard
-      image={{
-        src: avatarUrl,
-        alt: profile.full_name,
-        fallbackChar: fallbackChar,
-      }}
-      imageHref={`/public-profile/${profile.id}`}
-      title={profile.full_name}
-      titleHref={`/public-profile/${profile.id}`}
-      status={{
-        label: 'Active',
-        variant: 'success',
-      }}
-      description={profile.email}
-      details={details}
-      actions={actions}
-    />
+    <>
+      <HubDetailCard
+        image={{
+          src: avatarUrl,
+          alt: profile.full_name,
+          fallbackChar: fallbackChar,
+        }}
+        imageHref={`/public-profile/${profile.id}`}
+        title={profile.full_name}
+        titleHref={`/public-profile/${profile.id}`}
+        status={{
+          label: 'Active',
+          variant: 'success',
+        }}
+        description={profile.email}
+        details={details}
+        actions={actions}
+      />
+
+      {/* Student Detail Modal */}
+      <StudentDetailModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        student={student}
+      />
+    </>
   );
 }

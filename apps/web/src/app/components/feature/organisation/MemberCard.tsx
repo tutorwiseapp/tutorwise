@@ -2,13 +2,14 @@
  * Filename: MemberCard.tsx
  * Purpose: Organisation member card in detail card format with HubDetailCard
  * Created: 2025-11-26
- * Updated: 2025-12-05 - Migrated to HubDetailCard standard (consistent with BookingCard/WiselistCard)
+ * Updated: 2025-12-06 - Added MemberDetailModal for viewing all member fields
  */
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
+import MemberDetailModal from './MemberDetailModal';
 import Button from '@/app/components/ui/actions/Button';
 import { OrganisationMember } from '@/lib/api/organisation';
 import { formatTimeAgo } from '@/lib/utils/dateUtils';
@@ -26,6 +27,8 @@ export default function MemberCard({
   onRemove,
   onManage,
 }: MemberCardProps) {
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
   // Standardization: Alias for consistency with other Hub Row Cards
   const otherParty = member;
 
@@ -66,6 +69,13 @@ export default function MemberCard({
       <Button
         variant="secondary"
         size="sm"
+        onClick={() => setIsModalOpen(true)}
+      >
+        View Details
+      </Button>
+      <Button
+        variant="secondary"
+        size="sm"
         onClick={() => onManage(otherParty)}
       >
         Manage
@@ -88,19 +98,28 @@ export default function MemberCard({
   );
 
   return (
-    <HubDetailCard
-      image={{
-        src: otherParty.avatar_url,
-        alt: otherParty.full_name || 'Team member',
-        fallbackChar: otherParty.full_name?.charAt(0).toUpperCase() || '??',
-      }}
-      imageHref={`/public-profile/${otherParty.id}`}
-      title={otherParty.full_name || otherParty.email}
-      titleHref={`/public-profile/${otherParty.id}`}
-      status={status}
-      description={description}
-      details={details}
-      actions={actions}
-    />
+    <>
+      <HubDetailCard
+        image={{
+          src: otherParty.avatar_url,
+          alt: otherParty.full_name || 'Team member',
+          fallbackChar: otherParty.full_name?.charAt(0).toUpperCase() || '??',
+        }}
+        imageHref={`/public-profile/${otherParty.id}`}
+        title={otherParty.full_name || otherParty.email}
+        titleHref={`/public-profile/${otherParty.id}`}
+        status={status}
+        description={description}
+        details={details}
+        actions={actions}
+      />
+
+      {/* Member Detail Modal */}
+      <MemberDetailModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        member={member}
+      />
+    </>
   );
 }

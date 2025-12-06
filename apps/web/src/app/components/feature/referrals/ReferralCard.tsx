@@ -2,13 +2,15 @@
  * Filename: src/app/components/referrals/ReferralCard.tsx
  * Purpose: Display referral lead information in detail card format with HubDetailCard
  * Created: 2025-11-02
- * Updated: 2025-12-05 - Migrated to HubDetailCard standard (consistent with BookingCard/WiselistCard)
+ * Updated: 2025-12-06 - Added ReferralDetailModal for viewing all referral fields
  * Specification: Expanded detail card layout with HubDetailCard component
  */
 'use client';
 
+import React, { useState } from 'react';
 import { Referral, ReferralStatus } from '@/types';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
+import ReferralDetailModal from './ReferralDetailModal';
 import Button from '@/app/components/ui/actions/Button';
 import getProfileImageUrl from '@/lib/utils/image';
 
@@ -25,6 +27,8 @@ export default function ReferralCard({
   onRemind,
   onArchive
 }: ReferralCardProps) {
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
   // Format dates
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-GB', {
@@ -105,6 +109,14 @@ export default function ReferralCard({
   // Build actions
   const actions = (
     <>
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={() => setIsModalOpen(true)}
+      >
+        View Details
+      </Button>
+
       {/* Primary Action: Remind button for 'Referred' status */}
       {referral.status === 'Referred' && (
         <Button
@@ -114,17 +126,6 @@ export default function ReferralCard({
           disabled={!onRemind}
         >
           Remind
-        </Button>
-      )}
-
-      {/* Always show View Details */}
-      {onViewDetails && (
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => onViewDetails(referral.id)}
-        >
-          View Details
         </Button>
       )}
 
@@ -142,22 +143,31 @@ export default function ReferralCard({
   );
 
   return (
-    <HubDetailCard
-      image={{
-        src: avatarUrl,
-        alt: title,
-        fallbackChar: fallbackChar,
-      }}
-      title={title}
-      status={{
-        label: referral.status,
-        variant: getStatusVariant(referral.status),
-      }}
-      description={description}
-      details={details}
-      actions={actions}
-      imageHref={imageHref}
-      titleHref={onViewDetails ? undefined : imageHref}
-    />
+    <>
+      <HubDetailCard
+        image={{
+          src: avatarUrl,
+          alt: title,
+          fallbackChar: fallbackChar,
+        }}
+        title={title}
+        status={{
+          label: referral.status,
+          variant: getStatusVariant(referral.status),
+        }}
+        description={description}
+        details={details}
+        actions={actions}
+        imageHref={imageHref}
+        titleHref={onViewDetails ? undefined : imageHref}
+      />
+
+      {/* Referral Detail Modal */}
+      <ReferralDetailModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        referral={referral}
+      />
+    </>
   );
 }
