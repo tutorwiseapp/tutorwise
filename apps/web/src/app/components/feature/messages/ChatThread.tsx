@@ -284,7 +284,7 @@ export default function ChatThread({
             ← Back
           </button>
         )}
-        <Link href={`/listings/${otherUser.id}`} className={styles.headerLink}>
+        <Link href={`/public-profile/${otherUser.id}`} className={styles.headerLink}>
           {avatarUrl ? (
             <img src={avatarUrl} alt={otherUser.full_name || 'User'} className={styles.headerAvatar} />
           ) : (
