@@ -204,3 +204,47 @@
   padding: var(--space-6, 64px);
   color: var(--color-text-secondary);
 }
+
+/* Charts Section */
+.chartsSection {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem; /* 32px gap (space-lg) - handles all spacing */
+}
+
+/* Tablet: 2 column layout for charts */
+@media (min-width: 768px) {
+  .chartsSection {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Desktop: Full width for each chart */
+@media (min-width: 1024px) {
+  .chartsSection {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Actionable Widgets Section */
+.actionableWidgets {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem; /* 32px gap (space-lg) - handles all spacing */
+  margin-top: 2rem; /* 32px spacing between charts and widgets sections */
+  margin-bottom: 3rem; /* 48px bottom padding (space-xl) */
+}
+
+/* Tablet: 2 column layout for actionable widgets */
+@media (min-width: 768px) {
+  .actionableWidgets {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Desktop: 3 column layout for actionable widgets */
+@media (min-width: 1024px) {
+  .actionableWidgets {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

@@ -41,8 +41,10 @@ export async function GET(request: NextRequest) {
     const [
       upcomingBookingsResult,
       completedBookingsResult,
+      allCompletedBookingsResult,
       earningsResult,
       ratingsResult,
+      ratingsGivenResult,
       caasResult,
     ] = await Promise.all([
       // 1. Upcoming bookings (next 7 days)
@@ -62,7 +64,14 @@ export async function GET(request: NextRequest) {
         .eq('status', 'completed')
         .gte('session_start_time', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()),
 
-      // 3. Earnings/Spending (role-specific)
+      // 3. All completed bookings (for total hours learned)
+      supabase
+        .from('bookings')
+        .select('session_duration_hours')
+        .eq('client_id', user.id)
+        .eq('status', 'completed'),
+
+      // 4. Earnings/Spending (role-specific)
       role === 'client'
         ? supabase
             .from('bookings')
@@ -75,7 +84,7 @@ export async function GET(request: NextRequest) {
             .or(`tutor_id.eq.${user.id},agent_id.eq.${user.id}`)
             .eq('status', 'completed'),
 
-      // 4. Ratings
+      // 5. Ratings received
       supabase
         .from('reviews')
         .select('rating, created_at')
@@ -83,8 +92,21 @@ export async function GET(request: NextRequest) {
         .eq('status', 'published')
         .order('created_at', { ascending: false }),
 
-      // 5. CaaS score (placeholder - will be replaced with actual RPC)
-      Promise.resolve({ data: { score: 85 } }), // TODO: Replace with actual CaaS calculation
+      // 6. Ratings given (for clients)
+      supabase
+        .from('reviews')
+        .select('rating')
+        .eq('reviewer_id', user.id)
+        .eq('status', 'published'),
+
+      // 7. CaaS score from caas_scores table
+      supabase
+        .from('caas_scores')
+        .select('overall_score')
+        .eq('profile_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single(),
     ]);
 
     // Process upcoming bookings
@@ -98,6 +120,13 @@ export async function GET(request: NextRequest) {
     // Process completed bookings
     const completedBookings = completedBookingsResult.data || [];
     const completedSessionsThisMonth = completedBookings.length;
+
+    // Process total hours learned (for clients)
+    const allCompletedBookings = allCompletedBookingsResult.data || [];
+    const totalHoursLearned = allCompletedBookings.reduce(
+      (sum, b) => sum + (b.session_duration_hours || 0),
+      0
+    );
 
     // Calculate repeat students (for tutors/agents)
     let repeatStudentsPercent = 0;
@@ -153,7 +182,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Process average rating
+    // Process average rating received
     const ratings = ratingsResult.data || [];
     const averageRating =
       ratings.length > 0
@@ -167,6 +196,17 @@ export async function GET(request: NextRequest) {
         ? last10Ratings.reduce((sum: number, r: any) => sum + r.rating, 0) / last10Ratings.length
         : averageRating;
 
+    // Process average rating given (for clients)
+    const ratingsGiven = ratingsGivenResult.data || [];
+    const averageRatingGiven =
+      ratingsGiven.length > 0
+        ? ratingsGiven.reduce((sum: number, r: any) => sum + r.rating, 0) / ratingsGiven.length
+        : 0;
+    const reviewsGiven = ratingsGiven.length;
+
+    // Process CaaS score
+    const caasScore = caasResult.data?.overall_score || 0;
+
     // Build KPI response
     const kpis = {
       totalEarnings: Math.round(totalEarnings),
@@ -174,20 +214,20 @@ export async function GET(request: NextRequest) {
       upcomingSessions,
       upcomingHours,
       completedSessionsThisMonth,
-      averageRating: Math.round(averageRating * 10) / 10,
+      averageRating: averageRating > 0 ? Math.round(averageRating * 10) / 10 : 0,
       totalReviews: ratings.length,
-      last10Rating: Math.round(last10Rating * 10) / 10,
+      last10Rating: last10Rating > 0 ? Math.round(last10Rating * 10) / 10 : 0,
       repeatStudentsPercent,
       repeatStudentsCount,
       totalStudents,
-      responseRate: 92, // TODO: Calculate from actual data
-      acceptanceRate: 78, // TODO: Calculate from actual data
-      caasScore: caasResult.data?.score || 0,
+      responseRate: 92, // TODO: Calculate from messaging data when available
+      acceptanceRate: 78, // TODO: Calculate from booking requests when available
+      caasScore: caasScore,
       activeBookings: upcomingSessions,
-      favoriteTutors: 2, // TODO: Calculate from actual data
-      totalHoursLearned: 24, // TODO: Calculate from actual data
-      averageRatingGiven: 4.6, // TODO: Calculate from actual data
-      reviewsGiven: 12, // TODO: Calculate from actual data
+      favoriteTutors: 2, // TODO: Calculate from profile_graph or favorites table when available
+      totalHoursLearned: Math.round(totalHoursLearned * 10) / 10,
+      averageRatingGiven: averageRatingGiven > 0 ? Math.round(averageRatingGiven * 10) / 10 : 0,
+      reviewsGiven: reviewsGiven,
     };
 
     return NextResponse.json(kpis);

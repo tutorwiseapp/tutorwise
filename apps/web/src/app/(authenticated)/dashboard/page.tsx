@@ -19,9 +19,15 @@ import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import DashboardStatsWidget from '@/app/components/feature/dashboard/DashboardStatsWidget';
 import { PendingLogsWidget } from '@/app/components/feature/dashboard/PendingLogsWidget';
 import KPIGrid, { KPIData } from '@/app/components/feature/dashboard/widgets/KPIGrid';
+import EarningsTrendChart, { WeeklyEarnings } from '@/app/components/feature/dashboard/widgets/EarningsTrendChart';
+import BookingCalendarHeatmap, { DayBooking } from '@/app/components/feature/dashboard/widgets/BookingCalendarHeatmap';
+import HelpCard from '@/app/components/feature/dashboard/widgets/HelpCard';
+import TipsCard from '@/app/components/feature/dashboard/widgets/TipsCard';
+import MessagesWidget from '@/app/components/feature/dashboard/widgets/MessagesWidget';
+import PayoutWidget from '@/app/components/feature/dashboard/widgets/PayoutWidget';
+import StudentTypeBreakdown, { StudentTypeData } from '@/app/components/feature/dashboard/widgets/StudentTypeBreakdown';
 import styles from './page.module.css';
 
 const DashboardPage = () => {
@@ -29,6 +35,12 @@ const DashboardPage = () => {
   const router = useRouter();
   const [kpiData, setKpiData] = useState<KPIData | null>(null);
   const [isLoadingKPIs, setIsLoadingKPIs] = useState(true);
+  const [earningsTrendData, setEarningsTrendData] = useState<WeeklyEarnings[]>([]);
+  const [isLoadingEarnings, setIsLoadingEarnings] = useState(true);
+  const [bookingHeatmapData, setBookingHeatmapData] = useState<DayBooking[]>([]);
+  const [isLoadingHeatmap, setIsLoadingHeatmap] = useState(true);
+  const [studentBreakdownData, setStudentBreakdownData] = useState<StudentTypeData>({ new: 0, returning: 0 });
+  const [isLoadingStudentBreakdown, setIsLoadingStudentBreakdown] = useState(true);
 
   // Fetch KPI data
   useEffect(() => {
@@ -48,6 +60,66 @@ const DashboardPage = () => {
     };
 
     fetchKPIs();
+  }, [profile]);
+
+  // Fetch Earnings Trend data
+  useEffect(() => {
+    if (!profile) return;
+
+    const fetchEarningsTrend = async () => {
+      try {
+        const response = await fetch('/api/dashboard/earnings-trend?weeks=6');
+        if (!response.ok) throw new Error('Failed to fetch earnings trend');
+        const data = await response.json();
+        setEarningsTrendData(data);
+      } catch (error) {
+        console.error('[Dashboard] Error fetching earnings trend:', error);
+      } finally {
+        setIsLoadingEarnings(false);
+      }
+    };
+
+    fetchEarningsTrend();
+  }, [profile]);
+
+  // Fetch Booking Heatmap data
+  useEffect(() => {
+    if (!profile) return;
+
+    const fetchBookingHeatmap = async () => {
+      try {
+        const response = await fetch('/api/dashboard/booking-heatmap?days=14');
+        if (!response.ok) throw new Error('Failed to fetch booking heatmap');
+        const data = await response.json();
+        setBookingHeatmapData(data);
+      } catch (error) {
+        console.error('[Dashboard] Error fetching booking heatmap:', error);
+      } finally {
+        setIsLoadingHeatmap(false);
+      }
+    };
+
+    fetchBookingHeatmap();
+  }, [profile]);
+
+  // Fetch Student Breakdown data
+  useEffect(() => {
+    if (!profile) return;
+
+    const fetchStudentBreakdown = async () => {
+      try {
+        const response = await fetch('/api/dashboard/student-breakdown');
+        if (!response.ok) throw new Error('Failed to fetch student breakdown');
+        const data = await response.json();
+        setStudentBreakdownData(data);
+      } catch (error) {
+        console.error('[Dashboard] Error fetching student breakdown:', error);
+      } finally {
+        setIsLoadingStudentBreakdown(false);
+      }
+    };
+
+    fetchStudentBreakdown();
   }, [profile]);
 
   useEffect(() => {
@@ -158,9 +230,18 @@ const DashboardPage = () => {
       }
       sidebar={
         <HubSidebar>
-          {/* WiseSpace v5.8: Pending Actions widget for tutors */}
-          {(activeRole === 'tutor' || activeRole === 'agent') && <PendingLogsWidget />}
-          <DashboardStatsWidget />
+          {/* Help Card - Role-specific next steps */}
+          <HelpCard
+            role={activeRole === 'client' ? 'client' : activeRole === 'agent' ? 'agent' : 'tutor'}
+            profileCompleteness={75} // TODO: Calculate from profile data
+            hasListings={false} // TODO: Get from API
+            hasBookings={kpiData ? (kpiData.completedSessionsThisMonth > 0 || kpiData.upcomingSessions > 0) : false}
+          />
+
+          {/* Tips Card - Role-specific actionable tips */}
+          <TipsCard
+            role={activeRole === 'client' ? 'client' : activeRole === 'agent' ? 'agent' : 'tutor'}
+          />
         </HubSidebar>
       }
     >
@@ -175,15 +256,55 @@ const DashboardPage = () => {
         />
       ) : null}
 
-      {/* TODO: Charts will be added here in Phase 3-5 */}
-      {/* - Earnings Trend Chart (line chart, last 6 weeks) */}
-      {/* - Booking Calendar Heatmap (next 14 days) */}
-      {/* - Student Type Breakdown (pie/bar chart) */}
+      {/* Charts Section */}
+      <div className={styles.chartsSection}>
+        {/* Earnings Trend Chart (for tutors/agents and clients spending) */}
+        {!isLoadingEarnings && earningsTrendData.length > 0 && (
+          <EarningsTrendChart
+            data={earningsTrendData}
+            currency="GBP"
+            showComparison={false}
+          />
+        )}
 
-      {/* TODO: Actionable Widgets will be added here in Phase 8 */}
-      {/* - Pending Booking Requests (with countdown timers) */}
-      {/* - Unread Messages widget */}
-      {/* - Next Payout widget */}
+        {/* Booking Calendar Heatmap */}
+        {!isLoadingHeatmap && (
+          <BookingCalendarHeatmap
+            data={bookingHeatmapData}
+            range="next-14-days"
+          />
+        )}
+
+        {/* Student Type Breakdown (pie/bar chart) */}
+        {!isLoadingStudentBreakdown && (
+          <StudentTypeBreakdown
+            data={studentBreakdownData}
+            defaultView="pie"
+          />
+        )}
+      </div>
+
+      {/* Actionable Widgets Section */}
+      <div className={styles.actionableWidgets}>
+        {/* Pending Actions for tutors/agents */}
+        {(activeRole === 'tutor' || activeRole === 'agent') && <PendingLogsWidget />}
+
+        {/* Messages Widget - for all roles */}
+        <MessagesWidget
+          unreadCount={0} // TODO: Get from API
+          recentMessages={[]} // TODO: Get from API
+        />
+
+        {/* Payout Widget - for tutors/agents only */}
+        {(activeRole === 'tutor' || activeRole === 'agent') && (
+          <PayoutWidget
+            nextPayoutDate={undefined} // TODO: Get from API
+            nextPayoutAmount={0} // TODO: Get from API
+            pendingBalance={0} // TODO: Get from API
+            currency="GBP"
+          />
+        )}
+      </div>
     </HubPageLayout>
   );
 };

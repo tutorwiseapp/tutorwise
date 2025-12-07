@@ -49,6 +49,12 @@ export default function KPIGrid({ data, role, currency = 'GBP' }: KPIGridProps) 
     }).format(amount);
   };
 
+  // Helper to display value or "-" for unavailable data
+  const displayValue = (value: number | undefined, defaultValue: string = '-'): string | number => {
+    if (value === undefined || value === null) return defaultValue;
+    return value;
+  };
+
   // TUTOR/AGENT KPIs
   const tutorKPIs: KPICardProps[] = [
     {
@@ -77,25 +83,23 @@ export default function KPIGrid({ data, role, currency = 'GBP' }: KPIGridProps) 
     },
     {
       label: 'Average Rating',
-      value: data.averageRating.toFixed(1),
-      sublabel: `From ${data.totalReviews} reviews`,
-      change: data.last10Rating ? `+${(data.averageRating - data.last10Rating).toFixed(1)} vs last 10` : undefined,
+      value: data.averageRating > 0 ? data.averageRating.toFixed(1) : '-',
+      sublabel: data.totalReviews > 0 ? `From ${data.totalReviews} reviews` : 'No reviews yet',
+      change: data.last10Rating && data.averageRating > 0 ? `+${(data.averageRating - data.last10Rating).toFixed(1)} vs last 10` : undefined,
       icon: Star,
       variant: 'success'
     },
     {
       label: 'Repeat Students',
-      value: `${data.repeatStudentsPercent || 0}%`,
-      sublabel: `${data.repeatStudentsCount || 0} of ${data.totalStudents || 0} students`,
-      change: '+5% vs last month', // TODO: Calculate from API
+      value: data.totalStudents && data.totalStudents > 0 ? `${data.repeatStudentsPercent}%` : '-',
+      sublabel: data.totalStudents && data.totalStudents > 0 ? `${data.repeatStudentsCount} of ${data.totalStudents} students` : 'No students yet',
       icon: Users,
       variant: 'success'
     },
     {
       label: 'CaaS Score',
-      value: data.caasScore || 0,
-      sublabel: data.caasScore && data.caasScore >= 90 ? 'Premium tier' : 'Standard tier',
-      change: '+3 this week', // TODO: Calculate from API
+      value: displayValue(data.caasScore, '-'),
+      sublabel: data.caasScore && data.caasScore >= 90 ? 'Premium tier' : data.caasScore && data.caasScore > 0 ? 'Standard tier' : 'Not yet calculated',
       icon: Award,
       variant: 'info',
       clickable: true,
@@ -107,45 +111,45 @@ export default function KPIGrid({ data, role, currency = 'GBP' }: KPIGridProps) 
   const clientKPIs: KPICardProps[] = [
     {
       label: 'Active Bookings',
-      value: data.activeBookings || 0,
-      sublabel: 'Next session: Tomorrow', // TODO: Calculate from API
+      value: displayValue(data.activeBookings, '0'),
+      sublabel: data.upcomingSessions && data.upcomingSessions > 0 ? 'Next session: Tomorrow' : 'No upcoming bookings', // TODO: Calculate actual next session date from API
       icon: Calendar,
       variant: 'info'
     },
     {
       label: 'Total Spent',
       value: formatCurrency(data.totalSpent || 0),
-      change: `+${formatCurrency(data.totalEarnings || 0)} this month`,
+      change: data.completedSessionsThisMonth > 0 ? `+${data.completedSessionsThisMonth} sessions this month` : undefined,
       timeframe: 'All Time',
       icon: Coins,
       variant: 'neutral'
     },
     {
       label: 'Favorite Tutors',
-      value: data.favoriteTutors || 0,
-      sublabel: `${data.upcomingSessions || 0} sessions booked`,
+      value: displayValue(data.favoriteTutors, '-'),
+      sublabel: data.favoriteTutors !== undefined && data.favoriteTutors > 0 ? `${data.upcomingSessions || 0} sessions booked` : 'Not available yet',
       icon: Heart,
       variant: 'success'
     },
     {
       label: 'Total Hours Learned',
-      value: data.totalHoursLearned || 0,
-      change: `+${data.upcomingHours || 0} this month`,
+      value: data.totalHoursLearned && data.totalHoursLearned > 0 ? data.totalHoursLearned : '0',
+      change: data.upcomingHours > 0 ? `+${data.upcomingHours} upcoming` : undefined,
       timeframe: 'All Time',
       icon: Clock,
       variant: 'info'
     },
     {
       label: 'Average Rating Given',
-      value: data.averageRatingGiven?.toFixed(1) || '0.0',
-      sublabel: `From ${data.reviewsGiven || 0} reviews`,
+      value: data.averageRatingGiven && data.averageRatingGiven > 0 ? data.averageRatingGiven.toFixed(1) : '-',
+      sublabel: data.reviewsGiven && data.reviewsGiven > 0 ? `From ${data.reviewsGiven} reviews` : 'No reviews given yet',
       icon: Star,
       variant: 'neutral'
     },
     {
       label: 'CaaS Score',
-      value: data.caasScore || 0,
-      sublabel: data.caasScore && data.caasScore >= 90 ? 'Premium tier' : 'Standard tier',
+      value: displayValue(data.caasScore, '-'),
+      sublabel: data.caasScore && data.caasScore >= 90 ? 'Premium tier' : data.caasScore && data.caasScore > 0 ? 'Standard tier' : 'Not yet calculated',
       icon: Award,
       variant: 'info',
       clickable: true,

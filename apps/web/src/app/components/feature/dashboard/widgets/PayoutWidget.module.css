@@ -1,0 +1,198 @@
+/**
+ * Filename: PayoutWidget.module.css
+ * Purpose: Styles for Payout Widget (actionable widget)
+ * Design: White background with teal accents and financial data emphasis
+ *
+ * Pattern: Widget card with header and content
+ * - White background with subtle border
+ * - Teal accents for interactive elements
+ * - Large amount display for visibility
+ * - Clean date and balance information
+ */
+
+.widget {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.widget:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #E6F0F0; /* Teal header */
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon {
+  color: #006c67;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 20px;
+  padding: 0 6px;
+  background-color: #059669;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 10px;
+}
+
+/* Content */
+.content {
+  padding: 16px;
+}
+
+/* Payout amount */
+.payoutAmount {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: #E6F0F0;
+  border-radius: 6px;
+}
+
+.amountLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.amountValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: #059669;
+  line-height: 1.2;
+}
+
+/* Payout date */
+.payoutDate {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.dateIcon {
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.dateText {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+}
+
+/* Pending balance */
+.pendingBalance {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background-color: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.pendingLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #92400e;
+}
+
+.pendingValue {
+  font-size: 14px;
+  font-weight: 700;
+  color: #92400e;
+}
+
+/* Empty state */
+.emptyState {
+  text-align: center;
+  padding: 12px 0;
+}
+
+.emptyText {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+/* Action button */
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #006c67;
+  background-color: #E6F0F0;
+  border: 1px solid #006c67;
+  border-radius: 6px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.actionButton:hover {
+  background-color: #006c67;
+  color: #ffffff;
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .amountValue {
+    font-size: 20px;
+  }
+
+  .payoutDate {
+    padding: 8px 10px;
+  }
+
+  .pendingBalance {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

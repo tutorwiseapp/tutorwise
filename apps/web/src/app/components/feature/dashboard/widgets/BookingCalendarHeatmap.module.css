@@ -9,7 +9,9 @@
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
   padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  width: 100%;
+  min-width: 0; /* Allow shrinking below content size */
+  overflow: hidden; /* Prevent overflow on narrow screens */
 }
 
 .header {
