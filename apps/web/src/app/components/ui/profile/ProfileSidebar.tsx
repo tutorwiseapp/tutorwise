@@ -44,10 +44,9 @@ const ProfileSidebar = ({ user }: ProfileSidebarProps) => {
         </div>
 
         <div className={styles.linkGroup}>
-          {/* --- THIS IS THE FIX --- */}
           {/* Only show the link to the public profile page. */}
           {user.id && (
-            <Link href={`/agents/${user.id}`} className={styles.textLink}>
+            <Link href={`/public-profile/${user.id}`} className={styles.textLink}>
               View Public Profile
             </Link>
           )}

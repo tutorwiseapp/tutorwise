@@ -1,0 +1,19 @@
+/*
+ * Filename: src/app/contact/page.module.css
+ *
+ * Change History:
+ * C002 - 2025-07-21 : 22:30 - Removed unused .formGrid class.
+ * C001 - [Date] : [Time] - Initial creation.
+ *
+ * Last Modified: 2025-07-21 : 22:30
+ * Requirement ID (optional): VIN-P-001
+ *
+ * Change Summary:
+ * The `.formGrid` style has been removed, as the page now uses a standard single-column layout.
+ * This file is now correctly empty but preserved for any future page-specific styling needs.
+ *
+ * Impact Analysis:
+ * This simplifies the CSS for the contact page.
+ */
+
+/* No page-specific styles are currently required. */
