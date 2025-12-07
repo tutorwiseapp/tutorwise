@@ -1,0 +1,201 @@
+/**
+ * Filename: apps/web/src/app/api/dashboard/kpis/route.ts
+ * Purpose: Fetch comprehensive KPI metrics for dashboard
+ * Created: 2025-12-07
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/utils/supabase/server';
+
+// Mark route as dynamic (required for cookies() in Next.js 15)
+export const dynamic = 'force-dynamic';
+
+export async function GET(request: NextRequest) {
+  try {
+    const supabase = await createClient();
+
+    // Get current user
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get user profile for role context
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id, active_role')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile) {
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+    }
+
+    const role = profile.active_role;
+
+    // Parallel fetch all KPI data
+    const [
+      upcomingBookingsResult,
+      completedBookingsResult,
+      earningsResult,
+      ratingsResult,
+      caasResult,
+    ] = await Promise.all([
+      // 1. Upcoming bookings (next 7 days)
+      supabase
+        .from('bookings')
+        .select('id, session_start_time, session_duration_hours')
+        .or(`client_id.eq.${user.id},tutor_id.eq.${user.id},agent_id.eq.${user.id}`)
+        .gte('session_start_time', new Date().toISOString())
+        .lte('session_start_time', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString())
+        .order('session_start_time', { ascending: true }),
+
+      // 2. Completed bookings this month
+      supabase
+        .from('bookings')
+        .select('id, client_id, tutor_id')
+        .or(`client_id.eq.${user.id},tutor_id.eq.${user.id},agent_id.eq.${user.id}`)
+        .eq('status', 'completed')
+        .gte('session_start_time', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()),
+
+      // 3. Earnings/Spending (role-specific)
+      role === 'client'
+        ? supabase
+            .from('bookings')
+            .select('total_price')
+            .eq('client_id', user.id)
+            .eq('status', 'completed')
+        : supabase
+            .from('bookings')
+            .select('tutor_earnings, agent_commission, tutor_id, agent_id')
+            .or(`tutor_id.eq.${user.id},agent_id.eq.${user.id}`)
+            .eq('status', 'completed'),
+
+      // 4. Ratings
+      supabase
+        .from('reviews')
+        .select('rating, created_at')
+        .eq('reviewee_id', user.id)
+        .eq('status', 'published')
+        .order('created_at', { ascending: false }),
+
+      // 5. CaaS score (placeholder - will be replaced with actual RPC)
+      Promise.resolve({ data: { score: 85 } }), // TODO: Replace with actual CaaS calculation
+    ]);
+
+    // Process upcoming bookings
+    const upcomingBookings = upcomingBookingsResult.data || [];
+    const upcomingSessions = upcomingBookings.length;
+    const upcomingHours = upcomingBookings.reduce(
+      (sum, b) => sum + (b.session_duration_hours || 1),
+      0
+    );
+
+    // Process completed bookings
+    const completedBookings = completedBookingsResult.data || [];
+    const completedSessionsThisMonth = completedBookings.length;
+
+    // Calculate repeat students (for tutors/agents)
+    let repeatStudentsPercent = 0;
+    let repeatStudentsCount = 0;
+    let totalStudents = 0;
+
+    if (role !== 'client') {
+      const clientCounts = completedBookings.reduce((acc: Record<string, number>, booking) => {
+        const clientId = booking.client_id;
+        if (clientId) {
+          acc[clientId] = (acc[clientId] || 0) + 1;
+        }
+        return acc;
+      }, {});
+
+      totalStudents = Object.keys(clientCounts).length;
+      repeatStudentsCount = Object.values(clientCounts).filter(count => count > 1).length;
+      repeatStudentsPercent = totalStudents > 0 ? Math.round((repeatStudentsCount / totalStudents) * 100) : 0;
+    }
+
+    // Process earnings/spending
+    let totalEarnings = 0;
+    let totalSpent = 0;
+
+    if (role === 'client') {
+      // Client: total spent
+      totalSpent = (earningsResult.data || []).reduce(
+        (sum: number, b: any) => sum + (b.total_price || 0),
+        0
+      );
+      totalEarnings = 0; // Clients don't earn
+    } else if (role === 'tutor') {
+      // Tutor: tutor earnings only
+      totalEarnings = (earningsResult.data || []).reduce(
+        (sum: number, b: any) => {
+          if (b.tutor_id === user.id) {
+            return sum + (b.tutor_earnings || 0);
+          }
+          return sum;
+        },
+        0
+      );
+    } else if (role === 'agent') {
+      // Agent: agent commissions only
+      totalEarnings = (earningsResult.data || []).reduce(
+        (sum: number, b: any) => {
+          if (b.agent_id === user.id) {
+            return sum + (b.agent_commission || 0);
+          }
+          return sum;
+        },
+        0
+      );
+    }
+
+    // Process average rating
+    const ratings = ratingsResult.data || [];
+    const averageRating =
+      ratings.length > 0
+        ? ratings.reduce((sum: number, r: any) => sum + r.rating, 0) / ratings.length
+        : 0;
+
+    // Last 10 ratings average
+    const last10Ratings = ratings.slice(0, 10);
+    const last10Rating =
+      last10Ratings.length > 0
+        ? last10Ratings.reduce((sum: number, r: any) => sum + r.rating, 0) / last10Ratings.length
+        : averageRating;
+
+    // Build KPI response
+    const kpis = {
+      totalEarnings: Math.round(totalEarnings),
+      totalSpent: Math.round(totalSpent),
+      upcomingSessions,
+      upcomingHours,
+      completedSessionsThisMonth,
+      averageRating: Math.round(averageRating * 10) / 10,
+      totalReviews: ratings.length,
+      last10Rating: Math.round(last10Rating * 10) / 10,
+      repeatStudentsPercent,
+      repeatStudentsCount,
+      totalStudents,
+      responseRate: 92, // TODO: Calculate from actual data
+      acceptanceRate: 78, // TODO: Calculate from actual data
+      caasScore: caasResult.data?.score || 0,
+      activeBookings: upcomingSessions,
+      favoriteTutors: 2, // TODO: Calculate from actual data
+      totalHoursLearned: 24, // TODO: Calculate from actual data
+      averageRatingGiven: 4.6, // TODO: Calculate from actual data
+      reviewsGiven: 12, // TODO: Calculate from actual data
+    };
+
+    return NextResponse.json(kpis);
+  } catch (error) {
+    console.error('[Dashboard KPIs API] Error:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch dashboard KPIs' },
+      { status: 500 }
+    );
+  }
+}

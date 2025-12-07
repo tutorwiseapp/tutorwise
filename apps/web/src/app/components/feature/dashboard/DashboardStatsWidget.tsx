@@ -28,6 +28,7 @@ interface DashboardSummary {
   };
   financials: {
     total_earnings: number;
+    total_spent?: number;
     currency: string;
   };
   reputation: {
@@ -133,6 +134,16 @@ export default function DashboardStatsWidget() {
             <div className={styles.statRow}>
               <span className={styles.statLabel}>Unread Messages:</span>
               <span className={styles.statValue}>{summary.messages.unread_count}</span>
+            </div>
+          )}
+
+          {/* Total Spent (for clients) - Show as negative */}
+          {summary.financials.total_spent !== undefined && summary.financials.total_spent > 0 && (
+            <div className={styles.statRow}>
+              <span className={styles.statLabel}>Total Spent:</span>
+              <span className={styles.statValue} style={{ color: '#dc2626' }}>
+                -{formatCurrency(summary.financials.total_spent, summary.financials.currency)}
+              </span>
             </div>
           )}
 

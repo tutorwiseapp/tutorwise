@@ -13,11 +13,99 @@
  * C001 - [Date] : [Time] - Initial creation.
  */
 
-/* Welcome subtitle */
-.subtitle {
-  font-size: 1rem;
-  color: var(--text-secondary);
-  margin-bottom: 2rem;
+/* Header action buttons container */
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Primary action button - base styles */
+.actionButton {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.actionButton:active {
+  transform: translateY(0);
+}
+
+/* Role-specific button colors */
+/* Client: Blue (#2563EB primary, #1d4ed8 hover) */
+.clientPrimary {
+  background-color: #2563EB;
+}
+
+.clientPrimary:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+}
+
+/* Tutor: Green (#059669 primary, #047857 hover) */
+.tutorPrimary {
+  background-color: #059669;
+}
+
+.tutorPrimary:hover {
+  background-color: #047857;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3);
+}
+
+/* Agent: Orange (#EA580C primary, #C2410C hover) */
+.agentPrimary {
+  background-color: #EA580C;
+}
+
+.agentPrimary:hover {
+  background-color: #C2410C;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.3);
+}
+
+/* Secondary action buttons */
+.actionButtonSecondary {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.actionButtonSecondary:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+  transform: translateY(-1px);
+}
+
+.actionButtonSecondary:active {
+  transform: translateY(0);
+}
+
+/* Mobile responsive - stack buttons vertically */
+@media (max-width: 640px) {
+  .headerActions {
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .actionButton,
+  .actionButtonSecondary {
+    width: 100%;
+    text-align: center;
+  }
 }
 
 /* Mobile-first grid layout for dashboard cards */

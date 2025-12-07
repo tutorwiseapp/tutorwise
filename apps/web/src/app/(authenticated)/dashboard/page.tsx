@@ -13,7 +13,7 @@
  */
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
@@ -21,6 +21,7 @@ import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import DashboardStatsWidget from '@/app/components/feature/dashboard/DashboardStatsWidget';
 import { PendingLogsWidget } from '@/app/components/feature/dashboard/PendingLogsWidget';
+import KPIGrid, { KPIData } from '@/app/components/feature/dashboard/widgets/KPIGrid';
 import styles from './page.module.css';
 
 // Role-specific dashboard links (SDD v3.6 - prioritized order)
@@ -61,6 +62,28 @@ const getDashboardLinks = (role: string | null) => {
 const DashboardPage = () => {
   const { profile, activeRole, isLoading, needsOnboarding } = useUserProfile();
   const router = useRouter();
+  const [kpiData, setKpiData] = useState<KPIData | null>(null);
+  const [isLoadingKPIs, setIsLoadingKPIs] = useState(true);
+
+  // Fetch KPI data
+  useEffect(() => {
+    if (!profile) return;
+
+    const fetchKPIs = async () => {
+      try {
+        const response = await fetch('/api/dashboard/kpis');
+        if (!response.ok) throw new Error('Failed to fetch KPIs');
+        const data = await response.json();
+        setKpiData(data);
+      } catch (error) {
+        console.error('[Dashboard] Error fetching KPIs:', error);
+      } finally {
+        setIsLoadingKPIs(false);
+      }
+    };
+
+    fetchKPIs();
+  }, [profile]);
 
   useEffect(() => {
     // If loading is finished and there's no profile, the user is not logged in.
@@ -113,11 +136,53 @@ const DashboardPage = () => {
 
   const dashboardLinks = getDashboardLinks(activeRole);
 
+  // Role-specific action buttons for header
+  const getHeaderActions = () => {
+    const actions = [];
+
+    if (activeRole === 'tutor') {
+      actions.push(
+        <Link key="create-listing" href="/create-listing">
+          <button className={`${styles.actionButton} ${styles.tutorPrimary}`}>Create Listing</button>
+        </Link>
+      );
+    }
+
+    if (activeRole === 'agent') {
+      actions.push(
+        <Link key="create-listing" href="/create-listing">
+          <button className={`${styles.actionButton} ${styles.agentPrimary}`}>Create Listing</button>
+        </Link>
+      );
+    }
+
+    if (activeRole === 'client') {
+      actions.push(
+        <Link key="find-tutors" href="/marketplace">
+          <button className={`${styles.actionButton} ${styles.clientPrimary}`}>Find Tutors</button>
+        </Link>
+      );
+    }
+
+    actions.push(
+      <Link key="profile" href="/account/personal-info">
+        <button className={styles.actionButtonSecondary}>View Profile</button>
+      </Link>,
+      <Link key="settings" href="/settings">
+        <button className={styles.actionButtonSecondary}>Settings</button>
+      </Link>
+    );
+
+    return <div className={styles.headerActions}>{actions}</div>;
+  };
+
   return (
     <HubPageLayout
       header={
         <HubHeader
           title={getDashboardTitle()}
+          subtitle={`Welcome, ${firstName} (${getFormattedRole()})`}
+          actions={getHeaderActions()}
         />
       }
       tabs={
@@ -136,8 +201,16 @@ const DashboardPage = () => {
         </HubSidebar>
       }
     >
-      {/* Welcome message */}
-      <p className={styles.subtitle}>Welcome, {firstName} ({getFormattedRole()})</p>
+      {/* KPI Grid */}
+      {isLoadingKPIs ? (
+        <p className={styles.loading}>Loading dashboard metrics...</p>
+      ) : kpiData ? (
+        <KPIGrid
+          data={kpiData}
+          role={activeRole === 'client' ? 'client' : activeRole === 'agent' ? 'agent' : 'tutor'}
+          currency="GBP"
+        />
+      ) : null}
 
       {/* Dashboard Cards Grid */}
       <div className={styles.grid}>

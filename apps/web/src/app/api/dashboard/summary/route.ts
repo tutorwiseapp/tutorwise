@@ -97,12 +97,14 @@ export async function GET(request: NextRequest) {
 
     // Process earnings
     let totalEarnings = 0;
+    let totalSpent = 0;
     if (role === 'client') {
       // Client: total spent
-      totalEarnings = (earningsResult.data || []).reduce(
+      totalSpent = (earningsResult.data || []).reduce(
         (sum: number, b: any) => sum + (b.total_price || 0),
         0
       );
+      totalEarnings = 0; // Clients don't earn from bookings
     } else if (role === 'tutor') {
       // Tutor: tutor earnings only
       totalEarnings = (earningsResult.data || []).reduce(
@@ -142,6 +144,7 @@ export async function GET(request: NextRequest) {
       },
       financials: {
         total_earnings: totalEarnings,
+        total_spent: totalSpent,
         currency: 'GBP', // Default currency
       },
       reputation: {
