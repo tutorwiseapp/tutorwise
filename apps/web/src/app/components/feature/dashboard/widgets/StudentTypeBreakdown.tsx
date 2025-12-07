@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { memo, useMemo, useState, useCallback } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { Users, BarChart3, PieChartIcon } from 'lucide-react';
 import styles from './StudentTypeBreakdown.module.css';
@@ -21,19 +21,19 @@ interface StudentTypeBreakdownProps {
   defaultView?: 'pie' | 'bar';
 }
 
-export default function StudentTypeBreakdown({
+const StudentTypeBreakdown = memo(function StudentTypeBreakdown({
   data = { new: 0, returning: 0 },
   defaultView = 'pie'
 }: StudentTypeBreakdownProps) {
   const [viewType, setViewType] = useState<'pie' | 'bar'>(defaultView);
 
-  // Prepare data for charts
-  const chartData = [
+  // Prepare data for charts - memoized to prevent recalculation
+  const chartData = useMemo(() => [
     { name: 'New Students', value: data.new, color: '#2563EB' },
     { name: 'Returning Students', value: data.returning, color: '#059669' }
-  ];
+  ], [data.new, data.returning]);
 
-  const total = data.new + data.returning;
+  const total = useMemo(() => data.new + data.returning, [data.new, data.returning]);
   const hasData = total > 0;
 
   // Custom tooltip
@@ -62,14 +62,14 @@ export default function StudentTypeBreakdown({
         <div className={styles.viewToggle}>
           <button
             className={`${styles.toggleButton} ${viewType === 'pie' ? styles.toggleActive : ''}`}
-            onClick={() => setViewType('pie')}
+            onClick={useCallback(() => setViewType('pie'), [])}
             aria-label="Pie chart view"
           >
             <PieChartIcon size={16} />
           </button>
           <button
             className={`${styles.toggleButton} ${viewType === 'bar' ? styles.toggleActive : ''}`}
-            onClick={() => setViewType('bar')}
+            onClick={useCallback(() => setViewType('bar'), [])}
             aria-label="Bar chart view"
           >
             <BarChart3 size={16} />
@@ -162,4 +162,6 @@ export default function StudentTypeBreakdown({
       </div>
     </div>
   );
-}
+});
+
+export default StudentTypeBreakdown;

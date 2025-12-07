@@ -1,0 +1,172 @@
+/**
+ * Filename: LoadingSkeleton.module.css
+ * Purpose: Styles for loading skeleton components
+ * Created: 2025-12-07
+ */
+
+/* Base skeleton animation */
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    to right,
+    #f0f0f0 0%,
+    #e0e0e0 20%,
+    #f0f0f0 40%,
+    #f0f0f0 100%
+  );
+  background-size: 800px 104px;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 4px;
+}
+
+/* Skeleton shapes */
+.line {
+  height: 12px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.rect {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+}
+
+/* Chart skeleton */
+.chartContainer {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  width: 100%;
+}
+
+.chartHeader {
+  margin-bottom: 1rem;
+}
+
+.chartTitle {
+  width: 40%;
+  height: 16px;
+  margin-bottom: 8px;
+}
+
+.chartSubtitle {
+  width: 25%;
+  height: 12px;
+}
+
+.chartBody {
+  height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chartPlaceholder {
+  height: 100%;
+}
+
+/* Widget skeleton */
+.widgetContainer {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+}
+
+.widgetHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.widgetIcon {
+  flex-shrink: 0;
+}
+
+.widgetHeaderText {
+  flex: 1;
+}
+
+.widgetTitle {
+  width: 60%;
+  height: 16px;
+  margin-bottom: 6px;
+}
+
+.widgetSubtitle {
+  width: 40%;
+  height: 12px;
+}
+
+.widgetBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.widgetLine {
+  width: 100%;
+  height: 12px;
+}
+
+.widgetLine:last-child {
+  width: 70%;
+}
+
+/* KPI skeleton */
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.kpiCard {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+}
+
+.kpiLabel {
+  width: 50%;
+  height: 12px;
+  margin-bottom: 12px;
+}
+
+.kpiValue {
+  width: 40%;
+  height: 24px;
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .chartContainer {
+    padding: 1.25rem;
+  }
+
+  .widgetContainer {
+    padding: 1.25rem;
+  }
+
+  .kpiCard {
+    padding: 1.25rem;
+  }
+}

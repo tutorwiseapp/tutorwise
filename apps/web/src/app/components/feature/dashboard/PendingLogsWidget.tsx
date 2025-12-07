@@ -13,6 +13,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { CheckCircle, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { WidgetSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
 import styles from './PendingLogsWidget.module.css';
 
 interface PendingSession {
@@ -100,15 +101,7 @@ export function PendingLogsWidget() {
   };
 
   if (loading) {
-    return (
-      <div className={styles.widget}>
-        <div className={styles.header}>
-          <Clock size={20} />
-          <h3 className={styles.title}>Pending Actions</h3>
-        </div>
-        <p className={styles.loading}>Loading...</p>
-      </div>
-    );
+    return <WidgetSkeleton showIcon={true} />;
   }
 
   if (pendingSessions.length === 0) {

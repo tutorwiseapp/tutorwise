@@ -28,6 +28,8 @@ import TipsCard from '@/app/components/feature/dashboard/widgets/TipsCard';
 import MessagesWidget from '@/app/components/feature/dashboard/widgets/MessagesWidget';
 import PayoutWidget from '@/app/components/feature/dashboard/widgets/PayoutWidget';
 import StudentTypeBreakdown, { StudentTypeData } from '@/app/components/feature/dashboard/widgets/StudentTypeBreakdown';
+import { KPISkeleton, ChartSkeleton, WidgetSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
+import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import styles from './page.module.css';
 
 const DashboardPage = () => {
@@ -247,7 +249,7 @@ const DashboardPage = () => {
     >
       {/* KPI Grid */}
       {isLoadingKPIs ? (
-        <p className={styles.loading}>Loading dashboard metrics...</p>
+        <KPISkeleton count={4} />
       ) : kpiData ? (
         <KPIGrid
           data={kpiData}
@@ -259,50 +261,70 @@ const DashboardPage = () => {
       {/* Charts Section */}
       <div className={styles.chartsSection}>
         {/* Earnings Trend Chart (for tutors/agents and clients spending) */}
-        {!isLoadingEarnings && earningsTrendData.length > 0 && (
-          <EarningsTrendChart
-            data={earningsTrendData}
-            currency="GBP"
-            showComparison={false}
-          />
-        )}
+        <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load earnings chart</div>}>
+          {isLoadingEarnings ? (
+            <ChartSkeleton height="320px" />
+          ) : earningsTrendData.length > 0 ? (
+            <EarningsTrendChart
+              data={earningsTrendData}
+              currency="GBP"
+              showComparison={false}
+            />
+          ) : null}
+        </ErrorBoundary>
 
         {/* Booking Calendar Heatmap */}
-        {!isLoadingHeatmap && (
-          <BookingCalendarHeatmap
-            data={bookingHeatmapData}
-            range="next-14-days"
-          />
-        )}
+        <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load booking calendar</div>}>
+          {isLoadingHeatmap ? (
+            <ChartSkeleton height="400px" />
+          ) : (
+            <BookingCalendarHeatmap
+              data={bookingHeatmapData}
+              range="next-14-days"
+            />
+          )}
+        </ErrorBoundary>
 
         {/* Student Type Breakdown (pie/bar chart) */}
-        {!isLoadingStudentBreakdown && (
-          <StudentTypeBreakdown
-            data={studentBreakdownData}
-            defaultView="pie"
-          />
-        )}
+        <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load student breakdown</div>}>
+          {isLoadingStudentBreakdown ? (
+            <ChartSkeleton height="350px" />
+          ) : (
+            <StudentTypeBreakdown
+              data={studentBreakdownData}
+              defaultView="pie"
+            />
+          )}
+        </ErrorBoundary>
       </div>
 
       {/* Actionable Widgets Section */}
       <div className={styles.actionableWidgets}>
         {/* Pending Actions for tutors/agents */}
-        {(activeRole === 'tutor' || activeRole === 'agent') && <PendingLogsWidget />}
+        {(activeRole === 'tutor' || activeRole === 'agent') && (
+          <ErrorBoundary>
+            <PendingLogsWidget />
+          </ErrorBoundary>
+        )}
 
         {/* Messages Widget - for all roles */}
-        <MessagesWidget
-          unreadCount={0} // TODO: Get from API
-          recentMessages={[]} // TODO: Get from API
-        />
+        <ErrorBoundary>
+          <MessagesWidget
+            unreadCount={0} // TODO: Get from API
+            recentMessages={[]} // TODO: Get from API
+          />
+        </ErrorBoundary>
 
         {/* Payout Widget - for tutors/agents only */}
         {(activeRole === 'tutor' || activeRole === 'agent') && (
-          <PayoutWidget
-            nextPayoutDate={undefined} // TODO: Get from API
-            nextPayoutAmount={0} // TODO: Get from API
-            pendingBalance={0} // TODO: Get from API
-            currency="GBP"
-          />
+          <ErrorBoundary>
+            <PayoutWidget
+              nextPayoutDate={undefined} // TODO: Get from API
+              nextPayoutAmount={0} // TODO: Get from API
+              pendingBalance={0} // TODO: Get from API
+              currency="GBP"
+            />
+          </ErrorBoundary>
         )}
       </div>
     </HubPageLayout>

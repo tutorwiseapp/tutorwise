@@ -6,7 +6,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import styles from './EarningsTrendChart.module.css';
 
@@ -22,19 +22,19 @@ interface EarningsTrendChartProps {
   showComparison?: boolean;
 }
 
-export default function EarningsTrendChart({
+const EarningsTrendChart = memo(function EarningsTrendChart({
   data,
   currency = 'GBP',
   showComparison = false
 }: EarningsTrendChartProps) {
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-GB', {
+  const formatCurrency = useMemo(() => {
+    return (value: number) => new Intl.NumberFormat('en-GB', {
       style: 'currency',
       currency: currency,
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(value);
-  };
+  }, [currency]);
 
   // Custom tooltip
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -107,4 +107,6 @@ export default function EarningsTrendChart({
       </ResponsiveContainer>
     </div>
   );
-}
+});
+
+export default EarningsTrendChart;

@@ -6,7 +6,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import styles from './BookingCalendarHeatmap.module.css';
 
 export interface DayBooking {
@@ -20,14 +20,14 @@ interface BookingCalendarHeatmapProps {
   range?: 'next-7-days' | 'next-14-days';
 }
 
-export default function BookingCalendarHeatmap({
+const BookingCalendarHeatmap = memo(function BookingCalendarHeatmap({
   data,
   range = 'next-14-days'
 }: BookingCalendarHeatmapProps) {
   const days = range === 'next-7-days' ? 7 : 14;
 
-  // Generate array of next N days
-  const generateDays = () => {
+  // Generate array of next N days - memoized to prevent recalculation
+  const calendarDays = useMemo(() => {
     const result = [];
     const today = new Date();
 
@@ -48,12 +48,12 @@ export default function BookingCalendarHeatmap({
     }
 
     return result;
-  };
+  }, [data, days]);
 
-  const calendarDays = generateDays();
-
-  // Get max count for normalization
-  const maxCount = Math.max(...calendarDays.map(d => d.count), 1);
+  // Get max count for normalization - memoized
+  const maxCount = useMemo(() => {
+    return Math.max(...calendarDays.map(d => d.count), 1);
+  }, [calendarDays]);
 
   // Get intensity class based on booking count
   const getIntensityClass = (count: number) => {
@@ -97,4 +97,6 @@ export default function BookingCalendarHeatmap({
       </div>
     </div>
   );
-}
+});
+
+export default BookingCalendarHeatmap;
