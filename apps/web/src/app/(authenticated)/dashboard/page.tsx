@@ -24,41 +24,6 @@ import { PendingLogsWidget } from '@/app/components/feature/dashboard/PendingLog
 import KPIGrid, { KPIData } from '@/app/components/feature/dashboard/widgets/KPIGrid';
 import styles from './page.module.css';
 
-// Role-specific dashboard links (SDD v3.6 - prioritized order)
-const getDashboardLinks = (role: string | null) => {
-  const commonLinks = [
-    { href: '/account/personal-info', title: 'My Profile', description: 'Update your public-facing profile information.', linkText: 'Edit Profile' },
-    { href: '/settings', title: 'Settings', description: 'Manage account settings and notifications.', linkText: 'Go to Settings' },
-  ];
-
-  // CLIENT: Prioritized by immediate needs
-  const clientLinks = [
-    { href: '/bookings', title: 'Bookings', description: 'View your upcoming and past tutoring sessions.', linkText: 'View Bookings' },
-    { href: '/marketplace', title: 'Find Tutors', description: 'Browse and connect with qualified tutors.', linkText: 'Browse Tutors' },
-    { href: '/financials', title: 'Financials', description: 'Track your payments and transaction history.', linkText: 'View Financials' },
-    { href: '/referrals', title: 'Referrals', description: 'Earn 10% commission by referring others.', linkText: 'View Referrals' },
-    ...commonLinks,
-  ];
-
-  // TUTOR/AGENT: Prioritized by business operations
-  const tutorLinks = [
-    { href: '/bookings', title: 'Bookings', description: 'Manage your upcoming and past tutoring sessions.', linkText: 'View Bookings' },
-    { href: '/financials', title: 'Financials', description: 'Track your earnings, payouts, and commissions.', linkText: 'View Financials' },
-    { href: '/listings', title: 'My Listings', description: 'View and manage your tutoring service listings.', linkText: 'View Listings' },
-    { href: '/create-listing', title: 'Create New Listing', description: 'Create a new service listing to attract students.', linkText: 'Create Listing' },
-    { href: '/referrals', title: 'Referrals', description: 'Track your referral pipeline and earn commissions.', linkText: 'View Referrals' },
-    { href: '/marketplace', title: 'Browse Marketplace', description: 'See how your listings appear to students.', linkText: 'View Marketplace' },
-    ...commonLinks,
-  ];
-
-  switch (role) {
-    case 'tutor': return tutorLinks;
-    case 'agent': return tutorLinks; // Agents use same order as tutors
-    case 'client': return clientLinks;
-    default: return commonLinks;
-  }
-};
-
 const DashboardPage = () => {
   const { profile, activeRole, isLoading, needsOnboarding } = useUserProfile();
   const router = useRouter();
@@ -133,8 +98,6 @@ const DashboardPage = () => {
       default: return '';
     }
   };
-
-  const dashboardLinks = getDashboardLinks(activeRole);
 
   // Role-specific action buttons for header
   const getHeaderActions = () => {
@@ -212,17 +175,15 @@ const DashboardPage = () => {
         />
       ) : null}
 
-      {/* Dashboard Cards Grid */}
-      <div className={styles.grid}>
-        {dashboardLinks.map((link) => (
-          <Link key={link.href} href={link.href} className={styles.gridCard}>
-            <div className={styles.cardContent}>
-              <h3>{link.title}</h3>
-              <p>{link.description}</p>
-            </div>
-          </Link>
-        ))}
-      </div>
+      {/* TODO: Charts will be added here in Phase 3-5 */}
+      {/* - Earnings Trend Chart (line chart, last 6 weeks) */}
+      {/* - Booking Calendar Heatmap (next 14 days) */}
+      {/* - Student Type Breakdown (pie/bar chart) */}
+
+      {/* TODO: Actionable Widgets will be added here in Phase 8 */}
+      {/* - Pending Booking Requests (with countdown timers) */}
+      {/* - Unread Messages widget */}
+      {/* - Next Payout widget */}
     </HubPageLayout>
   );
 };
