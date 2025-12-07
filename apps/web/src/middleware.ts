@@ -16,14 +16,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/account/settings', request.url))
   }
 
-  // Redirect legacy /tutor/[id]/[slug] to new /listings/[id]/[slug] (v4.1)
-  const tutorRouteMatch = pathname.match(/^\/tutor\/([^/]+)(?:\/([^/]+))?$/);
-  if (tutorRouteMatch) {
-    const [, id, slug] = tutorRouteMatch;
-    const newPath = slug ? `/listings/${id}/${slug}` : `/listings/${id}`;
-    return NextResponse.redirect(new URL(newPath, request.url), 301); // Permanent redirect for SEO
-  }
-
   // v5.7: Track wiselist referrals (/w/[slug])
   // Store wiselist owner's profile_id in cookie for booking attribution
   const wiselistMatch = pathname.match(/^\/w\/([^/]+)$/);
