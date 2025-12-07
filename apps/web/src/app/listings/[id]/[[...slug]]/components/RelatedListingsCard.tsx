@@ -111,7 +111,7 @@ export default function RelatedListingsCard({
         ))}
 
         {/* See More Link */}
-        <a href="/tutor" className={styles.seeMoreCard}>
+        <a href="/marketplace" className={styles.seeMoreCard}>
           <div className={styles.seeMoreContent}>
             <span className={styles.seeMoreIcon}>→</span>
             <span className={styles.seeMoreText}>
