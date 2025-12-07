@@ -13,9 +13,10 @@
  */
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
@@ -35,94 +36,70 @@ import styles from './page.module.css';
 const DashboardPage = () => {
   const { profile, activeRole, isLoading, needsOnboarding } = useUserProfile();
   const router = useRouter();
-  const [kpiData, setKpiData] = useState<KPIData | null>(null);
-  const [isLoadingKPIs, setIsLoadingKPIs] = useState(true);
-  const [earningsTrendData, setEarningsTrendData] = useState<WeeklyEarnings[]>([]);
-  const [isLoadingEarnings, setIsLoadingEarnings] = useState(true);
-  const [bookingHeatmapData, setBookingHeatmapData] = useState<DayBooking[]>([]);
-  const [isLoadingHeatmap, setIsLoadingHeatmap] = useState(true);
-  const [studentBreakdownData, setStudentBreakdownData] = useState<StudentTypeData>({ new: 0, returning: 0 });
-  const [isLoadingStudentBreakdown, setIsLoadingStudentBreakdown] = useState(true);
 
-  // Fetch KPI data
-  useEffect(() => {
-    if (!profile) return;
+  // React Query: Fetch KPI data with automatic retry, caching, and background refetch
+  const {
+    data: kpiData = null,
+    isLoading: isLoadingKPIs,
+  } = useQuery({
+    queryKey: ['dashboard', 'kpis', profile?.id],
+    queryFn: async () => {
+      const response = await fetch('/api/dashboard/kpis');
+      if (!response.ok) throw new Error('Failed to fetch KPIs');
+      return response.json();
+    },
+    enabled: !!profile && !isLoading,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
+  });
 
-    const fetchKPIs = async () => {
-      try {
-        const response = await fetch('/api/dashboard/kpis');
-        if (!response.ok) throw new Error('Failed to fetch KPIs');
-        const data = await response.json();
-        setKpiData(data);
-      } catch (error) {
-        console.error('[Dashboard] Error fetching KPIs:', error);
-      } finally {
-        setIsLoadingKPIs(false);
-      }
-    };
+  // React Query: Fetch Earnings Trend data
+  const {
+    data: earningsTrendData = [],
+    isLoading: isLoadingEarnings,
+  } = useQuery<WeeklyEarnings[]>({
+    queryKey: ['dashboard', 'earnings-trend', profile?.id],
+    queryFn: async () => {
+      const response = await fetch('/api/dashboard/earnings-trend?weeks=6');
+      if (!response.ok) throw new Error('Failed to fetch earnings trend');
+      return response.json();
+    },
+    enabled: !!profile && !isLoading,
+    staleTime: 3 * 60 * 1000, // 3 minutes (less frequently changing)
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
 
-    fetchKPIs();
-  }, [profile]);
+  // React Query: Fetch Booking Heatmap data
+  const {
+    data: bookingHeatmapData = [],
+    isLoading: isLoadingHeatmap,
+  } = useQuery<DayBooking[]>({
+    queryKey: ['dashboard', 'booking-heatmap', profile?.id],
+    queryFn: async () => {
+      const response = await fetch('/api/dashboard/booking-heatmap?days=14');
+      if (!response.ok) throw new Error('Failed to fetch booking heatmap');
+      return response.json();
+    },
+    enabled: !!profile && !isLoading,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
+  });
 
-  // Fetch Earnings Trend data
-  useEffect(() => {
-    if (!profile) return;
-
-    const fetchEarningsTrend = async () => {
-      try {
-        const response = await fetch('/api/dashboard/earnings-trend?weeks=6');
-        if (!response.ok) throw new Error('Failed to fetch earnings trend');
-        const data = await response.json();
-        setEarningsTrendData(data);
-      } catch (error) {
-        console.error('[Dashboard] Error fetching earnings trend:', error);
-      } finally {
-        setIsLoadingEarnings(false);
-      }
-    };
-
-    fetchEarningsTrend();
-  }, [profile]);
-
-  // Fetch Booking Heatmap data
-  useEffect(() => {
-    if (!profile) return;
-
-    const fetchBookingHeatmap = async () => {
-      try {
-        const response = await fetch('/api/dashboard/booking-heatmap?days=14');
-        if (!response.ok) throw new Error('Failed to fetch booking heatmap');
-        const data = await response.json();
-        setBookingHeatmapData(data);
-      } catch (error) {
-        console.error('[Dashboard] Error fetching booking heatmap:', error);
-      } finally {
-        setIsLoadingHeatmap(false);
-      }
-    };
-
-    fetchBookingHeatmap();
-  }, [profile]);
-
-  // Fetch Student Breakdown data
-  useEffect(() => {
-    if (!profile) return;
-
-    const fetchStudentBreakdown = async () => {
-      try {
-        const response = await fetch('/api/dashboard/student-breakdown');
-        if (!response.ok) throw new Error('Failed to fetch student breakdown');
-        const data = await response.json();
-        setStudentBreakdownData(data);
-      } catch (error) {
-        console.error('[Dashboard] Error fetching student breakdown:', error);
-      } finally {
-        setIsLoadingStudentBreakdown(false);
-      }
-    };
-
-    fetchStudentBreakdown();
-  }, [profile]);
+  // React Query: Fetch Student Breakdown data
+  const {
+    data: studentBreakdownData = { new: 0, returning: 0 },
+    isLoading: isLoadingStudentBreakdown,
+  } = useQuery<StudentTypeData>({
+    queryKey: ['dashboard', 'student-breakdown', profile?.id],
+    queryFn: async () => {
+      const response = await fetch('/api/dashboard/student-breakdown');
+      if (!response.ok) throw new Error('Failed to fetch student breakdown');
+      return response.json();
+    },
+    enabled: !!profile && !isLoading,
+    staleTime: 3 * 60 * 1000, // 3 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
 
   useEffect(() => {
     // If loading is finished and there's no profile, the user is not logged in.

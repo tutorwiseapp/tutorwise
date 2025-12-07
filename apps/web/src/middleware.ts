@@ -69,9 +69,7 @@ export async function middleware(request: NextRequest) {
     '/payments',
     '/referral-activities',
     '/transaction-history',
-    '/become-provider',
     '/agents',
-    '/claim-rewards',
   ]
 
   // Define routes that should bypass onboarding check

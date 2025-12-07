@@ -62,7 +62,7 @@ const AgentProfilePage = () => {
 
   const handleContactMe = () => {
     if (!agent) return;
-    router.push(`/contact-agent?id=${agent.id}`);
+    router.push(`/help-centre`);
   };
   
   const handleShare = (platform: 'whatsapp' | 'linkedin') => {
