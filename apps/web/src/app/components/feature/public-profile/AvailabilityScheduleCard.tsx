@@ -66,11 +66,16 @@ export function AvailabilityScheduleCard({ profile }: AvailabilityScheduleCardPr
 
   return (
     <Card className={styles.card}>
-      <h2 className={styles.cardTitle}>Availability</h2>
+      {/* Card Header with Light Teal Background */}
+      <div className={styles.cardHeader}>
+        <h2 className={styles.cardTitle}>Availability</h2>
+      </div>
 
-      <div className={styles.columnsContainer}>
-        {/* Left Column: Availability Periods */}
-        <div className={styles.column}>
+      {/* Card Content */}
+      <div className={styles.cardContent}>
+        <div className={styles.columnsContainer}>
+          {/* Left Column: Availability Periods */}
+          <div className={styles.column}>
           <h3 className={styles.columnTitle}>Available</h3>
 
           {availability.length > 0 ? (
@@ -144,6 +149,7 @@ export function AvailabilityScheduleCard({ profile }: AvailabilityScheduleCardPr
       <p className={styles.note}>
         💡 Final date & time selection will be done during booking.
       </p>
+      </div>
     </Card>
   );
 }
