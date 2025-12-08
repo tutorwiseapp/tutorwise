@@ -20,6 +20,7 @@ const Button: React.FC<ButtonProps> = ({
   isLoading = false,
   href,
   fullWidth = false,
+  className: customClassName,
   ...props
 }) => {
   const className = `
@@ -28,7 +29,8 @@ const Button: React.FC<ButtonProps> = ({
     ${styles[size]}
     ${fullWidth ? styles.fullWidth : ''}
     ${props.disabled || isLoading ? styles.disabled : ''}
-  `;
+    ${customClassName || ''}
+  `.trim();
 
   const content = isLoading ? (
     <span className={styles.loader} />
