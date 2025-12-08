@@ -60,6 +60,7 @@
   font-size: 1rem;
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
+  box-shadow: none !important;
 }
 
 /* Tablet: Larger buttons */
@@ -76,6 +77,7 @@
   background-color: transparent !important;
   color: #2c7a7b !important;
   border: 1px solid #2c7a7b !important;
+  box-shadow: none !important;
 }
 
 /* Book Session Button (Primary style with teal) */
@@ -83,6 +85,7 @@
   background-color: #2c7a7b !important;
   color: white !important;
   border: 1px solid #2c7a7b !important;
+  box-shadow: none !important;
 }
 
 /* Responsive */
