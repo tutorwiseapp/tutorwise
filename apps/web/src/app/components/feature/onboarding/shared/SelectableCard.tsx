@@ -248,8 +248,10 @@ export const CompactCheckboxGroup: React.FC<CompactCheckboxGroupProps> = ({
   );
 };
 
-export default {
+const SelectableCardComponents = {
   SingleSelect: SingleSelectCardGroup,
   MultiSelect: MultiSelectCardGroup,
   CompactCheckbox: CompactCheckboxGroup,
 };
+
+export default SelectableCardComponents;

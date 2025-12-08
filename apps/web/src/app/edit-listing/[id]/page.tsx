@@ -28,27 +28,27 @@ export default function EditListingPage() {
       return;
     }
 
+    const loadListing = async () => {
+      try {
+        const data = await getListing(listingId);
+        if (data) {
+          setListing(data);
+        } else {
+          toast.error('Listing not found');
+          router.push('/listings');
+        }
+      } catch (error) {
+        console.error('Failed to load listing:', error);
+        toast.error('Failed to load listing');
+      } finally {
+        setIsListingLoading(false);
+      }
+    };
+
     if (user && listingId) {
       loadListing();
     }
   }, [user, userLoading, listingId, router]);
-
-  const loadListing = async () => {
-    try {
-      const data = await getListing(listingId);
-      if (data) {
-        setListing(data);
-      } else {
-        toast.error('Listing not found');
-        router.push('/listings');
-      }
-    } catch (error) {
-      console.error('Failed to load listing:', error);
-      toast.error('Failed to load listing');
-    } finally {
-      setIsListingLoading(false);
-    }
-  };
 
   const handleSubmit = async (data: Partial<UpdateListingInput>) => {
     setIsSaving(true);

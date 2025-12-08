@@ -9,6 +9,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ChatClient, ChatMessageEvent } from '@ably/chat';
 import toast from 'react-hot-toast';
 import { getChatClient, AblyChannels, MessageType, DeliveryStatus } from '@/lib/ably';
@@ -286,7 +287,13 @@ export default function ChatThread({
         )}
         <Link href={`/public-profile/${otherUser.id}`} className={styles.headerLink}>
           {avatarUrl ? (
-            <img src={avatarUrl} alt={otherUser.full_name || 'User'} className={styles.headerAvatar} />
+            <Image
+              src={avatarUrl}
+              alt={otherUser.full_name || 'User'}
+              className={styles.headerAvatar}
+              width={40}
+              height={40}
+            />
           ) : (
             <div className={styles.headerAvatarFallback}>
               {(otherUser.full_name || 'U').charAt(0).toUpperCase()}

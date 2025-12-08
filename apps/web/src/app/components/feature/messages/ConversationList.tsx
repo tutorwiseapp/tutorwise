@@ -8,6 +8,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import type { Conversation } from '@/lib/api/messages';
 import getProfileImageUrl from '@/lib/utils/image';
 import { useAblyPresence } from '@/app/hooks/useAblyPresence';
@@ -114,7 +115,13 @@ function ConversationItem({
       {/* Avatar with online indicator */}
       <div className={styles.avatarContainer}>
         {avatarUrl ? (
-          <img src={avatarUrl} alt={userName} className={styles.avatar} />
+          <Image
+            src={avatarUrl}
+            alt={userName}
+            className={styles.avatar}
+            width={48}
+            height={48}
+          />
         ) : (
           <div className={styles.avatarFallback}>
             {userName.charAt(0).toUpperCase()}

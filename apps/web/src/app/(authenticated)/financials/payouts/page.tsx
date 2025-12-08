@@ -59,8 +59,8 @@ export default function PayoutsPage() {
     gcTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  const payouts = data?.transactions || [];
-  const balances = data?.balances || { available: 0, pending: 0, total: 0 };
+  const payouts = useMemo(() => data?.transactions || [], [data?.transactions]);
+  const balances = useMemo(() => data?.balances || { available: 0, pending: 0, total: 0 }, [data?.balances]);
 
   // Show error banner only once to prevent flashing (like Messages page)
   useEffect(() => {

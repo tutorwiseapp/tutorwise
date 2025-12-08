@@ -59,8 +59,9 @@ export default function DisputesPage() {
     gcTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  const disputes = data?.transactions || [];
-  const balances = data?.balances || { available: 0, pending: 0, total: 0 };
+  // Memoize to prevent unnecessary re-renders
+  const disputes = useMemo(() => data?.transactions || [], [data?.transactions]);
+  const balances = useMemo(() => data?.balances || { available: 0, pending: 0, total: 0 }, [data?.balances]);
 
   // Show error banner only once to prevent flashing (like Messages page)
   useEffect(() => {

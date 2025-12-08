@@ -20,10 +20,10 @@ export interface AgencyDetailsData {
 }
 
 const agencySizes = [
-  { value: 'solo', label: 'Solo Agent', description: 'Just me' },
-  { value: 'small', label: 'Small Team', description: '2-5 tutors' },
-  { value: 'medium', label: 'Growing Agency', description: '6-20 tutors' },
-  { value: 'large', label: 'Established Agency', description: '20+ tutors' }
+  { value: 'solo', label: 'Solo Referrer', description: 'Just me, referring clients' },
+  { value: 'small', label: 'Small Network', description: '1-9 tutors I work with' },
+  { value: 'medium', label: 'Medium Network', description: '10-100 tutors' },
+  { value: 'large', label: 'Large Network', description: '100+ tutors' }
 ];
 
 const yearsOptions = [

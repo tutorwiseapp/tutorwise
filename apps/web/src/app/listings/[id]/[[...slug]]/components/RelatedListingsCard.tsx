@@ -7,6 +7,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Card from '@/app/components/ui/data-display/Card';
 import { searchListings } from '@/lib/api/listings';
 import type { ListingV41 } from '@/types/listing-v4.1';
@@ -77,8 +78,10 @@ export default function RelatedListingsCard({
             {/* Image */}
             <div className={styles.imageContainer}>
               {listing.hero_image_url ? (
-                <img
+                <Image
                   src={listing.hero_image_url}
+                  fill
+                  style={{ objectFit: 'cover' }}
                   alt={listing.title}
                   className={styles.image}
                 />

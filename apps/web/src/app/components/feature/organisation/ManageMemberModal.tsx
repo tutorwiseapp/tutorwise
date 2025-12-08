@@ -14,6 +14,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { OrganisationMember, updateMemberSettings } from '@/lib/api/organisation';
 import toast from 'react-hot-toast';
@@ -145,7 +146,12 @@ export default function ManageMemberModal({
         <div className={styles.memberInfo}>
           <div className={styles.memberAvatar}>
             {member.avatar_url ? (
-              <img src={member.avatar_url} alt={member.full_name || member.email} />
+              <Image
+                src={member.avatar_url}
+                alt={member.full_name || member.email}
+                width={64}
+                height={64}
+              />
             ) : (
               <div className={styles.avatarPlaceholder}>
                 {(member.full_name || member.email).substring(0, 2).toUpperCase()}

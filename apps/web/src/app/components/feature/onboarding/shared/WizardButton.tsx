@@ -250,9 +250,11 @@ export function useWizardValidation<T extends Record<string, any>>(config: {
   };
 }
 
-export default {
+const WizardButtonComponents = {
   Primary: WizardPrimaryButton,
   Secondary: WizardSecondaryButton,
   ActionButtons: WizardActionButtons,
   useValidation: useWizardValidation,
 };
+
+export default WizardButtonComponents;

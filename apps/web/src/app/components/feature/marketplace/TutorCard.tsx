@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Listing } from '@tutorwise/shared-types';
 import { slugify } from '@/lib/utils/slugify';
 import getProfileImageUrl from '@/lib/utils/image';
@@ -37,10 +38,12 @@ export default function TutorCard({ listing }: TutorCardProps) {
       <Link href={`/tutor/${listing.id}/${slugify(listing.title)}`} className={styles.cardLink}>
         {/* Image Section */}
         <div className={styles.imageContainer}>
-          <img
+          <Image
             src={imageUrl}
             alt={listing.full_name || listing.title}
             className={styles.image}
+            fill
+            style={{ objectFit: 'cover' }}
           />
 
           {/* v5.9: Free Help Now Badge - Top Priority */}

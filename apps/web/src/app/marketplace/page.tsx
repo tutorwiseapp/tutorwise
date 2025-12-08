@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Listing } from '@tutorwise/shared-types';
 import { parseSearchQuery, queryToFilters } from '@/lib/services/gemini';
 import HeroSection from '@/app/components/feature/marketplace/HeroSection';
@@ -22,66 +22,8 @@ export default function MarketplacePage() {
     freeTrialOnly: false,
   });
 
-  // Load featured tutors on initial page load
-  useEffect(() => {
-    loadFeaturedTutors();
-  }, []);
-
-  // Reload results when filters change
-  useEffect(() => {
-    if (hasSearched) {
-      executeSearch();
-    }
-  }, [filters]);
-
-  const loadFeaturedTutors = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch('/api/marketplace/search?limit=12');
-      const data = await response.json();
-      setListings(data.listings || []);
-    } catch (error) {
-      console.error('Failed to load featured tutors:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSearch = async (query: string) => {
-    setCurrentQuery(query);
-    setIsLoading(true);
-    setHasSearched(true);
-
-    try {
-      // Parse the natural language query using AI
-      const parsed = await parseSearchQuery(query);
-      console.log('Parsed query:', parsed);
-
-      // Convert parsed query to filters
-      const searchFilters = queryToFilters(parsed);
-
-      // Update filter state
-      setFilters({
-        subjects: searchFilters.subjects || [],
-        levels: searchFilters.levels || [],
-        locationType: searchFilters.location_type || null,
-        priceRange: {
-          min: searchFilters.min_price || null,
-          max: searchFilters.max_price || null,
-        },
-        freeTrialOnly: searchFilters.free_trial_only || false,
-      });
-
-      // Execute the search
-      await executeSearch(searchFilters);
-    } catch (error) {
-      console.error('Search error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const executeSearch = async (customFilters?: any) => {
+  // Memoized executeSearch function
+  const executeSearch = useCallback(async (customFilters?: any) => {
     setIsLoading(true);
     try {
       const searchFilters = customFilters || {
@@ -123,6 +65,65 @@ export default function MarketplacePage() {
       setListings(data.listings || []);
     } catch (error) {
       console.error('Search execution error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [filters]);
+
+  // Load featured tutors on initial page load
+  useEffect(() => {
+    const loadFeaturedTutors = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/marketplace/search?limit=12');
+        const data = await response.json();
+        setListings(data.listings || []);
+      } catch (error) {
+        console.error('Failed to load featured tutors:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadFeaturedTutors();
+  }, []);
+
+  // Reload results when filters change
+  useEffect(() => {
+    if (hasSearched) {
+      executeSearch();
+    }
+  }, [filters, hasSearched, executeSearch]);
+
+  const handleSearch = async (query: string) => {
+    setCurrentQuery(query);
+    setIsLoading(true);
+    setHasSearched(true);
+
+    try {
+      // Parse the natural language query using AI
+      const parsed = await parseSearchQuery(query);
+      console.log('Parsed query:', parsed);
+
+      // Convert parsed query to filters
+      const searchFilters = queryToFilters(parsed);
+
+      // Update filter state
+      setFilters({
+        subjects: searchFilters.subjects || [],
+        levels: searchFilters.levels || [],
+        locationType: searchFilters.location_type || null,
+        priceRange: {
+          min: searchFilters.min_price || null,
+          max: searchFilters.max_price || null,
+        },
+        freeTrialOnly: searchFilters.free_trial_only || false,
+      });
+
+      // Execute the search
+      await executeSearch(searchFilters);
+    } catch (error) {
+      console.error('Search error:', error);
     } finally {
       setIsLoading(false);
     }

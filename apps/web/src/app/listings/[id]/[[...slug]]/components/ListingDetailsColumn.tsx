@@ -5,6 +5,7 @@
 
 'use client';
 
+import Image from 'next/image';
 import type { ListingV41 } from '@/types/listing-v4.1';
 import Card from '@/app/components/ui/data-display/Card';
 import Button from '@/app/components/ui/actions/Button';
@@ -37,8 +38,10 @@ export default function ListingDetailsColumn({
         <div className={styles.tutorInfoCard}>
           <div className={styles.tutorAvatarSection}>
             {tutorProfile.avatar_url ? (
-              <img
+              <Image
                 src={tutorProfile.avatar_url}
+                width={64}
+                height={64}
                 alt={tutorProfile.full_name}
                 className={styles.tutorAvatar}
               />

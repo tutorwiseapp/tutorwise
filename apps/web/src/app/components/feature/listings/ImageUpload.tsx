@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useImperativeHandle, forwardRef } from 'react';
 import { useDropzone } from 'react-dropzone';
+import Image from 'next/image';
 import toast from 'react-hot-toast';
 import styles from './ImageUpload.module.css';
 
@@ -84,7 +85,12 @@ const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({ onUploadComp
         <div className={styles.previewGrid}>
           {previews.map((preview, index) => (
             <div key={index} className={styles.preview}>
-              <img src={preview} alt={`preview ${index}`} />
+              <Image
+                src={preview}
+                alt={`preview ${index}`}
+                fill
+                style={{ objectFit: 'cover' }}
+              />
             </div>
           ))}
         </div>

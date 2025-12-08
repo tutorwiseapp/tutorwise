@@ -361,6 +361,22 @@ export async function createOrganisation(data: {
     throw new Error('Not authenticated');
   }
 
+  // Check if user has agent role
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('roles')
+    .eq('id', user.id)
+    .single();
+
+  if (profileError || !profile) {
+    throw new Error('Unable to verify user profile');
+  }
+
+  // Only agents can create organisations
+  if (!profile.roles || !profile.roles.includes('agent')) {
+    throw new Error('Only users with the agent role can create organisations');
+  }
+
   const { data: newOrg, error } = await supabase
     .from('connection_groups')
     .insert({

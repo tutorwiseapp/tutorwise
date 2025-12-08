@@ -254,7 +254,7 @@ export default function CreateListings({
     if (profileDeliveryMode && !formData.location_type) {
       setDeliveryMode(profileDeliveryMode as 'online' | 'hybrid' | 'in_person');
     }
-  }, [profile, activeRole]);
+  }, [profile, activeRole, formData.hourly_rate, formData.location_type, selectedSubjects.length]);
 
   const handleUploadComplete = (urls: string[]) => {
     setImageUrls(urls);

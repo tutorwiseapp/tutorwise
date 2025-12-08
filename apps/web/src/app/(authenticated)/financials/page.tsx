@@ -64,8 +64,8 @@ export default function TransactionsPage() {
     refetchInterval: 60 * 1000, // Auto-refresh every minute
   });
 
-  const transactions = financialsData?.transactions ?? [];
-  const balances = financialsData?.balances ?? { available: 0, pending: 0, total: 0 };
+  const transactions = useMemo(() => financialsData?.transactions ?? [], [financialsData?.transactions]);
+  const balances = useMemo(() => financialsData?.balances ?? { available: 0, pending: 0, total: 0 }, [financialsData?.balances]);
 
   // Client-side filtering
   const filteredTransactions = useMemo(() => {
