@@ -2,18 +2,19 @@
  * Filename: src/app/(authenticated)/dashboard/page.tsx
  * Purpose: Dashboard hub page with role-specific navigation cards and aggregated stats
  * Change History:
+ * C014 - 2025-12-08 : Added Analytics tab with Profile Views Trend and Referrer Sources charts
  * C013 - 2025-12-03 : Migrated to Hub Layout Architecture (HubPageLayout + HubHeader)
  * C012 - 2025-11-08 : 14:00 - Moved into (authenticated) folder, removed duplicate AppSidebar
  * C011 - 2025-11-08 : 12:00 - Transformed into unified hub with aggregated stats sidebar
  * C010 - 2025-09-01 : 19:00 - Replaced Kinde hook with useUserProfile to get full profile data.
  * C009 - 2025-08-26 : 19:00 - Converted from Server Component to Client Component.
- * Last Modified: 2025-12-03
+ * Last Modified: 2025-12-08
  * Requirement ID: VIN-APP-01
- * Change Summary: Migrated to use HubPageLayout and HubHeader for consistent UX. Dashboard-specific grid layout preserved.
+ * Change Summary: Added Analytics tab with profile views tracking and referrer sources breakdown.
  */
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
@@ -29,6 +30,8 @@ import TipsCard from '@/app/components/feature/dashboard/widgets/TipsCard';
 import MessagesWidget from '@/app/components/feature/dashboard/widgets/MessagesWidget';
 import PayoutWidget from '@/app/components/feature/dashboard/widgets/PayoutWidget';
 import StudentTypeBreakdown, { StudentTypeData } from '@/app/components/feature/dashboard/widgets/StudentTypeBreakdown';
+import ProfileViewsTrendChart, { DailyViews } from '@/app/components/feature/dashboard/widgets/ProfileViewsTrendChart';
+import ReferrerSourcesChart, { ReferrerData } from '@/app/components/feature/dashboard/widgets/ReferrerSourcesChart';
 import { KPISkeleton, ChartSkeleton, WidgetSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import styles from './page.module.css';
@@ -36,6 +39,7 @@ import styles from './page.module.css';
 const DashboardPage = () => {
   const { profile, activeRole, isLoading, needsOnboarding } = useUserProfile();
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<'overview' | 'analytics'>('overview');
 
   // React Query: Fetch KPI data with automatic retry, caching, and background refetch
   const {
@@ -98,6 +102,38 @@ const DashboardPage = () => {
     },
     enabled: !!profile && !isLoading,
     staleTime: 3 * 60 * 1000, // 3 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+
+  // React Query: Fetch Profile Views Trend data
+  const {
+    data: profileViewsTrendData = [],
+    isLoading: isLoadingProfileViewsTrend,
+  } = useQuery<DailyViews[]>({
+    queryKey: ['dashboard', 'profile-views-trend', profile?.id],
+    queryFn: async () => {
+      const response = await fetch('/api/dashboard/profile-views-trend?days=30');
+      if (!response.ok) throw new Error('Failed to fetch profile views trend');
+      return response.json();
+    },
+    enabled: !!profile && !isLoading && activeTab === 'analytics',
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+
+  // React Query: Fetch Referrer Sources data
+  const {
+    data: referrerSourcesData = [],
+    isLoading: isLoadingReferrerSources,
+  } = useQuery<ReferrerData[]>({
+    queryKey: ['dashboard', 'referrer-sources', profile?.id],
+    queryFn: async () => {
+      const response = await fetch('/api/dashboard/referrer-sources');
+      if (!response.ok) throw new Error('Failed to fetch referrer sources');
+      return response.json();
+    },
+    enabled: !!profile && !isLoading && activeTab === 'analytics',
+    staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
@@ -202,9 +238,10 @@ const DashboardPage = () => {
       tabs={
         <HubTabs
           tabs={[
-            { id: 'overview', label: 'Overview', active: true }
+            { id: 'overview', label: 'Overview', active: activeTab === 'overview' },
+            { id: 'analytics', label: 'Analytics', active: activeTab === 'analytics' }
           ]}
-          onTabChange={() => {}}  // Single tab, no switching needed
+          onTabChange={(tabId) => setActiveTab(tabId as 'overview' | 'analytics')}
         />
       }
       sidebar={
@@ -224,16 +261,19 @@ const DashboardPage = () => {
         </HubSidebar>
       }
     >
-      {/* KPI Grid */}
-      {isLoadingKPIs ? (
-        <KPISkeleton count={4} />
-      ) : kpiData ? (
-        <KPIGrid
-          data={kpiData}
-          role={activeRole === 'client' ? 'client' : activeRole === 'agent' ? 'agent' : 'tutor'}
-          currency="GBP"
-        />
-      ) : null}
+      {/* Overview Tab */}
+      {activeTab === 'overview' && (
+        <>
+          {/* KPI Grid */}
+          {isLoadingKPIs ? (
+            <KPISkeleton count={4} />
+          ) : kpiData ? (
+            <KPIGrid
+              data={kpiData}
+              role={activeRole === 'client' ? 'client' : activeRole === 'agent' ? 'agent' : 'tutor'}
+              currency="GBP"
+            />
+          ) : null}
 
       {/* Charts Section */}
       <div className={styles.chartsSection}>
@@ -304,6 +344,40 @@ const DashboardPage = () => {
           </ErrorBoundary>
         )}
       </div>
+        </>
+      )}
+
+      {/* Analytics Tab */}
+      {activeTab === 'analytics' && (
+        <>
+          {/* Analytics Charts Section */}
+          <div className={styles.chartsSection}>
+            {/* Profile Views Trend Chart */}
+            <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load profile views trend</div>}>
+              {isLoadingProfileViewsTrend ? (
+                <ChartSkeleton height="320px" />
+              ) : (
+                <ProfileViewsTrendChart
+                  data={profileViewsTrendData}
+                  days={30}
+                />
+              )}
+            </ErrorBoundary>
+
+            {/* Referrer Sources Chart */}
+            <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load referrer sources</div>}>
+              {isLoadingReferrerSources ? (
+                <ChartSkeleton height="350px" />
+              ) : (
+                <ReferrerSourcesChart
+                  data={referrerSourcesData}
+                  defaultView="pie"
+                />
+              )}
+            </ErrorBoundary>
+          </div>
+        </>
+      )}
     </HubPageLayout>
   );
 };

@@ -3,12 +3,14 @@
  * Purpose: Styles for Account Hero Header
  * Created: 2025-11-30
  * Updated: 2025-12-04 - Restored from commit 461fd8b (136px avatar version)
+ * Updated: 2025-12-08 - Added credibility score badge styles
  *
  * Design Tokens:
  * - Avatar: 136px diameter (updated from 120px)
  * - Header height: 5rem (80px) - matches standard HubHeader
  * - Profile name: 1.5rem (24px)
  * - Role chip: teal background with white text
+ * - Credibility badge: light teal background (#E6F0F0) with teal text
  * - View link: teal color with underline
  */
 
@@ -91,6 +93,18 @@
   font-weight: 600;
   border-radius: 4px;
   line-height: 1.4;
+}
+
+.credibilityBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  background: #E6F0F0;
+  color: #006c67;
 }
 
 .viewLink {
@@ -179,6 +193,11 @@
     padding: 0.2rem 0.625rem;
   }
 
+  .credibilityBadge {
+    font-size: 0.8125rem;
+    padding: 4px 10px;
+  }
+
   .location {
     font-size: 0.825rem;
   }
@@ -216,6 +235,11 @@
   .roleChip {
     font-size: 0.775rem;
     padding: 0.15rem 0.5rem;
+  }
+
+  .credibilityBadge {
+    font-size: 0.75rem;
+    padding: 3px 8px;
   }
 
   .location {

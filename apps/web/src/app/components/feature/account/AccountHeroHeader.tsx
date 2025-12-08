@@ -3,10 +3,11 @@
  * Purpose: Custom hero header for Account pages with profile display
  * Created: 2025-11-30
  * Updated: 2025-12-04 - Restored from commit 461fd8b
+ * Updated: 2025-12-08 - Added credibility score badge next to role chip
  *
  * Features:
  * - 136px circular avatar on the left
- * - User's name, role badge, "View" link, and location
+ * - User's name, role badge, credibility score, and location
  * - Action buttons on the right (Build My Business + dropdown menu)
  * - Standard HubHeader height structure
  */
@@ -15,6 +16,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Award } from 'lucide-react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import getProfileImageUrl from '@/lib/utils/image';
 import styles from './AccountHeroHeader.module.css';
@@ -40,6 +42,7 @@ export default function AccountHeroHeader({ actions }: AccountHeroHeaderProps) {
   const fullName = profile.full_name || 'User';
   const role = profile.active_role || 'member';
   const location = profile.country || 'Location not set';
+  const credibilityScore = profile.credibility_score || 0;
 
   return (
     <div className={styles.header}>
@@ -64,6 +67,10 @@ export default function AccountHeroHeader({ actions }: AccountHeroHeaderProps) {
             <div className={styles.roleLocationRow}>
               <span className={styles.roleChip}>
                 {role.charAt(0).toUpperCase() + role.slice(1)}
+              </span>
+              <span className={styles.credibilityBadge}>
+                <Award size={14} />
+                CaaS Score: {credibilityScore}/100
               </span>
             </div>
 

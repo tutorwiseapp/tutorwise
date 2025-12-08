@@ -2,6 +2,7 @@
  * Filename: CredibilityScoreCard.tsx
  * Purpose: Credibility Score display card for public tutor profiles (CaaS v5.5)
  * Created: 2025-11-15
+ * Updated: 2025-12-08 - Added optional scoreData prop for server-side performance optimization
  *
  * Features:
  * - Large score badge (e.g., "92/100")
@@ -9,6 +10,7 @@
  * - "What is this?" tooltip with explanation
  * - Only displays for TUTOR profiles with calculated scores
  * - Co-located with VerificationCard in public profile sidebar
+ * - Supports server-side data passing (recommended) or client-side fetch (fallback)
  */
 
 'use client';
@@ -38,14 +40,20 @@ interface CaaSScoreData {
 
 interface CredibilityScoreCardProps {
   profileId: string;
+  scoreData?: CaaSScoreData | null; // Optional: pass from server-side for performance
 }
 
-export function CredibilityScoreCard({ profileId }: CredibilityScoreCardProps) {
-  const [scoreData, setScoreData] = useState<CaaSScoreData | null>(null);
-  const [loading, setLoading] = useState(true);
+export function CredibilityScoreCard({ profileId, scoreData: initialScoreData }: CredibilityScoreCardProps) {
+  const [scoreData, setScoreData] = useState<CaaSScoreData | null>(initialScoreData ?? null);
+  const [loading, setLoading] = useState(!initialScoreData);
   const [showTooltip, setShowTooltip] = useState(false);
 
   useEffect(() => {
+    // Skip fetch if scoreData was provided via props
+    if (initialScoreData !== undefined) {
+      return;
+    }
+
     async function fetchScore() {
       try {
         const response = await fetch(`/api/caas/${profileId}`);
@@ -71,7 +79,7 @@ export function CredibilityScoreCard({ profileId }: CredibilityScoreCardProps) {
     }
 
     fetchScore();
-  }, [profileId]);
+  }, [profileId, initialScoreData]);
 
   // Always show card with placeholder if no data
   if (loading) {

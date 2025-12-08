@@ -12,7 +12,7 @@ import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { updateProfile } from '@/lib/api/profiles';
-import ProfessionalInfoForm from '@/app/components/feature/profile/ProfessionalInfoForm';
+import ProfessionalInfoForm from '@/app/components/feature/account/ProfessionalInfoForm';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import AccountCard from '@/app/components/feature/account/AccountCard';
 import AccountHelpWidget from '@/app/components/feature/account/AccountHelpWidget';

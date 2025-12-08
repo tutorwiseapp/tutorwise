@@ -125,6 +125,6 @@
 /* Large desktop optimizations */
 @media (min-width: 1440px) {
   .bodySection {
-    gap: var(--space-5, 40px);
+    gap: var(--space-4, 32px);
   }
 }

@@ -2,12 +2,10 @@
  * Filename: AboutCard.tsx
  * Purpose: About section displaying profile bio/description
  * Created: 2025-11-12
+ * Updated: 2025-12-08 - Removed client-side fetch, use prop from server (performance optimization)
  * Updated: 2025-11-16 - Added Community Tutor badge and free sessions stat (v5.9)
  */
 
-'use client';
-
-import { useState, useEffect } from 'react';
 import type { Profile } from '@/types';
 import Card from '@/app/components/ui/data-display/Card';
 import { Heart } from 'lucide-react';
@@ -19,30 +17,12 @@ interface AboutCardProps {
 
 export function AboutCard({ profile }: AboutCardProps) {
   const firstName = profile.first_name || profile.full_name?.split(' ')[0] || profile.full_name;
-  const [freeSessionsCount, setFreeSessionsCount] = useState<number | null>(null);
 
-  // v5.9: Fetch free sessions count if tutor participates in free help
-  useEffect(() => {
-    const fetchFreeSessionsCount = async () => {
-      try {
-        const response = await fetch(`/api/stats/free-sessions-count?profileId=${profile.id}`);
-        if (response.ok) {
-          const data = await response.json();
-          setFreeSessionsCount(data.count || 0);
-        }
-      } catch (error) {
-        console.error('Failed to fetch free sessions count:', error);
-      }
-    };
-
-    // Only fetch if profile has available_free_help flag or if they might have historical data
-    if (profile.id) {
-      fetchFreeSessionsCount();
-    }
-  }, [profile.id]);
+  // Use free_sessions_count from server-side fetch (passed via profile prop)
+  const freeSessionsCount = profile.free_sessions_count || 0;
 
   // Determine if tutor is a "Community Tutor" (has given at least 1 free session)
-  const isCommunityTutor = freeSessionsCount !== null && freeSessionsCount > 0;
+  const isCommunityTutor = freeSessionsCount > 0;
 
   // If no bio, show empty state
   if (!profile.bio) {

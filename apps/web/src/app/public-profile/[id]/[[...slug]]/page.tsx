@@ -32,6 +32,7 @@ import { ServicesCard } from '@/app/components/feature/public-profile/ServicesCa
 import { ReviewsCard } from '@/app/components/feature/public-profile/ReviewsCard';
 import { SimilarProfilesCard } from '@/app/components/feature/public-profile/SimilarProfilesCard';
 import { MobileBottomCTA } from '@/app/components/feature/public-profile/MobileBottomCTA';
+import { ProfileViewTracker } from '@/app/components/feature/public-profile/ProfileViewTracker';
 import styles from './page.module.css';
 
 interface PublicProfilePageProps {
@@ -128,24 +129,26 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
     .order('created_at', { ascending: false });
 
   // ===========================================================
-  // STEP 6: Fetch reviews for the profile (from listings)
+  // STEP 6: Fetch reviews for the profile (6-way mutual review system)
   // ===========================================================
   const { data: reviews } = await supabase
-    .from('reviews')
+    .from('profile_reviews')
     .select(`
       id,
       rating,
-      title,
       comment,
-      verified_booking,
       created_at,
-      reviewer:profiles!reviews_reviewer_id_fkey (
+      reviewer:profiles!profile_reviews_reviewer_id_fkey (
         id,
         full_name,
         avatar_url
+      ),
+      session:booking_review_sessions!profile_reviews_session_id_fkey (
+        status
       )
     `)
-    .in('listing_id', (listings || []).map(l => l.id))
+    .eq('reviewee_id', profile.id)
+    .eq('session.status', 'published')
     .order('created_at', { ascending: false })
     .limit(10);
 
@@ -156,9 +159,9 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
     reviewer_name: review.reviewer?.full_name || 'Anonymous',
     reviewer_avatar_url: review.reviewer?.avatar_url,
     rating: review.rating,
-    title: review.title,
+    title: '', // Profile reviews don't have titles
     comment: review.comment,
-    verified_booking: review.verified_booking,
+    verified_booking: true, // All profile reviews are from verified bookings
     created_at: review.created_at,
   }));
 
@@ -173,13 +176,25 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
     .limit(6);
 
   // ===========================================================
-  // STEP 8: Calculate role-based statistics
+  // STEP 8: Calculate real-time statistics
   // ===========================================================
-  // Sessions completed (as client or tutor)
-  const { count: sessionsAsClient } = await supabase
+
+  // Average Rating and Review Count from profile_reviews
+  const { data: reviewStats } = await supabase
+    .from('profile_reviews')
+    .select('rating')
+    .eq('reviewee_id', profile.id);
+
+  const reviewCount = reviewStats?.length || 0;
+  const averageRating = reviewCount > 0
+    ? reviewStats!.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+    : 0;
+
+  // Sessions completed (as student or tutor)
+  const { count: sessionsAsStudent } = await supabase
     .from('bookings')
     .select('*', { count: 'exact', head: true })
-    .eq('client_id', profile.id)
+    .eq('student_id', profile.id)
     .eq('status', 'Completed');
 
   const { count: sessionsAsTutor } = await supabase
@@ -188,11 +203,11 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
     .eq('tutor_id', profile.id)
     .eq('status', 'Completed');
 
-  const sessionsCompleted = (sessionsAsClient || 0) + (sessionsAsTutor || 0);
+  const sessionsCompleted = (sessionsAsStudent || 0) + (sessionsAsTutor || 0);
 
-  // Reviews given
+  // Reviews given (as reviewer)
   const { count: reviewsGiven } = await supabase
-    .from('reviews')
+    .from('profile_reviews')
     .select('*', { count: 'exact', head: true })
     .eq('reviewer_id', profile.id);
 
@@ -200,7 +215,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   const { data: uniqueTutors } = await supabase
     .from('bookings')
     .select('tutor_id')
-    .eq('client_id', profile.id)
+    .eq('student_id', profile.id)
     .eq('status', 'Completed');
 
   const tutorsWorkedWith = uniqueTutors
@@ -210,21 +225,40 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   // Unique clients worked with (for tutors)
   const { data: uniqueClients } = await supabase
     .from('bookings')
-    .select('client_id')
+    .select('student_id')
     .eq('tutor_id', profile.id)
     .eq('status', 'Completed');
 
   const clientsWorkedWith = uniqueClients
-    ? new Set(uniqueClients.map(b => b.client_id).filter(Boolean)).size
+    ? new Set(uniqueClients.map(b => b.student_id).filter(Boolean)).size
     : 0;
+
+  // Profile views from materialized view (fast lookup)
+  const { data: viewData } = await supabase
+    .from('profile_view_counts')
+    .select('total_views')
+    .eq('profile_id', profile.id)
+    .maybeSingle();
+
+  const profileViews = viewData?.total_views || 0;
+
+  // Free sessions given (for Community Tutor badge)
+  const { count: freeSessionsCount } = await supabase
+    .from('free_sessions')
+    .select('*', { count: 'exact', head: true })
+    .eq('tutor_id', profile.id);
 
   // Augment profile with calculated stats
   const enrichedProfile = {
     ...profile,
+    average_rating: Math.round(averageRating * 10) / 10, // Round to 1 decimal
+    total_reviews: reviewCount,
     sessions_completed: sessionsCompleted,
     reviews_given: reviewsGiven || 0,
     tutors_worked_with: tutorsWorkedWith,
     clients_worked_with: clientsWorkedWith,
+    profile_views: profileViews,
+    free_sessions_count: freeSessionsCount || 0,
   } as Profile;
 
   // ===========================================================
@@ -232,6 +266,9 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   // ===========================================================
   return (
     <Container>
+      {/* Track profile view (client-side component) */}
+      {!isOwnProfile && <ProfileViewTracker profileId={profile.id} />}
+
       {/* SECTION 1: Hero Section (1-column) */}
       <div className={styles.heroSection}>
         <ProfileHeroSection profile={enrichedProfile} isOwnProfile={isOwnProfile} />

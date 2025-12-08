@@ -69,6 +69,7 @@ export interface Profile {
   average_rating?: number; // Average rating received
   total_reviews?: number; // Total reviews received
   profile_views?: number; // Total profile views
+  free_sessions_count?: number; // Total free sessions given (for Community Tutor badge)
   // Other fields
   bio?: string;
   headline?: string; // Professional headline/tagline
