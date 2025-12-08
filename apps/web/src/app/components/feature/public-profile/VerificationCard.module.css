@@ -29,7 +29,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 16px;
+  padding: var(--space-4, 32px);
 }
 
 .verificationItem {
@@ -87,21 +87,10 @@
   color: #dc2626;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .verificationCard {
-    padding: var(--space-3, 24px);
-  }
-
-  .cardTitle {
-    font-size: 1.125rem;
-  }
-
+/* Responsive - Mobile and Tablet */
+@media (max-width: 1023px) {
   .verificationsContainer {
     gap: var(--space-3, 24px);
-  }
-
-  .verificationItem {
-    padding-bottom: var(--space-2, 16px);
+    padding: var(--space-3, 24px);
   }
 }
