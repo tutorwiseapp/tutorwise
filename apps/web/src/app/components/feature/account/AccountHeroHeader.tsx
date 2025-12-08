@@ -14,6 +14,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import getProfileImageUrl from '@/lib/utils/image';
 import styles from './AccountHeroHeader.module.css';
@@ -47,10 +48,12 @@ export default function AccountHeroHeader({ actions }: AccountHeroHeaderProps) {
         <div className={styles.profileSection}>
           {/* Avatar */}
           <div className={styles.avatarContainer}>
-            <img
+            <Image
               src={avatarUrl}
               alt={`${fullName}'s avatar`}
               className={styles.avatar}
+              width={136}
+              height={136}
             />
           </div>
 

@@ -1,0 +1,100 @@
+/**
+ * Filename: apps/web/src/app/components/feature/referrals/ReferralActivityFeed.module.css
+ * Purpose: Styles for ReferralActivityFeed widget
+ * Created: 2025-12-07
+ */
+
+/* Base widget styles (matching HubStatsCard and ReferralStatsWidget) */
+.feedWidget {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  width: 100%;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  padding: 12px 16px;
+  margin: 0;
+  line-height: 1.4;
+  background-color: #E6F0F0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.activitiesContainer {
+  padding: 0;
+}
+
+.activityItem {
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.15s ease;
+}
+
+.activityItem:last-child {
+  border-bottom: none;
+}
+
+.activityItem:hover {
+  background-color: #f9fafb;
+}
+
+.activityContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.activityTitle {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #111827;
+}
+
+.activityName {
+  font-weight: 600;
+  color: #111827;
+}
+
+.activityAction {
+  font-weight: 400;
+  color: #4b5563;
+}
+
+.activityMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.commission {
+  font-weight: 600;
+  color: #10b981;
+}
+
+.separator {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.timestamp {
+  color: #6b7280;
+}
+
+/* Empty state */
+.emptyState {
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.emptyText {
+  margin: 0;
+  color: #9ca3af;
+  font-size: 14px;
+}

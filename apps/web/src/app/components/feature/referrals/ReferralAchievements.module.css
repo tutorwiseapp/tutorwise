@@ -1,0 +1,192 @@
+/**
+ * Filename: ReferralAchievements.module.css
+ * Purpose: Styles for ReferralAchievements gamification widget
+ * Created: 2025-12-07
+ */
+
+.widget {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #E6F0F0;
+}
+
+.icon {
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.content {
+  padding: 16px;
+}
+
+.achievementsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.achievementItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.achievementItem.unlocked {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.achievementItem.locked {
+  background: #f9fafb;
+  border-color: #e5e7eb;
+}
+
+.achievementIcon {
+  font-size: 20px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.unlocked .achievementIcon {
+  background: #059669;
+  color: white;
+}
+
+.locked .achievementIcon {
+  background: #e5e7eb;
+}
+
+.achievementInfo {
+  flex: 1;
+}
+
+.achievementLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.progressContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.progressBar {
+  flex: 1;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #059669 0%, #10b981 100%);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.progressText {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.streakSection {
+  padding: 12px;
+  background: #fef3c7;
+  border: 1px solid #fbbf24;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.streakHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.streakIcon {
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.streakText {
+  font-size: 15px;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.streakDescription {
+  margin: 0;
+  font-size: 13px;
+  color: #78350f;
+  line-height: 1.4;
+}
+
+.leaderboardSection {
+  padding: 12px;
+  background: #f0f9ff;
+  border: 1px solid #60a5fa;
+  border-radius: 6px;
+}
+
+.leaderboardHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.leaderboardIcon {
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.leaderboardText {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e40af;
+}
+
+.leaderboardDescription {
+  margin: 0;
+  font-size: 13px;
+  color: #1e3a8a;
+  line-height: 1.4;
+}
