@@ -21,10 +21,19 @@
   display: grid;
   grid-template-columns: 1fr; /* Mobile: single column */
   gap: var(--space-4, 32px); /* Gap between columns */
-  margin-bottom: var(--space-3, 24px); /* Reduced from 32px to 24px */
+  margin-bottom: var(--space-3, 24px);
 }
 
-@media (min-width: 768px) {
+/* Tablet: Single column with slightly larger gaps */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .bodySection {
+    grid-template-columns: 1fr;
+    gap: var(--space-3, 24px);
+  }
+}
+
+/* Desktop: 2-column layout */
+@media (min-width: 1024px) {
   .bodySection {
     grid-template-columns: 2fr 1fr; /* Desktop: 2fr main + 1fr sidebar */
   }
@@ -34,20 +43,21 @@
 .mainColumn {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3, 24px); /* Reduced from 32px to 24px */
+  gap: var(--space-3, 24px); /* Desktop gap */
 }
 
 /* Sidebar Column (right side, 1fr width, sticky on desktop) */
 .sidebarColumn {
   display: flex; /* Show on mobile now */
   flex-direction: column;
-  gap: var(--space-3, 24px); /* Reduced from 32px to 24px */
+  gap: var(--space-3, 24px); /* Desktop gap */
 }
 
-@media (min-width: 768px) {
+/* Desktop only: Make sidebar sticky */
+@media (min-width: 1024px) {
   .sidebarColumn {
     position: sticky;
-    top: var(--space-4, 32px); /* Reduced from 48px to 32px */
+    top: var(--space-4, 32px);
     align-self: flex-start;
   }
 }
@@ -62,21 +72,59 @@
   height: var(--space-4, 32px); /* Reduced from 48px to 32px */
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+/* Mobile optimizations */
+@media (max-width: 639px) {
   .heroSection {
-    margin-bottom: var(--space-4, 32px); /* Reduced from 48px to 32px */
+    margin-bottom: var(--space-2, 16px);
   }
 
   .bodySection {
-    gap: var(--space-3, 24px); /* Reduced from 32px to 24px */
+    gap: var(--space-2, 16px);
+  }
+
+  .mainColumn {
+    gap: var(--space-2, 16px);
   }
 
   .sidebarColumn {
-    gap: var(--space-2, 16px); /* Tighter on mobile */
+    gap: var(--space-2, 16px);
+  }
+
+  .relatedSection {
+    margin-bottom: var(--space-3, 24px);
   }
 
   .bottomSpacer {
-    height: var(--space-3, 24px); /* Reduced from 32px to 24px */
+    height: 80px; /* Account for fixed mobile CTA bar */
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .heroSection {
+    margin-bottom: var(--space-3, 24px);
+  }
+
+  .mainColumn {
+    gap: var(--space-3, 24px);
+  }
+
+  .sidebarColumn {
+    gap: var(--space-3, 24px);
+  }
+
+  .relatedSection {
+    margin-bottom: var(--space-4, 32px);
+  }
+
+  .bottomSpacer {
+    height: 80px; /* Account for fixed mobile CTA bar on tablet */
+  }
+}
+
+/* Large desktop optimizations */
+@media (min-width: 1440px) {
+  .bodySection {
+    gap: var(--space-5, 40px);
   }
 }

@@ -147,7 +147,7 @@ export function AvailabilityScheduleCard({ profile }: AvailabilityScheduleCardPr
       </div>
 
       <p className={styles.note}>
-        💡 Final date & time selection will be done during booking.
+        Final date & time selection will be done during booking.
       </p>
       </div>
     </Card>
