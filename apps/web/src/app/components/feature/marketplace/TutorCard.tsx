@@ -35,7 +35,7 @@ export default function TutorCard({ listing }: TutorCardProps) {
 
   return (
     <div className={styles.tutorCard}>
-      <Link href={`/tutor/${listing.id}/${slugify(listing.title)}`} className={styles.cardLink}>
+      <Link href={`/listings/${listing.id}/${slugify(listing.title)}`} className={styles.cardLink}>
         {/* Image Section */}
         <div className={styles.imageContainer}>
           <Image
