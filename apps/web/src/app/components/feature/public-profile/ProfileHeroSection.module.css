@@ -8,19 +8,51 @@
 
 .heroSection {
   width: 100%;
-  margin-bottom: var(--space-6, 48px);
+  margin-bottom: var(--space-4, 32px); /* Reduced from 48px */
 }
 
 .banner {
   background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
   border-radius: var(--radius-lg, 12px);
-  padding: var(--space-6, 48px);
+  padding: var(--space-5, 40px); /* Reduced from 48px */
   display: grid;
   grid-template-columns: auto 1fr auto;
   grid-template-rows: auto auto;
-  gap: var(--space-4, 32px);
+  gap: var(--space-3, 24px); /* Reduced from 32px */
   align-items: start;
   position: relative;
+}
+
+/* Utility Actions (top-right) */
+.utilityActions {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 50%;
+  font-size: 0.875rem;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.iconButton:hover {
+  border-color: #d1d5db;
+  background: #f9fafb;
+  color: #374151;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 /* Avatar Container (Left) */
@@ -28,6 +60,7 @@
   grid-column: 1;
   grid-row: 1 / 3;
   align-self: center;
+  position: relative;
 }
 
 .avatar {
@@ -55,6 +88,66 @@
   font-weight: 600;
 }
 
+/* Video Play Badge - Overlay on avatar bottom-right */
+.videoPlayBadge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-primary-default, #006c67);
+  border: 3px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 108, 103, 0.4);
+  transition: all 0.3s ease;
+  z-index: 5;
+  animation: videoPulse 2.5s ease-in-out infinite;
+}
+
+.videoPlayBadge:hover {
+  background: var(--color-primary-hover, #005550);
+  transform: scale(1.15);
+  box-shadow: 0 6px 16px rgba(0, 108, 103, 0.6);
+}
+
+@keyframes videoPulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(0, 108, 103, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 16px rgba(0, 108, 103, 0.7);
+  }
+}
+
+/* Video Play Badge - Empty State */
+.videoPlayBadgeEmpty {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  border: 3px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 5;
+  opacity: 0.6;
+}
+
+.videoPlayBadgeEmpty:hover {
+  opacity: 0.8;
+}
+
 /* Info Container (Center) */
 .infoContainer {
   grid-column: 2;
@@ -66,11 +159,43 @@
 }
 
 .fullName {
-  font-size: 2.5rem;
+  font-size: 2.25rem; /* Reduced from 2.5rem */
   font-weight: 700;
   color: #111827;
   margin: 0;
   line-height: 1.2;
+}
+
+/* CaaS Score Badge */
+.credibilityBadge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.scoreValue {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  background: #E6F0F0;
+  color: #006c67;
+  border: 1px solid #B8D8D6;
+  box-shadow: 0 1px 3px rgba(0, 108, 103, 0.1);
+}
+
+.topBadge {
+  padding: 4px 10px;
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid #fbbf24;
 }
 
 .roleLine {
@@ -88,6 +213,14 @@
 
 .separator {
   color: #d1d5db;
+}
+
+.locationText {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #6b7280;
+  font-weight: 400;
 }
 
 .editLink {
@@ -162,100 +295,51 @@
   color: #9ca3af;
 }
 
-/* CTA Container (Bottom-Right) */
-.ctaContainer {
+/* Primary CTA (Bottom-Right) - Refer & Earn */
+.primaryCTA {
   grid-column: 3;
   grid-row: 2;
   display: flex;
-  gap: var(--space-2, 8px);
-  align-items: center;
   justify-self: end;
   align-self: end;
 }
 
-.ctaButton {
+.referButton {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 20px;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: var(--radius-md, 8px);
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #374151;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.ctaButton:hover {
-  border-color: #d1d5db;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.ctaButtonActive {
-  color: #dc2626;
-  border-color: #fecaca;
-  background: #fef2f2;
-}
-
-.ctaButtonPrimary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 20px;
-  background: var(--color-primary-default, #006c67);
-  border: 1px solid var(--color-primary-default, #006c67);
-  border-radius: var(--radius-md, 8px);
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: white;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.ctaButtonPrimary:hover {
-  background: var(--color-primary-hover, #005550);
-  border-color: var(--color-primary-hover, #005550);
-  box-shadow: 0 2px 4px rgba(0, 108, 103, 0.2);
-}
-
-/* v5.9: Free Help Now button */
-.ctaButtonFreeHelp {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 12px 24px;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  border: 2px solid #10b981;
+  background: var(--color-primary-default, #006c67);
+  border: 2px solid var(--color-primary-default, #006c67);
   border-radius: var(--radius-md, 8px);
   font-size: 0.9375rem;
   font-weight: 700;
   color: white;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 108, 103, 0.2);
 }
 
-.ctaButtonFreeHelp:hover:not(:disabled) {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  border-color: #059669;
-  box-shadow: 0 6px 10px rgba(16, 185, 129, 0.4);
-  transform: translateY(-2px);
+.referButton:hover {
+  background: var(--color-primary-hover, #005550);
+  border-color: var(--color-primary-hover, #005550);
+  box-shadow: 0 4px 8px rgba(0, 108, 103, 0.3);
+  transform: translateY(-1px);
 }
 
-.ctaButtonFreeHelp:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
+/* Responsive - Tablet */
+@media (max-width: 900px) {
   .banner {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
-    gap: var(--space-4, 32px);
+    grid-template-rows: auto auto auto auto;
+    gap: var(--space-3, 24px);
     text-align: center;
+    padding: var(--space-4, 32px);
+  }
+
+  .utilityActions {
+    top: 12px;
+    right: 12px;
   }
 
   .avatarContainer {
@@ -266,9 +350,23 @@
 
   .avatar,
   .avatarPlaceholder {
-    width: 160px;
-    height: 160px;
-    font-size: 3.5rem;
+    width: 140px;
+    height: 140px;
+    font-size: 3.25rem;
+  }
+
+  .videoPlayBadge {
+    width: 42px;
+    height: 42px;
+    bottom: 6px;
+    right: 6px;
+  }
+
+  .videoPlayBadgeEmpty {
+    width: 42px;
+    height: 42px;
+    bottom: 6px;
+    right: 6px;
   }
 
   .infoContainer {
@@ -277,49 +375,101 @@
     align-items: center;
   }
 
+  .fullName {
+    font-size: 2rem;
+  }
+
+  .credibilityBadge {
+    justify-content: center;
+  }
+
   .roleLine,
   .locationLine {
     justify-content: center;
   }
 
-  .ctaContainer {
+  .primaryCTA {
     grid-column: 1;
     grid-row: 3;
     justify-self: center;
-    flex-wrap: wrap;
+  }
+
+  .referButton {
+    width: 100%;
     justify-content: center;
+    max-width: 280px;
   }
 }
 
-@media (max-width: 768px) {
+/* Responsive - Mobile */
+@media (max-width: 640px) {
+  .heroSection {
+    margin-bottom: var(--space-3, 24px);
+  }
+
   .banner {
-    padding: var(--space-4, 32px);
+    padding: var(--space-3, 24px);
+    gap: var(--space-2, 16px);
+  }
+
+  .utilityActions {
+    top: 8px;
+    right: 8px;
+    gap: 6px;
+  }
+
+  .iconButton {
+    width: 36px;
+    height: 36px;
   }
 
   .avatar,
   .avatarPlaceholder {
-    width: 120px;
-    height: 120px;
-    font-size: 3rem;
+    width: 100px;
+    height: 100px;
+    font-size: 2.5rem;
+  }
+
+  .videoPlayBadge {
+    width: 36px;
+    height: 36px;
+    bottom: 4px;
+    right: 4px;
+  }
+
+  .videoPlayBadgeEmpty {
+    width: 36px;
+    height: 36px;
+    bottom: 4px;
+    right: 4px;
   }
 
   .fullName {
-    font-size: 1.875rem;
+    font-size: 1.75rem;
+  }
+
+  .scoreValue {
+    font-size: 0.8125rem;
+    padding: 4px 10px;
+  }
+
+  .topBadge {
+    font-size: 0.6875rem;
+    padding: 3px 8px;
   }
 
   .roleLine,
   .subjectLine {
-    font-size: 1rem;
+    font-size: 0.9375rem;
   }
 
-  .ctaContainer {
-    width: 100%;
+  .locationLine {
+    font-size: 0.875rem;
   }
 
-  .ctaButton,
-  .ctaButtonPrimary,
-  .ctaButtonFreeHelp {
-    flex: 1;
-    justify-content: center;
+  .referButton {
+    font-size: 0.875rem;
+    padding: 10px 20px;
+    max-width: 100%;
   }
 }

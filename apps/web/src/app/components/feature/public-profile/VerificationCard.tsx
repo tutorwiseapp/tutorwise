@@ -23,7 +23,9 @@ export function VerificationCard({ profile }: VerificationCardProps) {
 
   return (
     <Card className={styles.verificationCard}>
-      <h3 className={styles.cardTitle}>Verification</h3>
+      <div className={styles.cardHeader}>
+        <h3 className={styles.cardTitle}>Verification</h3>
+      </div>
 
       <div className={styles.verificationsContainer}>
         {/* Government ID Status */}

@@ -64,10 +64,12 @@ function TutorProfessionalInfo({ profile }: { profile: Profile }) {
     const firstName = profile.first_name || profile.full_name?.split(' ')[0] || profile.full_name;
     return (
       <Card className={styles.professionalCard}>
-        <h2 className={styles.cardTitle}>Professional Information</h2>
+        <div className={styles.cardHeader}>
+          <h2 className={styles.cardTitle}>Professional Profile</h2>
+        </div>
         <div className={styles.emptyState}>
           <p className={styles.emptyStateText}>
-            {firstName} hasn&apos;t added their professional details yet.
+            {firstName} hasn&apos;t added their professional profile yet.
           </p>
         </div>
       </Card>
@@ -76,8 +78,10 @@ function TutorProfessionalInfo({ profile }: { profile: Profile }) {
 
   return (
     <Card className={styles.professionalCard}>
-      <h2 className={styles.cardTitle}>Professional Information</h2>
-
+      <div className={styles.cardHeader}>
+        <h2 className={styles.cardTitle}>Professional Profile</h2>
+      </div>
+      <div className={styles.cardContent}>
       {/* Subjects Covered */}
       {tutorDetails?.subjects && tutorDetails.subjects.length > 0 && (
         <div className={styles.section}>
@@ -160,6 +164,7 @@ function TutorProfessionalInfo({ profile }: { profile: Profile }) {
           <p className={styles.text}>{tutorDetails.experience} years</p>
         </div>
       )}
+      </div>
     </Card>
   );
 }
@@ -186,7 +191,9 @@ function ClientProfessionalInfo({ profile }: { profile: Profile }) {
     const firstName = profile.first_name || profile.full_name?.split(' ')[0] || profile.full_name;
     return (
       <Card className={styles.professionalCard}>
-        <h2 className={styles.cardTitle}>Learning Profile</h2>
+        <div className={styles.cardHeader}>
+          <h2 className={styles.cardTitle}>Learning Profile</h2>
+        </div>
         <div className={styles.emptyState}>
           <p className={styles.emptyStateText}>
             {firstName} hasn&apos;t added their learning profile yet.
@@ -198,8 +205,10 @@ function ClientProfessionalInfo({ profile }: { profile: Profile }) {
 
   return (
     <Card className={styles.professionalCard}>
-      <h2 className={styles.cardTitle}>Learning Profile</h2>
-
+      <div className={styles.cardHeader}>
+        <h2 className={styles.cardTitle}>Learning Profile</h2>
+      </div>
+      <div className={styles.cardContent}>
       {/* Subjects of Interest */}
       {clientDetails?.subjects && clientDetails.subjects.length > 0 && (
         <div className={styles.section}>
@@ -259,6 +268,7 @@ function ClientProfessionalInfo({ profile }: { profile: Profile }) {
           <p className={styles.text}>{clientDetails.sessions_per_week}</p>
         </div>
       )}
+      </div>
     </Card>
   );
 }
@@ -285,10 +295,12 @@ function AgentProfessionalInfo({ profile }: { profile: Profile }) {
     const firstName = profile.first_name || profile.full_name?.split(' ')[0] || profile.full_name;
     return (
       <Card className={styles.professionalCard}>
-        <h2 className={styles.cardTitle}>Agency Information</h2>
+        <div className={styles.cardHeader}>
+          <h2 className={styles.cardTitle}>Agent Profile</h2>
+        </div>
         <div className={styles.emptyState}>
           <p className={styles.emptyStateText}>
-            {firstName} hasn&apos;t added their agency details yet.
+            {firstName} hasn&apos;t added their agent details yet.
           </p>
         </div>
       </Card>
@@ -297,12 +309,14 @@ function AgentProfessionalInfo({ profile }: { profile: Profile }) {
 
   return (
     <Card className={styles.professionalCard}>
-      <h2 className={styles.cardTitle}>Agency Information</h2>
-
-      {/* Agency Name */}
+      <div className={styles.cardHeader}>
+        <h2 className={styles.cardTitle}>Agent Profile</h2>
+      </div>
+      <div className={styles.cardContent}>
+      {/* Business Name (optional for professional agents) */}
       {agentDetails?.agency_name && (
         <div className={styles.section}>
-          <h3 className={styles.sectionLabel}>Agency Name</h3>
+          <h3 className={styles.sectionLabel}>Business Name</h3>
           <p className={styles.text}>{agentDetails.agency_name}</p>
         </div>
       )}
@@ -355,11 +369,13 @@ function AgentProfessionalInfo({ profile }: { profile: Profile }) {
         </div>
       )}
 
-      {/* Number of Tutors */}
+      {/* Number of Tutors (for agents managing 1-4 tutors) */}
       {agentDetails?.number_of_tutors && (
         <div className={styles.section}>
-          <h3 className={styles.sectionLabel}>Tutor Network</h3>
-          <p className={styles.text}>{agentDetails.number_of_tutors} tutors</p>
+          <h3 className={styles.sectionLabel}>Tutors Managed</h3>
+          <p className={styles.text}>
+            {agentDetails.number_of_tutors} {Number(agentDetails.number_of_tutors) === 1 ? 'tutor' : 'tutors'}
+          </p>
         </div>
       )}
 
@@ -370,6 +386,7 @@ function AgentProfessionalInfo({ profile }: { profile: Profile }) {
           <p className={styles.text}>{agentDetails.years_in_business}</p>
         </div>
       )}
+      </div>
     </Card>
   );
 }

@@ -6,24 +6,26 @@
  */
 
 .aboutCard {
-  padding: var(--space-5, 40px);
+  padding: 0 !important;
 }
 
-/* v5.9: Card header with title and badge */
+/* v5.9: Card header with title and badge - Teal header styling */
 .cardHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-3, 24px);
-  margin-bottom: var(--space-4, 32px);
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: #E6F0F0;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .cardTitle {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #111827;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.4;
 }
 
 /* v5.9: Community Tutor badge */
@@ -45,6 +47,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3, 24px);
+  padding: 16px;
 }
 
 .bioText {
@@ -56,7 +59,7 @@
 }
 
 .emptyState {
-  padding: var(--space-6, 48px) 0;
+  padding: 48px 16px;
   text-align: center;
 }
 
@@ -71,6 +74,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-2, 8px);
+  padding: 16px;
   padding-top: var(--space-4, 32px);
   margin-top: var(--space-4, 32px);
   border-top: 1px solid #e5e7eb;
@@ -89,11 +93,7 @@
 }
 
 @media (max-width: 768px) {
-  .aboutCard {
-    padding: var(--space-4, 32px);
-  }
-
   .cardTitle {
-    font-size: 1.25rem;
+    font-size: 15px;
   }
 }

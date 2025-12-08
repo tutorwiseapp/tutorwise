@@ -58,8 +58,17 @@ export interface Profile {
   teaching_experience?: number | null; // Years of teaching experience
   degree_level?: 'BACHELORS' | 'MASTERS' | 'PHD' | 'NONE' | null; // Highest degree level
   bio_video_url?: string | null; // v5.5 CaaS: Credibility Clip - 30s intro video URL
+  credibility_score?: number | null; // v5.5 CaaS: Credibility Score (0-100)
   // v5.9: Free Help Now
   available_free_help?: boolean; // Whether tutor is currently offering free help sessions
+  // Role-based statistics (calculated, not stored)
+  sessions_completed?: number; // Total sessions completed (as client or tutor)
+  reviews_given?: number; // Total reviews given by this user
+  tutors_worked_with?: number; // Unique tutors this client has worked with
+  clients_worked_with?: number; // Unique clients this tutor has worked with
+  average_rating?: number; // Average rating received
+  total_reviews?: number; // Total reviews received
+  profile_views?: number; // Total profile views
   // Other fields
   bio?: string;
   headline?: string; // Professional headline/tagline

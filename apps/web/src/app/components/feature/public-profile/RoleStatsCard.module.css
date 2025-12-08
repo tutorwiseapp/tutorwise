@@ -2,20 +2,27 @@
  * Filename: apps/web/src/app/components/public-profile/RoleStatsCard.module.css
  * Purpose: Styles for public-facing role stats card
  * Created: 2025-11-12
+ * Updated: 2025-12-08 - Updated to use consistent hub sidebar styling
  */
 
+/* Override Card default padding to allow header to extend to edges */
+.roleStatsCard {
+  padding: 0 !important;
+}
+
+/* Header with teal background (matching IntroductionCard) */
 .cardHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-4, 32px);
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #E6F0F0;
 }
 
 .cardTitle {
-  font-size: var(--font-size-lg, 18px);
+  font-size: 16px;
   font-weight: 600;
-  color: var(--color-text-primary, #1a1a1a);
+  color: #1f2937;
   margin: 0;
+  line-height: 1.4;
 }
 
 .roleIndicator {
@@ -30,44 +37,31 @@
 }
 
 .statsGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-4, 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
 }
 
 .statItem {
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-3, 24px);
-}
-
-.statIcon {
-  display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
-  background-color: var(--color-teal-50, #e6f7f5);
-  border-radius: 8px;
-  color: var(--color-teal-600, #14b8a6);
-}
-
-.statContent {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  width: 100%;
+  min-height: 20px;
 }
 
 .statLabel {
-  font-size: var(--font-size-sm, 14px);
-  color: var(--color-text-secondary, #6b7280);
-  font-weight: 500;
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 .statValue {
-  font-size: var(--font-size-xl, 20px);
+  font-size: 15px;
   font-weight: 600;
-  color: var(--color-text-primary, #1a1a1a);
+  text-align: right;
+  line-height: 1.5;
+  color: #111827;
 }

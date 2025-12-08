@@ -11,11 +11,13 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Heart, Share2, Gift, MapPin, Edit, Video, Sparkles } from 'lucide-react';
+import Image from 'next/image';
+import { Heart, Share2, Gift, MapPin, Edit, Video, Sparkles, Award } from 'lucide-react';
 import type { Profile } from '@/types';
 import toast from 'react-hot-toast';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { VideoModal } from '@/app/components/ui/feedback/VideoModal';
+import { ShareModal } from '@/app/components/ui/feedback/ShareModal';
 import styles from './ProfileHeroSection.module.css';
 
 interface ProfileHeroSectionProps {
@@ -26,6 +28,7 @@ interface ProfileHeroSectionProps {
 export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSectionProps) {
   const [isSaved, setIsSaved] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [isCreatingFreeHelpSession, setIsCreatingFreeHelpSession] = useState(false);
   const { profile: currentUser } = useUserProfile();
   const router = useRouter();
@@ -58,30 +61,26 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
     toast.success(isSaved ? 'Profile removed from saved' : 'Profile saved!');
   };
 
-  // Handle Share button
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${profile.full_name} - ${profile.active_role}`,
-          text: profile.bio || `Check out ${profile.full_name}'s profile on Tutorwise`,
-          url: window.location.href,
-        });
-      } catch (err) {
-        console.log('Share cancelled');
-      }
-    } else {
-      // Fallback: copy to clipboard
-      await navigator.clipboard.writeText(window.location.href);
-      toast.success('Link copied to clipboard!');
-    }
+  // Handle Share button - Open share modal
+  const handleShare = () => {
+    setShowShareModal(true);
   };
 
   // Handle Refer & Earn button
   const handleReferEarn = async () => {
     if (!currentUser) {
-      toast.error('Please login to create a referral link');
-      router.push('/login');
+      // Conversion funnel: Drive signups with referral intent
+      toast('Sign up to start earning 10% commission!', {
+        icon: '🎁',
+        duration: 4000,
+      });
+      router.push(`/signup?intent=refer&redirect=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+
+    // Check if trying to refer self
+    if (currentUser.id === profile.id) {
+      toast.error('You cannot refer yourself');
       return;
     }
 
@@ -107,6 +106,12 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
     if (!currentUser) {
       toast.error('Please login to start a free help session');
       router.push('/login');
+      return;
+    }
+
+    // Check if trying to get help from self
+    if (currentUser.id === profile.id) {
+      toast.error('You cannot start a free help session with yourself');
       return;
     }
 
@@ -150,19 +155,53 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
     <div className={styles.heroSection}>
       {/* Grey banner background */}
       <div className={styles.banner}>
+        {/* Utility Actions (top-right) */}
+        <div className={styles.utilityActions}>
+          <button
+            onClick={handleSave}
+            className={styles.iconButton}
+            aria-label={isSaved ? 'Remove from saved' : 'Save profile'}
+            title={isSaved ? 'Remove from saved' : 'Save profile'}
+          >
+            <Heart size={20} fill={isSaved ? 'currentColor' : 'none'} />
+          </button>
+
+          <button
+            onClick={handleShare}
+            className={styles.iconButton}
+            aria-label="Share profile"
+            title="Share profile"
+          >
+            <Share2 size={20} />
+          </button>
+        </div>
+
         {/* Avatar on left */}
         <div className={styles.avatarContainer}>
           {profile.avatar_url ? (
-            <img
+            <Image
               src={profile.avatar_url}
               alt={profile.full_name || 'User avatar'}
               className={styles.avatar}
+              width={128}
+              height={128}
             />
           ) : (
             <div className={styles.avatarPlaceholder}>
               {profile.full_name?.[0]?.toUpperCase() || profile.email?.[0]?.toUpperCase() || '?'}
             </div>
           )}
+
+          {/* Video Play Badge - Always visible (grey when empty) */}
+          <button
+            onClick={profile.bio_video_url ? () => setShowVideoModal(true) : undefined}
+            className={profile.bio_video_url ? styles.videoPlayBadge : styles.videoPlayBadgeEmpty}
+            aria-label={profile.bio_video_url ? "Watch introduction video" : "No video available"}
+            title={profile.bio_video_url ? "Watch introduction video" : "No video available"}
+            disabled={!profile.bio_video_url}
+          >
+            <Video size={20} />
+          </button>
         </div>
 
         {/* Info in center */}
@@ -172,9 +211,33 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
             {profile.full_name || 'Anonymous User'}
           </h1>
 
-          {/* Line 2: Role | Edit | Free Help Badge */}
+          {/* Line 2: CaaS Score - Always show with consistent teal styling */}
+          <div className={styles.credibilityBadge}>
+            <span className={styles.scoreValue}>
+              <Award size={16} />
+              CaaS Score: {profile.credibility_score || 0}/100
+            </span>
+            {profile.credibility_score && profile.credibility_score >= 80 && (
+              <span className={styles.topBadge}>Top 10%</span>
+            )}
+          </div>
+
+          {/* Line 3: Role | Location | Edit (or Free Help Badge) */}
           <div className={styles.roleLine}>
             <span className={styles.roleLabel}>{roleLabel}</span>
+
+            {/* Add Location right after role */}
+            {profile.city && (
+              <>
+                <span className={styles.separator}>|</span>
+                <span className={styles.locationText}>
+                  <MapPin size={16} className={styles.locationIcon} />
+                  {profile.city}
+                </span>
+              </>
+            )}
+
+            {/* Move Edit after location (only for own profile) */}
             {isOwnProfile && (
               <>
                 <span className={styles.separator}>|</span>
@@ -187,6 +250,7 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
                 </button>
               </>
             )}
+
             {/* v5.9: Free Help Now badge - Always shown for tutors, active/inactive state */}
             {!isOwnProfile && profile.roles?.includes('tutor') && (
               <>
@@ -204,74 +268,23 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
             )}
           </div>
 
-          {/* Line 3: Subject specialisation */}
+          {/* Line 4: Subject specialisation */}
           {primarySubject && (
             <div className={styles.subjectLine}>
               {primarySubject}
             </div>
           )}
-
-          {/* Line 4: Location */}
-          {profile.city && (
-            <div className={styles.locationLine}>
-              <MapPin size={16} className={styles.locationIcon} />
-              {profile.city}
-            </div>
-          )}
         </div>
 
-        {/* CTAs on bottom-right */}
-        <div className={styles.ctaContainer}>
-          {/* v5.9: Get Free Help Now - Primary CTA when available */}
-          {!isOwnProfile && isFreeHelpAvailable && (
-            <button
-              onClick={handleGetFreeHelp}
-              className={styles.ctaButtonFreeHelp}
-              disabled={isCreatingFreeHelpSession}
-              title="Start free 30-minute session"
-            >
-              <Sparkles size={20} />
-              {isCreatingFreeHelpSession ? 'Connecting...' : 'Get Free Help Now'}
-            </button>
-          )}
-
-          {/* Watch Intro Button - Only show if bio_video_url exists */}
-          {profile.bio_video_url && (
-            <button
-              onClick={() => setShowVideoModal(true)}
-              className={styles.ctaButtonPrimary}
-              title="Watch intro video"
-            >
-              <Video size={20} />
-              Watch Intro
-            </button>
-          )}
-
-          <button
-            onClick={handleSave}
-            className={`${styles.ctaButton} ${isSaved ? styles.ctaButtonActive : ''}`}
-            title="Save profile"
-          >
-            <Heart size={20} fill={isSaved ? 'currentColor' : 'none'} />
-            Save
-          </button>
-
-          <button
-            onClick={handleShare}
-            className={styles.ctaButton}
-            title="Share profile"
-          >
-            <Share2 size={20} />
-            Share
-          </button>
-
+        {/* Primary CTA (bottom-right) - Always show Refer & Earn */}
+        <div className={styles.primaryCTA}>
           <button
             onClick={handleReferEarn}
-            className={styles.ctaButtonPrimary}
-            title="Refer & Earn"
+            className={styles.referButton}
+            title="Refer & Earn 10% commission"
           >
             <Gift size={20} />
-            Refer & Earn
+            Refer & Earn 10%
           </button>
         </div>
       </div>
@@ -285,6 +298,15 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
           title={`${profile.full_name}'s Introduction`}
         />
       )}
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        title={`${profile.full_name} - ${profile.active_role}`}
+        url={typeof window !== 'undefined' ? window.location.href : ''}
+        text={profile.bio || `Check out ${profile.full_name}'s profile on Tutorwise`}
+      />
     </div>
   );
 }

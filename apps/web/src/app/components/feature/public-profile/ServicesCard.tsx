@@ -46,7 +46,9 @@ export function ServicesCard({ profile, listings = [] }: ServicesCardProps) {
   if (!listings || listings.length === 0) {
     return (
       <Card className={styles.servicesCard}>
-        <h2 className={styles.cardTitle}>Services</h2>
+        <div className={styles.cardHeader}>
+          <h2 className={styles.cardTitle}>Services</h2>
+        </div>
         <div className={styles.emptyState}>
           <p className={styles.emptyStateText}>
             {firstName} hasn&apos;t listed any services yet.
@@ -58,55 +60,58 @@ export function ServicesCard({ profile, listings = [] }: ServicesCardProps) {
 
   return (
     <Card className={styles.servicesCard}>
-      <h2 className={styles.cardTitle}>Services</h2>
+      <div className={styles.cardHeader}>
+        <h2 className={styles.cardTitle}>Services</h2>
+      </div>
+      <div className={styles.cardContent}>
+        <div className={styles.listingsContainer}>
+          {listings.map((listing) => (
+            <button
+              key={listing.id}
+              className={styles.listingCard}
+              onClick={() => handleListingClick(listing)}
+              type="button"
+            >
+              {/* Header: Title and Price */}
+              <div className={styles.listingHeader}>
+                <h3 className={styles.listingTitle}>{listing.title}</h3>
+                {listing.price_per_hour && (
+                  <span className={styles.price}>£{listing.price_per_hour}/hr</span>
+                )}
+              </div>
 
-      <div className={styles.listingsContainer}>
-        {listings.map((listing) => (
-          <button
-            key={listing.id}
-            className={styles.listingCard}
-            onClick={() => handleListingClick(listing)}
-            type="button"
-          >
-            {/* Header: Title and Price */}
-            <div className={styles.listingHeader}>
-              <h3 className={styles.listingTitle}>{listing.title}</h3>
-              {listing.price_per_hour && (
-                <span className={styles.price}>£{listing.price_per_hour}/hr</span>
-              )}
-            </div>
+              {/* Meta: Subject, Level, Service Type */}
+              <div className={styles.listingMeta}>
+                {listing.subject && (
+                  <span className={styles.metaTag}>{listing.subject}</span>
+                )}
+                {listing.level && (
+                  <span className={styles.metaTag}>{listing.level}</span>
+                )}
+                {listing.service_type && (
+                  <span className={styles.metaTag}>{listing.service_type}</span>
+                )}
+              </div>
 
-            {/* Meta: Subject, Level, Service Type */}
-            <div className={styles.listingMeta}>
-              {listing.subject && (
-                <span className={styles.metaTag}>{listing.subject}</span>
+              {/* Description */}
+              {listing.description && (
+                <p className={styles.listingDescription}>
+                  {listing.description.length > 120
+                    ? `${listing.description.substring(0, 120)}...`
+                    : listing.description}
+                </p>
               )}
-              {listing.level && (
-                <span className={styles.metaTag}>{listing.level}</span>
-              )}
-              {listing.service_type && (
-                <span className={styles.metaTag}>{listing.service_type}</span>
-              )}
-            </div>
 
-            {/* Description */}
-            {listing.description && (
-              <p className={styles.listingDescription}>
-                {listing.description.length > 120
-                  ? `${listing.description.substring(0, 120)}...`
-                  : listing.description}
-              </p>
-            )}
-
-            {/* View Details Icon (bottom-right) */}
-            <div className={styles.listingFooter}>
-              <span className={styles.viewDetailsText}>
-                View Details
-                <ExternalLink size={16} className={styles.viewDetailsIcon} />
-              </span>
-            </div>
-          </button>
-        ))}
+              {/* View Details Icon (bottom-right) */}
+              <div className={styles.listingFooter}>
+                <span className={styles.viewDetailsText}>
+                  View Details
+                  <ExternalLink size={16} className={styles.viewDetailsIcon} />
+                </span>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
     </Card>
   );

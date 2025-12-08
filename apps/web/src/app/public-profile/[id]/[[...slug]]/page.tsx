@@ -31,7 +31,6 @@ import { ServicesCard } from '@/app/components/feature/public-profile/ServicesCa
 import { ReviewsCard } from '@/app/components/feature/public-profile/ReviewsCard';
 import { SimilarProfilesCard } from '@/app/components/feature/public-profile/SimilarProfilesCard';
 import { MobileBottomCTA } from '@/app/components/feature/public-profile/MobileBottomCTA';
-import { CredibilityScoreCard } from '@/app/components/feature/caas/CredibilityScoreCard';
 import styles from './page.module.css';
 
 interface PublicProfilePageProps {
@@ -173,13 +172,68 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
     .limit(6);
 
   // ===========================================================
-  // STEP 5: Render with 2-column layout (no AppSidebar)
+  // STEP 8: Calculate role-based statistics
+  // ===========================================================
+  // Sessions completed (as client or tutor)
+  const { count: sessionsAsClient } = await supabase
+    .from('bookings')
+    .select('*', { count: 'exact', head: true })
+    .eq('client_id', profile.id)
+    .eq('status', 'Completed');
+
+  const { count: sessionsAsTutor } = await supabase
+    .from('bookings')
+    .select('*', { count: 'exact', head: true })
+    .eq('tutor_id', profile.id)
+    .eq('status', 'Completed');
+
+  const sessionsCompleted = (sessionsAsClient || 0) + (sessionsAsTutor || 0);
+
+  // Reviews given
+  const { count: reviewsGiven } = await supabase
+    .from('reviews')
+    .select('*', { count: 'exact', head: true })
+    .eq('reviewer_id', profile.id);
+
+  // Unique tutors worked with (for clients)
+  const { data: uniqueTutors } = await supabase
+    .from('bookings')
+    .select('tutor_id')
+    .eq('client_id', profile.id)
+    .eq('status', 'Completed');
+
+  const tutorsWorkedWith = uniqueTutors
+    ? new Set(uniqueTutors.map(b => b.tutor_id).filter(Boolean)).size
+    : 0;
+
+  // Unique clients worked with (for tutors)
+  const { data: uniqueClients } = await supabase
+    .from('bookings')
+    .select('client_id')
+    .eq('tutor_id', profile.id)
+    .eq('status', 'Completed');
+
+  const clientsWorkedWith = uniqueClients
+    ? new Set(uniqueClients.map(b => b.client_id).filter(Boolean)).size
+    : 0;
+
+  // Augment profile with calculated stats
+  const enrichedProfile = {
+    ...profile,
+    sessions_completed: sessionsCompleted,
+    reviews_given: reviewsGiven || 0,
+    tutors_worked_with: tutorsWorkedWith,
+    clients_worked_with: clientsWorkedWith,
+  } as Profile;
+
+  // ===========================================================
+  // STEP 9: Render with 2-column layout (no AppSidebar)
   // ===========================================================
   return (
     <Container>
       {/* SECTION 1: Hero Section (1-column) */}
       <div className={styles.heroSection}>
-        <ProfileHeroSection profile={profile as Profile} isOwnProfile={isOwnProfile} />
+        <ProfileHeroSection profile={enrichedProfile} isOwnProfile={isOwnProfile} />
       </div>
 
       {/* SECTION 2: Body (2-column layout) */}
@@ -187,37 +241,33 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
         {/* Column 1: Main content (2fr width on desktop) */}
         <div className={styles.mainColumn}>
           {/* About Card */}
-          <AboutCard profile={profile as Profile} />
+          <AboutCard profile={enrichedProfile} />
 
           {/* Professional Information Card */}
-          <ProfessionalInfoCard profile={profile as Profile} />
+          <ProfessionalInfoCard profile={enrichedProfile} />
 
           {/* Availability Card */}
-          <AvailabilityCard profile={profile as Profile} />
+          <AvailabilityCard profile={enrichedProfile} />
 
           {/* Services Card */}
-          <ServicesCard profile={profile as Profile} listings={listings || []} />
+          <ServicesCard profile={enrichedProfile} listings={listings || []} />
 
           {/* Reviews Card */}
-          <ReviewsCard profile={profile as Profile} reviews={transformedReviews} />
+          <ReviewsCard profile={enrichedProfile} reviews={transformedReviews} />
         </div>
 
         {/* Column 2: Sticky Sidebar (1fr width on desktop) */}
         <div className={styles.sidebarColumn}>
-          {/* Credibility Score Card - Only for tutors with calculated scores */}
-          <CredibilityScoreCard profileId={profile.id} />
-
           {/* Verification Card */}
-          <VerificationCard profile={profile as Profile} />
+          <VerificationCard profile={enrichedProfile} />
 
-          {/* Role Stats Card - Always show */}
-          <RoleStatsCard profile={profile as Profile} />
+          {/* Role Stats Card - Always show with calculated stats */}
+          <RoleStatsCard profile={enrichedProfile} />
 
           {/* Get in Touch Card - Always show */}
           <GetInTouchCard
-            profile={profile as Profile}
+            profile={enrichedProfile}
             currentUser={currentUserProfile}
-            isOwnProfile={isOwnProfile}
           />
         </div>
       </div>
@@ -232,7 +282,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
 
       {/* Mobile-only: Fixed bottom CTA bar */}
       <MobileBottomCTA
-        profile={profile as Profile}
+        profile={enrichedProfile}
         currentUser={currentUserProfile}
         isOwnProfile={isOwnProfile}
       />

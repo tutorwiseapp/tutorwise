@@ -8,6 +8,7 @@
  */
 
 import type { Profile } from '@/types';
+import Image from 'next/image';
 import Card from '@/app/components/ui/data-display/Card';
 import { Star } from 'lucide-react';
 import styles from './ReviewsCard.module.css';
@@ -36,7 +37,9 @@ export function ReviewsCard({ profile, reviews = [] }: ReviewsCardProps) {
   if (!reviews || reviews.length === 0) {
     return (
       <Card className={styles.reviewsCard}>
-        <h2 className={styles.cardTitle}>Reviews</h2>
+        <div className={styles.cardHeader}>
+          <h2 className={styles.cardTitle}>Reviews</h2>
+        </div>
         <div className={styles.emptyState}>
           <p className={styles.emptyStateText}>
             {firstName} doesn&apos;t have any reviews yet.
@@ -48,9 +51,11 @@ export function ReviewsCard({ profile, reviews = [] }: ReviewsCardProps) {
 
   return (
     <Card className={styles.reviewsCard}>
-      <h2 className={styles.cardTitle}>Reviews ({reviews.length})</h2>
-
-      <div className={styles.reviewsContainer}>
+      <div className={styles.cardHeader}>
+        <h2 className={styles.cardTitle}>Reviews ({reviews.length})</h2>
+      </div>
+      <div className={styles.cardContent}>
+        <div className={styles.reviewsContainer}>
         {reviews.map((review) => (
           <div key={review.id} className={styles.reviewItem}>
             {/* Review Header: Avatar, Name, Date, Stars */}
@@ -58,8 +63,10 @@ export function ReviewsCard({ profile, reviews = [] }: ReviewsCardProps) {
               <div className={styles.reviewerInfo}>
                 {/* Avatar */}
                 {review.reviewer_avatar_url ? (
-                  <img
+                  <Image
                     src={review.reviewer_avatar_url}
+                    width={48}
+                    height={48}
                     alt={review.reviewer_name}
                     className={styles.avatar}
                   />
@@ -110,6 +117,7 @@ export function ReviewsCard({ profile, reviews = [] }: ReviewsCardProps) {
             <p className={styles.reviewComment}>{review.comment}</p>
           </div>
         ))}
+        </div>
       </div>
     </Card>
   );

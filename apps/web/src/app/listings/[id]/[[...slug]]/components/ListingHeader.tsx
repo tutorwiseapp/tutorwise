@@ -64,6 +64,12 @@ export default function ListingHeader({ listing, tutorProfile, tutorStats }: Lis
       return;
     }
 
+    // Check if trying to refer own listing
+    if (profile.id === listing.profile_id) {
+      toast.error('You cannot refer your own listing');
+      return;
+    }
+
     // Check if user has referral code
     if (!profile.referral_code) {
       toast.error('Referral code not found. Please contact support.');
