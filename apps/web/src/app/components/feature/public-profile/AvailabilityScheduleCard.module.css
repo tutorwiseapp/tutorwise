@@ -1,0 +1,183 @@
+/**
+ * Filename: AvailabilityScheduleCard.module.css
+ * Purpose: Styles for structured availability display (2-column layout)
+ * Created: 2025-12-08
+ */
+
+.card {
+  padding: var(--space-4, 32px);
+}
+
+.cardTitle {
+  font-size: 1.25rem; /* 20px */
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 var(--space-4, 32px) 0;
+}
+
+/* 2-Column Layout */
+.columnsContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6, 48px);
+  margin-bottom: var(--space-4, 32px);
+}
+
+@media (max-width: 768px) {
+  .columnsContainer {
+    grid-template-columns: 1fr;
+    gap: var(--space-4, 32px);
+  }
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 24px);
+}
+
+.columnTitle {
+  font-size: 1rem; /* 16px */
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+  padding-bottom: var(--space-2, 16px);
+  border-bottom: 2px solid #e5e7eb;
+}
+
+/* Period Groups (Recurring vs One-time) */
+.periodGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 16px);
+}
+
+.periodGroupTitle {
+  font-size: 0.875rem; /* 14px */
+  font-weight: 600;
+  color: #6b7280;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.periodsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 16px);
+}
+
+/* Available Period Item */
+.periodItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2, 16px);
+  padding: var(--space-3, 24px);
+  background-color: #f0fdf4; /* Green-50 */
+  border-radius: var(--radius-md, 8px);
+  border-left: 3px solid #10b981; /* Green-500 */
+  transition: all 0.2s ease;
+}
+
+.periodItem:hover {
+  background-color: #dcfce7; /* Green-100 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Unavailable Period Item */
+.unavailableItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2, 16px);
+  padding: var(--space-3, 24px);
+  background-color: #fef2f2; /* Red-50 */
+  border-radius: var(--radius-md, 8px);
+  border-left: 3px solid #ef4444; /* Red-500 */
+  transition: all 0.2s ease;
+}
+
+.unavailableItem:hover {
+  background-color: #fee2e2; /* Red-100 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Icons */
+.periodIcon {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 700;
+  color: #10b981; /* Green-500 */
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.periodIconUnavailable {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 700;
+  color: #ef4444; /* Red-500 */
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.periodText {
+  font-size: 0.9375rem; /* 15px */
+  color: #374151;
+  line-height: 1.5;
+  flex: 1;
+}
+
+/* Empty State */
+.emptyState {
+  padding: var(--space-4, 32px);
+  background-color: #f9fafb;
+  border-radius: var(--radius-md, 8px);
+  text-align: center;
+}
+
+.emptyText {
+  font-size: 0.9375rem; /* 15px */
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Bottom Note */
+.note {
+  font-size: 0.8125rem; /* 13px */
+  color: #6b7280;
+  padding: var(--space-3, 24px);
+  background-color: #f3f4f6;
+  border-radius: var(--radius-sm, 4px);
+  margin: 0;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+  .card {
+    padding: var(--space-3, 24px);
+  }
+
+  .cardTitle {
+    font-size: 1.125rem; /* 18px */
+    margin-bottom: var(--space-3, 24px);
+  }
+
+  .periodItem,
+  .unavailableItem {
+    padding: var(--space-2, 16px);
+  }
+
+  .periodText {
+    font-size: 0.875rem; /* 14px */
+  }
+
+  .emptyState {
+    padding: var(--space-3, 24px);
+  }
+
+  .note {
+    padding: var(--space-2, 16px);
+    font-size: 0.75rem; /* 12px */
+  }
+}

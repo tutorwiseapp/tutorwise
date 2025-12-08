@@ -24,6 +24,7 @@ import { ProfileHeroSection } from '@/app/components/feature/public-profile/Prof
 import { AboutCard } from '@/app/components/feature/public-profile/AboutCard';
 import { ProfessionalInfoCard } from '@/app/components/feature/public-profile/ProfessionalInfoCard';
 import { AvailabilityCard } from '@/app/components/feature/public-profile/AvailabilityCard';
+import { AvailabilityScheduleCard } from '@/app/components/feature/public-profile/AvailabilityScheduleCard';
 import { VerificationCard } from '@/app/components/feature/public-profile/VerificationCard';
 import { RoleStatsCard } from '@/app/components/feature/public-profile/RoleStatsCard';
 import { GetInTouchCard } from '@/app/components/feature/public-profile/GetInTouchCard';
@@ -246,11 +247,11 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
           {/* Professional Information Card */}
           <ProfessionalInfoCard profile={enrichedProfile} />
 
-          {/* Availability Card */}
-          <AvailabilityCard profile={enrichedProfile} />
-
           {/* Services Card */}
           <ServicesCard profile={enrichedProfile} listings={listings || []} />
+
+          {/* Availability Schedule Card (Structured Format) */}
+          <AvailabilityScheduleCard profile={enrichedProfile} />
 
           {/* Reviews Card */}
           <ReviewsCard profile={enrichedProfile} reviews={transformedReviews} />
