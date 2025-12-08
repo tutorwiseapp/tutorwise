@@ -45,12 +45,6 @@ export function AvailabilityScheduleCard({ profile }: AvailabilityScheduleCardPr
 
   const availability: AvailabilityPeriod[] = professionalDetails?.availability || [];
   const unavailability: UnavailabilityPeriod[] = professionalDetails?.unavailability || [];
-
-  // If no availability data at all, don't render the card
-  if (availability.length === 0 && unavailability.length === 0) {
-    return null;
-  }
-
   const firstName = profile.first_name || profile.full_name?.split(' ')[0] || profile.full_name;
 
   // Format availability period based on type
