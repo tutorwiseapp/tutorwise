@@ -40,8 +40,6 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
 
   // Check if profile is saved in "My Saves" wiselist on mount
   useEffect(() => {
-    if (!currentUser || isOwnProfile) return;
-
     const checkSavedStatus = async () => {
       try {
         const saved = await isItemSaved({ profileId: profile.id });
@@ -52,7 +50,7 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
     };
 
     checkSavedStatus();
-  }, [currentUser, profile.id, isOwnProfile]);
+  }, [currentUser, profile.id]);
 
   // Get primary subject from professional details
   const getPrimarySubject = () => {
@@ -70,12 +68,6 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
 
   // Handle Save button - Quick save to "My Saves" wiselist
   const handleSave = async () => {
-    if (!currentUser) {
-      toast.error('Please login to save profiles');
-      router.push('/login');
-      return;
-    }
-
     setIsLoading(true);
     try {
       const result = await quickSaveItem({ profileId: profile.id });
@@ -83,7 +75,11 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
       setIsSaved(result.saved);
 
       if (result.saved) {
-        toast.success('Profile saved to My Saves!');
+        if (!currentUser) {
+          toast.success('Saved! Sign in to sync across devices.');
+        } else {
+          toast.success('Profile saved to My Saves!');
+        }
       } else {
         toast.success('Profile removed from My Saves');
       }

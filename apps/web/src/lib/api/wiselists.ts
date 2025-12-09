@@ -276,6 +276,53 @@ export function generateSlug(name: string): string {
 }
 
 /**
+ * Helper: Get temp saves from localStorage (for non-logged-in users)
+ */
+function getTempSaves(): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const saved = localStorage.getItem('temp_saves');
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Helper: Migrate temp saves from localStorage to database after login
+ */
+export async function migrateTempSaves(): Promise<void> {
+  if (typeof window === 'undefined') return;
+
+  const tempSaves = getTempSaves();
+  if (tempSaves.length === 0) return;
+
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  // Get or create "My Saves" wiselist
+  const mySaves = await getOrCreateMySavesWiselist();
+
+  // Migrate each temp save
+  for (const itemKey of tempSaves) {
+    const [type, id] = itemKey.split('-');
+    try {
+      await addWiselistItem({
+        wiselistId: mySaves.id,
+        profileId: type === 'profile' ? id : undefined,
+        listingId: type === 'listing' ? id : undefined,
+      });
+    } catch (error) {
+      console.error(`Failed to migrate temp save: ${itemKey}`, error);
+    }
+  }
+
+  // Clear temp saves after migration
+  localStorage.removeItem('temp_saves');
+}
+
+/**
  * Get or create the "My Saves" default wiselist for quick saves
  * This is the auto-list that gets created when users click the heart icon
  */
@@ -321,17 +368,36 @@ export async function getOrCreateMySavesWiselist(): Promise<Wiselist> {
 /**
  * Quick save/unsave an item (profile or listing) to "My Saves"
  * This is used by the heart icon on profiles and listings
+ * Supports temp storage for non-logged-in users via localStorage
  */
 export async function quickSaveItem(data: {
   profileId?: string;
   listingId?: string;
 }): Promise<{ saved: boolean; itemId?: string }> {
-  // Get or create "My Saves" wiselist
-  const mySaves = await getOrCreateMySavesWiselist();
-
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+
+  // For non-logged-in users: Use localStorage
+  if (!user) {
+    const itemKey = data.profileId ? `profile-${data.profileId}` : `listing-${data.listingId}`;
+    const tempSaves = getTempSaves();
+
+    if (tempSaves.includes(itemKey)) {
+      // Remove from temp saves
+      const updated = tempSaves.filter(k => k !== itemKey);
+      localStorage.setItem('temp_saves', JSON.stringify(updated));
+      return { saved: false };
+    } else {
+      // Add to temp saves
+      tempSaves.push(itemKey);
+      localStorage.setItem('temp_saves', JSON.stringify(tempSaves));
+      return { saved: true };
+    }
+  }
+
+  // For logged-in users: Use database
+  // Get or create "My Saves" wiselist
+  const mySaves = await getOrCreateMySavesWiselist();
 
   // Check if item already exists in "My Saves"
   // Note: Use .is() for NULL checks, not .eq()
@@ -366,6 +432,7 @@ export async function quickSaveItem(data: {
 
 /**
  * Check if an item is saved in "My Saves"
+ * Checks temp storage for non-logged-in users
  */
 export async function isItemSaved(data: {
   profileId?: string;
@@ -373,8 +440,15 @@ export async function isItemSaved(data: {
 }): Promise<boolean> {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return false;
 
+  // For non-logged-in users: Check localStorage
+  if (!user) {
+    const itemKey = data.profileId ? `profile-${data.profileId}` : `listing-${data.listingId}`;
+    const tempSaves = getTempSaves();
+    return tempSaves.includes(itemKey);
+  }
+
+  // For logged-in users: Check database
   // Get "My Saves" list
   const { data: mySaves } = await supabase
     .from('wiselists')

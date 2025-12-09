@@ -45,8 +45,6 @@ export default function ListingHeroSection({ listing, tutorProfile, tutorStats }
 
   // Check if listing is saved in "My Saves" wiselist on mount
   useEffect(() => {
-    if (!currentUser) return;
-
     const checkSavedStatus = async () => {
       try {
         const saved = await isItemSaved({ listingId: listing.id });
@@ -61,12 +59,6 @@ export default function ListingHeroSection({ listing, tutorProfile, tutorStats }
 
   // Handle Save button - Quick save to "My Saves" wiselist
   const handleSave = async () => {
-    if (!currentUser) {
-      toast.error('Please login to save listings');
-      router.push('/login');
-      return;
-    }
-
     setIsLoading(true);
     try {
       const result = await quickSaveItem({ listingId: listing.id });
@@ -74,7 +66,11 @@ export default function ListingHeroSection({ listing, tutorProfile, tutorStats }
       setIsSaved(result.saved);
 
       if (result.saved) {
-        toast.success('Listing saved to My Saves!');
+        if (!currentUser) {
+          toast.success('Saved! Sign in to sync across devices.');
+        } else {
+          toast.success('Listing saved to My Saves!');
+        }
       } else {
         toast.success('Listing removed from My Saves');
       }

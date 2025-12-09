@@ -33,8 +33,6 @@ export default function TutorCard({ listing }: TutorCardProps) {
 
   // Check if listing is saved in "My Saves" wiselist on mount
   useEffect(() => {
-    if (!currentUser) return;
-
     const checkSavedStatus = async () => {
       try {
         const saved = await isItemSaved({ listingId: listing.id });
@@ -52,18 +50,17 @@ export default function TutorCard({ listing }: TutorCardProps) {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!currentUser) {
-      toast.error('Please login to save listings');
-      return;
-    }
-
     setIsLoading(true);
     try {
       const result = await quickSaveItem({ listingId: listing.id });
       setIsSaved(result.saved);
 
       if (result.saved) {
-        toast.success('Saved to My Saves!');
+        if (!currentUser) {
+          toast.success('Saved! Sign in to sync across devices.');
+        } else {
+          toast.success('Saved to My Saves!');
+        }
       } else {
         toast.success('Removed from My Saves');
       }
