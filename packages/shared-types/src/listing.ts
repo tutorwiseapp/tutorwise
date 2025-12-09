@@ -3,7 +3,7 @@
  * v4.0: Updated to support dynamic multi-service listings
  */
 
-export type ListingStatus = 'draft' | 'published' | 'unpublished' | 'paused' | 'archived';
+export type ListingStatus = 'draft' | 'published' | 'unpublished' | 'archived';
 export type LocationType = 'online' | 'in_person' | 'hybrid';
 export type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
 

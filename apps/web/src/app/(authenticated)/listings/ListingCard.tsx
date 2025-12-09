@@ -59,7 +59,7 @@ export default function ListingCard({
     switch (status) {
       case 'published':
         return 'success';
-      case 'paused':
+      case 'unpublished':
         return 'info';
       case 'draft':
         return 'neutral';
@@ -78,9 +78,8 @@ export default function ListingCard({
     return locationType;
   };
 
-  // Format status for display (map DB status to user-friendly label)
+  // Format status for display
   const formatStatus = (status?: string): string => {
-    if (status === 'paused') return 'unpublished'; // Map 'paused' (DB) to 'unpublished' (UI)
     return status || 'draft';
   };
 
@@ -88,7 +87,7 @@ export default function ListingCard({
   const status = listing.status;
   const isDraft = status === 'draft';
   const isPublished = status === 'published';
-  const isPaused = status === 'paused';
+  const isUnpublished = status === 'unpublished';
   const isArchived = status === 'archived';
 
   // Calculate if listing has been archived for 3+ days (will be 30 days in production)
@@ -248,8 +247,8 @@ export default function ListingCard({
             Archive
           </Button>
         </>
-      ) : isPaused ? (
-        // Unpublished (paused in DB): Publish, Archive
+      ) : isUnpublished ? (
+        // Unpublished: Publish, Archive
         <>
           <Button
             variant="primary"

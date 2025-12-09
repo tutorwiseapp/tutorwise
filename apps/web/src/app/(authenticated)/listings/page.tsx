@@ -101,7 +101,7 @@ export default function ListingsPage() {
   });
 
   const unpublishMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: 'draft' | 'paused' }) =>
+    mutationFn: ({ id, status }: { id: string; status: 'draft' | 'unpublished' }) =>
       unpublishListing(id, status),
     onSuccess: () => {
       toast.success('Listing unpublished');
@@ -114,7 +114,7 @@ export default function ListingsPage() {
   });
 
   const archiveMutation = useMutation({
-    mutationFn: (id: string) => unpublishListing(id, 'archived' as 'draft' | 'paused'),
+    mutationFn: (id: string) => unpublishListing(id, 'archived'),
     onSuccess: () => {
       toast.success('Listing archived');
       queryClient.invalidateQueries({ queryKey: ['listings', user?.id] });
@@ -130,7 +130,7 @@ export default function ListingsPage() {
     return {
       all: regularListings.length,
       published: regularListings.filter(l => l.status === 'published').length,
-      unpublished: regularListings.filter(l => l.status === 'paused').length, // 'paused' in DB = 'unpublished' in UI
+      unpublished: regularListings.filter(l => l.status === 'unpublished').length,
       draft: regularListings.filter(l => l.status === 'draft').length,
       archived: regularListings.filter(l => l.status === 'archived').length,
       templates: rawListings.filter(l => l.is_template).length,
@@ -150,7 +150,7 @@ export default function ListingsPage() {
         return listing.status === 'published' && listing.is_template !== true;
       }
       if (filter === 'unpublished') {
-        return listing.status === 'paused' && listing.is_template !== true; // 'paused' in DB = 'unpublished' in UI
+        return listing.status === 'unpublished' && listing.is_template !== true;
       }
       if (filter === 'draft') {
         return listing.status === 'draft' && listing.is_template !== true;
@@ -232,7 +232,7 @@ export default function ListingsPage() {
   };
 
   const handleUnpublish = (id: string) => {
-    unpublishMutation.mutate({ id, status: 'paused' });
+    unpublishMutation.mutate({ id, status: 'unpublished' });
   };
 
   const handleArchive = (id: string) => {
