@@ -51,15 +51,6 @@ const nextConfig = {
       },
     ],
   },
-  async redirects() {
-    return [
-      {
-        source: '/marketplace',
-        destination: '/',
-        permanent: true,
-      },
-    ]
-  },
 }
 
 module.exports = nextConfig

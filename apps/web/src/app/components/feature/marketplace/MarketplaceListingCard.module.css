@@ -26,12 +26,26 @@
   transform: translateY(-4px);
 }
 
-.cardLink {
+/* Image Link - Only image is clickable to listing */
+.imageLink {
   text-decoration: none;
   color: inherit;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  display: block;
+}
+
+/* Tutor Name Link - Clickable to profile */
+.nameLink {
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.2s ease;
+}
+
+.nameLink:hover {
+  opacity: 0.7;
+}
+
+.nameLink .name {
+  cursor: pointer;
 }
 
 /* Image Section */
@@ -110,6 +124,28 @@
   50% {
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.6);
   }
+}
+
+/* Verification Badge - Center */
+.verificationBadge {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 4px 8px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 2;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.verificationIcon {
+  color: #10b981; /* Green for verified */
+  flex-shrink: 0;
 }
 
 /* Heart Save Button - Right */
@@ -267,17 +303,6 @@
 
 .bookLink:hover {
   color: var(--color-primary-accent, #4CAEAD);
-}
-
-/* Disabled state (default - instant book turned off) */
-.bookLinkDisabled {
-  color: #6b7280;
-  cursor: not-allowed;
-  text-decoration: none;
-}
-
-.bookLinkDisabled:hover {
-  color: #6b7280;
 }
 
 /* Responsive Design */

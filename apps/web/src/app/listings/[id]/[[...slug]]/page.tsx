@@ -21,12 +21,13 @@ import Container from '@/app/components/layout/Container';
 import ListingHeroSection from './components/ListingHeroSection';
 import ListingImageGrid from './components/ListingImageGrid';
 import { ListingDetailsCard } from './components/ListingDetailsCard';
+import { CancellationPolicyCard } from './components/CancellationPolicyCard';
 import { ServicesCard } from '@/app/components/feature/public-profile/ServicesCard';
 import { AvailabilityScheduleCard } from '@/app/components/feature/public-profile/AvailabilityScheduleCard';
 import { ReviewsCard } from '@/app/components/feature/public-profile/ReviewsCard';
 import { VerificationCard } from '@/app/components/feature/public-profile/VerificationCard';
-import { RoleStatsCard } from '@/app/components/feature/public-profile/RoleStatsCard';
 import { GetInTouchCard } from '@/app/components/feature/public-profile/GetInTouchCard';
+import { ListingStatsCard } from './components/ListingStatsCard';
 import RelatedListingsCard from './components/RelatedListingsCard';
 import MobileBottomCTA from './components/MobileBottomCTA';
 import styles from './page.module.css';
@@ -176,7 +177,7 @@ export default async function ListingDetailsPage({ params }: ListingDetailsPageP
   const { count: sessionsAsStudent } = await supabase
     .from('bookings')
     .select('*', { count: 'exact', head: true })
-    .eq('student_id', tutorProfile.id)
+    .eq('client_id', tutorProfile.id)
     .eq('status', 'Completed');
 
   const { count: sessionsAsTutor } = await supabase
@@ -195,7 +196,7 @@ export default async function ListingDetailsPage({ params }: ListingDetailsPageP
   const { data: uniqueTutors } = await supabase
     .from('bookings')
     .select('tutor_id')
-    .eq('student_id', tutorProfile.id)
+    .eq('client_id', tutorProfile.id)
     .eq('status', 'Completed');
 
   const tutorsWorkedWith = uniqueTutors
@@ -204,12 +205,12 @@ export default async function ListingDetailsPage({ params }: ListingDetailsPageP
 
   const { data: uniqueClients } = await supabase
     .from('bookings')
-    .select('student_id')
+    .select('client_id')
     .eq('tutor_id', tutorProfile.id)
     .eq('status', 'Completed');
 
   const clientsWorkedWith = uniqueClients
-    ? new Set(uniqueClients.map(b => b.student_id).filter(Boolean)).size
+    ? new Set(uniqueClients.map(b => b.client_id).filter(Boolean)).size
     : 0;
 
   const { data: viewData } = await supabase
@@ -317,6 +318,9 @@ export default async function ListingDetailsPage({ params }: ListingDetailsPageP
             {/* Listing Details Card - Listing description */}
             <ListingDetailsCard listing={listing} />
 
+            {/* Cancellation Policy Card - Only shown if policy exists */}
+            <CancellationPolicyCard listing={listing} />
+
             {/* Services Card - All tutor's listings */}
             <ServicesCard profile={enrichedProfile} listings={listings || []} />
 
@@ -332,8 +336,8 @@ export default async function ListingDetailsPage({ params }: ListingDetailsPageP
             {/* Verification Card */}
             <VerificationCard profile={enrichedProfile} />
 
-            {/* Role Stats Card */}
-            <RoleStatsCard profile={enrichedProfile} />
+            {/* Listing Stats Card - Shows listing-specific metrics */}
+            <ListingStatsCard listing={listing} />
 
             {/* Get in Touch Card - Replaces ActionCard */}
             <GetInTouchCard

@@ -1,3 +1,34 @@
+/*
+ * Filename: MarketplaceListingCard.tsx
+ * Purpose: Public marketplace LISTING card (Airbnb-inspired design)
+ * Used in: /marketplace (public marketplace grid)
+ *
+ * IMPORTANT: This displays SERVICE LISTINGS (not tutor profiles)
+ * - Shows: Listing title, price, subjects, service details
+ * - Links to: /listings/{id}/{slug} (listing detail page)
+ *
+ * Design Pattern: Image-First Card
+ * - Large square profile image (1:1 aspect ratio)
+ * - Overlay badges (Free Help, Trial, Verification, Save)
+ * - Compact 4-line info section
+ * - Separate clickable areas: image → listing, name → profile, instant book → booking
+ * - Save functionality with heart icon
+ * - CSS Modules for styling (MarketplaceListingCard.module.css)
+ *
+ * Key Features:
+ * - Profile image with academic avatar fallback
+ * - Free Help Now badge (priority over Trial badge)
+ * - Verification badges (identity_verified, dbs_verified)
+ * - Wiselist save/unsave functionality
+ * - Rating display (placeholder)
+ * - Instant Book link
+ *
+ * Routing:
+ * - Image click: /listings/{id}/{slug}
+ * - Name click: /public-profile/{profile_id}
+ * - Instant Book: /listings/{id}/{slug}?action=book
+ */
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -9,13 +40,13 @@ import getProfileImageUrl from '@/lib/utils/image';
 import { quickSaveItem, isItemSaved } from '@/lib/api/wiselists';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import toast from 'react-hot-toast';
-import styles from './TutorCard.module.css';
+import styles from './MarketplaceListingCard.module.css';
 
-interface TutorCardProps {
+interface MarketplaceListingCardProps {
   listing: Listing;
 }
 
-export default function TutorCard({ listing }: TutorCardProps) {
+export default function MarketplaceListingCard({ listing }: MarketplaceListingCardProps) {
   const [imageError, setImageError] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -74,8 +105,8 @@ export default function TutorCard({ listing }: TutorCardProps) {
 
   return (
     <div className={styles.tutorCard}>
-      <Link href={`/listings/${listing.id}/${slugify(listing.title)}`} className={styles.cardLink}>
-        {/* Image Section */}
+      {/* Image Section - Clickable to listing */}
+      <Link href={`/listings/${listing.id}/${slugify(listing.title)}`} className={styles.imageLink}>
         <div className={styles.imageContainer}>
           <Image
             src={imageUrl}
@@ -100,6 +131,40 @@ export default function TutorCard({ listing }: TutorCardProps) {
             <div className={styles.trialBadge}>Free Trial</div>
           )}
 
+          {/* Verification Badges - Center */}
+          {(listing.identity_verified || listing.dbs_verified) && (
+            <div className={styles.verificationBadge}>
+              {listing.identity_verified && (
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className={styles.verificationIcon}
+                  title="Government ID Verified"
+                >
+                  <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              )}
+              {listing.dbs_verified && (
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className={styles.verificationIcon}
+                  title="DBS Checked"
+                >
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              )}
+            </div>
+          )}
+
           {/* Heart Save Icon - Right */}
           <button
             className={styles.saveButton}
@@ -120,12 +185,18 @@ export default function TutorCard({ listing }: TutorCardProps) {
             </svg>
           </button>
         </div>
+      </Link>
 
-        {/* Content Section - Clean Airbnb Format */}
-        <div className={styles.content}>
+      {/* Content Section - Clean Airbnb Format */}
+      <div className={styles.content}>
           {/* Line 1: Tutor Name & Rating */}
           <div className={styles.row}>
-            <h3 className={styles.name}>{listing.full_name || listing.title}</h3>
+            <Link
+              href={`/public-profile/${listing.profile_id}`}
+              className={styles.nameLink}
+            >
+              <h3 className={styles.name}>{listing.full_name || listing.title}</h3>
+            </Link>
             <div className={styles.rating}>
               <svg
                 className={styles.starIcon}
@@ -169,20 +240,17 @@ export default function TutorCard({ listing }: TutorCardProps) {
               £{listing.hourly_rate}
               <span className={styles.priceUnit}> / hour</span>
             </div>
-            <div
-              className={`${styles.bookLink} ${styles.bookLinkDisabled}`}
+            <Link
+              href={`/listings/${listing.id}/${slugify(listing.title)}?action=book`}
+              className={styles.bookLink}
               onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                // TODO: Implement instant booking flow
-                console.log('Instant book tutor:', listing.id);
+                e.stopPropagation(); // Prevent parent clicks
               }}
             >
               Instant Book
-            </div>
+            </Link>
           </div>
         </div>
-      </Link>
     </div>
   );
 }

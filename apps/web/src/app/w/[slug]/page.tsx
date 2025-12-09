@@ -134,7 +134,7 @@ export default async function PublicWiselistPage({ params }: PageProps) {
                 return (
                   <Link
                     key={item.id}
-                    href={`/marketplace/${item.listing.slug || item.listing.id}`}
+                    href={`/listings/${item.listing.id}/${item.listing.slug || item.listing.title}`}
                     className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6 border border-gray-200"
                   >
                     <div>

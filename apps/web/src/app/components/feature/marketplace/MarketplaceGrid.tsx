@@ -1,16 +1,31 @@
 'use client';
 
-import type { Listing } from '@tutorwise/shared-types';
-import TutorCard from './TutorCard';
+import type { MarketplaceItem } from '@/types/marketplace';
+import { isProfile, isListing } from '@/types/marketplace';
+import MarketplaceListingCard from './MarketplaceListingCard';
+import TutorProfileCard from './TutorProfileCard';
 import styles from './MarketplaceGrid.module.css';
 
 interface MarketplaceGridProps {
-  listings: Listing[];
+  items: MarketplaceItem[]; // Unified: profiles + listings
   isLoading: boolean;
+  isLoadingMore: boolean;
   hasSearched: boolean;
+  hasMore: boolean;
+  total: number;
+  onLoadMore: () => void;
 }
 
-export default function MarketplaceGrid({ listings, isLoading, hasSearched }: MarketplaceGridProps) {
+export default function MarketplaceGrid({
+  items = [], // Default to empty array
+  isLoading,
+  isLoadingMore,
+  hasSearched,
+  hasMore,
+  total,
+  onLoadMore
+}: MarketplaceGridProps) {
+
   if (isLoading) {
     return (
       <div className={styles.container}>
@@ -22,7 +37,7 @@ export default function MarketplaceGrid({ listings, isLoading, hasSearched }: Ma
     );
   }
 
-  if (hasSearched && listings.length === 0) {
+  if (hasSearched && items.length === 0) {
     return (
       <div className={styles.container}>
         <div className={styles.emptyState}>
@@ -56,16 +71,42 @@ export default function MarketplaceGrid({ listings, isLoading, hasSearched }: Ma
       <div className={styles.gridHeader}>
         <h2 className={styles.resultCount}>
           {hasSearched
-            ? `${listings.length} tutor${listings.length !== 1 ? 's' : ''} found`
-            : 'Featured Tutors'}
+            ? `${items.length}${total > items.length ? `+ of ${total}` : ''} result${items.length !== 1 ? 's' : ''} found`
+            : 'Featured Tutors & Services'}
         </h2>
       </div>
 
       <div className={styles.grid}>
-        {listings.map((listing) => (
-          <TutorCard key={listing.id} listing={listing} />
-        ))}
+        {items.map((item) => {
+          // Render appropriate card based on item type
+          if (isProfile(item)) {
+            return <TutorProfileCard key={`profile-${item.data.id}`} profile={item.data} />;
+          } else if (isListing(item)) {
+            return <MarketplaceListingCard key={`listing-${item.data.id}`} listing={item.data} />;
+          }
+          return null;
+        })}
       </div>
+
+      {/* Load More Button - Airbnb style */}
+      {hasMore && !isLoading && items.length > 0 && (
+        <div className={styles.loadMoreContainer}>
+          <button
+            onClick={onLoadMore}
+            disabled={isLoadingMore}
+            className={styles.loadMoreButton}
+          >
+            {isLoadingMore ? (
+              <>
+                <div className={styles.loadMoreSpinner}></div>
+                <span>Loading...</span>
+              </>
+            ) : (
+              <span>Load more</span>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

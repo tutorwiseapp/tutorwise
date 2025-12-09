@@ -90,7 +90,11 @@ export async function middleware(request: NextRequest) {
     '/contact',
     '/privacy-policy',
     '/terms-of-service',
-    '/resources'
+    '/resources',
+    '/marketplace',
+    '/listings',
+    '/public-profile',
+    '/w'
   ]
 
   // Skip middleware for public routes, static files, and API routes

@@ -55,7 +55,23 @@ describe('POST /api/bookings', () => {
       error: null,
     });
 
-    // Mock booking creation - second .single() call (after insert().select())
+    // Mock listing fetch - second .single() call (to validate availability)
+    mockSupabase.single.mockResolvedValueOnce({
+      data: {
+        id: mockListingId,
+        status: 'published',
+        availability: {},
+      },
+      error: null,
+    });
+
+    // Mock existing bookings check (to prevent double booking)
+    mockSupabase.select.mockResolvedValueOnce({
+      data: [],
+      error: null,
+    });
+
+    // Mock booking creation - third .single() call (after insert().select())
     mockSupabase.single.mockResolvedValueOnce({
       data: {
         id: mockBookingId,
@@ -131,7 +147,23 @@ describe('POST /api/bookings', () => {
       error: null,
     });
 
-    // Mock booking creation - second .single() call (after insert().select())
+    // Mock listing fetch - second .single() call (to validate availability)
+    mockSupabase.single.mockResolvedValueOnce({
+      data: {
+        id: mockListingId,
+        status: 'published',
+        availability: {},
+      },
+      error: null,
+    });
+
+    // Mock existing bookings check (to prevent double booking)
+    mockSupabase.select.mockResolvedValueOnce({
+      data: [],
+      error: null,
+    });
+
+    // Mock booking creation - third .single() call (after insert().select())
     mockSupabase.single.mockResolvedValueOnce({
       data: {
         id: mockBookingId,

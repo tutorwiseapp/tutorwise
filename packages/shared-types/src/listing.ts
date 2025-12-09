@@ -62,6 +62,10 @@ export interface Listing {
   description: string;
   status: ListingStatus;
 
+  // Verification Status (from profiles table)
+  identity_verified?: boolean; // Whether tutor's identity has been verified
+  dbs_verified?: boolean; // Whether tutor's DBS certificate has been verified
+
   // Teaching Details
   subjects: string[];
   levels: string[];

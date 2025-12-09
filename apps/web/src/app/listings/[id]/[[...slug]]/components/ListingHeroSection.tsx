@@ -238,6 +238,12 @@ export default function ListingHeroSection({ listing, tutorProfile, tutorStats }
               <MapPin size={16} className={styles.locationIcon} />
               {listing.location_city
                 ? `${listing.location_city}${listing.location_country ? `, ${listing.location_country}` : ''}`
+                : listing.location_type === 'online'
+                ? 'Online'
+                : listing.location_type === 'in_person'
+                ? 'In Person'
+                : listing.location_type === 'hybrid'
+                ? 'Hybrid'
                 : 'No Location'}
             </span>
 

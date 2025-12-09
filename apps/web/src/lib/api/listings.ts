@@ -249,6 +249,8 @@ export async function searchListings(params: ListingSearchParams = {}): Promise<
       *,
       profiles:profile_id (
         avatar_url,
+        identity_verified,
+        dbs_verified,
         caas_scores (
           total_score
         )
@@ -321,6 +323,8 @@ export async function searchListings(params: ListingSearchParams = {}): Promise<
   let listings = (data || []).map((listing: any) => ({
     ...listing,
     avatar_url: listing.profiles?.avatar_url,
+    identity_verified: listing.profiles?.identity_verified,
+    dbs_verified: listing.profiles?.dbs_verified,
     caas_total_score: listing.profiles?.caas_scores?.[0]?.total_score || 0,
     profiles: undefined, // Remove the nested object
   })) as Listing[];

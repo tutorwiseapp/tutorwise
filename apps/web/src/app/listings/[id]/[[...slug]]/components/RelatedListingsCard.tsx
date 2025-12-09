@@ -58,17 +58,24 @@ export default function RelatedListingsCard({
   if (isLoading || relatedListings.length === 0) {
     return (
       <Card className={styles.card}>
-        <h4 className={styles.title}>You might also like</h4>
-        <p className={styles.emptyMessage}>No matching profiles or listings yet.</p>
+        <div className={styles.cardHeader}>
+          <h2 className={styles.cardTitle}>You might also like</h2>
+        </div>
+        <div className={styles.cardContent}>
+          <p className={styles.emptyMessage}>No matching profiles or listings yet.</p>
+        </div>
       </Card>
     );
   }
 
   return (
     <Card className={styles.card}>
-      <h4 className={styles.title}>You might also like</h4>
+      <div className={styles.cardHeader}>
+        <h2 className={styles.cardTitle}>You might also like</h2>
+      </div>
 
-      <div className={styles.scrollContainer}>
+      <div className={styles.cardContent}>
+        <div className={styles.scrollContainer}>
         {relatedListings.map((listing) => (
           <a
             key={listing.id}
@@ -122,6 +129,7 @@ export default function RelatedListingsCard({
             </span>
           </div>
         </a>
+        </div>
       </div>
     </Card>
   );

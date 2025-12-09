@@ -148,6 +148,112 @@ export async function POST(req: Request) {
       return new NextResponse("Missing required fields", { status: 400 });
     }
 
+    // 4.5. Fetch listing to validate availability
+    const { data: listing, error: listingError } = await supabase
+      .from('listings')
+      .select('availability, timezone, status')
+      .eq('id', listing_id)
+      .single();
+
+    if (listingError || !listing) {
+      return new NextResponse("Listing not found", { status: 404 });
+    }
+
+    // Check if listing is published
+    if (listing.status !== 'published') {
+      return NextResponse.json({ error: "Listing is not available for booking" }, { status: 400 });
+    }
+
+    // Validate availability if listing has availability data
+    if (listing.availability && Object.keys(listing.availability).length > 0) {
+      const requestedStartTime = new Date(session_start_time);
+      const requestedEndTime = new Date(requestedStartTime.getTime() + session_duration * 60000);
+
+      // Get day of week (lowercase to match availability keys)
+      const dayOfWeek = requestedStartTime.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+
+      // Get time in HH:MM format
+      const requestedStartHHMM = requestedStartTime.toTimeString().slice(0, 5);
+      const requestedEndHHMM = requestedEndTime.toTimeString().slice(0, 5);
+
+      // Check if day has any availability
+      const dayAvailability = listing.availability[dayOfWeek];
+
+      if (!dayAvailability || dayAvailability.length === 0) {
+        return new NextResponse(
+          JSON.stringify({
+            error: "Tutor is not available on this day",
+            available_days: Object.keys(listing.availability)
+          }),
+          {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
+      }
+
+      // Check if requested time falls within any available slot
+      let isAvailable = false;
+      for (const slot of dayAvailability) {
+        // Check if requested time overlaps with available slot
+        if (requestedStartHHMM >= slot.start && requestedEndHHMM <= slot.end) {
+          isAvailable = true;
+          break;
+        }
+      }
+
+      if (!isAvailable) {
+        return new NextResponse(
+          JSON.stringify({
+            error: "Requested time is not within tutor's available hours",
+            available_slots: dayAvailability
+          }),
+          {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
+      }
+    }
+
+    // Check for conflicting bookings
+    const { data: existingBookings, error: conflictError } = await supabase
+      .from('bookings')
+      .select('session_start_time, session_duration')
+      .eq('tutor_id', tutor_id)
+      .in('status', ['Pending', 'Confirmed'])
+      .gte('session_start_time', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()); // Check bookings from last 24h
+
+    if (conflictError) {
+      console.error("Error checking booking conflicts:", conflictError);
+    } else if (existingBookings && existingBookings.length > 0) {
+      const requestedStart = new Date(session_start_time).getTime();
+      const requestedEnd = requestedStart + session_duration * 60000;
+
+      for (const booking of existingBookings) {
+        const bookingStart = new Date(booking.session_start_time).getTime();
+        const bookingEnd = bookingStart + booking.session_duration * 60000;
+
+        // Check if times overlap
+        if (
+          (requestedStart >= bookingStart && requestedStart < bookingEnd) ||
+          (requestedEnd > bookingStart && requestedEnd <= bookingEnd) ||
+          (requestedStart <= bookingStart && requestedEnd >= bookingEnd)
+        ) {
+          return new NextResponse(
+            JSON.stringify({
+              error: "This time slot conflicts with an existing booking",
+              conflicting_time: booking.session_start_time
+            }),
+            {
+              status: 409,
+              headers: { 'Content-Type': 'application/json' }
+            }
+          );
+        }
+      }
+    }
+
     // 5. Create booking with agent_profile_id from client's profile
     // (SDD v3.6, Section 11.2 - Lifetime Attribution) (migrations 049 & 051)
     const { data: booking, error: bookingError } = await supabase

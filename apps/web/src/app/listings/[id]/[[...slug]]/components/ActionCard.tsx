@@ -18,6 +18,7 @@ import Button from '@/app/components/ui/actions/Button';
 import StatusBadge from '@/app/components/ui/data-display/StatusBadge';
 import toast from 'react-hot-toast';
 import { createBooking } from '@/lib/api/bookings';
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import styles from './ActionCard.module.css';
 
 interface ActionCardProps {
@@ -28,9 +29,19 @@ interface ActionCardProps {
 export default function ActionCard({ listing }: ActionCardProps) {
   const [isBooking, setIsBooking] = useState(false);
   const router = useRouter();
+  const { profile: currentUser } = useUserProfile();
+
+  // Check if user is trying to book their own listing
+  const isOwnListing = currentUser?.id === listing.profile_id;
 
   // Handle "Book Now" - creates real booking entry
   const handleBookNow = async () => {
+    // Prevent self-booking
+    if (isOwnListing) {
+      toast.error("You cannot book your own listing");
+      return;
+    }
+
     setIsBooking(true);
 
     try {
@@ -121,9 +132,9 @@ export default function ActionCard({ listing }: ActionCardProps) {
         variant="primary"
         fullWidth
         onClick={handleBookNow}
-        disabled={isBooking}
+        disabled={isBooking || isOwnListing}
       >
-        {isBooking ? 'Processing...' : 'Book Now'}
+        {isOwnListing ? 'Your Listing' : isBooking ? 'Processing...' : 'Book Now'}
       </Button>
 
       {/* Divider */}
