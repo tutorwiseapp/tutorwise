@@ -2,15 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import type { Listing } from '@tutorwise/shared-types';
+import type { MarketplaceItem } from '@/types/marketplace';
 import { parseSearchQuery, queryToFilters } from '@/lib/services/gemini';
 import HeroSection from '@/app/components/feature/marketplace/HeroSection';
 import MarketplaceGrid from '@/app/components/feature/marketplace/MarketplaceGrid';
 import styles from './page.module.css';
 
 export default function HomePage() {
-  const [listings, setListings] = useState<Listing[]>([]);
+  const [items, setItems] = useState<MarketplaceItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [total, setTotal] = useState(0);
 
   // Load featured tutors on initial page load
   useEffect(() => {
@@ -27,7 +29,15 @@ export default function HomePage() {
         },
       });
       const data = await response.json();
-      setListings(data.listings || []);
+
+      // Convert listings to MarketplaceItem[]
+      const listingItems: MarketplaceItem[] = (data.listings || []).map((listing: Listing) => ({
+        type: 'listing' as const,
+        data: listing,
+      }));
+
+      setItems(listingItems);
+      setTotal(data.total || 0);
     } catch (error) {
       console.error('Failed to load featured tutors:', error);
     } finally {
@@ -79,7 +89,14 @@ export default function HomePage() {
       });
       const data = await response.json();
 
-      setListings(data.listings || []);
+      // Convert listings to MarketplaceItem[]
+      const listingItems: MarketplaceItem[] = (data.listings || []).map((listing: Listing) => ({
+        type: 'listing' as const,
+        data: listing,
+      }));
+
+      setItems(listingItems);
+      setTotal(data.total || 0);
     } catch (error) {
       console.error('Search error:', error);
     } finally {
@@ -94,9 +111,13 @@ export default function HomePage() {
 
       {/* Marketplace Grid */}
       <MarketplaceGrid
-        listings={listings}
+        items={items}
         isLoading={isLoading}
+        isLoadingMore={false}
         hasSearched={hasSearched}
+        hasMore={false}
+        total={total}
+        onLoadMore={() => {}}
       />
     </div>
   );
