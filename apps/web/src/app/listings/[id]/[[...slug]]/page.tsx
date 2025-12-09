@@ -14,12 +14,19 @@
 import { notFound } from 'next/navigation';
 import { getListing } from '@/lib/api/listings';
 import { getProfile } from '@/lib/api/profiles';
+import { createClient } from '@/utils/supabase/server';
 import type { ListingV41 } from '@/types/listing-v4.1';
+import type { Profile } from '@/types';
 import Container from '@/app/components/layout/Container';
-import ListingHeader from './components/ListingHeader';
+import ListingHeroSection from './components/ListingHeroSection';
 import ListingImageGrid from './components/ListingImageGrid';
-import ListingDetailsColumn from './components/ListingDetailsColumn';
-import ActionCard from './components/ActionCard';
+import { ListingDetailsCard } from './components/ListingDetailsCard';
+import { ServicesCard } from '@/app/components/feature/public-profile/ServicesCard';
+import { AvailabilityScheduleCard } from '@/app/components/feature/public-profile/AvailabilityScheduleCard';
+import { ReviewsCard } from '@/app/components/feature/public-profile/ReviewsCard';
+import { VerificationCard } from '@/app/components/feature/public-profile/VerificationCard';
+import { RoleStatsCard } from '@/app/components/feature/public-profile/RoleStatsCard';
+import { GetInTouchCard } from '@/app/components/feature/public-profile/GetInTouchCard';
 import RelatedListingsCard from './components/RelatedListingsCard';
 import MobileBottomCTA from './components/MobileBottomCTA';
 import styles from './page.module.css';
@@ -41,18 +48,49 @@ export async function generateMetadata({ params }: ListingDetailsPageProps) {
     };
   }
 
+  const tutorProfile = listing.profile_id ? await getProfile(listing.profile_id) : null;
+  const serviceTypeLabel =
+    listing.service_type === 'one-to-one' ? 'One-to-One Tutoring' :
+    listing.service_type === 'group-session' ? 'Group Session' :
+    listing.service_type === 'workshop' ? 'Workshop' :
+    listing.service_type === 'study-package' ? 'Study Package' :
+    'Tutoring';
+
   return {
-    title: `${listing.title} | Tutorwise`,
-    description: listing.description?.substring(0, 160) || 'Book this service on Tutorwise',
+    title: `${listing.title} | ${tutorProfile?.full_name || 'Tutorwise'}`,
+    description: listing.description?.substring(0, 160) || `Book ${serviceTypeLabel} with ${tutorProfile?.full_name || 'an expert tutor'} on Tutorwise`,
+    keywords: [
+      ...(listing.subjects || []),
+      ...(listing.levels || []),
+      serviceTypeLabel,
+      'tutoring',
+      'online learning',
+      listing.location_city,
+    ].filter(Boolean).join(', '),
     openGraph: {
+      type: 'website',
       title: listing.title,
-      description: listing.description,
+      description: listing.description || `Book ${serviceTypeLabel} on Tutorwise`,
+      images: listing.hero_image_url ? [{
+        url: listing.hero_image_url,
+        width: 1200,
+        height: 630,
+        alt: listing.title,
+      }] : [],
+      siteName: 'Tutorwise',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: listing.title,
+      description: listing.description?.substring(0, 160) || `Book ${serviceTypeLabel} on Tutorwise`,
       images: listing.hero_image_url ? [listing.hero_image_url] : [],
     },
   };
 }
 
 export default async function ListingDetailsPage({ params }: ListingDetailsPageProps) {
+  const supabase = await createClient();
+
   // Fetch listing data server-side
   const listing = (await getListing(params.id)) as ListingV41 | null;
 
@@ -67,11 +105,144 @@ export default async function ListingDetailsPage({ params }: ListingDetailsPageP
     notFound();
   }
 
-  // Extract tutor stats (from migration 032 - stored in listing)
+  // Get current user (for GetInTouchCard)
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Fetch current user's profile (if authenticated)
+  let currentUserProfile: Profile | null = null;
+  if (user) {
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+    currentUserProfile = data as Profile;
+  }
+
+  // Fetch tutor's active listings (for ServicesCard)
+  const { data: listings } = await supabase
+    .from('listings')
+    .select('id, title, description, price_per_hour, service_type, subject, level, slug, created_at')
+    .eq('profile_id', tutorProfile.id)
+    .eq('status', 'published')
+    .order('created_at', { ascending: false });
+
+  // Fetch tutor's reviews
+  const { data: reviews } = await supabase
+    .from('profile_reviews')
+    .select(`
+      id,
+      rating,
+      comment,
+      created_at,
+      reviewer:profiles!profile_reviews_reviewer_id_fkey (
+        id,
+        full_name,
+        avatar_url
+      ),
+      session:booking_review_sessions!profile_reviews_session_id_fkey (
+        status
+      )
+    `)
+    .eq('reviewee_id', tutorProfile.id)
+    .eq('session.status', 'published')
+    .order('created_at', { ascending: false })
+    .limit(10);
+
+  // Transform reviews
+  const transformedReviews = (reviews || []).map((review: any) => ({
+    id: review.id,
+    reviewer_id: review.reviewer?.id || '',
+    reviewer_name: review.reviewer?.full_name || 'Anonymous',
+    reviewer_avatar_url: review.reviewer?.avatar_url,
+    rating: review.rating,
+    title: '',
+    comment: review.comment,
+    verified_booking: true,
+    created_at: review.created_at,
+  }));
+
+  // Calculate tutor stats
+  const { data: reviewStats } = await supabase
+    .from('profile_reviews')
+    .select('rating')
+    .eq('reviewee_id', tutorProfile.id);
+
+  const reviewCount = reviewStats?.length || 0;
+  const averageRating = reviewCount > 0
+    ? reviewStats!.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+    : 0;
+
+  const { count: sessionsAsStudent } = await supabase
+    .from('bookings')
+    .select('*', { count: 'exact', head: true })
+    .eq('student_id', tutorProfile.id)
+    .eq('status', 'Completed');
+
+  const { count: sessionsAsTutor } = await supabase
+    .from('bookings')
+    .select('*', { count: 'exact', head: true })
+    .eq('tutor_id', tutorProfile.id)
+    .eq('status', 'Completed');
+
+  const sessionsCompleted = (sessionsAsStudent || 0) + (sessionsAsTutor || 0);
+
+  const { count: reviewsGiven } = await supabase
+    .from('profile_reviews')
+    .select('*', { count: 'exact', head: true })
+    .eq('reviewer_id', tutorProfile.id);
+
+  const { data: uniqueTutors } = await supabase
+    .from('bookings')
+    .select('tutor_id')
+    .eq('student_id', tutorProfile.id)
+    .eq('status', 'Completed');
+
+  const tutorsWorkedWith = uniqueTutors
+    ? new Set(uniqueTutors.map(b => b.tutor_id).filter(Boolean)).size
+    : 0;
+
+  const { data: uniqueClients } = await supabase
+    .from('bookings')
+    .select('student_id')
+    .eq('tutor_id', tutorProfile.id)
+    .eq('status', 'Completed');
+
+  const clientsWorkedWith = uniqueClients
+    ? new Set(uniqueClients.map(b => b.student_id).filter(Boolean)).size
+    : 0;
+
+  const { data: viewData } = await supabase
+    .from('profile_view_counts')
+    .select('total_views')
+    .eq('profile_id', tutorProfile.id)
+    .maybeSingle();
+
+  const profileViews = viewData?.total_views || 0;
+
+  const { count: freeSessionsCount } = await supabase
+    .from('free_sessions')
+    .select('*', { count: 'exact', head: true })
+    .eq('tutor_id', tutorProfile.id);
+
+  // Enrich tutor profile with stats
+  const enrichedProfile = {
+    ...tutorProfile,
+    average_rating: Math.round(averageRating * 10) / 10,
+    total_reviews: reviewCount,
+    sessions_completed: sessionsCompleted,
+    reviews_given: reviewsGiven || 0,
+    tutors_worked_with: tutorsWorkedWith,
+    clients_worked_with: clientsWorkedWith,
+    profile_views: profileViews,
+    free_sessions_count: freeSessionsCount || 0,
+  } as Profile;
+
+  // Extract tutor stats for hero section
   const tutorStats = {
-    sessionsTaught: listing.sessions_taught || 0,
-    totalReviews: 0, // TODO: Calculate from reviews table
-    averageRating: listing.average_rating || 0,
+    sessionsTaught: sessionsCompleted,
+    totalReviews: reviewCount,
+    averageRating: averageRating,
     responseTimeHours: listing.response_time_hours || 24,
     responseRate: listing.response_rate_percentage || 95,
   };
@@ -82,40 +253,97 @@ export default async function ListingDetailsPage({ params }: ListingDetailsPageP
     ...(listing.gallery_image_urls || [])
   ].filter(Boolean) as string[];
 
+  // JSON-LD structured data for SEO
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: listing.title,
+    description: listing.description || '',
+    image: listing.hero_image_url || '',
+    offers: {
+      '@type': 'Offer',
+      price: listing.hourly_rate || listing.package_price || listing.group_price_per_person || 0,
+      priceCurrency: 'GBP',
+      availability: 'https://schema.org/InStock',
+      seller: {
+        '@type': 'Person',
+        name: enrichedProfile.full_name || 'Anonymous Tutor',
+        image: enrichedProfile.avatar_url || '',
+      },
+    },
+    aggregateRating: tutorStats.averageRating > 0 ? {
+      '@type': 'AggregateRating',
+      ratingValue: tutorStats.averageRating,
+      reviewCount: tutorStats.totalReviews,
+      bestRating: 5,
+      worstRating: 1,
+    } : undefined,
+    category: listing.subjects?.join(', ') || 'Education',
+    brand: {
+      '@type': 'Brand',
+      name: 'Tutorwise',
+    },
+  };
+
   return (
     <>
+      {/* JSON-LD structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       <Container>
-        {/* SECTION 1: Header & Images (1-column) */}
-        <div className={styles.topSection}>
-          <ListingHeader
+        {/* SECTION 1: Hero Section (1-column full width) */}
+        <div className={styles.heroSection}>
+          <ListingHeroSection
             listing={listing}
-            tutorProfile={tutorProfile}
+            tutorProfile={enrichedProfile}
             tutorStats={tutorStats}
           />
-
-          {images.length > 0 && (
-            <ListingImageGrid images={images} listingTitle={listing.title} />
-          )}
         </div>
 
-        {/* SECTION 2: Body (2-column layout) */}
+        {/* Images below hero */}
+        {images.length > 0 && (
+          <div className={styles.imagesSection}>
+            <ListingImageGrid images={images} listingTitle={listing.title} />
+          </div>
+        )}
+
+        {/* SECTION 2: Body (2-column layout: 2fr main + 1fr sidebar) */}
         <div className={styles.bodySection}>
-          {/* Column 1: Main content (2/3 width on desktop) */}
+          {/* Column 1: Main content (2fr width on desktop) */}
           <div className={styles.mainColumn}>
-            <ListingDetailsColumn
-              listing={listing}
-              tutorProfile={tutorProfile}
-              tutorStats={tutorStats}
+            {/* Listing Details Card - Listing description */}
+            <ListingDetailsCard listing={listing} />
+
+            {/* Services Card - All tutor's listings */}
+            <ServicesCard profile={enrichedProfile} listings={listings || []} />
+
+            {/* Availability Schedule Card - Tutor's general schedule */}
+            <AvailabilityScheduleCard profile={enrichedProfile} />
+
+            {/* Reviews Card - Tutor's reviews */}
+            <ReviewsCard profile={enrichedProfile} reviews={transformedReviews} />
+          </div>
+
+          {/* Column 2: Sticky Sidebar (1fr width on desktop) */}
+          <div className={styles.sidebarColumn}>
+            {/* Verification Card */}
+            <VerificationCard profile={enrichedProfile} />
+
+            {/* Role Stats Card */}
+            <RoleStatsCard profile={enrichedProfile} />
+
+            {/* Get in Touch Card - Replaces ActionCard */}
+            <GetInTouchCard
+              profile={enrichedProfile}
+              currentUser={currentUserProfile}
             />
           </div>
-
-          {/* Column 2: Sticky ActionCard (1/3 width on desktop, hidden on mobile) */}
-          <div className={styles.sidebarColumn}>
-            <ActionCard listing={listing} tutorProfile={tutorProfile} />
-          </div>
         </div>
 
-        {/* SECTION 3: Related Listings (1-column) */}
+        {/* SECTION 3: Related Listings (1-column full width) */}
         <div className={styles.relatedSection}>
           <RelatedListingsCard
             listingId={listing.id}

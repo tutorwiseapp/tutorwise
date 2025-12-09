@@ -78,21 +78,12 @@
   white-space: nowrap;
 }
 
-.roleLocationRow {
+/* Credibility Score Row (Line 2) */
+.credibilityRow {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-}
-
-.roleChip {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  background-color: #006c67;
-  color: #ffffff;
-  font-size: 0.875rem;
-  font-weight: 600;
-  border-radius: 4px;
-  line-height: 1.4;
+  margin-top: -1px;
+  margin-bottom: -2px;
 }
 
 .credibilityBadge {
@@ -107,6 +98,29 @@
   color: #006c67;
 }
 
+/* Role | Location Row (Line 3) */
+.roleLocationRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.roleText {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.separator {
+  color: #d1d5db;
+}
+
+.locationText {
+  color: #6b7280;
+}
+
 .viewLink {
   color: #006c67;
   font-size: 0.875rem;
@@ -118,16 +132,6 @@
 
 .viewLink:hover {
   color: #004d49;
-}
-
-.location {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin: 0;
-  line-height: 1.4;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 /* Actions Section (Right) */
@@ -188,17 +192,22 @@
     line-height: 1.3;
   }
 
-  .roleChip {
-    font-size: 0.825rem;
-    padding: 0.2rem 0.625rem;
-  }
+  .credibilityRow {
+    margin-top: -1px;
+    margin-bottom: -3px;  }
 
   .credibilityBadge {
     font-size: 0.8125rem;
     padding: 4px 10px;
   }
 
-  .location {
+  .roleLocationRow {
+    margin-top: 6px;
+    font-size: 0.825rem;
+  }
+
+  .roleText,
+  .locationText {
     font-size: 0.825rem;
   }
 
@@ -232,17 +241,22 @@
     font-size: 1.125rem;
   }
 
-  .roleChip {
-    font-size: 0.775rem;
-    padding: 0.15rem 0.5rem;
-  }
+  .credibilityRow {
+    margin-top: -1px;
+    margin-bottom: -3px;  }
 
   .credibilityBadge {
     font-size: 0.75rem;
     padding: 3px 8px;
   }
 
-  .location {
+  .roleLocationRow {
+    margin-top: 4px;
+    font-size: 0.775rem;
+  }
+
+  .roleText,
+  .locationText {
     font-size: 0.775rem;
   }
 

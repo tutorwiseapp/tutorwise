@@ -64,17 +64,20 @@ export default function AccountHeroHeader({ actions }: AccountHeroHeaderProps) {
           <div className={styles.profileInfo}>
             <h1 className={styles.fullName}>{fullName}</h1>
 
-            <div className={styles.roleLocationRow}>
-              <span className={styles.roleChip}>
-                {role.charAt(0).toUpperCase() + role.slice(1)}
-              </span>
+            <div className={styles.credibilityRow}>
               <span className={styles.credibilityBadge}>
                 <Award size={14} />
                 CaaS Score: {credibilityScore}/100
               </span>
             </div>
 
-            <p className={styles.location}>{location}</p>
+            <div className={styles.roleLocationRow}>
+              <span className={styles.roleText}>
+                {role.charAt(0).toUpperCase() + role.slice(1)}
+              </span>
+              <span className={styles.separator}>|</span>
+              <span className={styles.locationText}>{location}</span>
+            </div>
           </div>
         </div>
 

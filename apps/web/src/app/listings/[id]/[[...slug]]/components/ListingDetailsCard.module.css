@@ -1,0 +1,61 @@
+/**
+ * Filename: ListingDetailsCard.module.css
+ * Purpose: Styles for ListingDetailsCard
+ * Created: 2025-12-09
+ * Adapted from: AboutCard.module.css
+ */
+
+.detailsCard {
+  padding: 0 !important;
+}
+
+/* Card header with title - Teal header styling */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: #E6F0F0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.descriptionContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 24px);
+  padding: 16px;
+}
+
+.descriptionText {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: #374151;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.emptyState {
+  padding: 48px 16px;
+  text-align: center;
+}
+
+.emptyStateText {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .cardTitle {
+    font-size: 15px;
+  }
+}
