@@ -73,7 +73,7 @@ export function ListingDetailsCard({ listing }: ListingDetailsCardProps) {
       {/* Learning Objectives (if teaching_experience field contains objectives) */}
       {listing.teaching_experience && (
         <div className={styles.metadataSection}>
-          <h3 className={styles.sectionTitle}>What You'll Learn</h3>
+          <h3 className={styles.sectionTitle}>What You&apos;ll Learn</h3>
           <p className={styles.metadataText}>{listing.teaching_experience}</p>
         </div>
       )}
