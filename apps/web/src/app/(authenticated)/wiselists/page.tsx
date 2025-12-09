@@ -24,7 +24,7 @@ import Button from '@/app/components/ui/actions/Button';
 import { Wiselist } from '@/types';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
-import { getMyWiselists, deleteWiselist, updateWiselist, getWiselist, quickSaveItem, addWiselistItem } from '@/lib/api/wiselists';
+import { getMyWiselists, deleteWiselist, updateWiselist, getWiselist, quickSaveItem, addWiselistItem, removeWiselistItem } from '@/lib/api/wiselists';
 import styles from './page.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
@@ -246,11 +246,8 @@ export default function WiselistsPage() {
   // Handle Unsave for a saved item
   const handleItemUnsave = async (itemId: string, profileId?: string, listingId?: string) => {
     try {
-      if (profileId) {
-        await quickSaveItem({ profileId });
-      } else if (listingId) {
-        await quickSaveItem({ listingId });
-      }
+      // Remove the item from the wiselist
+      await removeWiselistItem(itemId);
 
       // Refresh the My Saves data
       await queryClient.invalidateQueries({ queryKey: ['wiselist', mySavesWiselist?.id] });

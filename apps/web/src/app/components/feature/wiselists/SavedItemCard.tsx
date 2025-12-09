@@ -1,14 +1,14 @@
 /**
  * Filename: SavedItemCard.tsx
- * Purpose: Display saved profile or listing item with Add to List and Unsave buttons
+ * Purpose: Display saved profile or listing item with HubDetailCard layout
  * Created: 2025-12-09
- * Updated: 2025-12-09 - Migrated to HubDetailCard for consistent styling
+ * Updated: 2025-12-09 - Refactored to match BookingCard implementation pattern
+ * Design: Uses HubDetailCard component with imageHref for consistent hub layout
  */
 
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import { WiselistItem } from '@/types';
 import getProfileImageUrl from '@/lib/utils/image';
 import { slugify } from '@/lib/utils/slugify';
@@ -53,15 +53,11 @@ export default function SavedItemCard({
     ? `/public-profile/${profile?.id}/${profile?.slug || slugify(profile?.full_name || '')}`
     : `/listings/${listing?.id}/${listing?.slug || slugify(listing?.title || '')}`;
 
-  const handleUnsave = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleUnsave = () => {
     onUnsave(item.id, item.profile_id || undefined, item.listing_id || undefined);
   };
 
-  const handleAddToList = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleAddToList = () => {
     onAddToList(item.id);
   };
 
@@ -72,35 +68,88 @@ export default function SavedItemCard({
     year: 'numeric',
   });
 
-  // Build details array
-  const details = [
-    { label: 'Type', value: isProfile ? 'Profile' : 'Listing' },
+  // Format added by
+  const addedBy = item.added_by?.full_name || 'You';
+
+  // Build details grid - 3x3 grid (9 fields) matching BookingCard pattern
+  const details = isProfile ? [
+    // Row 1
+    { label: 'Type', value: 'Profile' },
     { label: 'Saved', value: savedDate },
+    { label: 'Added By', value: addedBy },
+    // Row 2
+    { label: 'Role', value: profile?.active_role || 'N/A' },
+    { label: 'Location', value: profile?.city || 'N/A' },
+    { label: 'Status', value: 'Active' },
+    // Row 3
+    { label: 'Verified', value: 'Yes' },
+    { label: 'Rating', value: 'N/A' },
+    { label: 'ID', value: (
+      <span
+        title={profile?.id || ''}
+        style={{
+          display: 'block',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          cursor: 'help'
+        }}
+      >
+        {profile?.id?.substring(0, 8) || 'N/A'}...
+      </span>
+    )},
+  ] : [
+    // Row 1
+    { label: 'Type', value: 'Listing' },
+    { label: 'Saved', value: savedDate },
+    { label: 'Added By', value: addedBy },
+    // Row 2
+    { label: 'Rate', value: listing?.hourly_rate ? `£${listing.hourly_rate}/hr` : 'N/A' },
+    { label: 'Type', value: listing?.location_type || 'N/A' },
+    { label: 'Subject', value: listing?.subjects?.[0] || 'N/A' },
+    // Row 3
+    { label: 'Level', value: listing?.levels?.[0] || 'N/A' },
+    { label: 'Status', value: 'Active' },
+    { label: 'ID', value: (
+      <span
+        title={listing?.id || ''}
+        style={{
+          display: 'block',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          cursor: 'help'
+        }}
+      >
+        {listing?.id?.substring(0, 8) || 'N/A'}...
+      </span>
+    )},
   ];
 
-  // Build actions array
-  const actions = [
-    <Button key="add" variant="secondary" size="sm" onClick={handleAddToList}>
-      Add to List
-    </Button>,
-    <Button key="unsave" variant="ghost" size="sm" onClick={handleUnsave}>
-      Unsave
-    </Button>,
-  ];
+  // Build actions - matching BookingCard button pattern
+  const actions = (
+    <>
+      <Button variant="secondary" size="sm" onClick={handleAddToList}>
+        Add to List
+      </Button>
+      <Button variant="ghost" size="sm" onClick={handleUnsave}>
+        Unsave
+      </Button>
+    </>
+  );
 
   return (
-    <Link href={linkUrl} style={{ textDecoration: 'none', color: 'inherit' }}>
-      <HubDetailCard
-        image={{
-          src: imageUrl,
-          alt: name,
-          fallbackChar: name.charAt(0).toUpperCase(),
-        }}
-        title={name}
-        description={description}
-        details={details}
-        actions={actions}
-      />
-    </Link>
+    <HubDetailCard
+      image={{
+        src: imageUrl,
+        alt: name,
+        fallbackChar: name.charAt(0).toUpperCase(),
+      }}
+      title={name}
+      description={description}
+      details={details}
+      actions={actions}
+      imageHref={linkUrl}
+    />
   );
 }
