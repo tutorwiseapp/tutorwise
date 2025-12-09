@@ -57,6 +57,7 @@ export default function PendingReviewCard({ task, currentUserId, onSubmit }: Pro
   const avatarUrl = getProfileImageUrl({
     id: subject.id,
     avatar_url: subject.avatar_url ?? undefined,
+    full_name: subject.full_name, // Use subject name for initials
   });
   const fallbackChar = subject.full_name?.charAt(0).toUpperCase() || '?';
 

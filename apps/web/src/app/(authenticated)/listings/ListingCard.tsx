@@ -48,11 +48,13 @@ export default function ListingCard({
     variant: 'info',
   });
 
-  // Use the same profile image logic as NavMenu (includes academic avatar fallback)
+  // Use listing title for avatar initials (first 2 characters of title)
+  // Pass first subject for color mapping (orange/yellow/blue/green/purple/grey)
   const imageUrl = getProfileImageUrl({
     id: listing.profile_id,
     avatar_url: listing.avatar_url,
-  });
+    full_name: listing.title, // Use listing title for initials
+  }, true, listing.subjects?.[0]); // isListing = true, use first subject for color
 
   // Map status to HubDetailCard status variant
   const getStatusVariant = (status?: string): 'success' | 'warning' | 'error' | 'neutral' | 'info' => {

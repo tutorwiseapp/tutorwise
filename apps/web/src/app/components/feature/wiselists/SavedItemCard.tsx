@@ -46,8 +46,13 @@ export default function SavedItemCard({
     ? getProfileImageUrl({
         id: profile?.id || '',
         avatar_url: profile?.avatar_url,
+        full_name: profile?.full_name, // Use profile name for initials
       })
-    : listing?.images?.[0]?.url || null;
+    : getProfileImageUrl({
+        id: listing?.profile_id || '',
+        avatar_url: listing?.images?.[0]?.url,
+        full_name: listing?.title, // Use listing title for initials
+      }, true, listing?.subjects?.[0]); // isListing = true, use first subject for color
 
   const linkUrl = isProfile
     ? `/public-profile/${profile?.id}/${profile?.slug || slugify(profile?.full_name || '')}`

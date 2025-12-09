@@ -44,6 +44,7 @@ export default function OrganisationStudentCard({ client }: OrganisationStudentC
     src: client.avatar_url ? getProfileImageUrl({
       id: client.id,
       avatar_url: client.avatar_url,
+      full_name: client.full_name, // Use client name for initials
     }) : null,
     alt: client.full_name || 'Student',
     fallbackChar: client.full_name?.substring(0, 2).toUpperCase() || 'ST',

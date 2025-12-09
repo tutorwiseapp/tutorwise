@@ -273,7 +273,11 @@ export default function ChatThread({
 
   // Get avatar URL
   const avatarUrl = otherUser.avatar_url
-    ? getProfileImageUrl({ id: otherUser.id, avatar_url: otherUser.avatar_url })
+    ? getProfileImageUrl({
+        id: otherUser.id,
+        avatar_url: otherUser.avatar_url,
+        full_name: otherUser.full_name // Use other user name for initials
+      })
     : null;
 
   return (

@@ -71,7 +71,11 @@ export default function ReferralCard({
 
   // Get image properties
   const avatarUrl = referral.referred_user
-    ? getProfileImageUrl(referral.referred_user)
+    ? getProfileImageUrl({
+        id: referral.referred_user.id,
+        avatar_url: referral.referred_user.avatar_url,
+        full_name: referral.referred_user.full_name, // Use referred user name for initials
+      })
     : null;
   const fallbackChar = referral.referred_user ? referral.referred_user.full_name?.charAt(0).toUpperCase() : '?';
   const imageHref = referral.referred_user ? `/public-profile/${referral.referred_user.id}` : undefined;

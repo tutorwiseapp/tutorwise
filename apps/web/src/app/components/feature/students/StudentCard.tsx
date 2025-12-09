@@ -92,6 +92,7 @@ export default function StudentCard({
     ? getProfileImageUrl({
         id: profile.id,
         avatar_url: profile.avatar_url,
+        full_name: profile.full_name, // Use student name for initials
       })
     : null;
 

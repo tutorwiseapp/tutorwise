@@ -98,6 +98,7 @@ function ConversationItem({
     ? getProfileImageUrl({
         id: otherUser.id,
         avatar_url: otherUser.avatar_url,
+        full_name: otherUser.full_name, // Use other user name for initials
       })
     : null;
 

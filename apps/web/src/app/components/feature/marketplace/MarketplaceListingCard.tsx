@@ -52,15 +52,17 @@ export default function MarketplaceListingCard({ listing }: MarketplaceListingCa
   const [isLoading, setIsLoading] = useState(false);
   const { profile: currentUser } = useUserProfile();
 
-  // Use the same profile image logic as NavMenu (includes academic avatar fallback)
+  // Use listing title for avatar initials (first 2 characters of title)
+  // Pass first subject for color mapping (orange/yellow/blue/green/purple/grey)
   const imageUrl = getProfileImageUrl({
     id: listing.profile_id,
     avatar_url: listing.avatar_url,
-  });
+    full_name: listing.title, // Use listing title instead of tutor name
+  }, true, listing.subjects?.[0]); // isListing = true, use first subject for color
 
-  // Calculate rating display (placeholder for now)
-  const rating = 4.8; // TODO: Get actual rating from reviews
-  const reviewCount = 24; // TODO: Get actual review count
+  // Use real rating value, handle both undefined and 0
+  const rating = listing.average_rating ?? 0;
+  const reviewCount = listing.review_count ?? 0;
 
   // Check if listing is saved in "My Saves" wiselist on mount
   useEffect(() => {
@@ -191,14 +193,9 @@ export default function MarketplaceListingCard({ listing }: MarketplaceListingCa
 
       {/* Content Section - Clean Airbnb Format */}
       <div className={styles.content}>
-          {/* Line 1: Tutor Name & Rating */}
+          {/* Line 1: Listing Title & Rating */}
           <div className={styles.row}>
-            <Link
-              href={`/public-profile/${listing.profile_id}`}
-              className={styles.nameLink}
-            >
-              <h3 className={styles.name}>{listing.full_name || listing.title}</h3>
-            </Link>
+            <h3 className={styles.name}>{listing.title}</h3>
             <div className={styles.rating}>
               <svg
                 className={styles.starIcon}
@@ -224,10 +221,10 @@ export default function MarketplaceListingCard({ listing }: MarketplaceListingCa
             )}
           </div>
 
-          {/* Line 3: Location & Delivery Mode */}
+          {/* Line 3: Tutor Name & Delivery Mode */}
           <div className={styles.row}>
             <div className={styles.location}>
-              {listing.location_city || 'Available Online'}
+              {listing.full_name || 'Tutor'}
             </div>
             <div className={styles.deliveryMode}>
               {listing.location_type === 'online' ? 'Online' :
@@ -239,8 +236,7 @@ export default function MarketplaceListingCard({ listing }: MarketplaceListingCa
           {/* Line 4: Price & Instant Book Link */}
           <div className={styles.row}>
             <div className={styles.price}>
-              £{listing.hourly_rate}
-              <span className={styles.priceUnit}> / hour</span>
+              £{listing.hourly_rate}/hr
             </div>
             <Link
               href={`/listings/${listing.id}/${slugify(listing.title)}?action=book`}

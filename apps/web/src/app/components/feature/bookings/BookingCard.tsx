@@ -70,11 +70,26 @@ export default function BookingCard({
   // Determine who the "other party" is based on view mode
   const otherParty = viewMode === 'client' ? booking.tutor : booking.client;
 
-  // Get avatar URL with fallback
-  const avatarUrl = otherParty ? getProfileImageUrl(otherParty) : null;
-  const fallbackChar = otherParty?.full_name?.substring(0, 2).toUpperCase() || '?';
+  // Infer subject from service name for color coding
+  const inferSubject = (serviceName: string): string | undefined => {
+    const lower = serviceName.toLowerCase();
+    if (lower.includes('math') || lower.includes('calculus') || lower.includes('algebra')) return 'Mathematics';
+    if (lower.includes('physics') || lower.includes('chemistry') || lower.includes('biology')) return 'Physics';
+    if (lower.includes('english') || lower.includes('literature')) return 'English';
+    if (lower.includes('history') || lower.includes('geography')) return 'History';
+    if (lower.includes('art') || lower.includes('music')) return 'Art';
+    return undefined;
+  };
 
-  // Build description with role prefix
+  // Use service name for avatar (listing-based) instead of tutor/client
+  const avatarUrl = getProfileImageUrl({
+    id: booking.listing_id || booking.id,
+    avatar_url: undefined, // No custom avatar for services
+    full_name: booking.service_name, // Use service name for initials
+  }, true, inferSubject(booking.service_name)); // isListing = true, infer subject from name
+  const fallbackChar = booking.service_name?.substring(0, 2).toUpperCase() || '?';
+
+  // Build description with tutor/client info
   const rolePrefix = viewMode === 'client' ? 'Tutor' : 'Client';
   const description = otherParty ? `${rolePrefix}: ${otherParty.full_name}` : undefined;
 

@@ -50,6 +50,11 @@ interface TutorProfile {
   listing_count?: number; // Number of published listings
   average_rating?: number;
   review_count?: number;
+  subjects?: string[]; // Primary subjects taught
+  levels?: string[]; // Primary levels taught
+  location_types?: string[]; // Delivery modes (online, in_person, hybrid)
+  min_hourly_rate?: number; // Minimum price across all listings
+  max_hourly_rate?: number; // Maximum price across all listings
 }
 
 interface TutorProfileCardProps {
@@ -61,15 +66,36 @@ export default function TutorProfileCard({ profile }: TutorProfileCardProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { profile: currentUser } = useUserProfile();
 
-  // Use the same profile image logic
+  // Use the same profile image logic (includes teal initials fallback)
   const imageUrl = getProfileImageUrl({
     id: profile.id,
     avatar_url: profile.avatar_url,
+    full_name: profile.full_name,
   });
 
-  // Calculate rating display
-  const rating = profile.average_rating || 4.8; // TODO: Get actual rating
-  const reviewCount = profile.review_count || 0;
+  // Use real rating value, handle both undefined and 0
+  const rating = profile.average_rating ?? 0;
+  const reviewCount = profile.review_count ?? 0;
+  const hasRating = rating > 0;
+
+  // Format delivery modes: "Online, In Person" or "Online" or "+2 more"
+  const deliveryModes = profile.location_types && profile.location_types.length > 0
+    ? profile.location_types.slice(0, 2).map(type => {
+        if (type === 'online') return 'Online';
+        if (type === 'in_person') return 'In Person';
+        if (type === 'hybrid') return 'Hybrid';
+        return type;
+      }).join(', ') + (profile.location_types.length > 2 ? ` +${profile.location_types.length - 2}` : '')
+    : 'Available Online';
+
+  // Format price range: "From £10/hr" or "£10-50/hr"
+  const priceDisplay = profile.min_hourly_rate && profile.max_hourly_rate
+    ? profile.min_hourly_rate === profile.max_hourly_rate
+      ? `£${profile.min_hourly_rate}/hr`
+      : `From £${profile.min_hourly_rate}/hr`
+    : profile.min_hourly_rate
+      ? `From £${profile.min_hourly_rate}/hr`
+      : 'View Profile';
 
   // Check if profile is saved in "My Saves" wiselist on mount
   useEffect(() => {
@@ -191,7 +217,7 @@ export default function TutorProfileCard({ profile }: TutorProfileCardProps) {
         </button>
       </div>
 
-      {/* Content Section - Clean Airbnb Format */}
+      {/* Content Section - Clean Airbnb Format (matches MarketplaceListingCard) */}
       <div className={styles.content}>
         {/* Line 1: Tutor Name & Rating */}
         <div className={styles.row}>
@@ -210,28 +236,47 @@ export default function TutorProfileCard({ profile }: TutorProfileCardProps) {
           </div>
         </div>
 
-        {/* Line 2: Bio preview */}
+        {/* Line 2: Subject & Level (matching listing card format) */}
         <div className={styles.row}>
           <div className={styles.subject}>
-            {profile.bio?.substring(0, 50) || 'Experienced tutor'}
+            {profile.subjects && profile.subjects.length > 0 ? (
+              <>
+                {profile.subjects.slice(0, 2).join(', ')}
+                {profile.subjects.length > 2 && ` +${profile.subjects.length - 2}`}
+              </>
+            ) : (
+              profile.bio?.substring(0, 50) || 'Experienced tutor'
+            )}
           </div>
+          {profile.levels && profile.levels.length > 0 && (
+            <div className={styles.level}>{profile.levels[0]}</div>
+          )}
         </div>
 
-        {/* Line 3: Location & Services */}
+        {/* Line 3: Delivery Modes & Service Count */}
         <div className={styles.row}>
           <div className={styles.location}>
-            {profile.city || 'Available Online'}
+            {deliveryModes}
           </div>
           <div className={styles.deliveryMode}>
             {profile.listing_count || 0} service{profile.listing_count !== 1 ? 's' : ''}
           </div>
         </div>
 
-        {/* Line 4: View Profile */}
+        {/* Line 4: Price Range & Instant Book Link */}
         <div className={styles.row}>
           <div className={styles.price}>
-            View Profile
+            {priceDisplay}
           </div>
+          <Link
+            href={`/public-profile/${profile.id}`}
+            className={styles.bookLink}
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent parent clicks
+            }}
+          >
+            Instant Book
+          </Link>
         </div>
       </div>
     </Link>
