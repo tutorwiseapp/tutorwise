@@ -28,7 +28,7 @@ import styles from './page.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
-type TabType = 'my-lists' | 'shared-with-me';
+type TabType = 'my-saves' | 'my-lists' | 'shared-with-me';
 type SortType = 'newest' | 'oldest' | 'name-asc' | 'name-desc';
 
 const ITEMS_PER_PAGE = 4;
@@ -36,7 +36,7 @@ const ITEMS_PER_PAGE = 4;
 export default function WiselistsPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<TabType>('my-lists');
+  const [activeTab, setActiveTab] = useState<TabType>('my-saves');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortType>('newest');
   const [showActionsMenu, setShowActionsMenu] = useState(false);
@@ -58,26 +58,31 @@ export default function WiselistsPage() {
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
-  // Calculate stats for ownership-based tabs
+  // Calculate stats for tabs
   const stats = useMemo(() => {
-    const myLists = wiselists.filter((w: any) => w.is_owner === true).length;
+    const mySaves = wiselists.filter((w: any) => w.is_owner === true && w.name === 'My Saves').length;
+    const myLists = wiselists.filter((w: any) => w.is_owner === true && w.name !== 'My Saves').length;
     const sharedWithMe = wiselists.filter((w: any) => w.is_owner === false).length;
 
     return {
       total: wiselists.length,
+      mySaves,
       myLists,
       sharedWithMe,
     };
   }, [wiselists]);
 
-  // Filter wiselists based on ownership, search, and sort
+  // Filter wiselists based on tab, search, and sort
   const filteredWiselists = useMemo(() => {
     let filtered = [...wiselists];
 
-    // Filter by ownership (tab)
+    // Filter by tab
     switch (activeTab) {
+      case 'my-saves':
+        filtered = filtered.filter((w: any) => w.is_owner === true && w.name === 'My Saves');
+        break;
       case 'my-lists':
-        filtered = filtered.filter((w: any) => w.is_owner === true);
+        filtered = filtered.filter((w: any) => w.is_owner === true && w.name !== 'My Saves');
         break;
       case 'shared-with-me':
         filtered = filtered.filter((w: any) => w.is_owner === false);
@@ -404,6 +409,7 @@ export default function WiselistsPage() {
       tabs={
         <HubTabs
           tabs={[
+            { id: 'my-saves', label: 'My Saves', count: stats.mySaves, active: activeTab === 'my-saves' },
             { id: 'my-lists', label: 'My Lists', count: stats.myLists, active: activeTab === 'my-lists' },
             { id: 'shared-with-me', label: 'Shared With Me', count: stats.sharedWithMe, active: activeTab === 'shared-with-me' },
           ]}
@@ -420,9 +426,17 @@ export default function WiselistsPage() {
         {/* Empty State */}
         {paginatedWiselists.length === 0 ? (
           <HubEmptyState
-            title={wiselists.length === 0 ? 'No wiselists yet' : 'No wiselists found'}
+            title={
+              activeTab === 'my-saves' && filteredWiselists.length === 0
+                ? 'No saved items yet'
+                : wiselists.length === 0
+                ? 'No wiselists yet'
+                : 'No wiselists found'
+            }
             description={
-              wiselists.length === 0
+              activeTab === 'my-saves' && filteredWiselists.length === 0
+                ? 'Start saving profiles and listings by clicking the heart icon. Your saved items will appear here in "My Saves".'
+                : wiselists.length === 0
                 ? 'Create your first wiselist to start saving and organizing tutors and services'
                 : 'No wiselists match your current filters. Try adjusting your search or filters.'
             }
