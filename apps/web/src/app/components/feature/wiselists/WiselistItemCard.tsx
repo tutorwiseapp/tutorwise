@@ -13,7 +13,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { WiselistItem } from '@/types';
-import { X, MapPin, Plus, Heart } from 'lucide-react';
+import { X, MapPin, Plus, Heart, Eye } from 'lucide-react';
 import getProfileImageUrl from '@/lib/utils/image';
 import Button from '@/app/components/ui/actions/Button';
 import styles from './WiselistItemCard.module.css';
@@ -29,6 +29,7 @@ interface WiselistItemCardProps {
   onToggleSelect?: () => void;
   onAddToList?: () => void;
   onUnsave?: () => void;
+  onViewDetails?: () => void;
 }
 
 export default function WiselistItemCard({
@@ -41,6 +42,7 @@ export default function WiselistItemCard({
   onToggleSelect,
   onAddToList,
   onUnsave,
+  onViewDetails,
 }: WiselistItemCardProps) {
   const handleRemove = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -61,6 +63,12 @@ export default function WiselistItemCard({
     e.preventDefault();
     e.stopPropagation();
     onUnsave?.();
+  };
+
+  const handleViewDetails = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onViewDetails?.();
   };
 
   // Render profile item
@@ -127,17 +135,28 @@ export default function WiselistItemCard({
           </div>
         </Link>
 
-        {/* Actions for My Saves */}
-        {!bulkMode && isMySaves && (
+        {/* Actions */}
+        {!bulkMode && (
           <div className={styles.actions}>
-            <Button variant="secondary" size="sm" onClick={handleAddToList}>
-              <Plus size={16} />
-              Add to List
+            {/* View Details - Always shown */}
+            <Button variant="secondary" size="sm" onClick={handleViewDetails}>
+              <Eye size={16} />
+              View Details
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleUnsave}>
-              <Heart size={16} fill="currentColor" />
-              Unsave
-            </Button>
+
+            {/* My Saves specific actions */}
+            {isMySaves && (
+              <>
+                <Button variant="secondary" size="sm" onClick={handleAddToList}>
+                  <Plus size={16} />
+                  Add to List
+                </Button>
+                <Button variant="ghost" size="sm" onClick={handleUnsave}>
+                  <Heart size={16} fill="currentColor" />
+                  Unsave
+                </Button>
+              </>
+            )}
           </div>
         )}
       </div>
@@ -204,17 +223,28 @@ export default function WiselistItemCard({
           </div>
         </Link>
 
-        {/* Actions for My Saves */}
-        {!bulkMode && isMySaves && (
+        {/* Actions */}
+        {!bulkMode && (
           <div className={styles.actions}>
-            <Button variant="secondary" size="sm" onClick={handleAddToList}>
-              <Plus size={16} />
-              Add to List
+            {/* View Details - Always shown */}
+            <Button variant="secondary" size="sm" onClick={handleViewDetails}>
+              <Eye size={16} />
+              View Details
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleUnsave}>
-              <Heart size={16} fill="currentColor" />
-              Unsave
-            </Button>
+
+            {/* My Saves specific actions */}
+            {isMySaves && (
+              <>
+                <Button variant="secondary" size="sm" onClick={handleAddToList}>
+                  <Plus size={16} />
+                  Add to List
+                </Button>
+                <Button variant="ghost" size="sm" onClick={handleUnsave}>
+                  <Heart size={16} fill="currentColor" />
+                  Unsave
+                </Button>
+              </>
+            )}
           </div>
         )}
       </div>

@@ -15,6 +15,7 @@ import { getWiselist, removeWiselistItem } from '@/lib/api/wiselists';
 import { quickSaveItem } from '@/lib/api/wiselists';
 import WiselistItemCard from '@/app/components/feature/wiselists/WiselistItemCard';
 import AddToListModal from '@/app/components/feature/wiselists/AddToListModal';
+import WiselistItemDetailModal from '@/app/components/feature/wiselists/WiselistItemDetailModal';
 import { HubPageLayout, HubHeader } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
@@ -34,6 +35,7 @@ export default function WiselistDetailPage() {
   const [bulkMode, setBulkMode] = useState(false);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [showAddToListModal, setShowAddToListModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [currentItem, setCurrentItem] = useState<WiselistItem | null>(null);
 
   // Fetch wiselist with items
@@ -85,6 +87,11 @@ export default function WiselistDetailPage() {
   const isMySaves = wiselist?.name === 'My Saves';
 
   // Handle individual item actions
+  const handleViewDetails = (item: WiselistItem) => {
+    setCurrentItem(item);
+    setShowDetailModal(true);
+  };
+
   const handleAddToList = (item: WiselistItem) => {
     setCurrentItem(item);
     setShowAddToListModal(true);
@@ -275,6 +282,7 @@ export default function WiselistDetailPage() {
                 bulkMode={bulkMode}
                 isSelected={selectedItems.has(item.id)}
                 onToggleSelect={() => handleToggleItem(item.id)}
+                onViewDetails={() => handleViewDetails(item)}
                 onAddToList={() => handleAddToList(item)}
                 onUnsave={() => handleUnsave(item)}
                 onRemove={() => handleRemoveFromList(item)}
@@ -283,6 +291,16 @@ export default function WiselistDetailPage() {
           </div>
         )}
       </div>
+
+      {/* View Details Modal */}
+      <WiselistItemDetailModal
+        isOpen={showDetailModal}
+        onClose={() => {
+          setShowDetailModal(false);
+          setCurrentItem(null);
+        }}
+        item={currentItem}
+      />
 
       {/* Add to List Modal */}
       <AddToListModal
