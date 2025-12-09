@@ -2,18 +2,18 @@
  * Filename: SavedItemCard.tsx
  * Purpose: Display saved profile or listing item with Add to List and Unsave buttons
  * Created: 2025-12-09
+ * Updated: 2025-12-09 - Migrated to HubDetailCard for consistent styling
  */
 
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { WiselistItem } from '@/types';
 import getProfileImageUrl from '@/lib/utils/image';
 import { slugify } from '@/lib/utils/slugify';
+import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import Button from '@/app/components/ui/actions/Button';
-import styles from './SavedItemCard.module.css';
 
 interface SavedItemCardProps {
   item: WiselistItem;
@@ -26,11 +26,8 @@ export default function SavedItemCard({
   onAddToList,
   onUnsave,
 }: SavedItemCardProps) {
-  const [imageError, setImageError] = useState(false);
-
   // Determine if this is a profile or listing
   const isProfile = !!item.profile;
-  const isListing = !!item.listing;
 
   // Get the appropriate data
   const profile = item.profile;
@@ -42,7 +39,7 @@ export default function SavedItemCard({
     : listing?.title || 'Unknown Listing';
 
   const description = isProfile
-    ? profile?.headline || profile?.bio || ''
+    ? profile?.bio || ''
     : listing?.description || '';
 
   const imageUrl = isProfile
@@ -50,70 +47,60 @@ export default function SavedItemCard({
         id: profile?.id || '',
         avatar_url: profile?.avatar_url,
       })
-    : listing?.images?.[0]?.url || '/images/placeholder-listing.png';
+    : listing?.images?.[0]?.url || null;
 
   const linkUrl = isProfile
     ? `/public-profile/${profile?.id}/${profile?.slug || slugify(profile?.full_name || '')}`
     : `/listings/${listing?.id}/${listing?.slug || slugify(listing?.title || '')}`;
 
-  const handleUnsave = () => {
+  const handleUnsave = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     onUnsave(item.id, item.profile_id || undefined, item.listing_id || undefined);
   };
 
-  const handleAddToList = () => {
+  const handleAddToList = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     onAddToList(item.id);
   };
 
+  // Format saved date
+  const savedDate = new Date(item.created_at).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+
+  // Build details array
+  const details = [
+    { label: 'Type', value: isProfile ? 'Profile' : 'Listing' },
+    { label: 'Saved', value: savedDate },
+  ];
+
+  // Build actions array
+  const actions = [
+    <Button key="add" variant="secondary" size="sm" onClick={handleAddToList}>
+      Add to List
+    </Button>,
+    <Button key="unsave" variant="ghost" size="sm" onClick={handleUnsave}>
+      Unsave
+    </Button>,
+  ];
+
   return (
-    <div className={styles.card}>
-      <Link href={linkUrl} className={styles.cardLink}>
-        <div className={styles.imageContainer}>
-          {!imageError ? (
-            <Image
-              src={imageUrl}
-              alt={name}
-              fill
-              className={styles.image}
-              onError={() => setImageError(true)}
-            />
-          ) : (
-            <div className={styles.imageFallback}>
-              {name.charAt(0).toUpperCase()}
-            </div>
-          )}
-        </div>
-
-        <div className={styles.content}>
-          <h3 className={styles.title}>{name}</h3>
-          {description && (
-            <p className={styles.description}>
-              {description.length > 100
-                ? `${description.substring(0, 100)}...`
-                : description}
-            </p>
-          )}
-          <div className={styles.meta}>
-            <span className={styles.type}>
-              {isProfile ? 'Profile' : 'Listing'}
-            </span>
-            <span className={styles.date}>
-              Saved {new Date(item.created_at).toLocaleDateString('en-GB', {
-                day: 'numeric',
-                month: 'short',
-              })}
-            </span>
-          </div>
-        </div>
-      </Link>
-
-      <div className={styles.actions}>
-        <Button variant="secondary" size="sm" onClick={handleAddToList}>
-          Add to List
-        </Button>
-        <Button variant="ghost" size="sm" onClick={handleUnsave}>
-          Unsave
-        </Button>
-      </div>
-    </div>
+    <Link href={linkUrl} style={{ textDecoration: 'none', color: 'inherit' }}>
+      <HubDetailCard
+        image={{
+          src: imageUrl,
+          alt: name,
+          fallbackChar: name.charAt(0).toUpperCase(),
+        }}
+        title={name}
+        description={description}
+        details={details}
+        actions={actions}
+      />
+    </Link>
   );
 }

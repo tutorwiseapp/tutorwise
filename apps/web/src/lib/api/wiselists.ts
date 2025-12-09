@@ -19,9 +19,11 @@ import type {
  * Returns wiselists with is_owner flag for [My Lists] / [Shared With Me] filtering
  */
 export async function getMyWiselists(): Promise<Wiselist[]> {
+  console.log('[getMyWiselists] Starting...');
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
+  console.log('[getMyWiselists] User:', user.id);
 
   // Get owned lists
   const { data: ownedLists, error: ownedError } = await supabase
@@ -30,7 +32,11 @@ export async function getMyWiselists(): Promise<Wiselist[]> {
     .eq('profile_id', user.id)
     .order('created_at', { ascending: false });
 
-  if (ownedError) throw ownedError;
+  if (ownedError) {
+    console.error('[getMyWiselists] Owned lists error:', ownedError);
+    throw ownedError;
+  }
+  console.log('[getMyWiselists] Owned lists found:', ownedLists?.length || 0, ownedLists?.map(l => ({ id: l.id, name: l.name })));
 
   // Get collaborated lists
   const { data: collaboratedLists, error: collabError } = await supabase
@@ -66,6 +72,7 @@ export async function getMyWiselists(): Promise<Wiselist[]> {
     ...collaboratedListsWithFlag,
   ];
 
+  console.log('[getMyWiselists] Total lists:', allLists.length, allLists.map(l => ({ id: l.id, name: l.name })));
   return allLists as Wiselist[];
 }
 
@@ -74,9 +81,13 @@ export async function getMyWiselists(): Promise<Wiselist[]> {
  * Uses API route to avoid RLS issues with complex joins
  */
 export async function getWiselist(id: string): Promise<WiselistWithDetails | null> {
+  console.log('[getWiselist] Fetching wiselist:', id);
   const response = await fetch(`/api/wiselists/${id}`);
+  console.log('[getWiselist] Response status:', response.status, response.statusText);
 
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error('[getWiselist] Error response:', errorText);
     if (response.status === 404) {
       return null;
     }
@@ -84,6 +95,7 @@ export async function getWiselist(id: string): Promise<WiselistWithDetails | nul
   }
 
   const { wiselist } = await response.json();
+  console.log('[getWiselist] Wiselist fetched:', wiselist.id, wiselist.name, 'items:', wiselist.items?.length || 0);
   return wiselist as WiselistWithDetails;
 }
 
@@ -188,23 +200,32 @@ export async function addWiselistItem(data: {
   listingId?: string;
   notes?: string;
 }): Promise<WiselistItem> {
+  console.log('[addWiselistItem] Starting with data:', data);
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
+  console.log('[addWiselistItem] User:', user.id);
+
+  const insertData = {
+    wiselist_id: data.wiselistId,
+    profile_id: data.profileId || null,
+    listing_id: data.listingId || null,
+    notes: data.notes || null,
+    added_by_profile_id: user.id,
+  };
+  console.log('[addWiselistItem] Inserting:', insertData);
 
   const { data: item, error } = await supabase
     .from('wiselist_items')
-    .insert({
-      wiselist_id: data.wiselistId,
-      profile_id: data.profileId || null,
-      listing_id: data.listingId || null,
-      notes: data.notes || null,
-      added_by_profile_id: user.id,
-    })
+    .insert(insertData)
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    console.error('[addWiselistItem] Error:', error);
+    throw error;
+  }
+  console.log('[addWiselistItem] Item inserted successfully:', item);
   return item as WiselistItem;
 }
 
@@ -327,11 +348,14 @@ export async function migrateTempSaves(): Promise<void> {
  * This is the auto-list that gets created when users click the heart icon
  */
 export async function getOrCreateMySavesWiselist(): Promise<Wiselist> {
+  console.log('[getOrCreateMySavesWiselist] Starting...');
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
+  console.log('[getOrCreateMySavesWiselist] User:', user.id);
 
   // Try to find existing "My Saves" list
+  console.log('[getOrCreateMySavesWiselist] Checking for existing My Saves...');
   const { data: existing, error: fetchError } = await supabase
     .from('wiselists')
     .select('*')
@@ -340,15 +364,18 @@ export async function getOrCreateMySavesWiselist(): Promise<Wiselist> {
     .maybeSingle();
 
   if (fetchError && fetchError.code !== 'PGRST116') {
+    console.error('[getOrCreateMySavesWiselist] Fetch error:', fetchError);
     throw fetchError;
   }
 
   // If exists, return it
   if (existing) {
+    console.log('[getOrCreateMySavesWiselist] Found existing My Saves:', existing.id);
     return existing as Wiselist;
   }
 
   // Otherwise, create it
+  console.log('[getOrCreateMySavesWiselist] Creating new My Saves...');
   const { data: newList, error: createError } = await supabase
     .from('wiselists')
     .insert({
@@ -361,7 +388,11 @@ export async function getOrCreateMySavesWiselist(): Promise<Wiselist> {
     .select()
     .single();
 
-  if (createError) throw createError;
+  if (createError) {
+    console.error('[getOrCreateMySavesWiselist] Create error:', createError);
+    throw createError;
+  }
+  console.log('[getOrCreateMySavesWiselist] Created new My Saves:', newList.id);
   return newList as Wiselist;
 }
 
@@ -374,11 +405,14 @@ export async function quickSaveItem(data: {
   profileId?: string;
   listingId?: string;
 }): Promise<{ saved: boolean; itemId?: string }> {
+  console.log('[quickSaveItem] Starting with data:', data);
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  console.log('[quickSaveItem] User authenticated:', !!user, user?.id);
 
   // For non-logged-in users: Use localStorage
   if (!user) {
+    console.log('[quickSaveItem] No user, using localStorage');
     const itemKey = data.profileId ? `profile-${data.profileId}` : `listing-${data.listingId}`;
     const tempSaves = getTempSaves();
 
@@ -386,21 +420,26 @@ export async function quickSaveItem(data: {
       // Remove from temp saves
       const updated = tempSaves.filter(k => k !== itemKey);
       localStorage.setItem('temp_saves', JSON.stringify(updated));
+      console.log('[quickSaveItem] Removed from localStorage');
       return { saved: false };
     } else {
       // Add to temp saves
       tempSaves.push(itemKey);
       localStorage.setItem('temp_saves', JSON.stringify(tempSaves));
+      console.log('[quickSaveItem] Added to localStorage');
       return { saved: true };
     }
   }
 
   // For logged-in users: Use database
   // Get or create "My Saves" wiselist
+  console.log('[quickSaveItem] Getting or creating My Saves wiselist...');
   const mySaves = await getOrCreateMySavesWiselist();
+  console.log('[quickSaveItem] My Saves wiselist:', mySaves.id, mySaves.name);
 
   // Check if item already exists in "My Saves"
   // Note: Use .is() for NULL checks, not .eq()
+  console.log('[quickSaveItem] Checking if item already exists...');
   let query = supabase
     .from('wiselist_items')
     .select('id')
@@ -413,19 +452,24 @@ export async function quickSaveItem(data: {
   }
 
   const { data: existingItem } = await query.maybeSingle();
+  console.log('[quickSaveItem] Existing item found:', existingItem);
 
   // If exists, remove it (unsave)
   if (existingItem) {
+    console.log('[quickSaveItem] Removing existing item...');
     await removeWiselistItem(existingItem.id);
+    console.log('[quickSaveItem] Item removed successfully');
     return { saved: false };
   }
 
   // Otherwise, add it (save)
+  console.log('[quickSaveItem] Adding new item...');
   const newItem = await addWiselistItem({
     wiselistId: mySaves.id,
     profileId: data.profileId,
     listingId: data.listingId,
   });
+  console.log('[quickSaveItem] New item added:', newItem.id);
 
   return { saved: true, itemId: newItem.id };
 }

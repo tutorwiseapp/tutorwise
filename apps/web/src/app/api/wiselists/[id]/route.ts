@@ -21,6 +21,10 @@ export async function GET(
     const supabase = await createClient();
     const { id } = params;
 
+    // Log current user for debugging
+    const { data: { user } } = await supabase.auth.getUser();
+    console.log('[GET /api/wiselists/[id]] User:', user?.id, 'fetching wiselist:', id);
+
     // First, check if wiselist exists and user has access
     const { data: basicWiselist, error: basicError } = await supabase
       .from('wiselists')
@@ -29,40 +33,46 @@ export async function GET(
       .single();
 
     if (basicError) {
+      console.error('[GET /api/wiselists/[id]] Basic wiselist fetch error:', basicError);
+      console.error('[GET /api/wiselists/[id]] Error code:', basicError.code);
+      console.error('[GET /api/wiselists/[id]] Error details:', JSON.stringify(basicError, null, 2));
       if (basicError.code === 'PGRST116') {
         return NextResponse.json({ error: 'Wiselist not found' }, { status: 404 });
       }
-      console.error('Basic wiselist fetch error:', basicError);
       throw basicError;
     }
 
     // Fetch related data separately to handle potential RLS issues
+    console.log('[GET /api/wiselists/[id]] Fetching items for wiselist:', id);
     const [itemsResult, collaboratorsResult] = await Promise.all([
       supabase
         .from('wiselist_items')
         .select(`
           *,
-          profile:profiles(id, full_name, avatar_url, bio, city, slug, active_role),
-          listing:listings(id, title, description, hourly_rate, slug, subjects, levels, location_type, image_url),
-          added_by:profiles!added_by_profile_id(id, full_name, avatar_url)
+          profile:profiles!wiselist_items_profile_id_fkey(id, full_name, avatar_url, bio, city, slug, active_role),
+          listing:listings(id, title, description, hourly_rate, slug, subjects, levels, location_type, images),
+          added_by:profiles!wiselist_items_added_by_profile_id_fkey(id, full_name, avatar_url)
         `)
         .eq('wiselist_id', id),
       supabase
         .from('wiselist_collaborators')
         .select(`
           *,
-          profile:profiles!profile_id(id, full_name, avatar_url, email),
-          invited_by:profiles!invited_by_profile_id(id, full_name, avatar_url)
+          profile:profiles!wiselist_collaborators_profile_id_fkey(id, full_name, avatar_url, email),
+          invited_by:profiles!wiselist_collaborators_invited_by_profile_id_fkey(id, full_name, avatar_url)
         `)
         .eq('wiselist_id', id)
     ]);
 
     if (itemsResult.error) {
-      console.error('Items fetch error:', itemsResult.error);
+      console.error('[GET /api/wiselists/[id]] Items fetch error:', itemsResult.error);
+      console.error('[GET /api/wiselists/[id]] Error details:', JSON.stringify(itemsResult.error, null, 2));
+    } else {
+      console.log('[GET /api/wiselists/[id]] Items fetched successfully:', itemsResult.data?.length || 0, 'items');
     }
 
     if (collaboratorsResult.error) {
-      console.error('Collaborators fetch error:', collaboratorsResult.error);
+      console.error('[GET /api/wiselists/[id]] Collaborators fetch error:', collaboratorsResult.error);
     }
 
     // Combine the data
