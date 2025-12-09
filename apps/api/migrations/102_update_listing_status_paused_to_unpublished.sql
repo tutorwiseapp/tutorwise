@@ -17,5 +17,5 @@ ALTER TABLE listings
 ADD CONSTRAINT listings_status_check
 CHECK (status IN ('draft', 'published', 'unpublished', 'archived'));
 
--- Add comment explaining the status values
-COMMENT ON COLUMN listings.status IS 'Listing status: draft (work in progress), published (live in marketplace), unpublished (temporarily hidden), archived (permanently removed with grace period)';
+-- Add comment explaining the status values and workflow
+COMMENT ON COLUMN listings.status IS 'Listing status workflow: draft (work in progress, not visible) → published (live in marketplace) → unpublished (temporarily hidden, can be re-published) → archived (permanently removed with 5-day grace period before manual deletion allowed). Note: Only unpublished listings can be archived, and only archived listings can be deleted (after 5 days).';

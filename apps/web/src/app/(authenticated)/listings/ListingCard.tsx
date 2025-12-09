@@ -90,8 +90,8 @@ export default function ListingCard({
   const isUnpublished = status === 'unpublished';
   const isArchived = status === 'archived';
 
-  // Calculate if listing has been archived for 3+ days (will be 30 days in production)
-  const DAYS_BEFORE_DELETE = 3; // TODO: Change to 30 days in production
+  // Calculate if listing has been archived for 5+ days before deletion is allowed
+  const DAYS_BEFORE_DELETE = 5;
 
   const canDelete = () => {
     // Templates cannot be deleted
@@ -140,7 +140,7 @@ export default function ListingCard({
         setConfirmDialog({
           isOpen: true,
           title: 'Cannot Delete Yet',
-          message: `You cannot delete this listing yet.\n\nListings can only be deleted after being archived for ${DAYS_BEFORE_DELETE} days.\n\n${daysRemaining} ${daysRemaining === 1 ? 'day' : 'days'} remaining.`,
+          message: `You cannot delete this listing yet.\n\nListings can only be deleted after being archived for ${DAYS_BEFORE_DELETE} days.\n\nThis listing was archived ${daysSinceArchived} ${daysSinceArchived === 1 ? 'day' : 'days'} ago.\n${daysRemaining} ${daysRemaining === 1 ? 'day' : 'days'} remaining before deletion is allowed.`,
           onConfirm: () => {
             setConfirmDialog({ ...confirmDialog, isOpen: false });
           },
@@ -230,7 +230,7 @@ export default function ListingCard({
           </Button>
         </>
       ) : isPublished ? (
-        // Published: Unpublish, Archive
+        // Published: Only Unpublish (must unpublish before archiving)
         <>
           <Button
             variant="secondary"
@@ -239,16 +239,9 @@ export default function ListingCard({
           >
             Unpublish
           </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => onArchive(listing.id)}
-          >
-            Archive
-          </Button>
         </>
       ) : isUnpublished ? (
-        // Unpublished: Publish, Archive
+        // Unpublished: Publish or Archive (only unpublished can be archived)
         <>
           <Button
             variant="primary"
