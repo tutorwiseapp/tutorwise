@@ -334,13 +334,19 @@ export async function quickSaveItem(data: {
   if (!user) throw new Error('Not authenticated');
 
   // Check if item already exists in "My Saves"
-  const { data: existingItem } = await supabase
+  // Note: Use .is() for NULL checks, not .eq()
+  let query = supabase
     .from('wiselist_items')
     .select('id')
-    .eq('wiselist_id', mySaves.id)
-    .eq('profile_id', data.profileId || null)
-    .eq('listing_id', data.listingId || null)
-    .maybeSingle();
+    .eq('wiselist_id', mySaves.id);
+
+  if (data.profileId) {
+    query = query.eq('profile_id', data.profileId).is('listing_id', null);
+  } else if (data.listingId) {
+    query = query.is('profile_id', null).eq('listing_id', data.listingId);
+  }
+
+  const { data: existingItem } = await query.maybeSingle();
 
   // If exists, remove it (unsave)
   if (existingItem) {
@@ -380,13 +386,19 @@ export async function isItemSaved(data: {
   if (!mySaves) return false;
 
   // Check if item exists
-  const { data: item } = await supabase
+  // Note: Use .is() for NULL checks, not .eq()
+  let query = supabase
     .from('wiselist_items')
     .select('id')
-    .eq('wiselist_id', mySaves.id)
-    .eq('profile_id', data.profileId || null)
-    .eq('listing_id', data.listingId || null)
-    .maybeSingle();
+    .eq('wiselist_id', mySaves.id);
+
+  if (data.profileId) {
+    query = query.eq('profile_id', data.profileId).is('listing_id', null);
+  } else if (data.listingId) {
+    query = query.is('profile_id', null).eq('listing_id', data.listingId);
+  }
+
+  const { data: item } = await query.maybeSingle();
 
   return !!item;
 }
