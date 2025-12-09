@@ -30,6 +30,9 @@ export default function WiselistCard({
   const [editDescription, setEditDescription] = useState(wiselist.description || '');
   const isPublic = wiselist.visibility === 'public';
 
+  // "My Saves" is a system list that cannot be edited or deleted
+  const isMySaves = wiselist.name === 'My Saves';
+
   // Get list initials (first letter of first 2 words)
   const getInitials = (name: string) =>
     name
@@ -118,8 +121,8 @@ export default function WiselistCard({
     </>
   ) : (
     <>
-      {/* Edit button */}
-      {onUpdate && (
+      {/* Edit button - Hidden for "My Saves" system list */}
+      {onUpdate && !isMySaves && (
         <Button variant="secondary" size="sm" onClick={handleStartEdit}>
           Edit
         </Button>
@@ -137,8 +140,8 @@ export default function WiselistCard({
         </Button>
       )}
 
-      {/* Delete button - only if handler provided */}
-      {onDelete && (
+      {/* Delete button - Hidden for "My Saves" system list */}
+      {onDelete && !isMySaves && (
         <Button variant="ghost" size="sm" onClick={handleDelete}>
           Delete
         </Button>
