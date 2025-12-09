@@ -78,6 +78,12 @@ export default function ListingCard({
     return locationType;
   };
 
+  // Format status for display (map DB status to user-friendly label)
+  const formatStatus = (status?: string): string => {
+    if (status === 'paused') return 'unpublished'; // Map 'paused' (DB) to 'unpublished' (UI)
+    return status || 'draft';
+  };
+
   // Business logic checks
   const status = listing.status;
   const isDraft = status === 'draft';
@@ -179,7 +185,7 @@ export default function ListingCard({
       { label: 'Bookings', value: `${listing.booking_count || 0}` },
     ]),
     // Row 3: Status, Created, Updated (or Archived if applicable)
-    { label: 'Status', value: listing.status || 'draft' },
+    { label: 'Status', value: formatStatus(listing.status) },
     { label: 'Created', value: new Date(listing.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) },
     {
       label: isArchived ? 'Archived' : 'Updated',
@@ -289,7 +295,7 @@ export default function ListingCard({
         }}
         title={listing.title}
         status={{
-          label: listing.status || 'draft',
+          label: formatStatus(listing.status),
           variant: getStatusVariant(listing.status),
         }}
         description={description}
