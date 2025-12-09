@@ -9,7 +9,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Heart, Share2, Gift, MapPin, Edit, Video, Sparkles, Award } from 'lucide-react';
@@ -27,6 +27,7 @@ interface ProfileHeroSectionProps {
 
 export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSectionProps) {
   const [isSaved, setIsSaved] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [isCreatingFreeHelpSession, setIsCreatingFreeHelpSession] = useState(false);
@@ -35,6 +36,25 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
 
   // v5.9: Check if tutor is offering free help
   const isFreeHelpAvailable = profile.available_free_help === true;
+
+  // Check if profile is saved on mount
+  useEffect(() => {
+    if (!currentUser || isOwnProfile) return;
+
+    const checkSavedStatus = async () => {
+      try {
+        const response = await fetch(`/api/saved-profiles/${profile.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setIsSaved(data.isSaved);
+        }
+      } catch (error) {
+        console.error('Error checking saved status:', error);
+      }
+    };
+
+    checkSavedStatus();
+  }, [currentUser, profile.id, isOwnProfile]);
 
   // Get primary subject from professional details
   const getPrimarySubject = () => {
@@ -50,15 +70,48 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
 
   const primarySubject = getPrimarySubject();
 
-  // Handle Save button
-  const handleSave = () => {
+  // Handle Save button with persistent state
+  const handleSave = async () => {
     if (!currentUser) {
       toast.error('Please login to save profiles');
       router.push('/login');
       return;
     }
-    setIsSaved(!isSaved);
-    toast.success(isSaved ? 'Profile removed from saved' : 'Profile saved!');
+
+    setIsLoading(true);
+    try {
+      if (isSaved) {
+        // Unsave profile
+        const response = await fetch(`/api/saved-profiles/${profile.id}`, {
+          method: 'DELETE',
+        });
+
+        if (response.ok) {
+          setIsSaved(false);
+          toast.success('Profile removed from saved');
+        } else {
+          toast.error('Failed to unsave profile');
+        }
+      } else {
+        // Save profile
+        const response = await fetch(`/api/saved-profiles/${profile.id}`, {
+          method: 'POST',
+        });
+
+        if (response.ok) {
+          setIsSaved(true);
+          toast.success('Profile saved!');
+        } else {
+          const data = await response.json();
+          toast.error(data.error || 'Failed to save profile');
+        }
+      }
+    } catch (error) {
+      console.error('Error saving/unsaving profile:', error);
+      toast.error('Something went wrong');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Handle Share button - Open share modal
@@ -162,6 +215,7 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
             className={styles.iconButton}
             aria-label={isSaved ? 'Remove from saved' : 'Save profile'}
             title={isSaved ? 'Remove from saved' : 'Save profile'}
+            disabled={isLoading}
           >
             <Heart size={20} fill={isSaved ? 'currentColor' : 'none'} />
           </button>
