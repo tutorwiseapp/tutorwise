@@ -71,6 +71,12 @@ export default function SavedItemCard({
   // Format added by
   const addedBy = item.added_by?.full_name || 'You';
 
+  // Determine status badge
+  const getStatusVariant = (): 'success' | 'warning' | 'error' | 'neutral' | 'info' => {
+    // For saved items, we use 'success' to indicate "Saved"
+    return 'success';
+  };
+
   // Build details grid - 3x3 grid (9 fields) matching BookingCard pattern
   const details = isProfile ? [
     // Row 1
@@ -95,7 +101,7 @@ export default function SavedItemCard({
           cursor: 'help'
         }}
       >
-        {profile?.id?.substring(0, 8) || 'N/A'}...
+        {profile?.id || 'N/A'}
       </span>
     )},
   ] : [
@@ -121,7 +127,7 @@ export default function SavedItemCard({
           cursor: 'help'
         }}
       >
-        {listing?.id?.substring(0, 8) || 'N/A'}...
+        {listing?.id || 'N/A'}
       </span>
     )},
   ];
@@ -143,9 +149,13 @@ export default function SavedItemCard({
       image={{
         src: imageUrl,
         alt: name,
-        fallbackChar: name.charAt(0).toUpperCase(),
+        fallbackChar: name.substring(0, 2).toUpperCase() || '?',
       }}
       title={name}
+      status={{
+        label: 'Saved',
+        variant: getStatusVariant(),
+      }}
       description={description}
       details={details}
       actions={actions}

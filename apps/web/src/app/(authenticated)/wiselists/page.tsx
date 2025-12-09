@@ -13,6 +13,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import WiselistCard from '@/app/components/feature/wiselists/WiselistCard';
 import SavedItemCard from '@/app/components/feature/wiselists/SavedItemCard';
 import CreateWiselistModal from '@/app/components/feature/wiselists/CreateWiselistModal';
+import AddToWiselistModal from '@/app/components/feature/wiselists/AddToWiselistModal';
 import { WiselistStatsWidget } from '@/app/components/feature/wiselists/WiselistStatsWidget';
 import WiselistHelpWidget from '@/app/components/feature/wiselists/WiselistHelpWidget';
 import WiselistTipWidget from '@/app/components/feature/wiselists/WiselistTipWidget';
@@ -42,6 +43,8 @@ export default function WiselistsPage() {
   const [sortBy, setSortBy] = useState<SortType>('newest');
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showAddToListModal, setShowAddToListModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<{ itemId: string; profileId?: string; listingId?: string } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
   // React Query: Fetch wiselists with automatic retry, caching, and background refetch
@@ -239,8 +242,16 @@ export default function WiselistsPage() {
 
   // Handle Add to List for a saved item
   const handleItemAddToList = async (itemId: string) => {
-    // TODO: Open modal to select target wiselist(s)
-    toast('Add to List functionality coming soon!', { icon: '📋' });
+    // Get the item to extract profileId or listingId
+    const item = mySavesData?.items.find(i => i.id === itemId);
+    if (item) {
+      setSelectedItem({
+        itemId,
+        profileId: item.profile_id || undefined,
+        listingId: item.listing_id || undefined,
+      });
+      setShowAddToListModal(true);
+    }
   };
 
   // Handle Unsave for a saved item
@@ -471,7 +482,7 @@ export default function WiselistsPage() {
               <div className={styles.loading}>Loading saved items...</div>
             ) : mySavesData?.items && mySavesData.items.length > 0 ? (
               <>
-                <div className={styles.wiselistsGrid}>
+                <div className={styles.savedItemsList}>
                   {mySavesData.items.map((item) => (
                     <SavedItemCard
                       key={item.id}
@@ -541,6 +552,22 @@ export default function WiselistsPage() {
         onClose={() => setShowCreateModal(false)}
         onSuccess={() => {
           // Refresh handled by modal via queryClient.invalidateQueries
+        }}
+      />
+
+      {/* Add to List Modal */}
+      <AddToWiselistModal
+        isOpen={showAddToListModal}
+        onClose={() => {
+          setShowAddToListModal(false);
+          setSelectedItem(null);
+        }}
+        itemId={selectedItem?.itemId || ''}
+        profileId={selectedItem?.profileId}
+        listingId={selectedItem?.listingId}
+        onCreateWiselist={() => {
+          setShowAddToListModal(false);
+          setShowCreateModal(true);
         }}
       />
     </HubPageLayout>

@@ -9,7 +9,6 @@
 
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import styles from './CreateWiselistModal.module.css';
 
@@ -24,7 +23,6 @@ export default function CreateWiselistModal({
   onClose,
   onSuccess,
 }: CreateWiselistModalProps) {
-  const router = useRouter();
   const queryClient = useQueryClient();
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState({
@@ -68,9 +66,6 @@ export default function CreateWiselistModal({
 
       // Close modal and reset form
       handleClose();
-
-      // Navigate to the new wiselist
-      router.push(`/wiselists/${wiselist.id}`);
     } catch (error: any) {
       console.error('Create wiselist error:', error);
       toast.error(error.message || 'Failed to create wiselist');

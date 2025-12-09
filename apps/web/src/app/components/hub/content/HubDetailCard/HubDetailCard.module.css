@@ -142,6 +142,11 @@
   color: #000000; /* Black text color for all devices */
   line-height: 1.5;
   margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0; /* Critical for text truncation in flex containers */
+  width: 100%; /* Ensure it takes full available width */
 }
 
 /* Details Grid (3-column responsive) - Removed divider, tighter spacing */

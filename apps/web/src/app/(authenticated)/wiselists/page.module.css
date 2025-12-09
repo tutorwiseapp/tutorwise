@@ -17,6 +17,13 @@
   width: 100%;
 }
 
+/* My Saves List (matches pattern: bookingsList, listingsList, referralsList) */
+.savedItemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 @media (max-width: 768px) {
   .wiselistsGrid {
     grid-template-columns: 1fr;
