@@ -107,7 +107,8 @@ export default function ListingsPage() {
       toast.success('Listing unpublished');
       queryClient.invalidateQueries({ queryKey: ['listings', user?.id] });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Unpublish error:', error);
       toast.error('Failed to unpublish listing');
     },
   });
@@ -129,7 +130,7 @@ export default function ListingsPage() {
     return {
       all: regularListings.length,
       published: regularListings.filter(l => l.status === 'published').length,
-      unpublished: regularListings.filter(l => l.status === 'unpublished').length,
+      unpublished: regularListings.filter(l => l.status === 'paused').length, // 'paused' in DB = 'unpublished' in UI
       draft: regularListings.filter(l => l.status === 'draft').length,
       archived: regularListings.filter(l => l.status === 'archived').length,
       templates: rawListings.filter(l => l.is_template).length,
@@ -149,7 +150,7 @@ export default function ListingsPage() {
         return listing.status === 'published' && listing.is_template !== true;
       }
       if (filter === 'unpublished') {
-        return listing.status === 'unpublished' && listing.is_template !== true;
+        return listing.status === 'paused' && listing.is_template !== true; // 'paused' in DB = 'unpublished' in UI
       }
       if (filter === 'draft') {
         return listing.status === 'draft' && listing.is_template !== true;
@@ -231,7 +232,7 @@ export default function ListingsPage() {
   };
 
   const handleUnpublish = (id: string) => {
-    unpublishMutation.mutate({ id, status: 'unpublished' as 'draft' | 'paused' });
+    unpublishMutation.mutate({ id, status: 'paused' });
   };
 
   const handleArchive = (id: string) => {
