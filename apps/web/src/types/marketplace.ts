@@ -10,6 +10,7 @@ export interface TutorProfile {
   full_name: string;
   avatar_url?: string;
   bio?: string;
+  headline?: string;
   city?: string;
   identity_verified?: boolean;
   dbs_verified?: boolean;
@@ -17,6 +18,11 @@ export interface TutorProfile {
   listing_count?: number; // Number of published listings
   average_rating?: number;
   review_count?: number;
+  subjects?: string[]; // Primary subjects taught (from listings)
+  levels?: string[]; // Primary levels taught (from listings)
+  location_types?: string[]; // Delivery modes (online, in_person, hybrid)
+  min_hourly_rate?: number; // Minimum price across all listings
+  max_hourly_rate?: number; // Maximum price across all listings
 }
 
 export type MarketplaceItemType = 'profile' | 'listing';

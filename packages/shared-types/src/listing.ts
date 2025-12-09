@@ -14,18 +14,25 @@ export type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'frida
 export type ServiceType = 'one-to-one' | 'group-session' | 'workshop' | 'study-package';
 export type PackageType = 'pdf' | 'video' | 'bundle';
 
+/**
+ * @deprecated Legacy format - use AvailabilityPeriod[] instead
+ */
 export interface TimeSlot {
   start: string; // HH:MM format
   end: string;   // HH:MM format
 }
 
+/**
+ * @deprecated Legacy format - use AvailabilityPeriod[] instead
+ */
 export interface Availability {
   [key: string]: TimeSlot[]; // DayOfWeek as key
 }
 
 /**
- * v4.0: Availability Period (reused from profile system)
+ * v4.1: Availability Period (reused from profile system)
  * Supports both recurring weekly schedules and one-time slots
+ * This is the STANDARD format - stored as JSONB array in database
  */
 export interface AvailabilityPeriod {
   id: string;
@@ -96,7 +103,7 @@ export interface Listing {
   location_postcode?: string;
   location_country: string;
   timezone: string;
-  availability?: Availability;
+  availability?: AvailabilityPeriod[]; // v4.1: JSONB array of periods (STANDARD format)
 
   // Media
   images: string[];
@@ -111,6 +118,8 @@ export interface Listing {
   inquiry_count: number;
   booking_count: number;
   response_time?: string;
+  average_rating?: number; // Average rating from reviews
+  review_count?: number; // Total number of reviews
 
   // Template Fields
   is_template?: boolean;      // Whether this is a system-generated template
@@ -237,7 +246,7 @@ export interface CreateListingInput {
   location_country?: string;
   location_details?: string;
   timezone?: string;
-  availability?: Availability;
+  availability?: AvailabilityPeriod[]; // v4.1: JSONB array of periods (STANDARD format)
 
   // Media
   images?: string[];

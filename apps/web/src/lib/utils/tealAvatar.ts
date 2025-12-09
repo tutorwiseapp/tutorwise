@@ -175,8 +175,8 @@ export function generateTealAvatar(
         </linearGradient>
       </defs>
 
-      <!-- Background with gradient -->
-      <rect width="150" height="150" fill="url(#${gradientId})" rx="8"/>
+      <!-- Background with gradient (no rounded corners) -->
+      <rect width="150" height="150" fill="url(#${gradientId})"/>
 
       <!-- Initials text -->
       <text

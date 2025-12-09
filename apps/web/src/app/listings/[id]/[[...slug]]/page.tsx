@@ -41,6 +41,8 @@ interface ListingDetailsPageProps {
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: ListingDetailsPageProps) {
+  // Safe cast: ListingV41 extends Listing and adds optional fields
+  // Database returns all fields including v4.1 additions (service_type, hero_image_url, etc.)
   const listing = (await getListing(params.id)) as ListingV41 | null;
 
   if (!listing) {
@@ -93,6 +95,8 @@ export default async function ListingDetailsPage({ params }: ListingDetailsPageP
   const supabase = await createClient();
 
   // Fetch listing data server-side
+  // Safe cast: ListingV41 extends Listing and adds optional fields
+  // Database returns all fields including v4.1 additions (service_type, hero_image_url, etc.)
   const listing = (await getListing(params.id)) as ListingV41 | null;
 
   if (!listing || listing.status !== 'published') {

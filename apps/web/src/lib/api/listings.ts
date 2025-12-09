@@ -397,3 +397,30 @@ export async function incrementListingInquiries(id: string): Promise<void> {
       .eq('id', id);
   }
 }
+
+/**
+ * Increment booking count for a listing
+ */
+export async function incrementListingBookings(id: string): Promise<void> {
+  const supabase = createClient();
+
+  const { error } = await supabase.rpc('increment_listing_booking_count', {
+    listing_id: id,
+  });
+
+  if (error) {
+    // Fallback if RPC function doesn't exist
+    const { data: listing } = await supabase
+      .from('listings')
+      .select('booking_count')
+      .eq('id', id)
+      .single();
+
+    if (listing) {
+      await supabase
+        .from('listings')
+        .update({ booking_count: (listing.booking_count || 0) + 1 })
+        .eq('id', id);
+    }
+  }
+}

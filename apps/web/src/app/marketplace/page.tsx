@@ -283,8 +283,8 @@ export default function MarketplacePage() {
       {/* Hero Section with AI Chat Bar */}
       <HeroSection onSearch={handleSearch} isSearching={isLoading} />
 
-      {/* Filter Chips */}
-      <FilterChips filters={filters} onFilterChange={handleFilterChange} />
+      {/* Filter Chips - Hidden */}
+      {/* <FilterChips filters={filters} onFilterChange={handleFilterChange} /> */}
 
       {/* Marketplace Grid */}
       <MarketplaceGrid

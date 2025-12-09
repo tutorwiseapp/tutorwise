@@ -15,8 +15,9 @@ export interface UnavailabilityPeriod {
 /**
  * Extended Listing type with v4.1 fields
  * Adds service-specific fields for ActionCard variants
+ * Note: availability field is now AvailabilityPeriod[] in base Listing type (no need to override)
  */
-export interface ListingV41 extends Omit<BaseListing, 'availability'> {
+export interface ListingV41 extends BaseListing {
   // Service type (normalized from listing_type)
   service_type?: ServiceType;
 
@@ -31,8 +32,7 @@ export interface ListingV41 extends Omit<BaseListing, 'availability'> {
   hero_image_url?: string;
   gallery_image_urls?: string[];
 
-  // Availability fields (from v4.0 CreateListings) - override base type
-  availability?: AvailabilityPeriod[]; // JSONB array of AvailabilityPeriod
+  // Unavailability field (availability is in base type)
   unavailability?: UnavailabilityPeriod[]; // JSONB array of UnavailabilityPeriod
 
   // Tutor stats (from migration 032)

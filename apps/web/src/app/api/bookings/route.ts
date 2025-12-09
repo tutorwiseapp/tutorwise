@@ -7,6 +7,7 @@
  */
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
+import { incrementListingBookings } from '@/lib/api/listings';
 
 // Mark route as dynamic (required for cookies() in Next.js 15)
 export const dynamic = 'force-dynamic';
@@ -274,6 +275,9 @@ export async function POST(req: Request) {
       .single();
 
     if (bookingError) throw bookingError;
+
+    // 6. Increment listing booking count (migration 103)
+    await incrementListingBookings(listing_id);
 
     return NextResponse.json({ booking }, { status: 201 });
 

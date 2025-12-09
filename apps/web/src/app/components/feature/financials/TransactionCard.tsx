@@ -126,7 +126,7 @@ export default function TransactionCard({ transaction, currentUserId }: Transact
       src: counterparty.avatar_url ? getProfileImageUrl({
         id: counterparty.id!,
         avatar_url: counterparty.avatar_url,
-        full_name: counterparty.full_name, // Use counterparty name for initials
+        full_name: counterparty.name, // Use counterparty name for initials
       }) : null,
       alt: counterparty.name,
       fallbackChar: counterparty.fallbackChar,
