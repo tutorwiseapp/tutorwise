@@ -11,6 +11,7 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import WiselistCard from '@/app/components/feature/wiselists/WiselistCard';
+import SavedItemCard from '@/app/components/feature/wiselists/SavedItemCard';
 import CreateWiselistModal from '@/app/components/feature/wiselists/CreateWiselistModal';
 import { WiselistStatsWidget } from '@/app/components/feature/wiselists/WiselistStatsWidget';
 import WiselistHelpWidget from '@/app/components/feature/wiselists/WiselistHelpWidget';
@@ -23,7 +24,7 @@ import Button from '@/app/components/ui/actions/Button';
 import { Wiselist } from '@/types';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
-import { getMyWiselists, deleteWiselist, updateWiselist } from '@/lib/api/wiselists';
+import { getMyWiselists, deleteWiselist, updateWiselist, getWiselist, quickSaveItem, addWiselistItem } from '@/lib/api/wiselists';
 import styles from './page.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
@@ -58,19 +59,36 @@ export default function WiselistsPage() {
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
+  // Get My Saves wiselist ID
+  const mySavesWiselist = useMemo(() => {
+    return wiselists.find((w: any) => w.is_owner === true && w.name === 'My Saves');
+  }, [wiselists]);
+
+  // Fetch My Saves items
+  const {
+    data: mySavesData,
+    isLoading: isLoadingMySaves,
+  } = useQuery({
+    queryKey: ['wiselist', mySavesWiselist?.id],
+    queryFn: () => getWiselist(mySavesWiselist!.id),
+    enabled: !!mySavesWiselist?.id && activeTab === 'my-saves',
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
+
   // Calculate stats for tabs
   const stats = useMemo(() => {
-    const mySaves = wiselists.filter((w: any) => w.is_owner === true && w.name === 'My Saves').length;
+    const mySavesCount = mySavesData?.items?.length || 0;
     const myLists = wiselists.filter((w: any) => w.is_owner === true && w.name !== 'My Saves').length;
     const sharedWithMe = wiselists.filter((w: any) => w.is_owner === false).length;
 
     return {
       total: wiselists.length,
-      mySaves,
+      mySaves: mySavesCount,
       myLists,
       sharedWithMe,
     };
-  }, [wiselists]);
+  }, [wiselists, mySavesData]);
 
   // Filter wiselists based on tab, search, and sort
   const filteredWiselists = useMemo(() => {
@@ -216,6 +234,32 @@ export default function WiselistsPage() {
       toast.success('Share link copied to clipboard!');
     } catch (error) {
       toast.error('Failed to copy link');
+    }
+  };
+
+  // Handle Add to List for a saved item
+  const handleItemAddToList = async (itemId: string) => {
+    // TODO: Open modal to select target wiselist(s)
+    toast('Add to List functionality coming soon!', { icon: '📋' });
+  };
+
+  // Handle Unsave for a saved item
+  const handleItemUnsave = async (itemId: string, profileId?: string, listingId?: string) => {
+    try {
+      if (profileId) {
+        await quickSaveItem({ profileId });
+      } else if (listingId) {
+        await quickSaveItem({ listingId });
+      }
+
+      // Refresh the My Saves data
+      await queryClient.invalidateQueries({ queryKey: ['wiselist', mySavesWiselist?.id] });
+      await queryClient.invalidateQueries({ queryKey: ['wiselists'] });
+
+      toast.success('Item unsaved');
+    } catch (error) {
+      console.error('Failed to unsave item:', error);
+      toast.error('Failed to unsave item');
     }
   };
 
@@ -423,47 +467,72 @@ export default function WiselistsPage() {
       }
     >
       <div className={styles.container}>
-        {/* Empty State */}
-        {paginatedWiselists.length === 0 ? (
-          <HubEmptyState
-            title={
-              activeTab === 'my-saves' && filteredWiselists.length === 0
-                ? 'No saved items yet'
-                : wiselists.length === 0
-                ? 'No wiselists yet'
-                : 'No wiselists found'
-            }
-            description={
-              activeTab === 'my-saves' && filteredWiselists.length === 0
-                ? 'Start saving profiles and listings by clicking the heart icon. Your saved items will appear here in "My Saves".'
-                : wiselists.length === 0
-                ? 'Create your first wiselist to start saving and organizing tutors and services'
-                : 'No wiselists match your current filters. Try adjusting your search or filters.'
-            }
-          />
-        ) : (
+        {activeTab === 'my-saves' ? (
+          /* My Saves Tab - Show saved items */
           <>
-            {/* Wiselists Grid */}
-            <div className={styles.wiselistsGrid}>
-              {paginatedWiselists.map((wiselist) => (
-                <WiselistCard
-                  key={wiselist.id}
-                  wiselist={wiselist}
-                  onUpdate={handleUpdate}
-                  onDelete={handleDelete}
-                  onShare={handleShare}
-                />
-              ))}
-            </div>
-
-            {/* Pagination */}
-            {filteredWiselists.length > ITEMS_PER_PAGE && (
-              <HubPagination
-                currentPage={currentPage}
-                totalItems={totalItems}
-                itemsPerPage={ITEMS_PER_PAGE}
-                onPageChange={setCurrentPage}
+            {isLoadingMySaves ? (
+              <div className={styles.loading}>Loading saved items...</div>
+            ) : mySavesData?.items && mySavesData.items.length > 0 ? (
+              <>
+                <div className={styles.wiselistsGrid}>
+                  {mySavesData.items.map((item) => (
+                    <SavedItemCard
+                      key={item.id}
+                      item={item}
+                      onAddToList={handleItemAddToList}
+                      onUnsave={handleItemUnsave}
+                    />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <HubEmptyState
+                title="No saved items yet"
+                description='Start saving profiles and listings by clicking the heart icon. Your saved items will appear here in "My Saves".'
               />
+            )}
+          </>
+        ) : (
+          /* My Lists and Shared With Me tabs - Show wiselist cards */
+          <>
+            {paginatedWiselists.length === 0 ? (
+              <HubEmptyState
+                title={
+                  wiselists.length === 0
+                    ? 'No wiselists yet'
+                    : 'No wiselists found'
+                }
+                description={
+                  wiselists.length === 0
+                    ? 'Create your first wiselist to start saving and organizing tutors and services'
+                    : 'No wiselists match your current filters. Try adjusting your search or filters.'
+                }
+              />
+            ) : (
+              <>
+                {/* Wiselists Grid */}
+                <div className={styles.wiselistsGrid}>
+                  {paginatedWiselists.map((wiselist) => (
+                    <WiselistCard
+                      key={wiselist.id}
+                      wiselist={wiselist}
+                      onUpdate={handleUpdate}
+                      onDelete={handleDelete}
+                      onShare={handleShare}
+                    />
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {filteredWiselists.length > ITEMS_PER_PAGE && (
+                  <HubPagination
+                    currentPage={currentPage}
+                    totalItems={totalItems}
+                    itemsPerPage={ITEMS_PER_PAGE}
+                    onPageChange={setCurrentPage}
+                  />
+                )}
+              </>
             )}
           </>
         )}
