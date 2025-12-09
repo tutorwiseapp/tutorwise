@@ -20,6 +20,7 @@ import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { ShareModal } from '@/app/components/ui/feedback/ShareModal';
 import { VideoModal } from '@/app/components/ui/feedback/VideoModal';
 import StatusBadge from '@/app/components/ui/data-display/StatusBadge';
+import { quickSaveItem, isItemSaved } from '@/lib/api/wiselists';
 import styles from './ListingHeroSection.module.css';
 
 interface ListingHeroSectionProps {
@@ -42,17 +43,14 @@ export default function ListingHeroSection({ listing, tutorProfile, tutorStats }
   const { profile: currentUser } = useUserProfile();
   const router = useRouter();
 
-  // Check if listing is saved on mount
+  // Check if listing is saved in "My Saves" wiselist on mount
   useEffect(() => {
     if (!currentUser) return;
 
     const checkSavedStatus = async () => {
       try {
-        const response = await fetch(`/api/saved-listings/${listing.id}`);
-        if (response.ok) {
-          const data = await response.json();
-          setIsSaved(data.isSaved);
-        }
+        const saved = await isItemSaved({ listingId: listing.id });
+        setIsSaved(saved);
       } catch (error) {
         console.error('Error checking saved status:', error);
       }
@@ -61,7 +59,7 @@ export default function ListingHeroSection({ listing, tutorProfile, tutorStats }
     checkSavedStatus();
   }, [currentUser, listing.id]);
 
-  // Handle Save button with persistent state
+  // Handle Save button - Quick save to "My Saves" wiselist
   const handleSave = async () => {
     if (!currentUser) {
       toast.error('Please login to save listings');
@@ -71,30 +69,14 @@ export default function ListingHeroSection({ listing, tutorProfile, tutorStats }
 
     setIsLoading(true);
     try {
-      if (isSaved) {
-        // Unsave listing
-        const response = await fetch(`/api/saved-listings/${listing.id}`, {
-          method: 'DELETE',
-        });
+      const result = await quickSaveItem({ listingId: listing.id });
 
-        if (response.ok) {
-          setIsSaved(false);
-          toast.success('Listing removed from saved');
-        } else {
-          toast.error('Failed to unsave listing');
-        }
+      setIsSaved(result.saved);
+
+      if (result.saved) {
+        toast.success('Listing saved to My Saves!');
       } else {
-        // Save listing
-        const response = await fetch(`/api/saved-listings/${listing.id}`, {
-          method: 'POST',
-        });
-
-        if (response.ok) {
-          setIsSaved(true);
-          toast.success('Listing saved!');
-        } else {
-          toast.error('Failed to save listing');
-        }
+        toast.success('Listing removed from My Saves');
       }
     } catch (error) {
       console.error('Error saving/unsaving listing:', error);

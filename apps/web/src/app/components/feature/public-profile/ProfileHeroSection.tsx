@@ -18,6 +18,7 @@ import toast from 'react-hot-toast';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { VideoModal } from '@/app/components/ui/feedback/VideoModal';
 import { ShareModal } from '@/app/components/ui/feedback/ShareModal';
+import { quickSaveItem, isItemSaved } from '@/lib/api/wiselists';
 import styles from './ProfileHeroSection.module.css';
 
 interface ProfileHeroSectionProps {
@@ -37,17 +38,14 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
   // v5.9: Check if tutor is offering free help
   const isFreeHelpAvailable = profile.available_free_help === true;
 
-  // Check if profile is saved on mount
+  // Check if profile is saved in "My Saves" wiselist on mount
   useEffect(() => {
     if (!currentUser || isOwnProfile) return;
 
     const checkSavedStatus = async () => {
       try {
-        const response = await fetch(`/api/saved-profiles/${profile.id}`);
-        if (response.ok) {
-          const data = await response.json();
-          setIsSaved(data.isSaved);
-        }
+        const saved = await isItemSaved({ profileId: profile.id });
+        setIsSaved(saved);
       } catch (error) {
         console.error('Error checking saved status:', error);
       }
@@ -70,7 +68,7 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
 
   const primarySubject = getPrimarySubject();
 
-  // Handle Save button with persistent state
+  // Handle Save button - Quick save to "My Saves" wiselist
   const handleSave = async () => {
     if (!currentUser) {
       toast.error('Please login to save profiles');
@@ -80,31 +78,14 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
 
     setIsLoading(true);
     try {
-      if (isSaved) {
-        // Unsave profile
-        const response = await fetch(`/api/saved-profiles/${profile.id}`, {
-          method: 'DELETE',
-        });
+      const result = await quickSaveItem({ profileId: profile.id });
 
-        if (response.ok) {
-          setIsSaved(false);
-          toast.success('Profile removed from saved');
-        } else {
-          toast.error('Failed to unsave profile');
-        }
+      setIsSaved(result.saved);
+
+      if (result.saved) {
+        toast.success('Profile saved to My Saves!');
       } else {
-        // Save profile
-        const response = await fetch(`/api/saved-profiles/${profile.id}`, {
-          method: 'POST',
-        });
-
-        if (response.ok) {
-          setIsSaved(true);
-          toast.success('Profile saved!');
-        } else {
-          const data = await response.json();
-          toast.error(data.error || 'Failed to save profile');
-        }
+        toast.success('Profile removed from My Saves');
       }
     } catch (error) {
       console.error('Error saving/unsaving profile:', error);

@@ -274,3 +274,119 @@ export function generateSlug(name: string): string {
     .replace(/-+/g, '-')
     .substring(0, 50);
 }
+
+/**
+ * Get or create the "My Saves" default wiselist for quick saves
+ * This is the auto-list that gets created when users click the heart icon
+ */
+export async function getOrCreateMySavesWiselist(): Promise<Wiselist> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  // Try to find existing "My Saves" list
+  const { data: existing, error: fetchError } = await supabase
+    .from('wiselists')
+    .select('*')
+    .eq('profile_id', user.id)
+    .eq('name', 'My Saves')
+    .maybeSingle();
+
+  if (fetchError && fetchError.code !== 'PGRST116') {
+    throw fetchError;
+  }
+
+  // If exists, return it
+  if (existing) {
+    return existing as Wiselist;
+  }
+
+  // Otherwise, create it
+  const { data: newList, error: createError } = await supabase
+    .from('wiselists')
+    .insert({
+      profile_id: user.id,
+      name: 'My Saves',
+      description: 'Items you\'ve saved for quick access',
+      visibility: 'private',
+      slug: null,
+    })
+    .select()
+    .single();
+
+  if (createError) throw createError;
+  return newList as Wiselist;
+}
+
+/**
+ * Quick save/unsave an item (profile or listing) to "My Saves"
+ * This is used by the heart icon on profiles and listings
+ */
+export async function quickSaveItem(data: {
+  profileId?: string;
+  listingId?: string;
+}): Promise<{ saved: boolean; itemId?: string }> {
+  // Get or create "My Saves" wiselist
+  const mySaves = await getOrCreateMySavesWiselist();
+
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  // Check if item already exists in "My Saves"
+  const { data: existingItem } = await supabase
+    .from('wiselist_items')
+    .select('id')
+    .eq('wiselist_id', mySaves.id)
+    .eq('profile_id', data.profileId || null)
+    .eq('listing_id', data.listingId || null)
+    .maybeSingle();
+
+  // If exists, remove it (unsave)
+  if (existingItem) {
+    await removeWiselistItem(existingItem.id);
+    return { saved: false };
+  }
+
+  // Otherwise, add it (save)
+  const newItem = await addWiselistItem({
+    wiselistId: mySaves.id,
+    profileId: data.profileId,
+    listingId: data.listingId,
+  });
+
+  return { saved: true, itemId: newItem.id };
+}
+
+/**
+ * Check if an item is saved in "My Saves"
+ */
+export async function isItemSaved(data: {
+  profileId?: string;
+  listingId?: string;
+}): Promise<boolean> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
+
+  // Get "My Saves" list
+  const { data: mySaves } = await supabase
+    .from('wiselists')
+    .select('id')
+    .eq('profile_id', user.id)
+    .eq('name', 'My Saves')
+    .maybeSingle();
+
+  if (!mySaves) return false;
+
+  // Check if item exists
+  const { data: item } = await supabase
+    .from('wiselist_items')
+    .select('id')
+    .eq('wiselist_id', mySaves.id)
+    .eq('profile_id', data.profileId || null)
+    .eq('listing_id', data.listingId || null)
+    .maybeSingle();
+
+  return !!item;
+}

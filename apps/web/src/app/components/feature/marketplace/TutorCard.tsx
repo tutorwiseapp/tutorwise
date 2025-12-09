@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Listing } from '@tutorwise/shared-types';
 import { slugify } from '@/lib/utils/slugify';
 import getProfileImageUrl from '@/lib/utils/image';
-import WiselistSelectionModal from '@/app/components/feature/wiselists/WiselistSelectionModal';
+import { quickSaveItem, isItemSaved } from '@/lib/api/wiselists';
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import toast from 'react-hot-toast';
 import styles from './TutorCard.module.css';
 
 interface TutorCardProps {
@@ -15,7 +17,9 @@ interface TutorCardProps {
 
 export default function TutorCard({ listing }: TutorCardProps) {
   const [imageError, setImageError] = useState(false);
-  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { profile: currentUser } = useUserProfile();
 
   // Use the same profile image logic as NavMenu (includes academic avatar fallback)
   const imageUrl = getProfileImageUrl({
@@ -27,10 +31,48 @@ export default function TutorCard({ listing }: TutorCardProps) {
   const rating = 4.8; // TODO: Get actual rating from reviews
   const reviewCount = 24; // TODO: Get actual review count
 
-  const handleSaveClick = (e: React.MouseEvent) => {
+  // Check if listing is saved in "My Saves" wiselist on mount
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const checkSavedStatus = async () => {
+      try {
+        const saved = await isItemSaved({ listingId: listing.id });
+        setIsSaved(saved);
+      } catch (error) {
+        console.error('Error checking saved status:', error);
+      }
+    };
+
+    checkSavedStatus();
+  }, [currentUser, listing.id]);
+
+  // Handle quick save to "My Saves" on click
+  const handleSaveClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setShowSaveModal(true);
+
+    if (!currentUser) {
+      toast.error('Please login to save listings');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await quickSaveItem({ listingId: listing.id });
+      setIsSaved(result.saved);
+
+      if (result.saved) {
+        toast.success('Saved to My Saves!');
+      } else {
+        toast.success('Removed from My Saves');
+      }
+    } catch (error) {
+      console.error('Error saving listing:', error);
+      toast.error('Something went wrong');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -65,13 +107,14 @@ export default function TutorCard({ listing }: TutorCardProps) {
           <button
             className={styles.saveButton}
             onClick={handleSaveClick}
-            aria-label="Save to wiselist"
+            aria-label={isSaved ? "Remove from My Saves" : "Save to My Saves"}
+            disabled={isLoading}
           >
             <svg
               width="24"
               height="24"
               viewBox="0 0 24 24"
-              fill="none"
+              fill={isSaved ? "currentColor" : "none"}
               stroke="currentColor"
               strokeWidth="2"
               xmlns="http://www.w3.org/2000/svg"
@@ -143,17 +186,6 @@ export default function TutorCard({ listing }: TutorCardProps) {
           </div>
         </div>
       </Link>
-
-      {/* Wiselist Selection Modal */}
-      {showSaveModal && (
-        <WiselistSelectionModal
-          isOpen={showSaveModal}
-          onClose={() => setShowSaveModal(false)}
-          targetType="listing"
-          targetId={listing.id}
-          targetName={listing.title}
-        />
-      )}
     </div>
   );
 }
