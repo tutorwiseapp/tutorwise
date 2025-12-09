@@ -3,11 +3,13 @@
  * Purpose: Display wiselist in card format with HubDetailCard
  * Created: 2025-11-15
  * Updated: 2025-12-05 - Migrated to HubDetailCard standard with inline editing
+ * Updated: 2025-12-09 - Made clickable to navigate to detail page
  * Specification: Expanded detail card layout with HubDetailCard component
  */
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Wiselist } from '@/types';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import Button from '@/app/components/ui/actions/Button';
@@ -25,6 +27,7 @@ export default function WiselistCard({
   onShare,
   onUpdate,
 }: WiselistCardProps) {
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(wiselist.name);
   const [editDescription, setEditDescription] = useState(wiselist.description || '');
@@ -32,6 +35,11 @@ export default function WiselistCard({
 
   // "My Saves" is a system list that cannot be edited or deleted
   const isMySaves = wiselist.name === 'My Saves';
+
+  // Handle card click - navigate to detail page
+  const handleCardClick = () => {
+    router.push(`/wiselists/${wiselist.id}`);
+  };
 
   // Get list initials (first letter of first 2 words)
   const getInitials = (name: string) =>
@@ -192,20 +200,22 @@ export default function WiselistCard({
   );
 
   return (
-    <HubDetailCard
-      image={{
-        src: null,
-        alt: wiselist.name,
-        fallbackChar: getInitials(wiselist.name),
-      }}
-      title={titleContent as string}
-      status={{
-        label: getStatusLabel(),
-        variant: getStatusVariant(),
-      }}
-      description={descriptionContent}
-      details={details}
-      actions={actions}
-    />
+    <div onClick={isEditing ? undefined : handleCardClick} style={{ cursor: isEditing ? 'default' : 'pointer' }}>
+      <HubDetailCard
+        image={{
+          src: null,
+          alt: wiselist.name,
+          fallbackChar: getInitials(wiselist.name),
+        }}
+        title={titleContent as string}
+        status={{
+          label: getStatusLabel(),
+          variant: getStatusVariant(),
+        }}
+        description={descriptionContent}
+        details={details}
+        actions={actions}
+      />
+    </div>
   );
 }

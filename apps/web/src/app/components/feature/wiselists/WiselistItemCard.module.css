@@ -164,3 +164,43 @@
   padding-top: 8px;
   border-top: 1px solid #f3f4f6;
 }
+
+/* Bulk Mode & Selection Styles */
+.card.bulkMode {
+  cursor: default;
+}
+
+.card.selected {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.checkbox {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+}
+
+.checkboxInput {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #3b82f6;
+}
+
+/* Card Link Wrapper */
+.cardLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
