@@ -1,0 +1,369 @@
+/**
+ * Filename: GuestHomepage.module.css
+ * Purpose: Styles for guest/unauthenticated homepage variant
+ * Created: 2025-12-10
+ */
+
+.guestHomepage {
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+  padding-bottom: 64px;
+}
+
+/* Hero Section */
+.heroSection {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-radius: 16px;
+  padding: 80px 48px;
+  text-align: center;
+  color: white;
+  margin-bottom: 24px;
+}
+
+.heroContent {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.heroTitle {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+  line-height: 1.1;
+}
+
+.heroSubtitle {
+  font-size: 1.5rem;
+  margin-bottom: 40px;
+  opacity: 0.95;
+  line-height: 1.6;
+}
+
+.ctaGroup {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 48px;
+}
+
+.primaryCta,
+.secondaryCta {
+  padding: 16px 40px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.primaryCta {
+  background-color: white;
+  color: #2563eb;
+}
+
+.primaryCta:hover {
+  background-color: #f0f0f0;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.secondaryCta {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.secondaryCta:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-3px);
+}
+
+/* Social Proof */
+.socialProof {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.proofItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.proofValue {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: white;
+}
+
+.proofLabel {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.proofDivider {
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Value Section */
+.valueSection {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.sectionTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+  margin: 0;
+}
+
+.sectionSubtitle {
+  font-size: 1.1rem;
+  color: #6b7280;
+  text-align: center;
+  margin: 0;
+}
+
+.valueGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 28px;
+}
+
+.valueCard {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.valueCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  border-color: #3b82f6;
+}
+
+.valueIcon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.valueTitle {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 12px 0;
+}
+
+.valueText {
+  font-size: 1rem;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Featured Section */
+.featuredSection {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: center;
+}
+
+.viewAllContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.viewAllButton {
+  padding: 14px 32px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.viewAllButton:hover {
+  background-color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Subjects Section */
+.subjectsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.subjectGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.subjectCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 28px 20px;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.subjectCard:hover {
+  border-color: #3b82f6;
+  background-color: #f0f9ff;
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.subjectIcon {
+  font-size: 2.5rem;
+}
+
+.subjectName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* All Listings Section */
+.allListingsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Bottom CTA */
+.bottomCta {
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  border-radius: 16px;
+  padding: 64px 48px;
+  margin-top: 32px;
+}
+
+.bottomCtaContent {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.bottomCtaTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 16px;
+}
+
+.bottomCtaText {
+  font-size: 1.2rem;
+  color: #6b7280;
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.bottomCtaButton {
+  padding: 16px 48px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bottomCtaButton:hover {
+  background-color: #2563eb;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .heroSection {
+    padding: 56px 24px;
+  }
+
+  .heroTitle {
+    font-size: 2.5rem;
+  }
+
+  .heroSubtitle {
+    font-size: 1.1rem;
+  }
+
+  .ctaGroup {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .primaryCta,
+  .secondaryCta {
+    width: 100%;
+  }
+
+  .socialProof {
+    gap: 16px;
+  }
+
+  .proofValue {
+    font-size: 1.5rem;
+  }
+
+  .proofLabel {
+    font-size: 0.8rem;
+  }
+
+  .valueGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .subjectGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bottomCtaTitle {
+    font-size: 2rem;
+  }
+
+  .bottomCtaText {
+    font-size: 1rem;
+  }
+
+  .guestHomepage {
+    gap: 48px;
+  }
+}

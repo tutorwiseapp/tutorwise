@@ -7,7 +7,7 @@ import type { MarketplaceItem } from '@/types/marketplace';
 import { parseSearchQuery, queryToFilters } from '@/lib/services/gemini';
 import HeroSection from '@/app/components/feature/marketplace/HeroSection';
 import FilterChips, { FilterState } from '@/app/components/feature/marketplace/FilterChips';
-import MarketplaceGrid from '@/app/components/feature/marketplace/MarketplaceGrid';
+import RoleBasedHomepage from '@/app/components/feature/marketplace/RoleBasedHomepage';
 import styles from './page.module.css';
 
 export default function MarketplacePage() {
@@ -286,14 +286,14 @@ export default function MarketplacePage() {
       {/* Filter Chips - Hidden */}
       {/* <FilterChips filters={filters} onFilterChange={handleFilterChange} /> */}
 
-      {/* Marketplace Grid */}
-      <MarketplaceGrid
-        items={items}
+      {/* Role-Based Homepage Variants */}
+      <RoleBasedHomepage
+        initialItems={items}
         isLoading={isLoading}
         isLoadingMore={isLoadingMore}
-        hasSearched={hasSearched}
         hasMore={hasMore}
         total={total}
+        onSearch={handleSearch}
         onLoadMore={loadMore}
       />
     </div>
