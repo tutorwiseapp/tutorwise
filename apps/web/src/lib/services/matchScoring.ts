@@ -86,6 +86,7 @@ export interface MatchScore {
     location: number; // 0-100
     price: number; // 0-100
     availability: number; // 0-100
+    network?: number; // 0-100 (optional, added by network boost)
   };
   label: 'excellent' | 'great' | 'good' | 'fair' | 'poor';
   reasons: string[]; // Explanation of the score

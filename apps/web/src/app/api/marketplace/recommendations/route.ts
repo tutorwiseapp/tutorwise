@@ -14,6 +14,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { calculateEntityMatch } from '@/lib/services/matchScoring';
+import { fetchNetworkBoostFactors, calculateNetworkBoost } from '@/lib/services/networkBoost';
 import type { Listing } from '@tutorwise/shared-types';
 
 export const dynamic = 'force-dynamic';
@@ -139,27 +140,46 @@ async function getClientRecommendations(
     return { items: [], total: 0 };
   }
 
-  // Score each listing against user profile
-  const scoredListings = (listings || [])
-    .map((listing: any) => {
+  // Score each listing against user profile with network boost
+  const scoredListings = await Promise.all(
+    (listings || []).map(async (listing: any) => {
       const matchScore = calculateEntityMatch(profile, listing, {
         roleA: 'client',
         matchType: 'complementary',
       });
 
+      // Apply network boost if the listing has a profile
+      let boostedScore = matchScore;
+      if (listing.profile_id) {
+        try {
+          const networkFactors = await fetchNetworkBoostFactors(
+            supabase,
+            profile.id,
+            listing.profile_id
+          );
+          boostedScore = calculateNetworkBoost(matchScore, networkFactors);
+        } catch (err) {
+          console.error('Network boost error:', err);
+          // Fall back to base score if network boost fails
+        }
+      }
+
       return {
         ...listing,
-        matchScore,
+        matchScore: boostedScore,
         type: 'listing' as const,
       };
     })
+  );
+
+  const filteredAndSorted = scoredListings
     .filter((item: any) => item.matchScore.overall >= 40) // Minimum 40% match
     .sort((a: any, b: any) => b.matchScore.overall - a.matchScore.overall)
     .slice(offset, offset + limit);
 
   return {
-    items: scoredListings,
-    total: scoredListings.length,
+    items: filteredAndSorted,
+    total: filteredAndSorted.length,
   };
 }
 
@@ -194,27 +214,46 @@ async function getTutorRecommendations(
     return { items: [], total: 0 };
   }
 
-  // Score each job against tutor profile
-  const scoredJobs = (jobs || [])
-    .map((job: any) => {
+  // Score each job against tutor profile with network boost
+  const scoredJobs = await Promise.all(
+    (jobs || []).map(async (job: any) => {
       const matchScore = calculateEntityMatch(profile, job, {
         roleA: 'tutor',
         matchType: 'complementary',
       });
 
+      // Apply network boost if the job has a profile (client posting the job)
+      let boostedScore = matchScore;
+      if (job.profile_id) {
+        try {
+          const networkFactors = await fetchNetworkBoostFactors(
+            supabase,
+            profile.id,
+            job.profile_id
+          );
+          boostedScore = calculateNetworkBoost(matchScore, networkFactors);
+        } catch (err) {
+          console.error('Network boost error:', err);
+          // Fall back to base score if network boost fails
+        }
+      }
+
       return {
         ...job,
-        matchScore,
+        matchScore: boostedScore,
         type: 'listing' as const,
       };
     })
+  );
+
+  const filteredAndSorted = scoredJobs
     .filter((item: any) => item.matchScore.overall >= 40)
     .sort((a: any, b: any) => b.matchScore.overall - a.matchScore.overall)
     .slice(offset, offset + limit);
 
   return {
-    items: scoredJobs,
-    total: scoredJobs.length,
+    items: filteredAndSorted,
+    total: filteredAndSorted.length,
   };
 }
 
