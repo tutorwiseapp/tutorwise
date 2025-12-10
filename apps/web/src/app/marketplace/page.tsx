@@ -8,6 +8,8 @@ import { parseSearchQuery, queryToFilters } from '@/lib/services/gemini';
 import HeroSection from '@/app/components/feature/marketplace/HeroSection';
 import FilterChips, { FilterState } from '@/app/components/feature/marketplace/FilterChips';
 import RoleBasedHomepage from '@/app/components/feature/marketplace/RoleBasedHomepage';
+import AdvancedFilters from '@/app/components/feature/marketplace/AdvancedFilters';
+import type { SearchFilters } from '@/lib/services/savedSearches';
 import styles from './page.module.css';
 
 export default function MarketplacePage() {
@@ -27,6 +29,9 @@ export default function MarketplacePage() {
     priceRange: { min: null, max: null },
     freeTrialOnly: false,
   });
+
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [advancedFilters, setAdvancedFilters] = useState<SearchFilters>({});
 
   // Memoized executeSearch function (resets listings and offset)
   const executeSearch = useCallback(async (customFilters?: any, resetOffset = true) => {
@@ -278,10 +283,47 @@ export default function MarketplacePage() {
     setFilters(newFilters);
   };
 
+  const handleAdvancedFiltersChange = (newFilters: SearchFilters) => {
+    setAdvancedFilters(newFilters);
+
+    // Convert SearchFilters to FilterState
+    setFilters({
+      subjects: newFilters.subjects || [],
+      levels: newFilters.levels || [],
+      locationType: newFilters.location_type || null,
+      priceRange: {
+        min: newFilters.min_price || null,
+        max: newFilters.max_price || null,
+      },
+      freeTrialOnly: false, // Not in advanced filters yet
+    });
+  };
+
+  // Calculate active filter count
+  const activeFilterCount = Object.keys(advancedFilters).filter(key => {
+    const value = advancedFilters[key as keyof SearchFilters];
+    return value !== undefined && value !== null && (
+      typeof value !== 'object' || (Array.isArray(value) && value.length > 0)
+    );
+  }).length;
+
   return (
     <div className={styles.marketplacePage}>
       {/* Hero Section with AI Chat Bar */}
-      <HeroSection onSearch={handleSearch} isSearching={isLoading} />
+      <HeroSection
+        onSearch={handleSearch}
+        isSearching={isLoading}
+        onOpenFilters={() => setIsFiltersOpen(true)}
+        activeFilterCount={activeFilterCount}
+      />
+
+      {/* Advanced Filters Drawer */}
+      <AdvancedFilters
+        filters={advancedFilters}
+        onFiltersChange={handleAdvancedFiltersChange}
+        isOpen={isFiltersOpen}
+        onClose={() => setIsFiltersOpen(false)}
+      />
 
       {/* Filter Chips - Hidden */}
       {/* <FilterChips filters={filters} onFilterChange={handleFilterChange} /> */}

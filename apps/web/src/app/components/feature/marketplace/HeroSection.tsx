@@ -6,9 +6,11 @@ import styles from './HeroSection.module.css';
 interface HeroSectionProps {
   onSearch: (query: string) => void;
   isSearching: boolean;
+  onOpenFilters?: () => void;
+  activeFilterCount?: number;
 }
 
-export default function HeroSection({ onSearch, isSearching }: HeroSectionProps) {
+export default function HeroSection({ onSearch, isSearching, onOpenFilters, activeFilterCount }: HeroSectionProps) {
   const [query, setQuery] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -79,7 +81,7 @@ export default function HeroSection({ onSearch, isSearching }: HeroSectionProps)
           </div>
         </form>
 
-        {/* Example queries */}
+        {/* Example queries and filter button */}
         <div className={styles.exampleQueries}>
           <button
             className={styles.exampleChip}
@@ -95,13 +97,40 @@ export default function HeroSection({ onSearch, isSearching }: HeroSectionProps)
           >
             Online A-Level chemistry tutor
           </button>
-          <button
-            className={styles.exampleChip}
-            onClick={() => onSearch('Piano teacher for beginners')}
-            disabled={isSearching}
-          >
-            Piano teacher for beginners
-          </button>
+          {onOpenFilters ? (
+            <button
+              className={`${styles.exampleChip} ${styles.filterChip}`}
+              onClick={onOpenFilters}
+              disabled={isSearching}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M4 6h16M4 12h16M4 18h16"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+              Advanced Filters
+              {activeFilterCount && activeFilterCount > 0 && (
+                <span className={styles.filterChipBadge}>{activeFilterCount}</span>
+              )}
+            </button>
+          ) : (
+            <button
+              className={styles.exampleChip}
+              onClick={() => onSearch('Piano teacher for beginners')}
+              disabled={isSearching}
+            >
+              Piano teacher for beginners
+            </button>
+          )}
         </div>
       </div>
     </div>
