@@ -18,6 +18,7 @@ import React from 'react';
 import type { MarketplaceItem } from '@/types/marketplace';
 import type { Listing } from '@tutorwise/shared-types';
 import MarketplaceGrid from '../MarketplaceGrid';
+import RecommendedSection from '../RecommendedSection';
 import styles from './TutorHomepage.module.css';
 
 interface TutorHomepageProps {
@@ -139,20 +140,13 @@ export default function TutorHomepage({
 
       {/* Skill Matching */}
       {profile?.subjects && profile.subjects.length > 0 && (
-        <section className={styles.matchingSection}>
-          <div className={styles.sectionHeader}>
-            <div>
-              <h2 className={styles.sectionTitle}>Matched to Your Skills</h2>
-              <p className={styles.sectionSubtitle}>
-                Opportunities in {profile.subjects.join(', ')}
-              </p>
-            </div>
-          </div>
-          {/* TODO: Add skill-based matching in Phase 2 Task 2 */}
-          <div className={styles.comingSoon}>
-            Personalized recommendations coming soon
-          </div>
-        </section>
+        <RecommendedSection
+          title="Matched to Your Skills"
+          subtitle={`Opportunities in ${profile.subjects.join(', ')}`}
+          role="tutor"
+          limit={6}
+          showMatchScore={true}
+        />
       )}
 
       {/* Browse All */}

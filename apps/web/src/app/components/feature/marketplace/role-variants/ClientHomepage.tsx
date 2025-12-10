@@ -17,6 +17,7 @@
 import React from 'react';
 import type { MarketplaceItem } from '@/types/marketplace';
 import MarketplaceGrid from '../MarketplaceGrid';
+import RecommendedSection from '../RecommendedSection';
 import styles from './ClientHomepage.module.css';
 
 interface ClientHomepageProps {
@@ -109,15 +110,13 @@ export default function ClientHomepage({
 
       {/* Personalized Recommendations */}
       {profile && (
-        <section className={styles.recommendedSection}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Recommended For You</h2>
-            <p className={styles.sectionSubtitle}>
-              Based on your learning interests
-            </p>
-          </div>
-          {/* TODO: Add recommendation logic in Phase 2 Task 2 */}
-        </section>
+        <RecommendedSection
+          title="Recommended For You"
+          subtitle="Tutors matched to your learning goals and interests"
+          role="client"
+          limit={6}
+          showMatchScore={true}
+        />
       )}
 
       {/* Main Marketplace Grid */}
