@@ -52,7 +52,7 @@ export default function ProfileReviewCard({ review, variant }: Props) {
   const avatarUrl = getProfileImageUrl({
     id: profile.id,
     avatar_url: profile.avatar_url ?? undefined,
-    full_name: profile.full_name, // Use reviewer name for initials
+    full_name: profile.full_name || undefined, // Use reviewer name for initials
   });
   const fallbackChar = profile.full_name?.charAt(0).toUpperCase() || '?';
 
