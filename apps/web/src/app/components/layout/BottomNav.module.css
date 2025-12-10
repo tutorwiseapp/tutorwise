@@ -36,11 +36,11 @@
 }
 
 .navItem:hover {
-  color: var(--color-primary, #006C67);
+  color: #00c6c7;
 }
 
 .navItemActive {
-  color: var(--color-primary-accent, #4CAEAD);
+  color: #00c6c7;
 }
 
 .navItemActive .iconWrapper {

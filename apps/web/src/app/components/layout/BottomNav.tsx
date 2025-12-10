@@ -104,21 +104,28 @@ export default function BottomNav() {
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
-            d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"
+            d="M20 12v8H4v-8"
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
           <path
-            d="M12 3v9m0 0l4-4m-4 4L8 8"
+            d="M22 7H2l2-4h16l2 4z"
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
           <path
-            d="M20 8a2 2 0 0 0-2-2h-4"
+            d="M12 12v8"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M12 7v5"
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
