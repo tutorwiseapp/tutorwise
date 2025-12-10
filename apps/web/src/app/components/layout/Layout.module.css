@@ -46,6 +46,6 @@
 /* Mobile: Add bottom padding for bottom navigation bar */
 @media (max-width: 768px) {
   .mainContent {
-    padding-bottom: 72px; /* Account for bottom nav bar */
+    padding-bottom: 56px; /* Account for bottom nav bar */
   }
 }
