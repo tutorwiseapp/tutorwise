@@ -136,6 +136,14 @@ export default function MarketplaceListingCard({ listing, matchScore }: Marketpl
             <div className={styles.trialBadge}>Free Trial</div>
           )}
 
+          {/* Listing Category Badge - Bottom Left */}
+          {listing.listing_category && listing.listing_category !== 'session' && (
+            <div className={`${styles.categoryBadge} ${styles[`category${listing.listing_category.charAt(0).toUpperCase() + listing.listing_category.slice(1)}`]}`}>
+              {listing.listing_category === 'course' && '📚 Course'}
+              {listing.listing_category === 'job' && '💼 Job'}
+            </div>
+          )}
+
           {/* Verification Badges - Center */}
           {(listing.identity_verified || listing.dbs_verified) && (
             <div className={styles.verificationBadge}>

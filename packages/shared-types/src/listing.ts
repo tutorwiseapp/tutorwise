@@ -1,11 +1,25 @@
 /**
  * Listing types for tutor service listings
  * v4.0: Updated to support dynamic multi-service listings
+ * v5.0: Added marketplace listing categories (session, course, job)
  */
 
 export type ListingStatus = 'draft' | 'published' | 'unpublished' | 'archived';
 export type LocationType = 'online' | 'in_person' | 'hybrid';
 export type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+
+/**
+ * v5.0: Marketplace listing categories
+ * - session: Individual tutoring sessions (default)
+ * - course: Structured learning programs
+ * - job: Client job postings seeking tutors
+ */
+export type ListingCategory = 'session' | 'course' | 'job';
+
+/**
+ * Job type for job postings
+ */
+export type JobType = 'full-time' | 'part-time' | 'contract' | 'one-off';
 
 /**
  * v4.0: New listing type system for multi-service platform
@@ -57,6 +71,44 @@ export interface PricingPackage {
   name?: string;     // e.g., "Starter Pack", "Monthly Bundle"
 }
 
+/**
+ * v5.0: Course curriculum structure
+ */
+export interface CourseModule {
+  id: string;
+  title: string;
+  description?: string;
+  order: number;
+  lessons: CourseLesson[];
+}
+
+export interface CourseLesson {
+  id: string;
+  title: string;
+  description?: string;
+  duration_minutes?: number;
+  order: number;
+  materials?: string[]; // URLs to materials
+}
+
+export interface CourseCurriculum {
+  modules: CourseModule[];
+  total_hours?: number;
+  certificate_offered?: boolean;
+}
+
+/**
+ * v5.0: Job requirements structure
+ */
+export interface JobRequirements {
+  min_experience_years?: number;
+  required_qualifications?: string[]; // e.g., ["Bachelor's Degree", "Teaching Certificate"]
+  required_subjects?: string[];
+  required_levels?: string[];
+  preferred_qualifications?: string[];
+  other_requirements?: string; // Free-form text for additional requirements
+}
+
 export interface Listing {
   id: string;
   profile_id: string;
@@ -64,7 +116,8 @@ export interface Listing {
   // Basic Info
   full_name?: string; // Full name of the tutor (e.g., "Jane Doe")
   avatar_url?: string; // Profile picture URL from profiles table
-  listing_type?: string; // Type of listing (e.g., "Tutor: One-on-One Session")
+  listing_type?: string; // @deprecated Use listing_category instead
+  listing_category?: ListingCategory; // v5.0: Marketplace category (session, course, job)
   title: string; // Service title (e.g., "GCSE Maths Tutor")
   description: string;
   status: ListingStatus;
@@ -128,6 +181,20 @@ export interface Listing {
 
   // v5.9: Free Help Now
   available_free_help?: boolean; // Whether tutor is currently offering free help sessions
+
+  // v5.0: Course-Specific Fields (for listing_category = 'course')
+  course_start_date?: string; // ISO date string
+  course_end_date?: string; // ISO date string
+  course_duration_weeks?: number; // Duration in weeks
+  course_max_students?: number; // Maximum number of students
+  course_curriculum?: CourseCurriculum; // Structured curriculum
+
+  // v5.0: Job-Specific Fields (for listing_category = 'job')
+  job_type?: JobType; // full-time, part-time, contract, one-off
+  job_deadline?: string; // Application deadline (ISO date string)
+  job_requirements?: JobRequirements; // Required qualifications/experience
+  job_budget_min?: number; // Minimum budget
+  job_budget_max?: number; // Maximum budget
 
   // Timestamps
   created_at: string;
@@ -270,6 +337,7 @@ export interface UpdateListingInput extends Partial<CreateListingInput> {
 }
 
 export interface ListingFilters {
+  listing_category?: ListingCategory; // v5.0: Filter by category
   subjects?: string[];
   levels?: string[];
   location_type?: LocationType;

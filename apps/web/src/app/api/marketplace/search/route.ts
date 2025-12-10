@@ -21,6 +21,12 @@ export async function GET(request: NextRequest) {
       offset: parseInt(searchParams.get('offset') || '0', 10),
     };
 
+    // Listing category filter (v5.0)
+    const category = searchParams.get('category');
+    if (category && ['session', 'course', 'job'].includes(category)) {
+      filters.filters!.listing_category = category as 'session' | 'course' | 'job';
+    }
+
     // Subjects filter
     const subjects = searchParams.get('subjects');
     if (subjects) {
