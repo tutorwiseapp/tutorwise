@@ -34,6 +34,7 @@ import ProfileViewsTrendChart, { DailyViews } from '@/app/components/feature/das
 import ReferrerSourcesChart, { ReferrerData } from '@/app/components/feature/dashboard/widgets/ReferrerSourcesChart';
 import { KPISkeleton, ChartSkeleton, WidgetSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
+import Button from '@/app/components/ui/actions/Button';
 import styles from './page.module.css';
 
 const DashboardPage = () => {
@@ -193,7 +194,7 @@ const DashboardPage = () => {
     if (activeRole === 'tutor') {
       actions.push(
         <Link key="create-listing" href="/create-listing">
-          <button className={`${styles.actionButton} ${styles.tutorPrimary}`}>Create Listing</button>
+          <Button variant="primary" size="sm">Create Listing</Button>
         </Link>
       );
     }
@@ -201,7 +202,7 @@ const DashboardPage = () => {
     if (activeRole === 'agent') {
       actions.push(
         <Link key="create-listing" href="/create-listing">
-          <button className={`${styles.actionButton} ${styles.agentPrimary}`}>Create Listing</button>
+          <Button variant="primary" size="sm">Create Listing</Button>
         </Link>
       );
     }
@@ -209,17 +210,17 @@ const DashboardPage = () => {
     if (activeRole === 'client') {
       actions.push(
         <Link key="find-tutors" href="/marketplace">
-          <button className={`${styles.actionButton} ${styles.clientPrimary}`}>Find Tutors</button>
+          <Button variant="primary" size="sm">Find Tutors</Button>
         </Link>
       );
     }
 
     actions.push(
       <Link key="profile" href="/account/personal-info">
-        <button className={styles.actionButtonSecondary}>View Profile</button>
+        <Button variant="secondary" size="sm">View Profile</Button>
       </Link>,
       <Link key="settings" href="/settings">
-        <button className={styles.actionButtonSecondary}>Settings</button>
+        <Button variant="secondary" size="sm">Settings</Button>
       </Link>
     );
 
