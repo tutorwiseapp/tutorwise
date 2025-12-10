@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     // Fetch all bookings in the next N days
     const { data: bookings, error: bookingsError } = await supabase
       .from('bookings')
-      .select('session_start_time, session_duration_hours')
+      .select('session_start_time, session_duration')
       .or(`client_id.eq.${user.id},tutor_id.eq.${user.id},agent_id.eq.${user.id}`)
       .gte('session_start_time', now.toISOString())
       .lte('session_start_time', endDate.toISOString())
@@ -55,7 +55,8 @@ export async function GET(request: NextRequest) {
         dailyBookings[date] = { count: 0, hours: 0 };
       }
       dailyBookings[date].count += 1;
-      dailyBookings[date].hours += booking.session_duration_hours || 1;
+      // Convert minutes to hours
+      dailyBookings[date].hours += (booking.session_duration || 60) / 60;
     });
 
     // Convert to array format expected by component
