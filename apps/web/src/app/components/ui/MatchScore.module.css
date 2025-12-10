@@ -1,0 +1,354 @@
+/**
+ * Filename: apps/web/src/app/components/ui/MatchScore.module.css
+ * Purpose: Styles for match score display component
+ * Created: 2025-12-10
+ */
+
+.matchScoreContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Size variants */
+.small {
+  font-size: 12px;
+}
+
+.medium {
+  font-size: 14px;
+}
+
+.large {
+  font-size: 16px;
+}
+
+/* Score Header */
+.scoreHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scoreInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.scoreBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  color: white;
+  white-space: nowrap;
+}
+
+.scoreIcon {
+  font-size: 1.2em;
+}
+
+.scoreValue {
+  font-weight: 700;
+  font-size: 1.1em;
+}
+
+.scoreLabel {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Progress Bar */
+.progressBar {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background-color: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Color classes */
+.colorExcellent {
+  background-color: #10b981;
+}
+
+.colorGreat {
+  background-color: #3b82f6;
+}
+
+.colorGood {
+  background-color: #8b5cf6;
+}
+
+.colorFair {
+  background-color: #f59e0b;
+}
+
+.colorPoor {
+  background-color: #ef4444;
+}
+
+/* Reasons */
+.reasons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 0;
+}
+
+.reason {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: #4b5563;
+  font-size: 0.95em;
+}
+
+.reasonIcon {
+  color: #9ca3af;
+  font-weight: bold;
+  margin-top: 2px;
+}
+
+.reasonText {
+  flex: 1;
+  line-height: 1.5;
+}
+
+/* Breakdown Section */
+.breakdownSection {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+.breakdownToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 12px;
+  background-color: transparent;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  color: #374151;
+  font-size: 0.95em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.breakdownToggle:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.breakdownToggle:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.chevron {
+  transition: transform 0.2s ease;
+  font-size: 0.8em;
+  color: #6b7280;
+}
+
+.chevronUp {
+  transform: rotate(180deg);
+}
+
+.breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px;
+  background-color: #f9fafb;
+  border-radius: 6px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.breakdownItem {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 4px 8px;
+  align-items: center;
+}
+
+.breakdownLabel {
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9em;
+  color: #374151;
+  font-weight: 500;
+}
+
+.breakdownWeight {
+  color: #9ca3af;
+  font-size: 0.85em;
+  font-weight: 400;
+}
+
+.breakdownValue {
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 0.9em;
+  text-align: right;
+}
+
+.breakdownBar {
+  grid-column: 1 / 3;
+  grid-row: 2 / 3;
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background-color: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.breakdownFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Compact Badge */
+.compactBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+  cursor: default;
+  white-space: nowrap;
+}
+
+.compactBadge[role='button'] {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.compactBadge[role='button']:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.compactBadge[role='button']:active {
+  transform: translateY(0);
+}
+
+.compactIcon {
+  font-size: 1.1em;
+}
+
+.compactValue {
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .scoreInfo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .breakdownItem {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 6px;
+  }
+
+  .breakdownValue {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+    text-align: left;
+    font-size: 1em;
+  }
+
+  .breakdownBar {
+    grid-row: 3 / 4;
+  }
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+  .scoreLabel {
+    color: #9ca3af;
+  }
+
+  .progressBar {
+    background-color: #374151;
+  }
+
+  .reason {
+    color: #d1d5db;
+  }
+
+  .reasonIcon {
+    color: #6b7280;
+  }
+
+  .breakdownToggle {
+    border-color: #4b5563;
+    color: #e5e7eb;
+  }
+
+  .breakdownToggle:hover {
+    background-color: #1f2937;
+    border-color: #6b7280;
+  }
+
+  .breakdown {
+    background-color: #1f2937;
+  }
+
+  .breakdownLabel {
+    color: #e5e7eb;
+  }
+
+  .breakdownWeight {
+    color: #6b7280;
+  }
+
+  .breakdownValue {
+    color: #f3f4f6;
+  }
+
+  .breakdownBar {
+    background-color: #374151;
+  }
+}

@@ -266,6 +266,13 @@
   color: #111827;
 }
 
+/* Match Score Row */
+.matchScoreRow {
+  display: flex;
+  align-items: center;
+  margin: 4px 0;
+}
+
 /* Line 4: Price */
 .price {
   font-size: 1rem;

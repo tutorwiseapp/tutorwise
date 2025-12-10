@@ -35,18 +35,21 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Listing } from '@tutorwise/shared-types';
+import type { MatchScore } from '@/lib/services/matchScoring';
 import { slugify } from '@/lib/utils/slugify';
 import getProfileImageUrl from '@/lib/utils/image';
 import { quickSaveItem, isItemSaved } from '@/lib/api/wiselists';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { MatchScoreBadge } from '@/app/components/ui/MatchScore';
 import toast from 'react-hot-toast';
 import styles from './MarketplaceListingCard.module.css';
 
 interface MarketplaceListingCardProps {
   listing: Listing;
+  matchScore?: MatchScore; // Optional match score for personalized results
 }
 
-export default function MarketplaceListingCard({ listing }: MarketplaceListingCardProps) {
+export default function MarketplaceListingCard({ listing, matchScore }: MarketplaceListingCardProps) {
   const [imageError, setImageError] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -209,6 +212,13 @@ export default function MarketplaceListingCard({ listing }: MarketplaceListingCa
               <span className={styles.ratingValue}>{rating.toFixed(1)}</span>
             </div>
           </div>
+
+          {/* Match Score Badge (if available) */}
+          {matchScore && (
+            <div className={styles.matchScoreRow}>
+              <MatchScoreBadge score={matchScore} />
+            </div>
+          )}
 
           {/* Line 2: Subject & Level */}
           <div className={styles.row}>
