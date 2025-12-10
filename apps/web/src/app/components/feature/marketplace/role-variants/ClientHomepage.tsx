@@ -18,6 +18,7 @@ import React from 'react';
 import type { MarketplaceItem } from '@/types/marketplace';
 import MarketplaceGrid from '../MarketplaceGrid';
 import RecommendedSection from '../RecommendedSection';
+import TrendingSection from '../TrendingSection';
 import styles from './ClientHomepage.module.css';
 
 interface ClientHomepageProps {
@@ -118,6 +119,13 @@ export default function ClientHomepage({
           showMatchScore={true}
         />
       )}
+
+      {/* Trending Insights */}
+      <TrendingSection
+        title="Trending Subjects"
+        subtitle="See what&apos;s popular in the tutoring marketplace"
+        limit={6}
+      />
 
       {/* Main Marketplace Grid */}
       <section className={styles.marketplaceSection}>

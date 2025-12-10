@@ -17,6 +17,7 @@
 import React from 'react';
 import type { MarketplaceItem } from '@/types/marketplace';
 import MarketplaceGrid from '../MarketplaceGrid';
+import TrendingSection from '../TrendingSection';
 import styles from './GuestHomepage.module.css';
 
 interface GuestHomepageProps {
@@ -154,6 +155,13 @@ export default function GuestHomepage({
           </div>
         </section>
       )}
+
+      {/* Trending Insights */}
+      <TrendingSection
+        title="Trending Subjects"
+        subtitle="Discover what&apos;s popular in the marketplace right now"
+        limit={6}
+      />
 
       {/* Browse by Subject */}
       <section className={styles.subjectsSection}>
