@@ -232,7 +232,7 @@ const NavMenu = () => {
                 </DropdownMenu.Item>
                 <div className={styles.separator} />
                 <DropdownMenu.Item asChild className={styles.menuItem}>
-                  <Link href="/about">About Tutorwise</Link>
+                  <Link href="/your-home">About Tutorwise</Link>
                 </DropdownMenu.Item>
               </>
             )}

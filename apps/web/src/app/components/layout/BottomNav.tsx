@@ -116,9 +116,9 @@ export default function BottomNav() {
   ];
 
   const isActive = (href: string) => {
-    // Home is active for / and /marketplace
+    // Home is active for /, /marketplace, and /your-home
     if (href === '/') {
-      return pathname === '/' || pathname === '/marketplace';
+      return pathname === '/' || pathname === '/marketplace' || pathname === '/your-home';
     }
     // Saved tab is active for both /saved and /wiselists
     if (href === '/saved') {
