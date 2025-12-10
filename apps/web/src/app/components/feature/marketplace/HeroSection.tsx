@@ -52,6 +52,33 @@ export default function HeroSection({ onSearch, isSearching, onOpenFilters, acti
               disabled={isSearching}
               rows={1}
             />
+            {onOpenFilters && (
+              <button
+                type="button"
+                onClick={onOpenFilters}
+                className={styles.filterButton}
+                aria-label="Open filters"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M4 7h16M7 12h10M10 17h4"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                {activeFilterCount && activeFilterCount > 0 && (
+                  <span className={styles.filterButtonBadge}>{activeFilterCount}</span>
+                )}
+              </button>
+            )}
             <button
               type="submit"
               disabled={!query.trim() || isSearching}
@@ -81,7 +108,7 @@ export default function HeroSection({ onSearch, isSearching, onOpenFilters, acti
           </div>
         </form>
 
-        {/* Example queries and filter button */}
+        {/* Example queries */}
         <div className={styles.exampleQueries}>
           <button
             className={styles.exampleChip}
@@ -97,40 +124,13 @@ export default function HeroSection({ onSearch, isSearching, onOpenFilters, acti
           >
             Online A-Level chemistry tutor
           </button>
-          {onOpenFilters ? (
-            <button
-              className={`${styles.exampleChip} ${styles.filterChip}`}
-              onClick={onOpenFilters}
-              disabled={isSearching}
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M4 6h16M4 12h16M4 18h16"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-              Advanced Filters
-              {activeFilterCount && activeFilterCount > 0 && (
-                <span className={styles.filterChipBadge}>{activeFilterCount}</span>
-              )}
-            </button>
-          ) : (
-            <button
-              className={styles.exampleChip}
-              onClick={() => onSearch('Piano teacher for beginners')}
-              disabled={isSearching}
-            >
-              Piano teacher for beginners
-            </button>
-          )}
+          <button
+            className={styles.exampleChip}
+            onClick={() => onSearch('Piano teacher for beginners')}
+            disabled={isSearching}
+          >
+            Piano teacher for beginners
+          </button>
         </div>
       </div>
     </div>
