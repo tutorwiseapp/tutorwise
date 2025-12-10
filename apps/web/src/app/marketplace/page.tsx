@@ -307,6 +307,51 @@ export default function MarketplacePage() {
     );
   }).length;
 
+  const handleReset = async () => {
+    setHasSearched(false);
+    setAdvancedFilters({});
+    setFilters({
+      subjects: [],
+      levels: [],
+      locationType: null,
+      priceRange: { min: null, max: null },
+      freeTrialOnly: false,
+    });
+
+    // Reload featured items
+    setIsLoading(true);
+    try {
+      const [profilesRes, listingsRes] = await Promise.all([
+        fetch('/api/marketplace/profiles?limit=10&offset=0'),
+        fetch('/api/marketplace/search?limit=10&offset=0'),
+      ]);
+
+      const profilesData = await profilesRes.json();
+      const listingsData = await listingsRes.json();
+
+      const profileItems: MarketplaceItem[] = (profilesData.profiles || []).map((profile: any) => ({
+        type: 'profile' as const,
+        data: profile,
+      }));
+
+      const listingItems: MarketplaceItem[] = (listingsData.listings || []).map((listing: any) => ({
+        type: 'listing' as const,
+        data: listing,
+      }));
+
+      const merged = interleaveItems(profileItems, listingItems);
+
+      setItems(merged);
+      setTotal((profilesData.total || 0) + (listingsData.total || 0));
+      setHasMore(merged.length === 20);
+      setOffset(20);
+    } catch (error) {
+      console.error('Failed to reload featured items:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className={styles.marketplacePage}>
       {/* Hero Section with AI Chat Bar */}
@@ -315,6 +360,8 @@ export default function MarketplacePage() {
         isSearching={isLoading}
         onOpenFilters={() => setIsFiltersOpen(true)}
         activeFilterCount={activeFilterCount}
+        onReset={handleReset}
+        hasActiveSearch={hasSearched}
       />
 
       {/* Advanced Filters Drawer */}

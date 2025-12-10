@@ -14,6 +14,7 @@ import React from 'react';
 import { usePathname } from 'next/navigation';
 import Header from './Header';
 import Footer from './Footer';
+import BottomNav from './BottomNav';
 import styles from './Layout.module.css'; // This import will now find the file
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -40,6 +41,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         {children}
       </main>
       {!isHubPage && <Footer />}
+      <BottomNav />
     </div>
   );
 };
