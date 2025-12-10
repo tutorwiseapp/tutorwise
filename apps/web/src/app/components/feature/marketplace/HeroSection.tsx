@@ -74,7 +74,7 @@ export default function HeroSection({ onSearch, isSearching, onOpenFilters, acti
                     strokeLinejoin="round"
                   />
                 </svg>
-                {activeFilterCount && activeFilterCount > 0 && (
+                {activeFilterCount !== undefined && activeFilterCount > 0 && (
                   <span className={styles.filterButtonBadge}>{activeFilterCount}</span>
                 )}
               </button>

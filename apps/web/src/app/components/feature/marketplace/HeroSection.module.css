@@ -48,6 +48,7 @@
   position: relative;
   display: flex;
   align-items: center;
+  gap: 8px;
   background: #ffffff;
   border: 1px solid var(--color-border, #dfe1e5);
   border-radius: 24px;
@@ -73,7 +74,8 @@
   line-height: 1.5;
   font-family: inherit;
   padding: 0;
-  margin-right: 12px;
+  margin-right: 8px;
+  min-width: 0;
 }
 
 .chatInput::placeholder {
@@ -100,7 +102,6 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
-  margin-right: 8px;
 }
 
 .filterButton:hover {
@@ -220,7 +221,6 @@
   .filterButton {
     width: 32px;
     height: 32px;
-    margin-right: 6px;
   }
 
   .filterButtonBadge {
