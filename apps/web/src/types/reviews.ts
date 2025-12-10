@@ -51,6 +51,15 @@ export interface ProfileReview {
   metadata?: Record<string, any>;
   created_at: string;
   updated_at: string;
+
+  // NEW: Snapshot fields from Booking (migration 105) - Copied at review creation time
+  service_name?: string;           // Service name (from booking)
+  subjects?: string[];             // Subjects taught (from booking)
+  levels?: string[];               // Education levels (from booking)
+  session_date?: string;           // Session date (from booking.session_start_time)
+  location_type?: 'online' | 'in_person' | 'hybrid'; // Delivery mode
+  booking_id?: string;             // Reference to booking
+
   reviewer?: Profile;
   reviewee?: Profile;
   session?: BookingReviewSession;

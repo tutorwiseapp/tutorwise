@@ -70,23 +70,13 @@ export default function BookingCard({
   // Determine who the "other party" is based on view mode
   const otherParty = viewMode === 'client' ? booking.tutor : booking.client;
 
-  // Infer subject from service name for color coding
-  const inferSubject = (serviceName: string): string | undefined => {
-    const lower = serviceName.toLowerCase();
-    if (lower.includes('math') || lower.includes('calculus') || lower.includes('algebra')) return 'Mathematics';
-    if (lower.includes('physics') || lower.includes('chemistry') || lower.includes('biology')) return 'Physics';
-    if (lower.includes('english') || lower.includes('literature')) return 'English';
-    if (lower.includes('history') || lower.includes('geography')) return 'History';
-    if (lower.includes('art') || lower.includes('music')) return 'Art';
-    return undefined;
-  };
-
-  // Use service name for avatar (listing-based) instead of tutor/client
+  // Use service name for avatar (listing-based) with actual subject from booking
+  // Migration 104: booking.subjects now contains snapshot of listing.subjects
   const avatarUrl = getProfileImageUrl({
     id: booking.listing_id || booking.id,
     avatar_url: undefined, // No custom avatar for services
     full_name: booking.service_name, // Use service name for initials
-  }, true, inferSubject(booking.service_name)); // isListing = true, infer subject from name
+  }, true, booking.subjects?.[0]); // isListing = true, use first subject from booking (migration 104)
   const fallbackChar = booking.service_name?.substring(0, 2).toUpperCase() || '?';
 
   // Build description with tutor/client info

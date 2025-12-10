@@ -83,20 +83,24 @@ export default function ProfileReviewCard({ review, variant }: Props) {
   );
 
   // Build details grid - 3x3 grid for balance with 160px avatar
-  const serviceName = review.session?.booking?.service_name || 'Unknown Service';
+  // Migration 105: Use snapshot fields from review (preferred) or fallback to session.booking
+  const serviceName = review.service_name || review.session?.booking?.service_name || 'Unknown Service';
+  const primarySubject = review.subjects?.[0] || 'Not specified';
+  const sessionDate = review.session_date || review.created_at;
+
   const details = [
-    // Row 1: Rating, Service, Status
+    // Row 1: Rating, Subject, Service
     { label: 'Rating', value: starRatingDisplay },
+    { label: 'Subject', value: primarySubject },
     { label: 'Service', value: serviceName },
-    { label: 'Status', value: getStatus().label },
-    // Row 2: Reviewer, Date, Verified
+    // Row 2: From/To, Session Date, Location
     { label: variant === 'received' ? 'From' : 'To', value: profile.full_name || 'Anonymous' },
-    { label: 'Date', value: formatDate(review.created_at) },
+    { label: 'Session', value: formatDate(sessionDate) },
+    { label: 'Location', value: review.location_type || 'N/A' },
+    // Row 3: Verified, Levels, Status
     { label: 'Verified', value: isPending ? 'No' : 'Yes' },
-    // Row 3: Profile ID, Review ID
-    { label: 'Profile ID', value: profile.id.substring(0, 8) },
-    { label: 'Review ID', value: review.id.substring(0, 8) },
-    { label: '', value: '' },
+    { label: 'Levels', value: review.levels?.join(', ') || 'N/A' },
+    { label: 'Status', value: getStatus().label },
   ];
 
   return (

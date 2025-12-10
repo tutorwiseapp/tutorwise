@@ -74,32 +74,52 @@ export async function POST(
       );
     }
 
-    // Validate that the target exists
+    // Validate target exists and fetch data for caching (Migration 106)
+    let cachedData: any = {};
+
     if (profileId) {
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('id')
+        .select('id, full_name, avatar_url, active_role')
         .eq('id', profileId)
         .single();
 
       if (profileError || !profile) {
         return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
       }
+
+      // Cache profile data (Migration 106)
+      cachedData = {
+        cached_type: 'profile' as const,
+        cached_title: profile.full_name,
+        cached_avatar_url: profile.avatar_url,
+        cached_active_role: profile.active_role,
+      };
     }
 
     if (listingId) {
       const { data: listing, error: listingError } = await supabase
         .from('listings')
-        .select('id')
+        .select('id, title, subjects, profile_id, profile:profiles(full_name, avatar_url)')
         .eq('id', listingId)
         .single();
 
       if (listingError || !listing) {
         return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
       }
+
+      // Cache listing data (Migration 106)
+      const profile = Array.isArray(listing.profile) ? listing.profile[0] : listing.profile;
+      cachedData = {
+        cached_type: 'listing' as const,
+        cached_title: listing.title,
+        cached_subjects: listing.subjects,
+        cached_tutor_name: profile?.full_name,
+        cached_avatar_url: profile?.avatar_url,
+      };
     }
 
-    // Insert item
+    // Insert item with cached data (Migration 106)
     const { data: item, error: insertError } = await supabase
       .from('wiselist_items')
       .insert({
@@ -108,6 +128,8 @@ export async function POST(
         listing_id: listingId || null,
         notes: notes || null,
         added_by_profile_id: user.id,
+        // Cached fields (Migration 106) - preserve data if listing/profile deleted
+        ...cachedData,
       })
       .select(`
         *,

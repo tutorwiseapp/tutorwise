@@ -372,7 +372,10 @@ export type TransactionStatus =
 // Referral status enum (SDD v3.6, Section 3.3)
 export type ReferralStatus = 'Referred' | 'Signed Up' | 'Converted' | 'Expired';
 
-// Booking interface (SDD v3.6, Section 3.2) (migration 049: student_id → client_id, migration 051: referrer_profile_id → agent_profile_id)
+// Booking interface (SDD v3.6, Section 3.2)
+// migration 049: student_id → client_id
+// migration 051: referrer_profile_id → agent_profile_id
+// migration 104: Added snapshot fields from listing
 export interface Booking {
   id: string;
   client_id: string; // Updated from student_id (migration 049)
@@ -386,6 +389,17 @@ export interface Booking {
   amount: number; // Total amount in GBP
   status: BookingStatus;
   payment_status: PaymentStatus;
+
+  // NEW: Snapshot fields from Listing (migrations 104, 108) - Copied at booking creation time
+  subjects?: string[];              // Subjects taught (from listing.subjects)
+  levels?: string[];                // Education levels (from listing.levels)
+  location_type?: 'online' | 'in_person' | 'hybrid'; // Delivery mode
+  location_city?: string;           // City for in-person sessions
+  free_trial?: boolean;             // Whether this was a trial session
+  hourly_rate?: number;             // Rate at booking time (may differ from current listing rate)
+  listing_slug?: string;            // Listing slug for reference
+  available_free_help?: boolean;    // v5.9: Whether tutor was offering free help at booking time (migration 108)
+
   created_at: string;
   updated_at?: string;
   // Joined data from API
@@ -424,7 +438,17 @@ export interface Transaction {
   available_at?: string; // ISO timestamp when funds become available for payout
   stripe_checkout_id?: string | null; // For idempotency (prevents duplicate charges)
   stripe_payout_id?: string | null; // Stripe payout ID for withdrawals
-  // Joined data from API
+
+  // NEW: Context fields from Booking (migrations 107, 110) - Copied at transaction creation time
+  service_name?: string;           // Service name (from booking)
+  subjects?: string[];             // Subjects taught (from booking)
+  session_date?: string;           // Session date (from booking.session_start_time)
+  location_type?: 'online' | 'in_person' | 'hybrid'; // Delivery mode
+  tutor_name?: string;             // Tutor name for display
+  client_name?: string;            // Client name for display
+  agent_name?: string;             // Agent name for display (migration 110)
+
+  // Joined data from API (may be null if booking deleted, use context fields above)
   booking?: {
     id: string;
     service_name: string;
@@ -570,7 +594,16 @@ export interface WiselistItem {
   notes?: string | null;
   added_by_profile_id: string;
   created_at: string;
-  // Populated via joins
+
+  // NEW: Cached fields (migration 106) - Copied at save time
+  cached_type?: 'listing' | 'profile';  // Item type
+  cached_title?: string;                 // Listing title or profile full_name
+  cached_subjects?: string[];            // Subjects for listings
+  cached_tutor_name?: string;            // Tutor name for listings
+  cached_avatar_url?: string;            // Avatar URL
+  cached_active_role?: string;           // Active role for profile items
+
+  // Populated via joins (may be null if item deleted)
   profile?: Profile;
   listing?: Listing;
   added_by?: Profile;

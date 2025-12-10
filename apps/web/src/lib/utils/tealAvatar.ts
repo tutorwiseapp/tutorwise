@@ -148,7 +148,7 @@ export function generateTealAvatar(
   let gradientEnd: string;
   let gradientId: string;
 
-  if (isListing && subject) {
+  if (isListing) {
     // Listings: Use subject-based gradient colors
     const category = getSubjectCategory(subject);
     const colors = getGradientColors(category);
@@ -156,9 +156,9 @@ export function generateTealAvatar(
     gradientEnd = colors.gradientEnd;
     gradientId = `${category.toLowerCase()}-gradient`;
   } else {
-    // Profiles: Use TutorWise pastel teal gradient (custom medium teal)
-    gradientStart = '#66b2b2'; // Custom medium teal (start)
-    gradientEnd = '#99cccc';   // Lighter teal (end)
+    // Profiles: Use TutorWise teal gradient
+    gradientStart = '#26B0B9'; // Teal (start)
+    gradientEnd = '#5cc9d1';   // Lighter teal (end)
     gradientId = 'teal-gradient';
   }
 

@@ -57,7 +57,7 @@ export default function PendingReviewCard({ task, currentUserId, onSubmit }: Pro
   const avatarUrl = getProfileImageUrl({
     id: subject.id,
     avatar_url: subject.avatar_url ?? undefined,
-    full_name: subject.full_name, // Use subject name for initials
+    full_name: subject.full_name || undefined, // Use subject name for initials
   });
   const fallbackChar = subject.full_name?.charAt(0).toUpperCase() || '?';
 
@@ -68,17 +68,22 @@ export default function PendingReviewCard({ task, currentUserId, onSubmit }: Pro
   const description = `Rate your experience with ${subject.full_name}`;
 
   // Build details grid - 3x3 grid for balance with 160px avatar
+  // Migration 104: booking.subjects now available
+  const primarySubject = (booking as any).subjects?.[0] || 'Not specified';
+
   const details = [
-    // Row 1: Subject, Session Date, Days Remaining
-    { label: 'Subject', value: subject.full_name || 'Unknown' },
+    // Row 1: Subject (from booking), Session Date, Days Remaining
+    { label: 'Subject', value: primarySubject },
     { label: 'Session', value: formatDate(booking.session_start_time) },
     { label: 'Due In', value: `${task.days_remaining} ${task.days_remaining === 1 ? 'day' : 'days'}` },
-    // Row 2: Service, Status, Task ID
+    // Row 2: Service, Reviewee, Status
     { label: 'Service', value: booking.service_name || 'Unknown Service' },
+    { label: 'Reviewee', value: subject.full_name || 'Unknown' },
     { label: 'Status', value: getStatus().label },
+    // Row 3: Session Duration, Location, Task ID
+    { label: 'Duration', value: booking.session_duration ? `${booking.session_duration} mins` : 'N/A' },
+    { label: 'Location', value: (booking as any).location_type || 'N/A' },
     { label: 'Task ID', value: task.id.substring(0, 8) },
-    // Row 3: Subject ID (full width)
-    { label: 'Subject ID', value: subject.id.substring(0, 16), fullWidth: true },
   ];
 
   // Build actions

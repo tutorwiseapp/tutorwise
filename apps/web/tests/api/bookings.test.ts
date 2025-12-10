@@ -15,6 +15,11 @@ jest.mock('@/utils/supabase/server', () => ({
   createClient: jest.fn(),
 }));
 
+// Mock incrementListingBookings function (migration 103)
+jest.mock('@/lib/api/listings', () => ({
+  incrementListingBookings: jest.fn().mockResolvedValue(undefined),
+}));
+
 describe('POST /api/bookings', () => {
   let mockSupabase: any;
 
@@ -29,6 +34,8 @@ describe('POST /api/bookings', () => {
       from: jest.fn(() => mockSupabase),
       select: jest.fn(() => mockSupabase),
       eq: jest.fn(() => mockSupabase),
+      in: jest.fn(() => mockSupabase),
+      gte: jest.fn(() => mockSupabase),
       single: jest.fn(),
       insert: jest.fn(() => mockSupabase),
     };
@@ -55,18 +62,27 @@ describe('POST /api/bookings', () => {
       error: null,
     });
 
-    // Mock listing fetch - second .single() call (to validate availability)
+    // Mock listing fetch - second .single() call (to validate availability + snapshot fields migrations 104, 108)
     mockSupabase.single.mockResolvedValueOnce({
       data: {
         id: mockListingId,
         status: 'published',
         availability: {},
+        // Snapshot fields (migrations 104, 108)
+        subjects: ['Mathematics'],
+        levels: ['GCSE'],
+        location_type: 'online',
+        location_city: null,
+        hourly_rate: 50,
+        slug: 'gcse-maths-tutoring',
+        free_trial: false,
+        available_free_help: false,
       },
       error: null,
     });
 
-    // Mock existing bookings check (to prevent double booking)
-    mockSupabase.select.mockResolvedValueOnce({
+    // Mock existing bookings check (to prevent double booking) - .gte() is the terminal call
+    mockSupabase.gte.mockResolvedValueOnce({
       data: [],
       error: null,
     });
@@ -147,18 +163,27 @@ describe('POST /api/bookings', () => {
       error: null,
     });
 
-    // Mock listing fetch - second .single() call (to validate availability)
+    // Mock listing fetch - second .single() call (to validate availability + snapshot fields migrations 104, 108)
     mockSupabase.single.mockResolvedValueOnce({
       data: {
         id: mockListingId,
         status: 'published',
         availability: {},
+        // Snapshot fields (migrations 104, 108)
+        subjects: ['Mathematics'],
+        levels: ['GCSE'],
+        location_type: 'online',
+        location_city: null,
+        hourly_rate: 50,
+        slug: 'gcse-maths-tutoring',
+        free_trial: false,
+        available_free_help: false,
       },
       error: null,
     });
 
-    // Mock existing bookings check (to prevent double booking)
-    mockSupabase.select.mockResolvedValueOnce({
+    // Mock existing bookings check (to prevent double booking) - .gte() is the terminal call
+    mockSupabase.gte.mockResolvedValueOnce({
       data: [],
       error: null,
     });

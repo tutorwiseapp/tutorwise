@@ -149,10 +149,10 @@ export async function POST(req: Request) {
       return new NextResponse("Missing required fields", { status: 400 });
     }
 
-    // 4.5. Fetch listing to validate availability
+    // 4.5. Fetch listing to validate availability and get snapshot fields (migrations 104, 108)
     const { data: listing, error: listingError } = await supabase
       .from('listings')
-      .select('availability, timezone, status')
+      .select('availability, timezone, status, subjects, levels, location_type, location_city, hourly_rate, slug, free_trial, available_free_help')
       .eq('id', listing_id)
       .single();
 
@@ -255,8 +255,8 @@ export async function POST(req: Request) {
       }
     }
 
-    // 5. Create booking with agent_profile_id from client's profile
-    // (SDD v3.6, Section 11.2 - Lifetime Attribution) (migrations 049 & 051)
+    // 5. Create booking with agent_profile_id from client's profile and snapshot fields
+    // (SDD v3.6, Section 11.2 - Lifetime Attribution) (migrations 049 & 051, 104, 108)
     const { data: booking, error: bookingError } = await supabase
       .from('bookings')
       .insert({
@@ -269,7 +269,16 @@ export async function POST(req: Request) {
         session_duration,
         amount,
         status: 'Pending',
-        payment_status: 'Pending'
+        payment_status: 'Pending',
+        // Snapshot fields from listing (migrations 104, 108)
+        subjects: listing.subjects,
+        levels: listing.levels,
+        location_type: listing.location_type,
+        location_city: listing.location_city,
+        hourly_rate: listing.hourly_rate,
+        listing_slug: listing.slug,
+        free_trial: listing.free_trial || false,
+        available_free_help: listing.available_free_help || false,
       })
       .select()
       .single();
@@ -283,6 +292,10 @@ export async function POST(req: Request) {
 
   } catch (error) {
     console.error("API POST /api/bookings error:", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    console.error("Error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    return new NextResponse(JSON.stringify({ error: error instanceof Error ? error.message : 'Internal Server Error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }

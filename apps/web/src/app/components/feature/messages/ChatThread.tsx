@@ -276,7 +276,7 @@ export default function ChatThread({
     ? getProfileImageUrl({
         id: otherUser.id,
         avatar_url: otherUser.avatar_url,
-        full_name: otherUser.full_name // Use other user name for initials
+        full_name: otherUser.full_name || undefined // Use other user name for initials
       })
     : null;
 

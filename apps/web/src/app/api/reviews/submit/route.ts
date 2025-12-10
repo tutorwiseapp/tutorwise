@@ -47,10 +47,24 @@ export async function POST(req: Request) {
       return new NextResponse('Missing required fields', { status: 400 });
     }
 
-    // 3. Validate session exists and is pending
+    // 3. Validate session exists and is pending, fetch booking for snapshot (migration 105)
     const { data: session, error: sessionError } = await supabase
       .from('booking_review_sessions')
-      .select('id, status, participant_ids, submitted_ids')
+      .select(`
+        id,
+        status,
+        participant_ids,
+        submitted_ids,
+        booking_id,
+        booking:booking_id(
+          id,
+          service_name,
+          subjects,
+          levels,
+          session_start_time,
+          location_type
+        )
+      `)
       .eq('id', session_id)
       .single();
 
@@ -88,13 +102,29 @@ export async function POST(req: Request) {
       }
     }
 
-    // 6. Insert all reviews (trigger will handle session update)
+    // 6. Insert all reviews with snapshot fields (migration 105)
+    // Extract booking data for snapshot
+    const booking: any = Array.isArray((session as any).booking)
+      ? (session as any).booking[0]
+      : (session as any).booking;
+
+    if (!booking) {
+      console.warn('[API] Warning: No booking data found for snapshot fields');
+    }
+
     const reviewInserts = reviews.map((review) => ({
       session_id,
       reviewer_id: user.id,
       reviewee_id: review.reviewee_id,
       rating: review.rating,
       comment: review.comment || null,
+      // Snapshot fields from booking (migration 105)
+      service_name: booking?.service_name,
+      subjects: booking?.subjects,
+      levels: booking?.levels,
+      session_date: booking?.session_start_time,
+      location_type: booking?.location_type,
+      booking_id: (session as any).booking_id,
     }));
 
     const { data: insertedReviews, error: insertError } = await supabase
