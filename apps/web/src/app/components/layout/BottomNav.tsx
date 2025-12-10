@@ -2,10 +2,11 @@
  * Filename: src/app/components/layout/BottomNav.tsx
  * Purpose: Mobile bottom navigation bar for marketplace and main app navigation
  * Created: 2025-12-10
+ * Updated: 2025-12-10 - Restructured navigation to match requirements
  *
  * Features:
  * - Fixed bottom navigation bar for mobile devices
- * - 5 primary navigation items (Home, Search, Wiselists, Messages, Account)
+ * - 5 primary navigation items (Home, Dashboard, Bookings, Referrals, Menu)
  * - Active state highlighting
  * - Badge support for notifications
  * - Only visible on mobile (hidden on desktop)
@@ -68,12 +69,19 @@ export default function BottomNav() {
       ),
     },
     {
-      href: '/saved',
-      label: 'Saved',
+      href: '/bookings',
+      label: 'Bookings',
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
-            d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"
+            d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M8.25 21V3M15.75 21V3"
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
@@ -81,14 +89,29 @@ export default function BottomNav() {
           />
         </svg>
       ),
+      requiresAuth: true,
     },
     {
-      href: '/messages',
-      label: 'Messages',
+      href: '/referrals',
+      label: 'Referrals',
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
-            d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+            d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M12 3v9m0 0l4-4m-4 4L8 8"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M20 8a2 2 0 0 0-2-2h-4"
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
@@ -96,19 +119,19 @@ export default function BottomNav() {
           />
         </svg>
       ),
+      requiresAuth: true,
     },
     {
       href: '/account',
-      label: 'Account',
+      label: 'Menu',
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-          <circle cx="12" cy="10" r="3" stroke="currentColor" strokeWidth="2" />
           <path
-            d="M6.168 18.849A4 4 0 0 1 10 16h4a4 4 0 0 1 3.834 2.855"
+            d="M3 12h18M3 6h18M3 18h18"
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
+            strokeLinejoin="round"
           />
         </svg>
       ),
@@ -120,11 +143,25 @@ export default function BottomNav() {
     if (href === '/') {
       return pathname === '/' || pathname === '/marketplace' || pathname === '/your-home';
     }
-    // Saved tab is active for both /saved and /wiselists
-    if (href === '/saved') {
-      return pathname === '/saved' || pathname?.startsWith('/wiselists');
+    // Menu/Account is active for account, messages, wiselists, network, financials, payments, settings
+    if (href === '/account') {
+      return pathname?.startsWith('/account') ||
+             pathname?.startsWith('/messages') ||
+             pathname?.startsWith('/wiselists') ||
+             pathname?.startsWith('/network') ||
+             pathname?.startsWith('/financials') ||
+             pathname?.startsWith('/payments') ||
+             pathname?.startsWith('/settings');
     }
     return pathname?.startsWith(href);
+  };
+
+  const handleNavClick = (e: React.MouseEvent, item: NavItem) => {
+    // If the item requires auth and user is not logged in, redirect to login
+    if (item.requiresAuth && !profile) {
+      e.preventDefault();
+      router.push('/login');
+    }
   };
 
   return (
@@ -135,6 +172,7 @@ export default function BottomNav() {
             key={item.href}
             href={item.href}
             className={`${styles.navItem} ${isActive(item.href) ? styles.navItemActive : ''}`}
+            onClick={(e) => handleNavClick(e, item)}
           >
             <div className={styles.iconWrapper}>
               {item.icon}

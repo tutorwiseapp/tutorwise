@@ -115,28 +115,19 @@ const NavMenu = () => {
 
                 {/* Main Navigation Items */}
                 <DropdownMenu.Item asChild className={styles.menuItem}>
-                  <Link href="/dashboard">Dashboard</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item asChild className={styles.menuItem}>
-                  <Link href="/listings">Listings</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item asChild className={styles.menuItem}>
-                  <Link href="/bookings">Bookings</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item asChild className={styles.menuItem}>
-                  <Link href="/referrals">Referrals</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item asChild className={styles.menuItem}>
-                  <Link href="/financials">Financials</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item asChild className={styles.menuItem}>
                   <Link href="/messages">Messages</Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item asChild className={styles.menuItem}>
+                  <Link href="/wiselists">Wiselists</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild className={styles.menuItem}>
                   <Link href="/network">Network</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild className={styles.menuItem}>
-                  <Link href="/reviews">Reviews</Link>
+                  <Link href="/financials">Financials</Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item asChild className={styles.menuItem}>
+                  <Link href="/payments">Payments</Link>
                 </DropdownMenu.Item>
 
                 <div className={styles.separator12px} />
