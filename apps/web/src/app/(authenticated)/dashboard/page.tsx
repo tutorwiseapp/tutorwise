@@ -36,11 +36,13 @@ import { KPISkeleton, ChartSkeleton, WidgetSkeleton } from '@/app/components/ui/
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import Button from '@/app/components/ui/actions/Button';
 import styles from './page.module.css';
+import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
 const DashboardPage = () => {
   const { profile, activeRole, isLoading, needsOnboarding } = useUserProfile();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'overview' | 'analytics'>('overview');
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
 
   // React Query: Fetch KPI data with automatic retry, caching, and background refetch
   const {
@@ -189,42 +191,71 @@ const DashboardPage = () => {
 
   // Role-specific action buttons for header
   const getHeaderActions = () => {
-    const actions = [];
+    return (
+      <div className={styles.headerActions}>
+        {/* Primary Action Button */}
+        {activeRole === 'tutor' && (
+          <Link href="/create-listing">
+            <Button variant="primary" size="sm">Create Listing</Button>
+          </Link>
+        )}
 
-    if (activeRole === 'tutor') {
-      actions.push(
-        <Link key="create-listing" href="/create-listing">
-          <Button variant="primary" size="sm">Create Listing</Button>
-        </Link>
-      );
-    }
+        {activeRole === 'agent' && (
+          <Link href="/create-listing">
+            <Button variant="primary" size="sm">Create Listing</Button>
+          </Link>
+        )}
 
-    if (activeRole === 'agent') {
-      actions.push(
-        <Link key="create-listing" href="/create-listing">
-          <Button variant="primary" size="sm">Create Listing</Button>
-        </Link>
-      );
-    }
+        {activeRole === 'client' && (
+          <Link href="/marketplace">
+            <Button variant="primary" size="sm">Find Tutors</Button>
+          </Link>
+        )}
 
-    if (activeRole === 'client') {
-      actions.push(
-        <Link key="find-tutors" href="/marketplace">
-          <Button variant="primary" size="sm">Find Tutors</Button>
-        </Link>
-      );
-    }
+        {/* Secondary Actions: Dropdown Menu */}
+        <div className={actionStyles.dropdownContainer}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setShowActionsMenu(!showActionsMenu)}
+          >
+            ⋮
+          </Button>
 
-    actions.push(
-      <Link key="profile" href="/account/personal-info">
-        <Button variant="secondary" size="sm">View Profile</Button>
-      </Link>,
-      <Link key="settings" href="/settings">
-        <Button variant="secondary" size="sm">Settings</Button>
-      </Link>
+          {showActionsMenu && (
+            <>
+              {/* Backdrop to close menu */}
+              <div
+                className={actionStyles.backdrop}
+                onClick={() => setShowActionsMenu(false)}
+              />
+
+              {/* Dropdown Menu */}
+              <div className={actionStyles.dropdownMenu}>
+                <button
+                  onClick={() => {
+                    router.push('/account/personal-info');
+                    setShowActionsMenu(false);
+                  }}
+                  className={actionStyles.menuButton}
+                >
+                  View Profile
+                </button>
+                <button
+                  onClick={() => {
+                    router.push('/settings');
+                    setShowActionsMenu(false);
+                  }}
+                  className={actionStyles.menuButton}
+                >
+                  Settings
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
     );
-
-    return <div className={styles.headerActions}>{actions}</div>;
   };
 
   return (
