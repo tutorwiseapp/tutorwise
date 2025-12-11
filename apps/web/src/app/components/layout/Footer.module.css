@@ -59,3 +59,14 @@
     font-size: var(--font-size-sm); /* 14px */
   }
 }
+
+/*
+  Mobile Footer Visibility:
+  Hide footer on mobile (max-width: 768px) where bottom navigation is shown.
+  This prevents redundant navigation and saves screen space.
+*/
+@media (max-width: 768px) {
+  .footer {
+    display: none;
+  }
+}

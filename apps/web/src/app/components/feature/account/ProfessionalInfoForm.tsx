@@ -976,13 +976,13 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
           {/* Availability Section */}
           <HubForm.Section title="Availability">
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+            <div className={styles.availabilityGrid}>
               {/* Left Column: Availability Periods */}
               <div>
                 {/* Availability Type */}
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Availability Periods</label>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div className={styles.dateGrid}>
                     <button
                       type="button"
                       className={`${styles.checkboxItem} ${availabilityType === 'recurring' ? styles.selected : ''}`}
@@ -1009,7 +1009,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                         {availErrors.days}
                       </p>
                     )}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
+                    <div className={styles.daysGrid}>
                       {DAYS_OF_WEEK.map(day => (
                         <button
                           key={day}
@@ -1031,7 +1031,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                       {availErrors.dates}
                     </p>
                   )}
-                  <div style={{ display: 'grid', gridTemplateColumns: availabilityType === 'recurring' ? '1fr 1fr' : '1fr', gap: '16px' }}>
+                  <div className={availabilityType === 'recurring' ? styles.dateGrid : ''}>
                     <HubForm.Field label="From">
                       <DatePicker
                         selected={availFromDate ? new Date(availFromDate) : undefined}
@@ -1064,7 +1064,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                       {availErrors.times}
                     </p>
                   )}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div className={styles.timeGrid}>
                     <CustomTimePicker
                       label="Start time"
                       value={startTime}
@@ -1168,7 +1168,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                       {unavailErrors.dates}
                     </p>
                   )}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div className={styles.dateGrid}>
                     <HubForm.Field label="From">
                       <DatePicker
                         selected={unavailFromDate ? new Date(unavailFromDate) : undefined}
@@ -1416,7 +1416,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                   {renderField('identity_document_number', 'Document Number', 'text', 'Enter passport or license number')}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div className={styles.dateGrid}>
                     <HubForm.Field label="Issue Date">
                       <DatePicker
                         selected={formData.identity_issue_date ? new Date(formData.identity_issue_date) : undefined}
@@ -1458,7 +1458,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                   {renderField('dbs_certificate_number', 'Certificate Number', 'text', 'Enter DBS certificate number')}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div className={styles.dateGrid}>
                     <HubForm.Field label="Issue Date">
                       <DatePicker
                         selected={formData.dbs_certificate_date ? new Date(formData.dbs_certificate_date) : undefined}
@@ -1672,7 +1672,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 {renderField('identity_document_number', 'Document Number', 'text', 'Enter passport or license number')}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className={styles.dateGrid}>
                   <HubForm.Field label="Issue Date">
                     <DatePicker
                       selected={formData.identity_issue_date ? new Date(formData.identity_issue_date) : undefined}
@@ -1714,7 +1714,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 {renderField('dbs_certificate_number', 'Certificate Number', 'text', 'Enter DBS certificate number')}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className={styles.dateGrid}>
                   <HubForm.Field label="Issue Date">
                     <DatePicker
                       selected={formData.dbs_certificate_date ? new Date(formData.dbs_certificate_date) : undefined}
@@ -1743,13 +1743,13 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
         {/* Availability Section */}
         <HubForm.Section title="Availability">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+          <div className={styles.availabilityGrid}>
             {/* Left Column: Availability Periods */}
             <div>
               {/* Availability Type */}
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Availability Periods</label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div className={styles.dateGrid}>
                   <button
                     type="button"
                     className={`${styles.checkboxItem} ${availabilityType === 'recurring' ? styles.selected : ''}`}
@@ -1776,7 +1776,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                       {availErrors.days}
                     </p>
                   )}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
+                  <div className={styles.daysGrid}>
                     {DAYS_OF_WEEK.map(day => (
                       <button
                         key={day}
@@ -1798,7 +1798,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                     {availErrors.dates}
                   </p>
                 )}
-                <div style={{ display: 'grid', gridTemplateColumns: availabilityType === 'recurring' ? '1fr 1fr' : '1fr', gap: '16px' }}>
+                <div className={availabilityType === 'recurring' ? styles.dateGrid : ''}>
                   <HubForm.Field label="From">
                     <DatePicker
                       selected={availFromDate ? new Date(availFromDate) : undefined}
@@ -1831,7 +1831,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                     {availErrors.times}
                   </p>
                 )}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className={styles.timeGrid}>
                   <CustomTimePicker
                     label="Start time"
                     value={startTime}
@@ -1935,7 +1935,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                     {unavailErrors.dates}
                   </p>
                 )}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className={styles.dateGrid}>
                   <HubForm.Field label="From">
                     <DatePicker
                       selected={unavailFromDate ? new Date(unavailFromDate) : undefined}

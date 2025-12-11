@@ -96,3 +96,54 @@
 .buttonSecondary:hover:not(:disabled) {
   background-color: var(--color-primary-light, #E0F2F1);
 }
+
+/* Availability Section Responsive Grids */
+.availabilityGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.daysGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.dateGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.timeGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Mobile Responsive - Stack columns vertically */
+@media (max-width: 768px) {
+  .availabilityGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .daysGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .dateGrid,
+  .timeGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* Extra small mobile - Further optimization */
+@media (max-width: 480px) {
+  .daysGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

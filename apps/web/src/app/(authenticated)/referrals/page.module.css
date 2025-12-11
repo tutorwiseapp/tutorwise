@@ -22,3 +22,10 @@
   margin-top: -2rem;
 }
 
+/* Mobile: Remove negative margin to prevent overlap with global header */
+@media (max-width: 768px) {
+  .referralHeaderTall {
+    margin-top: 0;
+    height: auto; /* Let content determine height on mobile */
+  }
+}
