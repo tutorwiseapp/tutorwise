@@ -101,7 +101,8 @@
 }
 
 .createButton {
-  padding: var(--space-2, 16px) var(--space-3, 24px);
+  padding: var(--button-padding-v-standard, 10px) var(--space-3, 24px);
+  min-height: var(--button-height-standard, 40px);
   background: var(--color-primary-default, #006c67);
   color: white;
   border: none;
@@ -196,7 +197,8 @@
 
 .cancelButton,
 .addButton {
-  padding: var(--space-2, 16px) var(--space-3, 24px);
+  padding: var(--button-padding-v-standard, 10px) var(--space-3, 24px);
+  min-height: var(--button-height-standard, 40px);
   border: none;
   border-radius: var(--border-radius-md, 8px);
   font-size: 0.875rem;

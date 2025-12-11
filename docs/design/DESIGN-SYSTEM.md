@@ -122,10 +122,22 @@ Controlled via CSS variables mapped to Tailwind classes.
 -   `secondary`: Transparent background, green text, green border. Secondary actions.
 -   `accent`: Blue background, white text. Alternative actions or special emphasis.
 
-**Sizes:** (Padding / Font Size)
--   `small`: `py-1 px-3` / `text-sm` (14px)
--   `medium` (Default): `py-2 px-4` / `text-base` (16px)
--   `large`: `py-3 px-6` / `text-lg` (18px)
+**Standardized Button Heights:**
+Application-wide button height standards using CSS design tokens (defined in `globals.css`):
+-   **Standard Height:** `40px` (`--button-height-standard`) - Default for all buttons
+-   **Compact Height:** `32px` (`--button-height-compact`) - Icon buttons and space-constrained contexts
+-   **Large Height:** `48px` (`--button-height-large`) - Prominent CTAs and high-impact actions
+
+**Sizes:** (Vertical Padding / Horizontal Padding / Font Size / Height)
+-   `small`: `10px` (`--button-padding-v-compact: 6px`) / `px-3` / `text-sm` (14px) / `32px`
+-   `medium` (Default): `10px` (`--button-padding-v-standard: 10px`) / `px-4` / `text-base` (16px) / `40px`
+-   `large`: `14px` (`--button-padding-v-large: 14px`) / `px-6` / `text-lg` (18px) / `48px`
+
+**Implementation Notes:**
+-   All buttons use `min-height` with design tokens for consistent sizing
+-   Vertical padding calculated to achieve target height: `(height - line-height) / 2`
+-   Global `.btn` class and all modal/card buttons standardized to 40px
+-   Design tokens ensure single source of truth for button specifications
 
 **States:**
 -   **Hover:** Subtle background/border color change (darker for primary/accent, light tint for secondary).

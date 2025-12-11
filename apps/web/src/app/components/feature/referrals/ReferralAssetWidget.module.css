@@ -136,7 +136,8 @@
 /* Buttons */
 .copyButton,
 .downloadButton {
-  padding: var(--space-2, 16px) var(--space-4, 32px);
+  padding: var(--button-padding-v-standard, 10px) var(--space-4, 32px);
+  min-height: var(--button-height-standard, 40px);
   background-color: var(--color-primary-default, #006c67);
   color: white;
   border: none;

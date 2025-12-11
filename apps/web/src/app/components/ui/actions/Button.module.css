@@ -10,7 +10,8 @@
   justify-content: center;
   border-radius: 8px;
   font-weight: 500;
-  padding: 0.75rem 1.5rem;
+  padding: var(--button-padding-v-standard, 10px) 1.5rem; /* Standardized to 40px height */
+  min-height: var(--button-height-standard, 40px); /* Explicit height control */
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   border: 1px solid transparent;
@@ -103,16 +104,19 @@
 
 /* Size variants */
 .sm {
-  padding: 0.5rem 1rem;
+  padding: var(--button-padding-v-compact, 6px) 1rem;
+  min-height: var(--button-height-compact, 32px);
   font-size: 0.875rem;
 }
 
 .md {
-  padding: 0.75rem 1.5rem;
+  padding: var(--button-padding-v-standard, 10px) 1.5rem;
+  min-height: var(--button-height-standard, 40px);
   font-size: 1rem;
 }
 
 .lg {
-  padding: 1rem 2rem;
+  padding: var(--button-padding-v-large, 14px) 2rem;
+  min-height: var(--button-height-large, 48px);
   font-size: 1.125rem;
 }

@@ -18,6 +18,15 @@
   --font-size-2xl: 1.5rem;    /* 24px */
   --font-size-3xl: 2rem;      /* 32px */
 
+  /* --- 1.5. Button System --- */
+  --button-height-standard: 40px;
+  --button-height-compact: 32px;
+  --button-height-large: 48px;
+
+  --button-padding-v-standard: 10px;
+  --button-padding-v-compact: 6px;
+  --button-padding-v-large: 14px;
+
   /* --- 2. Color System --- */
   --color-primary: #006C67;
   --color-primary-accent: #4CAEAD;
@@ -123,8 +132,8 @@ a:hover {
 /* =================================== */
 
 .btn {
-  height: 48px;
-  padding: 0 var(--space-3);
+  min-height: var(--button-height-standard); /* 40px - standardized */
+  padding: var(--button-padding-v-standard) var(--space-3); /* 10px vertical */
   border-radius: var(--border-radius-md);
   cursor: pointer;
   font-size: var(--font-size-base);
