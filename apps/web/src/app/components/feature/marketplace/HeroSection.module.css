@@ -73,6 +73,7 @@
   line-height: 1.5;
   font-family: inherit;
   padding: 0;
+  padding-right: 8px;
   flex: 1;
   flex-shrink: 1;
   min-width: 0;
@@ -115,8 +116,6 @@
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-  margin-left: auto;
-  padding-left: 8px;
 }
 
 /* Filter Button - Inside Search Bar */
