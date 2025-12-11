@@ -48,7 +48,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0;
   background: #ffffff;
   border: 1px solid var(--color-border, #dfe1e5);
   border-radius: 24px;
@@ -115,6 +115,8 @@
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+  margin-left: auto;
+  padding-left: 8px;
 }
 
 /* Filter Button - Inside Search Bar */
