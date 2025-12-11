@@ -115,6 +115,9 @@ const NavMenu = () => {
 
                 {/* Main Navigation Items */}
                 <DropdownMenu.Item asChild className={styles.menuItem}>
+                  <Link href="/dashboard">Dashboard</Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item asChild className={styles.menuItem}>
                   <Link href="/messages">Messages</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild className={styles.menuItem}>
