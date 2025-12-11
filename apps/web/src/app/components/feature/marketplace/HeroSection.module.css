@@ -99,8 +99,8 @@
 /* Clear Button - X icon to clear search */
 .clearButton {
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: transparent;
   border: none;
@@ -111,11 +111,17 @@
   justify-content: center;
   transition: all 0.2s;
   padding: 0;
+  margin-left: 8px;
 }
 
 .clearButton:hover {
   background: #f5f5f5;
   color: #666;
+}
+
+.clearButton svg {
+  width: 18px;
+  height: 18px;
 }
 
 /* Button Group - Contains send and filter buttons */
@@ -124,6 +130,10 @@
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+  flex-grow: 0;
+  margin-left: 12px;
+  width: 80px; /* Fixed width: 36px (send) + 8px (gap) + 36px (filter) */
+  min-width: 80px;
 }
 
 /* Filter Button - Inside Search Bar */
@@ -269,10 +279,14 @@
     font-size: 0.9375rem;
   }
 
+  .buttonGroup {
+    width: 72px; /* Fixed width for mobile: 32px (send) + 8px (gap) + 32px (filter) */
+    min-width: 72px;
+  }
+
   .filterButton {
     width: 32px;
     height: 32px;
-    right: 12px;
   }
 
   .filterButtonBadge {
