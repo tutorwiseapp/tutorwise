@@ -112,7 +112,7 @@ export default function ProfessionalPage() {
               <div className={actionStyles.dropdownContainer}>
                 <Button
                   variant="secondary"
-                  size="sm"
+                  square
                   onClick={() => setShowActionsMenu(!showActionsMenu)}
                 >
                   ⋮

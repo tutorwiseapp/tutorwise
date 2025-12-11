@@ -532,6 +532,7 @@ export default function OrganisationPage() {
                 <Button
                   variant="secondary"
                   size="sm"
+                  square
                   onClick={() => setShowActionsMenu(!showActionsMenu)}
                 >
                   ⋮

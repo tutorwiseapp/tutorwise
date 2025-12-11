@@ -386,6 +386,7 @@ export default function ReviewsPage() {
                 <Button
                   variant="secondary"
                   size="sm"
+                  square
                   onClick={() => setShowActionsMenu(!showActionsMenu)}
                 >
                   ⋮

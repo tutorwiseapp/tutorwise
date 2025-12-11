@@ -414,6 +414,7 @@ export default function NetworkPage() {
                 <Button
                   variant="secondary"
                   size="sm"
+                  square
                   onClick={() => setShowActionsMenu(!showActionsMenu)}
                 >
                   ⋮

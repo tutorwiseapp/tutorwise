@@ -31,8 +31,28 @@
 
 .square {
   aspect-ratio: 1 / 1;
-  padding-left: 0;
-  padding-right: 0;
+  padding: 0;
+  width: var(--button-height-standard, 40px);
+  box-sizing: border-box;
+}
+
+/* Square button size overrides */
+.square.sm {
+  width: var(--button-height-compact, 32px);
+  height: var(--button-height-compact, 32px);
+  min-height: var(--button-height-compact, 32px);
+}
+
+.square.md {
+  width: var(--button-height-standard, 40px);
+  height: var(--button-height-standard, 40px);
+  min-height: var(--button-height-standard, 40px);
+}
+
+.square.lg {
+  width: var(--button-height-large, 48px);
+  height: var(--button-height-large, 48px);
+  min-height: var(--button-height-large, 48px);
 }
 
 /* --- Variants --- */

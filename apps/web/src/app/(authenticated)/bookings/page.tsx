@@ -337,6 +337,7 @@ export default function BookingsPage() {
                 <Button
                   variant="secondary"
                   size="sm"
+                  square
                   onClick={() => setShowActionsMenu(!showActionsMenu)}
                 >
                   ⋮
