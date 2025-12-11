@@ -7,6 +7,7 @@ import MultiSelectDropdown from '@/app/components/ui/forms/MultiSelectDropdown';
 import CustomTimePicker from '@/app/components/feature/listings/wizard-steps/CustomTimePicker';
 import DatePicker from '@/app/components/ui/forms/DatePicker';
 import Select from '@/app/components/ui/forms/Select';
+import Button from '@/app/components/ui/actions/Button';
 import { useDocumentUpload } from '@/hooks/useDocumentUpload';
 import hubFormStyles from '@/app/components/hub/form/HubForm.module.css';
 import styles from './ProfessionalInfoForm.module.css';
@@ -1249,42 +1250,24 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
           {/* Action Buttons */}
           <HubForm.Actions>
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="md"
               onClick={handleCancelAll}
               disabled={!editingField || isSaving}
-              style={{
-                padding: '12px 16px',
-                fontSize: '14px',
-                fontWeight: 600,
-                color: '#374151',
-                backgroundColor: '#ffffff',
-                border: '1px solid #d1d5db',
-                borderRadius: '8px',
-                cursor: editingField && !isSaving ? 'pointer' : 'not-allowed',
-                opacity: editingField && !isSaving ? 1 : 0.5,
-              }}
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="primary"
+              size="md"
               onClick={handleSaveAll}
               disabled={!editingField || isSaving}
-              style={{
-                padding: '12px 16px',
-                fontSize: '14px',
-                fontWeight: 600,
-                color: '#ffffff',
-                backgroundColor: '#006c67',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: editingField && !isSaving ? 'pointer' : 'not-allowed',
-                opacity: editingField && !isSaving ? 1 : 0.5,
-              }}
             >
               {isSaving ? 'Saving...' : 'Save'}
-            </button>
+            </Button>
           </HubForm.Actions>
         </HubForm.Root>
       );
@@ -1496,42 +1479,24 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
           {/* Action Buttons */}
           <HubForm.Actions>
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="md"
               onClick={handleCancelAll}
               disabled={!editingField || isSaving}
-              style={{
-                padding: '12px 16px',
-                fontSize: '14px',
-                fontWeight: 600,
-                color: '#374151',
-                backgroundColor: '#ffffff',
-                border: '1px solid #d1d5db',
-                borderRadius: '8px',
-                cursor: editingField && !isSaving ? 'pointer' : 'not-allowed',
-                opacity: editingField && !isSaving ? 1 : 0.5,
-              }}
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="primary"
+              size="md"
               onClick={handleSaveAll}
               disabled={!editingField || isSaving}
-              style={{
-                padding: '12px 16px',
-                fontSize: '14px',
-                fontWeight: 600,
-                color: '#ffffff',
-                backgroundColor: '#006c67',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: editingField && !isSaving ? 'pointer' : 'not-allowed',
-                opacity: editingField && !isSaving ? 1 : 0.5,
-              }}
             >
               {isSaving ? 'Saving...' : 'Save'}
-            </button>
+            </Button>
           </HubForm.Actions>
         </HubForm.Root>
       );
@@ -2016,42 +1981,24 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
         {/* Action Buttons */}
         <HubForm.Actions>
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="md"
             onClick={handleCancelAll}
             disabled={!editingField || isSaving}
-            style={{
-              padding: '10px 24px',
-              fontSize: '14px',
-              fontWeight: 500,
-              color: '#374151',
-              backgroundColor: '#ffffff',
-              border: '1px solid #d1d5db',
-              borderRadius: '6px',
-              cursor: editingField && !isSaving ? 'pointer' : 'not-allowed',
-              opacity: editingField && !isSaving ? 1 : 0.5,
-            }}
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="primary"
+            size="md"
             onClick={handleSaveAll}
             disabled={!editingField || isSaving}
-            style={{
-              padding: '10px 24px',
-              fontSize: '14px',
-              fontWeight: 500,
-              color: '#ffffff',
-              backgroundColor: '#006c67',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: editingField && !isSaving ? 'pointer' : 'not-allowed',
-              opacity: editingField && !isSaving ? 1 : 0.5,
-            }}
           >
             {isSaving ? 'Saving...' : 'Save'}
-          </button>
+          </Button>
         </HubForm.Actions>
       </HubForm.Root>
     );

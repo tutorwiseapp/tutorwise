@@ -5,6 +5,7 @@ import { format, parse } from 'date-fns';
 import type { Profile } from '@/types';
 import HubForm from '@/app/components/hub/form/HubForm';
 import DatePicker from '@/app/components/ui/forms/DatePicker';
+import Button from '@/app/components/ui/actions/Button';
 import styles from './PersonalInfoForm.module.css';
 import hubFormStyles from '@/app/components/hub/form/HubForm.module.css';
 
@@ -282,22 +283,24 @@ export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormPr
 
       {/* Action Buttons */}
       <div className={styles.actionButtons}>
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          size="md"
           onClick={handleCancelAll}
           disabled={!editingField || isSaving}
-          className={`${styles.button} ${styles.secondary}`}
         >
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="primary"
+          size="md"
           onClick={handleSaveAll}
           disabled={!editingField || isSaving}
-          className={`${styles.button} ${styles.primary}`}
         >
           {isSaving ? 'Saving...' : 'Save'}
-        </button>
+        </Button>
       </div>
     </HubForm.Root>
   );

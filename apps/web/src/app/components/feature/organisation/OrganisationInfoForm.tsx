@@ -20,6 +20,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Organisation, updateOrganisation } from '@/lib/api/organisation';
 import { HubForm } from '@/app/components/hub/form';
 import { useImageUpload } from '@/hooks/useImageUpload';
+import Button from '@/app/components/ui/actions/Button';
 import toast from 'react-hot-toast';
 import styles from './OrganisationInfoForm.module.css';
 
@@ -432,22 +433,24 @@ export default function OrganisationInfoForm({ organisation }: OrganisationInfoF
 
       {/* Action Buttons */}
       <div className={styles.actionButtons}>
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          size="md"
           onClick={handleCancelAll}
           disabled={!editingField || isSaving}
-          className={`${styles.button} ${styles.secondary}`}
         >
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="primary"
+          size="md"
           onClick={handleSaveAll}
           disabled={!editingField || isSaving}
-          className={`${styles.button} ${styles.primary}`}
         >
           {isSaving ? 'Saving...' : 'Save'}
-        </button>
+        </Button>
       </div>
     </HubForm.Root>
   );
