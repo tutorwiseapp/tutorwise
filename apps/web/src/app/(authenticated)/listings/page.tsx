@@ -389,6 +389,7 @@ export default function ListingsPage() {
                 <Button
                   variant="secondary"
                   size="sm"
+                  square
                   onClick={() => setShowActionsMenu(!showActionsMenu)}
                 >
                   ⋮

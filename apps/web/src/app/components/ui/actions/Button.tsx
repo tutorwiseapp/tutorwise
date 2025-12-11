@@ -11,6 +11,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   isLoading?: boolean;
   href?: string;
   fullWidth?: boolean;
+  square?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -20,6 +21,7 @@ const Button: React.FC<ButtonProps> = ({
   isLoading = false,
   href,
   fullWidth = false,
+  square = false,
   className: customClassName,
   ...props
 }) => {
@@ -28,6 +30,7 @@ const Button: React.FC<ButtonProps> = ({
     ${styles[variant]}
     ${styles[size]}
     ${fullWidth ? styles.fullWidth : ''}
+    ${square ? styles.square : ''}
     ${props.disabled || isLoading ? styles.disabled : ''}
     ${customClassName || ''}
   `.trim();
