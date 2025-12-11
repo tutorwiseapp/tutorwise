@@ -18,6 +18,7 @@
   font-size: 1rem;
   line-height: 1.5;
   white-space: nowrap;
+  box-sizing: border-box;
 }
 
 .button:disabled {
@@ -135,6 +136,7 @@
 .sm {
   padding: var(--button-padding-v-compact, 6px) 1rem;
   min-height: var(--button-height-compact, 32px);
+  height: var(--button-height-compact, 32px);
   font-size: 0.875rem;
 }
 
