@@ -1,0 +1,235 @@
+/*
+ * Filename: src/app/components/layout/MobileMenu.module.css
+ * Purpose: Styles for mobile hamburger menu
+ * Created: 2025-12-11
+ */
+
+/* Backdrop */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Menu Panel */
+.menuPanel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 85%;
+  max-width: 400px;
+  background-color: #ffffff;
+  z-index: 999;
+  overflow-y: auto;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Menu Header */
+.menuHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.avatar {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.userName {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.closeButton {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.5rem;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+}
+
+.closeButton:hover {
+  background-color: #e5e7eb;
+}
+
+/* Menu Content */
+.menuContent {
+  padding: 0.5rem 0;
+}
+
+/* Role Label */
+.roleLabel {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #2c7a7b;
+  background-color: #f0fdfa;
+  margin: 0 1rem;
+  border-radius: 6px;
+}
+
+/* Separators */
+.separator {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 0.5rem 0;
+}
+
+.separator12px {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 0.75rem 0;
+}
+
+/* Menu Items */
+.menuItem {
+  display: block;
+  padding: 0.875rem 1rem;
+  font-size: 0.9375rem;
+  color: #374151;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.menuItem:hover {
+  background-color: #f9fafb;
+}
+
+/* Sub Menu Items (indented) */
+.subMenuItem {
+  display: block;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  text-decoration: none;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.subMenuItem:hover {
+  background-color: #f9fafb;
+  color: #374151;
+}
+
+/* Switch Label */
+.switchLabel {
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Role Items */
+.roleItem {
+  display: block;
+  padding: 0.875rem 1rem;
+  font-size: 0.9375rem;
+  color: #374151;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.roleItem:hover:not(:disabled) {
+  background-color: #f0fdfa;
+}
+
+.roleItem:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Become Items */
+.becomeItem {
+  display: block;
+  padding: 0.875rem 1rem;
+  text-decoration: none;
+  background: transparent;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.becomeItem:hover {
+  background-color: #f0fdfa;
+}
+
+.becomeTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #2c7a7b;
+  margin-bottom: 0.125rem;
+}
+
+.becomeSubtitle {
+  font-size: 0.8125rem;
+  color: #6b7280;
+}
+
+/* Logout Item */
+.logoutItem {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.logoutItem:hover {
+  background-color: #fef2f2;
+}
+
+/* Tablet breakpoint */
+@media (min-width: 1024px) {
+  .backdrop,
+  .menuPanel {
+    display: none;
+  }
+}

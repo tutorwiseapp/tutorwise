@@ -29,10 +29,13 @@
   padding: 4px 8px;
   color: var(--color-text-secondary, #666);
   text-decoration: none;
+  background: transparent;
+  border: none;
   transition: all 0.2s ease;
   flex: 1;
   min-width: 0;
   position: relative;
+  cursor: pointer;
 }
 
 .navItem:hover {
@@ -80,8 +83,8 @@
   border: 2px solid var(--color-background-primary, #ffffff);
 }
 
-/* Show on mobile screens */
-@media (max-width: 768px) {
+/* Show on mobile and tablet screens */
+@media (max-width: 1023px) {
   .bottomNav {
     display: block;
   }
