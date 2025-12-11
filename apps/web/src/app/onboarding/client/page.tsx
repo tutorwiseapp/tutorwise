@@ -43,19 +43,44 @@ export default function ClientOnboardingPage() {
   }
 
   const handleOnboardingComplete = async () => {
-    console.log('[ClientOnboardingPage] Onboarding complete, refreshing profile...');
+    console.log('[ClientOnboardingPage] Onboarding complete!');
     setIsCompleting(true); // Prevent race condition with useEffect redirect
-    await refreshProfile();
-    console.log('[ClientOnboardingPage] Profile refreshed, setting active role to client...');
+
+    try {
+      console.log('[ClientOnboardingPage] Refreshing profile...');
+      await Promise.race([
+        refreshProfile(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Profile refresh timeout')), 3000))
+      ]);
+      console.log('[ClientOnboardingPage] Profile refreshed successfully');
+    } catch (error) {
+      console.error('[ClientOnboardingPage] Profile refresh failed or timed out:', error);
+      // Continue anyway - the profile will refresh on dashboard load
+    }
+
+    console.log('[ClientOnboardingPage] Setting active role to client...');
     setActiveRole('client');
     console.log('[ClientOnboardingPage] Active role set, redirecting to dashboard...');
     router.push('/dashboard');
   };
 
   const handleOnboardingSkip = async () => {
-    console.log('[ClientOnboardingPage] Onboarding skipped, refreshing profile...');
-    await refreshProfile();
-    console.log('[ClientOnboardingPage] Profile refreshed, setting active role to client...');
+    console.log('[ClientOnboardingPage] Onboarding skipped');
+    setIsCompleting(true);
+
+    try {
+      console.log('[ClientOnboardingPage] Refreshing profile...');
+      await Promise.race([
+        refreshProfile(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Profile refresh timeout')), 3000))
+      ]);
+      console.log('[ClientOnboardingPage] Profile refreshed successfully');
+    } catch (error) {
+      console.error('[ClientOnboardingPage] Profile refresh failed or timed out:', error);
+      // Continue anyway - the profile will refresh on dashboard load
+    }
+
+    console.log('[ClientOnboardingPage] Setting active role to client...');
     setActiveRole('client');
     console.log('[ClientOnboardingPage] Active role set, redirecting to dashboard...');
     router.push('/dashboard');

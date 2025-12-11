@@ -138,13 +138,6 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
           gender: data.gender,
           date_of_birth: data.dateOfBirth,
           phone: data.phone,
-          address_line1: data.address,
-          town: data.town,
-          city: data.city,
-          country: data.country,
-          postal_code: data.postalCode,
-          emergency_contact_name: data.emergencyContactName,
-          emergency_contact_email: data.emergencyContactEmail,
         })
         .eq('id', user!.id);
 

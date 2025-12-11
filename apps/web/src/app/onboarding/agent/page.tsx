@@ -62,19 +62,44 @@ function AgentOnboardingPageContent() {
   }
 
   const handleOnboardingComplete = async () => {
-    console.log('[AgentOnboarding] Onboarding complete, refreshing profile...');
+    console.log('[AgentOnboarding] Onboarding complete!');
     setIsCompleting(true); // Prevent race condition with useEffect redirect
-    await refreshProfile();
-    console.log('[AgentOnboarding] Profile refreshed, setting active role to agent...');
+
+    try {
+      console.log('[AgentOnboarding] Refreshing profile...');
+      await Promise.race([
+        refreshProfile(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Profile refresh timeout')), 3000))
+      ]);
+      console.log('[AgentOnboarding] Profile refreshed successfully');
+    } catch (error) {
+      console.error('[AgentOnboarding] Profile refresh failed or timed out:', error);
+      // Continue anyway - the profile will refresh on dashboard load
+    }
+
+    console.log('[AgentOnboarding] Setting active role to agent...');
     setActiveRole('agent');
     console.log('[AgentOnboarding] Active role set, redirecting to dashboard...');
     router.push('/dashboard');
   };
 
   const handleOnboardingSkip = async () => {
-    console.log('[AgentOnboarding] Onboarding skipped, refreshing profile...');
-    await refreshProfile();
-    console.log('[AgentOnboarding] Profile refreshed, setting active role to agent...');
+    console.log('[AgentOnboarding] Onboarding skipped');
+    setIsCompleting(true);
+
+    try {
+      console.log('[AgentOnboarding] Refreshing profile...');
+      await Promise.race([
+        refreshProfile(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Profile refresh timeout')), 3000))
+      ]);
+      console.log('[AgentOnboarding] Profile refreshed successfully');
+    } catch (error) {
+      console.error('[AgentOnboarding] Profile refresh failed or timed out:', error);
+      // Continue anyway - the profile will refresh on dashboard load
+    }
+
+    console.log('[AgentOnboarding] Setting active role to agent...');
     setActiveRole('agent');
     console.log('[AgentOnboarding] Active role set, redirecting to dashboard...');
     router.push('/dashboard');

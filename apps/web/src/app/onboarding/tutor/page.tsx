@@ -64,18 +64,42 @@ function TutorOnboardingPageContent() {
   const handleOnboardingComplete = async () => {
     console.log('[TutorOnboarding] Onboarding complete! Database save already finished.');
     setIsCompleting(true); // Prevent race condition with useEffect redirect
-    console.log('[TutorOnboarding] Refreshing profile...');
-    await refreshProfile();
-    console.log('[TutorOnboarding] Profile refreshed, setting active role to tutor...');
+
+    try {
+      console.log('[TutorOnboarding] Refreshing profile...');
+      await Promise.race([
+        refreshProfile(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Profile refresh timeout')), 3000))
+      ]);
+      console.log('[TutorOnboarding] Profile refreshed successfully');
+    } catch (error) {
+      console.error('[TutorOnboarding] Profile refresh failed or timed out:', error);
+      // Continue anyway - the profile will refresh on dashboard load
+    }
+
+    console.log('[TutorOnboarding] Setting active role to tutor...');
     setActiveRole('tutor');
     console.log('[TutorOnboarding] Active role set, redirecting to dashboard...');
     router.push('/dashboard');
   };
 
   const handleOnboardingSkip = async () => {
-    console.log('[TutorOnboarding] Onboarding skipped, refreshing profile...');
-    await refreshProfile();
-    console.log('[TutorOnboarding] Profile refreshed, setting active role to tutor...');
+    console.log('[TutorOnboarding] Onboarding skipped');
+    setIsCompleting(true);
+
+    try {
+      console.log('[TutorOnboarding] Refreshing profile...');
+      await Promise.race([
+        refreshProfile(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Profile refresh timeout')), 3000))
+      ]);
+      console.log('[TutorOnboarding] Profile refreshed successfully');
+    } catch (error) {
+      console.error('[TutorOnboarding] Profile refresh failed or timed out:', error);
+      // Continue anyway - the profile will refresh on dashboard load
+    }
+
+    console.log('[TutorOnboarding] Setting active role to tutor...');
     setActiveRole('tutor');
     console.log('[TutorOnboarding] Active role set, redirecting to dashboard...');
     router.push('/dashboard');

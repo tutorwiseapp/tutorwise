@@ -15,7 +15,6 @@ interface AgentCapacityStepProps {
 export interface CapacityData {
   commissionRate: number;
   serviceAreas: string[];
-  studentCapacity: string;
 }
 
 const commissionRates = [
@@ -27,17 +26,9 @@ const commissionRates = [
 ];
 
 const serviceAreaOptions = [
-  { value: 'local', label: 'Local In-Person' },
-  { value: 'regional', label: 'Regional' },
-  { value: 'online', label: 'Online/Virtual' },
-  { value: 'hybrid', label: 'Hybrid Model' }
-];
-
-const capacityOptions = [
-  { value: 'small', label: '1-25 students', description: 'Boutique service' },
-  { value: 'medium', label: '25-100 students', description: 'Growing capacity' },
-  { value: 'large', label: '100-500 students', description: 'Large operation' },
-  { value: 'enterprise', label: '500+ students', description: 'Enterprise scale' }
+  { value: 'local', label: 'Local', description: 'Within your city/area' },
+  { value: 'regional', label: 'Regional', description: 'Within your region/country' },
+  { value: 'international', label: 'International', description: 'Worldwide' }
 ];
 
 const AgentCapacityStep: React.FC<AgentCapacityStepProps> = ({
@@ -48,32 +39,30 @@ const AgentCapacityStep: React.FC<AgentCapacityStepProps> = ({
 }) => {
   const [commissionRate, setCommissionRate] = useState<number>(0);
   const [serviceAreas, setServiceAreas] = useState<string[]>([]);
-  const [studentCapacity, setStudentCapacity] = useState('');
 
   // Validation using shared hook
   const { isValid } = useWizardValidation({
-    fields: { commissionRate, serviceAreas, studentCapacity },
+    fields: { commissionRate, serviceAreas },
     validators: {
       commissionRate: (v) => v > 0,
       serviceAreas: (v) => v.length > 0,
-      studentCapacity: (v) => v !== '',
     },
     debug: true,
   });
 
   const handleContinue = () => {
     // The WizardActionButtons component ensures this only runs when isValid is true
-    onNext({ commissionRate, serviceAreas, studentCapacity });
+    onNext({ commissionRate, serviceAreas });
   };
 
   return (
     <div className={styles.stepContent}>
       <div className={styles.stepHeader}>
         <h2 className={styles.stepTitle}>
-          Set your capacity and pricing
+          Set your commission and service areas
         </h2>
         <p className={styles.stepSubtitle}>
-          Let clients know your service model and pricing structure
+          You can adjust these anytime in settings
         </p>
       </div>
 
@@ -89,9 +78,6 @@ const AgentCapacityStep: React.FC<AgentCapacityStepProps> = ({
             onChange={(value) => setCommissionRate(value as number)}
             debug={true}
           />
-          <p className={styles.progressIndicator}>
-            💡 You can adjust your rate anytime in settings
-          </p>
         </div>
 
         {/* Service Areas */}
@@ -103,19 +89,6 @@ const AgentCapacityStep: React.FC<AgentCapacityStepProps> = ({
             options={serviceAreaOptions}
             selectedValues={serviceAreas}
             onChange={(values) => setServiceAreas(values as string[])}
-            debug={true}
-          />
-        </div>
-
-        {/* Student Capacity */}
-        <div className={styles.formGroup}>
-          <label className={styles.formLabel}>
-            Current Student Capacity *
-          </label>
-          <SingleSelectCardGroup
-            options={capacityOptions}
-            selectedValue={studentCapacity}
-            onChange={(value) => setStudentCapacity(value as string)}
             debug={true}
           />
         </div>

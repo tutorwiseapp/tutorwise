@@ -20,18 +20,6 @@ export interface PersonalInfoData {
   dateOfBirth: string;
   email: string;
   phone: string;
-  address: string;
-  town: string;
-  city: string;
-  country: string;
-  postalCode: string;
-  identityVerificationDocumentFile?: File;
-  identityVerificationDocumentUrl?: string;
-  identityVerificationDocumentName?: string;
-  emergencyContactName: string;
-  emergencyContactEmail: string;
-  dbsCertificateNumber?: string;
-  dbsCertificateDate?: string;
 }
 
 export type TutorOnboardingStep = 'personalInfo' | 'subjects' | 'qualifications' | 'availability' | 'completion';
@@ -139,40 +127,6 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
 
       const fullName = `${data.firstName} ${data.lastName}`.trim();
 
-      // Upload identity verification document if provided
-      let identityDocumentUrl = data.identityVerificationDocumentUrl || '';
-      let identityDocumentName = data.identityVerificationDocumentName || '';
-
-      if (data.identityVerificationDocumentFile) {
-        console.log('[TutorOnboardingWizard] Uploading identity verification document...');
-
-        const fileExt = data.identityVerificationDocumentFile.name.split('.').pop();
-        const fileName = `${user!.id}-identity-${Date.now()}.${fileExt}`;
-        const filePath = `identity-documents/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('verification-documents')
-          .upload(filePath, data.identityVerificationDocumentFile, {
-            cacheControl: '3600',
-            upsert: false
-          });
-
-        if (uploadError) {
-          console.error('[TutorOnboardingWizard] Error uploading identity document:', uploadError);
-          throw new Error('Failed to upload identity verification document');
-        }
-
-        // Get public URL
-        const { data: { publicUrl } } = supabase.storage
-          .from('verification-documents')
-          .getPublicUrl(filePath);
-
-        identityDocumentUrl = publicUrl;
-        identityDocumentName = data.identityVerificationDocumentFile.name;
-
-        console.log('[TutorOnboardingWizard] ✓ Identity document uploaded:', identityDocumentUrl);
-      }
-
       // Save all personal info to profile
       const { error } = await supabase
         .from('profiles')
@@ -183,17 +137,6 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
           gender: data.gender,
           date_of_birth: data.dateOfBirth,
           phone: data.phone,
-          address_line1: data.address,
-          town: data.town,
-          city: data.city,
-          country: data.country,
-          postal_code: data.postalCode,
-          emergency_contact_name: data.emergencyContactName,
-          emergency_contact_email: data.emergencyContactEmail,
-          identity_verification_document_url: identityDocumentUrl || null,
-          identity_verification_document_name: identityDocumentName || null,
-          dbs_certificate_number: data.dbsCertificateNumber || null,
-          dbs_certificate_date: data.dbsCertificateDate || null,
         })
         .eq('id', user!.id);
 

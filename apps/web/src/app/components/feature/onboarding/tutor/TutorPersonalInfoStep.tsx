@@ -32,21 +32,9 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
     dateOfBirth: '',
     email: '',
     phone: '',
-    address: '',
-    town: '',
-    city: '',
-    country: '',
-    postalCode: '',
-    emergencyContactName: '',
-    emergencyContactEmail: '',
-    dbsCertificateNumber: '',
-    dbsCertificateDate: '',
   });
-  const [uploadedFileName, setUploadedFileName] = useState<string>('');
-  const [fileError, setFileError] = useState<string>('');
   const [isInitialized, setIsInitialized] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [selectedDbsDate, setSelectedDbsDate] = useState<Date | undefined>(undefined);
 
   console.log('[TutorPersonalInfoStep] Component render', {
     hasProfile: !!profile,
@@ -58,9 +46,6 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
     profileFirstName: profile?.first_name,
     profileLastName: profile?.last_name
   });
-
-  // Check if DBS fields should be shown (for tutors/providers and agents only)
-  const showDbsFields = userRole === 'tutor' || userRole === 'agent';
 
   // Pre-populate from profile if available
   useEffect(() => {
@@ -93,17 +78,6 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
         dateOfBirth: profile.date_of_birth || '',
         email: user?.email || profile.email || '',
         phone: profile.phone || '',
-        address: profile.address_line1 || '',
-        town: profile.town || '',
-        city: profile.city || '',
-        country: profile.country || '',
-        postalCode: profile.postal_code || '',
-        identityVerificationDocumentUrl: profile.identity_verification_document_url || '',
-        identityVerificationDocumentName: profile.identity_verification_document_name || '',
-        emergencyContactName: profile.emergency_contact_name || '',
-        emergencyContactEmail: profile.emergency_contact_email || '',
-        dbsCertificateNumber: profile.dbs_certificate_number || '',
-        dbsCertificateDate: profile.dbs_certificate_date || '',
       };
 
       console.log('[TutorPersonalInfoStep] ✅ Setting formData to:', newFormData);
@@ -119,20 +93,6 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
         } catch (e) {
           console.error('[TutorPersonalInfoStep] Error parsing date of birth:', e);
         }
-      }
-
-      // Initialize DBS date picker if DBS certificate date exists
-      if (profile.dbs_certificate_date) {
-        try {
-          const parsedDbsDate = parse(profile.dbs_certificate_date, 'yyyy-MM-dd', new Date());
-          setSelectedDbsDate(parsedDbsDate);
-        } catch (e) {
-          console.error('[TutorPersonalInfoStep] Error parsing DBS date:', e);
-        }
-      }
-
-      if (profile.identity_verification_document_name) {
-        setUploadedFileName(profile.identity_verification_document_name);
       }
     } else if (!profile && !profileLoading) {
       console.log('[TutorPersonalInfoStep] ⚠️  Profile loaded but is null/undefined');
@@ -162,51 +122,6 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
     } else {
       setFormData(prev => ({ ...prev, dateOfBirth: '' }));
     }
-  };
-
-  const handleDbsDateChange = (date: Date | undefined) => {
-    setSelectedDbsDate(date);
-    if (date) {
-      const formattedDate = format(date, 'yyyy-MM-dd');
-      setFormData(prev => ({ ...prev, dbsCertificateDate: formattedDate }));
-    } else {
-      setFormData(prev => ({ ...prev, dbsCertificateDate: '' }));
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type (images and PDFs only)
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
-      if (!allowedTypes.includes(file.type)) {
-        setFileError('Please upload a valid image (JPG, PNG) or PDF file');
-        return;
-      }
-
-      // Validate file size (max 5MB)
-      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
-      if (file.size > maxSize) {
-        setFileError('File size must be less than 5MB');
-        return;
-      }
-
-      setFormData(prev => ({ ...prev, identityVerificationDocumentFile: file }));
-      setUploadedFileName(file.name);
-      setFileError('');
-    }
-  };
-
-  const handleDeleteDocument = () => {
-    setFormData(prev => ({
-      ...prev,
-      identityVerificationDocumentFile: undefined,
-      identityVerificationDocumentUrl: '',
-      identityVerificationDocumentName: ''
-    }));
-    setUploadedFileName('');
-    const fileInput = document.getElementById('identityDocument') as HTMLInputElement;
-    if (fileInput) fileInput.value = '';
   };
 
   const handleContinue = () => {
@@ -340,235 +255,6 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
               className={styles.formInput}
             />
           </div>
-        </div>
-
-        {/* Optional Fields Section */}
-        <div className={formStyles.sectionDivider}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: 'var(--color-text-primary, #1f2937)' }}>
-            Additional Information (Optional)
-          </h3>
-          <p className={styles.helperText} style={{ marginBottom: '1.5rem' }}>
-            You can complete these fields now or add them later in your profile settings
-          </p>
-
-          {/* Address Fields - 2 Column Layout */}
-          <div className={formStyles.twoColumnGrid}>
-            <div className={`${styles.formGroup} ${formStyles.fullWidth}`}>
-              <label className={styles.formLabel} htmlFor="address">
-                Address
-              </label>
-              <input
-                id="address"
-                name="address"
-                type="text"
-                value={formData.address}
-                onChange={handleChange}
-                placeholder="100, The Royal Observatory"
-                disabled={isLoading}
-                className={styles.formInput}
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel} htmlFor="town">
-                Town
-              </label>
-              <input
-                id="town"
-                name="town"
-                type="text"
-                value={formData.town}
-                onChange={handleChange}
-                placeholder="Greenwich"
-                disabled={isLoading}
-                className={styles.formInput}
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel} htmlFor="city">
-                City
-              </label>
-              <input
-                id="city"
-                name="city"
-                type="text"
-                value={formData.city}
-                onChange={handleChange}
-                placeholder="London"
-                disabled={isLoading}
-                className={styles.formInput}
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel} htmlFor="country">
-                Country
-              </label>
-              <input
-                id="country"
-                name="country"
-                type="text"
-                value={formData.country}
-                onChange={handleChange}
-                placeholder="United Kingdom"
-                disabled={isLoading}
-                className={styles.formInput}
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel} htmlFor="postalCode">
-                Postcode/Zip Code
-              </label>
-              <input
-                id="postalCode"
-                name="postalCode"
-                type="text"
-                value={formData.postalCode}
-                onChange={handleChange}
-                placeholder="SE10 8XJ"
-                disabled={isLoading}
-                className={styles.formInput}
-              />
-            </div>
-          </div>
-
-          {/* Identity Verification Document Upload */}
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel} htmlFor="identityDocument">
-              Upload Identity Verification Document
-            </label>
-            <div className={formStyles.fileUploadContainer}>
-              <input
-                id="identityDocument"
-                type="file"
-                accept="image/jpeg,image/jpg,image/png,application/pdf"
-                onChange={handleFileChange}
-                disabled={isLoading}
-                style={{ display: 'none' }}
-              />
-              <label
-                htmlFor="identityDocument"
-                className={styles.buttonSecondary}
-                style={{
-                  flex: 1,
-                  textAlign: 'center',
-                  margin: 0,
-                  display: 'inline-block'
-                }}
-              >
-                {uploadedFileName || 'Choose File'}
-              </label>
-              {uploadedFileName && (
-                <button
-                  type="button"
-                  onClick={handleDeleteDocument}
-                  disabled={isLoading}
-                  className={styles.buttonSecondary}
-                  style={{
-                    borderColor: '#ef4444',
-                    color: '#ef4444'
-                  }}
-                >
-                  Delete Document
-                </button>
-              )}
-            </div>
-            {uploadedFileName && (
-              <p className={styles.helperText} style={{ color: 'var(--color-primary, #006C67)', marginTop: '0.5rem' }}>
-                ✓ {uploadedFileName}
-              </p>
-            )}
-            {fileError && (
-              <p className={styles.errorText}>
-                {fileError}
-              </p>
-            )}
-            <p className={styles.helperText} style={{ marginTop: '0.5rem', marginBottom: 0 }}>
-              Passport, driver&apos;s license, or national ID (JPG, PNG, PDF - max 5MB)
-            </p>
-          </div>
-
-          {/* Emergency Contact - 2 Column Layout */}
-          <div className={formStyles.subsection}>
-            <h4 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '1rem', color: 'var(--color-text-primary, #1f2937)' }}>
-              Emergency Contact
-            </h4>
-            <div className={formStyles.twoColumnGrid}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel} htmlFor="emergencyContactName">
-                  Emergency Contact Name
-                </label>
-                <input
-                  id="emergencyContactName"
-                  name="emergencyContactName"
-                  type="text"
-                  value={formData.emergencyContactName}
-                  onChange={handleChange}
-                  placeholder="John Doe"
-                  disabled={isLoading}
-                  className={styles.formInput}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel} htmlFor="emergencyContactEmail">
-                  Emergency Contact Email
-                </label>
-                <input
-                  id="emergencyContactEmail"
-                  name="emergencyContactEmail"
-                  type="email"
-                  value={formData.emergencyContactEmail}
-                  onChange={handleChange}
-                  placeholder="emergency@example.com"
-                  disabled={isLoading}
-                  className={styles.formInput}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* DBS Certificate Information - 2 Column Layout (Only for Tutors and Agents) */}
-          {showDbsFields && (
-            <div className={formStyles.subsection}>
-              <h4 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--color-text-primary, #1f2937)' }}>
-                DBS Certificate Information
-              </h4>
-              <p className={styles.helperText} style={{ marginBottom: '1rem' }}>
-                Required for tutors working with children and vulnerable adults in the UK
-              </p>
-              <div className={formStyles.twoColumnGrid}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel} htmlFor="dbsCertificateNumber">
-                    DBS Certificate Number
-                  </label>
-                  <input
-                    id="dbsCertificateNumber"
-                    name="dbsCertificateNumber"
-                    type="text"
-                    value={formData.dbsCertificateNumber || ''}
-                    onChange={handleChange}
-                    placeholder="001234567890"
-                    disabled={isLoading}
-                    className={styles.formInput}
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel} htmlFor="dbsCertificateDate">
-                    DBS Certificate Issue Date
-                  </label>
-                  <DatePicker
-                    selected={selectedDbsDate}
-                    onSelect={handleDbsDateChange}
-                    placeholder="Select issue date"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 

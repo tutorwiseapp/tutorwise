@@ -150,7 +150,6 @@ export interface AgencyDetailsData {
 export interface CapacityData {
   commissionRate: number;
   serviceAreas: string[];
-  studentCapacity: string;
 }
 
 export interface QualificationsData {
