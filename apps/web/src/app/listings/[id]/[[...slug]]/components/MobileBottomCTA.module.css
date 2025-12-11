@@ -9,7 +9,7 @@
   background-color: white;
   border-top: 1px solid var(--color-gray-300, #D1D1D1);
   box-shadow: var(--shadow-lg, 0 -4px 12px rgba(0, 0, 0, 0.1));
-  padding: var(--space-3, 24px); /* 24px vertical and horizontal */
+  padding: 12px 16px; /* Reduced from 24px for more compact bar */
   display: block; /* Visible on mobile */
 }
 
@@ -48,10 +48,13 @@
   color: var(--color-success-default, #4CAF50);
 }
 
-/* Book Button */
+/* Book Button - Standard 40px height */
 .bookButton {
   flex-shrink: 0;
   min-width: 140px;
+  padding: 10px 24px !important; /* 10px top/bottom for ~40px total height */
+  font-size: 1rem !important;
+  min-height: 40px !important;
 }
 
 /* Tablet */
@@ -62,5 +65,6 @@
 
   .bookButton {
     min-width: 180px;
+    padding: 10px 32px !important;
   }
 }

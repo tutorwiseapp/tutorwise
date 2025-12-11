@@ -157,6 +157,8 @@
   flex-direction: column;
   gap: var(--space-2, 8px);
   align-self: center;
+  min-width: 0; /* Allow flex children to shrink below content size */
+  overflow: visible; /* Ensure wrapped content is visible */
 }
 
 .listingTitle {
@@ -165,6 +167,9 @@
   color: #0f766e; /* Tutorwise dark teal for listing title */
   margin: 0;
   line-height: 1.2;
+  word-wrap: break-word; /* Allow long titles to wrap */
+  overflow-wrap: break-word; /* Modern alternative */
+  hyphens: auto; /* Add hyphens for better wrapping */
 }
 
 .tutorNameLink {
@@ -195,6 +200,7 @@
   gap: var(--space-2, 8px);
   font-size: 1.125rem;
   color: #6b7280;
+  flex-wrap: wrap; /* Allow badges to wrap to next line on narrow screens */
 }
 
 .priceHighlight {
@@ -356,6 +362,7 @@
 /* Responsive - Mobile */
 @media (max-width: 640px) {
   .heroSection {
+    margin-top: var(--space-2, 16px); /* Add top spacing for proper header clearance */
     margin-bottom: var(--space-3, 24px);
   }
 

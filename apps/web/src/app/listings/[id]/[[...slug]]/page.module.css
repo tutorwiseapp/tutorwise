@@ -105,7 +105,7 @@
   }
 
   .bottomSpacer {
-    height: 80px; /* Account for fixed mobile CTA bar */
+    height: 65px; /* 12px padding + 40px button + 12px padding + 1px border */
   }
 }
 
@@ -132,7 +132,7 @@
   }
 
   .bottomSpacer {
-    height: 80px; /* Account for fixed mobile CTA bar on tablet */
+    height: 65px; /* 12px padding + 40px button + 12px padding + 1px border */
   }
 }
 
