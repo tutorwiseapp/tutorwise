@@ -11,6 +11,8 @@
  * - UpcomingSessionWidget → components/feature/bookings/
  * - BalanceSummaryWidget → components/feature/financials/
  * - ReferralLinkWidget → components/feature/referrals/
+ *
+ * NOTE: Floating button for mobile is now handled by HubPageLayout component
  */
 'use client';
 

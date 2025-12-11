@@ -2,6 +2,7 @@
  * Filename: src/app/components/hub/sidebar/HubSidebar.module.css
  * Purpose: Styles for HubSidebar (right column - hub-specific widgets)
  * Created: 2025-11-02
+ * Updated: 2025-12-11 - Moved floating button to HubPageLayout
  * Updated: 2025-12-04 - Priority 2: Removed feature-specific styles (moved to feature folders)
  * Specification: SDD v3.6, Section 5.2 - Responsive 3-column layout
  * Architecture: Tier 2 (Hub System) - Pure layout styles, no feature-specific styling
@@ -198,3 +199,4 @@
 }
 
 /* Responsive behavior is now handled by HubPageLayout.module.css grid */
+/* Mobile floating button and sidebar transitions moved to HubPageLayout */

@@ -108,7 +108,7 @@
 
 'use client';
 
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import styles from './HubPageLayout.module.css';
 
 interface HubPageLayoutProps {
@@ -124,28 +124,73 @@ export default function HubPageLayout({
   children,
   sidebar,
 }: HubPageLayoutProps) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Only show floating button if sidebar content exists
+  const hasSidebar = !!sidebar;
+
   return (
-    <div className={styles.layoutWrapper}>
-      {/* Main Content Area (Header + Tabs + Content) */}
-      <div className={styles.mainArea}>
-        {/* Header (full-width within main area) */}
-        {header}
-
-        {/* Tabs (full-width within main area) */}
-        {tabs}
-
-        {/* Content Container */}
-        <div className={styles.contentContainer}>
-          {children}
-        </div>
-      </div>
-
-      {/* Right Sidebar (Full-height panel) */}
-      {sidebar && (
-        <aside className={styles.sidebarPanel}>
-          {sidebar}
-        </aside>
+    <>
+      {/* Floating button for mobile - only if sidebar exists */}
+      {hasSidebar && (
+        <button
+          className={styles.floatingButton}
+          onClick={() => setIsSidebarOpen(true)}
+          aria-label="View stats and information"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+            <path d="M12 16v-4M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+        </button>
       )}
-    </div>
+
+      {/* Backdrop for mobile */}
+      {hasSidebar && isSidebarOpen && (
+        <div
+          className={styles.backdrop}
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      <div className={styles.layoutWrapper}>
+        {/* Main Content Area (Header + Tabs + Content) */}
+        <div className={styles.mainArea}>
+          {/* Header (full-width within main area) */}
+          {header}
+
+          {/* Tabs (full-width within main area) */}
+          {tabs}
+
+          {/* Content Container */}
+          <div className={styles.contentContainer}>
+            {children}
+          </div>
+        </div>
+
+        {/* Right Sidebar (Full-height panel) */}
+        {sidebar && (
+          <aside className={`${styles.sidebarPanel} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
+            {/* Close button for mobile */}
+            <button
+              className={styles.closeButton}
+              onClick={() => setIsSidebarOpen(false)}
+              aria-label="Close sidebar"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M18 6L6 18M6 6l12 12"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+            {sidebar}
+          </aside>
+        )}
+      </div>
+    </>
   );
 }
