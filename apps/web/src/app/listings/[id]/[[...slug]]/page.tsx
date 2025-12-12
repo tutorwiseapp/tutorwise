@@ -22,7 +22,6 @@ import ListingHeroSection from './components/ListingHeroSection';
 import ListingImageGrid from './components/ListingImageGrid';
 import { ListingDetailsCard } from './components/ListingDetailsCard';
 import { CancellationPolicyCard } from './components/CancellationPolicyCard';
-import { ServicesCard } from '@/app/components/feature/public-profile/ServicesCard';
 import { AvailabilityScheduleCard } from '@/app/components/feature/public-profile/AvailabilityScheduleCard';
 import { ReviewsCard } from '@/app/components/feature/public-profile/ReviewsCard';
 import { VerificationCard } from '@/app/components/feature/public-profile/VerificationCard';
@@ -110,8 +109,9 @@ export default async function ListingDetailsPage({ params }: ListingDetailsPageP
     notFound();
   }
 
-  // Get current user (for GetInTouchCard)
+  // Get current user (for GetInTouchCard and isOwnProfile check)
   const { data: { user } } = await supabase.auth.getUser();
+  const isOwnProfile = user?.id === tutorProfile.id;
 
   // Fetch current user's profile (if authenticated)
   let currentUserProfile: Profile | null = null;
@@ -123,14 +123,6 @@ export default async function ListingDetailsPage({ params }: ListingDetailsPageP
       .single();
     currentUserProfile = data as Profile;
   }
-
-  // Fetch tutor's active listings (for ServicesCard)
-  const { data: listings } = await supabase
-    .from('listings')
-    .select('id, title, description, price_per_hour, service_type, subject, level, slug, created_at')
-    .eq('profile_id', tutorProfile.id)
-    .eq('status', 'published')
-    .order('created_at', { ascending: false });
 
   // Fetch tutor's reviews
   const { data: reviews } = await supabase
@@ -325,9 +317,6 @@ export default async function ListingDetailsPage({ params }: ListingDetailsPageP
             {/* Cancellation Policy Card - Only shown if policy exists */}
             <CancellationPolicyCard listing={listing} />
 
-            {/* Services Card - All tutor's listings */}
-            <ServicesCard profile={enrichedProfile} listings={listings || []} />
-
             {/* Availability Schedule Card - Tutor's general schedule */}
             <AvailabilityScheduleCard profile={enrichedProfile} />
 
@@ -359,6 +348,9 @@ export default async function ListingDetailsPage({ params }: ListingDetailsPageP
             currentLocation={listing.location_city}
           />
         </div>
+
+        {/* Empty spacer for consistent bottom padding */}
+        <div className={styles.bottomSpacer} />
       </Container>
 
       {/* Mobile-only: Fixed bottom CTA bar */}

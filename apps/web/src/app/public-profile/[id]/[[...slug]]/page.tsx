@@ -123,7 +123,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   // ===========================================================
   const { data: listings } = await supabase
     .from('listings')
-    .select('id, title, description, price_per_hour, service_type, subject, level, slug, created_at')
+    .select('id, title, description, hourly_rate, service_type, subjects, levels, slug, created_at')
     .eq('profile_id', profile.id)
     .eq('status', 'published')
     .order('created_at', { ascending: false });
@@ -285,7 +285,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
           <ProfessionalInfoCard profile={enrichedProfile} />
 
           {/* Services Card */}
-          <ServicesCard profile={enrichedProfile} listings={listings || []} />
+          <ServicesCard profile={enrichedProfile} listings={listings || []} isOwnProfile={isOwnProfile} />
 
           {/* Availability Schedule Card (Structured Format) */}
           <AvailabilityScheduleCard profile={enrichedProfile} />

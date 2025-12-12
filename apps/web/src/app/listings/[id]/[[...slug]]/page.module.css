@@ -105,7 +105,7 @@
   }
 
   .bottomSpacer {
-    height: 65px; /* 12px padding + 40px button + 12px padding + 1px border */
+    height: 121px; /* 65px CTA bar + 56px bottom nav bar */
   }
 }
 
@@ -132,7 +132,7 @@
   }
 
   .bottomSpacer {
-    height: 65px; /* 12px padding + 40px button + 12px padding + 1px border */
+    height: 121px; /* 65px CTA bar + 56px bottom nav bar */
   }
 }
 

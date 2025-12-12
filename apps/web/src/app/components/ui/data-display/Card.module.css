@@ -12,6 +12,7 @@
   box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.04));
   display: flex;
   flex-direction: column;
+  overflow: hidden; /* Clip content to rounded corners */
 }
 
 /* Hover effect removed - should be applied on a case-by-case basis (e.g., for clickable cards) */
