@@ -2,10 +2,10 @@
 
 .bottomCTA {
   position: fixed;
-  bottom: 60px; /* Height of BottomNav to sit above it */
+  bottom: 55px; /* Position above bottom nav bar (55px = approx bottom nav height) */
   left: 0;
   right: 0;
-  z-index: 90; /* Below BottomNav (z-index: 100) */
+  z-index: 101; /* Above BottomNav (z-index: 100) for seamless stacking */
   background-color: white;
   border-top: 1px solid var(--color-gray-300, #D1D1D1);
   box-shadow: var(--shadow-lg, 0 -4px 12px rgba(0, 0, 0, 0.1));
