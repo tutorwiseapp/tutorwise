@@ -2,7 +2,7 @@
 
 .bottomCTA {
   position: fixed;
-  bottom: 55px; /* Position above bottom nav bar (55px = approx bottom nav height) */
+  bottom: 54px; /* Position above bottom nav bar (55px = approx bottom nav height) */
   left: 0;
   right: 0;
   z-index: 101; /* Above BottomNav (z-index: 100) for seamless stacking */
