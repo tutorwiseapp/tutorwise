@@ -145,7 +145,7 @@
 }
 
 .verificationIcon {
-  color: #10b981; /* Green for verified */
+  color: #222222; /* Dark color matching save button */
   flex-shrink: 0;
 }
 

@@ -160,13 +160,13 @@ export default function TutorProfileCard({ profile }: TutorProfileCardProps) {
           </div>
         )}
 
-        {/* Verification Badges - Center */}
+        {/* Verification Badges - Next to Save Button */}
         {(profile.identity_verified || profile.dbs_verified) && (
           <div className={styles.verificationBadge}>
             {profile.identity_verified && (
               <svg
-                width="14"
-                height="14"
+                width="18"
+                height="18"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -180,8 +180,8 @@ export default function TutorProfileCard({ profile }: TutorProfileCardProps) {
             )}
             {profile.dbs_verified && (
               <svg
-                width="14"
-                height="14"
+                width="18"
+                height="18"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
