@@ -98,7 +98,7 @@ Manual Entry                 1. URL
 | Commission Delegation | `listings.delegate_commission_to_profile_id` |  Implemented | Section 7, Dep. Claim 9 |
 | Referral Code | `profiles.referral_code` |  Implemented | Section 2.1, Claim 1(a) |
 | Commission Ledger | `transactions` table |  Implemented | Section 8, Claim 1(g) |
-| Hierarchical Attribution | `handle_new_user()` trigger | =ß Partial | Section 3, Dep. Claim 2 |
+| Hierarchical Attribution | `handle_new_user()` trigger | =ÔøΩ Partial | Section 3, Dep. Claim 2 |
 
 ---
 
@@ -444,10 +444,10 @@ FOR EACH ROW EXECUTE FUNCTION set_referral_code();
 ### 3.3 Example Codes
 
 ```
-kRz7Bq2  ê Case-sensitive (k != K)
+kRz7Bq2  ÔøΩ Case-sensitive (k != K)
 Xx3pL9m
 A1b2C3d
-TutWise  ê Valid but not randomly generated
+TutWise  ÔøΩ Valid but not randomly generated
 ```
 
 ---
@@ -534,8 +534,8 @@ export async function GET(
 ```
 
 **Supported URL Formats:**
-- Format 1: `/a/kRz7Bq2` í redirects to homepage
-- Format 2: `/a/kRz7Bq2?redirect=/listings/abc123` í redirects to specific listing
+- Format 1: `/a/kRz7Bq2` ÔøΩ redirects to homepage
+- Format 2: `/a/kRz7Bq2?redirect=/listings/abc123` ÔøΩ redirects to specific listing
 
 ### 4.2 Cookie Fallback (Priority 2)
 
@@ -641,15 +641,15 @@ if (referralCode) {
 **Decision Tree:**
 ```
 User signs up
-    
-      Check URL parameter (?ref=kRz7Bq2)
-         If present í Use this agent_id
-    
-      Check cookie (tutorwise_referral_id)
-         If valid í Lookup agent_id from referrals.id
-    
-      Check manual entry (auth.users.raw_user_meta_data.referral_code_manual)
-          If present í Lookup agent_id from profiles.referral_code
+
+    Check URL parameter (?ref=kRz7Bq2)
+      If present ÔøΩ Use this agent_id
+    
+    Check cookie (tutorwise_referral_id)
+      If valid ÔøΩ Lookup agent_id from referrals.id
+    
+    Check manual entry (auth.users.raw_user_meta_data.referral_code_manual)
+      If present ÔøΩ Lookup agent_id from profiles.referral_code
 ```
 
 ### 5.2 Implementation: handle_new_user() Trigger
@@ -799,7 +799,7 @@ $$ LANGUAGE plpgsql;
 ### 6.1 Core Patent Element (Section 4, Claim 1d)
 
 **Concept:** Once a user signs up, their `referred_by_profile_id` is **permanently** bound to their profile. This survives:
-- Role changes (client í tutor)
+- Role changes (client ÔøΩ tutor)
 - Multiple bookings
 - Account modifications
 - Years of platform usage
@@ -1120,7 +1120,7 @@ $$ LANGUAGE plpgsql;
 **Setup:**
 - Platform: TutorWise
 - Commission split: 80% tutor, 10% agent, 10% platform
-- Booking amount: £100
+- Booking amount: ÔøΩ100
 
 **Example 1: Coffee Shop Partnership (Delegation Applies)**
 ```
@@ -1134,20 +1134,20 @@ Configuration:
 - C.referred_by_profile_id = T.id (tutor referred client)
 - listing.delegate_commission_to_profile_id = P.id
 
-Booking: £100
-- Platform fee (10%): £10
-- Tutor payout (80%): £80
-- Commission (10%): £10
+Booking: ÔøΩ100
+- Platform fee (10%): ÔøΩ10
+- Tutor payout (80%): ÔøΩ80
+- Commission (10%): ÔøΩ10
 
 Commission Decision Tree:
   1. Delegation target configured? YES (P.id)
   2. Is T direct referrer of C? YES (C.referred_by_profile_id == T.id)
-  3. APPLY DELEGATION í Pay P
+  3. APPLY DELEGATION ÔøΩ Pay P
 
 Final Distribution:
-- Platform: £10
-- Tutor T: £80
-- Coffee Shop P: £10  (delegation applied)
+- Platform: ÔøΩ10
+- Tutor T: ÔøΩ80
+- Coffee Shop P: ÔøΩ10  (delegation applied)
 - (No other agent involved)
 ```
 
@@ -1165,21 +1165,21 @@ Configuration:
 - C.referred_by_profile_id = A.id (Agent A also recruited client)
 - listing.delegate_commission_to_profile_id = P.id
 
-Booking: £100
-- Platform fee (10%): £10
-- Tutor payout (80%): £80
-- Commission (10%): £10
+Booking: ÔøΩ100
+- Platform fee (10%): ÔøΩ10
+- Tutor payout (80%): ÔøΩ80
+- Commission (10%): ÔøΩ10
 
 Commission Decision Tree:
   1. Delegation target configured? YES (P.id)
   2. Is T direct referrer of C? NO (C.referred_by_profile_id == A.id, not T.id)
-  3. IGNORE DELEGATION í Pay original agent A
+  3. IGNORE DELEGATION ÔøΩ Pay original agent A
 
 Final Distribution:
-- Platform: £10
-- Tutor T: £80
-- Agent A: £10  (delegation BLOCKED, agent protected)
-- Coffee Shop P: £0 (delegation did not apply)
+- Platform: ÔøΩ10
+- Tutor T: ÔøΩ80
+- Agent A: ÔøΩ10 (delegation BLOCKED, agent protected)
+- Coffee Shop P: ÔøΩ0 (delegation did not apply)
 ```
 
 **Example 3: Organic Discovery (No Delegation)**
@@ -1194,19 +1194,19 @@ Configuration:
 - C.referred_by_profile_id = NULL
 - listing.delegate_commission_to_profile_id = P.id
 
-Booking: £100
-- Platform fee (10%): £10
-- Tutor payout (90%): £90
-- Commission (10%): £0 (no agent to pay)
+Booking: ÔøΩ100
+- Platform fee (10%): ÔøΩ10
+- Tutor payout (90%): ÔøΩ90
+- Commission (10%): ÔøΩ0 (no agent to pay)
 
 Commission Decision Tree:
   1. Client has referrer? NO (C.referred_by_profile_id = NULL)
   2. No commission owed
 
 Final Distribution:
-- Platform: £10
-- Tutor T: £90 (gets full 90% since no commission owed)
-- Coffee Shop P: £0 (no commission to delegate)
+- Platform: ÔøΩ10
+- Tutor T: ÔøΩ90 (gets full 90% since no commission owed)
+- Coffee Shop P: ÔøΩ0 (no commission to delegate)
 ```
 
 ### 8.5 Fraud Prevention
@@ -1261,19 +1261,19 @@ Prevention:
 - Agent: 10% (if referrer exists)
 - Platform: 10%
 
-**Example: £100 Booking**
+**Example: ÔøΩ100 Booking**
 ```
-Total: £100.00
-  Platform fee: £10.00 (10%)
-  Tutor payout: £80.00 (80%)
-  Agent commission: £10.00 (10%)
+Total: ÔøΩ100.00
+Platform fee: ÔøΩ10.00 (10%)
+Tutor payout: ÔøΩ80.00 (80%)
+Agent commission: ÔøΩ10.00 (10%)
 ```
 
 **Edge Case: No Agent**
 ```
-Total: £100.00
-  Platform fee: £10.00 (10%)
-  Tutor payout: £90.00 (90%) ê Tutor gets extra 10%
+Total: ÔøΩ100.00
+Platform fee: ÔøΩ10.00 (10%)
+Tutor payout: ÔøΩ90.00 (90%) ÔøΩ Tutor gets extra 10%
 ```
 
 ### 9.2 RPC Function: process_booking_payment
@@ -1434,8 +1434,8 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 **Status Lifecycle:**
 ```
-pending í available í scheduled í paid_out
-   ì          ì
+pending ÔøΩ available ÔøΩ scheduled ÔøΩ paid_out
+   ÔøΩ          ÔøΩ
 cancelled  failed
 ```
 
@@ -2048,8 +2048,8 @@ REFRESH MATERIALIZED VIEW CONCURRENTLY agent_stats;
 
 **Scale Estimates:**
 - **100K users**:  No issues
-- **1M users**: † Need materialized views for analytics
-- **10M users**: † Need read replicas, async commission processing
+- **1M users**: ÔøΩ Need materialized views for analytics
+- **10M users**: ÔøΩ Need read replicas, async commission processing
 - **100M users**: L Need sharding, event sourcing, separate analytics DB
 
 **Future Enhancements:**
@@ -2378,7 +2378,7 @@ ORDER BY cohort_month DESC;
 | 035 | 2025-10-09 | Add referral_code column + generation function |
 | 042 | 2025-10-15 | Add referred_by_profile_id column (identity-level binding) |
 | 050 | 2025-10-20 | Create referrals table with status enum |
-| 051 | 2025-10-25 | Rename referrer_profile_id í agent_id in referrals table |
+| 051 | 2025-10-25 | Rename referrer_profile_id ÔøΩ agent_id in referrals table |
 | 034 | 2025-11-28 | Add delegate_commission_to_profile_id to listings (commission delegation) |
 | 090 | 2025-12-05 | Fix handle_new_user trigger (remove legacy referral_id logic) |
 
@@ -2405,7 +2405,7 @@ ORDER BY cohort_month DESC;
 ## Appendix C: Future Roadmap
 
 ### Q1 2026: Attribution Enhancements
-- [ ] Implement hierarchical fallback (URL í Cookie í Manual)
+- [ ] Implement hierarchical fallback (URL ÔøΩ Cookie ÔøΩ Manual)
 - [ ] Add HMAC cookie signature
 - [ ] Add attribution_method tracking to referrals table
 - [ ] Audit logging for attribution resolution
@@ -2432,4 +2432,4 @@ ORDER BY cohort_month DESC;
 **Total Word Count**: ~15,000 words
 **Maintenance**: Review quarterly after patent amendments
 **Owner**: Growth Team
-**Status**:  COMPLETE - Engineering Reference Document
+**Status**: COMPLETE - Engineering Reference Document

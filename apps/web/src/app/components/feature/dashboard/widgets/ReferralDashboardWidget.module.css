@@ -1,0 +1,336 @@
+/**
+ * Filename: ReferralDashboardWidget.module.css
+ * Purpose: Styles for referral dashboard widget
+ * Created: 2025-12-16
+ */
+
+.widget {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a202c;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.viewAll {
+  font-size: 14px;
+  color: #3b82f6;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.2s;
+}
+
+.viewAll:hover {
+  color: #2563eb;
+}
+
+/* KPI Grid */
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+/* Referral Link Section */
+.linkSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a202c;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.linkBox {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.linkInput {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #4a5568;
+  background: #f7fafc;
+  font-family: 'Monaco', 'Courier New', monospace;
+}
+
+.linkInput:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: white;
+}
+
+.copyButton,
+.qrButton {
+  padding: 10px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+  color: #4a5568;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.copyButton:hover,
+.qrButton:hover {
+  background: #f7fafc;
+  border-color: #cbd5e0;
+}
+
+.copyButton:active,
+.qrButton:active {
+  background: #edf2f7;
+}
+
+.qrCodeContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  background: #f7fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.qrCode {
+  width: 200px;
+  height: 200px;
+  border: 4px solid white;
+  border-radius: 8px;
+}
+
+.qrLabel {
+  font-size: 14px;
+  color: #718096;
+  margin: 0;
+}
+
+/* Attribution Section */
+.attributionSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.attributionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.attributionCard {
+  padding: 16px;
+  background: #f7fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.attributionLabel {
+  font-size: 13px;
+  color: #718096;
+  font-weight: 500;
+}
+
+.attributionValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.attributionBar {
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.attributionBarFill {
+  height: 100%;
+  background: #3b82f6;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Recent Referrals */
+.recentSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.referralsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.referralCard {
+  padding: 12px 16px;
+  background: #f7fafc;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.referralCard:hover {
+  background: #edf2f7;
+  border-color: #cbd5e0;
+}
+
+.referralInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.referralName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.referralMeta {
+  font-size: 12px;
+  color: #718096;
+}
+
+.statusBadge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.statusBadge.success {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.statusBadge.info {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.statusBadge.warning {
+  background: #fed7aa;
+  color: #92400e;
+}
+
+.statusBadge.neutral {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.emptyState {
+  padding: 32px;
+  text-align: center;
+  color: #718096;
+  background: #f7fafc;
+  border-radius: 8px;
+  border: 1px dashed #cbd5e0;
+}
+
+.emptyState p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.settingsButton {
+  padding: 10px 16px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  color: #4a5568;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.settingsButton:hover {
+  background: #f7fafc;
+  border-color: #cbd5e0;
+}
+
+/* Loading State */
+.loading {
+  padding: 48px;
+  text-align: center;
+  color: #718096;
+  font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .widget {
+    padding: 16px;
+  }
+
+  .kpiGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .attributionGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .linkBox {
+    flex-direction: column;
+  }
+}
