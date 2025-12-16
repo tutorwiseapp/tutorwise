@@ -342,6 +342,25 @@ export default function ListingsPage() {
     );
   }
 
+  // Show loading skeleton on initial load (no cached data)
+  if (isLoading && rawListings.length === 0) {
+    return (
+      <HubPageLayout
+        header={<HubHeader title="Listings" />}
+        sidebar={
+          <HubSidebar>
+            <ListingStatsWidget listings={[]} isLoading={true} />
+            <ListingHelpWidget />
+            <ListingTipWidget />
+            <ListingVideoWidget />
+          </HubSidebar>
+        }
+      >
+        <ListingsSkeleton />
+      </HubPageLayout>
+    );
+  }
+
   return (
     <HubPageLayout
       header={
