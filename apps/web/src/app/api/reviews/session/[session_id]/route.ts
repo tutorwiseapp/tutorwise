@@ -52,7 +52,7 @@ export async function GET(
           booking_type,
           client:client_id(id, full_name, avatar_url),
           tutor:tutor_id(id, full_name, avatar_url),
-          agent:agent_id(id, full_name, avatar_url)
+          agent:profiles!agent_id(id, full_name, avatar_url)
         )
       `)
       .eq('id', session_id)

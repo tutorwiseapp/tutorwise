@@ -140,7 +140,7 @@ export async function getMyBookings(): Promise<any[]> {
       client:client_id(id, full_name, avatar_url),
       tutor:tutor_id(id, full_name, avatar_url),
       listing:listing_id(id, title),
-      agent:agent_id(id, full_name)
+      agent:profiles!agent_id(id, full_name)
     `);
 
   // Role-based filtering (migrations 049 & 051)
@@ -193,7 +193,7 @@ export async function getBookingById(id: string): Promise<any | null> {
       client:client_id(id, full_name, avatar_url),
       tutor:tutor_id(id, full_name, avatar_url),
       listing:listing_id(id, title),
-      agent:agent_id(id, full_name)
+      agent:profiles!agent_id(id, full_name)
     `)
     .eq('id', id)
     .single();

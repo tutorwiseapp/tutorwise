@@ -50,7 +50,7 @@ export async function GET(req: Request) {
         client:client_id(id, full_name, avatar_url),
         tutor:tutor_id(id, full_name, avatar_url),
         listing:listing_id(id, title),
-        agent:agent_id(id, full_name)
+        agent:profiles!agent_id(id, full_name)
       `);
 
     // Role-based filtering (SDD v3.6, Section 8.4) (migration 049: student_id → client_id)
@@ -70,7 +70,7 @@ export async function GET(req: Request) {
           client:client_id(id, full_name, avatar_url),
           tutor:tutor_id(id, full_name, avatar_url),
           listing:listing_id(id, title),
-          agent:agent_id(id, full_name)
+          agent:profiles!agent_id(id, full_name)
         `)
         .or(`client_id.eq.${user.id},tutor_id.eq.${user.id},agent_id.eq.${user.id}`);
 

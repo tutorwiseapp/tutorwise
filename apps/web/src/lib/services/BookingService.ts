@@ -83,8 +83,8 @@ export class BookingService {
         client:client_id(id, full_name, avatar_url),
         tutor:tutor_id(id, full_name, avatar_url),
         listing:listing_id(id, title),
-        agent:agent_id(id, full_name),
-        student:student_id(id, full_name, avatar_url)
+        agent:profiles!agent_id(id, full_name),
+        student:profiles!student_id(id, full_name, avatar_url)
       `);
 
     // Role-based filtering
