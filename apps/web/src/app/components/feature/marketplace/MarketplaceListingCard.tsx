@@ -144,13 +144,13 @@ export default function MarketplaceListingCard({ listing, matchScore }: Marketpl
             </div>
           )}
 
-          {/* Verification Badges - Center */}
+          {/* Verification Badges - Next to Save Button */}
           {(listing.identity_verified || listing.dbs_verified) && (
             <div className={styles.verificationBadge}>
               {listing.identity_verified && (
                 <svg
-                  width="14"
-                  height="14"
+                  width="18"
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -164,8 +164,8 @@ export default function MarketplaceListingCard({ listing, matchScore }: Marketpl
               )}
               {listing.dbs_verified && (
                 <svg
-                  width="14"
-                  height="14"
+                  width="18"
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
