@@ -1,6 +1,6 @@
-# TutorWise AI Agent API Guide
+# TutorWise Platform API Guide
 
-**Version**: 1.0
+**Version**: 2.0
 **Date**: 2025-12-16
 **Base URL**: `https://tutorwise.com/api/v1`
 **Authentication**: API Key (Bearer token)
@@ -9,12 +9,14 @@
 
 ## Overview
 
-The TutorWise AI Agent API enables programmatic access to the referral system for AI assistants, chatbots, and automation tools. This allows AI agents like ChatGPT, Claude, and custom bots to:
+The TutorWise Platform API enables programmatic access to platform data for AI assistants, external apps, analytics tools, and automation systems. This allows integration with:
 
-- Create referrals on behalf of users
-- Search for tutors with automatic referral attribution
-- Track referral performance metrics
-- Generate referral links programmatically
+- **Referrals**: Create referrals, track performance, search tutors
+- **CaaS Scores**: Access credibility scores and breakdowns
+- **Profiles**: Get public profile data and listings
+- **Bookings**: Access user's booking history and status
+
+This API serves AI agents (ChatGPT, Claude), third-party marketplaces, analytics dashboards, and partner platforms.
 
 ---
 
@@ -64,8 +66,15 @@ API keys can have the following scopes:
 | `referrals:read` | View referral statistics |
 | `referrals:write` | Create referrals, send invitations |
 | `tutors:search` | Search tutors with referral attribution |
+| `caas:read` | Read CaaS scores and breakdowns |
+| `profiles:read` | Read public profile data |
+| `bookings:read` | Read authenticated user's bookings |
 
-**Recommended for AI agents**: All 3 scopes
+**Recommended for AI agents**: All scopes
+
+**Recommended for partner platforms**: `caas:read`, `profiles:read`, `tutors:search`
+
+**Recommended for analytics tools**: `caas:read`, `bookings:read`, `referrals:read`
 
 ---
 
@@ -278,6 +287,234 @@ Content-Type: application/json
 
 ---
 
+### 4. Get CaaS Score
+
+**GET** `/api/v1/caas/:profile_id`
+
+Get CaaS (Credibility as a Service) score for a user.
+
+#### Request
+
+```http
+GET /api/v1/caas/550e8400-e29b-41d4-a716-446655440000?role_type=TUTOR&include_breakdown=true
+Authorization: Bearer tutorwise_sk_xxx...
+```
+
+#### Query Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `role_type` | string | TUTOR | Role to get score for: TUTOR, CLIENT, AGENT, STUDENT |
+| `include_breakdown` | boolean | true | Include detailed stats (performance, network, digital) |
+
+#### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "profile_id": "550e8400-e29b-41d4-a716-446655440000",
+  "role_type": "TUTOR",
+  "score": {
+    "total": 85,
+    "breakdown": {
+      "performance": 28,
+      "qualifications": 30,
+      "network": 15,
+      "safety": 10,
+      "digital": 2
+    },
+    "percentile": 92.5,
+    "rank": "Excellent"
+  },
+  "detailed_stats": {
+    "performance": {
+      "avg_rating": 4.8,
+      "completed_sessions": 120,
+      "retention_rate": 0.75,
+      "manual_session_log_rate": 0.90
+    },
+    "network": {
+      "referral_count": 12,
+      "connection_count": 45,
+      "is_agent_referred": true
+    },
+    "digital": {
+      "google_calendar_synced": true,
+      "google_classroom_synced": false,
+      "lessonspace_usage_rate": 0.60
+    }
+  },
+  "metadata": {
+    "calculated_at": "2025-12-16T10:30:00Z",
+    "calculation_version": "tutor-v5.5",
+    "last_updated": "2025-12-16T10:30:00Z"
+  }
+}
+```
+
+#### Error Responses
+
+**404 Not Found** - Score not found
+```json
+{
+  "error": "score_not_found",
+  "message": "No CaaS score found for this profile and role type",
+  "profile_id": "550e8400-e29b-41d4-a716-446655440000",
+  "role_type": "TUTOR"
+}
+```
+
+---
+
+### 5. Get Profile
+
+**GET** `/api/v1/profiles/:id`
+
+Get public profile information for a user.
+
+#### Request
+
+```http
+GET /api/v1/profiles/550e8400-e29b-41d4-a716-446655440000?include_listings=true&include_caas_score=true
+Authorization: Bearer tutorwise_sk_xxx...
+```
+
+#### Query Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `include_listings` | boolean | false | Include user's active listings |
+| `include_caas_score` | boolean | true | Include CaaS credibility score |
+| `include_stats` | boolean | false | Include performance stats (tutors only) |
+
+#### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "profile": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "full_name": "Dr. Sarah Johnson",
+    "avatar_url": "https://cdn.tutorwise.com/avatars/sarah.jpg",
+    "bio": "Experienced biology tutor with 10+ years teaching...",
+    "location": "London, UK",
+    "roles": ["tutor", "agent"],
+    "referral_code": "ABC123G",
+    "caas_score": 85,
+    "listings": [
+      {
+        "id": "listing-1",
+        "title": "GCSE Biology Tutoring",
+        "subjects": ["Biology"],
+        "level": "GCSE",
+        "price_per_hour": 45.00,
+        "currency": "GBP",
+        "is_active": true
+      }
+    ],
+    "created_at": "2024-01-15T10:00:00Z",
+    "profile_url": "https://tutorwise.com/public-profile/550e8400..."
+  }
+}
+```
+
+#### Error Responses
+
+**404 Not Found** - Profile not found
+```json
+{
+  "error": "profile_not_found",
+  "message": "Profile not found",
+  "profile_id": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+---
+
+### 6. Get Bookings
+
+**GET** `/api/v1/bookings`
+
+Get authenticated user's bookings (as tutor or client).
+
+#### Request
+
+```http
+GET /api/v1/bookings?status=completed&days=30&limit=50&role=client
+Authorization: Bearer tutorwise_sk_xxx...
+```
+
+#### Query Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `status` | string | - | Filter by status: scheduled, completed, cancelled, pending_log |
+| `days` | integer | 90 | Last N days of bookings |
+| `limit` | integer | 50 | Results limit (max: 100) |
+| `offset` | integer | 0 | Pagination offset |
+| `role` | string | - | Filter by role: tutor (my students), client (my tutors) |
+
+#### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "bookings": [
+    {
+      "id": "booking-1",
+      "listing_id": "listing-1",
+      "listing_title": "GCSE Biology Tutoring",
+      "tutor": {
+        "id": "tutor-id",
+        "full_name": "Dr. Sarah Johnson",
+        "avatar_url": "https://cdn.tutorwise.com/avatars/sarah.jpg"
+      },
+      "client": {
+        "id": "client-id",
+        "full_name": "John Smith",
+        "avatar_url": "https://cdn.tutorwise.com/avatars/john.jpg"
+      },
+      "user_role": "client",
+      "status": "completed",
+      "start_time": "2025-12-10T14:00:00Z",
+      "end_time": "2025-12-10T15:00:00Z",
+      "duration_hours": 1.0,
+      "price": 45.00,
+      "currency": "GBP",
+      "recording_url": "https://lessonspace.com/recording/abc123",
+      "created_at": "2025-12-01T10:00:00Z",
+      "completed_at": "2025-12-10T15:05:00Z"
+    }
+  ],
+  "pagination": {
+    "total": 125,
+    "limit": 50,
+    "offset": 0,
+    "has_more": true,
+    "returned": 1
+  },
+  "filters": {
+    "status": "completed",
+    "days": 30,
+    "role": "client"
+  }
+}
+```
+
+#### Error Responses
+
+**400 Bad Request** - Invalid parameters
+```json
+{
+  "error": "invalid_parameter",
+  "message": "limit must be between 1 and 100",
+  "parameter": "limit",
+  "value": 500
+}
+```
+
+---
+
 ## Rate Limiting
 
 **Default Limits**:
@@ -314,7 +551,12 @@ X-RateLimit-Reset: 42
 | `invalid_json` | 400 | Request body not valid JSON |
 | `missing_field` | 400 | Required field missing |
 | `invalid_email` | 400 | Invalid email format |
+| `invalid_profile_id` | 400 | Profile ID not valid UUID |
+| `invalid_parameter` | 400 | Query parameter invalid |
 | `referral_exists` | 409 | Referral already created |
+| `profile_not_found` | 404 | Profile does not exist |
+| `score_not_found` | 404 | CaaS score not found |
+| `query_failed` | 500 | Database query failed |
 | `internal_error` | 500 | Server error |
 
 ---
@@ -477,5 +719,7 @@ print(f"Referral link: {result['referral']['referral_link']}")
 ---
 
 **Last Updated**: 2025-12-16
-**API Version**: v1.0
-**Migration**: 124 (AI Agent API Infrastructure)
+**API Version**: v2.0 (Platform API)
+**Migrations**:
+- 124 (API Infrastructure + Referrals)
+- 125 (Platform API Scopes: CaaS, Profiles, Bookings)
