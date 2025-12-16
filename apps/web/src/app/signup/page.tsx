@@ -38,12 +38,20 @@ export default function SignUpPage() {
   useEffect(() => {
     document.title = 'Sign Up - Tutorwise';
 
-    // Check if there's a referral code in the cookie
+    // Check for referral cookie (HMAC-signed format: referral_id.signature)
     const cookies = document.cookie.split(';');
-    const referralCookie = cookies.find(cookie => cookie.trim().startsWith('referral_code='));
+    const referralCookie = cookies.find(cookie => cookie.trim().startsWith('tutorwise_referral_id='));
     if (referralCookie) {
-      const code = referralCookie.split('=')[1];
-      setReferralCode(code);
+      const cookieValue = referralCookie.split('=')[1];
+      // Store the signed cookie value (will be validated server-side)
+      sessionStorage.setItem('pending_referral_cookie', cookieValue);
+    }
+
+    // Pre-fill referral code from URL if present
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlReferralCode = urlParams.get('ref');
+    if (urlReferralCode) {
+      setReferralCode(urlReferralCode);
     }
   }, []);
 
@@ -54,17 +62,45 @@ export default function SignUpPage() {
     setIsLoading(true);
 
     try {
+      // Build metadata with hierarchical attribution support
+      const metadata: Record<string, any> = {
+        first_name: firstName,
+        last_name: lastName,
+        full_name: `${firstName} ${lastName}`.trim(),
+      };
+
+      // Hierarchical attribution priority (handled by database trigger):
+      // 1. URL parameter (referral_code_url) - highest priority
+      // 2. Cookie (referral_cookie_id + referral_cookie_secret) - medium priority
+      // 3. Manual entry (referral_code_manual) - lowest priority
+
+      // Add URL parameter if present (Priority 1)
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlReferralCode = urlParams.get('ref');
+      if (urlReferralCode) {
+        metadata.referral_code_url = urlReferralCode;
+      }
+
+      // Add cookie if present (Priority 2)
+      const pendingCookie = sessionStorage.getItem('pending_referral_cookie');
+      if (pendingCookie) {
+        metadata.referral_cookie_id = pendingCookie;
+        // Cookie secret is validated server-side via trigger
+        metadata.referral_cookie_secret = process.env.NEXT_PUBLIC_REFERRAL_COOKIE_SECRET || '';
+        sessionStorage.removeItem('pending_referral_cookie');
+      }
+
+      // Add manual entry if present (Priority 3)
+      if (referralCode) {
+        metadata.referral_code_manual = referralCode;
+      }
+
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: `${location.origin}/onboarding`,
-          data: {
-            first_name: firstName,
-            last_name: lastName,
-            full_name: `${firstName} ${lastName}`.trim(),
-            referral_code: referralCode || undefined, // Pass referral code to handle_new_user trigger
-          },
+          data: metadata,
         },
       });
 
@@ -99,14 +135,38 @@ export default function SignUpPage() {
   };
 
   const handleGoogleSignUp = async () => {
+    // Build metadata for Google OAuth signup
+    const metadata: Record<string, any> = {};
+
+    // Hierarchical attribution for OAuth
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlReferralCode = urlParams.get('ref');
+    if (urlReferralCode) {
+      metadata.referral_code_url = urlReferralCode;
+    }
+
+    const pendingCookie = sessionStorage.getItem('pending_referral_cookie');
+    if (pendingCookie) {
+      metadata.referral_cookie_id = pendingCookie;
+      metadata.referral_cookie_secret = process.env.NEXT_PUBLIC_REFERRAL_COOKIE_SECRET || '';
+      sessionStorage.removeItem('pending_referral_cookie');
+    }
+
+    if (referralCode) {
+      metadata.referral_code_manual = referralCode;
+    }
+
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${location.origin}/auth/callback`,
         queryParams: {
-          // This is the key fix to ensure the user can select a different account
           prompt: 'select_account',
         },
+        // Pass metadata to OAuth flow (will be available in callback)
+        ...(Object.keys(metadata).length > 0 && {
+          data: metadata
+        }),
       },
     });
   };
