@@ -98,7 +98,7 @@ export default function BookingDetailModal({
         { label: `${rolePrefix} Name`, value: otherParty?.full_name || 'N/A' },
         { label: `${rolePrefix} ID`, value: viewMode === 'client' ? booking.tutor_id : booking.client_id },
         { label: 'Agent Name', value: booking.agent?.full_name || 'No Agent' },
-        { label: 'Agent ID', value: booking.agent_profile_id || 'N/A' },
+        { label: 'Agent ID', value: booking.agent_id || 'N/A' },
       ],
     },
     {

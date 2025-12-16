@@ -134,7 +134,7 @@ BEGIN
         status = 'Signed Up'
       WHERE id = (
         SELECT id FROM public.referrals
-        WHERE agent_profile_id = v_referrer_id
+        WHERE agent_id = v_referrer_id
           AND referred_profile_id IS NULL
           AND status = 'Referred'
         LIMIT 1
@@ -142,7 +142,7 @@ BEGIN
 
       -- If no existing record was updated, create a new one
       IF NOT FOUND THEN
-        INSERT INTO public.referrals (agent_profile_id, referred_profile_id, status)
+        INSERT INTO public.referrals (agent_id, referred_profile_id, status)
         VALUES (v_referrer_id, new.id, 'Signed Up');
       END IF;
     EXCEPTION

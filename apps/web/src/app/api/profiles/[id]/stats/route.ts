@@ -102,7 +102,7 @@ export async function GET(
       const { data: representedTutors } = await supabase
         .from('bookings')
         .select('tutor_id')
-        .eq('referrer_profile_id', profileId);
+        .eq('agent_id', profileId);
 
       const uniqueTutors = new Set(representedTutors?.map(b => b.tutor_id) || []);
 
@@ -110,7 +110,7 @@ export async function GET(
       const { count: successfulPlacements } = await supabase
         .from('bookings')
         .select('*', { count: 'exact', head: true })
-        .eq('referrer_profile_id', profileId)
+        .eq('agent_id', profileId)
         .eq('status', 'Completed');
 
       roleSpecificStats.agent = {

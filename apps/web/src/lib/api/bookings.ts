@@ -13,7 +13,7 @@ export interface CreateBookingInput {
   session_start_time: string; // Required: ISO 8601 timestamp
   session_duration: number; // Required: duration in minutes
   amount: number; // Required: booking amount
-  agent_profile_id?: string; // Optional: if booking came from agent referral (migration 051)
+  agent_id?: string; // Optional: if booking came from agent referral (migration 051)
 }
 
 export interface Booking {
@@ -21,7 +21,7 @@ export interface Booking {
   client_id: string; // Updated from student_id (migration 049)
   tutor_id: string;
   listing_id: string;
-  agent_profile_id?: string; // Updated from referrer_profile_id (migration 051)
+  agent_id?: string; // Updated from referrer_profile_id (migration 051)
   service_name: string;
   session_start_time: string;
   session_duration: number;
@@ -84,8 +84,8 @@ export async function createBooking(input: CreateBookingInput): Promise<Booking>
       session_start_time: input.session_start_time,
       session_duration: input.session_duration,
       amount: input.amount,
-      agent_profile_id: input.agent_profile_id, // Updated from referrer_profile_id (migration 051)
-      booking_type: input.agent_profile_id ? 'referred' : 'direct', // Added in migration 049
+      agent_id: input.agent_id, // Updated from referrer_profile_id (migration 051)
+      booking_type: input.agent_id ? 'referred' : 'direct', // Added in migration 049
       status: 'Pending',
       payment_status: 'Pending',
 
@@ -140,7 +140,7 @@ export async function getMyBookings(): Promise<any[]> {
       client:client_id(id, full_name, avatar_url),
       tutor:tutor_id(id, full_name, avatar_url),
       listing:listing_id(id, title),
-      agent:agent_profile_id(id, full_name)
+      agent:agent_id(id, full_name)
     `);
 
   // Role-based filtering (migrations 049 & 051)
@@ -150,7 +150,7 @@ export async function getMyBookings(): Promise<any[]> {
     query = query.eq('tutor_id', user.id);
   } else if (activeRole === 'agent') {
     // Agent sees all bookings where they are involved
-    query = query.or(`client_id.eq.${user.id},tutor_id.eq.${user.id},agent_profile_id.eq.${user.id}`);
+    query = query.or(`client_id.eq.${user.id},tutor_id.eq.${user.id},agent_id.eq.${user.id}`);
   }
 
   const { data: bookings, error } = await query.order('created_at', { ascending: false });
@@ -193,7 +193,7 @@ export async function getBookingById(id: string): Promise<any | null> {
       client:client_id(id, full_name, avatar_url),
       tutor:tutor_id(id, full_name, avatar_url),
       listing:listing_id(id, title),
-      agent:agent_profile_id(id, full_name)
+      agent:agent_id(id, full_name)
     `)
     .eq('id', id)
     .single();

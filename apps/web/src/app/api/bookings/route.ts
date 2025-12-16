@@ -50,7 +50,7 @@ export async function GET(req: Request) {
         client:client_id(id, full_name, avatar_url),
         tutor:tutor_id(id, full_name, avatar_url),
         listing:listing_id(id, title),
-        agent:agent_profile_id(id, full_name)
+        agent:agent_id(id, full_name)
       `);
 
     // Role-based filtering (SDD v3.6, Section 8.4) (migration 049: student_id → client_id)
@@ -70,9 +70,9 @@ export async function GET(req: Request) {
           client:client_id(id, full_name, avatar_url),
           tutor:tutor_id(id, full_name, avatar_url),
           listing:listing_id(id, title),
-          agent:agent_profile_id(id, full_name)
+          agent:agent_id(id, full_name)
         `)
-        .or(`client_id.eq.${user.id},tutor_id.eq.${user.id},agent_profile_id.eq.${user.id}`);
+        .or(`client_id.eq.${user.id},tutor_id.eq.${user.id},agent_id.eq.${user.id}`);
 
       if (agentError) throw agentError;
 
@@ -122,10 +122,10 @@ export async function POST(req: Request) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    // 2. Get user's profile to check referred_by_agent_id (migration 051)
+    // 2. Get user's profile to check referred_by_profile_id for lifetime attribution (migration 028)
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('id, referred_by_agent_id')
+      .select('id, referred_by_profile_id')
       .eq('id', user.id)
       .single();
 
@@ -255,7 +255,7 @@ export async function POST(req: Request) {
       }
     }
 
-    // 5. Create booking with agent_profile_id from client's profile and snapshot fields
+    // 5. Create booking with agent_id from client's profile and snapshot fields
     // (SDD v3.6, Section 11.2 - Lifetime Attribution) (migrations 049 & 051, 104, 108)
     const { data: booking, error: bookingError } = await supabase
       .from('bookings')
@@ -263,7 +263,7 @@ export async function POST(req: Request) {
         client_id: user.id,
         tutor_id,
         listing_id,
-        agent_profile_id: profile.referred_by_agent_id, // Updated from referrer_profile_id (migration 051) - This drives commission split
+        agent_id: profile.referred_by_profile_id, // Lifetime attribution from profiles.referred_by_profile_id (migration 028) - This drives commission split
         service_name,
         session_start_time,
         session_duration,

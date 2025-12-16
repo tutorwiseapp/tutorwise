@@ -4,8 +4,8 @@
 -- Prerequisites: Migration 054 (slug generation), 051 (rename referrer to agent)
 --
 -- This migration updates the handle_new_user trigger to:
--- 1. Use correct column names (agent_profile_id instead of referrer_profile_id)
--- 2. Use referred_by_agent_id instead of referred_by_profile_id
+-- 1. Use correct column names (agent_id instead of referrer_profile_id)
+-- 2. Use referred_by_profile_id for lifetime attribution
 -- 3. Handle referral code from signup form
 
 BEGIN;
@@ -115,7 +115,7 @@ BEGIN
   IF v_referrer_id IS NOT NULL THEN
     -- Stamp the referrer-of-record for lifetime attribution
     UPDATE public.profiles
-    SET referred_by_agent_id = v_referrer_id
+    SET referred_by_profile_id = v_referrer_id
     WHERE id = new.id;
 
     -- Update any existing "Referred" status record to "Signed Up"
@@ -125,7 +125,7 @@ BEGIN
       status = 'Signed Up'
     WHERE id = (
       SELECT id FROM public.referrals
-      WHERE agent_profile_id = v_referrer_id
+      WHERE agent_id = v_referrer_id
         AND referred_profile_id IS NULL
         AND status = 'Referred'
       LIMIT 1
@@ -133,7 +133,7 @@ BEGIN
 
     -- If no existing record was updated, create a new one
     IF NOT FOUND THEN
-      INSERT INTO public.referrals (agent_profile_id, referred_profile_id, status)
+      INSERT INTO public.referrals (agent_id, referred_profile_id, status)
       VALUES (v_referrer_id, new.id, 'Signed Up');
     END IF;
   END IF;
@@ -151,4 +151,4 @@ COMMIT;
 
 -- Add comment
 COMMENT ON FUNCTION public.handle_new_user() IS
-'[v4.8 Phase 3] Trigger function that runs on new user signup. Creates profile with slug, referral code, and handles referral attribution using agent_profile_id.';
+'[v4.8 Phase 3] Trigger function that runs on new user signup. Creates profile with slug, referral code, and handles referral attribution using agent_id.';

@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
       supabase
         .from('bookings')
         .select('id, session_start_time, session_duration_hours')
-        .or(`client_id.eq.${user.id},tutor_id.eq.${user.id},agent_id.eq.${user.id}`)
+        .or(`client_id.eq.${user.id},tutor_id.eq.${user.id},agent_id.eq.${user.id},student_id.eq.${user.id}`)
         .gte('session_start_time', new Date().toISOString())
         .lte('session_start_time', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString())
         .order('session_start_time', { ascending: true }),
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
       supabase
         .from('bookings')
         .select('id, client_id, tutor_id')
-        .or(`client_id.eq.${user.id},tutor_id.eq.${user.id},agent_id.eq.${user.id}`)
+        .or(`client_id.eq.${user.id},tutor_id.eq.${user.id},agent_id.eq.${user.id},student_id.eq.${user.id}`)
         .eq('status', 'completed')
         .gte('session_start_time', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()),
 

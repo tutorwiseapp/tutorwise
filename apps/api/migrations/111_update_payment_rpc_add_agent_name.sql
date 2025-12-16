@@ -87,7 +87,7 @@ BEGIN
   FROM public.bookings b
   LEFT JOIN public.profiles t ON b.tutor_id = t.id
   LEFT JOIN public.profiles c ON b.client_id = c.id
-  LEFT JOIN public.profiles a ON b.agent_profile_id = a.id
+  LEFT JOIN public.profiles a ON b.agent_id = a.id
   WHERE b.id = p_booking_id
   FOR UPDATE; -- Lock the row to prevent race conditions
 
@@ -143,7 +143,7 @@ BEGIN
   v_remaining_amount := v_remaining_amount - v_platform_fee_amount;
 
   -- Get client's referring agent (lifetime attribution)
-  SELECT referred_by_agent_id INTO v_referring_agent_id
+  SELECT referred_by_profile_id INTO v_referring_agent_id
   FROM public.profiles
   WHERE id = v_booking.client_id;
 
@@ -152,7 +152,7 @@ BEGIN
   -- Migrations 109 & 111: Now includes 7 context fields
   -- ==========================================
   IF v_referring_agent_id IS NOT NULL
-     AND v_referring_agent_id NOT IN (v_booking.agent_profile_id, v_booking.tutor_id) THEN
+     AND v_referring_agent_id NOT IN (v_booking.agent_id, v_booking.tutor_id) THEN
 
     v_referral_commission_amount := v_booking.amount * v_referral_commission_percent;
     v_remaining_amount := v_remaining_amount - v_referral_commission_amount;
@@ -180,7 +180,7 @@ BEGIN
   -- STEP 8: Check for Agent-Led Booking (20%)
   -- Migrations 109 & 111: Now includes 7 context fields
   -- ==========================================
-  IF v_booking.agent_profile_id IS NOT NULL THEN
+  IF v_booking.agent_id IS NOT NULL THEN
 
     v_agent_commission_amount := v_booking.amount * v_agent_commission_percent;
     v_remaining_amount := v_remaining_amount - v_agent_commission_amount;
@@ -189,7 +189,7 @@ BEGIN
       (profile_id, booking_id, type, description, status, amount, available_at,
        service_name, subjects, session_date, location_type, tutor_name, client_name, agent_name)
     VALUES
-      (v_booking.agent_profile_id, p_booking_id, 'Agent Commission',
+      (v_booking.agent_id, p_booking_id, 'Agent Commission',
        'Agent commission from ' || v_booking.service_name,
        'clearing', v_agent_commission_amount, v_available_timestamp,
        -- Context fields (Migrations 109 & 111)

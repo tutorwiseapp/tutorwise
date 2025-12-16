@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     const { data: bookings, error: bookingsError } = await supabase
       .from('bookings')
       .select('session_start_time, session_duration')
-      .or(`client_id.eq.${user.id},tutor_id.eq.${user.id},agent_id.eq.${user.id}`)
+      .or(`client_id.eq.${user.id},tutor_id.eq.${user.id},agent_id.eq.${user.id},student_id.eq.${user.id}`)
       .gte('session_start_time', now.toISOString())
       .lte('session_start_time', endDate.toISOString())
       .order('session_start_time', { ascending: true });

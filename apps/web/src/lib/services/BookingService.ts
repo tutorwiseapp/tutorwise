@@ -32,7 +32,7 @@ export interface BookingData {
   student_id?: string; // v5.0: Added student_id for guardian-student link
   tutor_id: string;
   listing_id: string;
-  agent_profile_id?: string;
+  agent_id?: string;
   service_name: string;
   session_start_time: string;
   session_duration: number;
@@ -54,7 +54,7 @@ export interface CreateBookingInput {
   session_start_time: string;
   session_duration: number;
   amount: number;
-  agent_profile_id?: string;
+  agent_id?: string;
 }
 
 /**
@@ -83,7 +83,7 @@ export class BookingService {
         client:client_id(id, full_name, avatar_url),
         tutor:tutor_id(id, full_name, avatar_url),
         listing:listing_id(id, title),
-        agent:agent_profile_id(id, full_name),
+        agent:agent_id(id, full_name),
         student:student_id(id, full_name, avatar_url)
       `);
 
@@ -94,7 +94,7 @@ export class BookingService {
       query = query.eq('tutor_id', userId);
     } else if (activeRole === 'agent') {
       // Agent sees all bookings where they are involved
-      query = query.or(`client_id.eq.${userId},tutor_id.eq.${userId},agent_profile_id.eq.${userId}`);
+      query = query.or(`client_id.eq.${userId},tutor_id.eq.${userId},agent_id.eq.${userId}`);
     }
 
     const { data: bookings, error } = await query.order('created_at', { ascending: false });
@@ -146,8 +146,8 @@ export class BookingService {
         session_start_time: input.session_start_time,
         session_duration: input.session_duration,
         amount: input.amount,
-        agent_profile_id: input.agent_profile_id,
-        booking_type: input.agent_profile_id ? 'referred' : 'direct',
+        agent_id: input.agent_id,
+        booking_type: input.agent_id ? 'referred' : 'direct',
         status: 'Pending',
         payment_status: 'Pending',
       })
@@ -243,7 +243,7 @@ export class BookingService {
     return (
       booking.client_id === userId ||
       booking.tutor_id === userId ||
-      booking.agent_profile_id === userId
+      booking.agent_id === userId
     );
   }
 }

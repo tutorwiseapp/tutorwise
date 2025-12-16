@@ -11,6 +11,7 @@ import React from 'react';
 import Image from 'next/image';
 import type { Conversation } from '@/lib/api/messages';
 import getProfileImageUrl from '@/lib/utils/image';
+import { getInitials } from '@/lib/utils/initials';
 import { useAblyPresence } from '@/app/hooks/useAblyPresence';
 import styles from './ConversationList.module.css';
 
@@ -125,7 +126,7 @@ function ConversationItem({
           />
         ) : (
           <div className={styles.avatarFallback}>
-            {userName.charAt(0).toUpperCase()}
+            {getInitials(userName)}
           </div>
         )}
         {isOnline && <div className={styles.onlineIndicator} />}

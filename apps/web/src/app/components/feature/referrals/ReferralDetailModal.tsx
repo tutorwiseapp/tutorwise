@@ -123,7 +123,7 @@ export default function ReferralDetailModal({
   sections.push({
     title: 'Agent Information',
     fields: [
-      { label: 'Agent Profile ID', value: referral.agent_profile_id },
+      { label: 'Agent ID', value: referral.agent_id },
     ],
   });
 

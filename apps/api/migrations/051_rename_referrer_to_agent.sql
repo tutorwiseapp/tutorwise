@@ -1,5 +1,5 @@
--- Migration 051: Rename referrer_profile_id to agent_profile_id
--- Purpose: Align database naming with the three-role system (Client, Tutor, Agent)
+-- Migration 051: Rename referrer_profile_id to agent_id
+-- Purpose: Align database naming with the three-role system (client_id, tutor_id, agent_id)
 -- Author: Senior Architect + Claude AI
 -- Date: 2025-11-08
 -- Related: migration 049, migration 050
@@ -7,28 +7,28 @@
 BEGIN;
 
 -- ============================================================
--- 1. RENAME REFERRER_PROFILE_ID TO AGENT_PROFILE_ID IN BOOKINGS
+-- 1. RENAME REFERRER_PROFILE_ID TO AGENT_ID IN BOOKINGS
 -- ============================================================
 
 -- Step 1a: Rename the column
 ALTER TABLE public.bookings
-RENAME COLUMN referrer_profile_id TO agent_profile_id;
+RENAME COLUMN referrer_profile_id TO agent_id;
 
 -- Step 1b: Rename the foreign key constraint
 ALTER TABLE public.bookings
 DROP CONSTRAINT IF EXISTS bookings_referrer_profile_id_fkey;
 
 ALTER TABLE public.bookings
-ADD CONSTRAINT bookings_agent_profile_id_fkey
-  FOREIGN KEY (agent_profile_id)
+ADD CONSTRAINT bookings_agent_id_fkey
+  FOREIGN KEY (agent_id)
   REFERENCES public.profiles(id)
   ON DELETE SET NULL;
 
 -- Step 1c: Rename the index
 DROP INDEX IF EXISTS idx_bookings_referrer_profile_id;
 
-CREATE INDEX idx_bookings_agent_profile_id
-  ON public.bookings(agent_profile_id);
+CREATE INDEX idx_bookings_agent_id
+  ON public.bookings(agent_id);
 
 -- ============================================================
 -- 2. UPDATE REVIEW SESSION CREATION TRIGGER
@@ -49,7 +49,7 @@ BEGIN
     -- 1. Extract booking details
     v_client_id := NEW.client_id;
     v_tutor_id := NEW.tutor_id;
-    v_agent_id := NEW.agent_profile_id;
+    v_agent_id := NEW.agent_id;
     v_booking_type := NEW.booking_type;
 
     -- 2. Build participant array based on booking type
@@ -97,7 +97,7 @@ END;
 $$;
 
 COMMENT ON FUNCTION public.create_review_session_on_booking_complete IS
-  'Updated for agent_profile_id (v4.5). Creates review sessions with appropriate participants based on booking type.';
+  'Updated for agent_id (v4.5). Creates review sessions with appropriate participants based on booking type.';
 
 -- ============================================================
 -- 3. UPDATE PAYMENT WEBHOOK FUNCTION
@@ -140,7 +140,7 @@ BEGIN
   -- Calculate commission splits based on Lifetime Attribution
   v_platform_fee_amount := v_booking.amount * v_platform_fee_percent;
 
-  IF v_booking.agent_profile_id IS NOT NULL THEN
+  IF v_booking.agent_id IS NOT NULL THEN
     -- REFERRED BOOKING (80/10/10 SPLIT)
     v_agent_commission_amount := v_booking.amount * v_agent_commission_percent;
     v_tutor_payout_amount := v_booking.amount - v_platform_fee_amount - v_agent_commission_amount;
@@ -149,7 +149,7 @@ BEGIN
     INSERT INTO public.transactions
       (profile_id, booking_id, type, description, status, amount)
     VALUES
-      (v_booking.agent_profile_id, p_booking_id, 'Referral Commission', 'Commission from ' || v_booking.service_name, 'Pending', v_agent_commission_amount)
+      (v_booking.agent_id, p_booking_id, 'Referral Commission', 'Commission from ' || v_booking.service_name, 'Pending', v_agent_commission_amount)
     RETURNING id INTO v_new_commission_tx_id;
 
   ELSE
@@ -192,7 +192,7 @@ END;
 $$;
 
 COMMENT ON FUNCTION public.handle_successful_payment IS
-  'Updated for agent_profile_id (v4.5). Handles payment processing and triggers review sessions.';
+  'Updated for agent_id (v4.5). Handles payment processing and triggers review sessions.';
 
 -- ============================================================
 -- 4. AUDIT LOG
@@ -205,7 +205,7 @@ VALUES (
   jsonb_build_object(
     'migration', '051',
     'changes', ARRAY[
-      'Renamed referrer_profile_id to agent_profile_id in bookings table',
+      'Renamed referrer_profile_id to agent_id in bookings table',
       'Updated create_review_session_on_booking_complete function',
       'Updated handle_successful_payment function'
     ],

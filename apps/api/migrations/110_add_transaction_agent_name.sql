@@ -8,7 +8,7 @@
 --
 -- Problem:
 -- - Migration 107 added 6 context fields but missed agent_name
--- - Bookings can have agent_profile_id (agent-led bookings)
+-- - Bookings can have agent_id (agent-led bookings)
 -- - Agent commissions show generic description without agent name
 -- - Inconsistent with having tutor_name and client_name
 --
@@ -32,9 +32,9 @@ COMMENT ON COLUMN transactions.agent_name IS 'Agent name for display (snapshot f
 UPDATE transactions t
 SET agent_name = agent_profile.full_name
 FROM bookings b
-LEFT JOIN profiles agent_profile ON b.agent_profile_id = agent_profile.id
+LEFT JOIN profiles agent_profile ON b.agent_id = agent_profile.id
 WHERE t.booking_id = b.id
-  AND b.agent_profile_id IS NOT NULL
+  AND b.agent_id IS NOT NULL
   AND t.agent_name IS NULL;
 
 -- Step 3: Show migration results

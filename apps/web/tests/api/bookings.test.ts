@@ -58,7 +58,7 @@ describe('POST /api/bookings', () => {
 
     // Mock profile fetch (with agent referral) - first .single() call (migration 051)
     mockSupabase.single.mockResolvedValueOnce({
-      data: { referred_by_agent_id: mockReferrerId },
+      data: { referred_by_profile_id: mockReferrerId },
       error: null,
     });
 
@@ -94,7 +94,7 @@ describe('POST /api/bookings', () => {
         client_id: mockUserId, // Updated from student_id (migration 049)
         tutor_id: mockTutorId,
         listing_id: mockListingId,
-        agent_profile_id: mockReferrerId, // Updated from referrer_profile_id (migration 051)
+        agent_id: mockReferrerId, // Updated from referrer_profile_id (migration 051, 052)
         service_name: 'GCSE Mathematics Tutoring',
         session_start_time: '2025-12-01T10:00:00Z',
         session_duration: 60,
@@ -129,23 +129,23 @@ describe('POST /api/bookings', () => {
     expect(result.booking).toBeDefined();
     expect(result.booking.status).toBe('Pending');
     expect(result.booking.payment_status).toBe('Pending');
-    expect(result.booking.agent_profile_id).toBe(mockReferrerId);
+    expect(result.booking.agent_id).toBe(mockReferrerId);
     expect(result.booking.amount).toBe(50);
 
-    // Verify insert was called with correct data (migrations 049 & 051)
+    // Verify insert was called with correct data (migrations 049 & 051, 052)
     expect(mockSupabase.insert).toHaveBeenCalledWith(
       expect.objectContaining({
         client_id: mockUserId,
         tutor_id: mockTutorId,
         listing_id: mockListingId,
-        agent_profile_id: mockReferrerId, // Updated from referrer_profile_id (migration 051)
+        agent_id: mockReferrerId, // Updated from referrer_profile_id (migration 051, 052)
         status: 'Pending',
         payment_status: 'Pending',
       })
     );
   });
 
-  it('should create booking without agent_profile_id if user was not referred', async () => {
+  it('should create booking without agent_id if user was not referred', async () => {
     const mockUserId = '11111111-1111-1111-1111-111111111111';
     const mockTutorId = '22222222-2222-2222-2222-222222222222';
     const mockListingId = '33333333-3333-3333-3333-333333333333';
@@ -159,7 +159,7 @@ describe('POST /api/bookings', () => {
 
     // Mock profile fetch (NO agent referral) - first .single() call (migration 051)
     mockSupabase.single.mockResolvedValueOnce({
-      data: { referred_by_agent_id: null },
+      data: { referred_by_profile_id: null },
       error: null,
     });
 
@@ -195,7 +195,7 @@ describe('POST /api/bookings', () => {
         client_id: mockUserId, // Updated from student_id (migration 049)
         tutor_id: mockTutorId,
         listing_id: mockListingId,
-        agent_profile_id: null, // NO AGENT REFERRAL (migration 051)
+        agent_id: null, // NO AGENT REFERRAL (migration 051, 052)
         service_name: 'GCSE Mathematics Tutoring',
         session_start_time: '2025-12-01T10:00:00Z',
         session_duration: 60,
@@ -227,12 +227,12 @@ describe('POST /api/bookings', () => {
 
     // Assertions
     expect(response.status).toBe(201);
-    expect(result.booking.agent_profile_id).toBeNull();
+    expect(result.booking.agent_id).toBeNull();
 
-    // Verify insert was called with null agent (migration 051)
+    // Verify insert was called with null agent (migration 051, 052)
     expect(mockSupabase.insert).toHaveBeenCalledWith(
       expect.objectContaining({
-        agent_profile_id: null,
+        agent_id: null,
       })
     );
   });
