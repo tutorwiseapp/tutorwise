@@ -18,7 +18,7 @@ import styles from './HubStatsCard.module.css';
 export interface StatRow {
   label: string;
   value: string | number;
-  valueColor?: 'default' | 'green' | 'orange' | 'black-bold';
+  valueColor?: 'default' | 'green' | 'orange' | 'red' | 'black-bold';
 }
 
 interface SidebarStatsWidgetProps {

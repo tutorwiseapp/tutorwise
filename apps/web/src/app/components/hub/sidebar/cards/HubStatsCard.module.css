@@ -72,6 +72,10 @@
   color: var(--color-warning);
 }
 
+.value.red {
+  color: var(--color-error);
+}
+
 .value.blackBold {
   color: var(--color-grey-900);
   font-weight: var(--font-semibold);

@@ -114,12 +114,20 @@ export default function ReviewsPage() {
   const receivedReviews = receivedData?.reviews || [];
   const givenReviews = givenData?.reviews || [];
 
-  const stats = useMemo(() => ({
-    pendingCount: pendingData?.count || 0,
-    receivedCount: receivedData?.stats?.total || 0,
-    givenCount: givenData?.stats?.total || 0,
-    averageRating: receivedData?.stats?.average || 0,
-  }), [pendingData, receivedData, givenData]);
+  const stats = useMemo(() => {
+    // Calculate urgent reviews (≤1 day remaining)
+    const urgentCount = (pendingData?.tasks || []).filter(
+      (task: any) => task.days_remaining !== undefined && task.days_remaining <= 1
+    ).length;
+
+    return {
+      pendingCount: pendingData?.count || 0,
+      urgentCount,
+      receivedCount: receivedData?.stats?.total || 0,
+      givenCount: givenData?.stats?.total || 0,
+      averageRating: receivedData?.stats?.average || 0,
+    };
+  }, [pendingData, receivedData, givenData]);
 
   const isLoading = pendingLoading || receivedLoading || givenLoading;
   const error = pendingError || receivedError || givenError;
@@ -278,6 +286,7 @@ export default function ReviewsPage() {
 
   const emptyStats = {
     pendingCount: 0,
+    urgentCount: 0,
     receivedCount: 0,
     givenCount: 0,
     averageRating: 0,

@@ -15,6 +15,7 @@ import styles from './ReviewStatsWidget.module.css';
 interface Props {
   stats: {
     pendingCount: number;
+    urgentCount?: number; // Reviews with ≤1 day remaining
     receivedCount: number;
     givenCount: number;
     averageRating: number;
@@ -48,6 +49,12 @@ export default function ReviewStatsWidget({ stats, averageRating }: Props) {
       value: stats.pendingCount,
       valueColor: stats.pendingCount > 0 ? 'orange' : 'default',
     },
+    // Show urgent reviews if there are any
+    ...(stats.urgentCount && stats.urgentCount > 0 ? [{
+      label: 'Urgent (≤1 day)',
+      value: stats.urgentCount,
+      valueColor: 'red' as const,
+    }] : []),
     {
       label: 'Reviews Received',
       value: stats.receivedCount,
