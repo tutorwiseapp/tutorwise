@@ -103,13 +103,11 @@ async function backfillScores(dryRun: boolean = false) {
 
       if (!dryRun) {
         try {
-          // Queue for recalculation
+          // Queue for recalculation (only profile_id - no priority/reason columns)
           const { error: queueError } = await supabase
             .from('caas_recalculation_queue')
             .insert({
               profile_id: profile.id,
-              priority: 'low',
-              reason: 'backfill',
             });
 
           if (queueError) {

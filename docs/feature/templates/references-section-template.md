@@ -254,18 +254,18 @@ npm test -- --coverage [feature]
 ### Quick Reference Card
 
 ```
-                                                             
-              [Feature Name] Quick Reference                  
-                                                             $
- Main Route:   /[route]                                      
- API Endpoint: /api/[feature]                                
- Database:     [table_name]                                  
- Component:    apps/web/.../feature/[name]/Component.tsx    
- Migration:    20241001_create_[table].sql                   
- Types:        packages/shared-types/src/[feature].ts       
- Docs:         Docs/feature/[feature-name]/                 
- Tests:        apps/web/.../__tests__/[feature].test.ts     
-                                                             
+
+              [Feature Name] Quick Reference                  
+$
+ Main Route:   /[route]                                      
+ API Endpoint: /api/[feature]                                
+ Database:     [table_name]                                  
+ Component:    apps/web/.../feature/[name]/Component.tsx    
+ Migration:    20241001_create_[table].sql                   
+ Types:        packages/shared-types/src/[feature].ts       
+ Docs:         Docs/feature/[feature-name]/                 
+ Tests:        apps/web/.../__tests__/[feature].test.ts     
+
 ```
 
 ### Common Commands

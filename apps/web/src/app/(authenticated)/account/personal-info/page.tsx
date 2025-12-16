@@ -24,6 +24,7 @@ import AccountHeroHeader from '@/app/components/feature/account/AccountHeroHeade
 import Button from '@/app/components/ui/actions/Button';
 import type { Profile } from '@/types';
 import toast from 'react-hot-toast';
+import { showScoreCelebration } from '@/app/components/ui/feedback/ScoreCelebrationToast';
 import styles from './page.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
@@ -34,9 +35,65 @@ export default function PersonalInfoPage() {
 
   const handleSave = async (updatedProfile: Partial<Profile>) => {
     try {
+      // Fetch previous CaaS score before saving
+      let previousScore = 0;
+      try {
+        const scoreResponse = await fetch(`/api/caas/${profile?.id}`);
+        if (scoreResponse.ok) {
+          const scoreData = await scoreResponse.json();
+          previousScore = scoreData.data?.total_score || 0;
+        }
+      } catch (err) {
+        console.log('[PersonalInfo] Could not fetch previous score:', err);
+      }
+
       await updateProfile(updatedProfile);
       await refreshProfile();
       toast.success('Profile updated successfully');
+
+      // Fetch new CaaS score after save and show celebration if improved
+      try {
+        // Wait a bit for CaaS recalculation
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        const newScoreResponse = await fetch(`/api/caas/${profile?.id}`);
+        if (newScoreResponse.ok) {
+          const newScoreData = await newScoreResponse.json();
+          const newScore = newScoreData.data?.total_score || 0;
+
+          // Show celebration if score improved
+          if (newScore > previousScore) {
+            // Determine improvement description based on what was updated
+            let improvement = 'Updated Personal Info';
+            if (updatedProfile.bio) improvement = 'Added Bio';
+            else if ('profile_picture_url' in updatedProfile) improvement = 'Added Profile Picture';
+            else if ('location' in updatedProfile) improvement = 'Added Location';
+
+            // Determine next step based on score
+            let nextStep = undefined;
+            if (newScore < 60) {
+              nextStep = {
+                label: 'Complete Professional Info',
+                href: '/account/professional-info',
+              };
+            } else if (newScore < 80) {
+              nextStep = {
+                label: 'Add More Details',
+                href: '/account/professional-info',
+              };
+            }
+
+            showScoreCelebration({
+              previousScore,
+              newScore,
+              improvement,
+              nextStep,
+            });
+          }
+        }
+      } catch (err) {
+        console.log('[PersonalInfo] Could not show score celebration:', err);
+      }
     } catch (error) {
       console.error('Error updating profile:', error);
       toast.error('Failed to update profile');

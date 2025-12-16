@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import type { Listing } from '@tutorwise/shared-types';
+import { useState, useCallback, useMemo } from 'react';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import type { MarketplaceItem } from '@/types/marketplace';
 import { parseSearchQuery, queryToFilters } from '@/lib/services/gemini';
+import { searchMarketplaceWithPagination, toMarketplaceItems } from '@/lib/api/marketplace';
 import HeroSection from '@/app/components/feature/marketplace/HeroSection';
 import FilterChips, { FilterState } from '@/app/components/feature/marketplace/FilterChips';
 import RoleBasedHomepage from '@/app/components/feature/marketplace/RoleBasedHomepage';
@@ -12,242 +13,95 @@ import type { SearchFilters } from '@/lib/services/savedSearches';
 import styles from './page.module.css';
 
 export default function YourHomePage() {
-  const [items, setItems] = useState<MarketplaceItem[]>([]); // Unified: profiles + listings
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [currentQuery, setCurrentQuery] = useState('');
-  const [offset, setOffset] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [total, setTotal] = useState(0);
-
-  const [filters, setFilters] = useState<FilterState>({
-    subjects: [],
-    levels: [],
-    locationType: null,
-    priceRange: { min: null, max: null },
-    freeTrialOnly: false,
-  });
-
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [advancedFilters, setAdvancedFilters] = useState<SearchFilters>({});
+  const [searchFilters, setSearchFilters] = useState<SearchFilters>({});
+  const [offset, setOffset] = useState(0);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [loadedItems, setLoadedItems] = useState<MarketplaceItem[]>([]);
 
-  // Memoized executeSearch function (resets listings and offset)
-  const executeSearch = useCallback(async (customFilters?: any, resetOffset = true) => {
-    setIsLoading(true);
-    if (resetOffset) {
-      setOffset(0);
+  // React Query: Fetch featured items (shown when not searching)
+  const {
+    data: featuredData,
+    isLoading: isFeaturedLoading,
+  } = useQuery({
+    queryKey: ['featured-items-your-home'],
+    queryFn: () => searchMarketplaceWithPagination({}, 0, 20),
+    placeholderData: keepPreviousData,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    enabled: !hasSearched,
+  });
+
+  // React Query: Fetch initial search results (shown when searching)
+  const {
+    data: searchData,
+    isLoading: isSearchLoading,
+  } = useQuery({
+    queryKey: ['marketplace-search-your-home', searchFilters],
+    queryFn: () => searchMarketplaceWithPagination(searchFilters, 0, 20),
+    placeholderData: keepPreviousData,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    enabled: hasSearched && Object.keys(searchFilters).length > 0,
+  });
+
+  // Combine data based on search state
+  const baseItems = useMemo(() => {
+    if (hasSearched && searchData) {
+      return toMarketplaceItems(searchData.profiles, searchData.listings);
     }
-
-    try {
-      const searchFilters = customFilters || {
-        subjects: filters.subjects.length > 0 ? filters.subjects : undefined,
-        levels: filters.levels.length > 0 ? filters.levels : undefined,
-        location_type: filters.locationType || undefined,
-        min_price: filters.priceRange.min || undefined,
-        max_price: filters.priceRange.max || undefined,
-        free_trial_only: filters.freeTrialOnly || undefined,
-      };
-
-      // Build query string
-      const params = new URLSearchParams();
-      if (searchFilters.subjects) {
-        params.append('subjects', searchFilters.subjects.join(','));
-      }
-      if (searchFilters.levels) {
-        params.append('levels', searchFilters.levels.join(','));
-      }
-      if (searchFilters.location_type) {
-        params.append('location_type', searchFilters.location_type);
-      }
-      if (searchFilters.location_city) {
-        params.append('location_city', searchFilters.location_city);
-      }
-      if (searchFilters.min_price) {
-        params.append('min_price', searchFilters.min_price.toString());
-      }
-      if (searchFilters.max_price) {
-        params.append('max_price', searchFilters.max_price.toString());
-      }
-      if (searchFilters.free_trial_only) {
-        params.append('free_trial_only', 'true');
-      }
-
-      // Always start at offset 0 for new searches
-      params.append('offset', '0');
-      params.append('limit', '20');
-
-      // Fetch both profiles and listings when searching
-      const [profilesRes, listingsRes] = await Promise.all([
-        fetch(`/api/marketplace/profiles?limit=10&offset=0`),
-        fetch(`/api/marketplace/search?${params.toString()}`),
-      ]);
-
-      const profilesData = await profilesRes.json();
-      const listingsData = await listingsRes.json();
-
-      // Merge into unified items
-      const profileItems: MarketplaceItem[] = (profilesData.profiles || []).map((profile: any) => ({
-        type: 'profile' as const,
-        data: profile,
-      }));
-
-      const listingItems: MarketplaceItem[] = (listingsData.listings || []).map((listing: any) => ({
-        type: 'listing' as const,
-        data: listing,
-      }));
-
-      const merged = interleaveItems(profileItems, listingItems);
-
-      setItems(merged);
-      setTotal((profilesData.total || 0) + (listingsData.total || 0));
-      setHasMore(merged.length === 20);
-      setOffset(20);
-    } catch (error) {
-      console.error('Search execution error:', error);
-    } finally {
-      setIsLoading(false);
+    if (featuredData) {
+      return toMarketplaceItems(featuredData.profiles, featuredData.listings);
     }
-  }, [filters]);
+    return [];
+  }, [hasSearched, searchData, featuredData]);
 
-  // Load More function for pagination
+  // Merge base items with paginated items
+  const items = useMemo(() => {
+    if (offset === 0 || !hasSearched) {
+      return baseItems;
+    }
+    return [...baseItems, ...loadedItems];
+  }, [baseItems, loadedItems, offset, hasSearched]);
+
+  const total = hasSearched && searchData
+    ? searchData.total
+    : featuredData
+    ? featuredData.total
+    : 0;
+
+  const isLoading = hasSearched ? isSearchLoading : isFeaturedLoading;
+  const hasMore = items.length < total;
+
+  // Manual pagination handler
   const loadMore = useCallback(async () => {
-    if (!hasMore || isLoadingMore) return;
+    if (!hasMore || isLoadingMore || isLoading) return;
 
     setIsLoadingMore(true);
     try {
-      const searchFilters = {
-        subjects: filters.subjects.length > 0 ? filters.subjects : undefined,
-        levels: filters.levels.length > 0 ? filters.levels : undefined,
-        location_type: filters.locationType || undefined,
-        min_price: filters.priceRange.min || undefined,
-        max_price: filters.priceRange.max || undefined,
-        free_trial_only: filters.freeTrialOnly || undefined,
-      };
+      const nextOffset = items.length;
+      const data = await searchMarketplaceWithPagination(
+        hasSearched ? searchFilters : {},
+        nextOffset,
+        20
+      );
 
-      const params = new URLSearchParams();
-      if (searchFilters.subjects) {
-        params.append('subjects', searchFilters.subjects.join(','));
-      }
-      if (searchFilters.levels) {
-        params.append('levels', searchFilters.levels.join(','));
-      }
-      if (searchFilters.location_type) {
-        params.append('location_type', searchFilters.location_type);
-      }
-      if (searchFilters.min_price) {
-        params.append('min_price', searchFilters.min_price.toString());
-      }
-      if (searchFilters.max_price) {
-        params.append('max_price', searchFilters.max_price.toString());
-      }
-      if (searchFilters.free_trial_only) {
-        params.append('free_trial_only', 'true');
-      }
-
-      params.append('offset', offset.toString());
-      params.append('limit', '20');
-
-      // Fetch more profiles and listings
-      const [profilesRes, listingsRes] = await Promise.all([
-        fetch(`/api/marketplace/profiles?limit=10&offset=${Math.floor(offset / 2)}`),
-        fetch(`/api/marketplace/search?${params.toString()}`),
-      ]);
-
-      const profilesData = await profilesRes.json();
-      const listingsData = await listingsRes.json();
-
-      const profileItems: MarketplaceItem[] = (profilesData.profiles || []).map((profile: any) => ({
-        type: 'profile' as const,
-        data: profile,
-      }));
-
-      const listingItems: MarketplaceItem[] = (listingsData.listings || []).map((listing: any) => ({
-        type: 'listing' as const,
-        data: listing,
-      }));
-
-      const newMerged = interleaveItems(profileItems, listingItems);
-
-      setItems([...items, ...newMerged]);
-      setHasMore(newMerged.length === 20);
-      setOffset(offset + newMerged.length);
+      const newItems = toMarketplaceItems(data.profiles, data.listings);
+      setLoadedItems([...loadedItems, ...newItems]);
+      setOffset(nextOffset);
     } catch (error) {
       console.error('Load more error:', error);
     } finally {
       setIsLoadingMore(false);
     }
-  }, [filters, offset, hasMore, isLoadingMore, items]);
-
-  // Load featured profiles and listings on initial page load
-  useEffect(() => {
-    const loadFeatured = async () => {
-      setIsLoading(true);
-      try {
-        // Fetch both profiles and listings in parallel
-        const [profilesRes, listingsRes] = await Promise.all([
-          fetch('/api/marketplace/profiles?limit=10&offset=0'),
-          fetch('/api/marketplace/search?limit=10&offset=0'),
-        ]);
-
-        const profilesData = await profilesRes.json();
-        const listingsData = await listingsRes.json();
-
-
-        // Merge profiles and listings into unified MarketplaceItem[]
-        const profileItems: MarketplaceItem[] = (profilesData.profiles || []).map((profile: any) => ({
-          type: 'profile' as const,
-          data: profile,
-        }));
-
-        const listingItems: MarketplaceItem[] = (listingsData.listings || []).map((listing: any) => ({
-          type: 'listing' as const,
-          data: listing,
-        }));
-
-        // Interleave profiles and listings for variety
-        const merged = interleaveItems(profileItems, listingItems);
-
-
-        setItems(merged);
-        setTotal((profilesData.total || 0) + (listingsData.total || 0));
-        setHasMore(merged.length === 20);
-        setOffset(20);
-
-      } catch (error) {
-        console.error('Failed to load featured items:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadFeatured();
-  }, []);
-
-  // Helper function to interleave profiles and listings (alternating pattern)
-  const interleaveItems = (profiles: MarketplaceItem[], listings: MarketplaceItem[]): MarketplaceItem[] => {
-    const result: MarketplaceItem[] = [];
-    const maxLength = Math.max(profiles.length, listings.length);
-
-    for (let i = 0; i < maxLength; i++) {
-      if (i < listings.length) result.push(listings[i]);
-      if (i < profiles.length) result.push(profiles[i]);
-    }
-
-    return result;
-  };
-
-  // Reload results when filters change
-  useEffect(() => {
-    if (hasSearched) {
-      executeSearch();
-    }
-  }, [filters, hasSearched, executeSearch]);
+  }, [hasMore, isLoadingMore, isLoading, items.length, hasSearched, searchFilters, loadedItems]);
 
   const handleSearch = async (query: string) => {
-    setCurrentQuery(query);
-    setIsLoading(true);
     setHasSearched(true);
+    setOffset(0);
+    setLoadedItems([]);
 
     try {
       // Parse the natural language query using AI
@@ -255,47 +109,20 @@ export default function YourHomePage() {
       console.log('Parsed query:', parsed);
 
       // Convert parsed query to filters
-      const searchFilters = queryToFilters(parsed);
-
-      // Update filter state
-      setFilters({
-        subjects: searchFilters.subjects || [],
-        levels: searchFilters.levels || [],
-        locationType: searchFilters.location_type || null,
-        priceRange: {
-          min: searchFilters.min_price || null,
-          max: searchFilters.max_price || null,
-        },
-        freeTrialOnly: searchFilters.free_trial_only || false,
-      });
-
-      // Execute the search
-      await executeSearch(searchFilters);
+      const filters = queryToFilters(parsed);
+      setSearchFilters(filters);
+      setAdvancedFilters(filters);
     } catch (error) {
       console.error('Search error:', error);
-    } finally {
-      setIsLoading(false);
     }
-  };
-
-  const handleFilterChange = (newFilters: FilterState) => {
-    setFilters(newFilters);
   };
 
   const handleAdvancedFiltersChange = (newFilters: SearchFilters) => {
     setAdvancedFilters(newFilters);
-
-    // Convert SearchFilters to FilterState
-    setFilters({
-      subjects: newFilters.subjects || [],
-      levels: newFilters.levels || [],
-      locationType: newFilters.location_type || null,
-      priceRange: {
-        min: newFilters.min_price || null,
-        max: newFilters.max_price || null,
-      },
-      freeTrialOnly: false, // Not in advanced filters yet
-    });
+    setSearchFilters(newFilters);
+    setHasSearched(true);
+    setOffset(0);
+    setLoadedItems([]);
   };
 
   // Calculate active filter count
@@ -306,49 +133,12 @@ export default function YourHomePage() {
     );
   }).length;
 
-  const handleReset = async () => {
+  const handleReset = () => {
     setHasSearched(false);
     setAdvancedFilters({});
-    setFilters({
-      subjects: [],
-      levels: [],
-      locationType: null,
-      priceRange: { min: null, max: null },
-      freeTrialOnly: false,
-    });
-
-    // Reload featured items
-    setIsLoading(true);
-    try {
-      const [profilesRes, listingsRes] = await Promise.all([
-        fetch('/api/marketplace/profiles?limit=10&offset=0'),
-        fetch('/api/marketplace/search?limit=10&offset=0'),
-      ]);
-
-      const profilesData = await profilesRes.json();
-      const listingsData = await listingsRes.json();
-
-      const profileItems: MarketplaceItem[] = (profilesData.profiles || []).map((profile: any) => ({
-        type: 'profile' as const,
-        data: profile,
-      }));
-
-      const listingItems: MarketplaceItem[] = (listingsData.listings || []).map((listing: any) => ({
-        type: 'listing' as const,
-        data: listing,
-      }));
-
-      const merged = interleaveItems(profileItems, listingItems);
-
-      setItems(merged);
-      setTotal((profilesData.total || 0) + (listingsData.total || 0));
-      setHasMore(merged.length === 20);
-      setOffset(20);
-    } catch (error) {
-      console.error('Failed to reload featured items:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    setSearchFilters({});
+    setOffset(0);
+    setLoadedItems([]);
   };
 
   return (

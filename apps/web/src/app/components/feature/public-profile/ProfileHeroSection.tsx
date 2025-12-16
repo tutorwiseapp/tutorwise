@@ -246,9 +246,9 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
           <div className={styles.credibilityBadge}>
             <span className={styles.scoreValue}>
               <Award size={16} />
-              CaaS Score: {profile.credibility_score || 0}/100
+              CaaS Score: {profile.caas_score || 0}/100
             </span>
-            {profile.credibility_score && profile.credibility_score >= 80 && (
+            {profile.caas_score && profile.caas_score >= 80 && (
               <span className={styles.topBadge}>Top 10%</span>
             )}
           </div>

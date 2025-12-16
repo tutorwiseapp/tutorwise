@@ -17,7 +17,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
@@ -25,7 +25,8 @@ import { PendingLogsWidget } from '@/app/components/feature/dashboard/PendingLog
 import KPIGrid, { KPIData } from '@/app/components/feature/dashboard/widgets/KPIGrid';
 import EarningsTrendChart, { WeeklyEarnings } from '@/app/components/feature/dashboard/widgets/EarningsTrendChart';
 import BookingCalendarHeatmap, { DayBooking } from '@/app/components/feature/dashboard/widgets/BookingCalendarHeatmap';
-import HelpCard from '@/app/components/feature/dashboard/widgets/HelpCard';
+import ProfileGrowthWidget from '@/app/components/feature/dashboard/widgets/ProfileGrowthWidget';
+import FirstLoginModal from '@/app/components/feature/dashboard/FirstLoginModal';
 import TipsCard from '@/app/components/feature/dashboard/widgets/TipsCard';
 import MessagesWidget from '@/app/components/feature/dashboard/widgets/MessagesWidget';
 import PayoutWidget from '@/app/components/feature/dashboard/widgets/PayoutWidget';
@@ -43,6 +44,7 @@ const DashboardPage = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'overview' | 'analytics'>('overview');
   const [showActionsMenu, setShowActionsMenu] = useState(false);
+  const [showFirstLoginModal, setShowFirstLoginModal] = useState(false);
 
   // React Query: Fetch KPI data with automatic retry, caching, and background refetch
   const {
@@ -55,7 +57,7 @@ const DashboardPage = () => {
       if (!response.ok) throw new Error('Failed to fetch KPIs');
       return response.json();
     },
-    enabled: !!profile && !isLoading,
+    placeholderData: keepPreviousData,
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -71,7 +73,7 @@ const DashboardPage = () => {
       if (!response.ok) throw new Error('Failed to fetch earnings trend');
       return response.json();
     },
-    enabled: !!profile && !isLoading,
+    placeholderData: keepPreviousData,
     staleTime: 3 * 60 * 1000, // 3 minutes (less frequently changing)
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
@@ -87,7 +89,7 @@ const DashboardPage = () => {
       if (!response.ok) throw new Error('Failed to fetch booking heatmap');
       return response.json();
     },
-    enabled: !!profile && !isLoading,
+    placeholderData: keepPreviousData,
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -103,7 +105,7 @@ const DashboardPage = () => {
       if (!response.ok) throw new Error('Failed to fetch student breakdown');
       return response.json();
     },
-    enabled: !!profile && !isLoading,
+    placeholderData: keepPreviousData,
     staleTime: 3 * 60 * 1000, // 3 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
@@ -119,7 +121,8 @@ const DashboardPage = () => {
       if (!response.ok) throw new Error('Failed to fetch profile views trend');
       return response.json();
     },
-    enabled: !!profile && !isLoading && activeTab === 'analytics',
+    enabled: activeTab === 'analytics',
+    placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
@@ -135,7 +138,8 @@ const DashboardPage = () => {
       if (!response.ok) throw new Error('Failed to fetch referrer sources');
       return response.json();
     },
-    enabled: !!profile && !isLoading && activeTab === 'analytics',
+    enabled: activeTab === 'analytics',
+    placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
@@ -154,6 +158,55 @@ const DashboardPage = () => {
       return;
     }
   }, [isLoading, profile, needsOnboarding, router]);
+
+  // Check for first dashboard visit and show welcome modal
+  useEffect(() => {
+    async function checkFirstVisit() {
+      if (!profile || isLoading) return;
+
+      // Check if this is the first dashboard visit
+      const preferences = profile.preferences as any;
+      const hasSeenDashboardWelcome = preferences?.dashboard_welcome_seen;
+
+      if (!hasSeenDashboardWelcome && (profile as any).onboarding_completed) {
+        // Show modal after a short delay for better UX
+        setTimeout(() => {
+          setShowFirstLoginModal(true);
+        }, 500);
+      }
+    }
+
+    checkFirstVisit();
+  }, [profile, isLoading]);
+
+  // Handle first login modal close - mark as seen
+  const handleFirstLoginModalClose = async () => {
+    setShowFirstLoginModal(false);
+
+    if (!profile) return;
+
+    try {
+      const { createClient } = await import('@/utils/supabase/client');
+      const supabase = createClient();
+
+      // Update preferences to mark dashboard welcome as seen
+      const currentPreferences = (profile.preferences as any) || {};
+      const updatedPreferences = {
+        ...currentPreferences,
+        dashboard_welcome_seen: true,
+        dashboard_welcome_seen_at: new Date().toISOString(),
+      };
+
+      await supabase
+        .from('profiles')
+        .update({ preferences: updatedPreferences })
+        .eq('id', profile.id);
+
+      console.log('[Dashboard] First login modal dismissed and marked as seen');
+    } catch (error) {
+      console.error('[Dashboard] Error marking first login modal as seen:', error);
+    }
+  };
 
   // Show loading while checking authentication and onboarding status
   if (isLoading || !profile || needsOnboarding) {
@@ -260,14 +313,24 @@ const DashboardPage = () => {
   };
 
   return (
-    <HubPageLayout
-      header={
-        <HubHeader
-          title={getDashboardTitle()}
-          subtitle={`Welcome, ${firstName} (${getFormattedRole()})`}
-          actions={getHeaderActions()}
-        />
-      }
+    <>
+      {/* First Login Welcome Modal - Track B Phase 1.2 */}
+      <FirstLoginModal
+        isOpen={showFirstLoginModal}
+        onClose={handleFirstLoginModalClose}
+        userName={firstName}
+        role={(activeRole === 'student' ? 'client' : activeRole) as 'tutor' | 'client' | 'agent' || 'tutor'}
+        currentScore={profile.caas_score || 0}
+      />
+
+      <HubPageLayout
+        header={
+          <HubHeader
+            title={getDashboardTitle()}
+            subtitle={`Welcome, ${firstName} (${getFormattedRole()})`}
+            actions={getHeaderActions()}
+          />
+        }
       tabs={
         <HubTabs
           tabs={[
@@ -279,12 +342,10 @@ const DashboardPage = () => {
       }
       sidebar={
         <HubSidebar>
-          {/* Help Card - Role-specific next steps */}
-          <HelpCard
+          {/* Profile Growth Widget - Unified CaaS Score + Getting Started */}
+          <ProfileGrowthWidget
+            userId={profile.id}
             role={activeRole === 'client' ? 'client' : activeRole === 'agent' ? 'agent' : 'tutor'}
-            profileCompleteness={75} // TODO: Calculate from profile data
-            hasListings={false} // TODO: Get from API
-            hasBookings={kpiData ? (kpiData.completedSessionsThisMonth > 0 || kpiData.upcomingSessions > 0) : false}
           />
 
           {/* Tips Card - Role-specific actionable tips */}
@@ -412,6 +473,7 @@ const DashboardPage = () => {
         </>
       )}
     </HubPageLayout>
+    </>
   );
 };
 

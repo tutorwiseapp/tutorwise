@@ -2,15 +2,16 @@
  * Filename: src/app/api/webhooks/stripe/route.ts
  * Purpose: Handles Stripe webhook events with idempotency and DLQ support
  * Created: 2025-11-02
- * Updated: 2025-11-11 - v4.9: Added payout event handling and production hardening
- * Specification: SDD v4.9, Section 3.1 & 3.3 - Payment & Payout Processing
+ * Updated: 2025-12-15 - v7.0: Added subscription event handling for Organisation Premium
+ * Specification: SDD v7.0, Section 3.1, 3.3, 5.2 - Payment, Payout & Subscription Processing
  * Change Summary:
  * - v3.6: Calls handle_successful_payment RPC for atomic commission splits
  * - v4.9: Adds stripe_checkout_id for idempotency, DLQ for failed webhooks
  * - v4.9: Added payout event handlers (paid, failed, canceled, updated)
  * - v4.9: Production hardening with comprehensive logging and error handling
+ * - v7.0: Added subscription event handlers (created, updated, deleted, invoice succeeded/failed)
  *
- * CRITICAL: This endpoint handles real-time payment and payout status updates.
+ * CRITICAL: This endpoint handles real-time payment, payout, and subscription status updates.
  * All operations must be idempotent and properly logged.
  */
 import { NextRequest, NextResponse } from 'next/server';
@@ -288,6 +289,173 @@ export async function POST(req: NextRequest) {
           console.error(`[WEBHOOK:PAYOUT] Failed to update transaction:`, updateError);
           // Non-critical error for status updates
         }
+
+        break;
+      }
+
+      // v7.0: Organisation Premium subscription event handlers
+      case 'customer.subscription.created': {
+        const subscription = event.data.object as Stripe.Subscription;
+        console.log(`[WEBHOOK:SUBSCRIPTION] Subscription created: ${subscription.id}`);
+
+        const organisationId = subscription.metadata?.organisation_id;
+
+        if (!organisationId) {
+          console.error('[WEBHOOK:SUBSCRIPTION] No organisation_id in subscription metadata');
+          throw new Error('Missing organisation_id in subscription metadata');
+        }
+
+        const supabase = await createClient();
+
+        // Create organisation_subscriptions record
+        const { error: insertError } = await supabase
+          .from('organisation_subscriptions')
+          .insert({
+            organisation_id: organisationId,
+            stripe_subscription_id: subscription.id,
+            stripe_customer_id: subscription.customer as string,
+            status: subscription.status,
+            trial_start: (subscription as any).trial_start
+              ? new Date((subscription as any).trial_start * 1000).toISOString()
+              : null,
+            trial_end: (subscription as any).trial_end
+              ? new Date((subscription as any).trial_end * 1000).toISOString()
+              : null,
+            current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
+            current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
+            cancel_at_period_end: (subscription as any).cancel_at_period_end,
+          });
+
+        if (insertError) {
+          console.error('[WEBHOOK:SUBSCRIPTION] Failed to create subscription record:', insertError);
+          throw insertError;
+        }
+
+        console.log(`[WEBHOOK:SUBSCRIPTION] Created subscription record for organisation ${organisationId}`);
+        break;
+      }
+
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object as Stripe.Subscription;
+        console.log(`[WEBHOOK:SUBSCRIPTION] Subscription updated: ${subscription.id}`, {
+          status: subscription.status,
+          cancel_at_period_end: (subscription as any).cancel_at_period_end,
+        });
+
+        const supabase = await createClient();
+
+        // Update subscription status in database
+        const { error: updateError } = await supabase
+          .from('organisation_subscriptions')
+          .update({
+            status: subscription.status,
+            trial_start: (subscription as any).trial_start
+              ? new Date((subscription as any).trial_start * 1000).toISOString()
+              : null,
+            trial_end: (subscription as any).trial_end
+              ? new Date((subscription as any).trial_end * 1000).toISOString()
+              : null,
+            current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
+            current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
+            cancel_at_period_end: (subscription as any).cancel_at_period_end,
+            canceled_at: subscription.canceled_at
+              ? new Date(subscription.canceled_at * 1000).toISOString()
+              : null,
+          })
+          .eq('stripe_subscription_id', subscription.id);
+
+        if (updateError) {
+          console.error('[WEBHOOK:SUBSCRIPTION] Failed to update subscription:', updateError);
+          throw updateError;
+        }
+
+        console.log(`[WEBHOOK:SUBSCRIPTION] Updated subscription ${subscription.id}`);
+        break;
+      }
+
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object as Stripe.Subscription;
+        console.log(`[WEBHOOK:SUBSCRIPTION] Subscription deleted: ${subscription.id}`);
+
+        const supabase = await createClient();
+
+        // Mark subscription as canceled
+        const { error: updateError } = await supabase
+          .from('organisation_subscriptions')
+          .update({
+            status: 'canceled',
+            canceled_at: new Date().toISOString(),
+          })
+          .eq('stripe_subscription_id', subscription.id);
+
+        if (updateError) {
+          console.error('[WEBHOOK:SUBSCRIPTION] Failed to mark subscription as canceled:', updateError);
+          throw updateError;
+        }
+
+        console.log(`[WEBHOOK:SUBSCRIPTION] Marked subscription ${subscription.id} as canceled`);
+        break;
+      }
+
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object as Stripe.Invoice;
+        console.log(`[WEBHOOK:SUBSCRIPTION] Invoice payment succeeded: ${invoice.id}`);
+
+        // Check if this is a subscription invoice
+        if (!(invoice as any).subscription) {
+          console.log('[WEBHOOK:SUBSCRIPTION] Invoice is not for a subscription, skipping');
+          break;
+        }
+
+        const supabase = await createClient();
+
+        // Ensure subscription status is 'active' (trial → active conversion)
+        const { error: updateError } = await supabase
+          .from('organisation_subscriptions')
+          .update({
+            status: 'active',
+          })
+          .eq('stripe_subscription_id', (invoice as any).subscription as string)
+          .in('status', ['trialing', 'past_due']); // Only update if trialing or recovering from past_due
+
+        if (updateError) {
+          console.error('[WEBHOOK:SUBSCRIPTION] Failed to update subscription to active:', updateError);
+          // Non-critical - subscription.updated event will also sync status
+        }
+
+        console.log(`[WEBHOOK:SUBSCRIPTION] Confirmed subscription ${(invoice as any).subscription} is active`);
+        break;
+      }
+
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object as Stripe.Invoice;
+        console.error(`[WEBHOOK:SUBSCRIPTION] Invoice payment failed: ${invoice.id}`);
+
+        // Check if this is a subscription invoice
+        if (!(invoice as any).subscription) {
+          console.log('[WEBHOOK:SUBSCRIPTION] Invoice is not for a subscription, skipping');
+          break;
+        }
+
+        const supabase = await createClient();
+
+        // Update subscription status to 'past_due'
+        const { error: updateError } = await supabase
+          .from('organisation_subscriptions')
+          .update({
+            status: 'past_due',
+          })
+          .eq('stripe_subscription_id', (invoice as any).subscription as string);
+
+        if (updateError) {
+          console.error('[WEBHOOK:SUBSCRIPTION] Failed to update subscription to past_due:', updateError);
+          throw updateError;
+        }
+
+        console.log(`[WEBHOOK:SUBSCRIPTION] Marked subscription ${(invoice as any).subscription} as past_due`);
+
+        // TODO: Send email notification to organisation owner about failed payment
+        // Can be implemented later with email service integration
 
         break;
       }

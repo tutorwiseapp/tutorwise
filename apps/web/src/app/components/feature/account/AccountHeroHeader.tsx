@@ -42,7 +42,7 @@ export default function AccountHeroHeader({ actions }: AccountHeroHeaderProps) {
   const fullName = profile.full_name || 'User';
   const role = profile.active_role || 'member';
   const location = profile.country || 'Location not set';
-  const credibilityScore = profile.credibility_score || 0;
+  const caasScore = profile.caas_score || 0;
 
   return (
     <div className={styles.header}>
@@ -67,7 +67,7 @@ export default function AccountHeroHeader({ actions }: AccountHeroHeaderProps) {
             <div className={styles.credibilityRow}>
               <span className={styles.credibilityBadge}>
                 <Award size={14} />
-                CaaS Score: {credibilityScore}/100
+                CaaS Score: {caasScore}/100
               </span>
             </div>
 

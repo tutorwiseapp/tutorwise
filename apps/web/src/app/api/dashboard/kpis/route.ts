@@ -102,9 +102,9 @@ export async function GET(request: NextRequest) {
       // 7. CaaS score from caas_scores table
       supabase
         .from('caas_scores')
-        .select('overall_score')
+        .select('total_score')
         .eq('profile_id', user.id)
-        .order('created_at', { ascending: false })
+        .order('calculated_at', { ascending: false })
         .limit(1)
         .single(),
     ]);
@@ -205,7 +205,7 @@ export async function GET(request: NextRequest) {
     const reviewsGiven = ratingsGiven.length;
 
     // Process CaaS score
-    const caasScore = caasResult.data?.overall_score || 0;
+    const caasScore = caasResult.data?.total_score || 0;
 
     // Build KPI response
     const kpis = {

@@ -68,16 +68,19 @@ export class CaaSService {
       let primaryRole: CaaSRole;
       let version: string;
 
-      if (profile.roles.includes('TUTOR')) {
+      // Convert roles to uppercase for comparison (database stores lowercase)
+      const upperRoles = profile.roles.map((r) => r.toUpperCase());
+
+      if (upperRoles.includes('TUTOR')) {
         primaryRole = 'TUTOR';
         version = CaaSVersions.TUTOR;
-      } else if (profile.roles.includes('CLIENT')) {
+      } else if (upperRoles.includes('CLIENT')) {
         primaryRole = 'CLIENT';
         version = CaaSVersions.CLIENT;
-      } else if (profile.roles.includes('AGENT')) {
+      } else if (upperRoles.includes('AGENT')) {
         primaryRole = 'AGENT';
         version = CaaSVersions.AGENT;
-      } else if (profile.roles.includes('STUDENT')) {
+      } else if (upperRoles.includes('STUDENT')) {
         primaryRole = 'STUDENT';
         version = CaaSVersions.STUDENT;
       } else {

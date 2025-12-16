@@ -1,10 +1,11 @@
 # Organisation (My Organisation)
 
-**Status**: Active
-**Last Code Update**: 2025-12-03
-**Last Doc Update**: 2025-12-12
+**Status**: Active (Premium Subscription - v7.0)
+**Last Code Update**: 2025-12-15
+**Last Doc Update**: 2025-12-15
 **Priority**: High (Tier 2 - Agency/School Management)
 **Architecture**: Virtual Entity Multi-Tenant System
+**Business Model**: £50/month Premium Subscription (14-day free trial)
 
 ## Quick Links
 - [Solution Design](./organisation-solution-design.md) - Complete architecture, database schema, integration points
@@ -16,6 +17,23 @@
 The Organisation feature enables tutoring agencies, schools, and institutions to manage teams of tutors/teachers and aggregate client data under a unified organization account. This implements a **Virtual Entity** architecture where organisations are special-purpose connection groups owned by users with the agent role, eliminating the need for separate organizational authentication while providing enterprise-level features.
 
 **Key Innovation**: Instead of creating a complex separate "Organisation User Type," we upgrade the existing Network Groups system (v4.4) to support "Business Identities." An organisation is simply a special type of group (`connection_groups.type = 'organisation'`) that owns branding, invites members, and aggregates data.
+
+### v7.0: Premium Subscription Model
+
+**Business Model**: Organisation management is a **Premium feature** (£50/month) with 14-day free trial.
+
+**Why Premium?**
+- Agents already receive marketplace features for free (listings, bookings, commission processing)
+- Organisation management + team analytics provides enterprise-grade value
+- Unlimited team members, client aggregation, and performance analytics justify the price
+
+**Trial Flow**:
+1. Agent creates organisation (free marketplace features already available)
+2. Visit `/organisation` → See "Start 14-Day Free Trial" screen
+3. Click trial button → Redirected to Stripe Checkout
+4. Complete checkout → 14 days of full access (no credit card required)
+5. Add payment method before trial ends → Auto-converts to paid subscription
+6. No payment method added → Subscription canceled, access blocked
 
 ## Key Features
 
@@ -51,31 +69,48 @@ The Organisation feature enables tutoring agencies, schools, and institutions to
 
 ## Implementation Status
 
-### ✅ Completed (v6.1)
-- Organization creation (agent role required)
-- Member management (invite, remove, manage)
-- Commission rate system (default + overrides)
-- Analytics dashboard (revenue, students, sessions)
-- Team tab with member cards
-- Clients tab with aggregated students
-- Info tab with organization settings
-- Verification document tracking (DBS, ID)
-- Internal notes per member
-- Search and filtering
-- Pagination (4 items per page)
-- CSV export
-- Empty state handling
-- Hub layout integration (v3.2)
+### ✅ Completed (v7.0 - Premium Subscription)
+**Phase 1: Stripe Infrastructure (2025-12-15)**
+- ✅ Subscription database schema (`organisation_subscriptions` table)
+- ✅ Stripe subscription service layer (trial signup, cancellation, reactivation)
+- ✅ Webhook handlers (subscription created/updated/deleted, invoice succeeded/failed)
+- ✅ Access guard on `/organisation` page (blocks non-Premium users)
+- ✅ SubscriptionRequired component (trial signup UI)
+- ✅ API route for trial checkout (`/api/stripe/checkout/trial`)
+- ✅ 14-day free trial flow (no credit card required)
 
-### 🚧 In Progress
-- Public organization profiles (`/organisation/[slug]`)
-- Advanced role-based access (beyond owner)
-- Organization groups/sub-teams
+**Core Features (v6.1)**
+- ✅ Organization creation (agent role required)
+- ✅ Member management (invite, remove, manage)
+- ✅ Commission rate system (default + overrides)
+- ✅ Analytics dashboard (revenue, students, sessions)
+- ✅ Team tab with member cards
+- ✅ Clients tab with aggregated students
+- ✅ Info tab with organization settings
+- ✅ Verification document tracking (DBS, ID)
+- ✅ Internal notes per member
+- ✅ Search and filtering
+- ✅ Pagination (4 items per page)
+- ✅ CSV export
+- ✅ Empty state handling
+- ✅ Hub layout integration (v3.2)
+
+**Phase 2: Performance Analytics Tab (2025-12-15)**
+- ✅ Database RPC functions for analytics aggregation (5 functions)
+- ✅ 5 API routes for analytics data (KPIs, revenue trend, team performance, heatmap, student breakdown)
+- ✅ Performance tab component with comprehensive data display
+- ✅ 4th "Performance" tab integration
+- ✅ Period selector (month, quarter, year)
+- ✅ KPI cards (revenue, students, sessions, ratings)
+- ✅ Revenue trend visualization (6-week chart)
+- ✅ Team performance comparison table
+- ✅ Student breakdown by subject
 
 ### 📋 Planned (Future Enhancements)
-- Unified billing at organization level
-- Advanced analytics (conversion funnels, trends)
-- Multi-role support (admin, manager, tutor)
+- Public organization profiles (`/organisation/[slug]`)
+- Advanced role-based access (admin, manager, tutor)
+- Organization groups/sub-teams
+- Email notifications (trial ending, payment failed, receipt)
 - Organization-level branding (white-label)
 - Automated onboarding workflows for new members
 
@@ -446,6 +481,18 @@ WHERE gm.group_id = :org_id AND pg.relationship_type = 'GUARDIAN';
 
 | Date | Version | Description |
 |------|---------|-------------|
+| 2025-12-15 | v7.0 | **PHASE 2 COMPLETE**: Performance Analytics Tab fully implemented |
+| 2025-12-15 | v7.0 | - Added 5 database RPC functions for analytics aggregation |
+| 2025-12-15 | v7.0 | - Created 5 API routes (KPIs, revenue trend, team performance, heatmap, student breakdown) |
+| 2025-12-15 | v7.0 | - Built Performance tab component with comprehensive data display |
+| 2025-12-15 | v7.0 | - Integrated 4th "Performance" tab into organisation hub |
+| 2025-12-15 | v7.0 | **PHASE 1 COMPLETE**: Stripe subscription infrastructure |
+| 2025-12-15 | v7.0 | - Created `organisation_subscriptions` table with RLS policies |
+| 2025-12-15 | v7.0 | - Built subscription service layer (trial signup, cancellation, sync) |
+| 2025-12-15 | v7.0 | - Extended webhook handler with 5 subscription event handlers |
+| 2025-12-15 | v7.0 | - Added access guard to block non-Premium users |
+| 2025-12-15 | v7.0 | - Created SubscriptionRequired component (trial signup UI) |
+| 2025-12-15 | v7.0 | - API route for trial checkout (`/api/stripe/checkout/trial`) |
 | 2025-12-12 | v6.1 | Documentation complete with comprehensive guides |
 | 2025-12-03 | v6.1 | Migrated Team and Clients tabs to HubEmptyState |
 | 2025-11-29 | v6.1 | Migrated to Hub Layout Architecture |
@@ -453,7 +500,8 @@ WHERE gm.group_id = :org_id AND pg.relationship_type = 'GUARDIAN';
 
 ---
 
-**Last Updated**: 2025-12-12
-**Version**: v6.1
-**Status**: Active - Feature Complete
-**Architecture**: Virtual Entity Multi-Tenant System
+**Last Updated**: 2025-12-15
+**Version**: v7.0 (Premium Subscription - COMPLETE)
+**Status**: ✅ Active - All v7.0 features complete (Phase 1 & 2)
+**Architecture**: Virtual Entity Multi-Tenant System with Performance Analytics
+**Business Model**: £50/month Premium Subscription (14-day free trial)

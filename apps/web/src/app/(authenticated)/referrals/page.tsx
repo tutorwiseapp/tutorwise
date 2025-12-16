@@ -13,7 +13,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getMyReferrals } from '@/lib/api/referrals';
 import ReferralCard from '@/app/components/feature/referrals/ReferralCard';
@@ -68,9 +68,9 @@ export default function ReferralsPage() {
   } = useQuery({
     queryKey: ['referrals', profile?.id],
     queryFn: getMyReferrals,
-    enabled: !!profile && !profileLoading,
     staleTime: 5 * 60 * 1000, // 5 minutes (referrals change less frequently)
     gcTime: 10 * 60 * 1000, // 10 minutes
+    placeholderData: keepPreviousData, // Show cached data instantly while refetching
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });

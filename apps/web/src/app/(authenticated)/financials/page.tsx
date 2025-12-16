@@ -12,7 +12,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getFinancials } from '@/lib/api/financials';
 import TransactionCard from '@/app/components/feature/financials/TransactionCard';
@@ -57,7 +57,7 @@ export default function TransactionsPage() {
   } = useQuery({
     queryKey: ['financials', profile?.id],
     queryFn: getFinancials,
-    enabled: !!profile && !profileLoading,
+    placeholderData: keepPreviousData,
     staleTime: 30 * 1000, // 30 seconds
     gcTime: 5 * 60 * 1000, // 5 minutes
     retry: 2,

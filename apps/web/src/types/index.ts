@@ -58,7 +58,7 @@ export interface Profile {
   teaching_experience?: number | null; // Years of teaching experience
   degree_level?: 'BACHELORS' | 'MASTERS' | 'PHD' | 'NONE' | null; // Highest degree level
   bio_video_url?: string | null; // v5.5 CaaS: Credibility Clip - 30s intro video URL
-  credibility_score?: number | null; // v5.5 CaaS: Credibility Score (0-100)
+  caas_score?: number | null; // v5.5 CaaS: Current CaaS (Credibility as a Service) score (0-100) - synced from caas_scores table
   // v5.9: Free Help Now
   available_free_help?: boolean; // Whether tutor is currently offering free help sessions
   // Role-based statistics (calculated, not stored)
@@ -84,7 +84,10 @@ export interface Profile {
   created_at: string;
   preferences?: Record<string, any>;
   onboarding_progress?: OnboardingProgress;
+  // Role-specific professional details (from role_details table)
+  // Populated by UserProfileContext from role_details JOIN
   professional_details?: ProfessionalDetails;
+  role_details?: RoleDetailsData[]; // Raw array from database JOIN (transformed into professional_details)
 }
 
 export type Role = 'client' | 'tutor' | 'agent' | 'student'; // v5.0: Added student role
@@ -189,10 +192,39 @@ export interface OnboardingProgressResponse {
 
 /**
  * ==================================================================
- * Professional Details & Other Data Structures
+ * Role Details (from role_details database table)
+ * Note: This data is stored in a separate role_details table, not on the profile
+ * One row per profile-role combination (e.g., one for tutor, one for client)
  * ==================================================================
  */
 
+// Type for the role_details table data
+export interface RoleDetailsData {
+  id: string;
+  profile_id: string;
+  role_type: 'client' | 'tutor' | 'agent';
+  subjects?: string[];
+  skill_levels?: Record<string, number>;
+  goals?: string[];
+  learning_style?: string;
+  budget_range?: { min: number; max: number; currency: string };
+  schedule_preferences?: any;
+  previous_experience?: boolean;
+  teaching_experience?: any;
+  qualifications?: any;
+  availability?: any;
+  hourly_rate?: number;
+  teaching_methods?: string[];
+  professional_background?: string;
+  commission_preferences?: any;
+  created_at: string;
+  updated_at: string;
+  completed_at?: string;
+  specializations?: string[];
+}
+
+// Deprecated: Use RoleDetailsData instead
+// Keeping for backward compatibility with existing components
 export interface ProfessionalDetails {
   tutor?: Partial<TutorProfessionalInfo>;
   agent?: Partial<AgentProfessionalInfo>;

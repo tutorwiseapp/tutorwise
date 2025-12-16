@@ -64,7 +64,7 @@ const EarningsTrendChart = memo(function EarningsTrendChart({
       </div>
 
       <ResponsiveContainer width="100%" height={250}>
-        <LineChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+        <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
           <XAxis
             dataKey="week"

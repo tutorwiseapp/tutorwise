@@ -17,7 +17,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import {
@@ -25,9 +25,12 @@ import {
   getOrganisationMembers,
   getOrganisationStats,
   getOrganisationClients,
+  getOrganisationSubscription,
   createOrganisation,
   removeMember,
 } from '@/lib/api/organisation';
+import { isPremium } from '@/lib/stripe/subscription-utils';
+import type { OrganisationSubscription } from '@/lib/stripe/subscription-utils';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import OrganisationStatsWidget from '@/app/components/feature/organisation/OrganisationStatsWidget';
 import OrganisationHelpWidget from '@/app/components/feature/organisation/OrganisationHelpWidget';
@@ -38,7 +41,9 @@ import OrganisationInfoTab from '@/app/components/feature/organisation/Organisat
 import ManageMemberModal from '@/app/components/feature/organisation/ManageMemberModal';
 import MemberCard from '@/app/components/feature/organisation/MemberCard';
 import OrganisationStudentCard from '@/app/components/feature/organisation/OrganisationStudentCard';
+import OrganisationPerformanceTab from '@/app/components/feature/organisation/OrganisationPerformanceTab';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
+import SubscriptionRequired from '@/app/components/feature/organisation/SubscriptionRequired';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import Button from '@/app/components/ui/actions/Button';
@@ -48,7 +53,7 @@ import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 import type { OrganisationMember } from '@/lib/api/organisation';
 
-type TabType = 'team' | 'clients' | 'info';
+type TabType = 'team' | 'clients' | 'performance' | 'info';
 type SortType = 'newest' | 'oldest' | 'name-asc' | 'name-desc';
 
 const ITEMS_PER_PAGE = 4;
@@ -76,9 +81,21 @@ export default function OrganisationPage() {
   } = useQuery({
     queryKey: ['organisation', profile?.id],
     queryFn: getMyOrganisation,
-    enabled: !!profile && !profileLoading,
+    placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
+  });
+
+  // Fetch subscription status (v7.0: Check Premium access)
+  const {
+    data: subscription,
+    isLoading: subscriptionLoading,
+  } = useQuery({
+    queryKey: ['organisation-subscription', organisation?.id],
+    queryFn: () => getOrganisationSubscription(organisation!.id),
+    enabled: !!organisation,
+    placeholderData: keepPreviousData,
+    staleTime: 2 * 60 * 1000,
   });
 
   // Fetch members (only if organisation exists)
@@ -90,6 +107,7 @@ export default function OrganisationPage() {
     queryKey: ['organisation-members', organisation?.id],
     queryFn: () => getOrganisationMembers(organisation!.id),
     enabled: !!organisation,
+    placeholderData: keepPreviousData,
     staleTime: 2 * 60 * 1000,
   });
 
@@ -101,6 +119,7 @@ export default function OrganisationPage() {
     queryKey: ['organisation-stats', organisation?.id],
     queryFn: () => getOrganisationStats(organisation!.id),
     enabled: !!organisation,
+    placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -112,6 +131,7 @@ export default function OrganisationPage() {
     queryKey: ['organisation-clients', organisation?.id],
     queryFn: () => getOrganisationClients(organisation!.id),
     enabled: !!organisation && activeTab === 'clients',
+    placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -346,6 +366,34 @@ export default function OrganisationPage() {
     });
   };
 
+  const handleStartTrial = async () => {
+    if (!organisation) {
+      toast.error('Organisation not found');
+      return;
+    }
+
+    try {
+      // Call API to create Stripe Checkout Session
+      const response = await fetch('/api/stripe/checkout/trial', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ organisationId: organisation.id }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
+      }
+
+      const { url } = await response.json();
+
+      // Redirect to Stripe Checkout
+      window.location.href = url;
+    } catch (error) {
+      console.error('Error starting trial:', error);
+      toast.error('Failed to start trial. Please try again.');
+    }
+  };
+
   // Loading state
   if (profileLoading || orgLoading) {
     return (
@@ -396,6 +444,33 @@ export default function OrganisationPage() {
             <Button onClick={() => refetchOrg()}>Retry</Button>
           </div>
         </div>
+      </HubPageLayout>
+    );
+  }
+
+  // v7.0: Subscription check - Block access if no active subscription
+  if (organisation && !subscriptionLoading && !isPremium(subscription || null)) {
+    return (
+      <HubPageLayout
+        header={<HubHeader title="Organisation" />}
+        sidebar={
+          <HubSidebar>
+            <OrganisationStatsWidget
+              teamSize={stats?.team_size || 0}
+              totalClients={stats?.total_clients || 0}
+              monthlyRevenue={stats?.monthly_revenue || 0}
+            />
+            <OrganisationHelpWidget />
+            <OrganisationTipWidget />
+            <OrganisationVideoWidget />
+          </HubSidebar>
+        }
+      >
+        <SubscriptionRequired
+          organisation={organisation}
+          subscription={subscription || null}
+          onStartTrial={handleStartTrial}
+        />
       </HubPageLayout>
     );
   }
@@ -592,6 +667,7 @@ export default function OrganisationPage() {
           tabs={[
             { id: 'team', label: 'Team', count: members.length, active: activeTab === 'team' },
             { id: 'clients', label: 'Clients', count: clients.length, active: activeTab === 'clients' },
+            { id: 'performance', label: 'Performance', active: activeTab === 'performance' },
             { id: 'info', label: 'Organisation Info', active: activeTab === 'info' },
           ]}
           onTabChange={handleTabChange}
@@ -696,6 +772,13 @@ export default function OrganisationPage() {
               </>
             )}
           </>
+        )}
+
+        {/* Performance Tab */}
+        {activeTab === 'performance' && (
+          <div className={styles.content}>
+            <OrganisationPerformanceTab organisationId={organisation.id} />
+          </div>
         )}
 
         {/* Info Tab */}

@@ -93,7 +93,7 @@ function HubFormField({
       >
         {children}
       </div>
-      {error && <span className={styles.error}>{error}</span>}
+      {error && typeof error === 'string' && <span className={styles.error}>{error}</span>}
     </div>
   );
 }

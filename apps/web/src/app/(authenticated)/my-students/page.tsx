@@ -14,7 +14,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getMyStudents, removeStudent } from '@/lib/api/students';
 import type { StudentLink } from '@/types';
@@ -61,9 +61,9 @@ export default function MyStudentsPage() {
   } = useQuery({
     queryKey: ['students', profile?.id],
     queryFn: getMyStudents,
-    enabled: !!profile && !profileLoading,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
+    placeholderData: keepPreviousData, // Show cached data instantly while refetching
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });

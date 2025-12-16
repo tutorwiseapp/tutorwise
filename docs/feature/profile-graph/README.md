@@ -1,14 +1,95 @@
 # Profile Graph
 
 **Status**: Active (v4.6)
-**Last Updated**: 2025-12-12
+**Last Updated**: 2025-12-13
 **Priority**: High (Tier 1 - Foundation for Network, Students, Referrals, Reviews)
 **Architecture**: Unified Relationship Management with Graph Structure
 
-## Quick Links
-- [Solution Design](./profile-graph-solution-design.md) - Complete architecture (v4.6)
-- [Implementation Guide](./profile-graph-implementation.md) - Code examples
-- [AI Prompt Context](./profile-graph-prompt.md) - AI assistant guidance
+---
+
+## How to Navigate This Documentation
+
+**We have 4 documents**. Choose your reading path based on your role:
+
+### 🎯 For Product Managers / Stakeholders
+**Goal**: Understand business value and system architecture
+
+**Recommended Path** (25 min read):
+1. **Start here** → [README.md](./README.md) (this file) - Overview and use cases
+2. [Solution Design v2](./profile-graph-solution-design-v2.md) ⭐ - Read sections:
+   - Executive Summary
+   - Problem Statement (Before/After)
+   - Five Relationship Types Explained
+   - Integration Points
+
+**Skip**: Database schema details, RLS policies, migration strategy
+
+---
+
+### 👨‍💻 For Backend Engineers
+**Goal**: Understand implementation and extend the system
+
+**Recommended Path** (1.5 hour read):
+1. **Start here** → [README.md](./README.md) - Quick overview
+2. [Solution Design v2](./profile-graph-solution-design-v2.md) ⭐ - Complete architecture
+3. [Implementation Guide v2](./profile-graph-implementation-v2.md) ⭐ - Architecture patterns and extension guide
+4. **Optional**: [Solution Design v1](./profile-graph-solution-design.md) 📦 - Code implementation details
+
+**Focus on**: Architecture patterns, how to add relationship types, testing strategies, deployment checklist
+
+---
+
+### 🤖 For AI Assistants (Claude Code, Copilot)
+**Goal**: Generate accurate code and understand constraints
+
+**Recommended Path** (12 min read):
+1. **Start here** → [AI Prompt Context v2](./profile-graph-prompt-v2.md) ⭐ - Quick reference + DO/DON'Ts
+2. [README.md](./README.md) - Use case examples
+3. **Optional**: [AI Prompt Context v1](./profile-graph-prompt.md) 📦 - Code snippets
+
+**Focus on**: Relationship types, DO/DON'T section, common patterns, file references
+
+---
+
+### 📊 Document Index
+
+| # | Document | Purpose | Length | Audience |
+|---|----------|---------|--------|----------|
+| 1 | [README.md](./README.md) | Overview + use cases + navigation | ~450 lines | Everyone |
+| 2 | [Solution Design v2](./profile-graph-solution-design-v2.md) ⭐ | Complete architecture (hybrid descriptive) | ~1,450 lines | PM, Engineers |
+| 3 | [Implementation Guide v2](./profile-graph-implementation-v2.md) ⭐ | Developer guide (pattern-focused) | ~650 lines | Engineers |
+| 4 | [AI Prompt Context v2](./profile-graph-prompt-v2.md) ⭐ | AI assistant reference (simplified) | ~450 lines | AI tools |
+| 5 | [Documentation Review](./profile-graph-documentation-review.md) | Quality audit + v2 roadmap | ~800 lines | Documentation maintainers |
+| 6 | [Solution Design v1](./profile-graph-solution-design.md) 📦 | Legacy architecture (code snippets) | ~728 lines | Reference only |
+| 7 | [Implementation Guide v1](./profile-graph-implementation.md) 📦 | Legacy developer guide | ~259 lines | Reference only |
+| 8 | [AI Prompt Context v1](./profile-graph-prompt.md) 📦 | Legacy AI reference | ~401 lines | Reference only |
+
+⭐ = **Recommended v2 documentation** (created 2025-12-13, hybrid descriptive approach)
+📦 = **Legacy v1 documentation** (retained for code snippet reference only)
+
+**Total**: 4 v2 documents + 3 v1 legacy + 1 review document
+
+---
+
+## Quick Links by Document Type
+
+### ⭐ Recommended Documentation (v2 - Descriptive Style)
+- [Solution Design v2](./profile-graph-solution-design-v2.md) ⭐ - Comprehensive architecture with worked examples, tables, and ASCII diagrams
+- [Implementation Guide v2](./profile-graph-implementation-v2.md) ⭐ - Pattern-focused developer guide with practical scenarios
+- [AI Prompt Context v2](./profile-graph-prompt-v2.md) ⭐ - Simplified AI assistant guidance with DO/DON'Ts
+
+### 📊 Documentation Quality
+- [Documentation Review](./profile-graph-documentation-review.md) - Quality audit and v2 roadmap (2025-12-13)
+
+### 📦 Legacy Reference (v1 - Code Snippets)
+- [Solution Design v1](./profile-graph-solution-design.md) 📦 - Architecture with TypeScript/SQL code examples
+- [Implementation Guide v1](./profile-graph-implementation.md) 📦 - Developer guide with code blocks
+- [AI Prompt Context v1](./profile-graph-prompt.md) 📦 - AI guidance with code snippets
+
+⭐ = **Recommended v2 documentation** (created 2025-12-13, hybrid descriptive approach)
+📦 = **Legacy v1 documentation** (retained for code snippet reference only)
+
+**Note**: v2 documents focus on concepts and patterns; v1 documents provide code implementation details
 
 ---
 

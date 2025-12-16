@@ -11,7 +11,7 @@
 import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { updateProfile } from '@/lib/api/profiles';
+import { updateProfile, updateRoleDetails } from '@/lib/api/profiles';
 import ProfessionalInfoForm from '@/app/components/feature/account/ProfessionalInfoForm';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import AccountCard from '@/app/components/feature/account/AccountCard';
@@ -24,6 +24,7 @@ import AccountHeroHeader from '@/app/components/feature/account/AccountHeroHeade
 import Button from '@/app/components/ui/actions/Button';
 import type { Profile } from '@/types';
 import toast from 'react-hot-toast';
+import { showScoreCelebration } from '@/app/components/ui/feedback/ScoreCelebrationToast';
 import styles from './page.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
@@ -34,9 +35,98 @@ export default function ProfessionalPage() {
 
   const handleSave = async (updatedProfile: Partial<Profile>) => {
     try {
-      await updateProfile(updatedProfile);
+      // Fetch previous CaaS score before saving
+      let previousScore = 0;
+      try {
+        const scoreResponse = await fetch(`/api/caas/${profile?.id}`);
+        if (scoreResponse.ok) {
+          const scoreData = await scoreResponse.json();
+          previousScore = scoreData.data?.total_score || 0;
+        }
+      } catch (err) {
+        console.log('[ProfessionalInfo] Could not fetch previous score:', err);
+      }
+
+      // Check if the update contains role-specific data (professional_details)
+      if (updatedProfile.professional_details) {
+        // Extract role type from active role
+        const roleType = profile?.active_role || 'tutor';
+
+        // Get the role-specific data
+        const roleData = updatedProfile.professional_details[roleType as keyof typeof updatedProfile.professional_details];
+
+        if (roleData) {
+          // Save to role_details table
+          await updateRoleDetails(roleType as 'tutor' | 'client' | 'agent', roleData as any);
+        }
+
+        // Remove professional_details from the update object since it's not a profiles table column
+        const { professional_details, ...profileUpdates } = updatedProfile;
+
+        // Update other profile fields if any
+        if (Object.keys(profileUpdates).length > 0) {
+          await updateProfile(profileUpdates);
+        }
+      } else {
+        // No role-specific data, just update profile
+        await updateProfile(updatedProfile);
+      }
+
       await refreshProfile();
       toast.success('Profile updated successfully');
+
+      // Fetch new CaaS score after save and show celebration if improved
+      try {
+        // Wait a bit for CaaS recalculation
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        const newScoreResponse = await fetch(`/api/caas/${profile?.id}`);
+        if (newScoreResponse.ok) {
+          const newScoreData = await newScoreResponse.json();
+          const newScore = newScoreData.data?.total_score || 0;
+
+          // Show celebration if score improved
+          if (newScore > previousScore) {
+            // Determine improvement description based on what was updated
+            let improvement = 'Updated Professional Info';
+            if (updatedProfile.professional_details) {
+              const roleType = profile?.active_role || 'tutor';
+              const roleData = updatedProfile.professional_details[roleType as keyof typeof updatedProfile.professional_details];
+
+              if (roleType === 'tutor' && roleData) {
+                const tutorData = roleData as any;
+                if (tutorData.qualifications) improvement = 'Added Qualifications';
+                else if (tutorData.certifications?.length > 0) improvement = 'Added Certifications';
+                else if (tutorData.subjects?.length > 0) improvement = 'Added Teaching Subjects';
+                else if (tutorData.hourly_rate) improvement = 'Set Hourly Rate';
+              }
+            }
+
+            // Determine next step based on score
+            let nextStep = undefined;
+            if (newScore < 60) {
+              nextStep = {
+                label: 'Complete Personal Info',
+                href: '/account/personal-info',
+              };
+            } else if (newScore < 80) {
+              nextStep = {
+                label: 'Add More Details',
+                href: '/account/professional-info',
+              };
+            }
+
+            showScoreCelebration({
+              previousScore,
+              newScore,
+              improvement,
+              nextStep,
+            });
+          }
+        }
+      } catch (err) {
+        console.log('[ProfessionalInfo] Could not show score celebration:', err);
+      }
     } catch (error) {
       console.error('Error updating profile:', error);
       toast.error('Failed to update profile');

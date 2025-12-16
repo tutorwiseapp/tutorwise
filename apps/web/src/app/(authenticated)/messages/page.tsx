@@ -8,7 +8,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getConversations } from '@/lib/api/messages';
 import { useAblyPresenceBroadcast } from '@/app/hooks/useAblyPresence';
@@ -47,7 +47,7 @@ export default function MessagesPage() {
   } = useQuery({
     queryKey: ['conversations', profile?.id],
     queryFn: getConversations,
-    enabled: !!profile && !profileLoading,
+    placeholderData: keepPreviousData,
     staleTime: Infinity,
     gcTime: 5 * 60 * 1000,
     retry: 2,

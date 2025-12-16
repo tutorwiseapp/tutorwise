@@ -2,6 +2,11 @@
 
 import styles from './page.module.css';
 
+/**
+ * Help Centre page
+ * Currently a placeholder - when real content is added, consider using React Query
+ * with placeholderData: keepPreviousData for loading optimization
+ */
 export default function HelpCentrePage() {
   return (
     <div className={styles.container}>

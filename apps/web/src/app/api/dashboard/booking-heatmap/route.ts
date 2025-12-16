@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     endDate.setDate(now.getDate() + days);
 
     // Fetch all bookings in the next N days
-    const { data: bookings, error: bookingsError } = await supabase
+    const { data: bookings, error: bookingsError} = await supabase
       .from('bookings')
       .select('session_start_time, session_duration')
       .or(`client_id.eq.${user.id},tutor_id.eq.${user.id},agent_id.eq.${user.id},student_id.eq.${user.id}`)

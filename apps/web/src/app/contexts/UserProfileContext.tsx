@@ -4,7 +4,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import type { Profile, OnboardingProgress, Role } from '@/types';
+import type { Profile, OnboardingProgress, Role, RoleDetailsData, ProfessionalDetails, TutorProfessionalInfo, ClientProfessionalInfo, AgentProfessionalInfo } from '@/types';
 import type { User } from '@supabase/supabase-js';
 import { useFreeHelpHeartbeat } from '@/app/hooks/useFreeHelpHeartbeat';
 
@@ -36,6 +36,57 @@ interface UserProfileContextType {
 }
 
 const UserProfileContext = createContext<UserProfileContextType | undefined>(undefined);
+
+/**
+ * Transform role_details array from database JOIN into professional_details object
+ * This bridges the gap between role_details table storage and component expectations
+ */
+function transformRoleDetailsToProfileDetails(roleDetails: RoleDetailsData[] | null | undefined): ProfessionalDetails {
+  const professional_details: ProfessionalDetails = {};
+
+  if (!roleDetails || !Array.isArray(roleDetails)) {
+    return professional_details;
+  }
+
+  roleDetails.forEach((rd) => {
+    if (rd.role_type === 'tutor') {
+      professional_details.tutor = {
+        subjects: rd.subjects || [],
+        hourly_rate: rd.hourly_rate,
+        availability: rd.availability,
+        qualifications: rd.qualifications?.education || rd.qualifications,
+        experience_level: rd.qualifications?.experience_level,
+        certifications: rd.qualifications?.certifications || [],
+        teaching_methods: rd.teaching_methods || [],
+        professional_background: rd.professional_background,
+        teaching_experience: rd.teaching_experience,
+      } as TutorProfessionalInfo;
+    } else if (rd.role_type === 'client') {
+      professional_details.client = {
+        subjects: rd.subjects || [],
+        goals: rd.goals || [],
+        learning_style: rd.learning_style,
+        skill_levels: rd.skill_levels ? Object.keys(rd.skill_levels) : [],
+        budget_range: rd.budget_range
+          ? `${rd.budget_range.min}-${rd.budget_range.max}`
+          : undefined,
+        schedule_preferences: rd.schedule_preferences,
+        previous_experience: rd.previous_experience ? 'Yes' : 'No',
+        availability: rd.availability,
+      } as ClientProfessionalInfo;
+    } else if (rd.role_type === 'agent') {
+      professional_details.agent = {
+        subjects: rd.subjects || [],
+        specializations: rd.specializations || [],
+        professional_background: rd.professional_background,
+        commission_preferences: rd.commission_preferences,
+        availability: rd.availability,
+      } as AgentProfessionalInfo;
+    }
+  });
+
+  return professional_details;
+}
 
 export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
   const supabase = createClient();
@@ -152,7 +203,10 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
       console.log('[UserProfileContext] Refreshing profile...');
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select(`
+          *,
+          role_details!role_details_profile_id_fkey(*)
+        `)
         .eq('id', user.id)
         .single();
 
@@ -161,9 +215,21 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
         return null;
       }
 
-      console.log('[UserProfileContext] Profile refreshed:', data);
-      setProfile(data);
-      return data;
+      console.log('[UserProfileContext] Profile refreshed:', {
+        id: data.id,
+        email: data.email,
+        full_name: data.full_name,
+        caas_score: data.caas_score,
+      });
+
+      // Transform role_details array into professional_details object
+      const enrichedProfile: Profile = {
+        ...data,
+        professional_details: transformRoleDetailsToProfileDetails(data.role_details),
+      };
+
+      setProfile(enrichedProfile);
+      return enrichedProfile;
     } catch (error) {
       console.error('[UserProfileContext] Unexpected error refreshing profile:', error);
       return null;
@@ -208,7 +274,10 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
         try {
           const { data, error } = await supabaseClient
             .from('profiles')
-            .select('*')
+            .select(`
+              *,
+              role_details!role_details_profile_id_fkey(*)
+            `)
             .eq('id', sessionUser.id)
             .single();
 
@@ -225,11 +294,19 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
               first_name: data?.first_name,
               last_name: data?.last_name,
               full_name: data?.full_name,
+              caas_score: data?.caas_score,
               hasFirstName: !!data?.first_name,
               hasLastName: !!data?.last_name
             });
-            setProfile(data);
-            initializeRole(data);
+
+            // Transform role_details array into professional_details object
+            const enrichedProfile: Profile = {
+              ...data,
+              professional_details: transformRoleDetailsToProfileDetails(data.role_details),
+            };
+
+            setProfile(enrichedProfile);
+            initializeRole(enrichedProfile);
           }
         } catch (error) {
           console.error('[UserProfileContext] Unexpected error fetching profile:', error);

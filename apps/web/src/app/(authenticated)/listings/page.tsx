@@ -9,7 +9,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { getMyListings, deleteListing, publishListing, unpublishListing } from '@/lib/api/listings';
@@ -19,8 +19,8 @@ import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/componen
 import type { HubTab } from '@/app/components/hub/layout';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import styles from './page.module.css';
-import filterStyles from './filters.module.css';
-import actionStyles from './actions.module.css';
+import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
+import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 import ListingCard from './ListingCard';
 import ListingStatsWidget from '@/app/components/feature/listings/ListingStatsWidget';
 import ListingHelpWidget from '@/app/components/feature/listings/ListingHelpWidget';
@@ -59,9 +59,9 @@ export default function ListingsPage() {
   } = useQuery({
     queryKey: ['listings', user?.id],
     queryFn: getMyListings,
-    enabled: !!user && !userLoading,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
+    placeholderData: keepPreviousData, // Show cached data instantly while refetching
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
@@ -362,7 +362,7 @@ export default function ListingsPage() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortType)}
-                className={filterStyles.sortSelect}
+                className={filterStyles.filterSelect}
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>

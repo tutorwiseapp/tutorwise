@@ -8,7 +8,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getMyConnections, acceptConnection, rejectConnection, removeConnection } from '@/lib/api/network';
 import { Connection } from '@/app/components/feature/network/ConnectionCard';
@@ -56,9 +56,9 @@ export default function NetworkPage() {
   } = useQuery({
     queryKey: ['connections', profile?.id],
     queryFn: getMyConnections,
-    enabled: !!profile && !profileLoading,
     staleTime: 2 * 60 * 1000, // 2 minutes (connections change frequently with realtime)
     gcTime: 5 * 60 * 1000, // 5 minutes
+    placeholderData: keepPreviousData, // Show cached data instantly while refetching
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });

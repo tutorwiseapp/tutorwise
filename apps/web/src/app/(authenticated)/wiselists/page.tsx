@@ -9,7 +9,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import WiselistCard from '@/app/components/feature/wiselists/WiselistCard';
 import SavedItemCard from '@/app/components/feature/wiselists/SavedItemCard';
 import CreateWiselistModal from '@/app/components/feature/wiselists/CreateWiselistModal';
@@ -56,6 +56,7 @@ export default function WiselistsPage() {
   } = useQuery({
     queryKey: ['wiselists'],
     queryFn: getMyWiselists,
+    placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
     retry: 2,
@@ -75,6 +76,7 @@ export default function WiselistsPage() {
     queryKey: ['wiselist', mySavesWiselist?.id],
     queryFn: () => getWiselist(mySavesWiselist!.id),
     enabled: !!mySavesWiselist?.id && activeTab === 'my-saves',
+    placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });

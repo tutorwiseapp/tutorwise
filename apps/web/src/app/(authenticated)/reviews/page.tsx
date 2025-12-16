@@ -10,7 +10,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getPendingReviewTasks, getReceivedReviews, getGivenReviews, submitReview } from '@/lib/api/reviews';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
@@ -61,9 +61,9 @@ export default function ReviewsPage() {
   } = useQuery({
     queryKey: ['reviews', 'pending', profile?.id],
     queryFn: getPendingReviewTasks,
-    enabled: !!profile && !profileLoading,
     staleTime: 2 * 60 * 1000,
     gcTime: 5 * 60 * 1000,
+    placeholderData: keepPreviousData,
     retry: 2,
   });
 
@@ -76,9 +76,9 @@ export default function ReviewsPage() {
   } = useQuery({
     queryKey: ['reviews', 'received', profile?.id],
     queryFn: getReceivedReviews,
-    enabled: !!profile && !profileLoading,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
+    placeholderData: keepPreviousData,
     retry: 2,
   });
 
@@ -91,9 +91,9 @@ export default function ReviewsPage() {
   } = useQuery({
     queryKey: ['reviews', 'given', profile?.id],
     queryFn: getGivenReviews,
-    enabled: !!profile && !profileLoading,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
+    placeholderData: keepPreviousData,
     retry: 2,
   });
 

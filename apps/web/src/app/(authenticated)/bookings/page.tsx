@@ -9,7 +9,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getMyBookings, cancelBooking } from '@/lib/api/bookings';
 import BookingCard from '@/app/components/feature/bookings/BookingCard';
@@ -57,9 +57,9 @@ export default function BookingsPage() {
   } = useQuery({
     queryKey: ['bookings', profile?.id, activeRole],
     queryFn: () => getMyBookings(),
-    enabled: !!profile && !profileLoading,
     staleTime: 2 * 60 * 1000, // 2 minutes (bookings change more frequently)
     gcTime: 5 * 60 * 1000, // 5 minutes
+    placeholderData: keepPreviousData, // Show cached data instantly while refetching
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });

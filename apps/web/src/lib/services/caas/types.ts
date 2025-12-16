@@ -16,9 +16,9 @@ export interface CaaSProfile {
   roles: string[]; // Changed from 'role' to match actual schema (text[] array)
   identity_verified: boolean;
   dbs_verified: boolean | null;
-  dbs_expiry: string | null;
-  qualifications: string[] | null; // text[] array of qualifications (e.g., ['QTS', 'PGCE'])
-  teaching_experience: number | null; // Years of experience
+  dbs_expiry_date: string | null; // Fixed: actual column name is dbs_expiry_date
+  qualifications: any | null; // JSONB from role_details (education, certifications, etc.)
+  teaching_experience: any | null; // JSONB from role_details
   degree_level: 'BACHELORS' | 'MASTERS' | 'PHD' | 'NONE' | null;
   created_at: string;
   bio_video_url: string | null; // v5.5: "Credibility Clip" URL
@@ -32,9 +32,10 @@ export interface CaaSProfile {
  */
 export interface PerformanceStats {
   avg_rating: number; // 0-5, average of all review ratings
-  completed_sessions: number; // Count of completed bookings
+  completed_sessions: number; // Count of completed bookings (paid sessions only)
   retention_rate: number; // 0-1, percentage of clients who booked >1 time
   manual_session_log_rate: number; // 0-1, percentage of offline sessions logged
+  completed_free_sessions_count: number; // v5.9: Count of completed free help sessions
 }
 
 /**
@@ -105,6 +106,7 @@ export const defaultPerformanceStats: PerformanceStats = {
   completed_sessions: 0,
   retention_rate: 0,
   manual_session_log_rate: 0,
+  completed_free_sessions_count: 0,
 };
 
 export const defaultNetworkStats: NetworkStats = {

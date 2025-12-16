@@ -5,6 +5,7 @@
  */
 
 import { createClient } from '@/utils/supabase/client';
+import type { OrganisationSubscription } from '@/lib/stripe/subscription-utils';
 
 export interface Organisation {
   id: string;
@@ -629,4 +630,30 @@ export async function getOrganisationClients(organisationId: string): Promise<an
   });
 
   return clients;
+}
+
+/**
+ * Get organisation subscription status (client-safe)
+ */
+export async function getOrganisationSubscription(
+  organisationId: string
+): Promise<OrganisationSubscription | null> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('organisation_subscriptions')
+    .select('*')
+    .eq('organisation_id', organisationId)
+    .single();
+
+  if (error) {
+    // No subscription exists (new organisation)
+    if (error.code === 'PGRST116') {
+      return null;
+    }
+    console.error('Error fetching organisation subscription:', error);
+    throw error;
+  }
+
+  return data as OrganisationSubscription;
 }

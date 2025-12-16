@@ -267,9 +267,19 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
   // Update form data when profile changes
   useEffect(() => {
-    const agentData = profile.professional_details?.agent;
-    const tutorData = profile.professional_details?.tutor;
-    const clientData = profile.professional_details?.client;
+    // Transform role_details array to professional_details format for backward compatibility
+    const roleDetailsArray = (profile as any).role_details || [];
+    const professionalDetails: any = {};
+    roleDetailsArray.forEach((rd: any) => {
+      professionalDetails[rd.role_type] = rd;
+    });
+
+    // Merge with existing professional_details if any (for backward compatibility)
+    const combined = { ...professionalDetails, ...profile.professional_details };
+
+    const agentData = combined?.agent;
+    const tutorData = combined?.tutor;
+    const clientData = combined?.client;
 
     setFormData(prev => ({
       ...prev,
@@ -847,7 +857,9 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     // Display value handling for different field types
     const displayValue = Array.isArray(fieldValue)
       ? (fieldValue.length > 0 ? fieldValue.join(', ') : '')
-      : fieldValue;
+      : (typeof fieldValue === 'object' && fieldValue !== null)
+        ? ''  // Don't render objects directly
+        : fieldValue;
 
     return (
       <HubForm.Field

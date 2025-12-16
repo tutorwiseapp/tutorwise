@@ -11,7 +11,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import {
   getPaymentData,
@@ -53,7 +53,7 @@ const PaymentsPageContent = () => {
     } = useQuery({
         queryKey: ['payments', profile?.id, profile?.stripe_customer_id],
         queryFn: () => getPaymentData(profile?.stripe_customer_id),
-        enabled: !!profile && !isProfileLoading,
+        placeholderData: keepPreviousData,
         staleTime: 30 * 1000, // 30 seconds
         gcTime: 5 * 60 * 1000, // 5 minutes
         retry: 2,

@@ -11,7 +11,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getPayouts } from '@/lib/api/financials';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
@@ -54,7 +54,7 @@ export default function PayoutsPage() {
   } = useQuery({
     queryKey: ['payouts', profile?.id],
     queryFn: getPayouts,
-    enabled: !!profile && !profileLoading,
+    placeholderData: keepPreviousData,
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 5 * 60 * 1000, // 5 minutes
   });
