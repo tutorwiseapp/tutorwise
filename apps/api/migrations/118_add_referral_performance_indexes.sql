@@ -128,7 +128,7 @@ COMMENT ON INDEX idx_profiles_referral_source IS
 
 CREATE INDEX IF NOT EXISTS idx_transactions_profile_id_type_status
 ON transactions(profile_id, type, status)
-WHERE type IN ('commission_earned', 'commission_payout');
+WHERE type IN ('Referral Commission', 'Tutoring Payout');
 
 COMMENT ON INDEX idx_transactions_profile_id_type_status IS
   'Composite index for wallet queries: commission earnings and payouts.';

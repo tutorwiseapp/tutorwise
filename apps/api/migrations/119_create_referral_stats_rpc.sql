@@ -49,7 +49,7 @@ BEGIN
     -- Sum of all completed commission transactions
     COALESCE(
       SUM(t.amount) FILTER (
-        WHERE t.type = 'commission_earned'
+        WHERE t.type = 'Referral Commission'
           AND t.status = 'completed'
       ),
       0
