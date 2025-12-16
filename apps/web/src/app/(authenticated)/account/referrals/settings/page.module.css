@@ -1,0 +1,26 @@
+/**
+ * Filename: page.module.css
+ * Purpose: Styles for referral settings page
+ * Created: 2025-12-16
+ */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  color: #718096;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+}

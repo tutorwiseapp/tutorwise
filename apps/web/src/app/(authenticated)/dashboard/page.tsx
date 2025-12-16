@@ -33,6 +33,7 @@ import PayoutWidget from '@/app/components/feature/dashboard/widgets/PayoutWidge
 import StudentTypeBreakdown, { StudentTypeData } from '@/app/components/feature/dashboard/widgets/StudentTypeBreakdown';
 import ProfileViewsTrendChart, { DailyViews } from '@/app/components/feature/dashboard/widgets/ProfileViewsTrendChart';
 import ReferrerSourcesChart, { ReferrerData } from '@/app/components/feature/dashboard/widgets/ReferrerSourcesChart';
+import ReferralDashboardWidget from '@/app/components/feature/dashboard/widgets/ReferralDashboardWidget';
 import { KPISkeleton, ChartSkeleton, WidgetSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import Button from '@/app/components/ui/actions/Button';
@@ -411,6 +412,16 @@ const DashboardPage = () => {
 
       {/* Actionable Widgets Section */}
       <div className={styles.actionableWidgets}>
+        {/* Referral Dashboard Widget - for agents only */}
+        {activeRole === 'agent' && profile.referral_code && (
+          <ErrorBoundary>
+            <ReferralDashboardWidget
+              agentId={profile.id}
+              referralCode={profile.referral_code}
+            />
+          </ErrorBoundary>
+        )}
+
         {/* Pending Actions for tutors/agents */}
         {(activeRole === 'tutor' || activeRole === 'agent') && (
           <ErrorBoundary>
