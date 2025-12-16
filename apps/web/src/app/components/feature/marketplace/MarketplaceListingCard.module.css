@@ -126,18 +126,19 @@
   }
 }
 
-/* Verification Badge - Center */
+/* Verification Badge - Next to Save Button */
 .verificationBadge {
   position: absolute;
   top: 12px;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 56px; /* 12px (save button right) + 32px (save button width) + 12px (gap) = 56px from right */
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(8px);
-  padding: 4px 8px;
-  border-radius: 12px;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   z-index: 2;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);

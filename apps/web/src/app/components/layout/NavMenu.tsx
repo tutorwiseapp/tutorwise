@@ -118,6 +118,9 @@ const NavMenu = () => {
                   <Link href="/dashboard">Dashboard</Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item asChild className={styles.menuItem}>
+                  <Link href="/developer/api-keys">Developer</Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item asChild className={styles.menuItem}>
                   <Link href="/help-centre">Help Centre</Link>
                 </DropdownMenu.Item>
 
