@@ -1,0 +1,329 @@
+/**
+ * Filename: ProfileGrowthWidget.module.css
+ * Purpose: Styles for unified CaaS Score + Getting Started widget
+ * Created: 2025-12-15
+ */
+
+/* Header Section - Standard Hub Card Pattern */
+.header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #E6F0F0; /* Teal header - standard */
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Content Section - Standard 16px padding */
+.content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Loading & Error States */
+.loading,
+.error {
+  text-align: center;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.error {
+  color: #ef4444;
+}
+
+/* Score Section */
+.scoreSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+}
+
+.scoreCircle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.scoreCircle::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  opacity: 0.1;
+  background: currentColor;
+}
+
+.scoreNumber {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: white;
+  position: relative;
+  z-index: 1;
+}
+
+.scoreOutOf {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+  opacity: 0.9;
+  position: relative;
+  z-index: 1;
+}
+
+/* Score Colors */
+.scorePoor {
+  background: #dc2626;
+  color: #dc2626;
+}
+
+.scoreFair {
+  background: #f97316;
+  color: #f97316;
+}
+
+.scoreGood {
+  background: #3b82f6;
+  color: #3b82f6;
+}
+
+.scoreExcellent {
+  background: #10b981;
+  color: #10b981;
+}
+
+/* Star Rating */
+.starRating {
+  display: flex;
+  gap: 4px;
+  font-size: 1.25rem;
+}
+
+.starFilled {
+  color: #fbbf24;
+}
+
+.starEmpty {
+  color: #d1d5db;
+}
+
+/* Score Description */
+.scoreDescription {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.6;
+  text-align: center;
+  margin: 0;
+  padding: 0 16px;
+}
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 8px 0;
+}
+
+/* Progress Section */
+.progressSection {
+  padding: 8px 0;
+}
+
+.progressText {
+  font-size: 14px;
+  font-weight: 600;
+  color: #006c67; /* teal brand color */
+  line-height: 1.6;
+  margin: 0;
+  text-align: center;
+}
+
+/* Next Step Section */
+.nextStepSection {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nextStepLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.nextStepTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.nextStepDescription {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* All Complete State */
+.allComplete {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+
+.allCompleteText {
+  font-size: 13px;
+  color: #166534;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Expandable Section */
+.expandableSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.expandToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  padding: 8px 0 8px 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.expandToggle:hover {
+  color: #006c67;
+}
+
+.expandIcon {
+  font-size: 12px;
+  color: #6b7280;
+  transition: transform 0.2s;
+}
+
+.expandToggle[aria-expanded="true"] .expandIcon {
+  transform: rotate(0deg);
+}
+
+/* Steps List */
+.stepsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stepItem {
+  margin: 0;
+}
+
+.stepLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.stepLink:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateX(2px);
+}
+
+.stepLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.stepNumber {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stepTitle {
+  font-size: 13px;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.stepPoints {
+  background: #d1fae5;
+  color: #166534;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+/* Footer */
+.footer {
+  padding-top: 8px;
+  text-align: center;
+}
+
+.footerLink {
+  font-size: 12px;
+  color: #006c67;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.footerLink:hover {
+  color: #005a55;
+  text-decoration: underline;
+}

@@ -1,0 +1,293 @@
+/**
+ * Filename: CaaSScoreWidget.module.css
+ * Purpose: Styles for CaaS Score Widget
+ * Design: Teal header + score display + easy wins list (Hub Complex Card pattern)
+ * Created: 2025-12-15
+ *
+ * Pattern: Title + Content
+ * - Teal header (#E6F0F0)
+ * - Standard 16px padding for content
+ * - Prominent score display with color coding
+ * - Actionable easy wins list with CTAs
+ *
+ * Note: Container styles (shadow, border, radius) provided by HubComplexCard
+ */
+
+/* Title Section */
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  padding: 12px 16px;
+  margin: 0;
+  line-height: 1.4;
+  background-color: #E6F0F0; /* Teal header */
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Main Container */
+.container {
+  /* No padding - HubComplexCard pattern */
+}
+
+/* Loading & Error States */
+.loading,
+.error {
+  padding: 32px 16px;
+  text-align: center;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.error {
+  color: #dc2626;
+}
+
+/* Score Section */
+.scoreSection {
+  padding: 20px 16px;
+  text-align: center;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.scoreCircle {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-bottom: 12px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.scoreNumber {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.scoreOutOf {
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.7;
+}
+
+/* Score Color Variants */
+.scoreExcellent {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+}
+
+.scoreGood {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: #ffffff;
+}
+
+.scoreFair {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff;
+}
+
+.scorePoor {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+}
+
+/* Star Rating */
+.starRating {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  margin-bottom: 8px;
+  font-size: 20px;
+}
+
+.starFilled {
+  color: #f59e0b;
+}
+
+.starEmpty {
+  color: #d1d5db;
+}
+
+/* Score Description */
+.scoreDescription {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 220px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Easy Wins Section */
+.easyWinsSection {
+  padding: 16px;
+}
+
+.easyWinsTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.easyWinsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.easyWinItem {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.15s ease-in-out;
+}
+
+.easyWinItem:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.winContent {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.winIcon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.winDetails {
+  flex: 1;
+  min-width: 0;
+}
+
+.winHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.winTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 1.3;
+}
+
+.winPoints {
+  font-size: 12px;
+  font-weight: 700;
+  color: #10b981;
+  background-color: #d1fae5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.winDescription {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.winAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: #006c67;
+  border: none;
+  border-radius: 6px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.winAction:hover {
+  background-color: #005550;
+}
+
+/* All Complete State */
+.allComplete {
+  padding: 16px;
+  background-color: #d1fae5;
+  border: 1px solid #86efac;
+  border-radius: 6px;
+  text-align: center;
+  margin: 16px;
+}
+
+.allCompleteText {
+  font-size: 14px;
+  color: #166534;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Footer */
+.footer {
+  border-top: 1px solid #e5e7eb;
+  padding: 12px 16px;
+  text-align: center;
+}
+
+.learnMore {
+  font-size: 12px;
+  color: #006c67;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.learnMore:hover {
+  text-decoration: underline;
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+  .scoreCircle {
+    width: 90px;
+    height: 90px;
+  }
+
+  .scoreNumber {
+    font-size: 32px;
+  }
+
+  .scoreOutOf {
+    font-size: 13px;
+  }
+
+  .starRating {
+    font-size: 18px;
+  }
+
+  .winHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

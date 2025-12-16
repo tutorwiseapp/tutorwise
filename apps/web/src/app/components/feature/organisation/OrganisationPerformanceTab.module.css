@@ -1,0 +1,381 @@
+/**
+ * OrganisationPerformanceTab.module.css
+ * Styles for Performance Analytics tab
+ * v7.0 - Organisation Premium Performance Analytics
+ */
+
+.container {
+  padding: 1.5rem 0;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary, #111827);
+}
+
+.periodSelector {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.periodButton,
+.periodActive {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid var(--border-color, #e5e7eb);
+  background: var(--card-background, #ffffff);
+  color: var(--text-secondary, #6b7280);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.periodButton:hover {
+  background: var(--hover-background, #f3f4f6);
+  border-color: var(--border-hover, #d1d5db);
+}
+
+.periodActive {
+  background: var(--primary-color, #3b82f6);
+  color: white;
+  border-color: var(--primary-color, #3b82f6);
+}
+
+/* KPI Grid */
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.kpiCard {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: var(--card-background, #ffffff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+}
+
+.kpiIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: var(--primary-light, #eff6ff);
+  color: var(--primary-color, #3b82f6);
+  flex-shrink: 0;
+}
+
+.kpiContent {
+  flex: 1;
+}
+
+.kpiLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-tertiary, #9ca3af);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.kpiValue {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary, #111827);
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
+}
+
+.kpiChangePositive {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--success-color, #10b981);
+}
+
+.kpiChangeNegative {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--error-color, #ef4444);
+}
+
+.kpiSubtext {
+  font-size: 0.75rem;
+  color: var(--text-tertiary, #9ca3af);
+}
+
+/* Section */
+.section {
+  margin-bottom: 2.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary, #111827);
+  margin-bottom: 1rem;
+}
+
+/* Chart Container */
+.chartContainer {
+  background: var(--card-background, #ffffff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.simpleChart {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  height: 200px;
+}
+
+.chartBar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  height: 100%;
+}
+
+.chartBarFill {
+  width: 100%;
+  background: linear-gradient(180deg, var(--primary-color, #3b82f6) 0%, var(--primary-dark, #2563eb) 100%);
+  border-radius: 4px 4px 0 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 0.5rem;
+  position: relative;
+  margin-top: auto;
+}
+
+.chartBarValue {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+}
+
+.chartBarLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary, #6b7280);
+}
+
+.chartBarSessions {
+  font-size: 0.625rem;
+  color: var(--text-tertiary, #9ca3af);
+}
+
+/* Table */
+.tableContainer {
+  overflow-x: auto;
+  background: var(--card-background, #ffffff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background: var(--table-header-background, #f9fafb);
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+}
+
+.table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-tertiary, #9ca3af);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: var(--hover-background, #f9fafb);
+}
+
+.memberCell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.memberAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.memberAvatarPlaceholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary-light, #eff6ff);
+  color: var(--primary-color, #3b82f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.memberName {
+  font-weight: 500;
+  color: var(--text-primary, #111827);
+}
+
+.numberCell {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary, #111827);
+}
+
+.ratingCell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+}
+
+.ratingIcon {
+  color: var(--warning-color, #f59e0b);
+}
+
+.dateCell {
+  text-align: right;
+  color: var(--text-secondary, #6b7280);
+  font-size: 0.875rem;
+}
+
+/* Breakdown Grid */
+.breakdownGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.breakdownCard {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--card-background, #ffffff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+}
+
+.breakdownIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  background: var(--primary-light, #eff6ff);
+  color: var(--primary-color, #3b82f6);
+  flex-shrink: 0;
+}
+
+.breakdownContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.breakdownSubject {
+  font-weight: 600;
+  color: var(--text-primary, #111827);
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.breakdownStats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.breakdownRevenue {
+  font-weight: 600;
+  color: var(--success-color, #10b981);
+}
+
+/* Loading & Error States */
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.error {
+  text-align: center;
+  padding: 3rem;
+  color: var(--error-color, #ef4444);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .kpiGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .simpleChart {
+    height: 150px;
+    gap: 0.5rem;
+  }
+
+  .chartBarValue {
+    font-size: 0.625rem;
+  }
+
+  .tableContainer {
+    overflow-x: scroll;
+  }
+
+  .table {
+    min-width: 600px;
+  }
+
+  .breakdownGrid {
+    grid-template-columns: 1fr;
+  }
+}

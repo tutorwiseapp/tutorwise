@@ -1,0 +1,129 @@
+/**
+ * SubscriptionRequired.module.css
+ * Styles for Organisation Premium subscription required screen
+ * v7.0 - Organisation Premium Subscription
+ */
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  padding: 2rem;
+}
+
+.card {
+  max-width: 500px;
+  width: 100%;
+  background: var(--card-background, #ffffff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  text-align: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.iconContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.icon {
+  color: var(--primary-color, #3b82f6);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary, #111827);
+  margin-bottom: 0.75rem;
+}
+
+.description {
+  font-size: 1rem;
+  color: var(--text-secondary, #6b7280);
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  color: var(--text-primary, #111827);
+}
+
+.checkIcon {
+  color: var(--success-color, #10b981);
+  flex-shrink: 0;
+}
+
+.pricing {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.price {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary, #111827);
+}
+
+.period {
+  font-size: 1.25rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.ctaButton {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  padding: 0.75rem 2rem;
+}
+
+.trialNote {
+  font-size: 0.875rem;
+  color: var(--text-tertiary, #9ca3af);
+  margin-top: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .card {
+    padding: 2rem 1.5rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .price {
+    font-size: 2rem;
+  }
+}

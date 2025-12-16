@@ -1,0 +1,184 @@
+/**
+ * Filename: src/lib/api/marketplace.ts
+ * Purpose: Marketplace API functions for fetching profiles and listings
+ * Created: 2025-12-16
+ */
+
+import type { Listing } from '@tutorwise/shared-types';
+import type { MarketplaceItem } from '@/types/marketplace';
+import type { SearchFilters } from '@/lib/services/savedSearches';
+
+export interface FeaturedItemsResponse {
+  profiles: any[];
+  listings: Listing[];
+  total: number;
+}
+
+export interface SearchResponse {
+  listings: Listing[];
+  total: number;
+}
+
+export interface ProfilesResponse {
+  profiles: any[];
+  total: number;
+}
+
+/**
+ * Fetch featured tutors (both profiles and listings)
+ */
+export async function getFeaturedItems(limit = 10, offset = 0): Promise<FeaturedItemsResponse> {
+  const [profilesRes, listingsRes] = await Promise.all([
+    fetch(`/api/marketplace/profiles?limit=${limit}&offset=${offset}`, {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' },
+    }),
+    fetch(`/api/marketplace/search?limit=${limit}&offset=${offset}`, {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' },
+    }),
+  ]);
+
+  if (!profilesRes.ok || !listingsRes.ok) {
+    throw new Error('Failed to fetch featured items');
+  }
+
+  const profilesData = await profilesRes.json();
+  const listingsData = await listingsRes.json();
+
+  return {
+    profiles: profilesData.profiles || [],
+    listings: listingsData.listings || [],
+    total: (profilesData.total || 0) + (listingsData.total || 0),
+  };
+}
+
+/**
+ * Search marketplace with filters
+ */
+export async function searchMarketplace(filters: SearchFilters): Promise<SearchResponse> {
+  const params = new URLSearchParams();
+
+  if (filters.subjects) {
+    params.append('subjects', filters.subjects.join(','));
+  }
+  if (filters.levels) {
+    params.append('levels', filters.levels.join(','));
+  }
+  if (filters.location_type) {
+    params.append('location_type', filters.location_type);
+  }
+  if (filters.location_city) {
+    params.append('location_city', filters.location_city);
+  }
+  if (filters.min_price) {
+    params.append('min_price', filters.min_price.toString());
+  }
+  if (filters.max_price) {
+    params.append('max_price', filters.max_price.toString());
+  }
+
+  const response = await fetch(`/api/marketplace/search?${params.toString()}`, {
+    cache: 'no-store',
+    headers: { 'Cache-Control': 'no-cache' },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to search marketplace');
+  }
+
+  return response.json();
+}
+
+/**
+ * Fetch marketplace profiles
+ */
+export async function getMarketplaceProfiles(limit = 10, offset = 0): Promise<ProfilesResponse> {
+  const response = await fetch(`/api/marketplace/profiles?limit=${limit}&offset=${offset}`, {
+    cache: 'no-store',
+    headers: { 'Cache-Control': 'no-cache' },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch marketplace profiles');
+  }
+
+  return response.json();
+}
+
+/**
+ * Search with pagination for Your Home page
+ */
+export async function searchMarketplaceWithPagination(
+  filters: SearchFilters,
+  offset = 0,
+  limit = 20
+): Promise<{ profiles: any[]; listings: Listing[]; total: number }> {
+  const params = new URLSearchParams();
+
+  if (filters.subjects) {
+    params.append('subjects', filters.subjects.join(','));
+  }
+  if (filters.levels) {
+    params.append('levels', filters.levels.join(','));
+  }
+  if (filters.location_type) {
+    params.append('location_type', filters.location_type);
+  }
+  if (filters.location_city) {
+    params.append('location_city', filters.location_city);
+  }
+  if (filters.min_price) {
+    params.append('min_price', filters.min_price.toString());
+  }
+  if (filters.max_price) {
+    params.append('max_price', filters.max_price.toString());
+  }
+
+  params.append('offset', offset.toString());
+  params.append('limit', limit.toString());
+
+  // Fetch both profiles and listings
+  const [profilesRes, listingsRes] = await Promise.all([
+    fetch(`/api/marketplace/profiles?limit=${Math.floor(limit / 2)}&offset=${Math.floor(offset / 2)}`),
+    fetch(`/api/marketplace/search?${params.toString()}`),
+  ]);
+
+  if (!profilesRes.ok || !listingsRes.ok) {
+    throw new Error('Failed to search marketplace with pagination');
+  }
+
+  const profilesData = await profilesRes.json();
+  const listingsData = await listingsRes.json();
+
+  return {
+    profiles: profilesData.profiles || [],
+    listings: listingsData.listings || [],
+    total: (profilesData.total || 0) + (listingsData.total || 0),
+  };
+}
+
+/**
+ * Helper function to convert API responses to MarketplaceItem[]
+ */
+export function toMarketplaceItems(profiles: any[], listings: Listing[]): MarketplaceItem[] {
+  const profileItems: MarketplaceItem[] = profiles.map((profile) => ({
+    type: 'profile' as const,
+    data: profile,
+  }));
+
+  const listingItems: MarketplaceItem[] = listings.map((listing) => ({
+    type: 'listing' as const,
+    data: listing,
+  }));
+
+  // Interleave listings and profiles (listings first, then profiles)
+  const merged: MarketplaceItem[] = [];
+  const maxLength = Math.max(profileItems.length, listingItems.length);
+  for (let i = 0; i < maxLength; i++) {
+    if (i < listingItems.length) merged.push(listingItems[i]);
+    if (i < profileItems.length) merged.push(profileItems[i]);
+  }
+
+  return merged;
+}
