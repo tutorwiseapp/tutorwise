@@ -37,9 +37,9 @@ export async function GET(req: Request) {
       .from('referrals')
       .select(`
         *,
-        referred_user:referred_profile_id(id, full_name, avatar_url),
-        first_booking:booking_id(id, service_name, amount),
-        first_commission:transaction_id(id, amount)
+        referred_user:profiles!referred_profile_id(id, full_name, avatar_url),
+        first_booking:bookings!booking_id(id, service_name, amount),
+        first_commission:transactions!transaction_id(id, amount)
       `)
       .eq('agent_id', user.id);
 

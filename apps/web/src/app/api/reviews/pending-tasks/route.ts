@@ -40,13 +40,13 @@ export async function GET() {
         participant_ids,
         submitted_ids,
         created_at,
-        booking:booking_id(
+        booking:bookings!booking_id(
           id,
           service_name,
           session_start_time,
           amount,
-          client:client_id(id, full_name, avatar_url),
-          tutor:tutor_id(id, full_name, avatar_url),
+          client:profiles!client_id(id, full_name, avatar_url),
+          tutor:profiles!tutor_id(id, full_name, avatar_url),
           agent:profiles!agent_id(id, full_name, avatar_url)
         )
       `)

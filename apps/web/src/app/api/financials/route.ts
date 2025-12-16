@@ -39,14 +39,14 @@ export async function GET(req: Request) {
       .from('transactions')
       .select(`
         *,
-        booking:booking_id(
+        booking:bookings!booking_id(
           id,
           service_name,
           session_start_time,
           client_id,
           tutor_id,
-          client:client_id(id, full_name, avatar_url),
-          tutor:tutor_id(id, full_name, avatar_url)
+          client:profiles!client_id(id, full_name, avatar_url),
+          tutor:profiles!tutor_id(id, full_name, avatar_url)
         )
       `)
       .eq('profile_id', user.id);

@@ -137,9 +137,9 @@ export async function getMyBookings(): Promise<any[]> {
     .from('bookings')
     .select(`
       *,
-      client:client_id(id, full_name, avatar_url),
-      tutor:tutor_id(id, full_name, avatar_url),
-      listing:listing_id(id, title),
+      client:profiles!client_id(id, full_name, avatar_url),
+      tutor:profiles!tutor_id(id, full_name, avatar_url),
+      listing:listings!listing_id(id, title),
       agent:profiles!agent_id(id, full_name)
     `);
 
@@ -190,9 +190,9 @@ export async function getBookingById(id: string): Promise<any | null> {
     .from('bookings')
     .select(`
       *,
-      client:client_id(id, full_name, avatar_url),
-      tutor:tutor_id(id, full_name, avatar_url),
-      listing:listing_id(id, title),
+      client:profiles!client_id(id, full_name, avatar_url),
+      tutor:profiles!tutor_id(id, full_name, avatar_url),
+      listing:listings!listing_id(id, title),
       agent:profiles!agent_id(id, full_name)
     `)
     .eq('id', id)
