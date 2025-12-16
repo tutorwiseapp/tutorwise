@@ -47,11 +47,10 @@ export async function GET(request: NextRequest) {
     ] = await Promise.all([
       // 1. Pending reviews (urgent)
       supabase
-        .from('review_sessions')
-        .select('id, publish_at, days_remaining')
-        .eq('status', 'open')
-        .or(`client_profile_id.eq.${user.id},tutor_profile_id.eq.${user.id},agent_profile_id.eq.${user.id}`)
-        .is('deleted_at', null),
+        .from('booking_review_sessions')
+        .select('id, publish_at, status')
+        .eq('status', 'pending')
+        .contains('participant_ids', [user.id]),
 
       // 2. Upcoming bookings (next 7 days)
       supabase
@@ -89,7 +88,12 @@ export async function GET(request: NextRequest) {
 
     // Process pending reviews
     const pendingReviews = pendingReviewsResult.data || [];
-    const urgentReviews = pendingReviews.filter((r) => r.days_remaining <= 1);
+    // Calculate days remaining from publish_at date
+    const urgentReviews = pendingReviews.filter((r) => {
+      if (!r.publish_at) return false;
+      const daysRemaining = Math.ceil((new Date(r.publish_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+      return daysRemaining <= 1;
+    });
 
     // Process upcoming bookings
     const upcomingBookings = upcomingBookingsResult.data || [];
