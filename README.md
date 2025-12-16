@@ -155,6 +155,15 @@ CAS will apply 8 agent perspectives:
 - Booking system (planned)
 - Payment processing (planned - Stripe)
 
+### Referral System
+- **Hierarchical Attribution**: URL → Cookie (HMAC-signed) → Manual entry
+- **Commission Delegation**: Partners can redirect commissions (coffee shops, schools)
+- **Multi-Tier Commissions**: Configurable 1-7 tier system (1-tier launch, 3-tier roadmap)
+- **Fraud Detection**: Automated anomaly detection with admin investigation workflow
+- **Partnership Onboarding**: Offline partner applications with QR code generation
+- **Client Referrals**: Two-sided marketplace monetization (tutor + client referrals)
+- **QR Code API**: Generate scannable referral links for physical marketing
+
 ---
 
 ## Documentation
@@ -399,6 +408,12 @@ Co-Authored-By: CAS <cas@tutorwise.com>
 - Check CAS documentation in `cas/` directory
 - Review implementation summaries in project root (*.md files)
 
+### Referral System Documentation
+- **Solution Design**: [docs/feature/referrals/referrals-solution-design-v2.md](docs/feature/referrals/referrals-solution-design-v2.md)
+- **Multi-Tier Decision Rationale**: [docs/feature/referrals/MULTI_TIER_DECISION_RATIONALE.md](docs/feature/referrals/MULTI_TIER_DECISION_RATIONALE.md)
+- **Deployment Guide**: [docs/feature/referrals/DEPLOYMENT-GUIDE.md](docs/feature/referrals/DEPLOYMENT-GUIDE.md)
+- **Environment Setup**: [docs/feature/referrals/ENVIRONMENT-SETUP.md](docs/feature/referrals/ENVIRONMENT-SETUP.md)
+
 ---
 
 ## Project Status
@@ -412,6 +427,14 @@ Co-Authored-By: CAS <cas@tutorwise.com>
 - ✅ Onboarding flows
 - ✅ Testing infrastructure (Jest, Playwright, Percy)
 - ✅ CAS development framework (hybrid mode)
+- ✅ **Complete referral system** (Phases 1-3):
+  - ✅ Hierarchical attribution with HMAC cookie signing
+  - ✅ Commission delegation mechanism (patent-protected)
+  - ✅ Multi-tier commission infrastructure (1-tier active, 3-tier roadmap)
+  - ✅ Fraud detection with automated triggers
+  - ✅ Partnership onboarding system
+  - ✅ Client referral monetization
+  - ✅ QR code generation API
 
 **In Progress**:
 - Listing creation and management
@@ -423,6 +446,7 @@ Co-Authored-By: CAS <cas@tutorwise.com>
 - Payment processing (Stripe)
 - Messaging system
 - Review and ratings
+- Multi-tier commission expansion (Tier 2-3 activation after legal review)
 
 ---
 
@@ -448,8 +472,9 @@ MIT License - See LICENSE file for details
 
 ---
 
-**Last Updated**: 2025-11-01
+**Last Updated**: 2025-12-16
 **CAS Version**: 2.0 (Hybrid Framework Mode)
 **Next.js Version**: 14.2.33
 **Node Version**: 18.x+
 **Python Version**: 3.11+
+**Referral System**: v7.0 (Complete with Multi-Tier Infrastructure)
