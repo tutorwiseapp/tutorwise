@@ -10,7 +10,11 @@ import React from 'react';
 import HubComplexCard from '@/app/components/hub/sidebar/cards/HubComplexCard';
 import styles from './OrganisationHelpWidget.module.css';
 
-export default function OrganisationHelpWidget() {
+interface OrganisationHelpWidgetProps {
+  onSubscribeClick?: () => void;
+}
+
+export default function OrganisationHelpWidget({ onSubscribeClick }: OrganisationHelpWidgetProps) {
   return (
     <HubComplexCard>
       <h3 className={styles.title}>Managing Your Organisation</h3>
@@ -26,9 +30,13 @@ export default function OrganisationHelpWidget() {
         </p>
         <p className={styles.trialNotice}>
           Premium subscription service with a 14-day free trial period.{' '}
-          <a href="/organisation" className={styles.subscribeLink}>
+          <button
+            onClick={onSubscribeClick}
+            className={styles.subscribeLink}
+            type="button"
+          >
             Subscribe Now
-          </a>
+          </button>
         </p>
       </div>
     </HubComplexCard>

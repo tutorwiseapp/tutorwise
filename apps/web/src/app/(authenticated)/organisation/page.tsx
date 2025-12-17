@@ -444,7 +444,7 @@ export default function OrganisationPage() {
               totalClients={0}
               monthlyRevenue={0}
             />
-            <OrganisationHelpWidget />
+            <OrganisationHelpWidget onSubscribeClick={handleStartTrial} />
             <OrganisationTipWidget />
             <OrganisationVideoWidget />
           </HubSidebar>
@@ -469,7 +469,7 @@ export default function OrganisationPage() {
               totalClients={0}
               monthlyRevenue={0}
             />
-            <OrganisationHelpWidget />
+            <OrganisationHelpWidget onSubscribeClick={handleStartTrial} />
             <OrganisationTipWidget />
             <OrganisationVideoWidget />
           </HubSidebar>
@@ -505,7 +505,7 @@ export default function OrganisationPage() {
                 totalClients={stats?.total_clients || 0}
                 monthlyRevenue={stats?.monthly_revenue || 0}
               />
-              <OrganisationHelpWidget />
+              <OrganisationHelpWidget onSubscribeClick={handleStartTrial} />
               <OrganisationTipWidget />
               <OrganisationVideoWidget />
             </HubSidebar>
@@ -546,7 +546,7 @@ export default function OrganisationPage() {
               totalClients={0}
               monthlyRevenue={0}
             />
-            <OrganisationHelpWidget />
+            <OrganisationHelpWidget onSubscribeClick={handleStartTrial} />
             <OrganisationTipWidget />
             <OrganisationVideoWidget />
           </HubSidebar>
@@ -729,7 +729,7 @@ export default function OrganisationPage() {
             totalClients={stats?.total_clients || 0}
             monthlyRevenue={stats?.monthly_revenue || 0}
           />
-          <OrganisationHelpWidget />
+          <OrganisationHelpWidget onSubscribeClick={handleStartTrial} />
           <OrganisationTipWidget />
           <OrganisationVideoWidget />
         </HubSidebar>
