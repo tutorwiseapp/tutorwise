@@ -14,10 +14,10 @@
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { TrendingUp, Users, Calendar, Star, Clock, BookOpen } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { TrendingUp, Users, Calendar, Star, Clock, BookOpen, PieChartIcon, BarChart3 } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 import styles from './OrganisationPerformanceTab.module.css';
 
 interface OrganisationPerformanceTabProps {
@@ -67,12 +67,9 @@ interface BookingHeatmapData {
   }[];
 }
 
-interface StudentBreakdownData {
-  data: {
-    subject: string;
-    student_count: number;
-    revenue: number;
-  }[];
+interface StudentTypeData {
+  new: number;
+  returning: number;
 }
 
 export default function OrganisationPerformanceTab({
@@ -129,11 +126,11 @@ export default function OrganisationPerformanceTab({
     staleTime: 2 * 60 * 1000,
   });
 
-  // Fetch student breakdown
+  // Fetch student type breakdown
   const {
-    data: studentBreakdown,
-    isLoading: breakdownLoading,
-  } = useQuery<StudentBreakdownData>({
+    data: studentBreakdownData = { new: 0, returning: 0 },
+    isLoading: isLoadingStudentBreakdown,
+  } = useQuery<StudentTypeData>({
     queryKey: ['organisation-analytics-student-breakdown', organisationId],
     queryFn: async () => {
       const response = await fetch(
@@ -142,8 +139,15 @@ export default function OrganisationPerformanceTab({
       if (!response.ok) throw new Error('Failed to fetch student breakdown');
       return response.json();
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes (changes less frequently)
+    staleTime: 3 * 60 * 1000, // 3 minutes
   });
+
+  // View type for student breakdown chart
+  const [viewType, setViewType] = useState<'pie' | 'bar'>('pie');
+
+  // Chart view toggle callbacks
+  const handlePieView = useCallback(() => setViewType('pie'), []);
+  const handleBarView = useCallback(() => setViewType('bar'), []);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GB', {
@@ -157,6 +161,35 @@ export default function OrganisationPerformanceTab({
   const formatPercentage = (value: number) => {
     const sign = value >= 0 ? '+' : '';
     return `${sign}${value.toFixed(1)}%`;
+  };
+
+  // Prepare data for student breakdown chart - memoized to prevent recalculation
+  const chartData = useMemo(() => [
+    { name: 'New Students', value: studentBreakdownData.new, color: '#2563EB' },
+    { name: 'Returning Students', value: studentBreakdownData.returning, color: '#059669' }
+  ], [studentBreakdownData.new, studentBreakdownData.returning]);
+
+  const totalStudents = useMemo(() =>
+    studentBreakdownData.new + studentBreakdownData.returning,
+    [studentBreakdownData.new, studentBreakdownData.returning]
+  );
+
+  const hasStudentData = totalStudents > 0;
+
+  // Custom tooltip for student breakdown
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const percentage = totalStudents > 0 ? ((payload[0].value / totalStudents) * 100).toFixed(1) : '0';
+      return (
+        <div className={styles.tooltip}>
+          <p className={styles.tooltipLabel}>{payload[0].name}</p>
+          <p className={styles.tooltipValue}>
+            {payload[0].value} students ({percentage}%)
+          </p>
+        </div>
+      );
+    }
+    return null;
   };
 
   if (kpisError) {
@@ -388,31 +421,116 @@ export default function OrganisationPerformanceTab({
         )}
       </div>
 
-      {/* Student Breakdown */}
+      {/* Student Type Breakdown - Copied from Dashboard */}
       <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Student Breakdown by Subject</h3>
-        {breakdownLoading ? (
-          <div className={styles.loading}>Loading breakdown...</div>
-        ) : (
-          <div className={styles.breakdownGrid}>
-            {studentBreakdown?.data.slice(0, 6).map((item, index) => (
-              <div key={index} className={styles.breakdownCard}>
-                <div className={styles.breakdownIcon}>
-                  <BookOpen size={20} />
+        <div className={styles.studentWidget}>
+          <div className={styles.widgetHeader}>
+            <div className={styles.widgetHeaderLeft}>
+              <Users className={styles.widgetIcon} size={20} />
+              <h3 className={styles.widgetTitle}>Student Type Breakdown</h3>
+            </div>
+            <div className={styles.viewToggle}>
+              <button
+                className={`${styles.toggleButton} ${viewType === 'pie' ? styles.toggleActive : ''}`}
+                onClick={handlePieView}
+                aria-label="Pie chart view"
+              >
+                <PieChartIcon size={16} />
+              </button>
+              <button
+                className={`${styles.toggleButton} ${viewType === 'bar' ? styles.toggleActive : ''}`}
+                onClick={handleBarView}
+                aria-label="Bar chart view"
+              >
+                <BarChart3 size={16} />
+              </button>
+            </div>
+          </div>
+
+          <div className={styles.widgetContent}>
+            {!hasStudentData ? (
+              <div className={styles.emptyState}>
+                <p className={styles.emptyText}>No student data available yet. Start booking sessions to see your student breakdown.</p>
+              </div>
+            ) : (
+              <>
+                {/* Chart */}
+                <div className={styles.studentChartContainer}>
+                  {viewType === 'pie' ? (
+                    <ResponsiveContainer width="100%" height={220}>
+                      <PieChart>
+                        <Pie
+                          data={chartData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent }) => `${((percent || 0) * 100).toFixed(0)}%`}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {chartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip content={<CustomTooltip />} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <ResponsiveContainer width="100%" height={220}>
+                      <BarChart data={chartData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
+                        <YAxis stroke="#6b7280" fontSize={12} />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                          {chartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  )}
                 </div>
-                <div className={styles.breakdownContent}>
-                  <div className={styles.breakdownSubject}>{item.subject}</div>
-                  <div className={styles.breakdownStats}>
-                    <span>{item.student_count} students</span>
-                    <span className={styles.breakdownRevenue}>
-                      {formatCurrency(item.revenue)}
-                    </span>
+
+                {/* Stats Summary */}
+                <div className={styles.statsSummary}>
+                  <div className={styles.statItem}>
+                    <div className={styles.statDot} style={{ backgroundColor: '#2563EB' }} />
+                    <div className={styles.statContent}>
+                      <span className={styles.statLabel}>New Students</span>
+                      <span className={styles.statValue}>{studentBreakdownData.new}</span>
+                    </div>
+                  </div>
+                  <div className={styles.statItem}>
+                    <div className={styles.statDot} style={{ backgroundColor: '#059669' }} />
+                    <div className={styles.statContent}>
+                      <span className={styles.statLabel}>Returning Students</span>
+                      <span className={styles.statValue}>{studentBreakdownData.returning}</span>
+                    </div>
+                  </div>
+                  <div className={styles.statItem}>
+                    <div className={styles.statDot} style={{ backgroundColor: '#6b7280' }} />
+                    <div className={styles.statContent}>
+                      <span className={styles.statLabel}>Total</span>
+                      <span className={styles.statValue}>{totalStudents}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+
+                {/* Insight */}
+                {studentBreakdownData.returning > 0 && (
+                  <div className={styles.insight}>
+                    <p className={styles.insightText}>
+                      <strong>{((studentBreakdownData.returning / totalStudents) * 100).toFixed(0)}%</strong> of your students are returning -
+                      {studentBreakdownData.returning / totalStudents > 0.5 ? ' excellent retention!' : ' focus on building long-term relationships.'}
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
