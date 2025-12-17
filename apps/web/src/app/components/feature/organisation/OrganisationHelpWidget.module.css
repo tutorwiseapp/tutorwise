@@ -47,5 +47,5 @@
 
 .subscribeLink:hover {
   color: #009a9b !important;
-  text-decoration: none !important;
+  text-decoration: underline !important;
 }
