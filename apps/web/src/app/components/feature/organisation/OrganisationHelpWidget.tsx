@@ -24,6 +24,9 @@ export default function OrganisationHelpWidget() {
         <p className={styles.text}>
           Track organisation performance and team member activity.
         </p>
+        <p className={styles.trialNotice}>
+          Premium subscription service with a 14-day free trial period.
+        </p>
       </div>
     </HubComplexCard>
   );
