@@ -1,10 +1,11 @@
 /**
  * Filename: apps/web/src/app/(authenticated)/organisation/page.tsx
- * Purpose: Organisation Hub - Agency/School Management (v6.1)
+ * Purpose: Organisation Hub - Agency/School Management (v8.0)
  * Created: 2025-11-19
- * Updated: 2025-12-03 - Migrated Team and Clients tabs to HubEmptyState component
+ * Updated: 2025-12-17 - Integrated Smart Trial Reminder System with dismissal logic
  * Reference: organisation-solution-design-v6.md
  * Change History:
+ * C003 - 2025-12-17 : Integrated Smart Trial Reminder System (v8.0) with localStorage dismissal and CSV export
  * C002 - 2025-12-03 : Migrated Team and Clients tab empty states to HubEmptyState component
  * C001 - 2025-11-29 : Migrated to Hub Layout Architecture with HubPageLayout, HubHeader, HubTabs, HubPagination
  *
@@ -12,6 +13,7 @@
  * - Team management (tutors/teachers)
  * - Client aggregation (students)
  * - Organisation settings
+ * - Smart trial reminder system with progressive disclosure (v8.0)
  */
 
 'use client';
@@ -31,6 +33,12 @@ import {
 } from '@/lib/api/organisation';
 import { isPremium } from '@/lib/stripe/subscription-utils';
 import type { OrganisationSubscription } from '@/lib/stripe/subscription-utils';
+import {
+  getTrialStatus,
+  shouldShowPopup,
+  dismissReminderForToday,
+  getReminderMessage,
+} from '@/lib/stripe/organisation-trial-status';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import OrganisationStatsWidget from '@/app/components/feature/organisation/OrganisationStatsWidget';
 import OrganisationHelpWidget from '@/app/components/feature/organisation/OrganisationHelpWidget';
@@ -71,6 +79,7 @@ export default function OrganisationPage() {
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(true);
 
   // Fetch organisation
   const {
@@ -394,6 +403,35 @@ export default function OrganisationPage() {
     }
   };
 
+  // Handle dismissing the trial reminder popup
+  const handleDismissReminder = () => {
+    if (!organisation || !subscription) return;
+
+    const trialStatus = getTrialStatus(subscription);
+    if (!trialStatus) return;
+
+    // Save dismissal to localStorage
+    dismissReminderForToday(organisation.id, trialStatus.daysRemaining);
+
+    // Hide the modal
+    setShowSubscriptionModal(false);
+
+    toast.success('Reminder dismissed. You can access your data anytime before trial expiry.');
+  };
+
+  // Handle exporting data during trial reminder
+  const handleExportData = () => {
+    const dataToExport = activeTab === 'team' ? filteredMembers : filteredClients;
+
+    if (!dataToExport.length) {
+      toast.error('No data to export');
+      return;
+    }
+
+    handleExportCSV();
+    toast.success('Your data has been exported successfully.');
+  };
+
   // Loading state
   if (profileLoading || orgLoading) {
     return (
@@ -449,30 +487,41 @@ export default function OrganisationPage() {
   }
 
   // v7.0: Subscription check - Block access if no active subscription
+  // v8.0: Smart Trial Reminder System - Show popup based on trial status
   if (organisation && !subscriptionLoading && !isPremium(subscription || null)) {
-    return (
-      <HubPageLayout
-        header={<HubHeader title="Organisation" />}
-        sidebar={
-          <HubSidebar>
-            <OrganisationStatsWidget
-              teamSize={stats?.team_size || 0}
-              totalClients={stats?.total_clients || 0}
-              monthlyRevenue={stats?.monthly_revenue || 0}
-            />
-            <OrganisationHelpWidget />
-            <OrganisationTipWidget />
-            <OrganisationVideoWidget />
-          </HubSidebar>
-        }
-      >
-        <SubscriptionRequired
-          organisation={organisation}
-          subscription={subscription || null}
-          onStartTrial={handleStartTrial}
-        />
-      </HubPageLayout>
-    );
+    // Check if we should show the popup based on trial status
+    const shouldShow = shouldShowPopup(organisation.id, subscription || null);
+    const trialStatus = getTrialStatus(subscription || null);
+
+    // Only render if popup should be shown OR if modal state is true
+    if (shouldShow && showSubscriptionModal) {
+      return (
+        <HubPageLayout
+          header={<HubHeader title="Organisation" />}
+          sidebar={
+            <HubSidebar>
+              <OrganisationStatsWidget
+                teamSize={stats?.team_size || 0}
+                totalClients={stats?.total_clients || 0}
+                monthlyRevenue={stats?.monthly_revenue || 0}
+              />
+              <OrganisationHelpWidget />
+              <OrganisationTipWidget />
+              <OrganisationVideoWidget />
+            </HubSidebar>
+          }
+        >
+          <SubscriptionRequired
+            organisation={organisation}
+            subscription={subscription || null}
+            onStartTrial={handleStartTrial}
+            onDismiss={trialStatus?.canDismiss ? handleDismissReminder : undefined}
+            onExportData={handleExportData}
+            canDismiss={trialStatus?.canDismiss || false}
+          />
+        </HubPageLayout>
+      );
+    }
   }
 
   // Empty state - no organisation yet
