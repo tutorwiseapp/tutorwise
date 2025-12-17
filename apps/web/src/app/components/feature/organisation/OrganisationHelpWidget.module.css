@@ -39,13 +39,13 @@
 }
 
 .subscribeLink {
-  color: #0d9488;
+  color: #00C6C7;
   text-decoration: underline;
   font-weight: 600;
   transition: color 0.2s ease;
 }
 
 .subscribeLink:hover {
-  color: #0f766e;
+  color: #009a9b;
   text-decoration: none;
 }
