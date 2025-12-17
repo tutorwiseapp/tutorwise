@@ -2,8 +2,9 @@
  * Filename: src/app/(authenticated)/referrals/page.module.css
  * Purpose: Styles for /referrals hub page
  * Created: 2025-11-02
- * Updated: 2025-12-03 - Migrated to HubEmptyState component, removed obsolete empty state styles
+ * Updated: 2025-12-17 - Removed obsolete .referralHeaderTall class
  * Change History:
+ * C004 - 2025-12-17 : Removed .referralHeaderTall class (no longer used after HubHeader standardization)
  * C003 - 2025-12-03 : Migrated to HubEmptyState component, removed empty state styles (65 lines)
  * C002 - 2025-11-30 : Migrated to Hub Layout Architecture, removed obsolete header/tab styles
  * C001 - 2025-11-02 : Initial creation
@@ -14,18 +15,4 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-
-/* Taller header for Refer & Earn tab only */
-.referralHeaderTall {
-  height: 12rem;
-  margin-top: -2rem;
-}
-
-/* Mobile: Remove negative margin to prevent overlap with global header */
-@media (max-width: 768px) {
-  .referralHeaderTall {
-    margin-top: 0;
-    height: auto; /* Let content determine height on mobile */
-  }
 }

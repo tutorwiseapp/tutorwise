@@ -13,6 +13,11 @@
  * C001 - [Date] : [Time] - Initial creation.
  */
 
+/* Dashboard Header - Extra spacing from global header */
+.dashboardHeader {
+  margin-top: 0.75rem; /* 1rem base (from HubHeader) + 1rem extra = 2rem total */
+}
+
 /* Header action buttons container */
 .headerActions {
   display: flex;

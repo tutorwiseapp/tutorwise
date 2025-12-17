@@ -2,16 +2,11 @@
  * Filename: src/app/(authenticated)/payments/page.module.css
  * Purpose: Styles for payments hub page with Hub Layout Architecture
  * Created: 2025-11-12
- * Updated: 2025-12-03 - Migrated to HubPageLayout, removed obsolete header/tab styles
+ * Updated: 2025-12-17 - Removed obsolete .paymentHeader class
  * Change History:
+ * C002 - 2025-12-17 : Removed .paymentHeader class (no longer used after HubHeader standardization)
  * C001 - 2025-12-03 : Migrated to HubPageLayout, removed header/tab/container styles
  */
-
-/* Payment Header */
-.paymentHeader {
-  height: 14rem;
-  margin-top: -4rem;
-}
 
 /* Grid Layout */
 .grid {

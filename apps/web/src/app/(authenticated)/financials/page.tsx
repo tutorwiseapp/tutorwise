@@ -18,6 +18,9 @@ import { getFinancials } from '@/lib/api/financials';
 import TransactionCard from '@/app/components/feature/financials/TransactionCard';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import WalletBalanceWidget from '@/app/components/feature/financials/WalletBalanceWidget';
+import TransactionHelpWidget from '@/app/components/feature/financials/TransactionHelpWidget';
+import TransactionTipWidget from '@/app/components/feature/financials/TransactionTipWidget';
+import TransactionVideoWidget from '@/app/components/feature/financials/TransactionVideoWidget';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import type { HubTab } from '@/app/components/hub/layout';
@@ -361,6 +364,9 @@ export default function TransactionsPage() {
             pending={balances.pending}
             total={balances.total}
           />
+          <TransactionHelpWidget />
+          <TransactionTipWidget />
+          <TransactionVideoWidget />
         </HubSidebar>
       }
     >

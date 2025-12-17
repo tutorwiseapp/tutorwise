@@ -474,6 +474,9 @@ export default function WiselistsPage() {
       sidebar={
         <HubSidebar>
           <WiselistStatsWidget />
+          <WiselistHelpWidget />
+          <WiselistTipWidget />
+          <WiselistVideoWidget />
         </HubSidebar>
       }
     >

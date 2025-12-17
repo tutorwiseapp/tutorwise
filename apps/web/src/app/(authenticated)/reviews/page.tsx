@@ -448,6 +448,9 @@ export default function ReviewsPage() {
             stats={stats}
             averageRating={stats.averageRating}
           />
+          <ReviewHelpWidget />
+          <ReviewTipWidget />
+          <ReviewVideoWidget />
         </HubSidebar>
       }
     >

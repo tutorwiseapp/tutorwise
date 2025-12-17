@@ -335,7 +335,7 @@ export default function ReferralsPage() {
   if (profileLoading || isLoading) {
     return (
       <HubPageLayout
-        header={<HubHeader title="Referrals" className={activeTab === 'refer-and-earn' ? styles.referralHeaderTall : undefined} />}
+        header={<HubHeader title={activeTab === 'refer-and-earn' ? 'Refer & Earn 10% Commission' : 'Referrals'} />}
         tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
         sidebar={
           <HubSidebar>
@@ -361,7 +361,7 @@ export default function ReferralsPage() {
   if (error) {
     return (
       <HubPageLayout
-        header={<HubHeader title="Referrals" className={activeTab === 'refer-and-earn' ? styles.referralHeaderTall : undefined} />}
+        header={<HubHeader title={activeTab === 'refer-and-earn' ? 'Refer & Earn 10% Commission' : 'Referrals'} />}
         tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
         sidebar={
           <HubSidebar>
@@ -387,9 +387,7 @@ export default function ReferralsPage() {
     <HubPageLayout
       header={
         <HubHeader
-          title="Referrals"
-          subtitle={activeTab === 'refer-and-earn' ? 'Refer & Earn 10% Commission' : undefined}
-          className={activeTab === 'refer-and-earn' ? styles.referralHeaderTall : undefined}
+          title={activeTab === 'refer-and-earn' ? 'Refer & Earn 10% Commission' : 'Referrals'}
           filters={
             activeTab === 'leads' ? (
               <div className={filterStyles.filtersContainer}>

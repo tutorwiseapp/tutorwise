@@ -278,7 +278,6 @@ const PaymentsPageContent = () => {
             header={
                 <HubHeader
                     title="Payment Settings"
-                    className={styles.paymentHeader}
                 />
             }
             tabs={

@@ -28,7 +28,7 @@ export default function AppSidebar() {
   // Client note: Clients can list lesson requests under Listings
   const navItems: NavItem[] = [
     { href: '/dashboard', label: 'Dashboard' },
-    { href: '/marketplace', label: 'Marketplace' },
+    { href: '/', label: 'Marketplace' },
     { href: '/organisation', label: 'Organisation', roles: ['agent'] }, // v6.1: Agency/School Management (agent only)
     { href: '/listings', label: 'Listings' },
     { href: '/bookings', label: 'Bookings' },
@@ -49,10 +49,12 @@ export default function AppSidebar() {
     { href: '/wiselists', label: 'Wiselists' }, // v5.7: Pinterest-style Collections
     { href: '/account', label: 'Account' },
     { href: '/payments', label: 'Payments' },
+    { href: '/developer/api-keys', label: 'Developer' },
   ];
 
   const isActive = (href: string, hasSubItems?: boolean) => {
-    if (href === '/dashboard') {
+    // Exact match for root path and dashboard to prevent false positives
+    if (href === '/' || href === '/dashboard') {
       return pathname === href;
     }
     // For parent items with sub-items, never highlight (sub-items will be highlighted instead)

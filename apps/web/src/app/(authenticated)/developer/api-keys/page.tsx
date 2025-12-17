@@ -12,11 +12,19 @@
  */
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { HubPageLayout } from '@/app/components/hub/layout';
+import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
+import type { HubTab } from '@/app/components/hub/layout';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import DeveloperStatsWidget from '@/app/components/feature/developer/DeveloperStatsWidget';
+import DeveloperHelpWidget from '@/app/components/feature/developer/DeveloperHelpWidget';
+import DeveloperTipWidget from '@/app/components/feature/developer/DeveloperTipWidget';
+import DeveloperVideoWidget from '@/app/components/feature/developer/DeveloperVideoWidget';
 import Button from '@/app/components/ui/actions/Button';
 import styles from './page.module.css';
+
+type FilterType = 'all' | 'active' | 'revoked' | 'expired';
 
 interface ApiKey {
   id: string;
@@ -42,6 +50,7 @@ export default function ApiKeysPage() {
     key_prefix?: string;
     scopes?: string[];
   } | null>(null);
+  const [filter, setFilter] = useState<FilterType>('all');
 
   // Load API keys
   useEffect(() => {
@@ -138,46 +147,67 @@ export default function ApiKeysPage() {
     }
   };
 
+  // Filter keys based on tab selection
+  const filteredKeys = useMemo(() => {
+    return apiKeys.filter(key => {
+      const status = getKeyStatus(key);
+      if (filter === 'all') return true;
+      if (filter === 'active') return status === 'Active';
+      if (filter === 'revoked') return status === 'Revoked';
+      if (filter === 'expired') return status === 'Expired';
+      return true;
+    });
+  }, [apiKeys, filter]);
+
+  // Calculate tab counts
+  const tabCounts = useMemo(() => {
+    return {
+      all: apiKeys.length,
+      active: apiKeys.filter(k => getKeyStatus(k) === 'Active').length,
+      revoked: apiKeys.filter(k => getKeyStatus(k) === 'Revoked').length,
+      expired: apiKeys.filter(k => getKeyStatus(k) === 'Expired').length,
+    };
+  }, [apiKeys]);
+
   return (
-    <HubPageLayout header={<h1>Developer</h1>}>
+    <HubPageLayout
+      header={
+        <HubHeader
+          title="Developer"
+          actions={
+            <Button onClick={handleCreateKey} variant="primary" size="sm">
+              Generate New Key
+            </Button>
+          }
+        />
+      }
+      tabs={
+        <HubTabs
+          tabs={[
+            { id: 'all', label: 'All Keys', count: tabCounts.all, active: filter === 'all' },
+            { id: 'active', label: 'Active', count: tabCounts.active, active: filter === 'active' },
+            { id: 'revoked', label: 'Revoked', count: tabCounts.revoked, active: filter === 'revoked' },
+            { id: 'expired', label: 'Expired', count: tabCounts.expired, active: filter === 'expired' },
+          ]}
+          onTabChange={(tabId) => setFilter(tabId as FilterType)}
+        />
+      }
+      sidebar={
+        <HubSidebar>
+          <DeveloperStatsWidget apiKeys={apiKeys} isLoading={isLoading} />
+          <DeveloperHelpWidget />
+          <DeveloperTipWidget />
+          <DeveloperVideoWidget />
+        </HubSidebar>
+      }
+    >
       <div className={styles.container}>
-        {/* Header */}
-        <div className={styles.header}>
-          <div className={styles.headerText}>
-            <h1>API Keys</h1>
-            <p className={styles.subtitle}>
-              Manage your API keys for programmatic access to the TutorWise Platform API
-            </p>
-          </div>
-          <Button onClick={handleCreateKey} variant="primary" size="md">
-            Generate New Key
-          </Button>
-        </div>
-
-        {/* Info Banner */}
-        <div className={styles.infoBanner}>
-          <div className={styles.infoIcon}>ℹ️</div>
-          <div className={styles.infoContent}>
-            <h3>Keep your API keys secure</h3>
-            <p>
-              API keys provide full access to your account via the API. Treat them like passwords and never share them publicly.
-              {' '}
-              <a href="/developer/docs" target="_blank" rel="noopener noreferrer">
-                View API Documentation →
-              </a>
-            </p>
-          </div>
-        </div>
-
         {/* API Keys List */}
         <div className={styles.keysSection}>
-          <h2>Your API Keys ({apiKeys.length})</h2>
-
           {isLoading ? (
             <div className={styles.loading}>Loading API keys...</div>
-          ) : apiKeys.length === 0 ? (
+          ) : filteredKeys.length === 0 ? (
             <div className={styles.emptyState}>
-              <div className={styles.emptyIcon}>🔑</div>
               <h3>No API keys yet</h3>
               <p>Generate your first API key to start using the Platform API</p>
               <Button onClick={handleCreateKey} variant="primary" size="md">
@@ -186,7 +216,7 @@ export default function ApiKeysPage() {
             </div>
           ) : (
             <div className={styles.keysList}>
-              {apiKeys.map((key) => {
+              {filteredKeys.map((key) => {
                 const status = getKeyStatus(key);
                 return (
                   <div key={key.id} className={styles.keyCard}>

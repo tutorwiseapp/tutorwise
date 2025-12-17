@@ -10,13 +10,14 @@
   justify-content: center;
   border-radius: 8px;
   font-weight: 500;
-  padding: var(--button-padding-v-standard, 10px) 1.5rem; /* Standardized to 40px height */
-  min-height: var(--button-height-standard, 40px); /* Explicit height control */
+  padding: 0 1.5rem;
+  min-height: var(--button-height-standard, 40px);
+  height: var(--button-height-standard, 40px);
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   border: 1px solid transparent;
   font-size: 1rem;
-  line-height: 1.5;
+  line-height: 1;
   white-space: nowrap;
   box-sizing: border-box;
 }
@@ -134,20 +135,25 @@
 
 /* Size variants */
 .sm {
-  padding: var(--button-padding-v-compact, 6px) 1rem;
+  padding: 0 1rem;
   min-height: var(--button-height-compact, 32px);
   height: var(--button-height-compact, 32px);
   font-size: 0.875rem;
+  line-height: 1;
 }
 
 .md {
-  padding: var(--button-padding-v-standard, 10px) 1.5rem;
+  padding: 0 1.5rem;
   min-height: var(--button-height-standard, 40px);
+  height: var(--button-height-standard, 40px);
   font-size: 1rem;
+  line-height: 1;
 }
 
 .lg {
-  padding: var(--button-padding-v-large, 14px) 2rem;
+  padding: 0 2rem;
   min-height: var(--button-height-large, 48px);
+  height: var(--button-height-large, 48px);
   font-size: 1.125rem;
+  line-height: 1;
 }

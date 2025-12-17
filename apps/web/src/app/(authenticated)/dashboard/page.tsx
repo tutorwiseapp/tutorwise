@@ -28,6 +28,8 @@ import BookingCalendarHeatmap, { DayBooking } from '@/app/components/feature/das
 import ProfileGrowthWidget from '@/app/components/feature/dashboard/widgets/ProfileGrowthWidget';
 import FirstLoginModal from '@/app/components/feature/dashboard/FirstLoginModal';
 import TipsCard from '@/app/components/feature/dashboard/widgets/TipsCard';
+import DashboardHelpWidget from '@/app/components/feature/dashboard/DashboardHelpWidget';
+import DashboardVideoWidget from '@/app/components/feature/dashboard/DashboardVideoWidget';
 import MessagesWidget from '@/app/components/feature/dashboard/widgets/MessagesWidget';
 import PayoutWidget from '@/app/components/feature/dashboard/widgets/PayoutWidget';
 import StudentTypeBreakdown, { StudentTypeData } from '@/app/components/feature/dashboard/widgets/StudentTypeBreakdown';
@@ -330,6 +332,7 @@ const DashboardPage = () => {
             title={getDashboardTitle()}
             subtitle={`Welcome, ${firstName} (${getFormattedRole()})`}
             actions={getHeaderActions()}
+            className={styles.dashboardHeader}
           />
         }
       tabs={
@@ -353,6 +356,12 @@ const DashboardPage = () => {
           <TipsCard
             role={activeRole === 'client' ? 'client' : activeRole === 'agent' ? 'agent' : 'tutor'}
           />
+
+          {/* Help Widget */}
+          <DashboardHelpWidget />
+
+          {/* Video Widget */}
+          <DashboardVideoWidget />
         </HubSidebar>
       }
     >

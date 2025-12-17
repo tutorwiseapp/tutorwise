@@ -7,6 +7,8 @@
  * and incorrect font definitions have been removed.
  * Updated: 2025-11-03 - Hide footer on hub pages (bookings, financials, referrals)
  * Updated: 2025-12-02 - Hide header on hub pages to prevent double header with HubHeader
+ * Updated: 2025-12-17 - Refactored footer logic: whitelist public pages instead of blacklisting hub pages
+ *                       This prevents needing to update Layout.tsx every time a new hub page is created
  */
 'use client';
 
@@ -20,19 +22,26 @@ import styles from './Layout.module.css'; // This import will now find the file
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
 
-  // Hide header and footer on hub pages (3-column layout pages)
-  const isHubPage = pathname?.startsWith('/dashboard') ||
-                    pathname?.startsWith('/bookings') ||
-                    pathname?.startsWith('/financials') ||
-                    pathname?.startsWith('/referrals') ||
-                    pathname?.startsWith('/listings') ||
-                    pathname?.startsWith('/reviews') ||
-                    pathname?.startsWith('/messages') ||
-                    pathname?.startsWith('/network') ||
-                    pathname?.startsWith('/my-students') ||
-                    pathname?.startsWith('/payments') ||
-                    pathname?.startsWith('/account') ||
-                    pathname?.startsWith('/organisation');
+  // Define public pages that should show the footer
+  // All other pages (authenticated hub pages) will NOT show the footer
+  const publicPagesWithFooter = [
+    '/',
+    '/about',
+    '/help-centre',
+    '/your-home',
+    '/signin',
+    '/signup',
+    '/login',
+    '/forgot-password',
+    '/reset-password',
+    '/verify-email',
+    '/developer/docs', // Public API documentation
+  ];
+
+  // Check if current page should show footer
+  const shouldShowFooter = publicPagesWithFooter.some(path =>
+    pathname === path || pathname?.startsWith(path + '/')
+  ) || pathname?.startsWith('/public-profile/');
 
   return (
     <div className={styles.appWrapper}>
@@ -40,7 +49,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <main className={styles.mainContent}>
         {children}
       </main>
-      {!isHubPage && <Footer />}
+      {shouldShowFooter && <Footer />}
       <BottomNav />
     </div>
   );
