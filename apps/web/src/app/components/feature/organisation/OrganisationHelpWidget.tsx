@@ -30,13 +30,16 @@ export default function OrganisationHelpWidget({ onSubscribeClick }: Organisatio
         </p>
         <p className={styles.trialNotice}>
           Premium subscription service with a 14-day free trial period.{' '}
-          <button
-            onClick={onSubscribeClick}
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              onSubscribeClick?.();
+            }}
             className={styles.subscribeLink}
-            type="button"
           >
             Subscribe Now
-          </button>
+          </a>
         </p>
       </div>
     </HubComplexCard>
