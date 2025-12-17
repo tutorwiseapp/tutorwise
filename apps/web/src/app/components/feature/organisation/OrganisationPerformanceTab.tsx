@@ -14,10 +14,10 @@
 
 'use client';
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { TrendingUp, Users, Calendar, Star, Clock, BookOpen, PieChartIcon, BarChart3 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
+import { TrendingUp, Users, Calendar, Star } from 'lucide-react';
+import { HubKPICard, HubKPIGrid, HubEarningsTrendChart, HubStudentTypeBreakdown, type WeeklyEarnings, type StudentTypeData } from '@/app/components/hub/charts';
 import styles from './OrganisationPerformanceTab.module.css';
 
 interface OrganisationPerformanceTabProps {
@@ -65,11 +65,6 @@ interface BookingHeatmapData {
     hour: number;
     bookings_count: number;
   }[];
-}
-
-interface StudentTypeData {
-  new: number;
-  returning: number;
 }
 
 export default function OrganisationPerformanceTab({
@@ -142,13 +137,6 @@ export default function OrganisationPerformanceTab({
     staleTime: 3 * 60 * 1000, // 3 minutes
   });
 
-  // View type for student breakdown chart
-  const [viewType, setViewType] = useState<'pie' | 'bar'>('pie');
-
-  // Chart view toggle callbacks
-  const handlePieView = useCallback(() => setViewType('pie'), []);
-  const handleBarView = useCallback(() => setViewType('bar'), []);
-
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GB', {
       style: 'currency',
@@ -161,35 +149,6 @@ export default function OrganisationPerformanceTab({
   const formatPercentage = (value: number) => {
     const sign = value >= 0 ? '+' : '';
     return `${sign}${value.toFixed(1)}%`;
-  };
-
-  // Prepare data for student breakdown chart - memoized to prevent recalculation
-  const chartData = useMemo(() => [
-    { name: 'New Students', value: studentBreakdownData.new, color: '#2563EB' },
-    { name: 'Returning Students', value: studentBreakdownData.returning, color: '#059669' }
-  ], [studentBreakdownData.new, studentBreakdownData.returning]);
-
-  const totalStudents = useMemo(() =>
-    studentBreakdownData.new + studentBreakdownData.returning,
-    [studentBreakdownData.new, studentBreakdownData.returning]
-  );
-
-  const hasStudentData = totalStudents > 0;
-
-  // Custom tooltip for student breakdown
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const percentage = totalStudents > 0 ? ((payload[0].value / totalStudents) * 100).toFixed(1) : '0';
-      return (
-        <div className={styles.tooltip}>
-          <p className={styles.tooltipLabel}>{payload[0].name}</p>
-          <p className={styles.tooltipValue}>
-            {payload[0].value} students ({percentage}%)
-          </p>
-        </div>
-      );
-    }
-    return null;
   };
 
   if (kpisError) {
@@ -227,136 +186,58 @@ export default function OrganisationPerformanceTab({
         </div>
       </div>
 
-      {/* KPI Cards - Matching Dashboard Structure */}
-      <div className={styles.kpiGrid}>
-        <div className={styles.kpiCard}>
-          <div className={styles.kpiHeader}>
-            <TrendingUp size={20} className={styles.kpiIcon} />
-            <div className={styles.kpiLabel}>Total Revenue</div>
-          </div>
-          <div className={styles.kpiValue}>
-            {kpisLoading ? '...' : formatCurrency(kpis?.total_revenue || 0)}
-          </div>
-          {kpis && (
-            <div className={kpis.revenue_change_pct >= 0 ? styles.kpiChangePositive : styles.kpiChangeNegative}>
-              {formatPercentage(kpis.revenue_change_pct)}
-            </div>
-          )}
-          <div className={styles.kpiSubtext}>This {period === 'month' ? 'Month' : period === 'quarter' ? 'Quarter' : 'Year'}</div>
-        </div>
+      {/* KPI Cards - Using Hub Components */}
+      <HubKPIGrid>
+        <HubKPICard
+          label="Total Revenue"
+          value={kpisLoading ? '...' : formatCurrency(kpis?.total_revenue || 0)}
+          change={kpis ? formatPercentage(kpis.revenue_change_pct) : undefined}
+          timeframe={`This ${period === 'month' ? 'Month' : period === 'quarter' ? 'Quarter' : 'Year'}`}
+          icon={TrendingUp}
+          variant="success"
+        />
+        <HubKPICard
+          label="Active Students"
+          value={kpisLoading ? '...' : kpis?.active_students || 0}
+          change={kpis ? formatPercentage(kpis.students_change_pct) : undefined}
+          timeframe={`This ${period === 'month' ? 'Month' : period === 'quarter' ? 'Quarter' : 'Year'}`}
+          icon={Users}
+          variant="info"
+        />
+        <HubKPICard
+          label="Total Sessions"
+          value={kpisLoading ? '...' : kpis?.total_sessions || 0}
+          change={kpis ? formatPercentage(kpis.sessions_change_pct) : undefined}
+          timeframe={`This ${period === 'month' ? 'Month' : period === 'quarter' ? 'Quarter' : 'Year'}`}
+          icon={Calendar}
+          variant="neutral"
+        />
+        <HubKPICard
+          label="Avg. Rating"
+          value={kpisLoading ? '...' : kpis?.avg_session_rating?.toFixed(1) || '0.0'}
+          sublabel="out of 5.0"
+          icon={Star}
+          variant="success"
+        />
+      </HubKPIGrid>
 
-        <div className={styles.kpiCard}>
-          <div className={styles.kpiHeader}>
-            <Users size={20} className={styles.kpiIcon} />
-            <div className={styles.kpiLabel}>Active Students</div>
-          </div>
-          <div className={styles.kpiValue}>
-            {kpisLoading ? '...' : kpis?.active_students || 0}
-          </div>
-          {kpis && (
-            <div className={kpis.students_change_pct >= 0 ? styles.kpiChangePositive : styles.kpiChangeNegative}>
-              {formatPercentage(kpis.students_change_pct)}
-            </div>
-          )}
-          <div className={styles.kpiSubtext}>This {period === 'month' ? 'Month' : period === 'quarter' ? 'Quarter' : 'Year'}</div>
-        </div>
-
-        <div className={styles.kpiCard}>
-          <div className={styles.kpiHeader}>
-            <Calendar size={20} className={styles.kpiIcon} />
-            <div className={styles.kpiLabel}>Total Sessions</div>
-          </div>
-          <div className={styles.kpiValue}>
-            {kpisLoading ? '...' : kpis?.total_sessions || 0}
-          </div>
-          {kpis && (
-            <div className={kpis.sessions_change_pct >= 0 ? styles.kpiChangePositive : styles.kpiChangeNegative}>
-              {formatPercentage(kpis.sessions_change_pct)}
-            </div>
-          )}
-          <div className={styles.kpiSubtext}>This {period === 'month' ? 'Month' : period === 'quarter' ? 'Quarter' : 'Year'}</div>
-        </div>
-
-        <div className={styles.kpiCard}>
-          <div className={styles.kpiHeader}>
-            <Star size={20} className={styles.kpiIcon} />
-            <div className={styles.kpiLabel}>Avg. Rating</div>
-          </div>
-          <div className={styles.kpiValue}>
-            {kpisLoading ? '...' : kpis?.avg_session_rating?.toFixed(1) || '0.0'}
-          </div>
-          <div className={styles.kpiSubtext}>out of 5.0</div>
-        </div>
-      </div>
-
-      {/* Revenue Trend - Matching Dashboard Design */}
+      {/* Revenue Trend - Using Hub Component */}
       <div className={styles.section}>
         {trendLoading ? (
           <div className={styles.loading}>Loading chart...</div>
-        ) : (
-          <div className={styles.chartContainer}>
-            <div className={styles.chartHeader}>
-              <h3 className={styles.chartTitle}>Revenue Trend</h3>
-              <p className={styles.chartSubtitle}>Last 6 weeks</p>
-            </div>
-
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart
-                data={revenueTrend?.data.map(week => ({
-                  week: week.week_label,
-                  revenue: week.total_revenue,
-                  sessions: week.sessions_count
-                }))}
-                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis
-                  dataKey="week"
-                  stroke="#6b7280"
-                  style={{ fontSize: '0.75rem' }}
-                  tickLine={false}
-                />
-                <YAxis
-                  stroke="#6b7280"
-                  style={{ fontSize: '0.75rem' }}
-                  tickFormatter={(value) => formatCurrency(value)}
-                  tickLine={false}
-                />
-                <Tooltip
-                  content={({ active, payload, label }) => {
-                    if (active && payload && payload.length) {
-                      return (
-                        <div className={styles.tooltip}>
-                          <p className={styles.tooltipLabel}>{label}</p>
-                          <p className={styles.tooltipValue} style={{ color: '#059669' }}>
-                            Revenue: {formatCurrency(payload[0].value as number)}
-                          </p>
-                          <p className={styles.tooltipSessions}>
-                            {payload[0].payload.sessions} sessions
-                          </p>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-                <Legend
-                  wrapperStyle={{ fontSize: '0.75rem', paddingTop: '10px' }}
-                  iconType="line"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="#059669"
-                  strokeWidth={2}
-                  dot={{ fill: '#059669', r: 4 }}
-                  activeDot={{ r: 6 }}
-                  name="Current Period"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        )}
+        ) : revenueTrend?.data ? (
+          <HubEarningsTrendChart
+            data={revenueTrend.data.map(week => ({
+              week: week.week_label,
+              earnings: week.total_revenue,
+              sessions: week.sessions_count
+            }))}
+            title="Revenue Trend"
+            subtitle="Last 6 weeks"
+            currency="GBP"
+            dataKey="earnings"
+          />
+        ) : null}
       </div>
 
       {/* Team Performance */}
@@ -421,116 +302,16 @@ export default function OrganisationPerformanceTab({
         )}
       </div>
 
-      {/* Student Type Breakdown - Copied from Dashboard */}
+      {/* Student Type Breakdown - Using Hub Component */}
       <div className={styles.section}>
-        <div className={styles.studentWidget}>
-          <div className={styles.widgetHeader}>
-            <div className={styles.widgetHeaderLeft}>
-              <Users className={styles.widgetIcon} size={20} />
-              <h3 className={styles.widgetTitle}>Student Type Breakdown</h3>
-            </div>
-            <div className={styles.viewToggle}>
-              <button
-                className={`${styles.toggleButton} ${viewType === 'pie' ? styles.toggleActive : ''}`}
-                onClick={handlePieView}
-                aria-label="Pie chart view"
-              >
-                <PieChartIcon size={16} />
-              </button>
-              <button
-                className={`${styles.toggleButton} ${viewType === 'bar' ? styles.toggleActive : ''}`}
-                onClick={handleBarView}
-                aria-label="Bar chart view"
-              >
-                <BarChart3 size={16} />
-              </button>
-            </div>
-          </div>
-
-          <div className={styles.widgetContent}>
-            {!hasStudentData ? (
-              <div className={styles.emptyState}>
-                <p className={styles.emptyText}>No student data available yet. Start booking sessions to see your student breakdown.</p>
-              </div>
-            ) : (
-              <>
-                {/* Chart */}
-                <div className={styles.studentChartContainer}>
-                  {viewType === 'pie' ? (
-                    <ResponsiveContainer width="100%" height={220}>
-                      <PieChart>
-                        <Pie
-                          data={chartData}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={({ name, percent }) => `${((percent || 0) * 100).toFixed(0)}%`}
-                          outerRadius={80}
-                          fill="#8884d8"
-                          dataKey="value"
-                        >
-                          {chartData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip content={<CustomTooltip />} />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  ) : (
-                    <ResponsiveContainer width="100%" height={220}>
-                      <BarChart data={chartData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                        <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
-                        <YAxis stroke="#6b7280" fontSize={12} />
-                        <Tooltip content={<CustomTooltip />} />
-                        <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                          {chartData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  )}
-                </div>
-
-                {/* Stats Summary */}
-                <div className={styles.statsSummary}>
-                  <div className={styles.statItem}>
-                    <div className={styles.statDot} style={{ backgroundColor: '#2563EB' }} />
-                    <div className={styles.statContent}>
-                      <span className={styles.statLabel}>New Students</span>
-                      <span className={styles.statValue}>{studentBreakdownData.new}</span>
-                    </div>
-                  </div>
-                  <div className={styles.statItem}>
-                    <div className={styles.statDot} style={{ backgroundColor: '#059669' }} />
-                    <div className={styles.statContent}>
-                      <span className={styles.statLabel}>Returning Students</span>
-                      <span className={styles.statValue}>{studentBreakdownData.returning}</span>
-                    </div>
-                  </div>
-                  <div className={styles.statItem}>
-                    <div className={styles.statDot} style={{ backgroundColor: '#6b7280' }} />
-                    <div className={styles.statContent}>
-                      <span className={styles.statLabel}>Total</span>
-                      <span className={styles.statValue}>{totalStudents}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Insight */}
-                {studentBreakdownData.returning > 0 && (
-                  <div className={styles.insight}>
-                    <p className={styles.insightText}>
-                      <strong>{((studentBreakdownData.returning / totalStudents) * 100).toFixed(0)}%</strong> of your students are returning -
-                      {studentBreakdownData.returning / totalStudents > 0.5 ? ' excellent retention!' : ' focus on building long-term relationships.'}
-                    </p>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        </div>
+        {isLoadingStudentBreakdown ? (
+          <div className={styles.loading}>Loading student breakdown...</div>
+        ) : (
+          <HubStudentTypeBreakdown
+            data={studentBreakdownData}
+            defaultView="pie"
+          />
+        )}
       </div>
     </div>
   );

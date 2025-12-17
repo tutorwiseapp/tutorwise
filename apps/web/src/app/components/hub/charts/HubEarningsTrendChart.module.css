@@ -1,0 +1,74 @@
+/**
+ * Filename: HubEarningsTrendChart.module.css
+ * Purpose: Styles for Earnings Trend Chart component
+ * Created: 2025-12-17
+ */
+
+.chartContainer {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  width: 100%;
+  min-width: 0; /* Allow shrinking below content size */
+  overflow: hidden; /* Prevent overflow on narrow screens */
+}
+
+.header {
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 0.25rem 0;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Custom Tooltip - Dark Style */
+.tooltip {
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 4px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.tooltipLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+}
+
+.tooltipValue {
+  font-size: 13px;
+  color: #d1d5db;
+  margin: 0;
+}
+
+.tooltipSessions {
+  font-size: 0.75rem;
+  color: #d1d5db;
+  margin: 0.25rem 0 0 0;
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .chartContainer {
+    padding: 1.25rem;
+  }
+
+  .title {
+    font-size: 1rem;
+  }
+
+  .subtitle {
+    font-size: 0.8125rem;
+  }
+}

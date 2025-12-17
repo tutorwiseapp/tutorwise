@@ -1,0 +1,215 @@
+/**
+ * Filename: HubStudentTypeBreakdown.module.css
+ * Purpose: Styles for Student Type Breakdown chart widget
+ * Created: 2025-12-17
+ * Pattern: Widget card with teal header and chart visualization
+ */
+
+.widget {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease-in-out;
+  width: 100%;
+  min-width: 0;
+}
+
+.widget:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #E6F0F0; /* Teal header */
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon {
+  color: #006c67;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* View Toggle */
+.viewToggle {
+  display: flex;
+  gap: 4px;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 4px;
+  padding: 2px;
+}
+
+.toggleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background-color: transparent;
+  border: none;
+  border-radius: 4px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.toggleButton:hover {
+  background-color: rgba(0, 108, 103, 0.1);
+  color: #006c67;
+}
+
+.toggleActive {
+  background-color: #006c67;
+  color: #ffffff;
+}
+
+.toggleActive:hover {
+  background-color: #005550;
+}
+
+/* Content */
+.content {
+  padding: 16px;
+}
+
+/* Chart Container */
+.chartContainer {
+  margin-bottom: 16px;
+}
+
+/* Empty state */
+.emptyState {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.emptyText {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Tooltip - Dark Style */
+.tooltip {
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 4px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.tooltipLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+}
+
+.tooltipValue {
+  font-size: 13px;
+  color: #d1d5db;
+  margin: 0;
+}
+
+/* Stats Summary */
+.statsSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.statDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.statContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+}
+
+.statLabel {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.statValue {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+/* Insight */
+.insight {
+  padding: 10px 12px;
+  background-color: #E6F0F0;
+  border-left: 3px solid #006c67;
+  border-radius: 4px;
+}
+
+.insightText {
+  font-size: 12px;
+  color: #374151;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.insightText strong {
+  color: #006c67;
+  font-weight: 700;
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .chartContainer {
+    margin-bottom: 12px;
+  }
+
+  .statsSummary {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .statLabel {
+    font-size: 12px;
+  }
+
+  .statValue {
+    font-size: 13px;
+  }
+}

@@ -40,7 +40,7 @@ export default function ListingsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
-  const { user, isLoading: userLoading } = useUserProfile();
+  const { user, profile, isLoading: userLoading } = useUserProfile();
   const { isAllowed, isLoading: roleLoading } = useRoleGuard(['tutor', 'agent', 'client']);
 
   // URL state management
@@ -57,7 +57,7 @@ export default function ListingsPage() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ['listings', user?.id],
+    queryKey: ['listings', profile?.id],
     queryFn: getMyListings,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
@@ -70,22 +70,22 @@ export default function ListingsPage() {
   const deleteMutation = useMutation({
     mutationFn: deleteListing,
     onMutate: async (id) => {
-      await queryClient.cancelQueries({ queryKey: ['listings', user?.id] });
-      const previousListings = queryClient.getQueryData(['listings', user?.id]);
-      queryClient.setQueryData(['listings', user?.id], (old: Listing[] = []) =>
+      await queryClient.cancelQueries({ queryKey: ['listings', profile?.id] });
+      const previousListings = queryClient.getQueryData(['listings', profile?.id]);
+      queryClient.setQueryData(['listings', profile?.id], (old: Listing[] = []) =>
         old.filter((l) => l.id !== id)
       );
       return { previousListings };
     },
     onError: (err, id, context) => {
-      queryClient.setQueryData(['listings', user?.id], context?.previousListings);
+      queryClient.setQueryData(['listings', profile?.id], context?.previousListings);
       toast.error('Failed to delete listing');
     },
     onSuccess: () => {
       toast.success('Listing deleted successfully');
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['listings', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['listings', profile?.id] });
     },
   });
 
@@ -93,7 +93,7 @@ export default function ListingsPage() {
     mutationFn: publishListing,
     onSuccess: () => {
       toast.success('Listing published');
-      queryClient.invalidateQueries({ queryKey: ['listings', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['listings', profile?.id] });
     },
     onError: () => {
       toast.error('Failed to publish listing');
@@ -105,7 +105,7 @@ export default function ListingsPage() {
       unpublishListing(id, status),
     onSuccess: () => {
       toast.success('Listing unpublished');
-      queryClient.invalidateQueries({ queryKey: ['listings', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['listings', profile?.id] });
     },
     onError: (error) => {
       console.error('Unpublish error:', error);
@@ -117,7 +117,7 @@ export default function ListingsPage() {
     mutationFn: (id: string) => unpublishListing(id, 'archived'),
     onSuccess: () => {
       toast.success('Listing archived');
-      queryClient.invalidateQueries({ queryKey: ['listings', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['listings', profile?.id] });
     },
     onError: () => {
       toast.error('Failed to archive listing');
@@ -248,7 +248,7 @@ export default function ListingsPage() {
 
       if (newListingId) {
         toast.success('Listing duplicated successfully! View it in the Drafts tab.');
-        queryClient.invalidateQueries({ queryKey: ['listings', user?.id] });
+        queryClient.invalidateQueries({ queryKey: ['listings', profile?.id] });
         handleFilterChange('draft');
       } else {
         toast.error('Failed to duplicate listing');

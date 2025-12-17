@@ -1,0 +1,156 @@
+/**
+ * Filename: HubKPICard.module.css
+ * Purpose: Styles for Hub KPI Card component
+ * Created: 2025-12-17
+ * Pattern: Vertical card with left accent border
+ */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  border-radius: 0.5rem 0 0 0.5rem;
+  transition: width 0.2s ease-in-out;
+}
+
+/* Variant colors */
+.success::before {
+  background-color: #059669; /* Tutor green */
+}
+
+.info::before {
+  background-color: #2563EB; /* Client blue */
+}
+
+.warning::before {
+  background-color: #EA580C; /* Orange */
+}
+
+.neutral::before {
+  background-color: #6B7280; /* Gray */
+}
+
+/* Clickable state */
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-color: #d1d5db;
+}
+
+.clickable:hover::before {
+  width: 6px;
+}
+
+/* Link wrapper */
+.link {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Header (Icon + Label) */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon {
+  color: #6B7280;
+  flex-shrink: 0;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+/* Main Value */
+.value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1;
+}
+
+/* Sublabel */
+.sublabel {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #9ca3af;
+  margin-top: -0.25rem;
+}
+
+/* Change indicator */
+.change {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  width: fit-content;
+}
+
+.positive {
+  color: #059669;
+  background-color: #d1fae5;
+}
+
+.negative {
+  color: #dc2626;
+  background-color: #fee2e2;
+}
+
+/* Timeframe */
+.timeframe {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #9ca3af;
+  margin-top: 0.25rem;
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .card {
+    padding: 1.25rem;
+  }
+
+  .value {
+    font-size: 1.75rem;
+  }
+
+  .label {
+    font-size: 0.8125rem;
+  }
+}
+
+/* Tablet */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .card {
+    padding: 1.375rem;
+  }
+
+  .value {
+    font-size: 1.875rem;
+  }
+}
