@@ -1,6 +1,6 @@
--- Migration: 103_add_organisation_performance_analytics.sql
+-- Migration: 126_add_organisation_performance_analytics.sql
 -- Purpose: Add RPC functions for Performance Analytics tab (Premium feature)
--- Created: 2025-12-15
+-- Created: 2025-12-15 (Originally numbered 103, renumbered to 126 on 2025-12-17)
 -- Version: v7.0 - Organisation Premium Subscription
 -- Dependencies: Migration 091 (organisation schema), Migration 102 (subscriptions)
 --
@@ -323,7 +323,7 @@ CREATE INDEX IF NOT EXISTS idx_profile_reviews_reviewee_booking
 -- Verify functions created
 DO $$
 BEGIN
-  RAISE NOTICE 'Migration 103 complete: Performance Analytics functions created';
+  RAISE NOTICE 'Migration 126 complete: Performance Analytics functions created';
   RAISE NOTICE '  ✓ get_organisation_kpis()';
   RAISE NOTICE '  ✓ get_organisation_revenue_trend()';
   RAISE NOTICE '  ✓ get_team_performance()';
