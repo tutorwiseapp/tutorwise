@@ -45,7 +45,7 @@ BEGIN
       ELSE pg.source_profile_id
     END
     LEFT JOIN public.transactions t ON t.booking_id = b.id AND t.type = 'Tutoring Payout'
-    LEFT JOIN public.profile_reviews pr ON pr.reviewee_id = b.tutor_id AND pr.booking_id = b.id
+    LEFT JOIN public.profile_reviews pr ON pr.reviewee_id = b.tutor_id AND pr.booking_id::UUID = b.id
     WHERE gm.group_id = org_id
       AND b.status = 'Completed'
       AND b.session_start_time >= date_trunc(period::TEXT, CURRENT_DATE)
