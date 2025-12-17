@@ -1,13 +1,14 @@
 /*
  * Filename: src/lib/stripe/subscription.ts
- * Purpose: Subscription management for Organisation Premium tier (£50/month)
+ * Purpose: Subscription management for Organisation Premium tier
  * Created: 2025-12-13
- * Version: v7.0
- * Specification: Organisation Premium subscription with 14-day free trial
+ * Version: v8.0 - Feature Flag Integration
+ * Updated: 2025-12-17 - Added configurable trial days and pricing via feature flags
  *
  * Features:
- * - 14-day free trial (no credit card required)
- * - £50/month recurring subscription
+ * - Configurable free trial (default 14 days, adjustable via NEXT_PUBLIC_TRIAL_DAYS)
+ * - Configurable pricing (default £50/month, adjustable via NEXT_PUBLIC_SUBSCRIPTION_PRICE)
+ * - Feature flag toggle (NEXT_PUBLIC_ENABLE_SUBSCRIPTION_PAYWALL)
  * - Single Premium tier (no free tier)
  * - Trial to paid conversion
  * - Subscription cancellation
@@ -16,6 +17,7 @@
 import { stripe } from './client';
 import { createClient } from '@/utils/supabase/server';
 import type Stripe from 'stripe';
+import { FEATURES, getFormattedPrice } from '@/config/features';
 
 // Re-export types and utilities from subscription-utils (client-safe)
 export type { SubscriptionStatus, OrganisationSubscription } from './subscription-utils';
@@ -63,12 +65,14 @@ export async function getOrganisationSubscription(
  * Create Stripe Checkout Session for trial signup
  *
  * Flow:
- * 1. User clicks "Start 14-Day Free Trial" on /organisation page
- * 2. This function creates a Checkout Session with trial_period_days: 14
+ * 1. User clicks "Start Free Trial" on /organisation page
+ * 2. This function creates a Checkout Session with configurable trial_period_days
  * 3. No credit card required during trial (trial_settings.end_behavior.missing_payment_method: 'cancel')
  * 4. User is redirected to Stripe Checkout
  * 5. After completing Checkout, user returns to /organisation page
  * 6. Webhook creates organisation_subscriptions record with status='trialing'
+ *
+ * Note: Trial days are configured via NEXT_PUBLIC_TRIAL_DAYS (default: 14)
  */
 export async function createTrialCheckoutSession(organisationId: string): Promise<Stripe.Checkout.Session> {
   if (!process.env.STRIPE_PREMIUM_PRICE_ID) {
@@ -99,6 +103,9 @@ export async function createTrialCheckoutSession(organisationId: string): Promis
     throw new Error('Organisation owner profile not found');
   }
 
+  // Get trial days from feature flags (configurable via environment)
+  const trialDays = FEATURES.SUBSCRIPTION_PAYWALL.trialDays;
+
   // Create Stripe Checkout Session
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',
@@ -110,7 +117,7 @@ export async function createTrialCheckoutSession(organisationId: string): Promis
       },
     ],
     subscription_data: {
-      trial_period_days: 14,
+      trial_period_days: trialDays,
       metadata: {
         organisation_id: organisationId,
         organisation_name: org.name || 'Unnamed Organisation',

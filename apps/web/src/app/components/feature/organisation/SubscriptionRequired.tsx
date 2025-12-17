@@ -2,19 +2,26 @@
  * Filename: SubscriptionRequired.tsx
  * Purpose: Block UI for organisation users without active subscription
  * Created: 2025-12-15
- * Version: v7.0 - Organisation Premium Subscription
+ * Version: v8.0 - Feature Flag Integration & Smart Dismissal
+ * Updated: 2025-12-17 - Added configurable trial days, smart dismissal, and export functionality
  *
  * This component displays when a user tries to access organisation features
- * without an active Premium subscription (£50/month with 14-day trial)
+ * without an active Premium subscription (configurable via feature flags)
+ *
+ * Smart Popup Logic:
+ * - Days 1-10: No popup (silent trial)
+ * - Days 11-13 (3-1 days left): Show once per day, dismissible with "X" button
+ * - Day 14+ (expired): Show always, non-dismissible
  */
 
 'use client';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Sparkles, Check } from 'lucide-react';
+import { Sparkles, Check, X } from 'lucide-react';
 import Button from '@/app/components/ui/actions/Button';
 import type { OrganisationSubscription } from '@/lib/stripe/subscription-utils';
+import { FEATURES, getFormattedPrice } from '@/config/features';
 import styles from './SubscriptionRequired.module.css';
 
 interface SubscriptionRequiredProps {
@@ -24,22 +31,32 @@ interface SubscriptionRequiredProps {
   };
   subscription: OrganisationSubscription | null;
   onStartTrial: () => void;
+  onDismiss?: () => void; // Optional dismiss handler for trial reminders
+  onExportData?: () => void; // Optional export handler
   isLoading?: boolean;
+  canDismiss?: boolean; // Can user dismiss this modal?
 }
 
 export default function SubscriptionRequired({
   organisation,
   subscription,
   onStartTrial,
+  onDismiss,
+  onExportData,
   isLoading = false,
+  canDismiss = false,
 }: SubscriptionRequiredProps) {
   const router = useRouter();
+
+  // Get trial days from feature flags
+  const trialDays = FEATURES.SUBSCRIPTION_PAYWALL.trialDays;
+  const formattedPrice = getFormattedPrice();
 
   // Determine message based on subscription status
   const getStatusMessage = () => {
     if (!subscription) {
       return {
-        title: 'Start Your 14-Day Free Trial',
+        title: `Start Your ${trialDays}-Day Free Trial`,
         description: 'Get full access to Organisation Premium features with no credit card required.',
         ctaText: 'Start Free Trial',
         showFeatures: true,
@@ -99,6 +116,17 @@ export default function SubscriptionRequired({
   return (
     <div className={styles.container}>
       <div className={styles.card}>
+        {/* Close button (X) - only show if dismissible */}
+        {canDismiss && onDismiss && (
+          <button
+            onClick={onDismiss}
+            className={styles.closeButton}
+            aria-label="Dismiss reminder"
+          >
+            <X size={20} />
+          </button>
+        )}
+
         <div className={styles.iconContainer}>
           <Sparkles size={48} className={styles.icon} />
         </div>
@@ -110,7 +138,7 @@ export default function SubscriptionRequired({
           <div className={styles.features}>
             <div className={styles.feature}>
               <Check size={20} className={styles.checkIcon} />
-              <span>14-day free trial (no credit card required)</span>
+              <span>{trialDays}-day free trial (no credit card required)</span>
             </div>
             <div className={styles.feature}>
               <Check size={20} className={styles.checkIcon} />
@@ -136,19 +164,34 @@ export default function SubscriptionRequired({
         )}
 
         <div className={styles.pricing}>
-          <span className={styles.price}>£50</span>
+          <span className={styles.price}>{formattedPrice}</span>
           <span className={styles.period}>/month</span>
         </div>
 
-        <Button
-          onClick={handleCTAClick}
-          variant="primary"
-          fullWidth
-          disabled={isLoading}
-          className={styles.ctaButton}
-        >
-          {isLoading ? 'Loading...' : status.ctaText}
-        </Button>
+        {/* Action buttons */}
+        <div className={styles.actionButtons}>
+          <Button
+            onClick={handleCTAClick}
+            variant="primary"
+            fullWidth
+            disabled={isLoading}
+            className={styles.ctaButton}
+          >
+            {isLoading ? 'Loading...' : status.ctaText}
+          </Button>
+
+          {/* Export button - show during trial expiry reminders */}
+          {onExportData && (
+            <Button
+              onClick={onExportData}
+              variant="secondary"
+              fullWidth
+              className={styles.exportButton}
+            >
+              Export My Data (CSV)
+            </Button>
+          )}
+        </div>
 
         {!subscription && (
           <p className={styles.trialNote}>

@@ -1,7 +1,8 @@
 /**
  * SubscriptionRequired.module.css
  * Styles for Organisation Premium subscription required screen
- * v7.0 - Organisation Premium Subscription
+ * v8.0 - Feature Flag Integration & Smart Dismissal
+ * Updated: 2025-12-17 - Added close button and action buttons container
  */
 
 .container {
@@ -21,6 +22,33 @@
   padding: 3rem 2rem;
   text-align: center;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  position: relative; /* For close button positioning */
+}
+
+/* Close button (X) */
+.closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary, #6b7280);
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeButton:hover {
+  background: var(--hover-background, #f3f4f6);
+  color: var(--text-primary, #111827);
+}
+
+.closeButton:active {
+  transform: scale(0.95);
 }
 
 .iconContainer {
@@ -97,10 +125,22 @@
   color: var(--text-secondary, #6b7280);
 }
 
-.ctaButton {
+/* Action buttons container */
+.actionButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
   margin-bottom: 1rem;
+}
+
+.ctaButton {
   font-size: 1rem;
   padding: 0.75rem 2rem;
+}
+
+.exportButton {
+  font-size: 0.95rem;
+  padding: 0.65rem 1.5rem;
 }
 
 .trialNote {
