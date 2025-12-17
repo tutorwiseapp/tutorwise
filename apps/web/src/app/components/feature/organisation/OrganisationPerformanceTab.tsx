@@ -193,70 +193,65 @@ export default function OrganisationPerformanceTab({
         </div>
       </div>
 
-      {/* KPI Cards */}
+      {/* KPI Cards - Matching Dashboard Structure */}
       <div className={styles.kpiGrid}>
         <div className={styles.kpiCard}>
-          <div className={styles.kpiIcon}>
-            <TrendingUp size={24} />
-          </div>
-          <div className={styles.kpiContent}>
+          <div className={styles.kpiHeader}>
+            <TrendingUp size={20} className={styles.kpiIcon} />
             <div className={styles.kpiLabel}>Total Revenue</div>
-            <div className={styles.kpiValue}>
-              {kpisLoading ? '...' : formatCurrency(kpis?.total_revenue || 0)}
-            </div>
-            {kpis && (
-              <div className={kpis.revenue_change_pct >= 0 ? styles.kpiChangePositive : styles.kpiChangeNegative}>
-                {formatPercentage(kpis.revenue_change_pct)}
-              </div>
-            )}
           </div>
+          <div className={styles.kpiValue}>
+            {kpisLoading ? '...' : formatCurrency(kpis?.total_revenue || 0)}
+          </div>
+          {kpis && (
+            <div className={kpis.revenue_change_pct >= 0 ? styles.kpiChangePositive : styles.kpiChangeNegative}>
+              {formatPercentage(kpis.revenue_change_pct)}
+            </div>
+          )}
+          <div className={styles.kpiSubtext}>This {period === 'month' ? 'Month' : period === 'quarter' ? 'Quarter' : 'Year'}</div>
         </div>
 
         <div className={styles.kpiCard}>
-          <div className={styles.kpiIcon}>
-            <Users size={24} />
-          </div>
-          <div className={styles.kpiContent}>
+          <div className={styles.kpiHeader}>
+            <Users size={20} className={styles.kpiIcon} />
             <div className={styles.kpiLabel}>Active Students</div>
-            <div className={styles.kpiValue}>
-              {kpisLoading ? '...' : kpis?.active_students || 0}
-            </div>
-            {kpis && (
-              <div className={kpis.students_change_pct >= 0 ? styles.kpiChangePositive : styles.kpiChangeNegative}>
-                {formatPercentage(kpis.students_change_pct)}
-              </div>
-            )}
           </div>
+          <div className={styles.kpiValue}>
+            {kpisLoading ? '...' : kpis?.active_students || 0}
+          </div>
+          {kpis && (
+            <div className={kpis.students_change_pct >= 0 ? styles.kpiChangePositive : styles.kpiChangeNegative}>
+              {formatPercentage(kpis.students_change_pct)}
+            </div>
+          )}
+          <div className={styles.kpiSubtext}>This {period === 'month' ? 'Month' : period === 'quarter' ? 'Quarter' : 'Year'}</div>
         </div>
 
         <div className={styles.kpiCard}>
-          <div className={styles.kpiIcon}>
-            <Calendar size={24} />
-          </div>
-          <div className={styles.kpiContent}>
+          <div className={styles.kpiHeader}>
+            <Calendar size={20} className={styles.kpiIcon} />
             <div className={styles.kpiLabel}>Total Sessions</div>
-            <div className={styles.kpiValue}>
-              {kpisLoading ? '...' : kpis?.total_sessions || 0}
-            </div>
-            {kpis && (
-              <div className={kpis.sessions_change_pct >= 0 ? styles.kpiChangePositive : styles.kpiChangeNegative}>
-                {formatPercentage(kpis.sessions_change_pct)}
-              </div>
-            )}
           </div>
+          <div className={styles.kpiValue}>
+            {kpisLoading ? '...' : kpis?.total_sessions || 0}
+          </div>
+          {kpis && (
+            <div className={kpis.sessions_change_pct >= 0 ? styles.kpiChangePositive : styles.kpiChangeNegative}>
+              {formatPercentage(kpis.sessions_change_pct)}
+            </div>
+          )}
+          <div className={styles.kpiSubtext}>This {period === 'month' ? 'Month' : period === 'quarter' ? 'Quarter' : 'Year'}</div>
         </div>
 
         <div className={styles.kpiCard}>
-          <div className={styles.kpiIcon}>
-            <Star size={24} />
-          </div>
-          <div className={styles.kpiContent}>
+          <div className={styles.kpiHeader}>
+            <Star size={20} className={styles.kpiIcon} />
             <div className={styles.kpiLabel}>Avg. Rating</div>
-            <div className={styles.kpiValue}>
-              {kpisLoading ? '...' : kpis?.avg_session_rating?.toFixed(1) || '0.0'}
-            </div>
-            <div className={styles.kpiSubtext}>out of 5.0</div>
           </div>
+          <div className={styles.kpiValue}>
+            {kpisLoading ? '...' : kpis?.avg_session_rating?.toFixed(1) || '0.0'}
+          </div>
+          <div className={styles.kpiSubtext}>out of 5.0</div>
         </div>
       </div>
 
