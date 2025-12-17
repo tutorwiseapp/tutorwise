@@ -21,7 +21,7 @@ import { useRouter } from 'next/navigation';
 import { Sparkles, Check, X } from 'lucide-react';
 import Button from '@/app/components/ui/actions/Button';
 import type { OrganisationSubscription } from '@/lib/stripe/subscription-utils';
-import { FEATURES, getFormattedPrice } from '@/config/features';
+import { FEATURES, getFormattedPrice } from '@/config/organisation-features';
 import styles from './SubscriptionRequired.module.css';
 
 interface SubscriptionRequiredProps {

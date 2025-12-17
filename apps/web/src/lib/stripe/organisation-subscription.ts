@@ -1,5 +1,5 @@
 /*
- * Filename: src/lib/stripe/subscription.ts
+ * Filename: src/lib/stripe/organisation-subscription.ts
  * Purpose: Subscription management for Organisation Premium tier
  * Created: 2025-12-13
  * Version: v8.0 - Feature Flag Integration
@@ -17,7 +17,7 @@
 import { stripe } from './client';
 import { createClient } from '@/utils/supabase/server';
 import type Stripe from 'stripe';
-import { FEATURES, getFormattedPrice } from '@/config/features';
+import { FEATURES, getFormattedPrice } from '@/config/organisation-features';
 
 // Re-export types and utilities from subscription-utils (client-safe)
 export type { SubscriptionStatus, OrganisationSubscription } from './subscription-utils';

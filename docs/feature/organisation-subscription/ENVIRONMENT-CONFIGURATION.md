@@ -173,7 +173,7 @@ The Organisation page has a **CSV Export** feature in the secondary dropdown (3-
 
 ### 1. Stripe Checkout Session
 
-[subscription.ts:107](../../../apps/web/src/lib/stripe/subscription.ts#L107)
+[organisation-subscription.ts:107](../../../apps/web/src/lib/stripe/organisation-subscription.ts#L107)
 ```typescript
 // Trial days dynamically set from NEXT_PUBLIC_TRIAL_DAYS
 const trialDays = FEATURES.SUBSCRIPTION_PAYWALL.trialDays;
@@ -198,7 +198,7 @@ title: `Start Your ${trialDays}-Day Free Trial`,
 
 ### 3. Trial Status Detection
 
-[trial-status.ts:37](../../../apps/web/src/lib/stripe/trial-status.ts#L37)
+[organisation-trial-status.ts:37](../../../apps/web/src/lib/stripe/organisation-trial-status.ts#L37)
 ```typescript
 // Feature flag check before showing popup
 if (!FEATURES.SUBSCRIPTION_PAYWALL.enabled) {
@@ -278,9 +278,9 @@ NEXT_PUBLIC_SUBSCRIPTION_CURRENCY=USD
 
 | File | Purpose |
 |------|---------|
-| [features.ts](../../../apps/web/src/config/features.ts) | Feature flag configuration system |
-| [trial-status.ts](../../../apps/web/src/lib/stripe/trial-status.ts) | Trial status detection & smart popup logic |
-| [subscription.ts](../../../apps/web/src/lib/stripe/subscription.ts) | Stripe integration with configurable trial days |
+| [organisation-features.ts](../../../apps/web/src/config/organisation-features.ts) | Feature flag configuration system |
+| [organisation-trial-status.ts](../../../apps/web/src/lib/stripe/organisation-trial-status.ts) | Trial status detection & smart popup logic |
+| [organisation-subscription.ts](../../../apps/web/src/lib/stripe/organisation-subscription.ts) | Stripe integration with configurable trial days |
 | [SubscriptionRequired.tsx](../../../apps/web/src/app/components/feature/organisation/SubscriptionRequired.tsx) | Updated modal with dismissal & export |
 
 ---

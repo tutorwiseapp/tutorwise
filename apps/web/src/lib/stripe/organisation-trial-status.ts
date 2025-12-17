@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/lib/stripe/trial-status.ts
+ * Filename: apps/web/src/lib/stripe/organisation-trial-status.ts
  * Purpose: Trial status detection and smart popup timing logic
  * Created: 2025-12-17
  * Version: v1.0
@@ -13,7 +13,7 @@
  */
 
 import type { OrganisationSubscription } from './subscription-utils';
-import { FEATURES } from '@/config/features';
+import { FEATURES } from '@/config/organisation-features';
 
 export interface TrialStatus {
   daysRemaining: number;

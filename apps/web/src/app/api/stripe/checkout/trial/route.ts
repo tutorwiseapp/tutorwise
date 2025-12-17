@@ -10,7 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { createTrialCheckoutSession } from '@/lib/stripe/subscription';
+import { createTrialCheckoutSession } from '@/lib/stripe/organisation-subscription';
 
 export const dynamic = 'force-dynamic';
 

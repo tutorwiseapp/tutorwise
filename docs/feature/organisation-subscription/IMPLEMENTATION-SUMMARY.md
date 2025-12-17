@@ -10,7 +10,7 @@
 
 ### ✅ Phase 1: Feature Flag System
 
-**File**: [features.ts](../../../apps/web/src/config/features.ts)
+**File**: [organisation-features.ts](../../../apps/web/src/config/organisation-features.ts)
 
 Implemented a robust configuration system with the following environment variables:
 
@@ -31,7 +31,7 @@ NEXT_PUBLIC_SUBSCRIPTION_CURRENCY=GBP         // Currency (GBP/USD/EUR)
 
 ### ✅ Phase 2: Smart Trial Reminder System
 
-**File**: [trial-status.ts](../../../apps/web/src/lib/stripe/trial-status.ts)
+**File**: [organisation-trial-status.ts](../../../apps/web/src/lib/stripe/organisation-trial-status.ts)
 
 Implemented intelligent popup timing logic:
 
@@ -60,7 +60,7 @@ trial_reminder_dismissed_{org_id}_day1
 
 ### ✅ Phase 3: Stripe Integration Update
 
-**File**: [subscription.ts](../../../apps/web/src/lib/stripe/subscription.ts)
+**File**: [organisation-subscription.ts](../../../apps/web/src/lib/stripe/organisation-subscription.ts)
 
 Updated Stripe Checkout Session to use configurable trial days:
 
@@ -313,14 +313,14 @@ NEXT_PUBLIC_ENABLE_SUBSCRIPTION_PAYWALL=false
 
 ### New Files Created
 
-1. [features.ts](../../../apps/web/src/config/features.ts) - Feature flag system
-2. [trial-status.ts](../../../apps/web/src/lib/stripe/trial-status.ts) - Trial status utilities
+1. [organisation-features.ts](../../../apps/web/src/config/organisation-features.ts) - Feature flag system
+2. [organisation-trial-status.ts](../../../apps/web/src/lib/stripe/organisation-trial-status.ts) - Trial status utilities
 3. [ENVIRONMENT-CONFIGURATION.md](./ENVIRONMENT-CONFIGURATION.md) - Configuration guide
 4. [IMPLEMENTATION-SUMMARY.md](./IMPLEMENTATION-SUMMARY.md) - This file
 
 ### Modified Files
 
-1. [subscription.ts](../../../apps/web/src/lib/stripe/subscription.ts) - Added configurable trial days
+1. [organisation-subscription.ts](../../../apps/web/src/lib/stripe/organisation-subscription.ts) - Added configurable trial days
 2. [SubscriptionRequired.tsx](../../../apps/web/src/app/components/feature/organisation/SubscriptionRequired.tsx) - Added dismissal & export
 3. [SubscriptionRequired.module.css](../../../apps/web/src/app/components/feature/organisation/SubscriptionRequired.module.css) - Added styles
 
