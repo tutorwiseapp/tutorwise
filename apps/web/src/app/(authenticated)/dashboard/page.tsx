@@ -342,6 +342,7 @@ const DashboardPage = () => {
             { id: 'analytics', label: 'Analytics', active: activeTab === 'analytics' }
           ]}
           onTabChange={(tabId) => setActiveTab(tabId as 'overview' | 'analytics')}
+          className={styles.dashboardTabs}
         />
       }
       sidebar={

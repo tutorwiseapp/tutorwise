@@ -29,11 +29,12 @@ export interface HubTab {
 interface HubTabsProps {
   tabs: HubTab[];
   onTabChange: (tabId: string) => void;
+  className?: string;
 }
 
-export default function HubTabs({ tabs, onTabChange }: HubTabsProps) {
+export default function HubTabs({ tabs, onTabChange, className }: HubTabsProps) {
   return (
-    <div className={styles.filterTabsContainer}>
+    <div className={`${styles.filterTabsContainer} ${className || ''}`}>
       <div className={styles.filterTabs}>
         {tabs.map((tab) => (
           <button

@@ -30,9 +30,9 @@ interface HubHeaderProps {
 
 export default function HubHeader({ title, subtitle, filters, actions, className }: HubHeaderProps) {
   return (
-    <header className={styles.header}>
+    <header className={`${styles.header} ${className || ''}`}>
       {/* Row 1: Title + Actions */}
-      <div className={`${styles.headerRow} ${className || ''}`}>
+      <div className={styles.headerRow}>
         {/* Left: Title */}
         <div className={styles.titleSection}>
           <h1 className={styles.title}>

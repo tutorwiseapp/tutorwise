@@ -2,14 +2,19 @@
  * Filename: apps/web/src/app/components/ui/hub-layout/HubTabs.module.css
  * Purpose: Styles for HubTabs component - Matches Bookings page filter tabs exactly
  * Created: 2025-11-28
- * Updated: 2025-11-28 - Updated to match Bookings page style guide
+ * Updated: 2025-12-17 - Added CSS variables for spacing customization
+ *
+ * Customizable CSS Variables (with defaults):
+ * --hub-tabs-margin-top: 0
+ * --hub-tabs-margin-bottom: 1rem
  */
 
 /* Outer container - Border extends full width from left edge to right edge */
 .filterTabsContainer {
   position: relative;
   border-bottom: 2px solid #e5e7eb;
-  margin-bottom: 1rem;
+  margin-top: var(--hub-tabs-margin-top, 0rem);
+  margin-bottom: var(--hub-tabs-margin-bottom, 1rem);
 }
 
 /* Inner wrapper - Contains tab buttons with padding for alignment */

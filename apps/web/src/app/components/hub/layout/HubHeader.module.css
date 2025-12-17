@@ -1,20 +1,44 @@
 /**
  * Filename: apps/web/src/app/components/ui/hub-layout/HubHeader.module.css
- * Purpose: Styles for HubHeader component
+ * Purpose: Styles for HubHeader component with CSS custom properties for per-page customization
  * Created: 2025-11-28
- * Updated: 2025-11-29 - Optimized spacing: HubHeader→Tabs 8px (reduced by 24px from 32px)
+ * Updated: 2025-12-17 - Added CSS variables for flexible per-page customization
+ *
+ * Customizable CSS Variables (with defaults):
+ * --hub-header-margin-top: 1rem          (Space above header from global navigation)
+ * --hub-header-margin-bottom: 0          (Space below header - NOTE: Use HubTabs margin-top instead for header-to-tabs spacing)
+ * --hub-header-bg-color: #ffffff
+ * --hub-header-height: 4.5rem
+ * --hub-header-padding-x: 1rem
+ * --hub-header-padding-y: 0
+ * --hub-header-title-size: 1.5rem
+ * --hub-header-title-weight: 600
+ * --hub-header-title-color: #1f2937
+ * --hub-header-subtitle-size: 0.875rem
+ * --hub-header-subtitle-weight: 400
+ * --hub-header-subtitle-color: #6b7280
+ * --hub-header-subtitle-margin-top: 0.25rem
+ * --hub-header-actions-gap: 0.5rem
+ * --hub-header-actions-margin-left: 1rem
+ * --hub-header-filters-padding-y: 1rem
+ * --hub-header-filters-padding-x: 0
+ *
+ * IMPORTANT: To control spacing between header and tabs, use --hub-tabs-margin-top in HubTabs.module.css
+ * Example: .dashboardTabs { --hub-tabs-margin-top: 1rem; }
  */
 
 .header {
-  background-color: #ffffff;
-  margin-top: 1rem;
-  margin-bottom: 0;
+  background-color: var(--hub-header-bg-color, #ffffff);
+  margin-top: var(--hub-header-margin-top, 0);
+  margin-bottom: var(--hub-header-margin-bottom, 0);
 }
 
 .headerRow {
-  padding-left: 1rem;
-  padding-right: 1rem;
-  height: 4.5rem;
+  padding-left: var(--hub-header-padding-x, 1rem);
+  padding-right: var(--hub-header-padding-x, 1rem);
+  padding-top: var(--hub-header-padding-y, 0);
+  padding-bottom: var(--hub-header-padding-y, 0);
+  height: var(--hub-header-height, 4.5rem);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -25,9 +49,9 @@
 }
 
 .title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f2937;
+  font-size: var(--hub-header-title-size, 1.5rem);
+  font-weight: var(--hub-header-title-weight, 600);
+  color: var(--hub-header-title-color, #1f2937);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -35,24 +59,26 @@
 }
 
 .subtitle {
-  font-size: 0.875rem; /* 14px - var(--font-size-sm) */
-  font-weight: 400; /* Normal */
-  color: #6b7280; /* var(--color-text-secondary) */
-  margin: 0.25rem 0 0 0;
+  font-size: var(--hub-header-subtitle-size, 0.875rem);
+  font-weight: var(--hub-header-subtitle-weight, 400);
+  color: var(--hub-header-subtitle-color, #6b7280);
+  margin: var(--hub-header-subtitle-margin-top, 0.25rem) 0 0 0;
 }
 
 .actionsSection {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--hub-header-actions-gap, 0.5rem);
   flex-shrink: 0;
-  margin-left: 1rem;
+  margin-left: var(--hub-header-actions-margin-left, 1rem);
 }
 
 .filtersRow {
-  background-color: #ffffff;
-  padding-top: 0rem;
-  padding-bottom: 1rem;
+  background-color: var(--hub-header-bg-color, #ffffff);
+  padding-top: var(--hub-header-filters-padding-y, 0);
+  padding-bottom: var(--hub-header-filters-padding-y, 1rem);
+  padding-left: var(--hub-header-filters-padding-x, 0);
+  padding-right: var(--hub-header-filters-padding-x, 0);
 
   display: flex;
   justify-content: center;

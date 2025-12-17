@@ -1,9 +1,10 @@
 /*
  * Filename: src/app/(authenticated)/dashboard/page.module.css
  * Purpose: Dashboard hub page styles - role-specific cards and mobile-first responsive design
- * UPDATED: 2025-12-03 - Migrated to Hub Layout Architecture, removed obsolete header/container styles
+ * UPDATED: 2025-12-17 - Added CSS variables for HubHeader customization
  *
  * Change History:
+ * C008 - 2025-12-17 : Added CSS variables for flexible HubHeader customization per page
  * C007 - 2025-12-03 : Migrated to Hub Layout Architecture - removed .container, .header, .title (now in HubHeader)
  * C006 - 2025-11-08 : Removed .unifiedHub wrapper, using .container pattern like other hubs
  * C005 - 2025-11-08 : Added unified hub layout with AppSidebar + Center + ContextualSidebar
@@ -13,9 +14,64 @@
  * C001 - [Date] : [Time] - Initial creation.
  */
 
-/* Dashboard Header - Extra spacing from global header */
+/*
+ * Dashboard Header - Customized using CSS variables
+ *
+ * This example shows all available CSS variables for HubHeader customization.
+ * You can override any of these variables to customize your hub page header.
+ * Variables not overridden will use the default values from HubHeader.module.css.
+ *
+ * Usage:
+ * 1. Add className={styles.dashboardHeader} to your HubHeader component
+ * 2. Customize only the variables you want to change
+ * 3. Remove variables set to default values to keep CSS clean
+ */
 .dashboardHeader {
-  margin-top: 0.75rem; /* 1rem base (from HubHeader) + 1rem extra = 2rem total */
+  /* Spacing */
+  --hub-header-margin-top: 1.5rem;  /* Extra spacing from global header */
+  --hub-header-margin-bottom: 0;     /* No margin below header (tabs control the gap) */
+
+  /* Typography - showing defaults for reference (can be customized) */
+  --hub-header-title-size: 1.5rem;
+  --hub-header-title-weight: 600;
+  --hub-header-title-color: #1f2937;
+  --hub-header-subtitle-size: 0.875rem;
+  --hub-header-subtitle-weight: 400;
+  --hub-header-subtitle-color: #6b7280;
+
+  /* Layout */
+  --hub-header-height: 3rem;
+  --hub-header-padding-x: 1rem;
+
+  /* Actions (CTA buttons) */
+  --hub-header-actions-gap: 0.5rem;
+  --hub-header-actions-margin-left: 1rem;
+
+  /* Filters (search + filters) */
+  --hub-header-filters-padding-y: 1rem;
+}
+
+/* Mobile: Smaller header spacing */
+@media (max-width: 767px) {
+  .dashboardHeader {
+    --hub-header-margin-top: 0rem;  /* Mobile smaller spacing from global header */
+  }
+}
+
+/*
+ * Dashboard Tabs - Customized spacing between header and tabs
+ *
+ * Usage: Add className={styles.dashboardTabs} to your HubTabs component
+ */
+.dashboardTabs {
+  --hub-tabs-margin-top: 3rem;  /* Desktop: 3rem spacing (default) */
+}
+
+/* Mobile: Smaller spacing */
+@media (max-width: 767px) {
+  .dashboardTabs {
+    --hub-tabs-margin-top: 0rem;  /* Mobile: 0rem smaller spacing */
+  }
 }
 
 /* Header action buttons container */
