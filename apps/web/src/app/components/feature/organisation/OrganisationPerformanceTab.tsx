@@ -14,9 +14,10 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { TrendingUp, Users, Calendar, Star, Clock, BookOpen } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import styles from './OrganisationPerformanceTab.module.css';
 
 interface OrganisationPerformanceTabProps {
@@ -255,31 +256,72 @@ export default function OrganisationPerformanceTab({
         </div>
       </div>
 
-      {/* Revenue Trend */}
+      {/* Revenue Trend - Matching Dashboard Design */}
       <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Revenue Trend (Last 6 Weeks)</h3>
         {trendLoading ? (
           <div className={styles.loading}>Loading chart...</div>
         ) : (
           <div className={styles.chartContainer}>
-            <div className={styles.simpleChart}>
-              {revenueTrend?.data.map((week, index) => (
-                <div key={index} className={styles.chartBar}>
-                  <div
-                    className={styles.chartBarFill}
-                    style={{
-                      height: `${Math.max((week.total_revenue / (revenueTrend.data[0]?.total_revenue || 1)) * 100, 5)}%`,
-                    }}
-                  >
-                    <span className={styles.chartBarValue}>
-                      {formatCurrency(week.total_revenue)}
-                    </span>
-                  </div>
-                  <div className={styles.chartBarLabel}>{week.week_label}</div>
-                  <div className={styles.chartBarSessions}>{week.sessions_count} sessions</div>
-                </div>
-              ))}
+            <div className={styles.chartHeader}>
+              <h3 className={styles.chartTitle}>Revenue Trend</h3>
+              <p className={styles.chartSubtitle}>Last 6 weeks</p>
             </div>
+
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart
+                data={revenueTrend?.data.map(week => ({
+                  week: week.week_label,
+                  revenue: week.total_revenue,
+                  sessions: week.sessions_count
+                }))}
+                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis
+                  dataKey="week"
+                  stroke="#6b7280"
+                  style={{ fontSize: '0.75rem' }}
+                  tickLine={false}
+                />
+                <YAxis
+                  stroke="#6b7280"
+                  style={{ fontSize: '0.75rem' }}
+                  tickFormatter={(value) => formatCurrency(value)}
+                  tickLine={false}
+                />
+                <Tooltip
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className={styles.tooltip}>
+                          <p className={styles.tooltipLabel}>{label}</p>
+                          <p className={styles.tooltipValue} style={{ color: '#059669' }}>
+                            Revenue: {formatCurrency(payload[0].value as number)}
+                          </p>
+                          <p className={styles.tooltipSessions}>
+                            {payload[0].payload.sessions} sessions
+                          </p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Legend
+                  wrapperStyle={{ fontSize: '0.75rem', paddingTop: '10px' }}
+                  iconType="line"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#059669"
+                  strokeWidth={2}
+                  dot={{ fill: '#059669', r: 4 }}
+                  activeDot={{ r: 6 }}
+                  name="Current Period"
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         )}
       </div>
