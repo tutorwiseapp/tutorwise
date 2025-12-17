@@ -106,19 +106,12 @@ h1,h2,h3,h4,h5,h6 {
   font-weight: var(--font-weight-semibold);
 }
 
-a {
-  color: inherit;
+:where(a) {
+  color: var(--color-primary);
   text-decoration: none;
 }
-a:hover {
+:where(a:hover) {
   text-decoration: underline;
-}
-
-/* Default link color for content areas */
-main a:not([class]),
-article a:not([class]),
-.content a:not([class]) {
-  color: var(--color-primary);
 }
 
 /* =================================== */
