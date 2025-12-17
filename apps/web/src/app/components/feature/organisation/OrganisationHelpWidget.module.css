@@ -36,21 +36,22 @@
   line-height: 1.5;
   margin: 12px 0 0 0;
   font-weight: 500;
+  --color-primary: #00C6C7;
 }
 
-a.subscribeLink,
-a.subscribeLink:link,
-a.subscribeLink:visited,
-a.subscribeLink:active,
-a.subscribeLink:any-link {
+.trialNotice a.subscribeLink,
+.trialNotice a.subscribeLink:link,
+.trialNotice a.subscribeLink:visited,
+.trialNotice a.subscribeLink:active,
+.trialNotice a.subscribeLink:any-link {
   color: #00C6C7 !important;
   text-decoration: underline !important;
   font-weight: 600;
   transition: color 0.2s ease;
 }
 
-a.subscribeLink:hover,
-a.subscribeLink:focus {
+.trialNotice a.subscribeLink:hover,
+.trialNotice a.subscribeLink:focus {
   color: #009a9b !important;
   text-decoration: underline !important;
 }
