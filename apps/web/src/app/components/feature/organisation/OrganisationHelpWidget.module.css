@@ -38,14 +38,19 @@
   font-weight: 500;
 }
 
-.subscribeLink {
+a.subscribeLink,
+a.subscribeLink:link,
+a.subscribeLink:visited,
+a.subscribeLink:active,
+a.subscribeLink:any-link {
   color: #00C6C7 !important;
   text-decoration: underline !important;
   font-weight: 600;
   transition: color 0.2s ease;
 }
 
-.subscribeLink:hover {
+a.subscribeLink:hover,
+a.subscribeLink:focus {
   color: #009a9b !important;
   text-decoration: underline !important;
 }
