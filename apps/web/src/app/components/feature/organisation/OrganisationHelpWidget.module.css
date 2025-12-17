@@ -36,22 +36,16 @@
   line-height: 1.5;
   margin: 12px 0 0 0;
   font-weight: 500;
-  --color-primary: #00C6C7;
 }
 
-.trialNotice a.subscribeLink,
-.trialNotice a.subscribeLink:link,
-.trialNotice a.subscribeLink:visited,
-.trialNotice a.subscribeLink:active,
-.trialNotice a.subscribeLink:any-link {
-  color: #00C6C7 !important;
-  text-decoration: underline !important;
+.subscribeLink {
+  color: #00C6C7;
+  text-decoration: underline;
   font-weight: 600;
   transition: color 0.2s ease;
 }
 
-.trialNotice a.subscribeLink:hover,
-.trialNotice a.subscribeLink:focus {
-  color: #009a9b !important;
-  text-decoration: underline !important;
+.subscribeLink:hover {
+  color: #009a9b;
+  text-decoration: underline;
 }

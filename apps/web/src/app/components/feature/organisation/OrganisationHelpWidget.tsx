@@ -37,7 +37,6 @@ export default function OrganisationHelpWidget({ onSubscribeClick }: Organisatio
               onSubscribeClick?.();
             }}
             className={styles.subscribeLink}
-            style={{ color: '#00C6C7' }}
           >
             Subscribe Now
           </a>
