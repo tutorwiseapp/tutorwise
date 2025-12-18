@@ -12,7 +12,8 @@
  */
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
@@ -22,28 +23,15 @@ import DeveloperHelpWidget from '@/app/components/feature/developer/DeveloperHel
 import DeveloperTipWidget from '@/app/components/feature/developer/DeveloperTipWidget';
 import DeveloperVideoWidget from '@/app/components/feature/developer/DeveloperVideoWidget';
 import Button from '@/app/components/ui/actions/Button';
+import { getMyApiKeys, revokeApiKey, createApiKey, type ApiKey } from '@/lib/api/developer';
+import toast from 'react-hot-toast';
 import styles from './page.module.css';
 
 type FilterType = 'all' | 'active' | 'revoked' | 'expired';
 
-interface ApiKey {
-  id: string;
-  key_prefix: string;
-  name: string;
-  description: string | null;
-  scopes: string[];
-  is_active: boolean;
-  expires_at: string | null;
-  last_used_at: string | null;
-  total_requests: number;
-  created_at: string;
-  revoked_at: string | null;
-}
-
 export default function ApiKeysPage() {
   const { profile } = useUserProfile();
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newKeyData, setNewKeyData] = useState<{
     api_key?: string;
@@ -52,32 +40,52 @@ export default function ApiKeysPage() {
   } | null>(null);
   const [filter, setFilter] = useState<FilterType>('all');
 
-  // Load API keys
-  useEffect(() => {
-    loadApiKeys();
-  }, []);
+  // React Query: Fetch API keys
+  const {
+    data: apiKeys = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['api-keys', profile?.id],
+    queryFn: getMyApiKeys,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    placeholderData: keepPreviousData,
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+  });
 
-  const loadApiKeys = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch('/api/developer/api-keys');
-      if (!response.ok) throw new Error('Failed to load API keys');
+  // Revoke API key mutation
+  const revokeMutation = useMutation({
+    mutationFn: revokeApiKey,
+    onMutate: async (keyId) => {
+      await queryClient.cancelQueries({ queryKey: ['api-keys', profile?.id] });
+      const previousKeys = queryClient.getQueryData(['api-keys', profile?.id]);
 
-      const data = await response.json();
-      setApiKeys(data.api_keys || []);
-    } catch (error) {
-      console.error('Failed to load API keys:', error);
-      alert('Failed to load API keys');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      queryClient.setQueryData(['api-keys', profile?.id], (old: ApiKey[] = []) =>
+        old.map((k) => (k.id === keyId ? { ...k, is_active: false, revoked_at: new Date().toISOString() } : k))
+      );
+
+      return { previousKeys };
+    },
+    onError: (err, keyId, context) => {
+      queryClient.setQueryData(['api-keys', profile?.id], context?.previousKeys);
+      toast.error('Failed to revoke API key');
+    },
+    onSuccess: () => {
+      toast.success('API key revoked successfully');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['api-keys', profile?.id] });
+    },
+  });
 
   const handleCreateKey = () => {
     setShowCreateModal(true);
   };
 
-  const handleRevokeKey = async (keyId: string, keyName: string) => {
+  const handleRevokeKey = (keyId: string, keyName: string) => {
     if (
       !confirm(
         `Are you sure you want to revoke "${keyName}"?\n\nThis action cannot be undone. Any applications using this key will immediately lose access.`
@@ -86,22 +94,7 @@ export default function ApiKeysPage() {
       return;
     }
 
-    try {
-      const response = await fetch(`/api/developer/api-keys/${keyId}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to revoke API key');
-      }
-
-      alert('API key revoked successfully');
-      loadApiKeys();
-    } catch (error) {
-      console.error('Failed to revoke API key:', error);
-      alert('Failed to revoke API key');
-    }
+    revokeMutation.mutate(keyId);
   };
 
   const formatDate = (dateString: string | null) => {
@@ -290,7 +283,7 @@ export default function ApiKeysPage() {
             }}
             onSuccess={(data) => {
               setNewKeyData(data);
-              loadApiKeys();
+              queryClient.invalidateQueries({ queryKey: ['api-keys', profile?.id] });
             }}
             newKeyData={newKeyData}
           />
@@ -336,33 +329,22 @@ function CreateKeyModal({ onClose, onSuccess, newKeyData }: CreateKeyModalProps)
     e.preventDefault();
 
     if (!formData.name.trim()) {
-      alert('Please enter a name for your API key');
+      toast.error('Please enter a name for your API key');
       return;
     }
 
     if (formData.scopes.length === 0) {
-      alert('Please select at least one scope');
+      toast.error('Please select at least one scope');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const response = await fetch('/api/developer/api-keys', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to create API key');
-      }
-
-      const data = await response.json();
+      const data = await createApiKey(formData);
       onSuccess(data);
     } catch (error) {
       console.error('Failed to create API key:', error);
-      alert('Failed to create API key');
+      toast.error('Failed to create API key');
       setIsSubmitting(false);
     }
   };

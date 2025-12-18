@@ -10,6 +10,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import WiselistCard from '@/app/components/feature/wiselists/WiselistCard';
 import SavedItemCard from '@/app/components/feature/wiselists/SavedItemCard';
 import CreateWiselistModal from '@/app/components/feature/wiselists/CreateWiselistModal';
@@ -38,6 +39,7 @@ const ITEMS_PER_PAGE = 4;
 export default function WiselistsPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { profile } = useUserProfile();
   const [activeTab, setActiveTab] = useState<TabType>('my-saves');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortType>('newest');
@@ -54,7 +56,7 @@ export default function WiselistsPage() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ['wiselists'],
+    queryKey: ['wiselists', profile?.id],
     queryFn: getMyWiselists,
     placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000, // 5 minutes
