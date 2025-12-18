@@ -58,9 +58,12 @@ export default function WiselistsPage() {
   } = useQuery({
     queryKey: ['wiselists', profile?.id],
     queryFn: getMyWiselists,
+    enabled: !!profile?.id, // Wait for profile to load before fetching
     placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+    refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
