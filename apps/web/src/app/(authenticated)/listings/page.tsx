@@ -59,6 +59,7 @@ export default function ListingsPage() {
   } = useQuery({
     queryKey: ['listings', profile?.id],
     queryFn: getMyListings,
+    enabled: !!profile?.id, // Wait for profile to load before fetching
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     placeholderData: keepPreviousData, // Show cached data instantly while refetching
