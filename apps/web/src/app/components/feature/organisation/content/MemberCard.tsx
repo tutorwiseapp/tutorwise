@@ -13,6 +13,7 @@ import MemberDetailModal from './MemberDetailModal';
 import Button from '@/app/components/ui/actions/Button';
 import { OrganisationMember } from '@/lib/api/organisation';
 import { formatTimeAgo } from '@/lib/utils/dateUtils';
+import { getInitials } from '@/lib/utils/initials';
 
 interface MemberCardProps {
   member: OrganisationMember;
@@ -103,7 +104,7 @@ export default function MemberCard({
         image={{
           src: otherParty.avatar_url,
           alt: otherParty.full_name || 'Team member',
-          fallbackChar: otherParty.full_name?.charAt(0).toUpperCase() || '??',
+          fallbackChar: getInitials(otherParty.full_name),
         }}
         imageHref={`/public-profile/${otherParty.id}`}
         title={otherParty.full_name || otherParty.email}

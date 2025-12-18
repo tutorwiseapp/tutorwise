@@ -21,6 +21,7 @@ import { ShareModal } from '@/app/components/ui/feedback/ShareModal';
 import { VideoModal } from '@/app/components/ui/feedback/VideoModal';
 import StatusBadge from '@/app/components/ui/data-display/StatusBadge';
 import { quickSaveItem, isItemSaved } from '@/lib/api/wiselists';
+import { getInitials } from '@/lib/utils/initials';
 import styles from './ListingHeroSection.module.css';
 
 interface ListingHeroSectionProps {
@@ -182,7 +183,7 @@ export default function ListingHeroSection({ listing, tutorProfile, tutorStats }
             />
           ) : (
             <div className={styles.avatarPlaceholder}>
-              {tutorProfile.full_name?.[0]?.toUpperCase() || tutorProfile.email?.[0]?.toUpperCase() || '?'}
+              {getInitials(listing.title, true)}
             </div>
           )}
 

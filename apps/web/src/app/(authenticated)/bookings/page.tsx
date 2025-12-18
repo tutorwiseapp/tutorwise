@@ -52,6 +52,7 @@ export default function BookingsPage() {
   const {
     data: bookings = [],
     isLoading,
+    isFetching,
     error,
     refetch,
   } = useQuery({

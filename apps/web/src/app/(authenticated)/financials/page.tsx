@@ -53,9 +53,11 @@ export default function TransactionsPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   // React Query: Fetch financials data
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: financialsData,
     isLoading,
+    isFetching,
     error,
   } = useQuery({
     queryKey: ['financials', profile?.id],

@@ -44,6 +44,7 @@ export default function ApiKeysPage() {
   const {
     data: apiKeys = [],
     isLoading,
+    isFetching,
     error,
     refetch,
   } = useQuery({

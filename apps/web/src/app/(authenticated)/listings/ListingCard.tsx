@@ -14,6 +14,7 @@ import Button from '@/app/components/ui/actions/Button';
 import ConfirmDialog from '@/app/components/ui/feedback/ConfirmDialog';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import getProfileImageUrl from '@/lib/utils/image';
+import { getInitials } from '@/lib/utils/initials';
 
 interface ListingCardProps {
   listing: Listing;
@@ -285,7 +286,7 @@ export default function ListingCard({
         image={{
           src: listing.images?.[0] || imageUrl,
           alt: listing.title,
-          fallbackChar: listing.title?.charAt(0).toUpperCase(),
+          fallbackChar: getInitials(listing.title, true),
         }}
         title={listing.title}
         status={{

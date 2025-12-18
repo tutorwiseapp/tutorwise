@@ -47,9 +47,11 @@ const DashboardPage = () => {
   const [showFirstLoginModal, setShowFirstLoginModal] = useState(false);
 
   // React Query: Fetch KPI data with automatic retry, caching, and background refetch
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: kpiData = null,
     isLoading: isLoadingKPIs,
+    isFetching: isFetchingKPIs,
   } = useQuery({
     queryKey: ['dashboard', 'kpis', profile?.id],
     queryFn: async () => {
@@ -66,9 +68,11 @@ const DashboardPage = () => {
   });
 
   // React Query: Fetch Earnings Trend data
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: earningsTrendData = [],
     isLoading: isLoadingEarnings,
+    isFetching: isFetchingEarnings,
   } = useQuery<WeeklyEarnings[]>({
     queryKey: ['dashboard', 'earnings-trend', profile?.id],
     queryFn: async () => {
@@ -85,9 +89,11 @@ const DashboardPage = () => {
   });
 
   // React Query: Fetch Booking Heatmap data
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: bookingHeatmapData = [],
     isLoading: isLoadingHeatmap,
+    isFetching: isFetchingHeatmap,
   } = useQuery<DayData[]>({
     queryKey: ['dashboard', 'booking-heatmap', profile?.id],
     queryFn: async () => {
@@ -104,9 +110,11 @@ const DashboardPage = () => {
   });
 
   // React Query: Fetch Student Breakdown data
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: studentBreakdownData = { new: 0, returning: 0 },
     isLoading: isLoadingStudentBreakdown,
+    isFetching: isFetchingStudentBreakdown,
   } = useQuery<StudentTypeData>({
     queryKey: ['dashboard', 'student-breakdown', profile?.id],
     queryFn: async () => {

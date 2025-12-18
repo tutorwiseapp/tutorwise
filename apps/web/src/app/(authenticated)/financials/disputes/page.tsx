@@ -47,9 +47,11 @@ export default function DisputesPage() {
   const statusFilter = (searchParams?.get('status') as DisputeStatus) || 'all';
 
   // Fetch disputes with React Query
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data,
     isLoading,
+    isFetching,
     error,
   } = useQuery({
     queryKey: ['disputes', profile?.id],

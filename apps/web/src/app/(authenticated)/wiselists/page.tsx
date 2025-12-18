@@ -50,9 +50,11 @@ export default function WiselistsPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   // React Query: Fetch wiselists with automatic retry, caching, and background refetch
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: wiselists = [],
     isLoading,
+    isFetching,
     error,
     refetch,
   } = useQuery({
@@ -74,9 +76,11 @@ export default function WiselistsPage() {
   }, [wiselists]);
 
   // Fetch My Saves items
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: mySavesData,
     isLoading: isLoadingMySaves,
+    isFetching: isFetchingMySaves,
   } = useQuery({
     queryKey: ['wiselist', mySavesWiselist?.id],
     queryFn: () => getWiselist(mySavesWiselist!.id),
@@ -146,13 +150,21 @@ export default function WiselistsPage() {
     return filtered;
   }, [wiselists, activeTab, searchQuery, sortBy]);
 
-  // Pagination
+  // Pagination for My Lists and Shared With Me tabs
   const totalItems = filteredWiselists.length;
   const paginatedWiselists = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
     return filteredWiselists.slice(startIndex, endIndex);
   }, [filteredWiselists, currentPage]);
+
+  // Pagination for My Saves tab
+  const savedItems = mySavesData?.items || [];
+  const paginatedSavedItems = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return savedItems.slice(startIndex, endIndex);
+  }, [savedItems, currentPage]);
 
   // Reset to page 1 when filters change
   React.useEffect(() => {
@@ -491,10 +503,10 @@ export default function WiselistsPage() {
           <>
             {isLoadingMySaves ? (
               <div className={styles.loading}>Loading saved items...</div>
-            ) : mySavesData?.items && mySavesData.items.length > 0 ? (
+            ) : savedItems.length > 0 ? (
               <>
                 <div className={styles.savedItemsList}>
-                  {mySavesData.items.map((item) => (
+                  {paginatedSavedItems.map((item) => (
                     <SavedItemCard
                       key={item.id}
                       item={item}
@@ -503,6 +515,14 @@ export default function WiselistsPage() {
                     />
                   ))}
                 </div>
+
+                {/* Pagination - always visible */}
+                <HubPagination
+                  currentPage={currentPage}
+                  totalItems={Math.max(savedItems.length, 1)}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  onPageChange={setCurrentPage}
+                />
               </>
             ) : (
               <HubEmptyState
@@ -542,15 +562,13 @@ export default function WiselistsPage() {
                   ))}
                 </div>
 
-                {/* Pagination */}
-                {filteredWiselists.length > ITEMS_PER_PAGE && (
-                  <HubPagination
-                    currentPage={currentPage}
-                    totalItems={totalItems}
-                    itemsPerPage={ITEMS_PER_PAGE}
-                    onPageChange={setCurrentPage}
-                  />
-                )}
+                {/* Pagination - always visible */}
+                <HubPagination
+                  currentPage={currentPage}
+                  totalItems={Math.max(totalItems, 1)}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  onPageChange={setCurrentPage}
+                />
               </>
             )}
           </>

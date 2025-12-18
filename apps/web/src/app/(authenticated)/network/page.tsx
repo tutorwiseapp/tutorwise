@@ -48,9 +48,11 @@ export default function NetworkPage() {
   const [showActionsMenu, setShowActionsMenu] = useState(false);
 
   // React Query: Fetch connections with automatic retry, caching, and background refetch
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: connections = [],
     isLoading,
+    isFetching,
     error,
     refetch,
   } = useQuery({

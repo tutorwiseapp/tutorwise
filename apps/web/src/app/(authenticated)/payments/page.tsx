@@ -45,9 +45,11 @@ const PaymentsPageContent = () => {
     const [isVerifying, setIsVerifying] = useState(false);
 
     // React Query: Fetch payment data (account + cards)
+    // isLoading is true only on first fetch; isFetching is true on all fetches
     const {
         data: paymentData,
         isLoading,
+        isFetching,
         error,
         refetch,
     } = useQuery({

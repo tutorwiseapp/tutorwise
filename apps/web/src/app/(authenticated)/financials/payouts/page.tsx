@@ -47,9 +47,11 @@ export default function PayoutsPage() {
   const statusFilter = (searchParams?.get('status') as PayoutStatus) || 'all';
 
   // Fetch payouts with React Query
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data,
     isLoading,
+    isFetching,
     error,
   } = useQuery({
     queryKey: ['payouts', profile?.id],

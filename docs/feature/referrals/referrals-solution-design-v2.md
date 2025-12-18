@@ -402,8 +402,13 @@ REFERRAL SYSTEM - ENTITY RELATIONSHIP DIAGRAM
 | _profile_id (FK)  |         | (enum)            |
 | (IMMUTABLE)       |         |                   |
 |                   |         | created_at        |
-| roles[]           |         | converted_at      |
-+-------------------+         +-------------------+
+| default_          |         | converted_at      |
+| commission_       |         +-------------------+
+| delegate_id (FK)  |
+| (Patent Sec 7.2)  |
+|                   |
+| roles[]           |
++-------------------+
          |
          | 1:N
          v
@@ -457,9 +462,10 @@ REFERRAL SYSTEM - ENTITY RELATIONSHIP DIAGRAM
 
 Key Relationships:
 - profiles.referred_by_profile_id → profiles.id (self-referencing, IMMUTABLE)
+- profiles.default_commission_delegate_id → profiles.id (profile-level delegation)
 - referrals.agent_id → profiles.id (who referred)
 - referrals.referred_profile_id → profiles.id (who was referred)
-- listings.delegate_commission_to_profile_id → profiles.id (delegation target)
+- listings.delegate_commission_to_profile_id → profiles.id (listing-level delegation)
 - bookings.commission_recipient_profile_id → profiles.id (who gets commission)
 - transactions.profile_id → profiles.id (transaction owner)
 ```
@@ -485,6 +491,12 @@ CREATE TABLE profiles (
     -- IMMUTABLE after first set (enforced by trigger)
     -- Patent Section 4: Identity-level binding
 
+  -- Commission Delegation (Patent Section 7, Dependent Claim 9)
+  default_commission_delegate_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+    -- Profile-level default delegation target (fallback)
+    -- Applied when listing-specific delegation is not configured
+    -- Patent Section 7.2: Hierarchical Delegation Scopes (Scope 2)
+
   -- Multi-Role Architecture (Patent Section 6)
   roles TEXT[] DEFAULT '{}', -- ['tutor', 'client', 'agent']
 
@@ -496,6 +508,8 @@ CREATE TABLE profiles (
 -- Indexes for performance
 CREATE INDEX idx_profiles_referral_code ON profiles(referral_code);
 CREATE INDEX idx_profiles_referred_by ON profiles(referred_by_profile_id);
+CREATE INDEX idx_profiles_default_delegate ON profiles(default_commission_delegate_id)
+  WHERE default_commission_delegate_id IS NOT NULL;
 CREATE INDEX idx_profiles_roles ON profiles USING GIN(roles);
 
 -- Immutability constraint (Patent Section 4.3)
@@ -513,11 +527,28 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trg_referred_by_immutable
 BEFORE UPDATE ON profiles
 FOR EACH ROW EXECUTE FUNCTION enforce_referred_by_immutability();
+
+-- Prevent self-delegation at profile level (fraud prevention)
+CREATE OR REPLACE FUNCTION prevent_profile_self_delegation()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.default_commission_delegate_id IS NOT NULL
+     AND NEW.default_commission_delegate_id = NEW.id THEN
+    RAISE EXCEPTION 'Cannot delegate commission to self at profile level (fraud prevention)';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_prevent_profile_self_delegation
+BEFORE INSERT OR UPDATE ON profiles
+FOR EACH ROW EXECUTE FUNCTION prevent_profile_self_delegation();
 ```
 
 **Key Constraints:**
 - `referral_code`: UNIQUE, NOT NULL, exactly 7 alphanumeric characters
 - `referred_by_profile_id`: IMMUTABLE after first assignment (patent requirement)
+- `default_commission_delegate_id`: Self-delegation prevented by trigger (fraud prevention)
 - `roles`: Array supports multiple simultaneous roles (patent Section 6)
 
 ### 3.3 Referrals Table (Tracking & Analytics)
@@ -1278,53 +1309,93 @@ Patent Impact: Separates referral activity from marketplace participation
 - Traditional solution: Coffee shop creates agent account, shares link
 - **Issue**: If tutor has their own agent, coffee shop doesn't get credit
 
-**TutorWise Solution (Patent-Protected):**
-- Tutor configures `listings.delegate_commission_to_profile_id = coffee_shop_id`
-- **Conditional delegation**: Commission only goes to coffee shop when tutor is DIRECT referrer
-- **Protection**: If third-party agent brings client, original agent gets paid
+**TutorWise Solution (Patent-Protected Hierarchical Delegation):**
+- Tutor configures delegation at **two hierarchical scopes**:
+  - **Profile-level default**: `profiles.default_commission_delegate_id = coffee_shop_id` (applies to all listings)
+  - **Listing-level override**: `listings.delegate_commission_to_profile_id = specific_partner_id` (highest precedence)
+- **Conditional delegation**: Commission only goes to delegation target when tutor is DIRECT referrer
+- **Protection**: If third-party agent brings client, original agent gets paid regardless of delegation configuration
+- **Deterministic hierarchy**: Listing-level > Profile-level > Original attribution
 
-### 9.2 Delegation Configuration (Patent Section 7.3)
+### 9.2 Delegation Configuration (Patent Section 7.2, 7.3)
 
-**Database Schema:**
+**Hierarchical Delegation Scopes:**
+
+**Scope 1: Profile-Level Default Delegation (Fallback)**
+```sql
+ALTER TABLE profiles
+ADD COLUMN default_commission_delegate_id UUID
+REFERENCES profiles(id) ON DELETE SET NULL;
+
+COMMENT ON COLUMN profiles.default_commission_delegate_id IS
+'[Patent Section 7.2, Scope 2] Profile-level default delegation target.
+Applies to all listings owned by this profile UNLESS overridden by
+listing-specific delegation. When set, commissions are redirected to
+the specified profile_id IF AND ONLY IF the service provider is the
+direct referrer of the client. If a third-party agent referred the
+client, the commission goes to that agent instead. This is the fallback
+delegation when no listing-specific delegation is configured.';
+```
+
+**Scope 2: Listing-Level Override Delegation (Highest Precedence)**
 ```sql
 ALTER TABLE listings
 ADD COLUMN delegate_commission_to_profile_id UUID
 REFERENCES profiles(id) ON DELETE SET NULL;
 
 COMMENT ON COLUMN listings.delegate_commission_to_profile_id IS
-'[Patent Section 7] Conditional commission delegation: When set, commissions
-for bookings on this listing are redirected to the specified profile_id IF
-AND ONLY IF the service provider (tutor) is the direct referrer of the client.
-If a third-party agent referred the client, the commission goes to that agent
-instead, protecting agent attribution rights.';
+'[Patent Section 7.2, Scope 1] Listing-specific delegation target.
+Has HIGHEST PRECEDENCE in hierarchical delegation resolution.
+When set, overrides the profile-level default delegation for this
+specific listing. Commissions are redirected to the specified
+profile_id IF AND ONLY IF the service provider is the direct
+referrer of the client. If a third-party agent referred the client,
+the commission goes to that agent instead, protecting agent
+attribution rights.';
 ```
 
-### 9.3 Delegation Algorithm (Patent Section 7.4)
+**Hierarchical Resolution Order:**
+1. Check listing-level delegation (highest precedence)
+2. Check profile-level default delegation (fallback)
+3. Use original referral attribution (base case)
 
-**Decision Logic:**
+### 9.3 Hierarchical Delegation Algorithm (Patent Section 7.3, 7.4)
+
+**Decision Logic with Three-Level Hierarchy:**
 ```
 FUNCTION determine_commission_recipient(booking):
   listing = lookup_listing(booking.listing_id)
   tutor = lookup_profile(listing.service_provider_id)
   client = lookup_profile(booking.client_profile_id)
 
-  // No delegation configured - default behavior
-  IF listing.delegate_commission_to_profile_id IS NULL:
-    RETURN tutor.referred_by_profile_id  // Tutor's agent
+  // THIRD-PARTY AGENT PROTECTION (Patent Section 7.4)
+  // If client was NOT referred by the tutor, delegation NEVER applies
+  // Original agent gets commission regardless of delegation configuration
+  IF client.referred_by_profile_id != tutor.id:
+    RETURN client.referred_by_profile_id  // Pay original agent
 
-  // Delegation configured - check conditions
-  delegation_target = listing.delegate_commission_to_profile_id
+  // HIERARCHICAL DELEGATION RESOLUTION (Patent Section 7.3)
+  // Only reaches here if tutor IS the direct referrer
 
-  // Condition: Is tutor the DIRECT referrer of client?
-  IF client.referred_by_profile_id == tutor.id:
-    // YES: Delegation applies - pay partner
-    RETURN delegation_target
-  ELSE:
-    // NO: Third-party agent brought client - pay original agent
-    RETURN client.referred_by_profile_id
+  // Level 1: Listing-Specific Delegation (Highest Precedence)
+  IF listing.delegate_commission_to_profile_id IS NOT NULL:
+    RETURN listing.delegate_commission_to_profile_id
+
+  // Level 2: Profile-Level Default Delegation (Fallback)
+  IF tutor.default_commission_delegate_id IS NOT NULL:
+    RETURN tutor.default_commission_delegate_id
+
+  // Level 3: Original Referral Attribution (Base Case)
+  RETURN tutor.referred_by_profile_id  // Tutor's original agent
 
 END FUNCTION
 ```
+
+**Key Principles:**
+1. **Third-Party Protection First**: Check if tutor is direct referrer BEFORE applying any delegation
+2. **Deterministic Precedence**: Listing-level overrides profile-level overrides original attribution
+3. **Immutable Attribution**: `referred_by_profile_id` never changes; only payout routing is dynamic
+4. **Fraud Prevention**: Self-delegation prevented at both profile and listing levels
 
 ### 9.4 Worked Examples (Patent Section 7.5)
 
@@ -1333,80 +1404,152 @@ END FUNCTION
 - Commission split: 80% tutor, 10% agent, 10% platform
 - Booking amount: £100
 
-#### Example 1: Coffee Shop Partnership (Delegation Applies)
+#### Example 1: Profile Default Delegation (No Listing Override)
 
 ```
 Parties:
 - Tutor T (referral_code: tutT123)
 - Client C (signs up via Tutor T's link)
-- Coffee Shop Partner P (delegation target)
+- Marketing Agency M (profile-level delegation target)
 
 Configuration:
 - T.referred_by_profile_id = NULL (organic tutor)
+- T.default_commission_delegate_id = M.id (PROFILE-LEVEL DEFAULT)
 - C.referred_by_profile_id = T.id (tutor referred client)
-- listing.delegate_commission_to_profile_id = P.id
+- listing.delegate_commission_to_profile_id = NULL (NO LISTING OVERRIDE)
 
 Booking: £100
 - Platform fee (10%): £10
 - Tutor payout (80%): £80
 - Commission (10%): £10
 
-Commission Decision Tree:
-  1. Delegation target configured? YES (P.id)
-  2. Is T direct referrer of C? YES (C.referred_by_profile_id == T.id)
-  3. APPLY DELEGATION → Pay P
+Hierarchical Delegation Resolution:
+  1. Third-party check: Is C.referred_by != T.id? NO (T is direct referrer)
+  2. Level 1 (Listing): listing.delegate_commission_to_profile_id? NULL
+  3. Level 2 (Profile): T.default_commission_delegate_id? M.id ✅
+  4. APPLY PROFILE-LEVEL DELEGATION → Pay M
 
 Final Distribution:
 - Platform: £10
 - Tutor T: £80
-- Coffee Shop P: £10 ✅ (delegation applied)
-- (No other agent involved)
+- Marketing Agency M: £10 ✅ (profile-level delegation applied)
 ```
 
-#### Example 2: Third-Party Agent Protection (Delegation Ignored)
+#### Example 2: Listing Override (Highest Precedence)
 
 ```
 Parties:
-- Agent A (referral_code: agentA99) - Original tutor recruiter
+- Tutor T (referral_code: tutT123)
+- Client C (signs up via Tutor T's link)
+- Marketing Agency M (profile-level default)
+- Coffee Shop P (listing-specific override)
+
+Configuration:
+- T.referred_by_profile_id = NULL (organic tutor)
+- T.default_commission_delegate_id = M.id (PROFILE DEFAULT)
+- C.referred_by_profile_id = T.id (tutor referred client)
+- listing.delegate_commission_to_profile_id = P.id (LISTING OVERRIDE)
+
+Booking: £100
+- Platform fee (10%): £10
+- Tutor payout (80%): £80
+- Commission (10%): £10
+
+Hierarchical Delegation Resolution:
+  1. Third-party check: Is C.referred_by != T.id? NO (T is direct referrer)
+  2. Level 1 (Listing): listing.delegate_commission_to_profile_id? P.id ✅
+  3. LISTING OVERRIDE WINS → Pay P (profile default M ignored)
+
+Final Distribution:
+- Platform: £10
+- Tutor T: £80
+- Coffee Shop P: £10 ✅ (listing-level overrode profile-level)
+- Marketing Agency M: £0 (profile default overridden)
+```
+
+#### Example 3: Original Agent Attribution (No Delegation)
+
+```
+Parties:
+- Agent A (referral_code: agentA99) - Recruited the tutor
 - Tutor T (signed up via Agent A)
-- Client C (signed up via Agent A)
-- Coffee Shop Partner P (delegation target)
+- Client C (signs up via Tutor T's link)
 
 Configuration:
 - A.referred_by_profile_id = NULL (organic agent)
 - T.referred_by_profile_id = A.id (Agent A recruited tutor)
-- C.referred_by_profile_id = A.id (Agent A also recruited client)
-- listing.delegate_commission_to_profile_id = P.id
+- T.default_commission_delegate_id = NULL (NO PROFILE DEFAULT)
+- C.referred_by_profile_id = T.id (tutor referred client)
+- listing.delegate_commission_to_profile_id = NULL (NO LISTING OVERRIDE)
 
 Booking: £100
 - Platform fee (10%): £10
 - Tutor payout (80%): £80
 - Commission (10%): £10
 
-Commission Decision Tree:
-  1. Delegation target configured? YES (P.id)
-  2. Is T direct referrer of C? NO (C.referred_by_profile_id == A.id, not T.id)
-  3. IGNORE DELEGATION → Pay original agent A
+Hierarchical Delegation Resolution:
+  1. Third-party check: Is C.referred_by != T.id? NO (T is direct referrer)
+  2. Level 1 (Listing): listing.delegate_commission_to_profile_id? NULL
+  3. Level 2 (Profile): T.default_commission_delegate_id? NULL
+  4. Level 3 (Original): T.referred_by_profile_id? A.id ✅
+  5. BASE CASE → Pay original agent A
 
 Final Distribution:
 - Platform: £10
 - Tutor T: £80
-- Agent A: £10 ✅ (delegation BLOCKED, agent protected)
-- Coffee Shop P: £0 (delegation did not apply)
+- Agent A: £10 ✅ (original agent attribution, no delegation)
 ```
 
-#### Example 3: Organic Discovery (No Delegation)
+#### Example 4: Third-Party Agent Protection (All Delegation Ignored)
+
+```
+Parties:
+- Agent A (referral_code: agentA99) - Original recruiter
+- Tutor T (signed up via Agent A)
+- Client C (signed up via Agent A - THIRD PARTY)
+- Marketing Agency M (profile-level delegation)
+- Coffee Shop P (listing-level delegation)
+
+Configuration:
+- A.referred_by_profile_id = NULL (organic agent)
+- T.referred_by_profile_id = A.id (Agent A recruited tutor)
+- T.default_commission_delegate_id = M.id (PROFILE DEFAULT)
+- C.referred_by_profile_id = A.id (Agent A also recruited client)
+- listing.delegate_commission_to_profile_id = P.id (LISTING OVERRIDE)
+
+Booking: £100
+- Platform fee (10%): £10
+- Tutor payout (80%): £80
+- Commission (10%): £10
+
+Hierarchical Delegation Resolution:
+  1. Third-party check: Is C.referred_by != T.id? YES (C.referred_by = A.id) ✅
+  2. THIRD-PARTY PROTECTION ACTIVATED → Pay Agent A
+  3. (Levels 1, 2, 3 never evaluated - delegation completely bypassed)
+
+Final Distribution:
+- Platform: £10
+- Tutor T: £80
+- Agent A: £10 ✅ (third-party protection, ALL delegation ignored)
+- Coffee Shop P: £0 (listing delegation blocked)
+- Marketing Agency M: £0 (profile delegation blocked)
+```
+
+**Critical Insight:** Third-party protection is the FIRST check, before any hierarchical delegation resolution. This preserves lifetime attribution rights regardless of how many delegation layers are configured.
+
+#### Example 5: Organic Discovery (No Commission)
 
 ```
 Parties:
 - Tutor T (no referrer)
 - Client C (no referrer, found via Google)
-- Coffee Shop Partner P (delegation target)
+- Marketing Agency M (profile-level delegation)
 
 Configuration:
 - T.referred_by_profile_id = NULL
-- C.referred_by_profile_id = NULL
-- listing.delegate_commission_to_profile_id = P.id
+- T.default_commission_delegate_id = M.id (PROFILE DEFAULT)
+- C.referred_by_profile_id = NULL (organic client)
+- listing.delegate_commission_to_profile_id = NULL
 
 Booking: £100
 - Platform fee (10%): £10
@@ -1415,13 +1558,27 @@ Booking: £100
 
 Commission Decision Tree:
   1. Client has referrer? NO (C.referred_by_profile_id = NULL)
-  2. No commission owed
+  2. No commission owed - delegation irrelevant
 
 Final Distribution:
 - Platform: £10
-- Tutor T: £90 (gets full 90% since no commission owed)
-- Coffee Shop P: £0 (no commission to delegate)
+- Tutor T: £90 ✅ (gets full 90% since no commission owed)
+- Marketing Agency M: £0 (no commission to delegate)
 ```
+
+**Key Insight:** Delegation only applies when there's a commission to route. Organic clients (no referrer) generate no commission, regardless of delegation configuration.
+
+---
+
+**Summary of Hierarchical Delegation Examples:**
+
+| Example | Listing Delegation | Profile Delegation | Client Referrer | Commission Goes To | Reason |
+|---------|-------------------|-------------------|-----------------|-------------------|---------|
+| 1 | NULL | M.id | T.id | M | Profile default applied |
+| 2 | P.id | M.id | T.id | P | Listing override wins |
+| 3 | NULL | NULL | T.id | A | Original attribution |
+| 4 | P.id | M.id | A.id (third-party) | A | Third-party protection |
+| 5 | NULL | M.id | NULL (organic) | None | No commission owed |
 
 ---
 

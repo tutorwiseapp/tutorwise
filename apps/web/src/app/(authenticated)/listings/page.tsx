@@ -54,6 +54,7 @@ export default function ListingsPage() {
   const {
     data: rawListings = [],
     isLoading,
+    isFetching,
     error,
     refetch,
   } = useQuery({
@@ -345,8 +346,9 @@ export default function ListingsPage() {
     );
   }
 
-  // Show loading skeleton on initial load (no cached data)
-  if (isLoading && rawListings.length === 0) {
+  // Show loading skeleton ONLY on initial load (when there's truly no data yet)
+  // isLoading is true only on first fetch with no cache; isFetching is true on all fetches
+  if (isLoading) {
     return (
       <HubPageLayout
         header={<HubHeader title="Listings" />}

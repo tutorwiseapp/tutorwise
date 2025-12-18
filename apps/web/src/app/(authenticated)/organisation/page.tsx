@@ -82,9 +82,11 @@ export default function OrganisationPage() {
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(true);
 
   // Fetch organisation
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: organisation,
     isLoading: orgLoading,
+    isFetching: orgFetching,
     error: orgError,
     refetch: refetchOrg,
   } = useQuery({
@@ -99,9 +101,11 @@ export default function OrganisationPage() {
   });
 
   // Fetch subscription status (v7.0: Check Premium access)
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: subscription,
     isLoading: subscriptionLoading,
+    isFetching: subscriptionFetching,
   } = useQuery({
     queryKey: ['organisation-subscription', organisation?.id],
     queryFn: () => getOrganisationSubscription(organisation!.id),
@@ -111,9 +115,11 @@ export default function OrganisationPage() {
   });
 
   // Fetch members (only if organisation exists)
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: members = [],
     isLoading: membersLoading,
+    isFetching: membersFetching,
     refetch: refetchMembers,
   } = useQuery({
     queryKey: ['organisation-members', organisation?.id],
@@ -124,9 +130,11 @@ export default function OrganisationPage() {
   });
 
   // Fetch stats
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: stats,
     isLoading: statsLoading,
+    isFetching: statsFetching,
   } = useQuery({
     queryKey: ['organisation-stats', organisation?.id],
     queryFn: () => getOrganisationStats(organisation!.id),
@@ -136,9 +144,11 @@ export default function OrganisationPage() {
   });
 
   // Fetch clients (only when Clients tab is active)
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: clients = [],
     isLoading: clientsLoading,
+    isFetching: clientsFetching,
   } = useQuery({
     queryKey: ['organisation-clients', organisation?.id],
     queryFn: () => getOrganisationClients(organisation!.id),

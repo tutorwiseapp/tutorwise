@@ -1,0 +1,53 @@
+/**
+ * Filename: DelegationHelpWidget.module.css
+ * Purpose: Styles for Delegation Help Widget
+ * Design: Teal header + paragraph content with hyperlink (matching ListingHelpWidget)
+ *
+ * Pattern: Title + Paragraph content + Link
+ * - Teal header (#E6F0F0)
+ * - Standard 16px padding for content
+ * - Clean typography for paragraphs with spacing
+ * - Brand teal hyperlink (#006C67)
+ *
+ * Note: Container styles (shadow, border, radius) provided by HubComplexCard
+ */
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  padding: 12px 16px;
+  margin: 0;
+  line-height: 1.4;
+  background-color: #E6F0F0; /* Teal header */
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.content {
+  padding: 16px; /* Standard padding for HubComplexCard children */
+}
+
+.text {
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0 0 12px 0;
+}
+
+.text:last-of-type {
+  margin-bottom: 16px;
+}
+
+.link {
+  display: inline-block;
+  font-size: 14px;
+  color: #006C67; /* Brand teal */
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.link:hover {
+  color: #004d47; /* Darker teal on hover */
+  text-decoration: underline;
+}

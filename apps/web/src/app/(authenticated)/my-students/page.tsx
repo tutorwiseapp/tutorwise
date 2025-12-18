@@ -53,9 +53,11 @@ export default function MyStudentsPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   // React Query: Fetch students with automatic retry, caching, and background refetch
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: students = [],
     isLoading,
+    isFetching,
     error,
     refetch,
   } = useQuery({

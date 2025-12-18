@@ -40,9 +40,11 @@ export default function MessagesPage() {
   useAblyPresenceBroadcast(profile?.id || '', !!profile);
 
   // Fetch conversations
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: conversations = [],
     isLoading,
+    isFetching,
     error,
   } = useQuery({
     queryKey: ['conversations', profile?.id],

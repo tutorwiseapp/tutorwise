@@ -10,10 +10,10 @@ import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import AccountCard from '@/app/components/feature/account/AccountCard';
-import AccountHelpWidget from '@/app/components/feature/account/AccountHelpWidget';
-import AccountTipWidget from '@/app/components/feature/account/AccountTipWidget';
-import AccountVideoWidget from '@/app/components/feature/account/AccountVideoWidget';
+import DelegationStatsWidget from '@/app/components/feature/referrals/sidebar/DelegationStatsWidget';
+import DelegationHelpWidget from '@/app/components/feature/referrals/sidebar/DelegationHelpWidget';
+import DelegationTipWidget from '@/app/components/feature/referrals/sidebar/DelegationTipWidget';
+import DelegationVideoWidget from '@/app/components/feature/referrals/sidebar/DelegationVideoWidget';
 import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import AccountHeroHeader from '@/app/components/feature/account/AccountHeroHeader';
@@ -26,6 +26,12 @@ export default function ReferralPreferencesPage() {
   const { profile } = useUserProfile();
   const pathname = usePathname();
   const [showActionsMenu, setShowActionsMenu] = useState(false);
+  const [delegationStats, setDelegationStats] = useState({
+    profileDefaultSet: false,
+    totalListings: 0,
+    listingsWithOverrides: 0,
+    listingsUsingDefault: 0,
+  });
 
   // Action handlers
   const handleViewPublicProfile = () => {
@@ -65,10 +71,10 @@ export default function ReferralPreferencesPage() {
         tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
         sidebar={
           <HubSidebar>
-            <AccountCard />
-            <AccountHelpWidget />
-            <AccountTipWidget />
-            <AccountVideoWidget />
+            <DelegationStatsWidget {...delegationStats} />
+            <DelegationHelpWidget />
+            <DelegationTipWidget />
+            <DelegationVideoWidget />
           </HubSidebar>
         }
       >
@@ -136,16 +142,17 @@ export default function ReferralPreferencesPage() {
       tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
       sidebar={
         <HubSidebar>
-          <AccountCard />
-          <AccountHelpWidget />
-          <AccountTipWidget />
-          <AccountVideoWidget />
+          <DelegationStatsWidget {...delegationStats} />
+          <DelegationHelpWidget />
+          <DelegationTipWidget />
+          <DelegationVideoWidget />
         </HubSidebar>
       }
     >
-      <div className={styles.content}>
-        <DelegationSettingsPanel tutorId={profile.id} />
-      </div>
+      <DelegationSettingsPanel
+        tutorId={profile.id}
+        onStatsUpdate={setDelegationStats}
+      />
     </HubPageLayout>
   );
 }

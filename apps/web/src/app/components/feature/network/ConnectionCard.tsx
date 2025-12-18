@@ -12,6 +12,7 @@ import toast from 'react-hot-toast';
 import { useAblyPresence } from '@/app/hooks/useAblyPresence';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import Button from '@/app/components/ui/actions/Button';
+import { getInitials } from '@/lib/utils/initials';
 
 export interface Connection {
   id: string;
@@ -218,7 +219,7 @@ export default function ConnectionCard({
       image={{
         src: otherParty.avatar_url || null,
         alt: otherParty.full_name,
-        fallbackChar: otherParty.full_name?.charAt(0).toUpperCase(),
+        fallbackChar: getInitials(otherParty.full_name),
       }}
       title={otherParty.full_name}
       status={getStatus()}

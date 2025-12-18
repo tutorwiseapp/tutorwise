@@ -63,6 +63,7 @@ export default function ReferralsPage() {
   const {
     data: referrals = [],
     isLoading,
+    isFetching,
     error,
     refetch,
   } = useQuery({

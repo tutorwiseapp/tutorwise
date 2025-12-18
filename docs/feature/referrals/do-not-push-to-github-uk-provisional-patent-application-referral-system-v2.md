@@ -149,16 +149,29 @@ Both agent types use the same underlying referral attribution mechanism.
 
 ### **7.1 Overview**
 
-The commission delegation mechanism enables service providers to configure a delegation target profile for specific listings. When a transaction occurs, the system conditionally routes commission based on who brought the client:
+The commission delegation mechanism enables service providers to configure delegation target profiles at multiple hierarchical scopes. When a transaction occurs, the system conditionally routes commission based on who brought the client and evaluates delegation rules in deterministic precedence order:
 
-- If the service provider was the direct referrer → pay the delegated partner
+- If the service provider was the direct referrer → pay according to delegation hierarchy
 - If a third-party agent brought the client → pay the original agent
 
-This preserves lifetime attribution rights while enabling offline partnership models.
+This preserves lifetime attribution rights while enabling offline partnership models with flexible configuration granularity.
 
-### **7.2 Technical Implementation**
+### **7.2 Hierarchical Delegation Scopes**
 
-Service providers configure delegation at the listing level. The system stores a delegation target identifier for each listing. At transaction time, the system evaluates:
+The system supports delegation configuration at two distinct scopes, evaluated in deterministic precedence order:
+
+**Scope 1: Listing-Level Delegation (Highest Precedence)**
+Service providers may configure a delegation target for individual listings. This enables granular partnership control where different services route commissions to different partners.
+
+**Scope 2: Profile-Level Default Delegation (Fallback)**
+Service providers may configure a default delegation target at the profile level that applies to all listings unless overridden by listing-specific delegation.
+
+**Scope 3: Original Referral Attribution (Base Case)**
+When no delegation is configured, commission routes to the service provider's original referring agent.
+
+### **7.3 Technical Implementation**
+
+Service providers configure delegation at profile and/or listing levels. The system stores delegation target identifiers at both scopes. At transaction time, the system evaluates delegation in hierarchical precedence order:
 
 ```
 FUNCTION determine_commission_recipient(transaction):
@@ -166,28 +179,57 @@ FUNCTION determine_commission_recipient(transaction):
   service_provider = lookup_profile(listing.service_provider_id)
   client = lookup_profile(transaction.client_profile_id)
 
-  IF listing.delegation_target_id IS NULL:
+  // Only apply delegation if service provider is the direct referrer
+  IF client.referred_by_agent_id != service_provider.id:
+    // Third-party agent protection: Pay original referring agent
     RETURN service_provider.referred_by_agent_id
 
-  IF client.referred_by_agent_id == service_provider.id:
+  // Hierarchical Delegation Resolution:
+
+  // Level 1: Listing-specific delegation (highest precedence)
+  IF listing.delegation_target_id IS NOT NULL:
     RETURN listing.delegation_target_id
-  ELSE:
-    RETURN service_provider.referred_by_agent_id
+
+  // Level 2: Profile default delegation (fallback)
+  IF service_provider.default_delegation_target_id IS NOT NULL:
+    RETURN service_provider.default_delegation_target_id
+
+  // Level 3: Original referral attribution (base case)
+  RETURN service_provider.referred_by_agent_id
 
 END FUNCTION
 ```
 
-### **7.3 Use Cases**
+This hierarchical evaluation ensures that more specific delegation rules override broader defaults, providing flexible partnership configuration while maintaining deterministic resolution.
 
-**Use Case 1 - Coffee Shop Partnership:** Service provider partners with physical location. When customers scan QR code at coffee shop and book service, coffee shop earns commission (delegation applies).
+### **7.4 Use Cases**
 
-**Use Case 2 - Third-Party Agent Protection:** When a different agent brings the client, original referring agent receives commission (delegation ignored), protecting lifetime attribution rights.
+**Use Case 1 - Profile Default with Listing Override**
+Service provider configures default delegation to Marketing Agency A at profile level. One premium listing overrides to Marketing Agency B. When clients book:
+- Premium listing transactions → pay Marketing Agency B (listing-level wins)
+- All other listings → pay Marketing Agency A (profile-level fallback)
+- Hierarchy Resolution: Listing-specific delegation overrides profile default
 
-**Use Case 3 - Organic Discovery:** When client finds service provider through search engines or direct traffic, original referring agent receives commission (no delegation configured).
+**Use Case 2 - Coffee Shop Partnership (Listing-Specific)**
+Service provider partners with physical location for one specific service. When customers scan QR code at coffee shop and book that service, coffee shop earns commission. Other services retain default delegation or original attribution.
 
-### **7.4 Fraud Prevention**
+**Use Case 3 - Third-Party Agent Protection**
+When a different agent brings the client (client.referred_by != service_provider.id), original referring agent receives commission regardless of delegation configuration, protecting lifetime attribution rights.
 
-The system prevents commission theft by cryptographically verifying attribution provenance. Client referral attribution is immutably stamped at signup and cannot be retroactively changed.
+**Use Case 4 - Organic Discovery with Profile Default**
+Service provider configures profile-level default delegation to Partner X. When client finds service provider through search engines (service provider is direct referrer), Partner X earns commission via profile-level delegation fallback.
+
+**Use Case 5 - Graduated Partnership Model**
+Service provider starts with no delegation, later adds profile-level default, then overrides specific high-value listings:
+- Phase 1: No delegation → pay original agent (Level 3)
+- Phase 2: Profile default added → pay default partner (Level 2)
+- Phase 3: Premium listings override → pay specific partners (Level 1)
+
+The hierarchical model supports progressive partnership strategies without requiring reconfiguration of all listings.
+
+### **7.5 Fraud Prevention**
+
+The system prevents commission theft by cryptographically verifying attribution provenance. Client referral attribution is immutably stamped at signup and cannot be retroactively changed. Delegation configuration is scoped to service provider-owned resources only, preventing unauthorized commission redirection.
 
 * * *
 
@@ -229,7 +271,7 @@ c) an attribution resolution module configured to determine a referral agent bas
 d) a profile-binding module that permanently stores the determined referral identifier within a newly created user's persistent identity profile;
 e) a multi-role architecture allowing users to act as tutors, clients, agents, or any combination thereof;
 f) a dual-agent acquisition model supporting supply-side agents who refer service providers, with architecture supporting future demand-side agent monetization for client referrals;
-g) a conditional commission delegation mechanism enabling service providers to configure per-listing delegation targets, wherein commission is routed to the delegation target when the service provider is the direct referrer, and routed to the service provider's original referring agent when a third party brings the client; and
+g) a hierarchical conditional commission delegation mechanism enabling service providers to configure delegation targets at multiple scopes including profile-level defaults and listing-specific overrides, wherein commission is routed according to deterministic precedence evaluation when the service provider is the direct referrer, and routed to the service provider's original referring agent when a third party brings the client; and
 h) a referral ledger configured to calculate and schedule commission payouts for transactions performed by the referred user.
 
 * * *
@@ -250,12 +292,22 @@ h) a referral ledger configured to calculate and schedule commission payouts for
 
 8. The system of claim 1 wherein referral metadata is bound to the user's profile and retains attribution independent of transaction-level identifiers.
 
-9. **The system of claim 1 wherein the conditional commission delegation mechanism:**
+9. **The system of claim 1 wherein the conditional commission delegation mechanism comprises:**
 
-a) allows service providers to configure a delegation target identifier for individual listings;
-b) evaluates at transaction time whether the client's referral attribution matches the service provider's identifier;
-c) routes commission to the delegation target when the service provider is the direct referrer; and
-d) routes commission to the service provider's original referring agent when the client was referred by a third party, thereby preserving lifetime attribution rights while enabling partnership programs.
+a) a hierarchical delegation configuration system enabling service providers to define delegation target identifiers at multiple scopes including:
+   i) a profile-level default delegation target applicable to all listings owned by the service provider; and
+   ii) listing-specific delegation targets that override the profile-level default;
+
+b) a delegation resolution module configured to evaluate delegation rules in deterministic precedence order wherein:
+   i) listing-specific delegation has highest precedence;
+   ii) profile-level default delegation serves as fallback when listing-specific delegation is undefined; and
+   iii) original referral attribution applies when no delegation is configured;
+
+c) a transaction-time evaluation system that determines whether the client's referral attribution matches the service provider's identifier;
+
+d) a commission routing engine that:
+   i) routes commission according to the hierarchical delegation resolution when the service provider is the direct referrer; and
+   ii) routes commission to the service provider's original referring agent when the client was referred by a third party, thereby preserving lifetime attribution rights while enabling flexible partnership programs with granular configuration control.
 
 * * *
 

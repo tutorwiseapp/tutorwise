@@ -53,9 +53,11 @@ export default function ReviewsPage() {
   const [showActionsMenu, setShowActionsMenu] = useState(false);
 
   // React Query: Fetch pending review tasks
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: pendingData,
     isLoading: pendingLoading,
+    isFetching: pendingFetching,
     error: pendingError,
     refetch: refetchPending
   } = useQuery({
@@ -71,9 +73,11 @@ export default function ReviewsPage() {
   });
 
   // React Query: Fetch received reviews
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: receivedData,
     isLoading: receivedLoading,
+    isFetching: receivedFetching,
     error: receivedError,
     refetch: refetchReceived
   } = useQuery({
@@ -89,9 +93,11 @@ export default function ReviewsPage() {
   });
 
   // React Query: Fetch given reviews
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: givenData,
     isLoading: givenLoading,
+    isFetching: givenFetching,
     error: givenError,
     refetch: refetchGiven
   } = useQuery({
