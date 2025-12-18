@@ -67,8 +67,6 @@ export async function middleware(request: NextRequest) {
     '/messages',
     '/account',
     '/payments',
-    '/referral-activities',
-    '/transaction-history',
     '/referrals',
     '/listings',
     '/bookings',
