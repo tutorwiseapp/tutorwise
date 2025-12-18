@@ -154,9 +154,9 @@ export default function ReferralStatsWidget({
       </div>
 
       {/* Delegation Settings Button */}
-      <Link href="/account/referrals/settings" className={styles.settingsButton}>
+      <Link href="/account/referral-preferences" className={styles.settingsButton}>
         <Settings className={styles.settingsIcon} size={16} />
-        <span>Delegation Settings</span>
+        <span>Referral Preferences</span>
       </Link>
     </div>
   );

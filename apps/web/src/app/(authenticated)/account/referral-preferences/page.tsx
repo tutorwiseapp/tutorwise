@@ -1,18 +1,14 @@
 /**
- * Filename: apps/web/src/app/(authenticated)/account/personal-info/page.tsx
- * Purpose: Personal Information tab page (Account Hub v4.8 - aligned with hub UI)
- * Created: 2025-11-09
- * Updated: 2025-11-30 - Migrated to Hub Layout Architecture with HubPageLayout, HubHeader, HubTabs
- *
- * Pattern: Uses HubSidebar from authenticated layout, not custom layout
+ * Filename: apps/web/src/app/(authenticated)/account/referral-preferences/page.tsx
+ * Purpose: Referral Preferences tab page - Commission delegation settings
+ * Created: 2025-12-18
+ * Pattern: Uses HubPageLayout, HubHeader, HubTabs matching other account pages
  */
 'use client';
 
 import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { updateProfile } from '@/lib/api/profiles';
-import PersonalInfoForm from '@/app/components/feature/account/PersonalInfoForm';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import AccountCard from '@/app/components/feature/account/AccountCard';
 import AccountHelpWidget from '@/app/components/feature/account/AccountHelpWidget';
@@ -22,84 +18,14 @@ import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import AccountHeroHeader from '@/app/components/feature/account/AccountHeroHeader';
 import Button from '@/app/components/ui/actions/Button';
-import type { Profile } from '@/types';
-import toast from 'react-hot-toast';
-import { showScoreCelebration } from '@/app/components/ui/feedback/ScoreCelebrationToast';
+import DelegationSettingsPanel from '@/app/components/feature/referrals/content/DelegationSettingsPanel';
 import styles from './page.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
-export default function PersonalInfoPage() {
-  const { profile, refreshProfile } = useUserProfile();
+export default function ReferralPreferencesPage() {
+  const { profile } = useUserProfile();
   const pathname = usePathname();
   const [showActionsMenu, setShowActionsMenu] = useState(false);
-
-  const handleSave = async (updatedProfile: Partial<Profile>) => {
-    try {
-      // Fetch previous CaaS score before saving
-      let previousScore = 0;
-      try {
-        const scoreResponse = await fetch(`/api/caas/${profile?.id}`);
-        if (scoreResponse.ok) {
-          const scoreData = await scoreResponse.json();
-          previousScore = scoreData.data?.total_score || 0;
-        }
-      } catch (err) {
-        console.log('[PersonalInfo] Could not fetch previous score:', err);
-      }
-
-      await updateProfile(updatedProfile);
-      await refreshProfile();
-      toast.success('Profile updated successfully');
-
-      // Fetch new CaaS score after save and show celebration if improved
-      try {
-        // Wait a bit for CaaS recalculation
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        const newScoreResponse = await fetch(`/api/caas/${profile?.id}`);
-        if (newScoreResponse.ok) {
-          const newScoreData = await newScoreResponse.json();
-          const newScore = newScoreData.data?.total_score || 0;
-
-          // Show celebration if score improved
-          if (newScore > previousScore) {
-            // Determine improvement description based on what was updated
-            let improvement = 'Updated Personal Info';
-            if (updatedProfile.bio) improvement = 'Added Bio';
-            else if ('profile_picture_url' in updatedProfile) improvement = 'Added Profile Picture';
-            else if ('location' in updatedProfile) improvement = 'Added Location';
-
-            // Determine next step based on score
-            let nextStep = undefined;
-            if (newScore < 60) {
-              nextStep = {
-                label: 'Complete Professional Info',
-                href: '/account/professional-info',
-              };
-            } else if (newScore < 80) {
-              nextStep = {
-                label: 'Add More Details',
-                href: '/account/professional-info',
-              };
-            }
-
-            showScoreCelebration({
-              previousScore,
-              newScore,
-              improvement,
-              nextStep,
-            });
-          }
-        }
-      } catch (err) {
-        console.log('[PersonalInfo] Could not show score celebration:', err);
-      }
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      toast.error('Failed to update profile');
-      throw error;
-    }
-  };
 
   // Action handlers
   const handleViewPublicProfile = () => {
@@ -218,7 +144,7 @@ export default function PersonalInfoPage() {
       }
     >
       <div className={styles.content}>
-        <PersonalInfoForm profile={profile} onSave={handleSave} />
+        <DelegationSettingsPanel tutorId={profile.id} />
       </div>
     </HubPageLayout>
   );

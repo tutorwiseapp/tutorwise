@@ -157,6 +157,7 @@ export default function ProfessionalPage() {
   const tabs: HubTab[] = [
     { id: 'personal-info', label: 'Personal Info', active: pathname === '/account/personal-info' },
     { id: 'professional-info', label: 'Professional Info', active: pathname === '/account/professional-info' },
+    { id: 'referral-preferences', label: 'Referral Preferences', active: pathname === '/account/referral-preferences' },
     { id: 'settings', label: 'Settings', active: pathname === '/account/settings' },
   ];
 
