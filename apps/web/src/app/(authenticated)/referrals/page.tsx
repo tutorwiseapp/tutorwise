@@ -16,17 +16,17 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getMyReferrals } from '@/lib/api/referrals';
-import ReferralCard from '@/app/components/feature/referrals/ReferralCard';
-import ReferAndEarnView from '@/app/components/feature/referrals/ReferAndEarnView';
-import PerformanceView from '@/app/components/feature/referrals/PerformanceView';
-import ReferralStatsWidget from '@/app/components/feature/referrals/ReferralStatsWidget';
-import ReferralActivityFeed from '@/app/components/feature/referrals/ReferralActivityFeed';
-import ReferralHelpWidget from '@/app/components/feature/referrals/ReferralHelpWidget';
-import ReferralTipWidget from '@/app/components/feature/referrals/ReferralTipWidget';
-import ReferralVideoWidget from '@/app/components/feature/referrals/ReferralVideoWidget';
+import ReferralCard from '@/app/components/feature/referrals/content/ReferralCard';
+import ReferAndEarnView from '@/app/components/feature/referrals/tabs/ReferAndEarnView';
+import ReferralPerformanceTab from '@/app/components/feature/referrals/tabs/ReferralPerformanceTab';
+import ReferralStatsWidget from '@/app/components/feature/referrals/sidebar/ReferralStatsWidget';
+import ReferralActivityFeed from '@/app/components/feature/referrals/sidebar/ReferralActivityFeed';
+import ReferralHelpWidget from '@/app/components/feature/referrals/sidebar/ReferralHelpWidget';
+import ReferralTipWidget from '@/app/components/feature/referrals/sidebar/ReferralTipWidget';
+import ReferralVideoWidget from '@/app/components/feature/referrals/sidebar/ReferralVideoWidget';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import ReferralsSkeleton from '@/app/components/feature/referrals/ReferralsSkeleton';
-import ReferralsError from '@/app/components/feature/referrals/ReferralsError';
+import ReferralsSkeleton from '@/app/components/feature/referrals/ui/ReferralsSkeleton';
+import ReferralsError from '@/app/components/feature/referrals/ui/ReferralsError';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import type { HubTab } from '@/app/components/hub/layout';
@@ -514,7 +514,7 @@ export default function ReferralsPage() {
 
       {/* Performance Tab Content */}
       {activeTab === 'performance' && (
-        <PerformanceView referrals={referrals || []} />
+        <ReferralPerformanceTab referrals={referrals || []} />
       )}
 
       {/* Leads Tab Content */}

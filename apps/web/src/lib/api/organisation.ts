@@ -49,6 +49,7 @@ export interface OrganisationMember {
   commission_rate: number | null; // Individual override rate (%). If null, uses org default
   internal_notes: string | null; // Private notes for agency owner
   is_verified: boolean; // Internal verification flag
+  member_role?: 'member' | 'admin'; // v7.2: Admin role (different from job role above) - optional until migration runs
   // Analytics fields (v6.4)
   total_revenue: number; // Total revenue from referral commissions
   last_session_at: string | null; // Most recent session date
@@ -124,10 +125,29 @@ export async function getOrganisationMembers(organisationId: string): Promise<Or
   console.log('[getOrganisationMembers] Fetching members for organisation:', organisationId);
 
   // First, get all group_members records for this organisation
-  const { data: groupMembersData, error: groupMembersError } = await supabase
+  // Try to fetch with role column (v7.2), fallback to without if column doesn't exist yet
+  let groupMembersData: any[] | null = null;
+  let groupMembersError: any = null;
+
+  const result = await supabase
     .from('group_members')
-    .select('added_at, connection_id, commission_rate, internal_notes, is_verified')
+    .select('added_at, connection_id, commission_rate, internal_notes, is_verified, role')
     .eq('group_id', organisationId);
+
+  groupMembersData = result.data;
+  groupMembersError = result.error;
+
+  // If role column doesn't exist yet (before migration 128), try without it
+  if (groupMembersError && groupMembersError.message?.includes('column') && groupMembersError.message?.includes('role')) {
+    console.log('[getOrganisationMembers] Role column not found, fetching without it (pre-migration)');
+    const fallbackResult = await supabase
+      .from('group_members')
+      .select('added_at, connection_id, commission_rate, internal_notes, is_verified')
+      .eq('group_id', organisationId);
+
+    groupMembersData = fallbackResult.data;
+    groupMembersError = fallbackResult.error;
+  }
 
   if (groupMembersError) {
     console.error('[getOrganisationMembers] ❌ Failed to fetch group_members:', groupMembersError);
@@ -273,6 +293,7 @@ export async function getOrganisationMembers(organisationId: string): Promise<Or
         commission_rate: item.commission_rate,
         internal_notes: item.internal_notes,
         is_verified: item.is_verified || false,
+        member_role: (item.role || 'member') as 'member' | 'admin', // v7.2: Admin role
         // Analytics fields
         total_revenue: Number(analytics.total_revenue) || 0,
         last_session_at: analytics.last_session_at,
@@ -471,7 +492,7 @@ export async function removeMember(organisationId: string, connectionId: string)
 }
 
 /**
- * Update member settings (commission rate, verification status, notes)
+ * Update member settings (commission rate, verification status, notes, admin role)
  * Only the organisation owner can call this function
  */
 export async function updateMemberSettings(
@@ -481,6 +502,7 @@ export async function updateMemberSettings(
     commission_rate?: number | null;
     internal_notes?: string | null;
     is_verified?: boolean;
+    role?: 'member' | 'admin';
   }
 ): Promise<OrganisationMember> {
   const supabase = createClient();
@@ -509,7 +531,11 @@ export async function updateMemberSettings(
   }
 
   // Perform update
-  const { data, error } = await supabase
+  // Try with role column first, fallback without if it doesn't exist
+  let data: any = null;
+  let error: any = null;
+
+  const updateResult = await supabase
     .from('group_members')
     .update(updates)
     .eq('group_id', organisationId)
@@ -520,6 +546,7 @@ export async function updateMemberSettings(
       commission_rate,
       internal_notes,
       is_verified,
+      role,
       profile_graph:connection_id!inner(
         id,
         source:source_profile_id(
@@ -546,6 +573,57 @@ export async function updateMemberSettings(
     `)
     .single();
 
+  data = updateResult.data;
+  error = updateResult.error;
+
+  // If role column doesn't exist yet (before migration 128), try without it
+  if (error && error.message?.includes('column') && error.message?.includes('role')) {
+    console.log('[updateMemberSettings] Role column not found, updating without it (pre-migration)');
+
+    // Remove role from updates if it exists
+    const { role: _removedRole, ...updatesWithoutRole } = updates;
+
+    const fallbackResult = await supabase
+      .from('group_members')
+      .update(updatesWithoutRole)
+      .eq('group_id', organisationId)
+      .eq('connection_id', connectionId)
+      .select(`
+        added_at,
+        connection_id,
+        commission_rate,
+        internal_notes,
+        is_verified,
+        profile_graph:connection_id!inner(
+          id,
+          source:source_profile_id(
+            id,
+            full_name,
+            email,
+            avatar_url,
+            bio,
+            city,
+            dbs_certificate_url,
+            identity_verification_document_url
+          ),
+          target:target_profile_id(
+            id,
+            full_name,
+            email,
+            avatar_url,
+            bio,
+            city,
+            dbs_certificate_url,
+            identity_verification_document_url
+          )
+        )
+      `)
+      .single();
+
+    data = fallbackResult.data;
+    error = fallbackResult.error;
+  }
+
   if (error) throw error;
 
   // Map to OrganisationMember format (same logic as getOrganisationMembers)
@@ -567,6 +645,7 @@ export async function updateMemberSettings(
     commission_rate: data.commission_rate,
     internal_notes: data.internal_notes,
     is_verified: data.is_verified || false,
+    member_role: (data.role || 'member') as 'member' | 'admin', // v7.2: Admin role
     // Analytics fields - not fetched in update, set to defaults
     total_revenue: 0,
     last_session_at: null,

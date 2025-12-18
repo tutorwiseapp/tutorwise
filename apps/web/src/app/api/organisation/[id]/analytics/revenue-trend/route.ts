@@ -2,14 +2,18 @@
  * Filename: src/app/api/organisation/[id]/analytics/revenue-trend/route.ts
  * Purpose: API endpoint for revenue trend chart data
  * Created: 2025-12-15
- * Version: v7.0 - Organisation Premium Performance Analytics
+ * Updated: 2025-12-17 - Added role-based filtering
+ * Version: v7.1 - Role-based analytics filtering
  *
  * GET /api/organisation/[id]/analytics/revenue-trend?weeks=6
  * Returns weekly revenue trend data for line charts
+ * - Owners see full organisation revenue trend
+ * - Members see their individual revenue trend within the organisation
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { verifyOrganisationAccess } from '../_utils/permissions';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,33 +39,16 @@ export async function GET(
     const { searchParams } = new URL(req.url);
     const weeks = parseInt(searchParams.get('weeks') || '6', 10);
 
-    // Verify user owns this organisation
-    const { data: org, error: orgError } = await supabase
-      .from('connection_groups')
-      .select('profile_id')
-      .eq('id', organisationId)
-      .eq('type', 'organisation')
-      .single();
-
-    if (orgError || !org) {
-      return NextResponse.json(
-        { error: 'Organisation not found' },
-        { status: 404 }
-      );
-    }
-
-    if (org.profile_id !== user.id) {
-      return NextResponse.json(
-        { error: 'You do not own this organisation' },
-        { status: 403 }
-      );
-    }
+    // Verify user has access to this organisation and get their role
+    const permissions = await verifyOrganisationAccess(organisationId, user.id);
 
     // Call RPC function to get revenue trend
+    // Owners get org-wide trend (null), members get filtered trend (their profile_id)
     const { data, error } = await supabase
       .rpc('get_organisation_revenue_trend', {
         org_id: organisationId,
-        weeks
+        weeks,
+        member_profile_id: permissions.memberProfileId
       });
 
     if (error) {
@@ -80,9 +67,17 @@ export async function GET(
 
   } catch (error) {
     console.error('Revenue trend API error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+
+    // Return appropriate status code based on error type
+    const status =
+      errorMessage.includes('not found') ? 404 :
+      errorMessage.includes('not have access') || errorMessage.includes('not a member') ? 403 :
+      500;
+
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
-      { status: 500 }
+      { error: errorMessage },
+      { status }
     );
   }
 }

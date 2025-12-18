@@ -3,7 +3,7 @@
 /* eslint-disable react/no-unescaped-entities */
 import React, { useState, useEffect } from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import ReferralAssetWidget from '@/app/components/feature/referrals/sidebar/ReferralAssetWidget';
+import ReferralAssetWidget from '@/app/components/feature/referrals/ReferralAssetWidget';
 import styles from './CompletionStep.module.css';
 
 interface CompletionStepProps {

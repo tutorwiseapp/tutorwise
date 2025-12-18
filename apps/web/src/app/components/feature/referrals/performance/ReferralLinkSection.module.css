@@ -1,0 +1,129 @@
+/**
+ * Filename: ReferralLinkSection.module.css
+ * Purpose: Styles for referral link section with copy and QR code
+ * Created: 2025-12-17
+ */
+
+.linkSection {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  width: 100%;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 1rem 0;
+}
+
+/* Link Box */
+.linkBox {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.linkInput {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  color: #374151;
+  background-color: #f9fafb;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+}
+
+.linkInput:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background-color: #ffffff;
+}
+
+.copyButton,
+.qrButton {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #3b82f6;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.copyButton:hover,
+.qrButton:hover {
+  background-color: #2563eb;
+}
+
+.copyButton:active,
+.qrButton:active {
+  background-color: #1d4ed8;
+}
+
+/* QR Code */
+.qrCodeContainer {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  text-align: center;
+}
+
+.qrCode {
+  width: 200px;
+  height: 200px;
+  border-radius: 0.5rem;
+  background-color: #ffffff;
+  padding: 0.5rem;
+}
+
+.qrLabel {
+  margin: 1rem 0 0 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .linkSection {
+    padding: 1.25rem;
+  }
+
+  .linkBox {
+    flex-direction: column;
+  }
+
+  .linkInput {
+    min-width: 100%;
+  }
+
+  .copyButton,
+  .qrButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .qrCodeContainer {
+    padding: 1rem;
+  }
+
+  .qrCode {
+    width: 160px;
+    height: 160px;
+  }
+}

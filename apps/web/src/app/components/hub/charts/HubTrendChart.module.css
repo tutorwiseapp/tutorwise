@@ -1,9 +1,8 @@
 /**
- * Filename: HubEarningsTrendChart.module.css
- * Purpose: Styles for Hub Earnings Trend Chart component
+ * Filename: HubTrendChart.module.css
+ * Purpose: Styles for generic Hub Trend Chart component
  * Created: 2025-12-17
- * Updated: 2025-12-18 - Added teal header pattern
- * Pattern: Widget with teal header
+ * Updated: 2025-12-18 - Added teal header pattern and empty states
  */
 
 .widget {
@@ -55,16 +54,17 @@
   font-weight: 500;
 }
 
-/* Empty State */
+/* Empty state */
 .emptyState {
-  padding: 3rem 1.5rem;
   text-align: center;
+  padding: 40px 20px;
 }
 
 .emptyText {
-  font-size: 0.875rem;
+  font-size: 13px;
   color: #6b7280;
   margin: 0;
+  line-height: 1.5;
 }
 
 /* Custom Tooltip */

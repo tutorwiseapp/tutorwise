@@ -39,27 +39,32 @@ export default function HubKPICard({
 }: HubKPICardProps) {
   const content = (
     <div className={`${styles.card} ${styles[variant]} ${clickable ? styles.clickable : ''}`}>
-      {/* Icon + Label */}
+      {/* Header with teal background */}
       <div className={styles.header}>
-        {Icon && <Icon className={styles.icon} size={20} />}
-        <span className={styles.label}>{label}</span>
+        <div className={styles.headerLeft}>
+          {Icon && <Icon className={styles.icon} size={20} />}
+          <span className={styles.label}>{label}</span>
+        </div>
       </div>
 
-      {/* Main Value */}
-      <div className={styles.value}>{value}</div>
+      {/* Content */}
+      <div className={styles.content}>
+        {/* Main Value */}
+        <div className={styles.value}>{value}</div>
 
-      {/* Sublabel (secondary info) */}
-      {sublabel && <div className={styles.sublabel}>{sublabel}</div>}
+        {/* Sublabel (secondary info) */}
+        {sublabel && <div className={styles.sublabel}>{sublabel}</div>}
 
-      {/* Change indicator (e.g., "+12% vs last month") */}
-      {change && (
-        <div className={`${styles.change} ${change.startsWith('+') ? styles.positive : styles.negative}`}>
-          {change}
-        </div>
-      )}
+        {/* Change indicator (e.g., "+12% vs last month") */}
+        {change && (
+          <div className={`${styles.change} ${change.startsWith('+') ? styles.positive : styles.negative}`}>
+            {change}
+          </div>
+        )}
 
-      {/* Timeframe (e.g., "This Month") */}
-      {timeframe && <div className={styles.timeframe}>{timeframe}</div>}
+        {/* Timeframe (e.g., "This Month") */}
+        {timeframe && <div className={styles.timeframe}>{timeframe}</div>}
+      </div>
     </div>
   );
 

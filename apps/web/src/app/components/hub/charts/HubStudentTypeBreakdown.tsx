@@ -21,12 +21,14 @@ interface HubStudentTypeBreakdownProps {
   data?: StudentTypeData;
   defaultView?: 'pie' | 'bar';
   title?: string;
+  isLoading?: boolean;
 }
 
 const HubStudentTypeBreakdown = memo(function HubStudentTypeBreakdown({
   data = { new: 0, returning: 0 },
   defaultView = 'pie',
-  title = 'Student Type Breakdown'
+  title = 'Student Type Breakdown',
+  isLoading = false
 }: HubStudentTypeBreakdownProps) {
   const [viewType, setViewType] = useState<'pie' | 'bar'>(defaultView);
 
@@ -85,7 +87,11 @@ const HubStudentTypeBreakdown = memo(function HubStudentTypeBreakdown({
       </div>
 
       <div className={styles.content}>
-        {!hasData ? (
+        {isLoading ? (
+          <div className={styles.emptyState}>
+            <p className={styles.emptyText}>Loading student data...</p>
+          </div>
+        ) : !hasData ? (
           <div className={styles.emptyState}>
             <p className={styles.emptyText}>No student data available yet. Start booking sessions to see your student breakdown.</p>
           </div>

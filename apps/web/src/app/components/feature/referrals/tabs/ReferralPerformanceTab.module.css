@@ -1,0 +1,51 @@
+/**
+ * Filename: PerformanceView.module.css
+ * Purpose: Styles for Performance dashboard tab
+ * Created: 2025-12-07
+ * Updated: 2025-12-18 - Matched Organisation Performance tab responsive patterns
+ */
+
+.performanceContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 0;
+  width: 100%;
+}
+
+/* Charts Grid - 2 columns (matching Organisation Performance tab) */
+.chartsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+/* Mobile: 1 column */
+@media (max-width: 640px) {
+  .performanceContainer {
+    gap: 1rem;
+  }
+
+  .chartsGrid {
+    gap: 1rem;
+  }
+}
+
+/* Tablet: 2 columns for larger screens */
+@media (min-width: 641px) {
+  .chartsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Desktop: Keep 2 columns, increase gap */
+@media (min-width: 1025px) {
+  .chartsGrid {
+    gap: 1.5rem;
+  }
+
+  .performanceContainer {
+    gap: 2rem;
+  }
+}

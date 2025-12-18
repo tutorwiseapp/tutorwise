@@ -2,15 +2,16 @@
  * Filename: src/app/(authenticated)/dashboard/page.tsx
  * Purpose: Dashboard hub page with role-specific navigation cards and aggregated stats
  * Change History:
+ * C015 - 2025-12-18 : Removed Analytics tab (Profile Views/Referrer Sources moved to future Hub charts)
  * C014 - 2025-12-08 : Added Analytics tab with Profile Views Trend and Referrer Sources charts
  * C013 - 2025-12-03 : Migrated to Hub Layout Architecture (HubPageLayout + HubHeader)
  * C012 - 2025-11-08 : 14:00 - Moved into (authenticated) folder, removed duplicate AppSidebar
  * C011 - 2025-11-08 : 12:00 - Transformed into unified hub with aggregated stats sidebar
  * C010 - 2025-09-01 : 19:00 - Replaced Kinde hook with useUserProfile to get full profile data.
  * C009 - 2025-08-26 : 19:00 - Converted from Server Component to Client Component.
- * Last Modified: 2025-12-08
+ * Last Modified: 2025-12-18
  * Requirement ID: VIN-APP-01
- * Change Summary: Added Analytics tab with profile views tracking and referrer sources breakdown.
+ * Change Summary: Removed Analytics tab - functionality can be rebuilt via Hub charts when needed.
  */
 'use client';
 
@@ -21,21 +22,17 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import { PendingLogsWidget } from '@/app/components/feature/dashboard/PendingLogsWidget';
-import KPIGrid, { KPIData } from '@/app/components/feature/dashboard/widgets/KPIGrid';
-import EarningsTrendChart, { WeeklyEarnings } from '@/app/components/feature/dashboard/widgets/EarningsTrendChart';
-import BookingCalendarHeatmap, { DayBooking } from '@/app/components/feature/dashboard/widgets/BookingCalendarHeatmap';
-import ProfileGrowthWidget from '@/app/components/feature/dashboard/widgets/ProfileGrowthWidget';
-import FirstLoginModal from '@/app/components/feature/dashboard/FirstLoginModal';
-import TipsCard from '@/app/components/feature/dashboard/widgets/TipsCard';
-import DashboardHelpWidget from '@/app/components/feature/dashboard/DashboardHelpWidget';
-import DashboardVideoWidget from '@/app/components/feature/dashboard/DashboardVideoWidget';
-import MessagesWidget from '@/app/components/feature/dashboard/widgets/MessagesWidget';
-import PayoutWidget from '@/app/components/feature/dashboard/widgets/PayoutWidget';
-import StudentTypeBreakdown, { StudentTypeData } from '@/app/components/feature/dashboard/widgets/StudentTypeBreakdown';
-import ProfileViewsTrendChart, { DailyViews } from '@/app/components/feature/dashboard/widgets/ProfileViewsTrendChart';
-import ReferrerSourcesChart, { ReferrerData } from '@/app/components/feature/dashboard/widgets/ReferrerSourcesChart';
-import ReferralDashboardWidget from '@/app/components/feature/dashboard/widgets/ReferralDashboardWidget';
+import { PendingLogsWidget } from '@/app/components/feature/dashboard/content/PendingLogsWidget';
+import KPIGrid, { KPIData } from '@/app/components/feature/dashboard/performance/KPIGrid';
+import { HubEarningsTrendChart, HubCalendarHeatmap, type WeeklyEarnings, type DayData } from '@/app/components/hub/charts';
+import ProfileGrowthWidget from '@/app/components/feature/dashboard/performance/ProfileGrowthWidget';
+import FirstLoginModal from '@/app/components/feature/dashboard/content/FirstLoginModal';
+import TipsCard from '@/app/components/feature/dashboard/performance/TipsCard';
+import DashboardHelpWidget from '@/app/components/feature/dashboard/sidebar/DashboardHelpWidget';
+import DashboardVideoWidget from '@/app/components/feature/dashboard/sidebar/DashboardVideoWidget';
+import MessagesWidget from '@/app/components/feature/dashboard/performance/MessagesWidget';
+import PayoutWidget from '@/app/components/feature/dashboard/performance/PayoutWidget';
+import { HubStudentTypeBreakdown, type StudentTypeData } from '@/app/components/hub/charts';
 import { KPISkeleton, ChartSkeleton, WidgetSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import Button from '@/app/components/ui/actions/Button';
@@ -45,7 +42,7 @@ import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 const DashboardPage = () => {
   const { profile, activeRole, isLoading, needsOnboarding } = useUserProfile();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'overview' | 'analytics'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview'>('overview');
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [showFirstLoginModal, setShowFirstLoginModal] = useState(false);
 
@@ -85,7 +82,7 @@ const DashboardPage = () => {
   const {
     data: bookingHeatmapData = [],
     isLoading: isLoadingHeatmap,
-  } = useQuery<DayBooking[]>({
+  } = useQuery<DayData[]>({
     queryKey: ['dashboard', 'booking-heatmap', profile?.id],
     queryFn: async () => {
       const response = await fetch('/api/dashboard/booking-heatmap?days=14');
@@ -110,40 +107,6 @@ const DashboardPage = () => {
     },
     placeholderData: keepPreviousData,
     staleTime: 3 * 60 * 1000, // 3 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
-  });
-
-  // React Query: Fetch Profile Views Trend data
-  const {
-    data: profileViewsTrendData = [],
-    isLoading: isLoadingProfileViewsTrend,
-  } = useQuery<DailyViews[]>({
-    queryKey: ['dashboard', 'profile-views-trend', profile?.id],
-    queryFn: async () => {
-      const response = await fetch('/api/dashboard/profile-views-trend?days=30');
-      if (!response.ok) throw new Error('Failed to fetch profile views trend');
-      return response.json();
-    },
-    enabled: activeTab === 'analytics',
-    placeholderData: keepPreviousData,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
-  });
-
-  // React Query: Fetch Referrer Sources data
-  const {
-    data: referrerSourcesData = [],
-    isLoading: isLoadingReferrerSources,
-  } = useQuery<ReferrerData[]>({
-    queryKey: ['dashboard', 'referrer-sources', profile?.id],
-    queryFn: async () => {
-      const response = await fetch('/api/dashboard/referrer-sources');
-      if (!response.ok) throw new Error('Failed to fetch referrer sources');
-      return response.json();
-    },
-    enabled: activeTab === 'analytics',
-    placeholderData: keepPreviousData,
-    staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
@@ -338,10 +301,9 @@ const DashboardPage = () => {
       tabs={
         <HubTabs
           tabs={[
-            { id: 'overview', label: 'Overview', active: activeTab === 'overview' },
-            { id: 'analytics', label: 'Analytics', active: activeTab === 'analytics' }
+            { id: 'overview', label: 'Overview', active: activeTab === 'overview' }
           ]}
-          onTabChange={(tabId) => setActiveTab(tabId as 'overview' | 'analytics')}
+          onTabChange={(tabId) => setActiveTab(tabId as 'overview')}
           className={styles.dashboardTabs}
         />
       }
@@ -386,13 +348,13 @@ const DashboardPage = () => {
         <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load earnings chart</div>}>
           {isLoadingEarnings ? (
             <ChartSkeleton height="320px" />
-          ) : earningsTrendData.length > 0 ? (
-            <EarningsTrendChart
+          ) : (
+            <HubEarningsTrendChart
               data={earningsTrendData}
               currency="GBP"
               showComparison={false}
             />
-          ) : null}
+          )}
         </ErrorBoundary>
 
         {/* Booking Calendar Heatmap */}
@@ -400,38 +362,27 @@ const DashboardPage = () => {
           {isLoadingHeatmap ? (
             <ChartSkeleton height="400px" />
           ) : (
-            <BookingCalendarHeatmap
+            <HubCalendarHeatmap
               data={bookingHeatmapData}
               range="next-14-days"
+              title="Booking Calendar"
+              subtitle="Next 14 days"
             />
           )}
         </ErrorBoundary>
 
         {/* Student Type Breakdown (pie/bar chart) */}
         <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load student breakdown</div>}>
-          {isLoadingStudentBreakdown ? (
-            <ChartSkeleton height="350px" />
-          ) : (
-            <StudentTypeBreakdown
-              data={studentBreakdownData}
-              defaultView="pie"
-            />
-          )}
+          <HubStudentTypeBreakdown
+            data={studentBreakdownData}
+            defaultView="pie"
+            isLoading={isLoadingStudentBreakdown}
+          />
         </ErrorBoundary>
       </div>
 
       {/* Actionable Widgets Section */}
       <div className={styles.actionableWidgets}>
-        {/* Referral Dashboard Widget - for agents only */}
-        {activeRole === 'agent' && profile.referral_code && (
-          <ErrorBoundary>
-            <ReferralDashboardWidget
-              agentId={profile.id}
-              referralCode={profile.referral_code}
-            />
-          </ErrorBoundary>
-        )}
-
         {/* Pending Actions for tutors/agents */}
         {(activeRole === 'tutor' || activeRole === 'agent') && (
           <ErrorBoundary>
@@ -459,38 +410,6 @@ const DashboardPage = () => {
           </ErrorBoundary>
         )}
       </div>
-        </>
-      )}
-
-      {/* Analytics Tab */}
-      {activeTab === 'analytics' && (
-        <>
-          {/* Analytics Charts Section */}
-          <div className={styles.chartsSection}>
-            {/* Profile Views Trend Chart */}
-            <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load profile views trend</div>}>
-              {isLoadingProfileViewsTrend ? (
-                <ChartSkeleton height="320px" />
-              ) : (
-                <ProfileViewsTrendChart
-                  data={profileViewsTrendData}
-                  days={30}
-                />
-              )}
-            </ErrorBoundary>
-
-            {/* Referrer Sources Chart */}
-            <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load referrer sources</div>}>
-              {isLoadingReferrerSources ? (
-                <ChartSkeleton height="350px" />
-              ) : (
-                <ReferrerSourcesChart
-                  data={referrerSourcesData}
-                  defaultView="pie"
-                />
-              )}
-            </ErrorBoundary>
-          </div>
         </>
       )}
     </HubPageLayout>

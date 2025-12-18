@@ -1,15 +1,19 @@
 /**
  * Filename: src/app/api/organisation/[id]/analytics/student-breakdown/route.ts
- * Purpose: API endpoint for student distribution by subject
+ * Purpose: API endpoint for new vs returning student breakdown
  * Created: 2025-12-15
- * Version: v7.0 - Organisation Premium Performance Analytics
+ * Updated: 2025-12-17 - Changed to new/returning breakdown with role-based filtering
+ * Version: v7.1 - Role-based analytics filtering
  *
  * GET /api/organisation/[id]/analytics/student-breakdown
- * Returns student distribution across subjects/categories
+ * Returns breakdown of new vs returning students
+ * - Owners see organisation-wide student breakdown
+ * - Members see their individual student breakdown
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { verifyOrganisationAccess } from '../_utils/permissions';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,52 +35,43 @@ export async function GET(
       );
     }
 
-    // Verify user owns this organisation
-    const { data: org, error: orgError } = await supabase
-      .from('connection_groups')
-      .select('profile_id')
-      .eq('id', organisationId)
-      .eq('type', 'organisation')
-      .single();
+    // Verify user has access to this organisation and get their role
+    const permissions = await verifyOrganisationAccess(organisationId, user.id);
 
-    if (orgError || !org) {
-      return NextResponse.json(
-        { error: 'Organisation not found' },
-        { status: 404 }
-      );
-    }
-
-    if (org.profile_id !== user.id) {
-      return NextResponse.json(
-        { error: 'You do not own this organisation' },
-        { status: 403 }
-      );
-    }
-
-    // Call RPC function to get student breakdown
+    // Call RPC function to get student breakdown (new vs returning)
+    // Owners get org-wide breakdown (null), members get filtered breakdown (their profile_id)
     const { data, error } = await supabase
       .rpc('get_organisation_student_breakdown', {
-        org_id: organisationId
-      });
+        org_id: organisationId,
+        member_profile_id: permissions.memberProfileId
+      })
+      .single();
 
     if (error) {
       console.error('Error fetching student breakdown:', error);
       throw error;
     }
 
+    // Return new vs returning student counts
+    const breakdownData = data as { new_students: number; returning_students: number } | null;
     return NextResponse.json({
-      data: (data || []).map((row: any) => ({
-        subject: row.subject,
-        student_count: row.student_count || 0,
-        revenue: Number(row.revenue || 0),
-      }))
+      new: breakdownData?.new_students || 0,
+      returning: breakdownData?.returning_students || 0
     });
 
   } catch (error) {
     console.error('Student breakdown API error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+
+    // Return appropriate status code based on error type
+    const status =
+      errorMessage.includes('not found') ? 404 :
+      errorMessage.includes('not have access') || errorMessage.includes('not a member') ? 403 :
+      500;
+
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
-      { status: 500 }
+      { error: errorMessage },
+      { status }
     );
   }
 }

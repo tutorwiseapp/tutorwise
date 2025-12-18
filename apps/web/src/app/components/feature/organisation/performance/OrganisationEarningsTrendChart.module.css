@@ -1,0 +1,24 @@
+/**
+ * Filename: OrganisationEarningsTrendChart.module.css
+ * Purpose: Styles for Organisation Earnings Trend Chart wrapper
+ * Created: 2025-12-07
+ * Updated: 2025-12-17 - Simplified to wrapper pattern
+ * Pattern: Wrapper component - delegates to HubEarningsTrendChart
+ *
+ * Note: Currently minimal as this component wraps HubEarningsTrendChart.
+ * The actual chart styling comes from HubEarningsTrendChart.module.css.
+ * Add organisation-specific overrides here if needed in the future.
+ */
+
+/* Wrapper container - available for future organisation-specific styling */
+.wrapper {
+  width: 100%;
+}
+
+/*
+ * Organisation-specific overrides can be added below
+ * For example:
+ * - Custom header colors
+ * - Different spacing
+ * - Organisation branding elements
+ */
