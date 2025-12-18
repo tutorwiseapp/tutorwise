@@ -54,9 +54,12 @@ export default function PayoutsPage() {
   } = useQuery({
     queryKey: ['payouts', profile?.id],
     queryFn: getPayouts,
+    enabled: !!profile?.id, // Wait for profile to load before fetching
     placeholderData: keepPreviousData,
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
   });
 
   const payouts = useMemo(() => data?.transactions || [], [data?.transactions]);

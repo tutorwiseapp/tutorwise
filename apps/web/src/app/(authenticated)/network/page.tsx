@@ -56,9 +56,12 @@ export default function NetworkPage() {
   } = useQuery({
     queryKey: ['connections', profile?.id],
     queryFn: getMyConnections,
+    enabled: !!profile?.id, // Wait for profile to load before fetching
     staleTime: 2 * 60 * 1000, // 2 minutes (connections change frequently with realtime)
     gcTime: 5 * 60 * 1000, // 5 minutes
     placeholderData: keepPreviousData, // Show cached data instantly while refetching
+    refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });

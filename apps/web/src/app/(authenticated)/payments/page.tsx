@@ -53,9 +53,12 @@ const PaymentsPageContent = () => {
     } = useQuery({
         queryKey: ['payments', profile?.id, profile?.stripe_customer_id],
         queryFn: () => getPaymentData(profile?.stripe_customer_id),
+        enabled: !!profile?.id, // Wait for profile to load before fetching
         placeholderData: keepPreviousData,
         staleTime: 30 * 1000, // 30 seconds
         gcTime: 5 * 60 * 1000, // 5 minutes
+        refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
+        refetchOnWindowFocus: true, // Refetch when user returns to tab
         retry: 2,
     });
 

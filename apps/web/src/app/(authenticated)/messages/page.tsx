@@ -47,12 +47,13 @@ export default function MessagesPage() {
   } = useQuery({
     queryKey: ['conversations', profile?.id],
     queryFn: getConversations,
+    enabled: !!profile?.id, // Wait for profile to load before fetching
     placeholderData: keepPreviousData,
     staleTime: Infinity,
     gcTime: 5 * 60 * 1000,
     retry: 2,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnWindowFocus: false, // Real-time updates via Ably instead
+    refetchOnMount: false, // Real-time updates via Ably instead
     refetchOnReconnect: false,
   });
 
