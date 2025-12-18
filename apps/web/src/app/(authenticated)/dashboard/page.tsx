@@ -57,9 +57,12 @@ const DashboardPage = () => {
       if (!response.ok) throw new Error('Failed to fetch KPIs');
       return response.json();
     },
+    enabled: !!profile?.id, // Wait for profile to load before fetching
     placeholderData: keepPreviousData,
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
   });
 
   // React Query: Fetch Earnings Trend data
@@ -73,9 +76,12 @@ const DashboardPage = () => {
       if (!response.ok) throw new Error('Failed to fetch earnings trend');
       return response.json();
     },
+    enabled: !!profile?.id, // Wait for profile to load before fetching
     placeholderData: keepPreviousData,
     staleTime: 3 * 60 * 1000, // 3 minutes (less frequently changing)
     gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
   });
 
   // React Query: Fetch Booking Heatmap data
@@ -89,9 +95,12 @@ const DashboardPage = () => {
       if (!response.ok) throw new Error('Failed to fetch booking heatmap');
       return response.json();
     },
+    enabled: !!profile?.id, // Wait for profile to load before fetching
     placeholderData: keepPreviousData,
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
   });
 
   // React Query: Fetch Student Breakdown data
@@ -105,9 +114,12 @@ const DashboardPage = () => {
       if (!response.ok) throw new Error('Failed to fetch student breakdown');
       return response.json();
     },
+    enabled: !!profile?.id, // Wait for profile to load before fetching
     placeholderData: keepPreviousData,
     staleTime: 3 * 60 * 1000, // 3 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
   });
 
   useEffect(() => {

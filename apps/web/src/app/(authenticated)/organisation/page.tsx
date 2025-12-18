@@ -90,9 +90,12 @@ export default function OrganisationPage() {
   } = useQuery({
     queryKey: ['organisation', profile?.id],
     queryFn: getMyOrganisation,
+    enabled: !!profile?.id, // Wait for profile to load before fetching
     placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
+    refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
   });
 
   // Fetch subscription status (v7.0: Check Premium access)

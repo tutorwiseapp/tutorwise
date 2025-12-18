@@ -61,9 +61,12 @@ export default function ReviewsPage() {
   } = useQuery({
     queryKey: ['reviews', 'pending', profile?.id],
     queryFn: getPendingReviewTasks,
+    enabled: !!profile?.id, // Wait for profile to load before fetching
     staleTime: 2 * 60 * 1000,
     gcTime: 5 * 60 * 1000,
     placeholderData: keepPreviousData,
+    refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
     retry: 2,
   });
 
@@ -76,9 +79,12 @@ export default function ReviewsPage() {
   } = useQuery({
     queryKey: ['reviews', 'received', profile?.id],
     queryFn: getReceivedReviews,
+    enabled: !!profile?.id, // Wait for profile to load before fetching
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     placeholderData: keepPreviousData,
+    refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
     retry: 2,
   });
 
@@ -91,9 +97,12 @@ export default function ReviewsPage() {
   } = useQuery({
     queryKey: ['reviews', 'given', profile?.id],
     queryFn: getGivenReviews,
+    enabled: !!profile?.id, // Wait for profile to load before fetching
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     placeholderData: keepPreviousData,
+    refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
     retry: 2,
   });
 

@@ -68,9 +68,12 @@ export default function ReferralsPage() {
   } = useQuery({
     queryKey: ['referrals', profile?.id],
     queryFn: getMyReferrals,
+    enabled: !!profile?.id, // Wait for profile to load before fetching
     staleTime: 5 * 60 * 1000, // 5 minutes (referrals change less frequently)
     gcTime: 10 * 60 * 1000, // 10 minutes
     placeholderData: keepPreviousData, // Show cached data instantly while refetching
+    refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
