@@ -262,12 +262,13 @@ export async function POST(req: Request) {
     }
 
     // 5. Create booking with agent_id from client's profile and snapshot fields
-    // (SDD v3.6, Section 11.2 - Lifetime Attribution) (migrations 049 & 051, 104, 108)
+    // (SDD v3.6, Section 11.2 - Lifetime Attribution) (migrations 049 & 051, 104, 108, 132, 133)
     const bookingData: any = {
       client_id: user.id,
       tutor_id,
       listing_id: listing_id || null, // null for direct profile bookings
       agent_id: profile.referred_by_profile_id, // Lifetime attribution from profiles.referred_by_profile_id (migration 028) - This drives commission split
+      booking_source_type: listing_id ? 'listing' : 'profile', // migration 133: Track booking source
       service_name,
       session_start_time,
       session_duration,
