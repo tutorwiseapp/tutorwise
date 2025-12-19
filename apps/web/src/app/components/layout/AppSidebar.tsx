@@ -28,7 +28,6 @@ export default function AppSidebar() {
   // Client note: Clients can list lesson requests under Listings
   const navItems: NavItem[] = [
     { href: '/dashboard', label: 'Dashboard' },
-    { href: '/', label: 'Marketplace' },
     { href: '/organisation', label: 'Organisation' }, // v6.1: Agency/School Management (all roles)
     { href: '/listings', label: 'Listings' },
     { href: '/bookings', label: 'Bookings' },
