@@ -11,6 +11,7 @@ import type { Profile } from '@/types';
 import Image from 'next/image';
 import Card from '@/app/components/ui/data-display/Card';
 import { Star } from 'lucide-react';
+import { getInitials } from '@/lib/utils/initials';
 import styles from './ReviewsCard.module.css';
 
 interface ReviewsCardProps {
@@ -72,7 +73,7 @@ export function ReviewsCard({ profile, reviews = [] }: ReviewsCardProps) {
                   />
                 ) : (
                   <div className={styles.avatarPlaceholder}>
-                    {review.reviewer_name.charAt(0).toUpperCase()}
+                    {getInitials(review.reviewer_name, false)}
                   </div>
                 )}
 

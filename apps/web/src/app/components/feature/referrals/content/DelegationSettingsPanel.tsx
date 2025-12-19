@@ -31,6 +31,7 @@ import {
   X,
 } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
+import { getInitials } from '@/lib/utils/initials';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import type { DetailField } from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
@@ -273,7 +274,7 @@ export default function DelegationSettingsPanel({
             image={{
               src: profileDefaultPartner.profile_picture_url || null,
               alt: profileDefaultPartner.full_name,
-              fallbackChar: profileDefaultPartner.full_name.substring(0, 2).toUpperCase(),
+              fallbackChar: getInitials(profileDefaultPartner.full_name, false),
             }}
             title="Default Partner"
             status={{ label: 'Active', variant: 'success' }}
@@ -359,7 +360,7 @@ export default function DelegationSettingsPanel({
                     image={{
                       src: effectivePartner?.profile_picture_url || null,
                       alt: listing.title,
-                      fallbackChar: listing.title.substring(0, 2).toUpperCase(),
+                      fallbackChar: getInitials(listing.title, true),
                     }}
                     title={listing.title}
                     status={

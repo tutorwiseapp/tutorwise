@@ -13,6 +13,7 @@ import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailC
 import TransactionDetailModal from './TransactionDetailModal';
 import Button from '@/app/components/ui/actions/Button';
 import getProfileImageUrl from '@/lib/utils/image';
+import { getInitials } from '@/lib/utils/initials';
 
 interface TransactionCardProps {
   transaction: Transaction;
@@ -42,7 +43,7 @@ export default function TransactionCard({ transaction, currentUserId }: Transact
           name: booking.client?.full_name || 'Client',
           id: booking.client?.id || null,
           avatar_url: booking.client?.avatar_url || null,
-          fallbackChar: booking.client?.full_name?.charAt(0).toUpperCase() || 'C'
+          fallbackChar: getInitials(booking.client?.full_name, false) || 'C'
         };
       }
 
@@ -52,7 +53,7 @@ export default function TransactionCard({ transaction, currentUserId }: Transact
           name: booking.tutor?.full_name || 'Tutor',
           id: booking.tutor?.id || null,
           avatar_url: booking.tutor?.avatar_url || null,
-          fallbackChar: booking.tutor?.full_name?.charAt(0).toUpperCase() || 'T'
+          fallbackChar: getInitials(booking.tutor?.full_name, false) || 'T'
         };
       }
 
@@ -62,7 +63,7 @@ export default function TransactionCard({ transaction, currentUserId }: Transact
         name: agent?.full_name || 'Unknown',
         id: agent?.id || null,
         avatar_url: agent?.avatar_url || null,
-        fallbackChar: agent?.full_name?.charAt(0).toUpperCase() || '?'
+        fallbackChar: getInitials(agent?.full_name, false) || '?'
       };
     }
 

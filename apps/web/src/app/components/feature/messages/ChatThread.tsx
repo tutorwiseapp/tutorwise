@@ -16,6 +16,7 @@ import { getChatClient, AblyChannels, MessageType, DeliveryStatus } from '@/lib/
 import { useAblyPresence } from '@/app/hooks/useAblyPresence';
 import { useAblyTyping } from '@/app/hooks/useAblyTyping';
 import getProfileImageUrl from '@/lib/utils/image';
+import { getInitials } from '@/lib/utils/initials';
 import styles from './ChatThread.module.css';
 
 interface ChatThreadProps {
@@ -300,7 +301,7 @@ export default function ChatThread({
             />
           ) : (
             <div className={styles.headerAvatarFallback}>
-              {(otherUser.full_name || 'U').charAt(0).toUpperCase()}
+              {getInitials(otherUser.full_name, false) || 'U'}
             </div>
           )}
         </Link>

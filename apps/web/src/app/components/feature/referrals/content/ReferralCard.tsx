@@ -13,6 +13,7 @@ import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailC
 import ReferralDetailModal from './ReferralDetailModal';
 import Button from '@/app/components/ui/actions/Button';
 import getProfileImageUrl from '@/lib/utils/image';
+import { getInitials } from '@/lib/utils/initials';
 
 interface ReferralCardProps {
   referral: Referral;
@@ -77,7 +78,7 @@ export default function ReferralCard({
         full_name: referral.referred_user.full_name, // Use referred user name for initials
       })
     : null;
-  const fallbackChar = referral.referred_user ? referral.referred_user.full_name?.charAt(0).toUpperCase() : '?';
+  const fallbackChar = referral.referred_user ? getInitials(referral.referred_user.full_name, false) : '?';
   const imageHref = referral.referred_user ? `/public-profile/${referral.referred_user.id}` : undefined;
 
   // Build title
