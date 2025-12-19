@@ -15,31 +15,26 @@ interface CategoryPageProps {
   };
 }
 
-const CATEGORY_INFO: Record<string, { title: string; description: string; icon: string }> = {
+const CATEGORY_INFO: Record<string, { title: string; description: string }> = {
   'getting-started': {
     title: 'Getting Started',
     description: 'New to Tutorwise? Start here to learn the basics',
-    icon: '🚀',
   },
   features: {
     title: 'Features',
     description: 'Learn how to use Tutorwise features effectively',
-    icon: '✨',
   },
   account: {
     title: 'Account',
     description: 'Manage your profile, settings, and preferences',
-    icon: '👤',
   },
   billing: {
     title: 'Billing & Payments',
     description: 'Everything about payments, payouts, and pricing',
-    icon: '💰',
   },
   troubleshooting: {
     title: 'Troubleshooting',
     description: 'Common issues and how to resolve them',
-    icon: '🔧',
   },
 };
 
@@ -54,14 +49,12 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   const categoryInfo = CATEGORY_INFO[category] || {
     title: category.charAt(0).toUpperCase() + category.slice(1),
     description: `Articles about ${category}`,
-    icon: '📚',
   };
 
   return (
     <div className={styles.categoryPage}>
       {/* Category Header */}
       <header className={styles.categoryHeader}>
-        <div className={styles.categoryIcon}>{categoryInfo.icon}</div>
         <h1 className={styles.categoryTitle}>{categoryInfo.title}</h1>
         <p className={styles.categoryDescription}>{categoryInfo.description}</p>
         <div className={styles.articleCount}>
@@ -116,7 +109,6 @@ export async function generateMetadata({ params }: CategoryPageProps) {
   const categoryInfo = CATEGORY_INFO[category] || {
     title: category.charAt(0).toUpperCase() + category.slice(1),
     description: `Articles about ${category}`,
-    icon: '📚',
   };
 
   return {
