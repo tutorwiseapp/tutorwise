@@ -116,9 +116,6 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               <div className={styles.separator} />
 
               {/* Navigation Items (excluding items in bottom nav) */}
-              <Link href="/marketplace" className={styles.menuItem} onClick={handleLinkClick}>
-                Marketplace
-              </Link>
               <Link href="/listings" className={styles.menuItem} onClick={handleLinkClick}>
                 Listings
               </Link>
