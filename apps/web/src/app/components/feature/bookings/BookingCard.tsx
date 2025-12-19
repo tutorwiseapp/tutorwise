@@ -70,14 +70,14 @@ export default function BookingCard({
   // Determine who the "other party" is based on view mode
   const otherParty = viewMode === 'client' ? booking.tutor : booking.client;
 
-  // Use service name for avatar (listing-based) with actual subject from booking
+  // Use other party's name for avatar (consistent with marketplace)
   // Migration 104: booking.subjects now contains snapshot of listing.subjects
   const avatarUrl = getProfileImageUrl({
-    id: booking.listing_id || booking.id,
-    avatar_url: undefined, // No custom avatar for services
-    full_name: booking.service_name, // Use service name for initials
-  }, true, booking.subjects?.[0]); // isListing = true, use first subject from booking (migration 104)
-  const fallbackChar = booking.service_name?.substring(0, 2).toUpperCase() || '?';
+    id: otherParty?.id || booking.id,
+    avatar_url: otherParty?.avatar_url,
+    full_name: otherParty?.full_name || booking.service_name,
+  }, false); // isListing = false for profile avatars
+  const fallbackChar = otherParty?.full_name?.substring(0, 2).toUpperCase() || booking.service_name?.substring(0, 2).toUpperCase() || '?';
 
   // Build description with tutor/client info
   const rolePrefix = viewMode === 'client' ? 'Tutor' : 'Client';
