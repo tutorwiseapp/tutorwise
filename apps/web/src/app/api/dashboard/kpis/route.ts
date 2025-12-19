@@ -37,12 +37,20 @@ export async function GET(request: NextRequest) {
 
     const role = profile.active_role;
 
+    // Calculate date ranges for this month and last month
+    const now = new Date();
+    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+
     // Parallel fetch all KPI data
     const [
       upcomingBookingsResult,
       completedBookingsResult,
+      completedBookingsLastMonthResult,
       allCompletedBookingsResult,
       earningsResult,
+      earningsLastMonthResult,
       ratingsResult,
       ratingsGivenResult,
       caasResult,
@@ -62,29 +70,57 @@ export async function GET(request: NextRequest) {
         .select('id, client_id, tutor_id')
         .or(`client_id.eq.${user.id},tutor_id.eq.${user.id},agent_id.eq.${user.id},student_id.eq.${user.id}`)
         .eq('status', 'completed')
-        .gte('session_start_time', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()),
+        .gte('session_start_time', thisMonthStart.toISOString()),
 
-      // 3. All completed bookings (for total hours learned)
+      // 3. Completed bookings last month (for comparison)
+      supabase
+        .from('bookings')
+        .select('id, client_id, tutor_id')
+        .or(`client_id.eq.${user.id},tutor_id.eq.${user.id},agent_id.eq.${user.id},student_id.eq.${user.id}`)
+        .eq('status', 'completed')
+        .gte('session_start_time', lastMonthStart.toISOString())
+        .lte('session_start_time', lastMonthEnd.toISOString()),
+
+      // 4. All completed bookings (for total hours learned)
       supabase
         .from('bookings')
         .select('session_duration_hours')
         .eq('client_id', user.id)
         .eq('status', 'completed'),
 
-      // 4. Earnings/Spending (role-specific)
+      // 5. Earnings/Spending this month (role-specific)
       role === 'client'
         ? supabase
             .from('bookings')
             .select('total_price')
             .eq('client_id', user.id)
             .eq('status', 'completed')
+            .gte('session_start_time', thisMonthStart.toISOString())
         : supabase
             .from('bookings')
             .select('tutor_earnings, agent_commission, tutor_id, agent_id')
             .or(`tutor_id.eq.${user.id},agent_id.eq.${user.id}`)
-            .eq('status', 'completed'),
+            .eq('status', 'completed')
+            .gte('session_start_time', thisMonthStart.toISOString()),
 
-      // 5. Ratings received
+      // 6. Earnings/Spending last month (for comparison)
+      role === 'client'
+        ? supabase
+            .from('bookings')
+            .select('total_price')
+            .eq('client_id', user.id)
+            .eq('status', 'completed')
+            .gte('session_start_time', lastMonthStart.toISOString())
+            .lte('session_start_time', lastMonthEnd.toISOString())
+        : supabase
+            .from('bookings')
+            .select('tutor_earnings, agent_commission, tutor_id, agent_id')
+            .or(`tutor_id.eq.${user.id},agent_id.eq.${user.id}`)
+            .eq('status', 'completed')
+            .gte('session_start_time', lastMonthStart.toISOString())
+            .lte('session_start_time', lastMonthEnd.toISOString()),
+
+      // 7. Ratings received
       supabase
         .from('reviews')
         .select('rating, created_at')
@@ -92,14 +128,14 @@ export async function GET(request: NextRequest) {
         .eq('status', 'published')
         .order('created_at', { ascending: false }),
 
-      // 6. Ratings given (for clients)
+      // 8. Ratings given (for clients)
       supabase
         .from('reviews')
         .select('rating')
         .eq('reviewer_id', user.id)
         .eq('status', 'published'),
 
-      // 7. CaaS score from caas_scores table
+      // 9. CaaS score from caas_scores table
       supabase
         .from('caas_scores')
         .select('total_score')
@@ -120,6 +156,9 @@ export async function GET(request: NextRequest) {
     // Process completed bookings
     const completedBookings = completedBookingsResult.data || [];
     const completedSessionsThisMonth = completedBookings.length;
+
+    const completedBookingsLastMonth = completedBookingsLastMonthResult.data || [];
+    const completedSessionsLastMonth = completedBookingsLastMonth.length;
 
     // Process total hours learned (for clients)
     const allCompletedBookings = allCompletedBookingsResult.data || [];
@@ -150,16 +189,23 @@ export async function GET(request: NextRequest) {
     // Process earnings/spending
     let totalEarnings = 0;
     let totalSpent = 0;
+    let totalEarningsLastMonth = 0;
+    let totalSpentLastMonth = 0;
 
     if (role === 'client') {
-      // Client: total spent
+      // Client: total spent this month
       totalSpent = (earningsResult.data || []).reduce(
+        (sum: number, b: any) => sum + (b.total_price || 0),
+        0
+      );
+      // Client: total spent last month
+      totalSpentLastMonth = (earningsLastMonthResult.data || []).reduce(
         (sum: number, b: any) => sum + (b.total_price || 0),
         0
       );
       totalEarnings = 0; // Clients don't earn
     } else if (role === 'tutor') {
-      // Tutor: tutor earnings only
+      // Tutor: tutor earnings only this month
       totalEarnings = (earningsResult.data || []).reduce(
         (sum: number, b: any) => {
           if (b.tutor_id === user.id) {
@@ -169,9 +215,29 @@ export async function GET(request: NextRequest) {
         },
         0
       );
+      // Tutor: tutor earnings last month
+      totalEarningsLastMonth = (earningsLastMonthResult.data || []).reduce(
+        (sum: number, b: any) => {
+          if (b.tutor_id === user.id) {
+            return sum + (b.tutor_earnings || 0);
+          }
+          return sum;
+        },
+        0
+      );
     } else if (role === 'agent') {
-      // Agent: agent commissions only
+      // Agent: agent commissions only this month
       totalEarnings = (earningsResult.data || []).reduce(
+        (sum: number, b: any) => {
+          if (b.agent_id === user.id) {
+            return sum + (b.agent_commission || 0);
+          }
+          return sum;
+        },
+        0
+      );
+      // Agent: agent commissions last month
+      totalEarningsLastMonth = (earningsLastMonthResult.data || []).reduce(
         (sum: number, b: any) => {
           if (b.agent_id === user.id) {
             return sum + (b.agent_commission || 0);
@@ -207,6 +273,22 @@ export async function GET(request: NextRequest) {
     // Process CaaS score
     const caasScore = caasResult.data?.total_score || 0;
 
+    // Calculate month-over-month changes
+    // Helper to calculate percentage change
+    const calculatePercentChange = (current: number, previous: number): number | null => {
+      if (previous === 0) {
+        // If previous was 0 but current has value, show as positive growth
+        return current > 0 ? 100 : null;
+      }
+      const change = ((current - previous) / previous) * 100;
+      return Math.round(change);
+    };
+
+    // Calculate changes
+    const earningsChange = calculatePercentChange(totalEarnings, totalEarningsLastMonth);
+    const spentChange = calculatePercentChange(totalSpent, totalSpentLastMonth);
+    const sessionsChange = completedSessionsThisMonth - completedSessionsLastMonth;
+
     // Build KPI response
     const kpis = {
       totalEarnings: Math.round(totalEarnings),
@@ -214,6 +296,7 @@ export async function GET(request: NextRequest) {
       upcomingSessions,
       upcomingHours,
       completedSessionsThisMonth,
+      completedSessionsLastMonth,
       averageRating: averageRating > 0 ? Math.round(averageRating * 10) / 10 : 0,
       totalReviews: ratings.length,
       last10Rating: last10Rating > 0 ? Math.round(last10Rating * 10) / 10 : 0,
@@ -228,6 +311,10 @@ export async function GET(request: NextRequest) {
       totalHoursLearned: Math.round(totalHoursLearned * 10) / 10,
       averageRatingGiven: averageRatingGiven > 0 ? Math.round(averageRatingGiven * 10) / 10 : 0,
       reviewsGiven: reviewsGiven,
+      // Month-over-month comparisons
+      earningsChangePercent: earningsChange,
+      spentChangePercent: spentChange,
+      sessionsChange: sessionsChange,
     };
 
     return NextResponse.json(kpis);

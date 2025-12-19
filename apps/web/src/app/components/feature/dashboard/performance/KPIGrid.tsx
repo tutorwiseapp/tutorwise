@@ -16,6 +16,7 @@ export interface KPIData {
   upcomingSessions: number;
   upcomingHours: number;
   completedSessionsThisMonth: number;
+  completedSessionsLastMonth: number;
   averageRating: number;
   totalReviews: number;
   last10Rating?: number;
@@ -31,6 +32,10 @@ export interface KPIData {
   totalHoursLearned?: number;
   averageRatingGiven?: number;
   reviewsGiven?: number;
+  // Month-over-month comparisons
+  earningsChangePercent?: number | null;
+  spentChangePercent?: number | null;
+  sessionsChange?: number;
 }
 
 interface KPIGridProps {
@@ -55,12 +60,26 @@ export default function KPIGrid({ data, role, currency = 'GBP' }: KPIGridProps) 
     return value;
   };
 
+  // Helper to format percentage change string
+  const formatPercentChange = (percent: number | null | undefined): string | undefined => {
+    if (percent === null || percent === undefined) return undefined;
+    const sign = percent >= 0 ? '+' : '';
+    return `${sign}${percent}% vs last month`;
+  };
+
+  // Helper to format sessions change string
+  const formatSessionsChange = (change: number | undefined): string | undefined => {
+    if (change === undefined || change === null) return undefined;
+    const sign = change >= 0 ? '+' : '';
+    return `${sign}${change} vs last month`;
+  };
+
   // TUTOR/AGENT KPIs
   const tutorKPIs: HubKPICardProps[] = [
     {
       label: 'Total Earnings',
       value: formatCurrency(data.totalEarnings),
-      change: '+12% vs last month', // TODO: Calculate from API
+      change: formatPercentChange(data.earningsChangePercent),
       timeframe: 'This Month',
       icon: Coins,
       variant: 'success'
@@ -76,7 +95,7 @@ export default function KPIGrid({ data, role, currency = 'GBP' }: KPIGridProps) 
     {
       label: 'Completed Sessions',
       value: data.completedSessionsThisMonth,
-      change: '+4 vs last month', // TODO: Calculate from API
+      change: formatSessionsChange(data.sessionsChange),
       timeframe: 'This Month',
       icon: CheckCircle,
       variant: 'neutral'
@@ -119,8 +138,8 @@ export default function KPIGrid({ data, role, currency = 'GBP' }: KPIGridProps) 
     {
       label: 'Total Spent',
       value: formatCurrency(data.totalSpent || 0),
-      change: data.completedSessionsThisMonth > 0 ? `+${data.completedSessionsThisMonth} sessions this month` : undefined,
-      timeframe: 'All Time',
+      change: formatPercentChange(data.spentChangePercent),
+      timeframe: 'This Month',
       icon: Coins,
       variant: 'neutral'
     },
