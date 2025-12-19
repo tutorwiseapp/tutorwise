@@ -74,7 +74,7 @@ export function GetInTouchCard({ profile, currentUser }: GetInTouchCardProps) {
         throw new Error(error.error || 'Failed to create booking');
       }
 
-      const booking = await response.json();
+      const { booking } = await response.json();
 
       // Create Stripe checkout session
       const checkoutResponse = await fetch('/api/stripe/create-booking-checkout', {
