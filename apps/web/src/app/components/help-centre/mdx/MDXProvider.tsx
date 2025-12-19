@@ -10,7 +10,7 @@ import { MDXProvider as BaseMDXProvider } from '@mdx-js/react';
 import CalloutBox from './CalloutBox';
 import CodeBlock from './CodeBlock';
 import VideoEmbed from './VideoEmbed';
-import Tabs from './Tabs';
+import Tabs, { Tab } from './Tabs';
 import { ReactNode } from 'react';
 
 const components = {
@@ -19,7 +19,7 @@ const components = {
   CodeBlock,
   VideoEmbed,
   Tabs,
-  Tab: Tabs.Tab,
+  Tab,
 
   // Override default HTML elements
   h1: (props: any) => <h1 className="help-h1" {...props} />,

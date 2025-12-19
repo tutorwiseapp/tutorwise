@@ -1,0 +1,229 @@
+/**
+ * Filename: apps/web/src/app/help-centre/[category]/[slug]/page.module.css
+ * Purpose: Styles for article detail page
+ * Created: 2025-01-19
+ */
+
+.article {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Article Header */
+.articleHeader {
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.categoryBadge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background-color: #f3f4f6;
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  text-transform: capitalize;
+}
+
+.articleTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 1rem 0;
+  color: #111827;
+}
+
+.articleMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
+
+.metaDivider {
+  color: #d1d5db;
+}
+
+.articleDescription {
+  font-size: 1.125rem;
+  line-height: 1.75;
+  color: #4b5563;
+  margin: 0;
+}
+
+/* Article Content */
+.articleContent {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: #374151;
+}
+
+.articleContent h2 {
+  font-size: 1.875rem;
+  font-weight: 600;
+  margin: 2.5rem 0 1rem 0;
+  color: #111827;
+}
+
+.articleContent h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 2rem 0 1rem 0;
+  color: #111827;
+}
+
+.articleContent h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.75rem 0;
+  color: #111827;
+}
+
+.articleContent p {
+  margin: 1rem 0;
+}
+
+.articleContent ul,
+.articleContent ol {
+  margin: 1rem 0;
+  padding-left: 1.75rem;
+}
+
+.articleContent li {
+  margin: 0.5rem 0;
+}
+
+.articleContent a {
+  color: var(--color-primary, #006c67);
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.articleContent a:hover {
+  color: var(--color-primary-dark, #005550);
+}
+
+.articleContent code {
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.375rem;
+  border-radius: 3px;
+  font-size: 0.875em;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.articleContent pre {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+.articleContent img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+}
+
+.articleContent blockquote {
+  border-left: 4px solid var(--color-primary, #006c67);
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* Related Articles */
+.relatedArticles {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.relatedArticles h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #111827;
+}
+
+.relatedArticles ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.relatedArticles li {
+  margin: 0.5rem 0;
+}
+
+.relatedArticles a {
+  color: var(--color-primary, #006c67);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.relatedArticles a:hover {
+  color: var(--color-primary-dark, #005550);
+  text-decoration: underline;
+}
+
+/* Helpfulness Widget */
+.helpfulnessWidget {
+  margin-top: 3rem;
+  padding: 2rem;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.helpfulnessWidget h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  color: #111827;
+}
+
+.helpfulnessButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.helpfulButton {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.helpfulButton:hover {
+  border-color: var(--color-primary, #006c67);
+  background-color: #f0fdf4;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .articleTitle {
+    font-size: 2rem;
+  }
+
+  .articleContent h2 {
+    font-size: 1.5rem;
+  }
+
+  .articleContent h3 {
+    font-size: 1.25rem;
+  }
+
+  .articleContent {
+    font-size: 0.9375rem;
+  }
+}

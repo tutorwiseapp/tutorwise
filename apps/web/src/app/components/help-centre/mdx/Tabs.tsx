@@ -14,7 +14,7 @@ interface TabProps {
   children: ReactNode;
 }
 
-function Tab({ children }: TabProps) {
+export function Tab({ children }: TabProps) {
   return <div>{children}</div>;
 }
 
@@ -23,7 +23,7 @@ interface TabsProps {
   defaultTab?: number;
 }
 
-function Tabs({ children, defaultTab = 0 }: TabsProps) {
+export default function Tabs({ children, defaultTab = 0 }: TabsProps) {
   const [activeTab, setActiveTab] = useState(defaultTab);
 
   // Extract tab labels and content
@@ -73,8 +73,3 @@ function Tabs({ children, defaultTab = 0 }: TabsProps) {
     </div>
   );
 }
-
-// Compound component pattern
-Tabs.Tab = Tab;
-
-export default Tabs;
