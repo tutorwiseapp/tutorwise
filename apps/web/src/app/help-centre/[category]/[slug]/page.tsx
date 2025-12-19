@@ -93,8 +93,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       <div className={styles.helpfulnessWidget}>
         <h3>Was this article helpful?</h3>
         <div className={styles.helpfulnessButtons}>
-          <button className={styles.helpfulButton}>👍 Yes</button>
-          <button className={styles.helpfulButton}>👎 No</button>
+          <button className={styles.helpfulButton}>Yes</button>
+          <button className={styles.helpfulButton}>No</button>
         </div>
       </div>
     </article>
