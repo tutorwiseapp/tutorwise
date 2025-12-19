@@ -93,11 +93,6 @@
 .categoryTitle {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-}
-
-.categoryIcon {
-  font-size: 1rem;
 }
 
 .expandIcon {

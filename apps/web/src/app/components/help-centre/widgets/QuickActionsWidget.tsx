@@ -32,13 +32,11 @@ export default function QuickActionsWidget() {
 
       <div className={styles.actionButtons}>
         <button className={`${styles.actionButton} ${styles.primary}`} onClick={handleLiveChat}>
-          <span>💬</span>
-          <span>Live Chat</span>
+          Live Chat
         </button>
 
         <button className={`${styles.actionButton} ${styles.secondary}`} onClick={handleEmailSupport}>
-          <span>📧</span>
-          <span>Ask a Question</span>
+          Ask a Question
         </button>
       </div>
 

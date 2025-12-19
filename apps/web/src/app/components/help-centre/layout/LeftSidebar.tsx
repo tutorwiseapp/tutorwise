@@ -21,7 +21,6 @@ interface Article {
 interface Category {
   name: string;
   slug: string;
-  icon: string;
   articles: Article[];
 }
 
@@ -29,7 +28,6 @@ const CATEGORIES: Category[] = [
   {
     name: 'Getting Started',
     slug: 'getting-started',
-    icon: '🚀',
     articles: [
       { title: 'For Tutors', slug: 'for-tutors' },
       { title: 'For Students', slug: 'for-students' },
@@ -39,7 +37,6 @@ const CATEGORIES: Category[] = [
   {
     name: 'Features',
     slug: 'features',
-    icon: '✨',
     articles: [
       { title: 'How Bookings Work', slug: 'bookings' },
       { title: 'Create a Listing', slug: 'create-listing' },
@@ -50,7 +47,6 @@ const CATEGORIES: Category[] = [
   {
     name: 'Billing',
     slug: 'billing',
-    icon: '💰',
     articles: [
       { title: 'How to Get Paid', slug: 'how-to-get-paid' },
       { title: 'Stripe Account Setup', slug: 'stripe-setup' },
@@ -61,7 +57,6 @@ const CATEGORIES: Category[] = [
   {
     name: 'Account',
     slug: 'account',
-    icon: '👤',
     articles: [
       { title: 'Profile Setup', slug: 'profile-setup' },
       { title: 'Security', slug: 'security' },
@@ -70,7 +65,6 @@ const CATEGORIES: Category[] = [
   {
     name: 'Troubleshooting',
     slug: 'troubleshooting',
-    icon: '🔧',
     articles: [{ title: 'Common Issues', slug: 'common-issues' }],
   },
 ];
@@ -143,7 +137,6 @@ export default function LeftSidebar() {
                 onClick={() => toggleCategory(category.slug)}
               >
                 <span className={styles.categoryTitle}>
-                  <span className={styles.categoryIcon}>{category.icon}</span>
                   <span>{category.name}</span>
                 </span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
