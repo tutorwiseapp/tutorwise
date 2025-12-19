@@ -97,3 +97,158 @@
   color: #9ca3af;
   font-size: 0.875rem;
 }
+
+/* System Status Widget */
+.widgetHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.statusLink {
+  font-size: 0.75rem;
+  color: var(--color-primary, #006c67);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.statusLink:hover {
+  text-decoration: underline;
+}
+
+.widgetContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.statusOperational,
+.statusIssues {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border-radius: 6px;
+}
+
+.statusIndicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.statusIndicator[data-status='operational'] {
+  background-color: #10b981; /* Green */
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.statusIndicator[data-status='degraded'] {
+  background-color: #f59e0b; /* Amber */
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.statusIndicator[data-status='outage'] {
+  background-color: #ef4444; /* Red */
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.statusText {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.incidents {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.incidentsTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+.incident {
+  padding: 0.75rem;
+  background-color: #fef3c7;
+  border-left: 3px solid #f59e0b;
+  border-radius: 4px;
+}
+
+.incident[data-severity='critical'] {
+  background-color: #fee2e2;
+  border-left-color: #ef4444;
+}
+
+.incident[data-severity='major'] {
+  background-color: #fed7aa;
+  border-left-color: #f97316;
+}
+
+.incidentHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.incidentTitle {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.incidentStatus {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.125rem 0.5rem;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  flex-shrink: 0;
+}
+
+.incidentStatus[data-status='investigating'] {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.incidentStatus[data-status='identified'] {
+  background-color: #fed7aa;
+  color: #9a3412;
+}
+
+.incidentStatus[data-status='monitoring'] {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.incidentStatus[data-status='resolved'] {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.incidentMeta {
+  font-size: 0.75rem;
+  color: #6b7280;
+}

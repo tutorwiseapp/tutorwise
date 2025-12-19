@@ -9,6 +9,7 @@ import HelpCentreLayout from '@/app/components/help-centre/layout/HelpCentreLayo
 import LeftSidebar from '@/app/components/help-centre/layout/LeftSidebar';
 import QuickActionsWidget from '@/app/components/help-centre/widgets/QuickActionsWidget';
 import PopularArticlesWidget from '@/app/components/help-centre/widgets/PopularArticlesWidget';
+import SystemStatusWidget from '@/app/components/help-centre/widgets/SystemStatusWidget';
 
 export const metadata = {
   title: 'Help Centre | Tutorwise',
@@ -28,6 +29,7 @@ export default function HelpCentreLayoutWrapper({ children }: HelpCentreLayoutWr
         <>
           <QuickActionsWidget />
           <PopularArticlesWidget />
+          <SystemStatusWidget />
         </>
       }
     >
