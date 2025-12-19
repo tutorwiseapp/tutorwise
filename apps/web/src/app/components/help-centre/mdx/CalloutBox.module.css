@@ -1,0 +1,82 @@
+/* CalloutBox component styles */
+
+.callout {
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  border-left: 4px solid;
+  background-color: var(--callout-bg);
+  border-color: var(--callout-border);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--callout-title);
+}
+
+.content {
+  color: var(--callout-text);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.content p {
+  margin: 0.5rem 0;
+}
+
+.content p:first-child {
+  margin-top: 0;
+}
+
+.content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Type-specific styles */
+.info {
+  --callout-bg: #eff6ff;
+  --callout-border: #3b82f6;
+  --callout-title: #1e40af;
+  --callout-text: #1e3a8a;
+}
+
+.warning {
+  --callout-bg: #fef3c7;
+  --callout-border: #f59e0b;
+  --callout-title: #b45309;
+  --callout-text: #92400e;
+}
+
+.success {
+  --callout-bg: #d1fae5;
+  --callout-border: #10b981;
+  --callout-title: #047857;
+  --callout-text: #065f46;
+}
+
+.error {
+  --callout-bg: #fee2e2;
+  --callout-border: #ef4444;
+  --callout-title: #b91c1c;
+  --callout-text: #991b1b;
+}
+
+.tip {
+  --callout-bg: #e0f2fe;
+  --callout-border: var(--color-primary, #006c67);
+  --callout-title: var(--color-primary-dark, #005550);
+  --callout-text: #164e63;
+}

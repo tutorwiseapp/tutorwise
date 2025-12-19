@@ -1,0 +1,84 @@
+/* Tabs component styles */
+
+.tabs {
+  margin: 2rem 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.tabList {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tabButton {
+  flex: 1;
+  min-width: fit-content;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #6b7280;
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.tabButton:hover {
+  color: #111827;
+  background-color: #f3f4f6;
+}
+
+.tabButton.active {
+  color: var(--color-primary, #006c67);
+  background-color: #ffffff;
+  border-bottom-color: var(--color-primary, #006c67);
+  font-weight: 600;
+}
+
+.tabPanels {
+  position: relative;
+}
+
+.tabPanel {
+  padding: 1.5rem;
+  display: none;
+}
+
+.tabPanel.activePanel {
+  display: block;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile scrollbar styling */
+.tabList::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tabList::-webkit-scrollbar-track {
+  background-color: #f3f4f6;
+}
+
+.tabList::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 2px;
+}

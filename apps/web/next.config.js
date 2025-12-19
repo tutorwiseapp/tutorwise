@@ -17,6 +17,8 @@
 const nextConfig = {
   // Enable standalone output for Docker deployment
   output: 'standalone',
+  // Enable MDX support for help centre articles
+  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
   images: {
     remotePatterns: [
       // For Google OAuth Avatars
