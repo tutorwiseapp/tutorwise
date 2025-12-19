@@ -4,7 +4,7 @@
  * Created: 2025-01-19
  */
 
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '@/utils/supabase/client';
 
 export interface ArticleView {
   id: string;

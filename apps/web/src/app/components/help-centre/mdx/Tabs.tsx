@@ -33,7 +33,7 @@ function Tabs({ children, defaultTab = 0 }: TabsProps) {
     <div className={styles.tabs}>
       <div className={styles.tabList} role="tablist">
         {tabs.map((tab, index) => {
-          if (!isValidElement(tab)) return null;
+          if (!isValidElement<TabProps>(tab)) return null;
           const label = tab.props.label;
 
           return (
@@ -54,7 +54,7 @@ function Tabs({ children, defaultTab = 0 }: TabsProps) {
 
       <div className={styles.tabPanels}>
         {tabs.map((tab, index) => {
-          if (!isValidElement(tab)) return null;
+          if (!isValidElement<TabProps>(tab)) return null;
 
           return (
             <div

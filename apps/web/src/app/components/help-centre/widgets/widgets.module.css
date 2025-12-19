@@ -1,0 +1,99 @@
+/* Shared Widget Styles */
+
+.widget {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.widgetTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 1rem 0;
+}
+
+/* Quick Actions Widget */
+.quickActionsWidget {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 1.5rem; /* 24px spacing from top */
+  margin-bottom: 1.5rem;
+}
+
+.quickActionsTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+.quickActionsDescription {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.actionButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+  border: none;
+  width: 100%;
+}
+
+.actionButton.primary {
+  color: #ffffff;
+  background-color: var(--color-primary, #006c67);
+}
+
+.actionButton.primary:hover {
+  background-color: var(--color-primary-dark, #005550);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.actionButton.secondary {
+  color: #111827;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.actionButton.secondary:hover {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.actionMicrocopy {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.75rem;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.popularArticlesEmpty {
+  padding: 1rem;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
