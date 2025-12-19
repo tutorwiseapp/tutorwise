@@ -27,11 +27,8 @@ import React, { useState, useEffect } from 'react';
 import {
   Building2,
   UserCheck,
-  AlertCircle,
   Search,
   X,
-  Check,
-  Users,
 } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
@@ -39,6 +36,7 @@ import type { DetailField } from '@/app/components/hub/content/HubDetailCard/Hub
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import HubPagination from '@/app/components/hub/layout/HubPagination';
 import Button from '@/app/components/ui/actions/Button';
+import DelegationSearchModal from './DelegationSearchModal';
 import styles from './DelegationSettingsPanel.module.css';
 
 interface PartnerProfile {
@@ -81,12 +79,13 @@ export default function DelegationSettingsPanel({
   const [listings, setListings] = useState<Listing[]>([]);
   const [profileDefaultPartner, setProfileDefaultPartner] = useState<PartnerProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [searchCode, setSearchCode] = useState('');
-  const [searchResult, setSearchResult] = useState<PartnerProfile | null>(null);
-  const [searchError, setSearchError] = useState<string | null>(null);
-  const [editingTarget, setEditingTarget] = useState<'profile' | string | null>(null); // 'profile' or listing ID
-  const [saving, setSaving] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'profile' | 'listing'>('profile');
+  const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
+  const [selectedListingTitle, setSelectedListingTitle] = useState<string>('');
 
   // Fetch profile default delegation + tutor's listings
   useEffect(() => {
@@ -178,60 +177,57 @@ export default function DelegationSettingsPanel({
   const paginatedListings = listings.slice(startIndex, endIndex);
   const totalPages = Math.ceil(listings.length / ITEMS_PER_PAGE);
 
-  // Search for partner by referral code
-  const handleSearchCode = async () => {
-    if (!searchCode.trim()) {
-      setSearchError('Please enter a referral code');
-      return;
-    }
-
-    setSearchError(null);
-    setSearchResult(null);
-
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('id, full_name, referral_code, profile_picture_url')
-      .eq('referral_code', searchCode.toUpperCase())
-      .single();
-
-    if (error || !data) {
-      setSearchError('Referral code not found. Please check and try again.');
-      return;
-    }
-
-    if (data.id === tutorId) {
-      setSearchError('You cannot delegate commissions to yourself.');
-      return;
-    }
-
-    setSearchResult(data as PartnerProfile);
+  // Modal handlers
+  const handleOpenProfileModal = () => {
+    setModalMode('profile');
+    setSelectedListingId(null);
+    setSelectedListingTitle('');
+    setModalOpen(true);
   };
 
-  // Set profile-level default delegation
-  const handleSetProfileDefault = async () => {
-    if (!searchResult) return;
+  const handleOpenListingModal = (listingId: string, listingTitle: string) => {
+    setModalMode('listing');
+    setSelectedListingId(listingId);
+    setSelectedListingTitle(listingTitle);
+    setModalOpen(true);
+  };
 
-    setSaving(true);
-
+  const handleConfirmProfileDelegation = async (partner: PartnerProfile) => {
     const { error } = await supabase
       .from('profiles')
-      .update({ default_commission_delegate_id: searchResult.id })
+      .update({ default_commission_delegate_id: partner.id })
       .eq('id', tutorId);
 
     if (!error) {
-      setProfileDefaultPartner(searchResult);
-      setEditingTarget(null);
-      setSearchCode('');
-      setSearchResult(null);
+      setProfileDefaultPartner(partner);
     }
+  };
 
-    setSaving(false);
+  const handleConfirmListingDelegation = async (partner: PartnerProfile) => {
+    if (!selectedListingId) return;
+
+    const { error } = await supabase
+      .from('listings')
+      .update({ delegate_commission_to_profile_id: partner.id })
+      .eq('id', selectedListingId);
+
+    if (!error) {
+      setListings((prev) =>
+        prev.map((listing) =>
+          listing.id === selectedListingId
+            ? {
+                ...listing,
+                delegate_commission_to_profile_id: partner.id,
+                delegated_partner: partner,
+              }
+            : listing
+        )
+      );
+    }
   };
 
   // Clear profile-level default delegation
   const handleClearProfileDefault = async () => {
-    setSaving(true);
-
     const { error } = await supabase
       .from('profiles')
       .update({ default_commission_delegate_id: null })
@@ -240,45 +236,10 @@ export default function DelegationSettingsPanel({
     if (!error) {
       setProfileDefaultPartner(null);
     }
-
-    setSaving(false);
-  };
-
-  // Set delegation for a specific listing
-  const handleSetListingDelegation = async (listingId: string) => {
-    if (!searchResult) return;
-
-    setSaving(true);
-
-    const { error } = await supabase
-      .from('listings')
-      .update({ delegate_commission_to_profile_id: searchResult.id })
-      .eq('id', listingId);
-
-    if (!error) {
-      setListings((prev) =>
-        prev.map((listing) =>
-          listing.id === listingId
-            ? {
-                ...listing,
-                delegate_commission_to_profile_id: searchResult.id,
-                delegated_partner: searchResult,
-              }
-            : listing
-        )
-      );
-      setEditingTarget(null);
-      setSearchCode('');
-      setSearchResult(null);
-    }
-
-    setSaving(false);
   };
 
   // Clear delegation for a specific listing
   const handleClearListingDelegation = async (listingId: string) => {
-    setSaving(true);
-
     const { error } = await supabase
       .from('listings')
       .update({ delegate_commission_to_profile_id: null })
@@ -293,8 +254,6 @@ export default function DelegationSettingsPanel({
         )
       );
     }
-
-    setSaving(false);
   };
 
   if (loading) {
@@ -330,8 +289,7 @@ export default function DelegationSettingsPanel({
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={() => setEditingTarget('profile')}
-                  disabled={saving || editingTarget === 'profile'}
+                  onClick={handleOpenProfileModal}
                 >
                   <Search size={16} />
                   Change Partner
@@ -340,7 +298,6 @@ export default function DelegationSettingsPanel({
                   variant="danger"
                   size="sm"
                   onClick={handleClearProfileDefault}
-                  disabled={saving}
                 >
                   <X size={16} />
                   Clear Default
@@ -367,74 +324,12 @@ export default function DelegationSettingsPanel({
               <Button
                 variant="primary"
                 size="sm"
-                onClick={() => setEditingTarget('profile')}
-                disabled={saving || editingTarget === 'profile'}
+                onClick={handleOpenProfileModal}
               >
-                <Users size={16} />
                 Set Default Partner
               </Button>
             }
           />
-        )}
-
-        {/* Profile-Level Edit Mode */}
-        {editingTarget === 'profile' && (
-          <div className={styles.editSection} style={{ marginTop: '12px' }}>
-            <div className={styles.searchBox}>
-              <div className={styles.searchInput}>
-                <Search size={18} />
-                <input
-                  type="text"
-                  placeholder="Enter partner's referral code (e.g., ABC123)"
-                  value={searchCode}
-                  onChange={(e) => setSearchCode(e.target.value.toUpperCase())}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSearchCode()}
-                />
-              </div>
-              <button onClick={handleSearchCode} className={styles.searchButton}>
-                Search
-              </button>
-            </div>
-
-            {searchError && (
-              <div className={styles.errorMessage}>
-                <AlertCircle size={16} />
-                {searchError}
-              </div>
-            )}
-
-            {searchResult && (
-              <div className={styles.searchResult}>
-                <div className={styles.resultInfo}>
-                  <Check size={18} className={styles.checkIcon} />
-                  <div>
-                    <div className={styles.resultName}>{searchResult.full_name}</div>
-                    <div className={styles.resultCode}>Code: {searchResult.referral_code}</div>
-                  </div>
-                </div>
-                <div className={styles.resultActions}>
-                  <button
-                    onClick={handleSetProfileDefault}
-                    className={styles.confirmButton}
-                    disabled={saving}
-                  >
-                    {saving ? 'Saving...' : 'Set as Default'}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setEditingTarget(null);
-                      setSearchCode('');
-                      setSearchResult(null);
-                      setSearchError(null);
-                    }}
-                    className={styles.cancelButton}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
         )}
       </div>
 
@@ -502,8 +397,7 @@ export default function DelegationSettingsPanel({
                             <Button
                               variant="secondary"
                               size="sm"
-                              onClick={() => setEditingTarget(listing.id)}
-                              disabled={saving || editingTarget === listing.id}
+                              onClick={() => handleOpenListingModal(listing.id, listing.title)}
                             >
                               <Search size={16} />
                               Change Override
@@ -512,7 +406,6 @@ export default function DelegationSettingsPanel({
                               variant="danger"
                               size="sm"
                               onClick={() => handleClearListingDelegation(listing.id)}
-                              disabled={saving}
                             >
                               <X size={16} />
                               Clear Override
@@ -522,8 +415,7 @@ export default function DelegationSettingsPanel({
                           <Button
                             variant="secondary"
                             size="sm"
-                            onClick={() => setEditingTarget(listing.id)}
-                            disabled={saving || editingTarget === listing.id}
+                            onClick={() => handleOpenListingModal(listing.id, listing.title)}
                           >
                             <UserCheck size={16} />
                             Set Override
@@ -532,66 +424,6 @@ export default function DelegationSettingsPanel({
                       </div>
                     }
                   />
-
-                  {/* Listing-Level Edit Mode */}
-                  {editingTarget === listing.id && (
-                    <div className={styles.editSection} style={{ marginTop: '12px' }}>
-                      <div className={styles.searchBox}>
-                        <div className={styles.searchInput}>
-                          <Search size={18} />
-                          <input
-                            type="text"
-                            placeholder="Enter partner's referral code (e.g., ABC123)"
-                            value={searchCode}
-                            onChange={(e) => setSearchCode(e.target.value.toUpperCase())}
-                            onKeyDown={(e) => e.key === 'Enter' && handleSearchCode()}
-                          />
-                        </div>
-                        <button onClick={handleSearchCode} className={styles.searchButton}>
-                          Search
-                        </button>
-                      </div>
-
-                      {searchError && (
-                        <div className={styles.errorMessage}>
-                          <AlertCircle size={16} />
-                          {searchError}
-                        </div>
-                      )}
-
-                      {searchResult && (
-                        <div className={styles.searchResult}>
-                          <div className={styles.resultInfo}>
-                            <Check size={18} className={styles.checkIcon} />
-                            <div>
-                              <div className={styles.resultName}>{searchResult.full_name}</div>
-                              <div className={styles.resultCode}>Code: {searchResult.referral_code}</div>
-                            </div>
-                          </div>
-                          <div className={styles.resultActions}>
-                            <button
-                              onClick={() => handleSetListingDelegation(listing.id)}
-                              className={styles.confirmButton}
-                              disabled={saving}
-                            >
-                              {saving ? 'Saving...' : 'Set Override'}
-                            </button>
-                            <button
-                              onClick={() => {
-                                setEditingTarget(null);
-                                setSearchCode('');
-                                setSearchResult(null);
-                                setSearchError(null);
-                              }}
-                              className={styles.cancelButton}
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
               );
             })}
@@ -609,6 +441,15 @@ export default function DelegationSettingsPanel({
           onPageChange={setCurrentPage}
         />
       </div>
+
+      {/* Delegation Search Modal */}
+      <DelegationSearchModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onConfirm={modalMode === 'profile' ? handleConfirmProfileDelegation : handleConfirmListingDelegation}
+        mode={modalMode}
+        listingTitle={selectedListingTitle}
+      />
     </>
   );
 }
