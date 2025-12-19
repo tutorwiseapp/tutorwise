@@ -213,7 +213,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 Payments
               </Link>
               <Link href="/help-centre" className={styles.menuItem} onClick={handleLinkClick}>
-                Help centre
+                Help Centre
               </Link>
 
               <div className={styles.separator} />
