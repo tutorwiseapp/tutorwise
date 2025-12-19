@@ -158,3 +158,164 @@ h1,h2,h3,h4,h5,h6 {
   background-color: var(--color-primary-accent-dark);
   border-color: var(--color-primary-accent-dark);
 }
+
+/* =================================== */
+/* Help Centre Article Typography     */
+/* Aligns with Design System v1.0     */
+/* =================================== */
+
+/* Headings - Following Design System Typography Scale */
+.help-h1 {
+  font-size: var(--font-size-3xl, 2rem);        /* 32px - Display Large (h1) */
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-text-primary, #202124);
+  line-height: 1.2;
+  margin: 0 0 1.5rem 0;
+}
+
+.help-h2 {
+  font-size: var(--font-size-2xl, 1.5rem);      /* 24px - Heading Large (h3) */
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary, #202124);
+  line-height: 1.3;
+  margin: 2.5rem 0 1rem 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border, #dfe1e5);
+}
+
+.help-h2:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.help-h3 {
+  font-size: var(--font-size-xl, 1.25rem);      /* 20px - Heading Medium (h4) */
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary, #202124);
+  line-height: 1.4;
+  margin: 2rem 0 0.75rem 0;
+}
+
+.help-h4 {
+  font-size: var(--font-size-lg, 1.125rem);     /* 18px - Heading Small (h5) */
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-secondary, #5f6368);
+  line-height: 1.5;
+  margin: 1.5rem 0 0.5rem 0;
+}
+
+/* Body text */
+.help-p {
+  font-size: var(--font-size-base, 1rem);       /* 16px - Body Base */
+  color: var(--color-text-secondary, #5f6368);
+  line-height: 1.6;                              /* Design system default */
+  margin: 0 0 1rem 0;
+}
+
+/* Lists */
+.help-ul,
+.help-ol {
+  font-size: var(--font-size-base, 1rem);
+  color: var(--color-text-secondary, #5f6368);
+  line-height: 1.6;
+  margin: 0 0 1rem 0;
+  padding-left: 1.75rem;
+}
+
+.help-li {
+  margin-bottom: 0.5rem;
+}
+
+.help-li:last-child {
+  margin-bottom: 0;
+}
+
+/* Links */
+.help-a {
+  color: var(--color-primary, #006c67);
+  text-decoration: underline;
+  text-decoration-color: rgba(0, 108, 103, 0.3);
+  text-underline-offset: 2px;
+  transition: all 0.2s ease-in-out;
+}
+
+.help-a:hover {
+  color: var(--color-primary-dark, #005954);
+  text-decoration-color: rgba(0, 89, 84, 0.6);
+}
+
+/* Blockquotes */
+.help-blockquote {
+  font-size: var(--font-size-base, 1rem);
+  color: var(--color-text-secondary, #5f6368);
+  line-height: 1.6;
+  margin: 1.5rem 0;
+  padding: 1rem 1.5rem;
+  border-left: 4px solid var(--color-border, #dfe1e5);
+  background-color: var(--color-bg-box, #f5f5f5);
+  font-style: italic;
+}
+
+/* Inline code */
+.help-inline-code {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.875em;
+  color: #ec4899;
+  background-color: #fdf2f8;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  border: 1px solid #fce7f3;
+}
+
+/* Code blocks */
+.help-pre {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.875rem;
+  color: #e5e7eb;
+  background-color: #1f2937;
+  padding: 1.25rem 1.5rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  line-height: 1.6;
+}
+
+.help-pre code {
+  background-color: transparent;
+  padding: 0;
+  border: none;
+  color: inherit;
+  font-size: inherit;
+}
+
+/* Tables */
+.help-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.9375rem;
+}
+
+.help-th {
+  background-color: #f9fafb;
+  color: #111827;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e7eb;
+}
+
+.help-td {
+  color: #374151;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e7eb;
+}
+
+/* Strong emphasis within help content */
+.help-p strong,
+.help-li strong,
+.help-blockquote strong {
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary, #202124);
+}
