@@ -263,19 +263,27 @@ describe('POST /api/bookings', () => {
       error: null,
     });
 
-    // Mock profile fetch
+    // Mock profile fetch - first .single() call
     mockSupabase.single.mockResolvedValueOnce({
       data: { id: mockUserId, referred_by_profile_id: null },
       error: null,
     });
 
-    // Mock booking insert (no listing_id needed for profile bookings)
-    mockSupabase.select.mockResolvedValueOnce({
+    // No listing fetch needed for profile bookings (listing_id is null)
+
+    // Mock existing bookings check - .gte() is the terminal call
+    mockSupabase.gte.mockResolvedValueOnce({
+      data: [],
+      error: null,
+    });
+
+    // Mock booking insert().select().single() chain - second .single() call
+    mockSupabase.single.mockResolvedValueOnce({
       data: {
         id: mockBookingId,
         client_id: mockUserId,
         tutor_id: '22222222-2222-2222-2222-222222222222',
-        listing_id: null,
+        listing_id: null, // Profile booking has no listing
         service_name: 'Test Service',
         session_start_time: '2025-12-01T10:00:00Z',
         session_duration: 60,
