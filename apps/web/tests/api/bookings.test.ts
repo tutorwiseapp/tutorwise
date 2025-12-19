@@ -254,17 +254,35 @@ describe('POST /api/bookings', () => {
     expect(response.status).toBe(401);
   });
 
-  it('should return 400 if listing_id is missing', async () => {
+  it('should create booking without listing_id for direct profile bookings', async () => {
     const mockUserId = '11111111-1111-1111-1111-111111111111';
+    const mockBookingId = 'booking-123';
 
     mockSupabase.auth.getUser.mockResolvedValue({
       data: { user: { id: mockUserId } },
       error: null,
     });
 
-    // Mock profile fetch (migration 051)
+    // Mock profile fetch
     mockSupabase.single.mockResolvedValueOnce({
-      data: { referred_by_agent_id: null },
+      data: { id: mockUserId, referred_by_profile_id: null },
+      error: null,
+    });
+
+    // Mock booking insert (no listing_id needed for profile bookings)
+    mockSupabase.select.mockResolvedValueOnce({
+      data: {
+        id: mockBookingId,
+        client_id: mockUserId,
+        tutor_id: '22222222-2222-2222-2222-222222222222',
+        listing_id: null,
+        service_name: 'Test Service',
+        session_start_time: '2025-12-01T10:00:00Z',
+        session_duration: 60,
+        amount: 50,
+        status: 'Pending',
+        payment_status: 'Pending',
+      },
       error: null,
     });
 
@@ -276,12 +294,14 @@ describe('POST /api/bookings', () => {
         session_start_time: '2025-12-01T10:00:00Z',
         session_duration: 60,
         amount: 50,
-        // Missing listing_id!
+        // No listing_id for direct profile booking
       }),
     });
 
     const response = await POST(request);
 
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(201);
+    const data = await response.json();
+    expect(data.booking.listing_id).toBeNull();
   });
 });

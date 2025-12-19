@@ -144,29 +144,35 @@ export async function POST(req: Request) {
       amount
     } = body;
 
-    // 4. Validate required fields
-    if (!tutor_id || !listing_id || !service_name || !session_start_time || !session_duration || !amount) {
+    // 4. Validate required fields (listing_id is optional for direct profile bookings)
+    if (!tutor_id || !service_name || !session_start_time || !session_duration || !amount) {
       return new NextResponse("Missing required fields", { status: 400 });
     }
 
     // 4.5. Fetch listing to validate availability and get snapshot fields (migrations 104, 108)
-    const { data: listing, error: listingError } = await supabase
-      .from('listings')
-      .select('availability, timezone, status, subjects, levels, location_type, location_city, hourly_rate, slug, free_trial, available_free_help')
-      .eq('id', listing_id)
-      .single();
+    // Only fetch listing if listing_id is provided (listing bookings)
+    let listing = null;
+    if (listing_id) {
+      const { data: listingData, error: listingError } = await supabase
+        .from('listings')
+        .select('availability, timezone, status, subjects, levels, location_type, location_city, hourly_rate, slug, free_trial, available_free_help')
+        .eq('id', listing_id)
+        .single();
 
-    if (listingError || !listing) {
-      return new NextResponse("Listing not found", { status: 404 });
-    }
+      if (listingError || !listingData) {
+        return new NextResponse("Listing not found", { status: 404 });
+      }
 
-    // Check if listing is published
-    if (listing.status !== 'published') {
-      return NextResponse.json({ error: "Listing is not available for booking" }, { status: 400 });
+      // Check if listing is published
+      if (listingData.status !== 'published') {
+        return NextResponse.json({ error: "Listing is not available for booking" }, { status: 400 });
+      }
+
+      listing = listingData;
     }
 
     // Validate availability if listing has availability data
-    if (listing.availability && Object.keys(listing.availability).length > 0) {
+    if (listing && listing.availability && Object.keys(listing.availability).length > 0) {
       const requestedStartTime = new Date(session_start_time);
       const requestedEndTime = new Date(requestedStartTime.getTime() + session_duration * 60000);
 
@@ -257,36 +263,43 @@ export async function POST(req: Request) {
 
     // 5. Create booking with agent_id from client's profile and snapshot fields
     // (SDD v3.6, Section 11.2 - Lifetime Attribution) (migrations 049 & 051, 104, 108)
+    const bookingData: any = {
+      client_id: user.id,
+      tutor_id,
+      listing_id: listing_id || null, // null for direct profile bookings
+      agent_id: profile.referred_by_profile_id, // Lifetime attribution from profiles.referred_by_profile_id (migration 028) - This drives commission split
+      service_name,
+      session_start_time,
+      session_duration,
+      amount,
+      status: 'Pending',
+      payment_status: 'Pending',
+    };
+
+    // Add snapshot fields from listing if available (migrations 104, 108)
+    if (listing) {
+      bookingData.subjects = listing.subjects;
+      bookingData.levels = listing.levels;
+      bookingData.location_type = listing.location_type;
+      bookingData.location_city = listing.location_city;
+      bookingData.hourly_rate = listing.hourly_rate;
+      bookingData.listing_slug = listing.slug;
+      bookingData.free_trial = listing.free_trial || false;
+      bookingData.available_free_help = listing.available_free_help || false;
+    }
+
     const { data: booking, error: bookingError } = await supabase
       .from('bookings')
-      .insert({
-        client_id: user.id,
-        tutor_id,
-        listing_id,
-        agent_id: profile.referred_by_profile_id, // Lifetime attribution from profiles.referred_by_profile_id (migration 028) - This drives commission split
-        service_name,
-        session_start_time,
-        session_duration,
-        amount,
-        status: 'Pending',
-        payment_status: 'Pending',
-        // Snapshot fields from listing (migrations 104, 108)
-        subjects: listing.subjects,
-        levels: listing.levels,
-        location_type: listing.location_type,
-        location_city: listing.location_city,
-        hourly_rate: listing.hourly_rate,
-        listing_slug: listing.slug,
-        free_trial: listing.free_trial || false,
-        available_free_help: listing.available_free_help || false,
-      })
+      .insert(bookingData)
       .select()
       .single();
 
     if (bookingError) throw bookingError;
 
-    // 6. Increment listing booking count (migration 103)
-    await incrementListingBookings(listing_id);
+    // 6. Increment listing booking count (migration 103) - only if listing_id exists
+    if (listing_id) {
+      await incrementListingBookings(listing_id);
+    }
 
     return NextResponse.json({ booking }, { status: 201 });
 

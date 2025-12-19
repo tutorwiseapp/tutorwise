@@ -48,42 +48,24 @@ export function GetInTouchCard({ profile, currentUser }: GetInTouchCardProps) {
       // For now, create a simple direct booking and redirect to Stripe checkout
       // TODO: In future, add a booking modal for date/time selection
 
-      // First, fetch tutor's active listings to get a listing_id
-      const listingsResponse = await fetch(`/api/profiles/${profile.id}`);
-      if (!listingsResponse.ok) {
-        throw new Error('Failed to fetch tutor profile');
-      }
-
-      const profileData = await listingsResponse.json();
-      const listings = profileData.listings || [];
-
-      // Get first published listing
-      const firstListing = listings.find((l: any) => l.status === 'published');
-
-      if (!firstListing) {
-        toast.error('This tutor has no active listings available for booking');
-        setIsBooking(false);
-        return;
-      }
-
       // Generate session start time: 24 hours from now (default)
       const sessionStartTime = new Date();
       sessionStartTime.setHours(sessionStartTime.getHours() + 24);
 
-      // Get hourly rate from listing or professional details
-      const hourlyRate = firstListing.hourly_rate || profile.professional_details?.tutor?.hourly_rate || 50;
+      // Get hourly rate from professional details or use default
+      const hourlyRate = profile.professional_details?.tutor?.hourly_rate || 50; // £50 default
 
-      // Create booking entry
+      // Create booking entry (direct profile booking - no listing_id)
       const response = await fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tutor_id: profile.id,
-          listing_id: firstListing.id, // Use first published listing
-          service_name: firstListing.title || `Session with ${profile.full_name}`,
+          service_name: `Session with ${profile.full_name}`,
           session_start_time: sessionStartTime.toISOString(),
           session_duration: 60, // 1 hour default
           amount: hourlyRate,
+          // No listing_id for direct profile bookings
         }),
       });
 
