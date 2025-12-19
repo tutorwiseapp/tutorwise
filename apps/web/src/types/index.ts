@@ -415,7 +415,7 @@ export interface Booking {
   agent_id?: string | null; // Updated from referrer_profile_id (migration 051) - Referrer profile (any role) - Drives commission split (80/10/10 vs 90/10)
   referrer_role?: string | null; // v5.0: Role of referrer at booking time (client, tutor, agent) - Denormalized from profiles.active_role (migration 132)
   booking_type?: 'direct' | 'referred' | 'agent_job'; // Added in migration 049 (referral attribution status)
-  booking_source_type?: 'listing' | 'profile'; // v5.0: Booking source - listing (via service listing) or profile (direct from profile page) - migration 133
+  booking_source?: 'listing' | 'profile'; // v5.0: Booking source - listing (via service listing) or profile (direct from profile page) - migration 133
   service_name: string;
   session_start_time: string; // ISO timestamp
   session_duration: number; // In minutes
