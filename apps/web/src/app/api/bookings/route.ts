@@ -123,9 +123,10 @@ export async function POST(req: Request) {
     }
 
     // 2. Get user's profile to check referred_by_profile_id for lifetime attribution (migration 028)
+    // Also get referrer's active_role for referrer_role field (migration 132)
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('id, referred_by_profile_id')
+      .select('id, referred_by_profile_id, referrer:profiles!referred_by_profile_id(active_role)')
       .eq('id', user.id)
       .single();
 
@@ -263,11 +264,22 @@ export async function POST(req: Request) {
 
     // 5. Create booking with agent_id from client's profile and snapshot fields
     // (SDD v3.6, Section 11.2 - Lifetime Attribution) (migrations 049 & 051, 104, 108, 132, 133)
+
+    // Determine booking_type based on agent_id (migration 049)
+    // - 'direct': No referrer (agent_id is NULL)
+    // - 'referred': Client was referred by someone (agent_id is set)
+    const booking_type = profile.referred_by_profile_id ? 'referred' : 'direct';
+
+    // Get referrer's role if they exist (migration 132)
+    const referrer_role = profile.referrer?.[0]?.active_role || null;
+
     const bookingData: any = {
       client_id: user.id,
       tutor_id,
       listing_id: listing_id || null, // null for direct profile bookings
       agent_id: profile.referred_by_profile_id, // Lifetime attribution from profiles.referred_by_profile_id (migration 028) - This drives commission split
+      referrer_role, // migration 132: Role of referrer at booking time
+      booking_type, // migration 049: Referral attribution status
       booking_source: listing_id ? 'listing' : 'profile', // migration 133: Track booking source
       service_name,
       session_start_time,
