@@ -10,15 +10,7 @@
 }
 
 .header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
   margin-bottom: 0.5rem;
-}
-
-.icon {
-  font-size: 1.25rem;
-  line-height: 1;
 }
 
 .title {
@@ -79,4 +71,11 @@
   --callout-border: var(--color-primary, #006c67);
   --callout-title: var(--color-primary-dark, #005550);
   --callout-text: #164e63;
+}
+
+.help {
+  --callout-bg: #f3f4f6;
+  --callout-border: #6b7280;
+  --callout-title: #374151;
+  --callout-text: #4b5563;
 }
