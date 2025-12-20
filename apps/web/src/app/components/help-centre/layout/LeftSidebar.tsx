@@ -32,7 +32,6 @@ const CATEGORIES: Category[] = [
     articles: [
       { title: 'For Tutors', slug: 'for-tutors' },
       { title: 'For Students', slug: 'for-students' },
-      { title: 'For Agents', slug: 'for-agents' },
     ],
   },
   {
@@ -41,8 +40,7 @@ const CATEGORIES: Category[] = [
     articles: [
       { title: 'How Bookings Work', slug: 'bookings' },
       { title: 'Create a Listing', slug: 'create-listing' },
-      { title: 'Referral System', slug: 'referral-system' },
-      { title: 'Payments', slug: 'payments' },
+      { title: 'Referral System', slug: 'referrals' },
     ],
   },
   {
@@ -52,7 +50,6 @@ const CATEGORIES: Category[] = [
       { title: 'How to Get Paid', slug: 'how-to-get-paid' },
       { title: 'Stripe Account Setup', slug: 'stripe-setup' },
       { title: 'Pricing', slug: 'pricing' },
-      { title: 'Refunds', slug: 'refunds' },
     ],
   },
   {
@@ -60,7 +57,6 @@ const CATEGORIES: Category[] = [
     slug: 'account',
     articles: [
       { title: 'Profile Setup', slug: 'profile-setup' },
-      { title: 'Security', slug: 'security' },
     ],
   },
   {
