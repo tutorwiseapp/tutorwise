@@ -6,8 +6,8 @@
 
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
+import SearchWidget from '@/app/components/help-centre/widgets/SearchWidget';
 import styles from './page.module.css';
 
 interface FeaturedArticle {
@@ -29,28 +29,28 @@ const FEATURED_ARTICLES: FeaturedArticle[] = [
     title: 'How to create your first listing',
     description: 'Step-by-step guide to setting up your tutoring services',
     href: '/help-centre/features/create-listing',
-    icon: '📝',
+    icon: '',
     category: 'Features',
   },
   {
     title: 'Getting paid: Stripe setup',
     description: 'Connect your Stripe account to receive payments',
     href: '/help-centre/billing/stripe-setup',
-    icon: '💳',
+    icon: '',
     category: 'Billing',
   },
   {
     title: 'Understanding the booking process',
     description: 'Learn how students find and book your services',
     href: '/help-centre/features/bookings',
-    icon: '📅',
+    icon: '',
     category: 'Features',
   },
   {
     title: 'Managing your profile',
     description: 'Update your information and settings',
     href: '/help-centre/account/profile-setup',
-    icon: '👤',
+    icon: '',
     category: 'Account',
   },
 ];
@@ -59,34 +59,26 @@ const QUICK_LINKS: QuickLink[] = [
   {
     title: 'Payment FAQ',
     href: '/help-centre/billing/pricing',
-    icon: '💰',
+    icon: '',
   },
   {
     title: 'Referral System',
-    href: '/help-centre/features/referral-system',
-    icon: '🤝',
+    href: '/help-centre/features/referrals',
+    icon: '',
   },
   {
     title: 'Common Issues',
     href: '/help-centre/troubleshooting/common-issues',
-    icon: '🔧',
+    icon: '',
   },
   {
-    title: 'Security Settings',
-    href: '/help-centre/account/security',
-    icon: '🔒',
+    title: 'Profile Setup',
+    href: '/help-centre/account/profile-setup',
+    icon: '',
   },
 ];
 
 export default function HelpCentreLandingPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Implement Pagefind search
-    console.log('Search:', searchQuery);
-  };
-
   return (
     <>
       {/* Hero Section */}
@@ -97,16 +89,9 @@ export default function HelpCentreLandingPage() {
             Find answers to your questions about Tutorwise. Browse guides, tutorials, and FAQs.
           </p>
 
-          <form className={styles.heroSearch} onSubmit={handleSearch}>
-            <span className={styles.heroSearchIcon}>🔍</span>
-            <input
-              type="text"
-              className={styles.heroSearchInput}
-              placeholder="Search help articles..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </form>
+          <div className={styles.heroSearch}>
+            <SearchWidget placeholder="Search help articles..." variant="hero" />
+          </div>
         </div>
       </div>
 
@@ -117,7 +102,6 @@ export default function HelpCentreLandingPage() {
           {FEATURED_ARTICLES.map((article) => (
             <Link key={article.href} href={article.href} className={styles.featuredCard}>
               <div className={styles.featuredCardHeader}>
-                <span className={styles.featuredIcon}>{article.icon}</span>
                 <span className={styles.featuredCategory}>{article.category}</span>
               </div>
               <h3 className={styles.featuredTitle}>{article.title}</h3>
@@ -133,7 +117,6 @@ export default function HelpCentreLandingPage() {
         <div className={styles.quickLinksGrid}>
           {QUICK_LINKS.map((link) => (
             <Link key={link.href} href={link.href} className={styles.quickLinkCard}>
-              <span className={styles.quickLinkIcon}>{link.icon}</span>
               <span className={styles.quickLinkTitle}>{link.title}</span>
               <span className={styles.quickLinkArrow}>→</span>
             </Link>

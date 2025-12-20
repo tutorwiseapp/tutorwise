@@ -9,6 +9,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import SearchWidget from '@/app/components/help-centre/widgets/SearchWidget';
 import styles from './LeftSidebar.module.css';
 
 type AudienceFilter = 'all' | 'tutor' | 'student' | 'agent';
@@ -94,6 +95,11 @@ export default function LeftSidebar() {
 
   return (
     <div className={styles.sidebar}>
+      {/* Search Widget */}
+      <div className={styles.searchSection}>
+        <SearchWidget placeholder="Search articles..." variant="sidebar" />
+      </div>
+
       {/* Audience Filter Pills */}
       <div className={styles.audienceFilter}>
         <div className={styles.audienceFilterLabel}>Show articles for</div>

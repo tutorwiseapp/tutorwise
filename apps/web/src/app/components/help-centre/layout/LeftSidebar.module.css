@@ -7,6 +7,12 @@
   height: 100%;
 }
 
+/* Search Section */
+.searchSection {
+  padding-top: 1.5rem; /* 24px spacing from top */
+  padding-bottom: 0.5rem;
+}
+
 /* Audience Filter Pills */
 .audienceFilter {
   display: flex;
