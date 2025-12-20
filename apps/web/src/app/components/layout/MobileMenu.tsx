@@ -209,8 +209,14 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               <Link href="/payments" className={styles.menuItem} onClick={handleLinkClick}>
                 Payments
               </Link>
+              <Link href="/your-home" className={styles.menuItem} onClick={handleLinkClick}>
+                About Tutorwise
+              </Link>
               <Link href="/help-centre" className={styles.menuItem} onClick={handleLinkClick}>
                 Help Centre
+              </Link>
+              <Link href="/developer/api-keys" className={styles.menuItem} onClick={handleLinkClick}>
+                Developer
               </Link>
 
               <div className={styles.separator} />
