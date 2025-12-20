@@ -74,6 +74,19 @@ export default function BookingDetailModal({
             : booking.booking_type === 'agent_job' ? 'Agent Job'
             : booking.booking_type || 'N/A'
         },
+        {
+          label: 'Booking Source',
+          value: booking.booking_source === 'listing' ? 'Listing'
+            : booking.booking_source === 'profile' ? 'Profile'
+            : booking.booking_source || 'N/A'
+        },
+        {
+          label: 'Referrer Role',
+          value: booking.referrer_role === 'agent' ? 'Agent'
+            : booking.referrer_role === 'tutor' ? 'Tutor'
+            : booking.referrer_role === 'client' ? 'Client'
+            : booking.referrer_role || 'N/A'
+        },
       ],
     },
     {
