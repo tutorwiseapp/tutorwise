@@ -223,14 +223,18 @@ export default function NetworkPage() {
       }
     });
 
-    // Search filtering
+    // Search filtering (comprehensive search across all relevant fields)
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter((connection: Connection) => {
         const otherProfile = connection.requester_id === profile.id ? connection.receiver : connection.requester;
         const name = otherProfile?.full_name?.toLowerCase() || '';
         const email = otherProfile?.email?.toLowerCase() || '';
-        return name.includes(query) || email.includes(query);
+        const bio = otherProfile?.bio?.toLowerCase() || '';
+
+        return name.includes(query) ||
+               email.includes(query) ||
+               bio.includes(query);
       });
     }
 

@@ -175,14 +175,25 @@ export default function ReviewsPage() {
   const filterReviews = (reviews: ProfileReview[]) => {
     let filtered = [...reviews];
 
-    // Search filtering
+    // Search filtering (comprehensive search across all relevant fields)
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(review => {
         const reviewerName = review.reviewer?.full_name?.toLowerCase() || '';
         const revieweeName = review.reviewee?.full_name?.toLowerCase() || '';
         const comment = review.comment?.toLowerCase() || '';
-        return reviewerName.includes(query) || revieweeName.includes(query) || comment.includes(query);
+        const serviceName = review.service_name?.toLowerCase() || '';
+        const subjects = review.subjects?.join(' ').toLowerCase() || '';
+        const levels = review.levels?.join(' ').toLowerCase() || '';
+        const locationType = review.location_type?.toLowerCase() || '';
+
+        return reviewerName.includes(query) ||
+               revieweeName.includes(query) ||
+               comment.includes(query) ||
+               serviceName.includes(query) ||
+               subjects.includes(query) ||
+               levels.includes(query) ||
+               locationType.includes(query);
       });
     }
 

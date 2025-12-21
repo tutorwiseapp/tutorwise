@@ -122,13 +122,21 @@ export default function ReferralsPage() {
       return true;
     });
 
-    // Search filter
+    // Search filter (comprehensive search across all relevant fields)
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter((referral: any) => {
         const name = referral.referred_user?.full_name?.toLowerCase() || '';
         const email = referral.referred_user?.email?.toLowerCase() || '';
-        return name.includes(query) || email.includes(query);
+        const status = referral.status?.toLowerCase() || '';
+        const referralCode = referral.referral_code?.toLowerCase() || '';
+        const referrerName = referral.referrer?.full_name?.toLowerCase() || '';
+
+        return name.includes(query) ||
+               email.includes(query) ||
+               status.includes(query) ||
+               referralCode.includes(query) ||
+               referrerName.includes(query);
       });
     }
 

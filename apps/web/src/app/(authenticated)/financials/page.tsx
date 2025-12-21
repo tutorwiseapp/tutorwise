@@ -86,12 +86,29 @@ export default function TransactionsPage() {
       filtered = filtered.filter((txn) => txn.status === statusFilter);
     }
 
-    // Search filtering (by description)
+    // Search filtering (comprehensive search across all relevant fields)
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter((txn) => {
         const description = txn.description?.toLowerCase() || '';
-        return description.includes(query);
+        const serviceName = txn.service_name?.toLowerCase() || '';
+        const subjects = txn.subjects?.join(' ').toLowerCase() || '';
+        const tutorName = txn.tutor_name?.toLowerCase() || '';
+        const clientName = txn.client_name?.toLowerCase() || '';
+        const agentName = txn.agent_name?.toLowerCase() || '';
+        const locationType = txn.location_type?.toLowerCase() || '';
+        const type = txn.type?.toLowerCase() || '';
+        const status = txn.status?.toLowerCase() || '';
+
+        return description.includes(query) ||
+               serviceName.includes(query) ||
+               subjects.includes(query) ||
+               tutorName.includes(query) ||
+               clientName.includes(query) ||
+               agentName.includes(query) ||
+               locationType.includes(query) ||
+               type.includes(query) ||
+               status.includes(query);
       });
     }
 

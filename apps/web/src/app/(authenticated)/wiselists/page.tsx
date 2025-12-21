@@ -121,13 +121,19 @@ export default function WiselistsPage() {
         break;
     }
 
-    // Search filtering (by name or description)
+    // Search filtering (comprehensive search across all relevant fields)
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter((w: any) => {
         const name = w.name?.toLowerCase() || '';
         const description = w.description?.toLowerCase() || '';
-        return name.includes(query) || description.includes(query);
+        const ownerName = w.owner?.full_name?.toLowerCase() || '';
+        const visibility = w.visibility?.toLowerCase() || '';
+
+        return name.includes(query) ||
+               description.includes(query) ||
+               ownerName.includes(query) ||
+               visibility.includes(query);
       });
     }
 

@@ -207,13 +207,15 @@ export default function MyStudentsPage() {
       }
     });
 
-    // Search filtering
+    // Search filtering (comprehensive search across all relevant fields)
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter((student) => {
         const name = student.student?.full_name?.toLowerCase() || '';
         const email = student.student?.email?.toLowerCase() || '';
-        return name.includes(query) || email.includes(query);
+
+        return name.includes(query) ||
+               email.includes(query);
       });
     }
 

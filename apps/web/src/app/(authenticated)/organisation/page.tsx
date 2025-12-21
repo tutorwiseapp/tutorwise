@@ -190,13 +190,21 @@ export default function OrganisationPage() {
 
     let filtered = [...members];
 
-    // Search filtering
+    // Search filtering (comprehensive search across all relevant fields)
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter((member) => {
         const name = member.full_name?.toLowerCase() || '';
         const email = member.email?.toLowerCase() || '';
-        return name.includes(query) || email.includes(query);
+        const bio = member.bio?.toLowerCase() || '';
+        const role = member.role?.toLowerCase() || '';
+        const location = member.location?.toLowerCase() || '';
+
+        return name.includes(query) ||
+               email.includes(query) ||
+               bio.includes(query) ||
+               role.includes(query) ||
+               location.includes(query);
       });
     }
 
@@ -225,13 +233,15 @@ export default function OrganisationPage() {
 
     let filtered = [...clients];
 
-    // Search filtering
+    // Search filtering (comprehensive search across all relevant fields)
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter((client: any) => {
         const name = client.full_name?.toLowerCase() || '';
         const email = client.email?.toLowerCase() || '';
-        return name.includes(query) || email.includes(query);
+
+        return name.includes(query) ||
+               email.includes(query);
       });
     }
 
