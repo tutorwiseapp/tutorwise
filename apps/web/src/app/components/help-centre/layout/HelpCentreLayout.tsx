@@ -10,7 +10,7 @@ import { ReactNode, useState } from 'react';
 import styles from './HelpCentreLayout.module.css';
 
 interface HelpCentreLayoutProps {
-  leftSidebar: ReactNode;
+  leftSidebar: ReactNode | ((onClose?: () => void) => ReactNode);
   rightSidebar: ReactNode;
   children: ReactNode;
 }
@@ -70,7 +70,7 @@ export default function HelpCentreLayout({
       <div className={styles.layout}>
         {/* Left Sidebar - 320px (Category Navigation) */}
         <aside className={`${styles.leftSidebar} ${isMobileMenuOpen ? styles.open : ''}`}>
-          {leftSidebar}
+          {typeof leftSidebar === 'function' ? leftSidebar(closeMobileMenu) : leftSidebar}
         </aside>
 
         {/* Main Content - Fluid */}

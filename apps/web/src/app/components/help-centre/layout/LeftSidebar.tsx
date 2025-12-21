@@ -24,6 +24,10 @@ interface Category {
   articles: Article[];
 }
 
+interface LeftSidebarProps {
+  onLinkClick?: () => void;
+}
+
 const CATEGORIES: Category[] = [
   {
     name: 'Getting Started',
@@ -67,7 +71,7 @@ const CATEGORIES: Category[] = [
   },
 ];
 
-export default function LeftSidebar() {
+export default function LeftSidebar({ onLinkClick }: LeftSidebarProps = {}) {
   const pathname = usePathname();
   const [audienceFilter, setAudienceFilter] = useState<AudienceFilter>('all');
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
@@ -153,6 +157,7 @@ export default function LeftSidebar() {
                     className={`${styles.articleLink} ${
                       isArticleActive(category.slug, article.slug) ? styles.active : ''
                     }`}
+                    onClick={onLinkClick}
                   >
                     {article.title}
                   </Link>

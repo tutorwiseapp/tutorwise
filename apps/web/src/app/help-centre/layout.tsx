@@ -7,11 +7,7 @@
 
 import { ReactNode } from 'react';
 import { Metadata } from 'next';
-import HelpCentreLayout from '@/app/components/help-centre/layout/HelpCentreLayout';
-import LeftSidebar from '@/app/components/help-centre/layout/LeftSidebar';
-import QuickActionsWidget from '@/app/components/help-centre/widgets/QuickActionsWidget';
-import PopularArticlesWidget from '@/app/components/help-centre/widgets/PopularArticlesWidget';
-import SystemStatusWidget from '@/app/components/help-centre/widgets/SystemStatusWidget';
+import HelpCentreLayoutClient from '@/app/components/help-centre/layout/HelpCentreLayoutClient';
 
 // Enhanced SEO Metadata (Critical for help article discoverability)
 export const metadata: Metadata = {
@@ -56,18 +52,5 @@ interface HelpCentreLayoutWrapperProps {
 }
 
 export default function HelpCentreLayoutWrapper({ children }: HelpCentreLayoutWrapperProps) {
-  return (
-    <HelpCentreLayout
-      leftSidebar={<LeftSidebar />}
-      rightSidebar={
-        <>
-          <QuickActionsWidget />
-          <PopularArticlesWidget />
-          <SystemStatusWidget />
-        </>
-      }
-    >
-      {children}
-    </HelpCentreLayout>
-  );
+  return <HelpCentreLayoutClient>{children}</HelpCentreLayoutClient>;
 }
