@@ -2,10 +2,15 @@
  * Filename: apps/web/src/app/help-centre/[category]/page.tsx
  * Purpose: Category listing page for Help Centre
  * Created: 2025-01-19
+ * Updated: 2025-12-21 - Added Next.js revalidation and enhanced SEO metadata
  */
+
+// Next.js Revalidation: Cache for 10 minutes (category listings are static content)
+export const revalidate = 600; // 10 minutes
 
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 import { getArticlesByCategory, getCategories } from '@/lib/help-centre/articles';
 import styles from './page.module.css';
 
@@ -104,15 +109,43 @@ export async function generateStaticParams() {
 }
 
 // Generate metadata for SEO
-export async function generateMetadata({ params }: CategoryPageProps) {
+export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { category } = params;
+  const articles = getArticlesByCategory(category);
+
   const categoryInfo = CATEGORY_INFO[category] || {
-    title: category.charAt(0).toUpperCase() + category.slice(1),
+    title: category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' '),
     description: `Articles about ${category}`,
   };
 
+  const articleCount = articles.length;
+
   return {
     title: `${categoryInfo.title} | Tutorwise Help Centre`,
-    description: categoryInfo.description,
+    description: `${categoryInfo.description}. Browse ${articleCount} helpful ${articleCount === 1 ? 'article' : 'articles'}.`,
+    keywords: [
+      categoryInfo.title.toLowerCase(),
+      'tutorwise help',
+      'tutorwise support',
+      'tutorwise guide',
+      `${category} help`,
+      'help centre',
+      'support articles',
+    ],
+    openGraph: {
+      title: `${categoryInfo.title} | Tutorwise Help`,
+      description: categoryInfo.description,
+      url: `https://tutorwise.com/help-centre/${category}`,
+      siteName: 'Tutorwise',
+      type: 'website',
+      locale: 'en_GB',
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+    alternates: {
+      canonical: `https://tutorwise.com/help-centre/${category}`,
+    },
   };
 }

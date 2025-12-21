@@ -2,9 +2,14 @@
  * Filename: apps/web/src/app/help-centre/[category]/[slug]/page.tsx
  * Purpose: Dynamic article page for Help Centre
  * Created: 2025-01-19
+ * Updated: 2025-12-21 - Added Next.js revalidation and metadata for SEO optimization
  */
 
+// Next.js Revalidation: Cache for 10 minutes (help articles are static content)
+export const revalidate = 600; // 10 minutes
+
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import { getArticleBySlug, getAllArticles } from '@/lib/help-centre/articles';
 import { trackArticleView } from '@/lib/api/help-centre';
@@ -29,6 +34,47 @@ const mdxComponents = {
   Tabs,
   Tab,
 };
+
+// Generate metadata for SEO
+export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
+  const { category, slug } = params;
+  const article = getArticleBySlug(category, slug);
+
+  if (!article) {
+    return {
+      title: 'Article Not Found | Tutorwise Help Centre',
+    };
+  }
+
+  const categoryLabel = category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ');
+
+  return {
+    title: `${article.title} | Tutorwise Help Centre`,
+    description: article.description || `Learn about ${article.title.toLowerCase()} in the Tutorwise Help Centre.`,
+    keywords: [
+      article.title,
+      categoryLabel,
+      'tutorwise help',
+      'tutorwise guide',
+      'tutorwise tutorial',
+    ],
+    openGraph: {
+      title: `${article.title} | Tutorwise Help`,
+      description: article.description || `Learn about ${article.title.toLowerCase()}`,
+      url: `https://tutorwise.com/help-centre/${category}/${slug}`,
+      siteName: 'Tutorwise',
+      type: 'article',
+      locale: 'en_GB',
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+    alternates: {
+      canonical: `https://tutorwise.com/help-centre/${category}/${slug}`,
+    },
+  };
+}
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const { category, slug } = params;
@@ -109,22 +155,4 @@ export async function generateStaticParams() {
     category: article.category,
     slug: article.slug,
   }));
-}
-
-// Generate metadata for SEO
-export async function generateMetadata({ params }: ArticlePageProps) {
-  const { category, slug } = params;
-  const article = getArticleBySlug(category, slug);
-
-  if (!article) {
-    return {
-      title: 'Article Not Found',
-    };
-  }
-
-  return {
-    title: `${article.title} | Tutorwise Help Centre`,
-    description: article.description,
-    keywords: article.keywords,
-  };
 }
