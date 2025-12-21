@@ -83,6 +83,29 @@
   border: 2px solid var(--color-background-primary, #ffffff);
 }
 
+/* Circular Menu Button */
+.menuButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--color-primary, #006c67);
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.navItemActive .menuButton {
+  background-color: var(--color-primary-dark, #005550);
+  transform: scale(1.05);
+}
+
+.menuButton:hover {
+  background-color: var(--color-primary-dark, #005550);
+  transform: scale(1.05);
+}
+
 /* Show on mobile and tablet screens */
 @media (max-width: 1023px) {
   .bottomNav {

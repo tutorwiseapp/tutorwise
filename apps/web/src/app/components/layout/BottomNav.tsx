@@ -210,13 +210,9 @@ export default function BottomNav() {
                   className={`${styles.navItem} ${isItemActive ? styles.navItemActive : ''}`}
                   onClick={(e) => handleNavClick(e, item)}
                 >
-                  <div className={styles.iconWrapper}>
+                  <div className={styles.menuButton}>
                     {item.icon}
-                    {item.badge && item.badge > 0 && (
-                      <span className={styles.badge}>{item.badge > 99 ? '99+' : item.badge}</span>
-                    )}
                   </div>
-                  <span className={styles.label}>{item.label}</span>
                 </button>
               );
             }
