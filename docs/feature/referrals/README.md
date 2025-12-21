@@ -1,8 +1,8 @@
 # Referrals
 
-**Status**: Active (MVP Complete, Enhancements In Progress)
-**Last Code Update**: 2025-11-17 (Migration 090)
-**Last Doc Update**: 2025-12-12
+**Status**: Active (Phase 1 Complete, Automated Payouts Pending)
+**Last Code Update**: 2025-12-18 (Migrations 117-123, 129-130)
+**Last Doc Update**: 2025-12-21
 **Priority**: Critical (Tier 1 - Growth Engine)
 **Architecture**: Patent-Protected Persistent Attribution System
 
@@ -30,31 +30,84 @@ This is a **patent-protected invention** (UK Provisional Application filed) repr
 
 ## Implementation Status
 
-### ✅ Completed (v4.3)
-- Secure referral code generation
-- Profile-level lifetime attribution
-- Referral link handler (`/a/[code]`)
-- Basic cookie tracking (30-day)
-- Referrals dashboard hub
-- Commission delegation (store partnerships)
-- Pipeline tracking
-- Social sharing (WhatsApp, Facebook, LinkedIn)
-- CSV export
+### ✅ Completed (v7.0 - Dec 2025)
 
-### 🚧 In Progress (Phase 1)
-- HMAC-signed cookies (security upgrade)
-- Fraud protection (self-referral blocking, velocity limits)
-- 14-day payout hold period
-- Email verification for manual claims
-- Audit logging (immutable attribution decisions)
+**Core Attribution System:**
+- ✅ Secure referral code generation (7-char alphanumeric, Migration 035)
+- ✅ Profile-level lifetime attribution (immutable `referred_by_profile_id`)
+- ✅ Referral link handler (`/a/[code]`) with HMAC cookie signing
+- ✅ **Hierarchical Attribution** (Migration 117):
+  - URL Parameter (Priority 1)
+  - HMAC-signed cookies with tamper detection (Priority 2, 30-day validity)
+  - Manual entry (Priority 3)
+- ✅ Referrals dashboard hub
+- ✅ Pipeline tracking (Referred → Signed Up → Converted)
+- ✅ Social sharing (WhatsApp, Facebook, LinkedIn)
+- ✅ CSV export
 
-### 📋 Planned (Phases 2-3)
-- Agent API (programmatic referral creation)
-- QR code generation API
-- Advanced analytics (conversion funnels, source tracking)
-- KYC thresholds (£1k/month verification)
-- Multi-currency payouts
-- Fraud ML scoring
+**Commission & Delegation:**
+- ✅ **Hierarchical Commission Delegation** (Migrations 129-130):
+  - Profile-level default delegation
+  - Listing-level override delegation
+  - Third-party agent protection
+- ✅ Commission calculation (80/10/10 split)
+- ✅ Commission transactions created automatically
+- ✅ Manual withdrawal system (£25 minimum)
+- ✅ 7-day clearing period
+
+**Performance & Analytics:**
+- ✅ Performance indexes (Migration 118 - 10,000x faster lookups)
+- ✅ Referral stats RPC (Migration 119)
+- ✅ ReferralDashboardWidget (UI integration)
+- ✅ DelegationSettingsPanel (full UI for delegation)
+- ✅ Attribution method tracking (url_parameter/cookie/manual_entry)
+
+**Multi-Tier System (Configurable):**
+- ✅ Multi-tier commission infrastructure (Migration 123)
+- ✅ Tier 1 ACTIVE: 10% direct referral commission
+- ⏸️ Tier 2 DISABLED: 3% (requires legal clearance)
+- ⏸️ Tier 3 DISABLED: 1.5% (requires legal clearance)
+
+**Security & Fraud:**
+- ✅ HMAC-SHA256 cookie signing
+- ✅ Self-referral blocking
+- ✅ Delegation fraud prevention (cannot delegate to self)
+- ✅ Audit trail (immutable attribution decisions)
+
+### ⏳ Pending Implementation
+
+**Automated Payouts** (Q1 2026):
+- ❌ Automated cron job to transition Pending → Available
+- ❌ Batch payout processor
+- ❌ Weekly automatic transfers
+- ❌ Configurable payout schedule
+- Current: Manual withdrawal only
+
+**Multi-Tier Activation** (Q2 2026 - requires legal review):
+- ⏸️ Tier 2 activation (3% indirect referral)
+- ⏸️ Tier 3 activation (1.5% third level)
+- ⏸️ Legal compliance review
+- ⏸️ MLM risk assessment
+
+### 📋 Planned (Phases 2-3 - Q2-Q3 2026)
+- **Client Referral Monetization** (Migration 122 created, not activated):
+  - 5% commission when referring clients to ANY tutor
+  - Currently only tutor referrals are monetized
+- **QR Code Generation API** (UI exists, API endpoint needed)
+- **Advanced Analytics**:
+  - Conversion funnel visualization
+  - Source attribution breakdown
+  - Earnings projections
+- **Partnership Onboarding** (Migration 121):
+  - Dedicated partner dashboard
+  - Partner approval workflow
+  - Custom commission structures
+- **Fraud ML Scoring** (Migration 120):
+  - Behavioral pattern analysis
+  - Velocity limits
+  - Risk scoring
+- **Multi-Currency Payouts**
+- **KYC Thresholds** (£1k/month verification)
 
 ## System Architecture
 
@@ -88,8 +141,22 @@ referrals (table)
   - status                          TEXT                  -- 'Referred'|'Signed Up'|'Converted'|'Expired'
   - created_at                      TIMESTAMPTZ
 
--- Store partnerships (v4.3)
-listings.delegate_commission_to_profile_id  UUID          -- Commission override
+-- Hierarchical delegation (v7.0)
+profiles.default_commission_delegate_id     UUID          -- Profile-level default (Migration 129)
+listings.delegate_commission_to_profile_id  UUID          -- Listing-level override (Migration 034)
+
+-- Multi-tier commission config (v7.0)
+commission_tier_config (table)              Migration 123
+  - tier                                    INTEGER       -- 1-7
+  - commission_rate                         NUMERIC(5,2)  -- Percentage
+  - is_active                               BOOLEAN       -- Currently enabled
+  - legal_status                            TEXT          -- approved/pending/prohibited
+
+-- Transactions (commission payments)
+transactions (table)
+  - type                                    TEXT          -- 'Referral Commission'
+  - status                                  TEXT          -- 'Pending'/'Available'/'Paid Out'
+  - available_at                            TIMESTAMPTZ   -- After 7-day clearing
 ```
 
 ## API Routes

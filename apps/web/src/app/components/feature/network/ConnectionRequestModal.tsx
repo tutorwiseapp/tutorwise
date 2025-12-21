@@ -2,14 +2,23 @@
  * Filename: apps/web/src/app/components/feature/network/ConnectionRequestModal.tsx
  * Purpose: Modal for sending connection requests or email invitations
  * Created: 2025-11-07
+ * Updated: 2025-01-21 - Added accessibility improvements and type safety
  * Specification: SDD v4.5, Section 4.3
  */
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './ConnectionRequestModal.module.css';
+
+interface SearchResult {
+  id: string;
+  full_name: string;
+  email: string;
+  avatar_url?: string;
+}
 
 interface ConnectionRequestModalProps {
   isOpen: boolean;
@@ -27,8 +36,36 @@ export default function ConnectionRequestModal({
   const [emailInput, setEmailInput] = useState('');
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
+  const [hasSearched, setHasSearched] = useState(false);
+
+  // Handle ESC key to close modal
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen]);
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -36,6 +73,7 @@ export default function ConnectionRequestModal({
     if (!searchQuery.trim()) return;
 
     setIsLoading(true);
+    setHasSearched(true);
     try {
       const response = await fetch(
         `/api/profiles/search?q=${encodeURIComponent(searchQuery)}`
@@ -146,6 +184,7 @@ export default function ConnectionRequestModal({
     setMessage('');
     setSearchResults([]);
     setSelectedUsers(new Set());
+    setHasSearched(false);
     onClose();
   };
 
@@ -155,8 +194,8 @@ export default function ConnectionRequestModal({
         {/* Header */}
         <div className={styles.header}>
           <h2 className={styles.title}>Connect with Others</h2>
-          <button onClick={handleClose} className={styles.closeButton}>
-            ✕
+          <button onClick={handleClose} className={styles.closeButton} aria-label="Close">
+            <X size={24} />
           </button>
         </div>
 
@@ -216,6 +255,18 @@ export default function ConnectionRequestModal({
                       </div>
                     </label>
                   ))}
+                </div>
+              )}
+
+              {/* Empty State */}
+              {hasSearched && searchResults.length === 0 && !isLoading && (
+                <div className={styles.emptyState}>
+                  <p className={styles.emptyStateText}>
+                    No users found matching "{searchQuery}"
+                  </p>
+                  <p className={styles.emptyStateHint}>
+                    Try searching by name or email address
+                  </p>
                 </div>
               )}
 
