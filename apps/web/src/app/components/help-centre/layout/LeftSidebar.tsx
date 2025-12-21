@@ -9,7 +9,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import SearchWidget from '@/app/components/help-centre/widgets/SearchWidget';
 import styles from './LeftSidebar.module.css';
 
 type AudienceFilter = 'all' | 'tutor' | 'student' | 'agent';
@@ -31,16 +30,18 @@ const CATEGORIES: Category[] = [
     slug: 'getting-started',
     articles: [
       { title: 'For Tutors', slug: 'for-tutors' },
-      { title: 'For Students', slug: 'for-students' },
+      { title: 'For Clients', slug: 'for-clients' },
+      { title: 'For Agents', slug: 'for-agents' },
+      { title: 'For Organisations', slug: 'for-organisations' },
     ],
   },
   {
     name: 'Features',
     slug: 'features',
     articles: [
-      { title: 'How Bookings Work', slug: 'bookings' },
       { title: 'Create a Listing', slug: 'create-listing' },
-      { title: 'Referral System', slug: 'referrals' },
+      { title: 'How Bookings Work', slug: 'bookings' },
+      { title: 'Refer & Earn Commission', slug: 'referrals' },
     ],
   },
   {
@@ -91,11 +92,6 @@ export default function LeftSidebar() {
 
   return (
     <div className={styles.sidebar}>
-      {/* Search Widget */}
-      <div className={styles.searchSection}>
-        <SearchWidget placeholder="Search articles..." variant="sidebar" />
-      </div>
-
       {/* Audience Filter Pills */}
       <div className={styles.audienceFilter}>
         <div className={styles.audienceFilterLabel}>Show articles for</div>

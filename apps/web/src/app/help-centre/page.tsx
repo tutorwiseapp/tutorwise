@@ -1,13 +1,24 @@
 /**
  * Filename: apps/web/src/app/help-centre/page.tsx
- * Purpose: Help Centre landing page with hero, getting started, and categories
+ * Purpose: Help Centre landing page with hero, search results, and categories
  * Created: 2025-01-19
+ * Updated: 2025-12-21 - Refactored to use React Query (consistent with home page pattern)
+ *
+ * Architecture Changes:
+ * - Replaced manual useState + useEffect with React Query hooks
+ * - Added placeholderData to prevent skeleton flickering
+ * - Implemented 5min caching strategy (consistent with home page)
+ * - Enhanced loading states with proper skeleton UI
  */
 
 'use client';
 
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import Link from 'next/link';
 import SearchWidget from '@/app/components/help-centre/widgets/SearchWidget';
+import { useSearchArticles } from '@/lib/hooks/useHelpCentre';
+import type { ArticleSearchResult } from './actions';
 import styles from './page.module.css';
 
 interface FeaturedArticle {
@@ -78,7 +89,122 @@ const QUICK_LINKS: QuickLink[] = [
   },
 ];
 
-export default function HelpCentreLandingPage() {
+/**
+ * Search Results Skeleton
+ * Shows while loading search results - prevents layout shift
+ */
+function SearchResultsSkeleton() {
+  return (
+    <div className={styles.resultsGrid}>
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className={styles.resultCardSkeleton}>
+          <div className={styles.skeletonHeader}>
+            <div className={styles.skeletonCategory}></div>
+            <div className={styles.skeletonReadTime}></div>
+          </div>
+          <div className={styles.skeletonTitle}></div>
+          <div className={styles.skeletonDescription}></div>
+          <div className={styles.skeletonDescriptionShort}></div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Article Result Card Component
+ * Extracted for reusability and consistency
+ */
+function ArticleResultCard({ article }: { article: ArticleSearchResult }) {
+  return (
+    <Link
+      href={`/help-centre/${article.category}/${article.slug}`}
+      className={styles.resultCard}
+    >
+      <div className={styles.resultHeader}>
+        <span className={styles.resultCategory}>
+          {article.category.charAt(0).toUpperCase() + article.category.slice(1).replace('-', ' ')}
+        </span>
+        {article.readTime && <span className={styles.resultReadTime}>{article.readTime}</span>}
+      </div>
+      <h3 className={styles.resultTitle}>{article.title}</h3>
+      <p className={styles.resultDescription}>{article.description}</p>
+    </Link>
+  );
+}
+
+function HelpCentreLandingPageContent() {
+  const searchParams = useSearchParams();
+  const query = searchParams.get('q');
+
+  // React Query hook - replaces manual useState + useEffect pattern
+  // Features: caching, placeholderData (no flickering), automatic refetch management
+  const { data: searchResults = [], isLoading } = useSearchArticles(query);
+
+  // Show search results if query exists
+  if (query) {
+    return (
+      <>
+        {/* Search Header */}
+        <div className={styles.searchHeader}>
+          <h1 className={styles.searchTitle}>Search Results for &ldquo;{query}&rdquo;</h1>
+          {!isLoading && (
+            <p className={styles.searchSubtitle}>
+              {searchResults.length} {searchResults.length === 1 ? 'article' : 'articles'} found
+            </p>
+          )}
+          <div className={styles.heroSearch}>
+            <SearchWidget placeholder="Search help articles..." variant="hero" />
+          </div>
+        </div>
+
+        {/* Search Results */}
+        <div className={styles.searchResults}>
+          {isLoading ? (
+            <SearchResultsSkeleton />
+          ) : searchResults.length > 0 ? (
+            <div className={styles.resultsGrid}>
+              {searchResults.map((article) => (
+                <ArticleResultCard
+                  key={`${article.category}/${article.slug}`}
+                  article={article}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className={styles.noResults}>
+              <h2>No results found</h2>
+              <p>Try different keywords or browse our categories below.</p>
+              <div className={styles.noResultsSuggestions}>
+                <p>Suggestions:</p>
+                <ul>
+                  <li>Check your spelling</li>
+                  <li>Use different keywords</li>
+                  <li>Browse our categories</li>
+                  <li>Contact support if you need help</li>
+                </ul>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Quick Links Section */}
+        <div className={styles.quickLinksSection}>
+          <h2 className={styles.sectionTitle}>Popular Articles</h2>
+          <div className={styles.quickLinksGrid}>
+            {QUICK_LINKS.map((link) => (
+              <Link key={link.href} href={link.href} className={styles.quickLinkCard}>
+                <span className={styles.quickLinkTitle}>{link.title}</span>
+                <span className={styles.quickLinkArrow}>→</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // Show landing page if no search query
   return (
     <>
       {/* Hero Section */}
@@ -124,5 +250,13 @@ export default function HelpCentreLandingPage() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function HelpCentreLandingPage() {
+  return (
+    <Suspense fallback={<div className={styles.searchLoading}>Loading...</div>}>
+      <HelpCentreLandingPageContent />
+    </Suspense>
   );
 }

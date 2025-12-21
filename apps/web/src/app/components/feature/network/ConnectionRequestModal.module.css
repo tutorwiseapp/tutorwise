@@ -43,7 +43,6 @@
 .closeButton {
   background: none;
   border: none;
-  font-size: 1.5rem;
   color: var(--color-gray-500, #8E8E8E);
   cursor: pointer;
   padding: 0;
@@ -226,6 +225,28 @@
   color: var(--color-gray-500, #8E8E8E);
   margin: 0;
   line-height: 1.4;
+}
+
+/* Empty State */
+.emptyState {
+  padding: var(--space-3, 24px);
+  text-align: center;
+  background: var(--color-gray-50, #F9FAFB);
+  border-radius: var(--border-radius-md, 8px);
+  border: 1px solid var(--color-gray-200, #E5E7EB);
+}
+
+.emptyStateText {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0 0 var(--space-1, 8px) 0;
+}
+
+.emptyStateHint {
+  font-size: 0.75rem;
+  color: var(--color-gray-500, #8E8E8E);
+  margin: 0;
 }
 
 /* Send Button */

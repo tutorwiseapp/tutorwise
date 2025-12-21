@@ -1,13 +1,15 @@
 /**
  * Filename: apps/web/src/app/components/help-centre/widgets/SearchWidget.tsx
- * Purpose: Search widget for Help Centre articles
+ * Purpose: Search widget for Help Centre articles with analytics tracking
  * Created: 2025-01-19
+ * Updated: 2025-01-21 - Added keyboard shortcuts, analytics tracking, improved UX
  */
 
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { trackHelpCentreSearch } from '@/lib/api/help-centre';
 import styles from './widgets.module.css';
 
 interface SearchWidgetProps {
@@ -16,18 +18,38 @@ interface SearchWidgetProps {
 }
 
 export default function SearchWidget({
-  placeholder = 'Search help articles...',
+  placeholder = 'Search for help articles, guides, and FAQs...',
   variant = 'sidebar',
 }: SearchWidgetProps) {
   const [query, setQuery] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
+  // Keyboard shortcut: ⌘K or Ctrl+K to focus search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleSearch = useCallback(
-    (e: React.FormEvent) => {
+    async (e: React.FormEvent) => {
       e.preventDefault();
-      if (query.trim()) {
+      const trimmedQuery = query.trim();
+
+      if (trimmedQuery) {
+        // Track search query for analytics
+        await trackHelpCentreSearch(trimmedQuery);
+
         // Navigate to search results page with query parameter
-        router.push(`/help-centre?q=${encodeURIComponent(query.trim())}`);
+        router.push(`/help-centre?q=${encodeURIComponent(trimmedQuery)}`);
       }
     },
     [query, router]
@@ -38,11 +60,11 @@ export default function SearchWidget({
       onSubmit={handleSearch}
       className={variant === 'hero' ? styles.searchHero : styles.searchSidebar}
     >
-      <div className={styles.searchInputWrapper}>
+      <div className={`${styles.searchInputWrapper} ${isFocused ? styles.focused : ''}`}>
         <svg
           className={styles.searchIcon}
-          width="16"
-          height="16"
+          width="20"
+          height="20"
           viewBox="0 0 16 16"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -64,13 +86,21 @@ export default function SearchWidget({
           />
         </svg>
         <input
+          ref={inputRef}
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
           placeholder={placeholder}
           className={styles.searchInput}
           aria-label="Search help articles"
         />
+        {!query && variant === 'hero' && (
+          <kbd className={styles.searchShortcut}>
+            {typeof navigator !== 'undefined' && navigator.platform.indexOf('Mac') > -1 ? '⌘' : 'Ctrl'}K
+          </kbd>
+        )}
         {query && (
           <button
             type="button"

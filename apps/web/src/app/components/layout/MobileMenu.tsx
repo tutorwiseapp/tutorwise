@@ -209,7 +209,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               <Link href="/payments" className={styles.menuItem} onClick={handleLinkClick}>
                 Payments
               </Link>
-              <Link href="/your-home" className={styles.menuItem} onClick={handleLinkClick}>
+              <Link href="/about-tutorwise" className={styles.menuItem} onClick={handleLinkClick}>
                 About Tutorwise
               </Link>
               <Link href="/help-centre" className={styles.menuItem} onClick={handleLinkClick}>
@@ -234,8 +234,11 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 Log In
               </Link>
               <div className={styles.separator} />
-              <Link href="/your-home" className={styles.menuItem} onClick={handleLinkClick}>
+              <Link href="/about-tutorwise" className={styles.menuItem} onClick={handleLinkClick}>
                 About Tutorwise
+              </Link>
+              <Link href="/help-centre" className={styles.menuItem} onClick={handleLinkClick}>
+                Help Centre
               </Link>
             </>
           )}

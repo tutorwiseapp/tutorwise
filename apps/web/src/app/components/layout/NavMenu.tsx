@@ -204,7 +204,10 @@ const NavMenu = () => {
                 </DropdownMenu.Item>
                 <div className={styles.separator} />
                 <DropdownMenu.Item asChild className={styles.menuItem}>
-                  <Link href="/your-home">About Tutorwise</Link>
+                  <Link href="/about-tutorwise">About Tutorwise</Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item asChild className={styles.menuItem}>
+                  <Link href="/help-centre">Help Centre</Link>
                 </DropdownMenu.Item>
               </>
             )}

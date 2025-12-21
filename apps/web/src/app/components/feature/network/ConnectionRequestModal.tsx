@@ -262,7 +262,7 @@ export default function ConnectionRequestModal({
               {hasSearched && searchResults.length === 0 && !isLoading && (
                 <div className={styles.emptyState}>
                   <p className={styles.emptyStateText}>
-                    No users found matching "{searchQuery}"
+                    No users found matching &quot;{searchQuery}&quot;
                   </p>
                   <p className={styles.emptyStateHint}>
                     Try searching by name or email address

@@ -195,6 +195,15 @@ export async function trackSearchQuery(
 }
 
 /**
+ * Track Help Centre search (initial query without results count)
+ * This tracks when users search, even before we know the results
+ */
+export async function trackHelpCentreSearch(query: string): Promise<void> {
+  // Track with 0 results initially - will be updated on results page
+  await trackSearchQuery(query, 0);
+}
+
+/**
  * Helper: Get or create session ID for anonymous users
  */
 function getOrCreateSessionId(): string {

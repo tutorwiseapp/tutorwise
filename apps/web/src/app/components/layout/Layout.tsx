@@ -28,7 +28,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     '/',
     '/about',
     '/help-centre',
-    '/your-home',
+    '/about-tutorwise',
     '/signin',
     '/signup',
     '/login',

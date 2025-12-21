@@ -159,9 +159,9 @@ export default function BottomNav() {
   const isActive = (href?: string) => {
     if (!href) return false;
 
-    // Home is active for /, /marketplace, and /your-home
+    // Home is active for /, /marketplace, and /about-tutorwise
     if (href === '/') {
-      return pathname === '/' || pathname === '/marketplace' || pathname === '/your-home';
+      return pathname === '/' || pathname === '/marketplace' || pathname === '/about-tutorwise';
     }
     return pathname?.startsWith(href);
   };
