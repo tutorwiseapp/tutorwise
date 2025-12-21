@@ -166,19 +166,35 @@ export default function ListingsPage() {
     });
   }, [rawListings, filter]);
 
-  // Apply client-side search
+  // Apply client-side search (comprehensive search across all relevant fields)
   const searchedListings = useMemo(() => {
     if (!searchQuery.trim()) return filteredByTab;
 
     const query = searchQuery.toLowerCase();
     return filteredByTab.filter((listing) => {
       const title = listing.title?.toLowerCase() || '';
-      const subjects = listing.subjects?.join(' ').toLowerCase() || '';
       const description = listing.description?.toLowerCase() || '';
+      const subjects = listing.subjects?.join(' ').toLowerCase() || '';
+      const levels = listing.levels?.join(' ').toLowerCase() || '';
+      const languages = listing.languages?.join(' ').toLowerCase() || '';
+      const specializations = listing.specializations?.join(' ').toLowerCase() || '';
+      const teachingMethods = listing.teaching_methods?.join(' ').toLowerCase() || '';
+      const qualifications = listing.qualifications?.join(' ').toLowerCase() || '';
+      const locationCity = listing.location_city?.toLowerCase() || '';
+      const locationType = listing.location_type?.toLowerCase() || '';
+      const fullName = listing.full_name?.toLowerCase() || '';
 
       return title.includes(query) ||
+             description.includes(query) ||
              subjects.includes(query) ||
-             description.includes(query);
+             levels.includes(query) ||
+             languages.includes(query) ||
+             specializations.includes(query) ||
+             teachingMethods.includes(query) ||
+             qualifications.includes(query) ||
+             locationCity.includes(query) ||
+             locationType.includes(query) ||
+             fullName.includes(query);
     });
   }, [filteredByTab, searchQuery]);
 

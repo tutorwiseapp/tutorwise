@@ -107,14 +107,29 @@ export default function BookingsPage() {
       return true; // 'all'
     });
 
-    // Search filtering (by service name, tutor/client name)
+    // Search filtering (comprehensive search across all relevant fields)
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter((booking: any) => {
         const serviceName = booking.service_name?.toLowerCase() || '';
+        const listingTitle = booking.listing?.title?.toLowerCase() || '';
         const tutorName = booking.tutor?.full_name?.toLowerCase() || '';
         const clientName = booking.client?.full_name?.toLowerCase() || '';
-        return serviceName.includes(query) || tutorName.includes(query) || clientName.includes(query);
+        const agentName = booking.agent?.full_name?.toLowerCase() || '';
+        const subjects = booking.subjects?.join(' ').toLowerCase() || '';
+        const levels = booking.levels?.join(' ').toLowerCase() || '';
+        const locationCity = booking.location_city?.toLowerCase() || '';
+        const locationType = booking.location_type?.toLowerCase() || '';
+
+        return serviceName.includes(query) ||
+               listingTitle.includes(query) ||
+               tutorName.includes(query) ||
+               clientName.includes(query) ||
+               agentName.includes(query) ||
+               subjects.includes(query) ||
+               levels.includes(query) ||
+               locationCity.includes(query) ||
+               locationType.includes(query);
       });
     }
 
