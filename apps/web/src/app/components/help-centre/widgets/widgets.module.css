@@ -327,10 +327,11 @@
 
 .searchInput {
   width: 100%;
-  padding: 0.75rem 7rem 0.75rem 3rem;
-  font-size: 0.9375rem;
+  padding: 10px 7rem 10px 3rem;
+  font-size: 1rem;
+  line-height: 1.5;
   border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border-radius: 8px;
   background-color: #ffffff;
   transition: all 0.15s ease;
   outline: none;
@@ -371,7 +372,7 @@
   color: #ffffff;
   background-color: var(--color-primary, #006c67);
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s ease;
   flex-shrink: 0;
@@ -427,4 +428,19 @@
 .searchHero .searchButton {
   padding: 1.125rem 2rem;
   font-size: 1rem;
+}
+
+/* Mobile Responsive - Hide search button on mobile */
+@media (max-width: 767px) {
+  .searchButton {
+    display: none;
+  }
+
+  .searchInput {
+    padding-right: 2.5rem; /* Reduce right padding when button is hidden */
+  }
+
+  .searchHero .searchInput {
+    padding-right: 3rem; /* Reduce right padding for hero variant */
+  }
 }
