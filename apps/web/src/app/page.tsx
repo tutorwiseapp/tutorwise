@@ -1,5 +1,15 @@
 'use client';
 
+/**
+ * Filename: apps/web/src/app/page.tsx
+ * Purpose: Home Page - Marketplace/Browse Listings
+ * Updated: 2025-12-21 - SEO optimization (metadata in root layout.tsx)
+ * Architecture: Client Component with React Query
+ *
+ * Note: SEO metadata is defined in apps/web/src/app/layout.tsx
+ * (Cannot export metadata from client components in Next.js 14+)
+ */
+
 import { useState } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import type { MarketplaceItem } from '@/types/marketplace';

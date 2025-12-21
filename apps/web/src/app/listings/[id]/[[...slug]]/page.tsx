@@ -2,6 +2,7 @@
  * Filename: apps/web/src/app/listings/[id]/[[...slug]]/page.tsx
  * Purpose: Dynamic Listing Details Page (v4.1) - Server Component
  * Architecture: Replaces legacy /tutor/[id]/[slug] route
+ * Updated: 2025-12-21 - Added Next.js revalidation for performance optimization
  *
  * Features:
  * - Server-side rendering for SEO
@@ -9,7 +10,11 @@
  * - Dynamic service type variants (one-to-one, group-session, workshop, study-package)
  * - Sticky ActionCard on desktop, fixed bottom CTA on mobile
  * - Related listings recommendations
+ * - 3-minute revalidation (more dynamic than profiles)
  */
+
+// Next.js Revalidation: Cache for 3 minutes (listings change more frequently than profiles)
+export const revalidate = 180; // 3 minutes
 
 import { notFound } from 'next/navigation';
 import { getListing } from '@/lib/api/listings';

@@ -9,6 +9,7 @@
  * - Added placeholderData to prevent skeleton flickering
  * - Implemented 5min caching strategy (consistent with home page)
  * - Enhanced loading states with proper skeleton UI
+ * - SEO metadata defined in layout.tsx
  */
 
 'use client';

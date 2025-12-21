@@ -27,9 +27,58 @@ const inter = Inter({
   variable: '--font-secondary'
 });
 
+// Enhanced SEO Metadata (Critical for search engines and social media - Updated 2025-12-21)
 export const metadata: Metadata = {
-  title: "Tutorwise - Professional Tutoring Platform",
-  description: "Connect with professional tutors and educational services for personalized learning experiences.",
+  title: 'Find Expert Tutors & Educational Services | Tutorwise',
+  description: 'Browse verified tutors, workshops, and study packages. Connect with expert educators for one-to-one tutoring, group sessions, and personalized learning experiences.',
+  keywords: [
+    'tutoring',
+    'tutors',
+    'online tutoring',
+    'education',
+    'learning',
+    'private tutors',
+    'GCSE tutors',
+    'A-Level tutors',
+    'university tutors',
+    'study packages',
+    'workshops',
+    'educational services',
+  ],
+  openGraph: {
+    title: 'Find Expert Tutors & Educational Services | Tutorwise',
+    description: 'Browse verified tutors, workshops, and study packages. Connect with expert educators for personalized learning.',
+    url: 'https://tutorwise.com',
+    siteName: 'Tutorwise',
+    type: 'website',
+    locale: 'en_GB',
+    images: [{
+      url: '/og-image-home.png',
+      width: 1200,
+      height: 630,
+      alt: 'Tutorwise - Find Expert Tutors and Educational Services',
+    }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Find Expert Tutors | Tutorwise',
+    description: 'Browse verified tutors, workshops, and study packages',
+    images: ['/og-image-home.png'],
+    creator: '@tutorwise',
+  },
+  alternates: {
+    canonical: 'https://tutorwise.com',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 export default function RootLayout({
