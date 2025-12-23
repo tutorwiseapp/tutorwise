@@ -31,7 +31,8 @@ export default function AdminSidebar() {
       href: '/admin/seo',
       label: 'SEO',
       subItems: [
-        { href: '/admin/seo', label: 'Hubs', indent: true },
+        { href: '/admin/seo', label: 'Management', indent: true },
+        { href: '/admin/seo/hubs', label: 'Hubs', indent: true },
         { href: '/admin/seo/spokes', label: 'Spokes', indent: true },
         { href: '/admin/seo/citations', label: 'Citations', indent: true },
         { href: '/admin/seo/config', label: 'Configuration', indent: true },
