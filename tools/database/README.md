@@ -7,29 +7,39 @@ This directory contains database migration scripts and related tools for the Tut
 **DEPRECATED**: This migration folder is no longer the primary location for migrations. All new migrations should be added to `apps/api/migrations/` with sequential numbering.
 
 **Current Status**:
-- **Primary migration folder**: `apps/api/migrations/` (migrations 001-137+)
-- **This folder** (`tools/database/`): Contains utility scripts, seed data, and archived migrations
-- **Seed scripts**: Located in `tools/database/scripts/`
-- **Archived migrations**: Located in `tools/database/migrations-archive/`
+- **Primary migration folder**: `apps/api/migrations/` (migrations 001-139+)
+- **Migration scripts**: `apps/api/scripts/` (seed, test, etc.)
+- **This folder** (`tools/database/`): Contains misc database utilities and archived migrations
+- **Archived migrations**: `tools/database/migrations-archive/` (reference only)
 
 ## Folder Structure
 
 ```
+apps/api/
+├── migrations/
+│   ├── 001-133_*.sql                  # Existing migrations
+│   ├── 134_create_help_support_snapshots.sql
+│   ├── 135_add_admin_dashboard_support.sql
+│   ├── 136_add_granular_rbac_permissions.sql
+│   ├── 137_add_updated_at_to_profiles.sql
+│   ├── 138_seed_superadmins.sql
+│   └── 139_add_comprehensive_onboarding_system.sql
+└── scripts/
+    ├── seed_superadmins.sql           # Seed initial superadmin users
+    └── test-admin-setup.sh            # Test admin dashboard setup
+
 tools/database/
 ├── README.md                          # This file
 ├── migrations-archive/                # Archived legacy migrations (reference only)
 │   ├── README.md                      # Archive documentation
-│   ├── 001_add_onboarding_system.sql
+│   ├── 001_add_onboarding_system.sql → migrated to apps/api/migrations/139_...
 │   ├── 092_migrate_group_members_to_profile_graph.sql
 │   ├── 093_drop_legacy_connections_table.sql
 │   ├── 094_create_help_support_snapshots.sql → apps/api/migrations/134_...
 │   ├── 095_add_admin_dashboard_support.sql → apps/api/migrations/135_...
 │   ├── 096_add_granular_rbac_permissions.sql → apps/api/migrations/136_...
 │   └── 097_add_updated_at_to_profiles.sql → apps/api/migrations/137_...
-├── scripts/
-│   ├── seed_superadmins.sql           # Seed initial superadmin users
-│   └── test-admin-setup.sh            # Test admin dashboard setup
-└── test_migration_compatibility.sql    # Migration validation tests
+└── test_migration_compatibility.sql   # Migration validation tests
 ```
 
 ## Migration Files (Archived - Reference Only)
@@ -87,20 +97,19 @@ psql "$POSTGRES_URL_NON_POOLING" -f apps/api/migrations/135_add_admin_dashboard_
 
 ### For Admin Dashboard Setup
 
-The admin dashboard requires migrations 135-137:
+The admin dashboard requires migrations 135-138:
 
 ```bash
-# 1. Basic admin support
-node apply-migration-135.mjs
+# Method 1: Using apply scripts (from project root)
+node apply-migration-135.mjs  # Basic admin support
+node apply-migration-136.mjs  # Granular RBAC (31+ permissions)
+node apply-migration-137.mjs  # Add updated_at to profiles
+node apply-migration-138.mjs  # Seed superadmins
 
-# 2. Granular RBAC permissions (31+ permissions seeded)
-node apply-migration-136.mjs
-
-# 3. Add updated_at field to profiles
-node apply-migration-137.mjs
-
-# 4. Seed initial superadmins
-psql "$POSTGRES_URL_NON_POOLING" -f tools/database/scripts/seed_superadmins.sql
+# Method 2: Using the test setup script
+cd apps/api/scripts
+export DATABASE_URL="postgresql://..."
+./test-admin-setup.sh
 ```
 
 ## Validation
