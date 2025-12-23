@@ -116,7 +116,9 @@ export default function AdminOverviewPage() {
           />
           <AdminHelpWidget
             title="Admin Dashboard"
-            content="Welcome to the Tutorwise admin dashboard. Manage users, listings, SEO content, and platform settings from this centralized interface."
+            items={[
+              { question: 'What is this dashboard?', answer: 'Welcome to the Tutorwise admin dashboard. Manage users, listings, SEO content, and platform settings from this centralized interface.' },
+            ]}
           />
           <AdminTipWidget
             title="Getting Started"

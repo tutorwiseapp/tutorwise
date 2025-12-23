@@ -267,7 +267,9 @@ export default function AdminUsersPage() {
           />
           <AdminHelpWidget
             title="Admin User Management"
-            content="Manage admin access for platform users. Grant or revoke admin roles based on team responsibilities. Only higher-level admins can manage lower-level admins."
+            items={[
+              { question: 'What is this page?', answer: 'Manage admin access for platform users. Grant or revoke admin roles based on team responsibilities. Only higher-level admins can manage lower-level admins.' },
+            ]}
           />
           <AdminTipWidget
             title="Best Practices"

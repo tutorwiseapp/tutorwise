@@ -7,8 +7,11 @@
  *
  * Usage:
  * <AdminHelpWidget
- *   title="What are SEO Hubs?"
- *   content="Hub pages are topical authority pages that target broad keywords. Each hub should have 6-8 related spoke pages."
+ *   title="SEO Strategy Help"
+ *   items={[
+ *     { question: 'What are SEO Hubs?', answer: 'Hub pages are topical authority pages...' },
+ *     { question: 'How many spokes?', answer: 'Create 6-8 spokes per hub for optimal authority.' },
+ *   ]}
  * />
  */
 
@@ -18,17 +21,27 @@ import React from 'react';
 import HubComplexCard from '@/app/components/hub/sidebar/cards/HubComplexCard';
 import styles from './AdminHelpWidget.module.css';
 
-interface AdminHelpWidgetProps {
-  title: string;
-  content: string;
+interface HelpItem {
+  question: string;
+  answer: string;
 }
 
-export default function AdminHelpWidget({ title, content }: AdminHelpWidgetProps) {
+interface AdminHelpWidgetProps {
+  title: string;
+  items: HelpItem[];
+}
+
+export default function AdminHelpWidget({ title, items }: AdminHelpWidgetProps) {
   return (
     <HubComplexCard>
       <h3 className={styles.title}>{title}</h3>
       <div className={styles.content}>
-        <p className={styles.text}>{content}</p>
+        {items.map((item, index) => (
+          <div key={index} className={styles.item}>
+            <div className={styles.question}>{item.question}</div>
+            <div className={styles.answer}>{item.answer}</div>
+          </div>
+        ))}
       </div>
     </HubComplexCard>
   );
