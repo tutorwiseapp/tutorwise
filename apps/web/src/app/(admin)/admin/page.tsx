@@ -58,6 +58,7 @@ export default function AdminOverviewPage() {
         <HubHeader
           title="Admin Dashboard"
           subtitle="Platform Overview & Management"
+          className={styles.adminHeader}
           actions={
             <>
               <Button variant="primary" size="sm" onClick={() => router.push('/admin/settings')}>
@@ -96,6 +97,7 @@ export default function AdminOverviewPage() {
             { id: 'alerts', label: 'Alerts', active: tabFilter === 'alerts' },
           ]}
           onTabChange={handleTabChange}
+          className={styles.adminTabs}
         />
       }
       sidebar={
