@@ -1,214 +1,269 @@
 /*
  * Filename: src/app/(admin)/admin/seo/page.tsx
- * Purpose: SEO Management overview page
+ * Purpose: SEO Hubs management page - main SEO landing page showing hubs table
  * Created: 2025-12-23
+ * Updated: 2025-12-23 - Changed from overview page to hubs table (matches Financials pattern)
  * Phase: 1 - SEO Management
  */
 'use client';
 
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useMemo, useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
 import HubHeader from '@/app/components/hub/layout/HubHeader';
+import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
+import HubTable from '@/app/components/hub/tables/HubTable';
+import { AdminHelpWidget, AdminStatsWidget, AdminTipWidget } from '@/app/components/admin/widgets';
 import Button from '@/app/components/ui/actions/Button';
-import { FileText, Link as LinkIcon, ExternalLink, TrendingUp, Plus } from 'lucide-react';
-import Link from 'next/link';
+import { Plus, Edit2, Trash2, Eye } from 'lucide-react';
 import { usePermission } from '@/lib/rbac';
+import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 
 // Force dynamic rendering (no SSR/SSG) for admin pages
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
-export default function AdminSeoOverviewPage() {
+interface SeoHub {
+  id: string;
+  title: string;
+  slug: string;
+  description: string | null;
+  status: 'draft' | 'published' | 'archived';
+  created_at: string;
+  updated_at: string;
+  created_by: string | null;
+  last_edited_by: string | null;
+  last_edited_at: string | null;
+  published_by: string | null;
+  published_at: string | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  spoke_count?: number;
+  view_count?: number;
+}
+
+export default function AdminSeoPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'published' | 'archived'>('all');
+  const queryClient = useQueryClient();
   const supabase = createClient();
+
+  // Permission checks
   const canCreate = usePermission('seo', 'create');
+  const canUpdate = usePermission('seo', 'update');
+  const canDelete = usePermission('seo', 'delete');
+  const canPublish = usePermission('seo', 'publish');
 
-  // Fetch SEO overview stats
-  const { data: hubsCount } = useQuery({
-    queryKey: ['admin', 'seo-hubs-count'],
+  // Fetch SEO hubs
+  const { data: hubs, isLoading } = useQuery({
+    queryKey: ['admin', 'seo-hubs'],
     queryFn: async () => {
-      const { count, error } = await supabase
+      const { data, error } = await supabase
         .from('seo_hubs')
-        .select('*', { count: 'exact', head: true });
+        .select(`
+          *,
+          spoke_count:seo_spokes(count)
+        `)
+        .order('created_at', { ascending: false });
+
       if (error) throw error;
-      return count || 0;
+      return data as SeoHub[];
     },
   });
 
-  const { data: spokesCount } = useQuery({
-    queryKey: ['admin', 'seo-spokes-count'],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from('seo_spokes')
-        .select('*', { count: 'exact', head: true });
-      if (error) throw error;
-      return count || 0;
-    },
-  });
+  // Filter and search hubs
+  const filteredHubs = useMemo(() => {
+    if (!hubs) return [];
 
-  const { data: publishedHubs } = useQuery({
-    queryKey: ['admin', 'seo-hubs-published'],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from('seo_hubs')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'published');
-      if (error) throw error;
-      return count || 0;
-    },
-  });
+    let filtered = hubs;
 
-  const { data: publishedSpokes } = useQuery({
-    queryKey: ['admin', 'seo-spokes-published'],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from('seo_spokes')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'published');
-      if (error) throw error;
-      return count || 0;
+    // Status filter
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter((hub) => hub.status === statusFilter);
+    }
+
+    // Search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (hub) =>
+          hub.title.toLowerCase().includes(query) ||
+          hub.slug.toLowerCase().includes(query) ||
+          hub.description?.toLowerCase().includes(query)
+      );
+    }
+
+    return filtered;
+  }, [hubs, statusFilter, searchQuery]);
+
+  // Statistics
+  const stats = useMemo(() => {
+    if (!hubs) return { total: 0, published: 0, draft: 0, archived: 0 };
+
+    return {
+      total: hubs.length,
+      published: hubs.filter((h) => h.status === 'published').length,
+      draft: hubs.filter((h) => h.status === 'draft').length,
+      archived: hubs.filter((h) => h.status === 'archived').length,
+    };
+  }, [hubs]);
+
+  // Table columns
+  const columns = [
+    {
+      key: 'title',
+      label: 'Title',
+      sortable: true,
+      render: (hub: SeoHub) => (
+        <div className="flex flex-col">
+          <span className="font-medium text-gray-900">{hub.title}</span>
+          <span className="text-sm text-gray-500">/{hub.slug}</span>
+        </div>
+      ),
     },
-  });
+    {
+      key: 'status',
+      label: 'Status',
+      sortable: true,
+      render: (hub: SeoHub) => (
+        <span
+          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            hub.status === 'published'
+              ? 'bg-green-100 text-green-800'
+              : hub.status === 'draft'
+              ? 'bg-yellow-100 text-yellow-800'
+              : 'bg-gray-100 text-gray-800'
+          }`}
+        >
+          {hub.status.charAt(0).toUpperCase() + hub.status.slice(1)}
+        </span>
+      ),
+    },
+    {
+      key: 'spoke_count',
+      label: 'Spokes',
+      sortable: true,
+      render: (hub: SeoHub) => <span className="text-gray-900">{hub.spoke_count || 0}</span>,
+    },
+    {
+      key: 'created_at',
+      label: 'Created',
+      sortable: true,
+      render: (hub: SeoHub) => (
+        <span className="text-sm text-gray-500">
+          {new Date(hub.created_at).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          })}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      render: (hub: SeoHub) => (
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" title="View">
+            <Eye className="h-4 w-4" />
+          </Button>
+          {canUpdate && (
+            <Button variant="ghost" size="sm" title="Edit">
+              <Edit2 className="h-4 w-4" />
+            </Button>
+          )}
+          {canDelete && (
+            <Button variant="ghost" size="sm" title="Delete">
+              <Trash2 className="h-4 w-4 text-red-600" />
+            </Button>
+          )}
+        </div>
+      ),
+    },
+  ];
+
+  // Tabs configuration
+  const tabs = [
+    { id: 'all', label: 'All Hubs', count: stats.total, active: statusFilter === 'all' },
+    { id: 'published', label: 'Published', count: stats.published, active: statusFilter === 'published' },
+    { id: 'draft', label: 'Drafts', count: stats.draft, active: statusFilter === 'draft' },
+    { id: 'archived', label: 'Archived', count: stats.archived, active: statusFilter === 'archived' },
+  ];
 
   return (
     <HubPageLayout
       header={
         <HubHeader
-          title="SEO Management"
-          subtitle="Manage your hub-and-spoke content strategy for better search rankings"
+          title="SEO Hubs"
+          subtitle="Manage your hub-and-spoke SEO content strategy"
+          filters={
+            <div className={filterStyles.filtersContainer}>
+              <input
+                type="search"
+                placeholder="Search hubs by title, slug, or description..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={filterStyles.searchInput}
+              />
+            </div>
+          }
+          actions={
+            canCreate ? (
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Hub
+              </Button>
+            ) : undefined
+          }
+        />
+      }
+      tabs={
+        <HubTabs
+          tabs={tabs}
+          onTabChange={(tabId) => setStatusFilter(tabId as typeof statusFilter)}
         />
       }
       sidebar={
         <HubSidebar>
           <AdminStatsWidget
-            title="Content Overview"
+            title="SEO Hubs Overview"
             stats={[
-              { label: 'Total Hubs', value: hubsCount || 0 },
-              { label: 'Published Hubs', value: publishedHubs || 0 },
-              { label: 'Total Spokes', value: spokesCount || 0 },
-              { label: 'Published Spokes', value: publishedSpokes || 0 },
+              { label: 'Total Hubs', value: stats.total },
+              { label: 'Published', value: stats.published },
+              { label: 'Drafts', value: stats.draft },
+              { label: 'Archived', value: stats.archived },
             ]}
           />
           <AdminHelpWidget
-            title="SEO Strategy Help"
+            title="SEO Hubs Help"
             items={[
-              { question: 'What is Hub & Spoke SEO?', answer: 'A content strategy where hub pages cover broad topics and spoke pages dive deep into specific subtopics, all linked together.' },
-              { question: 'Why use this model?', answer: 'It creates a strong internal linking structure, improves topical authority, and helps search engines understand your content hierarchy.' },
-              { question: 'Best practices?', answer: 'Start with 3-5 hub topics, create 10-15 spokes per hub, ensure all spokes link back to their hub, and update content regularly.' },
+              { question: 'What are SEO Hubs?', answer: 'Hub pages are pillar content pages that serve as the main topic authority for a subject area.' },
+              { question: 'How do I create a hub?', answer: 'Click the "Create Hub" button to start. Fill in the title, description, and SEO metadata.' },
+              { question: 'Best practices?', answer: 'Keep titles under 60 characters, meta descriptions under 160 characters, and link to related spokes.' },
             ]}
           />
           <AdminTipWidget
             title="SEO Tips"
             tips={[
-              'Focus on one topic per hub',
-              'Keep hub content evergreen',
-              'Update old content regularly',
+              'Use keyword-rich titles',
+              'Internal link to spoke pages',
+              'Update content regularly',
               'Monitor performance metrics',
             ]}
           />
         </HubSidebar>
       }
     >
-
-      {/* Quick Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Hub Pages</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{hubsCount || 0}</p>
-            </div>
-            <FileText className="h-12 w-12 text-blue-500" />
-          </div>
-          <Link
-            href="/admin/seo/hubs"
-            className="text-sm text-blue-600 hover:underline mt-4 inline-block"
-          >
-            View all hubs →
-          </Link>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Spoke Pages</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{spokesCount || 0}</p>
-            </div>
-            <LinkIcon className="h-12 w-12 text-green-500" />
-          </div>
-          <Link
-            href="/admin/seo/spokes"
-            className="text-sm text-green-600 hover:underline mt-4 inline-block"
-          >
-            View all spokes →
-          </Link>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Citations</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">0</p>
-            </div>
-            <ExternalLink className="h-12 w-12 text-purple-500" />
-          </div>
-          <Link
-            href="/admin/seo/citations"
-            className="text-sm text-purple-600 hover:underline mt-4 inline-block"
-          >
-            View all citations →
-          </Link>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Performance</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">—</p>
-            </div>
-            <TrendingUp className="h-12 w-12 text-orange-500" />
-          </div>
-          <span className="text-sm text-gray-500 mt-4 inline-block">Coming soon</span>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="bg-white rounded-lg shadow p-6 mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {canCreate && (
-            <>
-              <Link href="/admin/seo/hubs?action=create">
-                <Button className="w-full">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Hub Page
-                </Button>
-              </Link>
-              <Link href="/admin/seo/spokes?action=create">
-                <Button variant="secondary" className="w-full">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Spoke Page
-                </Button>
-              </Link>
-              <Link href="/admin/seo/citations?action=create">
-                <Button variant="secondary" className="w-full">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Citation
-                </Button>
-              </Link>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Recent Activity */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-        <p className="text-gray-500 text-sm">No recent activity to display.</p>
-      </div>
+      {/* Table */}
+      <HubTable
+        columns={columns}
+        data={filteredHubs}
+        isLoading={isLoading}
+        emptyMessage="No SEO hubs found"
+        emptyDescription="Create your first hub to start building your SEO content strategy."
+      />
     </HubPageLayout>
   );
 }
