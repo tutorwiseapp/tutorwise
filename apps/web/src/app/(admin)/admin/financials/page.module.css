@@ -1,0 +1,156 @@
+/*
+ * Filename: src/app/(admin)/admin/financials/page.module.css
+ * Purpose: Styles for Admin Financials/Transactions page
+ * Created: 2025-12-23
+ * Pattern: Matches user financials page design
+ */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.loading,
+.error {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.error {
+  color: #dc2626;
+}
+
+.skeletonWidget {
+  height: 200px;
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s ease-in-out infinite;
+  border-radius: 0.5rem;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Transaction List */
+.transactionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0;
+}
+
+.transactionCard {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.transactionCard:hover {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  border-color: #d1d5db;
+}
+
+.transactionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.transactionDate {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.transactionStatus {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-clearing {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-available {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-paid_out {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-disputed {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.status-refunded {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.transactionBody {
+  margin-bottom: 0.75rem;
+}
+
+.transactionDescription {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+}
+
+.transactionMeta {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.transactionFooter {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f3f4f6;
+}
+
+.transactionAmount {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #059669;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .transactionCard {
+    padding: 1rem;
+  }
+
+  .transactionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .transactionAmount {
+    font-size: 1.125rem;
+  }
+}
