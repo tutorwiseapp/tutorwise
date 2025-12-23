@@ -1,0 +1,77 @@
+/*
+ * Filename: src/app/(admin)/admin/page.module.css
+ * Purpose: Styles for Admin Overview page
+ * Created: 2025-12-23
+ */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.overviewContent {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 2rem;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 1rem 0;
+}
+
+.subsectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 0.75rem 0;
+}
+
+.description {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #6b7280;
+  margin: 0 0 1.5rem 0;
+}
+
+.featureList {
+  list-style: none;
+  margin: 0 0 2rem 0;
+  padding: 0;
+}
+
+.featureList li {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #1f2937;
+  padding-left: 0;
+}
+
+.nextSteps {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .overviewContent {
+    padding: 1.5rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.25rem;
+  }
+
+  .subsectionTitle {
+    font-size: 1.125rem;
+  }
+}

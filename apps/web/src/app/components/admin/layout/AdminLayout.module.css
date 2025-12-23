@@ -1,0 +1,31 @@
+/*
+ * Filename: src/app/components/admin/layout/AdminLayout.module.css
+ * Purpose: Styles for AdminLayout wrapper
+ * Created: 2025-12-23
+ * Specification: Admin Dashboard Solution Design v2, Section 3.2
+ */
+
+.adminContainer {
+  display: flex;
+  min-height: calc(100vh - 64px); /* Subtract global header height */
+}
+
+.adminContent {
+  flex: 1;
+  margin-left: 240px; /* Match AdminSidebar width */
+  overflow-x: hidden;
+}
+
+/* Tablet: Adjust for narrower sidebar */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .adminContent {
+    margin-left: 200px;
+  }
+}
+
+/* Mobile: No margin when sidebar is hidden */
+@media (max-width: 768px) {
+  .adminContent {
+    margin-left: 0;
+  }
+}

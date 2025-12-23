@@ -77,6 +77,7 @@ export async function middleware(request: NextRequest) {
     '/wiselists',
     '/my-students',
     '/developer',
+    '/admin', // Admin dashboard requires authentication + admin role check
   ]
 
   // Define routes that should bypass onboarding check
@@ -178,8 +179,38 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL(`/login?redirect=${pathname}`, request.url))
     }
 
-    // For authenticated users, check onboarding status (except for onboarding routes)
-    if (!onboardingRoutes.some(route => pathname.startsWith(route))) {
+    // Admin dashboard access control
+    if (pathname.startsWith('/admin')) {
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('is_admin, admin_role')
+          .eq('id', user.id)
+          .single()
+
+        // Check if user has admin access
+        if (!profile?.is_admin) {
+          console.log(`Middleware: User ${user.id} attempted to access admin dashboard without admin privileges`)
+          // Redirect to dashboard with error message
+          return NextResponse.redirect(new URL('/dashboard?error=unauthorized', request.url))
+        }
+
+        // Update last admin access timestamp
+        await supabase
+          .from('profiles')
+          .update({ last_admin_access: new Date().toISOString() })
+          .eq('id', user.id)
+
+        console.log(`Middleware: Admin ${profile.admin_role} ${user.id} accessing ${pathname}`)
+      } catch (error) {
+        console.error('Middleware: Error checking admin access:', error)
+        // On error, deny access for security
+        return NextResponse.redirect(new URL('/dashboard?error=unauthorized', request.url))
+      }
+    }
+
+    // For authenticated users, check onboarding status (except for onboarding routes and admin routes)
+    if (!onboardingRoutes.some(route => pathname.startsWith(route)) && !pathname.startsWith('/admin')) {
       try {
         const { data: profile } = await supabase
           .from('profiles')
