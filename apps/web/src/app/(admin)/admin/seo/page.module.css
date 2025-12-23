@@ -50,10 +50,25 @@
   }
 }
 
+/* Header Actions */
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+}
+
+/* Mobile responsive - keep buttons on same row */
+@media (max-width: 640px) {
+  .headerActions {
+    gap: 0.5rem;
+  }
+}
+
 /* Widget Base Styles */
-.quickActionsWidget,
 .recentActivityWidget,
-.performanceWidget {
+.performanceWidget,
+.insightsWidget {
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
@@ -62,9 +77,9 @@
   transition: box-shadow 0.2s ease;
 }
 
-.quickActionsWidget:hover,
 .recentActivityWidget:hover,
-.performanceWidget:hover {
+.performanceWidget:hover,
+.insightsWidget:hover {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -75,17 +90,7 @@
   margin: 0 0 1rem 0;
 }
 
-/* Actions Grid */
-.actionsGrid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.actionButton {
-  width: 100%;
-}
-
+/* Button Icon */
 .buttonIcon {
   height: 1rem;
   width: 1rem;
