@@ -1,12 +1,14 @@
 /*
- * Script: seed_superadmins.sql
+ * Migration: 138_seed_superadmins.sql
  * Purpose: Grant initial superadmin access to founding team members
  * Created: 2025-12-23
  *
  * IMPORTANT: Run this AFTER migration 136_add_granular_rbac_permissions.sql
+ * Note: This is a data migration (seeding), not a schema migration
  *
  * Usage:
- *   psql <your-connection-string> -f tools/database/scripts/seed_superadmins.sql
+ *   psql <your-connection-string> -f apps/api/migrations/138_seed_superadmins.sql
+ *   OR: node apply-migration-138.mjs
  *
  * This script:
  * 1. Grants superadmin access to the 3 founding team email addresses

@@ -1,8 +1,38 @@
 # Database Migrations
 
-This directory contains database migrations and related scripts for the Tutorwise platform.
+This directory contains database migration scripts and related tools for the Tutorwise platform.
 
-## Migration Files
+## Important Notice
+
+**DEPRECATED**: This migration folder is no longer the primary location for migrations. All new migrations should be added to `apps/api/migrations/` with sequential numbering.
+
+**Current Status**:
+- **Primary migration folder**: `apps/api/migrations/` (migrations 001-137+)
+- **This folder** (`tools/database/`): Contains utility scripts, seed data, and archived migrations
+- **Seed scripts**: Located in `tools/database/scripts/`
+- **Archived migrations**: Located in `tools/database/migrations-archive/`
+
+## Folder Structure
+
+```
+tools/database/
+├── README.md                          # This file
+├── migrations-archive/                # Archived legacy migrations (reference only)
+│   ├── README.md                      # Archive documentation
+│   ├── 001_add_onboarding_system.sql
+│   ├── 092_migrate_group_members_to_profile_graph.sql
+│   ├── 093_drop_legacy_connections_table.sql
+│   ├── 094_create_help_support_snapshots.sql → apps/api/migrations/134_...
+│   ├── 095_add_admin_dashboard_support.sql → apps/api/migrations/135_...
+│   ├── 096_add_granular_rbac_permissions.sql → apps/api/migrations/136_...
+│   └── 097_add_updated_at_to_profiles.sql → apps/api/migrations/137_...
+├── scripts/
+│   ├── seed_superadmins.sql           # Seed initial superadmin users
+│   └── test-admin-setup.sh            # Test admin dashboard setup
+└── test_migration_compatibility.sql    # Migration validation tests
+```
+
+## Migration Files (Archived - Reference Only)
 
 ### Onboarding System (Migration 001)
 
@@ -35,44 +65,42 @@ This directory contains database migrations and related scripts for the Tutorwis
 
 ## How to Apply Migrations
 
-### Method 1: Supabase Dashboard (Recommended for Development)
+All migrations are now in `apps/api/migrations/` and should be applied using the apply-migration scripts in the project root.
 
-1. Go to your Supabase project dashboard
-2. Navigate to "SQL Editor"
-3. Copy and paste the contents of `001_add_onboarding_system.sql`
-4. Click "Run" to execute the migration
-5. Run `validate_onboarding_schema.sql` to verify everything worked
-
-### Method 2: Supabase CLI (Recommended for Production)
+### Recommended Method: Apply Scripts
 
 ```bash
-# If you haven't set up Supabase CLI yet
-npm install -g supabase
+# Set environment variables (from .env.local)
+export NEXT_PUBLIC_SUPABASE_URL="your-supabase-url"
+export SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
 
-# Initialize Supabase in your project (if not already done)
-supabase init
-
-# Link to your remote project
-supabase link --project-ref YOUR_PROJECT_REF
-
-# Apply the migration
-supabase db push
-
-# Or apply specific migration file
-psql -h YOUR_DB_HOST -p 5432 -U postgres -d postgres -f tools/database/migrations/001_add_onboarding_system.sql
+# Apply a specific migration
+node apply-migration-135.mjs
 ```
 
-### Method 3: Direct Database Connection
+### Alternative: Direct psql
 
 ```bash
-# Connect directly to your Supabase database
-psql "postgresql://postgres:[PASSWORD]@[HOST]:5432/postgres"
+# Using POSTGRES_URL_NON_POOLING from .env.local
+psql "$POSTGRES_URL_NON_POOLING" -f apps/api/migrations/135_add_admin_dashboard_support.sql
+```
 
-# Run the migration
-\i tools/database/migrations/001_add_onboarding_system.sql
+### For Admin Dashboard Setup
 
-# Validate the migration
-\i tools/database/migrations/validate_onboarding_schema.sql
+The admin dashboard requires migrations 135-137:
+
+```bash
+# 1. Basic admin support
+node apply-migration-135.mjs
+
+# 2. Granular RBAC permissions (31+ permissions seeded)
+node apply-migration-136.mjs
+
+# 3. Add updated_at field to profiles
+node apply-migration-137.mjs
+
+# 4. Seed initial superadmins
+psql "$POSTGRES_URL_NON_POOLING" -f tools/database/scripts/seed_superadmins.sql
 ```
 
 ## Validation
