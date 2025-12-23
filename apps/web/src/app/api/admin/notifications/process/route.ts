@@ -13,6 +13,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { generateAdminNotificationEmail } from '@/lib/admin-notifications';
 
 // Verify cron secret to prevent unauthorized access
 const CRON_SECRET = process.env.CRON_SECRET || 'your-secret-key-here';
@@ -54,12 +55,17 @@ export async function GET(request: NextRequest) {
     // Process each notification
     for (const notification of notifications) {
       try {
-        // Send email using your email service (Resend, SendGrid, etc.)
-        // For now, we'll just log it - you need to integrate with your email service
+        // Generate email content using templates
+        const { subject, html } = generateAdminNotificationEmail(
+          notification.notification_type,
+          notification.metadata
+        );
+
+        // Send email using Resend
         const emailSent = await sendEmail({
           to: notification.recipient_email,
-          subject: notification.subject,
-          body: notification.body,
+          subject,
+          body: html,
           metadata: notification.metadata,
         });
 
@@ -96,8 +102,7 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * Send email using your email service
- * TODO: Integrate with Resend, SendGrid, or your preferred email service
+ * Send email using Resend
  */
 async function sendEmail({
   to,
@@ -110,29 +115,27 @@ async function sendEmail({
   body: string;
   metadata: any;
 }): Promise<boolean> {
-  // PLACEHOLDER: Replace with actual email service integration
-  console.log('📧 Email would be sent:', { to, subject, body, metadata });
-
-  // Example with Resend:
-  /*
-  import { Resend } from 'resend';
-  const resend = new Resend(process.env.RESEND_API_KEY);
-
   try {
-    await resend.emails.send({
-      from: 'Tutorwise Admin <admin@tutorwise.io>',
+    const { sendEmail: sendResendEmail } = await import('@/lib/email');
+
+    await sendResendEmail({
       to,
       subject,
       html: body,
+      from: 'Tutorwise Admin <noreply@tutorwise.io>',
     });
+
+    console.log('✅ Email sent successfully:', { to, subject });
     return true;
   } catch (error) {
-    console.error('Email send error:', error);
+    console.error('❌ Email send error:', error);
+
+    // Log detailed error for debugging
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
+
     return false;
   }
-  */
-
-  // For now, just return true to mark as sent (development mode)
-  // In production, integrate with your email service above
-  return true;
 }
