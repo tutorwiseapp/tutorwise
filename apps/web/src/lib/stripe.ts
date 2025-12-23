@@ -15,16 +15,37 @@
  */
 import Stripe from 'stripe';
 
-// This check ensures your application will fail fast during development if the
-// crucial Stripe secret key is missing, preventing runtime errors later.
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('STRIPE_SECRET_KEY is not set in the environment variables.');
+// Lazy-loaded Stripe instance
+let stripeInstance: Stripe | null = null;
+
+/**
+ * Get Stripe client instance with lazy initialization
+ * Validates environment at runtime, not build time
+ */
+function getStripeClient(): Stripe {
+  if (stripeInstance) {
+    return stripeInstance;
+  }
+
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error('STRIPE_SECRET_KEY is not set in the environment variables.');
+  }
+
+  stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    // The explicit apiVersion is intentionally removed. The library will default to its
+    // pinned version, which is the most stable and recommended approach.
+    typescript: true,
+  });
+
+  return stripeInstance;
 }
 
 // Initialize the Stripe client for server-side operations.
 // This instance will be used by all your API routes that need to interact with Stripe.
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  // The explicit apiVersion is intentionally removed. The library will default to its
-  // pinned version, which is the most stable and recommended approach.
-  typescript: true,
+// Lazily initialized to avoid build-time errors when STRIPE_SECRET_KEY is not set.
+export const stripe = new Proxy({} as Stripe, {
+  get(target, prop) {
+    const client = getStripeClient();
+    return (client as any)[prop];
+  },
 });

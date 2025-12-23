@@ -19,6 +19,10 @@ import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 import styles from './page.module.css';
 
+// Force dynamic rendering (no SSR/SSG) for admin pages
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+
 type TabFilter = 'overview' | 'activity' | 'alerts';
 
 export default function AdminOverviewPage() {

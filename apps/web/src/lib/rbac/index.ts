@@ -19,7 +19,6 @@ export { ROLE_HIERARCHY } from './types';
 // Permission functions
 export {
   hasPermission,
-  hasPermissionServer,
   getUserPermissions,
   canManageRole,
   getAdminProfile,

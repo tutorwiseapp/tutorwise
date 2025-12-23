@@ -10,38 +10,54 @@
 
 import Stripe from 'stripe';
 
-// Environment validation - fail fast if misconfigured
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error(
-    'STRIPE_SECRET_KEY is not set in environment variables. ' +
-    'Payment processing cannot function without this critical configuration.'
-  );
+// Lazy-loaded Stripe instance
+let stripeInstance: Stripe | null = null;
+
+/**
+ * Get Stripe client instance with lazy initialization
+ * Validates environment at runtime, not build time
+ */
+function getStripeClient(): Stripe {
+  if (stripeInstance) {
+    return stripeInstance;
+  }
+
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error(
+      'STRIPE_SECRET_KEY is not set in environment variables. ' +
+      'Payment processing cannot function without this critical configuration.'
+    );
+  }
+
+  stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    // Use library default API version for maximum stability
+    // This prevents version mismatch issues across different modules
+    typescript: true,
+
+    // Stripe Connect operations can take longer
+    timeout: 80000, // 80 seconds
+
+    // Automatic retry with exponential backoff
+    maxNetworkRetries: 2,
+
+    // Application info for Stripe dashboard analytics
+    appInfo: {
+      name: 'Tutorwise',
+      version: '1.0.0',
+    },
+  });
+
+  return stripeInstance;
 }
 
 /**
  * Centralized Stripe client instance
- *
- * Configuration decisions:
- * 1. API Version: Using library default (most stable, recommended by Stripe)
- * 2. TypeScript: Enabled for type safety
- * 3. Timeout: 80 seconds (Stripe recommended for Connect operations)
- * 4. Max retries: 2 (balance between reliability and performance)
+ * Lazily initialized to avoid build-time errors
  */
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  // Use library default API version for maximum stability
-  // This prevents version mismatch issues across different modules
-  typescript: true,
-
-  // Stripe Connect operations can take longer
-  timeout: 80000, // 80 seconds
-
-  // Automatic retry with exponential backoff
-  maxNetworkRetries: 2,
-
-  // Application info for Stripe dashboard analytics
-  appInfo: {
-    name: 'Tutorwise',
-    version: '1.0.0',
+export const stripe = new Proxy({} as Stripe, {
+  get(target, prop) {
+    const client = getStripeClient();
+    return (client as any)[prop];
   },
 });
 

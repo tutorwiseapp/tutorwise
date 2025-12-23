@@ -5,7 +5,6 @@
  */
 
 import { createClient as createBrowserClient } from '@/utils/supabase/client';
-import { createClient } from '@/utils/supabase/server';
 import type { AdminRole, AdminResource, AdminAction, AdminProfile } from './types';
 import { ROLE_HIERARCHY } from './types';
 
@@ -17,41 +16,6 @@ export async function hasPermission(
   action: AdminAction
 ): Promise<boolean> {
   const supabase = createBrowserClient();
-
-  try {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) return false;
-
-    // Call database function to check permission
-    const { data, error } = await supabase.rpc('has_admin_permission', {
-      p_user_id: user.id,
-      p_resource: resource,
-      p_action: action,
-    });
-
-    if (error) {
-      console.error('Permission check error:', error);
-      return false;
-    }
-
-    return data === true;
-  } catch (error) {
-    console.error('Permission check failed:', error);
-    return false;
-  }
-}
-
-/**
- * Check if user has a specific permission (server-side)
- */
-export async function hasPermissionServer(
-  resource: AdminResource,
-  action: AdminAction
-): Promise<boolean> {
-  const supabase = await createClient();
 
   try {
     const {

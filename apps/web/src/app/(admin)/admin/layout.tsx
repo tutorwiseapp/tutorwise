@@ -6,7 +6,7 @@
  */
 'use client';
 
-import React, { ReactNode } from 'react';
+import React, { ReactNode, Suspense } from 'react';
 import AdminLayout from '@/app/components/admin/layout/AdminLayout';
 
 interface AdminRouteLayoutProps {
@@ -18,7 +18,13 @@ interface AdminRouteLayoutProps {
  *
  * This layout wraps all /admin/* pages with AdminLayout (provides AdminSidebar + content area)
  * It's applied automatically to all routes under /admin/*
+ *
+ * Suspense boundary is required for useSearchParams() and other dynamic features
  */
 export default function AdminRouteLayout({ children }: AdminRouteLayoutProps) {
-  return <AdminLayout>{children}</AdminLayout>;
+  return (
+    <AdminLayout>
+      <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+    </AdminLayout>
+  );
 }

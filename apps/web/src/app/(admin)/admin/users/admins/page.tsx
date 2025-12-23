@@ -26,6 +26,10 @@ import ChangeRoleModal from '@/app/components/admin/modals/ChangeRoleModal';
 import styles from './page.module.css';
 import toast from 'react-hot-toast';
 
+// Force dynamic rendering (no SSR/SSG) for admin pages
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+
 type RoleFilter = 'all' | 'superadmin' | 'admin' | 'systemadmin' | 'supportadmin';
 type SortType = 'newest' | 'oldest' | 'role-high' | 'role-low' | 'email-asc';
 
