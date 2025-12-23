@@ -17,6 +17,7 @@ import Button from '@/app/components/ui/actions/Button';
 import { FileText, Link as LinkIcon, ExternalLink, TrendingUp, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { usePermission } from '@/lib/rbac';
+import styles from './page.module.css';
 
 // Force dynamic rendering (no SSR/SSG) for admin pages
 export const dynamic = 'force-dynamic';
@@ -114,88 +115,79 @@ export default function AdminSeoOverviewPage() {
     >
 
       {/* Quick Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Hub Pages</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{hubsCount || 0}</p>
+      <div className={styles.statsGrid}>
+        <div className={styles.statCard}>
+          <div className={styles.statCardHeader}>
+            <div className={styles.statCardContent}>
+              <p className={styles.statCardLabel}>Hub Pages</p>
+              <p className={styles.statCardValue}>{hubsCount || 0}</p>
             </div>
-            <FileText className="h-12 w-12 text-blue-500" />
+            <FileText className={`${styles.statCardIcon} ${styles.iconBlue}`} />
           </div>
-          <Link
-            href="/admin/seo/hubs"
-            className="text-sm text-blue-600 hover:underline mt-4 inline-block"
-          >
+          <Link href="/admin/seo/hubs" className={`${styles.statCardLink} ${styles.linkBlue}`}>
             View all hubs →
           </Link>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Spoke Pages</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{spokesCount || 0}</p>
+        <div className={styles.statCard}>
+          <div className={styles.statCardHeader}>
+            <div className={styles.statCardContent}>
+              <p className={styles.statCardLabel}>Spoke Pages</p>
+              <p className={styles.statCardValue}>{spokesCount || 0}</p>
             </div>
-            <LinkIcon className="h-12 w-12 text-green-500" />
+            <LinkIcon className={`${styles.statCardIcon} ${styles.iconGreen}`} />
           </div>
-          <Link
-            href="/admin/seo/spokes"
-            className="text-sm text-green-600 hover:underline mt-4 inline-block"
-          >
+          <Link href="/admin/seo/spokes" className={`${styles.statCardLink} ${styles.linkGreen}`}>
             View all spokes →
           </Link>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Citations</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">0</p>
+        <div className={styles.statCard}>
+          <div className={styles.statCardHeader}>
+            <div className={styles.statCardContent}>
+              <p className={styles.statCardLabel}>Citations</p>
+              <p className={styles.statCardValue}>0</p>
             </div>
-            <ExternalLink className="h-12 w-12 text-purple-500" />
+            <ExternalLink className={`${styles.statCardIcon} ${styles.iconPurple}`} />
           </div>
-          <Link
-            href="/admin/seo/citations"
-            className="text-sm text-purple-600 hover:underline mt-4 inline-block"
-          >
+          <Link href="/admin/seo/citations" className={`${styles.statCardLink} ${styles.linkPurple}`}>
             View all citations →
           </Link>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Performance</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">—</p>
+        <div className={styles.statCard}>
+          <div className={styles.statCardHeader}>
+            <div className={styles.statCardContent}>
+              <p className={styles.statCardLabel}>Performance</p>
+              <p className={styles.statCardValue}>—</p>
             </div>
-            <TrendingUp className="h-12 w-12 text-orange-500" />
+            <TrendingUp className={`${styles.statCardIcon} ${styles.iconOrange}`} />
           </div>
-          <span className="text-sm text-gray-500 mt-4 inline-block">Coming soon</span>
+          <span className={`${styles.statCardLink} ${styles.linkGray}`}>Coming soon</span>
         </div>
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-lg shadow p-6 mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className={styles.quickActionsSection}>
+        <h3 className={styles.sectionTitle}>Quick Actions</h3>
+        <div className={styles.actionsGrid}>
           {canCreate && (
             <>
               <Link href="/admin/seo/hubs?action=create">
-                <Button className="w-full">
-                  <Plus className="h-4 w-4 mr-2" />
+                <Button className={styles.actionButton}>
+                  <Plus className={styles.buttonIcon} />
                   Create Hub Page
                 </Button>
               </Link>
               <Link href="/admin/seo/spokes?action=create">
-                <Button variant="secondary" className="w-full">
-                  <Plus className="h-4 w-4 mr-2" />
+                <Button variant="secondary" className={styles.actionButton}>
+                  <Plus className={styles.buttonIcon} />
                   Create Spoke Page
                 </Button>
               </Link>
               <Link href="/admin/seo/citations?action=create">
-                <Button variant="secondary" className="w-full">
-                  <Plus className="h-4 w-4 mr-2" />
+                <Button variant="secondary" className={styles.actionButton}>
+                  <Plus className={styles.buttonIcon} />
                   Add Citation
                 </Button>
               </Link>
@@ -205,9 +197,9 @@ export default function AdminSeoOverviewPage() {
       </div>
 
       {/* Recent Activity */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-        <p className="text-gray-500 text-sm">No recent activity to display.</p>
+      <div className={styles.recentActivitySection}>
+        <h3 className={styles.sectionTitle}>Recent Activity</h3>
+        <p className={styles.emptyMessage}>No recent activity to display.</p>
       </div>
     </HubPageLayout>
   );
