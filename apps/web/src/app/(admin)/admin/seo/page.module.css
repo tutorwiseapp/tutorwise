@@ -2,17 +2,58 @@
  * Filename: src/app/(admin)/admin/seo/page.module.css
  * Purpose: Styles for SEO Management overview page
  * Created: 2025-12-23
+ * Pattern: Follows Dashboard hub layout pattern (charts + actionable widgets)
  */
 
-/* Stats Cards Grid */
-.statsGrid {
+/* Charts Section - Following Dashboard Pattern */
+.chartsSection {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
 }
 
-.statCard {
+/* Tablet: 2 column layout for charts */
+@media (min-width: 768px) {
+  .chartsSection {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Desktop: Full width for each chart */
+@media (min-width: 1024px) {
+  .chartsSection {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Actionable Widgets Section - Following Dashboard Pattern */
+.actionableWidgets {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+  margin-bottom: 3rem;
+}
+
+/* Tablet: 2 column layout for actionable widgets */
+@media (min-width: 768px) {
+  .actionableWidgets {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Desktop: 3 column layout for actionable widgets */
+@media (min-width: 1024px) {
+  .actionableWidgets {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Widget Base Styles */
+.quickActionsWidget,
+.recentActivityWidget,
+.performanceWidget {
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
@@ -21,107 +62,24 @@
   transition: box-shadow 0.2s ease;
 }
 
-.statCard:hover {
+.quickActionsWidget:hover,
+.recentActivityWidget:hover,
+.performanceWidget:hover {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.statCardHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-}
-
-.statCardContent {
-  flex: 1;
-}
-
-.statCardLabel {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #6b7280;
-  margin: 0 0 0.5rem 0;
-}
-
-.statCardValue {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0 0 0.25rem 0;
-}
-
-.statCardIcon {
-  width: 3rem;
-  height: 3rem;
-  flex-shrink: 0;
-}
-
-.iconBlue {
-  color: #3b82f6;
-}
-
-.iconGreen {
-  color: #10b981;
-}
-
-.iconPurple {
-  color: #a855f7;
-}
-
-.iconOrange {
-  color: #f97316;
-}
-
-.statCardLink {
-  display: inline-block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  margin-top: 0.5rem;
-  transition: opacity 0.2s ease;
-}
-
-.statCardLink:hover {
-  opacity: 0.8;
-  text-decoration: underline;
-}
-
-.linkBlue {
-  color: #2563eb;
-}
-
-.linkGreen {
-  color: #059669;
-}
-
-.linkPurple {
-  color: #9333ea;
-}
-
-.linkGray {
-  color: #6b7280;
-}
-
-/* Quick Actions Section */
-.quickActionsSection {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.sectionTitle {
+.widgetTitle {
   font-size: 1.125rem;
   font-weight: 600;
   color: #1f2937;
   margin: 0 0 1rem 0;
 }
 
+/* Actions Grid */
 .actionsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .actionButton {
@@ -134,33 +92,11 @@
   margin-right: 0.5rem;
 }
 
-/* Recent Activity Section */
-.recentActivitySection {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
+/* Empty State Message */
 .emptyMessage {
   font-size: 0.875rem;
   color: #6b7280;
   margin: 0;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .statsGrid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .actionsGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .statCardValue {
-    font-size: 1.75rem;
-  }
+  padding: 1rem 0;
+  text-align: center;
 }

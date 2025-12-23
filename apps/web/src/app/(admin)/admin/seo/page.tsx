@@ -17,6 +17,7 @@ import Button from '@/app/components/ui/actions/Button';
 import { FileText, Link as LinkIcon, ExternalLink, TrendingUp, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { usePermission } from '@/lib/rbac';
+import { HubKPIGrid, HubKPICard } from '@/app/components/hub/charts';
 import styles from './page.module.css';
 
 // Force dynamic rendering (no SSR/SSG) for admin pages
@@ -114,75 +115,58 @@ export default function AdminSeoOverviewPage() {
       }
     >
 
-      {/* Quick Stats Cards */}
-      <div className={styles.statsGrid}>
-        <div className={styles.statCard}>
-          <div className={styles.statCardHeader}>
-            <div className={styles.statCardContent}>
-              <p className={styles.statCardLabel}>Hub Pages</p>
-              <p className={styles.statCardValue}>{hubsCount || 0}</p>
-            </div>
-            <FileText className={`${styles.statCardIcon} ${styles.iconBlue}`} />
-          </div>
-          <Link href="/admin/seo/hubs" className={`${styles.statCardLink} ${styles.linkBlue}`}>
-            View all hubs →
-          </Link>
-        </div>
+      {/* KPI Cards - Hub Pattern */}
+      <HubKPIGrid>
+        <HubKPICard
+          label="Hub Pages"
+          value={hubsCount || 0}
+          icon={FileText}
+          variant="info"
+          clickable
+          href="/admin/seo/hubs"
+        />
+        <HubKPICard
+          label="Spoke Pages"
+          value={spokesCount || 0}
+          icon={LinkIcon}
+          variant="success"
+          clickable
+          href="/admin/seo/spokes"
+        />
+        <HubKPICard
+          label="Citations"
+          value={0}
+          icon={ExternalLink}
+          variant="warning"
+          clickable
+          href="/admin/seo/citations"
+        />
+        <HubKPICard
+          label="Performance"
+          value="—"
+          sublabel="Coming soon"
+          icon={TrendingUp}
+          variant="neutral"
+        />
+      </HubKPIGrid>
 
-        <div className={styles.statCard}>
-          <div className={styles.statCardHeader}>
-            <div className={styles.statCardContent}>
-              <p className={styles.statCardLabel}>Spoke Pages</p>
-              <p className={styles.statCardValue}>{spokesCount || 0}</p>
-            </div>
-            <LinkIcon className={`${styles.statCardIcon} ${styles.iconGreen}`} />
-          </div>
-          <Link href="/admin/seo/spokes" className={`${styles.statCardLink} ${styles.linkGreen}`}>
-            View all spokes →
-          </Link>
-        </div>
-
-        <div className={styles.statCard}>
-          <div className={styles.statCardHeader}>
-            <div className={styles.statCardContent}>
-              <p className={styles.statCardLabel}>Citations</p>
-              <p className={styles.statCardValue}>0</p>
-            </div>
-            <ExternalLink className={`${styles.statCardIcon} ${styles.iconPurple}`} />
-          </div>
-          <Link href="/admin/seo/citations" className={`${styles.statCardLink} ${styles.linkPurple}`}>
-            View all citations →
-          </Link>
-        </div>
-
-        <div className={styles.statCard}>
-          <div className={styles.statCardHeader}>
-            <div className={styles.statCardContent}>
-              <p className={styles.statCardLabel}>Performance</p>
-              <p className={styles.statCardValue}>—</p>
-            </div>
-            <TrendingUp className={`${styles.statCardIcon} ${styles.iconOrange}`} />
-          </div>
-          <span className={`${styles.statCardLink} ${styles.linkGray}`}>Coming soon</span>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className={styles.quickActionsSection}>
-        <h3 className={styles.sectionTitle}>Quick Actions</h3>
-        <div className={styles.actionsGrid}>
-          {canCreate && (
-            <>
+      {/* Actionable Widgets Section - Following Dashboard Pattern */}
+      <div className={styles.actionableWidgets}>
+        {/* Quick Actions Widget */}
+        {canCreate && (
+          <div className={styles.quickActionsWidget}>
+            <h3 className={styles.widgetTitle}>Quick Actions</h3>
+            <div className={styles.actionsGrid}>
               <Link href="/admin/seo/hubs?action=create">
                 <Button className={styles.actionButton}>
                   <Plus className={styles.buttonIcon} />
-                  Create Hub Page
+                  Create Hub
                 </Button>
               </Link>
               <Link href="/admin/seo/spokes?action=create">
                 <Button variant="secondary" className={styles.actionButton}>
                   <Plus className={styles.buttonIcon} />
-                  Create Spoke Page
+                  Create Spoke
                 </Button>
               </Link>
               <Link href="/admin/seo/citations?action=create">
@@ -191,15 +175,21 @@ export default function AdminSeoOverviewPage() {
                   Add Citation
                 </Button>
               </Link>
-            </>
-          )}
-        </div>
-      </div>
+            </div>
+          </div>
+        )}
 
-      {/* Recent Activity */}
-      <div className={styles.recentActivitySection}>
-        <h3 className={styles.sectionTitle}>Recent Activity</h3>
-        <p className={styles.emptyMessage}>No recent activity to display.</p>
+        {/* Recent Activity Widget */}
+        <div className={styles.recentActivityWidget}>
+          <h3 className={styles.widgetTitle}>Recent Activity</h3>
+          <p className={styles.emptyMessage}>No recent SEO activity to display.</p>
+        </div>
+
+        {/* SEO Performance Widget (Placeholder) */}
+        <div className={styles.performanceWidget}>
+          <h3 className={styles.widgetTitle}>SEO Performance</h3>
+          <p className={styles.emptyMessage}>Performance metrics coming soon.</p>
+        </div>
       </div>
     </HubPageLayout>
   );
