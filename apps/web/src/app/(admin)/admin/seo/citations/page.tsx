@@ -49,40 +49,26 @@ export default function AdminSeoCitationsPage() {
   const canUpdate = usePermission('seo', 'update');
   const canDelete = usePermission('seo', 'delete');
 
-  // Mock data for now (replace with actual query when table exists)
+  // Fetch citations from database (returns empty if table doesn't exist yet)
   const { data: citations, isLoading } = useQuery({
     queryKey: ['admin', 'seo-citations'],
     queryFn: async () => {
-      // TODO: Replace with actual database query when seo_citations table exists
-      const mockData: SeoCitation[] = [
-        {
-          id: '1',
-          source_url: 'https://example.com/article',
-          source_domain: 'example.com',
-          target_url: 'https://tutorwise.io/tutors',
-          anchor_text: 'find tutors online',
-          citation_type: 'backlink',
-          status: 'active',
-          domain_authority: 65,
-          discovered_at: new Date().toISOString(),
-          last_checked_at: new Date().toISOString(),
-          notes: 'High-quality educational blog',
-        },
-        {
-          id: '2',
-          source_url: 'https://techcrunch.com/mention',
-          source_domain: 'techcrunch.com',
-          target_url: 'https://tutorwise.io',
-          anchor_text: 'TutorWise',
-          citation_type: 'mention',
-          status: 'active',
-          domain_authority: 92,
-          discovered_at: new Date(Date.now() - 86400000).toISOString(),
-          last_checked_at: new Date().toISOString(),
-          notes: 'Media coverage',
-        },
-      ];
-      return mockData;
+      try {
+        const { data, error } = await supabase
+          .from('seo_citations')
+          .select('*')
+          .order('discovered_at', { ascending: false });
+
+        if (error) {
+          // If table doesn't exist, return empty array instead of throwing
+          console.warn('seo_citations table may not exist yet:', error.message);
+          return [] as SeoCitation[];
+        }
+        return (data as SeoCitation[]) || [];
+      } catch (err) {
+        console.error('Error fetching citations:', err);
+        return [] as SeoCitation[];
+      }
     },
   });
 

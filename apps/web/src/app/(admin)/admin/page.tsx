@@ -57,11 +57,7 @@ export default function AdminOverviewPage() {
       header={
         <HubHeader
           title="Admin Dashboard"
-          filters={
-            <div className={filterStyles.filtersContainer}>
-              <span className={filterStyles.subtitle}>Platform Overview & Management</span>
-            </div>
-          }
+          subtitle="Platform Overview & Management"
           actions={
             <>
               <Button variant="primary" size="sm" onClick={() => router.push('/admin/settings')}>

@@ -82,6 +82,29 @@
   font-weight: 400;
 }
 
+/* Role Indicator */
+.roleIndicator {
+  padding: 1rem;
+  border-top: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.roleLabel {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+.roleBadge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--color-primary-light, #E6F0F0);
+  color: var(--color-primary-default, #006c67);
+  border-radius: 0.375rem;
+  font-weight: 600;
+  margin-left: 0.25rem;
+}
+
 /* Mobile: Hide sidebar by default, show as overlay when triggered */
 @media (max-width: 768px) {
   .adminSidebar {

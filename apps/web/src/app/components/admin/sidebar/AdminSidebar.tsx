@@ -10,6 +10,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAdminProfile } from '@/lib/rbac';
 import styles from './AdminSidebar.module.css';
 
 interface NavItem {
@@ -21,6 +22,7 @@ interface NavItem {
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const { profile } = useAdminProfile();
 
   // Admin navigation menu (NO ICONS - text only, following AppSidebar pattern)
   const navItems: NavItem[] = [
@@ -110,6 +112,21 @@ export default function AdminSidebar() {
           ))}
         </ul>
       </nav>
+
+      {/* Admin role indicator at bottom */}
+      {profile && profile.admin_role && (
+        <div className={styles.roleIndicator}>
+          <div className={styles.roleLabel}>
+            Admin Role:{' '}
+            <span className={styles.roleBadge}>
+              {profile.admin_role === 'superadmin' && 'Superadmin'}
+              {profile.admin_role === 'admin' && 'Admin'}
+              {profile.admin_role === 'systemadmin' && 'System Admin'}
+              {profile.admin_role === 'supportadmin' && 'Support Admin'}
+            </span>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }
