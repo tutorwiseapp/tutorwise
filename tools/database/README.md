@@ -1,22 +1,19 @@
 # Database Migrations
 
-This directory contains database migration scripts and related tools for the Tutorwise platform.
+This directory contains all database migrations, scripts, and related tools for the Tutorwise platform.
 
-## Important Notice
+## Current Status
 
-**DEPRECATED**: This migration folder is no longer the primary location for migrations. All new migrations should be added to `apps/api/migrations/` with sequential numbering.
-
-**Current Status**:
-- **Primary migration folder**: `apps/api/migrations/` (migrations 001-139+)
-- **Migration scripts**: `apps/api/scripts/` (seed, test, etc.)
-- **This folder** (`tools/database/`): Contains misc database utilities and archived migrations
-- **Archived migrations**: `tools/database/migrations-archive/` (reference only)
+- **Primary migration folder**: `tools/database/migrations/` (migrations 001-139+)
+- **Migration scripts**: `tools/database/scripts/` (seed, test, setup scripts)
+- **Archived migrations**: `tools/database/migrations-archive/` (legacy reference only)
 
 ## Folder Structure
 
 ```
-apps/api/
-├── migrations/
+tools/database/
+├── README.md                          # This file
+├── migrations/                        # All active migrations (001-139+)
 │   ├── 001-133_*.sql                  # Existing migrations
 │   ├── 134_create_help_support_snapshots.sql
 │   ├── 135_add_admin_dashboard_support.sql
@@ -24,21 +21,18 @@ apps/api/
 │   ├── 137_add_updated_at_to_profiles.sql
 │   ├── 138_seed_superadmins.sql
 │   └── 139_add_comprehensive_onboarding_system.sql
-└── scripts/
-    ├── seed_superadmins.sql           # Seed initial superadmin users
-    └── test-admin-setup.sh            # Test admin dashboard setup
-
-tools/database/
-├── README.md                          # This file
-├── migrations-archive/                # Archived legacy migrations (reference only)
+├── scripts/                           # Database utility scripts
+│   ├── seed_superadmins.sql           # Seed initial superadmin users
+│   └── test-admin-setup.sh            # Quick admin dashboard setup
+├── migrations-archive/                # Legacy migrations (reference only)
 │   ├── README.md                      # Archive documentation
-│   ├── 001_add_onboarding_system.sql → migrated to apps/api/migrations/139_...
+│   ├── 001_add_onboarding_system.sql → migrated to migrations/139_...
 │   ├── 092_migrate_group_members_to_profile_graph.sql
 │   ├── 093_drop_legacy_connections_table.sql
-│   ├── 094_create_help_support_snapshots.sql → apps/api/migrations/134_...
-│   ├── 095_add_admin_dashboard_support.sql → apps/api/migrations/135_...
-│   ├── 096_add_granular_rbac_permissions.sql → apps/api/migrations/136_...
-│   └── 097_add_updated_at_to_profiles.sql → apps/api/migrations/137_...
+│   ├── 094_create_help_support_snapshots.sql → migrations/134_...
+│   ├── 095_add_admin_dashboard_support.sql → migrations/135_...
+│   ├── 096_add_granular_rbac_permissions.sql → migrations/136_...
+│   └── 097_add_updated_at_to_profiles.sql → migrations/137_...
 └── test_migration_compatibility.sql   # Migration validation tests
 ```
 
@@ -75,7 +69,7 @@ tools/database/
 
 ## How to Apply Migrations
 
-All migrations are now in `apps/api/migrations/` and should be applied using the apply-migration scripts in the project root.
+All migrations are in `tools/database/migrations/` and can be applied using apply-migration scripts (project root) or direct psql.
 
 ### Recommended Method: Apply Scripts
 
@@ -84,7 +78,7 @@ All migrations are now in `apps/api/migrations/` and should be applied using the
 export NEXT_PUBLIC_SUPABASE_URL="your-supabase-url"
 export SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
 
-# Apply a specific migration
+# Apply a specific migration (from project root)
 node apply-migration-135.mjs
 ```
 
@@ -92,7 +86,7 @@ node apply-migration-135.mjs
 
 ```bash
 # Using POSTGRES_URL_NON_POOLING from .env.local
-psql "$POSTGRES_URL_NON_POOLING" -f apps/api/migrations/135_add_admin_dashboard_support.sql
+psql "$POSTGRES_URL_NON_POOLING" -f tools/database/migrations/135_add_admin_dashboard_support.sql
 ```
 
 ### For Admin Dashboard Setup
@@ -107,7 +101,7 @@ node apply-migration-137.mjs  # Add updated_at to profiles
 node apply-migration-138.mjs  # Seed superadmins
 
 # Method 2: Using the test setup script
-cd apps/api/scripts
+cd tools/database/scripts
 export DATABASE_URL="postgresql://..."
 ./test-admin-setup.sh
 ```

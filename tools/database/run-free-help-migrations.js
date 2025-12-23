@@ -34,7 +34,7 @@ async function runMigration(filename) {
   console.log(`Running: ${filename}`);
   console.log(`-----------------------------------`);
 
-  const migrationsDir = path.join(__dirname, '../../apps/api/migrations');
+  const migrationsDir = path.join(__dirname, '../../tools/database/migrations');
   const filePath = path.join(migrationsDir, filename);
 
   if (!fs.existsSync(filePath)) {

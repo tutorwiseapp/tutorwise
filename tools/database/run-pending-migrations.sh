@@ -4,7 +4,7 @@
 # Migration Runner Script for v4.6 + v5.0
 # Purpose: Runs pending migrations 061-064 to fix profile_graph error
 # Created: 2025-11-13
-# Updated: 2025-11-13 - Updated paths to apps/api/migrations
+# Updated: 2025-11-13 - Updated paths to tools/database/migrations
 # ===================================================================
 
 set -e  # Exit on error
@@ -24,7 +24,7 @@ fi
 # Base directory
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$SCRIPT_DIR/../.."
-MIGRATIONS_DIR="$PROJECT_ROOT/apps/api/migrations"
+MIGRATIONS_DIR="$PROJECT_ROOT/tools/database/migrations"
 
 echo "Migration directory: $MIGRATIONS_DIR"
 echo "Database: $POSTGRES_URL_NON_POOLING"
