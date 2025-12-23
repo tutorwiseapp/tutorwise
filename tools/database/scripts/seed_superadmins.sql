@@ -26,8 +26,7 @@ SET
   admin_role_level = 4,
   admin_permissions = '{"all": true}'::jsonb,
   admin_granted_at = NOW(),
-  admin_granted_by = id,  -- Self-granted for initial superadmins
-  updated_at = NOW()
+  admin_granted_by = id  -- Self-granted for initial superadmins
 WHERE email IN (
   'michaelquan@tutorwise.io',
   'micquan@gmail.com',
