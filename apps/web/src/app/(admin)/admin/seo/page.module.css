@@ -5,6 +5,45 @@
  * Pattern: Follows Dashboard hub layout pattern (charts + actionable widgets)
  */
 
+/*
+ * SEO Management Header - Following Dashboard pattern
+ * Customizes HubHeader spacing using CSS variables
+ */
+.seoHeader {
+  /* Spacing */
+  --hub-header-margin-top: 1.5rem;  /* Extra spacing from global header */
+  --hub-header-margin-bottom: 0;     /* No margin below header (tabs control the gap) */
+
+  /* Layout */
+  --hub-header-height: 3rem;
+  --hub-header-padding-x: 1rem;
+
+  /* Actions (CTA buttons) */
+  --hub-header-actions-gap: 0.5rem;
+  --hub-header-actions-margin-left: 1rem;
+}
+
+/* Mobile: Smaller header spacing */
+@media (max-width: 767px) {
+  .seoHeader {
+    --hub-header-margin-top: 0rem;  /* Mobile smaller spacing from global header */
+  }
+}
+
+/*
+ * SEO Management Tabs - Customized spacing between header and tabs
+ */
+.seoTabs {
+  --hub-tabs-margin-top: 3rem;  /* Desktop: 3rem spacing (default) */
+}
+
+/* Mobile: Smaller spacing */
+@media (max-width: 767px) {
+  .seoTabs {
+    --hub-tabs-margin-top: 0rem;  /* Mobile: 0rem smaller spacing */
+  }
+}
+
 /* Charts Section - Following Dashboard Pattern */
 .chartsSection {
   display: grid;

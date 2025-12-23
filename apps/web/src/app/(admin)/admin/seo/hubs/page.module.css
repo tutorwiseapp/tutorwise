@@ -1,0 +1,55 @@
+/*
+ * Filename: src/app/(admin)/admin/seo/hubs/page.module.css
+ * Purpose: Styles for SEO Hubs management page
+ * Created: 2025-12-23
+ * Pattern: Follows Dashboard hub layout pattern
+ */
+
+/*
+ * SEO Hubs Header - Following Dashboard pattern
+ * Customizes HubHeader spacing using CSS variables
+ */
+.hubsHeader {
+  /* Spacing */
+  --hub-header-margin-top: 1.5rem;  /* Extra spacing from global header */
+  --hub-header-margin-bottom: 0;     /* No margin below header (tabs control the gap) */
+
+  /* Layout */
+  --hub-header-height: 3rem;
+  --hub-header-padding-x: 1rem;
+
+  /* Actions (CTA buttons) */
+  --hub-header-actions-gap: 0.5rem;
+  --hub-header-actions-margin-left: 1rem;
+
+  /* Filters (search + filters) */
+  --hub-header-filters-padding-y: 1rem;
+}
+
+/* Mobile: Smaller header spacing */
+@media (max-width: 767px) {
+  .hubsHeader {
+    --hub-header-margin-top: 0rem;  /* Mobile smaller spacing from global header */
+  }
+}
+
+/*
+ * SEO Hubs Tabs - Customized spacing between header and tabs
+ */
+.hubsTabs {
+  --hub-tabs-margin-top: 3rem;  /* Desktop: 3rem spacing (default) */
+}
+
+/* Mobile: Smaller spacing */
+@media (max-width: 767px) {
+  .hubsTabs {
+    --hub-tabs-margin-top: 0rem;  /* Mobile: 0rem smaller spacing */
+  }
+}
+
+/* Button Icon */
+.buttonIcon {
+  height: 1rem;
+  width: 1rem;
+  margin-right: 0.5rem;
+}

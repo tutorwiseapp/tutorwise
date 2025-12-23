@@ -19,6 +19,7 @@ import Button from '@/app/components/ui/actions/Button';
 import { Plus, Edit2, Trash2, Eye } from 'lucide-react';
 import { usePermission } from '@/lib/rbac';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
+import styles from './page.module.css';
 
 // Force dynamic rendering (no SSR/SSG) for admin pages
 export const dynamic = 'force-dynamic';
@@ -211,17 +212,19 @@ export default function AdminSeoHubsPage() {
           actions={
             canCreate ? (
               <Button>
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className={styles.buttonIcon} />
                 Create Hub
               </Button>
             ) : undefined
           }
+          className={styles.hubsHeader}
         />
       }
       tabs={
         <HubTabs
           tabs={tabs}
           onTabChange={(tabId) => setStatusFilter(tabId as typeof statusFilter)}
+          className={styles.hubsTabs}
         />
       }
       sidebar={

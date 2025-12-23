@@ -149,6 +149,7 @@ export default function AdminSeoOverviewPage() {
           title="SEO Management"
           subtitle="Manage your hub-and-spoke content strategy for better search rankings"
           actions={getHeaderActions()}
+          className={styles.seoHeader}
         />
       }
       tabs={
@@ -157,6 +158,7 @@ export default function AdminSeoOverviewPage() {
             { id: 'overview', label: 'Overview', active: activeTab === 'overview' }
           ]}
           onTabChange={(tabId) => setActiveTab(tabId as 'overview')}
+          className={styles.seoTabs}
         />
       }
       sidebar={
