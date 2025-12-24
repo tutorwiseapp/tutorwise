@@ -120,7 +120,7 @@ export default function AdminReviewsOverviewPage() {
                 'last_month'
               )}
               icon={Star}
-              isLoading={totalReviewsMetric.isLoading}
+              trend={totalReviewsMetric.trend}
             />
             <HubKPICard
               label="Average Rating"
@@ -131,7 +131,7 @@ export default function AdminReviewsOverviewPage() {
                   : undefined
               }
               icon={Star}
-              isLoading={avgRatingMetric.isLoading}
+              trend={avgRatingMetric.trend}
             />
             <HubKPICard
               label="Tutors Reviewed"
@@ -142,7 +142,7 @@ export default function AdminReviewsOverviewPage() {
                 'last_month'
               )}
               icon={Users}
-              isLoading={tutorsReviewedMetric.isLoading}
+              trend={tutorsReviewedMetric.trend}
             />
             <HubKPICard
               label="Clients Who Reviewed"
@@ -153,7 +153,7 @@ export default function AdminReviewsOverviewPage() {
                 'last_month'
               )}
               icon={Users}
-              isLoading={clientsReviewedMetric.isLoading}
+              trend={clientsReviewedMetric.trend}
             />
           </HubKPIGrid>
 

@@ -11,7 +11,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import styles from './HubKPICard.module.css';
 
 export interface HubKPICardProps {
@@ -24,6 +24,7 @@ export interface HubKPICardProps {
   variant?: 'success' | 'info' | 'warning' | 'neutral';
   clickable?: boolean;
   href?: string;
+  trend?: 'up' | 'down' | 'neutral';
 }
 
 export default function HubKPICard({
@@ -35,7 +36,8 @@ export default function HubKPICard({
   icon: Icon,
   variant = 'neutral',
   clickable = false,
-  href
+  href,
+  trend
 }: HubKPICardProps) {
   const content = (
     <div className={`${styles.card} ${styles[variant]} ${clickable ? styles.clickable : ''}`}>
@@ -49,8 +51,17 @@ export default function HubKPICard({
 
       {/* Content */}
       <div className={styles.content}>
-        {/* Main Value */}
-        <div className={styles.value}>{value}</div>
+        {/* Main Value with Trend Arrow */}
+        <div className={styles.valueRow}>
+          <div className={styles.value}>{value}</div>
+          {trend && (
+            <div className={styles.trendIndicator}>
+              {trend === 'up' && <TrendingUp className={styles.trendUp} />}
+              {trend === 'down' && <TrendingDown className={styles.trendDown} />}
+              {trend === 'neutral' && <Minus className={styles.trendNeutral} />}
+            </div>
+          )}
+        </div>
 
         {/* Sublabel (secondary info) */}
         {sublabel && <div className={styles.sublabel}>{sublabel}</div>}

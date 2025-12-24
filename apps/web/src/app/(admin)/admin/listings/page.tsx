@@ -119,7 +119,7 @@ export default function AdminListingsOverviewPage() {
                 'last_month'
               )}
               icon={FileText}
-              isLoading={totalListingsMetric.isLoading}
+              trend={totalListingsMetric.trend}
             />
             <HubKPICard
               label="Active Listings"
@@ -130,7 +130,7 @@ export default function AdminListingsOverviewPage() {
                 'last_month'
               )}
               icon={FileText}
-              isLoading={activeListingsMetric.isLoading}
+              trend={activeListingsMetric.trend}
             />
             <HubKPICard
               label="Inactive/Draft"
@@ -141,7 +141,7 @@ export default function AdminListingsOverviewPage() {
                 'last_month'
               )}
               icon={FileText}
-              isLoading={inactiveListingsMetric.isLoading}
+              trend={inactiveListingsMetric.trend}
             />
             <HubKPICard
               label="Active Rate"
@@ -156,7 +156,6 @@ export default function AdminListingsOverviewPage() {
                   : undefined
               }
               icon={FileText}
-              isLoading={totalListingsMetric.isLoading || activeListingsMetric.isLoading}
             />
           </HubKPIGrid>
 

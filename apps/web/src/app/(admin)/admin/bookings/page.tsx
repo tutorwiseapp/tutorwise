@@ -132,7 +132,7 @@ export default function AdminBookingsOverviewPage() {
                 'last_month'
               )}
               icon={Calendar}
-              isLoading={totalBookingsMetric.isLoading}
+              trend={totalBookingsMetric.trend}
             />
             <HubKPICard
               label="Completed"
@@ -143,7 +143,7 @@ export default function AdminBookingsOverviewPage() {
                 'last_month'
               )}
               icon={Calendar}
-              isLoading={completedBookingsMetric.isLoading}
+              trend={completedBookingsMetric.trend}
             />
             <HubKPICard
               label="Pending"
@@ -154,7 +154,7 @@ export default function AdminBookingsOverviewPage() {
                 'last_month'
               )}
               icon={Calendar}
-              isLoading={pendingBookingsMetric.isLoading}
+              trend={pendingBookingsMetric.trend}
             />
             <HubKPICard
               label="Cancelled"
@@ -165,7 +165,7 @@ export default function AdminBookingsOverviewPage() {
                 'last_month'
               )}
               icon={Calendar}
-              isLoading={cancelledBookingsMetric.isLoading}
+              trend={cancelledBookingsMetric.trend}
             />
           </HubKPIGrid>
 
@@ -180,7 +180,7 @@ export default function AdminBookingsOverviewPage() {
                   : undefined
               }
               icon={DollarSign}
-              isLoading={revenueMetric.isLoading}
+              trend={revenueMetric.trend}
             />
             <HubKPICard
               label="Total Hours"
@@ -191,7 +191,7 @@ export default function AdminBookingsOverviewPage() {
                   : undefined
               }
               icon={Clock}
-              isLoading={hoursMetric.isLoading}
+              trend={hoursMetric.trend}
             />
             <HubKPICard
               label="Avg. Revenue/Booking"
@@ -206,7 +206,6 @@ export default function AdminBookingsOverviewPage() {
                   : undefined
               }
               icon={DollarSign}
-              isLoading={revenueMetric.isLoading || completedBookingsMetric.isLoading}
             />
             <HubKPICard
               label="Completion Rate"
@@ -221,7 +220,6 @@ export default function AdminBookingsOverviewPage() {
                   : undefined
               }
               icon={Calendar}
-              isLoading={totalBookingsMetric.isLoading || completedBookingsMetric.isLoading}
             />
           </HubKPIGrid>
 
