@@ -107,6 +107,11 @@
   border-top: 1px solid #e5e7eb;
 }
 
+.activityContent {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .container {
@@ -123,5 +128,9 @@
 
   .subsectionTitle {
     font-size: 1.125rem;
+  }
+
+  .activityContent {
+    padding: 0;
   }
 }

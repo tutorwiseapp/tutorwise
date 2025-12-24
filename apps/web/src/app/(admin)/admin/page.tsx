@@ -13,7 +13,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
-import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget, AdminVideoWidget } from '@/app/components/admin/widgets';
+import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget, AdminVideoWidget, AdminActivityWidget } from '@/app/components/admin/widgets';
 import Button from '@/app/components/ui/actions/Button';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
@@ -160,10 +160,9 @@ export default function AdminOverviewPage() {
           </div>
         )}
         {tabFilter === 'activity' && (
-          <HubEmptyState
-            title="Activity Feed Coming Soon"
-            description="Recent admin actions and platform activity will be displayed here."
-          />
+          <div className={styles.activityContent}>
+            <AdminActivityWidget title="Recent Admin Activity" limit={50} />
+          </div>
         )}
         {tabFilter === 'alerts' && (
           <HubEmptyState
