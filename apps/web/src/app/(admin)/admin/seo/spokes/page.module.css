@@ -53,3 +53,39 @@
   width: 1rem;
   margin-right: 0.5rem;
 }
+
+/* Table Actions */
+.tableActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.actionIcon {
+  height: 1rem;
+  width: 1rem;
+}
+
+.deleteIcon {
+  height: 1rem;
+  width: 1rem;
+  color: #dc2626;
+}
+
+/* Hub Link Display */
+.hubLink {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hubLinkIcon {
+  height: 1rem;
+  width: 1rem;
+  color: #9ca3af;
+}
+
+.hubLinkText {
+  font-size: 0.875rem;
+  color: #111827;
+}

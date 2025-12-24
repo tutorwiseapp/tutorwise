@@ -53,3 +53,21 @@
   width: 1rem;
   margin-right: 0.5rem;
 }
+
+/* Table Actions */
+.tableActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.actionIcon {
+  height: 1rem;
+  width: 1rem;
+}
+
+.deleteIcon {
+  height: 1rem;
+  width: 1rem;
+  color: #dc2626;
+}

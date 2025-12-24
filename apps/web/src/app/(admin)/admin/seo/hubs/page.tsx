@@ -165,18 +165,18 @@ export default function AdminSeoHubsPage() {
       key: 'actions',
       label: 'Actions',
       render: (hub: SeoHub) => (
-        <div className="flex items-center gap-2">
+        <div className={styles.tableActions}>
           <Button variant="ghost" size="sm" title="View">
-            <Eye className="h-4 w-4" />
+            <Eye className={styles.actionIcon} />
           </Button>
           {canUpdate && (
             <Button variant="ghost" size="sm" title="Edit">
-              <Edit2 className="h-4 w-4" />
+              <Edit2 className={styles.actionIcon} />
             </Button>
           )}
           {canDelete && (
             <Button variant="ghost" size="sm" title="Delete">
-              <Trash2 className="h-4 w-4 text-red-600" />
+              <Trash2 className={styles.deleteIcon} />
             </Button>
           )}
         </div>

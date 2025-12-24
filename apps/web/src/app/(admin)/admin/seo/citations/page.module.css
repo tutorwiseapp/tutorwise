@@ -53,3 +53,67 @@
   width: 1rem;
   margin-right: 0.5rem;
 }
+
+/* Table Actions */
+.tableActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.actionIcon {
+  height: 1rem;
+  width: 1rem;
+}
+
+.deleteIcon {
+  height: 1rem;
+  width: 1rem;
+  color: #dc2626;
+}
+
+/* Citation URL Display */
+.citationUrl {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.citationUrlText {
+  font-size: 0.875rem;
+  color: #111827;
+}
+
+.citationUrlLink {
+  font-size: 0.75rem;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  text-decoration: none;
+}
+
+.citationUrlLink:hover {
+  text-decoration: underline;
+}
+
+.externalLinkIcon {
+  height: 0.75rem;
+  width: 0.75rem;
+}
+
+/* Status Badge */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.statusIcon {
+  height: 0.75rem;
+  width: 0.75rem;
+}

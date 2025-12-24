@@ -129,15 +129,15 @@ export default function AdminSeoCitationsPage() {
       label: 'Source',
       sortable: true,
       render: (citation: SeoCitation) => (
-        <div className="flex flex-col">
-          <span className="font-medium text-gray-900">{citation.source_domain}</span>
+        <div className={styles.citationUrl}>
+          <span className={styles.citationUrlText}>{citation.source_domain}</span>
           <a
             href={citation.source_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+            className={styles.citationUrlLink}
           >
-            View <ExternalLink className="h-3 w-3" />
+            View <ExternalLink className={styles.externalLinkIcon} />
           </a>
         </div>
       ),
@@ -191,8 +191,8 @@ export default function AdminSeoCitationsPage() {
         const Icon = config.icon;
 
         return (
-          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${config.bg} ${config.color}`}>
-            <Icon className="h-3 w-3" />
+          <span className={`${styles.statusBadge} ${config.bg} ${config.color}`}>
+            <Icon className={styles.statusIcon} />
             {citation.status.charAt(0).toUpperCase() + citation.status.slice(1)}
           </span>
         );
@@ -216,15 +216,15 @@ export default function AdminSeoCitationsPage() {
       key: 'actions',
       label: 'Actions',
       render: (citation: SeoCitation) => (
-        <div className="flex items-center gap-2">
+        <div className={styles.tableActions}>
           {canUpdate && (
             <Button variant="ghost" size="sm" title="Edit">
-              <Edit2 className="h-4 w-4" />
+              <Edit2 className={styles.actionIcon} />
             </Button>
           )}
           {canDelete && (
             <Button variant="ghost" size="sm" title="Delete">
-              <Trash2 className="h-4 w-4 text-red-600" />
+              <Trash2 className={styles.deleteIcon} />
             </Button>
           )}
         </div>
