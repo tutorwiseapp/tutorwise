@@ -20,6 +20,7 @@ import { Users, UserCog, Shield, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { usePermission } from '@/lib/rbac';
 import { HubKPIGrid, HubKPICard } from '@/app/components/hub/charts';
+import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
 import styles from './page.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
@@ -28,48 +29,17 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 export default function AdminUsersOverviewPage() {
-  const supabase = createClient();
   const router = useRouter();
   const canManageUsers = usePermission('users', 'view');
   const canManageAdmins = usePermission('admin_users', 'view');
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview'>('overview');
 
-  // Fetch user stats
-  const { data: totalUsers } = useQuery({
-    queryKey: ['admin', 'users-count'],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true });
-      if (error) throw error;
-      return count || 0;
-    },
-  });
-
-  const { data: adminUsers } = useQuery({
-    queryKey: ['admin', 'admin-users-count'],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .not('admin_role', 'is', null);
-      if (error) throw error;
-      return count || 0;
-    },
-  });
-
-  const { data: activeUsers } = useQuery({
-    queryKey: ['admin', 'active-users-count'],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .eq('onboarding_completed', true);
-      if (error) throw error;
-      return count || 0;
-    },
-  });
+  // Fetch user metrics with trend data from statistics table
+  const totalUsersMetric = useAdminMetric({ metric: 'total_users', compareWith: 'last_month' });
+  const activeUsersMetric = useAdminMetric({ metric: 'active_users', compareWith: 'last_month' });
+  const adminUsersMetric = useAdminMetric({ metric: 'admin_users', compareWith: 'last_month' });
+  const pendingOnboardingMetric = useAdminMetric({ metric: 'pending_onboarding_users', compareWith: 'last_month' });
 
   // Header actions with primary CTA and secondary dropdown
   const getHeaderActions = () => {
@@ -156,10 +126,10 @@ export default function AdminUsersOverviewPage() {
           <AdminStatsWidget
             title="User Overview"
             stats={[
-              { label: 'Total Users', value: totalUsers || 0 },
-              { label: 'Active Users', value: activeUsers || 0 },
-              { label: 'Admin Users', value: adminUsers || 0 },
-              { label: 'Pending Onboarding', value: (totalUsers || 0) - (activeUsers || 0) },
+              { label: 'Total Users', value: totalUsersMetric.value },
+              { label: 'Active Users', value: activeUsersMetric.value },
+              { label: 'Admin Users', value: adminUsersMetric.value },
+              { label: 'Pending Onboarding', value: pendingOnboardingMetric.value },
             ]}
           />
           <AdminHelpWidget
@@ -190,7 +160,8 @@ export default function AdminUsersOverviewPage() {
           <HubKPIGrid>
             <HubKPICard
               label="Total Users"
-              value={totalUsers || 0}
+              value={totalUsersMetric.value}
+              sublabel={formatMetricChange(totalUsersMetric.change, totalUsersMetric.changePercent, 'last_month')}
               icon={Users}
               variant="info"
               clickable
@@ -198,7 +169,8 @@ export default function AdminUsersOverviewPage() {
             />
             <HubKPICard
               label="Active Users"
-              value={activeUsers || 0}
+              value={activeUsersMetric.value}
+              sublabel={formatMetricChange(activeUsersMetric.change, activeUsersMetric.changePercent, 'last_month')}
               icon={UserCog}
               variant="success"
               clickable
@@ -206,7 +178,8 @@ export default function AdminUsersOverviewPage() {
             />
             <HubKPICard
               label="Admin Users"
-              value={adminUsers || 0}
+              value={adminUsersMetric.value}
+              sublabel={formatMetricChange(adminUsersMetric.change, adminUsersMetric.changePercent, 'last_month')}
               icon={Shield}
               variant="warning"
               clickable
@@ -214,8 +187,8 @@ export default function AdminUsersOverviewPage() {
             />
             <HubKPICard
               label="Pending Onboarding"
-              value={(totalUsers || 0) - (activeUsers || 0)}
-              sublabel="Users not completed"
+              value={pendingOnboardingMetric.value}
+              sublabel={formatMetricChange(pendingOnboardingMetric.change, pendingOnboardingMetric.changePercent, 'last_month') || 'Awaiting completion'}
               icon={Users}
               variant="neutral"
             />

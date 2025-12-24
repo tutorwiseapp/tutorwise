@@ -20,6 +20,7 @@ import { FileText, Link as LinkIcon, ExternalLink, TrendingUp, Plus } from 'luci
 import Link from 'next/link';
 import { usePermission } from '@/lib/rbac';
 import { HubKPIGrid, HubKPICard } from '@/app/components/hub/charts';
+import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
 import styles from './page.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
@@ -28,58 +29,18 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 export default function AdminSeoOverviewPage() {
-  const supabase = createClient();
   const router = useRouter();
   const canCreate = usePermission('seo', 'create');
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview'>('overview');
 
-  // Fetch SEO overview stats
-  const { data: hubsCount } = useQuery({
-    queryKey: ['admin', 'seo-hubs-count'],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from('seo_hubs')
-        .select('*', { count: 'exact', head: true });
-      if (error) throw error;
-      return count || 0;
-    },
-  });
-
-  const { data: spokesCount } = useQuery({
-    queryKey: ['admin', 'seo-spokes-count'],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from('seo_spokes')
-        .select('*', { count: 'exact', head: true });
-      if (error) throw error;
-      return count || 0;
-    },
-  });
-
-  const { data: publishedHubs } = useQuery({
-    queryKey: ['admin', 'seo-hubs-published'],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from('seo_hubs')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'published');
-      if (error) throw error;
-      return count || 0;
-    },
-  });
-
-  const { data: publishedSpokes } = useQuery({
-    queryKey: ['admin', 'seo-spokes-published'],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from('seo_spokes')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'published');
-      if (error) throw error;
-      return count || 0;
-    },
-  });
+  // Fetch SEO metrics with trend data from statistics table
+  const totalHubsMetric = useAdminMetric({ metric: 'seo_total_hubs', compareWith: 'last_month' });
+  const publishedHubsMetric = useAdminMetric({ metric: 'seo_published_hubs', compareWith: 'last_month' });
+  const totalSpokesMetric = useAdminMetric({ metric: 'seo_total_spokes', compareWith: 'last_month' });
+  const publishedSpokesMetric = useAdminMetric({ metric: 'seo_published_spokes', compareWith: 'last_month' });
+  const totalCitationsMetric = useAdminMetric({ metric: 'seo_total_citations', compareWith: 'last_month' });
+  const activeCitationsMetric = useAdminMetric({ metric: 'seo_active_citations', compareWith: 'last_month' });
 
   // Header actions with primary CTA and secondary dropdown
   const getHeaderActions = () => {
@@ -166,10 +127,10 @@ export default function AdminSeoOverviewPage() {
           <AdminStatsWidget
             title="Content Overview"
             stats={[
-              { label: 'Total Hubs', value: hubsCount || 0 },
-              { label: 'Published Hubs', value: publishedHubs || 0 },
-              { label: 'Total Spokes', value: spokesCount || 0 },
-              { label: 'Published Spokes', value: publishedSpokes || 0 },
+              { label: 'Total Hubs', value: totalHubsMetric.value },
+              { label: 'Published Hubs', value: publishedHubsMetric.value },
+              { label: 'Total Spokes', value: totalSpokesMetric.value },
+              { label: 'Published Spokes', value: publishedSpokesMetric.value },
             ]}
           />
           <AdminHelpWidget
@@ -200,7 +161,8 @@ export default function AdminSeoOverviewPage() {
           <HubKPIGrid>
             <HubKPICard
               label="Hub Pages"
-              value={hubsCount || 0}
+              value={totalHubsMetric.value}
+              sublabel={formatMetricChange(totalHubsMetric.change, totalHubsMetric.changePercent, 'last_month')}
               icon={FileText}
               variant="info"
               clickable
@@ -208,7 +170,8 @@ export default function AdminSeoOverviewPage() {
             />
             <HubKPICard
               label="Spoke Pages"
-              value={spokesCount || 0}
+              value={totalSpokesMetric.value}
+              sublabel={formatMetricChange(totalSpokesMetric.change, totalSpokesMetric.changePercent, 'last_month')}
               icon={LinkIcon}
               variant="success"
               clickable
@@ -216,16 +179,17 @@ export default function AdminSeoOverviewPage() {
             />
             <HubKPICard
               label="Citations"
-              value={0}
+              value={totalCitationsMetric.value}
+              sublabel={formatMetricChange(totalCitationsMetric.change, totalCitationsMetric.changePercent, 'last_month') || 'Total backlinks'}
               icon={ExternalLink}
               variant="warning"
               clickable
               href="/admin/seo/citations"
             />
             <HubKPICard
-              label="Performance"
-              value="—"
-              sublabel="Coming soon"
+              label="Active Citations"
+              value={activeCitationsMetric.value}
+              sublabel={formatMetricChange(activeCitationsMetric.change, activeCitationsMetric.changePercent, 'last_month') || 'Verified & active'}
               icon={TrendingUp}
               variant="neutral"
             />
