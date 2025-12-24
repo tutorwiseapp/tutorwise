@@ -1,0 +1,111 @@
+/*
+ * Filename: src/app/(admin)/admin/users/page.module.css
+ * Purpose: Styles for Admin Users overview page
+ * Created: 2025-12-23
+ * Pattern: Follows Dashboard hub layout pattern
+ */
+
+/*
+ * Admin Users Header - Following Dashboard pattern
+ * Customizes HubHeader spacing using CSS variables
+ */
+.usersHeader {
+  /* Spacing */
+  --hub-header-margin-top: 1.5rem;  /* Extra spacing from global header */
+  --hub-header-margin-bottom: 0;     /* No margin below header (tabs control the gap) */
+
+  /* Layout */
+  --hub-header-height: 3rem;
+  --hub-header-padding-x: 1rem;
+
+  /* Actions (CTA buttons) */
+  --hub-header-actions-gap: 0.5rem;
+  --hub-header-actions-margin-left: 1rem;
+}
+
+/* Mobile: Smaller header spacing */
+@media (max-width: 767px) {
+  .usersHeader {
+    --hub-header-margin-top: 0rem;  /* Mobile smaller spacing from global header */
+  }
+}
+
+/*
+ * Admin Users Tabs - Customized spacing between header and tabs
+ */
+.usersTabs {
+  --hub-tabs-margin-top: 3rem;  /* Desktop: 3rem spacing (default) */
+}
+
+/* Mobile: Smaller spacing */
+@media (max-width: 767px) {
+  .usersTabs {
+    --hub-tabs-margin-top: 0rem;  /* Mobile: 0rem smaller spacing */
+  }
+}
+
+/* Header Actions Layout */
+.headerActions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Button Icon */
+.buttonIcon {
+  height: 1rem;
+  width: 1rem;
+  margin-right: 0.5rem;
+}
+
+/* Actionable Widgets Section - Following Dashboard pattern */
+.actionableWidgets {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .actionableWidgets {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Individual Widgets */
+.recentActivityWidget,
+.growthWidget,
+.insightsWidget {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.widgetTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 1rem 0;
+}
+
+.emptyMessage {
+  font-size: 0.875rem;
+  color: #6b7280;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .recentActivityWidget,
+  .growthWidget,
+  .insightsWidget {
+    padding: 1rem;
+  }
+
+  .emptyMessage {
+    padding: 1.5rem 0.5rem;
+  }
+}
