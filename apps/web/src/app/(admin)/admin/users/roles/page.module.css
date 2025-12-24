@@ -1,0 +1,169 @@
+/*
+ * Filename: src/app/(admin)/admin/users/roles/page.module.css
+ * Purpose: Styles for User Roles management page
+ * Created: 2025-12-24
+ * Pattern: Follows Dashboard hub layout pattern
+ */
+
+/* Header */
+.rolesHeader {
+  --hub-header-margin-top: 1.5rem;
+  --hub-header-margin-bottom: 0;
+  --hub-header-height: 3rem;
+  --hub-header-padding-x: 1rem;
+  --hub-header-actions-gap: 0.5rem;
+  --hub-header-actions-margin-left: 1rem;
+}
+
+@media (max-width: 767px) {
+  .rolesHeader {
+    --hub-header-margin-top: 0rem;
+  }
+}
+
+/* Tabs */
+.rolesTabs {
+  --hub-tabs-margin-top: 3rem;
+}
+
+@media (max-width: 767px) {
+  .rolesTabs {
+    --hub-tabs-margin-top: 0rem;
+  }
+}
+
+/* Header Actions */
+.headerActions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.buttonIcon {
+  height: 1rem;
+  width: 1rem;
+  margin-right: 0.5rem;
+}
+
+/* Roles Grid */
+.rolesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 0;
+}
+
+@media (max-width: 768px) {
+  .rolesGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Role Card */
+.roleCard {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: box-shadow 0.2s;
+}
+
+.roleCard:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Role Header */
+.roleHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.roleIconWrapper {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.roleIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.roleTitleSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.roleTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.roleCount {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Role Description */
+.roleDescription {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Permissions Section */
+.permissionsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.permissionsTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+
+.permissionsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.permissionItem {
+  font-size: 0.875rem;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.permissionBullet {
+  color: #9ca3af;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+/* Role Actions */
+.roleActions {
+  margin-top: auto;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f3f4f6;
+}

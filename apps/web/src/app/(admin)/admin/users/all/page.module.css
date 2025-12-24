@@ -1,0 +1,155 @@
+/*
+ * Filename: src/app/(admin)/admin/users/all/page.module.css
+ * Purpose: Styles for All Users list page
+ * Created: 2025-12-24
+ * Pattern: Follows Dashboard hub layout pattern
+ */
+
+/* Header */
+.allUsersHeader {
+  --hub-header-margin-top: 1.5rem;
+  --hub-header-margin-bottom: 0;
+  --hub-header-height: 3rem;
+  --hub-header-padding-x: 1rem;
+  --hub-header-actions-gap: 0.5rem;
+  --hub-header-actions-margin-left: 1rem;
+}
+
+@media (max-width: 767px) {
+  .allUsersHeader {
+    --hub-header-margin-top: 0rem;
+  }
+}
+
+/* Tabs */
+.allUsersTabs {
+  --hub-tabs-margin-top: 3rem;
+}
+
+@media (max-width: 767px) {
+  .allUsersTabs {
+    --hub-tabs-margin-top: 0rem;
+  }
+}
+
+/* Header Actions */
+.headerActions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.buttonIcon {
+  height: 1rem;
+  width: 1rem;
+  margin-right: 0.5rem;
+}
+
+/* Controls (Search + Filters) */
+.controls {
+  margin-bottom: 1.5rem;
+}
+
+.searchInput {
+  width: 100%;
+  max-width: 500px;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: #111827;
+  background: white;
+  transition: border-color 0.2s;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.searchInput::placeholder {
+  color: #9ca3af;
+}
+
+/* Table Cells */
+.userCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.userEmail {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+.userName {
+  font-size: 0.875rem;
+  color: #111827;
+}
+
+.roleText {
+  font-size: 0.875rem;
+  color: #6b7280;
+  text-transform: capitalize;
+}
+
+.dateText {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Status Cell */
+.statusCell {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.adminBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.activeBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.pendingBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #e5e7eb;
+  color: #374151;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .searchInput {
+    max-width: 100%;
+  }
+
+  .statusCell {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}
