@@ -31,7 +31,7 @@ export const dynamicParams = true;
 export default function AdminUsersOverviewPage() {
   const router = useRouter();
   const canManageUsers = usePermission('users', 'view');
-  const canManageAdmins = usePermission('admin_users', 'view');
+  const canManageAdmins = usePermission('users', 'manage');
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview'>('overview');
 

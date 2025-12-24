@@ -31,7 +31,23 @@ export type MetricName =
   | 'seo_total_spokes'
   | 'seo_published_spokes'
   | 'seo_total_citations'
-  | 'seo_active_citations';
+  | 'seo_active_citations'
+  // Bookings metrics
+  | 'bookings_total'
+  | 'bookings_completed'
+  | 'bookings_pending'
+  | 'bookings_cancelled'
+  | 'bookings_revenue'
+  | 'bookings_hours_total'
+  // Listings metrics
+  | 'listings_total'
+  | 'listings_active'
+  | 'listings_inactive'
+  // Reviews metrics
+  | 'reviews_total'
+  | 'reviews_avg_rating'
+  | 'reviews_tutors_reviewed'
+  | 'reviews_clients_reviewed';
 
 export type ComparisonPeriod = 'yesterday' | 'last_week' | 'last_month';
 
@@ -110,8 +126,8 @@ export function useAdminMetric({
       // Note: previousError is not thrown - if no historical data exists, we just don't show comparison
 
       return {
-        currentValue: currentData?.[metric] ?? 0,
-        previousValue: previousData?.[metric] ?? null,
+        currentValue: (currentData as any)?.[metric] ?? 0,
+        previousValue: (previousData as any)?.[metric] ?? null,
       };
     },
     staleTime: 5 * 60 * 1000, // 5 minutes - statistics don't change frequently

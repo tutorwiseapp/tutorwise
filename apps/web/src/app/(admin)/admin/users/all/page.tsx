@@ -15,7 +15,7 @@ import HubHeader from '@/app/components/hub/layout/HubHeader';
 import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
-import { HubTable } from '@/app/components/hub/table';
+import HubTable from '@/app/components/hub/tables/HubTable';
 import Button from '@/app/components/ui/actions/Button';
 import { ArrowLeft, Download, Filter } from 'lucide-react';
 import Link from 'next/link';
@@ -64,7 +64,7 @@ export default function AdminUsersAllPage() {
       if (error) throw error;
       return data as UserProfile[];
     },
-    enabled: canViewUsers,
+    enabled: canViewUsers.hasAccess,
   });
 
   // Filter and search users
