@@ -19,6 +19,7 @@ import Button from '@/app/components/ui/actions/Button';
 import { Plus, Edit2, Trash2, Eye, Link as LinkIcon } from 'lucide-react';
 import { usePermission } from '@/lib/rbac';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
+import styles from './page.module.css';
 
 // Force dynamic rendering (no SSR/SSG) for admin pages
 export const dynamic = 'force-dynamic';
@@ -220,17 +221,19 @@ export default function AdminSeoSpokesPage() {
           actions={
             canCreate ? (
               <Button>
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className={styles.buttonIcon} />
                 Create Spoke
               </Button>
             ) : undefined
           }
+          className={styles.spokesHeader}
         />
       }
       tabs={
         <HubTabs
           tabs={tabs}
           onTabChange={(tabId) => setStatusFilter(tabId as typeof statusFilter)}
+          className={styles.spokesTabs}
         />
       }
       sidebar={
