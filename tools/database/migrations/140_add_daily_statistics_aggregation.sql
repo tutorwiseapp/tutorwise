@@ -64,11 +64,12 @@ DECLARE
   v_seo_active_citations INTEGER;
 BEGIN
   -- Aggregate user statistics
+  -- Note: onboarding_completed is JSONB, check if it's not empty {}
   SELECT
-    COUNT(*) FILTER (WHERE true),
-    COUNT(*) FILTER (WHERE onboarding_completed = true),
+    COUNT(*),
+    COUNT(*) FILTER (WHERE onboarding_completed <> '{}'::jsonb),
     COUNT(*) FILTER (WHERE is_admin = true),
-    COUNT(*) FILTER (WHERE onboarding_completed = false OR onboarding_completed IS NULL)
+    COUNT(*) FILTER (WHERE onboarding_completed = '{}'::jsonb OR onboarding_completed IS NULL)
   INTO
     v_total_users,
     v_active_users,
