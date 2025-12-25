@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { usePermission } from '@/lib/rbac';
 import { HubKPIGrid, HubKPICard } from '@/app/components/hub/charts';
 import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
+import BookingsTable from './components/BookingsTable';
 import styles from './page.module.css';
 
 // Force dynamic rendering (no SSR/SSG) for admin pages
@@ -29,7 +30,7 @@ export default function AdminBookingsOverviewPage() {
   const router = useRouter();
   const canViewBookings = usePermission('bookings', 'view');
   const canManageBookings = usePermission('bookings', 'manage');
-  const [activeTab, setActiveTab] = useState<'overview'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'all-bookings'>('overview');
 
   // Fetch bookings metrics with trend data from statistics table
   const totalBookingsMetric = useAdminMetric({ metric: 'bookings_total', compareWith: 'last_month' });
@@ -39,18 +40,9 @@ export default function AdminBookingsOverviewPage() {
   const revenueMetric = useAdminMetric({ metric: 'bookings_revenue', compareWith: 'last_month' });
   const hoursMetric = useAdminMetric({ metric: 'bookings_hours_total', compareWith: 'last_month' });
 
-  // Header actions
+  // Header actions - removed redundant Filters button (now in table toolbar)
   const getHeaderActions = () => {
-    if (!canManageBookings.hasAccess) return undefined;
-
-    return (
-      <div className={styles.headerActions}>
-        <Button variant="secondary" size="sm">
-          <Filter className={styles.buttonIcon} />
-          Filters
-        </Button>
-      </div>
-    );
+    return undefined;
   };
 
   // Format currency
@@ -81,9 +73,10 @@ export default function AdminBookingsOverviewPage() {
       tabs={
         <HubTabs
           tabs={[
-            { id: 'overview', label: 'Overview', active: activeTab === 'overview' }
+            { id: 'overview', label: 'Overview', active: activeTab === 'overview' },
+            { id: 'all-bookings', label: 'All Bookings', count: totalBookingsMetric.value, active: activeTab === 'all-bookings' }
           ]}
-          onTabChange={(tabId) => setActiveTab(tabId as 'overview')}
+          onTabChange={(tabId) => setActiveTab(tabId as 'overview' | 'all-bookings')}
           className={styles.bookingsTabs}
         />
       }
@@ -223,15 +216,12 @@ export default function AdminBookingsOverviewPage() {
             />
           </HubKPIGrid>
 
-          {/* Coming Soon Placeholder */}
-          <div className={styles.placeholder}>
-            <Calendar className={styles.placeholderIcon} />
-            <h3 className={styles.placeholderTitle}>Bookings Management Coming Soon</h3>
-            <p className={styles.placeholderText}>
-              Detailed booking analytics, revenue reports, and management tools will be available here.
-            </p>
-          </div>
         </>
+      )}
+
+      {/* All Bookings Tab */}
+      {activeTab === 'all-bookings' && (
+        <BookingsTable />
       )}
     </HubPageLayout>
   );

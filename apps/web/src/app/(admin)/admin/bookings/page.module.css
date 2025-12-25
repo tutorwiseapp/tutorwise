@@ -24,6 +24,7 @@
 /* Tabs */
 .bookingsTabs {
   --hub-tabs-margin-top: 3rem;
+  --hub-tabs-margin-bottom: 1rem; /* 1rem tab margin + 1rem content padding = 2rem total */
 }
 
 @media (max-width: 767px) {
@@ -48,6 +49,11 @@
 /* Second row grid (for revenue & hours) */
 .secondRowGrid {
   margin-top: 1.5rem;
+}
+
+/* Table container */
+.tableContainer {
+  /* Spacing handled by HubTabs margin-bottom */
 }
 
 /* Placeholder for coming soon content */

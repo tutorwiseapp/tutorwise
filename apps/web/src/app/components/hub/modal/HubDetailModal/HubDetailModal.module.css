@@ -15,23 +15,40 @@
   padding: var(--space-2, 16px);
 }
 
-/* Modal Container */
+/* Modal Container - Base */
 .modal {
   background: white;
   border-radius: var(--border-radius-lg, 12px);
-  max-width: 800px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: var(--shadow-lg, 0 10px 25px rgba(0, 0, 0, 0.2));
 }
 
-/* Header */
+/* Size Variants */
+.modalSm {
+  max-width: 400px;
+}
+
+.modalMd {
+  max-width: 600px;
+}
+
+.modalLg {
+  max-width: 800px; /* Default size */
+}
+
+.modalXl {
+  max-width: 1000px;
+}
+
+/* Header - Light green background like hub sidebar cards */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: var(--space-4, 32px);
+  padding: 12px 16px;
+  background-color: #E6F0F0; /* Light green/teal - matches hub sidebar */
   border-bottom: 1px solid var(--color-gray-200, #E5E7EB);
   gap: var(--space-3, 24px);
 }

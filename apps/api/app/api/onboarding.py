@@ -7,8 +7,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from typing import Dict, Any, Optional
 from datetime import datetime
-from app.auth import verify_token
-from app.database import get_supabase
+from app.api.auth import verify_token
+from app.db import get_supabase
 from supabase import Client
 
 router = APIRouter()

@@ -1,0 +1,836 @@
+/**
+ * Filename: HubDataTable.module.css
+ * Purpose: Styles for generic data table component
+ * Created: 2025-12-24
+ * Design: Responsive breakpoints - 40px header, 48px rows (desktop), 56px (tablet)
+ */
+
+/* Container */
+.tableContainer {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+/* Search */
+.searchWrapper {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  height: 36px;
+  padding: 0 0.75rem 0 2.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: #1f2937;
+  background-color: #ffffff;
+  transition: border-color 0.15s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #006c67;
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
+}
+
+.searchInput::placeholder {
+  color: #9ca3af;
+}
+
+/* Filters */
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filterWrapper {
+  position: relative;
+}
+
+.filterSelect {
+  height: 36px;
+  padding: 0 2rem 0 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: #1f2937;
+  background-color: #ffffff;
+  cursor: pointer;
+  appearance: none;
+  transition: border-color 0.15s ease;
+}
+
+.filterSelect:hover {
+  border-color: #9ca3af;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: #006c67;
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
+}
+
+.filterIcon {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  color: #6b7280;
+  pointer-events: none;
+}
+
+/* Export */
+.exportButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 36px;
+  padding: 0 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.exportButton:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.exportIcon {
+  width: 1rem;
+  height: 1rem;
+  color: #6b7280;
+}
+
+.exportText {
+  white-space: nowrap;
+}
+
+/* Phase 2: Icon Buttons */
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.iconButton:hover:not(:disabled) {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.iconButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.iconButton.refreshing .buttonIcon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.buttonIcon {
+  width: 1rem;
+  height: 1rem;
+  color: #6b7280;
+}
+
+/* Phase 2: Auto-refresh Toggle */
+.autoRefreshToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 36px;
+  padding: 0 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background-color: #ffffff;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.autoRefreshToggle input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: #006c67;
+}
+
+.autoRefreshLabel {
+  user-select: none;
+}
+
+/* Phase 2: Bulk Actions */
+.bulkActionsWrapper {
+  position: relative;
+}
+
+.bulkActionsButton {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 36px;
+  padding: 0 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bulkActionsButton:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.bulkActionsDropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 160px;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 10;
+  overflow: hidden;
+}
+
+.bulkActionItem {
+  display: block;
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 0.875rem;
+  color: #374151;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.bulkActionItem:hover {
+  background-color: #f9fafb;
+}
+
+.bulkActionItem.primary {
+  color: #006c67;
+  font-weight: 500;
+}
+
+.bulkActionItem.danger {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+/* Phase 2: Modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modalContent {
+  position: relative;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  width: 100%;
+  max-width: 400px;
+  margin: 1rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modalTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.modalClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  background: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.modalClose:hover {
+  background-color: #f3f4f6;
+}
+
+.modalBody {
+  padding: 1.5rem;
+}
+
+.modalInput {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: #1f2937;
+  transition: border-color 0.15s ease;
+}
+
+.modalInput:focus {
+  outline: none;
+  border-color: #006c67;
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
+}
+
+.modalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.modalButtonSecondary {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.modalButtonSecondary:hover {
+  background-color: #f9fafb;
+}
+
+.modalButtonPrimary {
+  padding: 0.5rem 1rem;
+  border: 1px solid #006c67;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #006c67;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.modalButtonPrimary:hover:not(:disabled) {
+  background-color: #005a56;
+}
+
+.modalButtonPrimary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Desktop Table */
+.desktopTable {
+  display: block;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Table Header */
+.thead {
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.headerRow {
+  height: 40px;
+}
+
+.headerCell {
+  padding: 0 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.headerCell.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s ease;
+}
+
+.headerCell.sortable:hover {
+  background-color: #f3f4f6;
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sortIndicator {
+  font-size: 0.875rem;
+  color: #006c67;
+}
+
+/* Table Body */
+.tbody {
+  background-color: #ffffff;
+}
+
+.dataRow {
+  height: 48px;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.15s ease;
+}
+
+.dataRow:last-child {
+  border-bottom: none;
+}
+
+.dataRow:hover {
+  background-color: #f9fafb;
+}
+
+.dataRow.selected {
+  background-color: #f0fdfa;
+}
+
+.dataRow.clickable {
+  cursor: pointer;
+}
+
+.dataCell {
+  padding: 0 1rem;
+  font-size: 0.875rem;
+  color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Checkbox Column */
+.checkboxCell {
+  width: 40px;
+  padding: 0 0.75rem;
+  text-align: center;
+}
+
+.checkbox {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+  accent-color: #006c67;
+}
+
+/* Loading State */
+.loadingState {
+  padding: 1rem;
+}
+
+.skeletonRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  height: 48px;
+  padding: 0 1rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.skeletonCell {
+  height: 1rem;
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 0.25rem;
+  flex: 1;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeletonCard {
+  height: 120px;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 0.5rem;
+}
+
+/* Empty State */
+.emptyState {
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.emptyMessage {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* Error State */
+.errorState {
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.errorMessage {
+  font-size: 0.875rem;
+  color: #dc2626;
+  margin: 0 0 1rem 0;
+}
+
+.retryButton {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.retryButton:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+/* Mobile Cards */
+.mobileCards {
+  display: none;
+}
+
+/* Pagination - Compact single-row layout */
+.paginationWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center by default */
+  min-height: unset; /* No minimum height constraint */
+  padding-top: 1rem;
+  padding-bottom: 1rem; /* Minimal padding: 6px top/bottom */
+  border-top: 1px solid #e5e7eb;
+  background-color: #ffffff; /* White background to match table */
+}
+
+.paginationCenter {
+  /* Centered by parent flex */
+}
+
+/* Override HubPagination's built-in spacing for compact footer */
+.paginationCenter > * {
+  padding: 0 !important;
+  margin-top: 0 !important;
+  border-top: none !important;
+  gap: 0.5rem !important;
+}
+
+.pageSizeSelector {
+  position: absolute;
+  left: 1rem; /* Left-aligned */
+  padding: 0.25rem 1.75rem 0.25rem 0.5rem; /* Compact padding with space for arrow */
+  border: 1px solid #e5e7eb;
+  border-radius: 0.25rem;
+  font-size: 0.8125rem;
+  color: #6b7280;
+  background-color: #ffffff;
+  cursor: pointer;
+  box-shadow: none;
+  appearance: none; /* Remove default styling */
+  /* Custom dropdown arrow */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 12px;
+}
+
+.pageSizeSelector:hover {
+  border-color: #d1d5db;
+  background-color: #fafafa;
+}
+
+.pageSizeSelector:focus {
+  outline: none;
+  border-color: #9ca3af;
+}
+
+/* Legacy styles - kept for backwards compatibility */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-top: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.paginationInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.paginationControls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.paginationButton {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.paginationButton:hover:not(:disabled) {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.paginationIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.paginationText {
+  white-space: nowrap;
+}
+
+.paginationPages {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  color: #1f2937;
+}
+
+.currentPage {
+  font-weight: 600;
+}
+
+.pageSeparator {
+  color: #9ca3af;
+}
+
+.totalPages {
+  color: #6b7280;
+}
+
+/* Tablet Responsive (768px - 1023px) */
+@media (max-width: 1023px) {
+  .toolbar {
+    flex-wrap: wrap;
+  }
+
+  .searchWrapper {
+    flex: 1 1 100%;
+    max-width: none;
+    order: -1;
+  }
+
+  .filters {
+    flex: 1;
+  }
+
+  .exportText {
+    display: none;
+  }
+
+  .dataRow {
+    height: 56px;
+  }
+
+  .skeletonRow {
+    height: 56px;
+  }
+
+  .hideOnTablet {
+    display: none;
+  }
+}
+
+/* Mobile Responsive (<768px) */
+@media (max-width: 767px) {
+  .toolbar {
+    padding: 0.875rem;
+    gap: 0.625rem;
+  }
+
+  .searchInput {
+    font-size: 0.8125rem;
+    height: 34px;
+  }
+
+  .filterSelect {
+    font-size: 0.8125rem;
+    height: 34px;
+  }
+
+  .exportButton {
+    height: 34px;
+    padding: 0 0.75rem;
+  }
+
+  .desktopTable {
+    display: none;
+  }
+
+  .mobileCards {
+    display: block;
+    padding: 0.75rem;
+  }
+
+  /* New pagination wrapper - mobile */
+  .paginationWrapper {
+    justify-content: center;
+    padding: 0.625rem;
+  }
+
+  .pageSizeSelector {
+    display: none; /* Hide page size selector on mobile */
+  }
+
+  .paginationCenter {
+    position: static;
+    transform: none;
+  }
+
+  /* Legacy pagination styles */
+  .pagination {
+    padding: 0.875rem;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .paginationInfo {
+    font-size: 0.8125rem;
+  }
+
+  .paginationControls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .paginationButton {
+    font-size: 0.8125rem;
+    padding: 0.5rem 0.625rem;
+  }
+
+  .paginationText {
+    display: none;
+  }
+
+  .hideOnMobile {
+    display: none;
+  }
+}
