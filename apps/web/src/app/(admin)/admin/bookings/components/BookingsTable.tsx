@@ -883,6 +883,7 @@ export default function BookingsTable() {
           isOpen={isModalOpen}
           onClose={handleCloseModal}
           booking={selectedBooking}
+          onBookingUpdated={() => refetch()}
         />
       )}
     </>

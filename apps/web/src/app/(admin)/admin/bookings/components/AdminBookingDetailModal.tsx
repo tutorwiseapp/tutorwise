@@ -2,11 +2,12 @@
  * Filename: AdminBookingDetailModal.tsx
  * Purpose: Admin-specific booking detail modal with full information and admin actions
  * Created: 2025-12-25
+ * Updated: 2025-12-26 - Added Contact Client/Tutor, Change Status, and full API implementations
  * Pattern: Uses HubDetailModal with admin-specific sections and actions
  *
  * Features:
  * - Complete booking information (all 19+ fields)
- * - Admin-specific actions (Approve, Cancel, Refund)
+ * - Admin-specific actions (Approve, Cancel, Refund, Contact, Change Status)
  * - Payment details and status
  * - Participant information (client, tutor, agent)
  * - Booking metadata (type, source, referrer)
@@ -16,28 +17,38 @@
  *   isOpen={isOpen}
  *   onClose={onClose}
  *   booking={booking}
+ *   onBookingUpdated={refreshBookingsList}
  * />
  */
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Booking } from '@/types';
 import { HubDetailModal } from '@/app/components/hub/modal';
 import type { DetailSection } from '@/app/components/hub/modal';
 import Button from '@/app/components/ui/actions/Button';
+import { createClient } from '@/utils/supabase/client';
+import { MessageCircle, Mail } from 'lucide-react';
 
 interface AdminBookingDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   booking: Booking;
+  onBookingUpdated?: () => void; // Callback to refresh booking list after update
 }
 
 export default function AdminBookingDetailModal({
   isOpen,
   onClose,
   booking,
+  onBookingUpdated,
 }: AdminBookingDetailModalProps) {
+  const router = useRouter();
+  const supabase = createClient();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   // Format date helper
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-GB', {
@@ -149,25 +160,144 @@ export default function AdminBookingDetailModal({
   ];
 
   // Admin action handlers
-  const handleApprove = () => {
-    // TODO: Implement approve booking
-    console.log('Approve booking:', booking.id);
-    alert('Approve booking functionality coming soon');
-  };
+  const handleApprove = async () => {
+    if (isProcessing) return;
 
-  const handleCancel = () => {
-    // TODO: Implement cancel booking
-    if (confirm(`Are you sure you want to cancel this booking?\n\nService: ${booking.service_name}\nClient: ${booking.client?.full_name}`)) {
-      console.log('Cancel booking:', booking.id);
-      alert('Cancel booking functionality coming soon');
+    if (!confirm(`Are you sure you want to approve/confirm this booking?\n\nService: ${booking.service_name}\nClient: ${booking.client?.full_name}\nTutor: ${booking.tutor?.full_name}`)) {
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({
+          status: 'Confirmed',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', booking.id);
+
+      if (error) throw error;
+
+      alert('Booking approved successfully!');
+      onBookingUpdated?.();
+      onClose();
+    } catch (error) {
+      console.error('Failed to approve booking:', error);
+      alert('Failed to approve booking. Please try again.');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  const handleRefund = () => {
-    // TODO: Implement refund booking
-    if (confirm(`Are you sure you want to issue a refund?\n\nAmount: £${booking.amount.toFixed(2)}\nClient: ${booking.client?.full_name}`)) {
-      console.log('Refund booking:', booking.id);
-      alert('Refund functionality coming soon');
+  const handleCancel = async () => {
+    if (isProcessing) return;
+
+    if (!confirm(`Are you sure you want to cancel this booking?\n\nService: ${booking.service_name}\nClient: ${booking.client?.full_name}\n\nThis action will update the booking status to Cancelled.`)) {
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({
+          status: 'Cancelled',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', booking.id);
+
+      if (error) throw error;
+
+      alert('Booking cancelled successfully!');
+      onBookingUpdated?.();
+      onClose();
+    } catch (error) {
+      console.error('Failed to cancel booking:', error);
+      alert('Failed to cancel booking. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleRefund = async () => {
+    if (isProcessing) return;
+
+    if (!confirm(`Are you sure you want to issue a refund?\n\nAmount: £${booking.amount.toFixed(2)}\nClient: ${booking.client?.full_name}\n\nNote: This will update the payment status. Actual refund processing via Stripe should be done separately.`)) {
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      // Update payment status to Refunded
+      const { error } = await supabase
+        .from('bookings')
+        .update({
+          payment_status: 'Refunded',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', booking.id);
+
+      if (error) throw error;
+
+      alert('Payment status updated to Refunded.\n\nNote: Please process the actual refund via Stripe dashboard.');
+      onBookingUpdated?.();
+      onClose();
+    } catch (error) {
+      console.error('Failed to update refund status:', error);
+      alert('Failed to update refund status. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleChangeStatus = async (newStatus: string) => {
+    if (isProcessing) return;
+
+    if (!confirm(`Change booking status to "${newStatus}"?`)) {
+      setShowStatusDropdown(false);
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({
+          status: newStatus,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', booking.id);
+
+      if (error) throw error;
+
+      alert(`Booking status changed to ${newStatus} successfully!`);
+      setShowStatusDropdown(false);
+      onBookingUpdated?.();
+      onClose();
+    } catch (error) {
+      console.error('Failed to change booking status:', error);
+      alert('Failed to change booking status. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleContactClient = () => {
+    if (booking.client_id) {
+      // Open network/messages with client
+      router.push(`/network/chat/${booking.client_id}`);
+    } else {
+      alert('Client information not available');
+    }
+  };
+
+  const handleContactTutor = () => {
+    if (booking.tutor_id) {
+      // Open network/messages with tutor
+      router.push(`/network/chat/${booking.tutor_id}`);
+    } else {
+      alert('Tutor information not available');
     }
   };
 
@@ -180,26 +310,115 @@ export default function AdminBookingDetailModal({
       size="xl"
       sections={sections}
       actions={
-        <>
-          {booking.status === 'Pending' && (
-            <Button onClick={handleApprove} variant="primary">
-              Approve Booking
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', width: '100%' }}>
+          {/* Primary Actions Row */}
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            {booking.status === 'Pending' && (
+              <Button onClick={handleApprove} variant="primary" disabled={isProcessing}>
+                {isProcessing ? 'Processing...' : 'Approve Booking'}
+              </Button>
+            )}
+            {booking.payment_status === 'Paid' && booking.status !== 'Cancelled' && (
+              <Button onClick={handleRefund} variant="secondary" disabled={isProcessing}>
+                {isProcessing ? 'Processing...' : 'Issue Refund'}
+              </Button>
+            )}
+            {booking.status !== 'Cancelled' && booking.status !== 'Completed' && (
+              <Button onClick={handleCancel} variant="danger" disabled={isProcessing}>
+                {isProcessing ? 'Processing...' : 'Cancel Booking'}
+              </Button>
+            )}
+          </div>
+
+          {/* Contact Actions Row */}
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            {booking.client_id && (
+              <Button
+                onClick={handleContactClient}
+                variant="secondary"
+                disabled={isProcessing}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                <MessageCircle size={16} />
+                Contact Client
+              </Button>
+            )}
+            {booking.tutor_id && (
+              <Button
+                onClick={handleContactTutor}
+                variant="secondary"
+                disabled={isProcessing}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                <MessageCircle size={16} />
+                Contact Tutor
+              </Button>
+            )}
+          </div>
+
+          {/* Change Status Dropdown */}
+          <div style={{ position: 'relative' }}>
+            <Button
+              onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+              variant="secondary"
+              disabled={isProcessing}
+            >
+              Change Status
             </Button>
-          )}
-          {booking.payment_status === 'Paid' && booking.status !== 'Cancelled' && (
-            <Button onClick={handleRefund} variant="secondary">
-              Issue Refund
+            {showStatusDropdown && (
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                marginTop: '0.25rem',
+                backgroundColor: '#ffffff',
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                zIndex: 1000,
+                minWidth: '160px',
+              }}>
+                {['Pending', 'Confirmed', 'Completed', 'Cancelled'].map((status) => (
+                  <button
+                    key={status}
+                    onClick={() => handleChangeStatus(status)}
+                    disabled={booking.status === status || isProcessing}
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '0.75rem 1rem',
+                      textAlign: 'left',
+                      border: 'none',
+                      background: booking.status === status ? '#f3f4f6' : 'transparent',
+                      cursor: booking.status === status ? 'default' : 'pointer',
+                      fontSize: '0.875rem',
+                      color: booking.status === status ? '#9ca3af' : '#374151',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (booking.status !== status && !isProcessing) {
+                        e.currentTarget.style.backgroundColor = '#f9fafb';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (booking.status !== status) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }
+                    }}
+                  >
+                    {status} {booking.status === status && '(Current)'}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Close Button */}
+          <div style={{ marginLeft: 'auto' }}>
+            <Button onClick={onClose} variant="secondary" disabled={isProcessing}>
+              Close
             </Button>
-          )}
-          {booking.status !== 'Cancelled' && booking.status !== 'Completed' && (
-            <Button onClick={handleCancel} variant="danger">
-              Cancel Booking
-            </Button>
-          )}
-          <Button onClick={onClose} variant="secondary">
-            Close
-          </Button>
-        </>
+          </div>
+        </div>
       }
     />
   );
