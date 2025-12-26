@@ -3,6 +3,7 @@
  * Purpose: Mobile bottom navigation bar for marketplace and main app navigation
  * Created: 2025-12-10
  * Updated: 2025-12-11 - Integrated MobileMenu component for hamburger menu
+ * Updated: 2025-12-26 - Added admin mode toggle with orange background
  *
  * Features:
  * - Fixed bottom navigation bar for mobile devices
@@ -12,13 +13,16 @@
  * - Only visible on mobile (hidden on desktop)
  * - Authentication-aware routing for protected pages
  * - Menu tab opens MobileMenu slide-in panel
+ * - Admin mode toggle with context-aware routing
+ * - Orange background when in admin mode
  */
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { useIsAdmin } from '@/lib/rbac/hooks';
 import MobileMenu from './MobileMenu';
 import styles from './BottomNav.module.css';
 
@@ -35,7 +39,32 @@ export default function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { profile } = useUserProfile();
+  const { isAdmin: isAdminUser } = useIsAdmin();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAdminMode, setIsAdminMode] = useState(false);
+
+  // Load admin mode from localStorage on mount
+  useEffect(() => {
+    const savedAdminMode = localStorage.getItem('adminModeEnabled');
+    if (savedAdminMode === 'true' && isAdminUser) {
+      setIsAdminMode(true);
+    }
+  }, [isAdminUser]);
+
+  // Helper function to get the appropriate navigation href based on admin mode
+  const getNavHref = (baseHref: string): string => {
+    // If admin mode is ON and user is admin, route to admin equivalent
+    if (isAdminMode && isAdminUser) {
+      const adminRoutes: Record<string, string> = {
+        '/dashboard': '/admin',
+        '/bookings': '/admin/bookings',
+        '/referrals': '/admin/referrals',
+        '/listings': '/admin/listings',
+      };
+      return adminRoutes[baseHref] || baseHref;
+    }
+    return baseHref;
+  };
 
   const navItems: NavItem[] = [
     {
@@ -61,7 +90,7 @@ export default function BottomNav() {
       ),
     },
     {
-      href: '/dashboard',
+      href: getNavHref('/dashboard'),
       label: 'Dashboard',
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -73,7 +102,7 @@ export default function BottomNav() {
       ),
     },
     {
-      href: '/bookings',
+      href: getNavHref('/bookings'),
       label: 'Bookings',
       icon: (
         <svg width="27" height="27" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -103,7 +132,7 @@ export default function BottomNav() {
       requiresAuth: true,
     },
     {
-      href: '/referrals',
+      href: getNavHref('/referrals'),
       label: 'Referrals',
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -198,7 +227,7 @@ export default function BottomNav() {
 
   return (
     <>
-      <nav className={styles.bottomNav}>
+      <nav className={`${styles.bottomNav} ${isAdminMode && isAdminUser ? styles.adminMode : ''}`}>
         <div className={styles.navContainer}>
           {navItems.map((item, index) => {
             const isItemActive = item.isMenuButton ? isMenuActive() : isActive(item.href);
@@ -242,7 +271,13 @@ export default function BottomNav() {
       </nav>
 
       {/* Mobile Menu */}
-      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      <MobileMenu
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        isAdminMode={isAdminMode}
+        setIsAdminMode={setIsAdminMode}
+        isAdminUser={isAdminUser}
+      />
     </>
   );
 }

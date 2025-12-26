@@ -10,6 +10,13 @@
   z-index: 100;
   display: none; /* Hidden by default, shown on mobile */
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Admin Mode - Light orange background */
+.bottomNav.adminMode {
+  background: #fff3e0; /* Light orange */
+  border-top-color: #ffb74d; /* Orange border */
 }
 
 .navContainer {
