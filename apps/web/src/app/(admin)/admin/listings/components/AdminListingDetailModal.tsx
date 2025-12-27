@@ -117,12 +117,6 @@ export default function AdminListingDetailModal({
       ],
     },
     {
-      title: 'Media',
-      fields: [
-        { label: 'Video URL', value: listing.video_url || 'N/A' },
-      ],
-    },
-    {
       title: 'System Information',
       fields: [
         { label: 'Listing ID', value: listing.id },

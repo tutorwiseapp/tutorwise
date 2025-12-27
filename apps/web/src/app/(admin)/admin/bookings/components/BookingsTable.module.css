@@ -9,45 +9,48 @@
   /* Inherits all styles from HubDataTable.module.css */
 }
 
-/* Filters Button (now rendered in toolbar via toolbarActions prop) */
+/* Advanced Filters Button (icon-only with badge) */
 .filtersButton {
-  display: inline-flex;
+  position: relative;
+  display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: #ffffff;
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
-  background-color: #ffffff;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #374151;
   cursor: pointer;
   transition: all 0.15s ease;
+  padding: 0;
 }
 
 .filtersButton:hover {
-  background-color: #f9fafb;
+  background: #f9fafb;
   border-color: #9ca3af;
 }
 
 .filtersButton.active {
-  background-color: #eff6ff;
-  border-color: #3b82f6;
-  color: #1e40af;
+  background: #006c67;
+  border-color: #006c67;
+  color: #ffffff;
 }
 
 .filtersBadge {
-  display: inline-flex;
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 1.25rem;
-  height: 1.25rem;
-  padding: 0 0.375rem;
-  background-color: #3b82f6;
+  width: 18px;
+  height: 18px;
+  background: #ef4444;
   color: #ffffff;
-  font-size: 0.6875rem;
+  font-size: 11px;
   font-weight: 600;
-  border-radius: 0.625rem;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
   margin-left: 0.25rem;
 }
 
