@@ -178,12 +178,10 @@ export function AdminReviewDetailModal({
   };
 
   // Section 1: Review Content
-  const reviewContentSection = (
-    <div className={styles.section}>
-      <h3 className={styles.sectionTitle}>Review Content</h3>
-
-      <div className={styles.field}>
-        <label>Rating</label>
+  const reviewContentFields = [
+    {
+      label: 'Rating',
+      value: (
         <div className={styles.ratingDisplay}>
           <div className={styles.stars}>
             {Array.from({ length: 5 }, (_, i) =>
@@ -196,24 +194,27 @@ export function AdminReviewDetailModal({
           </div>
           <span className={styles.ratingValue}>{review.rating.toFixed(1)} / 5.0</span>
         </div>
-      </div>
-
-      {review.comment && (
-        <div className={styles.field}>
-          <label>Comment</label>
-          <div className={styles.commentBox}>{review.comment}</div>
-        </div>
-      )}
-
-      <div className={styles.field}>
-        <label>Sentiment</label>
+      ),
+    },
+    ...(review.comment
+      ? [
+          {
+            label: 'Comment',
+            value: <div className={styles.commentBox}>{review.comment}</div>,
+          },
+        ]
+      : []),
+    {
+      label: 'Sentiment',
+      value: (
         <span className={styles[`sentiment${sentiment.charAt(0).toUpperCase()}${sentiment.slice(1)}`]}>
           {sentiment.charAt(0).toUpperCase() + sentiment.slice(1)}
         </span>
-      </div>
-
-      <div className={styles.field}>
-        <label>Verified</label>
+      ),
+    },
+    {
+      label: 'Verified',
+      value: (
         <div className={styles.verifiedDisplay}>
           {review.metadata?.verified ? (
             <>
@@ -227,29 +228,29 @@ export function AdminReviewDetailModal({
             </>
           )}
         </div>
-      </div>
-
-      {review.metadata?.helpful_count !== undefined && (
-        <div className={styles.field}>
-          <label>Helpful Votes</label>
-          <div className={styles.helpfulDisplay}>
-            <ThumbsUp size={16} />
-            <span>{review.metadata.helpful_count}</span>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+      ),
+    },
+    ...(review.metadata?.helpful_count !== undefined
+      ? [
+          {
+            label: 'Helpful Votes',
+            value: (
+              <div className={styles.helpfulDisplay}>
+                <ThumbsUp size={16} />
+                <span>{review.metadata.helpful_count}</span>
+              </div>
+            ),
+          },
+        ]
+      : []),
+  ];
 
   // Section 2: Reviewer Information
-  const reviewerSection = (
-    <div className={styles.section}>
-      <h3 className={styles.sectionTitle}>Reviewer Information</h3>
-
-      {review.reviewer && (
-        <>
-          <div className={styles.field}>
-            <label>Name</label>
+  const reviewerFields = review.reviewer
+    ? [
+        {
+          label: 'Name',
+          value: (
             <div className={styles.profileDisplay}>
               {review.reviewer.avatar_url && (
                 <img
@@ -260,33 +261,29 @@ export function AdminReviewDetailModal({
               )}
               <span>{review.reviewer.full_name || '—'}</span>
             </div>
-          </div>
-
-          {review.reviewer.active_role && (
-            <div className={styles.field}>
-              <label>Role</label>
-              <span className={styles.roleBadge}>{review.reviewer.active_role}</span>
-            </div>
-          )}
-
-          <div className={styles.field}>
-            <label>Profile ID</label>
-            <span className={styles.idText}>{formatIdForDisplay(review.reviewer_id)}</span>
-          </div>
-        </>
-      )}
-    </div>
-  );
+          ),
+        },
+        ...(review.reviewer.active_role
+          ? [
+              {
+                label: 'Role',
+                value: <span className={styles.roleBadge}>{review.reviewer.active_role}</span>,
+              },
+            ]
+          : []),
+        {
+          label: 'Profile ID',
+          value: <span className={styles.idText}>{formatIdForDisplay(review.reviewer_id)}</span>,
+        },
+      ]
+    : [];
 
   // Section 3: Reviewee Information
-  const revieweeSection = (
-    <div className={styles.section}>
-      <h3 className={styles.sectionTitle}>Reviewee Information</h3>
-
-      {review.reviewee && (
-        <>
-          <div className={styles.field}>
-            <label>Name</label>
+  const revieweeFields = review.reviewee
+    ? [
+        {
+          label: 'Name',
+          value: (
             <div className={styles.profileDisplay}>
               {review.reviewee.avatar_url && (
                 <img
@@ -297,152 +294,152 @@ export function AdminReviewDetailModal({
               )}
               <span>{review.reviewee.full_name || '—'}</span>
             </div>
-          </div>
-
-          {review.reviewee.active_role && (
-            <div className={styles.field}>
-              <label>Role</label>
-              <span className={styles.roleBadge}>{review.reviewee.active_role}</span>
-            </div>
-          )}
-
-          <div className={styles.field}>
-            <label>Profile ID</label>
-            <span className={styles.idText}>{formatIdForDisplay(review.reviewee_id)}</span>
-          </div>
-        </>
-      )}
-    </div>
-  );
+          ),
+        },
+        ...(review.reviewee.active_role
+          ? [
+              {
+                label: 'Role',
+                value: <span className={styles.roleBadge}>{review.reviewee.active_role}</span>,
+              },
+            ]
+          : []),
+        {
+          label: 'Profile ID',
+          value: <span className={styles.idText}>{formatIdForDisplay(review.reviewee_id)}</span>,
+        },
+      ]
+    : [];
 
   // Section 4: Service Context (Snapshot fields)
-  const serviceContextSection = (
-    <div className={styles.section}>
-      <h3 className={styles.sectionTitle}>Service Context</h3>
-
-      {review.service_name && (
-        <div className={styles.field}>
-          <label>Service Name</label>
-          <span>{review.service_name}</span>
-        </div>
-      )}
-
-      {review.subjects && review.subjects.length > 0 && (
-        <div className={styles.field}>
-          <label>Subjects</label>
-          <div className={styles.badgeList}>
-            {review.subjects.map((subject, idx) => (
-              <span key={idx} className={styles.badge}>
-                {subject}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {review.levels && review.levels.length > 0 && (
-        <div className={styles.field}>
-          <label>Levels</label>
-          <div className={styles.badgeList}>
-            {review.levels.map((level, idx) => (
-              <span key={idx} className={styles.badge}>
-                {level}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {review.session_date && (
-        <div className={styles.field}>
-          <label>Session Date</label>
-          <span>{formatDate(review.session_date, 'dd MMM yyyy')}</span>
-        </div>
-      )}
-
-      {review.location_type && (
-        <div className={styles.field}>
-          <label>Location Type</label>
-          <span className={styles.locationBadge}>{review.location_type}</span>
-        </div>
-      )}
-    </div>
-  );
+  const serviceContextFields = [
+    ...(review.service_name
+      ? [
+          {
+            label: 'Service Name',
+            value: review.service_name,
+          },
+        ]
+      : []),
+    ...(review.subjects && review.subjects.length > 0
+      ? [
+          {
+            label: 'Subjects',
+            value: (
+              <div className={styles.badgeList}>
+                {review.subjects.map((subject, idx) => (
+                  <span key={idx} className={styles.badge}>
+                    {subject}
+                  </span>
+                ))}
+              </div>
+            ),
+          },
+        ]
+      : []),
+    ...(review.levels && review.levels.length > 0
+      ? [
+          {
+            label: 'Levels',
+            value: (
+              <div className={styles.badgeList}>
+                {review.levels.map((level, idx) => (
+                  <span key={idx} className={styles.badge}>
+                    {level}
+                  </span>
+                ))}
+              </div>
+            ),
+          },
+        ]
+      : []),
+    ...(review.session_date
+      ? [
+          {
+            label: 'Session Date',
+            value: formatDate(review.session_date, 'dd MMM yyyy'),
+          },
+        ]
+      : []),
+    ...(review.location_type
+      ? [
+          {
+            label: 'Location Type',
+            value: <span className={styles.locationBadge}>{review.location_type}</span>,
+          },
+        ]
+      : []),
+  ];
 
   // Section 5: Session Information
-  const sessionInfoSection = (
-    <div className={styles.section}>
-      <h3 className={styles.sectionTitle}>Session Information</h3>
-
-      {review.session && (
-        <>
-          <div className={styles.field}>
-            <label>Session ID</label>
-            <span className={styles.idText}>{formatIdForDisplay(review.session.id)}</span>
-          </div>
-
-          <div className={styles.field}>
-            <label>Status</label>
+  const sessionInfoFields = review.session
+    ? [
+        {
+          label: 'Session ID',
+          value: <span className={styles.idText}>{formatIdForDisplay(review.session.id)}</span>,
+        },
+        {
+          label: 'Status',
+          value: (
             <span className={styles[`status${status.charAt(0).toUpperCase()}${status.slice(1)}`]}>
               {status.charAt(0).toUpperCase() + status.slice(1)}
             </span>
-          </div>
-
-          {review.session.publish_at && (
-            <div className={styles.field}>
-              <label>Publish Date</label>
-              <span>{formatDate(review.session.publish_at, 'dd MMM yyyy HH:mm')}</span>
-            </div>
-          )}
-
-          {review.session.published_at && (
-            <div className={styles.field}>
-              <label>Published At</label>
-              <span>{formatDate(review.session.published_at, 'dd MMM yyyy HH:mm')}</span>
-            </div>
-          )}
-
-          {review.booking_id && (
-            <div className={styles.field}>
-              <label>Booking ID</label>
-              <button onClick={handleViewBooking} className={styles.linkButton}>
-                {formatIdForDisplay(review.booking_id)}
-              </button>
-            </div>
-          )}
-        </>
-      )}
-    </div>
-  );
+          ),
+        },
+        ...(review.session.publish_at
+          ? [
+              {
+                label: 'Publish Date',
+                value: formatDate(review.session.publish_at, 'dd MMM yyyy HH:mm'),
+              },
+            ]
+          : []),
+        ...(review.session.published_at
+          ? [
+              {
+                label: 'Published At',
+                value: formatDate(review.session.published_at, 'dd MMM yyyy HH:mm'),
+              },
+            ]
+          : []),
+        ...(review.booking_id
+          ? [
+              {
+                label: 'Booking ID',
+                value: (
+                  <button onClick={handleViewBooking} className={styles.linkButton}>
+                    {formatIdForDisplay(review.booking_id)}
+                  </button>
+                ),
+              },
+            ]
+          : []),
+      ]
+    : [];
 
   // Section 6: System Information
-  const systemInfoSection = (
-    <div className={styles.section}>
-      <h3 className={styles.sectionTitle}>System Information</h3>
-
-      <div className={styles.field}>
-        <label>Review ID</label>
-        <span className={styles.idText}>{formatIdForDisplay(review.id, 'full')}</span>
-      </div>
-
-      <div className={styles.field}>
-        <label>Created At</label>
-        <span>{formatDate(review.created_at, 'dd MMM yyyy HH:mm:ss')}</span>
-      </div>
-
-      <div className={styles.field}>
-        <label>Updated At</label>
-        <span>{formatDate(review.updated_at, 'dd MMM yyyy HH:mm:ss')}</span>
-      </div>
-
-      {review.metadata && Object.keys(review.metadata).length > 0 && (
-        <div className={styles.field}>
-          <label>Metadata</label>
-          <pre className={styles.jsonDisplay}>{JSON.stringify(review.metadata, null, 2)}</pre>
-        </div>
-      )}
-    </div>
-  );
+  const systemInfoFields = [
+    {
+      label: 'Review ID',
+      value: <span className={styles.idText}>{formatIdForDisplay(review.id, 'full')}</span>,
+    },
+    {
+      label: 'Created At',
+      value: formatDate(review.created_at, 'dd MMM yyyy HH:mm:ss'),
+    },
+    {
+      label: 'Updated At',
+      value: formatDate(review.updated_at, 'dd MMM yyyy HH:mm:ss'),
+    },
+    ...(review.metadata && Object.keys(review.metadata).length > 0
+      ? [
+          {
+            label: 'Metadata',
+            value: <pre className={styles.jsonDisplay}>{JSON.stringify(review.metadata, null, 2)}</pre>,
+          },
+        ]
+      : []),
+  ];
 
   // Actions
   const actions = (
@@ -490,18 +487,57 @@ export function AdminReviewDetailModal({
     </div>
   );
 
+  // Build sections array
+  const sections = [
+    {
+      title: 'Review Content',
+      fields: reviewContentFields,
+    },
+    ...(reviewerFields.length > 0
+      ? [
+          {
+            title: 'Reviewer Information',
+            fields: reviewerFields,
+          },
+        ]
+      : []),
+    ...(revieweeFields.length > 0
+      ? [
+          {
+            title: 'Reviewee Information',
+            fields: revieweeFields,
+          },
+        ]
+      : []),
+    ...(serviceContextFields.length > 0
+      ? [
+          {
+            title: 'Service Context',
+            fields: serviceContextFields,
+          },
+        ]
+      : []),
+    ...(sessionInfoFields.length > 0
+      ? [
+          {
+            title: 'Session Information',
+            fields: sessionInfoFields,
+          },
+        ]
+      : []),
+    {
+      title: 'System Information',
+      fields: systemInfoFields,
+    },
+  ];
+
   return (
     <HubDetailModal
+      isOpen={true}
       title={`Review ${formatIdForDisplay(review.id)}`}
       onClose={onClose}
+      sections={sections}
       actions={actions}
-    >
-      {reviewContentSection}
-      {reviewerSection}
-      {revieweeSection}
-      {serviceContextSection}
-      {sessionInfoSection}
-      {systemInfoSection}
-    </HubDetailModal>
+    />
   );
 }
