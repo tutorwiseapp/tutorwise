@@ -147,9 +147,6 @@
 .actions {
   padding: var(--space-3, 24px) var(--space-4, 32px);
   border-top: 1px solid var(--color-gray-200, #E5E7EB);
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--space-2, 16px);
 }
 
 /* Mobile Responsive */
