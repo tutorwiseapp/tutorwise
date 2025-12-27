@@ -114,7 +114,6 @@ export default function AdminListingDetailModal({
       fields: [
         { label: 'View Count', value: listing.view_count?.toString() || '0' },
         { label: 'Booking Count', value: listing.booking_count?.toString() || '0' },
-        { label: 'Reviews Count', value: listing.reviews_count?.toString() || '0' },
       ],
     },
     {

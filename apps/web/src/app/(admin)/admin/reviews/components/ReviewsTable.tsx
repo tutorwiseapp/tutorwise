@@ -19,7 +19,7 @@ import { AdvancedFiltersDrawer } from './AdvancedFiltersDrawer';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import type { ProfileReview } from '@/types/reviews';
 import styles from './ReviewsTable.module.css';
-import { Star, StarOff, CheckCircle, XCircle } from 'lucide-react';
+import { Star, StarOff, CheckCircle, XCircle, Filter as FilterIcon } from 'lucide-react';
 
 // Local date formatting helper
 const formatDate = (dateString: string, format?: string): string => {
@@ -537,6 +537,57 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
     }
   };
 
+  // Handle export to CSV
+  const handleExport = () => {
+    if (!data?.reviews) return;
+
+    // Create CSV header
+    const headers = [
+      'ID',
+      'Reviewed',
+      'Service',
+      'Reviewer',
+      'Reviewee',
+      'Rating',
+      'Sentiment',
+      'Status',
+      'Helpful',
+      'Verified',
+      'Comment',
+    ];
+
+    // Create CSV rows
+    const rows = data.reviews.map((review) => {
+      const sentiment = getSentiment(review.rating);
+      const status = review.session?.status || 'pending';
+      return [
+        formatIdForDisplay(review.id),
+        formatDate(review.created_at, 'dd MMM yyyy'),
+        review.service_name || 'N/A',
+        review.reviewer?.full_name || 'N/A',
+        review.reviewee?.full_name || 'N/A',
+        review.rating.toFixed(1),
+        sentiment.charAt(0).toUpperCase() + sentiment.slice(1),
+        status.charAt(0).toUpperCase() + status.slice(1),
+        review.metadata?.helpful_count || 0,
+        review.metadata?.verified ? 'Yes' : 'No',
+        review.comment || '',
+      ];
+    });
+
+    // Combine headers and rows
+    const csv = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n');
+
+    // Download CSV
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `reviews-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   // Filters configuration
   const filters: Filter[] = [
     {
@@ -629,6 +680,22 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
     );
   }, []);
 
+  // Calculate active advanced filters count
+  const hasActiveFilters = Object.values(advancedFilters).some((value) => {
+    if (typeof value === 'boolean') return value === true;
+    if (typeof value === 'string') return value !== '';
+    if (typeof value === 'number') return value > 0;
+    if (Array.isArray(value)) return value.length > 0;
+    return false;
+  });
+  const activeFilterCount = Object.entries(advancedFilters).filter(([key, value]) => {
+    if (typeof value === 'boolean') return value === true;
+    if (typeof value === 'string') return value !== '';
+    if (typeof value === 'number') return value > 0;
+    if (Array.isArray(value)) return value.length > 0;
+    return false;
+  }).length;
+
   return (
     <>
       <HubDataTable
@@ -656,6 +723,8 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
         filters={filters}
         onFilterChange={handleFilterChange}
         bulkActions={bulkActions}
+        onRefresh={() => refetch()}
+        onExport={handleExport}
         autoRefreshInterval={30000}
         enableSavedViews={true}
         savedViewsKey="admin-reviews-views"
@@ -663,12 +732,13 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
         mobileCard={renderMobileCard}
         toolbarActions={
           <button
-            className={styles.advancedFiltersButton}
+            className={`${styles.filtersButton} ${hasActiveFilters ? styles.active : ''}`}
             onClick={() => setShowAdvancedFilters(true)}
+            title={hasActiveFilters ? `${activeFilterCount} filter(s) active` : 'Advanced Filters'}
           >
-            Advanced Filters
-            {Object.keys(advancedFilters).length > 0 && (
-              <span className={styles.filterBadge}>{Object.keys(advancedFilters).length}</span>
+            <FilterIcon size={16} />
+            {hasActiveFilters && (
+              <span className={styles.filtersBadge}>{activeFilterCount}</span>
             )}
           </button>
         }
