@@ -14,6 +14,7 @@ import ReferralDetailModal from './ReferralDetailModal';
 import Button from '@/app/components/ui/actions/Button';
 import getProfileImageUrl from '@/lib/utils/image';
 import { getInitials } from '@/lib/utils/initials';
+import { formatIdForDisplay } from '@/lib/utils/formatId';
 
 interface ReferralCardProps {
   referral: Referral;
@@ -106,9 +107,9 @@ export default function ReferralCard({
     },
     { label: 'Lead Type', value: referral.referred_user ? 'Named' : 'Anonymous' },
     // Row 3: User ID, Link Status, Referral ID
-    { label: 'User ID', value: referral.referred_user?.id.substring(0, 8) || '--' },
+    { label: 'User ID', value: referral.referred_user?.id ? formatIdForDisplay(referral.referred_user.id) : '--' },
     { label: 'Link Status', value: referral.status === 'Expired' ? 'Expired' : 'Active' },
-    { label: 'Referral ID', value: referral.id.substring(0, 8) },
+    { label: 'Referral ID', value: formatIdForDisplay(referral.id) },
   ];
 
   // Build actions

@@ -283,8 +283,8 @@ export default function AdminBookingDetailModal({
 
   const handleContactClient = () => {
     if (booking.client_id) {
-      // Open network/messages with client
-      router.push(`/network/chat/${booking.client_id}`);
+      // Open messages with client
+      router.push(`/messages?userId=${booking.client_id}`);
     } else {
       alert('Client information not available');
     }
@@ -292,10 +292,19 @@ export default function AdminBookingDetailModal({
 
   const handleContactTutor = () => {
     if (booking.tutor_id) {
-      // Open network/messages with tutor
-      router.push(`/network/chat/${booking.tutor_id}`);
+      // Open messages with tutor
+      router.push(`/messages?userId=${booking.tutor_id}`);
     } else {
       alert('Tutor information not available');
+    }
+  };
+
+  const handleContactAgent = () => {
+    if (booking.agent_id) {
+      // Open messages with agent
+      router.push(`/messages?userId=${booking.agent_id}`);
+    } else {
+      alert('Agent information not available');
     }
   };
 
@@ -343,6 +352,15 @@ export default function AdminBookingDetailModal({
               disabled={isProcessing}
             >
               Contact Tutor
+            </Button>
+          )}
+          {booking.agent_id && (
+            <Button
+              onClick={handleContactAgent}
+              variant="secondary"
+              disabled={isProcessing}
+            >
+              Contact Agent
             </Button>
           )}
 

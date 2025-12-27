@@ -15,6 +15,7 @@ import Button from '@/app/components/ui/actions/Button';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import BookingDetailModal from './BookingDetailModal';
 import getProfileImageUrl from '@/lib/utils/image';
+import { formatIdForDisplay } from '@/lib/utils/formatId';
 
 interface BookingCardProps {
   booking: Booking;
@@ -119,14 +120,14 @@ export default function BookingCard({
         <span
           title={booking.id}
           style={{
-            display: 'block',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            cursor: 'help'
+            fontFamily: "'SF Mono', 'Monaco', 'Consolas', monospace",
+            fontSize: '0.875rem',
+            color: '#6b7280',
+            cursor: 'default',
+            userSelect: 'text'
           }}
         >
-          {booking.id}
+          {formatIdForDisplay(booking.id)}
         </span>
       )
     },

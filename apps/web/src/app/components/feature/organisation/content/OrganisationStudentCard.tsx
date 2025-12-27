@@ -12,6 +12,7 @@ import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailC
 import OrganisationStudentDetailModal from './OrganisationStudentDetailModal';
 import Button from '@/app/components/ui/actions/Button';
 import getProfileImageUrl from '@/lib/utils/image';
+import { formatIdForDisplay } from '@/lib/utils/formatId';
 
 interface OrganisationStudent {
   id: string;
@@ -67,7 +68,7 @@ export default function OrganisationStudentCard({ client }: OrganisationStudentC
     { label: 'Since', value: formatDate(client.since) },
     { label: '', value: '' },
     // Row 3: Student ID, -, -
-    { label: 'Student ID', value: client.id.substring(0, 8) },
+    { label: 'Student ID', value: formatIdForDisplay(client.id) },
     { label: '', value: '' },
     { label: '', value: '' },
   ];

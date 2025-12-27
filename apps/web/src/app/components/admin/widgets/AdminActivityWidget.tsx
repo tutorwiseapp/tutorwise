@@ -17,6 +17,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import HubComplexCard from '@/app/components/hub/sidebar/cards/HubComplexCard';
+import { formatIdForDisplay } from '@/lib/utils/formatId';
 import styles from './AdminActivityWidget.module.css';
 
 interface ActivityItem {
@@ -141,7 +142,9 @@ export default function AdminActivityWidget({
                     {formatAction(activity.action, activity.resource_type)}
                   </span>
                   {activity.resource_id && (
-                    <span className={styles.resourceId}>#{activity.resource_id.substring(0, 8)}</span>
+                    <span className={styles.resourceId} title={activity.resource_id}>
+                      {formatIdForDisplay(activity.resource_id)}
+                    </span>
                   )}
                 </div>
                 <div className={styles.activityTime}>{formatTime(activity.created_at)}</div>

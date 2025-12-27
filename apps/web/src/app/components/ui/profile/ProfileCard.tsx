@@ -37,6 +37,7 @@ import Link from 'next/link';
 import type { Profile } from '@/types';
 import Card from '@/app/components/ui/data-display/Card';
 import getProfileImageUrl from '@/lib/utils/image';
+import { formatIdForDisplay } from '@/lib/utils/formatId';
 import styles from './ProfileCard.module.css';
 
 interface ProfileCardProps {
@@ -62,7 +63,7 @@ export const ProfileCard = ({ agent, isOwnProfile = false }: ProfileCardProps) =
       </div>
       <div className={styles.profileBody}>
         <h2 className={styles.profileName}>{agent.full_name}</h2>
-        <p className={styles.profileId}>ID: {agent.referral_id || agent.id?.slice(0, 8)}</p>
+        <p className={styles.profileId}>ID: {agent.referral_id || (agent.id && formatIdForDisplay(agent.id))}</p>
         {isOwnProfile && <Link href="/account/personal-info" className={styles.editProfileLink}>Edit Profile</Link>}
         
         <div className={styles.detailsSection}>

@@ -12,6 +12,7 @@ import type { PendingReviewTask } from '@/types/reviews';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import Button from '@/app/components/ui/actions/Button';
 import getProfileImageUrl from '@/lib/utils/image';
+import { formatIdForDisplay } from '@/lib/utils/formatId';
 
 interface Props {
   task: PendingReviewTask;
@@ -83,7 +84,7 @@ export default function PendingReviewCard({ task, currentUserId, onSubmit }: Pro
     // Row 3: Session Duration, Location, Task ID
     { label: 'Duration', value: booking.session_duration ? `${booking.session_duration} mins` : 'N/A' },
     { label: 'Location', value: (booking as any).location_type || 'N/A' },
-    { label: 'Task ID', value: task.id.substring(0, 8) },
+    { label: 'Task ID', value: formatIdForDisplay(task.id) },
   ];
 
   // Build actions

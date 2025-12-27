@@ -51,6 +51,28 @@
   margin-top: 1.5rem;
 }
 
+/* Charts Section */
+.chartsSection {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem; /* 32px gap */
+  margin-top: 2rem; /* Space between KPI cards and charts */
+}
+
+/* Tablet: 2 column layout for charts */
+@media (min-width: 768px) {
+  .chartsSection {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Desktop: Full width for each chart */
+@media (min-width: 1024px) {
+  .chartsSection {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Table container */
 .tableContainer {
   /* Spacing handled by HubTabs margin-bottom */

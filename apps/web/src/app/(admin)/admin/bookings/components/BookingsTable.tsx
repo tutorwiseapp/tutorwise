@@ -36,6 +36,7 @@ import AdminBookingDetailModal from './AdminBookingDetailModal';
 import { MoreVertical, Filter as FilterIcon } from 'lucide-react';
 import styles from './BookingsTable.module.css';
 import AdvancedFiltersDrawer, { AdvancedFilters } from './AdvancedFiltersDrawer';
+import { formatIdForDisplay } from '@/lib/utils/formatId';
 
 // Status badge component with tooltip
 function StatusBadge({ status }: { status: string }) {
@@ -420,6 +421,22 @@ export default function BookingsTable() {
 
   // Column configuration
   const columns: Column<Booking>[] = [
+    {
+      key: 'id',
+      label: 'ID',
+      width: '100px',
+      sortable: true,
+      render: (booking) => (
+        <div className={styles.idCell}>
+          <span
+            className={styles.idText}
+            title={booking.id}
+          >
+            {formatIdForDisplay(booking.id)}
+          </span>
+        </div>
+      ),
+    },
     {
       key: 'session_start_time',
       label: 'Date',

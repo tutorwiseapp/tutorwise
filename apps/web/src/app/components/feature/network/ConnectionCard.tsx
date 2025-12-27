@@ -13,6 +13,7 @@ import { useAblyPresence } from '@/app/hooks/useAblyPresence';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import Button from '@/app/components/ui/actions/Button';
 import { getInitials } from '@/lib/utils/initials';
+import { formatIdForDisplay } from '@/lib/utils/formatId';
 
 export interface Connection {
   id: string;
@@ -155,7 +156,7 @@ export default function ConnectionCard({
     // Row 2: Connected, Type, --
     { label: 'Connected', value: formatDate(connection.created_at) },
     { label: 'Type', value: isRequester ? 'You requested' : 'They requested' },
-    { label: 'ID', value: connection.id.substring(0, 8) },
+    { label: 'ID', value: formatIdForDisplay(connection.id) },
     // Row 3: Message status (full width if has message)
     ...(connection.message ? [
       { label: 'Message', value: connection.message, fullWidth: true },

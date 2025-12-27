@@ -14,6 +14,7 @@ import Button from '@/app/components/ui/actions/Button';
 import { OrganisationMember } from '@/lib/api/organisation';
 import { formatTimeAgo } from '@/lib/utils/dateUtils';
 import { getInitials } from '@/lib/utils/initials';
+import { formatIdForDisplay } from '@/lib/utils/formatId';
 
 interface MemberCardProps {
   member: OrganisationMember;
@@ -61,7 +62,7 @@ export default function MemberCard({
     // Row 3: Email, Verified, ID
     { label: 'Email', value: otherParty.email },
     { label: 'Verified', value: isVerified ? 'Yes' : 'No' },
-    { label: 'ID', value: otherParty.id.substring(0, 8) },
+    { label: 'ID', value: formatIdForDisplay(otherParty.id) },
   ];
 
   // Actions

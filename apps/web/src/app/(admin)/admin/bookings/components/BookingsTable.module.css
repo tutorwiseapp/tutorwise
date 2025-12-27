@@ -51,6 +51,18 @@
   margin-left: 0.25rem;
 }
 
+/* ID cell */
+.idCell {
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.idText {
+  cursor: default;
+  user-select: text;
+}
+
 /* Date cell */
 .dateCell {
   display: flex;

@@ -18,6 +18,7 @@ import type { Profile } from '@/types';
 import Card from '@/app/components/ui/data-display/Card';
 import styles from './ProfileSidebar.module.css';
 import getProfileImageUrl from '@/lib/utils/image';
+import { formatIdForDisplay } from '@/lib/utils/formatId';
 
 interface ProfileSidebarProps {
   user: Partial<Profile>;
@@ -40,7 +41,7 @@ const ProfileSidebar = ({ user }: ProfileSidebarProps) => {
         
         <div className={styles.nameBlock}>
           <h2 className={styles.displayName}>{user.full_name || 'Tutorwise User'}</h2>
-          <p className={styles.agentId}>ID: {user.referral_id || user.id?.slice(0, 8)}</p>
+          <p className={styles.agentId}>ID: {user.referral_id || (user.id && formatIdForDisplay(user.id))}</p>
         </div>
 
         <div className={styles.linkGroup}>

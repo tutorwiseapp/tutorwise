@@ -24,6 +24,7 @@
 /* Tabs */
 .listingsTabs {
   --hub-tabs-margin-top: 3rem;
+  --hub-tabs-margin-bottom: 1rem; /* 1rem tab margin + 1rem content padding = 2rem total */
 }
 
 @media (max-width: 767px) {
@@ -45,53 +46,40 @@
   margin-right: 0.5rem;
 }
 
-/* Placeholder for coming soon content */
-.placeholder {
-  margin-top: 3rem;
-  padding: 3rem 2rem;
-  background: white;
-  border: 2px dashed #e5e7eb;
-  border-radius: 0.75rem;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
+/* Second row grid (for engagement metrics) */
+.secondRowGrid {
+  margin-top: 1.5rem;
 }
 
-.placeholderIcon {
-  width: 4rem;
-  height: 4rem;
-  color: #9ca3af;
+/* Charts Section */
+.chartsSection {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem; /* 32px gap */
+  margin-top: 2rem; /* Space between KPI cards and charts */
 }
 
-.placeholderTitle {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #374151;
-  margin: 0;
+/* Tablet: 2 column layout for charts */
+@media (min-width: 768px) {
+  .chartsSection {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-.placeholderText {
-  font-size: 0.875rem;
-  color: #6b7280;
-  max-width: 32rem;
-  margin: 0;
-  line-height: 1.5;
+/* Desktop: Full width for each chart */
+@media (min-width: 1024px) {
+  .chartsSection {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Table container */
+.tableContainer {
+  /* Spacing handled by HubTabs margin-bottom */
 }
 
 @media (max-width: 768px) {
-  .placeholder {
-    margin-top: 2rem;
-    padding: 2rem 1rem;
-  }
-
-  .placeholderIcon {
-    width: 3rem;
-    height: 3rem;
-  }
-
-  .placeholderTitle {
-    font-size: 1.125rem;
+  .secondRowGrid {
+    margin-top: 1rem;
   }
 }

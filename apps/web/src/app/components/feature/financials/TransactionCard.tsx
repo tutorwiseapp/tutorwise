@@ -14,6 +14,7 @@ import TransactionDetailModal from './TransactionDetailModal';
 import Button from '@/app/components/ui/actions/Button';
 import getProfileImageUrl from '@/lib/utils/image';
 import { getInitials } from '@/lib/utils/initials';
+import { formatIdForDisplay } from '@/lib/utils/formatId';
 
 interface TransactionCardProps {
   transaction: Transaction;
@@ -166,7 +167,7 @@ export default function TransactionCard({ transaction, currentUserId }: Transact
     { label: 'Time', value: formatTime(transaction.created_at) },
     { label: 'Counterparty', value: counterparty.name },
     // Row 3: Transaction ID (full width)
-    { label: 'Transaction ID', value: `#${transaction.id.slice(0, 8)}`, fullWidth: true },
+    { label: 'Transaction ID', value: formatIdForDisplay(transaction.id), fullWidth: true },
   ];
 
   // Build actions
