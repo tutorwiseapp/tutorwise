@@ -27,14 +27,14 @@ import styles from './page.module.css';
 
 // Types for chart data
 interface TrendDataPoint {
-  date: string;
+  label: string;
   value: number;
 }
 
 interface CategoryData {
-  category: string;
+  label: string;
   value: number;
-  color: string;
+  color?: string;
 }
 
 // Force dynamic rendering (no SSR/SSG) for admin pages
@@ -227,8 +227,8 @@ export default function AdminReviewsOverviewPage() {
                   data={reviewTrendsData}
                   title="Review Trends"
                   subtitle="Last 7 days"
-                  valueLabel="Reviews"
-                  color="#fbbf24"
+                  valueName="Reviews"
+                  lineColor="#fbbf24"
                 />
               )}
             </ErrorBoundary>

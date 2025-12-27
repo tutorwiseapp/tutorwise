@@ -262,8 +262,8 @@ export default function AdminBookingsOverviewPage() {
                   data={bookingTrendsData}
                   title="Booking Trends"
                   subtitle="Last 7 days"
-                  valueLabel="Bookings"
-                  color="#3B82F6"
+                  valueName="Bookings"
+                  lineColor="#3B82F6"
                 />
               )}
             </ErrorBoundary>
@@ -277,9 +277,9 @@ export default function AdminBookingsOverviewPage() {
                   data={revenueTrendsData}
                   title="Revenue Trends"
                   subtitle="Last 7 days"
-                  valueLabel="Revenue"
-                  color="#10B981"
-                  valuePrefix="£"
+                  valueName="Revenue"
+                  lineColor="#10B981"
+                  valueFormatter={(value) => `£${value}`}
                 />
               )}
             </ErrorBoundary>

@@ -77,8 +77,6 @@ export default function AdminListingDetailModal({
         { label: 'Slug', value: listing.slug },
         { label: 'Status', value: listing.status },
         { label: 'Description', value: listing.description || 'N/A' },
-        { label: 'Categories', value: listing.categories?.join(', ') || 'N/A' },
-        { label: 'Featured', value: listing.is_featured ? 'Yes' : 'No' },
       ],
     },
     {
@@ -86,7 +84,6 @@ export default function AdminListingDetailModal({
       fields: [
         { label: 'Subjects', value: listing.subjects?.join(', ') || 'N/A' },
         { label: 'Levels', value: listing.levels?.join(', ') || 'N/A' },
-        { label: 'Service Types', value: listing.service_types?.join(', ') || 'N/A' },
         { label: 'Hourly Rate', value: `£${listing.hourly_rate}/hr` },
         {
           label: 'Location Type',
@@ -109,7 +106,6 @@ export default function AdminListingDetailModal({
       title: 'Tutor Information',
       fields: [
         { label: 'Tutor Name', value: listing.profile?.full_name || 'N/A' },
-        { label: 'Tutor Email', value: listing.profile?.email || 'N/A' },
         { label: 'Tutor ID', value: listing.profile_id },
       ],
     },
@@ -118,10 +114,6 @@ export default function AdminListingDetailModal({
       fields: [
         { label: 'View Count', value: listing.view_count?.toString() || '0' },
         { label: 'Booking Count', value: listing.booking_count?.toString() || '0' },
-        {
-          label: 'Average Rating',
-          value: listing.average_rating ? `${listing.average_rating.toFixed(1)}/5.0` : 'N/A',
-        },
         { label: 'Reviews Count', value: listing.reviews_count?.toString() || '0' },
       ],
     },

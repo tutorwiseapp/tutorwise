@@ -13,7 +13,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import { HubDataTable } from '@/app/components/hub/data';
-import type { Column } from '@/app/components/hub/data';
+import type { Column, Filter } from '@/app/components/hub/data';
 import { AdminReviewDetailModal } from './AdminReviewDetailModal';
 import { AdvancedFiltersDrawer } from './AdvancedFiltersDrawer';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
@@ -294,44 +294,44 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
     () => [
       // 1. ID (100px) - 8-char truncated UUID with # prefix
       {
-        id: 'id',
-        header: 'ID',
-        width: 100,
+        key: 'id',
+        label: 'ID',
+        width: '100px',
         sortable: true,
-        cell: (review) => (
+        render: (review) => (
           <span className={styles.idCell}>{formatIdForDisplay(review.id)}</span>
         ),
       },
 
       // 2. Reviewed (140px) - Review submission date
       {
-        id: 'created_at',
-        header: 'Reviewed',
-        width: 140,
+        key: 'created_at',
+        label: 'Reviewed',
+        width: '140px',
         sortable: true,
-        cell: (review) => (
+        render: (review) => (
           <span className={styles.dateCell}>{formatDate(review.created_at, 'dd MMM yyyy')}</span>
         ),
       },
 
       // 3. Service (200px) - Service name from snapshot
       {
-        id: 'service_name',
-        header: 'Service',
-        width: 200,
+        key: 'service_name',
+        label: 'Service',
+        width: '200px',
         sortable: true,
-        cell: (review) => (
+        render: (review) => (
           <span className={styles.serviceCell}>{review.service_name || '—'}</span>
         ),
       },
 
       // 4. Reviewer (150px) - Avatar + name + role
       {
-        id: 'reviewer',
-        header: 'Reviewer',
-        width: 150,
+        key: 'reviewer',
+        label: 'Reviewer',
+        width: '150px',
         sortable: false,
-        cell: (review) => (
+        render: (review) => (
           <div className={styles.profileCell}>
             {review.reviewer?.avatar_url && (
               <img
@@ -352,11 +352,11 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
 
       // 5. Reviewee (150px) - Avatar + name + role
       {
-        id: 'reviewee',
-        header: 'Reviewee',
-        width: 150,
+        key: 'reviewee',
+        label: 'Reviewee',
+        width: '150px',
         sortable: false,
-        cell: (review) => (
+        render: (review) => (
           <div className={styles.profileCell}>
             {review.reviewee?.avatar_url && (
               <img
@@ -377,11 +377,11 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
 
       // 6. Rating (100px) - Star icons + numeric value
       {
-        id: 'rating',
-        header: 'Rating',
-        width: 100,
+        key: 'rating',
+        label: 'Rating',
+        width: '100px',
         sortable: true,
-        cell: (review) => (
+        render: (review) => (
           <div className={styles.ratingCell}>
             <div className={styles.stars}>
               {Array.from({ length: 5 }, (_, i) =>
@@ -399,11 +399,11 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
 
       // 7. Sentiment (120px) - Badge based on rating
       {
-        id: 'sentiment',
-        header: 'Sentiment',
-        width: 120,
+        key: 'sentiment',
+        label: 'Sentiment',
+        width: '120px',
         sortable: true,
-        cell: (review) => {
+        render: (review) => {
           const sentiment = getSentiment(review.rating);
           return (
             <span className={styles[`sentiment${sentiment.charAt(0).toUpperCase()}${sentiment.slice(1)}`]}>
@@ -415,11 +415,11 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
 
       // 8. Status (120px) - Badge from session
       {
-        id: 'status',
-        header: 'Status',
-        width: 120,
+        key: 'status',
+        label: 'Status',
+        width: '120px',
         sortable: true,
-        cell: (review) => {
+        render: (review) => {
           const status = review.session?.status || 'pending';
           return (
             <span className={styles[`status${status.charAt(0).toUpperCase()}${status.slice(1)}`]}>
@@ -431,11 +431,11 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
 
       // 9. Helpful (100px) - Thumbs-up count
       {
-        id: 'helpful_count',
-        header: 'Helpful',
-        width: 100,
+        key: 'helpful_count',
+        label: 'Helpful',
+        width: '100px',
         sortable: true,
-        cell: (review) => (
+        render: (review) => (
           <span className={styles.helpfulCell}>
             {review.metadata?.helpful_count || 0}
           </span>
@@ -444,11 +444,11 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
 
       // 10. Verified (100px) - Checkmark badge
       {
-        id: 'verified',
-        header: 'Verified',
-        width: 100,
+        key: 'verified',
+        label: 'Verified',
+        width: '100px',
         sortable: false,
-        cell: (review) => (
+        render: (review) => (
           <div className={styles.verifiedCell}>
             {review.metadata?.verified ? (
               <CheckCircle className={styles.verifiedIcon} size={16} />
@@ -461,11 +461,11 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
 
       // 11. Actions (100px) - Three-dot menu
       {
-        id: 'actions',
-        header: 'Actions',
-        width: 100,
+        key: 'actions',
+        label: 'Actions',
+        width: '100px',
         sortable: false,
-        cell: (review) => null, // Handled by HubDataTable row actions
+        render: (review) => null, // Handled by HubDataTable row actions
       },
     ],
     []
@@ -476,6 +476,7 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
     () => [
       {
         label: 'Approve',
+        value: 'approve',
         onClick: () => {
           if (window.confirm(`Approve ${selectedRows.size} review(s)?`)) {
             approveMutation.mutate(Array.from(selectedRows));
@@ -484,6 +485,7 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
       },
       {
         label: 'Flag',
+        value: 'flag',
         onClick: () => {
           if (window.confirm(`Flag ${selectedRows.size} review(s) for moderation?`)) {
             flagMutation.mutate(Array.from(selectedRows));
@@ -492,6 +494,7 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
       },
       {
         label: 'Hide',
+        value: 'hide',
         onClick: () => {
           if (window.confirm(`Hide ${selectedRows.size} review(s)?`)) {
             hideMutation.mutate(Array.from(selectedRows));
@@ -500,6 +503,7 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
       },
       {
         label: 'Delete',
+        value: 'delete',
         onClick: () => {
           if (window.confirm(`Permanently delete ${selectedRows.size} review(s)? This cannot be undone.`)) {
             deleteMutation.mutate(Array.from(selectedRows));
@@ -511,61 +515,68 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
     [selectedRows, approveMutation, flagMutation, hideMutation, deleteMutation]
   );
 
+  // Handle filter changes
+  const handleFilterChange = (filterKey: string, value: string | string[]) => {
+    const stringValue = Array.isArray(value) ? value[0] || '' : value;
+
+    switch (filterKey) {
+      case 'status':
+        setStatusFilter(stringValue);
+        break;
+      case 'rating':
+        setRatingFilter(stringValue);
+        break;
+      case 'verified':
+        setVerifiedFilter(stringValue);
+        break;
+      case 'sentiment':
+        setSentimentFilter(stringValue);
+        break;
+      default:
+        break;
+    }
+  };
+
   // Filters configuration
-  const filters = useMemo(
-    () => [
-      {
-        id: 'status',
-        label: 'Status',
-        value: statusFilter,
-        onChange: setStatusFilter,
-        options: [
-          { value: 'all', label: 'All' },
-          { value: 'pending', label: 'Pending' },
-          { value: 'published', label: 'Published' },
-          { value: 'expired', label: 'Expired' },
-        ],
-      },
-      {
-        id: 'rating',
-        label: 'Rating',
-        value: ratingFilter,
-        onChange: setRatingFilter,
-        options: [
-          { value: 'all', label: 'All' },
-          { value: '5', label: '5 Stars' },
-          { value: '4', label: '4 Stars' },
-          { value: '3', label: '3 Stars' },
-          { value: '2', label: '2 Stars' },
-          { value: '1', label: '1 Star' },
-        ],
-      },
-      {
-        id: 'verified',
-        label: 'Verified',
-        value: verifiedFilter,
-        onChange: setVerifiedFilter,
-        options: [
-          { value: 'all', label: 'All' },
-          { value: 'verified', label: 'Verified Only' },
-          { value: 'unverified', label: 'Unverified Only' },
-        ],
-      },
-      {
-        id: 'sentiment',
-        label: 'Sentiment',
-        value: sentimentFilter,
-        onChange: setSentimentFilter,
-        options: [
-          { value: 'all', label: 'All' },
-          { value: 'positive', label: 'Positive (4-5★)' },
-          { value: 'neutral', label: 'Neutral (3★)' },
-          { value: 'negative', label: 'Negative (1-2★)' },
-        ],
-      },
-    ],
-    [statusFilter, ratingFilter, verifiedFilter, sentimentFilter]
-  );
+  const filters: Filter[] = [
+    {
+      key: 'status',
+      label: 'All Statuses',
+      options: [
+        { value: 'pending', label: 'Pending' },
+        { value: 'published', label: 'Published' },
+        { value: 'expired', label: 'Expired' },
+      ],
+    },
+    {
+      key: 'rating',
+      label: 'All Ratings',
+      options: [
+        { value: '5', label: '5 Stars' },
+        { value: '4', label: '4 Stars' },
+        { value: '3', label: '3 Stars' },
+        { value: '2', label: '2 Stars' },
+        { value: '1', label: '1 Star' },
+      ],
+    },
+    {
+      key: 'verified',
+      label: 'All Verification',
+      options: [
+        { value: 'verified', label: 'Verified Only' },
+        { value: 'unverified', label: 'Unverified Only' },
+      ],
+    },
+    {
+      key: 'sentiment',
+      label: 'All Sentiment',
+      options: [
+        { value: 'positive', label: 'Positive (4-5★)' },
+        { value: 'neutral', label: 'Neutral (3★)' },
+        { value: 'negative', label: 'Negative (1-2★)' },
+      ],
+    },
+  ];
 
   // Mobile card renderer
   const renderMobileCard = useCallback((review: ProfileReview) => {
@@ -625,6 +636,10 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
         data={data?.reviews || []}
         loading={isLoading}
         error={error?.message}
+        selectable={true}
+        selectedRows={selectedRows}
+        onSelectionChange={setSelectedRows}
+        onRowClick={(review) => setSelectedReview(review)}
         pagination={{
           page,
           limit,
@@ -632,29 +647,19 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
           onPageChange: setPage,
           onLimitChange: setLimit,
         }}
-        sorting={{
-          sortKey,
-          sortDirection,
-          onSortChange: (key, direction) => {
-            setSortKey(key);
-            setSortDirection(direction);
-          },
+        onSort={(key, direction) => {
+          setSortKey(key);
+          setSortDirection(direction);
         }}
-        search={{
-          value: searchQuery,
-          onChange: setSearchQuery,
-          placeholder: 'Search reviews by comment or service...',
-        }}
+        onSearch={setSearchQuery}
+        searchPlaceholder="Search reviews by comment or service..."
         filters={filters}
+        onFilterChange={handleFilterChange}
         bulkActions={bulkActions}
-        selection={{
-          selectedRows,
-          onSelectionChange: setSelectedRows,
-        }}
-        onRowClick={(review) => setSelectedReview(review)}
         autoRefreshInterval={30000}
-        enableSavedViews
+        enableSavedViews={true}
         savedViewsKey="admin-reviews-views"
+        emptyMessage="No reviews found"
         mobileCard={renderMobileCard}
         toolbarActions={
           <button
