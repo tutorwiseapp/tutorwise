@@ -358,7 +358,7 @@ export default function AdminBookingDetailModal({
             )}
 
             {/* Change Status Dropdown */}
-            <div style={{ position: 'relative', marginBottom: '2rem' }}>
+            <div style={{ position: 'relative' }}>
               <Button
                 onClick={() => setShowStatusDropdown(!showStatusDropdown)}
                 variant="secondary"
