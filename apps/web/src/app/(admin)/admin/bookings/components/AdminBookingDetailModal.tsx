@@ -309,9 +309,9 @@ export default function AdminBookingDetailModal({
       size="xl"
       sections={sections}
       actions={
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', width: '100%', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', width: '100%', justifyContent: 'space-between' }}>
           {/* Left Side: Action Buttons */}
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', flex: '1 1 auto' }}>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', flex: '1 1 auto' }}>
             {/* Primary Actions */}
             {booking.status === 'Pending' && (
               <Button onClick={handleApprove} variant="primary" disabled={isProcessing}>
