@@ -17,8 +17,10 @@ import Button from '@/app/components/ui/actions/Button';
 import { Star, Users, Filter } from 'lucide-react';
 import Link from 'next/link';
 import { usePermission } from '@/lib/rbac';
-import { HubKPIGrid, HubKPICard } from '@/app/components/hub/charts';
+import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart } from '@/app/components/hub/charts';
 import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
+import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
+import { ReviewsTable } from './components/ReviewsTable';
 import styles from './page.module.css';
 
 // Force dynamic rendering (no SSR/SSG) for admin pages
@@ -29,7 +31,7 @@ export default function AdminReviewsOverviewPage() {
   const router = useRouter();
   const canViewReviews = usePermission('reviews', 'view');
   const canManageReviews = usePermission('reviews', 'manage');
-  const [activeTab, setActiveTab] = useState<'overview'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'all-reviews'>('overview');
 
   // Fetch reviews metrics with trend data from statistics table
   const totalReviewsMetric = useAdminMetric({ metric: 'reviews_total', compareWith: 'last_month' });
@@ -69,9 +71,10 @@ export default function AdminReviewsOverviewPage() {
       tabs={
         <HubTabs
           tabs={[
-            { id: 'overview', label: 'Overview', active: activeTab === 'overview' }
+            { id: 'overview', label: 'Overview', active: activeTab === 'overview' },
+            { id: 'all-reviews', label: 'All Reviews', active: activeTab === 'all-reviews' }
           ]}
-          onTabChange={(tabId) => setActiveTab(tabId as 'overview')}
+          onTabChange={(tabId) => setActiveTab(tabId as 'overview' | 'all-reviews')}
           className={styles.reviewsTabs}
         />
       }
@@ -157,15 +160,55 @@ export default function AdminReviewsOverviewPage() {
             />
           </HubKPIGrid>
 
-          {/* Coming Soon Placeholder */}
-          <div className={styles.placeholder}>
-            <Star className={styles.placeholderIcon} />
-            <h3 className={styles.placeholderTitle}>Reviews Management Coming Soon</h3>
-            <p className={styles.placeholderText}>
-              Detailed review analytics, moderation tools, and quality insights will be available here.
-            </p>
+          {/* Charts Section */}
+          <div className={styles.chartsSection}>
+            <ErrorBoundary>
+              <HubTrendChart
+                title="Review Trends"
+                subtitle="Last 7 days"
+                metric="reviews_total"
+                height={300}
+              />
+            </ErrorBoundary>
+
+            <ErrorBoundary>
+              <HubCategoryBreakdownChart
+                title="Status Breakdown"
+                subtitle="Current distribution"
+                categories={[
+                  { label: 'Pending', value: 'pending', color: '#fbbf24' },
+                  { label: 'Published', value: 'published', color: '#10b981' },
+                  { label: 'Expired', value: 'expired', color: '#6b7280' },
+                ]}
+                metric="reviews_total"
+                height={300}
+              />
+            </ErrorBoundary>
+
+            <ErrorBoundary>
+              <HubCategoryBreakdownChart
+                title="Rating Distribution"
+                subtitle="All time"
+                categories={[
+                  { label: '1 Star', value: '1', color: '#ef4444' },
+                  { label: '2 Stars', value: '2', color: '#f97316' },
+                  { label: '3 Stars', value: '3', color: '#fbbf24' },
+                  { label: '4 Stars', value: '4', color: '#84cc16' },
+                  { label: '5 Stars', value: '5', color: '#10b981' },
+                ]}
+                metric="reviews_total"
+                height={300}
+              />
+            </ErrorBoundary>
           </div>
         </>
+      )}
+
+      {/* All Reviews Tab */}
+      {activeTab === 'all-reviews' && (
+        <div className={styles.tableContainer}>
+          <ReviewsTable />
+        </div>
       )}
     </HubPageLayout>
   );

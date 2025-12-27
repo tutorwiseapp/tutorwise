@@ -1,0 +1,392 @@
+/**
+ * Filename: AdminReviewDetailModal.module.css
+ * Purpose: Styles for admin review detail modal
+ * Created: 2025-12-27
+ * Pattern: Copy from AdminBookingDetailModal.module.css with review-specific additions
+ */
+
+/* ========================================
+   Actions Wrapper
+   ======================================== */
+
+.actionsWrapper {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 1rem !important;
+  width: 100% !important;
+  align-items: flex-start !important;
+  row-gap: 1rem !important;
+  column-gap: 1rem !important;
+}
+
+.actionsWrapper > * {
+  flex-shrink: 0;
+}
+
+/* Mobile: 2 buttons per row, full width */
+@media (max-width: 767px) {
+  .actionsWrapper > * {
+    flex: 1 1 calc(50% - 0.5rem); /* 2 buttons per row with gap */
+    min-width: calc(50% - 0.5rem);
+  }
+}
+
+/* ========================================
+   Action Buttons
+   ======================================== */
+
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--color-primary);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.primaryButton:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.primaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.secondaryButton:hover {
+  background-color: var(--color-background-secondary);
+  border-color: var(--color-border-hover);
+}
+
+.secondaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dangerButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #dc2626;
+  border-radius: 8px;
+  background-color: #fee2e2;
+  color: #991b1b;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dangerButton:hover {
+  background-color: #fecaca;
+  border-color: #b91c1c;
+}
+
+.dangerButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   Section Styles
+   ======================================== */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.section:last-child {
+  border-bottom: none;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.field span {
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+
+/* ========================================
+   Review-Specific Styles
+   ======================================== */
+
+/* Rating Display */
+.ratingDisplay {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.stars {
+  display: flex;
+  gap: 4px;
+}
+
+.starFilled {
+  color: #fbbf24;
+  fill: #fbbf24;
+}
+
+.starEmpty {
+  color: #d1d5db;
+}
+
+.ratingValue {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Comment Box */
+.commentBox {
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: var(--color-background-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  white-space: pre-wrap;
+}
+
+/* Sentiment Badges */
+.sentimentPositive {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  background-color: #d1fae5;
+  color: #065f46;
+  width: fit-content;
+}
+
+.sentimentNeutral {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  background-color: #fef3c7;
+  color: #92400e;
+  width: fit-content;
+}
+
+.sentimentNegative {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  background-color: #fee2e2;
+  color: #991b1b;
+  width: fit-content;
+}
+
+/* Verified Display */
+.verifiedDisplay {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.verifiedIcon {
+  color: #10b981;
+}
+
+.unverifiedIcon {
+  color: #d1d5db;
+}
+
+/* Helpful Display */
+.helpfulDisplay {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-secondary);
+}
+
+/* Profile Display */
+.profileDisplay {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Role Badge */
+.roleBadge {
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: var(--color-background-secondary);
+  color: var(--color-text-secondary);
+  text-transform: capitalize;
+  width: fit-content;
+}
+
+/* Badge List */
+.badgeList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.badge {
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #eff6ff;
+  color: #1e40af;
+}
+
+/* Location Badge */
+.locationBadge {
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #fef3c7;
+  color: #92400e;
+  text-transform: capitalize;
+  width: fit-content;
+}
+
+/* Status Badges */
+.statusPending {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  background-color: #fef3c7;
+  color: #92400e;
+  width: fit-content;
+}
+
+.statusPublished {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  background-color: #d1fae5;
+  color: #065f46;
+  width: fit-content;
+}
+
+.statusExpired {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  background-color: #e5e7eb;
+  color: #4b5563;
+  width: fit-content;
+}
+
+/* ID Text */
+.idText {
+  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+/* Link Button */
+.linkButton {
+  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  color: var(--color-primary);
+  font-weight: 500;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.linkButton:hover {
+  color: var(--color-primary-dark);
+}
+
+/* JSON Display */
+.jsonDisplay {
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-x: auto;
+  max-height: 300px;
+  overflow-y: auto;
+}

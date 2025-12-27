@@ -1,0 +1,333 @@
+/**
+ * Filename: ReviewsTable.module.css
+ * Purpose: Styles for admin reviews table cells, badges, and mobile cards
+ * Created: 2025-12-27
+ */
+
+/* ========================================
+   Column Cell Styles
+   ======================================== */
+
+/* Column 1: ID Cell - Monospace font for UUID */
+.idCell {
+  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+/* Column 2: Date Cell - Standard date format */
+.dateCell {
+  font-size: 14px;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+/* Column 3: Service Cell - Service name */
+.serviceCell {
+  font-size: 14px;
+  color: var(--color-text-primary);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Columns 4-5: Profile Cells (Reviewer/Reviewee) - Avatar + name + role */
+.profileCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.profileName {
+  font-size: 14px;
+  color: var(--color-text-primary);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.roleBadge {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  text-transform: capitalize;
+}
+
+/* Column 6: Rating Cell - Star icons + numeric */
+.ratingCell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stars {
+  display: flex;
+  gap: 2px;
+}
+
+.starFilled {
+  color: #fbbf24;
+  fill: #fbbf24;
+}
+
+.starEmpty {
+  color: #d1d5db;
+}
+
+.ratingValue {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  margin-left: 2px;
+}
+
+/* Column 7: Sentiment Badges */
+.sentimentPositive {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.sentimentNeutral {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.sentimentNegative {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Column 8: Status Badges */
+.statusPending {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.statusPublished {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.statusExpired {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #e5e7eb;
+  color: #4b5563;
+}
+
+/* Column 9: Helpful Cell */
+.helpfulCell {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+/* Column 10: Verified Cell */
+.verifiedCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.verifiedIcon {
+  color: #10b981;
+}
+
+.unverifiedIcon {
+  color: #d1d5db;
+}
+
+/* ========================================
+   Advanced Filters Button
+   ======================================== */
+
+.advancedFiltersButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.advancedFiltersButton:hover {
+  background-color: var(--color-background-secondary);
+  border-color: var(--color-border-hover);
+}
+
+.filterBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background-color: var(--color-primary);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ========================================
+   Mobile Card Styles
+   ======================================== */
+
+.mobileCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: var(--color-background);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobileCard:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.mobileCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mobileId {
+  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.mobileCardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mobileService {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.mobileProfiles {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mobileProfile {
+  display: flex;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.mobileLabel {
+  color: var(--color-text-tertiary);
+  font-weight: 500;
+}
+
+.mobileRating {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobileDate {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+/* ========================================
+   Responsive Breakpoints
+   ======================================== */
+
+@media (max-width: 768px) {
+  .profileCell {
+    gap: 6px;
+  }
+
+  .avatar {
+    width: 28px;
+    height: 28px;
+  }
+
+  .profileName {
+    font-size: 13px;
+  }
+
+  .roleBadge {
+    font-size: 10px;
+  }
+
+  .ratingCell {
+    gap: 4px;
+  }
+
+  .stars {
+    gap: 1px;
+  }
+}

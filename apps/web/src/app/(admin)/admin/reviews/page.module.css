@@ -95,3 +95,56 @@
     font-size: 1.125rem;
   }
 }
+
+/* ========================================
+   Charts Section (3 charts grid)
+   ======================================== */
+
+.chartsSection {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+/* Tablet: 2 columns for charts */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .chartsSection {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Make third chart span full width on tablet */
+  .chartsSection > :nth-child(3) {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Desktop: 1 column (keeps charts stacked) */
+@media (min-width: 1024px) {
+  .chartsSection {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile: 1 column */
+@media (max-width: 767px) {
+  .chartsSection {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+}
+
+/* ========================================
+   Table Container
+   ======================================== */
+
+.tableContainer {
+  margin-top: 2rem;
+}
+
+@media (max-width: 767px) {
+  .tableContainer {
+    margin-top: 1.5rem;
+  }
+}
