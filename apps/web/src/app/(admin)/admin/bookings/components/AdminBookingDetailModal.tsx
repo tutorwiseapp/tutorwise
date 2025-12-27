@@ -30,6 +30,8 @@ import { HubDetailModal } from '@/app/components/hub/modal';
 import type { DetailSection } from '@/app/components/hub/modal';
 import Button from '@/app/components/ui/actions/Button';
 import { createClient } from '@/utils/supabase/client';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import styles from './AdminBookingDetailModal.module.css';
 
 interface AdminBookingDetailModalProps {
   isOpen: boolean;
@@ -47,7 +49,6 @@ export default function AdminBookingDetailModal({
   const router = useRouter();
   const supabase = createClient();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   // Format date helper
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-GB', {
@@ -254,7 +255,6 @@ export default function AdminBookingDetailModal({
     if (isProcessing) return;
 
     if (!confirm(`Change booking status to "${newStatus}"?`)) {
-      setShowStatusDropdown(false);
       return;
     }
 
@@ -271,7 +271,6 @@ export default function AdminBookingDetailModal({
       if (error) throw error;
 
       alert(`Booking status changed to ${newStatus} successfully!`);
-      setShowStatusDropdown(false);
       onBookingUpdated?.();
       onClose();
     } catch (error) {
@@ -309,118 +308,83 @@ export default function AdminBookingDetailModal({
       size="xl"
       sections={sections}
       actions={
-        <>
-          <style jsx>{`
-            .actionsWrapper {
-              display: flex !important;
-              flex-wrap: wrap !important;
-              gap: 16px !important;
-              width: 100% !important;
-              align-items: flex-start !important;
-            }
-          `}</style>
-          <div className="actionsWrapper">
-            {/* Primary Actions */}
-            {booking.status === 'Pending' && (
-              <Button onClick={handleApprove} variant="primary" disabled={isProcessing}>
-                {isProcessing ? 'Processing...' : 'Approve Booking'}
-              </Button>
-            )}
-            {booking.payment_status === 'Paid' && booking.status !== 'Cancelled' && (
-              <Button onClick={handleRefund} variant="secondary" disabled={isProcessing}>
-                {isProcessing ? 'Processing...' : 'Issue Refund'}
-              </Button>
-            )}
-            {booking.status !== 'Cancelled' && booking.status !== 'Completed' && (
-              <Button onClick={handleCancel} variant="danger" disabled={isProcessing}>
-                {isProcessing ? 'Processing...' : 'Cancel Booking'}
-              </Button>
-            )}
+        <div className={styles.actionsWrapper}>
+          {/* Primary Actions */}
+          {booking.status === 'Pending' && (
+            <Button onClick={handleApprove} variant="primary" disabled={isProcessing}>
+              {isProcessing ? 'Processing...' : 'Approve Booking'}
+            </Button>
+          )}
+          {booking.payment_status === 'Paid' && booking.status !== 'Cancelled' && (
+            <Button onClick={handleRefund} variant="secondary" disabled={isProcessing}>
+              {isProcessing ? 'Processing...' : 'Issue Refund'}
+            </Button>
+          )}
+          {booking.status !== 'Cancelled' && booking.status !== 'Completed' && (
+            <Button onClick={handleCancel} variant="danger" disabled={isProcessing}>
+              {isProcessing ? 'Processing...' : 'Cancel Booking'}
+            </Button>
+          )}
 
-            {/* Contact Actions */}
-            {booking.client_id && (
-              <Button
-                onClick={handleContactClient}
-                variant="secondary"
-                disabled={isProcessing}
-              >
-                Contact Client
-              </Button>
-            )}
-            {booking.tutor_id && (
-              <Button
-                onClick={handleContactTutor}
-                variant="secondary"
-                disabled={isProcessing}
-              >
-                Contact Tutor
-              </Button>
-            )}
+          {/* Contact Actions */}
+          {booking.client_id && (
+            <Button
+              onClick={handleContactClient}
+              variant="secondary"
+              disabled={isProcessing}
+            >
+              Contact Client
+            </Button>
+          )}
+          {booking.tutor_id && (
+            <Button
+              onClick={handleContactTutor}
+              variant="secondary"
+              disabled={isProcessing}
+            >
+              Contact Tutor
+            </Button>
+          )}
 
-            {/* Change Status Dropdown */}
-            <div style={{ position: 'relative' }}>
+          {/* Change Status Dropdown */}
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
               <Button
-                onClick={() => setShowStatusDropdown(!showStatusDropdown)}
                 variant="secondary"
                 disabled={isProcessing}
               >
                 Change Status
               </Button>
-              {showStatusDropdown && (
-                <div style={{
-                  position: 'absolute',
-                  top: '100%',
-                  left: 0,
-                  marginTop: '0.25rem',
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                  zIndex: 1000,
-                  minWidth: '160px',
-                  padding: '0.5rem 0',
-                }}>
-                  {['Pending', 'Confirmed', 'Completed', 'Cancelled'].map((status) => (
-                    <button
-                      key={status}
-                      onClick={() => handleChangeStatus(status)}
-                      disabled={booking.status === status || isProcessing}
-                      style={{
-                        display: 'block',
-                        width: '100%',
-                        padding: '0.75rem 1rem',
-                        textAlign: 'left',
-                        border: 'none',
-                        background: booking.status === status ? '#f3f4f6' : 'transparent',
-                        cursor: booking.status === status ? 'default' : 'pointer',
-                        fontSize: '0.875rem',
-                        color: booking.status === status ? '#9ca3af' : '#374151',
-                      }}
-                      onMouseEnter={(e) => {
-                        if (booking.status !== status && !isProcessing) {
-                          e.currentTarget.style.backgroundColor = '#f9fafb';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (booking.status !== status) {
-                          e.currentTarget.style.backgroundColor = 'transparent';
-                        }
-                      }}
-                    >
-                      {status} {booking.status === status && '(Current)'}
-                    
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            </DropdownMenu.Trigger>
 
-            {/* Close Button */}
-            <Button onClick={onClose} variant="secondary" disabled={isProcessing}>
-              Close
-            </Button>
-          </div>
-        </>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content
+                className={styles.statusDropdownContent}
+                sideOffset={5}
+                align="start"
+              >
+                {['Pending', 'Confirmed', 'Completed', 'Cancelled'].map((status) => (
+                  <DropdownMenu.Item
+                    key={status}
+                    className={styles.statusDropdownItem}
+                    disabled={booking.status === status || isProcessing}
+                    onSelect={() => handleChangeStatus(status)}
+                  >
+                    {status}
+                    {booking.status === status && (
+                      <span className={styles.currentStatusBadge}>(Current)</span>
+                    )}
+                  </DropdownMenu.Item>
+                ))}
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
+
+          {/* Close Button */}
+          <Button onClick={onClose} variant="secondary" disabled={isProcessing}>
+            Close
+          </Button>
+        </div>
       }
     />
   );
