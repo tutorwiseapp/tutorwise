@@ -378,6 +378,7 @@ export default function AdminBookingDetailModal({
                   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
                   zIndex: 1000,
                   minWidth: '160px',
+                  padding: '0.5rem 0',
                 }}>
                   {['Pending', 'Confirmed', 'Completed', 'Cancelled'].map((status) => (
                     <button
