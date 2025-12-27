@@ -119,13 +119,6 @@ export default function AdminListingDetailModal({
     {
       title: 'Media',
       fields: [
-        { label: 'Hero Image', value: listing.hero_image_url || 'N/A' },
-        {
-          label: 'Gallery Images',
-          value: listing.gallery_image_urls
-            ? `${listing.gallery_image_urls.length} images`
-            : 'None',
-        },
         { label: 'Video URL', value: listing.video_url || 'N/A' },
       ],
     },
