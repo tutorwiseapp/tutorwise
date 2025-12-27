@@ -262,13 +262,6 @@ export function AdminReviewDetailModal({
             </div>
           </div>
 
-          {review.reviewer.email && (
-            <div className={styles.field}>
-              <label>Email</label>
-              <span>{review.reviewer.email}</span>
-            </div>
-          )}
-
           {review.reviewer.active_role && (
             <div className={styles.field}>
               <label>Role</label>
@@ -305,13 +298,6 @@ export function AdminReviewDetailModal({
               <span>{review.reviewee.full_name || '—'}</span>
             </div>
           </div>
-
-          {review.reviewee.email && (
-            <div className={styles.field}>
-              <label>Email</label>
-              <span>{review.reviewee.email}</span>
-            </div>
-          )}
 
           {review.reviewee.active_role && (
             <div className={styles.field}>

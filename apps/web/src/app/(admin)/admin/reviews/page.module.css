@@ -24,6 +24,7 @@
 /* Tabs */
 .reviewsTabs {
   --hub-tabs-margin-top: 3rem;
+  --hub-tabs-margin-bottom: 1rem; /* 1rem tab margin + 1rem content padding = 2rem total */
 }
 
 @media (max-width: 767px) {
@@ -140,11 +141,5 @@
    ======================================== */
 
 .tableContainer {
-  margin-top: 2rem;
-}
-
-@media (max-width: 767px) {
-  .tableContainer {
-    margin-top: 1.5rem;
-  }
+  /* Spacing handled by HubTabs margin-bottom */
 }

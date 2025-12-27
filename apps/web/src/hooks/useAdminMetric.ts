@@ -43,6 +43,11 @@ export type MetricName =
   | 'listings_total'
   | 'listings_active'
   | 'listings_inactive'
+  | 'listings_draft_count'
+  | 'listings_published_rate'
+  | 'listings_views_total'
+  | 'listings_bookings_total'
+  | 'listings_active_rate'
   // Reviews metrics
   | 'reviews_total'
   | 'reviews_avg_rating'

@@ -980,6 +980,7 @@ Use `HubPageTemplate.tsx.example` as a starting point for new hub pages. It incl
 
 ## Reference Documentation
 
+- **UI Standards**: [HUB-UI-STANDARDS.md](../HUB-UI-STANDARDS.md) - **⭐ REQUIRED READING** - All UI dimensions, spacing, and styling standards
 - **Architecture Status**: [hub-architecture-migration-status-2025-12-03.md](../../../../docs/refactoring/hub-architecture-migration-status-2025-12-03.md)
 - **HubEmptyState Assessment**: [hub-empty-state-assessment-2025-12-03.md](../../../../docs/refactoring/hub-empty-state-assessment-2025-12-03.md)
 - **Component README**: [README.md](./README.md)

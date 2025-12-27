@@ -337,13 +337,6 @@ export default function ListingsTable() {
       sortable: true,
       render: (listing) => (
         <div className={styles.titleCell}>
-          {listing.hero_image_url && (
-            <img
-              src={listing.hero_image_url}
-              alt={listing.title}
-              className={styles.listingImage}
-            />
-          )}
           <div className={styles.titleContent}>
             <span className={styles.titleText}>{listing.title}</span>
             <span className={styles.listingSlug}>{listing.slug}</span>
@@ -367,7 +360,6 @@ export default function ListingsTable() {
           )}
           <div className={styles.tutorInfo}>
             <span className={styles.tutorName}>{listing.profile?.full_name || 'N/A'}</span>
-            <span className={styles.tutorEmail}>{listing.profile?.email}</span>
           </div>
         </div>
       ),
@@ -404,7 +396,6 @@ export default function ListingsTable() {
       label: 'Views',
       width: '100px',
       sortable: true,
-      align: 'right',
       render: (listing) => (
         <span className={styles.metricValue}>{listing.view_count || 0}</span>
       ),
@@ -414,7 +405,6 @@ export default function ListingsTable() {
       label: 'Bookings',
       width: '100px',
       sortable: true,
-      align: 'right',
       render: (listing) => (
         <span className={styles.metricValue}>{listing.booking_count || 0}</span>
       ),
@@ -424,7 +414,6 @@ export default function ListingsTable() {
       label: 'Price',
       width: '100px',
       sortable: true,
-      align: 'right',
       render: (listing) => (
         <span className={styles.priceValue}>£{listing.hourly_rate}/hr</span>
       ),
@@ -559,12 +548,11 @@ export default function ListingsTable() {
   // Define bulk actions
   const bulkActions: BulkAction[] = [
     {
-      id: 'activate',
+      value: 'activate',
       label: 'Activate',
-      icon: CheckCircle,
       variant: 'primary',
-      onClick: async (selectedIds: Set<string>) => {
-        if (!confirm(`Activate ${selectedIds.size} listing(s)?`)) return;
+      onClick: async (selectedIds: string[]) => {
+        if (!confirm(`Activate ${selectedIds.length} listing(s)?`)) return;
 
         const { error } = await supabase
           .from('listings')
@@ -573,25 +561,24 @@ export default function ListingsTable() {
             published_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           })
-          .in('id', Array.from(selectedIds));
+          .in('id', selectedIds);
 
         if (error) {
           alert('Failed to activate listings');
           console.error(error);
         } else {
-          alert(`${selectedIds.size} listing(s) activated successfully`);
+          alert(`${selectedIds.length} listing(s) activated successfully`);
           refetch();
           setSelectedRows(new Set());
         }
       },
     },
     {
-      id: 'deactivate',
+      value: 'deactivate',
       label: 'Deactivate',
-      icon: XCircle,
       variant: 'secondary',
-      onClick: async (selectedIds: Set<string>) => {
-        if (!confirm(`Deactivate ${selectedIds.size} listing(s)?`)) return;
+      onClick: async (selectedIds: string[]) => {
+        if (!confirm(`Deactivate ${selectedIds.length} listing(s)?`)) return;
 
         const { error } = await supabase
           .from('listings')
@@ -599,67 +586,40 @@ export default function ListingsTable() {
             status: 'archived',
             updated_at: new Date().toISOString(),
           })
-          .in('id', Array.from(selectedIds));
+          .in('id', selectedIds);
 
         if (error) {
           alert('Failed to deactivate listings');
           console.error(error);
         } else {
-          alert(`${selectedIds.size} listing(s) deactivated successfully`);
+          alert(`${selectedIds.length} listing(s) deactivated successfully`);
           refetch();
           setSelectedRows(new Set());
         }
       },
     },
     {
-      id: 'feature',
-      label: 'Feature',
-      icon: Star,
-      variant: 'secondary',
-      onClick: async (selectedIds: Set<string>) => {
-        if (!confirm(`Feature ${selectedIds.size} listing(s)?`)) return;
-
-        const { error } = await supabase
-          .from('listings')
-          .update({
-            is_featured: true,
-            updated_at: new Date().toISOString(),
-          })
-          .in('id', Array.from(selectedIds));
-
-        if (error) {
-          alert('Failed to feature listings');
-          console.error(error);
-        } else {
-          alert(`${selectedIds.size} listing(s) featured successfully`);
-          refetch();
-          setSelectedRows(new Set());
-        }
-      },
-    },
-    {
-      id: 'delete',
+      value: 'delete',
       label: 'Delete',
-      icon: Trash2,
       variant: 'danger',
-      onClick: async (selectedIds: Set<string>) => {
+      onClick: async (selectedIds: string[]) => {
         if (
           !confirm(
-            `Delete ${selectedIds.size} listing(s)? This action cannot be undone.`
+            `Delete ${selectedIds.length} listing(s)? This action cannot be undone.`
           )
         )
           return;
 
-        const { error } = await supabase
+        const { error} = await supabase
           .from('listings')
           .delete()
-          .in('id', Array.from(selectedIds));
+          .in('id', selectedIds);
 
         if (error) {
           alert('Failed to delete listings');
           console.error(error);
         } else {
-          alert(`${selectedIds.size} listing(s) deleted successfully`);
+          alert(`${selectedIds.length} listing(s) deleted successfully`);
           refetch();
           setSelectedRows(new Set());
         }
@@ -670,13 +630,6 @@ export default function ListingsTable() {
   // Mobile card render function
   const mobileCard = (listing: Listing) => (
     <div className={styles.mobileCard} onClick={() => handleRowClick(listing)}>
-      {/* Hero Image */}
-      {listing.hero_image_url && (
-        <div className={styles.mobileCardImage}>
-          <img src={listing.hero_image_url} alt={listing.title} />
-        </div>
-      )}
-
       {/* Card Header */}
       <div className={styles.mobileCardHeader}>
         <div className={styles.mobileCardTitle}>
@@ -725,9 +678,7 @@ export default function ListingsTable() {
           </div>
           <div className={styles.metricItem}>
             <Star className={styles.metricIcon} />
-            <span>
-              {listing.average_rating ? listing.average_rating.toFixed(1) : 'N/A'}
-            </span>
+            <span>N/A</span>
           </div>
         </div>
 

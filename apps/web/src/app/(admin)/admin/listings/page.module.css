@@ -48,7 +48,7 @@
 
 /* Second row grid (for engagement metrics) */
 .secondRowGrid {
-  margin-top: 1.5rem;
+  /* No margin-top - HubKPIGrid has margin-bottom: 2rem built-in */
 }
 
 /* Charts Section */
@@ -80,6 +80,6 @@
 
 @media (max-width: 768px) {
   .secondRowGrid {
-    margin-top: 1rem;
+    /* No margin-top - HubKPIGrid has margin-bottom: 2rem built-in */
   }
 }

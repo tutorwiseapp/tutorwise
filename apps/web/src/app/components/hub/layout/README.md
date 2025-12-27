@@ -273,6 +273,7 @@ interface HubEmptyStateProps {
 
 ## Reference Documentation
 
+- **UI Standards**: [HUB-UI-STANDARDS.md](../HUB-UI-STANDARDS.md) - **⭐ START HERE** - Canonical reference for all UI dimensions, spacing, and styling
 - **Migration Guide**: [HUB-MIGRATION-GUIDE.md](./HUB-MIGRATION-GUIDE.md)
 - **Architecture Status**: [hub-architecture-migration-status-2025-12-03.md](../../../../docs/refactoring/hub-architecture-migration-status-2025-12-03.md)
 - **HubEmptyState Assessment**: [hub-empty-state-assessment-2025-12-03.md](../../../../docs/refactoring/hub-empty-state-assessment-2025-12-03.md)

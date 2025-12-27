@@ -14,11 +14,12 @@ import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
 import Button from '@/app/components/ui/actions/Button';
-import { FileText, Eye, Calendar, Star, TrendingUp, Activity } from 'lucide-react';
+import { FileText, Eye, Calendar, FileEdit, TrendingUp, Activity } from 'lucide-react';
 import Link from 'next/link';
 import { usePermission } from '@/lib/rbac';
 import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type TrendDataPoint, type CategoryData } from '@/app/components/hub/charts';
 import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
+import { useAdminTrendData } from '@/hooks/useAdminTrendData';
 import ListingsTable from './components/ListingsTable';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
@@ -38,10 +39,10 @@ export default function AdminListingsOverviewPage() {
   const totalListingsMetric = useAdminMetric({ metric: 'listings_total', compareWith: 'last_month' });
   const activeListingsMetric = useAdminMetric({ metric: 'listings_active', compareWith: 'last_month' });
   const inactiveListingsMetric = useAdminMetric({ metric: 'listings_inactive', compareWith: 'last_month' });
+  const draftListingsMetric = useAdminMetric({ metric: 'listings_draft_count', compareWith: 'last_month' });
   const publishedRateMetric = useAdminMetric({ metric: 'listings_published_rate', compareWith: 'last_month' });
   const totalViewsMetric = useAdminMetric({ metric: 'listings_views_total', compareWith: 'last_month' });
   const totalBookingsMetric = useAdminMetric({ metric: 'listings_bookings_total', compareWith: 'last_month' });
-  const avgRatingMetric = useAdminMetric({ metric: 'listings_avg_rating', compareWith: 'last_month' });
   const activeRateMetric = useAdminMetric({ metric: 'listings_active_rate', compareWith: 'last_month' });
 
   // Header actions - removed redundant Filters button (now in table toolbar)
@@ -49,37 +50,19 @@ export default function AdminListingsOverviewPage() {
     return undefined;
   };
 
-  // Mock data for charts (TODO: Replace with real API data)
-  const [isLoadingCharts] = useState(false);
+  // Fetch trend data from platform_statistics_daily (last 7 days)
+  const listingTrendsQuery = useAdminTrendData({ metric: 'listings_total', days: 7 });
+  const viewsTrendsQuery = useAdminTrendData({ metric: 'listings_views_total', days: 7 });
+  const bookingsTrendsQuery = useAdminTrendData({ metric: 'listings_bookings_total', days: 7 });
 
-  // Listing trends data (last 7 days)
-  const listingTrendsData: TrendDataPoint[] = [
-    { date: '2025-12-20', value: totalListingsMetric.value * 0.12, label: '20 Dec' },
-    { date: '2025-12-21', value: totalListingsMetric.value * 0.14, label: '21 Dec' },
-    { date: '2025-12-22', value: totalListingsMetric.value * 0.15, label: '22 Dec' },
-    { date: '2025-12-23', value: totalListingsMetric.value * 0.13, label: '23 Dec' },
-    { date: '2025-12-24', value: totalListingsMetric.value * 0.16, label: '24 Dec' },
-    { date: '2025-12-25', value: totalListingsMetric.value * 0.14, label: '25 Dec' },
-    { date: '2025-12-26', value: totalListingsMetric.value * 0.16, label: '26 Dec' },
-  ];
+  const isLoadingCharts = listingTrendsQuery.isLoading || viewsTrendsQuery.isLoading || bookingsTrendsQuery.isLoading;
 
-  // Listing status breakdown data
+  // Listing status breakdown data (using real metrics)
   const listingStatusData: CategoryData[] = [
     { label: 'Active', value: activeListingsMetric.value, color: '#10B981' },
     { label: 'Inactive', value: inactiveListingsMetric.value, color: '#6B7280' },
-    { label: 'Draft', value: Math.floor(totalListingsMetric.value * 0.15), color: '#F59E0B' },
-    { label: 'Archived', value: Math.floor(totalListingsMetric.value * 0.05), color: '#EF4444' },
-  ];
-
-  // Engagement trends data (last 7 days)
-  const engagementTrendsData: TrendDataPoint[] = [
-    { date: '2025-12-20', value: totalViewsMetric.value * 0.12, label: '20 Dec' },
-    { date: '2025-12-21', value: totalViewsMetric.value * 0.14, label: '21 Dec' },
-    { date: '2025-12-22', value: totalViewsMetric.value * 0.15, label: '22 Dec' },
-    { date: '2025-12-23', value: totalViewsMetric.value * 0.13, label: '23 Dec' },
-    { date: '2025-12-24', value: totalViewsMetric.value * 0.16, label: '24 Dec' },
-    { date: '2025-12-25', value: totalViewsMetric.value * 0.14, label: '25 Dec' },
-    { date: '2025-12-26', value: totalViewsMetric.value * 0.16, label: '26 Dec' },
+    // Note: Draft and Archived would need separate metrics in platform_statistics_daily
+    // For now, we only show Active/Inactive as those are the only metrics we track
   ];
 
   return (
@@ -110,7 +93,7 @@ export default function AdminListingsOverviewPage() {
               { label: 'Total Listings', value: totalListingsMetric.value },
               { label: 'Active', value: activeListingsMetric.value },
               { label: 'Inactive', value: inactiveListingsMetric.value },
-              { label: 'Draft', value: Math.floor(totalListingsMetric.value * 0.15) },
+              { label: 'Draft', value: draftListingsMetric.value },
             ]}
           />
           <AdminHelpWidget
@@ -126,7 +109,7 @@ export default function AdminListingsOverviewPage() {
             tips={[
               'High view count with low bookings may indicate pricing issues',
               'Monitor published rate to encourage tutor engagement',
-              'Track avg rating for quality control',
+              'High draft count suggests tutors need help completing listings',
               'Active rate shows platform health',
             ]}
           />
@@ -136,7 +119,7 @@ export default function AdminListingsOverviewPage() {
       {/* Overview Tab */}
       {activeTab === 'overview' && (
         <>
-          {/* KPI Cards - Row 1: Listing Counts */}
+          {/* KPI Cards - All 8 cards in single grid */}
           <HubKPIGrid>
             <HubKPICard
               label="Total Listings"
@@ -182,10 +165,6 @@ export default function AdminListingsOverviewPage() {
               icon={TrendingUp}
               trend={publishedRateMetric.trend}
             />
-          </HubKPIGrid>
-
-          {/* KPI Cards - Row 2: Engagement */}
-          <HubKPIGrid className={styles.secondRowGrid}>
             <HubKPICard
               label="Total Views"
               value={totalViewsMetric.value}
@@ -209,15 +188,15 @@ export default function AdminListingsOverviewPage() {
               trend={totalBookingsMetric.trend}
             />
             <HubKPICard
-              label="Avg. Rating"
-              value={avgRatingMetric.value > 0 ? `${avgRatingMetric.value.toFixed(1)}/5.0` : 'N/A'}
-              sublabel={
-                avgRatingMetric.change !== null
-                  ? `${avgRatingMetric.change >= 0 ? '+' : ''}${avgRatingMetric.change.toFixed(1)} vs last month`
-                  : undefined
-              }
-              icon={Star}
-              trend={avgRatingMetric.trend}
+              label="Draft Listings"
+              value={draftListingsMetric.value}
+              sublabel={formatMetricChange(
+                draftListingsMetric.change,
+                draftListingsMetric.changePercent,
+                'last_month'
+              )}
+              icon={FileEdit}
+              trend={draftListingsMetric.trend}
             />
             <HubKPICard
               label="Active Rate"
@@ -236,15 +215,15 @@ export default function AdminListingsOverviewPage() {
           <div className={styles.chartsSection}>
             {/* Listing Trends Chart */}
             <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load listing trends chart</div>}>
-              {isLoadingCharts ? (
+              {listingTrendsQuery.isLoading ? (
                 <ChartSkeleton height="320px" />
               ) : (
                 <HubTrendChart
-                  data={listingTrendsData}
+                  data={listingTrendsQuery.data}
                   title="Listing Trends"
                   subtitle="Last 7 days"
-                  valueLabel="Listings"
-                  color="#3B82F6"
+                  valueName="Listings"
+                  lineColor="#3B82F6"
                 />
               )}
             </ErrorBoundary>
@@ -262,17 +241,17 @@ export default function AdminListingsOverviewPage() {
               )}
             </ErrorBoundary>
 
-            {/* Engagement Trends Chart */}
-            <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load engagement trends chart</div>}>
-              {isLoadingCharts ? (
+            {/* Bookings Trends Chart */}
+            <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load bookings trends chart</div>}>
+              {bookingsTrendsQuery.isLoading ? (
                 <ChartSkeleton height="320px" />
               ) : (
                 <HubTrendChart
-                  data={engagementTrendsData}
-                  title="Views & Bookings Trends"
+                  data={bookingsTrendsQuery.data}
+                  title="Listing Bookings Trends"
                   subtitle="Last 7 days"
-                  valueLabel="Count"
-                  color="#10B981"
+                  valueName="Bookings"
+                  lineColor="#10B981"
                 />
               )}
             </ErrorBoundary>

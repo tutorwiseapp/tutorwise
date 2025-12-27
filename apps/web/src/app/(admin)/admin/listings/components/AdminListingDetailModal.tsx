@@ -30,7 +30,7 @@ import type { DetailSection } from '@/app/components/hub/modal';
 import Button from '@/app/components/ui/actions/Button';
 import { createClient } from '@/utils/supabase/client';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { CheckCircle, XCircle, Star, StarOff, Edit, MessageSquare, Trash2, Settings } from 'lucide-react';
+import { CheckCircle, XCircle, Edit, MessageSquare, Trash2, Settings } from 'lucide-react';
 import styles from './AdminListingDetailModal.module.css';
 
 interface AdminListingDetailModalProps {
@@ -125,10 +125,6 @@ export default function AdminListingDetailModal({
           label: 'Updated At',
           value: listing.updated_at ? formatDateTime(listing.updated_at) : 'N/A',
         },
-        {
-          label: 'Last Published',
-          value: listing.published_at ? formatDateTime(listing.published_at) : 'Never',
-        },
       ],
     },
   ];
@@ -187,57 +183,6 @@ export default function AdminListingDetailModal({
     }
   };
 
-  const handleFeature = async () => {
-    if (!confirm('Feature this listing?')) return;
-
-    setIsProcessing(true);
-    try {
-      const { error } = await supabase
-        .from('listings')
-        .update({
-          is_featured: true,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', listing.id);
-
-      if (error) throw error;
-
-      alert('Listing featured successfully!');
-      onListingUpdated?.();
-      onClose();
-    } catch (error) {
-      console.error('Failed to feature listing:', error);
-      alert('Failed to feature listing. Please try again.');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleUnfeature = async () => {
-    if (!confirm('Unfeature this listing?')) return;
-
-    setIsProcessing(true);
-    try {
-      const { error } = await supabase
-        .from('listings')
-        .update({
-          is_featured: false,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', listing.id);
-
-      if (error) throw error;
-
-      alert('Listing unfeatured successfully!');
-      onListingUpdated?.();
-      onClose();
-    } catch (error) {
-      console.error('Failed to unfeature listing:', error);
-      alert('Failed to unfeature listing. Please try again.');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
 
   const handleChangeStatus = async (newStatus: string) => {
     if (isProcessing) return;
@@ -326,19 +271,6 @@ export default function AdminListingDetailModal({
             <Button variant="primary" onClick={handleActivate} disabled={isProcessing}>
               <CheckCircle className={styles.buttonIcon} />
               Activate
-            </Button>
-          )}
-
-          {/* Feature/Unfeature */}
-          {listing.is_featured ? (
-            <Button variant="secondary" onClick={handleUnfeature} disabled={isProcessing}>
-              <StarOff className={styles.buttonIcon} />
-              Unfeature
-            </Button>
-          ) : (
-            <Button variant="secondary" onClick={handleFeature} disabled={isProcessing}>
-              <Star className={styles.buttonIcon} />
-              Feature
             </Button>
           )}
 
