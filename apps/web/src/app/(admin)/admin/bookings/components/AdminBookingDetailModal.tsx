@@ -309,109 +309,104 @@ export default function AdminBookingDetailModal({
       size="xl"
       sections={sections}
       actions={
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', width: '100%', justifyContent: 'space-between' }}>
-          {/* Left Side: Action Buttons */}
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', flex: '1 1 auto' }}>
-            {/* Primary Actions */}
-            {booking.status === 'Pending' && (
-              <Button onClick={handleApprove} variant="primary" disabled={isProcessing}>
-                {isProcessing ? 'Processing...' : 'Approve Booking'}
-              </Button>
-            )}
-            {booking.payment_status === 'Paid' && booking.status !== 'Cancelled' && (
-              <Button onClick={handleRefund} variant="secondary" disabled={isProcessing}>
-                {isProcessing ? 'Processing...' : 'Issue Refund'}
-              </Button>
-            )}
-            {booking.status !== 'Cancelled' && booking.status !== 'Completed' && (
-              <Button onClick={handleCancel} variant="danger" disabled={isProcessing}>
-                {isProcessing ? 'Processing...' : 'Cancel Booking'}
-              </Button>
-            )}
-
-            {/* Contact Actions */}
-            {booking.client_id && (
-              <Button
-                onClick={handleContactClient}
-                variant="secondary"
-                disabled={isProcessing}
-              >
-                Contact Client
-              </Button>
-            )}
-            {booking.tutor_id && (
-              <Button
-                onClick={handleContactTutor}
-                variant="secondary"
-                disabled={isProcessing}
-              >
-                Contact Tutor
-              </Button>
-            )}
-
-            {/* Change Status Dropdown */}
-            <div style={{ position: 'relative', marginBottom: '2rem' }}>
-              <Button
-                onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-                variant="secondary"
-                disabled={isProcessing}
-              >
-                Change Status
-              </Button>
-              {showStatusDropdown && (
-                <div style={{
-                  position: 'absolute',
-                  top: '100%',
-                  left: 0,
-                  marginTop: '0.25rem',
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                  zIndex: 1000,
-                  minWidth: '160px',
-                }}>
-                  {['Pending', 'Confirmed', 'Completed', 'Cancelled'].map((status) => (
-                    <button
-                      key={status}
-                      onClick={() => handleChangeStatus(status)}
-                      disabled={booking.status === status || isProcessing}
-                      style={{
-                        display: 'block',
-                        width: '100%',
-                        padding: '0.75rem 1rem',
-                        textAlign: 'left',
-                        border: 'none',
-                        background: booking.status === status ? '#f3f4f6' : 'transparent',
-                        cursor: booking.status === status ? 'default' : 'pointer',
-                        fontSize: '0.875rem',
-                        color: booking.status === status ? '#9ca3af' : '#374151',
-                      }}
-                      onMouseEnter={(e) => {
-                        if (booking.status !== status && !isProcessing) {
-                          e.currentTarget.style.backgroundColor = '#f9fafb';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (booking.status !== status) {
-                          e.currentTarget.style.backgroundColor = 'transparent';
-                        }
-                      }}
-                    >
-                      {status} {booking.status === status && '(Current)'}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Right Side: Close Button */}
-          <div style={{ flexShrink: 0 }}>
-            <Button onClick={onClose} variant="secondary" disabled={isProcessing}>
-              Close
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', width: '100%' }}>
+          {/* Primary Actions */}
+          {booking.status === 'Pending' && (
+            <Button onClick={handleApprove} variant="primary" disabled={isProcessing}>
+              {isProcessing ? 'Processing...' : 'Approve Booking'}
             </Button>
+          )}
+          {booking.payment_status === 'Paid' && booking.status !== 'Cancelled' && (
+            <Button onClick={handleRefund} variant="secondary" disabled={isProcessing}>
+              {isProcessing ? 'Processing...' : 'Issue Refund'}
+            </Button>
+          )}
+          {booking.status !== 'Cancelled' && booking.status !== 'Completed' && (
+            <Button onClick={handleCancel} variant="danger" disabled={isProcessing}>
+              {isProcessing ? 'Processing...' : 'Cancel Booking'}
+            </Button>
+          )}
+
+          {/* Contact Actions */}
+          {booking.client_id && (
+            <Button
+              onClick={handleContactClient}
+              variant="secondary"
+              disabled={isProcessing}
+            >
+              Contact Client
+            </Button>
+          )}
+          {booking.tutor_id && (
+            <Button
+              onClick={handleContactTutor}
+              variant="secondary"
+              disabled={isProcessing}
+            >
+              Contact Tutor
+            </Button>
+          )}
+
+          {/* Change Status Dropdown */}
+          <div style={{ position: 'relative', marginBottom: '2rem' }}>
+            <Button
+              onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+              variant="secondary"
+              disabled={isProcessing}
+            >
+              Change Status
+            </Button>
+            {showStatusDropdown && (
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                marginTop: '0.25rem',
+                backgroundColor: '#ffffff',
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                zIndex: 1000,
+                minWidth: '160px',
+              }}>
+                {['Pending', 'Confirmed', 'Completed', 'Cancelled'].map((status) => (
+                  <button
+                    key={status}
+                    onClick={() => handleChangeStatus(status)}
+                    disabled={booking.status === status || isProcessing}
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '0.75rem 1rem',
+                      textAlign: 'left',
+                      border: 'none',
+                      background: booking.status === status ? '#f3f4f6' : 'transparent',
+                      cursor: booking.status === status ? 'default' : 'pointer',
+                      fontSize: '0.875rem',
+                      color: booking.status === status ? '#9ca3af' : '#374151',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (booking.status !== status && !isProcessing) {
+                        e.currentTarget.style.backgroundColor = '#f9fafb';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (booking.status !== status) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }
+                    }}
+                  >
+                    {status} {booking.status === status && '(Current)'}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
+
+          {/* Close Button */}
+          <Button onClick={onClose} variant="secondary" disabled={isProcessing}>
+            Close
+          </Button>
         </div>
       }
     />
