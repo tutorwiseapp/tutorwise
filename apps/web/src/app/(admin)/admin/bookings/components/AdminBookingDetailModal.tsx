@@ -312,10 +312,11 @@ export default function AdminBookingDetailModal({
         <>
           <style jsx>{`
             .actionsWrapper {
-              display: flex;
-              flex-wrap: wrap;
-              gap: 16px;
-              width: 100%;
+              display: flex !important;
+              flex-wrap: wrap !important;
+              gap: 16px !important;
+              width: 100% !important;
+              align-items: flex-start !important;
             }
           `}</style>
           <div className="actionsWrapper">
