@@ -30,7 +30,6 @@ import { HubDetailModal } from '@/app/components/hub/modal';
 import type { DetailSection } from '@/app/components/hub/modal';
 import Button from '@/app/components/ui/actions/Button';
 import { createClient } from '@/utils/supabase/client';
-import { MessageCircle, Mail } from 'lucide-react';
 
 interface AdminBookingDetailModalProps {
   isOpen: boolean;
@@ -337,9 +336,7 @@ export default function AdminBookingDetailModal({
                 onClick={handleContactClient}
                 variant="secondary"
                 disabled={isProcessing}
-                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
               >
-                <MessageCircle size={16} />
                 Contact Client
               </Button>
             )}
@@ -348,16 +345,14 @@ export default function AdminBookingDetailModal({
                 onClick={handleContactTutor}
                 variant="secondary"
                 disabled={isProcessing}
-                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
               >
-                <MessageCircle size={16} />
                 Contact Tutor
               </Button>
             )}
           </div>
 
           {/* Change Status Dropdown */}
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative', marginBottom: '2rem' }}>
             <Button
               onClick={() => setShowStatusDropdown(!showStatusDropdown)}
               variant="secondary"
