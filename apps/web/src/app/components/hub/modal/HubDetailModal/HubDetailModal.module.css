@@ -176,10 +176,5 @@
 
   .actions {
     padding: var(--space-2, 16px) var(--space-3, 24px);
-    flex-direction: column;
-  }
-
-  .actions > * {
-    width: 100%;
   }
 }
