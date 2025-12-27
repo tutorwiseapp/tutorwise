@@ -8,6 +8,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
 import HubHeader from '@/app/components/hub/layout/HubHeader';
 import HubTabs from '@/app/components/hub/layout/HubTabs';
@@ -20,8 +21,21 @@ import { usePermission } from '@/lib/rbac';
 import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart } from '@/app/components/hub/charts';
 import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
+import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
 import { ReviewsTable } from './components/ReviewsTable';
 import styles from './page.module.css';
+
+// Types for chart data
+interface TrendDataPoint {
+  date: string;
+  value: number;
+}
+
+interface CategoryData {
+  category: string;
+  value: number;
+  color: string;
+}
 
 // Force dynamic rendering (no SSR/SSG) for admin pages
 export const dynamic = 'force-dynamic';
@@ -38,6 +52,42 @@ export default function AdminReviewsOverviewPage() {
   const avgRatingMetric = useAdminMetric({ metric: 'reviews_avg_rating', compareWith: 'last_month' });
   const tutorsReviewedMetric = useAdminMetric({ metric: 'reviews_tutors_reviewed', compareWith: 'last_month' });
   const clientsReviewedMetric = useAdminMetric({ metric: 'reviews_clients_reviewed', compareWith: 'last_month' });
+
+  // Fetch chart data with React Query
+  const { data: reviewTrendsData = [], isLoading: isLoadingTrends } = useQuery<TrendDataPoint[]>({
+    queryKey: ['admin-reviews-trends'],
+    queryFn: async () => {
+      // TODO: Replace with actual API endpoint when available
+      // For now, return empty array to show proper empty state
+      return [];
+    },
+    staleTime: 60 * 1000,
+    retry: 2,
+  });
+
+  const { data: statusBreakdownData = [], isLoading: isLoadingStatus } = useQuery<CategoryData[]>({
+    queryKey: ['admin-reviews-status-breakdown'],
+    queryFn: async () => {
+      // TODO: Replace with actual API endpoint when available
+      // For now, return empty array to show proper empty state
+      return [];
+    },
+    staleTime: 60 * 1000,
+    retry: 2,
+  });
+
+  const { data: ratingDistributionData = [], isLoading: isLoadingRatings } = useQuery<CategoryData[]>({
+    queryKey: ['admin-reviews-rating-distribution'],
+    queryFn: async () => {
+      // TODO: Replace with actual API endpoint when available
+      // For now, return empty array to show proper empty state
+      return [];
+    },
+    staleTime: 60 * 1000,
+    retry: 2,
+  });
+
+  const isLoadingCharts = isLoadingTrends || isLoadingStatus || isLoadingRatings;
 
   // Header actions
   const getHeaderActions = () => {
@@ -162,43 +212,63 @@ export default function AdminReviewsOverviewPage() {
 
           {/* Charts Section */}
           <div className={styles.chartsSection}>
-            <ErrorBoundary>
-              <HubTrendChart
-                title="Review Trends"
-                subtitle="Last 7 days"
-                metric="reviews_total"
-                height={300}
-              />
+            {/* Review Trends Chart */}
+            <ErrorBoundary
+              fallback={
+                <div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
+                  Unable to load review trends chart
+                </div>
+              }
+            >
+              {isLoadingCharts ? (
+                <ChartSkeleton height="320px" />
+              ) : (
+                <HubTrendChart
+                  data={reviewTrendsData}
+                  title="Review Trends"
+                  subtitle="Last 7 days"
+                  valueLabel="Reviews"
+                  color="#fbbf24"
+                />
+              )}
             </ErrorBoundary>
 
-            <ErrorBoundary>
-              <HubCategoryBreakdownChart
-                title="Status Breakdown"
-                subtitle="Current distribution"
-                categories={[
-                  { label: 'Pending', value: 'pending', color: '#fbbf24' },
-                  { label: 'Published', value: 'published', color: '#10b981' },
-                  { label: 'Expired', value: 'expired', color: '#6b7280' },
-                ]}
-                metric="reviews_total"
-                height={300}
-              />
+            {/* Status Breakdown Chart */}
+            <ErrorBoundary
+              fallback={
+                <div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
+                  Unable to load status breakdown chart
+                </div>
+              }
+            >
+              {isLoadingCharts ? (
+                <ChartSkeleton height="320px" />
+              ) : (
+                <HubCategoryBreakdownChart
+                  data={statusBreakdownData}
+                  title="Status Breakdown"
+                  subtitle="Current distribution"
+                />
+              )}
             </ErrorBoundary>
 
-            <ErrorBoundary>
-              <HubCategoryBreakdownChart
-                title="Rating Distribution"
-                subtitle="All time"
-                categories={[
-                  { label: '1 Star', value: '1', color: '#ef4444' },
-                  { label: '2 Stars', value: '2', color: '#f97316' },
-                  { label: '3 Stars', value: '3', color: '#fbbf24' },
-                  { label: '4 Stars', value: '4', color: '#84cc16' },
-                  { label: '5 Stars', value: '5', color: '#10b981' },
-                ]}
-                metric="reviews_total"
-                height={300}
-              />
+            {/* Rating Distribution Chart */}
+            <ErrorBoundary
+              fallback={
+                <div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
+                  Unable to load rating distribution chart
+                </div>
+              }
+            >
+              {isLoadingCharts ? (
+                <ChartSkeleton height="320px" />
+              ) : (
+                <HubCategoryBreakdownChart
+                  data={ratingDistributionData}
+                  title="Rating Distribution"
+                  subtitle="All time"
+                />
+              )}
             </ErrorBoundary>
           </div>
         </>
