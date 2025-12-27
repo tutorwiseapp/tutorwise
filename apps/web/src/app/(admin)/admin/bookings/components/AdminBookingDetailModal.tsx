@@ -380,7 +380,7 @@ export default function AdminBookingDetailModal({
                   minWidth: '160px',
                   padding: '0.5rem 0',
                 }}>
-                  {['Pending', 'Confirmed', 'Completed', 'Cancelled'].map((status, index, array) => (
+                  {['Pending', 'Confirmed', 'Completed', 'Cancelled'].map((status) => (
                     <button
                       key={status}
                       onClick={() => handleChangeStatus(status)}
@@ -388,14 +388,13 @@ export default function AdminBookingDetailModal({
                       style={{
                         display: 'block',
                         width: '100%',
-                        padding: '0.5rem 1rem',
+                        padding: '0.75rem 1rem',
                         textAlign: 'left',
                         border: 'none',
                         background: booking.status === status ? '#f3f4f6' : 'transparent',
                         cursor: booking.status === status ? 'default' : 'pointer',
                         fontSize: '0.875rem',
                         color: booking.status === status ? '#9ca3af' : '#374151',
-                        marginBottom: index === array.length - 1 ? '0' : '0.25rem',
                       }}
                       onMouseEnter={(e) => {
                         if (booking.status !== status && !isProcessing) {
