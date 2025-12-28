@@ -43,6 +43,7 @@ const CATEGORIES: Category[] = [
     name: 'Features',
     slug: 'features',
     articles: [
+      { title: 'Marketplace & Search', slug: 'marketplace' },
       { title: 'Create a Listing', slug: 'create-listing' },
       { title: 'How Bookings Work', slug: 'bookings' },
       { title: 'Refer & Earn Commission', slug: 'referrals' },
@@ -57,7 +58,6 @@ const CATEGORIES: Category[] = [
       { title: 'Free Help Now', slug: 'free-help-now' },
       { title: 'Wisespace', slug: 'wisespace' },
       { title: 'My Students', slug: 'my-students' },
-      { title: 'Marketplace & Search', slug: 'marketplace' },
       { title: 'Integrations', slug: 'integrations' },
       { title: 'Advanced Agents Guide', slug: 'agents-guide' },
     ],
