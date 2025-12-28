@@ -46,6 +46,8 @@ const CATEGORIES: Category[] = [
       { title: 'Create a Listing', slug: 'create-listing' },
       { title: 'How Bookings Work', slug: 'bookings' },
       { title: 'Refer & Earn Commission', slug: 'referrals' },
+      { title: 'How Organisations Work', slug: 'organisations' },
+      { title: 'Credibility Score (CaaS)', slug: 'caas' },
     ],
   },
   {
