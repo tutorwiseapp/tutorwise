@@ -50,17 +50,211 @@ export default function AdminOrganisationsPage() {
 
   const organisationsCount = organisationsCountData || 0;
 
-  // Fetch organisation metrics (placeholder - need to add these to platform_statistics_daily)
-  const totalOrganisationsMetric = useAdminMetric({ metric: 'total_users', compareWith: 'last_month' }); // Placeholder
-  const activeOrganisationsMetric = { value: 0, change: 0, changePercent: 0 }; // TODO: Add organisations_active metric
-  const totalMembersMetric = { value: 0, change: 0, changePercent: 0 }; // TODO: Add organisations_total_members metric
-  const avgMembersMetric = { value: 0, change: 0, changePercent: 0 }; // TODO: Add organisations_avg_members metric
-  const totalRevenueMetric = { value: 0, change: 0, changePercent: 0 }; // TODO: Add organisations_total_revenue metric
-  const avgRevenueMetric = { value: 0, change: 0, changePercent: 0 }; // TODO: Add organisations_avg_revenue metric
+  // Fetch real organisation metrics from database
+  const { data: metricsData } = useQuery({
+    queryKey: ['admin-organisations-metrics'],
+    queryFn: async () => {
+      const supabase = createClient();
 
-  // Placeholder chart data
-  const orgTrendData: TrendDataPoint[] = [];
-  const orgTypeBreakdownData: CategoryData[] = [];
+      // Get current metrics
+      const { data: currentOrgs, error: currentError } = await supabase
+        .from('connection_groups')
+        .select('id, member_count, created_at')
+        .eq('type', 'organisation');
+
+      if (currentError) throw currentError;
+
+      // Get metrics from 30 days ago for comparison
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      const { data: previousOrgs, error: previousError } = await supabase
+        .from('connection_groups')
+        .select('id, member_count')
+        .eq('type', 'organisation')
+        .lte('created_at', thirtyDaysAgo.toISOString());
+
+      if (previousError) throw previousError;
+
+      const currentCount = currentOrgs?.length || 0;
+      const previousCount = previousOrgs?.length || 0;
+      const totalMembers = currentOrgs?.reduce((sum, org) => sum + (org.member_count || 0), 0) || 0;
+      const avgMembers = currentCount > 0 ? totalMembers / currentCount : 0;
+
+      const previousTotalMembers = previousOrgs?.reduce((sum, org) => sum + (org.member_count || 0), 0) || 0;
+      const previousAvgMembers = previousCount > 0 ? previousTotalMembers / previousCount : 0;
+
+      return {
+        total: currentCount,
+        previousTotal: previousCount,
+        totalMembers,
+        previousTotalMembers,
+        avgMembers,
+        previousAvgMembers,
+        currentOrgs: currentOrgs || [],
+      };
+    },
+    staleTime: 60 * 1000,
+  });
+
+  // Calculate metrics with real data
+  const totalOrganisationsMetric = {
+    value: metricsData?.total || 0,
+    previousValue: metricsData?.previousTotal || 0,
+    change: (metricsData?.total || 0) - (metricsData?.previousTotal || 0),
+    changePercent: metricsData?.previousTotal
+      ? (((metricsData.total - metricsData.previousTotal) / metricsData.previousTotal) * 100)
+      : 0,
+    trend: ((metricsData?.total || 0) - (metricsData?.previousTotal || 0)) >= 0 ? 'up' as const : 'down' as const,
+  };
+
+  const activeOrganisationsMetric = {
+    value: metricsData?.total || 0, // All organisations are considered active
+    change: (metricsData?.total || 0) - (metricsData?.previousTotal || 0),
+    changePercent: totalOrganisationsMetric.changePercent,
+    trend: totalOrganisationsMetric.trend,
+  };
+
+  const totalMembersMetric = {
+    value: metricsData?.totalMembers || 0,
+    change: (metricsData?.totalMembers || 0) - (metricsData?.previousTotalMembers || 0),
+    changePercent: metricsData?.previousTotalMembers
+      ? (((metricsData.totalMembers - metricsData.previousTotalMembers) / metricsData.previousTotalMembers) * 100)
+      : 0,
+    trend: ((metricsData?.totalMembers || 0) - (metricsData?.previousTotalMembers || 0)) >= 0 ? 'up' as const : 'down' as const,
+  };
+
+  const avgMembersMetric = {
+    value: metricsData?.avgMembers || 0,
+    change: (metricsData?.avgMembers || 0) - (metricsData?.previousAvgMembers || 0),
+    changePercent: metricsData?.previousAvgMembers
+      ? (((metricsData.avgMembers - metricsData.previousAvgMembers) / metricsData.previousAvgMembers) * 100)
+      : 0,
+    trend: ((metricsData?.avgMembers || 0) - (metricsData?.previousAvgMembers || 0)) >= 0 ? 'up' as const : 'down' as const,
+  };
+
+  // Revenue metrics (set to 0 as organisations don't have direct revenue tracking)
+  const totalRevenueMetric = { value: 0, change: 0, changePercent: 0, trend: 'neutral' as const };
+  const avgRevenueMetric = { value: 0, change: 0, changePercent: 0, trend: 'neutral' as const };
+
+  // Fetch real chart data - Organisation Growth Trend
+  const { data: trendData } = useQuery({
+    queryKey: ['admin-organisations-trend'],
+    queryFn: async () => {
+      const supabase = createClient();
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      const { data, error } = await supabase
+        .from('connection_groups')
+        .select('created_at')
+        .eq('type', 'organisation')
+        .gte('created_at', sevenDaysAgo.toISOString())
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      // Group by date
+      const groupedByDate: Record<string, number> = {};
+      data?.forEach(org => {
+        const date = new Date(org.created_at).toISOString().split('T')[0];
+        groupedByDate[date] = (groupedByDate[date] || 0) + 1;
+      });
+
+      // Create trend data for last 7 days
+      const trendPoints: TrendDataPoint[] = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        const label = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+
+        trendPoints.push({
+          date: dateStr,
+          value: groupedByDate[dateStr] || 0,
+          label,
+        });
+      }
+
+      return trendPoints;
+    },
+    staleTime: 60 * 1000,
+  });
+
+  // Fetch real chart data - Organisation Size Distribution
+  const { data: typeBreakdownData } = useQuery({
+    queryKey: ['admin-organisations-size-breakdown'],
+    queryFn: async () => {
+      const supabase = createClient();
+
+      const { data, error } = await supabase
+        .from('connection_groups')
+        .select('member_count')
+        .eq('type', 'organisation');
+
+      if (error) throw error;
+
+      // Group by member size
+      const small = data?.filter(org => (org.member_count || 0) <= 5).length || 0;
+      const medium = data?.filter(org => (org.member_count || 0) > 5 && (org.member_count || 0) <= 20).length || 0;
+      const large = data?.filter(org => (org.member_count || 0) > 20).length || 0;
+
+      return [
+        { label: 'Small (1-5)', value: small, color: '#3B82F6' },
+        { label: 'Medium (6-20)', value: medium, color: '#10B981' },
+        { label: 'Large (20+)', value: large, color: '#F59E0B' },
+      ];
+    },
+    staleTime: 60 * 1000,
+  });
+
+  // Fetch real chart data - Member Growth Trend
+  const { data: memberTrendData } = useQuery({
+    queryKey: ['admin-organisations-member-trend'],
+    queryFn: async () => {
+      const supabase = createClient();
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      const { data, error } = await supabase
+        .from('connection_groups')
+        .select('created_at, member_count')
+        .eq('type', 'organisation')
+        .gte('created_at', sevenDaysAgo.toISOString())
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      // Group by date and sum member counts
+      const groupedByDate: Record<string, number> = {};
+      data?.forEach(org => {
+        const date = new Date(org.created_at).toISOString().split('T')[0];
+        groupedByDate[date] = (groupedByDate[date] || 0) + (org.member_count || 0);
+      });
+
+      // Create trend data for last 7 days
+      const trendPoints: TrendDataPoint[] = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        const label = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+
+        trendPoints.push({
+          date: dateStr,
+          value: groupedByDate[dateStr] || 0,
+          label,
+        });
+      }
+
+      return trendPoints;
+    },
+    staleTime: 60 * 1000,
+  });
+
+  const orgTrendData: TrendDataPoint[] = trendData || [];
+  const orgTypeBreakdownData: CategoryData[] = typeBreakdownData || [];
+  const orgMemberTrendData: TrendDataPoint[] = memberTrendData || [];
 
   return (
     <HubPageLayout
@@ -112,43 +306,53 @@ export default function AdminOrganisationsPage() {
       {/* Overview Tab */}
       {activeTab === 'overview' && (
         <>
-          {/* SINGLE KPI Grid with all 6 cards */}
+          {/* KPI Grid with all 8 cards */}
           <HubKPIGrid>
             <HubKPICard
               label="Total Organisations"
               value={totalOrganisationsMetric.value}
-              trend={(totalOrganisationsMetric.change ?? 0) >= 0 ? 'up' : 'down'}
+              trend={totalOrganisationsMetric.trend}
               sublabel={formatMetricChange(totalOrganisationsMetric.change, totalOrganisationsMetric.changePercent, 'last_month')}
             />
             <HubKPICard
               label="Active"
               value={activeOrganisationsMetric.value}
-              trend={(activeOrganisationsMetric.change ?? 0) >= 0 ? 'up' : 'down'}
+              trend={activeOrganisationsMetric.trend}
               sublabel={formatMetricChange(activeOrganisationsMetric.change, activeOrganisationsMetric.changePercent, 'last_month')}
+            />
+            <HubKPICard
+              label="New This Month"
+              value={totalOrganisationsMetric.change >= 0 ? totalOrganisationsMetric.change : 0}
+              trend={totalOrganisationsMetric.trend}
+              sublabel={`${totalOrganisationsMetric.changePercent.toFixed(1)}% vs last month`}
+            />
+            <HubKPICard
+              label="Growth Rate"
+              value={`${totalOrganisationsMetric.changePercent >= 0 ? '+' : ''}${totalOrganisationsMetric.changePercent.toFixed(1)}%`}
+              trend={totalOrganisationsMetric.trend}
+              sublabel="Month over month"
             />
             <HubKPICard
               label="Total Members"
               value={totalMembersMetric.value}
-              trend={(totalMembersMetric.change ?? 0) >= 0 ? 'up' : 'down'}
+              trend={totalMembersMetric.trend}
               sublabel={formatMetricChange(totalMembersMetric.change, totalMembersMetric.changePercent, 'last_month')}
             />
             <HubKPICard
-              label="Avg. Members"
+              label="Avg. Members/Org"
               value={avgMembersMetric.value.toFixed(1)}
-              trend={(avgMembersMetric.change ?? 0) >= 0 ? 'up' : 'down'}
+              trend={avgMembersMetric.trend}
               sublabel={formatMetricChange(avgMembersMetric.change, avgMembersMetric.changePercent, 'last_month')}
             />
             <HubKPICard
-              label="Total Revenue"
-              value={`£${totalRevenueMetric.value.toLocaleString()}`}
-              trend={(totalRevenueMetric.change ?? 0) >= 0 ? 'up' : 'down'}
-              sublabel={formatMetricChange(totalRevenueMetric.change, totalRevenueMetric.changePercent, 'last_month')}
+              label="Largest Org"
+              value={metricsData?.total ? Math.max(...(metricsData as any).currentOrgs?.map((org: any) => org.member_count || 0) || [0]) : 0}
+              sublabel="members"
             />
             <HubKPICard
-              label="Avg. Revenue"
-              value={`£${avgRevenueMetric.value.toLocaleString()}`}
-              trend={(avgRevenueMetric.change ?? 0) >= 0 ? 'up' : 'down'}
-              sublabel={formatMetricChange(avgRevenueMetric.change, avgRevenueMetric.changePercent, 'last_month')}
+              label="Smallest Org"
+              value={metricsData?.total ? Math.min(...(metricsData as any).currentOrgs?.filter((org: any) => (org.member_count || 0) > 0).map((org: any) => org.member_count || 0) || [0]) : 0}
+              sublabel="members"
             />
           </HubKPIGrid>
 
@@ -157,13 +361,26 @@ export default function AdminOrganisationsPage() {
             <ErrorBoundary>
               <HubTrendChart
                 title="Organisation Growth"
+                subtitle="Last 7 days"
                 data={orgTrendData}
+                valueName="New Organisations"
+                lineColor="#3B82F6"
+              />
+            </ErrorBoundary>
+
+            <ErrorBoundary>
+              <HubTrendChart
+                title="Member Growth"
+                subtitle="Last 7 days"
+                data={orgMemberTrendData}
+                valueName="New Members"
+                lineColor="#10B981"
               />
             </ErrorBoundary>
 
             <ErrorBoundary>
               <HubCategoryBreakdownChart
-                title="Organisation Type Distribution"
+                title="Organisation Size Distribution"
                 data={orgTypeBreakdownData}
               />
             </ErrorBoundary>
