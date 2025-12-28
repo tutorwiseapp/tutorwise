@@ -312,7 +312,7 @@ export default function AdminOrganisationDetailModal({
             variant="secondary"
             onClick={handleViewMembers}
           >
-            View Members ({organisation.member_count})
+            View Members
           </Button>
           <Button
             variant="secondary"
