@@ -86,38 +86,54 @@ export default function AdminReviewsOverviewPage() {
   });
 
   // Fetch chart data - Review Trends (last 7 days)
-  const { data: reviewTrendsData = [], isLoading: isLoadingTrends } = useQuery<TrendDataPoint[]>({
+  const { data: reviewTrendsData, isLoading: isLoadingTrends } = useQuery<TrendDataPoint[]>({
     queryKey: ['admin-reviews-trends'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/reviews');
-      if (!response.ok) throw new Error('Failed to fetch reviews');
-      const data = await response.json();
-
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-      // Group by date
-      const groupedByDate: Record<string, number> = {};
-      data.reviews?.forEach((review: any) => {
-        const reviewDate = new Date(review.created_at);
-        if (reviewDate >= sevenDaysAgo) {
-          const dateStr = reviewDate.toISOString().split('T')[0];
-          groupedByDate[dateStr] = (groupedByDate[dateStr] || 0) + 1;
-        }
-      });
-
-      // Create trend data for last 7 days
+      // Always generate 7 days of data points, even if API fails
       const trendPoints: TrendDataPoint[] = [];
-      for (let i = 6; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        const dateStr = date.toISOString().split('T')[0];
-        const label = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 
-        trendPoints.push({
-          label,
-          value: groupedByDate[dateStr] || 0,
+      try {
+        const response = await fetch('/api/admin/reviews');
+        if (!response.ok) throw new Error('Failed to fetch reviews');
+        const data = await response.json();
+
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+        // Group by date
+        const groupedByDate: Record<string, number> = {};
+        data.reviews?.forEach((review: any) => {
+          const reviewDate = new Date(review.created_at);
+          if (reviewDate >= sevenDaysAgo) {
+            const dateStr = reviewDate.toISOString().split('T')[0];
+            groupedByDate[dateStr] = (groupedByDate[dateStr] || 0) + 1;
+          }
         });
+
+        // Create trend data for last 7 days
+        for (let i = 6; i >= 0; i--) {
+          const date = new Date();
+          date.setDate(date.getDate() - i);
+          const dateStr = date.toISOString().split('T')[0];
+          const label = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+
+          trendPoints.push({
+            label,
+            value: groupedByDate[dateStr] || 0,
+          });
+        }
+      } catch (error) {
+        // On error, still return 7 days with zero values
+        for (let i = 6; i >= 0; i--) {
+          const date = new Date();
+          date.setDate(date.getDate() - i);
+          const label = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+
+          trendPoints.push({
+            label,
+            value: 0,
+          });
+        }
       }
 
       return trendPoints;
@@ -127,29 +143,38 @@ export default function AdminReviewsOverviewPage() {
   });
 
   // Fetch chart data - Status Breakdown
-  const { data: statusBreakdownData = [], isLoading: isLoadingStatus } = useQuery<CategoryData[]>({
+  const { data: statusBreakdownData, isLoading: isLoadingStatus } = useQuery<CategoryData[]>({
     queryKey: ['admin-reviews-status-breakdown'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/reviews');
-      if (!response.ok) throw new Error('Failed to fetch reviews');
-      const data = await response.json();
+      try {
+        const response = await fetch('/api/admin/reviews');
+        if (!response.ok) throw new Error('Failed to fetch reviews');
+        const data = await response.json();
 
-      const published = data.reviews?.filter((r: any) => r.status === 'published').length || 0;
-      const pending = data.reviews?.filter((r: any) => r.status === 'pending').length || 0;
-      const rejected = data.reviews?.filter((r: any) => r.status === 'rejected').length || 0;
+        const published = data.reviews?.filter((r: any) => r.status === 'published').length || 0;
+        const pending = data.reviews?.filter((r: any) => r.status === 'pending').length || 0;
+        const rejected = data.reviews?.filter((r: any) => r.status === 'rejected').length || 0;
 
-      return [
-        { label: 'Published', value: published, color: '#10B981' },
-        { label: 'Pending', value: pending, color: '#F59E0B' },
-        { label: 'Rejected', value: rejected, color: '#EF4444' },
-      ];
+        return [
+          { label: 'Published', value: published, color: '#10B981' },
+          { label: 'Pending', value: pending, color: '#F59E0B' },
+          { label: 'Rejected', value: rejected, color: '#EF4444' },
+        ];
+      } catch (error) {
+        // On error, still return structure with zero values
+        return [
+          { label: 'Published', value: 0, color: '#10B981' },
+          { label: 'Pending', value: 0, color: '#F59E0B' },
+          { label: 'Rejected', value: 0, color: '#EF4444' },
+        ];
+      }
     },
     staleTime: 60 * 1000,
     retry: 2,
   });
 
   // Fetch chart data - Rating Distribution
-  const { data: ratingDistributionData = [], isLoading: isLoadingRatings } = useQuery<CategoryData[]>({
+  const { data: ratingDistributionData, isLoading: isLoadingRatings } = useQuery<CategoryData[]>({
     queryKey: ['admin-reviews-rating-distribution'],
     queryFn: async () => {
       return [
@@ -163,6 +188,13 @@ export default function AdminReviewsOverviewPage() {
     enabled: !!metricsData,
     staleTime: 60 * 1000,
     retry: 2,
+    placeholderData: [
+      { label: '5 Stars', value: 0, color: '#10B981' },
+      { label: '4 Stars', value: 0, color: '#3B82F6' },
+      { label: '3 Stars', value: 0, color: '#F59E0B' },
+      { label: '2 Stars', value: 0, color: '#F97316' },
+      { label: '1 Star', value: 0, color: '#EF4444' },
+    ],
   });
 
   const isLoadingCharts = isLoadingTrends || isLoadingStatus || isLoadingRatings;
@@ -296,13 +328,13 @@ export default function AdminReviewsOverviewPage() {
             />
             <HubKPICard
               label="Published"
-              value={statusBreakdownData.find(s => s.label === 'Published')?.value || 0}
+              value={statusBreakdownData?.find(s => s.label === 'Published')?.value || 0}
               sublabel="live reviews"
               icon={Star}
             />
             <HubKPICard
               label="Pending Approval"
-              value={statusBreakdownData.find(s => s.label === 'Pending')?.value || 0}
+              value={statusBreakdownData?.find(s => s.label === 'Pending')?.value || 0}
               sublabel="awaiting review"
               icon={Star}
             />
@@ -318,7 +350,7 @@ export default function AdminReviewsOverviewPage() {
                 </div>
               }
             >
-              {isLoadingCharts ? (
+              {isLoadingCharts || !reviewTrendsData ? (
                 <ChartSkeleton height="320px" />
               ) : (
                 <HubTrendChart
@@ -339,7 +371,7 @@ export default function AdminReviewsOverviewPage() {
                 </div>
               }
             >
-              {isLoadingCharts ? (
+              {isLoadingCharts || !statusBreakdownData ? (
                 <ChartSkeleton height="320px" />
               ) : (
                 <HubCategoryBreakdownChart
@@ -358,7 +390,7 @@ export default function AdminReviewsOverviewPage() {
                 </div>
               }
             >
-              {isLoadingCharts ? (
+              {isLoadingCharts || !ratingDistributionData ? (
                 <ChartSkeleton height="320px" />
               ) : (
                 <HubCategoryBreakdownChart

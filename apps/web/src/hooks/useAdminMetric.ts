@@ -52,7 +52,27 @@ export type MetricName =
   | 'reviews_total'
   | 'reviews_avg_rating'
   | 'reviews_tutors_reviewed'
-  | 'reviews_clients_reviewed';
+  | 'reviews_clients_reviewed'
+  // Transactions metrics
+  | 'transactions_total'
+  | 'transactions_clearing'
+  | 'transactions_available'
+  | 'transactions_paid_out'
+  | 'transactions_disputed'
+  | 'transactions_refunded'
+  // Payouts metrics
+  | 'payouts_total'
+  | 'payouts_pending'
+  | 'payouts_in_transit'
+  | 'payouts_completed'
+  | 'payouts_failed'
+  | 'payouts_total_value'
+  // Disputes metrics
+  | 'disputes_total'
+  | 'disputes_action_required'
+  | 'disputes_under_review'
+  | 'disputes_won'
+  | 'disputes_lost';
 
 export type ComparisonPeriod = 'yesterday' | 'last_week' | 'last_month';
 

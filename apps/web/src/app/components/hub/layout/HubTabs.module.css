@@ -23,7 +23,6 @@
   gap: 1rem;
   padding-left: 1rem; /* Align tabs with header content */
   padding-right: 1rem; /* Add right padding for symmetry */
-  overflow-x: auto;
   position: relative;
 }
 

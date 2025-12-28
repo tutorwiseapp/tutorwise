@@ -1,0 +1,185 @@
+/**
+ * Filename: UsersTable.module.css
+ * Purpose: Styles for Users-specific table elements
+ * Created: 2025-12-28
+ */
+
+/* Email cell styling */
+.emailCell {
+  font-weight: 500;
+  color: var(--color-primary-default, #006c67);
+}
+
+/* Date cell styling */
+.dateCell {
+  color: #6b7280;
+  font-size: 0.8125rem;
+}
+
+/* Generic Badge */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* User Type Badges */
+.badgeTutor {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.badgeClient {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badgeAdmin {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badgeDefault {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Onboarding Badges */
+.badgeCompleted {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badgePending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+/* Verified Badges */
+.verifiedBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #10b981;
+  vertical-align: middle;
+  line-height: 0;
+}
+
+.unverifiedBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ef4444;
+  vertical-align: middle;
+  line-height: 0;
+}
+
+/* Actions column */
+.actionsCell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.actionsButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  background-color: transparent;
+  color: #6b7280;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.actionsButton:hover {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+.actionsMenu {
+  position: fixed;
+  min-width: 160px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
+  overflow: visible;
+}
+
+.actionMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: none;
+  background: transparent;
+  font-size: 0.875rem;
+  color: #374151;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.actionMenuItem:hover {
+  background-color: #f9fafb;
+}
+
+.actionMenuItemDanger {
+  color: #dc2626;
+}
+
+.actionMenuItemDanger:hover {
+  background-color: #fef2f2;
+}
+
+/* Advanced Filters Button */
+.filtersButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.filtersButton:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.filtersButton.active {
+  background-color: #eff6ff;
+  border-color: #3b82f6;
+  color: #1e40af;
+}
+
+.filtersBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.375rem;
+  background-color: #3b82f6;
+  color: #ffffff;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  border-radius: 0.625rem;
+}

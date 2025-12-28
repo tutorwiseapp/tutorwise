@@ -38,7 +38,14 @@ export default function AdminSidebar() {
         { href: '/admin/seo/config', label: 'Configuration', indent: true },
       ],
     },
-    { href: '/admin/users', label: 'Users' },
+    {
+      href: '/admin/accounts',
+      label: 'Accounts',
+      subItems: [
+        { href: '/admin/accounts/users', label: 'Users', indent: true },
+        { href: '/admin/accounts/admins', label: 'Admins', indent: true },
+      ],
+    },
     { href: '/admin/listings', label: 'Listings' },
     { href: '/admin/bookings', label: 'Bookings' },
     { href: '/admin/referrals', label: 'Referrals' },

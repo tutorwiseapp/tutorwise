@@ -75,7 +75,7 @@ export default function AdminOverviewPage() {
                       <button className={actionStyles.menuButton} onClick={() => router.push('/admin/reports')}>
                         View Reports
                       </button>
-                      <button className={actionStyles.menuButton} onClick={() => router.push('/admin/users')}>
+                      <button className={actionStyles.menuButton} onClick={() => router.push('/admin/accounts/users')}>
                         Manage Users
                       </button>
                       <button className={actionStyles.menuButton} onClick={() => router.push('/admin/seo/hubs')}>

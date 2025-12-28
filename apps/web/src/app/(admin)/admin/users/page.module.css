@@ -58,54 +58,41 @@
   margin-right: 0.5rem;
 }
 
-/* Actionable Widgets Section - Following Dashboard pattern */
-.actionableWidgets {
+/* ========================================
+   Charts Section (3 charts grid)
+   ======================================== */
+
+.chartsSection {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
   gap: 1.5rem;
   margin-top: 2rem;
 }
 
-@media (max-width: 1024px) {
-  .actionableWidgets {
+/* Tablet: 2 columns for charts */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .chartsSection {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Make third chart span full width on tablet */
+  .chartsSection > :nth-child(3) {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Desktop: 1 column (keeps charts stacked) */
+@media (min-width: 1024px) {
+  .chartsSection {
     grid-template-columns: 1fr;
   }
 }
 
-/* Individual Widgets */
-.recentActivityWidget,
-.growthWidget,
-.insightsWidget {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.widgetTitle {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 1rem 0;
-}
-
-.emptyMessage {
-  font-size: 0.875rem;
-  color: #6b7280;
-  text-align: center;
-  padding: 2rem 1rem;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .recentActivityWidget,
-  .growthWidget,
-  .insightsWidget {
-    padding: 1rem;
-  }
-
-  .emptyMessage {
-    padding: 1.5rem 0.5rem;
+/* Mobile: 1 column */
+@media (max-width: 767px) {
+  .chartsSection {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
   }
 }

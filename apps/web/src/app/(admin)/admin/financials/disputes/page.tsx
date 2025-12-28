@@ -1,389 +1,234 @@
 /*
  * Filename: src/app/(admin)/admin/financials/disputes/page.tsx
- * Purpose: Admin Disputes page - manage ALL platform disputes and mediation
- * Created: 2025-12-23
- * Pattern: Copied from user disputes page with admin customizations
- * Specification: Admin version with platform-wide dispute management
+ * Purpose: Admin Disputes page - Overview and management
+ * Created: 2025-12-28
+ * Phase: 2 - Platform Management
+ * Pattern: Follows Bookings hub layout pattern
  */
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
-import type { HubTab } from '@/app/components/hub/layout';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
+import HubHeader from '@/app/components/hub/layout/HubHeader';
+import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
-import DisputeCard from '@/app/components/feature/financials/DisputeCard';
-import Button from '@/app/components/ui/actions/Button';
-import { Transaction } from '@/types';
-import toast from 'react-hot-toast';
+import { AlertCircle, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type TrendDataPoint, type CategoryData } from '@/app/components/hub/charts';
+import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
+import DisputesTable from './components/DisputesTable';
+import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
+import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
 import styles from './page.module.css';
-import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
-import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
-// Force dynamic rendering for admin pages
+// Force dynamic rendering (no SSR/SSG) for admin pages
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
-// Dispute statuses
-type DisputeStatus = 'action_required' | 'under_review' | 'won' | 'lost' | 'all';
-type DateRangeType = 'all' | '7days' | '30days' | '3months' | '6months' | '1year';
-
 export default function AdminDisputesPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [dateRange, setDateRange] = useState<DateRangeType>('all');
-  const [showActionsMenu, setShowActionsMenu] = useState(false);
-  const [hasShownError, setHasShownError] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'all-disputes'>('overview');
 
-  // Read filter from URL
-  const statusFilter = (searchParams?.get('status') as DisputeStatus) || 'all';
+  // Fetch dispute metrics with trend data from statistics table
+  const totalDisputesMetric = useAdminMetric({ metric: 'disputes_total', compareWith: 'last_month' });
+  const actionRequiredMetric = useAdminMetric({ metric: 'disputes_action_required', compareWith: 'last_month' });
+  const underReviewMetric = useAdminMetric({ metric: 'disputes_under_review', compareWith: 'last_month' });
+  const wonMetric = useAdminMetric({ metric: 'disputes_won', compareWith: 'last_month' });
+  const lostMetric = useAdminMetric({ metric: 'disputes_lost', compareWith: 'last_month' });
 
-  // TODO: Replace with admin API call
-  // Fetch ALL platform disputes
-  const {
-    data,
-    isLoading,
-    isFetching,
-    error,
-  } = useQuery({
-    queryKey: ['admin', 'financials', 'disputes'],
-    queryFn: async () => {
-      // TODO: Implement API endpoint /api/admin/financials/disputes
-      return {
-        transactions: [] as Transaction[],
-        balances: { available: 0, pending: 0, total: 0 },
-      };
-    },
-    placeholderData: keepPreviousData,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    gcTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
-  });
-
-  // Memoize to prevent unnecessary re-renders
-  const disputes = useMemo(() => data?.transactions || [], [data?.transactions]);
-  const balances = useMemo(() => data?.balances || { available: 0, pending: 0, total: 0 }, [data?.balances]);
-
-  // Show error banner only once to prevent flashing (like Messages page)
-  useEffect(() => {
-    if (error && !hasShownError) {
-      setHasShownError(true);
-    } else if (!error && hasShownError) {
-      setHasShownError(false);
-    }
-  }, [error, hasShownError]);
-
-  // Update URL when filter changes
-  const handleFilterChange = (newStatus: DisputeStatus) => {
-    const params = new URLSearchParams(searchParams?.toString() || '');
-    if (newStatus === 'all') {
-      params.delete('status');
-    } else {
-      params.set('status', newStatus);
-    }
-    router.push(`/admin/financials/disputes${params.toString() ? `?${params.toString()}` : ''}`);
+  // Header actions
+  const getHeaderActions = () => {
+    return undefined;
   };
 
-  // Client-side filtering based on URL param + search + date range
-  const filteredDisputes = useMemo(() => {
-    let filtered = disputes;
+  // Mock data for charts (TODO: Replace with real API data)
+  const [isLoadingCharts] = useState(false);
 
-    // Status filtering
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter((dispute) => {
-        const status = dispute.status?.toLowerCase();
-        if (statusFilter === 'action_required') return status === 'disputed' || status === 'action_required';
-        if (statusFilter === 'under_review') return status === 'under_review' || status === 'reviewing';
-        if (statusFilter === 'won') return status === 'won' || status === 'resolved';
-        if (statusFilter === 'lost') return status === 'lost' || status === 'failed';
-        return false;
-      });
-    }
-
-    // Search filtering
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter((dispute) =>
-        dispute.description?.toLowerCase().includes(query)
-      );
-    }
-
-    // Date range filtering
-    if (dateRange !== 'all') {
-      const cutoffDate = new Date();
-      switch (dateRange) {
-        case '7days':
-          cutoffDate.setDate(cutoffDate.getDate() - 7);
-          break;
-        case '30days':
-          cutoffDate.setDate(cutoffDate.getDate() - 30);
-          break;
-        case '3months':
-          cutoffDate.setMonth(cutoffDate.getMonth() - 3);
-          break;
-        case '6months':
-          cutoffDate.setMonth(cutoffDate.getMonth() - 6);
-          break;
-        case '1year':
-          cutoffDate.setFullYear(cutoffDate.getFullYear() - 1);
-          break;
-      }
-      filtered = filtered.filter((dispute) => new Date(dispute.created_at) >= cutoffDate);
-    }
-
-    return filtered;
-  }, [disputes, statusFilter, searchQuery, dateRange]);
-
-  // Action handlers
-  const handleResolveDispute = () => {
-    toast('Dispute resolution feature coming soon!', { icon: '⚖️' });
-    setShowActionsMenu(false);
-  };
-
-  const handleExportCSV = () => {
-    if (!filteredDisputes.length) {
-      toast.error('No disputes to export');
-      return;
-    }
-
-    const headers = ['Date', 'Description', 'Amount', 'Status'];
-    const rows = filteredDisputes.map(dispute => [
-      new Date(dispute.created_at).toLocaleDateString('en-GB'),
-      dispute.description || '',
-      `£${Math.abs(dispute.amount).toFixed(2)}`,
-      dispute.status || '',
-    ]);
-
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.join(',')),
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `disputes-${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    toast.success('Disputes exported successfully');
-    setShowActionsMenu(false);
-  };
-
-  // Calculate tab counts
-  const tabCounts = useMemo(() => {
-    const counts = {
-      all: disputes.length,
-      action_required: 0,
-      under_review: 0,
-      won: 0,
-      lost: 0,
-    };
-
-    disputes.forEach((dispute) => {
-      const status = dispute.status?.toLowerCase();
-      if (status === 'disputed' || status === 'action_required') counts.action_required++;
-      if (status === 'under_review' || status === 'reviewing') counts.under_review++;
-      if (status === 'won' || status === 'resolved') counts.won++;
-      if (status === 'lost' || status === 'failed') counts.lost++;
-    });
-
-    return counts;
-  }, [disputes]);
-
-  // Prepare tabs data
-  const tabs: HubTab[] = [
-    { id: 'all', label: 'All', count: tabCounts.all, active: statusFilter === 'all' },
-    { id: 'action_required', label: 'Action Required', count: tabCounts.action_required, active: statusFilter === 'action_required' },
-    { id: 'under_review', label: 'Under Review', count: tabCounts.under_review, active: statusFilter === 'under_review' },
-    { id: 'won', label: 'Won', count: tabCounts.won, active: statusFilter === 'won' },
-    { id: 'lost', label: 'Lost', count: tabCounts.lost, active: statusFilter === 'lost' },
+  // Dispute trends (last 7 days)
+  const disputeTrendsData: TrendDataPoint[] = [
+    { date: '2025-12-20', value: totalDisputesMetric.value * 0.12, label: '20 Dec' },
+    { date: '2025-12-21', value: totalDisputesMetric.value * 0.14, label: '21 Dec' },
+    { date: '2025-12-22', value: totalDisputesMetric.value * 0.15, label: '22 Dec' },
+    { date: '2025-12-23', value: totalDisputesMetric.value * 0.13, label: '23 Dec' },
+    { date: '2025-12-24', value: totalDisputesMetric.value * 0.16, label: '24 Dec' },
+    { date: '2025-12-25', value: totalDisputesMetric.value * 0.14, label: '25 Dec' },
+    { date: '2025-12-26', value: totalDisputesMetric.value * 0.16, label: '26 Dec' },
   ];
 
-  // Get status variant for badge
-  const getStatusVariant = (status: string): 'success' | 'warning' | 'error' | 'neutral' | 'info' => {
-    const lowerStatus = status?.toLowerCase();
-    if (lowerStatus === 'won' || lowerStatus === 'resolved') return 'success';
-    if (lowerStatus === 'disputed' || lowerStatus === 'action_required') return 'error';
-    if (lowerStatus === 'under_review' || lowerStatus === 'reviewing') return 'warning';
-    if (lowerStatus === 'lost' || lowerStatus === 'failed') return 'neutral';
-    return 'neutral';
-  };
+  // Dispute status breakdown
+  const disputeStatusData: CategoryData[] = [
+    { label: 'Action Required', value: actionRequiredMetric.value, color: '#F59E0B' },
+    { label: 'Under Review', value: underReviewMetric.value, color: '#3B82F6' },
+    { label: 'Won', value: wonMetric.value, color: '#10B981' },
+    { label: 'Lost', value: lostMetric.value, color: '#EF4444' },
+  ];
 
-  if (isLoading) {
-    return (
-      <HubPageLayout
-        header={<HubHeader title="Platform Disputes" />}
-        sidebar={
-          <HubSidebar>
-            <div className={styles.skeletonWidget} />
-            <div className={styles.skeletonWidget} />
-            <div className={styles.skeletonWidget} />
-          </HubSidebar>
-        }
-      >
-        <div className={styles.loading}>Loading disputes...</div>
-      </HubPageLayout>
-    );
-  }
+  // Calculate win rate
+  const totalResolved = wonMetric.value + lostMetric.value;
+  const winRate = totalResolved > 0 ? Math.round((wonMetric.value / totalResolved) * 100) : 0;
 
   return (
     <HubPageLayout
       header={
         <HubHeader
-          title="Platform Disputes"
-          filters={
-            <div className={filterStyles.filtersContainer}>
-              {/* Search Input */}
-              <input
-                type="search"
-                placeholder="Search disputes..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={filterStyles.searchInput}
-              />
-
-              {/* Date Range Dropdown */}
-              <select
-                value={dateRange}
-                onChange={(e) => setDateRange(e.target.value as DateRangeType)}
-                className={filterStyles.filterSelect}
-              >
-                <option value="all">All Time</option>
-                <option value="7days">Last 7 Days</option>
-                <option value="30days">Last 30 Days</option>
-                <option value="3months">Last 3 Months</option>
-                <option value="6months">Last 6 Months</option>
-                <option value="1year">Last Year</option>
-              </select>
-            </div>
-          }
-          actions={
-            <>
-              {/* Primary Action Button */}
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleResolveDispute}
-              >
-                Resolve Disputes
-              </Button>
-
-              {/* Secondary Actions: Dropdown Menu */}
-              <div className={actionStyles.dropdownContainer}>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  square
-                  onClick={() => setShowActionsMenu(!showActionsMenu)}
-                >
-                  ⋮
-                </Button>
-
-                {showActionsMenu && (
-                  <>
-                    {/* Backdrop to close menu */}
-                    <div
-                      className={actionStyles.backdrop}
-                      onClick={() => setShowActionsMenu(false)}
-                    />
-
-                    {/* Dropdown Menu */}
-                    <div className={actionStyles.dropdownMenu}>
-                      <button
-                        onClick={handleExportCSV}
-                        className={actionStyles.menuButton}
-                      >
-                        Export CSV
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            </>
-          }
+          title="Disputes"
+          subtitle="Manage platform disputes and mediation"
+          actions={getHeaderActions()}
+          className={styles.disputesHeader}
         />
       }
       tabs={
         <HubTabs
-          tabs={tabs}
-          onTabChange={(tabId) => handleFilterChange(tabId as DisputeStatus)}
+          tabs={[
+            { id: 'overview', label: 'Overview', active: activeTab === 'overview' },
+            { id: 'all-disputes', label: 'All Disputes', count: totalDisputesMetric.value, active: activeTab === 'all-disputes' }
+          ]}
+          onTabChange={(tabId) => setActiveTab(tabId as 'overview' | 'all-disputes')}
+          className={styles.disputesTabs}
         />
       }
       sidebar={
         <HubSidebar>
           <AdminStatsWidget
-            title="Platform Disputes"
+            title="Dispute Breakdown"
             stats={[
-              { label: 'Action Required', value: '0' },
-              { label: 'Under Review', value: '0' },
-              { label: 'Won', value: '0', valueColor: 'green' },
-              { label: 'Lost', value: '0', valueColor: 'orange' },
+              { label: 'Total', value: totalDisputesMetric.value },
+              { label: 'Action Required', value: actionRequiredMetric.value },
+              { label: 'Under Review', value: underReviewMetric.value },
+              { label: 'Won', value: wonMetric.value },
+              { label: 'Lost', value: lostMetric.value },
+              { label: 'Win Rate', value: `${winRate}%` },
             ]}
           />
           <AdminHelpWidget
-            title="Dispute Management"
+            title="Disputes Help"
             items={[
-              {
-                question: 'What are disputes?',
-                answer: 'Disputes are chargebacks or customer payment challenges that require admin review and resolution.',
-              },
-              {
-                question: 'How to resolve?',
-                answer: 'Review evidence, mediate between parties, and submit response to payment processor. Document all decisions.',
-              },
+              { question: 'What are disputes?', answer: 'Disputes are customer complaints about payments, services, or bookings that require admin intervention.' },
+              { question: 'Resolution process?', answer: 'Review evidence from both parties, investigate the issue, and make a fair decision. Won disputes favor the platform, lost disputes favor the customer.' },
             ]}
           />
           <AdminTipWidget
             title="Dispute Tips"
             tips={[
               'Respond to disputes within 7 days',
-              'Collect all transaction evidence',
-              'Communicate with both parties',
-              'Document resolution reasoning',
+              'Gather all evidence before deciding',
+              'Communicate clearly with both parties',
+              'Document all decisions',
             ]}
           />
         </HubSidebar>
       }
     >
-      {/* Subtle Error Banner (like Messages page) */}
-      {hasShownError && (
-        <div className={styles.errorBanner}>
-          <p>⚠️ Unable to load disputes</p>
-        </div>
+      {/* Overview Tab */}
+      {activeTab === 'overview' && (
+        <>
+          {/* KPI Cards Grid - All 4 cards in single grid */}
+          <HubKPIGrid>
+            <HubKPICard
+              label="Total Disputes"
+              value={totalDisputesMetric.value}
+              sublabel={formatMetricChange(
+                totalDisputesMetric.change,
+                totalDisputesMetric.changePercent,
+                'last_month'
+              )}
+              icon={AlertCircle}
+              trend={totalDisputesMetric.trend}
+            />
+            <HubKPICard
+              label="Action Required"
+              value={actionRequiredMetric.value}
+              sublabel={formatMetricChange(
+                actionRequiredMetric.change,
+                actionRequiredMetric.changePercent,
+                'last_month'
+              )}
+              icon={Clock}
+              trend={actionRequiredMetric.trend}
+            />
+            <HubKPICard
+              label="Under Review"
+              value={underReviewMetric.value}
+              sublabel={formatMetricChange(
+                underReviewMetric.change,
+                underReviewMetric.changePercent,
+                'last_month'
+              )}
+              icon={Clock}
+              trend={underReviewMetric.trend}
+            />
+            <HubKPICard
+              label="Won"
+              value={wonMetric.value}
+              sublabel={formatMetricChange(
+                wonMetric.change,
+                wonMetric.changePercent,
+                'last_month'
+              )}
+              icon={CheckCircle}
+              trend={wonMetric.trend}
+            />
+            <HubKPICard
+              label="Lost"
+              value={lostMetric.value}
+              sublabel={formatMetricChange(
+                lostMetric.change,
+                lostMetric.changePercent,
+                'last_month'
+              )}
+              icon={XCircle}
+              trend={lostMetric.trend}
+            />
+            <HubKPICard
+              label="Win Rate"
+              value={`${winRate}%`}
+              sublabel={
+                totalResolved > 0
+                  ? `${wonMetric.value} won out of ${totalResolved} resolved`
+                  : undefined
+              }
+              icon={CheckCircle}
+            />
+          </HubKPIGrid>
+
+          {/* Charts Section */}
+          <div className={styles.chartsSection}>
+            {/* Dispute Volume Trends Chart */}
+            <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load dispute trends chart</div>}>
+              {isLoadingCharts ? (
+                <ChartSkeleton height="320px" />
+              ) : (
+                <HubTrendChart
+                  data={disputeTrendsData}
+                  title="Dispute Trends"
+                  subtitle="Last 7 days"
+                  valueName="Disputes"
+                  lineColor="#EF4444"
+                />
+              )}
+            </ErrorBoundary>
+
+            {/* Dispute Status Breakdown */}
+            <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load status breakdown chart</div>}>
+              {isLoadingCharts ? (
+                <ChartSkeleton height="320px" />
+              ) : (
+                <HubCategoryBreakdownChart
+                  data={disputeStatusData}
+                  title="Dispute Status Breakdown"
+                  subtitle="Current distribution"
+                />
+              )}
+            </ErrorBoundary>
+          </div>
+        </>
       )}
 
-      {/* Disputes List - HubRowCard with client avatars */}
-      {filteredDisputes.length === 0 ? (
-          disputes.length === 0 ? (
-            <HubEmptyState
-              title="No disputes yet"
-              description="Great news! You have no disputed transactions."
-            />
-          ) : (
-            <HubEmptyState
-              title="No disputes found"
-              description={`No disputes match your current filter (${statusFilter.replace('_', ' ')}).`}
-            />
-          )
-        ) : (
-          <div className={styles.disputesList}>
-            {filteredDisputes.map((dispute) => (
-              <DisputeCard
-                key={dispute.id}
-                dispute={dispute}
-              />
-            ))}
-          </div>
-        )}
+      {/* All Disputes Tab */}
+      {activeTab === 'all-disputes' && (
+        <DisputesTable />
+      )}
     </HubPageLayout>
   );
 }
