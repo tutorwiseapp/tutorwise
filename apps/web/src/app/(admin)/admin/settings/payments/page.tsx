@@ -46,8 +46,8 @@ export default function PaymentSettingsPage() {
     // Fee Structure
     platformFeePercent: 10,
     minimumBookingAmount: 10,
-    currencyProcessingFeePercent: 2.9,
-    fixedTransactionFee: 0.30,
+    currencyProcessingFeePercent: 1.5,
+    fixedTransactionFee: 0.20,
 
     // Payout Schedule
     payoutFrequency: 'weekly',
