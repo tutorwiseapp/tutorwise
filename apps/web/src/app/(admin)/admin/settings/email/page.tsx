@@ -30,11 +30,11 @@ export default function EmailSettingsPage() {
 
   const [formData, setFormData] = useState({
     // SMTP Configuration
-    smtpHost: 'smtp.sendgrid.net',
+    smtpHost: 'smtp.resend.com',
     smtpPort: 587,
-    smtpUsername: 'apikey',
+    smtpUsername: 'resend',
     smtpPassword: '',
-    fromEmail: 'noreply@tutorwise.com',
+    fromEmail: 'noreply@tutorwise.io',
     fromName: 'Tutorwise Platform',
 
     // Email Notifications
@@ -182,7 +182,7 @@ export default function EmailSettingsPage() {
             items={[
               {
                 question: 'How do I configure SMTP?',
-                answer: 'Get SMTP credentials from your email provider (SendGrid, Mailgun, etc.) and enter them here.',
+                answer: 'Get SMTP credentials from your email provider (Resend, SendGrid, Mailgun, etc.) and enter them here.',
               },
               {
                 question: 'Why test emails?',
