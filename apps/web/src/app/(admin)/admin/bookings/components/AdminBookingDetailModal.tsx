@@ -397,11 +397,6 @@ export default function AdminBookingDetailModal({
               </DropdownMenu.Content>
             </DropdownMenu.Portal>
           </DropdownMenu.Root>
-
-          {/* Close Button */}
-          <Button onClick={onClose} variant="secondary" disabled={isProcessing}>
-            Close
-          </Button>
         </div>
       }
     />
