@@ -231,11 +231,12 @@ export default function PlatformSettingsPage() {
                 <option value="America/Los_Angeles">America/Los_Angeles (PST)</option>
                 <option value="Europe/Paris">Europe/Paris (CET)</option>
                 <option value="Asia/Tokyo">Asia/Tokyo (JST)</option>
-                <option value="Asia/Shanghai">Asia/Shanghai (China)</option>
+                <option value="Asia/Shanghai">Asia/Shanghai (China - Shanghai)</option>
+                <option value="Asia/Chongqing">Asia/Chongqing (China - Beijing)</option>
                 <option value="Asia/Hong_Kong">Asia/Hong_Kong (Hong Kong)</option>
-                <option value="Asia/Ho_Chi_Minh">Asia/Ho_Chi_Minh (Vietnam)</option>
+                <option value="Asia/Hanoi">Asia/Hanoi (Vietnam - Hanoi)</option>
                 <option value="Asia/Singapore">Asia/Singapore (Singapore)</option>
-                <option value="Asia/Kolkata">Asia/Kolkata (India)</option>
+                <option value="Asia/Kolkata">Asia/Kolkata (India - New Delhi)</option>
                 <option value="Australia/Sydney">Australia/Sydney (Australia)</option>
               </select>
             </HubForm.Field>
