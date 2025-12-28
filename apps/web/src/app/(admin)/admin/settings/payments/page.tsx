@@ -33,12 +33,15 @@ export default function PaymentSettingsPage() {
   const canEditStripeKeys = profile?.admin_role === 'superadmin';
 
   const [formData, setFormData] = useState({
-    // Stripe Configuration
-    stripePublishableKey: 'pk_live_••••••••••••',
-    stripeSecretKey: 'sk_live_••••••••••••',
-    stripeWebhookSecret: 'whsec_••••••••••••',
-    testMode: false,
-    connectionStatus: 'Connected',
+    // Stripe Test Mode
+    stripeTestPublishableKey: '',
+    stripeTestSecretKey: '',
+    testConnectionStatus: 'Not Connected',
+
+    // Stripe Live Mode
+    stripeLivePublishableKey: '',
+    stripeLiveSecretKey: '',
+    liveConnectionStatus: 'Not Connected',
 
     // Fee Structure
     platformFeePercent: 15,
@@ -207,54 +210,72 @@ export default function PaymentSettingsPage() {
             </div>
           )}
 
-          <HubForm.Grid columns={2}>
-            <HubForm.Field label="Publishable Key">
-              <input
-                type="text"
-                value={formData.stripePublishableKey}
-                onChange={(e) => handleChange('stripePublishableKey', e.target.value)}
-                disabled={!canEditStripeKeys}
-                placeholder="pk_live_..."
-              />
-            </HubForm.Field>
+          {/* Test Mode */}
+          <div className={styles.modeContainer}>
+            <div className={styles.modeHeader}>
+              <h3 className={styles.modeTitle}>Test Mode</h3>
+              <span className={styles.modeBadge} data-mode="test">TEST</span>
+            </div>
+            <HubForm.Grid columns={2}>
+              <HubForm.Field label="Test Publishable Key">
+                <input
+                  type="text"
+                  value={formData.stripeTestPublishableKey}
+                  onChange={(e) => handleChange('stripeTestPublishableKey', e.target.value)}
+                  disabled={!canEditStripeKeys}
+                  placeholder="pk_test_..."
+                />
+              </HubForm.Field>
 
-            <HubForm.Field label="Secret Key">
-              <input
-                type="password"
-                value={formData.stripeSecretKey}
-                onChange={(e) => handleChange('stripeSecretKey', e.target.value)}
-                disabled={!canEditStripeKeys}
-                placeholder="sk_live_..."
-              />
-            </HubForm.Field>
+              <HubForm.Field label="Test Secret Key">
+                <input
+                  type="password"
+                  value={formData.stripeTestSecretKey}
+                  onChange={(e) => handleChange('stripeTestSecretKey', e.target.value)}
+                  disabled={!canEditStripeKeys}
+                  placeholder="sk_test_..."
+                />
+              </HubForm.Field>
+            </HubForm.Grid>
+            <div className={styles.connectionStatus}>
+              <span className={`${styles.statusBadge} ${formData.testConnectionStatus === 'Connected' ? styles.connected : styles.disconnected}`}>
+                {formData.testConnectionStatus === 'Connected' ? '✓' : '○'} Test: {formData.testConnectionStatus}
+              </span>
+            </div>
+          </div>
 
-            <HubForm.Field label="Webhook Secret">
-              <input
-                type="password"
-                value={formData.stripeWebhookSecret}
-                onChange={(e) => handleChange('stripeWebhookSecret', e.target.value)}
-                disabled={!canEditStripeKeys}
-                placeholder="whsec_..."
-              />
-            </HubForm.Field>
+          {/* Live Mode */}
+          <div className={styles.modeContainer}>
+            <div className={styles.modeHeader}>
+              <h3 className={styles.modeTitle}>Live Mode</h3>
+              <span className={styles.modeBadge} data-mode="live">LIVE</span>
+            </div>
+            <HubForm.Grid columns={2}>
+              <HubForm.Field label="Live Publishable Key">
+                <input
+                  type="text"
+                  value={formData.stripeLivePublishableKey}
+                  onChange={(e) => handleChange('stripeLivePublishableKey', e.target.value)}
+                  disabled={!canEditStripeKeys}
+                  placeholder="pk_live_..."
+                />
+              </HubForm.Field>
 
-            <HubForm.Field label="Connection Status">
-              <div className={styles.connectionStatus}>
-                <span className={`${styles.statusBadge} ${styles.connected}`}>
-                  ✓ {formData.connectionStatus}
-                </span>
-              </div>
-            </HubForm.Field>
-          </HubForm.Grid>
-
-          <div style={{ marginTop: '16px' }}>
-            <HubToggle
-              checked={formData.testMode}
-              onChange={(checked) => handleChange('testMode', checked)}
-              disabled={!canEditStripeKeys}
-              label="Test Mode"
-              description="Use Stripe test keys instead of live keys"
-            />
+              <HubForm.Field label="Live Secret Key">
+                <input
+                  type="password"
+                  value={formData.stripeLiveSecretKey}
+                  onChange={(e) => handleChange('stripeLiveSecretKey', e.target.value)}
+                  disabled={!canEditStripeKeys}
+                  placeholder="sk_live_..."
+                />
+              </HubForm.Field>
+            </HubForm.Grid>
+            <div className={styles.connectionStatus}>
+              <span className={`${styles.statusBadge} ${formData.liveConnectionStatus === 'Connected' ? styles.connected : styles.disconnected}`}>
+                {formData.liveConnectionStatus === 'Connected' ? '✓' : '○'} Live: {formData.liveConnectionStatus}
+              </span>
+            </div>
           </div>
         </HubForm.Section>
 
