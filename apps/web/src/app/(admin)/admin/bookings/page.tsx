@@ -149,7 +149,7 @@ export default function AdminBookingsOverviewPage() {
       {/* Overview Tab */}
       {activeTab === 'overview' && (
         <>
-          {/* KPI Cards - Row 1: Booking Counts */}
+          {/* KPI Cards Grid - All 8 cards in single grid */}
           <HubKPIGrid>
             <HubKPICard
               label="Total Bookings"
@@ -195,10 +195,6 @@ export default function AdminBookingsOverviewPage() {
               icon={Calendar}
               trend={cancelledBookingsMetric.trend}
             />
-          </HubKPIGrid>
-
-          {/* KPI Cards - Row 2: Revenue & Hours */}
-          <HubKPIGrid className={styles.secondRowGrid}>
             <HubKPICard
               label="Total Revenue"
               value={formatCurrency(revenueMetric.value)}

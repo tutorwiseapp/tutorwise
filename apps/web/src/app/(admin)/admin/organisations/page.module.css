@@ -1,0 +1,61 @@
+/*
+ * Filename: page.module.css
+ * Purpose: Styles for Organisations overview page
+ * Created: 2025-12-27
+ * Pattern: Follows Bookings/Referrals hub layout pattern
+ */
+
+/* Header */
+.organisationsHeader {
+  --hub-header-margin-top: 1.5rem;
+  --hub-header-margin-bottom: 0;
+  --hub-header-height: 3rem;
+  --hub-header-padding-x: 1rem;
+  --hub-header-actions-gap: 0.5rem;
+  --hub-header-actions-margin-left: 1rem;
+}
+
+@media (max-width: 767px) {
+  .organisationsHeader {
+    --hub-header-margin-top: 0rem;
+  }
+}
+
+/* Tabs */
+.organisationsTabs {
+  --hub-tabs-margin-top: 3rem;
+  --hub-tabs-margin-bottom: 1rem;
+}
+
+@media (max-width: 767px) {
+  .organisationsTabs {
+    --hub-tabs-margin-top: 0rem;
+  }
+}
+
+/* Charts Section */
+.chartsSection {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+/* Tablet: 2 column layout for charts */
+@media (min-width: 768px) {
+  .chartsSection {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Desktop: Full width for each chart */
+@media (min-width: 1024px) {
+  .chartsSection {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Table container */
+.tableContainer {
+  /* Spacing handled by HubTabs margin-bottom */
+}

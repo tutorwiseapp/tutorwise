@@ -41,7 +41,8 @@ export default function AdminSidebar() {
     { href: '/admin/users', label: 'Users' },
     { href: '/admin/listings', label: 'Listings' },
     { href: '/admin/bookings', label: 'Bookings' },
-    { href: '/admin/reviews', label: 'Reviews' },
+    { href: '/admin/referrals', label: 'Referrals' },
+    { href: '/admin/organisations', label: 'Organisations' },
     {
       href: '/admin/financials',
       label: 'Financials',
@@ -51,6 +52,7 @@ export default function AdminSidebar() {
         { href: '/admin/financials/disputes', label: 'Disputes', indent: true },
       ],
     },
+    { href: '/admin/reviews', label: 'Reviews' },
     { href: '/admin/reports', label: 'Reports' },
     { href: '/admin/settings', label: 'Settings' },
   ];

@@ -1,0 +1,274 @@
+/**
+ * Filename: ReferralsTable.module.css
+ * Purpose: Styles for admin referrals table
+ * Created: 2025-12-27
+ * Pattern: Follows BookingsTable and ListingsTable structure
+ */
+
+/* Cell Styles - Universal Column Order: ID → Date → Service → Domain → Actions */
+
+/* Column 1: ID Cell */
+.idCell {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Column 2: Date Cell */
+.dateCell {
+  font-size: 0.875rem;
+  color: #374151;
+  white-space: nowrap;
+}
+
+/* Column 3: Status Badge */
+.statusBadge {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+}
+
+.statusConverted {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.statusSignedUp {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.statusReferred {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.statusExpired {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Column 4 & 5: Profile Cell (Agent, Referred User) */
+.profileCell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.emptyCell {
+  color: #9ca3af;
+  font-style: italic;
+  font-size: 0.875rem;
+}
+
+/* Column 7: Booking Cell */
+.bookingCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.serviceName {
+  font-size: 0.875rem;
+  color: #374151;
+  font-weight: 500;
+}
+
+.amount {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+/* Column 8: Commission Cell */
+.commissionCell {
+  font-size: 0.875rem;
+  color: #059669;
+  font-weight: 600;
+}
+
+/* Column 9: Attribution Badge */
+.attributionBadge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background-color: #f3f4f6;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  color: #4b5563;
+  text-transform: capitalize;
+}
+
+/* Column 10: Days Cell */
+.daysCell {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Advanced Filters Button (Toolbar) */
+.advancedFiltersButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; /* ← CANONICAL: HUB-UI-STANDARDS.md */
+  height: 36px; /* ← CANONICAL: HUB-UI-STANDARDS.md */
+  padding: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.advancedFiltersButton:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.buttonIcon {
+  width: 1rem; /* 16px icon inside 36px button */
+  height: 1rem;
+  color: #6b7280;
+}
+
+.filtersBadge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: #ef4444;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 0.625rem;
+  font-weight: 700;
+}
+
+/* Mobile Card Styles */
+.mobileCard {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobileCard:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.mobileCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.mobileCardId {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.mobileCardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mobileCardRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.mobileCardLabel {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Actions Column Styles */
+.actionsCell {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: visible;
+}
+
+.actionsButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.375rem;
+  border: none;
+  background: transparent;
+  border-radius: 0.375rem;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.actionsButton:hover {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+.actionsMenu {
+  position: fixed;
+  min-width: 160px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
+  overflow: visible;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: none;
+  background: transparent;
+  font-size: 0.875rem;
+  color: #374151;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.menuItem:hover {
+  background-color: #f9fafb;
+}
+
+/* Active filter button state */
+.advancedFiltersButton.active {
+  background: #006c67;
+  border-color: #006c67;
+}
+
+.advancedFiltersButton.active .buttonIcon {
+  color: #ffffff;
+}

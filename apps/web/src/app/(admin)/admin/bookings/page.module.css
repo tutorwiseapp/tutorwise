@@ -46,11 +46,6 @@
   margin-right: 0.5rem;
 }
 
-/* Second row grid (for revenue & hours) */
-.secondRowGrid {
-  margin-top: 1.5rem;
-}
-
 /* Charts Section */
 .chartsSection {
   display: grid;
@@ -114,10 +109,6 @@
 }
 
 @media (max-width: 768px) {
-  .secondRowGrid {
-    margin-top: 1rem;
-  }
-
   .placeholder {
     margin-top: 2rem;
     padding: 2rem 1rem;

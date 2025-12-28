@@ -1,78 +1,44 @@
 /*
  * Filename: src/app/(admin)/admin/referrals/page.module.css
- * Purpose: Styles for Admin Referrals placeholder page
- * Created: 2025-12-26
+ * Purpose: Styles for Admin Referrals overview page
+ * Created: 2025-12-27
+ * Pattern: Follows admin bookings and listings structure
  */
 
-.placeholderContainer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  padding: 2rem;
+/* Header */
+.referralsHeader {
+  /* Inherits styles from HubHeader */
 }
 
-.placeholderCard {
-  max-width: 600px;
-  text-align: center;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 3rem 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+/* Tabs */
+.referralsTabs {
+  --hub-tabs-margin-top: 3rem;
+  --hub-tabs-margin-bottom: 1rem; /* 1rem tab margin + 1rem content padding = 2rem total */
 }
 
-.icon {
-  color: #f97316; /* Orange to match admin theme */
-  margin-bottom: 1.5rem;
+/* Charts Section */
+.chartsSection {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem; /* 32px gap */
+  margin-top: 2rem; /* Space between KPI cards and charts */
 }
 
-.title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 1rem;
-}
-
-.description {
-  font-size: 1rem;
-  color: #6b7280;
-  line-height: 1.6;
-  margin-bottom: 2rem;
-}
-
-.backLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: #f97316;
-  color: #ffffff;
-  text-decoration: none;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: background-color 0.2s ease;
-}
-
-.backLink:hover {
-  background: #ea580c;
-}
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-  .placeholderContainer {
-    padding: 1rem;
+/* Tablet: 2-column charts grid */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .chartsSection {
+    grid-template-columns: repeat(2, 1fr);
   }
+}
 
-  .placeholderCard {
-    padding: 2rem 1.5rem;
+/* Desktop: 1-column charts grid (wide charts) */
+@media (min-width: 1024px) {
+  .chartsSection {
+    grid-template-columns: 1fr;
   }
+}
 
-  .title {
-    font-size: 1.25rem;
-  }
-
-  .description {
-    font-size: 0.9375rem;
-  }
+/* Table container */
+.tableContainer {
+  /* Spacing handled by HubTabs margin-bottom */
 }
