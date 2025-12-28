@@ -157,6 +157,17 @@ export default function OrganisationsTable() {
     setSelectedOrganisation(org);
   };
 
+  // Handle export
+  const handleExport = () => {
+    console.log('Export organisations');
+    // TODO: Implement CSV export
+  };
+
+  // Handle refresh
+  const handleRefresh = () => {
+    refetch();
+  };
+
   // Close actions menu when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -376,6 +387,8 @@ export default function OrganisationsTable() {
         }}
         onSearch={setSearchQuery}
         searchPlaceholder="Search by name, slug, or contact email..."
+        onExport={handleExport}
+        onRefresh={handleRefresh}
         bulkActions={bulkActions}
         onRowClick={handleRowClick}
         emptyMessage="No organisations found"
