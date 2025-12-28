@@ -14,7 +14,7 @@ import { createClient } from '@/utils/supabase/client';
 import { HubDataTable } from '@/app/components/hub/data';
 import type { Column } from '@/app/components/hub/data';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
-import { MoreVertical } from 'lucide-react';
+import { MoreVertical, Filter } from 'lucide-react';
 import AdminOrganisationDetailModal from './AdminOrganisationDetailModal';
 import AdvancedFiltersDrawer, { type AdvancedFilters } from './AdvancedFiltersDrawer';
 import styles from './OrganisationsTable.module.css';
@@ -364,6 +364,14 @@ export default function OrganisationsTable() {
     },
   ];
 
+  // Count active filters
+  const activeFiltersCount = Object.values(advancedFilters).filter((value) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'number') return value > 0;
+    if (typeof value === 'string') return value !== '';
+    return false;
+  }).length;
+
   return (
     <>
       <HubDataTable
@@ -389,9 +397,22 @@ export default function OrganisationsTable() {
         searchPlaceholder="Search by name, slug, or contact email..."
         onExport={handleExport}
         onRefresh={handleRefresh}
+        autoRefreshInterval={30000}
         bulkActions={bulkActions}
         onRowClick={handleRowClick}
         emptyMessage="No organisations found"
+        toolbarActions={
+          <button
+            className={`${styles.filtersButton} ${showAdvancedFilters ? styles.active : ''}`}
+            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            aria-label="Advanced filters"
+          >
+            <Filter size={16} />
+            {activeFiltersCount > 0 && (
+              <span className={styles.filtersBadge}>{activeFiltersCount}</span>
+            )}
+          </button>
+        }
       />
 
       {/* Detail Modal */}
