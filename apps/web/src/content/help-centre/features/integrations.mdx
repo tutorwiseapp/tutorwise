@@ -1,0 +1,277 @@
+---
+title: "Integrations & Connected Apps"
+slug: "integrations"
+category: "features"
+audience: "all"
+description: "Connect Tutorwise with Google Calendar, Google Classroom, Stripe, and other tools. Automate your workflow and boost your Credibility Score."
+keywords: ["integrations", "Google Calendar", "Google Classroom", "Stripe", "automation", "sync"]
+author: "Tutorwise Team"
+lastUpdated: "2025-12-28"
+readTime: "5 min"
+relatedArticles:
+  - "caas"
+  - "stripe-setup"
+  - "dashboard"
+  - "for-tutors"
+---
+
+import CalloutBox from '@/app/components/help-centre/ui/CalloutBox';
+
+# Integrations & Connected Apps
+
+Connect Tutorwise with your favorite tools to automate scheduling, sync calendars, streamline payments, and boost productivity. Plus, earn Credibility Score points!
+
+<CalloutBox type="success">
+**CaaS Boost:** Each integration you enable earns Credibility Score points in the Digital Professionalism bucket (+4 Calendar, +2 Classroom, +1 Stripe).
+</CalloutBox>
+
+## Available Integrations
+
+### Google Calendar (Recommended)
+
+**What It Does:**
+- Auto-syncs Tutorwise bookings to your Google Calendar
+- Shows availability in real-time
+- Prevents double-booking
+- Updates automatically when sessions change
+- Two-way sync (block time in Google, appears busy on Tutorwise)
+
+**Benefits:**
+- Never miss a session
+- See all commitments in one place
+- Share calendar with family/team
+- Mobile notifications from Google Calendar app
+- **+4 Credibility Score points**
+
+**How to Connect:**
+1. Go to [Account](/account) → Integrations
+2. Click "Connect Google Calendar"
+3. Sign in with Google account
+4. Grant calendar permissions
+5. Choose which calendar to sync to
+6. Save settings
+
+**Sync Settings:**
+- Choose calendar (default or create "Tutorwise")
+- Event title format (customizable)
+- Include student name (privacy toggle)
+- Session reminders (15 min, 1 hour, 1 day)
+- Color coding by subject
+
+<CalloutBox type="tip">
+**Privacy Tip:** Create a separate "Tutorwise" calendar in Google to keep work separate from personal events!
+</CalloutBox>
+
+### Google Classroom
+
+**What It Does:**
+- Create Classroom classes for recurring students
+- Share assignments and resources
+- Track student work completion
+- Streamline homework distribution
+- Professional teaching environment
+
+**Benefits:**
+- Organize materials per student/subject
+- Assign homework between sessions
+- Track student progress
+- Professional impression on parents
+- **+2 Credibility Score points**
+
+**How to Connect:**
+1. Go to [Account](/account) → Integrations
+2. Click "Connect Google Classroom"
+3. Sign in with Google Workspace account
+4. Grant Classroom permissions
+5. Configure default settings
+
+**Use Cases:**
+- Create class per long-term student
+- Post assignments after sessions
+- Share study materials
+- Track homework completion
+- Build resource library
+
+### Stripe (Required for Payments)
+
+**What It Does:**
+- Process session payments
+- Receive weekly payouts
+- Manage bank account details
+- View transaction history
+- Handle refunds
+
+**Benefits:**
+- Secure payment processing
+- Fast payouts (weekly)
+- Professional invoicing
+- Tax reporting tools
+- **+1 Credibility Score point (for setup completion)**
+
+**How to Set Up:**
+1. See our complete [Stripe Setup Guide](/help-centre/billing/stripe-setup)
+2. Connect bank account
+3. Verify identity
+4. Enable payouts
+5. Start earning
+
+**Stripe Dashboard:**
+- View in [Financials](/financials)
+- Track all transactions
+- Export for tax purposes
+- Update bank details
+- Manage payout schedule
+
+<CalloutBox type="warning">
+**Required:** Stripe connection is mandatory to receive payments. You cannot get paid without completing Stripe setup!
+</CalloutBox>
+
+## Coming Soon Integrations
+
+**Zoom (Beta):**
+- Alternative to Wisespace
+- Use existing Zoom account
+- Auto-generate meeting links
+- Include in booking confirmations
+
+**Microsoft Outlook Calendar:**
+- Similar to Google Calendar sync
+- For Microsoft/Office 365 users
+- Two-way sync
+- Teams integration potential
+
+**Zapier:**
+- Connect to 1000+ apps
+- Custom automation workflows
+- CRM integration (Salesforce, HubSpot)
+- Marketing tools (Mailchimp, ConvertKit)
+
+**QuickBooks/Xero:**
+- Accounting software sync
+- Auto-import transactions
+- Tax-ready reports
+- Expense tracking
+
+**Request Integration:**
+Email integrations@tutorwise.com with your suggestion!
+
+## Managing Your Integrations
+
+### Integration Dashboard
+
+**Go to [Account](/account) → Integrations to:**
+- View all connected apps
+- Connection status (active/disconnected)
+- Last sync time
+- Data synced count
+- Disconnect/reconnect options
+
+### Disconnecting Apps
+
+**To Disconnect:**
+1. Find integration in dashboard
+2. Click "Disconnect"
+3. Confirm removal
+4. Data stops syncing immediately
+
+**What Happens:**
+- Future events won't sync
+- Existing synced data stays in connected app
+- You can reconnect anytime
+- CaaS points removed if you disconnect
+
+### Troubleshooting Sync Issues
+
+**Calendar Not Syncing:**
+- Check Google account permissions
+- Verify correct calendar selected
+- Try disconnect/reconnect
+- Check for calendar API limits
+
+**Classroom Not Showing Students:**
+- Ensure student has Google account
+- Check Classroom permissions
+- Verify class creation settings
+- Try refreshing connection
+
+**Stripe Payments Failing:**
+- Verify bank account details
+- Check Stripe account status
+- Update payment method
+- Contact Stripe support
+
+## Security & Privacy
+
+**Data Protection:**
+- Encrypted connections (SSL/TLS)
+- OAuth 2.0 authentication
+- No password storage
+- Revocable access anytime
+
+**What We Access:**
+- Google Calendar: Read/write calendar events
+- Google Classroom: Create classes, post assignments
+- Stripe: Process payments, view transactions
+
+**What We DON'T Access:**
+- Your emails (Gmail)
+- Personal Google Drive files
+- Other Google services
+- Unrelated calendar events
+
+<CalloutBox type="info">
+**Privacy First:** We only access what's necessary for the integration to work. You can revoke access anytime via your Google Account settings.
+</CalloutBox>
+
+## Integration Best Practices
+
+**Calendar Sync:**
+✅ Sync immediately after signup
+✅ Create dedicated "Tutorwise" calendar
+✅ Set appropriate reminders
+✅ Review synced events weekly
+✅ Keep Google Calendar as master schedule
+
+**Classroom Usage:**
+✅ Create class per student or subject
+✅ Post assignments within 24hrs of session
+✅ Share useful resources regularly
+✅ Use announcements for updates
+✅ Archive old classes yearly
+
+**Stripe Management:**
+✅ Verify bank details are current
+✅ Check payout schedule settings
+✅ Export transactions monthly
+✅ Monitor for failed payments
+✅ Keep tax records updated
+
+## Troubleshooting
+
+**Q: I connected Google Calendar but events aren't showing. Why?**
+A: Check:
+- Correct calendar selected in settings
+- Calendar sharing permissions
+- Sync hasn't failed (check status)
+- Wait up to 5 minutes for initial sync
+
+**Q: Can I sync multiple Google accounts?**
+A: Currently one account per integration. Use your primary teaching calendar.
+
+**Q: Will students see my personal Google Calendar events?**
+A: No! Only you see your full calendar. Students only see your availability blocks on Tutorwise.
+
+**Q: How do I change which Google Calendar syncs to?**
+A: Go to Integrations → Google Calendar → Settings → Select different calendar → Save.
+
+**Q: What happens to synced events if I disconnect?**
+A: They remain in Google Calendar as past events. Future syncing stops. You can manually delete them.
+
+## Quick Links
+
+- [Account Settings](/account) — Manage all integrations
+- [Stripe Setup](/help-centre/billing/stripe-setup) — Complete payment setup
+- [Credibility Score](/help-centre/features/caas) — Learn about Digital Professionalism points
+- [Dashboard](/dashboard) — View integration status
+
+**Automate your workflow!** Connect your favorite tools in [Account Settings](/account) → Integrations today!
