@@ -127,6 +127,17 @@
   min-height: 44px;
 }
 
+/* Remove spinner arrows from number inputs */
+.field input[type="number"]::-webkit-outer-spin-button,
+.field input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.field input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 .field input:hover,
 .field textarea:hover,
 .field select:hover {
