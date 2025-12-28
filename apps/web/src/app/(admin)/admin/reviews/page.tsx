@@ -263,8 +263,12 @@ export default function AdminReviewsOverviewPage() {
             />
             <HubKPICard
               label="New This Month"
-              value={totalReviewsMetric.change >= 0 ? totalReviewsMetric.change : 0}
-              sublabel={`${totalReviewsMetric.changePercent.toFixed(1)}% vs last month`}
+              value={totalReviewsMetric.change !== null && totalReviewsMetric.change >= 0 ? totalReviewsMetric.change : 0}
+              sublabel={
+                totalReviewsMetric.changePercent !== null
+                  ? `${totalReviewsMetric.changePercent.toFixed(1)}% vs last month`
+                  : undefined
+              }
               icon={Star}
               trend={totalReviewsMetric.trend}
             />
