@@ -1,0 +1,121 @@
+/**
+ * Filename: page.module.css
+ * Purpose: Styles for Integrations Settings page
+ * Created: 2025-12-28
+ */
+
+.settingsHeader {
+  /* Inherits from HubHeader */
+}
+
+.settingsTabs {
+  /* Inherits from HubTabs */
+}
+
+/* Webhooks Table */
+.webhooksContainer {
+  width: 100%;
+}
+
+.webhooksTable {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.webhooksTable thead {
+  background-color: #f9fafb;
+}
+
+.webhooksTable th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.webhooksTable td {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #6b7280;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.webhooksTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.urlCell {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eventsCell {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.statusBadge.active {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.statusBadge.inactive {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+.removeButton {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid #dc2626;
+  border-radius: 6px;
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.removeButton:hover {
+  background-color: #dc2626;
+  color: white;
+}
+
+/* Services Grid */
+.servicesGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3, 24px);
+}
+
+.serviceCard {
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+}
+
+.serviceConfig {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}

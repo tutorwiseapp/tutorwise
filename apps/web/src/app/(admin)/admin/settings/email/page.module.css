@@ -1,0 +1,31 @@
+/**
+ * Filename: page.module.css
+ * Purpose: Styles for Email Settings page
+ * Created: 2025-12-28
+ */
+
+.settingsHeader {
+  /* Inherits from HubHeader */
+}
+
+.settingsTabs {
+  /* Inherits from HubTabs */
+}
+
+.toggleGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3, 24px);
+}
+
+@media (max-width: 768px) {
+  .toggleGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.testButtonContainer {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-start;
+}
