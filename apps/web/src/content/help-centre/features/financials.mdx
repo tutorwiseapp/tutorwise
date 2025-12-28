@@ -1,0 +1,372 @@
+---
+title: "Financials Dashboard & Earnings"
+slug: "financials"
+category: "features"
+audience: "all"
+description: "Track your earnings, transactions, and financial performance. Understand your financials dashboard and maximize your revenue on Tutorwise."
+keywords: ["financials", "earnings", "transactions", "revenue", "dashboard", "analytics"]
+author: "Tutorwise Team"
+lastUpdated: "2025-12-28"
+readTime: "5 min"
+relatedArticles:
+  - "how-to-get-paid"
+  - "referrals"
+  - "bookings"
+  - "organisations"
+---
+
+import CalloutBox from '@/app/components/help-centre/ui/CalloutBox';
+import Tabs from '@/app/components/help-centre/ui/Tabs';
+import Tab from '@/app/components/help-centre/ui/Tab';
+
+# Financials Dashboard & Earnings
+
+Your Financials Dashboard is your financial command center on Tutorwise. Track earnings, view transactions, analyze revenue trends, and understand where your money comes from.
+
+<CalloutBox type="info">
+**Quick Access:** Go to [Financials Dashboard](/financials) to see all your financial data in one place.
+</CalloutBox>
+
+## Overview of Your Financials
+
+### What You Can See
+
+**Real-Time Metrics:**
+- Total earnings (all-time)
+- This month's revenue
+- Pending payments (awaiting clearance)
+- Available balance (ready to withdraw)
+- Next payout date
+
+**Transaction History:**
+- All completed sessions
+- Referral commissions earned
+- Wiselist commissions
+- Platform fees deducted
+- Refunds and adjustments
+
+**Performance Analytics:**
+- Revenue trends over time
+- Earnings by subject/service
+- Top-performing listings
+- Client lifetime value
+- Average session price
+
+<CalloutBox type="success">
+**Data-Driven Growth:** Use these insights to optimize pricing, focus on profitable subjects, and identify growth opportunities!
+</CalloutBox>
+
+## Understanding Your Earnings
+
+### Types of Income
+
+<Tabs>
+  <Tab label="Session Earnings">
+    **Direct Teaching Income:**
+
+    From completed bookings where you're the tutor:
+    - Hourly rate × session duration
+    - Platform fee deducted (15%)
+    - Net earnings added to balance
+
+    **Example:**
+    ```
+    Session: 2 hours @ £50/hour = £100
+    Platform Fee (15%): -£15
+    Your Earnings: £85
+    ```
+
+    **Payment Timeline:**
+    - Session completes → Payment processes (24hrs)
+    - Added to pending balance
+    - Clearing period (7 days)
+    - Moves to available balance
+    - Weekly payout → Bank account
+  </Tab>
+
+  <Tab label="Referral Commissions">
+    **From Referrals System:**
+
+    When users you referred complete sessions:
+    - 10% commission on tutor's earnings
+    - Tracked automatically
+    - Shows referral source
+
+    **Example:**
+    ```
+    Referred Tutor Earns: £85
+    Your Commission (10%): £8.50
+    ```
+
+    See [Referrals Guide](/help-centre/features/referrals) for details.
+  </Tab>
+
+  <Tab label="Wiselist Commissions">
+    **From Shared Wiselists:**
+
+    When someone books via your public wiselist:
+    - 5% commission on booking value
+    - Passive income potential
+    - Multiple attribution sources
+
+    **Example:**
+    ```
+    Booking from Your List: £100
+    Your Commission (5%): £5
+    ```
+
+    See [Wiselists Guide](/help-centre/features/wiselists) for details.
+  </Tab>
+
+  <Tab label="Organisation Revenue">
+    **For Organisation Owners:**
+
+    Aggregate team earnings:
+    - All member sessions combined
+    - Your individual earnings
+    - Commission from team referrals
+    - Performance analytics
+
+    See [Organisations Guide](/help-centre/features/organisations) for details.
+  </Tab>
+</Tabs>
+
+## Transaction Details
+
+### Viewing Individual Transactions
+
+Each transaction shows:
+
+**Transaction Information:**
+- Date and time
+- Transaction type (Session, Referral, Wiselist, Refund)
+- Amount (gross and net)
+- Platform fee breakdown
+- Payment status (Pending, Cleared, Paid Out)
+
+**Session Context:**
+- Client name
+- Subject taught
+- Session duration
+- Listing used
+- Location (online/in-person)
+
+**Filtering & Search:**
+- Date range picker
+- Transaction type
+- Payment status
+- Client or service name
+- Amount range
+
+<CalloutBox type="tip">
+**Tax Time:** Use filters to export transactions for specific date ranges. Perfect for tax reporting and accounting!
+</CalloutBox>
+
+### Transaction Statuses
+
+**Pending:**
+- Session completed but in clearing period
+- Usually 7 days for new tutors
+- 3 days for established tutors (50+ sessions)
+- Protection against chargebacks
+
+**Cleared:**
+- Clearing period passed
+- Added to available balance
+- Ready for next payout
+- No longer reversible
+
+**Paid Out:**
+- Included in weekly payout
+- Transferred to your bank
+- Receipt available
+- Shows payout batch ID
+
+**Refunded:**
+- Client requested refund (within policy)
+- Amount reversed from earnings
+- Shows original transaction link
+- Explanation provided
+
+## Performance Analytics
+
+### Revenue Trends
+
+**Monthly Performance:**
+- Bar chart showing earnings per month
+- Compare year-over-year
+- Identify seasonal patterns
+- Set revenue goals
+
+**Week-by-Week Breakdown:**
+- Daily earnings visualization
+- Peak days and times
+- Booking frequency
+- Average session value
+
+**Growth Metrics:**
+- Month-over-month growth %
+- New vs. returning client revenue
+- Revenue per client
+- Hourly rate trends
+
+### Earnings by Category
+
+**By Subject:**
+- Which subjects earn most?
+- Pricing optimization opportunities
+- Demand insights
+- Resource allocation
+
+**By Listing:**
+- Top-performing services
+- Underperforming listings to improve
+- Price point effectiveness
+- Client acquisition cost
+
+**By Client Type:**
+- Individual bookings
+- Organisation bookings
+- One-time vs. recurring
+- Referral source performance
+
+<CalloutBox type="success">
+**Actionable Insight:** If GCSE Maths earns 60% of revenue but takes only 30% of your time, consider raising prices or focusing more hours there!
+</CalloutBox>
+
+## Managing Your Balance
+
+### Available Balance
+
+**What Is It?**
+- Money cleared and ready to withdraw
+- Not yet paid out to bank
+- Accumulates until next payout
+
+**Minimum Payout:**
+- £20 minimum for automatic payout
+- Below £20: Carries to next week
+- No maximum limit
+
+### Payout Schedule
+
+**Weekly Payouts:**
+- Every Friday at 12:00 PM GMT
+- Includes all cleared transactions
+- Transferred via Stripe to bank
+- Arrives in 2-5 business days
+
+**Tracking Payouts:**
+- Email notification when sent
+- Reference ID for bank matching
+- Detailed breakdown PDF
+- Transaction list included
+
+<CalloutBox type="info">
+**First Payout:** May take 7-10 days for initial verification. Subsequent payouts are faster (2-5 days).
+</CalloutBox>
+
+### Withdrawals & Bank Details
+
+**Update Bank Account:**
+1. Go to [Account](/account) → Payment Settings
+2. Manage Stripe account
+3. Update bank details
+4. Verify new account (micro-deposits)
+
+**Manual Withdrawal:**
+- Not currently available
+- Weekly automatic payouts only
+- Contact support for emergencies
+
+## Financial Reports
+
+### Generating Reports
+
+**Export Options:**
+- CSV (Excel-compatible)
+- PDF (formatted statements)
+- Date range customization
+- Filter by transaction type
+
+**Use Cases:**
+- Tax returns (annual summary)
+- Accounting software import
+- Personal budgeting
+- Business planning
+
+**To Generate:**
+1. Go to [Financials](/financials)
+2. Set date range and filters
+3. Click "Export" button
+4. Choose format (CSV/PDF)
+5. Download to computer
+
+### Tax Information
+
+<CalloutBox type="warning">
+**Tax Responsibility:** You're responsible for reporting earnings to HMRC. Tutorwise provides transaction data but not tax advice.
+</CalloutBox>
+
+**What to Report:**
+- All session earnings
+- Referral commissions
+- Wiselist commissions
+- Any other income
+
+**What's Deducted:**
+- Platform fees (business expense)
+- Stripe processing fees
+- Bank transfer fees
+
+**Recommended:**
+- Keep detailed records
+- Consult a tax professional
+- Set aside 20-30% for tax
+- Track business expenses
+
+## Troubleshooting
+
+**Q: Why is my balance different from what I expected?**
+A: Check for:
+- Platform fees (15% deducted)
+- Pending transactions (not yet cleared)
+- Recent refunds
+- Previous payouts already sent
+
+**Q: When will my pending payment clear?**
+A: New tutors: 7 days. Established tutors (50+ sessions): 3 days. Check transaction status for exact date.
+
+**Q: I didn't receive my Friday payout. Where is it?**
+A: Check:
+- Email for payout notification
+- Stripe dashboard for transfer status
+- Bank account (may take 2-5 days)
+- Minimum £20 balance requirement
+
+**Q: How do I dispute a refund?**
+A: Email support@tutorwise.com with:
+- Transaction ID
+- Explanation of dispute
+- Supporting evidence
+We review within 48 hours.
+
+**Q: Can I change my payout frequency?**
+A: Not currently. Weekly Friday payouts are standard for all users.
+
+**Q: Why was a transaction reversed?**
+A: Possible reasons:
+- Client disputed charge
+- Payment method failed
+- Violation of terms
+- Administrative error
+Check transaction notes for details.
+
+## Quick Links
+
+- [Financials Dashboard](/financials) — View your earnings and transactions
+- [How to Get Paid](/help-centre/billing/how-to-get-paid) — Payment process explained
+- [Referrals](/help-centre/features/referrals) — Earn commission from referrals
+- [Stripe Setup](/help-centre/billing/stripe-setup) — Connect your bank account
+
+**Ready to optimize your earnings?** Dive into your [Financials Dashboard](/financials) and discover growth opportunities!
