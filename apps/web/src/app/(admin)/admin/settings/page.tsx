@@ -32,7 +32,7 @@ export default function PlatformSettingsPage() {
   const [formData, setFormData] = useState({
     // General Settings
     platformName: 'Tutorwise',
-    platformUrl: 'tutorwise.com',
+    platformUrl: 'tutorwise.io',
     timezone: 'Europe/London',
     defaultCurrency: 'GBP',
     dateFormat: 'DD/MM/YYYY',
