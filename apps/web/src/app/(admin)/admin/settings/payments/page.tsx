@@ -44,7 +44,7 @@ export default function PaymentSettingsPage() {
     liveConnectionStatus: 'Not Connected',
 
     // Fee Structure
-    platformFeePercent: 15,
+    platformFeePercent: 10,
     minimumBookingAmount: 10,
     currencyProcessingFeePercent: 2.9,
     fixedTransactionFee: 0.30,
