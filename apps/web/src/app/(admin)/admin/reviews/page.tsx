@@ -53,54 +53,123 @@ export default function AdminReviewsOverviewPage() {
   const tutorsReviewedMetric = useAdminMetric({ metric: 'reviews_tutors_reviewed', compareWith: 'last_month' });
   const clientsReviewedMetric = useAdminMetric({ metric: 'reviews_clients_reviewed', compareWith: 'last_month' });
 
-  // Fetch chart data with React Query
+  // Fetch real reviews metrics from database
+  const { data: metricsData } = useQuery({
+    queryKey: ['admin-reviews-metrics'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/reviews');
+      if (!response.ok) throw new Error('Failed to fetch reviews');
+      const data = await response.json();
+
+      // Calculate additional metrics
+      const fiveStarCount = data.reviews?.filter((r: any) => r.rating === 5).length || 0;
+      const fourStarCount = data.reviews?.filter((r: any) => r.rating === 4).length || 0;
+      const threeStarCount = data.reviews?.filter((r: any) => r.rating === 3).length || 0;
+      const twoStarCount = data.reviews?.filter((r: any) => r.rating === 2).length || 0;
+      const oneStarCount = data.reviews?.filter((r: any) => r.rating === 1).length || 0;
+
+      const totalCount = data.reviews?.length || 0;
+      const fiveStarPercentage = totalCount > 0 ? (fiveStarCount / totalCount) * 100 : 0;
+
+      return {
+        total: totalCount,
+        fiveStarPercentage,
+        fiveStarCount,
+        fourStarCount,
+        threeStarCount,
+        twoStarCount,
+        oneStarCount,
+        reviews: data.reviews || [],
+      };
+    },
+    staleTime: 60 * 1000,
+  });
+
+  // Fetch chart data - Review Trends (last 7 days)
   const { data: reviewTrendsData = [], isLoading: isLoadingTrends } = useQuery<TrendDataPoint[]>({
     queryKey: ['admin-reviews-trends'],
     queryFn: async () => {
-      // TODO: Replace with actual API endpoint when available
-      // For now, return empty array to show proper empty state
-      return [];
+      const response = await fetch('/api/admin/reviews');
+      if (!response.ok) throw new Error('Failed to fetch reviews');
+      const data = await response.json();
+
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      // Group by date
+      const groupedByDate: Record<string, number> = {};
+      data.reviews?.forEach((review: any) => {
+        const reviewDate = new Date(review.created_at);
+        if (reviewDate >= sevenDaysAgo) {
+          const dateStr = reviewDate.toISOString().split('T')[0];
+          groupedByDate[dateStr] = (groupedByDate[dateStr] || 0) + 1;
+        }
+      });
+
+      // Create trend data for last 7 days
+      const trendPoints: TrendDataPoint[] = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        const label = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+
+        trendPoints.push({
+          label,
+          value: groupedByDate[dateStr] || 0,
+        });
+      }
+
+      return trendPoints;
     },
     staleTime: 60 * 1000,
     retry: 2,
   });
 
+  // Fetch chart data - Status Breakdown
   const { data: statusBreakdownData = [], isLoading: isLoadingStatus } = useQuery<CategoryData[]>({
     queryKey: ['admin-reviews-status-breakdown'],
     queryFn: async () => {
-      // TODO: Replace with actual API endpoint when available
-      // For now, return empty array to show proper empty state
-      return [];
+      const response = await fetch('/api/admin/reviews');
+      if (!response.ok) throw new Error('Failed to fetch reviews');
+      const data = await response.json();
+
+      const published = data.reviews?.filter((r: any) => r.status === 'published').length || 0;
+      const pending = data.reviews?.filter((r: any) => r.status === 'pending').length || 0;
+      const rejected = data.reviews?.filter((r: any) => r.status === 'rejected').length || 0;
+
+      return [
+        { label: 'Published', value: published, color: '#10B981' },
+        { label: 'Pending', value: pending, color: '#F59E0B' },
+        { label: 'Rejected', value: rejected, color: '#EF4444' },
+      ];
     },
     staleTime: 60 * 1000,
     retry: 2,
   });
 
+  // Fetch chart data - Rating Distribution
   const { data: ratingDistributionData = [], isLoading: isLoadingRatings } = useQuery<CategoryData[]>({
     queryKey: ['admin-reviews-rating-distribution'],
     queryFn: async () => {
-      // TODO: Replace with actual API endpoint when available
-      // For now, return empty array to show proper empty state
-      return [];
+      return [
+        { label: '5 Stars', value: metricsData?.fiveStarCount || 0, color: '#10B981' },
+        { label: '4 Stars', value: metricsData?.fourStarCount || 0, color: '#3B82F6' },
+        { label: '3 Stars', value: metricsData?.threeStarCount || 0, color: '#F59E0B' },
+        { label: '2 Stars', value: metricsData?.twoStarCount || 0, color: '#F97316' },
+        { label: '1 Star', value: metricsData?.oneStarCount || 0, color: '#EF4444' },
+      ];
     },
+    enabled: !!metricsData,
     staleTime: 60 * 1000,
     retry: 2,
   });
 
   const isLoadingCharts = isLoadingTrends || isLoadingStatus || isLoadingRatings;
 
-  // Header actions
+  // Header actions - removed redundant Filters button (now in table toolbar)
   const getHeaderActions = () => {
-    if (!canManageReviews.hasAccess) return undefined;
-
-    return (
-      <div className={styles.headerActions}>
-        <Button variant="secondary" size="sm">
-          <Filter className={styles.buttonIcon} />
-          Filters
-        </Button>
-      </div>
-    );
+    return undefined;
   };
 
   // Format rating
@@ -162,7 +231,7 @@ export default function AdminReviewsOverviewPage() {
       {/* Overview Tab */}
       {activeTab === 'overview' && (
         <>
-          {/* KPI Cards */}
+          {/* KPI Cards - 8 total to match Bookings */}
           <HubKPIGrid>
             <HubKPICard
               label="Total Reviews"
@@ -187,6 +256,19 @@ export default function AdminReviewsOverviewPage() {
               trend={avgRatingMetric.trend}
             />
             <HubKPICard
+              label="5-Star Reviews"
+              value={`${(metricsData?.fiveStarPercentage || 0).toFixed(1)}%`}
+              sublabel={`${metricsData?.fiveStarCount || 0} reviews`}
+              icon={Star}
+            />
+            <HubKPICard
+              label="New This Month"
+              value={totalReviewsMetric.change >= 0 ? totalReviewsMetric.change : 0}
+              sublabel={`${totalReviewsMetric.changePercent.toFixed(1)}% vs last month`}
+              icon={Star}
+              trend={totalReviewsMetric.trend}
+            />
+            <HubKPICard
               label="Tutors Reviewed"
               value={tutorsReviewedMetric.value}
               sublabel={formatMetricChange(
@@ -207,6 +289,18 @@ export default function AdminReviewsOverviewPage() {
               )}
               icon={Users}
               trend={clientsReviewedMetric.trend}
+            />
+            <HubKPICard
+              label="Published"
+              value={statusBreakdownData.find(s => s.label === 'Published')?.value || 0}
+              sublabel="live reviews"
+              icon={Star}
+            />
+            <HubKPICard
+              label="Pending Approval"
+              value={statusBreakdownData.find(s => s.label === 'Pending')?.value || 0}
+              sublabel="awaiting review"
+              icon={Star}
             />
           </HubKPIGrid>
 
