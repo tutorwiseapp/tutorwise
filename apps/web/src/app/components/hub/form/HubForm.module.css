@@ -20,11 +20,15 @@
   width: 100%;
 }
 
-/* Section - Clean Layout without divider lines */
+/* Section - Enhanced visual hierarchy with subtle background */
 .section {
-  /* RESET: Remove all margins/padding so the .root gap takes full control */
   margin: 0;
-  width: 100%; /* Ensure grid inside stays full width */
+  width: 100%;
+  padding: 28px;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 /* Margin from the last section if 0 then it sits flush with actions */
@@ -33,10 +37,13 @@
 }
 
 .sectionTitle {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 var(--space-3, 24px) 0; /* 24px spacing below title */
+  color: #111827;
+  margin: 0 0 var(--space-3, 24px) 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f3f4f6;
+  letter-spacing: -0.01em;
 }
 
 /* Section Content - for multiple grids within a section */
@@ -100,28 +107,46 @@
 .field input[type="email"],
 .field input[type="url"],
 .field input[type="tel"],
+.field input[type="number"],
+.field input[type="password"],
 .field textarea,
 .field select {
   width: 100%;
-  padding: 10px 14px;
+  padding: 11px 14px;
   font-size: 14px;
   line-height: 1.5;
   color: #111827;
   background-color: #ffffff;
   border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border-radius: 8px;
   outline: none;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  transition: all 0.2s ease;
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
+  min-height: 44px;
+}
+
+.field input:hover,
+.field textarea:hover,
+.field select:hover {
+  border-color: #9ca3af;
 }
 
 .field input:focus,
 .field textarea:focus,
 .field select:focus {
   border-color: var(--color-primary-default, #006c67);
-  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.08);
+}
+
+.field input:disabled,
+.field textarea:disabled,
+.field select:disabled {
+  background-color: #f9fafb;
+  color: #6b7280;
+  cursor: not-allowed;
+  border-color: #e5e7eb;
 }
 
 .field input::placeholder,

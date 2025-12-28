@@ -18,7 +18,8 @@
 
 .apiKeysTable {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
@@ -26,27 +27,45 @@
 }
 
 .apiKeysTable thead {
-  background-color: #f9fafb;
+  background: linear-gradient(to bottom, #f9fafb 0%, #f5f6f7 100%);
 }
 
 .apiKeysTable th {
-  padding: 12px 16px;
+  padding: 14px 16px;
   text-align: left;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #374151;
-  border-bottom: 1px solid #e5e7eb;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  border-bottom: 2px solid #e5e7eb;
 }
 
 .apiKeysTable td {
-  padding: 12px 16px;
+  padding: 14px 16px;
   font-size: 14px;
-  color: #6b7280;
+  color: #374151;
   border-bottom: 1px solid #f3f4f6;
+  vertical-align: middle;
+}
+
+.apiKeysTable tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.apiKeysTable tbody tr:hover {
+  background-color: #f9fafb;
 }
 
 .apiKeysTable tbody tr:last-child td {
   border-bottom: none;
+}
+
+@media (max-width: 768px) {
+  .apiKeysTable {
+    display: block;
+    overflow-x: auto;
+  }
 }
 
 .keyCell {
