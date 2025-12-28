@@ -12,9 +12,9 @@ import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import { HubDataTable } from '@/app/components/hub/data';
-import type { Column } from '@/app/components/hub/data';
+import type { Column, Filter } from '@/app/components/hub/data';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
-import { MoreVertical, Filter } from 'lucide-react';
+import { MoreVertical, Filter as FilterIcon } from 'lucide-react';
 import AdminOrganisationDetailModal from './AdminOrganisationDetailModal';
 import AdvancedFiltersDrawer, { type AdvancedFilters } from './AdvancedFiltersDrawer';
 import styles from './OrganisationsTable.module.css';
@@ -364,6 +364,30 @@ export default function OrganisationsTable() {
     },
   ];
 
+  // Filters for dropdown
+  const filters: Filter[] = [
+    {
+      key: 'memberRange',
+      label: 'All Sizes',
+      options: [
+        { label: '1-5 members', value: '1-5' },
+        { label: '6-10 members', value: '6-10' },
+        { label: '11-50 members', value: '11-50' },
+        { label: '50+ members', value: '50+' },
+      ],
+    },
+    {
+      key: 'dateRange',
+      label: 'All Time',
+      options: [
+        { label: 'Last 7 days', value: 'last-7-days' },
+        { label: 'Last 30 days', value: 'last-30-days' },
+        { label: 'Last 90 days', value: 'last-90-days' },
+        { label: 'This year', value: 'this-year' },
+      ],
+    },
+  ];
+
   // Count active filters
   const activeFiltersCount = Object.values(advancedFilters).filter((value) => {
     if (typeof value === 'boolean') return value;
@@ -398,6 +422,7 @@ export default function OrganisationsTable() {
         onExport={handleExport}
         onRefresh={handleRefresh}
         autoRefreshInterval={30000}
+        filters={filters}
         bulkActions={bulkActions}
         onRowClick={handleRowClick}
         emptyMessage="No organisations found"
@@ -407,7 +432,7 @@ export default function OrganisationsTable() {
             onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
             aria-label="Advanced filters"
           >
-            <Filter size={16} />
+            <FilterIcon size={16} />
             {activeFiltersCount > 0 && (
               <span className={styles.filtersBadge}>{activeFiltersCount}</span>
             )}
