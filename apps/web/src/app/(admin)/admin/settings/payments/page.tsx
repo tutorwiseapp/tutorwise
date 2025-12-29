@@ -36,7 +36,7 @@ export default function PaymentSettingsPage() {
     // Stripe Test Mode
     stripeTestPublishableKey: '',
     stripeTestSecretKey: '',
-    testConnectionStatus: 'Not Connected',
+    testConnectionStatus: 'Connected',
 
     // Stripe Live Mode
     stripeLivePublishableKey: '',
