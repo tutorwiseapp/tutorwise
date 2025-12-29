@@ -8,6 +8,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { CheckCircle, XCircle, Circle } from 'lucide-react';
 import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
 import HubHeader from '@/app/components/hub/layout/HubHeader';
 import HubTabs from '@/app/components/hub/layout/HubTabs';
@@ -27,7 +28,16 @@ export default function PaymentSettingsPage() {
   const { profile } = useAdminProfile();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Revenue statistics state
+  const [revenueStats, setRevenueStats] = useState({
+    totalRevenue: 0,
+    platformFees: 0,
+    pendingPayouts: 0,
+    processedPayouts: 0,
+  });
 
   // Only superadmins can edit Stripe keys
   const canEditStripeKeys = profile?.admin_role === 'superadmin';
@@ -36,12 +46,12 @@ export default function PaymentSettingsPage() {
     // Stripe Test Mode
     stripeTestPublishableKey: '',
     stripeTestSecretKey: '',
-    testConnectionStatus: 'Connected',
+    testConnectionStatus: 'Not Connected' as 'Connected' | 'Not Connected' | 'Invalid',
 
     // Stripe Live Mode
     stripeLivePublishableKey: '',
     stripeLiveSecretKey: '',
-    liveConnectionStatus: 'Not Connected',
+    liveConnectionStatus: 'Not Connected' as 'Connected' | 'Not Connected' | 'Invalid',
 
     // Fee Structure
     platformFeePercent: 10,
@@ -55,6 +65,64 @@ export default function PaymentSettingsPage() {
     minimumPayoutAmount: 25,
     autoApprovePayouts: false,
   });
+
+  // Fetch real Stripe configuration and revenue stats from API on mount
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setIsLoading(true);
+
+        // Fetch Stripe config and revenue stats in parallel
+        const [stripeResponse, revenueResponse] = await Promise.all([
+          fetch('/api/admin/stripe-config'),
+          fetch('/api/admin/revenue-stats'),
+        ]);
+
+        if (!stripeResponse.ok) {
+          throw new Error('Failed to fetch Stripe config');
+        }
+
+        const config = await stripeResponse.json();
+
+        setFormData(prev => ({
+          ...prev,
+          // Test Mode
+          stripeTestPublishableKey: config.testMode.publishableKey,
+          stripeTestSecretKey: config.testMode.secretKey, // Show full secret key for admin
+          testConnectionStatus: config.testMode.connectionStatus,
+
+          // Live Mode
+          stripeLivePublishableKey: config.liveMode.publishableKey,
+          stripeLiveSecretKey: config.liveMode.secretKey, // Show full secret key for admin
+          liveConnectionStatus: config.liveMode.connectionStatus,
+
+          // Fee Structure
+          platformFeePercent: config.platformFee,
+          minimumBookingAmount: config.minimumBookingAmount,
+          currencyProcessingFeePercent: config.currencyProcessingFeePercent,
+          fixedTransactionFee: config.fixedTransactionFee,
+        }));
+
+        // Set revenue stats if response is ok
+        if (revenueResponse.ok) {
+          const stats = await revenueResponse.json();
+          setRevenueStats({
+            totalRevenue: stats.totalRevenue,
+            platformFees: stats.platformFees,
+            pendingPayouts: stats.pendingPayouts,
+            processedPayouts: stats.processedPayouts,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        alert('Failed to load configuration. Please refresh the page.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -107,14 +175,27 @@ export default function PaymentSettingsPage() {
 
     setIsSaving(true);
     try {
-      // TODO: Replace with real API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch('/api/admin/stripe-config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          platformFee: formData.platformFeePercent,
+          minimumBookingAmount: formData.minimumBookingAmount,
+          currencyProcessingFeePercent: formData.currencyProcessingFeePercent,
+          fixedTransactionFee: formData.fixedTransactionFee,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to save settings');
+      }
 
       setHasUnsavedChanges(false);
       alert('Payment settings saved successfully!');
     } catch (error) {
       console.error('Failed to save settings:', error);
-      alert('Failed to save settings. Please try again.');
+      alert(error instanceof Error ? error.message : 'Failed to save settings. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -166,10 +247,22 @@ export default function PaymentSettingsPage() {
           <AdminStatsWidget
             title="Revenue (Last 30 Days)"
             stats={[
-              { label: 'Total Revenue', value: '£12,500' },
-              { label: 'Platform Fees', value: '£1,875' },
-              { label: 'Pending Payouts', value: '£3,200' },
-              { label: 'Processed Payouts', value: '£8,300' },
+              {
+                label: 'Total Revenue',
+                value: isLoading ? 'Loading...' : `£${revenueStats.totalRevenue.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+              },
+              {
+                label: 'Platform Fees',
+                value: isLoading ? 'Loading...' : `£${revenueStats.platformFees.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+              },
+              {
+                label: 'Pending Payouts',
+                value: isLoading ? 'Loading...' : `£${revenueStats.pendingPayouts.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+              },
+              {
+                label: 'Processed Payouts',
+                value: isLoading ? 'Loading...' : `£${revenueStats.processedPayouts.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+              },
             ]}
           />
           <AdminHelpWidget
@@ -201,7 +294,12 @@ export default function PaymentSettingsPage() {
         </HubSidebar>
       }
     >
-      <HubForm.Root>
+      {isLoading ? (
+        <div style={{ padding: '48px', textAlign: 'center', color: '#6b7280' }}>
+          Loading Stripe configuration...
+        </div>
+      ) : (
+        <HubForm.Root>
         {/* Section 1: Stripe Configuration */}
         <HubForm.Section title="Stripe Configuration">
           {!canEditStripeKeys && (
@@ -229,7 +327,7 @@ export default function PaymentSettingsPage() {
 
               <HubForm.Field label="Test Secret Key">
                 <input
-                  type="password"
+                  type="text"
                   value={formData.stripeTestSecretKey}
                   onChange={(e) => handleChange('stripeTestSecretKey', e.target.value)}
                   disabled={!canEditStripeKeys}
@@ -238,8 +336,19 @@ export default function PaymentSettingsPage() {
               </HubForm.Field>
             </HubForm.Grid>
             <div className={styles.connectionStatus}>
-              <span className={`${styles.statusBadge} ${formData.testConnectionStatus === 'Connected' ? styles.connected : styles.disconnected}`}>
-                {formData.testConnectionStatus === 'Connected' ? '✓' : '○'} Test: {formData.testConnectionStatus}
+              <span className={`${styles.statusBadge} ${
+                formData.testConnectionStatus === 'Connected' ? styles.connected :
+                formData.testConnectionStatus === 'Invalid' ? styles.invalid :
+                styles.disconnected
+              }`}>
+                {formData.testConnectionStatus === 'Connected' ? (
+                  <CheckCircle size={16} style={{ marginRight: '6px' }} />
+                ) : formData.testConnectionStatus === 'Invalid' ? (
+                  <XCircle size={16} style={{ marginRight: '6px' }} />
+                ) : (
+                  <Circle size={16} style={{ marginRight: '6px' }} />
+                )}
+                Test: {formData.testConnectionStatus}
               </span>
             </div>
           </div>
@@ -263,7 +372,7 @@ export default function PaymentSettingsPage() {
 
               <HubForm.Field label="Live Secret Key">
                 <input
-                  type="password"
+                  type="text"
                   value={formData.stripeLiveSecretKey}
                   onChange={(e) => handleChange('stripeLiveSecretKey', e.target.value)}
                   disabled={!canEditStripeKeys}
@@ -272,8 +381,19 @@ export default function PaymentSettingsPage() {
               </HubForm.Field>
             </HubForm.Grid>
             <div className={styles.connectionStatus}>
-              <span className={`${styles.statusBadge} ${formData.liveConnectionStatus === 'Connected' ? styles.connected : styles.disconnected}`}>
-                {formData.liveConnectionStatus === 'Connected' ? '✓' : '○'} Live: {formData.liveConnectionStatus}
+              <span className={`${styles.statusBadge} ${
+                formData.liveConnectionStatus === 'Connected' ? styles.connected :
+                formData.liveConnectionStatus === 'Invalid' ? styles.invalid :
+                styles.disconnected
+              }`}>
+                {formData.liveConnectionStatus === 'Connected' ? (
+                  <CheckCircle size={16} style={{ marginRight: '6px' }} />
+                ) : formData.liveConnectionStatus === 'Invalid' ? (
+                  <XCircle size={16} style={{ marginRight: '6px' }} />
+                ) : (
+                  <Circle size={16} style={{ marginRight: '6px' }} />
+                )}
+                Live: {formData.liveConnectionStatus}
               </span>
             </div>
           </div>
@@ -413,6 +533,7 @@ export default function PaymentSettingsPage() {
           </Button>
         </HubForm.Actions>
       </HubForm.Root>
+      )}
     </HubPageLayout>
   );
 }

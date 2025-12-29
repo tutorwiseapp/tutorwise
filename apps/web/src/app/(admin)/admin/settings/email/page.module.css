@@ -4,12 +4,32 @@
  * Created: 2025-12-28
  */
 
+/* Header */
 .settingsHeader {
-  /* Inherits from HubHeader */
+  --hub-header-margin-top: 1.5rem;
+  --hub-header-margin-bottom: 0;
+  --hub-header-height: 3rem;
+  --hub-header-padding-x: 1rem;
+  --hub-header-actions-gap: 0.5rem;
+  --hub-header-actions-margin-left: 1rem;
 }
 
+@media (max-width: 767px) {
+  .settingsHeader {
+    --hub-header-margin-top: 0rem;
+  }
+}
+
+/* Tabs */
 .settingsTabs {
-  /* Inherits from HubTabs */
+  --hub-tabs-margin-top: 3rem;
+  --hub-tabs-margin-bottom: 1rem;
+}
+
+@media (max-width: 767px) {
+  .settingsTabs {
+    --hub-tabs-margin-top: 0rem;
+  }
 }
 
 .toggleGrid {

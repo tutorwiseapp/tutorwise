@@ -41,8 +41,6 @@
   font-weight: 600;
   color: #111827;
   margin: 0 0 var(--space-3, 24px) 0;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #f3f4f6;
   letter-spacing: -0.01em;
 }
 

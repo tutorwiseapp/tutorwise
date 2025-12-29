@@ -27,15 +27,16 @@ export default function PlatformSettingsPage() {
   const { profile } = useAdminProfile();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
     // General Settings
-    platformName: 'Tutorwise',
-    platformUrl: 'tutorwise.io',
-    timezone: 'Europe/London',
-    defaultCurrency: 'GBP',
-    dateFormat: 'DD/MM/YYYY',
+    platformName: '',
+    platformUrl: '',
+    timezone: '',
+    defaultCurrency: '',
+    dateFormat: '',
 
     // Feature Flags
     enableBookings: true,
@@ -46,11 +47,53 @@ export default function PlatformSettingsPage() {
     maintenanceMode: false,
 
     // Platform Limits
-    maxListingsPerUser: 10,
-    maxBookingsPerDay: 50,
-    maxFileUploadSizeMB: 10,
-    sessionTimeoutMinutes: 60,
+    maxListingsPerUser: 0,
+    maxBookingsPerDay: 0,
+    maxFileUploadSizeMB: 0,
+    sessionTimeoutMinutes: 0,
   });
+
+  // Fetch real platform configuration from API on mount
+  useEffect(() => {
+    async function fetchPlatformConfig() {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/admin/platform-config');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch platform config');
+        }
+
+        const config = await response.json();
+
+        setFormData(prev => ({
+          ...prev,
+          platformName: config.general.platformName,
+          platformUrl: config.general.platformUrl,
+          timezone: config.general.timezone,
+          defaultCurrency: config.general.defaultCurrency,
+          dateFormat: config.general.dateFormat,
+          enableBookings: config.features.enableBookings,
+          enableReferrals: config.features.enableReferrals,
+          enableOrganisations: config.features.enableOrganisations,
+          enableNetwork: config.features.enableNetwork,
+          enableReviews: config.features.enableReviews,
+          maintenanceMode: config.features.maintenanceMode,
+          maxListingsPerUser: config.limits.maxListingsPerUser,
+          maxBookingsPerDay: config.limits.maxBookingsPerDay,
+          maxFileUploadSizeMB: config.limits.maxFileUploadSizeMB,
+          sessionTimeoutMinutes: config.limits.sessionTimeoutMinutes,
+        }));
+      } catch (error) {
+        console.error('Error fetching platform config:', error);
+        alert('Failed to load platform configuration. Please refresh the page.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchPlatformConfig();
+  }, []);
 
   // Warn before leaving with unsaved changes
   useEffect(() => {
@@ -105,21 +148,44 @@ export default function PlatformSettingsPage() {
 
     setIsSaving(true);
     try {
-      // TODO: Replace with real API call
-      // await fetch('/api/admin/settings/platform', {
-      //   method: 'PATCH',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData),
-      // });
+      const response = await fetch('/api/admin/platform-config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          general: {
+            platformName: formData.platformName,
+            platformUrl: formData.platformUrl,
+            timezone: formData.timezone,
+            defaultCurrency: formData.defaultCurrency,
+            dateFormat: formData.dateFormat,
+          },
+          features: {
+            enableBookings: formData.enableBookings,
+            enableReferrals: formData.enableReferrals,
+            enableOrganisations: formData.enableOrganisations,
+            enableNetwork: formData.enableNetwork,
+            enableReviews: formData.enableReviews,
+            maintenanceMode: formData.maintenanceMode,
+          },
+          limits: {
+            maxListingsPerUser: formData.maxListingsPerUser,
+            maxBookingsPerDay: formData.maxBookingsPerDay,
+            maxFileUploadSizeMB: formData.maxFileUploadSizeMB,
+            sessionTimeoutMinutes: formData.sessionTimeoutMinutes,
+          },
+        }),
+      });
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to save settings');
+      }
 
       setHasUnsavedChanges(false);
       alert('Settings saved successfully!');
     } catch (error) {
       console.error('Failed to save settings:', error);
-      alert('Failed to save settings. Please try again.');
+      alert(error instanceof Error ? error.message : 'Failed to save settings. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -198,7 +264,12 @@ export default function PlatformSettingsPage() {
         </HubSidebar>
       }
     >
-      <HubForm.Root>
+      {isLoading ? (
+        <div style={{ padding: '48px', textAlign: 'center', color: '#6b7280' }}>
+          Loading platform configuration...
+        </div>
+      ) : (
+        <HubForm.Root>
         {/* Section 1: General Settings */}
         <HubForm.Section title="General Settings">
           <HubForm.Grid columns={2}>
@@ -378,6 +449,7 @@ export default function PlatformSettingsPage() {
           </Button>
         </HubForm.Actions>
       </HubForm.Root>
+      )}
     </HubPageLayout>
   );
 }

@@ -25,17 +25,18 @@ export default function EmailSettingsPage() {
   const router = useRouter();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isTesting, setIsTesting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
     // SMTP Configuration
-    smtpHost: 'smtp.resend.com',
+    smtpHost: '',
     smtpPort: 587,
-    smtpUsername: 'resend',
+    smtpUsername: '',
     smtpPassword: '',
-    fromEmail: 'noreply@tutorwise.io',
-    fromName: 'Tutorwise Platform',
+    fromEmail: '',
+    fromName: '',
 
     // Email Notifications
     enableBookingConfirmations: true,
@@ -44,6 +45,44 @@ export default function EmailSettingsPage() {
     enableWeeklyReports: true,
     enableWelcomeEmails: true,
   });
+
+  // Fetch real email configuration from API on mount
+  useEffect(() => {
+    async function fetchEmailConfig() {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/admin/email-config');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch email config');
+        }
+
+        const config = await response.json();
+
+        setFormData(prev => ({
+          ...prev,
+          smtpHost: config.smtp.host,
+          smtpPort: config.smtp.port,
+          smtpUsername: config.smtp.username,
+          smtpPassword: config.smtp.password, // Show full password for admin
+          fromEmail: config.fromEmail,
+          fromName: config.fromName,
+          enableBookingConfirmations: config.notifications.enableBookingConfirmations,
+          enablePaymentReceipts: config.notifications.enablePaymentReceipts,
+          enableDisputeNotifications: config.notifications.enableDisputeNotifications,
+          enableWeeklyReports: config.notifications.enableWeeklyReports,
+          enableWelcomeEmails: config.notifications.enableWelcomeEmails,
+        }));
+      } catch (error) {
+        console.error('Error fetching email config:', error);
+        alert('Failed to load email configuration. Please refresh the page.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchEmailConfig();
+  }, []);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -206,7 +245,12 @@ export default function EmailSettingsPage() {
         </HubSidebar>
       }
     >
-      <HubForm.Root>
+      {isLoading ? (
+        <div style={{ padding: '48px', textAlign: 'center', color: '#6b7280' }}>
+          Loading email configuration...
+        </div>
+      ) : (
+        <HubForm.Root>
         {/* Section 1: SMTP Configuration */}
         <HubForm.Section title="SMTP Configuration">
           <HubForm.Grid columns={2}>
@@ -241,10 +285,10 @@ export default function EmailSettingsPage() {
 
             <HubForm.Field label="SMTP Password">
               <input
-                type="password"
+                type="text"
                 value={formData.smtpPassword}
                 onChange={(e) => handleChange('smtpPassword', e.target.value)}
-                placeholder="••••••••••••"
+                placeholder="Enter SMTP password (Resend API key)"
               />
             </HubForm.Field>
 
@@ -338,6 +382,7 @@ export default function EmailSettingsPage() {
           </Button>
         </HubForm.Actions>
       </HubForm.Root>
+      )}
     </HubPageLayout>
   );
 }

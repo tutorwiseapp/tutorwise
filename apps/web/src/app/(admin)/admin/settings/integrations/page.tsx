@@ -32,38 +32,65 @@ export default function IntegrationsSettingsPage() {
   const router = useRouter();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
     // Third-Party APIs
-    googleAnalyticsId: 'G-XXXXXXXXXX',
+    googleAnalyticsId: '',
     sentryDsn: '',
     intercomWorkspaceId: '',
     slackWebhookUrl: '',
 
     // External Services
-    enableUpstashRedis: true,
+    enableUpstashRedis: false,
     upstashRedisUrl: '',
-    enableAblyRealtime: true,
+    enableAblyRealtime: false,
     ablyApiKey: '',
-    enableSupabaseStorage: true,
-    supabaseBucket: 'tutorwise-uploads',
+    enableSupabaseStorage: false,
+    supabaseBucket: '',
   });
 
-  const [webhooks, setWebhooks] = useState<Webhook[]>([
-    {
-      id: '1',
-      url: 'https://example.com/webhooks/bookings',
-      events: ['booking.created', 'booking.cancelled'],
-      status: 'active',
-    },
-    {
-      id: '2',
-      url: 'https://example.com/webhooks/payments',
-      events: ['payment.succeeded', 'payment.failed'],
-      status: 'active',
-    },
-  ]);
+  const [webhooks, setWebhooks] = useState<Webhook[]>([]);
+
+  // Fetch real integrations configuration from API on mount
+  useEffect(() => {
+    async function fetchIntegrationsConfig() {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/admin/integrations-config');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch integrations config');
+        }
+
+        const config = await response.json();
+
+        setFormData(prev => ({
+          ...prev,
+          googleAnalyticsId: config.thirdPartyApis.googleAnalyticsId,
+          sentryDsn: config.thirdPartyApis.sentryDsn,
+          intercomWorkspaceId: config.thirdPartyApis.intercomWorkspaceId,
+          slackWebhookUrl: config.thirdPartyApis.slackWebhookUrl,
+          enableUpstashRedis: config.externalServices.redis.enabled,
+          upstashRedisUrl: config.externalServices.redis.url,
+          enableAblyRealtime: config.externalServices.ably.enabled,
+          ablyApiKey: config.externalServices.ably.apiKey,
+          enableSupabaseStorage: config.externalServices.supabaseStorage.enabled,
+          supabaseBucket: config.externalServices.supabaseStorage.bucket,
+        }));
+
+        setWebhooks(config.webhooks);
+      } catch (error) {
+        console.error('Error fetching integrations config:', error);
+        alert('Failed to load integrations configuration. Please refresh the page.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchIntegrationsConfig();
+  }, []);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -126,28 +153,68 @@ export default function IntegrationsSettingsPage() {
     setHasUnsavedChanges(false);
   };
 
-  const handleAddWebhook = () => {
+  const handleAddWebhook = async () => {
     const url = prompt('Enter webhook URL:');
     if (!url) return;
 
-    if (!url.startsWith('https://')) {
-      alert('Webhook URL must use HTTPS');
+    if (!url.match(/^https?:\/\//)) {
+      alert('Webhook URL must start with http:// or https://');
       return;
     }
 
-    const newWebhook: Webhook = {
-      id: Date.now().toString(),
-      url,
-      events: [],
-      status: 'active',
-    };
+    const events = prompt('Enter events (comma-separated, e.g. booking.created,payment.succeeded):');
+    if (!events) return;
 
-    setWebhooks([...webhooks, newWebhook]);
+    const eventList = events.split(',').map(e => e.trim()).filter(e => e.length > 0);
+    if (eventList.length === 0) {
+      alert('At least one event is required');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin/webhooks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url,
+          events: eventList,
+          status: 'active',
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create webhook');
+      }
+
+      const newWebhook = await response.json();
+      setWebhooks([newWebhook, ...webhooks]);
+      alert('Webhook created successfully!');
+    } catch (error) {
+      console.error('Error creating webhook:', error);
+      alert(error instanceof Error ? error.message : 'Failed to create webhook');
+    }
   };
 
-  const handleRemoveWebhook = (webhookId: string) => {
+  const handleRemoveWebhook = async (webhookId: string) => {
     if (!confirm('Remove this webhook?')) return;
-    setWebhooks(webhooks.filter(w => w.id !== webhookId));
+
+    try {
+      const response = await fetch(`/api/admin/webhooks?id=${webhookId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete webhook');
+      }
+
+      setWebhooks(webhooks.filter(w => w.id !== webhookId));
+      alert('Webhook removed successfully!');
+    } catch (error) {
+      console.error('Error removing webhook:', error);
+      alert(error instanceof Error ? error.message : 'Failed to remove webhook');
+    }
   };
 
   const handleTabChange = (tabId: string) => {
@@ -217,7 +284,12 @@ export default function IntegrationsSettingsPage() {
         </HubSidebar>
       }
     >
-      <HubForm.Root>
+      {isLoading ? (
+        <div style={{ padding: '48px', textAlign: 'center', color: '#6b7280' }}>
+          Loading integrations configuration...
+        </div>
+      ) : (
+        <HubForm.Root>
         {/* Section 1: Third-Party APIs */}
         <HubForm.Section title="Third-Party APIs">
           <HubForm.Grid columns={2}>
@@ -301,7 +373,7 @@ export default function IntegrationsSettingsPage() {
               onClick={handleAddWebhook}
               style={{ marginTop: '16px' }}
             >
-              + Add Webhook
+              Add Webhook
             </Button>
           </div>
         </HubForm.Section>
@@ -341,10 +413,10 @@ export default function IntegrationsSettingsPage() {
                 <div className={styles.serviceConfig}>
                   <HubForm.Field label="Ably API Key">
                     <input
-                      type="password"
+                      type="text"
                       value={formData.ablyApiKey}
                       onChange={(e) => handleChange('ablyApiKey', e.target.value)}
-                      placeholder="••••••••••••"
+                      placeholder="Enter Ably API key"
                     />
                   </HubForm.Field>
                 </div>
@@ -393,6 +465,7 @@ export default function IntegrationsSettingsPage() {
           </Button>
         </HubForm.Actions>
       </HubForm.Root>
+      )}
     </HubPageLayout>
   );
 }

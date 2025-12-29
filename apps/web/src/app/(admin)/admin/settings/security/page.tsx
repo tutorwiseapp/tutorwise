@@ -35,37 +35,59 @@ export default function SecuritySettingsPage() {
   const { profile } = useAdminProfile();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
     // Admin Access Control
-    require2FA: true,
-    sessionTimeoutMinutes: 60,
-    maxLoginAttempts: 5,
+    require2FA: false,
+    sessionTimeoutMinutes: 0,
+    maxLoginAttempts: 0,
     ipWhitelist: '',
 
     // Rate Limiting
-    apiRateLimitPerMinute: 60,
-    loginRateLimitPerHour: 10,
-    searchRateLimitPerMinute: 30,
+    apiRateLimitPerMinute: 0,
+    loginRateLimitPerHour: 0,
+    searchRateLimitPerMinute: 0,
   });
 
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>([
-    {
-      id: '1',
-      name: 'Production API',
-      key: 'tw_live_••••••••••••',
-      created_at: '2025-01-15',
-      last_used: '2025-12-28',
-    },
-    {
-      id: '2',
-      name: 'Mobile App',
-      key: 'tw_live_••••••••••••',
-      created_at: '2025-02-01',
-      last_used: null,
-    },
-  ]);
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
+
+  // Fetch real security configuration from API on mount
+  useEffect(() => {
+    async function fetchSecurityConfig() {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/admin/security-config');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch security config');
+        }
+
+        const config = await response.json();
+
+        setFormData(prev => ({
+          ...prev,
+          require2FA: config.adminAccess.require2FA,
+          sessionTimeoutMinutes: config.adminAccess.sessionTimeoutMinutes,
+          maxLoginAttempts: config.adminAccess.maxLoginAttempts,
+          ipWhitelist: config.adminAccess.ipWhitelist,
+          apiRateLimitPerMinute: config.rateLimiting.apiRateLimitPerMinute,
+          loginRateLimitPerHour: config.rateLimiting.loginRateLimitPerHour,
+          searchRateLimitPerMinute: config.rateLimiting.searchRateLimitPerMinute,
+        }));
+
+        setApiKeys(config.apiKeys);
+      } catch (error) {
+        console.error('Error fetching security config:', error);
+        alert('Failed to load security configuration. Please refresh the page.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchSecurityConfig();
+  }, []);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -118,14 +140,34 @@ export default function SecuritySettingsPage() {
 
     setIsSaving(true);
     try {
-      // TODO: Replace with real API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch('/api/admin/security-config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          adminAccess: {
+            require2FA: formData.require2FA,
+            sessionTimeoutMinutes: formData.sessionTimeoutMinutes,
+            maxLoginAttempts: formData.maxLoginAttempts,
+            ipWhitelist: formData.ipWhitelist,
+          },
+          rateLimiting: {
+            apiRateLimitPerMinute: formData.apiRateLimitPerMinute,
+            loginRateLimitPerHour: formData.loginRateLimitPerHour,
+            searchRateLimitPerMinute: formData.searchRateLimitPerMinute,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to save settings');
+      }
 
       setHasUnsavedChanges(false);
       alert('Security settings saved successfully!');
     } catch (error) {
       console.error('Failed to save settings:', error);
-      alert('Failed to save settings. Please try again.');
+      alert(error instanceof Error ? error.message : 'Failed to save settings. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -227,7 +269,12 @@ export default function SecuritySettingsPage() {
         </HubSidebar>
       }
     >
-      <HubForm.Root>
+      {isLoading ? (
+        <div style={{ padding: '48px', textAlign: 'center', color: '#6b7280' }}>
+          Loading security configuration...
+        </div>
+      ) : (
+        <HubForm.Root>
         {/* Section 1: Admin Access Control */}
         <HubForm.Section title="Admin Access Control">
           <HubForm.Grid columns={2}>
@@ -307,7 +354,7 @@ export default function SecuritySettingsPage() {
               onClick={handleGenerateApiKey}
               style={{ marginTop: '16px' }}
             >
-              + Generate New API Key
+              Generate New API Key
             </Button>
           </div>
         </HubForm.Section>
@@ -363,6 +410,7 @@ export default function SecuritySettingsPage() {
           </Button>
         </HubForm.Actions>
       </HubForm.Root>
+      )}
     </HubPageLayout>
   );
 }
