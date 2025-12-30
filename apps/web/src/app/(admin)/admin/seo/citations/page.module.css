@@ -38,6 +38,7 @@
  */
 .citationsTabs {
   --hub-tabs-margin-top: 3rem;  /* Desktop: 3rem spacing (default) */
+  --hub-tabs-margin-bottom: 1rem;  /* 1rem tab margin + 1rem content padding = 2rem total */
 }
 
 /* Mobile: Smaller spacing */
@@ -45,6 +46,19 @@
   .citationsTabs {
     --hub-tabs-margin-top: 0rem;  /* Mobile: 0rem smaller spacing */
   }
+}
+
+/* Data Filter Tabs - Secondary tabs below main view tabs */
+.citationsDataTabs {
+  --hub-tabs-margin-top: 1rem;
+  --hub-tabs-margin-bottom: 1rem;
+}
+
+/* Tab Icon */
+.tabIcon {
+  height: 1rem;
+  width: 1rem;
+  margin-right: 0.5rem;
 }
 
 /* Button Icon */
@@ -116,4 +130,274 @@
 .statusIcon {
   height: 0.75rem;
   width: 0.75rem;
+}
+
+/* Status Badge Color Variants */
+.statusActive {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.statusBroken {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.statusPending {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.statusRemoved {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Overview Content */
+.overviewContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+}
+
+/* Charts Grid */
+.chartsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 0;
+}
+
+@media (min-width: 768px) {
+  .chartsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .chartsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Top Domains Widget */
+.topDomainsWidget {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.625rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s ease;
+}
+
+.topDomainsWidget:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+.widgetTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 1.25rem 0;
+  line-height: 1.4;
+}
+
+.topDomainsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.topDomainItem {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.topDomainItem:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.topDomainRank {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F59E0B;
+  color: white;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+}
+
+.topDomainContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.topDomainName {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #1f2937;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.topDomainMeta {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  line-height: 1.4;
+}
+
+/* Recent Citations Section */
+.recentCitationsSection {
+  margin-top: 2.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 1.25rem 0;
+  line-height: 1.4;
+}
+
+.recentCitationsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.125rem;
+}
+
+@media (min-width: 640px) {
+  .recentCitationsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .recentCitationsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.recentCitationCard {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.625rem;
+  padding: 1.25rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.recentCitationCard:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+  border-color: #d1d5db;
+  transform: translateY(-2px);
+}
+
+.recentCitationHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.625rem;
+  margin-bottom: 0.75rem;
+}
+
+.recentCitationTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  line-height: 1.4;
+}
+
+.recentCitationStatus {
+  flex-shrink: 0;
+  padding: 0.375rem 0.625rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  border: 1px solid transparent;
+}
+
+.statusActive {
+  background: #D1FAE5;
+  color: #065F46;
+  border-color: #86efac;
+}
+
+.statusBroken {
+  background: #FEE2E2;
+  color: #991B1B;
+  border-color: #fca5a5;
+}
+
+.statusPending {
+  background: #FEF3C7;
+  color: #92400E;
+  border-color: #fcd34d;
+}
+
+.recentCitationMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.citationUrlShort {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.emptyMessage {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+  padding: 1rem 0;
+  text-align: center;
+}
+
+/* =====================================================
+ * Table Cell Styles
+ * ===================================================== */
+
+.anchorText {
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.citationType {
+  font-size: 0.875rem;
+  color: #111827;
+  text-transform: capitalize;
+}
+
+.dateText {
+  font-size: 0.875rem;
+  color: #6b7280;
 }

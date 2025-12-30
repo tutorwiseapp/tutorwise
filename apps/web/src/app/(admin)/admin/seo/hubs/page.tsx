@@ -13,10 +13,14 @@ import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
 import HubHeader from '@/app/components/hub/layout/HubHeader';
 import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import HubTable from '@/app/components/hub/tables/HubTable';
+import HubDataTable from '@/app/components/hub/data/HubDataTable';
 import { AdminHelpWidget, AdminStatsWidget, AdminTipWidget } from '@/app/components/admin/widgets';
+import HubTrendChart from '@/app/components/hub/charts/HubTrendChart';
+import HubCategoryBreakdownChart from '@/app/components/hub/charts/HubCategoryBreakdownChart';
+import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
+import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import Button from '@/app/components/ui/actions/Button';
-import { Plus, Edit2, Trash2, Eye } from 'lucide-react';
+import { Plus, Edit2, Trash2, Eye, TrendingUp, FileText } from 'lucide-react';
 import { usePermission } from '@/lib/rbac';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import styles from './page.module.css';
@@ -47,6 +51,10 @@ interface SeoHub {
 export default function AdminSeoHubsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'published' | 'archived'>('all');
+  const [activeView, setActiveView] = useState<'overview' | 'data'>('overview');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const queryClient = useQueryClient();
   const supabase = createClient();
 
@@ -71,6 +79,17 @@ export default function AdminSeoHubsPage() {
       if (error) throw error;
       return data as SeoHub[];
     },
+  });
+
+  // Fetch hub statistics for Overview tab
+  const { data: hubStats, isLoading: isLoadingStats } = useQuery({
+    queryKey: ['admin', 'seo-hubs-stats'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/seo/hubs/stats');
+      if (!response.ok) throw new Error('Failed to fetch hub stats');
+      return response.json();
+    },
+    enabled: activeView === 'overview',
   });
 
   // Filter and search hubs
@@ -98,6 +117,13 @@ export default function AdminSeoHubsPage() {
     return filtered;
   }, [hubs, statusFilter, searchQuery]);
 
+  // Paginate hubs
+  const paginatedHubs = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return filteredHubs.slice(startIndex, endIndex);
+  }, [filteredHubs, currentPage, pageSize]);
+
   // Statistics
   const stats = useMemo(() => {
     if (!hubs) return { total: 0, published: 0, draft: 0, archived: 0 };
@@ -117,9 +143,9 @@ export default function AdminSeoHubsPage() {
       label: 'Title',
       sortable: true,
       render: (hub: SeoHub) => (
-        <div className="flex flex-col">
-          <span className="font-medium text-gray-900">{hub.title}</span>
-          <span className="text-sm text-gray-500">/{hub.slug}</span>
+        <div className={styles.titleCell}>
+          <span className={styles.titleText}>{hub.title}</span>
+          <span className={styles.slugText}>/{hub.slug}</span>
         </div>
       ),
     },
@@ -129,12 +155,12 @@ export default function AdminSeoHubsPage() {
       sortable: true,
       render: (hub: SeoHub) => (
         <span
-          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+          className={`${styles.statusBadge} ${
             hub.status === 'published'
-              ? 'bg-green-100 text-green-800'
+              ? styles.statusPublished
               : hub.status === 'draft'
-              ? 'bg-yellow-100 text-yellow-800'
-              : 'bg-gray-100 text-gray-800'
+              ? styles.statusDraft
+              : styles.statusArchived
           }`}
         >
           {hub.status.charAt(0).toUpperCase() + hub.status.slice(1)}
@@ -145,14 +171,14 @@ export default function AdminSeoHubsPage() {
       key: 'spoke_count',
       label: 'Spokes',
       sortable: true,
-      render: (hub: SeoHub) => <span className="text-gray-900">{hub.spoke_count || 0}</span>,
+      render: (hub: SeoHub) => <span className={styles.countText}>{hub.spoke_count || 0}</span>,
     },
     {
       key: 'created_at',
       label: 'Created',
       sortable: true,
       render: (hub: SeoHub) => (
-        <span className="text-sm text-gray-500">
+        <span className={styles.dateText}>
           {new Date(hub.created_at).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
@@ -184,8 +210,24 @@ export default function AdminSeoHubsPage() {
     },
   ];
 
-  // Tabs configuration
-  const tabs = [
+  // Main view tabs
+  const viewTabs = [
+    {
+      id: 'overview',
+      label: 'Overview',
+      icon: <TrendingUp className={styles.tabIcon} />,
+      active: activeView === 'overview'
+    },
+    {
+      id: 'data',
+      label: 'Data',
+      icon: <FileText className={styles.tabIcon} />,
+      active: activeView === 'data'
+    },
+  ];
+
+  // Data filter tabs (only shown in data view)
+  const dataFilterTabs = [
     { id: 'all', label: 'All Hubs', count: stats.total, active: statusFilter === 'all' },
     { id: 'published', label: 'Published', count: stats.published, active: statusFilter === 'published' },
     { id: 'draft', label: 'Drafts', count: stats.draft, active: statusFilter === 'draft' },
@@ -198,21 +240,9 @@ export default function AdminSeoHubsPage() {
         <HubHeader
           title="SEO Hubs"
           subtitle="Manage your hub-and-spoke SEO content strategy"
-          filters={
-            <div className={filterStyles.filtersContainer}>
-              <input
-                type="search"
-                placeholder="Search hubs by title, slug, or description..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={filterStyles.searchInput}
-              />
-            </div>
-          }
           actions={
             canCreate ? (
               <Button>
-                <Plus className={styles.buttonIcon} />
                 Create Hub
               </Button>
             ) : undefined
@@ -222,8 +252,8 @@ export default function AdminSeoHubsPage() {
       }
       tabs={
         <HubTabs
-          tabs={tabs}
-          onTabChange={(tabId) => setStatusFilter(tabId as typeof statusFilter)}
+          tabs={viewTabs}
+          onTabChange={(tabId) => setActiveView(tabId as typeof activeView)}
           className={styles.hubsTabs}
         />
       }
@@ -258,14 +288,222 @@ export default function AdminSeoHubsPage() {
         </HubSidebar>
       }
     >
-      {/* Table */}
-      <HubTable
-        columns={columns}
-        data={filteredHubs}
-        isLoading={isLoading}
-        emptyMessage="No SEO hubs found"
-        emptyDescription="Create your first hub to start building your SEO content strategy."
-      />
+      {/* Overview Tab */}
+      {activeView === 'overview' && (
+        <div className={styles.overviewContent}>
+          {/* Charts Grid */}
+          <div className={styles.chartsGrid}>
+            <ErrorBoundary>
+              {isLoadingStats ? (
+                <ChartSkeleton />
+              ) : (
+                <HubTrendChart
+                  title="Hub Performance"
+                  subtitle="Hub activity over the last 30 days"
+                  data={hubStats?.hubPerformanceTrend || []}
+                  color="#3B82F6"
+                />
+              )}
+            </ErrorBoundary>
+
+            <ErrorBoundary>
+              {isLoadingStats ? (
+                <ChartSkeleton />
+              ) : (
+                <HubCategoryBreakdownChart
+                  title="Hub Status Distribution"
+                  subtitle="Distribution of hubs by status"
+                  data={hubStats?.statusDistribution || []}
+                />
+              )}
+            </ErrorBoundary>
+
+            {/* Top Performing Hubs */}
+            <div className={styles.topHubsWidget}>
+              <h3 className={styles.widgetTitle}>Top Performing Hubs</h3>
+              {isLoadingStats ? (
+                <p className={styles.emptyMessage}>Loading...</p>
+              ) : hubStats?.topHubs && hubStats.topHubs.length > 0 ? (
+                <div className={styles.topHubsList}>
+                  {hubStats.topHubs.map((hub: any, index: number) => (
+                    <div key={hub.id} className={styles.topHubItem}>
+                      <div className={styles.topHubRank}>#{index + 1}</div>
+                      <div className={styles.topHubContent}>
+                        <div className={styles.topHubTitle}>{hub.title}</div>
+                        <div className={styles.topHubMeta}>
+                          {hub.viewCount} views • {hub.spokeCount} spokes
+                        </div>
+                      </div>
+                      <span
+                        className={`${styles.topHubStatus} ${
+                          hub.status === 'published'
+                            ? styles.statusPublished
+                            : hub.status === 'draft'
+                            ? styles.statusDraft
+                            : styles.statusArchived
+                        }`}
+                      >
+                        {hub.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className={styles.emptyMessage}>No hub data available</p>
+              )}
+            </div>
+          </div>
+
+          {/* Recent Hubs */}
+          <div className={styles.recentHubsSection}>
+            <h3 className={styles.sectionTitle}>Recently Created Hubs</h3>
+            {isLoadingStats ? (
+              <p className={styles.emptyMessage}>Loading...</p>
+            ) : hubStats?.recentHubs && hubStats.recentHubs.length > 0 ? (
+              <div className={styles.recentHubsGrid}>
+                {hubStats.recentHubs.map((hub: any) => (
+                  <div key={hub.id} className={styles.recentHubCard}>
+                    <div className={styles.recentHubHeader}>
+                      <h4 className={styles.recentHubTitle}>{hub.title}</h4>
+                      <span
+                        className={`${styles.recentHubStatus} ${
+                          hub.status === 'published'
+                            ? styles.statusPublished
+                            : hub.status === 'draft'
+                            ? styles.statusDraft
+                            : styles.statusArchived
+                        }`}
+                      >
+                        {hub.status}
+                      </span>
+                    </div>
+                    <div className={styles.recentHubMeta}>
+                      <span>{hub.spokeCount} spokes</span>
+                      <span>•</span>
+                      <span>
+                        {new Date(hub.createdAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className={styles.emptyMessage}>No recent hubs</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Data Tab */}
+      {activeView === 'data' && (
+        <HubDataTable
+          columns={columns}
+          data={paginatedHubs}
+          loading={isLoading}
+          onSearch={setSearchQuery}
+          onFilterChange={(key, value) => {
+            if (key === 'status') {
+              setStatusFilter(value as typeof statusFilter);
+              setCurrentPage(1);
+            }
+          }}
+          onRowClick={(hub) => {
+            // TODO: Open hub detail modal or navigate to edit page
+            console.log('Row clicked:', hub);
+          }}
+          onExport={() => {
+            // Export filtered hubs to CSV
+            const csvHeaders = ['title', 'slug', 'status', 'spoke_count', 'created_at'];
+            const csvRows = filteredHubs.map(hub => [
+              hub.title,
+              hub.slug,
+              hub.status,
+              hub.spoke_count || 0,
+              new Date(hub.created_at).toISOString(),
+            ]);
+
+            const csvContent = [
+              csvHeaders.join(','),
+              ...csvRows.map(row => row.map(cell => `"${cell}"`).join(',')),
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `seo-hubs-${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+          }}
+          onRefresh={() => {
+            queryClient.invalidateQueries(['admin', 'seo-hubs']);
+          }}
+          autoRefreshInterval={300000}
+          bulkActions={[
+            {
+              id: 'publish',
+              label: 'Publish Selected',
+              onClick: (selectedIds) => {
+                console.warn('Publish Selected functionality needs to be implemented');
+                console.log('Selected hub IDs:', selectedIds);
+              },
+            },
+            {
+              id: 'archive',
+              label: 'Archive Selected',
+              onClick: (selectedIds) => {
+                console.warn('Archive Selected functionality needs to be implemented');
+                console.log('Selected hub IDs:', selectedIds);
+              },
+            },
+            {
+              id: 'delete',
+              label: 'Delete Selected',
+              onClick: (selectedIds) => {
+                console.warn('Delete Selected functionality needs to be implemented');
+                console.log('Selected hub IDs:', selectedIds);
+              },
+            },
+          ]}
+          enableSavedViews={true}
+          savedViewsKey="admin_seo_hubs_savedViews"
+          filters={[
+            {
+              key: 'status',
+              label: 'Status',
+              options: [
+                { label: 'All', value: 'all' },
+                { label: 'Published', value: 'published' },
+                { label: 'Draft', value: 'draft' },
+                { label: 'Archived', value: 'archived' },
+              ],
+            },
+          ]}
+          pagination={{
+            page: currentPage,
+            limit: pageSize,
+            total: filteredHubs.length,
+            onPageChange: setCurrentPage,
+            onLimitChange: (newLimit) => {
+              setPageSize(newLimit);
+              setCurrentPage(1);
+            },
+            pageSizeOptions: [10, 20, 50, 100],
+          }}
+          selectable={true}
+          selectedRows={selectedRows}
+          onSelectionChange={setSelectedRows}
+          getRowId={(hub) => hub.id}
+          searchPlaceholder="Search hubs..."
+          emptyMessage="No SEO hubs found"
+        />
+      )}
     </HubPageLayout>
   );
 }

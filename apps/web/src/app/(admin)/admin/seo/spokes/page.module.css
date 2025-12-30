@@ -38,6 +38,7 @@
  */
 .spokesTabs {
   --hub-tabs-margin-top: 3rem;  /* Desktop: 3rem spacing (default) */
+  --hub-tabs-margin-bottom: 1rem;  /* 1rem tab margin + 1rem content padding = 2rem total */
 }
 
 /* Mobile: Smaller spacing */
@@ -45,6 +46,19 @@
   .spokesTabs {
     --hub-tabs-margin-top: 0rem;  /* Mobile: 0rem smaller spacing */
   }
+}
+
+/* Data Filter Tabs - Secondary tabs below main view tabs */
+.spokesDataTabs {
+  --hub-tabs-margin-top: 1rem;
+  --hub-tabs-margin-bottom: 1rem;
+}
+
+/* Tab Icon */
+.tabIcon {
+  height: 1rem;
+  width: 1rem;
+  margin-right: 0.5rem;
 }
 
 /* Button Icon */
@@ -88,4 +102,246 @@
 .hubLinkText {
   font-size: 0.875rem;
   color: #111827;
+}
+
+/* Overview Content */
+.overviewContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 0;
+}
+
+/* Charts Grid */
+.chartsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 0;
+}
+
+@media (min-width: 768px) {
+  .chartsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .chartsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Top Spokes Widget */
+.topSpokesWidget {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.widgetTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 1rem 0;
+}
+
+.topSpokesList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.topSpokeItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 0.375rem;
+  transition: background 0.2s ease;
+}
+
+.topSpokeItem:hover {
+  background: #f3f4f6;
+}
+
+.topSpokeRank {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #8B5CF6;
+  color: white;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.topSpokeContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.topSpokeTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1f2937;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topSpokeMeta {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.125rem;
+}
+
+.topSpokeStatus {
+  flex-shrink: 0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.statusPublished {
+  background: #D1FAE5;
+  color: #065F46;
+}
+
+.statusDraft {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.statusArchived {
+  background: #F3F4F6;
+  color: #374151;
+}
+
+/* Recent Spokes Section */
+.recentSpokesSection {
+  margin-top: 2rem;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 1rem 0;
+}
+
+.recentSpokesGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .recentSpokesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .recentSpokesGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.recentSpokeCard {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  transition: box-shadow 0.2s ease;
+}
+
+.recentSpokeCard:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.recentSpokeHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.recentSpokeTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.recentSpokeStatus {
+  flex-shrink: 0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.recentSpokeMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.emptyMessage {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+  padding: 1rem 0;
+  text-align: center;
+}
+
+/* =====================================================
+ * Table Cell Styles
+ * ===================================================== */
+
+.titleCell {
+  display: flex;
+  flex-direction: column;
+}
+
+.titleText {
+  font-weight: 500;
+  color: #111827;
+}
+
+.slugText {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.dateText {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Status Badge */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
 }

@@ -7,16 +7,20 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
 import HubHeader from '@/app/components/hub/layout/HubHeader';
 import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import HubTable from '@/app/components/hub/tables/HubTable';
+import HubDataTable from '@/app/components/hub/data/HubDataTable';
 import { AdminHelpWidget, AdminStatsWidget, AdminTipWidget } from '@/app/components/admin/widgets';
+import HubTrendChart from '@/app/components/hub/charts/HubTrendChart';
+import HubCategoryBreakdownChart from '@/app/components/hub/charts/HubCategoryBreakdownChart';
+import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
+import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import Button from '@/app/components/ui/actions/Button';
-import { Plus, Edit2, Trash2, ExternalLink, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { Plus, Edit2, Trash2, ExternalLink, CheckCircle2, XCircle, Clock, TrendingUp, FileText } from 'lucide-react';
 import { usePermission } from '@/lib/rbac';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import styles from './page.module.css';
@@ -43,7 +47,12 @@ export default function AdminSeoCitationsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'broken' | 'removed' | 'pending'>('all');
   const [typeFilter, setTypeFilter] = useState<'all' | 'backlink' | 'mention' | 'review' | 'directory'>('all');
+  const [activeView, setActiveView] = useState<'overview' | 'data'>('overview');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const supabase = createClient();
+  const queryClient = useQueryClient();
 
   // Permission checks
   const canCreate = usePermission('seo', 'create');
@@ -71,6 +80,17 @@ export default function AdminSeoCitationsPage() {
         return [] as SeoCitation[];
       }
     },
+  });
+
+  // Fetch citation statistics for Overview tab
+  const { data: citationStats, isLoading: isLoadingStats } = useQuery({
+    queryKey: ['admin', 'seo-citations-stats'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/seo/citations/stats');
+      if (!response.ok) throw new Error('Failed to fetch citation stats');
+      return response.json();
+    },
+    enabled: activeView === 'overview',
   });
 
   // Filter citations
@@ -104,6 +124,13 @@ export default function AdminSeoCitationsPage() {
     return filtered;
   }, [citations, statusFilter, typeFilter, searchQuery]);
 
+  // Paginated citations
+  const paginatedCitations = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return filteredCitations.slice(startIndex, endIndex);
+  }, [filteredCitations, currentPage, pageSize]);
+
   // Statistics
   const stats = useMemo(() => {
     if (!citations) return { total: 0, active: 0, broken: 0, pending: 0, avgDA: 0 };
@@ -121,6 +148,73 @@ export default function AdminSeoCitationsPage() {
       avgDA,
     };
   }, [citations]);
+
+  // Export handler for CSV export
+  const handleExport = () => {
+    const csvData = filteredCitations.map((citation) => ({
+      source_domain: citation.source_domain,
+      source_url: citation.source_url,
+      target_url: citation.target_url,
+      anchor_text: citation.anchor_text || '',
+      citation_type: citation.citation_type,
+      status: citation.status,
+      domain_authority: citation.domain_authority || '',
+      discovered_at: citation.discovered_at,
+    }));
+
+    const headers = ['source_domain', 'source_url', 'target_url', 'anchor_text', 'citation_type', 'status', 'domain_authority', 'discovered_at'];
+    const csvContent = [
+      headers.join(','),
+      ...csvData.map((row) =>
+        headers.map((header) => {
+          const value = row[header as keyof typeof row];
+          // Escape values that contain commas or quotes
+          const stringValue = String(value);
+          if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+            return `"${stringValue.replace(/"/g, '""')}"`;
+          }
+          return stringValue;
+        }).join(',')
+      ),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `seo-citations-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Refresh handler
+  const handleRefresh = () => {
+    queryClient.invalidateQueries(['admin', 'seo-citations']);
+  };
+
+  // Bulk actions
+  const bulkActions = [
+    {
+      label: 'Mark as Active',
+      onClick: (selectedIds: string[]) => {
+        console.log('Mark as Active:', selectedIds);
+      },
+    },
+    {
+      label: 'Mark as Broken',
+      onClick: (selectedIds: string[]) => {
+        console.log('Mark as Broken:', selectedIds);
+      },
+    },
+    {
+      label: 'Delete Selected',
+      onClick: (selectedIds: string[]) => {
+        console.log('Delete Selected:', selectedIds);
+      },
+    },
+  ];
 
   // Table columns
   const columns = [
@@ -147,7 +241,7 @@ export default function AdminSeoCitationsPage() {
       label: 'Anchor Text',
       sortable: true,
       render: (citation: SeoCitation) => (
-        <span className="text-sm text-gray-700">{citation.anchor_text || '—'}</span>
+        <span className={styles.anchorText}>{citation.anchor_text || '—'}</span>
       ),
     },
     {
@@ -155,7 +249,7 @@ export default function AdminSeoCitationsPage() {
       label: 'Type',
       sortable: true,
       render: (citation: SeoCitation) => (
-        <span className="text-sm text-gray-900 capitalize">{citation.citation_type}</span>
+        <span className={styles.citationType}>{citation.citation_type}</span>
       ),
     },
     {
@@ -182,16 +276,16 @@ export default function AdminSeoCitationsPage() {
       sortable: true,
       render: (citation: SeoCitation) => {
         const statusConfig = {
-          active: { icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-100' },
-          broken: { icon: XCircle, color: 'text-red-600', bg: 'bg-red-100' },
-          pending: { icon: Clock, color: 'text-yellow-600', bg: 'bg-yellow-100' },
-          removed: { icon: XCircle, color: 'text-gray-600', bg: 'bg-gray-100' },
+          active: { icon: CheckCircle2, className: styles.statusActive },
+          broken: { icon: XCircle, className: styles.statusBroken },
+          pending: { icon: Clock, className: styles.statusPending },
+          removed: { icon: XCircle, className: styles.statusRemoved },
         };
         const config = statusConfig[citation.status];
         const Icon = config.icon;
 
         return (
-          <span className={`${styles.statusBadge} ${config.bg} ${config.color}`}>
+          <span className={`${styles.statusBadge} ${config.className}`}>
             <Icon className={styles.statusIcon} />
             {citation.status.charAt(0).toUpperCase() + citation.status.slice(1)}
           </span>
@@ -203,7 +297,7 @@ export default function AdminSeoCitationsPage() {
       label: 'Discovered',
       sortable: true,
       render: (citation: SeoCitation) => (
-        <span className="text-sm text-gray-500">
+        <span className={styles.dateText}>
           {new Date(citation.discovered_at).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
@@ -232,8 +326,24 @@ export default function AdminSeoCitationsPage() {
     },
   ];
 
-  // Tabs configuration
-  const tabs = [
+  // Main view tabs
+  const viewTabs = [
+    {
+      id: 'overview',
+      label: 'Overview',
+      icon: <TrendingUp className={styles.tabIcon} />,
+      active: activeView === 'overview'
+    },
+    {
+      id: 'data',
+      label: 'Data',
+      icon: <FileText className={styles.tabIcon} />,
+      active: activeView === 'data'
+    },
+  ];
+
+  // Data filter tabs (only shown in data view)
+  const dataFilterTabs = [
     { id: 'all', label: 'All Citations', count: stats.total, active: statusFilter === 'all' },
     { id: 'active', label: 'Active', count: stats.active, active: statusFilter === 'active' },
     { id: 'broken', label: 'Broken', count: stats.broken, active: statusFilter === 'broken' },
@@ -246,32 +356,9 @@ export default function AdminSeoCitationsPage() {
         <HubHeader
           title="SEO Citations"
           subtitle="Track and manage external backlinks and mentions"
-          filters={
-            <div className={filterStyles.filtersContainer}>
-              <input
-                type="search"
-                placeholder="Search citations by domain, URL, or anchor text..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={filterStyles.searchInput}
-              />
-              <select
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value as typeof typeFilter)}
-                className={filterStyles.filterSelect}
-              >
-                <option value="all">All Types</option>
-                <option value="backlink">Backlinks</option>
-                <option value="mention">Mentions</option>
-                <option value="review">Reviews</option>
-                <option value="directory">Directories</option>
-              </select>
-            </div>
-          }
           actions={
             canCreate ? (
               <Button>
-                <Plus className={styles.buttonIcon} />
                 Add Citation
               </Button>
             ) : undefined
@@ -281,8 +368,8 @@ export default function AdminSeoCitationsPage() {
       }
       tabs={
         <HubTabs
-          tabs={tabs}
-          onTabChange={(tabId) => setStatusFilter(tabId as typeof statusFilter)}
+          tabs={viewTabs}
+          onTabChange={(tabId) => setActiveView(tabId as typeof activeView)}
           className={styles.citationsTabs}
         />
       }
@@ -317,14 +404,170 @@ export default function AdminSeoCitationsPage() {
         </HubSidebar>
       }
     >
-      {/* Table */}
-      <HubTable
-        columns={columns}
-        data={filteredCitations}
-        isLoading={isLoading}
-        emptyMessage="No citations found"
-        emptyDescription="Add your first citation to start tracking backlinks and mentions."
-      />
+      {/* Overview Tab */}
+      {activeView === 'overview' && (
+        <div className={styles.overviewContent}>
+          {/* Charts Grid */}
+          <div className={styles.chartsGrid}>
+            <ErrorBoundary>
+              {isLoadingStats ? (
+                <ChartSkeleton />
+              ) : (
+                <HubTrendChart
+                  title="Citation Status Trend"
+                  subtitle="Citation activity over the last 30 days"
+                  data={citationStats?.citationStatusTrend || []}
+                  color="#F59E0B"
+                />
+              )}
+            </ErrorBoundary>
+
+            <ErrorBoundary>
+              {isLoadingStats ? (
+                <ChartSkeleton />
+              ) : (
+                <HubCategoryBreakdownChart
+                  title="Citation Status Distribution"
+                  subtitle="Distribution of citations by status"
+                  data={citationStats?.statusDistribution || []}
+                />
+              )}
+            </ErrorBoundary>
+
+            {/* Top Domains */}
+            <div className={styles.topDomainsWidget}>
+              <h3 className={styles.widgetTitle}>Top Referring Domains</h3>
+              {isLoadingStats ? (
+                <p className={styles.emptyMessage}>Loading...</p>
+              ) : citationStats?.topDomains && citationStats.topDomains.length > 0 ? (
+                <div className={styles.topDomainsList}>
+                  {citationStats.topDomains.map((domain: any, index: number) => (
+                    <div key={domain.domain} className={styles.topDomainItem}>
+                      <div className={styles.topDomainRank}>#{index + 1}</div>
+                      <div className={styles.topDomainContent}>
+                        <div className={styles.topDomainName}>{domain.domain}</div>
+                        <div className={styles.topDomainMeta}>
+                          {domain.citationCount} citations • {domain.activeCount} active
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className={styles.emptyMessage}>No citation data available</p>
+              )}
+            </div>
+          </div>
+
+          {/* Recent Citations */}
+          <div className={styles.recentCitationsSection}>
+            <h3 className={styles.sectionTitle}>Recently Added Citations</h3>
+            {isLoadingStats ? (
+              <p className={styles.emptyMessage}>Loading...</p>
+            ) : citationStats?.recentCitations && citationStats.recentCitations.length > 0 ? (
+              <div className={styles.recentCitationsGrid}>
+                {citationStats.recentCitations.map((citation: any) => (
+                  <div key={citation.id} className={styles.recentCitationCard}>
+                    <div className={styles.recentCitationHeader}>
+                      <h4 className={styles.recentCitationTitle}>{citation.sourceName}</h4>
+                      <span
+                        className={`${styles.recentCitationStatus} ${
+                          citation.status === 'active'
+                            ? styles.statusActive
+                            : citation.status === 'broken'
+                            ? styles.statusBroken
+                            : styles.statusPending
+                        }`}
+                      >
+                        {citation.status}
+                      </span>
+                    </div>
+                    <div className={styles.recentCitationMeta}>
+                      <span className={styles.citationUrlShort}>
+                        {citation.url.length > 50 ? citation.url.substring(0, 50) + '...' : citation.url}
+                      </span>
+                      <span>•</span>
+                      <span>
+                        {new Date(citation.createdAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className={styles.emptyMessage}>No recent citations</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Data Tab */}
+      {activeView === 'data' && (
+        <HubDataTable
+          columns={columns}
+          data={paginatedCitations}
+          loading={isLoading}
+          onSearch={(query) => setSearchQuery(query)}
+          onFilterChange={(filterKey, value) => {
+            if (filterKey === 'status') {
+              setStatusFilter(value as typeof statusFilter);
+            } else if (filterKey === 'type') {
+              setTypeFilter(value as typeof typeFilter);
+            }
+          }}
+          filters={[
+            {
+              key: 'status',
+              label: 'Status',
+              options: [
+                { label: 'All', value: 'all' },
+                { label: 'Active', value: 'active' },
+                { label: 'Broken', value: 'broken' },
+                { label: 'Removed', value: 'removed' },
+                { label: 'Pending', value: 'pending' },
+              ],
+            },
+            {
+              key: 'type',
+              label: 'Type',
+              options: [
+                { label: 'All', value: 'all' },
+                { label: 'Backlink', value: 'backlink' },
+                { label: 'Mention', value: 'mention' },
+                { label: 'Review', value: 'review' },
+                { label: 'Directory', value: 'directory' },
+              ],
+            },
+          ]}
+          pagination={{
+            page: currentPage,
+            limit: pageSize,
+            total: filteredCitations.length,
+            onPageChange: (page) => setCurrentPage(page),
+            onLimitChange: (limit) => {
+              setPageSize(limit);
+              setCurrentPage(1);
+            },
+            pageSizeOptions: [10, 20, 50, 100],
+          }}
+          selectable={true}
+          selectedRows={selectedRows}
+          onSelectionChange={setSelectedRows}
+          getRowId={(citation) => citation.id}
+          searchPlaceholder="Search citations..."
+          emptyMessage="No citations found"
+          onExport={handleExport}
+          onRefresh={handleRefresh}
+          autoRefreshInterval={300000}
+          bulkActions={bulkActions}
+          enableSavedViews={true}
+          savedViewsKey="admin_seo_citations_savedViews"
+        />
+      )}
     </HubPageLayout>
   );
 }

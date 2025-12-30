@@ -1,0 +1,225 @@
+/*
+ * Filename: src/app/(admin)/admin/seo/backlinks/page.module.css
+ * Purpose: Styles for Backlinks Monitor page
+ * Created: 2025-12-29
+ * Pattern: Follows Dashboard hub layout pattern (Bookings)
+ */
+
+/* =====================================================
+ * Header & Tabs - Following Bookings pattern
+ * ===================================================== */
+
+.backlinksHeader {
+  --hub-header-margin-top: 1.5rem;
+  --hub-header-margin-bottom: 0;
+  --hub-header-height: 3rem;
+  --hub-header-padding-x: 1rem;
+  --hub-header-actions-gap: 0.5rem;
+  --hub-header-actions-margin-left: 1rem;
+}
+
+@media (max-width: 767px) {
+  .backlinksHeader {
+    --hub-header-margin-top: 0rem;
+  }
+}
+
+.backlinksTabs {
+  --hub-tabs-margin-top: 3rem;
+  --hub-tabs-margin-bottom: 1rem;
+}
+
+@media (max-width: 767px) {
+  .backlinksTabs {
+    --hub-tabs-margin-top: 0rem;
+  }
+}
+
+/* =====================================================
+ * Source Cell
+ * ===================================================== */
+
+.sourceCell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sourceUrl {
+  font-weight: 500;
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.sourceUrl:hover {
+  text-decoration: underline;
+}
+
+.anchorText {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+/* =====================================================
+ * Target Cell
+ * ===================================================== */
+
+.targetCell {
+  font-size: 13px;
+}
+
+.targetUrl {
+  color: var(--color-text-primary);
+  word-break: break-word;
+}
+
+/* =====================================================
+ * Metrics Cell
+ * ===================================================== */
+
+.metricsCell {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.drHigh,
+.drMedium,
+.drLow,
+.drUnknown,
+.daBadge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.drHigh {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+.drMedium {
+  background-color: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+}
+
+.drLow {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.drUnknown {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
+.daBadge {
+  background-color: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+}
+
+/* =====================================================
+ * Status Badges
+ * ===================================================== */
+
+.statusActive,
+.statusLost,
+.statusBroken,
+.statusRedirected {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.statusIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.statusActive {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+.statusLost {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.statusBroken {
+  background-color: #ffedd5;
+  color: #c2410c;
+  border: 1px solid #fdba74;
+}
+
+.statusRedirected {
+  background-color: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+}
+
+/* =====================================================
+ * Link Type Badges
+ * ===================================================== */
+
+.typeDofollow,
+.typeNofollow,
+.typeUgc,
+.typeSponsored {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.typeDofollow {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+.typeNofollow {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
+.typeUgc {
+  background-color: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+}
+
+.typeSponsored {
+  background-color: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+}
+
+/* =====================================================
+ * Date Text
+ * ===================================================== */
+
+.dateText {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+

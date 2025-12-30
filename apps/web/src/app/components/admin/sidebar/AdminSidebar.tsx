@@ -26,16 +26,20 @@ export default function AdminSidebar() {
 
   // Admin navigation menu (NO ICONS - text only, following AppSidebar pattern)
   const navItems: NavItem[] = [
-    { href: '/admin', label: 'Overview' },
+    { href: '/admin', label: 'Dashboard' },
     {
       href: '/admin/seo',
       label: 'SEO',
       subItems: [
-        { href: '/admin/seo', label: 'Management', indent: true },
+        { href: '/admin/seo', label: 'Overview', indent: true },
         { href: '/admin/seo/hubs', label: 'Hubs', indent: true },
         { href: '/admin/seo/spokes', label: 'Spokes', indent: true },
+        { href: '/admin/seo/keywords', label: 'Keywords', indent: true },
+        { href: '/admin/seo/backlinks', label: 'Backlinks', indent: true },
         { href: '/admin/seo/citations', label: 'Citations', indent: true },
+        { href: '/admin/seo/templates', label: 'Templates', indent: true },
         { href: '/admin/seo/config', label: 'Configuration', indent: true },
+        { href: '/admin/seo/settings', label: 'Settings', indent: true },
       ],
     },
     {

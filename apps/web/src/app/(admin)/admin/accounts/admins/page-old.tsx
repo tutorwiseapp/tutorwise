@@ -16,7 +16,7 @@ import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget, AdminVideoWidget } from '@/app/components/admin/widgets';
 import Button from '@/app/components/ui/actions/Button';
-import { useAdminProfile, useIsSuperadmin } from '@/lib/rbac';
+import { useAdminProfile } from '@/lib/rbac';
 import type { AdminRole } from '@/lib/rbac/types';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
@@ -62,7 +62,7 @@ export default function AdminUsersPage() {
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
 
   const { profile: currentAdminProfile } = useAdminProfile();
-  const { isSuperadmin } = useIsSuperadmin();
+  const isSuperadmin = currentAdminProfile?.admin_role === 'superadmin';
 
   // Fetch admin users
   const { data: adminUsersData, isLoading, refetch } = useQuery({

@@ -10,6 +10,8 @@
 
 import React, { useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { createClient } from '@/utils/supabase/client';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
@@ -23,19 +25,20 @@ import styles from './page.module.css';
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
-type TabFilter = 'overview' | 'activity' | 'alerts';
+type TabFilter = 'dashboard' | 'activity' | 'alerts';
 
 export default function AdminOverviewPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const supabase = createClient();
 
-  const tabFilter = (searchParams?.get('tab') as TabFilter) || 'overview';
+  const tabFilter = (searchParams?.get('tab') as TabFilter) || 'dashboard';
   const [showActionsMenu, setShowActionsMenu] = useState(false);
 
   // Tab change handler
   const handleTabChange = (tabId: string) => {
     const params = new URLSearchParams(searchParams?.toString() || '');
-    if (tabId === 'overview') {
+    if (tabId === 'dashboard') {
       params.delete('tab');
     } else {
       params.set('tab', tabId);
@@ -43,14 +46,52 @@ export default function AdminOverviewPage() {
     router.push(`/admin${params.toString() ? `?${params.toString()}` : ''}`);
   };
 
-  // Mock stats (will be replaced with real data later)
-  const stats = useMemo(() => ({
-    totalUsers: 1250,
-    activeListings: 342,
-    recentBookings: 89,
-    pendingModeration: 12,
-    platformRevenue: 45680,
-  }), []);
+  // Fetch real platform statistics
+  const { data: stats } = useQuery({
+    queryKey: ['admin', 'platform-stats'],
+    queryFn: async () => {
+      // Fetch total users count
+      const { count: totalUsers } = await supabase
+        .from('users')
+        .select('*', { count: 'exact', head: true });
+
+      // Fetch active listings count
+      const { count: activeListings } = await supabase
+        .from('listings')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'active');
+
+      // Fetch recent bookings (last 30 days)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const { count: recentBookings } = await supabase
+        .from('bookings')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', thirtyDaysAgo.toISOString());
+
+      // Fetch pending moderation items (reviews)
+      const { count: pendingModeration } = await supabase
+        .from('reviews')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending');
+
+      // Fetch platform revenue (sum of completed bookings)
+      const { data: bookingsData } = await supabase
+        .from('bookings')
+        .select('total_price')
+        .eq('status', 'completed');
+
+      const platformRevenue = bookingsData?.reduce((sum, booking) => sum + (booking.total_price || 0), 0) || 0;
+
+      return {
+        totalUsers: totalUsers || 0,
+        activeListings: activeListings || 0,
+        recentBookings: recentBookings || 0,
+        pendingModeration: pendingModeration || 0,
+        platformRevenue,
+      };
+    },
+  });
 
   return (
     <HubPageLayout
@@ -92,7 +133,7 @@ export default function AdminOverviewPage() {
       tabs={
         <HubTabs
           tabs={[
-            { id: 'overview', label: 'Overview', active: tabFilter === 'overview' },
+            { id: 'dashboard', label: 'Dashboard', active: tabFilter === 'dashboard' },
             { id: 'activity', label: 'Activity', active: tabFilter === 'activity' },
             { id: 'alerts', label: 'Alerts', active: tabFilter === 'alerts' },
           ]}
@@ -104,12 +145,18 @@ export default function AdminOverviewPage() {
         <HubSidebar>
           <AdminStatsWidget
             title="Platform Statistics"
-            stats={[
+            stats={stats ? [
               { label: 'Total Users', value: stats.totalUsers },
               { label: 'Active Listings', value: stats.activeListings },
               { label: 'Recent Bookings', value: stats.recentBookings, valueColor: 'green' },
               { label: 'Pending Moderation', value: stats.pendingModeration, valueColor: stats.pendingModeration > 0 ? 'orange' : 'default' },
               { label: 'Platform Revenue', value: `£${(stats.platformRevenue / 100).toFixed(2)}`, valueColor: 'black-bold' },
+            ] : [
+              { label: 'Total Users', value: '...' },
+              { label: 'Active Listings', value: '...' },
+              { label: 'Recent Bookings', value: '...' },
+              { label: 'Pending Moderation', value: '...' },
+              { label: 'Platform Revenue', value: '...' },
             ]}
           />
           <AdminHelpWidget
@@ -136,7 +183,7 @@ export default function AdminOverviewPage() {
       }
     >
       <div className={styles.container}>
-        {tabFilter === 'overview' && (
+        {tabFilter === 'dashboard' && (
           <div className={styles.overviewContent}>
             <h2 className={styles.sectionTitle}>Welcome to Admin Dashboard</h2>
             <p className={styles.description}>

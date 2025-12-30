@@ -13,10 +13,14 @@ import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
 import HubHeader from '@/app/components/hub/layout/HubHeader';
 import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import HubTable from '@/app/components/hub/tables/HubTable';
+import HubDataTable from '@/app/components/hub/data/HubDataTable';
 import { AdminHelpWidget, AdminStatsWidget, AdminTipWidget } from '@/app/components/admin/widgets';
+import HubTrendChart from '@/app/components/hub/charts/HubTrendChart';
+import HubCategoryBreakdownChart from '@/app/components/hub/charts/HubCategoryBreakdownChart';
+import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
+import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import Button from '@/app/components/ui/actions/Button';
-import { Plus, Edit2, Trash2, Eye, Link as LinkIcon } from 'lucide-react';
+import { Plus, Edit2, Trash2, Eye, Link as LinkIcon, TrendingUp, FileText } from 'lucide-react';
 import { usePermission } from '@/lib/rbac';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import styles from './page.module.css';
@@ -51,6 +55,10 @@ interface SeoSpoke {
 export default function AdminSeoSpokesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'published' | 'archived'>('all');
+  const [activeView, setActiveView] = useState<'overview' | 'data'>('overview');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const queryClient = useQueryClient();
   const supabase = createClient();
 
@@ -74,6 +82,17 @@ export default function AdminSeoSpokesPage() {
       if (error) throw error;
       return data as SeoSpoke[];
     },
+  });
+
+  // Fetch spoke statistics for Overview tab
+  const { data: spokeStats, isLoading: isLoadingStats } = useQuery({
+    queryKey: ['admin', 'seo-spokes-stats'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/seo/spokes/stats');
+      if (!response.ok) throw new Error('Failed to fetch spoke stats');
+      return response.json();
+    },
+    enabled: activeView === 'overview',
   });
 
   // Filter and search spokes
@@ -102,6 +121,13 @@ export default function AdminSeoSpokesPage() {
     return filtered;
   }, [spokes, statusFilter, searchQuery]);
 
+  // Paginate spokes
+  const paginatedSpokes = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return filteredSpokes.slice(startIndex, endIndex);
+  }, [filteredSpokes, currentPage, pageSize]);
+
   // Statistics
   const stats = useMemo(() => {
     if (!spokes) return { total: 0, published: 0, draft: 0, archived: 0 };
@@ -121,9 +147,9 @@ export default function AdminSeoSpokesPage() {
       label: 'Title',
       sortable: true,
       render: (spoke: SeoSpoke) => (
-        <div className="flex flex-col">
-          <span className="font-medium text-gray-900">{spoke.title}</span>
-          <span className="text-sm text-gray-500">/{spoke.slug}</span>
+        <div className={styles.titleCell}>
+          <span className={styles.titleText}>{spoke.title}</span>
+          <span className={styles.slugText}>/{spoke.slug}</span>
         </div>
       ),
     },
@@ -144,12 +170,12 @@ export default function AdminSeoSpokesPage() {
       sortable: true,
       render: (spoke: SeoSpoke) => (
         <span
-          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+          className={`${styles.statusBadge} ${
             spoke.status === 'published'
-              ? 'bg-green-100 text-green-800'
+              ? styles.statusPublished
               : spoke.status === 'draft'
-              ? 'bg-yellow-100 text-yellow-800'
-              : 'bg-gray-100 text-gray-800'
+              ? styles.statusDraft
+              : styles.statusArchived
           }`}
         >
           {spoke.status.charAt(0).toUpperCase() + spoke.status.slice(1)}
@@ -161,7 +187,7 @@ export default function AdminSeoSpokesPage() {
       label: 'Created',
       sortable: true,
       render: (spoke: SeoSpoke) => (
-        <span className="text-sm text-gray-500">
+        <span className={styles.dateText}>
           {new Date(spoke.created_at).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
@@ -193,8 +219,24 @@ export default function AdminSeoSpokesPage() {
     },
   ];
 
-  // Tabs configuration
-  const tabs = [
+  // Main view tabs
+  const viewTabs = [
+    {
+      id: 'overview',
+      label: 'Overview',
+      icon: <TrendingUp className={styles.tabIcon} />,
+      active: activeView === 'overview'
+    },
+    {
+      id: 'data',
+      label: 'Data',
+      icon: <FileText className={styles.tabIcon} />,
+      active: activeView === 'data'
+    },
+  ];
+
+  // Data filter tabs (only shown in data view)
+  const dataFilterTabs = [
     { id: 'all', label: 'All Spokes', count: stats.total, active: statusFilter === 'all' },
     { id: 'published', label: 'Published', count: stats.published, active: statusFilter === 'published' },
     { id: 'draft', label: 'Drafts', count: stats.draft, active: statusFilter === 'draft' },
@@ -207,21 +249,9 @@ export default function AdminSeoSpokesPage() {
         <HubHeader
           title="SEO Spokes"
           subtitle="Manage spoke pages that support your hub content"
-          filters={
-            <div className={filterStyles.filtersContainer}>
-              <input
-                type="search"
-                placeholder="Search spokes by title, slug, description, or hub..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={filterStyles.searchInput}
-              />
-            </div>
-          }
           actions={
             canCreate ? (
               <Button>
-                <Plus className={styles.buttonIcon} />
                 Create Spoke
               </Button>
             ) : undefined
@@ -231,8 +261,8 @@ export default function AdminSeoSpokesPage() {
       }
       tabs={
         <HubTabs
-          tabs={tabs}
-          onTabChange={(tabId) => setStatusFilter(tabId as typeof statusFilter)}
+          tabs={viewTabs}
+          onTabChange={(tabId) => setActiveView(tabId as typeof activeView)}
           className={styles.spokesTabs}
         />
       }
@@ -267,14 +297,218 @@ export default function AdminSeoSpokesPage() {
         </HubSidebar>
       }
     >
-      {/* Table */}
-      <HubTable
-        columns={columns}
-        data={filteredSpokes}
-        isLoading={isLoading}
-        emptyMessage="No SEO spokes found"
-        emptyDescription="Create your first spoke to support your hub content."
-      />
+      {/* Overview Tab */}
+      {activeView === 'overview' && (
+        <div className={styles.overviewContent}>
+          {/* Charts Grid */}
+          <div className={styles.chartsGrid}>
+            <ErrorBoundary>
+              {isLoadingStats ? (
+                <ChartSkeleton />
+              ) : (
+                <HubTrendChart
+                  title="Spoke Performance"
+                  subtitle="Spoke activity over the last 30 days"
+                  data={spokeStats?.spokePerformanceTrend || []}
+                  color="#8B5CF6"
+                />
+              )}
+            </ErrorBoundary>
+
+            <ErrorBoundary>
+              {isLoadingStats ? (
+                <ChartSkeleton />
+              ) : (
+                <HubCategoryBreakdownChart
+                  title="Spoke Status Distribution"
+                  subtitle="Distribution of spokes by status"
+                  data={spokeStats?.statusDistribution || []}
+                />
+              )}
+            </ErrorBoundary>
+
+            {/* Top Performing Spokes */}
+            <div className={styles.topSpokesWidget}>
+              <h3 className={styles.widgetTitle}>Top Performing Spokes</h3>
+              {isLoadingStats ? (
+                <p className={styles.emptyMessage}>Loading...</p>
+              ) : spokeStats?.topSpokes && spokeStats.topSpokes.length > 0 ? (
+                <div className={styles.topSpokesList}>
+                  {spokeStats.topSpokes.map((spoke: any, index: number) => (
+                    <div key={spoke.id} className={styles.topSpokeItem}>
+                      <div className={styles.topSpokeRank}>#{index + 1}</div>
+                      <div className={styles.topSpokeContent}>
+                        <div className={styles.topSpokeTitle}>{spoke.title}</div>
+                        <div className={styles.topSpokeMeta}>
+                          {spoke.viewCount} views • {spoke.hubTitle}
+                        </div>
+                      </div>
+                      <span
+                        className={`${styles.topSpokeStatus} ${
+                          spoke.status === 'published'
+                            ? styles.statusPublished
+                            : spoke.status === 'draft'
+                            ? styles.statusDraft
+                            : styles.statusArchived
+                        }`}
+                      >
+                        {spoke.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className={styles.emptyMessage}>No spoke data available</p>
+              )}
+            </div>
+          </div>
+
+          {/* Recent Spokes */}
+          <div className={styles.recentSpokesSection}>
+            <h3 className={styles.sectionTitle}>Recently Created Spokes</h3>
+            {isLoadingStats ? (
+              <p className={styles.emptyMessage}>Loading...</p>
+            ) : spokeStats?.recentSpokes && spokeStats.recentSpokes.length > 0 ? (
+              <div className={styles.recentSpokesGrid}>
+                {spokeStats.recentSpokes.map((spoke: any) => (
+                  <div key={spoke.id} className={styles.recentSpokeCard}>
+                    <div className={styles.recentSpokeHeader}>
+                      <h4 className={styles.recentSpokeTitle}>{spoke.title}</h4>
+                      <span
+                        className={`${styles.recentSpokeStatus} ${
+                          spoke.status === 'published'
+                            ? styles.statusPublished
+                            : spoke.status === 'draft'
+                            ? styles.statusDraft
+                            : styles.statusArchived
+                        }`}
+                      >
+                        {spoke.status}
+                      </span>
+                    </div>
+                    <div className={styles.recentSpokeMeta}>
+                      <span>{spoke.hubTitle}</span>
+                      <span>•</span>
+                      <span>
+                        {new Date(spoke.createdAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className={styles.emptyMessage}>No recent spokes</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Data Tab */}
+      {activeView === 'data' && (
+        <HubDataTable
+          columns={columns}
+          data={paginatedSpokes}
+          loading={isLoading}
+          onSearch={setSearchQuery}
+          onFilterChange={(key, value) => {
+            if (key === 'status') {
+              setStatusFilter(value as typeof statusFilter);
+              setCurrentPage(1);
+            }
+          }}
+          onRowClick={(spoke) => {
+            // TODO: Open spoke detail modal or navigate to edit page
+            console.log('Row clicked:', spoke);
+          }}
+          filters={[
+            {
+              key: 'status',
+              label: 'Status',
+              options: [
+                { label: 'All', value: 'all' },
+                { label: 'Published', value: 'published' },
+                { label: 'Draft', value: 'draft' },
+                { label: 'Archived', value: 'archived' },
+              ],
+            },
+          ]}
+          pagination={{
+            page: currentPage,
+            limit: pageSize,
+            total: filteredSpokes.length,
+            onPageChange: setCurrentPage,
+            onLimitChange: (newLimit) => {
+              setPageSize(newLimit);
+              setCurrentPage(1);
+            },
+            pageSizeOptions: [10, 20, 50, 100],
+          }}
+          selectable={true}
+          selectedRows={selectedRows}
+          onSelectionChange={setSelectedRows}
+          getRowId={(spoke) => spoke.id}
+          searchPlaceholder="Search spokes..."
+          emptyMessage="No SEO spokes found"
+          onExport={() => {
+            // Export filtered spokes to CSV
+            const csvHeaders = ['title', 'slug', 'hub_title', 'status', 'created_at'];
+            const csvRows = filteredSpokes.map((spoke) => [
+              spoke.title,
+              spoke.slug,
+              spoke.hub?.title || '',
+              spoke.status,
+              spoke.created_at,
+            ]);
+
+            const csvContent = [
+              csvHeaders.join(','),
+              ...csvRows.map((row) =>
+                row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')
+              ),
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `seo-spokes-${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }}
+          onRefresh={() => {
+            queryClient.invalidateQueries(['admin', 'seo-spokes']);
+          }}
+          autoRefreshInterval={300000}
+          bulkActions={[
+            {
+              label: 'Publish Selected',
+              onClick: (selectedIds) => {
+                console.log('Publish Selected:', selectedIds);
+              },
+            },
+            {
+              label: 'Archive Selected',
+              onClick: (selectedIds) => {
+                console.log('Archive Selected:', selectedIds);
+              },
+            },
+            {
+              label: 'Delete Selected',
+              onClick: (selectedIds) => {
+                console.log('Delete Selected:', selectedIds);
+              },
+            },
+          ]}
+          enableSavedViews={true}
+          savedViewsKey="admin_seo_spokes_savedViews"
+        />
+      )}
     </HubPageLayout>
   );
 }

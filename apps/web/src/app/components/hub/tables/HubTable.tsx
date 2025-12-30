@@ -6,6 +6,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
+import styles from './HubTable.module.css';
 
 interface Column<T> {
   key: string;
@@ -20,6 +22,9 @@ interface HubTableProps<T> {
   isLoading?: boolean;
   emptyMessage?: string;
   emptyDescription?: string;
+  emptyIcon?: React.ReactNode;
+  emptyActionLabel?: string;
+  onEmptyAction?: () => void;
 }
 
 export default function HubTable<T extends { id: string }>({
@@ -28,6 +33,9 @@ export default function HubTable<T extends { id: string }>({
   isLoading,
   emptyMessage = 'No data found',
   emptyDescription,
+  emptyIcon,
+  emptyActionLabel,
+  onEmptyAction,
 }: HubTableProps<T>) {
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
@@ -43,10 +51,10 @@ export default function HubTable<T extends { id: string }>({
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow p-8">
-        <div className="animate-pulse space-y-4">
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingContent}>
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-12 bg-gray-200 rounded"></div>
+            <div key={i} className={styles.loadingRow}></div>
           ))}
         </div>
       </div>
@@ -55,27 +63,28 @@ export default function HubTable<T extends { id: string }>({
 
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow p-12 text-center">
-        <p className="text-gray-900 font-medium text-lg">{emptyMessage}</p>
-        {emptyDescription && <p className="text-gray-500 mt-2">{emptyDescription}</p>}
-      </div>
+      <HubEmptyState
+        title={emptyMessage}
+        description={emptyDescription || ''}
+        icon={emptyIcon}
+        actionLabel={emptyActionLabel}
+        onAction={onEmptyAction}
+      />
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
+    <div className={styles.tableContainer}>
+      <table className={styles.table}>
+        <thead className={styles.tableHead}>
+          <tr className={styles.tableHeadRow}>
             {columns.map((column) => (
               <th
                 key={column.key}
                 onClick={() => column.sortable && handleSort(column.key)}
-                className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
-                  column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''
-                }`}
+                className={`${styles.tableHeader} ${column.sortable ? styles.tableHeaderSortable : ''}`}
               >
-                <div className="flex items-center gap-2">
+                <div className={styles.tableHeaderContent}>
                   {column.label}
                   {column.sortable && sortColumn === column.key && (
                     <span>{sortDirection === 'asc' ? '↑' : '↓'}</span>
@@ -85,11 +94,11 @@ export default function HubTable<T extends { id: string }>({
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className={styles.tableBody}>
           {data.map((item) => (
-            <tr key={item.id} className="hover:bg-gray-50">
+            <tr key={item.id} className={styles.tableRow}>
               {columns.map((column) => (
-                <td key={column.key} className="px-6 py-4 whitespace-nowrap">
+                <td key={column.key} className={styles.tableCell}>
                   {column.render
                     ? column.render(item)
                     : String((item as any)[column.key] || '—')}

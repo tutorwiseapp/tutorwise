@@ -1,0 +1,269 @@
+/*
+ * Filename: src/app/(admin)/admin/seo/keywords/page.module.css
+ * Purpose: Styles for Keywords Manager admin page
+ * Created: 2025-12-29
+ * Pattern: Follows Dashboard hub layout pattern (Bookings)
+ */
+
+/* =====================================================
+ * Header & Tabs - Following Bookings pattern
+ * ===================================================== */
+
+.keywordsHeader {
+  --hub-header-margin-top: 1.5rem;
+  --hub-header-margin-bottom: 0;
+  --hub-header-height: 3rem;
+  --hub-header-padding-x: 1rem;
+  --hub-header-actions-gap: 0.5rem;
+  --hub-header-actions-margin-left: 1rem;
+}
+
+@media (max-width: 767px) {
+  .keywordsHeader {
+    --hub-header-margin-top: 0rem;
+  }
+}
+
+.keywordsTabs {
+  --hub-tabs-margin-top: 3rem;
+  --hub-tabs-margin-bottom: 1rem;
+}
+
+@media (max-width: 767px) {
+  .keywordsTabs {
+    --hub-tabs-margin-top: 0rem;
+  }
+}
+
+.buttonIcon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+}
+
+/* =====================================================
+ * Keyword Cell
+ * ===================================================== */
+
+.keywordCell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.keywordText {
+  font-weight: 500;
+  color: var(--color-text-primary);
+  font-size: 14px;
+}
+
+.keywordMeta {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.keywordType {
+  text-transform: capitalize;
+  font-weight: 500;
+  color: var(--color-text-tertiary);
+}
+
+/* =====================================================
+ * Position Cell & Badges
+ * ===================================================== */
+
+.positionCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Position Badge Base Style */
+.badgeTop5,
+.badgeTop10,
+.badgePage1,
+.badgePage2,
+.badgeUnranked {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 13px;
+  display: inline-block;
+  min-width: 45px;
+  text-align: center;
+}
+
+/* Top 5 - Green (Best) */
+.badgeTop5 {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+/* Top 10 - Blue (Good) */
+.badgeTop10 {
+  background-color: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+}
+
+/* Page 1 (11-20) - Yellow (Moderate) */
+.badgePage1 {
+  background-color: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+}
+
+/* Page 2+ - Orange (Needs Work) */
+.badgePage2 {
+  background-color: #ffedd5;
+  color: #c2410c;
+  border: 1px solid #fdba74;
+}
+
+/* Unranked - Gray */
+.badgeUnranked {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+  font-weight: 500;
+}
+
+/* =====================================================
+ * Trend Indicators
+ * ===================================================== */
+
+.trendUp {
+  width: 18px;
+  height: 18px;
+  color: #15803d;
+  stroke-width: 2.5;
+}
+
+.trendDown {
+  width: 18px;
+  height: 18px;
+  color: #dc2626;
+  stroke-width: 2.5;
+}
+
+/* =====================================================
+ * Target Cell
+ * ===================================================== */
+
+.targetCell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.targetIcon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-primary);
+}
+
+/* =====================================================
+ * Performance Cell
+ * ===================================================== */
+
+.performanceCell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.performanceStat {
+  display: flex;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.statLabel {
+  color: var(--color-text-secondary);
+  min-width: 80px;
+}
+
+.statValue {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* =====================================================
+ * Priority Badges
+ * ===================================================== */
+
+.priorityCritical,
+.priorityHigh,
+.priorityMedium,
+.priorityLow {
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 12px;
+  display: inline-block;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Critical - Red */
+.priorityCritical {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+/* High - Orange */
+.priorityHigh {
+  background-color: #ffedd5;
+  color: #c2410c;
+  border: 1px solid #fdba74;
+}
+
+/* Medium - Yellow */
+.priorityMedium {
+  background-color: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+}
+
+/* Low - Gray */
+.priorityLow {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
+/* =====================================================
+ * Last Checked Timestamp
+ * ===================================================== */
+
+.lastChecked {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+/* =====================================================
+ * Responsive Adjustments
+ * ===================================================== */
+
+@media (max-width: 768px) {
+  .keywordMeta {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .performanceCell {
+    font-size: 12px;
+  }
+
+  .statLabel {
+    min-width: 70px;
+  }
+}

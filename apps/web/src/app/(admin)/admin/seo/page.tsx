@@ -2,6 +2,7 @@
  * Filename: src/app/(admin)/admin/seo/page.tsx
  * Purpose: SEO Management overview page
  * Created: 2025-12-23
+ * Updated: 2025-12-29 - Added real charts and activity feed
  * Phase: 1 - SEO Management
  */
 'use client';
@@ -19,8 +20,10 @@ import Button from '@/app/components/ui/actions/Button';
 import { FileText, Link as LinkIcon, ExternalLink, TrendingUp, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { usePermission } from '@/lib/rbac';
-import { HubKPIGrid, HubKPICard } from '@/app/components/hub/charts';
+import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart } from '@/app/components/hub/charts';
 import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
+import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
+import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import styles from './page.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
@@ -42,6 +45,18 @@ export default function AdminSeoOverviewPage() {
   const totalCitationsMetric = useAdminMetric({ metric: 'seo_total_citations', compareWith: 'last_month' });
   const activeCitationsMetric = useAdminMetric({ metric: 'seo_active_citations', compareWith: 'last_month' });
 
+  // Fetch SEO stats for charts and activity feed
+  const { data: seoStats, isLoading: isLoadingStats } = useQuery({
+    queryKey: ['admin', 'seo-stats'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/seo/stats');
+      if (!response.ok) {
+        throw new Error('Failed to fetch SEO stats');
+      }
+      return response.json();
+    },
+  });
+
   // Header actions with primary CTA and secondary dropdown
   const getHeaderActions = () => {
     if (!canCreate) return undefined;
@@ -51,7 +66,6 @@ export default function AdminSeoOverviewPage() {
         {/* Primary Action: Create Hub */}
         <Link href="/admin/seo/hubs?action=create">
           <Button variant="primary" size="sm">
-            <Plus className={styles.buttonIcon} />
             Create Hub
           </Button>
         </Link>
@@ -157,62 +171,144 @@ export default function AdminSeoOverviewPage() {
       {/* Overview Tab */}
       {activeTab === 'overview' && (
         <>
-          {/* KPI Cards - Hub Pattern */}
+          {/* KPI Cards - Hub Pattern (8 cards like Bookings) */}
           <HubKPIGrid>
             <HubKPICard
-              label="Hub Pages"
+              label="Total Hubs"
               value={totalHubsMetric.value}
               sublabel={formatMetricChange(totalHubsMetric.change, totalHubsMetric.changePercent, 'last_month')}
               icon={FileText}
-              variant="info"
-              clickable
-              href="/admin/seo/hubs"
+              trend={totalHubsMetric.trend}
             />
             <HubKPICard
-              label="Spoke Pages"
+              label="Published Hubs"
+              value={publishedHubsMetric.value}
+              sublabel={formatMetricChange(publishedHubsMetric.change, publishedHubsMetric.changePercent, 'last_month')}
+              icon={FileText}
+              trend={publishedHubsMetric.trend}
+            />
+            <HubKPICard
+              label="Total Spokes"
               value={totalSpokesMetric.value}
               sublabel={formatMetricChange(totalSpokesMetric.change, totalSpokesMetric.changePercent, 'last_month')}
               icon={LinkIcon}
-              variant="success"
-              clickable
-              href="/admin/seo/spokes"
+              trend={totalSpokesMetric.trend}
             />
             <HubKPICard
-              label="Citations"
+              label="Published Spokes"
+              value={publishedSpokesMetric.value}
+              sublabel={formatMetricChange(publishedSpokesMetric.change, publishedSpokesMetric.changePercent, 'last_month')}
+              icon={LinkIcon}
+              trend={publishedSpokesMetric.trend}
+            />
+            <HubKPICard
+              label="Total Citations"
               value={totalCitationsMetric.value}
-              sublabel={formatMetricChange(totalCitationsMetric.change, totalCitationsMetric.changePercent, 'last_month') || 'Total backlinks'}
+              sublabel={formatMetricChange(totalCitationsMetric.change, totalCitationsMetric.changePercent, 'last_month')}
               icon={ExternalLink}
-              variant="warning"
-              clickable
-              href="/admin/seo/citations"
+              trend={totalCitationsMetric.trend}
             />
             <HubKPICard
               label="Active Citations"
               value={activeCitationsMetric.value}
-              sublabel={formatMetricChange(activeCitationsMetric.change, activeCitationsMetric.changePercent, 'last_month') || 'Verified & active'}
+              sublabel={formatMetricChange(activeCitationsMetric.change, activeCitationsMetric.changePercent, 'last_month')}
+              icon={ExternalLink}
+              trend={activeCitationsMetric.trend}
+            />
+            <HubKPICard
+              label="Avg. Spokes/Hub"
+              value={
+                totalHubsMetric.value > 0
+                  ? Math.round((totalSpokesMetric.value / totalHubsMetric.value) * 10) / 10
+                  : 0
+              }
+              sublabel={
+                totalHubsMetric.previousValue && totalHubsMetric.previousValue > 0
+                  ? `${Math.round((totalSpokesMetric.previousValue! / totalHubsMetric.previousValue!) * 10) / 10} last month`
+                  : 'Average per hub'
+              }
               icon={TrendingUp}
-              variant="neutral"
+            />
+            <HubKPICard
+              label="Publication Rate"
+              value={
+                totalHubsMetric.value + totalSpokesMetric.value > 0
+                  ? `${Math.round(((publishedHubsMetric.value + publishedSpokesMetric.value) / (totalHubsMetric.value + totalSpokesMetric.value)) * 100)}%`
+                  : '0%'
+              }
+              sublabel={
+                totalHubsMetric.previousValue && totalSpokesMetric.previousValue
+                  ? `${Math.round(((publishedHubsMetric.previousValue! + publishedSpokesMetric.previousValue!) / (totalHubsMetric.previousValue! + totalSpokesMetric.previousValue!)) * 100)}% last month`
+                  : 'Content published'
+              }
+              icon={FileText}
             />
           </HubKPIGrid>
 
-          {/* Actionable Widgets Section - Following Dashboard Pattern */}
-          <div className={styles.actionableWidgets}>
-            {/* Recent Activity Widget */}
+          {/* Charts Section - Real Data Visualization */}
+          <div className={styles.chartsGrid}>
+            {/* Hub Performance Trend Chart */}
+            <ErrorBoundary fallback={<ChartSkeleton title="Hub Performance Trend" />}>
+              {isLoadingStats ? (
+                <ChartSkeleton title="Hub Performance Trend" />
+              ) : (
+                <HubTrendChart
+                  title="Hub Performance Trend"
+                  subtitle="Hub views over the last 30 days"
+                  data={seoStats?.hubViewsTrend || []}
+                  color="#10B981"
+                />
+              )}
+            </ErrorBoundary>
+
+            {/* Content Status Breakdown Chart */}
+            <ErrorBoundary fallback={<ChartSkeleton title="Content Status" />}>
+              {isLoadingStats ? (
+                <ChartSkeleton title="Content Status" />
+              ) : (
+                <HubCategoryBreakdownChart
+                  title="Content Status"
+                  subtitle="Published vs Draft content"
+                  data={seoStats?.contentStatusBreakdown || []}
+                />
+              )}
+            </ErrorBoundary>
+
+            {/* Recent Activity Feed */}
             <div className={styles.recentActivityWidget}>
-              <h3 className={styles.widgetTitle}>Recent Activity</h3>
-              <p className={styles.emptyMessage}>No recent SEO activity to display.</p>
-            </div>
-
-            {/* SEO Performance Widget (Placeholder) */}
-            <div className={styles.performanceWidget}>
-              <h3 className={styles.widgetTitle}>SEO Performance</h3>
-              <p className={styles.emptyMessage}>Performance metrics coming soon.</p>
-            </div>
-
-            {/* Content Insights Widget (Placeholder) */}
-            <div className={styles.insightsWidget}>
-              <h3 className={styles.widgetTitle}>Content Insights</h3>
-              <p className={styles.emptyMessage}>Insights and recommendations coming soon.</p>
+              <h3 className={styles.widgetTitle}>Recent SEO Activity</h3>
+              {isLoadingStats ? (
+                <div className={styles.activityLoading}>Loading activity...</div>
+              ) : seoStats?.recentActivity && seoStats.recentActivity.length > 0 ? (
+                <div className={styles.activityFeed}>
+                  {seoStats.recentActivity.map((activity: any) => (
+                    <div key={activity.id} className={styles.activityItem}>
+                      <div className={styles.activityIcon}>
+                        {activity.type === 'hub' ? <FileText size={16} /> :
+                         activity.type === 'spoke' ? <LinkIcon size={16} /> :
+                         <ExternalLink size={16} />}
+                      </div>
+                      <div className={styles.activityContent}>
+                        <div className={styles.activityTitle}>
+                          <span className={styles.activityType}>{activity.type}</span>
+                          <span className={styles.activityAction}>{activity.action}</span>
+                        </div>
+                        <div className={styles.activityText}>{activity.title}</div>
+                        <div className={styles.activityTimestamp}>
+                          {new Date(activity.timestamp).toLocaleDateString('en-GB', {
+                            day: 'numeric',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className={styles.emptyMessage}>No recent SEO activity to display.</p>
+              )}
             </div>
           </div>
         </>

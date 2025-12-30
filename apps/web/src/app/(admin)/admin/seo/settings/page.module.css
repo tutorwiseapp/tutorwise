@@ -1,0 +1,453 @@
+/*
+ * Filename: src/app/(admin)/admin/seo/settings/page.module.css
+ * Purpose: Styles for SEO Settings admin page
+ * Created: 2025-12-29
+ * Pattern: Follows Dashboard hub layout pattern (Bookings)
+ */
+
+/* =====================================================
+ * Header & Tabs - Following Bookings pattern
+ * ===================================================== */
+
+.settingsHeader {
+  --hub-header-margin-top: 1.5rem;
+  --hub-header-margin-bottom: 0;
+  --hub-header-height: 3rem;
+  --hub-header-padding-x: 1rem;
+  --hub-header-actions-gap: 0.5rem;
+  --hub-header-actions-margin-left: 1rem;
+}
+
+@media (max-width: 767px) {
+  .settingsHeader {
+    --hub-header-margin-top: 0rem;
+  }
+}
+
+.settingsTabs {
+  --hub-tabs-margin-top: 3rem;
+  --hub-tabs-margin-bottom: 1rem;
+}
+
+@media (max-width: 767px) {
+  .settingsTabs {
+    --hub-tabs-margin-top: 0rem;
+  }
+}
+
+/* =====================================================
+ * Container & Layout
+ * ===================================================== */
+
+.settingsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 0;
+}
+
+/* =====================================================
+ * Sections
+ * ===================================================== */
+
+.section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.sectionDescription {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin: 0 0 1.5rem 0;
+}
+
+/* =====================================================
+ * Services Grid
+ * ===================================================== */
+
+.servicesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+}
+
+.serviceCard {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.serviceHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.serviceInfo {
+  flex: 1;
+}
+
+.serviceName {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 0.25rem 0;
+}
+
+.serviceDescription {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* =====================================================
+ * Status Badges
+ * ===================================================== */
+
+.statusBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.statusIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.statusHealthy {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+.statusDegraded {
+  background-color: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+}
+
+.statusDown {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.statusDisabled {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
+/* =====================================================
+ * Toggle Rows
+ * ===================================================== */
+
+.serviceToggles {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-top: 1px solid var(--color-border);
+  padding-top: 1rem;
+}
+
+.toggleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.toggleLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.labelText {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.labelHelp {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+/* =====================================================
+ * Toggle Switch
+ * ===================================================== */
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #e5e7eb;
+  transition: 0.3s;
+  border-radius: 26px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--color-primary);
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+input:disabled + .slider {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* =====================================================
+ * Indicators
+ * ===================================================== */
+
+.indicatorSuccess,
+.indicatorError {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.indicatorSuccess {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.indicatorError {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* =====================================================
+ * Health Stats
+ * ===================================================== */
+
+.healthStats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border-top: 1px solid var(--color-border);
+  padding-top: 1rem;
+  font-size: 13px;
+}
+
+.healthStat {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.statLabel {
+  color: var(--color-text-secondary);
+}
+
+.statValue {
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.statError {
+  color: #dc2626;
+}
+
+.errorMessage {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  color: #991b1b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.errorIcon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* =====================================================
+ * Fallback Options
+ * ===================================================== */
+
+.fallbackOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-left: 1.5rem;
+}
+
+.radioOption {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.radioOption:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-surface);
+}
+
+.radioOption input[type="radio"] {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.radioOption input[type="radio"]:checked ~ .radioContent {
+  color: var(--color-primary);
+}
+
+.radioContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.radioLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.radioDescription {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+/* =====================================================
+ * Testing Guide
+ * ===================================================== */
+
+.testingGuide {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.testingStep {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.stepNumber {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-primary);
+  color: white;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.stepContent {
+  flex: 1;
+}
+
+.stepContent h4 {
+  margin: 0 0 0.25rem 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.stepContent p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* =====================================================
+ * Responsive
+ * ===================================================== */
+
+@media (max-width: 768px) {
+  .servicesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .serviceHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .toggleRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
