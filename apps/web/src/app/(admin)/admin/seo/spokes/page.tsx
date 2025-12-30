@@ -310,7 +310,7 @@ export default function AdminSeoSpokesPage() {
                   title="Spoke Performance"
                   subtitle="Spoke activity over the last 30 days"
                   data={spokeStats?.spokePerformanceTrend || []}
-                  color="#8B5CF6"
+                  lineColor="#8B5CF6"
                 />
               )}
             </ErrorBoundary>
@@ -482,27 +482,31 @@ export default function AdminSeoSpokesPage() {
             document.body.removeChild(link);
           }}
           onRefresh={() => {
-            queryClient.invalidateQueries(['admin', 'seo-spokes']);
+            queryClient.invalidateQueries({ queryKey: ['admin', 'seo-spokes'] });
           }}
           autoRefreshInterval={300000}
           bulkActions={[
             {
               label: 'Publish Selected',
+              value: 'publish',
               onClick: (selectedIds) => {
                 console.log('Publish Selected:', selectedIds);
               },
             },
             {
               label: 'Archive Selected',
+              value: 'archive',
               onClick: (selectedIds) => {
                 console.log('Archive Selected:', selectedIds);
               },
             },
             {
               label: 'Delete Selected',
+              value: 'delete',
               onClick: (selectedIds) => {
                 console.log('Delete Selected:', selectedIds);
               },
+              variant: 'danger' as const,
             },
           ]}
           enableSavedViews={true}

@@ -357,21 +357,24 @@ export default function AdminSeoTemplatesPage() {
             URL.revokeObjectURL(url);
           }}
           onRefresh={() => {
-            queryClient.invalidateQueries(['admin', 'seo-templates']);
+            queryClient.invalidateQueries({ queryKey: ['admin', 'seo-templates'] });
           }}
           autoRefreshInterval={300000}
           bulkActions={[
             {
               label: 'Duplicate Selected',
+              value: 'duplicate',
               onClick: (selectedIds) => {
                 console.log('Duplicate Selected:', selectedIds);
               },
             },
             {
               label: 'Delete Selected',
+              value: 'delete',
               onClick: (selectedIds) => {
                 console.log('Delete Selected:', selectedIds);
               },
+              variant: 'danger' as const,
             },
           ]}
           enableSavedViews={true}
@@ -388,7 +391,7 @@ export default function AdminSeoTemplatesPage() {
               }}
               template={selectedTemplate}
               onTemplateUpdated={() => {
-                queryClient.invalidateQueries(['admin', 'seo-templates']);
+                queryClient.invalidateQueries({ queryKey: ['admin', 'seo-templates'] });
               }}
             />
           )}

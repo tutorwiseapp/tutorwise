@@ -191,28 +191,32 @@ export default function AdminSeoCitationsPage() {
 
   // Refresh handler
   const handleRefresh = () => {
-    queryClient.invalidateQueries(['admin', 'seo-citations']);
+    queryClient.invalidateQueries({ queryKey: ['admin', 'seo-citations'] });
   };
 
   // Bulk actions
   const bulkActions = [
     {
       label: 'Mark as Active',
+      value: 'mark_active',
       onClick: (selectedIds: string[]) => {
         console.log('Mark as Active:', selectedIds);
       },
     },
     {
       label: 'Mark as Broken',
+      value: 'mark_broken',
       onClick: (selectedIds: string[]) => {
         console.log('Mark as Broken:', selectedIds);
       },
     },
     {
       label: 'Delete Selected',
+      value: 'delete',
       onClick: (selectedIds: string[]) => {
         console.log('Delete Selected:', selectedIds);
       },
+      variant: 'danger' as const,
     },
   ];
 
@@ -417,7 +421,7 @@ export default function AdminSeoCitationsPage() {
                   title="Citation Status Trend"
                   subtitle="Citation activity over the last 30 days"
                   data={citationStats?.citationStatusTrend || []}
-                  color="#F59E0B"
+                  lineColor="#F59E0B"
                 />
               )}
             </ErrorBoundary>

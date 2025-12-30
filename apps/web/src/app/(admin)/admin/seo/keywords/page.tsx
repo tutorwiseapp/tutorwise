@@ -140,9 +140,9 @@ export default function AdminSeoKeywordsPage() {
     const diff = best - current; // Positive = improved (lower position number is better)
 
     if (diff > 0) {
-      return <TrendingUp className={styles.trendUp} title={`Improved by ${diff} positions`} />;
+      return <span title={`Improved by ${diff} positions`}><TrendingUp className={styles.trendUp} /></span>;
     } else if (diff < 0) {
-      return <TrendingDown className={styles.trendDown} title={`Declined by ${Math.abs(diff)} positions`} />;
+      return <span title={`Declined by ${Math.abs(diff)} positions`}><TrendingDown className={styles.trendDown} /></span>;
     }
     return null;
   };
@@ -314,8 +314,9 @@ export default function AdminSeoKeywordsPage() {
         loading={isLoading}
         onSearch={setSearchQuery}
         onFilterChange={(key, value) => {
-          if (key === 'priority') setPriorityFilter(value);
-          if (key === 'status') setStatusFilter(value);
+          const stringValue = Array.isArray(value) ? value[0] : value;
+          if (key === 'priority') setPriorityFilter(stringValue);
+          if (key === 'status') setStatusFilter(stringValue);
         }}
         filters={[
           {
@@ -328,7 +329,6 @@ export default function AdminSeoKeywordsPage() {
               { label: 'Medium', value: 'medium' },
               { label: 'Low', value: 'low' },
             ],
-            value: priorityFilter,
           },
         ]}
         pagination={{
@@ -348,9 +348,9 @@ export default function AdminSeoKeywordsPage() {
         getRowId={(row) => row.id}
         searchPlaceholder="Search keywords..."
         emptyMessage="No keywords found"
-        onExport={(selectedIds) => {
-          const dataToExport = selectedIds.length > 0
-            ? filteredKeywords.filter((kw) => selectedIds.includes(kw.id))
+        onExport={() => {
+          const dataToExport = selectedRows.size > 0
+            ? filteredKeywords.filter((kw) => selectedRows.has(kw.id))
             : filteredKeywords;
 
           const csvContent = [
@@ -377,27 +377,31 @@ export default function AdminSeoKeywordsPage() {
           URL.revokeObjectURL(url);
         }}
         onRefresh={() => {
-          queryClient.invalidateQueries(['admin', 'seo-keywords']);
+          queryClient.invalidateQueries({ queryKey: ['admin', 'seo-keywords'] });
         }}
         autoRefreshInterval={300000}
         bulkActions={[
           {
             label: 'Set Priority High',
+            value: 'set_priority_high',
             onClick: (selectedIds) => {
               console.log('Set Priority High for:', selectedIds);
             },
           },
           {
             label: 'Set Priority Critical',
+            value: 'set_priority_critical',
             onClick: (selectedIds) => {
               console.log('Set Priority Critical for:', selectedIds);
             },
           },
           {
             label: 'Delete Selected',
+            value: 'delete',
             onClick: (selectedIds) => {
               console.log('Delete Selected:', selectedIds);
             },
+            variant: 'danger' as const,
           },
         ]}
         enableSavedViews={true}

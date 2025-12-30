@@ -318,7 +318,6 @@ export default function AdminSeoConfigPage() {
           >
             <HubForm.Field
               label="Meta Title Template"
-              description="Template for page titles. Use {page_title} as placeholder."
               error={errors.metaTitleTemplate}
               required
             >
@@ -333,7 +332,6 @@ export default function AdminSeoConfigPage() {
 
             <HubForm.Field
               label="Meta Description Template"
-              description="Template for meta descriptions. Use {page_description} as placeholder."
             >
               <textarea
                 value={formData.metaDescriptionTemplate}
@@ -346,7 +344,6 @@ export default function AdminSeoConfigPage() {
 
             <HubForm.Field
               label="Default OG Image URL"
-              description="Default Open Graph image for social sharing"
             >
               <input
                 type="url"
@@ -359,7 +356,6 @@ export default function AdminSeoConfigPage() {
 
             <HubForm.Field
               label="OG Type"
-              description="Open Graph type for social sharing"
             >
               <select
                 value={formData.ogType}
@@ -378,7 +374,6 @@ export default function AdminSeoConfigPage() {
           >
             <HubForm.Field
               label="Hub URL Pattern"
-              description="URL pattern for hub pages. Use {slug} as placeholder."
             >
               <input
                 type="text"
@@ -391,7 +386,6 @@ export default function AdminSeoConfigPage() {
 
             <HubForm.Field
               label="Spoke URL Pattern"
-              description="URL pattern for spoke pages. Use {slug} as placeholder."
             >
               <input
                 type="text"
@@ -404,7 +398,6 @@ export default function AdminSeoConfigPage() {
 
             <HubForm.Field
               label="Canonical Base URL"
-              description="Base URL for canonical links"
               error={errors.canonicalBaseUrl}
               required
             >
@@ -424,7 +417,6 @@ export default function AdminSeoConfigPage() {
           >
             <HubToggle
               label="Enable Sitemap"
-              description="Automatically generate and update sitemap.xml"
               checked={formData.enableSitemap}
               onChange={(checked) => handleChange('enableSitemap', checked)}
               disabled={isLoading || !canUpdate}
@@ -432,7 +424,6 @@ export default function AdminSeoConfigPage() {
 
             <HubForm.Field
               label="Update Frequency"
-              description="How often the sitemap is regenerated"
             >
               <select
                 value={formData.updateFrequency}
@@ -451,7 +442,6 @@ export default function AdminSeoConfigPage() {
 
             <HubForm.Field
               label="Hub Priority"
-              description="SEO priority for hub pages (0.0 - 1.0)"
               error={errors.priorityHubs}
             >
               <input
@@ -467,7 +457,6 @@ export default function AdminSeoConfigPage() {
 
             <HubForm.Field
               label="Spoke Priority"
-              description="SEO priority for spoke pages (0.0 - 1.0)"
               error={errors.prioritySpokes}
             >
               <input
@@ -488,7 +477,6 @@ export default function AdminSeoConfigPage() {
           >
             <HubForm.Field
               label="Minimum Hub Word Count"
-              description="Minimum word count for hub pages"
             >
               <input
                 type="number"
@@ -501,7 +489,6 @@ export default function AdminSeoConfigPage() {
 
             <HubForm.Field
               label="Minimum Spoke Word Count"
-              description="Minimum word count for spoke pages"
             >
               <input
                 type="number"
@@ -514,7 +501,6 @@ export default function AdminSeoConfigPage() {
 
             <HubToggle
               label="Auto-generate Meta Descriptions"
-              description="Automatically generate meta descriptions from content"
               checked={formData.autoGenerateMetaDescriptions}
               onChange={(checked) => handleChange('autoGenerateMetaDescriptions', checked)}
               disabled={isLoading || !canUpdate}
@@ -522,7 +508,6 @@ export default function AdminSeoConfigPage() {
 
             <HubToggle
               label="Auto Internal Linking"
-              description="Automatically suggest internal links between hubs and spokes"
               checked={formData.autoInternalLinking}
               onChange={(checked) => handleChange('autoInternalLinking', checked)}
               disabled={isLoading || !canUpdate}
@@ -554,7 +539,6 @@ export default function AdminSeoConfigPage() {
           >
             <HubToggle
               label="Enable Schema Markup"
-              description="Add schema.org structured data to pages"
               checked={formData.enableSchemaMarkup}
               onChange={(checked) => handleChange('enableSchemaMarkup', checked)}
               disabled={isLoading || !canUpdate}
@@ -562,7 +546,6 @@ export default function AdminSeoConfigPage() {
 
             <HubForm.Field
               label="Default Hub Schema Type"
-              description="Schema.org type for hub pages"
             >
               <input
                 type="text"
@@ -575,7 +558,6 @@ export default function AdminSeoConfigPage() {
 
             <HubForm.Field
               label="Default Spoke Schema Type"
-              description="Schema.org type for spoke pages"
             >
               <input
                 type="text"
@@ -593,7 +575,6 @@ export default function AdminSeoConfigPage() {
           >
             <HubToggle
               label="Enable Robots.txt"
-              description="Generate robots.txt file automatically"
               checked={formData.enableRobotsTxt}
               onChange={(checked) => handleChange('enableRobotsTxt', checked)}
               disabled={isLoading || !canUpdate}
@@ -601,7 +582,6 @@ export default function AdminSeoConfigPage() {
 
             <HubToggle
               label="Allow Search Indexing"
-              description="Allow search engines to index your content"
               checked={formData.allowSearchIndexing}
               onChange={(checked) => handleChange('allowSearchIndexing', checked)}
               disabled={isLoading || !canUpdate || !formData.enableRobotsTxt}
@@ -609,7 +589,6 @@ export default function AdminSeoConfigPage() {
 
             <HubForm.Field
               label="Crawl Delay (seconds)"
-              description="Delay between crawler requests (0 = no delay)"
             >
               <input
                 type="number"
@@ -627,7 +606,6 @@ export default function AdminSeoConfigPage() {
           >
             <HubToggle
               label="Enable Image Lazy Loading"
-              description="Defer loading of images until they're visible"
               checked={formData.enableImageLazyLoading}
               onChange={(checked) => handleChange('enableImageLazyLoading', checked)}
               disabled={isLoading || !canUpdate}
@@ -635,7 +613,6 @@ export default function AdminSeoConfigPage() {
 
             <HubToggle
               label="Enable CDN"
-              description="Use Content Delivery Network for assets"
               checked={formData.enableCdn}
               onChange={(checked) => handleChange('enableCdn', checked)}
               disabled={isLoading || !canUpdate}
@@ -643,7 +620,6 @@ export default function AdminSeoConfigPage() {
 
             <HubForm.Field
               label="CDN Base URL"
-              description="Base URL for CDN resources"
             >
               <input
                 type="url"
@@ -656,7 +632,6 @@ export default function AdminSeoConfigPage() {
 
             <HubForm.Field
               label="Cache TTL (minutes)"
-              description="Time-to-live for cached content"
             >
               <input
                 type="number"
@@ -674,7 +649,6 @@ export default function AdminSeoConfigPage() {
           >
             <HubToggle
               label="Enable Google Search Console"
-              description="Integrate with Google Search Console for SEO insights"
               checked={formData.enableGoogleSearchConsole}
               onChange={(checked) => handleChange('enableGoogleSearchConsole', checked)}
               disabled={isLoading || !canUpdate}
@@ -682,7 +656,6 @@ export default function AdminSeoConfigPage() {
 
             <HubForm.Field
               label="Search Console Property URL"
-              description="Your Google Search Console property URL"
             >
               <input
                 type="url"
@@ -695,7 +668,6 @@ export default function AdminSeoConfigPage() {
 
             <HubForm.Field
               label="Google Analytics ID"
-              description="Google Analytics measurement ID (e.g., G-XXXXXXXXXX)"
             >
               <input
                 type="text"
@@ -708,7 +680,6 @@ export default function AdminSeoConfigPage() {
 
             <HubToggle
               label="Track Internal Links"
-              description="Track internal link clicks for SEO analytics"
               checked={formData.trackInternalLinks}
               onChange={(checked) => handleChange('trackInternalLinks', checked)}
               disabled={isLoading || !canUpdate}

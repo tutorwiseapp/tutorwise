@@ -319,9 +319,9 @@ export default function AdminSeoBacklinksPage() {
         getRowId={(bl) => bl.id}
         searchPlaceholder="Search backlinks..."
         emptyMessage="No backlinks found"
-        onExport={(selectedIds) => {
-          const dataToExport = selectedIds.length > 0
-            ? filteredBacklinks.filter((bl) => selectedIds.includes(bl.id))
+        onExport={() => {
+          const dataToExport = selectedRows.size > 0
+            ? filteredBacklinks.filter((bl) => selectedRows.has(bl.id))
             : filteredBacklinks;
 
           const csvContent = [
@@ -348,27 +348,31 @@ export default function AdminSeoBacklinksPage() {
           URL.revokeObjectURL(url);
         }}
         onRefresh={() => {
-          queryClient.invalidateQueries(['admin', 'seo-backlinks']);
+          queryClient.invalidateQueries({ queryKey: ['admin', 'seo-backlinks'] });
         }}
         autoRefreshInterval={300000}
         bulkActions={[
           {
             label: 'Mark as Lost',
+            value: 'mark_lost',
             onClick: (selectedIds) => {
               console.log('Mark as Lost:', selectedIds);
             },
           },
           {
             label: 'Mark as Active',
+            value: 'mark_active',
             onClick: (selectedIds) => {
               console.log('Mark as Active:', selectedIds);
             },
           },
           {
             label: 'Delete Selected',
+            value: 'delete',
             onClick: (selectedIds) => {
               console.log('Delete Selected:', selectedIds);
             },
+            variant: 'danger' as const,
           },
         ]}
         enableSavedViews={true}

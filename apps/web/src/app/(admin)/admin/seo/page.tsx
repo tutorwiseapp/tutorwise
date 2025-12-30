@@ -256,7 +256,7 @@ export default function AdminSeoOverviewPage() {
                   title="Hub Performance Trend"
                   subtitle="Hub views over the last 30 days"
                   data={seoStats?.hubViewsTrend || []}
-                  color="#10B981"
+                  lineColor="#10B981"
                 />
               )}
             </ErrorBoundary>

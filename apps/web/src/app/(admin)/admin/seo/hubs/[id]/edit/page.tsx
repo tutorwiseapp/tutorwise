@@ -324,13 +324,12 @@ export default function HubEditPage() {
         <HubHeader
           title={isNew ? 'Create New Hub' : 'Edit Hub'}
           subtitle={isNew ? 'Create SEO-optimized pillar content' : `Editing: ${hub?.title || ''}`}
-          icon={FileText}
           actions={
             <div className={styles.headerActions}>
-              <Button variant="outline" onClick={() => router.push('/admin/seo/hubs')}>
+              <Button variant="secondary" onClick={() => router.push('/admin/seo/hubs')}>
                 Cancel
               </Button>
-              <Button variant="outline" onClick={handleSave} disabled={!canUpdate || saveMutation.isPending}>
+              <Button variant="secondary" onClick={handleSave} disabled={!canUpdate || saveMutation.isPending}>
                 <Save className={styles.buttonIcon} />
                 Save Draft
               </Button>

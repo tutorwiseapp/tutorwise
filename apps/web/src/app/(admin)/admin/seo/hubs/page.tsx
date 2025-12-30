@@ -301,7 +301,7 @@ export default function AdminSeoHubsPage() {
                   title="Hub Performance"
                   subtitle="Hub activity over the last 30 days"
                   data={hubStats?.hubPerformanceTrend || []}
-                  color="#3B82F6"
+                  lineColor="#3B82F6"
                 />
               )}
             </ErrorBoundary>
@@ -442,12 +442,12 @@ export default function AdminSeoHubsPage() {
             URL.revokeObjectURL(url);
           }}
           onRefresh={() => {
-            queryClient.invalidateQueries(['admin', 'seo-hubs']);
+            queryClient.invalidateQueries({ queryKey: ['admin', 'seo-hubs'] });
           }}
           autoRefreshInterval={300000}
           bulkActions={[
             {
-              id: 'publish',
+              value: 'publish',
               label: 'Publish Selected',
               onClick: (selectedIds) => {
                 console.warn('Publish Selected functionality needs to be implemented');
@@ -455,7 +455,7 @@ export default function AdminSeoHubsPage() {
               },
             },
             {
-              id: 'archive',
+              value: 'archive',
               label: 'Archive Selected',
               onClick: (selectedIds) => {
                 console.warn('Archive Selected functionality needs to be implemented');
@@ -463,12 +463,13 @@ export default function AdminSeoHubsPage() {
               },
             },
             {
-              id: 'delete',
+              value: 'delete',
               label: 'Delete Selected',
               onClick: (selectedIds) => {
                 console.warn('Delete Selected functionality needs to be implemented');
                 console.log('Selected hub IDs:', selectedIds);
               },
+              variant: 'danger' as const,
             },
           ]}
           enableSavedViews={true}
