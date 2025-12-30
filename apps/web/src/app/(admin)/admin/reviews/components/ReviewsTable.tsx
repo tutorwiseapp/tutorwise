@@ -20,6 +20,9 @@ import { formatIdForDisplay } from '@/lib/utils/formatId';
 import type { ProfileReview } from '@/types/reviews';
 import styles from './ReviewsTable.module.css';
 import { Star, StarOff, CheckCircle, XCircle, Filter as FilterIcon } from 'lucide-react';
+import StatusBadge from '@/app/components/admin/badges/StatusBadge';
+import { exportToCSV, CSVFormatters, type CSVColumn } from '@/lib/utils/exportToCSV';
+import { ADMIN_TABLE_DEFAULTS } from '@/constants/admin';
 
 // Local date formatting helper
 const formatDate = (dateString: string, format?: string): string => {
@@ -54,15 +57,15 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
   const queryClient = useQueryClient();
 
   // Pagination state
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(25);
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(ADMIN_TABLE_DEFAULTS.PAGE_SIZE);
 
   // Sorting state
   const [sortKey, setSortKey] = useState<string>('created_at');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   // Filter state
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [ratingFilter, setRatingFilter] = useState<string>('all');
   const [verifiedFilter, setVerifiedFilter] = useState<string>('all');
@@ -84,6 +87,15 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
     if (rating >= 3) return 'neutral';
     return 'negative';
   };
+
+  // Helper function to map review session status to StatusBadge variant
+  function getReviewStatusVariant(status: string | undefined) {
+    if (!status) return 'pending' as const;
+    const statusLower = status.toLowerCase();
+    if (statusLower === 'published') return 'published' as const;
+    if (statusLower === 'expired') return 'removed' as const;
+    return 'pending' as const;
+  }
 
   // Data fetching with React Query
   const { data, isLoading, error, refetch } = useQuery({
@@ -207,7 +219,7 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
         total: count || 0,
       };
     },
-    staleTime: 60 * 1000, // 60s
+    staleTime: ADMIN_TABLE_DEFAULTS.STALE_TIME,
     retry: 2,
   });
 
@@ -422,9 +434,10 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
         render: (review) => {
           const status = review.session?.status || 'pending';
           return (
-            <span className={styles[`status${status.charAt(0).toUpperCase()}${status.slice(1)}`]}>
-              {status.charAt(0).toUpperCase() + status.slice(1)}
-            </span>
+            <StatusBadge
+              variant={getReviewStatusVariant(status)}
+              label={status.charAt(0).toUpperCase() + status.slice(1)}
+            />
           );
         },
       },
@@ -541,51 +554,35 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
   const handleExport = () => {
     if (!data?.reviews) return;
 
-    // Create CSV header
-    const headers = [
-      'ID',
-      'Reviewed',
-      'Service',
-      'Reviewer',
-      'Reviewee',
-      'Rating',
-      'Sentiment',
-      'Status',
-      'Helpful',
-      'Verified',
-      'Comment',
+    const columns: CSVColumn<ProfileReview>[] = [
+      { key: 'id', header: 'ID', format: (value) => formatIdForDisplay(value as string) },
+      { key: 'created_at', header: 'Reviewed', format: CSVFormatters.date },
+      { key: 'service_name', header: 'Service', format: (value) => value || 'N/A' },
+      { key: 'reviewer', header: 'Reviewer', format: (value: any) => value?.full_name || 'N/A' },
+      { key: 'reviewee', header: 'Reviewee', format: (value: any) => value?.full_name || 'N/A' },
+      { key: 'rating', header: 'Rating', format: (value) => (value as number).toFixed(1) },
+      {
+        key: 'rating',
+        header: 'Sentiment',
+        format: (value) => {
+          const sentiment = getSentiment(value as number);
+          return sentiment.charAt(0).toUpperCase() + sentiment.slice(1);
+        },
+      },
+      {
+        key: 'session',
+        header: 'Status',
+        format: (value: any) => {
+          const status = value?.status || 'pending';
+          return status.charAt(0).toUpperCase() + status.slice(1);
+        },
+      },
+      { key: 'metadata', header: 'Helpful', format: (value: any) => String(value?.helpful_count || 0) },
+      { key: 'metadata', header: 'Verified', format: (value: any) => (value?.verified ? 'Yes' : 'No') },
+      { key: 'comment', header: 'Comment', format: (value) => value || '' },
     ];
 
-    // Create CSV rows
-    const rows = data.reviews.map((review) => {
-      const sentiment = getSentiment(review.rating);
-      const status = review.session?.status || 'pending';
-      return [
-        formatIdForDisplay(review.id),
-        formatDate(review.created_at, 'dd MMM yyyy'),
-        review.service_name || 'N/A',
-        review.reviewer?.full_name || 'N/A',
-        review.reviewee?.full_name || 'N/A',
-        review.rating.toFixed(1),
-        sentiment.charAt(0).toUpperCase() + sentiment.slice(1),
-        status.charAt(0).toUpperCase() + status.slice(1),
-        review.metadata?.helpful_count || 0,
-        review.metadata?.verified ? 'Yes' : 'No',
-        review.comment || '',
-      ];
-    });
-
-    // Combine headers and rows
-    const csv = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n');
-
-    // Download CSV
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `reviews-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    exportToCSV(data.reviews, columns, 'reviews');
   };
 
   // Filters configuration
@@ -638,9 +635,10 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
       <div className={styles.mobileCard} onClick={() => setSelectedReview(review)}>
         <div className={styles.mobileCardHeader}>
           <span className={styles.mobileId}>{formatIdForDisplay(review.id)}</span>
-          <span className={styles[`status${status.charAt(0).toUpperCase()}${status.slice(1)}`]}>
-            {status.charAt(0).toUpperCase() + status.slice(1)}
-          </span>
+          <StatusBadge
+            variant={getReviewStatusVariant(status)}
+            label={status.charAt(0).toUpperCase() + status.slice(1)}
+          />
         </div>
 
         <div className={styles.mobileCardBody}>
@@ -725,7 +723,7 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
         bulkActions={bulkActions}
         onRefresh={() => refetch()}
         onExport={handleExport}
-        autoRefreshInterval={30000}
+        autoRefreshInterval={ADMIN_TABLE_DEFAULTS.REFRESH_FAST}
         enableSavedViews={true}
         savedViewsKey="admin-reviews-views"
         emptyMessage="No reviews found"
