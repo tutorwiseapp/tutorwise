@@ -40,41 +40,31 @@ import { Filter as FilterIcon, Save, MoreVertical } from 'lucide-react';
 import styles from './ReferralsTable.module.css';
 import AdvancedFiltersDrawer, { AdvancedFilters } from './AdvancedFiltersDrawer';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
+import StatusBadge from '@/app/components/admin/badges/StatusBadge';
+import { exportToCSV, CSVFormatters, type CSVColumn } from '@/lib/utils/exportToCSV';
+import { ADMIN_TABLE_DEFAULTS } from '@/constants/admin';
 
-// Status badge component
-function StatusBadge({ status }: { status: string }) {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Converted':
-        return styles.statusConverted;
-      case 'Signed Up':
-        return styles.statusSignedUp;
-      case 'Referred':
-        return styles.statusReferred;
-      case 'Expired':
-      default:
-        return styles.statusExpired;
-    }
-  };
-
-  return (
-    <span className={`${styles.statusBadge} ${getStatusColor(status)}`}>
-      {status}
-    </span>
-  );
+// Helper to map referral status to badge variant
+function getReferralStatusVariant(status: string) {
+  const statusLower = status.toLowerCase();
+  if (statusLower === 'converted') return 'completed' as const;
+  if (statusLower === 'signed up') return 'confirmed' as const;
+  if (statusLower === 'referred') return 'pending' as const;
+  if (statusLower === 'expired') return 'cancelled' as const;
+  return 'neutral' as const;
 }
 
 export default function ReferralsTable() {
   const supabase = createClient();
 
   // Table state
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20);
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(ADMIN_TABLE_DEFAULTS.PAGE_SIZE);
   const [sortKey, setSortKey] = useState<string>('created_at');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [agentFilter, setAgentFilter] = useState('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [agentFilter, setAgentFilter] = useState<string>('');
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
 
   // Advanced filters state
@@ -186,7 +176,7 @@ export default function ReferralsTable() {
         total: count || 0,
       };
     },
-    staleTime: 60 * 1000, // 1 minute
+    staleTime: ADMIN_TABLE_DEFAULTS.STALE_TIME,
     retry: 2,
   });
 
@@ -219,66 +209,55 @@ export default function ReferralsTable() {
     return `${day} ${month} ${year}`;
   };
 
-  // Handle export to CSV
+  // Handle export to CSV using shared utility
   const handleExport = () => {
     if (!data?.referrals) return;
 
-    // Create CSV header
-    const headers = [
-      'ID',
-      'Created',
-      'Status',
-      'Agent',
-      'Referred User',
-      'Other Party',
-      'Converted At',
-      'First Booking',
-      'Commission',
-      'Attribution',
+    const columns: CSVColumn<any>[] = [
+      { key: 'id', header: 'ID', format: (value) => formatIdForDisplay(value, 'full') },
+      { key: 'created_at', header: 'Created', format: (value) => CSVFormatters.date(value) },
+      { key: 'status', header: 'Status' },
+      {
+        key: 'agent',
+        header: 'Agent',
+        format: (value: any) => value?.full_name || '—',
+      },
+      {
+        key: 'referred_user',
+        header: 'Referred User',
+        format: (value: any) => value?.full_name || 'Not signed up',
+      },
+      {
+        key: 'id',
+        header: 'Other Party',
+        format: (value, row: any) => {
+          const firstBooking = row.first_booking;
+          const referredUser = row.referred_user;
+          const client = firstBooking ? firstBooking.client : null;
+          const tutor = firstBooking ? firstBooking.tutor : null;
+          const otherParty = referredUser && client && referredUser.id === client.id ? tutor : client;
+          return otherParty?.full_name || '—';
+        },
+      },
+      { key: 'converted_at', header: 'Converted At', format: (value) => CSVFormatters.date(value) },
+      {
+        key: 'first_booking',
+        header: 'First Booking',
+        format: (value: any) => value?.service_name || '—',
+      },
+      {
+        key: 'first_commission',
+        header: 'Commission',
+        format: (value: any) => (value ? CSVFormatters.currency(value.amount) : '—'),
+      },
+      {
+        key: 'attribution_method',
+        header: 'Attribution',
+        format: (value) => value || 'Unknown',
+      },
     ];
 
-    // Create CSV rows
-    const rows = data.referrals.map((referral) => {
-      const agent = (referral as any).agent;
-      const referredUser = (referral as any).referred_user;
-      const firstBooking = (referral as any).first_booking;
-      const firstCommission = (referral as any).first_commission;
-
-      // Determine other party
-      const client = firstBooking ? (firstBooking as any).client : null;
-      const tutor = firstBooking ? (firstBooking as any).tutor : null;
-      const otherParty = referredUser && client && referredUser.id === client.id ? tutor : client;
-
-      return [
-        formatIdForDisplay(referral.id, 'full'),
-        formatDate(referral.created_at),
-        referral.status,
-        agent?.full_name || '—',
-        referredUser?.full_name || 'Not signed up',
-        otherParty?.full_name || '—',
-        formatDate(referral.converted_at),
-        firstBooking?.service_name || '—',
-        firstCommission ? formatCurrency(firstCommission.amount) : '—',
-        (referral as any).attribution_method || 'Unknown',
-      ];
-    });
-
-    // Combine headers and rows
-    const csvContent = [
-      headers.join(','),
-      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
-    ].join('\n');
-
-    // Create download link
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `referrals_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    exportToCSV(data.referrals, columns, 'referrals');
   };
 
   // Close actions menu when clicking outside
@@ -319,7 +298,9 @@ export default function ReferralsTable() {
       key: 'status',
       label: 'Status',
       sortable: true,
-      render: (referral: Referral) => <StatusBadge status={referral.status} />,
+      render: (referral: Referral) => (
+        <StatusBadge variant={getReferralStatusVariant(referral.status)} label={referral.status} />
+      ),
     },
     {
       key: 'agent',
@@ -587,7 +568,7 @@ export default function ReferralsTable() {
       >
         <div className={styles.mobileCardHeader}>
           <span className={styles.mobileCardId}>{formatIdForDisplay(referral.id)}</span>
-          <StatusBadge status={referral.status} />
+          <StatusBadge variant={getReferralStatusVariant(referral.status)} label={referral.status} />
         </div>
         <div className={styles.mobileCardBody}>
           <div className={styles.mobileCardRow}>
@@ -667,7 +648,7 @@ export default function ReferralsTable() {
         pagination={paginationConfig}
         filters={filters}
         bulkActions={bulkActions}
-        autoRefreshInterval={30000}
+        autoRefreshInterval={ADMIN_TABLE_DEFAULTS.REFRESH_FAST}
         enableSavedViews={true}
         savedViewsKey="admin_referrals_savedViews"
         searchPlaceholder="Search by agent or referred user..."
