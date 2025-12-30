@@ -12,6 +12,10 @@ import { useQuery } from '@tanstack/react-query';
 import { HubDataTable } from '@/app/components/hub/data';
 import type { Column, Filter, PaginationConfig } from '@/app/components/hub/data';
 import { MoreVertical, Filter as FilterIcon } from 'lucide-react';
+import StatusBadge from '@/app/components/admin/badges/StatusBadge';
+import { exportToCSV, CSVFormatters, type CSVColumn } from '@/lib/utils/exportToCSV';
+import { ADMIN_TABLE_DEFAULTS } from '@/constants/admin';
+import { formatIdForDisplay } from '@/lib/utils/formatId';
 import styles from './TransactionsTable.module.css';
 
 // Transaction type
@@ -35,37 +39,22 @@ interface AdvancedFilters {
   type: string;
 }
 
-// Status badge component
-function StatusBadge({ status }: { status: string }) {
-  const getBadgeClass = () => {
-    switch (status) {
-      case 'clearing':
-        return styles.badgeClearing;
-      case 'available':
-        return styles.badgeAvailable;
-      case 'paid_out':
-        return styles.badgePaidOut;
-      case 'disputed':
-        return styles.badgeDisputed;
-      case 'refunded':
-        return styles.badgeRefunded;
-      default:
-        return styles.badgeDefault;
-    }
-  };
-
-  return (
-    <span className={`${styles.badge} ${getBadgeClass()}`}>
-      {status.replace('_', ' ')}
-    </span>
-  );
+// Status variant helper
+function getTransactionStatusVariant(status: string) {
+  const statusLower = status.toLowerCase();
+  if (statusLower === 'available') return 'completed' as const;
+  if (statusLower === 'paid_out') return 'paid' as const;
+  if (statusLower === 'clearing') return 'processing' as const;
+  if (statusLower === 'disputed') return 'flagged' as const;
+  if (statusLower === 'refunded') return 'refunded' as const;
+  return 'neutral' as const;
 }
 
 export default function TransactionsTable() {
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(ADMIN_TABLE_DEFAULTS.PAGE_SIZE);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
 
@@ -97,8 +86,8 @@ export default function TransactionsTable() {
         total: 0
       };
     },
-    staleTime: 30 * 1000,
-    refetchInterval: 30 * 1000,
+    staleTime: ADMIN_TABLE_DEFAULTS.STALE_TIME,
+    refetchInterval: ADMIN_TABLE_DEFAULTS.REFRESH_FAST,
   });
 
   const transactions = transactionsData?.transactions || [];
@@ -180,7 +169,12 @@ export default function TransactionsTable() {
       key: 'status',
       label: 'Status',
       width: '13%',
-      render: (txn) => <StatusBadge status={txn.status} />
+      render: (txn) => (
+        <StatusBadge
+          variant={getTransactionStatusVariant(txn.status)}
+          label={txn.status.replace('_', ' ')}
+        />
+      )
     },
     {
       key: 'actions',
@@ -260,28 +254,18 @@ export default function TransactionsTable() {
   const handleExport = () => {
     if (!transactions.length) return;
 
-    const headers = ['Date', 'User', 'Description', 'Type', 'Amount', 'Status'];
-    const rows = transactions.map((txn) => [
-      formatDate(txn.created_at),
-      txn.user_email || '',
-      txn.description || '',
-      txn.type || '',
-      formatCurrency(txn.amount),
-      txn.status || '',
-    ]);
+    const columns: CSVColumn<Transaction>[] = [
+      { key: 'id', header: 'ID', format: (value) => formatIdForDisplay(value as string) },
+      { key: 'created_at', header: 'Date', format: CSVFormatters.date },
+      { key: 'user_email', header: 'User Email', format: (value) => value || 'N/A' },
+      { key: 'user_name', header: 'User Name', format: (value) => value || 'N/A' },
+      { key: 'description', header: 'Description', format: (value) => value || 'N/A' },
+      { key: 'type', header: 'Type', format: (value) => value || 'N/A' },
+      { key: 'amount', header: 'Amount (£)', format: (value) => formatCurrency(value as number) },
+      { key: 'status', header: 'Status', format: (value) => (value as string).replace('_', ' ') },
+    ];
 
-    const csvContent = [
-      headers.join(','),
-      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `transactions-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    exportToCSV(transactions, columns, 'transactions');
   };
 
   return (
@@ -297,7 +281,7 @@ export default function TransactionsTable() {
         pagination={pagination}
         emptyMessage={error ? `Error loading transactions: ${error.message}` : "No transactions found."}
         searchPlaceholder="Search by user, description, or type..."
-        autoRefreshInterval={30000}
+        autoRefreshInterval={ADMIN_TABLE_DEFAULTS.REFRESH_FAST}
         enableSavedViews={true}
         savedViewsKey="admin_transactions_savedViews"
         toolbarActions={
