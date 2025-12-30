@@ -39,42 +39,32 @@ import Button from '@/app/components/ui/actions/Button';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import styles from './ListingsTable.module.css';
 import AdvancedFiltersDrawer, { AdvancedFilters } from './AdvancedFiltersDrawer';
+import StatusBadge from '@/app/components/admin/badges/StatusBadge';
+import { exportToCSV, CSVFormatters, type CSVColumn } from '@/lib/utils/exportToCSV';
+import { ADMIN_TABLE_DEFAULTS } from '@/constants/admin';
 
-// Status badge component
-function StatusBadge({ status }: { status: string }) {
-  const getStatusClass = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case 'published':
-        return styles.statusPublished;
-      case 'draft':
-        return styles.statusDraft;
-      case 'archived':
-        return styles.statusArchived;
-      default:
-        return styles.statusDraft;
-    }
-  };
-
-  return (
-    <span className={`${styles.statusBadge} ${getStatusClass(status)}`}>
-      {status}
-    </span>
-  );
+// Helper function to map listing status to StatusBadge variant
+function getListingStatusVariant(status: string) {
+  const statusLower = status?.toLowerCase();
+  if (statusLower === 'published') return 'published' as const;
+  if (statusLower === 'draft') return 'pending' as const;
+  if (statusLower === 'archived') return 'removed' as const;
+  return 'neutral' as const;
 }
 
 export default function ListingsTable() {
   const supabase = createClient();
 
   // Table state
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20);
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(ADMIN_TABLE_DEFAULTS.PAGE_SIZE);
   const [sortKey, setSortKey] = useState<string>('created_at');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [categoryFilter, setCategoryFilter] = useState('all');
-  const [locationTypeFilter, setLocationTypeFilter] = useState('all');
-  const [priceRangeFilter, setPriceRangeFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [locationTypeFilter, setLocationTypeFilter] = useState<string>('all');
+  const [priceRangeFilter, setPriceRangeFilter] = useState<string>('all');
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
 
   // Advanced filters state
@@ -236,7 +226,7 @@ export default function ListingsTable() {
         total: count || 0,
       };
     },
-    staleTime: 60 * 1000, // 1 minute
+    staleTime: ADMIN_TABLE_DEFAULTS.STALE_TIME,
     retry: 2,
   });
 
@@ -295,6 +285,25 @@ export default function ListingsTable() {
       createdAfter: '',
       createdBefore: '',
     });
+  };
+
+  // Handle export to CSV
+  const handleExport = () => {
+    if (!data?.listings) return;
+
+    const columns: CSVColumn<Listing>[] = [
+      { key: 'id', header: 'ID', format: (value) => formatIdForDisplay(value as string) },
+      { key: 'created_at', header: 'Created', format: CSVFormatters.date },
+      { key: 'title', header: 'Title' },
+      { key: 'tutor', header: 'Tutor', format: (value: any) => value?.full_name || 'N/A' },
+      { key: 'subjects', header: 'Subjects', format: CSVFormatters.array },
+      { key: 'status', header: 'Status' },
+      { key: 'view_count', header: 'Views', format: (value) => String(value || 0) },
+      { key: 'booking_count', header: 'Bookings', format: (value) => String(value || 0) },
+      { key: 'hourly_rate', header: 'Price (£/hr)', format: (value) => CSVFormatters.currency(value as number) },
+    ];
+
+    exportToCSV(data.listings, columns, 'listings');
   };
 
   // Define columns - UNIVERSAL COLUMN ORDER: ID → Date → Service → Domain → Actions
@@ -389,7 +398,9 @@ export default function ListingsTable() {
       label: 'Status',
       width: '120px',
       sortable: true,
-      render: (listing) => <StatusBadge status={listing.status} />,
+      render: (listing) => (
+        <StatusBadge variant={getListingStatusVariant(listing.status)} label={listing.status} />
+      ),
     },
     {
       key: 'view_count',
@@ -634,7 +645,7 @@ export default function ListingsTable() {
       <div className={styles.mobileCardHeader}>
         <div className={styles.mobileCardTitle}>
           <h3>{listing.title}</h3>
-          <StatusBadge status={listing.status} />
+          <StatusBadge variant={getListingStatusVariant(listing.status)} label={listing.status} />
         </div>
         <div className={styles.mobileCardSubtitle}>
           <span>#{listing.id.slice(0, 8)}</span>
@@ -752,8 +763,9 @@ export default function ListingsTable() {
           setSortDirection(direction);
         }}
         bulkActions={bulkActions}
-        autoRefreshInterval={30000} // 30 seconds
+        autoRefreshInterval={ADMIN_TABLE_DEFAULTS.REFRESH_FAST}
         onRefresh={() => refetch()}
+        onExport={handleExport}
         enableSavedViews={true}
         savedViewsKey="admin-listings-views"
         searchPlaceholder="Search by title, description..."
