@@ -270,10 +270,11 @@ export default function AdminSeoBacklinksPage() {
           setCurrentPage(1);
         }}
         onFilterChange={(key, value) => {
+          const stringValue = Array.isArray(value) ? value[0] : value;
           if (key === 'status') {
-            setStatusFilter(value);
+            setStatusFilter(stringValue as typeof statusFilter);
           } else if (key === 'type') {
-            setTypeFilter(value);
+            setTypeFilter(stringValue as typeof typeFilter);
           }
           setCurrentPage(1);
         }}
@@ -281,8 +282,6 @@ export default function AdminSeoBacklinksPage() {
           {
             key: 'status',
             label: 'Status',
-            type: 'select' as const,
-            value: statusFilter,
             options: [
               { label: 'All', value: 'all' },
               { label: 'Active', value: 'active' },
@@ -294,8 +293,6 @@ export default function AdminSeoBacklinksPage() {
           {
             key: 'type',
             label: 'Type',
-            type: 'select' as const,
-            value: typeFilter,
             options: [
               { label: 'All', value: 'all' },
               { label: 'Dofollow', value: 'dofollow' },
