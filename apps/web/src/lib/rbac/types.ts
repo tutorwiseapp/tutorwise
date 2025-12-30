@@ -12,6 +12,8 @@ export type AdminResource =
   | 'listings'
   | 'bookings'
   | 'reviews'
+  | 'referrals'
+  | 'organisations'
   | 'financials'
   | 'disputes'
   | 'reports'

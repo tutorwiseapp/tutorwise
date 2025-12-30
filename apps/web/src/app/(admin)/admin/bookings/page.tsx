@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { usePermission } from '@/lib/rbac';
 import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type TrendDataPoint, type CategoryData } from '@/app/components/hub/charts';
 import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
+import { useAdminTrendData } from '@/hooks/useAdminTrendData';
 import BookingsTable from './components/BookingsTable';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
@@ -62,38 +63,24 @@ export default function AdminBookingsOverviewPage() {
     return `${hours.toFixed(1)}h`;
   };
 
-  // Mock data for charts (TODO: Replace with real API data)
-  const [isLoadingCharts] = useState(false);
+  // Fetch trend data from platform_statistics_daily (last 7 days)
+  const bookingTrendsQuery = useAdminTrendData({ metric: 'bookings_total', days: 7 });
+  const revenueTrendsQuery = useAdminTrendData({ metric: 'bookings_revenue', days: 7 });
+
+  const isLoadingCharts = bookingTrendsQuery.isLoading || revenueTrendsQuery.isLoading;
 
   // Booking trends data (last 7 days)
-  const bookingTrendsData: TrendDataPoint[] = [
-    { date: '2025-12-20', value: totalBookingsMetric.value * 0.12, label: '20 Dec' },
-    { date: '2025-12-21', value: totalBookingsMetric.value * 0.14, label: '21 Dec' },
-    { date: '2025-12-22', value: totalBookingsMetric.value * 0.15, label: '22 Dec' },
-    { date: '2025-12-23', value: totalBookingsMetric.value * 0.13, label: '23 Dec' },
-    { date: '2025-12-24', value: totalBookingsMetric.value * 0.16, label: '24 Dec' },
-    { date: '2025-12-25', value: totalBookingsMetric.value * 0.14, label: '25 Dec' },
-    { date: '2025-12-26', value: totalBookingsMetric.value * 0.16, label: '26 Dec' },
-  ];
+  const bookingTrendsData: TrendDataPoint[] = bookingTrendsQuery.data || [];
 
-  // Booking status breakdown data
+  // Booking status breakdown data (using real metrics)
   const bookingStatusData: CategoryData[] = [
     { label: 'Completed', value: completedBookingsMetric.value, color: '#10B981' },
     { label: 'Pending', value: pendingBookingsMetric.value, color: '#F59E0B' },
-    { label: 'Confirmed', value: Math.floor(totalBookingsMetric.value * 0.2), color: '#3B82F6' },
     { label: 'Cancelled', value: cancelledBookingsMetric.value, color: '#EF4444' },
   ];
 
   // Revenue trends data (last 7 days)
-  const revenueTrendsData: TrendDataPoint[] = [
-    { date: '2025-12-20', value: revenueMetric.value * 0.12, label: '20 Dec' },
-    { date: '2025-12-21', value: revenueMetric.value * 0.14, label: '21 Dec' },
-    { date: '2025-12-22', value: revenueMetric.value * 0.15, label: '22 Dec' },
-    { date: '2025-12-23', value: revenueMetric.value * 0.13, label: '23 Dec' },
-    { date: '2025-12-24', value: revenueMetric.value * 0.16, label: '24 Dec' },
-    { date: '2025-12-25', value: revenueMetric.value * 0.14, label: '25 Dec' },
-    { date: '2025-12-26', value: revenueMetric.value * 0.16, label: '26 Dec' },
-  ];
+  const revenueTrendsData: TrendDataPoint[] = revenueTrendsQuery.data || [];
 
   return (
     <HubPageLayout
