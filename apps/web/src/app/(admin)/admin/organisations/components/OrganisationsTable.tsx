@@ -18,6 +18,8 @@ import { MoreVertical, Filter as FilterIcon } from 'lucide-react';
 import AdminOrganisationDetailModal from './AdminOrganisationDetailModal';
 import AdvancedFiltersDrawer, { type AdvancedFilters } from './AdvancedFiltersDrawer';
 import styles from './OrganisationsTable.module.css';
+import { exportToCSV, CSVFormatters, type CSVColumn } from '@/lib/utils/exportToCSV';
+import { ADMIN_TABLE_DEFAULTS } from '@/constants/admin';
 
 // Organisation interface (from connection_groups)
 interface Organisation {
@@ -48,11 +50,11 @@ export default function OrganisationsTable() {
   const supabase = createClient();
 
   // State
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(ADMIN_TABLE_DEFAULTS.PAGE_SIZE);
   const [sortKey, setSortKey] = useState<string>('created_at');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const [selectedOrganisation, setSelectedOrganisation] = useState<Organisation | null>(null);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
@@ -136,7 +138,7 @@ export default function OrganisationsTable() {
         total: count || 0,
       };
     },
-    staleTime: 60 * 1000,
+    staleTime: ADMIN_TABLE_DEFAULTS.STALE_TIME,
     retry: 2,
   });
 
@@ -157,10 +159,24 @@ export default function OrganisationsTable() {
     setSelectedOrganisation(org);
   };
 
-  // Handle export
+  // Handle export to CSV
   const handleExport = () => {
-    console.log('Export organisations');
-    // TODO: Implement CSV export
+    if (!organisations || organisations.length === 0) return;
+
+    const columns: CSVColumn<Organisation>[] = [
+      { key: 'id', header: 'ID', format: (value) => formatIdForDisplay(value as string) },
+      { key: 'created_at', header: 'Created', format: CSVFormatters.date },
+      { key: 'name', header: 'Name' },
+      { key: 'slug', header: 'Slug', format: (value) => value || 'N/A' },
+      { key: 'owner', header: 'Owner', format: (value: any) => value?.full_name || 'N/A' },
+      { key: 'member_count', header: 'Members', format: (value) => String(value || 0) },
+      { key: 'website', header: 'Website', format: (value) => value || 'N/A' },
+      { key: 'contact_name', header: 'Contact Name', format: (value) => value || 'N/A' },
+      { key: 'contact_email', header: 'Contact Email', format: (value) => value || 'N/A' },
+      { key: 'contact_phone', header: 'Contact Phone', format: (value) => value || 'N/A' },
+    ];
+
+    exportToCSV(organisations, columns, 'organisations');
   };
 
   // Handle refresh
@@ -359,7 +375,17 @@ export default function OrganisationsTable() {
       label: 'Export Selected',
       value: 'export',
       onClick: () => {
-        console.log('Export selected:', selectedRows);
+        const selectedOrgs = organisations.filter(org => selectedRows.has(org.id));
+        if (selectedOrgs.length === 0) return;
+
+        const columns: CSVColumn<Organisation>[] = [
+          { key: 'id', header: 'ID', format: (value) => formatIdForDisplay(value as string) },
+          { key: 'name', header: 'Name' },
+          { key: 'owner', header: 'Owner', format: (value: any) => value?.full_name || 'N/A' },
+          { key: 'member_count', header: 'Members', format: (value) => String(value || 0) },
+        ];
+
+        exportToCSV(selectedOrgs, columns, 'selected-organisations');
       },
     },
   ];
@@ -421,7 +447,7 @@ export default function OrganisationsTable() {
         searchPlaceholder="Search by name, slug, or contact email..."
         onExport={handleExport}
         onRefresh={handleRefresh}
-        autoRefreshInterval={30000}
+        autoRefreshInterval={ADMIN_TABLE_DEFAULTS.REFRESH_FAST}
         filters={filters}
         bulkActions={bulkActions}
         onRowClick={handleRowClick}
