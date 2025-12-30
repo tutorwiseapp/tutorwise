@@ -494,7 +494,6 @@ export default function ListingsTable() {
                     const { error } = await supabase.from('listings').delete().eq('id', listing.id);
                     if (error) {
                       alert('Failed to delete listing');
-                      console.error(error);
                     } else {
                       alert('Listing deleted successfully');
                       refetch();
@@ -576,7 +575,6 @@ export default function ListingsTable() {
 
         if (error) {
           alert('Failed to activate listings');
-          console.error(error);
         } else {
           alert(`${selectedIds.length} listing(s) activated successfully`);
           refetch();
@@ -601,7 +599,6 @@ export default function ListingsTable() {
 
         if (error) {
           alert('Failed to deactivate listings');
-          console.error(error);
         } else {
           alert(`${selectedIds.length} listing(s) deactivated successfully`);
           refetch();
@@ -628,7 +625,6 @@ export default function ListingsTable() {
 
         if (error) {
           alert('Failed to delete listings');
-          console.error(error);
         } else {
           alert(`${selectedIds.length} listing(s) deleted successfully`);
           refetch();

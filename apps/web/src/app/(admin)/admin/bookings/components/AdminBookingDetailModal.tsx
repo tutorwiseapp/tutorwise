@@ -183,7 +183,6 @@ export default function AdminBookingDetailModal({
       onBookingUpdated?.();
       onClose();
     } catch (error) {
-      console.error('Failed to approve booking:', error);
       alert('Failed to approve booking. Please try again.');
     } finally {
       setIsProcessing(false);
@@ -213,7 +212,6 @@ export default function AdminBookingDetailModal({
       onBookingUpdated?.();
       onClose();
     } catch (error) {
-      console.error('Failed to cancel booking:', error);
       alert('Failed to cancel booking. Please try again.');
     } finally {
       setIsProcessing(false);
@@ -244,7 +242,6 @@ export default function AdminBookingDetailModal({
       onBookingUpdated?.();
       onClose();
     } catch (error) {
-      console.error('Failed to update refund status:', error);
       alert('Failed to update refund status. Please try again.');
     } finally {
       setIsProcessing(false);
@@ -274,7 +271,6 @@ export default function AdminBookingDetailModal({
       onBookingUpdated?.();
       onClose();
     } catch (error) {
-      console.error('Failed to change booking status:', error);
       alert('Failed to change booking status. Please try again.');
     } finally {
       setIsProcessing(false);

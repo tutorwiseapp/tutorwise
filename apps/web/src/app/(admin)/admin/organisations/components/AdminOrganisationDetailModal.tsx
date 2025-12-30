@@ -107,7 +107,6 @@ export default function AdminOrganisationDetailModal({
       onUpdate();
       onClose();
     } catch (error: any) {
-      console.error('Error deleting organisation:', error);
       alert(`Failed to delete organisation: ${error.message}`);
     } finally {
       setIsDeleting(false);

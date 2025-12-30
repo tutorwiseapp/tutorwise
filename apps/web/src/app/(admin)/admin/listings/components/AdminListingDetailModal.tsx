@@ -150,7 +150,6 @@ export default function AdminListingDetailModal({
       onListingUpdated?.();
       onClose();
     } catch (error) {
-      console.error('Failed to activate listing:', error);
       alert('Failed to activate listing. Please try again.');
     } finally {
       setIsProcessing(false);
@@ -176,7 +175,6 @@ export default function AdminListingDetailModal({
       onListingUpdated?.();
       onClose();
     } catch (error) {
-      console.error('Failed to deactivate listing:', error);
       alert('Failed to deactivate listing. Please try again.');
     } finally {
       setIsProcessing(false);
@@ -213,7 +211,6 @@ export default function AdminListingDetailModal({
       onListingUpdated?.();
       onClose();
     } catch (error) {
-      console.error('Failed to change listing status:', error);
       alert('Failed to change listing status. Please try again.');
     } finally {
       setIsProcessing(false);
@@ -236,7 +233,6 @@ export default function AdminListingDetailModal({
       onListingUpdated?.();
       onClose();
     } catch (error) {
-      console.error('Failed to delete listing:', error);
       alert('Failed to delete listing. Please try again.');
     } finally {
       setIsProcessing(false);

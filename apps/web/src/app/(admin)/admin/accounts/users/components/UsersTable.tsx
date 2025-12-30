@@ -116,13 +116,6 @@ export default function UsersTable() {
 
   const users = usersData?.users || [];
 
-  // Log for debugging
-  if (error) {
-    console.error('Error fetching users:', error);
-  }
-  if (!isLoading && users.length === 0) {
-    console.log('No users returned from API');
-  }
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -150,13 +143,11 @@ export default function UsersTable() {
     setSelectedUser(user);
     setOpenMenuId(null);
     // TODO: Open detail modal
-    console.log('View details for user:', user.id);
   };
 
   const handleImpersonateUser = async (user: User) => {
     if (confirm(`Impersonate ${user.full_name || user.email}?\n\nThis will log you in as this user.`)) {
       // TODO: Implement impersonation
-      console.log('Impersonate user:', user.id);
       alert('Impersonation functionality coming soon');
       setOpenMenuId(null);
     }
@@ -165,7 +156,6 @@ export default function UsersTable() {
   const handleResetPassword = async (user: User) => {
     if (confirm(`Send password reset email to ${user.email}?`)) {
       // TODO: Implement password reset
-      console.log('Reset password for user:', user.id);
       alert('Password reset functionality coming soon');
       setOpenMenuId(null);
     }
@@ -174,7 +164,6 @@ export default function UsersTable() {
   const handleDeleteUser = async (user: User) => {
     if (confirm(`Are you sure you want to DELETE this user? This action cannot be undone.\n\nUser: ${user.full_name || user.email}`)) {
       // TODO: Implement delete user
-      console.log('Delete user:', user.id);
       alert('Delete user functionality coming soon');
       setOpenMenuId(null);
     }
