@@ -98,9 +98,10 @@ tableState.setFilter('status', 'completed')
 tableState.setCurrentPage(2)
 ```
 
-### 2. Tables Updated (2 of 10)
+### 2. Tables Updated (8 of 8) ✅ COMPLETE
 
-#### ✅ BookingsTable
+#### ✅ 1. BookingsTable
+**Location:** `/app/(admin)/admin/bookings/components/BookingsTable.tsx`
 **Changes:**
 - Removed local StatusBadge component (-20 lines)
 - Removed local PaymentBadge component (-20 lines)
@@ -109,10 +110,11 @@ tableState.setCurrentPage(2)
 - Removed 6 console.log statements
 - Added TypeScript types to state
 
-**Lines Removed:** 100+
+**Lines Removed:** ~100
 **Commit:** [64ed7097](https://github.com/tutorwiseapp/tutorwise/commit/64ed7097)
 
-#### ✅ ReferralsTable
+#### ✅ 2. ReferralsTable
+**Location:** `/app/(admin)/admin/referrals/components/ReferralsTable.tsx`
 **Changes:**
 - Removed local StatusBadge component (-20 lines)
 - Replaced manual CSV export (-40 lines)
@@ -120,46 +122,90 @@ tableState.setCurrentPage(2)
 - Added helper function getReferralStatusVariant()
 - Added TypeScript types to state
 
-**Lines Removed:** 60+
+**Lines Removed:** ~60
 **Commit:** [9601eb0c](https://github.com/tutorwiseapp/tutorwise/commit/9601eb0c)
 
-## 📋 Pending Work
-
-### Tables to Update (8 remaining)
-
-Each table follows the same pattern. Estimated effort: 15-20 minutes per table.
-
-#### 1. ReviewsTable
+#### ✅ 3. ReviewsTable
 **Location:** `/app/(admin)/admin/reviews/components/ReviewsTable.tsx`
-**Estimated Lines to Remove:** 60-80
+**Changes:**
+- Removed local StatusBadge component (-20 lines)
+- Replaced manual CSV export (-40 lines)
+- Using ADMIN_TABLE_DEFAULTS constants
+- Added helper function getReviewStatusVariant()
+- Added TypeScript types to state
 
-#### 2. UsersTable
-**Location:** `/app/(admin)/admin/users/all/page.tsx` (uses inline table)
-**Estimated Lines to Remove:** 40-60
+**Lines Removed:** ~60
+**Commit:** [c1a5f2d8](https://github.com/tutorwiseapp/tutorwise/commit/c1a5f2d8)
 
-#### 3. ListingsTable
+#### ✅ 4. ListingsTable
 **Location:** `/app/(admin)/admin/listings/components/ListingsTable.tsx`
-**Estimated Lines to Remove:** 60-80
+**Changes:**
+- Removed local StatusBadge component (-25 lines)
+- Replaced manual CSV export (-45 lines)
+- Using ADMIN_TABLE_DEFAULTS constants
+- Added helper function getListingStatusVariant()
+- Added TypeScript types to state
 
-#### 4. OrganisationsTable
+**Lines Removed:** ~70
+**Commit:** [3f8b9c4e](https://github.com/tutorwiseapp/tutorwise/commit/3f8b9c4e)
+
+#### ✅ 5. OrganisationsTable
 **Location:** `/app/(admin)/admin/organisations/components/OrganisationsTable.tsx`
-**Estimated Lines to Remove:** 60-80
+**Changes:**
+- Did not have local StatusBadge (already using shared component)
+- Replaced placeholder CSV export with full implementation
+- Using ADMIN_TABLE_DEFAULTS constants
+- Added formatIdForDisplay for CSV exports
+- Added TypeScript types to state
 
-#### 5. DisputesTable
-**Location:** `/app/(admin)/admin/disputes/components/DisputesTable.tsx` (if exists)
-**Estimated Lines to Remove:** 60-80
+**Lines Removed:** ~5 (minimal - mostly constants)
+**Commit:** [b09eb001](https://github.com/tutorwiseapp/tutorwise/commit/b09eb001)
 
-#### 6. FinancialsTable + Payouts
-**Location:** `/app/(admin)/admin/financials/`
-**Estimated Lines to Remove:** 80-100
+#### ✅ 6. DisputesTable
+**Location:** `/app/(admin)/admin/financials/disputes/components/DisputesTable.tsx`
+**Changes:**
+- Removed local StatusBadge component (-25 lines)
+- Replaced manual CSV export (-20 lines)
+- Using ADMIN_TABLE_DEFAULTS constants
+- Added helper function getDisputeStatusVariant()
+- Added TypeScript types to state
+- Removed console.log from bulk export
 
-#### 7. MessagesTable
-**Location:** `/app/(admin)/admin/messages/components/MessagesTable.tsx` (if exists)
-**Estimated Lines to Remove:** 40-60
+**Lines Removed:** ~45
+**Commit:** [9ca946bc](https://github.com/tutorwiseapp/tutorwise/commit/9ca946bc)
 
-#### 8. AuditLogsTable
-**Location:** `/app/(admin)/admin/audit-logs/components/AuditLogsTable.tsx` (if exists)
-**Estimated Lines to Remove:** 40-60
+#### ✅ 7. TransactionsTable
+**Location:** `/app/(admin)/admin/financials/components/TransactionsTable.tsx`
+**Changes:**
+- Removed local StatusBadge component (-25 lines)
+- Replaced manual CSV export (-30 lines)
+- Using ADMIN_TABLE_DEFAULTS constants
+- Added helper function getTransactionStatusVariant()
+- Added TypeScript types to state
+- Added formatIdForDisplay for CSV exports
+
+**Lines Removed:** ~55
+**Commit:** [e0130f2b](https://github.com/tutorwiseapp/tutorwise/commit/e0130f2b)
+
+#### ✅ 8. PayoutsTable
+**Location:** `/app/(admin)/admin/financials/payouts/components/PayoutsTable.tsx`
+**Changes:**
+- Removed local StatusBadge component (-25 lines)
+- Replaced manual CSV export (-30 lines)
+- Using ADMIN_TABLE_DEFAULTS constants
+- Added helper function getPayoutStatusVariant()
+- Added TypeScript types to state
+- Added formatIdForDisplay for CSV exports
+
+**Lines Removed:** ~55
+**Commit:** [5b498474](https://github.com/tutorwiseapp/tutorwise/commit/5b498474)
+
+## 📋 Not Applicable
+
+### Tables Skipped
+- **UsersTable** - Uses inline HubTable (different component pattern), not HubDataTable
+- **MessagesTable** - Does not exist in current codebase
+- **AuditLogsTable** - Does not exist in current codebase
 
 ### Migration Pattern (Copy/Paste Template)
 
@@ -236,9 +282,9 @@ Search for `console.log`, `console.warn`, `console.error` and remove them.
 ## 📊 Impact Summary
 
 ### Code Reduction
-- **Current:** 160+ lines removed (2 tables)
-- **Projected:** 600-800 lines removed (10 tables total)
-- **Shared utilities:** 800+ lines of reusable code
+- **Actual:** ~450 lines of duplicate code removed (8 tables)
+- **Shared utilities:** 800+ lines of reusable code created
+- **Net improvement:** Eliminated duplication while adding type-safe, maintainable utilities
 
 ### Benefits
 1. **Consistency:** All tables use identical patterns for:
@@ -264,10 +310,13 @@ Search for `console.log`, `console.warn`, `console.error` and remove them.
 
 ## 🎯 Next Steps
 
-1. **Continue Table Updates:** Apply pattern to remaining 8 tables
-2. **Standardize AdvancedFiltersDrawer:** Create generic filter drawer component
-3. **Phase 3:** Add missing metrics to `platform_statistics_daily`
-4. **Phase 4:** Polish (loading states, remove remaining console logs, CSS variables)
+### Phase 2 Remaining Work
+1. **Standardize AdvancedFiltersDrawer:** Create generic filter drawer component (currently each table has its own)
+
+### Future Phases
+1. **Phase 3:** Add missing metrics to `platform_statistics_daily`
+2. **Phase 4:** Polish (loading states, remove remaining console logs, CSS variables)
+3. **Phase 5:** Replace mock data in all admin pages with real API calls
 
 ## 📝 Notes
 
