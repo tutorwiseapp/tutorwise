@@ -12,6 +12,10 @@ import { useQuery } from '@tanstack/react-query';
 import { HubDataTable } from '@/app/components/hub/data';
 import type { Column, Filter, PaginationConfig } from '@/app/components/hub/data';
 import { MoreVertical, Filter as FilterIcon } from 'lucide-react';
+import StatusBadge from '@/app/components/admin/badges/StatusBadge';
+import { exportToCSV, CSVFormatters, type CSVColumn } from '@/lib/utils/exportToCSV';
+import { ADMIN_TABLE_DEFAULTS } from '@/constants/admin';
+import { formatIdForDisplay } from '@/lib/utils/formatId';
 import styles from './PayoutsTable.module.css';
 
 // Payout type
@@ -35,36 +39,21 @@ interface AdvancedFilters {
   user: string;
 }
 
-// Status badge component
-function StatusBadge({ status }: { status: string }) {
-  const getBadgeClass = () => {
-    switch (status) {
-      case 'pending':
-        return styles.badgePending;
-      case 'in_transit':
-        return styles.badgeInTransit;
-      case 'paid':
-      case 'completed':
-        return styles.badgePaid;
-      case 'failed':
-        return styles.badgeFailed;
-      default:
-        return styles.badgeDefault;
-    }
-  };
-
-  return (
-    <span className={`${styles.badge} ${getBadgeClass()}`}>
-      {status.replace('_', ' ')}
-    </span>
-  );
+// Status variant helper
+function getPayoutStatusVariant(status: string) {
+  const statusLower = status.toLowerCase();
+  if (statusLower === 'paid' || statusLower === 'completed') return 'paid' as const;
+  if (statusLower === 'pending') return 'pending' as const;
+  if (statusLower === 'in_transit') return 'processing' as const;
+  if (statusLower === 'failed') return 'error' as const;
+  return 'neutral' as const;
 }
 
 export default function PayoutsTable() {
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(ADMIN_TABLE_DEFAULTS.PAGE_SIZE);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
 
@@ -96,8 +85,8 @@ export default function PayoutsTable() {
         total: 0
       };
     },
-    staleTime: 30 * 1000,
-    refetchInterval: 30 * 1000,
+    staleTime: ADMIN_TABLE_DEFAULTS.STALE_TIME,
+    refetchInterval: ADMIN_TABLE_DEFAULTS.REFRESH_FAST,
   });
 
   const payouts = payoutsData?.payouts || [];
@@ -181,7 +170,12 @@ export default function PayoutsTable() {
       key: 'status',
       label: 'Status',
       width: '13%',
-      render: (payout) => <StatusBadge status={payout.status} />
+      render: (payout) => (
+        <StatusBadge
+          variant={getPayoutStatusVariant(payout.status)}
+          label={payout.status.replace('_', ' ')}
+        />
+      )
     },
     {
       key: 'actions',
@@ -260,28 +254,18 @@ export default function PayoutsTable() {
   const handleExport = () => {
     if (!payouts.length) return;
 
-    const headers = ['Date', 'User', 'Bank Account', 'Amount', 'Arrival Date', 'Status'];
-    const rows = payouts.map((payout) => [
-      formatDate(payout.created_at),
-      payout.user_email || '',
-      payout.bank_account || '',
-      formatCurrency(payout.amount),
-      formatDate(payout.arrival_date),
-      payout.status || '',
-    ]);
+    const columns: CSVColumn<Payout>[] = [
+      { key: 'id', header: 'ID', format: (value) => formatIdForDisplay(value as string) },
+      { key: 'created_at', header: 'Date', format: CSVFormatters.date },
+      { key: 'user_email', header: 'User Email', format: (value) => value || 'N/A' },
+      { key: 'user_name', header: 'User Name', format: (value) => value || 'N/A' },
+      { key: 'bank_account', header: 'Bank Account', format: (value) => value || 'N/A' },
+      { key: 'amount', header: 'Amount (£)', format: (value) => formatCurrency(value as number) },
+      { key: 'arrival_date', header: 'Arrival Date', format: (value) => value ? CSVFormatters.date(value as string) : 'N/A' },
+      { key: 'status', header: 'Status', format: (value) => (value as string).replace('_', ' ') },
+    ];
 
-    const csvContent = [
-      headers.join(','),
-      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `payouts-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    exportToCSV(payouts, columns, 'payouts');
   };
 
   return (
@@ -297,7 +281,7 @@ export default function PayoutsTable() {
         pagination={pagination}
         emptyMessage={error ? `Error loading payouts: ${error.message}` : "No payouts found."}
         searchPlaceholder="Search by user or bank account..."
-        autoRefreshInterval={30000}
+        autoRefreshInterval={ADMIN_TABLE_DEFAULTS.REFRESH_FAST}
         enableSavedViews={true}
         savedViewsKey="admin_payouts_savedViews"
         toolbarActions={
