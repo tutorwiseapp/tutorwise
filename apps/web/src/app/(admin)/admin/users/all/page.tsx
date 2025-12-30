@@ -64,7 +64,7 @@ export default function AdminUsersAllPage() {
       if (error) throw error;
       return data as UserProfile[];
     },
-    enabled: canViewUsers,
+    enabled: canViewUsers.hasAccess,
   });
 
   // Filter and search users
