@@ -78,14 +78,7 @@ export default function AdminTemplateDetailModal({
   };
 
   // Build subtitle with type badge
-  const subtitle = (
-    <div className={styles.subtitleContainer}>
-      <span>Template ID: {template.id.slice(0, 8)}</span>
-      <span className={styles.typeBadge}>
-        {template.content_type.toUpperCase()}
-      </span>
-    </div>
-  );
+  const subtitle = `Template ID: ${template.id.slice(0, 8)} • ${template.content_type.toUpperCase()}`;
 
   // Build sections
   const sections: DetailSection[] = [
@@ -116,32 +109,37 @@ export default function AdminTemplateDetailModal({
   // SEO Checklist as custom section
   const checklistSection: DetailSection = {
     title: 'SEO Checklist',
-    customContent: (
-      <div className={styles.checklistSection}>
-        <div className={styles.checklistHeader}>
-          <span className={styles.checklistCount}>
-            {template.seo_checklist.length} items total
-          </span>
-          <span className={styles.requiredCount}>
-            {template.seo_checklist.filter(item => item.required).length} required
-          </span>
-        </div>
-        <div className={styles.checklistItems}>
-          {template.seo_checklist.map((item, idx) => (
-            <div key={idx} className={styles.checklistItem}>
-              <CheckSquare
-                className={item.required ? styles.iconRequired : styles.iconOptional}
-                size={18}
-              />
-              <div className={styles.checklistText}>
-                <span className={styles.checklistLabel}>{item.item}</span>
-                {item.required && <span className={styles.requiredBadge}>Required</span>}
-              </div>
+    fields: [
+      {
+        label: '',
+        value: (
+          <div className={styles.checklistSection}>
+            <div className={styles.checklistHeader}>
+              <span className={styles.checklistCount}>
+                {template.seo_checklist.length} items total
+              </span>
+              <span className={styles.requiredCount}>
+                {template.seo_checklist.filter(item => item.required).length} required
+              </span>
             </div>
-          ))}
-        </div>
-      </div>
-    ),
+            <div className={styles.checklistItems}>
+              {template.seo_checklist.map((item, idx) => (
+                <div key={idx} className={styles.checklistItem}>
+                  <CheckSquare
+                    className={item.required ? styles.iconRequired : styles.iconOptional}
+                    size={18}
+                  />
+                  <div className={styles.checklistText}>
+                    <span className={styles.checklistLabel}>{item.item}</span>
+                    {item.required && <span className={styles.requiredBadge}>Required</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ),
+      },
+    ],
   };
 
   sections.push(checklistSection);
@@ -220,25 +218,22 @@ export default function AdminTemplateDetailModal({
         variant="secondary"
         onClick={handleEdit}
         disabled={isProcessing}
-        icon={<Edit size={16} />}
       >
-        Edit Template
+        <Edit size={16} /> Edit Template
       </Button>
       <Button
         variant="secondary"
         onClick={handleDuplicate}
         disabled={isProcessing}
-        icon={<Copy size={16} />}
       >
-        Duplicate
+        <Copy size={16} /> Duplicate
       </Button>
       <Button
         variant="danger"
         onClick={handleDelete}
         disabled={isProcessing}
-        icon={<Trash2 size={16} />}
       >
-        Delete
+        <Trash2 size={16} /> Delete
       </Button>
     </div>
   );

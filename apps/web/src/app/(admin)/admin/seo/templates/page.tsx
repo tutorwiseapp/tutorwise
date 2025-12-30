@@ -242,14 +242,12 @@ export default function AdminSeoTemplatesPage() {
           <HubHeader
             title="Content Templates"
             subtitle="SEO-optimized templates with validation rules and checklists"
-            icon={FileText}
             className={styles.templatesHeader}
           />
           <HubTabs
             tabs={[
-              { id: 'overview', label: 'Overview' },
+              { id: 'overview', label: 'Overview', active: activeTab === 'overview' },
             ]}
-            activeTab={activeTab}
             onTabChange={(tabId) => setActiveTab(tabId as 'overview')}
             className={styles.templatesTabs}
           />
@@ -330,10 +328,9 @@ export default function AdminSeoTemplatesPage() {
           getRowId={(template) => template.id}
           searchPlaceholder="Search templates..."
           emptyMessage="No templates found"
-          emptyDescription="Content templates define quality standards for hubs and spokes."
-          onExport={(selectedIds) => {
-            const dataToExport = selectedIds.length > 0
-              ? filteredTemplates.filter((t) => selectedIds.includes(t.id))
+          onExport={() => {
+            const dataToExport = selectedRows.size > 0
+              ? filteredTemplates.filter((t) => selectedRows.has(t.id))
               : filteredTemplates;
 
             const csvContent = [

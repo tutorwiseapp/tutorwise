@@ -263,14 +263,12 @@ export default function AdminSeoSettingsPage() {
           <HubHeader
             title="SEO Settings"
             subtitle="Configure external integrations and tracking methods"
-            icon={Settings}
             className={styles.settingsHeader}
           />
           <HubTabs
             tabs={[
-              { id: 'overview', label: 'Overview' },
+              { id: 'overview', label: 'Overview', active: activeTab === 'overview' },
             ]}
-            activeTab={activeTab}
             onTabChange={(tabId) => setActiveTab(tabId as 'overview')}
             className={styles.settingsTabs}
           />

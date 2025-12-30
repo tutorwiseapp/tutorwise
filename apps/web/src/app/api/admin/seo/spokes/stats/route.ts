@@ -122,7 +122,7 @@ export async function GET() {
         title: s.title,
         slug: s.slug,
         viewCount: s.view_count || 0,
-        hubTitle: Array.isArray(s.hub) ? s.hub[0]?.title || 'No Hub' : s.hub?.title || 'No Hub',
+        hubTitle: Array.isArray(s.hub) ? s.hub[0]?.title || 'No Hub' : (s.hub as any)?.title || 'No Hub',
         status: s.status,
       }))
       .sort((a, b) => b.viewCount - a.viewCount)
@@ -156,7 +156,7 @@ export async function GET() {
       title: s.title,
       status: s.status,
       createdAt: s.created_at,
-      hubTitle: Array.isArray(s.hub) ? s.hub[0]?.title || 'No Hub' : s.hub?.title || 'No Hub',
+      hubTitle: Array.isArray(s.hub) ? s.hub[0]?.title || 'No Hub' : (s.hub as any)?.title || 'No Hub',
     }));
 
     const stats: SpokeStatsResponse = {

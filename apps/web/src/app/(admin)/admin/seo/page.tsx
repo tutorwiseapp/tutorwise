@@ -248,9 +248,9 @@ export default function AdminSeoOverviewPage() {
           {/* Charts Section - Real Data Visualization */}
           <div className={styles.chartsGrid}>
             {/* Hub Performance Trend Chart */}
-            <ErrorBoundary fallback={<ChartSkeleton title="Hub Performance Trend" />}>
+            <ErrorBoundary fallback={<ChartSkeleton />}>
               {isLoadingStats ? (
-                <ChartSkeleton title="Hub Performance Trend" />
+                <ChartSkeleton />
               ) : (
                 <HubTrendChart
                   title="Hub Performance Trend"
@@ -262,9 +262,9 @@ export default function AdminSeoOverviewPage() {
             </ErrorBoundary>
 
             {/* Content Status Breakdown Chart */}
-            <ErrorBoundary fallback={<ChartSkeleton title="Content Status" />}>
+            <ErrorBoundary fallback={<ChartSkeleton />}>
               {isLoadingStats ? (
-                <ChartSkeleton title="Content Status" />
+                <ChartSkeleton />
               ) : (
                 <HubCategoryBreakdownChart
                   title="Content Status"
