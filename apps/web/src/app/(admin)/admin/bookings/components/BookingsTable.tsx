@@ -37,100 +37,26 @@ import { MoreVertical, Filter as FilterIcon } from 'lucide-react';
 import styles from './BookingsTable.module.css';
 import AdvancedFiltersDrawer, { AdvancedFilters } from './AdvancedFiltersDrawer';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
-
-// Status badge component with tooltip
-function StatusBadge({ status }: { status: string }) {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Confirmed':
-        return styles.statusConfirmed;
-      case 'Completed':
-        return styles.statusCompleted;
-      case 'Cancelled':
-        return styles.statusCancelled;
-      case 'Pending':
-      default:
-        return styles.statusPending;
-    }
-  };
-
-  const getStatusTooltip = (status: string) => {
-    switch (status) {
-      case 'Pending':
-        return 'Awaiting confirmation from tutor or admin approval';
-      case 'Confirmed':
-        return 'Booking confirmed and scheduled';
-      case 'Completed':
-        return 'Session has been completed';
-      case 'Cancelled':
-        return 'Booking has been cancelled';
-      default:
-        return status;
-    }
-  };
-
-  return (
-    <span
-      className={`${styles.statusBadge} ${getStatusColor(status)}`}
-      title={getStatusTooltip(status)}
-    >
-      {status}
-    </span>
-  );
-}
-
-// Payment status badge component with tooltip
-function PaymentBadge({ status }: { status: string }) {
-  const getPaymentColor = (status: string) => {
-    switch (status) {
-      case 'Paid':
-        return styles.paymentPaid;
-      case 'Pending':
-        return styles.paymentPending;
-      case 'Refunded':
-        return styles.paymentRefunded;
-      case 'Failed':
-      default:
-        return styles.paymentFailed;
-    }
-  };
-
-  const getPaymentTooltip = (status: string) => {
-    switch (status) {
-      case 'Pending':
-        return 'Payment awaiting processing';
-      case 'Paid':
-        return 'Payment successfully processed';
-      case 'Refunded':
-        return 'Payment has been refunded to client';
-      case 'Failed':
-        return 'Payment processing failed';
-      default:
-        return status;
-    }
-  };
-
-  return (
-    <span
-      className={`${styles.paymentBadge} ${getPaymentColor(status)}`}
-      title={getPaymentTooltip(status)}
-    >
-      {status}
-    </span>
-  );
-}
+import StatusBadge, { getBookingStatusVariant, getPaymentStatusVariant } from '@/app/components/admin/badges/StatusBadge';
+import { exportToCSV, CSVFormatters, type CSVColumn } from '@/lib/utils/exportToCSV';
+import { useTableState, buildTableQueryParams } from '@/hooks/useTableState';
+import {
+  ADMIN_TABLE_DEFAULTS,
+  BOOKING_STATUS_OPTIONS,
+  DATE_RANGE_OPTIONS,
+} from '@/constants/admin';
 
 export default function BookingsTable() {
   const supabase = createClient();
 
   // Table state
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20);
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(ADMIN_TABLE_DEFAULTS.PAGE_SIZE);
   const [sortKey, setSortKey] = useState<string>('session_start_time');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('');
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
 
   // Advanced filters state
@@ -350,7 +276,6 @@ export default function BookingsTable() {
       const { data, error, count } = await query;
 
       if (error) {
-        console.error('Failed to fetch bookings:', error);
         throw error;
       }
 
@@ -367,7 +292,7 @@ export default function BookingsTable() {
         total: count || 0,
       };
     },
-    staleTime: 60 * 1000, // 1 minute
+    staleTime: ADMIN_TABLE_DEFAULTS.STALE_TIME,
     retry: 2,
   });
 
@@ -381,7 +306,6 @@ export default function BookingsTable() {
   const handleCancelBooking = async (booking: Booking) => {
     if (confirm(`Are you sure you want to cancel this booking?\n\nService: ${booking.service_name}\nClient: ${booking.client?.full_name}`)) {
       // TODO: Implement cancel booking
-      console.log('Cancel booking:', booking.id);
       alert('Cancel booking functionality coming soon');
       setOpenMenuId(null);
     }
@@ -390,7 +314,6 @@ export default function BookingsTable() {
   const handleRefundBooking = async (booking: Booking) => {
     if (confirm(`Are you sure you want to issue a refund?\n\nAmount: £${booking.amount.toFixed(2)}\nClient: ${booking.client?.full_name}`)) {
       // TODO: Implement refund booking
-      console.log('Refund booking:', booking.id);
       alert('Refund functionality coming soon');
       setOpenMenuId(null);
     }
@@ -399,7 +322,6 @@ export default function BookingsTable() {
   const handleDeleteBooking = async (booking: Booking) => {
     if (confirm(`Are you sure you want to DELETE this booking? This action cannot be undone.\n\nService: ${booking.service_name}\nClient: ${booking.client?.full_name}`)) {
       // TODO: Implement delete booking
-      console.log('Delete booking:', booking.id);
       alert('Delete booking functionality coming soon');
       setOpenMenuId(null);
     }
@@ -516,14 +438,18 @@ export default function BookingsTable() {
       label: 'Status',
       width: '120px',
       sortable: true,
-      render: (booking) => <StatusBadge status={booking.status} />,
+      render: (booking) => (
+        <StatusBadge variant={getBookingStatusVariant(booking.status)} />
+      ),
     },
     {
       key: 'payment_status',
       label: 'Payment',
       width: '110px',
       sortable: true,
-      render: (booking) => <PaymentBadge status={booking.payment_status} />,
+      render: (booking) => (
+        <StatusBadge variant={getPaymentStatusVariant(booking.payment_status)} />
+      ),
     },
     {
       key: 'booking_type',
@@ -622,17 +548,15 @@ export default function BookingsTable() {
     },
   ];
 
-  // Filter configuration
+  // Filter configuration using shared constants
   const filters: Filter[] = [
     {
       key: 'status',
       label: 'All Statuses',
-      options: [
-        { label: 'Pending', value: 'Pending' },
-        { label: 'Confirmed', value: 'Confirmed' },
-        { label: 'Completed', value: 'Completed' },
-        { label: 'Cancelled', value: 'Cancelled' },
-      ],
+      options: BOOKING_STATUS_OPTIONS.slice(1).map(opt => ({
+        label: opt.label,
+        value: opt.value,
+      })),
     },
     {
       key: 'date',
@@ -701,54 +625,56 @@ export default function BookingsTable() {
   const hasActiveFilters = Object.values(advancedFilters).some(value => value !== '');
   const activeFilterCount = Object.values(advancedFilters).filter(value => value !== '').length;
 
-  // Handle export to CSV
+  // Handle export to CSV using shared utility
   const handleExport = () => {
     if (!bookingsData?.bookings) return;
 
-    // Create CSV header
-    const headers = [
-      'Date',
-      'Time',
-      'Service',
-      'Client',
-      'Tutor',
-      'Amount',
-      'Duration',
-      'Status',
-      'Payment',
-      'Type',
-      'ID',
+    const columns: CSVColumn<Booking>[] = [
+      { key: 'id', header: 'ID' },
+      {
+        key: 'session_start_time',
+        header: 'Date',
+        format: (value) => CSVFormatters.date(value),
+      },
+      {
+        key: 'session_start_time',
+        header: 'Time',
+        format: (value) => {
+          const date = new Date(value);
+          return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        },
+      },
+      { key: 'service_name', header: 'Service' },
+      {
+        key: 'client',
+        header: 'Client',
+        format: (value: any) => value?.full_name || 'N/A',
+      },
+      {
+        key: 'tutor',
+        header: 'Tutor',
+        format: (value: any) => value?.full_name || 'N/A',
+      },
+      {
+        key: 'agent',
+        header: 'Agent',
+        format: (value: any) => value?.full_name || 'N/A',
+      },
+      {
+        key: 'amount',
+        header: 'Amount (£)',
+        format: (value) => value?.toFixed(2) || '0.00',
+      },
+      {
+        key: 'session_duration',
+        header: 'Duration (min)',
+      },
+      { key: 'status', header: 'Status' },
+      { key: 'payment_status', header: 'Payment' },
+      { key: 'booking_type', header: 'Type' },
     ];
 
-    // Create CSV rows
-    const rows = bookingsData.bookings.map((booking) => {
-      const date = new Date(booking.session_start_time);
-      return [
-        date.toLocaleDateString('en-GB'),
-        date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-        booking.service_name,
-        booking.client?.full_name || 'N/A',
-        booking.tutor?.full_name || 'N/A',
-        booking.amount.toFixed(2),
-        booking.session_duration,
-        booking.status,
-        booking.payment_status,
-        booking.booking_type || 'N/A',
-        booking.id,
-      ];
-    });
-
-    // Combine headers and rows
-    const csv = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n');
-
-    // Download CSV
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `bookings-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    exportToCSV(bookingsData.bookings, columns, 'bookings');
   };
 
   // Handle row click - open detail modal
@@ -765,14 +691,12 @@ export default function BookingsTable() {
 
   // Phase 2: Bulk actions handlers
   const handleBulkApprove = async (selectedIds: string[]) => {
-    console.log('Bulk approve:', selectedIds);
     // TODO: Implement bulk approve
     // Update booking status to 'Confirmed'
     alert(`Approving ${selectedIds.length} bookings (not yet implemented)`);
   };
 
   const handleBulkCancel = async (selectedIds: string[]) => {
-    console.log('Bulk cancel:', selectedIds);
     // TODO: Implement bulk cancel
     // Update booking status to 'Cancelled'
     if (confirm(`Are you sure you want to cancel ${selectedIds.length} bookings?`)) {
@@ -783,29 +707,41 @@ export default function BookingsTable() {
   const handleBulkExport = async (selectedIds: string[]) => {
     const selectedBookings = bookingsData?.bookings.filter(b => selectedIds.includes(b.id)) || [];
 
-    const headers = ['Date', 'Time', 'Service', 'Client', 'Tutor', 'Amount', 'Status', 'ID'];
-    const rows = selectedBookings.map((booking) => {
-      const date = new Date(booking.session_start_time);
-      return [
-        date.toLocaleDateString('en-GB'),
-        date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-        booking.service_name,
-        booking.client?.full_name || 'N/A',
-        booking.tutor?.full_name || 'N/A',
-        booking.amount.toFixed(2),
-        booking.status,
-        booking.id,
-      ];
-    });
+    const columns: CSVColumn<Booking>[] = [
+      { key: 'id', header: 'ID' },
+      {
+        key: 'session_start_time',
+        header: 'Date',
+        format: (value) => CSVFormatters.date(value),
+      },
+      {
+        key: 'session_start_time',
+        header: 'Time',
+        format: (value) => {
+          const date = new Date(value);
+          return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        },
+      },
+      { key: 'service_name', header: 'Service' },
+      {
+        key: 'client',
+        header: 'Client',
+        format: (value: any) => value?.full_name || 'N/A',
+      },
+      {
+        key: 'tutor',
+        header: 'Tutor',
+        format: (value: any) => value?.full_name || 'N/A',
+      },
+      {
+        key: 'amount',
+        header: 'Amount (£)',
+        format: (value) => value?.toFixed(2) || '0.00',
+      },
+      { key: 'status', header: 'Status' },
+    ];
 
-    const csv = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `selected-bookings-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    exportToCSV(selectedBookings, columns, 'selected-bookings');
   };
 
   // Phase 2: Bulk actions configuration
@@ -871,7 +807,7 @@ export default function BookingsTable() {
         pagination={pagination}
         filters={filters}
         bulkActions={bulkActions}
-        autoRefreshInterval={30000}
+        autoRefreshInterval={ADMIN_TABLE_DEFAULTS.REFRESH_FAST}
         enableSavedViews={true}
         savedViewsKey="admin_bookings_savedViews"
         searchPlaceholder="Search by ID, service, client, or tutor..."

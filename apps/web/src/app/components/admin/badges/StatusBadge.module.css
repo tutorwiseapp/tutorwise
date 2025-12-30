@@ -1,0 +1,196 @@
+/**
+ * Filename: src/app/components/admin/badges/StatusBadge.module.css
+ * Purpose: Styles for StatusBadge component
+ * Created: 2025-12-30
+ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  border-radius: 12px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+/* Sizes */
+.sm {
+  padding: 2px 8px;
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.md {
+  padding: 4px 12px;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.lg {
+  padding: 6px 16px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* Booking statuses */
+.pending {
+  background-color: #fff4e6;
+  color: #d97706;
+  border: 1px solid #fbbf24;
+}
+
+.confirmed {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+  border: 1px solid #60a5fa;
+}
+
+.completed {
+  background-color: #d1fae5;
+  color: #059669;
+  border: 1px solid #34d399;
+}
+
+.cancelled {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #f87171;
+}
+
+.rejected {
+  background-color: #fce7f3;
+  color: #be185d;
+  border: 1px solid #f472b6;
+}
+
+/* User statuses */
+.active {
+  background-color: #d1fae5;
+  color: #059669;
+  border: 1px solid #34d399;
+}
+
+.inactive {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
+.suspended {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #f87171;
+}
+
+.verified {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+  border: 1px solid #60a5fa;
+}
+
+.unverified {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
+/* Payment statuses */
+.paid {
+  background-color: #d1fae5;
+  color: #059669;
+  border: 1px solid #34d399;
+}
+
+.unpaid {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #f87171;
+}
+
+.refunded {
+  background-color: #e0e7ff;
+  color: #4338ca;
+  border: 1px solid #818cf8;
+}
+
+.processing {
+  background-color: #fff4e6;
+  color: #d97706;
+  border: 1px solid #fbbf24;
+}
+
+/* Review statuses */
+.published {
+  background-color: #d1fae5;
+  color: #059669;
+  border: 1px solid #34d399;
+}
+
+.flagged {
+  background-color: #fff4e6;
+  color: #d97706;
+  border: 1px solid #fbbf24;
+}
+
+.removed {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #f87171;
+}
+
+/* Dispute statuses */
+.open {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #f87171;
+}
+
+.in_progress {
+  background-color: #fff4e6;
+  color: #d97706;
+  border: 1px solid #fbbf24;
+}
+
+.resolved {
+  background-color: #d1fae5;
+  color: #059669;
+  border: 1px solid #34d399;
+}
+
+.escalated {
+  background-color: #fce7f3;
+  color: #be185d;
+  border: 1px solid #f472b6;
+}
+
+/* General statuses */
+.success {
+  background-color: #d1fae5;
+  color: #059669;
+  border: 1px solid #34d399;
+}
+
+.warning {
+  background-color: #fff4e6;
+  color: #d97706;
+  border: 1px solid #fbbf24;
+}
+
+.error {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #f87171;
+}
+
+.info {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+  border: 1px solid #60a5fa;
+}
+
+.neutral {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
