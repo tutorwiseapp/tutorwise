@@ -1,0 +1,351 @@
+/* TeamReferralLeaderboard.module.css */
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #f1f5f9;
+  gap: 1rem;
+}
+
+.titleSection {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.headerIcon {
+  color: #fbbf24;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 0.25rem 0;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Period Toggle */
+.periodToggle {
+  display: flex;
+  gap: 0.5rem;
+  background: #f1f5f9;
+  padding: 0.25rem;
+  border-radius: 8px;
+}
+
+.periodButton {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.periodButton.active {
+  background: white;
+  color: #667eea;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.periodButton:hover:not(.active) {
+  color: #1e293b;
+}
+
+/* Loading & Empty */
+.loading,
+.empty {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #64748b;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.empty svg {
+  color: #cbd5e1;
+}
+
+/* Leaderboard */
+.leaderboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Member Row */
+.memberRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.memberRow:hover {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+.memberRow.topThree {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-color: #fbbf24;
+}
+
+/* Rank Badge */
+.rankBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-size: 1rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.medalIcon {
+  font-size: 1.5rem;
+}
+
+/* Avatar */
+.avatarWrapper {
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid white;
+}
+
+.avatarFallback {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border: 2px solid white;
+}
+
+/* Member Info */
+.memberInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.memberName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+}
+
+.memberStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.stat svg {
+  flex-shrink: 0;
+}
+
+/* Earnings */
+.earnings {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.earningsAmount {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #10b981;
+  margin-bottom: 0.25rem;
+}
+
+.pending {
+  font-size: 0.75rem;
+  color: #f59e0b;
+  font-weight: 500;
+}
+
+/* Achievement Badge */
+.achievement {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.achievement svg {
+  flex-shrink: 0;
+}
+
+/* Summary */
+.summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.summaryItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.summaryIcon {
+  color: #667eea;
+  flex-shrink: 0;
+}
+
+.summaryValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.2;
+}
+
+.summaryLabel {
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .periodToggle {
+    width: 100%;
+  }
+
+  .periodButton {
+    flex: 1;
+  }
+
+  .summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .memberRow {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .rankBadge {
+    min-width: 40px;
+    height: 40px;
+    font-size: 0.875rem;
+  }
+
+  .avatar,
+  .avatarFallback {
+    width: 40px;
+    height: 40px;
+  }
+
+  .avatarFallback {
+    font-size: 1rem;
+  }
+
+  .memberInfo {
+    flex-basis: 100%;
+    order: 3;
+  }
+
+  .earnings {
+    margin-left: auto;
+  }
+
+  .achievement {
+    flex-basis: 100%;
+    justify-content: center;
+    order: 4;
+  }
+
+  .memberStats {
+    gap: 0.5rem;
+  }
+
+  .stat {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .earningsAmount {
+    font-size: 1rem;
+  }
+
+  .memberName {
+    font-size: 0.9375rem;
+  }
+}

@@ -61,6 +61,56 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Track organisation referrals (/join/[slug]?ref=CODE)
+  // Store referral data in cookie for attribution during booking
+  const REFERRAL_COOKIE_NAME = 'tutorwise_referral';
+  const REFERRAL_COOKIE_MAX_AGE = 30 * 24 * 60 * 60; // 30 days in seconds
+
+  if (pathname.startsWith('/join/')) {
+    const orgReferralCode = request.nextUrl.searchParams.get('ref');
+    const orgSlug = pathname.split('/join/')[1]?.split('/')[0];
+
+    if (orgReferralCode && orgSlug) {
+      const referralData = JSON.stringify({
+        type: 'org_member',
+        code: orgReferralCode,
+        organisationSlug: orgSlug,
+        timestamp: new Date().toISOString(),
+      });
+
+      const response = NextResponse.next();
+      response.cookies.set(REFERRAL_COOKIE_NAME, referralData, {
+        maxAge: REFERRAL_COOKIE_MAX_AGE,
+        path: '/',
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+      });
+      return response;
+    }
+  }
+
+  // Track individual referrals (/a/[code])
+  if (pathname.startsWith('/a/')) {
+    const individualCode = pathname.split('/a/')[1]?.split('/')[0];
+
+    if (individualCode) {
+      const referralData = JSON.stringify({
+        type: 'individual',
+        code: individualCode,
+        timestamp: new Date().toISOString(),
+      });
+
+      const response = NextResponse.next();
+      response.cookies.set(REFERRAL_COOKIE_NAME, referralData, {
+        maxAge: REFERRAL_COOKIE_MAX_AGE,
+        path: '/',
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+      });
+      return response;
+    }
+  }
+
   // Define routes that require authentication
   const protectedRoutes = [
     '/dashboard',
