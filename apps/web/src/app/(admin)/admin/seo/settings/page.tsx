@@ -106,7 +106,7 @@ export default function AdminSeoSettingsPage() {
     try {
       await updateSettingsMutation.mutateAsync({ [field]: value });
     } catch (error) {
-      console.error('Error updating settings:', error);
+      alert('Failed to update settings. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -120,7 +120,7 @@ export default function AdminSeoSettingsPage() {
     try {
       await updateSettingsMutation.mutateAsync({ fallback_tracking_method: method });
     } catch (error) {
-      console.error('Error updating fallback method:', error);
+      alert('Failed to update fallback method. Please try again.');
     } finally {
       setIsSaving(false);
     }

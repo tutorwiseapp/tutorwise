@@ -413,7 +413,6 @@ export default function AdminSeoHubsPage() {
           }}
           onRowClick={(hub) => {
             // TODO: Open hub detail modal or navigate to edit page
-            console.log('Row clicked:', hub);
           }}
           onExport={() => {
             // Export filtered hubs to CSV
@@ -450,24 +449,26 @@ export default function AdminSeoHubsPage() {
               value: 'publish',
               label: 'Publish Selected',
               onClick: (selectedIds) => {
-                console.warn('Publish Selected functionality needs to be implemented');
-                console.log('Selected hub IDs:', selectedIds);
+                // TODO: Implement publish selected functionality
+                alert(`Publish ${selectedIds.length} hub(s) - functionality coming soon`);
               },
             },
             {
               value: 'archive',
               label: 'Archive Selected',
               onClick: (selectedIds) => {
-                console.warn('Archive Selected functionality needs to be implemented');
-                console.log('Selected hub IDs:', selectedIds);
+                // TODO: Implement archive selected functionality
+                alert(`Archive ${selectedIds.length} hub(s) - functionality coming soon`);
               },
             },
             {
               value: 'delete',
               label: 'Delete Selected',
               onClick: (selectedIds) => {
-                console.warn('Delete Selected functionality needs to be implemented');
-                console.log('Selected hub IDs:', selectedIds);
+                // TODO: Implement delete selected functionality
+                if (confirm(`Delete ${selectedIds.length} hub(s)? This action cannot be undone.`)) {
+                  alert('Delete functionality coming soon');
+                }
               },
               variant: 'danger' as const,
             },

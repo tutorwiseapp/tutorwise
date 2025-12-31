@@ -126,7 +126,6 @@ export default function AdminSeoConfigPage() {
           autoInternalLinking: config.contentSettings.autoInternalLinking,
         });
       } catch (error) {
-        console.error('Error fetching SEO config:', error);
         alert('Failed to load SEO configuration. Please refresh the page.');
       } finally {
         setIsLoading(false);
@@ -245,7 +244,6 @@ export default function AdminSeoConfigPage() {
       setHasUnsavedChanges(false);
       alert('SEO configuration saved successfully!');
     } catch (error) {
-      console.error('Error saving SEO config:', error);
       alert('Failed to save SEO configuration. Please try again.');
     } finally {
       setIsSaving(false);

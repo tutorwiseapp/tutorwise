@@ -71,12 +71,10 @@ export default function AdminSeoCitationsPage() {
 
         if (error) {
           // If table doesn't exist, return empty array instead of throwing
-          console.warn('seo_citations table may not exist yet:', error.message);
           return [] as SeoCitation[];
         }
         return (data as SeoCitation[]) || [];
       } catch (err) {
-        console.error('Error fetching citations:', err);
         return [] as SeoCitation[];
       }
     },
@@ -200,21 +198,26 @@ export default function AdminSeoCitationsPage() {
       label: 'Mark as Active',
       value: 'mark_active',
       onClick: (selectedIds: string[]) => {
-        console.log('Mark as Active:', selectedIds);
+        // TODO: Implement mark as active functionality
+        alert(`Mark ${selectedIds.length} citation(s) as active - functionality coming soon`);
       },
     },
     {
       label: 'Mark as Broken',
       value: 'mark_broken',
       onClick: (selectedIds: string[]) => {
-        console.log('Mark as Broken:', selectedIds);
+        // TODO: Implement mark as broken functionality
+        alert(`Mark ${selectedIds.length} citation(s) as broken - functionality coming soon`);
       },
     },
     {
       label: 'Delete Selected',
       value: 'delete',
       onClick: (selectedIds: string[]) => {
-        console.log('Delete Selected:', selectedIds);
+        // TODO: Implement delete functionality
+        if (confirm(`Delete ${selectedIds.length} citation(s)? This action cannot be undone.`)) {
+          alert('Delete functionality coming soon');
+        }
       },
       variant: 'danger' as const,
     },
