@@ -19,6 +19,15 @@ const nextConfig = {
   output: 'standalone',
   // Enable MDX support for help centre articles
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
+  // URL rewrites for cleaner public URLs
+  async rewrites() {
+    return [
+      {
+        source: '/organisation/:slug',
+        destination: '/public-organisation-profile/:slug',
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       // For Google OAuth Avatars

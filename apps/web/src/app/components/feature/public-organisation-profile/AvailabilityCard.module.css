@@ -1,0 +1,138 @@
+/**
+ * Filename: AvailabilityCard.module.css
+ * Purpose: Styles for Availability card with 2-column layout
+ * Created: 2025-11-12
+ */
+
+.availabilityCard {
+  padding: var(--space-5, 40px);
+}
+
+.cardTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 var(--space-5, 40px) 0;
+  line-height: 1.2;
+}
+
+/* 2-Column Layout */
+.columnsContainer {
+  display: grid;
+  grid-template-columns: 1fr; /* Mobile: single column */
+  gap: var(--space-6, 48px);
+}
+
+@media (min-width: 768px) {
+  .columnsContainer {
+    grid-template-columns: 1fr 1fr; /* Desktop: two equal columns */
+  }
+}
+
+/* Column Styles */
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 24px);
+}
+
+.columnTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+  padding-bottom: var(--space-2, 16px);
+  border-bottom: 2px solid #e5e7eb;
+}
+
+/* Periods List */
+.periodsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 24px);
+}
+
+.periodItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2, 16px);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #374151;
+}
+
+.periodIcon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #d1fae5;
+  color: #059669;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.periodIconUnavailable {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fee2e2;
+  color: #dc2626;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.dayName {
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Empty State */
+.emptyState {
+  padding: var(--space-4, 32px) 0;
+  text-align: center;
+}
+
+.emptyText {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin: 0;
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .availabilityCard {
+    padding: var(--space-4, 32px);
+  }
+
+  .cardTitle {
+    font-size: 1.25rem;
+    margin-bottom: var(--space-4, 32px);
+  }
+
+  .columnsContainer {
+    gap: var(--space-5, 40px);
+  }
+
+  .column {
+    gap: var(--space-2, 16px);
+  }
+
+  .periodsList {
+    gap: var(--space-2, 16px);
+  }
+}

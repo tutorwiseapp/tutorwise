@@ -1,0 +1,100 @@
+/**
+ * Filename: AboutCard.module.css
+ * Purpose: Styles for About card
+ * Created: 2025-11-12
+ * Updated: 2025-11-16 - Added Community Tutor badge and free sessions stat (v5.9)
+ */
+
+.aboutCard {
+  padding: 0 !important;
+}
+
+/* v5.9: Card header with title and badge - Teal header styling */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: #E6F0F0;
+  border-bottom: 1px solid #e5e7eb;
+  border-radius: 8px 8px 0 0; /* Match card's top corners */
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* v5.9: Community Tutor badge */
+.communityBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  font-weight: 700;
+  font-size: 0.875rem;
+  border-radius: 16px;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+  flex-shrink: 0;
+}
+
+.bioContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 24px);
+  padding: 16px;
+}
+
+.bioText {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: #374151;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.emptyState {
+  padding: 48px 16px;
+  text-align: center;
+}
+
+.emptyStateText {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* v5.9: Free sessions stat */
+.freeSessionsStat {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  padding: 16px;
+  padding-top: var(--space-4, 32px);
+  margin-top: var(--space-4, 32px);
+  border-top: 1px solid #e5e7eb;
+}
+
+.statIcon {
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+.statText {
+  font-size: 0.9375rem;
+  color: #059669;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .cardTitle {
+    font-size: 15px;
+  }
+}

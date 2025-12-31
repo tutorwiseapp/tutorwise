@@ -1,0 +1,199 @@
+/**
+ * Filename: ServicesCard.module.css
+ * Purpose: Styles for Services card
+ * Created: 2025-11-12
+ */
+
+.servicesCard {
+  padding: 0 !important;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: #E6F0F0;
+  border-bottom: 1px solid #e5e7eb;
+  border-radius: 8px 8px 0 0; /* Match card's top corners */
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Count Badge - Clickable (own profile) */
+.countBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  background-color: #3b82f6;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 12px;
+  line-height: 1;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.countBadge:hover {
+  background-color: #2563eb;
+  transform: scale(1.05);
+}
+
+.countBadge:active {
+  background-color: #1d4ed8;
+  transform: scale(0.98);
+}
+
+/* Count Badge - Static (public view) */
+.countBadgeStatic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  background-color: #3b82f6;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 12px;
+  line-height: 1;
+}
+
+.cardContent {
+  padding: 16px;
+}
+
+/* Empty State */
+.emptyState {
+  padding: 48px 16px;
+  text-align: center;
+}
+
+.emptyStateText {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Listings Container */
+.listingsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-right: 1px solid #e5e7eb;
+}
+
+/* Individual Listing Row (Table-like) */
+.listingRow {
+  position: relative;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 32px;
+  padding-left: 36px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  border-left: 3px solid #e5e7eb;
+  border-right: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.listingRow:first-child {
+  border-top: 1px solid #e5e7eb;
+}
+
+.listingRow:hover {
+  background-color: #f9fafb;
+  border-left-color: #3b82f6;
+}
+
+.listingRow:active {
+  background-color: #f3f4f6;
+  border-left-color: #2563eb;
+}
+
+/* Title (Column 1) */
+.listingTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Meta: Subjects and Levels (Column 2) */
+.listingMeta {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Price (Column 3) */
+.listingPrice {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #059669;
+  white-space: nowrap;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+  .listingRow {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 6px 12px;
+    padding: 10px 12px;
+  }
+
+  .listingTitle {
+    font-size: 0.875rem;
+    font-weight: 600;
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .listingMeta {
+    font-size: 0.75rem;
+    grid-column: 1;
+    grid-row: 2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .listingPrice {
+    font-size: 0.75rem;
+    grid-column: 2;
+    grid-row: 2;
+    white-space: nowrap;
+  }
+
+  .countBadge,
+  .countBadgeStatic {
+    font-size: 0.6875rem;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+  }
+}

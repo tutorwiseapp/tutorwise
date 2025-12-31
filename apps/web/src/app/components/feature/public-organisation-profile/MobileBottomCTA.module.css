@@ -1,0 +1,128 @@
+/**
+ * Filename: MobileBottomCTA.module.css
+ * Purpose: Styles for mobile bottom CTA bar
+ * Created: 2025-11-12
+ */
+
+/* Mobile Bottom CTA Bar */
+.mobileBottomCTA {
+  position: fixed;
+  bottom: 56px; /* Position above bottom nav bar (56px = approx bottom nav height) */
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  padding: 12px 16px; /* Reduced from 16px for more compact bar */
+  z-index: 101; /* Higher than bottom nav (100) to ensure visibility */
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+  display: block;
+}
+
+/* Show on mobile and tablet, hide on desktop */
+@media (min-width: 1024px) {
+  .mobileBottomCTA {
+    display: none;
+  }
+}
+
+/* Tablet styling */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .mobileBottomCTA {
+    padding: 12px 24px;
+  }
+}
+
+/* CTA Container */
+.ctaContainer {
+  display: flex;
+  gap: 12px;
+  max-width: 100%;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* Tablet: Constrain width */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .ctaContainer {
+    max-width: 600px;
+    gap: 16px;
+  }
+}
+
+/* CTA Buttons - Standard 40px height */
+.ctaButton {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  min-height: 40px !important;
+  font-size: 1rem;
+  padding: 10px 24px !important; /* 10px top/bottom for ~40px total */
+  border-radius: 8px;
+  box-shadow: none !important;
+  outline: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+}
+
+.ctaButton:focus,
+.ctaButton:active,
+.ctaButton:hover {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Tablet: Keep standard height */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .ctaButton {
+    min-height: 40px !important;
+    font-size: 1rem;
+    padding: 10px 32px !important;
+  }
+}
+
+/* Message Button (Secondary/Outline style with teal) */
+.ctaButton[class*="secondary"],
+.ctaButton[class*="secondary"]:hover,
+.ctaButton[class*="secondary"]:focus,
+.ctaButton[class*="secondary"]:active {
+  background-color: transparent !important;
+  color: #2c7a7b !important;
+  border: 1px solid #2c7a7b !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Book Session Button (Primary style with teal) */
+.ctaButton[class*="primary"],
+.ctaButton[class*="primary"]:hover,
+.ctaButton[class*="primary"]:focus,
+.ctaButton[class*="primary"]:active {
+  background-color: #2c7a7b !important;
+  color: white !important;
+  border: 1px solid #2c7a7b !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Responsive - Extra small mobile */
+@media (max-width: 480px) {
+  .mobileBottomCTA {
+    padding: 10px 12px;
+    bottom: 54px; /* Slightly adjust for smaller bottom nav on extra small screens */
+  }
+
+  .ctaContainer {
+    gap: 8px;
+  }
+
+  .ctaButton {
+    font-size: 0.9375rem;
+    padding: 10px 16px !important;
+    min-height: 40px !important;
+  }
+}

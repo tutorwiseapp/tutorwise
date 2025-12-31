@@ -1,0 +1,130 @@
+/*
+ * Filename: apps/web/src/app/public-profile/[id]/[[...slug]]/page.module.css
+ * Purpose: Styles for public profile page layout (v4.9 Redesign)
+ * Created: 2025-11-10
+ * Updated: 2025-11-12 - Redesigned to match listing details gold standard
+ *
+ * Layout Structure:
+ * - Hero Section (1-column full width)
+ * - Body Section (2-column grid: 2fr main + 1fr sidebar)
+ * - Related Section (1-column full width)
+ * - Matches listing details page spacing exactly
+ */
+
+/* Hero Section (1-column) */
+.heroSection {
+  margin-bottom: var(--space-4, 32px); /* Gap between hero and body */
+}
+
+/* Body Section: 2-column grid (desktop) */
+.bodySection {
+  display: grid;
+  grid-template-columns: 1fr; /* Mobile: single column */
+  gap: var(--space-4, 32px); /* Gap between columns */
+  margin-bottom: var(--space-3, 24px);
+}
+
+/* Tablet: Single column with slightly larger gaps */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .bodySection {
+    grid-template-columns: 1fr;
+    gap: var(--space-3, 24px);
+  }
+}
+
+/* Desktop: 2-column layout */
+@media (min-width: 1024px) {
+  .bodySection {
+    grid-template-columns: 2fr 1fr; /* Desktop: 2fr main + 1fr sidebar */
+  }
+}
+
+/* Main Column (left side, 2fr width) */
+.mainColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 24px); /* Desktop gap */
+}
+
+/* Sidebar Column (right side, 1fr width, sticky on desktop) */
+.sidebarColumn {
+  display: flex; /* Show on mobile now */
+  flex-direction: column;
+  gap: var(--space-3, 24px); /* Desktop gap */
+}
+
+/* Desktop only: Make sidebar sticky */
+@media (min-width: 1024px) {
+  .sidebarColumn {
+    position: sticky;
+    top: var(--space-4, 32px);
+    align-self: flex-start;
+  }
+}
+
+/* Related Section (1-column full width) */
+.relatedSection {
+  margin-bottom: var(--space-4, 32px); /* Reduced from 48px to 32px */
+}
+
+/* Bottom Spacer (matches listing details page) */
+.bottomSpacer {
+  height: var(--space-4, 32px); /* Reduced from 48px to 32px */
+}
+
+/* Mobile optimizations */
+@media (max-width: 639px) {
+  .heroSection {
+    margin-bottom: var(--space-2, 16px);
+  }
+
+  .bodySection {
+    gap: var(--space-2, 16px);
+  }
+
+  .mainColumn {
+    gap: var(--space-2, 16px);
+  }
+
+  .sidebarColumn {
+    gap: var(--space-2, 16px);
+  }
+
+  .relatedSection {
+    margin-bottom: var(--space-3, 24px);
+  }
+
+  .bottomSpacer {
+    height: 120px; /* 65px CTA bar + 56px bottom nav bar */
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .heroSection {
+    margin-bottom: var(--space-3, 24px);
+  }
+
+  .mainColumn {
+    gap: var(--space-3, 24px);
+  }
+
+  .sidebarColumn {
+    gap: var(--space-3, 24px);
+  }
+
+  .relatedSection {
+    margin-bottom: var(--space-4, 32px);
+  }
+
+  .bottomSpacer {
+    height: 120px; /* 65px CTA bar + 56px bottom nav bar */
+  }
+}
+
+/* Large desktop optimizations */
+@media (min-width: 1440px) {
+  .bodySection {
+    gap: var(--space-4, 32px);
+  }
+}

@@ -1,0 +1,123 @@
+/**
+ * Filename: ProfessionalInfoCard.module.css
+ * Purpose: Styles for Professional Information card
+ * Created: 2025-11-12
+ */
+
+.professionalCard {
+  padding: 0 !important;
+}
+
+.cardHeader {
+  padding: 12px 16px;
+  background-color: #E6F0F0;
+  border-bottom: 1px solid #e5e7eb;
+  border-radius: 8px 8px 0 0; /* Match card's top corners */
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.cardContent {
+  padding: 16px;
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.sectionLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 var(--space-3, 24px) 0;
+}
+
+.text {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: #374151;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+/* Tags (for subjects, levels, etc.) */
+.tagContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2, 16px);
+}
+
+.tag {
+  display: inline-block;
+  padding: 8px 16px;
+  background: #f3f4f6;
+  color: #374151;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Qualifications List */
+.qualificationsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 16px);
+}
+
+.qualificationsList li {
+  position: relative;
+  padding-left: 1.5rem;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: #374151;
+}
+
+.qualificationsList li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #10b981;
+  font-weight: 700;
+}
+
+/* Empty State */
+.emptyState {
+  padding: 48px 16px;
+  text-align: center;
+}
+
+.emptyStateText {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cardTitle {
+    font-size: 15px;
+  }
+
+  .section {
+    margin-bottom: 20px;
+  }
+
+  .sectionLabel {
+    margin-bottom: 12px;
+  }
+}
