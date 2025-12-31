@@ -265,14 +265,14 @@ export default async function PublicOrganisationPage({ params }: PublicOrganisat
       "addressLocality": organisation.location_city,
       "addressCountry": organisation.location_country || "United Kingdom"
     } : undefined,
-    "aggregateRating": organisationStats.avg_rating > 0 ? {
+    "aggregateRating": (organisationStats as any)?.avg_rating > 0 ? {
       "@type": "AggregateRating",
-      "ratingValue": organisationStats.avg_rating,
+      "ratingValue": (organisationStats as any)?.avg_rating,
       "bestRating": 5,
-      "ratingCount": organisationStats.total_reviews
+      "ratingCount": (organisationStats as any)?.total_reviews
     } : undefined,
-    "numberOfEmployees": organisationStats.total_tutors,
-    "foundingDate": organisationStats.established_date,
+    "numberOfEmployees": (organisationStats as any)?.total_tutors,
+    "foundingDate": (organisationStats as any)?.established_date,
     "sameAs": [
       organisation.website,
       organisation.social_links?.linkedin,
