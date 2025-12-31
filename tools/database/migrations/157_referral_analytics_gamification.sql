@@ -580,6 +580,266 @@ CREATE TRIGGER auto_update_streak_on_referral
     FOR EACH ROW
     EXECUTE FUNCTION trigger_update_streak();
 
+-- Queue email on new referral
+CREATE OR REPLACE FUNCTION trigger_queue_new_referral_email()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_referrer_email VARCHAR(255);
+    v_referrer_name VARCHAR(255);
+    v_org_name VARCHAR(255);
+    v_referred_name VARCHAR(255);
+    v_referred_email VARCHAR(255);
+BEGIN
+    -- Get referrer details
+    SELECT email, COALESCE(full_name, email) INTO v_referrer_email, v_referrer_name
+    FROM profiles
+    WHERE id = NEW.referrer_member_id;
+
+    -- Get organisation name
+    SELECT name INTO v_org_name
+    FROM connection_groups
+    WHERE id = NEW.organisation_id;
+
+    -- Get referred person details
+    v_referred_name := COALESCE(NEW.referred_name, NEW.referred_email);
+    v_referred_email := NEW.referred_email;
+
+    -- Queue email
+    INSERT INTO referral_email_queue (
+        recipient_email,
+        recipient_name,
+        subject,
+        body,
+        metadata,
+        status
+    ) VALUES (
+        v_referrer_email,
+        v_referrer_name,
+        'new_referral',
+        '',
+        jsonb_build_object(
+            'template', 'new_referral',
+            'referrer_name', v_referrer_name,
+            'organisation_name', v_org_name,
+            'referred_name', v_referred_name,
+            'referred_email', v_referred_email,
+            'referral_id', NEW.id
+        ),
+        'pending'
+    );
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER queue_new_referral_email
+    AFTER INSERT ON public.referrals
+    FOR EACH ROW
+    WHEN (NEW.referrer_member_id IS NOT NULL)
+    EXECUTE FUNCTION trigger_queue_new_referral_email();
+
+-- Queue email on stage change
+CREATE OR REPLACE FUNCTION trigger_queue_stage_change_email()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_referrer_email VARCHAR(255);
+    v_referrer_name VARCHAR(255);
+    v_org_name VARCHAR(255);
+    v_referred_name VARCHAR(255);
+BEGIN
+    -- Only trigger if stage actually changed
+    IF OLD.conversion_stage = NEW.conversion_stage THEN
+        RETURN NEW;
+    END IF;
+
+    -- Get referrer details
+    SELECT email, COALESCE(full_name, email) INTO v_referrer_email, v_referrer_name
+    FROM profiles
+    WHERE id = NEW.referrer_member_id;
+
+    -- Get organisation name
+    SELECT name INTO v_org_name
+    FROM connection_groups
+    WHERE id = NEW.organisation_id;
+
+    v_referred_name := COALESCE(NEW.referred_name, NEW.referred_email);
+
+    -- Queue email
+    INSERT INTO referral_email_queue (
+        recipient_email,
+        recipient_name,
+        subject,
+        body,
+        metadata,
+        status
+    ) VALUES (
+        v_referrer_email,
+        v_referrer_name,
+        'stage_change',
+        '',
+        jsonb_build_object(
+            'template', 'stage_change',
+            'referrer_name', v_referrer_name,
+            'organisation_name', v_org_name,
+            'referred_name', v_referred_name,
+            'old_stage', OLD.conversion_stage,
+            'new_stage', NEW.conversion_stage,
+            'estimated_value', NEW.estimated_value,
+            'referral_id', NEW.id
+        ),
+        'pending'
+    );
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER queue_stage_change_email
+    AFTER UPDATE OF conversion_stage ON public.referrals
+    FOR EACH ROW
+    WHEN (NEW.referrer_member_id IS NOT NULL)
+    EXECUTE FUNCTION trigger_queue_stage_change_email();
+
+-- Queue email on commission earned
+CREATE OR REPLACE FUNCTION trigger_queue_commission_email()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_referrer_email VARCHAR(255);
+    v_referrer_name VARCHAR(255);
+    v_org_name VARCHAR(255);
+    v_referred_name VARCHAR(255);
+    v_total_commission DECIMAL(12,2);
+BEGIN
+    -- Only trigger if commission was just paid
+    IF OLD.commission_paid = TRUE OR NEW.commission_paid = FALSE THEN
+        RETURN NEW;
+    END IF;
+
+    -- Get referrer details
+    SELECT email, COALESCE(full_name, email) INTO v_referrer_email, v_referrer_name
+    FROM profiles
+    WHERE id = NEW.referrer_member_id;
+
+    -- Get organisation name
+    SELECT name INTO v_org_name
+    FROM connection_groups
+    WHERE id = NEW.organisation_id;
+
+    v_referred_name := COALESCE(NEW.referred_name, NEW.referred_email);
+
+    -- Calculate total commission for this member
+    SELECT COALESCE(SUM(member_commission), 0) INTO v_total_commission
+    FROM referrals
+    WHERE referrer_member_id = NEW.referrer_member_id
+        AND organisation_id = NEW.organisation_id
+        AND commission_paid = TRUE;
+
+    -- Queue email
+    INSERT INTO referral_email_queue (
+        recipient_email,
+        recipient_name,
+        subject,
+        body,
+        metadata,
+        status
+    ) VALUES (
+        v_referrer_email,
+        v_referrer_name,
+        'commission_earned',
+        '',
+        jsonb_build_object(
+            'template', 'commission_earned',
+            'referrer_name', v_referrer_name,
+            'organisation_name', v_org_name,
+            'referred_name', v_referred_name,
+            'commission_amount', NEW.member_commission,
+            'total_commission', v_total_commission,
+            'referral_id', NEW.id
+        ),
+        'pending'
+    );
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER queue_commission_email
+    AFTER UPDATE OF commission_paid ON public.referrals
+    FOR EACH ROW
+    WHEN (NEW.referrer_member_id IS NOT NULL AND NEW.member_commission > 0)
+    EXECUTE FUNCTION trigger_queue_commission_email();
+
+-- Queue email on achievement unlocked
+CREATE OR REPLACE FUNCTION trigger_queue_achievement_email()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_member_email VARCHAR(255);
+    v_member_name VARCHAR(255);
+    v_org_name VARCHAR(255);
+    v_achievement_name VARCHAR(100);
+    v_achievement_description TEXT;
+    v_achievement_tier VARCHAR(20);
+    v_achievement_points INTEGER;
+    v_total_points INTEGER;
+BEGIN
+    -- Get member details
+    SELECT email, COALESCE(full_name, email) INTO v_member_email, v_member_name
+    FROM profiles
+    WHERE id = NEW.member_id;
+
+    -- Get organisation name
+    SELECT name INTO v_org_name
+    FROM connection_groups
+    WHERE id = NEW.organisation_id;
+
+    -- Get achievement details
+    SELECT name, description, tier, points
+    INTO v_achievement_name, v_achievement_description, v_achievement_tier, v_achievement_points
+    FROM referral_achievements
+    WHERE id = NEW.achievement_id;
+
+    -- Calculate total points
+    SELECT COALESCE(SUM(ra.points), 0) INTO v_total_points
+    FROM member_achievements ma
+    JOIN referral_achievements ra ON ra.id = ma.achievement_id
+    WHERE ma.member_id = NEW.member_id
+        AND ma.organisation_id = NEW.organisation_id;
+
+    -- Queue email
+    INSERT INTO referral_email_queue (
+        recipient_email,
+        recipient_name,
+        subject,
+        body,
+        metadata,
+        status
+    ) VALUES (
+        v_member_email,
+        v_member_name,
+        'achievement_unlocked',
+        '',
+        jsonb_build_object(
+            'template', 'achievement_unlocked',
+            'referrer_name', v_member_name,
+            'organisation_name', v_org_name,
+            'achievement_name', v_achievement_name,
+            'achievement_description', v_achievement_description,
+            'achievement_tier', v_achievement_tier,
+            'achievement_points', v_achievement_points,
+            'total_points', v_total_points
+        ),
+        'pending'
+    );
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER queue_achievement_email
+    AFTER INSERT ON public.member_achievements
+    FOR EACH ROW
+    EXECUTE FUNCTION trigger_queue_achievement_email();
+
 -- =====================================================
 -- PART 7: RLS Policies
 -- =====================================================
