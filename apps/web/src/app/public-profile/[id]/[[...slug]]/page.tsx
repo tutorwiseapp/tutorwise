@@ -24,6 +24,7 @@ import { createClient } from '@/utils/supabase/server';
 import { generateSlug } from '@/lib/utils/slugify';
 import type { Profile } from '@/types';
 import Container from '@/app/components/layout/Container';
+import { checkSEOEligibility } from '@/services/seo/eligibility-resolver';
 import { ProfileHeroSection } from '@/app/components/feature/public-profile/ProfileHeroSection';
 import { AboutCard } from '@/app/components/feature/public-profile/AboutCard';
 import { ProfessionalInfoCard } from '@/app/components/feature/public-profile/ProfessionalInfoCard';
@@ -66,14 +67,38 @@ export async function generateMetadata({ params }: PublicProfilePageProps) {
     : profile.active_role === 'agent' ? 'Agent'
     : 'Client';
 
-  return {
+  // ===================================================================
+  // TRUST-FIRST SEO: Check eligibility based on CaaS, referrals, network
+  // ===================================================================
+  const eligibility = await checkSEOEligibility('profile', params.id);
+
+  // Base metadata
+  const metadata = {
     title: `${profile.full_name} - ${roleLabel} | Tutorwise`,
     description: profile.bio?.substring(0, 160) || `View ${profile.full_name}'s profile on Tutorwise`,
     openGraph: {
       title: `${profile.full_name} - ${roleLabel}`,
       description: profile.bio || `${profile.full_name} on Tutorwise`,
     },
+    // Apply trust-based indexing directive
+    robots: {
+      index: eligibility.isEligible,
+      follow: eligibility.isEligible,
+      googleBot: {
+        index: eligibility.isEligible,
+        follow: eligibility.isEligible,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
   };
+
+  // Add trust badge for high-scoring profiles
+  if (eligibility.isEligible && eligibility.eligibilityScore >= 80) {
+    metadata.openGraph.description = `${profile.bio || profile.full_name} | Trust Score: ${eligibility.eligibilityScore}/100`;
+  }
+
+  return metadata;
 }
 
 export default async function PublicProfilePage({ params }: PublicProfilePageProps) {
