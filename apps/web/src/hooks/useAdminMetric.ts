@@ -53,6 +53,16 @@ export type MetricName =
   | 'reviews_avg_rating'
   | 'reviews_tutors_reviewed'
   | 'reviews_clients_reviewed'
+  | 'reviews_agents_reviewed'
+  // Referrals metrics (NEW - requires migration: add-metrics-columns.sql)
+  | 'referrals_total'
+  | 'referrals_active'
+  | 'referrals_converted'
+  | 'referrals_conversion_rate'
+  | 'referrals_clicks_total'
+  | 'referrals_signups_total'
+  | 'referrals_commissions_total'
+  | 'referrals_avg_commission'
   // Transactions metrics
   | 'transactions_total'
   | 'transactions_clearing'

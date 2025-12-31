@@ -17,6 +17,7 @@ import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/compone
 import { DollarSign, TrendingUp, Clock, AlertCircle } from 'lucide-react';
 import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type TrendDataPoint, type CategoryData } from '@/app/components/hub/charts';
 import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
+import { useAdminTrendData } from '@/hooks/useAdminTrendData';
 import TransactionsTable from './components/TransactionsTable';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
@@ -53,19 +54,13 @@ export default function AdminFinancialsPage() {
     }).format(amount);
   };
 
-  // Mock data for charts (TODO: Replace with real API data)
-  const [isLoadingCharts] = useState(false);
+  // Fetch real trend data from platform_statistics_daily
+  const { data: transactionTrendsData, isLoading: isLoadingTrends } = useAdminTrendData({
+    metric: 'transactions_total',
+    days: 7,
+  });
 
-  // Transaction volume trends (last 7 days)
-  const transactionTrendsData: TrendDataPoint[] = [
-    { date: '2025-12-20', value: totalTransactionsMetric.value * 0.12, label: '20 Dec' },
-    { date: '2025-12-21', value: totalTransactionsMetric.value * 0.14, label: '21 Dec' },
-    { date: '2025-12-22', value: totalTransactionsMetric.value * 0.15, label: '22 Dec' },
-    { date: '2025-12-23', value: totalTransactionsMetric.value * 0.13, label: '23 Dec' },
-    { date: '2025-12-24', value: totalTransactionsMetric.value * 0.16, label: '24 Dec' },
-    { date: '2025-12-25', value: totalTransactionsMetric.value * 0.14, label: '25 Dec' },
-    { date: '2025-12-26', value: totalTransactionsMetric.value * 0.16, label: '26 Dec' },
-  ];
+  const isLoadingCharts = isLoadingTrends;
 
   // Transaction status breakdown
   const transactionStatusData: CategoryData[] = [

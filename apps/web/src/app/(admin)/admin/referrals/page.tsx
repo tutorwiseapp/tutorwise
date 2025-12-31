@@ -54,16 +54,15 @@ export default function AdminReferralsPage() {
 
   const referralsCount = referralsCountData || 0;
 
-  // Fetch referral metrics (placeholder - need to add these to platform_statistics_daily)
-  // For now, using mock data similar to bookings pattern
-  const totalReferralsMetric = useAdminMetric({ metric: 'total_users', compareWith: 'last_month' }); // Placeholder
-  const activeReferralsMetric = { value: 0, change: 0, changePercent: 0 }; // TODO: Add referrals_active metric
-  const convertedReferralsMetric = { value: 0, change: 0, changePercent: 0 }; // TODO: Add referrals_converted metric
-  const conversionRateMetric = { value: 0, change: 0, changePercent: 0 }; // TODO: Add referrals_conversion_rate metric
-  const totalCommissionsMetric = { value: 0, change: 0, changePercent: 0 }; // TODO: Add referrals_commissions_total metric
-  const avgCommissionMetric = { value: 0, change: 0, changePercent: 0 }; // TODO: Add referrals_avg_commission metric
-  const clicksMetric = { value: 0, change: 0, changePercent: 0 }; // TODO: Add referrals_clicks_total metric
-  const signupsMetric = { value: 0, change: 0, changePercent: 0 }; // TODO: Add referrals_signups_total metric
+  // Fetch referral metrics from platform_statistics_daily
+  const totalReferralsMetric = useAdminMetric({ metric: 'referrals_total', compareWith: 'last_month' });
+  const activeReferralsMetric = useAdminMetric({ metric: 'referrals_active', compareWith: 'last_month' });
+  const convertedReferralsMetric = useAdminMetric({ metric: 'referrals_converted', compareWith: 'last_month' });
+  const conversionRateMetric = useAdminMetric({ metric: 'referrals_conversion_rate', compareWith: 'last_month' });
+  const totalCommissionsMetric = useAdminMetric({ metric: 'referrals_commissions_total', compareWith: 'last_month' });
+  const avgCommissionMetric = useAdminMetric({ metric: 'referrals_avg_commission', compareWith: 'last_month' });
+  const clicksMetric = useAdminMetric({ metric: 'referrals_clicks_total', compareWith: 'last_month' });
+  const signupsMetric = useAdminMetric({ metric: 'referrals_signups_total', compareWith: 'last_month' });
 
   // Format currency
   const formatCurrency = (amount: number) => {
@@ -75,34 +74,27 @@ export default function AdminReferralsPage() {
     }).format(amount);
   };
 
-  // Mock chart data (TODO: Replace with useAdminTrendData when metrics exist)
-  const [isLoadingCharts] = useState(false);
+  // Fetch real trend data from platform_statistics_daily
+  const { data: referralTrendsData, isLoading: isLoadingTrends } = useAdminTrendData({
+    metric: 'referrals_total',
+    days: 7,
+  });
 
-  // Referral trends data (last 7 days)
-  const referralTrendsData: TrendDataPoint[] = [
-    { date: '2025-12-20', value: 12, label: '20 Dec' },
-    { date: '2025-12-21', value: 15, label: '21 Dec' },
-    { date: '2025-12-22', value: 18, label: '22 Dec' },
-    { date: '2025-12-23', value: 14, label: '23 Dec' },
-    { date: '2025-12-24', value: 20, label: '24 Dec' },
-    { date: '2025-12-25', value: 16, label: '25 Dec' },
-    { date: '2025-12-26', value: 22, label: '26 Dec' },
-  ];
-
-  // Referral status breakdown data
+  // Referral status breakdown data - calculated from current metrics
   const referralStatusData: CategoryData[] = [
-    { label: 'Converted', value: 45, color: '#10B981' },
-    { label: 'Signed Up', value: 30, color: '#3B82F6' },
-    { label: 'Referred', value: 50, color: '#F59E0B' },
-    { label: 'Expired', value: 12, color: '#EF4444' },
+    { label: 'Converted', value: convertedReferralsMetric.value, color: '#10B981' },
+    { label: 'Active', value: activeReferralsMetric.value, color: '#3B82F6' },
+    { label: 'Total', value: totalReferralsMetric.value, color: '#F59E0B' },
   ];
 
-  // Conversion funnel data
+  // Conversion funnel data - calculated from current metrics
   const conversionFunnelData: CategoryData[] = [
-    { label: 'Clicks', value: 500, color: '#8B5CF6' },
-    { label: 'Sign Ups', value: 150, color: '#3B82F6' },
-    { label: 'Conversions', value: 45, color: '#10B981' },
+    { label: 'Clicks', value: clicksMetric.value, color: '#8B5CF6' },
+    { label: 'Sign Ups', value: signupsMetric.value, color: '#3B82F6' },
+    { label: 'Conversions', value: convertedReferralsMetric.value, color: '#10B981' },
   ];
+
+  const isLoadingCharts = isLoadingTrends;
 
   return (
     <HubPageLayout
