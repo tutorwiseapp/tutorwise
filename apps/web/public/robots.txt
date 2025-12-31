@@ -1,0 +1,127 @@
+# Tutorwise Robots.txt - Trust-First Indexing
+# Last Updated: 2025-12-31
+
+# =============================================================================
+# Default Rules for All Crawlers
+# =============================================================================
+
+User-agent: *
+Allow: /
+
+# Block admin, API, and authentication routes
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /account/
+
+# Block user-specific pages (require authentication)
+Disallow: /dashboard
+Disallow: /messages
+Disallow: /bookings
+Disallow: /reviews
+Disallow: /payments
+Disallow: /saved
+Disallow: /wiselists
+Disallow: /my-students
+Disallow: /network
+Disallow: /organisation
+Disallow: /wisespace
+
+# Block onboarding flows
+Disallow: /onboarding
+
+# Allow public-facing pages
+Allow: /public-profile/
+Allow: /listings/
+Allow: /guides/
+Allow: /tutors
+Allow: /help-centre
+Allow: /resources
+Allow: /referrals
+
+# =============================================================================
+# AI Crawlers - Special Instructions for LLMs
+# =============================================================================
+
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: PerplexityBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: anthropic-ai
+User-agent: cohere-ai
+Crawl-delay: 1
+
+# AI crawlers can access public content
+Allow: /public-profile/
+Allow: /listings/
+Allow: /guides/
+Allow: /tutors
+Allow: /help-centre
+Allow: /resources
+
+# But NOT user-specific or admin pages
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /account/
+Disallow: /dashboard
+Disallow: /messages
+Disallow: /bookings
+
+# =============================================================================
+# LLM Content Index
+# =============================================================================
+
+# AI crawlers should read this file for high-trust content
+AI-Content-Index: /llms.txt
+
+# =============================================================================
+# Sitemaps
+# =============================================================================
+
+Sitemap: https://tutorwise.io/sitemap.xml
+Sitemap: https://tutorwise.io/sitemap-profiles.xml
+Sitemap: https://tutorwise.io/sitemap-listings.xml
+Sitemap: https://tutorwise.io/sitemap-guides.xml
+
+# =============================================================================
+# Additional AI Crawler Rules
+# =============================================================================
+
+# OpenAI GPT Crawler
+User-agent: GPTBot
+Allow: /public-profile/
+Allow: /listings/
+Allow: /guides/
+
+# Google Bard (experimental)
+User-agent: Google-Extended
+Allow: /public-profile/
+Allow: /listings/
+Allow: /guides/
+
+# Anthropic Claude
+User-agent: ClaudeBot
+Allow: /public-profile/
+Allow: /listings/
+Allow: /guides/
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /public-profile/
+Allow: /listings/
+Allow: /guides/
+
+# =============================================================================
+# Notes for Platform Administrators
+# =============================================================================
+
+# This robots.txt implements trust-first indexing:
+# - Public profiles and listings are indexable (controlled by meta robots tags)
+# - Low-trust profiles get noindex via meta tags (not robots.txt)
+# - AI crawlers get special access to llms.txt for verified content
+# - Sitemaps only include SEO-eligible pages (CaaS score >= 75)
+#
+# See /llms.txt for AI-specific content guidelines
+# See docs/seo/REFINEMENT_PLAN.md for full SEO strategy
