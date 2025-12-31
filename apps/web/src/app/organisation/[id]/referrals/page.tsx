@@ -10,6 +10,7 @@ import { ReferralSettingsCard } from '@/components/feature/organisation/referral
 import { TeamReferralLeaderboard } from '@/components/feature/organisation/referrals/TeamReferralLeaderboard';
 import { MemberReferralDashboard } from '@/components/feature/organisation/referrals/MemberReferralDashboard';
 import { PayoutExportCard } from '@/components/feature/organisation/referrals/PayoutExportCard';
+import { ConversionPipelineBoard } from '@/components/feature/organisation/referrals/ConversionPipelineBoard';
 import styles from './page.module.css';
 
 interface OrganisationReferralsPageProps {
@@ -94,6 +95,10 @@ export default async function OrganisationReferralsPage({
 
             {programEnabled && (
               <>
+                <ConversionPipelineBoard
+                  organisationId={organisation.id}
+                />
+
                 <TeamReferralLeaderboard
                   organisationId={organisation.id}
                   limit={10}
