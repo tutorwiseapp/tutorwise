@@ -28,36 +28,100 @@
   --button-padding-v-large: 14px;
 
   /* --- 2. Color System --- */
+
+  /* 2.1 Brand Colors (Teal) */
   --color-primary: #006C67;
   --color-primary-accent: #4CAEAD;
   --color-primary-accent-dark: #3A9B9A;
   --color-primary-light: #E0F2F1;
+  --color-primary-dark: #005550;
 
+  /* 2.2 Gray Scale (Tailwind-based for consistency) */
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+
+  /* 2.3 Semantic Text Colors */
   --color-text-primary: #202124;
   --color-text-secondary: #5f6368;
   --color-text-placeholder: #9aa0a6;
+  --color-text-dark: var(--color-gray-900);
+  --color-text-medium: var(--color-gray-700);
+  --color-text-light: var(--color-gray-500);
 
+  /* 2.4 Background Colors */
   --color-bg-page: #ffffff;
   --color-bg-card: #ffffff;
   --color-bg-box: #f5f5f5;
+  --color-bg-light: var(--color-gray-50);
+  --color-bg-medium: var(--color-gray-100);
 
+  /* 2.5 Border Colors */
   --color-border: #dfe1e5;
+  --color-border-light: var(--color-gray-200);
+  --color-border-medium: var(--color-gray-300);
 
-  --color-success: #34a853;
+  /* 2.6 Success Colors (Green) */
+  --color-success-50: #f0fdf4;
+  --color-success-100: #d1fae5;
+  --color-success-500: #10b981;
+  --color-success-600: #059669;
+  --color-success-700: #047857;
+  --color-success-800: #065f46;
+  --color-success: #34a853; /* Legacy - maps to custom green */
   --color-success-text: #137333;
   --color-success-bg: #e8f5e8;
   --color-success-border: #c4e7c4;
 
-  --color-error: #d93025;
+  /* 2.7 Error/Danger Colors (Red) */
+  --color-error-50: #fef2f2;
+  --color-error-100: #fee2e2;
+  --color-error-500: #ef4444;
+  --color-error-600: #dc2626;
+  --color-error-700: #b91c1c;
+  --color-error-800: #991b1b;
+  --color-error: #d93025; /* Legacy - maps to custom red */
   --color-error-text: #d93025;
   --color-error-bg: #fce8e6;
   --color-error-border: #f5c6cb;
 
-  --color-warning: #b06000;
+  /* 2.8 Warning Colors (Amber) */
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+  --color-warning-800: #92400e;
+  --color-warning: #b06000; /* Legacy */
   --color-warning-bg: #fef7e0;
   --color-warning-border: #fdd663;
-  
+
+  /* 2.9 Info Colors (Blue) */
+  --color-info-50: #eff6ff;
+  --color-info-100: #dbeafe;
+  --color-info-500: #3b82f6;
+  --color-info-600: #2563eb;
+  --color-info-700: #1d4ed8;
+  --color-info-800: #1e40af;
+
+  /* 2.10 Accent Colors */
   --color-accent-pink: #fde7f3;
+
+  /* 2.11 Pure Colors */
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* 2.12 Overlays */
+  --color-overlay-dark: rgba(0, 0, 0, 0.5);
+  --color-overlay-medium: rgba(0, 0, 0, 0.3);
+  --color-overlay-light: rgba(255, 255, 255, 0.9);
 
   /* --- 3. Spacing System (8px Grid) --- */
   --space-0: 0.0rem;  /* 0px */
