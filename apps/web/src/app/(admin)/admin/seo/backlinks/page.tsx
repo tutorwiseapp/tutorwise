@@ -356,21 +356,23 @@ export default function AdminSeoBacklinksPage() {
             label: 'Mark as Lost',
             value: 'mark_lost',
             onClick: (selectedIds) => {
-              console.log('Mark as Lost:', selectedIds);
+              alert(`Mark ${selectedIds.length} backlink(s) as Lost - functionality coming soon`);
             },
           },
           {
             label: 'Mark as Active',
             value: 'mark_active',
             onClick: (selectedIds) => {
-              console.log('Mark as Active:', selectedIds);
+              alert(`Mark ${selectedIds.length} backlink(s) as Active - functionality coming soon`);
             },
           },
           {
             label: 'Delete Selected',
             value: 'delete',
             onClick: (selectedIds) => {
-              console.log('Delete Selected:', selectedIds);
+              if (confirm(`Delete ${selectedIds.length} backlink(s)? This action cannot be undone.`)) {
+                alert('Delete functionality coming soon');
+              }
             },
             variant: 'danger' as const,
           },

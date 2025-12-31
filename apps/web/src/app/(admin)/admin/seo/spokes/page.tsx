@@ -422,7 +422,7 @@ export default function AdminSeoSpokesPage() {
           }}
           onRowClick={(spoke) => {
             // TODO: Open spoke detail modal or navigate to edit page
-            console.log('Row clicked:', spoke);
+            alert(`View spoke "${spoke.title}" - functionality coming soon`);
           }}
           filters={[
             {
@@ -490,21 +490,23 @@ export default function AdminSeoSpokesPage() {
               label: 'Publish Selected',
               value: 'publish',
               onClick: (selectedIds) => {
-                console.log('Publish Selected:', selectedIds);
+                alert(`Publish ${selectedIds.length} spoke(s) - functionality coming soon`);
               },
             },
             {
               label: 'Archive Selected',
               value: 'archive',
               onClick: (selectedIds) => {
-                console.log('Archive Selected:', selectedIds);
+                alert(`Archive ${selectedIds.length} spoke(s) - functionality coming soon`);
               },
             },
             {
               label: 'Delete Selected',
               value: 'delete',
               onClick: (selectedIds) => {
-                console.log('Delete Selected:', selectedIds);
+                if (confirm(`Delete ${selectedIds.length} spoke(s)? This action cannot be undone.`)) {
+                  alert('Delete functionality coming soon');
+                }
               },
               variant: 'danger' as const,
             },

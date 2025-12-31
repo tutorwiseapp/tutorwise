@@ -385,21 +385,23 @@ export default function AdminSeoKeywordsPage() {
             label: 'Set Priority High',
             value: 'set_priority_high',
             onClick: (selectedIds) => {
-              console.log('Set Priority High for:', selectedIds);
+              alert(`Set priority to High for ${selectedIds.length} keyword(s) - functionality coming soon`);
             },
           },
           {
             label: 'Set Priority Critical',
             value: 'set_priority_critical',
             onClick: (selectedIds) => {
-              console.log('Set Priority Critical for:', selectedIds);
+              alert(`Set priority to Critical for ${selectedIds.length} keyword(s) - functionality coming soon`);
             },
           },
           {
             label: 'Delete Selected',
             value: 'delete',
             onClick: (selectedIds) => {
-              console.log('Delete Selected:', selectedIds);
+              if (confirm(`Delete ${selectedIds.length} keyword(s)? This action cannot be undone.`)) {
+                alert('Delete functionality coming soon');
+              }
             },
             variant: 'danger' as const,
           },

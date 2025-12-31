@@ -146,8 +146,8 @@ export default function AdminTemplateDetailModal({
 
   // Action handlers
   const handleEdit = () => {
-    console.log('Edit template:', template.id);
     // TODO: Navigate to edit page or open edit modal
+    alert('Edit template functionality coming soon');
     onClose();
   };
 
@@ -177,7 +177,6 @@ export default function AdminTemplateDetailModal({
       onTemplateUpdated?.();
       onClose();
     } catch (error) {
-      console.error('Failed to duplicate template:', error);
       alert('Failed to duplicate template. Please try again.');
     } finally {
       setIsProcessing(false);
@@ -204,7 +203,6 @@ export default function AdminTemplateDetailModal({
       onTemplateUpdated?.();
       onClose();
     } catch (error) {
-      console.error('Failed to delete template:', error);
       alert('Failed to delete template. Please try again.');
     } finally {
       setIsProcessing(false);

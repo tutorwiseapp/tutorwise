@@ -181,8 +181,8 @@ export default function AdminSeoTemplatesPage() {
                 className={styles.actionMenuItem}
                 onClick={(e) => {
                   e.stopPropagation();
-                  console.log('Edit template:', template.id);
                   // TODO: Navigate to edit page or open edit modal
+                  alert('Edit template functionality coming soon');
                   setOpenMenuId(null);
                 }}
               >
@@ -193,8 +193,7 @@ export default function AdminSeoTemplatesPage() {
                 onClick={(e) => {
                   e.stopPropagation();
                   if (confirm(`Delete template "${template.name}"? This action cannot be undone.`)) {
-                    console.log('Delete template:', template.id);
-                    // TODO: Implement delete functionality
+                    alert('Delete functionality coming soon');
                   }
                   setOpenMenuId(null);
                 }}
@@ -362,14 +361,16 @@ export default function AdminSeoTemplatesPage() {
               label: 'Duplicate Selected',
               value: 'duplicate',
               onClick: (selectedIds) => {
-                console.log('Duplicate Selected:', selectedIds);
+                alert(`Duplicate ${selectedIds.length} template(s) - functionality coming soon`);
               },
             },
             {
               label: 'Delete Selected',
               value: 'delete',
               onClick: (selectedIds) => {
-                console.log('Delete Selected:', selectedIds);
+                if (confirm(`Delete ${selectedIds.length} template(s)? This action cannot be undone.`)) {
+                  alert('Delete functionality coming soon');
+                }
               },
               variant: 'danger' as const,
             },
