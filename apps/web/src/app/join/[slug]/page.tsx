@@ -21,7 +21,7 @@ interface JoinPageProps {
 }
 
 export default async function JoinPage({ params, searchParams }: JoinPageProps) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Get organisation by slug
   const { data: organisation, error: orgError } = await supabase

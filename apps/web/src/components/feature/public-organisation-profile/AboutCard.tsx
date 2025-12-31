@@ -123,7 +123,8 @@ export function AboutCard({ organisation }: AboutCardProps) {
       {/* Video Modal */}
       {showVideoModal && videoUrl && (
         <VideoModal
-          url={videoUrl}
+          isOpen={true}
+          videoUrl={videoUrl}
           title={`${organisation.name} - Introduction`}
           onClose={() => setShowVideoModal(false)}
         />

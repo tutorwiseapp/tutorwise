@@ -280,7 +280,7 @@ export default async function PublicOrganisationPage({ params }: PublicOrganisat
       organisation.social_links?.facebook,
     ].filter(Boolean),
     "award": (organisation.caas_score || 0) >= 80 ? "Top 10% Rated Organisation" : undefined,
-    "knowsAbout": organisationStats.unique_subjects || [],
+    "knowsAbout": (organisationStats as any)?.unique_subjects || [],
   });
 
   // ===========================================================

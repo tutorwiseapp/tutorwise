@@ -214,9 +214,10 @@ export function OrganisationHeroSection({ organisation, isOwner }: OrganisationH
       {/* Share Modal */}
       {showShareModal && (
         <ShareModal
+          isOpen={true}
           url={`${window.location.origin}/organisation/${organisation.slug}`}
           title={`Check out ${organisation.name} on Tutorwise`}
-          description={organisation.tagline || organisation.bio?.substring(0, 100)}
+          text={organisation.tagline || organisation.bio?.substring(0, 100)}
           onClose={() => setShowShareModal(false)}
         />
       )}

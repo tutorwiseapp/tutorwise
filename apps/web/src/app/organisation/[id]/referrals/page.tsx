@@ -22,7 +22,7 @@ interface OrganisationReferralsPageProps {
 export default async function OrganisationReferralsPage({
   params,
 }: OrganisationReferralsPageProps) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Get authenticated user
   const {
