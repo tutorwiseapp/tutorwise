@@ -34,6 +34,7 @@ import { GetInTouchCard } from '@/app/components/feature/public-profile/GetInTou
 import { ListingStatsCard } from './components/ListingStatsCard';
 import RelatedListingsCard from './components/RelatedListingsCard';
 import MobileBottomCTA from './components/MobileBottomCTA';
+import { generateListingSchemaForPage } from '@/services/seo/schema-generator';
 import styles from './page.module.css';
 
 interface ListingDetailsPageProps {
@@ -255,44 +256,15 @@ export default async function ListingDetailsPage({ params }: ListingDetailsPageP
     ...(listing.gallery_image_urls || [])
   ].filter(Boolean) as string[];
 
-  // JSON-LD structured data for SEO
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: listing.title,
-    description: listing.description || '',
-    image: listing.hero_image_url || '',
-    offers: {
-      '@type': 'Offer',
-      price: listing.hourly_rate || listing.package_price || listing.group_price_per_person || 0,
-      priceCurrency: 'GBP',
-      availability: 'https://schema.org/InStock',
-      seller: {
-        '@type': 'Person',
-        name: enrichedProfile.full_name || 'Anonymous Tutor',
-        image: enrichedProfile.avatar_url || '',
-      },
-    },
-    aggregateRating: tutorStats.averageRating > 0 ? {
-      '@type': 'AggregateRating',
-      ratingValue: tutorStats.averageRating,
-      reviewCount: tutorStats.totalReviews,
-      bestRating: 5,
-      worstRating: 1,
-    } : undefined,
-    category: listing.subjects?.join(', ') || 'Education',
-    brand: {
-      '@type': 'Brand',
-      name: 'Tutorwise',
-    },
-  };
+  // JSON-LD structured data with CaaS trust signals
+  const structuredData = await generateListingSchemaForPage(listing.id);
 
   return (
     <>
-      {/* JSON-LD structured data */}
+      {/* JSON-LD Structured Data with CaaS trust signals */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: structuredData }}
       />
 
       <Container>

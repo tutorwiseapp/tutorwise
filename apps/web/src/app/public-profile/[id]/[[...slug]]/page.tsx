@@ -38,6 +38,7 @@ import { ReviewsCard } from '@/app/components/feature/public-profile/ReviewsCard
 import { SimilarProfilesCard } from '@/app/components/feature/public-profile/SimilarProfilesCard';
 import { MobileBottomCTA } from '@/app/components/feature/public-profile/MobileBottomCTA';
 import { ProfileViewTracker } from '@/app/components/feature/public-profile/ProfileViewTracker';
+import { generateProfileSchema } from '@/services/seo/schema-generator';
 import styles from './page.module.css';
 
 interface PublicProfilePageProps {
@@ -291,10 +292,21 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   } as Profile;
 
   // ===========================================================
-  // STEP 9: Render with 2-column layout (no AppSidebar)
+  // STEP 9: Generate JSON-LD structured data with trust signals
+  // ===========================================================
+  const structuredData = await generateProfileSchema(profile.id);
+
+  // ===========================================================
+  // STEP 10: Render with 2-column layout (no AppSidebar)
   // ===========================================================
   return (
     <Container>
+      {/* JSON-LD Structured Data with CaaS trust signals */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: structuredData }}
+      />
+
       {/* Track profile view (client-side component) */}
       {!isOwnProfile && <ProfileViewTracker profileId={profile.id} />}
 
