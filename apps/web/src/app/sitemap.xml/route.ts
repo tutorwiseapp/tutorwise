@@ -1,12 +1,20 @@
 /**
  * Filename: src/app/sitemap.xml/route.ts
- * Purpose: Dynamic sitemap generation for SEO
+ * Purpose: Trust-First Dynamic Sitemap Generation
  * Created: 2025-12-29
+ * Updated: 2025-12-31 - Added trust filtering for profiles and listings
  *
  * Generates sitemap.xml including:
- * - All published hubs
- * - All published spokes
- * - Static pages
+ * - Static pages (homepage, guides index)
+ * - Published hubs and spokes (content quality >= 60)
+ * - High-trust profiles (SEO eligible, score >= 75)
+ * - High-trust listings (from SEO-eligible providers)
+ *
+ * Trust-First SEO Principles:
+ * - Only include pages with seo_eligible = true
+ * - Filter by eligibility score >= 75
+ * - Separate sitemaps for different content types
+ * - Higher priority for higher trust scores
  *
  * Auto-submitted to Google Search Console when enabled
  */
@@ -106,6 +114,69 @@ export async function GET() {
             priority: 0.6,
           });
         }
+      }
+    }
+
+    // ============================================================================
+    // TRUST-FIRST SEO: High-Trust Profiles (score >= 75)
+    // ============================================================================
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, slug, updated_at, seo_eligibility_score')
+      .eq('seo_eligible', true)
+      .gte('seo_eligibility_score', 75)
+      .not('slug', 'is', null)
+      .order('seo_eligibility_score', { ascending: false })
+      .limit(1000); // Cap at 1000 profiles per sitemap
+
+    if (profiles) {
+      for (const profile of profiles) {
+        // Priority based on trust score (75-100 → 0.5-0.8)
+        const priority = 0.5 + ((profile.seo_eligibility_score - 75) / 100);
+
+        urls.push({
+          loc: `${baseUrl}/public-profile/${profile.id}/${profile.slug}`,
+          lastmod: profile.updated_at || new Date().toISOString(),
+          changefreq: 'monthly',
+          priority: Math.min(priority, 0.8),
+        });
+      }
+    }
+
+    // ============================================================================
+    // TRUST-FIRST SEO: Listings from High-Trust Providers
+    // ============================================================================
+    const { data: listings } = await supabase
+      .from('listings')
+      .select(`
+        id,
+        slug,
+        updated_at,
+        profile_id,
+        profiles!inner (
+          seo_eligible,
+          seo_eligibility_score
+        )
+      `)
+      .eq('status', 'active')
+      .eq('profiles.seo_eligible', true)
+      .gte('profiles.seo_eligibility_score', 75)
+      .not('slug', 'is', null)
+      .order('updated_at', { ascending: false })
+      .limit(1000); // Cap at 1000 listings per sitemap
+
+    if (listings) {
+      for (const listing of listings) {
+        const providerScore = (listing.profiles as any)?.seo_eligibility_score || 75;
+        // Priority based on provider trust (75-100 → 0.4-0.7)
+        const priority = 0.4 + ((providerScore - 75) / 125);
+
+        urls.push({
+          loc: `${baseUrl}/listings/${listing.id}/${listing.slug}`,
+          lastmod: listing.updated_at || new Date().toISOString(),
+          changefreq: 'monthly',
+          priority: Math.min(priority, 0.7),
+        });
       }
     }
 
