@@ -11,6 +11,9 @@ import { TeamReferralLeaderboard } from '@/components/feature/organisation/refer
 import { MemberReferralDashboard } from '@/components/feature/organisation/referrals/MemberReferralDashboard';
 import { PayoutExportCard } from '@/components/feature/organisation/referrals/PayoutExportCard';
 import { ConversionPipelineBoard } from '@/components/feature/organisation/referrals/ConversionPipelineBoard';
+import { ReferralAnalyticsDashboard } from '@/components/feature/organisation/referrals/ReferralAnalyticsDashboard';
+import { ReferralAchievements } from '@/components/feature/organisation/referrals/ReferralAchievements';
+import { MonthlyChallenges } from '@/components/feature/organisation/referrals/MonthlyChallenges';
 import styles from './page.module.css';
 
 interface OrganisationReferralsPageProps {
@@ -95,6 +98,11 @@ export default async function OrganisationReferralsPage({
 
             {programEnabled && (
               <>
+                <ReferralAnalyticsDashboard
+                  organisationId={organisation.id}
+                  isOwner={true}
+                />
+
                 <ConversionPipelineBoard
                   organisationId={organisation.id}
                 />
@@ -123,6 +131,23 @@ export default async function OrganisationReferralsPage({
                   memberId={user.id}
                   organisationId={organisation.id}
                   organisationSlug={organisation.slug}
+                />
+
+                <ReferralAnalyticsDashboard
+                  organisationId={organisation.id}
+                  memberId={user.id}
+                  isOwner={false}
+                />
+
+                <ReferralAchievements
+                  memberId={user.id}
+                  organisationId={organisation.id}
+                />
+
+                <MonthlyChallenges
+                  organisationId={organisation.id}
+                  memberId={user.id}
+                  isOwner={false}
                 />
 
                 <TeamReferralLeaderboard
