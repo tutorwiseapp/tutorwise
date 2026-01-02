@@ -139,8 +139,9 @@ function DroppableColumn({
   return (
     <div
       ref={setNodeRef}
-      className={styles.columnContent}
       style={{
+        minHeight: '400px',
+        height: '100%',
         backgroundColor: isOver ? 'rgba(0, 108, 103, 0.05)' : undefined,
         transition: 'background-color 0.2s',
       }}
@@ -410,19 +411,21 @@ export function ReferralPipeline({
       color: stageConfig.color, // Pass stage color for top border
       content: (
         <DroppableColumn stageKey={stageConfig.key} isOver={isOver}>
-          {/* Cards or Empty State */}
-          {referrals.length > 0 ? (
-            <div className={styles.cards}>
-              {referrals.map((referral) => (
-                <DraggableCard key={referral.id} referral={referral} onCardClick={onCardClick} />
-              ))}
-            </div>
-          ) : (
-            <div className={styles.empty}>
-              <StageIcon size={32} />
-              <p>No leads</p>
-            </div>
-          )}
+          <div className={styles.columnContent}>
+            {/* Cards or Empty State */}
+            {referrals.length > 0 ? (
+              <div className={styles.cards}>
+                {referrals.map((referral) => (
+                  <DraggableCard key={referral.id} referral={referral} onCardClick={onCardClick} />
+                ))}
+              </div>
+            ) : (
+              <div className={styles.empty}>
+                <StageIcon size={32} />
+                <p>No leads</p>
+              </div>
+            )}
+          </div>
         </DroppableColumn>
       ),
     };
