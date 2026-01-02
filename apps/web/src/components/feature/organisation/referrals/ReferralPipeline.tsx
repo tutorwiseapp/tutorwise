@@ -47,10 +47,6 @@ export function ReferralPipeline({ organisationId, dateFilter = 'active', search
   const [pipeline, setPipeline] = useState<PipelineStage[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadPipeline();
-  }, [organisationId]);
-
   const loadPipeline = async () => {
     try {
       const { data, error } = await supabase.rpc('get_organisation_conversion_pipeline', {
@@ -65,6 +61,11 @@ export function ReferralPipeline({ organisationId, dateFilter = 'active', search
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadPipeline();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [organisationId]);
 
   // Apply date filter and search to referrals
   const applyFilters = (referrals: PipelineStage[], filter: string, search: string): PipelineStage[] => {
