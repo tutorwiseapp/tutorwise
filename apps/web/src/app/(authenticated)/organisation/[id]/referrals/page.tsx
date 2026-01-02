@@ -51,7 +51,7 @@ export default function OrganisationReferralsPage({
 
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterValues, setFilterValues] = useState<Record<string, string>>({
+  const [filterValues, setFilterValues] = useState<Record<string, string | string[]>>({
     dateRange: 'active',
   });
 

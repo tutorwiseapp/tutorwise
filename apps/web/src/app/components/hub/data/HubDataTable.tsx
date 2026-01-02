@@ -49,8 +49,10 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Search, Download, ChevronDown, ChevronLeft, ChevronRight, RefreshCw, Save, MoreVertical, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import HubPagination from '@/app/components/hub/layout/HubPagination';
+import HubToolbar from '@/app/components/hub/toolbar/HubToolbar';
+import type { SavedView } from '@/app/components/hub/toolbar/types';
 import styles from './HubDataTable.module.css';
 
 export interface Column<T> {
@@ -80,15 +82,6 @@ export interface AdvancedFilter {
   key: string;
   label: string;
   options?: FilterOption[]; // For multi-select
-}
-
-export interface SavedView {
-  id: string;
-  name: string;
-  filters: Record<string, string | string[]>;
-  searchQuery: string;
-  sortKey: string;
-  sortDirection: 'asc' | 'desc';
 }
 
 export interface BulkAction {
@@ -187,14 +180,6 @@ export default function HubDataTable<T extends Record<string, any>>({
 
   // Phase 2: Saved views state
   const [savedViews, setSavedViews] = useState<SavedView[]>([]);
-  const [showSaveViewModal, setShowSaveViewModal] = useState(false);
-  const [newViewName, setNewViewName] = useState('');
-
-  // Phase 2: Bulk actions state
-  const [showBulkActions, setShowBulkActions] = useState(false);
-
-  // Phase 2: Keyboard shortcuts state
-  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Handle sort
   const handleSort = (key: string) => {
@@ -255,39 +240,35 @@ export default function HubDataTable<T extends Record<string, any>>({
     }
   }, [enableSavedViews, savedViewsKey]);
 
-  // Phase 2: Save current view
-  const handleSaveView = useCallback(() => {
-    if (!newViewName.trim()) return;
-
+  // Phase 2: Save current view (for HubToolbar)
+  const handleSaveViewForToolbar = useCallback((name: string, filters: Record<string, string | string[]>, search: string, sort?: string, sortDir?: 'asc' | 'desc') => {
     const newView: SavedView = {
       id: Date.now().toString(),
-      name: newViewName.trim(),
-      filters: filterValues,
-      searchQuery,
-      sortKey: sortKey || '',
-      sortDirection,
+      name: name.trim(),
+      filters,
+      searchQuery: search,
+      sortKey: sort || sortKey || undefined,
+      sortDirection: sortDir || sortDirection,
     };
 
     const updatedViews = [...savedViews, newView];
     setSavedViews(updatedViews);
     localStorage.setItem(savedViewsKey, JSON.stringify(updatedViews));
-    setShowSaveViewModal(false);
-    setNewViewName('');
-  }, [newViewName, filterValues, searchQuery, sortKey, sortDirection, savedViews, savedViewsKey]);
+  }, [sortKey, sortDirection, savedViews, savedViewsKey]);
 
   // Phase 2: Load saved view
   const handleLoadView = useCallback((view: SavedView) => {
     setFilterValues(view.filters);
     setSearchQuery(view.searchQuery);
-    setSortKey(view.sortKey);
-    setSortDirection(view.sortDirection);
+    setSortKey(view.sortKey || null);
+    setSortDirection(view.sortDirection || 'asc');
 
     // Notify parent components
     Object.entries(view.filters).forEach(([key, value]) => {
       onFilterChange?.(key, value);
     });
     onSearch?.(view.searchQuery);
-    if (view.sortKey) {
+    if (view.sortKey && view.sortDirection) {
       onSort?.(view.sortKey, view.sortDirection);
     }
   }, [onFilterChange, onSearch, onSort]);
@@ -298,33 +279,6 @@ export default function HubDataTable<T extends Record<string, any>>({
     setSavedViews(updatedViews);
     localStorage.setItem(savedViewsKey, JSON.stringify(updatedViews));
   }, [savedViews, savedViewsKey]);
-
-  // Phase 2: Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Cmd/Ctrl + K: Focus search
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        searchInputRef.current?.focus();
-      }
-
-      // Cmd/Ctrl + R: Refresh
-      if ((e.metaKey || e.ctrlKey) && e.key === 'r' && onRefresh) {
-        e.preventDefault();
-        handleManualRefresh();
-      }
-
-      // Escape: Clear search
-      if (e.key === 'Escape' && document.activeElement === searchInputRef.current) {
-        setSearchQuery('');
-        onSearch?.('');
-        searchInputRef.current?.blur();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onRefresh, onSearch, handleManualRefresh]);
 
   // Handle bulk select
   const handleSelectAll = () => {
@@ -357,175 +311,31 @@ export default function HubDataTable<T extends Record<string, any>>({
 
   return (
     <div className={`${styles.tableContainer} ${className}`}>
-      {/* Toolbar */}
-      <div className={styles.toolbar}>
-        {/* Search */}
-        <div className={styles.searchWrapper}>
-          <Search className={styles.searchIcon} />
-          <input
-            ref={searchInputRef}
-            type="text"
-            placeholder={`${searchPlaceholder} (⌘K)`}
-            value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
-            className={styles.searchInput}
-          />
-        </div>
-
-        {/* Filters */}
-        {filters.length > 0 && (
-          <div className={styles.filters}>
-            {filters.map((filter) => (
-              <div key={filter.key} className={styles.filterWrapper}>
-                <select
-                  value={filterValues[filter.key] || ''}
-                  onChange={(e) => handleFilter(filter.key, e.target.value)}
-                  className={styles.filterSelect}
-                >
-                  <option value="">{filter.label}</option>
-                  {filter.options.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className={styles.filterIcon} />
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Phase 2: Saved Views */}
-        {enableSavedViews && savedViews.length > 0 && (
-          <div className={styles.filterWrapper}>
-            <select
-              onChange={(e) => {
-                const view = savedViews.find(v => v.id === e.target.value);
-                if (view) handleLoadView(view);
-              }}
-              className={styles.filterSelect}
-            >
-              <option value="">Saved Views</option>
-              {savedViews.map((view) => (
-                <option key={view.id} value={view.id}>
-                  {view.name}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className={styles.filterIcon} />
-          </div>
-        )}
-
-        {/* Phase 2: Save View Button */}
-        {enableSavedViews && (
-          <button
-            onClick={() => setShowSaveViewModal(true)}
-            className={styles.iconButton}
-            title="Save current view"
-          >
-            <Save className={styles.buttonIcon} />
-          </button>
-        )}
-
-        {/* Phase 2: Refresh Button */}
-        {onRefresh && (
-          <button
-            onClick={handleManualRefresh}
-            disabled={isRefreshing}
-            className={`${styles.iconButton} ${isRefreshing ? styles.refreshing : ''}`}
-            title="Refresh data (⌘R)"
-          >
-            <RefreshCw className={styles.buttonIcon} />
-          </button>
-        )}
-
-        {/* Phase 2: Auto-refresh Toggle */}
-        {onRefresh && autoRefreshInterval && (
-          <label className={styles.autoRefreshToggle}>
-            <input
-              type="checkbox"
-              checked={autoRefreshEnabled}
-              onChange={(e) => setAutoRefreshEnabled(e.target.checked)}
-            />
-            <span className={styles.autoRefreshLabel}>Auto-refresh</span>
-          </label>
-        )}
-
-        {/* Custom Toolbar Actions (rendered before Export) */}
-        {toolbarActions}
-
-        {/* Export */}
-        {onExport && (
-          <button onClick={onExport} className={styles.exportButton}>
-            <Download className={styles.exportIcon} />
-            <span className={styles.exportText}>Export CSV</span>
-          </button>
-        )}
-
-        {/* Phase 2: Bulk Actions */}
-        {bulkActions.length > 0 && selectedRows.size > 0 && (
-          <div className={styles.bulkActionsWrapper}>
-            <button
-              onClick={() => setShowBulkActions(!showBulkActions)}
-              className={styles.bulkActionsButton}
-            >
-              <MoreVertical className={styles.buttonIcon} />
-              <span>Actions ({selectedRows.size})</span>
-              <ChevronDown className={styles.buttonIcon} />
-            </button>
-            {showBulkActions && (
-              <div className={styles.bulkActionsDropdown}>
-                {bulkActions.map((action) => (
-                  <button
-                    key={action.value}
-                    onClick={() => {
-                      action.onClick(Array.from(selectedRows));
-                      setShowBulkActions(false);
-                    }}
-                    className={`${styles.bulkActionItem} ${styles[action.variant || 'secondary']}`}
-                  >
-                    {action.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Phase 2: Save View Modal */}
-      {showSaveViewModal && (
-        <div className={styles.modal}>
-          <div className={styles.modalOverlay} onClick={() => setShowSaveViewModal(false)} />
-          <div className={styles.modalContent}>
-            <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>Save Current View</h3>
-              <button onClick={() => setShowSaveViewModal(false)} className={styles.modalClose}>
-                <X className={styles.buttonIcon} />
-              </button>
-            </div>
-            <div className={styles.modalBody}>
-              <input
-                type="text"
-                placeholder="View name"
-                value={newViewName}
-                onChange={(e) => setNewViewName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSaveView()}
-                className={styles.modalInput}
-                autoFocus
-              />
-            </div>
-            <div className={styles.modalFooter}>
-              <button onClick={() => setShowSaveViewModal(false)} className={styles.modalButtonSecondary}>
-                Cancel
-              </button>
-              <button onClick={handleSaveView} className={styles.modalButtonPrimary} disabled={!newViewName.trim()}>
-                Save View
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Toolbar - Using standalone HubToolbar component */}
+      <HubToolbar
+        searchPlaceholder={searchPlaceholder}
+        searchValue={searchQuery}
+        onSearchChange={handleSearch}
+        filters={filters}
+        filterValues={filterValues}
+        onFilterChange={handleFilter}
+        savedViews={savedViews}
+        onSaveView={enableSavedViews ? handleSaveViewForToolbar : undefined}
+        onLoadView={handleLoadView}
+        onDeleteView={handleDeleteView}
+        enableSavedViews={enableSavedViews}
+        savedViewsKey={savedViewsKey}
+        bulkActions={bulkActions}
+        selectedCount={selectedRows.size}
+        onClearSelection={() => onSelectionChange?.(new Set())}
+        onRefresh={onRefresh ? handleManualRefresh : undefined}
+        isRefreshing={isRefreshing}
+        autoRefreshInterval={autoRefreshInterval}
+        autoRefreshEnabled={autoRefreshEnabled}
+        onAutoRefreshToggle={setAutoRefreshEnabled}
+        onExport={onExport}
+        toolbarActions={toolbarActions}
+      />
 
       {/* Desktop/Tablet Table */}
       <div className={styles.desktopTable}>
