@@ -68,9 +68,9 @@
 }
 
 .timeRangeButton.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary-default, #006c67);
   color: white;
-  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 108, 103, 0.3);
 }
 
 /* Section */
@@ -212,7 +212,7 @@
   min-width: 32px;
   height: 32px;
   padding: 0 0.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary-default, #006c67) 0%, var(--color-primary-dark, #005550) 100%);
   color: white;
   border-radius: 16px;
   font-size: 0.875rem;
@@ -245,7 +245,7 @@
 }
 
 .forecastCard {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary-default, #006c67) 0%, var(--color-primary-dark, #005550) 100%);
   border-radius: 12px;
   padding: 1.5rem;
   color: white;

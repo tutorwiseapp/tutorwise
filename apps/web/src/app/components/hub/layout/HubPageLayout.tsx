@@ -116,6 +116,7 @@ interface HubPageLayoutProps {
   tabs?: ReactNode; // Optional tab navigation
   children: ReactNode; // Content area (cards, lists, etc.)
   sidebar?: ReactNode; // Optional right contextual column
+  fullWidth?: boolean; // Remove horizontal padding for full-width content (kanban boards, etc.)
 }
 
 export default function HubPageLayout({
@@ -123,6 +124,7 @@ export default function HubPageLayout({
   tabs,
   children,
   sidebar,
+  fullWidth = false,
 }: HubPageLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -162,8 +164,8 @@ export default function HubPageLayout({
           {/* Tabs (full-width within main area) */}
           {tabs}
 
-          {/* Content Container */}
-          <div className={styles.contentContainer}>
+          {/* Content Container - Use board variant for kanban layouts */}
+          <div className={fullWidth ? styles.contentContainerBoard : styles.contentContainer}>
             {children}
           </div>
         </div>

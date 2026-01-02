@@ -1,0 +1,65 @@
+/**
+ * HubKanbanBoard.module.css
+ * Left-aligned kanban board - starts at left edge
+ * Design: White background, grey columns with white top border
+ * Mobile: Horizontal scroll with snap points (swipeable)
+ */
+
+.board {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  background: #ffffff; /* Changed from #f8f9fa to white */
+  min-height: calc(100vh - 240px);
+  width: 100%;
+  overflow-x: auto;
+
+  /* Mobile: Smooth horizontal scrolling with snap points */
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+.column {
+  flex: 1 1 280px; /* Responsive: grow and shrink, min-width 280px */
+  min-width: 280px; /* Minimum width to keep readable */
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa; /* Changed from #ffffff to grey */
+  border: 1px solid #e5e7eb;
+  border-top: 3px solid #e5e7eb; /* Subtle grey top border for definition */
+  border-radius: 8px;
+
+  /* Mobile: Snap to column edges when scrolling */
+  scroll-snap-align: start;
+}
+
+/* Mobile: Full-width columns on small screens */
+@media (max-width: 767px) {
+  .board {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .column {
+    flex: 0 0 calc(100vw - 24px); /* Full width minus padding */
+    min-width: calc(100vw - 24px);
+  }
+}
+
+.columnHeader {
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.columnTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.columnContent {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+}

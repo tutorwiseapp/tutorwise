@@ -1,0 +1,148 @@
+/* OrganisationReferralDetailModal.module.css */
+
+/* Stage Dropdown in Bottom Right */
+.stageDropdownWrapper {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.stageDropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.stageSelect {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding: 0.625rem 2.5rem 0.625rem 1rem;
+  background: var(--color-primary-default, #006c67);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 160px;
+}
+
+.stageSelect:hover {
+  background: var(--color-primary-dark, #005550);
+}
+
+.stageSelect:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.2);
+}
+
+.stageSelect:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dropdownIcon {
+  position: absolute;
+  right: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: white;
+}
+
+/* Estimated Value Input with GBP Label */
+.valueInput {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.currencyLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.numberInput {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #1e293b;
+  background: white;
+  transition: all 0.2s;
+  width: 150px;
+  -moz-appearance: textfield; /* Remove spinner arrows in Firefox */
+}
+
+/* Remove spinner arrows in WebKit browsers */
+.numberInput::-webkit-outer-spin-button,
+.numberInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.numberInput::placeholder {
+  color: #94a3b8;
+}
+
+.numberInput:focus {
+  outline: none;
+  border-color: var(--color-primary-default, #006c67);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
+}
+
+.numberInput:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #f8fafc;
+}
+
+/* Notes Textarea */
+.notesTextarea {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #1e293b;
+  background: white;
+  transition: all 0.2s;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.notesTextarea::placeholder {
+  color: #94a3b8;
+}
+
+.notesTextarea:focus {
+  outline: none;
+  border-color: var(--color-primary-default, #006c67);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
+}
+
+.notesTextarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #f8fafc;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stageSelect {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .valueInput {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .numberInput {
+    width: 100%;
+  }
+}

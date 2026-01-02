@@ -94,7 +94,7 @@
 }
 
 .value {
-  color: #667eea;
+  color: var(--color-primary-default, #006c67);
   font-size: 1rem;
 }
 
@@ -109,8 +109,19 @@
 
 .input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--color-primary-default, #006c67);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
+}
+
+/* Remove number input arrows/spinners */
+.input[type="number"]::-webkit-inner-spin-button,
+.input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 .slider {
@@ -128,13 +139,13 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #667eea;
+  background: var(--color-primary-default, #006c67);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .slider::-webkit-slider-thumb:hover {
-  background: #5568d3;
+  background: var(--color-primary-dark, #005550);
   transform: scale(1.1);
 }
 
@@ -142,14 +153,14 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #667eea;
+  background: var(--color-primary-default, #006c67);
   cursor: pointer;
   border: none;
   transition: all 0.2s;
 }
 
 .slider::-moz-range-thumb:hover {
-  background: #5568d3;
+  background: var(--color-primary-dark, #005550);
   transform: scale(1.1);
 }
 
@@ -172,7 +183,7 @@
 }
 
 .toggle:checked {
-  background: #667eea;
+  background: var(--color-primary-default, #006c67);
 }
 
 .toggle::before {
@@ -244,7 +255,7 @@
 }
 
 .orgSplit {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary-default, #006c67) 0%, var(--color-primary-dark, #005550) 100%);
 }
 
 .memberSplit {
@@ -260,11 +271,8 @@
 }
 
 .saveButton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
   padding: 0.875rem 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary-default, #006c67);
   color: white;
   border: none;
   border-radius: 8px;
@@ -275,8 +283,9 @@
 }
 
 .saveButton:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  background: var(--color-primary-dark, #005550);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 108, 103, 0.2);
 }
 
 .saveButton:disabled {

@@ -8,7 +8,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import styles from './AppSidebar.module.css';
 
@@ -22,13 +22,24 @@ interface NavItem {
 
 export default function AppSidebar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { activeRole } = useUserProfile();
 
   // Universal navigation menu - SAME for all roles (do not reorder or rename)
   // Client note: Clients can list lesson requests under Listings
   const navItems: NavItem[] = [
     { href: '/dashboard', label: 'Dashboard' },
-    { href: '/organisation', label: 'Organisation' }, // v6.1: Agency/School Management (all roles)
+    {
+      href: '/organisation?tab=team',
+      label: 'Organisation',
+      subItems: [
+        { href: '/organisation?tab=team', label: 'Team', indent: true },
+        { href: '/organisation?tab=clients', label: 'Clients', indent: true },
+        { href: '/organisation/referrals', label: 'Referrals', indent: true },
+        { href: '/organisation?tab=performance', label: 'Performance', indent: true },
+        { href: '/organisation?tab=info', label: 'Settings', indent: true },
+      ],
+    },
     { href: '/listings', label: 'Listings' },
     { href: '/bookings', label: 'Bookings' },
     { href: '/referrals', label: 'Referrals' },
@@ -65,7 +76,47 @@ export default function AppSidebar() {
   };
 
   const isParentActive = (href: string) => {
-    return pathname?.startsWith(href);
+    // Extract path without query params for parent link checking
+    const path = href.split('?')[0];
+    return pathname?.startsWith(path);
+  };
+
+  const isSubItemActive = (href: string) => {
+    // Check if href contains query params
+    if (href.includes('?')) {
+      const [path, query] = href.split('?');
+      const currentPath = pathname;
+      const currentQuery = searchParams?.toString();
+
+      // Parse expected query params from href
+      const expectedParams = new URLSearchParams(query);
+      const currentParams = new URLSearchParams(currentQuery);
+
+      // Check if path matches
+      if (currentPath !== path) return false;
+
+      // For organisation links, only check if the 'tab' param matches
+      // This keeps the link highlighted when on that tab, regardless of other params (like subtab)
+      // This matches how Financials works - /financials stays highlighted on /financials/payouts
+      if (path === '/organisation' && expectedParams.has('tab')) {
+        return currentParams.get('tab') === expectedParams.get('tab');
+      }
+
+      // For all other links, check if all expected params match current params
+      for (const [key, value] of expectedParams.entries()) {
+        if (currentParams.get(key) !== value) return false;
+      }
+
+      return true;
+    }
+
+    // Special case: /organisation/referrals should match /organisation/[id]/referrals
+    if (href === '/organisation/referrals') {
+      return pathname === '/organisation/referrals' || pathname?.match(/^\/organisation\/[^/]+\/referrals/);
+    }
+
+    // For non-query param links, use exact match
+    return pathname === href;
   };
 
   return (
@@ -103,7 +154,7 @@ export default function AppSidebar() {
                       <Link
                         href={subItem.href}
                         className={`${styles.navItem} ${
-                          pathname === subItem.href ? styles.navItemActive : ''
+                          isSubItemActive(subItem.href) ? styles.navItemActive : ''
                         } ${subItem.indent ? styles.navItemIndent : ''}`}
                       >
                         {subItem.label}

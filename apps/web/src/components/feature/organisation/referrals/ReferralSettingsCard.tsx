@@ -8,7 +8,8 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { Save, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Save, AlertCircle } from 'lucide-react';
+import toast from 'react-hot-toast';
 import styles from './ReferralSettingsCard.module.css';
 
 interface ReferralConfig {
@@ -44,7 +45,6 @@ export function ReferralSettingsCard({ organisationId, isOwner }: ReferralSettin
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Load existing config
   useEffect(() => {
@@ -77,12 +77,12 @@ export function ReferralSettingsCard({ organisationId, isOwner }: ReferralSettin
     if (!isOwner) return;
 
     setSaving(true);
-    setMessage(null);
 
     try {
       // Validate splits total 100%
       if (config.organisation_split_percentage + config.member_split_percentage !== 100) {
-        throw new Error('Organisation and member splits must total 100%');
+        toast.error('Organisation and member splits must total 100%');
+        return;
       }
 
       const { error } = await supabase
@@ -96,13 +96,13 @@ export function ReferralSettingsCard({ organisationId, isOwner }: ReferralSettin
 
       if (error) throw error;
 
-      setMessage({ type: 'success', text: 'Referral settings saved successfully!' });
+      toast.success('Referral settings saved successfully!');
 
       // Reload config
       await loadConfig();
     } catch (error: any) {
       console.error('Error saving referral config:', error);
-      setMessage({ type: 'error', text: error.message || 'Failed to save settings' });
+      toast.error(error.message || 'Failed to save settings');
     } finally {
       setSaving(false);
     }
@@ -153,13 +153,6 @@ export function ReferralSettingsCard({ organisationId, isOwner }: ReferralSettin
           Enable your team to earn commissions by referring new clients
         </p>
       </div>
-
-      {message && (
-        <div className={`${styles.message} ${styles[message.type]}`}>
-          {message.type === 'success' ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
-          <span>{message.text}</span>
-        </div>
-      )}
 
       <div className={styles.form}>
         {/* Enable Program */}
@@ -319,14 +312,7 @@ export function ReferralSettingsCard({ organisationId, isOwner }: ReferralSettin
             disabled={saving}
             className={styles.saveButton}
           >
-            {saving ? (
-              <>Saving...</>
-            ) : (
-              <>
-                <Save size={20} />
-                Save Settings
-              </>
-            )}
+            {saving ? 'Saving...' : 'Save Settings'}
           </button>
         </div>
       </div>

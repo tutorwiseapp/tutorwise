@@ -18,9 +18,9 @@
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import {
   getMyOrganisation,
@@ -50,6 +50,7 @@ import ManageMemberModal from '@/app/components/feature/organisation/content/Man
 import MemberCard from '@/app/components/feature/organisation/content/MemberCard';
 import OrganisationStudentCard from '@/app/components/feature/organisation/content/OrganisationStudentCard';
 import OrganisationPerformanceTab from '@/app/components/feature/organisation/tabs/OrganisationPerformanceTab';
+// OrganisationReferralsTab removed - now has dedicated page at /organisation/[id]/referrals
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import SubscriptionRequired from '@/app/components/feature/organisation/content/SubscriptionRequired';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
@@ -70,8 +71,19 @@ export default function OrganisationPage() {
   const { profile, isLoading: profileLoading } = useUserProfile();
   const queryClient = useQueryClient();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [activeTab, setActiveTab] = useState<TabType>('team');
+  // Read tab from URL params (default: 'team')
+  const tabFromUrl = (searchParams?.get('tab') as TabType) || 'team';
+  const [activeTab, setActiveTab] = useState<TabType>(tabFromUrl);
+
+  // Sync activeTab with URL params
+  useEffect(() => {
+    const tabParam = searchParams?.get('tab') as TabType;
+    if (tabParam && tabParam !== activeTab) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [managingMember, setManagingMember] = useState<OrganisationMember | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -473,9 +485,7 @@ export default function OrganisationPage() {
           </HubSidebar>
         }
       >
-        <div className={styles.container}>
-          <div className={styles.loading}>Loading...</div>
-        </div>
+        <div className={styles.loading}>Loading...</div>
       </HubPageLayout>
     );
   }
@@ -498,12 +508,10 @@ export default function OrganisationPage() {
           </HubSidebar>
         }
       >
-        <div className={styles.container}>
-          <div className={styles.error}>
-            <h2>Error Loading Organisation</h2>
-            <p>Failed to load organisation data. Please try again.</p>
-            <Button onClick={() => refetchOrg()}>Retry</Button>
-          </div>
+        <div className={styles.error}>
+          <h2>Error Loading Organisation</h2>
+          <p>Failed to load organisation data. Please try again.</p>
+          <Button onClick={() => refetchOrg()}>Retry</Button>
         </div>
       </HubPageLayout>
     );
@@ -575,8 +583,7 @@ export default function OrganisationPage() {
           </HubSidebar>
         }
       >
-        <div className={styles.container}>
-          <div className={styles.emptyState}>
+        <div className={styles.emptyState}>
             <h3 className={styles.emptyTitle}>No Organisation Yet</h3>
             <p className={styles.emptyText}>
               Create an organisation to manage your team of tutors and track your clients.
@@ -625,7 +632,6 @@ export default function OrganisationPage() {
                 Create Organisation
               </Button>
             )}
-          </div>
         </div>
       </HubPageLayout>
     );
@@ -758,108 +764,102 @@ export default function OrganisationPage() {
         </HubSidebar>
       }
     >
-      <div className={styles.container}>
-        {/* Team Tab */}
-        {activeTab === 'team' && (
-          <>
-            {membersLoading ? (
-              <div className={styles.loading}>Loading team...</div>
-            ) : paginatedMembers.length === 0 ? (
-              members.length === 0 ? (
-                <HubEmptyState
-                  title="No Team Members Yet"
-                  description="Use the invite widget to add members to your team."
-                />
-              ) : (
-                <HubEmptyState
-                  title="No Members Found"
-                  description="No team members match your current search."
-                />
-              )
+      {/* Team Tab */}
+      {activeTab === 'team' && (
+        <>
+          {membersLoading ? (
+            <div className={styles.loading}>Loading team...</div>
+          ) : paginatedMembers.length === 0 ? (
+            members.length === 0 ? (
+              <HubEmptyState
+                title="No Team Members Yet"
+                description="Use the invite widget to add members to your team."
+              />
             ) : (
-              <>
-                <div className={styles.cardList}>
-                  {paginatedMembers.map((member) => (
-                    <MemberCard
-                      key={member.id}
-                      member={member}
-                      onMessage={handleMessageMember}
-                      onRemove={handleRemoveMember}
-                      onManage={setManagingMember}
-                    />
-                  ))}
-                </div>
-
-                {/* Pagination */}
-                {filteredMembers.length > ITEMS_PER_PAGE && (
-                  <HubPagination
-                    currentPage={currentPage}
-                    totalItems={filteredMembers.length}
-                    itemsPerPage={ITEMS_PER_PAGE}
-                    onPageChange={setCurrentPage}
+              <HubEmptyState
+                title="No Members Found"
+                description="No team members match your current search."
+              />
+            )
+          ) : (
+            <>
+              <div className={styles.cardList}>
+                {paginatedMembers.map((member) => (
+                  <MemberCard
+                    key={member.id}
+                    member={member}
+                    onMessage={handleMessageMember}
+                    onRemove={handleRemoveMember}
+                    onManage={setManagingMember}
                   />
-                )}
-              </>
-            )}
-          </>
-        )}
+                ))}
+              </div>
 
-        {/* Clients Tab */}
-        {activeTab === 'clients' && (
-          <>
-            {clientsLoading ? (
-              <div className={styles.loading}>Loading clients...</div>
-            ) : paginatedClients.length === 0 ? (
-              clients.length === 0 ? (
-                <HubEmptyState
-                  title="No Clients Yet"
-                  description="Clients will appear here when your team members connect with students."
+              {/* Pagination */}
+              {filteredMembers.length > ITEMS_PER_PAGE && (
+                <HubPagination
+                  currentPage={currentPage}
+                  totalItems={filteredMembers.length}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  onPageChange={setCurrentPage}
                 />
-              ) : (
-                <HubEmptyState
-                  title="No Clients Found"
-                  description="No clients match your current search."
-                />
-              )
+              )}
+            </>
+          )}
+        </>
+      )}
+
+      {/* Clients Tab */}
+      {activeTab === 'clients' && (
+        <>
+          {clientsLoading ? (
+            <div className={styles.loading}>Loading clients...</div>
+          ) : paginatedClients.length === 0 ? (
+            clients.length === 0 ? (
+              <HubEmptyState
+                title="No Clients Yet"
+                description="Clients will appear here when your team members connect with students."
+              />
             ) : (
-              <>
-                <div className={styles.cardList}>
-                  {paginatedClients.map((client: any) => (
-                    <OrganisationStudentCard
-                      key={client.id}
-                      client={client}
-                    />
-                  ))}
-                </div>
-
-                {/* Pagination */}
-                {filteredClients.length > ITEMS_PER_PAGE && (
-                  <HubPagination
-                    currentPage={currentPage}
-                    totalItems={filteredClients.length}
-                    itemsPerPage={ITEMS_PER_PAGE}
-                    onPageChange={setCurrentPage}
+              <HubEmptyState
+                title="No Clients Found"
+                description="No clients match your current search."
+              />
+            )
+          ) : (
+            <>
+              <div className={styles.cardList}>
+                {paginatedClients.map((client: any) => (
+                  <OrganisationStudentCard
+                    key={client.id}
+                    client={client}
                   />
-                )}
-              </>
-            )}
-          </>
-        )}
+                ))}
+              </div>
 
-        {/* Performance Tab */}
-        {activeTab === 'performance' && (
-          <div className={styles.content}>
-            <OrganisationPerformanceTab organisationId={organisation.id} />
-          </div>
-        )}
+              {/* Pagination */}
+              {filteredClients.length > ITEMS_PER_PAGE && (
+                <HubPagination
+                  currentPage={currentPage}
+                  totalItems={filteredClients.length}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  onPageChange={setCurrentPage}
+                />
+              )}
+            </>
+          )}
+        </>
+      )}
 
-        {/* Info Tab */}
-        {activeTab === 'info' && (
-          <div className={styles.content}>
-            <OrganisationInfoTab organisation={organisation} />
-          </div>
-        )}
-      </div>
+      {/* Performance Tab */}
+      {activeTab === 'performance' && (
+        <OrganisationPerformanceTab organisationId={organisation.id} />
+      )}
+
+      {/* Info Tab */}
+      {activeTab === 'info' && (
+        <OrganisationInfoTab organisation={organisation} />
+      )}
 
       {/* Manage Member Modal */}
       {managingMember && (

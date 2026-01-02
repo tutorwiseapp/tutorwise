@@ -1,0 +1,32 @@
+/**
+ * Organisation Referrals Page - Hub Architecture
+ * Updated: 2025-12-31 - Migrated to Hub Layout Architecture
+ *
+ * LEGACY STYLES REMOVED:
+ * - .page, .container, .header - now handled by HubPageLayout
+ * - .title, .subtitle - now handled by HubHeader
+ */
+
+/* Loading State */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: #64748b;
+  font-size: 1rem;
+}
+
+/* Content Container */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .content {
+    gap: 1rem;
+  }
+}
