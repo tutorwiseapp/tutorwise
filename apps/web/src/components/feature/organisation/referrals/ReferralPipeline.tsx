@@ -31,6 +31,7 @@ interface ReferralPipelineProps {
   organisationId: string;
   dateFilter?: 'active' | '30days' | '90days' | 'all';
   searchQuery?: string;
+  onCardClick?: (referralId: string) => void;
 }
 
 const STAGE_CONFIG = [
@@ -42,7 +43,7 @@ const STAGE_CONFIG = [
   { key: 'converted', label: 'Won', icon: CheckCircle2, color: '#10b981' },
 ];
 
-export function ReferralPipeline({ organisationId, dateFilter = 'active', searchQuery = '' }: ReferralPipelineProps) {
+export function ReferralPipeline({ organisationId, dateFilter = 'active', searchQuery = '', onCardClick }: ReferralPipelineProps) {
   const supabase = createClient();
   const [pipeline, setPipeline] = useState<PipelineStage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -165,7 +166,12 @@ export function ReferralPipeline({ organisationId, dateFilter = 'active', search
           {referrals.length > 0 ? (
             <div className={styles.cards}>
               {referrals.map((referral) => (
-                <div key={referral.id} className={styles.card}>
+                <div
+                  key={referral.id}
+                  className={styles.card}
+                  onClick={() => onCardClick?.(referral.id)}
+                  style={{ cursor: onCardClick ? 'pointer' : 'default' }}
+                >
                   <div className={styles.cardName}>
                     {referral.referred_name || 'Unknown'}
                   </div>

@@ -19,6 +19,7 @@ import { ReferralPipeline } from '@/components/feature/organisation/referrals/Re
 import { ReferralAnalyticsDashboard } from '@/components/feature/organisation/referrals/ReferralAnalyticsDashboard';
 import { ReferralAchievements } from '@/components/feature/organisation/referrals/ReferralAchievements';
 import { MonthlyChallenges } from '@/components/feature/organisation/referrals/MonthlyChallenges';
+import { OrganisationReferralDetailModal } from '@/components/feature/organisation/referrals/OrganisationReferralDetailModal';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
@@ -54,6 +55,8 @@ export default function OrganisationReferralsPage({
   const [filterValues, setFilterValues] = useState<Record<string, string | string[]>>({
     dateRange: 'active',
   });
+  const [selectedReferralId, setSelectedReferralId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Fetch organisation details
   const {
@@ -122,6 +125,21 @@ export default function OrganisationReferralsPage({
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId as TabType);
+  };
+
+  const handleCardClick = (referralId: string) => {
+    setSelectedReferralId(referralId);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedReferralId(null);
+  };
+
+  const handleReferralUpdate = () => {
+    // Invalidate relevant queries to refresh data
+    queryClient.invalidateQueries({ queryKey: ['referral-config', params.id] });
   };
 
   const handleEnableProgram = async () => {
@@ -321,6 +339,7 @@ export default function OrganisationReferralsPage({
               organisationId={params.id}
               dateFilter={filterValues.dateRange as DateFilterType}
               searchQuery={searchQuery}
+              onCardClick={handleCardClick}
             />
           </div>
         )
@@ -470,6 +489,17 @@ export default function OrganisationReferralsPage({
             </>
           )}
         </div>
+      )}
+
+      {/* Referral Detail Modal */}
+      {isModalOpen && selectedReferralId && (
+        <OrganisationReferralDetailModal
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          referralId={selectedReferralId}
+          organisationId={params.id}
+          onUpdate={handleReferralUpdate}
+        />
       )}
     </HubPageLayout>
   );
