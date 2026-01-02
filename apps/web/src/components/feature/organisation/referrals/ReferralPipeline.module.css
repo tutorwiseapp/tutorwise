@@ -48,14 +48,19 @@
   border: 1px solid #e5e7eb;
   border-radius: 7px;
   padding: 14px;
-  cursor: pointer;
+  cursor: grab;
   transition: all 0.2s;
+  touch-action: none; /* Prevent default touch actions during drag */
 }
 
 .card:hover {
   border-color: #006c67;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
+}
+
+.card:active {
+  cursor: grabbing;
 }
 
 .cardName {
