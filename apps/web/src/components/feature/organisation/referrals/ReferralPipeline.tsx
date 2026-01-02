@@ -131,6 +131,19 @@ export function ReferralPipeline({ organisationId, dateFilter = 'active', search
     return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }).toUpperCase();
   };
 
+  // Apply date filter and search to pipeline data (do this before early return)
+  const filteredPipeline = applyFilters(pipeline, dateFilter, searchQuery);
+
+  // Calculate total pipeline value
+  const totalPipelineValue = filteredPipeline.reduce((sum, stage) => {
+    return sum + Number(stage.total_estimated_value || 0);
+  }, 0);
+
+  // Emit total value to parent component whenever it changes (must be before early return)
+  useEffect(() => {
+    onTotalValueChange?.(totalPipelineValue);
+  }, [totalPipelineValue, onTotalValueChange]);
+
   if (loading) {
     return (
       <div className={styles.loading}>
@@ -138,21 +151,6 @@ export function ReferralPipeline({ organisationId, dateFilter = 'active', search
       </div>
     );
   }
-
-  // Apply date filter and search to pipeline data
-  const filteredPipeline = applyFilters(pipeline, dateFilter, searchQuery);
-
-  // Calculate total pipeline value and emit to parent
-  const totalPipelineValue = filteredPipeline.reduce((sum, stage) => {
-    return sum + Number(stage.total_estimated_value || 0);
-  }, 0);
-
-  // Emit total value to parent component
-  useEffect(() => {
-    if (onTotalValueChange) {
-      onTotalValueChange(totalPipelineValue);
-    }
-  }, [totalPipelineValue, onTotalValueChange]);
 
   const columns: KanbanColumn[] = STAGE_CONFIG.map((stageConfig) => {
     const stageData = filteredPipeline.find((s) => s.stage === stageConfig.key);
