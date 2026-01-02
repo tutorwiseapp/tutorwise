@@ -1,30 +1,17 @@
 /**
  * ReferralPipeline.tsx
- * Referral conversion pipeline using HubKanbanBoard shell with drag-and-drop
+ * Referral conversion pipeline using HubKanbanBoard with drag-and-drop
  * Created: 2026-01-02
- * Updated: 2026-01-02 - Added dnd-kit drag-and-drop functionality
+ * Updated: 2026-01-02 - Refactored to use HubKanbanBoard's built-in drag-and-drop
  */
 
 'use client';
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { HubKanbanBoard } from '@/app/components/hub/kanban';
-import type { KanbanColumn } from '@/app/components/hub/kanban';
+import HubKanbanBoard from '@/app/components/hub/kanban/HubKanbanBoard';
+import type { KanbanColumn } from '@/app/components/hub/kanban/HubKanbanBoard';
 import { Users, Phone, Calendar, FileText, CheckCircle2, Briefcase } from 'lucide-react';
-import {
-  DndContext,
-  DragOverlay,
-  closestCorners,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  DragStartEvent,
-  DragEndEvent,
-  DragOverEvent,
-} from '@dnd-kit/core';
-import { useDroppable } from '@dnd-kit/core';
 import { useDraggable } from '@dnd-kit/core';
 import toast from 'react-hot-toast';
 import styles from './ReferralPipeline.module.css';
@@ -122,35 +109,6 @@ function DraggableCard({
   );
 }
 
-// Droppable Column Component
-function DroppableColumn({
-  stageKey,
-  children,
-  isOver,
-}: {
-  stageKey: string;
-  children: React.ReactNode;
-  isOver: boolean;
-}) {
-  const { setNodeRef } = useDroppable({
-    id: stageKey,
-  });
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={{
-        minHeight: '400px',
-        height: '100%',
-        backgroundColor: isOver ? 'rgba(0, 108, 103, 0.05)' : undefined,
-        transition: 'background-color 0.2s',
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
 export function ReferralPipeline({
   organisationId,
   dateFilter = 'active',
@@ -160,23 +118,6 @@ export function ReferralPipeline({
   const supabase = createClient();
   const [pipeline, setPipeline] = useState<PipelineStage[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [overId, setOverId] = useState<string | null>(null);
-
-  // Configure sensors for drag-and-drop
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8, // 8px movement required before drag starts (prevents accidental drags)
-      },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 200, // 200ms delay for touch devices (prevents scroll conflicts)
-        tolerance: 5,
-      },
-    })
-  );
 
   const loadPipeline = async () => {
     try {
@@ -267,32 +208,14 @@ export function ReferralPipeline({
     }).format(amount);
   };
 
-  // Drag handlers
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
-  };
-
-  const handleDragOver = (event: DragOverEvent) => {
-    setOverId(event.over?.id as string | null);
-  };
-
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    setActiveId(null);
-    setOverId(null);
-
-    if (!over) return;
-
-    const referralId = active.id as string;
-    const newStage = over.id as string;
-
+  // Handle card move (drag-and-drop)
+  const handleCardMove = async (cardId: string, fromColumnId: string, toColumnId: string) => {
     // Get current stage
     const currentStage = pipeline.find((stage) =>
-      stage.referrals.some((r) => r.id === referralId)
+      stage.referrals.some((r) => r.id === cardId)
     );
 
-    if (!currentStage || currentStage.stage === newStage) {
+    if (!currentStage || currentStage.stage === toColumnId) {
       return; // No change needed
     }
 
@@ -302,11 +225,11 @@ export function ReferralPipeline({
         // Remove from current stage
         return {
           ...stage,
-          referrals: stage.referrals.filter((r) => r.id !== referralId),
+          referrals: stage.referrals.filter((r) => r.id !== cardId),
         };
-      } else if (stage.stage === newStage) {
+      } else if (stage.stage === toColumnId) {
         // Add to new stage
-        const referral = currentStage.referrals.find((r) => r.id === referralId);
+        const referral = currentStage.referrals.find((r) => r.id === cardId);
         return {
           ...stage,
           referrals: referral ? [...stage.referrals, referral] : stage.referrals,
@@ -323,17 +246,17 @@ export function ReferralPipeline({
       if (!currentUser.user) throw new Error('Not authenticated');
 
       console.log('Calling RPC with:', {
-        p_referral_id: referralId,
-        p_new_stage: newStage,
+        p_referral_id: cardId,
+        p_new_stage: toColumnId,
         p_performed_by: currentUser.user.id,
-        p_notes: `Moved from ${currentStage.stage} to ${newStage}`,
+        p_notes: `Moved from ${currentStage.stage} to ${toColumnId}`,
       });
 
       const { data, error } = await supabase.rpc('update_referral_conversion_stage', {
-        p_referral_id: referralId,
-        p_new_stage: newStage,
+        p_referral_id: cardId,
+        p_new_stage: toColumnId,
         p_performed_by: currentUser.user.id,
-        p_notes: `Moved from ${currentStage.stage} to ${newStage}`,
+        p_notes: `Moved from ${currentStage.stage} to ${toColumnId}`,
         p_metadata: {},
       });
 
@@ -341,7 +264,7 @@ export function ReferralPipeline({
 
       if (error) throw error;
 
-      toast.success(`Lead moved to ${STAGE_CONFIG.find((s) => s.key === newStage)?.label}`);
+      toast.success(`Lead moved to ${STAGE_CONFIG.find((s) => s.key === toColumnId)?.label}`);
 
       // Reload pipeline to get updated data
       await loadPipeline();
@@ -360,20 +283,8 @@ export function ReferralPipeline({
     }
   };
 
-  const handleDragCancel = () => {
-    setActiveId(null);
-    setOverId(null);
-  };
-
   // Apply date filter and search to pipeline data
   const filteredPipeline = applyFilters(pipeline, dateFilter, searchQuery);
-
-  // Get the active dragging referral for the overlay
-  const activeReferral = activeId
-    ? filteredPipeline
-        .flatMap((stage) => stage.referrals)
-        .find((referral) => referral.id === activeId)
-    : null;
 
   if (loading) {
     return (
@@ -389,7 +300,6 @@ export function ReferralPipeline({
     const count = Number(stageData?.count || 0);
     const value = Number(stageData?.total_estimated_value || 0);
     const referrals = stageData?.referrals || [];
-    const isOver = overId === stageConfig.key;
 
     return {
       id: stageConfig.key,
@@ -408,47 +318,48 @@ export function ReferralPipeline({
           )}
         </div>
       ),
-      color: stageConfig.color, // Pass stage color for top border
+      color: stageConfig.color,
       content: (
-        <DroppableColumn stageKey={stageConfig.key} isOver={isOver}>
-          <div className={styles.columnContent}>
-            {/* Cards or Empty State */}
-            {referrals.length > 0 ? (
-              <div className={styles.cards}>
-                {referrals.map((referral) => (
-                  <DraggableCard key={referral.id} referral={referral} onCardClick={onCardClick} />
-                ))}
-              </div>
-            ) : (
-              <div className={styles.empty}>
-                <StageIcon size={32} />
-                <p>No leads</p>
-              </div>
-            )}
-          </div>
-        </DroppableColumn>
+        <div className={styles.columnContent}>
+          {referrals.length > 0 ? (
+            <div className={styles.cards}>
+              {referrals.map((referral) => (
+                <DraggableCard key={referral.id} referral={referral} onCardClick={onCardClick} />
+              ))}
+            </div>
+          ) : (
+            <div className={styles.empty}>
+              <StageIcon size={32} />
+              <p>No leads</p>
+            </div>
+          )}
+        </div>
       ),
     };
   });
 
+  // Render drag overlay
+  const renderDragOverlay = (cardId: string) => {
+    const referral = filteredPipeline
+      .flatMap((stage) => stage.referrals)
+      .find((r) => r.id === cardId);
+
+    if (!referral) return null;
+
+    return (
+      <div className={styles.card} style={{ opacity: 0.8, cursor: 'grabbing' }}>
+        <div className={styles.cardName}>{referral.referred_name || 'Unknown'}</div>
+        <div className={styles.cardEmail}>{referral.referred_email || 'No email'}</div>
+      </div>
+    );
+  };
+
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCorners}
-      onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
-      onDragEnd={handleDragEnd}
-      onDragCancel={handleDragCancel}
-    >
-      <HubKanbanBoard columns={columns} />
-      <DragOverlay>
-        {activeReferral ? (
-          <div className={styles.card} style={{ opacity: 0.8, cursor: 'grabbing' }}>
-            <div className={styles.cardName}>{activeReferral.referred_name || 'Unknown'}</div>
-            <div className={styles.cardEmail}>{activeReferral.referred_email || 'No email'}</div>
-          </div>
-        ) : null}
-      </DragOverlay>
-    </DndContext>
+    <HubKanbanBoard
+      columns={columns}
+      enableDragDrop={true}
+      onCardMove={handleCardMove}
+      renderDragOverlay={renderDragOverlay}
+    />
   );
 }
