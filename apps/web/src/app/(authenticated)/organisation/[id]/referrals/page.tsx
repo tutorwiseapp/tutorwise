@@ -54,6 +54,7 @@ export default function OrganisationReferralsPage({
   const [filterValues, setFilterValues] = useState<Record<string, string | string[]>>({
     dateRange: 'active',
   });
+  const [pipelineTotalValue, setPipelineTotalValue] = useState<number>(0);
 
   // Fetch organisation details
   const {
@@ -252,6 +253,16 @@ export default function OrganisationReferralsPage({
     );
   }
 
+  // Format currency helper
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-GB', {
+      style: 'currency',
+      currency: 'GBP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
   return (
     <HubPageLayout
       header={
@@ -261,6 +272,17 @@ export default function OrganisationReferralsPage({
             isOwner
               ? 'Configure and manage your team referral program'
               : 'Track your referrals and earnings'
+          }
+          actions={
+            activeTab === 'pipeline' && pipelineTotalValue > 0 ? (
+              <div style={{
+                fontSize: '1.5rem',
+                fontWeight: 600,
+                color: '#10b981',
+              }}>
+                {formatCurrency(pipelineTotalValue)}
+              </div>
+            ) : undefined
           }
         />
       }
@@ -321,6 +343,7 @@ export default function OrganisationReferralsPage({
               organisationId={params.id}
               dateFilter={filterValues.dateRange as DateFilterType}
               searchQuery={searchQuery}
+              onTotalValueChange={setPipelineTotalValue}
             />
           </div>
         )

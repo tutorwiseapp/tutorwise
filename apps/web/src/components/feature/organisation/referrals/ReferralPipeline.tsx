@@ -31,6 +31,7 @@ interface ReferralPipelineProps {
   organisationId: string;
   dateFilter?: 'active' | '30days' | '90days' | 'all';
   searchQuery?: string;
+  onTotalValueChange?: (total: number) => void;
 }
 
 const STAGE_CONFIG = [
@@ -42,7 +43,7 @@ const STAGE_CONFIG = [
   { key: 'converted', label: 'Won', icon: CheckCircle2, color: '#10b981' },
 ];
 
-export function ReferralPipeline({ organisationId, dateFilter = 'active', searchQuery = '' }: ReferralPipelineProps) {
+export function ReferralPipeline({ organisationId, dateFilter = 'active', searchQuery = '', onTotalValueChange }: ReferralPipelineProps) {
   const supabase = createClient();
   const [pipeline, setPipeline] = useState<PipelineStage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -141,6 +142,18 @@ export function ReferralPipeline({ organisationId, dateFilter = 'active', search
   // Apply date filter and search to pipeline data
   const filteredPipeline = applyFilters(pipeline, dateFilter, searchQuery);
 
+  // Calculate total pipeline value and emit to parent
+  const totalPipelineValue = filteredPipeline.reduce((sum, stage) => {
+    return sum + Number(stage.total_estimated_value || 0);
+  }, 0);
+
+  // Emit total value to parent component
+  useEffect(() => {
+    if (onTotalValueChange) {
+      onTotalValueChange(totalPipelineValue);
+    }
+  }, [totalPipelineValue, onTotalValueChange]);
+
   const columns: KanbanColumn[] = STAGE_CONFIG.map((stageConfig) => {
     const stageData = filteredPipeline.find((s) => s.stage === stageConfig.key);
     const StageIcon = stageConfig.icon;
@@ -154,22 +167,6 @@ export function ReferralPipeline({ organisationId, dateFilter = 'active', search
       color: stageConfig.color, // Pass stage color for top border
       content: (
         <div className={styles.columnContent}>
-          {/* Column Header with Icon and Value */}
-          <div className={styles.columnHeader}>
-            <div
-              className={styles.columnIcon}
-              style={{
-                backgroundColor: `${stageConfig.color}20`,
-                color: stageConfig.color,
-              }}
-            >
-              <StageIcon size={18} />
-            </div>
-            {value > 0 && (
-              <div className={styles.columnValue}>{formatCurrency(value)}</div>
-            )}
-          </div>
-
           {/* Cards or Empty State */}
           {referrals.length > 0 ? (
             <div className={styles.cards}>
