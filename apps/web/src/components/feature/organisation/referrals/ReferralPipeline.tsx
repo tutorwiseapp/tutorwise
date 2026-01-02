@@ -31,7 +31,6 @@ interface ReferralPipelineProps {
   organisationId: string;
   dateFilter?: 'active' | '30days' | '90days' | 'all';
   searchQuery?: string;
-  onTotalValueChange?: (total: number) => void;
 }
 
 const STAGE_CONFIG = [
@@ -43,7 +42,7 @@ const STAGE_CONFIG = [
   { key: 'converted', label: 'Won', icon: CheckCircle2, color: '#10b981' },
 ];
 
-export function ReferralPipeline({ organisationId, dateFilter = 'active', searchQuery = '', onTotalValueChange }: ReferralPipelineProps) {
+export function ReferralPipeline({ organisationId, dateFilter = 'active', searchQuery = '' }: ReferralPipelineProps) {
   const supabase = createClient();
   const [pipeline, setPipeline] = useState<PipelineStage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -131,18 +130,8 @@ export function ReferralPipeline({ organisationId, dateFilter = 'active', search
     return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }).toUpperCase();
   };
 
-  // Apply date filter and search to pipeline data (do this before early return)
+  // Apply date filter and search to pipeline data
   const filteredPipeline = applyFilters(pipeline, dateFilter, searchQuery);
-
-  // Calculate total pipeline value
-  const totalPipelineValue = filteredPipeline.reduce((sum, stage) => {
-    return sum + Number(stage.total_estimated_value || 0);
-  }, 0);
-
-  // Emit total value to parent component whenever it changes (must be before early return)
-  useEffect(() => {
-    onTotalValueChange?.(totalPipelineValue);
-  }, [totalPipelineValue, onTotalValueChange]);
 
   if (loading) {
     return (
@@ -161,7 +150,14 @@ export function ReferralPipeline({ organisationId, dateFilter = 'active', search
 
     return {
       id: stageConfig.key,
-      title: `${stageConfig.label} (${count})`,
+      title: (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+          <span>{stageConfig.label} ({count})</span>
+          {value > 0 && (
+            <span style={{ color: '#10b981', fontWeight: 600 }}>{formatCurrency(value)}</span>
+          )}
+        </div>
+      ),
       color: stageConfig.color, // Pass stage color for top border
       content: (
         <div className={styles.columnContent}>

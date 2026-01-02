@@ -10,7 +10,7 @@ import styles from './HubKanbanBoard.module.css';
 
 export interface KanbanColumn {
   id: string;
-  title: string;
+  title: string | ReactNode;
   content: ReactNode;
   color?: string; // Optional color for top border
 }
