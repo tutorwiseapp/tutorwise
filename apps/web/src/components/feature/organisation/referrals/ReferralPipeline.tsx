@@ -321,13 +321,22 @@ export function ReferralPipeline({
       const { data: currentUser } = await supabase.auth.getUser();
       if (!currentUser.user) throw new Error('Not authenticated');
 
-      const { error } = await supabase.rpc('update_referral_conversion_stage', {
+      console.log('Calling RPC with:', {
+        p_referral_id: referralId,
+        p_new_stage: newStage,
+        p_performed_by: currentUser.user.id,
+        p_notes: `Moved from ${currentStage.stage} to ${newStage}`,
+      });
+
+      const { data, error } = await supabase.rpc('update_referral_conversion_stage', {
         p_referral_id: referralId,
         p_new_stage: newStage,
         p_performed_by: currentUser.user.id,
         p_notes: `Moved from ${currentStage.stage} to ${newStage}`,
         p_metadata: {},
       });
+
+      console.log('RPC Response:', { data, error });
 
       if (error) throw error;
 
@@ -336,8 +345,14 @@ export function ReferralPipeline({
       // Reload pipeline to get updated data
       await loadPipeline();
     } catch (error: any) {
-      console.error('Error updating referral stage:', error);
-      toast.error('Failed to update lead stage');
+      console.error('Detailed error updating referral stage:', {
+        error,
+        message: error?.message,
+        details: error?.details,
+        hint: error?.hint,
+        code: error?.code,
+      });
+      toast.error(`Failed to update lead stage: ${error?.message || 'Unknown error'}`);
 
       // Rollback optimistic update
       setPipeline(pipeline);
