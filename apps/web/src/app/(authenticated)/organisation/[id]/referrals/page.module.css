@@ -24,6 +24,12 @@
   gap: 1.5rem;
 }
 
+/* Pipeline Container - holds HubToolbar + Kanban Board */
+.pipelineContainer {
+  display: flex;
+  flex-direction: column;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .content {

@@ -52,6 +52,7 @@ export default function HubToolbar({
   onExport,
   customActions,
   toolbarActions,
+  variant = 'default',
   className = '',
   sticky = false,
 }: HubToolbarProps) {
@@ -201,7 +202,7 @@ export default function HubToolbar({
   };
 
   return (
-    <div className={`${styles.toolbar} ${sticky ? styles.sticky : ''} ${className}`}>
+    <div className={`${styles.toolbar} ${variant === 'minimal' ? styles.toolbarMinimal : ''} ${sticky ? styles.sticky : ''} ${className}`}>
       {/* Search */}
       {showSearch && (
         <div className={styles.searchWrapper}>

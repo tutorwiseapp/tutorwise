@@ -79,6 +79,7 @@ export interface HubToolbarProps {
   toolbarActions?: React.ReactNode; // Custom actions rendered before export
 
   // Style
+  variant?: 'default' | 'minimal'; // default: grey bg + border | minimal: transparent + compact
   className?: string;
   sticky?: boolean;
 }

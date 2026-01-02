@@ -29,6 +29,8 @@ interface PipelineStage {
 
 interface ReferralPipelineProps {
   organisationId: string;
+  dateFilter?: 'active' | '30days' | '90days' | 'all';
+  searchQuery?: string;
 }
 
 const STAGE_CONFIG = [
@@ -40,7 +42,7 @@ const STAGE_CONFIG = [
   { key: 'converted', label: 'Won', icon: CheckCircle2, color: '#10b981' },
 ];
 
-export function ReferralPipeline({ organisationId }: ReferralPipelineProps) {
+export function ReferralPipeline({ organisationId, dateFilter = 'active', searchQuery = '' }: ReferralPipelineProps) {
   const supabase = createClient();
   const [pipeline, setPipeline] = useState<PipelineStage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,6 +64,55 @@ export function ReferralPipeline({ organisationId }: ReferralPipelineProps) {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Apply date filter and search to referrals
+  const applyFilters = (referrals: PipelineStage[], filter: string, search: string): PipelineStage[] => {
+    const now = new Date();
+    const searchLower = search.toLowerCase().trim();
+
+    return referrals.map(stage => {
+      const filteredReferrals = (stage.referrals || []).filter(referral => {
+        // Search filter
+        if (searchLower) {
+          const name = (referral.referred_name || '').toLowerCase();
+          const email = (referral.referred_email || '').toLowerCase();
+          const referrer = (referral.referrer_member || '').toLowerCase();
+
+          if (!name.includes(searchLower) && !email.includes(searchLower) && !referrer.includes(searchLower)) {
+            return false;
+          }
+        }
+
+        // Date filter - Active Only: Hide converted > 30 days
+        if (filter === 'active') {
+          if (stage.stage === 'converted') {
+            const createdDate = new Date(referral.created_at);
+            const daysSince = (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24);
+            return daysSince <= 30; // Only show wins from last 30 days
+          }
+          return true; // Show all other stages
+        }
+
+        // Time-based filters
+        if (filter === '30days' || filter === '90days') {
+          const days = filter === '30days' ? 30 : 90;
+          const referralDate = new Date(referral.created_at);
+          const daysSince = (now.getTime() - referralDate.getTime()) / (1000 * 60 * 60 * 24);
+          return daysSince <= days;
+        }
+
+        // All Time: No filtering
+        return true;
+      });
+
+      return {
+        ...stage,
+        referrals: filteredReferrals,
+        count: filteredReferrals.length,
+        total_estimated_value: filteredReferrals.reduce((sum, r) => sum + Number(r.estimated_value || 0), 0),
+      };
+    });
   };
 
   const formatCurrency = (amount: number) => {
@@ -86,8 +137,11 @@ export function ReferralPipeline({ organisationId }: ReferralPipelineProps) {
     );
   }
 
+  // Apply date filter and search to pipeline data
+  const filteredPipeline = applyFilters(pipeline, dateFilter, searchQuery);
+
   const columns: KanbanColumn[] = STAGE_CONFIG.map((stageConfig) => {
-    const stageData = pipeline.find((s) => s.stage === stageConfig.key);
+    const stageData = filteredPipeline.find((s) => s.stage === stageConfig.key);
     const StageIcon = stageConfig.icon;
     const count = Number(stageData?.count || 0);
     const value = Number(stageData?.total_estimated_value || 0);

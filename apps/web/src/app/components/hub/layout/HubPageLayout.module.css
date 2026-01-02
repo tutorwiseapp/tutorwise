@@ -49,6 +49,13 @@
   padding-bottom: 5rem;
 }
 
+/* Content Container for Board Layouts (Kanban, etc.) - Fixed left padding for gap from sidebar */
+.contentContainerBoard {
+  flex: 1 1 auto;
+  width: 100%;
+  padding: 0 0 5rem 1rem; /* Top Right Bottom Left - 16px gap from AppSidebar */
+}
+
 /* Right Sidebar Panel - Full height, fixed width */
 .sidebarPanel {
   width: 320px;
@@ -88,6 +95,10 @@
 
   .contentContainer {
     padding: 1rem;
+  }
+
+  .contentContainerBoard {
+    padding-left: 1rem; /* Maintain 16px gap on mobile */
   }
 
   /* Show floating button on mobile - positioned on right side */

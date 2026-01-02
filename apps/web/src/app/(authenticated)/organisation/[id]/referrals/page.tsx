@@ -23,15 +23,14 @@ import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
-import Button from '@/app/components/ui/actions/Button';
+import HubToolbar from '@/app/components/hub/toolbar/HubToolbar';
+import type { Filter } from '@/app/components/hub/toolbar/types';
 import ReferralStatsWidget from '@/app/components/feature/organisation/sidebar/ReferralStatsWidget';
 import ReferralHelpWidget from '@/app/components/feature/organisation/sidebar/ReferralHelpWidget';
 import ReferralTipWidget from '@/app/components/feature/organisation/sidebar/ReferralTipWidget';
 import { createClient } from '@/utils/supabase/client';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
-import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
-import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
 interface OrganisationReferralsPageProps {
   params: {
@@ -40,6 +39,7 @@ interface OrganisationReferralsPageProps {
 }
 
 type TabType = 'overview' | 'pipeline' | 'team' | 'achievements';
+type DateFilterType = 'active' | '30days' | '90days' | 'all';
 
 export default function OrganisationReferralsPage({
   params,
@@ -50,7 +50,10 @@ export default function OrganisationReferralsPage({
   const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState<TabType>('overview');
-  const [showActionsMenu, setShowActionsMenu] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({
+    dateRange: 'active',
+  });
 
   // Fetch organisation details
   const {
@@ -153,6 +156,64 @@ export default function OrganisationReferralsPage({
     }
   };
 
+  const handleExportCSV = async () => {
+    try {
+      toast.loading('Generating CSV export...', { id: 'csv-export' });
+
+      // Fetch full pipeline data
+      const { data, error } = await supabase.rpc('get_organisation_conversion_pipeline', {
+        p_organisation_id: params.id,
+      });
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        toast.error('No referrals to export', { id: 'csv-export' });
+        return;
+      }
+
+      // Flatten pipeline data into CSV rows
+      const rows: string[][] = [];
+      rows.push(['Name', 'Email', 'Phone', 'Stage', 'Estimated Value', 'Date Created', 'Referred By']);
+
+      data.forEach((stage: any) => {
+        const stageName = stage.stage;
+        (stage.referrals || []).forEach((referral: any) => {
+          rows.push([
+            referral.referred_name || '',
+            referral.referred_email || '',
+            referral.referred_phone || '',
+            stageName,
+            `$${Number(referral.estimated_value || 0).toFixed(2)}`,
+            new Date(referral.created_at).toLocaleDateString(),
+            referral.referrer_member || '',
+          ]);
+        });
+      });
+
+      // Generate CSV content
+      const csvContent = rows
+        .map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+
+      // Create download link
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `referral-pipeline-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success('CSV exported successfully!', { id: 'csv-export' });
+    } catch (error) {
+      console.error('Error exporting CSV:', error);
+      toast.error('Failed to export CSV', { id: 'csv-export' });
+    }
+  };
+
   // Define tabs based on role (must be before early returns)
   const tabs: HubTab[] = useMemo(() => {
     if (isOwner) {
@@ -201,11 +262,6 @@ export default function OrganisationReferralsPage({
               ? 'Configure and manage your team referral program'
               : 'Track your referrals and earnings'
           }
-          filters={
-            <div className={filterStyles.filtersContainer}>
-              {/* Future: Add filters for referral status, date range, etc. */}
-            </div>
-          }
         />
       }
       tabs={
@@ -236,7 +292,37 @@ export default function OrganisationReferralsPage({
             onAction={isOwner ? () => setActiveTab('overview') : undefined}
           />
         ) : (
-          <ReferralPipeline organisationId={params.id} />
+          <div className={styles.pipelineContainer}>
+            {/* HubToolbar - positioned 8px above kanban board */}
+            <HubToolbar
+              searchPlaceholder="Search referrals..."
+              searchValue={searchQuery}
+              onSearchChange={setSearchQuery}
+              filters={[
+                {
+                  key: 'dateRange',
+                  label: 'Time Range',
+                  options: [
+                    { label: 'Active Only', value: 'active' },
+                    { label: 'Last 30 Days', value: '30days' },
+                    { label: 'Last 90 Days', value: '90days' },
+                    { label: 'All Time', value: 'all' },
+                  ],
+                },
+              ]}
+              filterValues={filterValues}
+              onFilterChange={(key, value) => setFilterValues({ ...filterValues, [key]: value })}
+              onExport={handleExportCSV}
+              variant="minimal"
+            />
+
+            {/* Kanban Board */}
+            <ReferralPipeline
+              organisationId={params.id}
+              dateFilter={filterValues.dateRange as DateFilterType}
+              searchQuery={searchQuery}
+            />
+          </div>
         )
       ) : (
         <div className={styles.content}>
