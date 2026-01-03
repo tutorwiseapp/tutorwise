@@ -1,51 +1,14 @@
 /**
  * Filename: FirstLoginModal.module.css
- * Purpose: Styles for First Login Welcome Modal
+ * Purpose: Styles for First Login Welcome Modal (HubComplexModal)
  * Created: 2025-12-15
+ * Updated: 2026-01-03 - Migrated to HubComplexModal
  * Track B Phase 1.2: Onboarding Modal styling
  */
 
-.container {
+/* Content wrapper - Add padding since HubComplexModal has zero padding */
+.content {
   padding: 0;
-  max-width: 600px;
-}
-
-/* Header Section */
-.header {
-  text-align: center;
-  padding: 24px 24px 20px;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.celebrationIcon {
-  font-size: 48px;
-  margin-bottom: 12px;
-  animation: bounce 1s ease-in-out;
-}
-
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-.title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0 0 8px 0;
-  line-height: 1.3;
-}
-
-.subtitle {
-  font-size: 16px;
-  color: #6b7280;
-  margin: 0;
-  line-height: 1.5;
 }
 
 /* Score Section */
@@ -150,12 +113,6 @@
   transform: translateY(-2px);
 }
 
-.benefitIcon {
-  font-size: 32px;
-  display: block;
-  margin-bottom: 8px;
-}
-
 .benefitTitle {
   font-size: 14px;
   font-weight: 600;
@@ -218,18 +175,13 @@
   flex: 1;
 }
 
-/* Actions Section */
-.actions {
-  padding: 24px;
+/* Footer Section (used in HubComplexModal footer prop) */
+.footer {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  justify-content: flex-end;
   align-items: center;
-}
-
-.primaryButton {
+  gap: 16px;
   width: 100%;
-  max-width: 400px;
 }
 
 .skipButton {
@@ -262,22 +214,6 @@
 
 /* Mobile Responsive */
 @media (max-width: 640px) {
-  .header {
-    padding: 20px 16px;
-  }
-
-  .title {
-    font-size: 20px;
-  }
-
-  .subtitle {
-    font-size: 14px;
-  }
-
-  .celebrationIcon {
-    font-size: 40px;
-  }
-
   .scoreSection {
     padding: 20px 16px;
   }
@@ -316,12 +252,13 @@
     padding: 12px;
   }
 
-  .actions {
-    padding: 20px 16px;
+  .footer {
+    flex-direction: column;
+    gap: 12px;
   }
 
-  .primaryButton {
-    max-width: none;
+  .footer button {
+    width: 100%;
   }
 
   .footerNote {

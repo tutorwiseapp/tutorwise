@@ -2,6 +2,7 @@
  * Filename: FirstLoginModal.tsx
  * Purpose: Welcome modal shown on first dashboard visit after onboarding
  * Created: 2025-12-15
+ * Updated: 2026-01-03 - Migrated to HubComplexModal for better UX
  * Track B Phase 1.2: Priority 2 - Sets expectations from day 1
  *
  * Design Goals:
@@ -16,7 +17,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import Modal from '@/app/components/ui/feedback/Modal';
+import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
 import Button from '@/app/components/ui/actions/Button';
 import styles from './FirstLoginModal.module.css';
 
@@ -71,17 +72,14 @@ export default function FirstLoginModal({
           subtitle: 'Great start! Now let\'s make you stand out',
           benefits: [
             {
-              icon: '🔍',
               title: 'Be Found First',
               description: 'Tutors with complete profiles appear higher in search results',
             },
             {
-              icon: '💰',
               title: 'Get More Bookings',
               description: 'Complete profiles receive 3x more inquiries from students',
             },
             {
-              icon: '⭐',
               title: 'Build Trust Faster',
               description: 'Your CaaS score shows students you\'re credible and committed',
             },
@@ -101,17 +99,14 @@ export default function FirstLoginModal({
           subtitle: 'You\'ve completed onboarding! Let\'s find the perfect tutor',
           benefits: [
             {
-              icon: '🎯',
               title: 'Better Matches',
               description: 'Complete profile helps us recommend the right tutors for you',
             },
             {
-              icon: '⚡',
               title: 'Faster Responses',
               description: 'Tutors prioritize students with detailed learning goals',
             },
             {
-              icon: '📊',
               title: 'Track Progress',
               description: 'Full profile unlocks session tracking and progress reports',
             },
@@ -131,17 +126,14 @@ export default function FirstLoginModal({
           subtitle: 'Onboarding complete! Let\'s set up your agency for success',
           benefits: [
             {
-              icon: '🏢',
               title: 'Agency Credibility',
               description: 'Complete agency profile attracts top tutors and students',
             },
             {
-              icon: '👥',
               title: 'Manage Your Team',
               description: 'Invite tutors, track performance, and manage bookings',
             },
             {
-              icon: '💼',
               title: 'Scale Your Business',
               description: 'Professional profile helps you grow your tutoring network',
             },
@@ -179,15 +171,29 @@ export default function FirstLoginModal({
   const scoreStatus = getScoreStatus();
 
   return (
-    <Modal isOpen={isOpen} onClose={handleSkip} title="">
-      <div className={styles.container}>
-        {/* Header Section */}
-        <div className={styles.header}>
-          <div className={styles.celebrationIcon}>🎉</div>
-          <h2 className={styles.title}>{content.title}</h2>
-          <p className={styles.subtitle}>{content.subtitle}</p>
+    <HubComplexModal
+      isOpen={isOpen}
+      onClose={handleSkip}
+      title={content.title}
+      subtitle={content.subtitle}
+      size="lg"
+      closeOnOverlayClick={false}
+      footer={
+        <div className={styles.footer}>
+          <button onClick={handleSkip} className={styles.skipButton}>
+            I&apos;ll do this later
+          </button>
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={handleStartSetup}
+          >
+            Start Profile Setup
+          </Button>
         </div>
-
+      }
+    >
+      <div className={styles.content}>
         {/* Score Display */}
         <div className={styles.scoreSection}>
           <p className={styles.scoreLabel}>{content.scoreInfo}</p>
@@ -223,7 +229,6 @@ export default function FirstLoginModal({
           <div className={styles.benefitsGrid}>
             {content.benefits.map((benefit, index) => (
               <div key={index} className={styles.benefitCard}>
-                <span className={styles.benefitIcon}>{benefit.icon}</span>
                 <h4 className={styles.benefitTitle}>{benefit.title}</h4>
                 <p className={styles.benefitDescription}>{benefit.description}</p>
               </div>
@@ -246,27 +251,14 @@ export default function FirstLoginModal({
           </div>
         )}
 
-        {/* Action Buttons */}
-        <div className={styles.actions}>
-          <Button
-            variant="primary"
-            size="lg"
-            onClick={handleStartSetup}
-            className={styles.primaryButton}
-          >
-            Start Profile Setup
-          </Button>
-          <button onClick={handleSkip} className={styles.skipButton}>
-            I&apos;ll do this later
-          </button>
-        </div>
-
         {/* Footer Note */}
-        <p className={styles.footerNote}>
-          💡 Tip: Completing your profile takes just 5 minutes and significantly
-          boosts your {role === 'client' ? 'matches' : 'visibility'}
-        </p>
+        <div className={styles.footerNote}>
+          <p>
+            <strong>Tip:</strong> Completing your profile takes just 5 minutes and significantly
+            boosts your {role === 'client' ? 'matches' : 'visibility'}
+          </p>
+        </div>
       </div>
-    </Modal>
+    </HubComplexModal>
   );
 }
