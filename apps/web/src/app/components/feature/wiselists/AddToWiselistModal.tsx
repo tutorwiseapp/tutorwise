@@ -118,7 +118,7 @@ export default function AddToWiselistModal({
             <div className={styles.emptyState}>
               <p className={styles.emptyTitle}>No custom wiselists yet</p>
               <p className={styles.emptyHint}>
-                Create a wiselist to organize your saved items.
+                Create a wiselist to organise your saved items.
               </p>
               {onCreateWiselist && (
                 <button

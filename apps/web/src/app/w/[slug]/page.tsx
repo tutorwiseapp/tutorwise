@@ -195,7 +195,7 @@ export default async function PublicWiselistPage({ params }: PageProps) {
             Create your own wiselist
           </h2>
           <p className="text-gray-600 mb-6">
-            Save and share your favorite tutors and services
+            Save and share your favourite tutors and services
           </p>
           <Link
             href="/signup"

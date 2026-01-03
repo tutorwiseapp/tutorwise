@@ -307,7 +307,7 @@ export default function WiselistsPage() {
   };
 
   const handleImportFavorites = () => {
-    toast('Import favorites functionality coming soon!', { icon: '⭐' });
+    toast('Import favourites functionality coming soon!', { icon: '⭐' });
     setShowActionsMenu(false);
   };
 
@@ -462,7 +462,7 @@ export default function WiselistsPage() {
                         onClick={handleImportFavorites}
                         className={actionStyles.menuButton}
                       >
-                        Import Favorites
+                        Import Favourites
                       </button>
                       <button
                         onClick={handleManageCategories}
@@ -549,7 +549,7 @@ export default function WiselistsPage() {
                 }
                 description={
                   wiselists.length === 0
-                    ? 'Create your first wiselist to start saving and organizing tutors and services'
+                    ? 'Create your first wiselist to start saving and organising tutors and services'
                     : 'No wiselists match your current filters. Try adjusting your search or filters.'
                 }
               />

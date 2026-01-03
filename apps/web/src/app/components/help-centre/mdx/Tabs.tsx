@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/components/help-centre/mdx/Tabs.tsx
- * Purpose: Tabs component for organizing content
+ * Purpose: Tabs component for organising content
  * Created: 2025-01-19
  */
 

@@ -24,7 +24,7 @@ export default function WiselistHelpWidget() {
           Create collections of tutors for different subjects or needs.
         </p>
         <p className={styles.text}>
-          Save favorite tutors for easy access.
+          Save favourite tutors for easy access.
         </p>
         <p className={styles.text}>
           Share lists with others.
