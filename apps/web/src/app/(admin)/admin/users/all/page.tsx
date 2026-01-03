@@ -49,7 +49,7 @@ export default function AdminUsersAllPage() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'users'>('users');
-  const initialFilter = (searchParams.get('filter') as FilterType) || 'all';
+  const initialFilter = (searchParams?.get('filter') as FilterType) || 'all';
   const [filterType, setFilterType] = useState<FilterType>(initialFilter);
 
   // Fetch all users

@@ -67,19 +67,48 @@ tools/database/
 - Row Level Security (RLS) policies for user data protection
 - Proper foreign key constraints and data validation
 
-## How to Apply Migrations
+## Database Connection Helper Scripts
 
-All migrations are in `tools/database/migrations/` and can be applied using apply-migration scripts (project root) or direct psql.
+We provide helper scripts that automatically load credentials from `.env.local`:
 
-### Recommended Method: Apply Scripts
+### 1. db-connect.sh - Connect to database or run SQL
 
 ```bash
-# Set environment variables (from .env.local)
-export NEXT_PUBLIC_SUPABASE_URL="your-supabase-url"
-export SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
+# Interactive psql session
+./tools/database/db-connect.sh
 
-# Apply a specific migration (from project root)
-node apply-migration-135.mjs
+# Run a SQL file
+./tools/database/db-connect.sh -f path/to/file.sql
+
+# Run a SQL command
+./tools/database/db-connect.sh -c "SELECT * FROM referrals LIMIT 5;"
+```
+
+### 2. apply-migration.sh - Apply migration files
+
+```bash
+# Apply migration by filename
+./tools/database/apply-migration.sh 157_add_referrals_updated_at.sql
+
+# Apply migration by full path
+./tools/database/apply-migration.sh tools/database/migrations/157_add_referrals_updated_at.sql
+```
+
+**Connection Details:**
+- Host: aws-1-eu-west-2.pooler.supabase.com
+- Port: 5432 (non-pooled for DDL operations)
+- Database: postgres
+- Credentials: Loaded automatically from `.env.local`
+
+## How to Apply Migrations
+
+All migrations are in `tools/database/migrations/` and can be applied using the helper scripts above.
+
+### Recommended Method: Use Helper Scripts
+
+```bash
+# Apply a migration using helper script
+./tools/database/apply-migration.sh 157_add_referrals_updated_at.sql
 ```
 
 ### Alternative: Direct psql

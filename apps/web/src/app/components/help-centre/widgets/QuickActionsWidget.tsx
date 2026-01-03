@@ -21,7 +21,7 @@ export default function QuickActionsWidget() {
   };
 
   const pageContext = {
-    url: typeof window !== 'undefined' ? window.location.href : pathname,
+    url: typeof window !== 'undefined' ? window.location.href : (pathname || '/'),
     title: typeof document !== 'undefined' ? document.title : 'Help Centre',
   };
 

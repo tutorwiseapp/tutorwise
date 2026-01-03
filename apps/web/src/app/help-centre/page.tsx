@@ -136,7 +136,7 @@ function ArticleResultCard({ article }: { article: ArticleSearchResult }) {
 
 function HelpCentreLandingPageContent() {
   const searchParams = useSearchParams();
-  const query = searchParams.get('q');
+  const query = searchParams?.get('q') ?? null;
 
   // React Query hook - replaces manual useState + useEffect pattern
   // Features: caching, placeholderData (no flickering), automatic refetch management

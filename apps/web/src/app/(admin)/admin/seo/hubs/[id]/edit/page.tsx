@@ -66,7 +66,7 @@ export default function HubEditPage() {
   const supabase = createClient();
   const canUpdate = usePermission('seo', 'update');
 
-  const hubId = params.id as string;
+  const hubId = params?.id as string;
   const isNew = hubId === 'new';
 
   // Form state
