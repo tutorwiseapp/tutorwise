@@ -1,6 +1,7 @@
--- Migration: 091_hierarchical_attribution_enhancement.sql
+-- Migration: 117_hierarchical_attribution_enhancement.sql
 -- Purpose: Implement full hierarchical attribution (URL → Cookie → Manual)
 -- Date: 2025-12-16
+-- Updated: 2026-01-03 - Fixed schema-qualified function calls for Supabase Auth compatibility
 -- Patent Reference: Section 3 (Hierarchical Attribution Resolution), Dependent Claim 2
 -- Solution Design v2: Section 6 (Attribution Resolution Algorithm)
 
@@ -108,7 +109,7 @@ BEGIN
   -- ===========================================
   -- SECTION 1: Generate unique referral code
   -- ===========================================
-  v_referral_code_generated := generate_secure_referral_code();
+  v_referral_code_generated := public.generate_secure_referral_code();
 
   -- Extract first and last name from full_name
   IF v_full_name IS NOT NULL AND v_full_name != '' THEN
@@ -120,7 +121,7 @@ BEGIN
   -- SECTION 2: Generate unique slug
   -- ===========================================
   IF v_full_name IS NOT NULL AND v_full_name != '' THEN
-    v_slug_base := generate_slug(v_full_name);
+    v_slug_base := public.generate_slug(v_full_name);
     v_slug := v_slug_base;
     v_slug_count := 1;
 
@@ -291,7 +292,7 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
 COMMENT ON FUNCTION public.handle_new_user() IS
-'[v6.0 - Hierarchical Attribution] Trigger function that runs on new user signup. Implements Patent Section 3 hierarchical attribution resolution: URL → Cookie → Manual. Validates HMAC signatures for cookie security.';
+'[v6.0.1 - Hierarchical Attribution - FIXED] Trigger function that runs on new user signup. Implements Patent Section 3 hierarchical attribution resolution: URL → Cookie → Manual. Validates HMAC signatures for cookie security. Uses schema-qualified function calls for Supabase Auth compatibility.';
 
 -- =====================================================
 -- STEP 5: Create attribution audit log (optional)
@@ -308,8 +309,8 @@ CREATE TABLE IF NOT EXISTS public.referral_attribution_audit (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_attribution_audit_profile ON public.referral_attribution_audit(profile_id);
-CREATE INDEX idx_attribution_audit_created_at ON public.referral_attribution_audit(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_attribution_audit_profile ON public.referral_attribution_audit(profile_id);
+CREATE INDEX IF NOT EXISTS idx_attribution_audit_created_at ON public.referral_attribution_audit(created_at DESC);
 
 COMMENT ON TABLE public.referral_attribution_audit IS
 '[Debug] Audit log for referral attribution attempts. Tracks successful and failed attributions for debugging and fraud detection.';
