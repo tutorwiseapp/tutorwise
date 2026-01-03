@@ -38,7 +38,7 @@ interface ReferralPipelineProps {
 }
 
 const STAGE_CONFIG = [
-  { key: 'referred', label: 'New Leads', icon: Users, color: '#94a3b8' },
+  { key: 'referred', label: 'New Referrals', icon: Users, color: '#94a3b8' },
   { key: 'contacted', label: 'Contacted', icon: Phone, color: '#3b82f6' },
   { key: 'meeting', label: 'Meeting Set', icon: Calendar, color: '#8b5cf6' },
   { key: 'proposal', label: 'Proposal Sent', icon: FileText, color: '#f59e0b' },
@@ -264,7 +264,7 @@ export function ReferralPipeline({
 
       if (error) throw error;
 
-      toast.success(`Lead moved to ${STAGE_CONFIG.find((s) => s.key === toColumnId)?.label}`);
+      toast.success(`Referral moved to ${STAGE_CONFIG.find((s) => s.key === toColumnId)?.label}`);
 
       // Reload pipeline to get updated data
       await loadPipeline();
@@ -276,7 +276,7 @@ export function ReferralPipeline({
         hint: error?.hint,
         code: error?.code,
       });
-      toast.error(`Failed to update lead stage: ${error?.message || 'Unknown error'}`);
+      toast.error(`Failed to update referral stage: ${error?.message || 'Unknown error'}`);
 
       // Rollback optimistic update
       setPipeline(pipeline);
@@ -330,7 +330,7 @@ export function ReferralPipeline({
           ) : (
             <div className={styles.empty}>
               <StageIcon size={32} />
-              <p>No leads</p>
+              <p>No referrals</p>
             </div>
           )}
         </div>

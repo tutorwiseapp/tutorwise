@@ -1,6 +1,6 @@
 /**
  * Filename: OrganisationReferralDetailModal.tsx
- * Purpose: Hub detail modal for organisation referral leads with conversion tracking
+ * Purpose: Hub detail modal for organisation referrals with conversion tracking
  * Created: 2025-12-31
  */
 
@@ -61,7 +61,7 @@ interface OrganisationReferralDetailModalProps {
 }
 
 const STAGE_OPTIONS = [
-  { value: 'referred', label: 'New Lead' },
+  { value: 'referred', label: 'New Referral' },
   { value: 'contacted', label: 'Contacted' },
   { value: 'meeting', label: 'Meeting Set' },
   { value: 'proposal', label: 'Proposal Sent' },
@@ -216,7 +216,7 @@ export function OrganisationReferralDetailModal({
       <HubDetailModal
         isOpen={isOpen}
         onClose={onClose}
-        title="Referral Lead Details"
+        title="Referral Details"
         size="xl"
         sections={[
           {
@@ -233,7 +233,7 @@ export function OrganisationReferralDetailModal({
       <HubDetailModal
         isOpen={isOpen}
         onClose={onClose}
-        title="Referral Lead Details"
+        title="Referral Details"
         size="xl"
         sections={[
           {
@@ -252,9 +252,9 @@ export function OrganisationReferralDetailModal({
 
   const sections: DetailSection[] = [
     {
-      title: 'Lead Information',
+      title: 'Referral Information',
       fields: [
-        { label: 'Lead Name', value: referral.profile?.full_name || 'Unknown' },
+        { label: 'Contact Name', value: referral.profile?.full_name || 'Unknown' },
         { label: 'Email', value: referral.profile?.email || 'No email' },
         { label: 'Phone', value: referral.profile?.phone || 'No phone' },
         { label: 'Referred By', value: referral.referrer?.full_name || 'Unknown' },
@@ -289,7 +289,7 @@ export function OrganisationReferralDetailModal({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className={styles.notesTextarea}
-              placeholder="Add notes about this lead..."
+              placeholder="Add notes about this referral..."
               rows={3}
               disabled={updating}
             />
@@ -330,8 +330,8 @@ export function OrganisationReferralDetailModal({
     <HubDetailModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Referral Lead Details"
-      subtitle={referral.profile?.full_name || 'Lead Details'}
+      title="Referral Details"
+      subtitle={referral.profile?.full_name || 'Referral Details'}
       size="xl"
       sections={sections}
       actions={

@@ -1,11 +1,11 @@
 -- =====================================================
 -- Migration 156: Referral Conversion Flow & Client Portal
 -- Created: 2025-12-31
--- Purpose: Lead conversion tracking and branded client portal for org referrals
+-- Purpose: Referral conversion tracking and branded client portal for org referrals
 -- =====================================================
 
 -- =====================================================
--- PART 1: Referral Lead Conversion Tracking
+-- PART 1: Referral Conversion Tracking
 -- =====================================================
 
 -- Extend referrals table with conversion stages
@@ -27,7 +27,7 @@ ALTER TABLE public.referrals
 ADD CONSTRAINT check_conversion_stage CHECK (
   conversion_stage IN (
     'referred',      -- Initial referral created
-    'contacted',     -- Organisation contacted the lead
+    'contacted',     -- Organisation contacted the referral
     'meeting',       -- Meeting scheduled/completed
     'proposal',      -- Proposal sent
     'negotiating',   -- In negotiation
@@ -67,7 +67,7 @@ CREATE INDEX idx_referral_activities_referral ON public.referral_conversion_acti
 CREATE INDEX idx_referral_activities_type ON public.referral_conversion_activities(activity_type);
 CREATE INDEX idx_referral_activities_date ON public.referral_conversion_activities(activity_date DESC);
 
-COMMENT ON TABLE public.referral_conversion_activities IS 'Timeline of activities for converting referral leads';
+COMMENT ON TABLE public.referral_conversion_activities IS 'Timeline of activities for converting referrals';
 COMMENT ON COLUMN public.referral_conversion_activities.activity_type IS 'Type of conversion activity performed';
 COMMENT ON COLUMN public.referral_conversion_activities.metadata IS 'Additional structured data (e.g., meeting details, proposal link)';
 

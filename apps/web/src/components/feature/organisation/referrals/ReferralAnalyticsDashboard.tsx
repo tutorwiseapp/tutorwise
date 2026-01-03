@@ -147,7 +147,7 @@ export function ReferralAnalyticsDashboard({
 
   const getStageLabel = (stage: string) => {
     const labels: Record<string, string> = {
-      referred: 'New Leads',
+      referred: 'New Referrals',
       contacted: 'Contacted',
       meeting: 'Meeting Set',
       proposal: 'Proposal Sent',
@@ -213,7 +213,7 @@ export function ReferralAnalyticsDashboard({
       <div className={styles.section}>
         <h3 className={styles.sectionTitle}>Conversion Funnel</h3>
         <p className={styles.sectionSubtitle}>
-          Track how leads progress through your sales pipeline
+          Track how referrals progress through your conversion pipeline
         </p>
 
         <div className={styles.funnelContainer}>

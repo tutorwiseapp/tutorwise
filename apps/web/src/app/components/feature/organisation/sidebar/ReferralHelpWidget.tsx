@@ -25,7 +25,7 @@ export default function ReferralHelpWidget({ isOwner = false }: ReferralHelpWidg
             Configure commission rates and referral program settings in the Overview tab.
           </p>
           <p className={styles.text}>
-            Track your team&apos;s referral pipeline from leads to converted clients.
+            Track your team&apos;s referral pipeline from referrals to converted clients.
           </p>
           <p className={styles.text}>
             Monitor team performance and export payout reports monthly.
@@ -46,7 +46,7 @@ export default function ReferralHelpWidget({ isOwner = false }: ReferralHelpWidg
           Share your unique referral link with potential clients.
         </p>
         <p className={styles.text}>
-          Track referrals through the conversion pipeline from lead to client.
+          Track referrals through the conversion pipeline from contact to client.
         </p>
         <p className={styles.text}>
           Earn commissions when your referrals become paying clients.
