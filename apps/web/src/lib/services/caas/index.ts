@@ -62,6 +62,12 @@ export class CaaSService {
         throw new Error('Profile not found');
       }
 
+      // Handle profiles with null or empty roles array
+      if (!profile.roles || profile.roles.length === 0) {
+        console.warn(`[CaaS] Profile ${profileId} has no roles - returning 0 score`);
+        return { total: 0, breakdown: { gate: 'No roles assigned' } };
+      }
+
       // Determine primary role for scoring
       // Priority order: TUTOR > CLIENT > AGENT > STUDENT
       // (Most users only have one role, but if they have multiple, prioritize TUTOR)
