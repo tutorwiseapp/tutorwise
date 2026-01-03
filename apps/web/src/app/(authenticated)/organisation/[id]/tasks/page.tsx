@@ -275,10 +275,13 @@ export default function OrganisationTasksPage({
               label: 'Category',
               options: [
                 { label: 'All Categories', value: 'all' },
-                { label: 'Complaint', value: 'complaint' },
-                { label: 'Payment', value: 'payment' },
-                { label: 'Tutor Switch', value: 'tutor_switch' },
-                { label: 'General', value: 'general' },
+                { label: 'Admin', value: 'admin' },
+                { label: 'Client Issue', value: 'client_issue' },
+                { label: 'Tutor Issue', value: 'tutor_issue' },
+                { label: 'Booking Issue', value: 'booking_issue' },
+                { label: 'Payment Issue', value: 'payment_issue' },
+                { label: 'Safeguarding', value: 'safeguarding' },
+                { label: 'Other', value: 'other' },
               ],
             },
           ]}
