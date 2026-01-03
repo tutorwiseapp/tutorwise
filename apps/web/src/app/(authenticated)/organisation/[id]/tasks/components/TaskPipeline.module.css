@@ -1,0 +1,164 @@
+/**
+ * TaskPipeline.module.css
+ * Styles for task pipeline kanban board
+ * Created: 2026-01-03
+ * Based on: ReferralPipeline.module.css
+ */
+
+.loading {
+  text-align: center;
+  padding: 48px 32px;
+  color: #64748b;
+}
+
+.columnHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.columnIcon {
+  flex-shrink: 0;
+}
+
+.columnCount {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.cardList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.emptyColumn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 7px;
+  padding: 14px;
+  cursor: grab;
+  transition: all 0.2s;
+  touch-action: none;
+}
+
+.card:hover {
+  border-color: #006c67;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.card:active {
+  cursor: grabbing;
+}
+
+.cardHeader {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.priorityBadge {
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.categoryBadge {
+  font-size: 11px;
+  font-weight: 500;
+  color: #6b7280;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #f3f4f6;
+  text-transform: capitalize;
+}
+
+.cardTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.cardDescription {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.cardMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  background: #f9fafb;
+  border-radius: 5px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.cardClient,
+.cardAssigned {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #374151;
+}
+
+.clientIcon,
+.assignedIcon {
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+.cardDueDate {
+  font-size: 13px;
+  color: #6b7280;
+  padding: 6px 10px;
+  background: #f3f4f6;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.cardDueDate.overdue {
+  background: #fef2f2;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card {
+    padding: 12px;
+  }
+
+  .cardTitle {
+    font-size: 14px;
+  }
+
+  .cardDescription {
+    font-size: 12px;
+  }
+}

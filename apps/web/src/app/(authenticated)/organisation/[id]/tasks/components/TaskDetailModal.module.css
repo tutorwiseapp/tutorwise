@@ -1,0 +1,240 @@
+/**
+ * TaskDetailModal.module.css
+ * Styles for task detail modal
+ * Created: 2026-01-03
+ */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modal {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.closeButton:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.content {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.loading,
+.error {
+  padding: 40px 24px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.error {
+  color: #ef4444;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sectionLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.taskId {
+  font-size: 14px;
+  font-family: 'Monaco', 'Courier New', monospace;
+  color: #6b7280;
+}
+
+.taskTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.4;
+}
+
+.taskDescription {
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.value {
+  font-size: 14px;
+  color: #111827;
+}
+
+.badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Status badges */
+.statusBacklog {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.statusTodo {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.statusInProgress {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.statusApproved {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.statusDone {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.statusDefault {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Priority badges */
+.priorityUrgent {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.priorityHigh {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.priorityMedium {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.priorityLow {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.priorityDefault {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.approvalFlag {
+  padding: 12px;
+  background: #fef3c7;
+  border-left: 4px solid #f59e0b;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #92400e;
+}
+
+.footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.closeButtonFooter {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.closeButtonFooter:hover {
+  background: #f3f4f6;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  .modal {
+    max-height: 100vh;
+    border-radius: 0;
+  }
+}

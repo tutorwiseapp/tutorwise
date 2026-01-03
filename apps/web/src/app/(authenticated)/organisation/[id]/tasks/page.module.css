@@ -1,0 +1,68 @@
+/**
+ * Organisation Tasks Page - Hub Architecture
+ * Created: 2026-01-03
+ * Based on: referrals/page.module.css
+ */
+
+/* Loading State */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: #64748b;
+  font-size: 1rem;
+}
+
+/* Content Container */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Pipeline Container - holds HubToolbar + Kanban Board */
+.pipelineContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sidebar Placeholder */
+.sidebarPlaceholder {
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  color: #64748b;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+/* New Task Button */
+.newTaskButton {
+  padding: 8px 16px;
+  background: #006c67;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.newTaskButton:hover {
+  background: #005550;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .content {
+    gap: 1rem;
+  }
+
+  .newTaskButton {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
