@@ -5,7 +5,7 @@
  * Phase: Help Centre Phase 3 - Service Desk request creation
  */
 
-import { createClient } from '@/utils/supabase/client';
+import { createClient } from '@/utils/supabase/server';
 
 interface SnapshotData {
   id: string;
@@ -132,7 +132,7 @@ export async function createServiceDeskRequestFromSnapshot(
     console.log(`✓ Created Service Desk request: ${issueKey}`);
 
     // Update snapshot with Jira info
-    const supabase = createClient();
+    const supabase = await createClient();
     const { error: updateError } = await supabase
       .from('help_support_snapshots')
       .update({
@@ -152,7 +152,7 @@ export async function createServiceDeskRequestFromSnapshot(
     console.error('Service Desk integration error:', error);
 
     // Mark as failed in database
-    const supabase = createClient();
+    const supabase = await createClient();
     await supabase
       .from('help_support_snapshots')
       .update({
@@ -170,7 +170,7 @@ export async function createServiceDeskRequestFromSnapshot(
  * This should be called periodically (e.g., via cron job or Supabase Edge Function)
  */
 export async function syncPendingSnapshotsToServiceDesk(): Promise<void> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Get pending snapshots
   const { data: snapshots, error } = await supabase

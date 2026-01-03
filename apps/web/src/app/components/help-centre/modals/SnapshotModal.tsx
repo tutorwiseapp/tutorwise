@@ -108,22 +108,50 @@ export default function SnapshotModal({ isOpen, onClose, pageContext }: Snapshot
 
   const handleCaptureScreenshot = useCallback(async () => {
     try {
+      // Temporarily hide the modal to capture the page behind it
+      const modalElement = document.querySelector('[class*="modalOverlay"]') as HTMLElement;
+      const previousDisplay = modalElement?.style.display || '';
+
+      if (modalElement) {
+        modalElement.style.display = 'none';
+      }
+
+      // Wait a brief moment for the modal to hide
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       // Dynamically import html2canvas (client-side only)
       const html2canvas = (await import('html2canvas')).default;
 
-      // Capture the document body
+      // Capture the document body (now without the modal)
       const canvas = await html2canvas(document.body, {
         allowTaint: true,
         useCORS: true,
         logging: false,
         scale: 0.5, // Reduce quality for smaller file size
+        ignoreElements: (element) => {
+          // Skip any remaining modal elements
+          return element.classList?.contains('modalOverlay') ||
+                 element.classList?.contains('modalContent');
+        },
       });
 
       // Convert to data URL
       const dataUrl = canvas.toDataURL('image/png', 0.8);
       setScreenshot(dataUrl);
+
+      // Restore the modal
+      if (modalElement) {
+        modalElement.style.display = previousDisplay;
+      }
     } catch (error) {
       console.error('Failed to capture screenshot:', error);
+
+      // Ensure modal is restored even on error
+      const modalElement = document.querySelector('[class*="modalOverlay"]') as HTMLElement;
+      if (modalElement) {
+        modalElement.style.display = '';
+      }
+
       alert('Failed to capture screenshot. Please try again.');
     }
   }, []);
