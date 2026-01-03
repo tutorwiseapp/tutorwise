@@ -11,6 +11,7 @@ import { createClient } from '@/utils/supabase/client';
 import { HubDetailModal } from '@/app/components/hub/modal';
 import type { DetailSection } from '@/app/components/hub/modal';
 import Button from '@/app/components/ui/actions/Button';
+import { formatIdForDisplay } from '@/lib/utils/formatId';
 import { CheckCircle2, XCircle, ChevronDown } from 'lucide-react';
 import styles from './OrganisationReferralDetailModal.module.css';
 
@@ -257,6 +258,7 @@ export function OrganisationReferralDetailModal({
         { label: 'Email', value: referral.profile?.email || 'No email' },
         { label: 'Phone', value: referral.profile?.phone || 'No phone' },
         { label: 'Referred By', value: referral.referrer?.full_name || 'Unknown' },
+        { label: 'Referral ID', value: formatIdForDisplay(referralId) },
         { label: 'Status', value: referral.status },
       ],
     },
