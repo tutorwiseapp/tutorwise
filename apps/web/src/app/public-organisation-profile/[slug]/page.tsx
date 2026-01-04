@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: PublicOrganisationPageProps) 
 
   const { data: organisation } = await supabase
     .from('connection_groups')
-    .select('id, name, tagline, bio, location_city, caas_score, logo_url, public_visible, allow_indexing')
+    .select('id, name, tagline, bio, location_city, caas_score, avatar_url, public_visible, allow_indexing')
     .eq('slug', params.slug)
     .eq('type', 'organisation')
     .single();
@@ -68,14 +68,14 @@ export async function generateMetadata({ params }: PublicOrganisationPageProps) 
     openGraph: {
       title: organisation.name,
       description: organisation.tagline || organisation.bio?.substring(0, 160) || '',
-      images: organisation.logo_url ? [{ url: organisation.logo_url }] : [],
+      images: organisation.avatar_url ? [{ url: organisation.avatar_url }] : [],
       type: 'website' as const,
     },
     twitter: {
       card: 'summary_large_image' as const,
       title: organisation.name,
       description: organisation.tagline || organisation.bio?.substring(0, 160) || '',
-      images: organisation.logo_url ? [organisation.logo_url] : [],
+      images: organisation.avatar_url ? [organisation.avatar_url] : [],
     },
     // Apply trust-based indexing directive
     robots: {
@@ -213,7 +213,7 @@ export default async function PublicOrganisationPage({ params }: PublicOrganisat
   // ===========================================================
   let similarOrgsQuery = supabase
     .from('connection_groups')
-    .select('id, name, slug, avatar_url, logo_url, location_city, tagline, caas_score')
+    .select('id, name, slug, avatar_url, location_city, tagline, caas_score')
     .eq('type', 'organisation')
     .eq('public_visible', true)
     .neq('id', organisation.id)
@@ -258,8 +258,8 @@ export default async function PublicOrganisationPage({ params }: PublicOrganisat
     "name": organisation.name,
     "description": organisation.bio || organisation.tagline,
     "url": `https://tutorwise.io/organisation/${organisation.slug}`,
-    "logo": organisation.logo_url || organisation.avatar_url,
-    "image": organisation.cover_image_url || organisation.logo_url || organisation.avatar_url,
+    "logo": organisation.avatar_url,
+    "image": organisation.cover_image_url || organisation.avatar_url,
     "address": organisation.location_city ? {
       "@type": "PostalAddress",
       "addressLocality": organisation.location_city,
