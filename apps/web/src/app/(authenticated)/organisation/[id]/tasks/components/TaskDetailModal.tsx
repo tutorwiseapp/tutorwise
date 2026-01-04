@@ -2,6 +2,7 @@
  * TaskDetailModal.tsx
  * Modal for viewing and editing task details
  * Created: 2026-01-03
+ * Updated: 2026-01-04 - Redesigned to match CreateTaskModal style with editable fields
  */
 
 'use client';
@@ -11,7 +12,8 @@ import { createClient } from '@/utils/supabase/client';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import toast from 'react-hot-toast';
 import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
-import styles from './TaskDetailModal.module.css';
+import styles from './CreateTaskModal.module.css';
+import detailStyles from './TaskDetailModal.module.css';
 
 interface Task {
   id: string;
@@ -80,9 +82,20 @@ export function TaskDetailModal({
   const supabase = createClient();
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [teamMembers, setTeamMembers] = useState<Array<{ id: string; full_name: string }>>([]);
-  const [selectedAssignee, setSelectedAssignee] = useState<string>('');
+  const [loadingMembers, setLoadingMembers] = useState(false);
+
+  // Form data for editing
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    priority: 'medium',
+    category: 'admin',
+    status: 'todo',
+    requiresApproval: false,
+    assignedTo: '',
+  });
 
   // Comments state
   const [comments, setComments] = useState<Comment[]>([]);
@@ -92,6 +105,10 @@ export function TaskDetailModal({
   // Attachments state
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [attachmentsExpanded, setAttachmentsExpanded] = useState(true);
+
+  // Comments collapse state
+  const [commentsExpanded, setCommentsExpanded] = useState(true);
 
   useEffect(() => {
     if (isOpen && taskId) {
@@ -102,9 +119,18 @@ export function TaskDetailModal({
     }
   }, [isOpen, taskId]);
 
+  // Update form data when task loads
   useEffect(() => {
     if (task) {
-      setSelectedAssignee(task.assigned?.id || '');
+      setFormData({
+        title: task.title,
+        description: task.description || '',
+        priority: task.priority,
+        category: task.category,
+        status: task.status,
+        requiresApproval: task.requires_approval,
+        assignedTo: task.assigned?.id || '',
+      });
     }
   }, [task]);
 
@@ -153,6 +179,8 @@ export function TaskDetailModal({
 
   const fetchTeamMembers = async () => {
     try {
+      setLoadingMembers(true);
+
       // Get organisation owner
       const { data: orgData } = await supabase
         .from('connection_groups')
@@ -224,34 +252,65 @@ export function TaskDetailModal({
       setTeamMembers(Array.from(members.values()).sort((a, b) => a.full_name.localeCompare(b.full_name)));
     } catch (error) {
       console.error('Error fetching team members:', error);
+    } finally {
+      setLoadingMembers(false);
     }
   };
 
-  const handleReassign = async () => {
-    if (!task) return;
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.title.trim()) {
+      toast.error('Please enter a task title');
+      return;
+    }
+
+    setSaving(true);
 
     try {
-      const { data: currentUser } = await supabase.auth.getUser();
-      if (!currentUser.user) throw new Error('Not authenticated');
+      const { error } = await supabase
+        .from('org_tasks')
+        .update({
+          title: formData.title.trim(),
+          description: formData.description.trim() || null,
+          priority: formData.priority,
+          category: formData.category,
+          status: formData.status,
+          requires_approval: formData.requiresApproval,
+          assigned_to: formData.assignedTo || null,
+        })
+        .eq('id', taskId);
 
-      const { error: rpcError } = await supabase.rpc('assign_task', {
-        p_task_id: taskId,
-        p_assigned_to: selectedAssignee || null,
-        p_performed_by: currentUser.user.id,
-        p_notes: null,
-        p_metadata: {},
-      });
+      if (error) {
+        console.error('Task update error:', error);
+        throw error;
+      }
 
-      if (rpcError) throw rpcError;
-
-      toast.success('Task reassigned successfully');
-      setIsEditing(false);
-      loadTaskDetails();
+      toast.success('Task updated successfully');
+      await loadTaskDetails();
       onUpdate();
-    } catch (error) {
-      console.error('Error reassigning task:', error);
-      toast.error('Failed to reassign task');
+    } catch (error: any) {
+      console.error('Error updating task:', error);
+      toast.error(error?.message || 'Failed to update task');
+    } finally {
+      setSaving(false);
     }
+  };
+
+  const handleCancel = () => {
+    if (task) {
+      // Reset form to original task data
+      setFormData({
+        title: task.title,
+        description: task.description || '',
+        priority: task.priority,
+        category: task.category,
+        status: task.status,
+        requiresApproval: task.requires_approval,
+        assignedTo: task.assigned?.id || '',
+      });
+    }
+    onClose();
   };
 
   const loadComments = async () => {
@@ -298,14 +357,17 @@ export function TaskDetailModal({
           comment_text: newComment.trim(),
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Comment insert error:', error);
+        throw error;
+      }
 
       setNewComment('');
-      loadComments();
+      await loadComments();
       toast.success('Comment added');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding comment:', error);
-      toast.error('Failed to add comment');
+      toast.error(error?.message || 'Failed to add comment');
     } finally {
       setSubmittingComment(false);
     }
@@ -364,7 +426,10 @@ export function TaskDetailModal({
         .from('task-attachments')
         .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        throw uploadError;
+      }
 
       // Save attachment record
       const { error: dbError } = await supabase
@@ -378,14 +443,18 @@ export function TaskDetailModal({
           uploaded_by: currentUser.user.id,
         });
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error('Database insert error:', dbError);
+        throw dbError;
+      }
 
-      loadAttachments();
+      await loadAttachments();
       toast.success('File uploaded successfully');
       e.target.value = ''; // Reset input
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading file:', error);
-      toast.error('Failed to upload file');
+      toast.error(error?.message || 'Failed to upload file');
+      e.target.value = ''; // Reset input on error
     } finally {
       setUploading(false);
     }
@@ -459,268 +528,316 @@ export function TaskDetailModal({
     });
   };
 
-  const getStatusBadgeClass = (status: string) => {
-    const statusClasses: Record<string, string> = {
-      backlog: styles.statusBacklog,
-      todo: styles.statusTodo,
-      in_progress: styles.statusInProgress,
-      approved: styles.statusApproved,
-      done: styles.statusDone,
-    };
-    return statusClasses[status] || styles.statusDefault;
-  };
-
-  const getPriorityBadgeClass = (priority: string) => {
-    const priorityClasses: Record<string, string> = {
-      urgent: styles.priorityUrgent,
-      high: styles.priorityHigh,
-      medium: styles.priorityMedium,
-      low: styles.priorityLow,
-    };
-    return priorityClasses[priority] || styles.priorityDefault;
-  };
-
   return (
     <HubComplexModal
       isOpen={isOpen}
-      onClose={onClose}
-      title="Task Details"
+      onClose={handleCancel}
+      title="Edit Task"
+      subtitle={task ? formatIdForDisplay(task.id) : ''}
       size="lg"
       footer={
         <div className={styles.footer}>
-          <button onClick={onClose} className={styles.closeButtonFooter}>
-            Close
+          <button
+            type="button"
+            onClick={handleCancel}
+            className={styles.cancelButton}
+            disabled={saving}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="edit-task-form"
+            className={styles.createButton}
+            disabled={saving}
+          >
+            {saving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       }
     >
       {loading ? (
-        <div className={styles.loading}>Loading task details...</div>
+        <div className={detailStyles.loading}>Loading task details...</div>
       ) : task ? (
-        <div className={styles.content}>
-            {/* Task ID */}
-            <div className={styles.section}>
-              <div className={styles.sectionLabel}>Task ID</div>
-              <div className={styles.taskId}>{formatIdForDisplay(task.id)}</div>
-            </div>
-
+        <>
+          <form id="edit-task-form" onSubmit={handleSave} className={styles.form}>
             {/* Title */}
-            <div className={styles.section}>
-              <div className={styles.sectionLabel}>Title</div>
-              <div className={styles.taskTitle}>{task.title}</div>
+            <div className={styles.field}>
+              <label className={styles.label}>
+                Title <span className={styles.required}>*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                className={styles.input}
+                placeholder="Enter task title..."
+                disabled={saving}
+              />
             </div>
 
             {/* Description */}
-            {task.description && (
-              <div className={styles.section}>
-                <div className={styles.sectionLabel}>Description</div>
-                <div className={styles.taskDescription}>{task.description}</div>
-              </div>
-            )}
+            <div className={styles.field}>
+              <label className={styles.label}>Description</label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className={styles.textarea}
+                placeholder="Enter task description..."
+                rows={4}
+                disabled={saving}
+              />
+            </div>
 
-            {/* Status & Priority */}
+            {/* Priority & Category Row */}
             <div className={styles.row}>
-              <div className={styles.section}>
-                <div className={styles.sectionLabel}>Status</div>
-                <span className={`${styles.badge} ${getStatusBadgeClass(task.status)}`}>
-                  {task.status.replace('_', ' ')}
-                </span>
+              <div className={styles.field}>
+                <label className={styles.label}>Priority</label>
+                <select
+                  value={formData.priority}
+                  onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+                  className={styles.select}
+                  disabled={saving}
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="urgent">Urgent</option>
+                </select>
               </div>
-              <div className={styles.section}>
-                <div className={styles.sectionLabel}>Priority</div>
-                <span className={`${styles.badge} ${getPriorityBadgeClass(task.priority)}`}>
-                  {task.priority}
-                </span>
+
+              <div className={styles.field}>
+                <label className={styles.label}>Category</label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className={styles.select}
+                  disabled={saving}
+                >
+                  <option value="account">Account</option>
+                  <option value="admin">Admin</option>
+                  <option value="agent_issue">Agent Issue</option>
+                  <option value="booking_issue">Booking Issue</option>
+                  <option value="client_issue">Client Issue</option>
+                  <option value="developer">Developer</option>
+                  <option value="disputes">Disputes</option>
+                  <option value="financial">Financial</option>
+                  <option value="help_centre">Help Centre</option>
+                  <option value="listing">Listing</option>
+                  <option value="marketplace">Marketplace</option>
+                  <option value="messages">Messages</option>
+                  <option value="network">Network</option>
+                  <option value="organisation">Organisation</option>
+                  <option value="other">Other</option>
+                  <option value="payment_issue">Payment Issue</option>
+                  <option value="payouts">Payouts</option>
+                  <option value="profile">Profile</option>
+                  <option value="public_listing">Public Listing</option>
+                  <option value="public_organisation">Public Organisation</option>
+                  <option value="public_profile">Public Profile</option>
+                  <option value="referral">Referral</option>
+                  <option value="reviews">Reviews</option>
+                  <option value="safeguarding">Safeguarding</option>
+                  <option value="transactions">Transactions</option>
+                  <option value="tutor_issue">Tutor Issue</option>
+                  <option value="wiselist">Wiselist</option>
+                </select>
               </div>
             </div>
 
-            {/* Category */}
-            <div className={styles.section}>
-              <div className={styles.sectionLabel}>Category</div>
-              <div className={styles.value}>{task.category.replace('_', ' ')}</div>
+            {/* Assign To & Status Row */}
+            <div className={styles.row}>
+              <div className={styles.field}>
+                <label className={styles.label}>Assign To</label>
+                <select
+                  value={formData.assignedTo}
+                  onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
+                  className={styles.select}
+                  disabled={saving || loadingMembers}
+                >
+                  <option value="">Unassigned</option>
+                  {teamMembers.map((member) => (
+                    <option key={member.id} value={member.id}>
+                      {member.full_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={styles.field}>
+                <label className={styles.label}>Status</label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  className={styles.select}
+                  disabled={saving}
+                >
+                  <option value="backlog">Backlog</option>
+                  <option value="todo">To Do</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="approved">Approved</option>
+                  <option value="done">Done</option>
+                </select>
+              </div>
             </div>
 
-            {/* Client */}
-            {task.client && (
-              <div className={styles.section}>
-                <div className={styles.sectionLabel}>Client</div>
-                <div className={styles.value}>
-                  {task.client.full_name} ({task.client.email})
+            {/* Approval Checkbox */}
+            <div className={styles.field}>
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={formData.requiresApproval}
+                  onChange={(e) => setFormData({ ...formData, requiresApproval: e.target.checked })}
+                  className={styles.checkbox}
+                  disabled={saving}
+                />
+                <span>Requires approval</span>
+              </label>
+            </div>
+
+            {/* Metadata Section */}
+            <div className={detailStyles.metadataSection}>
+              <div className={detailStyles.metadataRow}>
+                {task.creator && (
+                  <div className={detailStyles.metadataItem}>
+                    <span className={detailStyles.metadataLabel}>Created by:</span>
+                    <span className={detailStyles.metadataValue}>{task.creator.full_name}</span>
+                  </div>
+                )}
+                <div className={detailStyles.metadataItem}>
+                  <span className={detailStyles.metadataLabel}>Created:</span>
+                  <span className={detailStyles.metadataValue}>{formatDate(task.created_at)}</span>
                 </div>
-              </div>
-            )}
-
-            {/* Assigned To */}
-            <div className={styles.section}>
-              <div className={styles.sectionLabel}>
-                Assigned To
-                {!isEditing && (
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className={styles.editButton}
-                  >
-                    Edit
-                  </button>
+                {task.completed_at && (
+                  <div className={detailStyles.metadataItem}>
+                    <span className={detailStyles.metadataLabel}>Completed:</span>
+                    <span className={detailStyles.metadataValue}>{formatDate(task.completed_at)}</span>
+                  </div>
                 )}
               </div>
-              {isEditing ? (
-                <div className={styles.reassignContainer}>
-                  <select
-                    value={selectedAssignee}
-                    onChange={(e) => setSelectedAssignee(e.target.value)}
-                    className={styles.reassignSelect}
-                  >
-                    <option value="">Unassigned</option>
-                    {teamMembers.map((member) => (
-                      <option key={member.id} value={member.id}>
-                        {member.full_name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className={styles.reassignActions}>
-                    <button
-                      onClick={handleReassign}
-                      className={styles.saveButton}
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={() => {
-                        setIsEditing(false);
-                        setSelectedAssignee(task.assigned?.id || '');
-                      }}
-                      className={styles.cancelButton}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className={styles.value}>
-                  {task.assigned ? task.assigned.full_name : 'Unassigned'}
-                </div>
-              )}
+            </div>
+          </form>
+
+          {/* Attachments Section */}
+          <div className={detailStyles.additionalSection}>
+            <div
+              className={detailStyles.sectionHeader}
+              onClick={() => setAttachmentsExpanded(!attachmentsExpanded)}
+              style={{ cursor: 'pointer' }}
+            >
+              <h3 className={detailStyles.sectionTitle}>
+                <span className={detailStyles.chevron}>
+                  {attachmentsExpanded ? '▼' : '▶'}
+                </span>
+                Attachments ({attachments.length})
+              </h3>
             </div>
 
-            {/* Created By */}
-            {task.creator && (
-              <div className={styles.section}>
-                <div className={styles.sectionLabel}>Created By</div>
-                <div className={styles.value}>{task.creator.full_name}</div>
-              </div>
-            )}
-
-            {/* Dates */}
-            <div className={styles.row}>
-              <div className={styles.section}>
-                <div className={styles.sectionLabel}>Created</div>
-                <div className={styles.value}>{formatDate(task.created_at)}</div>
-              </div>
-              {task.completed_at && (
-                <div className={styles.section}>
-                  <div className={styles.sectionLabel}>Completed</div>
-                  <div className={styles.value}>{formatDate(task.completed_at)}</div>
-                </div>
-              )}
-            </div>
-
-            {/* Flags */}
-            {task.requires_approval && (
-              <div className={styles.section}>
-                <div className={styles.approvalFlag}>⚠️ Requires approval before completion</div>
-              </div>
-            )}
-
-            {/* Attachments Section */}
-            <div className={styles.section}>
-              <div className={styles.sectionLabel}>Attachments ({attachments.length})</div>
-
-              <div className={styles.attachmentsList}>
-                {attachments.map((attachment) => (
-                  <div key={attachment.id} className={styles.attachmentItem}>
-                    <div className={styles.attachmentInfo}>
-                      <div className={styles.attachmentName}>{attachment.file_name}</div>
-                      <div className={styles.attachmentMeta}>
-                        {formatFileSize(attachment.file_size)} • Uploaded by {attachment.uploader.full_name} • {formatDate(attachment.uploaded_at)}
+            {attachmentsExpanded && (
+              <>
+                <div className={detailStyles.attachmentsList}>
+                  {attachments.map((attachment) => (
+                    <div key={attachment.id} className={detailStyles.attachmentItem}>
+                      <div className={detailStyles.attachmentInfo}>
+                        <div className={detailStyles.attachmentName}>{attachment.file_name}</div>
+                        <div className={detailStyles.attachmentMeta}>
+                          {formatFileSize(attachment.file_size)} • Uploaded by {attachment.uploader.full_name} • {formatDate(attachment.uploaded_at)}
+                        </div>
+                      </div>
+                      <div className={detailStyles.attachmentActions}>
+                        <button
+                          onClick={() => downloadAttachment(attachment.storage_path, attachment.file_name)}
+                          className={detailStyles.downloadButton}
+                        >
+                          Download
+                        </button>
+                        <button
+                          onClick={() => handleDeleteAttachment(attachment.id, attachment.storage_path)}
+                          className={detailStyles.deleteButton}
+                        >
+                          Delete
+                        </button>
                       </div>
                     </div>
-                    <div className={styles.attachmentActions}>
-                      <button
-                        onClick={() => downloadAttachment(attachment.storage_path, attachment.file_name)}
-                        className={styles.downloadButton}
-                      >
-                        Download
-                      </button>
-                      <button
-                        onClick={() => handleDeleteAttachment(attachment.id, attachment.storage_path)}
-                        className={styles.deleteButton}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
 
-                {attachments.length === 0 && (
-                  <div className={styles.emptyState}>No attachments yet</div>
-                )}
-              </div>
+                  {attachments.length === 0 && (
+                    <div className={detailStyles.emptyState}>No attachments yet</div>
+                  )}
+                </div>
 
-              <div className={styles.uploadSection}>
-                <input
-                  type="file"
-                  onChange={handleFileUpload}
-                  disabled={uploading}
-                  className={styles.fileInput}
-                  id="file-upload"
-                />
-                <label htmlFor="file-upload" className={styles.uploadButton}>
-                  {uploading ? 'Uploading...' : 'Upload File (Max 10MB)'}
-                </label>
-              </div>
+                <div className={detailStyles.uploadSection}>
+                  <input
+                    type="file"
+                    onChange={handleFileUpload}
+                    disabled={uploading}
+                    className={detailStyles.fileInput}
+                    id="file-upload"
+                  />
+                  <label htmlFor="file-upload" className={detailStyles.uploadButton}>
+                    {uploading ? 'Uploading...' : 'Upload File (Max 10MB)'}
+                  </label>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Comments Section */}
+          <div className={detailStyles.additionalSection}>
+            <div
+              className={detailStyles.sectionHeader}
+              onClick={() => setCommentsExpanded(!commentsExpanded)}
+              style={{ cursor: 'pointer' }}
+            >
+              <h3 className={detailStyles.sectionTitle}>
+                <span className={detailStyles.chevron}>
+                  {commentsExpanded ? '▼' : '▶'}
+                </span>
+                Comments ({comments.length})
+              </h3>
             </div>
 
-            {/* Comments Section */}
-            <div className={styles.section}>
-              <div className={styles.sectionLabel}>Comments ({comments.length})</div>
-
-              <div className={styles.commentsList}>
-                {comments.map((comment) => (
-                  <div key={comment.id} className={styles.commentItem}>
-                    <div className={styles.commentHeader}>
-                      <span className={styles.commentAuthor}>{comment.user.full_name}</span>
-                      <span className={styles.commentDate}>{formatDate(comment.created_at)}</span>
+            {commentsExpanded && (
+              <>
+                <div className={detailStyles.commentsList}>
+                  {comments.map((comment) => (
+                    <div key={comment.id} className={detailStyles.commentItem}>
+                      <div className={detailStyles.commentHeader}>
+                        <span className={detailStyles.commentAuthor}>{comment.user.full_name}</span>
+                        <span className={detailStyles.commentDate}>{formatDate(comment.created_at)}</span>
+                      </div>
+                      <div className={detailStyles.commentText}>{comment.comment_text}</div>
                     </div>
-                    <div className={styles.commentText}>{comment.comment_text}</div>
-                  </div>
-                ))}
+                  ))}
 
-                {comments.length === 0 && (
-                  <div className={styles.emptyState}>No comments yet</div>
-                )}
-              </div>
+                  {comments.length === 0 && (
+                    <div className={detailStyles.emptyState}>No comments yet</div>
+                  )}
+                </div>
 
-              <form onSubmit={handleSubmitComment} className={styles.commentForm}>
-                <textarea
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Add a comment..."
-                  className={styles.commentInput}
-                  rows={3}
-                  disabled={submittingComment}
-                />
-                <button
-                  type="submit"
-                  disabled={submittingComment || !newComment.trim()}
-                  className={styles.submitCommentButton}
-                >
-                  {submittingComment ? 'Posting...' : 'Post Comment'}
-                </button>
-              </form>
-            </div>
-        </div>
+                <form onSubmit={handleSubmitComment} className={detailStyles.commentForm}>
+                  <textarea
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Add a comment..."
+                    className={detailStyles.commentInput}
+                    rows={3}
+                    disabled={submittingComment}
+                  />
+                  <button
+                    type="submit"
+                    disabled={submittingComment || !newComment.trim()}
+                    className={detailStyles.submitCommentButton}
+                  >
+                    {submittingComment ? 'Posting...' : 'Post Comment'}
+                  </button>
+                </form>
+              </>
+            )}
+          </div>
+        </>
       ) : (
-        <div className={styles.error}>Task not found</div>
+        <div className={detailStyles.error}>Task not found</div>
       )}
     </HubComplexModal>
   );

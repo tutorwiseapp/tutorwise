@@ -60,7 +60,7 @@ const PRIORITY_COLORS = {
   low: '#6B7280',
 };
 
-// Draggable Card Component
+// Draggable Card Component - Jira-style layout
 function DraggableCard({
   task,
   onCardClick,
@@ -75,18 +75,36 @@ function DraggableCard({
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    const now = new Date();
-    const diffDays = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
 
-    if (diffDays < 0) {
-      return `${Math.abs(diffDays)}d overdue`;
-    } else if (diffDays === 0) {
-      return 'Today';
-    } else if (diffDays === 1) {
-      return 'Tomorrow';
-    } else {
-      return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-    }
+  const formatTaskId = (id: string) => {
+    // Format like TUTOR-123 (first 8 chars of UUID)
+    return `TASK-${id.substring(0, 8).toUpperCase()}`;
+  };
+
+  const formatCategory = (category: string): string => {
+    return category
+      .split('_')
+      .map(word => word.toUpperCase())
+      .join(' ');
+  };
+
+  const getPriorityColor = (priority: string): string => {
+    return PRIORITY_COLORS[priority as keyof typeof PRIORITY_COLORS] || PRIORITY_COLORS.medium;
+  };
+
+  const getInitials = (name: string): string => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase();
   };
 
   const style = transform
@@ -95,8 +113,6 @@ function DraggableCard({
         opacity: isDragging ? 0.5 : 1,
       }
     : undefined;
-
-  const isOverdue = task.due_date && new Date(task.due_date) < new Date();
 
   return (
     <div
@@ -112,48 +128,38 @@ function DraggableCard({
         }
       }}
     >
-      <div className={styles.cardHeader}>
-        <span
-          className={styles.priorityBadge}
-          style={{ backgroundColor: PRIORITY_COLORS[task.priority as keyof typeof PRIORITY_COLORS] || PRIORITY_COLORS.medium }}
-        >
-          {task.priority}
-        </span>
-        <span className={styles.categoryBadge}>
-          {task.category.replace('_', ' ')}
-        </span>
-      </div>
-
+      {/* Row 1: Title (2 lines max with truncation) */}
       <div className={styles.cardTitle}>{task.title}</div>
 
-      {task.description && (
-        <div className={styles.cardDescription}>
-          {task.description.length > 60
-            ? `${task.description.substring(0, 60)}...`
-            : task.description}
-        </div>
-      )}
-
-      <div className={styles.cardMeta}>
-        {task.client && (
-          <div className={styles.cardClient}>
-            <span className={styles.clientIcon}>👤</span>
-            {task.client.full_name}
-          </div>
-        )}
-        {task.assigned && (
-          <div className={styles.cardAssigned}>
-            <span className={styles.assignedIcon}>→</span>
-            {task.assigned.full_name}
-          </div>
-        )}
+      {/* Row 2: Category Badge */}
+      <div className={styles.categoryBadge}>
+        {formatCategory(task.category)}
       </div>
 
-      {task.due_date && (
-        <div className={`${styles.cardDueDate} ${isOverdue ? styles.overdue : ''}`}>
-          📅 {formatDate(task.due_date)}
+      {/* Row 3: Due Date (always show, even if empty) */}
+      <div className={styles.cardDueDate}>
+        {task.due_date ? `Due: ${formatDate(task.due_date)}` : 'No due date'}
+      </div>
+
+      {/* Row 4: Task ID + Priority Badge + Assignee Avatar */}
+      <div className={styles.cardFooter}>
+        <span className={styles.taskId}>{formatTaskId(task.id)}</span>
+        <div className={styles.cardFooterRight}>
+          <span
+            className={styles.priorityBadge}
+            style={{ backgroundColor: getPriorityColor(task.priority) }}
+          >
+            {task.priority.toUpperCase()}
+          </span>
+          <div
+            className={styles.assigneeAvatar}
+            title={task.assigned?.full_name || 'Unassigned'}
+            style={{ background: task.assigned ? '#3b82f6' : '#9ca3af' }}
+          >
+            {task.assigned ? getInitials(task.assigned.full_name) : '?'}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -308,16 +314,21 @@ export function TaskPipeline({
 
   // Build kanban columns
   const columns: KanbanColumn[] = STAGE_CONFIG.map((stage) => {
-    const Icon = stage.icon;
     const stageTasks = tasksByStatus[stage.key] || [];
+    const count = stageTasks.length;
 
     return {
       id: stage.key,
       title: (
-        <div className={styles.columnHeader}>
-          <Icon className={styles.columnIcon} size={18} />
-          <span>{stage.label}</span>
-          <span className={styles.columnCount}>{stageTasks.length}</span>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+          }}
+        >
+          <span>{stage.label} ({count})</span>
         </div>
       ),
       content: (

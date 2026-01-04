@@ -37,8 +37,23 @@
   border-radius: 6px;
   font-size: 14px;
   color: #111827;
-  background: #ffffff;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
   transition: all 0.2s;
+  font-family: inherit;
+  width: 100%;
+}
+
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 8px center !important;
+  background-size: 16px !important;
+  padding-right: 36px;
+  cursor: pointer;
 }
 
 .input:focus,
@@ -52,7 +67,7 @@
 .input:disabled,
 .textarea:disabled,
 .select:disabled {
-  background: #f3f4f6;
+  background: #f3f4f6 !important;
   cursor: not-allowed;
 }
 

@@ -2,15 +2,8 @@
  * TaskDetailModal.module.css
  * Styles for task detail modal (using HubComplexModal)
  * Created: 2026-01-03
- * Updated: 2026-01-04 - Migrated to HubComplexModal
+ * Updated: 2026-01-04 - Redesigned to match CreateTaskModal with editable form
  */
-
-.content {
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
 
 .loading,
 .error {
@@ -23,233 +16,97 @@
   color: #ef4444;
 }
 
-.section {
+/* Task ID Section */
+.taskIdSection {
+  padding: 12px 24px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 8px;
+  margin: -24px -24px 0 -24px;
 }
 
-.sectionLabel {
+.taskIdLabel {
   font-size: 12px;
   font-weight: 600;
   color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.taskIdValue {
+  font-size: 13px;
+  font-family: 'Monaco', 'Courier New', monospace;
+  color: #374151;
+  font-weight: 500;
+}
+
+/* Metadata Section */
+.metadataSection {
+  padding: 16px 0;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 8px;
+}
+
+.metadataRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.metadataItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.metadataLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.metadataValue {
+  font-size: 12px;
+  color: #374151;
+}
+
+/* Additional Sections (Comments & Attachments) */
+.additionalSection {
+  padding: 24px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.sectionHeader {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  user-select: none;
+}
+
+.sectionHeader:hover {
+  opacity: 0.7;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-}
-
-.editButton {
-  background: none;
-  border: 1px solid #d1d5db;
-  color: #006c67;
-  font-size: 11px;
-  font-weight: 500;
-  padding: 4px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  text-transform: none;
-  letter-spacing: normal;
-  transition: all 0.2s;
-}
-
-.editButton:hover {
-  background: #f0fdfa;
-  border-color: #006c67;
-}
-
-.reassignContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.reassignSelect {
-  padding: 10px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 14px;
-  color: #111827;
-  background: #ffffff;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.reassignSelect:focus {
-  outline: none;
-  border-color: #006c67;
-  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
-}
-
-.reassignActions {
-  display: flex;
   gap: 8px;
 }
 
-.saveButton {
-  flex: 1;
-  padding: 8px 16px;
-  background: #006c67;
-  color: #ffffff;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.saveButton:hover {
-  background: #005952;
-}
-
-.cancelButton {
-  flex: 1;
-  padding: 8px 16px;
-  background: #ffffff;
-  color: #374151;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.cancelButton:hover {
-  background: #f3f4f6;
-}
-
-.taskId {
-  font-size: 14px;
-  font-family: 'Monaco', 'Courier New', monospace;
+.chevron {
+  font-size: 10px;
   color: #6b7280;
+  transition: transform 0.2s;
 }
 
-.taskTitle {
-  font-size: 18px;
-  font-weight: 600;
-  color: #111827;
-  line-height: 1.4;
-}
-
-.taskDescription {
-  font-size: 14px;
-  color: #374151;
-  line-height: 1.6;
-  white-space: pre-wrap;
-}
-
-.row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.value {
-  font-size: 14px;
-  color: #111827;
-}
-
-.badge {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Status badges */
-.statusBacklog {
-  background: #f3f4f6;
-  color: #6b7280;
-}
-
-.statusTodo {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.statusInProgress {
-  background: #fef3c7;
-  color: #b45309;
-}
-
-.statusApproved {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.statusDone {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.statusDefault {
-  background: #f3f4f6;
-  color: #6b7280;
-}
-
-/* Priority badges */
-.priorityUrgent {
-  background: #fef2f2;
-  color: #dc2626;
-}
-
-.priorityHigh {
-  background: #fef3c7;
-  color: #d97706;
-}
-
-.priorityMedium {
-  background: #dbeafe;
-  color: #2563eb;
-}
-
-.priorityLow {
-  background: #f3f4f6;
-  color: #6b7280;
-}
-
-.priorityDefault {
-  background: #f3f4f6;
-  color: #6b7280;
-}
-
-.approvalFlag {
-  padding: 12px;
-  background: #fef3c7;
-  border-left: 4px solid #f59e0b;
-  border-radius: 6px;
-  font-size: 14px;
-  color: #92400e;
-}
-
-.footer {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  width: 100%;
-}
-
-.closeButtonFooter {
-  padding: 10px 20px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  background: #ffffff;
-  color: #374151;
-  border: 1px solid #d1d5db;
-}
-
-.closeButtonFooter:hover {
-  background: #f3f4f6;
-}
 
 /* Comments Styles */
 .commentsList {
@@ -257,6 +114,27 @@
   flex-direction: column;
   gap: 16px;
   margin-bottom: 16px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.commentsList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.commentsList::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.commentsList::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.commentsList::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 .commentItem {
@@ -343,6 +221,27 @@
   flex-direction: column;
   gap: 12px;
   margin-bottom: 16px;
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.attachmentsList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.attachmentsList::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.attachmentsList::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.attachmentsList::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 .attachmentItem {
@@ -447,8 +346,15 @@
 
 /* Responsive */
 @media (max-width: 640px) {
-  .row {
-    grid-template-columns: 1fr;
+  .taskIdSection {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .metadataRow {
+    flex-direction: column;
+    gap: 12px;
   }
 
   .attachmentItem {

@@ -258,13 +258,33 @@ export function CreateTaskModal({
                 className={styles.select}
                 disabled={creating}
               >
+                <option value="account">Account</option>
                 <option value="admin">Admin</option>
-                <option value="client_issue">Client Issue</option>
-                <option value="tutor_issue">Tutor Issue</option>
+                <option value="agent_issue">Agent Issue</option>
                 <option value="booking_issue">Booking Issue</option>
-                <option value="payment_issue">Payment Issue</option>
-                <option value="safeguarding">Safeguarding</option>
+                <option value="client_issue">Client Issue</option>
+                <option value="developer">Developer</option>
+                <option value="disputes">Disputes</option>
+                <option value="financial">Financial</option>
+                <option value="help_centre">Help Centre</option>
+                <option value="listing">Listing</option>
+                <option value="marketplace">Marketplace</option>
+                <option value="messages">Messages</option>
+                <option value="network">Network</option>
+                <option value="organisation">Organisation</option>
                 <option value="other">Other</option>
+                <option value="payment_issue">Payment Issue</option>
+                <option value="payouts">Payouts</option>
+                <option value="profile">Profile</option>
+                <option value="public_listing">Public Listing</option>
+                <option value="public_organisation">Public Organisation</option>
+                <option value="public_profile">Public Profile</option>
+                <option value="referral">Referral</option>
+                <option value="reviews">Reviews</option>
+                <option value="safeguarding">Safeguarding</option>
+                <option value="transactions">Transactions</option>
+                <option value="tutor_issue">Tutor Issue</option>
+                <option value="wiselist">Wiselist</option>
               </select>
             </div>
           </div>
