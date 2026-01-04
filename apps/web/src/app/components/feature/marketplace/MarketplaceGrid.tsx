@@ -1,9 +1,10 @@
 'use client';
 
 import type { MarketplaceItem } from '@/types/marketplace';
-import { isProfile, isListing } from '@/types/marketplace';
+import { isProfile, isListing, isOrganisation } from '@/types/marketplace';
 import MarketplaceListingCard from './MarketplaceListingCard';
 import TutorProfileCard from './TutorProfileCard';
+import MarketplaceOrganisationCard from './MarketplaceOrganisationCard';
 import styles from './MarketplaceGrid.module.css';
 
 interface MarketplaceGridProps {
@@ -83,6 +84,8 @@ export default function MarketplaceGrid({
             return <TutorProfileCard key={`profile-${item.data.id}`} profile={item.data} />;
           } else if (isListing(item)) {
             return <MarketplaceListingCard key={`listing-${item.data.id}`} listing={item.data} />;
+          } else if (isOrganisation(item)) {
+            return <MarketplaceOrganisationCard key={`organisation-${item.data.id}`} organisation={item.data} />;
           }
           return null;
         })}

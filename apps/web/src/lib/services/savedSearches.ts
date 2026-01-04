@@ -31,6 +31,7 @@ export interface SearchFilters {
   min_price?: number;
   max_price?: number;
   listing_type?: 'session' | 'course' | 'job';
+  marketplace_type?: 'tutors' | 'organisations' | 'all'; // Filter by tutor profiles, organisations, or all
   availability?: string[];
   min_rating?: number;
   verified_only?: boolean;

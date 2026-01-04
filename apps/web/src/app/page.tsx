@@ -54,11 +54,20 @@ export default function HomePage() {
   });
 
   // Combine data based on search state
-  const items = hasSearched && searchData
-    ? toMarketplaceItems([], searchData.listings)
+  let allItems = hasSearched && searchData
+    ? toMarketplaceItems([], searchData.listings, searchData.organisations || [])
     : featuredData
-    ? toMarketplaceItems(featuredData.profiles, featuredData.listings)
+    ? toMarketplaceItems(featuredData.profiles, featuredData.listings, featuredData.organisations || [])
     : [];
+
+  // Filter by marketplace type (tutors/organisations/all)
+  const marketplaceType = searchFilters.marketplace_type || 'all';
+  const items = allItems.filter(item => {
+    if (marketplaceType === 'all') return true;
+    if (marketplaceType === 'tutors') return item.type === 'profile' || item.type === 'listing';
+    if (marketplaceType === 'organisations') return item.type === 'organisation';
+    return true;
+  });
 
   const total = hasSearched && searchData
     ? searchData.total

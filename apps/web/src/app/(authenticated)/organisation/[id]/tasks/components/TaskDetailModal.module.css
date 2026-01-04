@@ -94,6 +94,90 @@
   color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.editButton {
+  background: none;
+  border: 1px solid #d1d5db;
+  color: #006c67;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: normal;
+  transition: all 0.2s;
+}
+
+.editButton:hover {
+  background: #f0fdfa;
+  border-color: #006c67;
+}
+
+.reassignContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reassignSelect {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #111827;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reassignSelect:focus {
+  outline: none;
+  border-color: #006c67;
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
+}
+
+.reassignActions {
+  display: flex;
+  gap: 8px;
+}
+
+.saveButton {
+  flex: 1;
+  padding: 8px 16px;
+  background: #006c67;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.saveButton:hover {
+  background: #005952;
+}
+
+.cancelButton {
+  flex: 1;
+  padding: 8px 16px;
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelButton:hover {
+  background: #f3f4f6;
 }
 
 .taskId {

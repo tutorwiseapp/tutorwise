@@ -5,17 +5,19 @@
  */
 
 import type { Listing } from '@tutorwise/shared-types';
-import type { MarketplaceItem } from '@/types/marketplace';
+import type { MarketplaceItem, OrganisationProfile } from '@/types/marketplace';
 import type { SearchFilters } from '@/lib/services/savedSearches';
 
 export interface FeaturedItemsResponse {
   profiles: any[];
   listings: Listing[];
+  organisations: OrganisationProfile[];
   total: number;
 }
 
 export interface SearchResponse {
   listings: Listing[];
+  organisations: OrganisationProfile[];
   total: number;
 }
 
@@ -25,10 +27,10 @@ export interface ProfilesResponse {
 }
 
 /**
- * Fetch featured tutors (both profiles and listings)
+ * Fetch featured tutors, listings, and organisations
  */
 export async function getFeaturedItems(limit = 10, offset = 0): Promise<FeaturedItemsResponse> {
-  const [profilesRes, listingsRes] = await Promise.all([
+  const [profilesRes, listingsRes, organisationsRes] = await Promise.all([
     fetch(`/api/marketplace/profiles?limit=${limit}&offset=${offset}`, {
       cache: 'no-store',
       headers: { 'Cache-Control': 'no-cache' },
@@ -37,24 +39,30 @@ export async function getFeaturedItems(limit = 10, offset = 0): Promise<Featured
       cache: 'no-store',
       headers: { 'Cache-Control': 'no-cache' },
     }),
+    fetch(`/api/marketplace/organisations?limit=${Math.floor(limit / 3)}&offset=${offset}`, {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' },
+    }),
   ]);
 
-  if (!profilesRes.ok || !listingsRes.ok) {
+  if (!profilesRes.ok || !listingsRes.ok || !organisationsRes.ok) {
     throw new Error('Failed to fetch featured items');
   }
 
   const profilesData = await profilesRes.json();
   const listingsData = await listingsRes.json();
+  const organisationsData = await organisationsRes.json();
 
   return {
     profiles: profilesData.profiles || [],
     listings: listingsData.listings || [],
-    total: (profilesData.total || 0) + (listingsData.total || 0),
+    organisations: organisationsData.organisations || [],
+    total: (profilesData.total || 0) + (listingsData.total || 0) + (organisationsData.total || 0),
   };
 }
 
 /**
- * Search marketplace with filters
+ * Search marketplace with filters (listings + organisations)
  */
 export async function searchMarketplace(filters: SearchFilters): Promise<SearchResponse> {
   const params = new URLSearchParams();
@@ -78,16 +86,30 @@ export async function searchMarketplace(filters: SearchFilters): Promise<SearchR
     params.append('max_price', filters.max_price.toString());
   }
 
-  const response = await fetch(`/api/marketplace/search?${params.toString()}`, {
-    cache: 'no-store',
-    headers: { 'Cache-Control': 'no-cache' },
-  });
+  // Fetch both listings and organisations in parallel
+  const [listingsRes, organisationsRes] = await Promise.all([
+    fetch(`/api/marketplace/search?${params.toString()}`, {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' },
+    }),
+    fetch(`/api/marketplace/organisations?${params.toString()}`, {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' },
+    }),
+  ]);
 
-  if (!response.ok) {
+  if (!listingsRes.ok || !organisationsRes.ok) {
     throw new Error('Failed to search marketplace');
   }
 
-  return response.json();
+  const listingsData = await listingsRes.json();
+  const organisationsData = await organisationsRes.json();
+
+  return {
+    listings: listingsData.listings || [],
+    organisations: organisationsData.organisations || [],
+    total: (listingsData.total || 0) + (organisationsData.total || 0),
+  };
 }
 
 /**
@@ -161,7 +183,7 @@ export async function searchMarketplaceWithPagination(
 /**
  * Helper function to convert API responses to MarketplaceItem[]
  */
-export function toMarketplaceItems(profiles: any[], listings: Listing[]): MarketplaceItem[] {
+export function toMarketplaceItems(profiles: any[], listings: Listing[], organisations: OrganisationProfile[] = []): MarketplaceItem[] {
   const profileItems: MarketplaceItem[] = profiles.map((profile) => ({
     type: 'profile' as const,
     data: profile,
@@ -172,12 +194,18 @@ export function toMarketplaceItems(profiles: any[], listings: Listing[]): Market
     data: listing,
   }));
 
-  // Interleave listings and profiles (listings first, then profiles)
+  const organisationItems: MarketplaceItem[] = organisations.map((org) => ({
+    type: 'organisation' as const,
+    data: org,
+  }));
+
+  // Interleave listings, profiles, and organisations (listings first, then profiles, then orgs)
   const merged: MarketplaceItem[] = [];
-  const maxLength = Math.max(profileItems.length, listingItems.length);
+  const maxLength = Math.max(profileItems.length, listingItems.length, organisationItems.length);
   for (let i = 0; i < maxLength; i++) {
     if (i < listingItems.length) merged.push(listingItems[i]);
     if (i < profileItems.length) merged.push(profileItems[i]);
+    if (i < organisationItems.length) merged.push(organisationItems[i]);
   }
 
   return merged;

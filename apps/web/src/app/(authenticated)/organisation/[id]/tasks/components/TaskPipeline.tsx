@@ -39,6 +39,7 @@ interface TaskPipelineProps {
   organisationId: string;
   priorityFilter?: string;
   categoryFilter?: string;
+  assignedToFilter?: string;
   searchQuery?: string;
   onCardClick?: (taskId: string) => void;
 }
@@ -161,6 +162,7 @@ export function TaskPipeline({
   organisationId,
   priorityFilter = 'all',
   categoryFilter = 'all',
+  assignedToFilter = 'all',
   searchQuery = '',
   onCardClick,
 }: TaskPipelineProps) {
@@ -240,6 +242,16 @@ export function TaskPipeline({
       // Category filter
       if (categoryFilter !== 'all' && task.category !== categoryFilter) {
         return false;
+      }
+
+      // Assignee filter
+      if (assignedToFilter !== 'all') {
+        if (assignedToFilter === 'unassigned' && task.assigned !== null) {
+          return false;
+        }
+        if (assignedToFilter !== 'unassigned' && task.assigned?.id !== assignedToFilter) {
+          return false;
+        }
       }
 
       return true;

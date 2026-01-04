@@ -46,6 +46,13 @@ const nextConfig = {
         port: '',
         pathname: '/storage/v1/object/public/**',
       },
+      // For user-uploaded avatars stored in Supabase Storage (new project).
+      {
+        protocol: 'https',
+        hostname: 'lvsmtgmpoysjygdwcrir.supabase.co',
+        port: '',
+        pathname: '/storage/v1/object/public/**',
+      },
       // For placeholder avatars
       {
         protocol: 'https',

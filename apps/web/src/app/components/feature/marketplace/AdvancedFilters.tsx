@@ -235,6 +235,42 @@ export default function AdvancedFilters({
             </div>
           </div>
 
+          {/* Marketplace Type (Tutors/Organisations/All) */}
+          <div className={styles.filterSection}>
+            <h3 className={styles.sectionTitle}>Browse</h3>
+            <div className={styles.radioGroup}>
+              <label className={styles.radioLabel}>
+                <input
+                  type="radio"
+                  name="marketplace_type"
+                  checked={!localFilters.marketplace_type || localFilters.marketplace_type === 'all'}
+                  onChange={() => setLocalFilters({ ...localFilters, marketplace_type: 'all' })}
+                />
+                <span>All</span>
+              </label>
+              <label className={styles.radioLabel}>
+                <input
+                  type="radio"
+                  name="marketplace_type"
+                  value="tutors"
+                  checked={localFilters.marketplace_type === 'tutors'}
+                  onChange={(e) => setLocalFilters({ ...localFilters, marketplace_type: e.target.value as any })}
+                />
+                <span>Tutors</span>
+              </label>
+              <label className={styles.radioLabel}>
+                <input
+                  type="radio"
+                  name="marketplace_type"
+                  value="organisations"
+                  checked={localFilters.marketplace_type === 'organisations'}
+                  onChange={(e) => setLocalFilters({ ...localFilters, marketplace_type: e.target.value as any })}
+                />
+                <span>Organisations</span>
+              </label>
+            </div>
+          </div>
+
           {/* Min Rating */}
           <div className={styles.filterSection}>
             <h3 className={styles.sectionTitle}>Minimum Rating</h3>

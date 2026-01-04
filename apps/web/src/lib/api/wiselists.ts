@@ -404,6 +404,7 @@ export async function getOrCreateMySavesWiselist(): Promise<Wiselist> {
 export async function quickSaveItem(data: {
   profileId?: string;
   listingId?: string;
+  organisationId?: string;
 }): Promise<{ saved: boolean; itemId?: string }> {
   console.log('[quickSaveItem] Starting with data:', data);
   const supabase = createClient();
@@ -413,7 +414,7 @@ export async function quickSaveItem(data: {
   // For non-logged-in users: Use localStorage
   if (!user) {
     console.log('[quickSaveItem] No user, using localStorage');
-    const itemKey = data.profileId ? `profile-${data.profileId}` : `listing-${data.listingId}`;
+    const itemKey = data.profileId ? `profile-${data.profileId}` : data.listingId ? `listing-${data.listingId}` : `organisation-${data.organisationId}`;
     const tempSaves = getTempSaves();
 
     if (tempSaves.includes(itemKey)) {
@@ -446,9 +447,11 @@ export async function quickSaveItem(data: {
     .eq('wiselist_id', mySaves.id);
 
   if (data.profileId) {
-    query = query.eq('profile_id', data.profileId).is('listing_id', null);
+    query = query.eq('profile_id', data.profileId).is('listing_id', null).is('organisation_id', null);
   } else if (data.listingId) {
-    query = query.is('profile_id', null).eq('listing_id', data.listingId);
+    query = query.is('profile_id', null).eq('listing_id', data.listingId).is('organisation_id', null);
+  } else if (data.organisationId) {
+    query = query.is('profile_id', null).is('listing_id', null).eq('organisation_id', data.organisationId);
   }
 
   const { data: existingItem } = await query.maybeSingle();
@@ -468,6 +471,7 @@ export async function quickSaveItem(data: {
     wiselistId: mySaves.id,
     profileId: data.profileId,
     listingId: data.listingId,
+    organisationId: data.organisationId,
   });
   console.log('[quickSaveItem] New item added:', newItem.id);
 
@@ -481,13 +485,14 @@ export async function quickSaveItem(data: {
 export async function isItemSaved(data: {
   profileId?: string;
   listingId?: string;
+  organisationId?: string;
 }): Promise<boolean> {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   // For non-logged-in users: Check localStorage
   if (!user) {
-    const itemKey = data.profileId ? `profile-${data.profileId}` : `listing-${data.listingId}`;
+    const itemKey = data.profileId ? `profile-${data.profileId}` : data.listingId ? `listing-${data.listingId}` : `organisation-${data.organisationId}`;
     const tempSaves = getTempSaves();
     return tempSaves.includes(itemKey);
   }
@@ -511,9 +516,11 @@ export async function isItemSaved(data: {
     .eq('wiselist_id', mySaves.id);
 
   if (data.profileId) {
-    query = query.eq('profile_id', data.profileId).is('listing_id', null);
+    query = query.eq('profile_id', data.profileId).is('listing_id', null).is('organisation_id', null);
   } else if (data.listingId) {
-    query = query.is('profile_id', null).eq('listing_id', data.listingId);
+    query = query.is('profile_id', null).eq('listing_id', data.listingId).is('organisation_id', null);
+  } else if (data.organisationId) {
+    query = query.is('profile_id', null).is('listing_id', null).eq('organisation_id', data.organisationId);
   }
 
   const { data: item } = await query.maybeSingle();

@@ -25,11 +25,27 @@ export interface TutorProfile {
   max_hourly_rate?: number; // Maximum price across all listings
 }
 
-export type MarketplaceItemType = 'profile' | 'listing';
+export interface OrganisationProfile {
+  id: string;
+  name: string;
+  slug: string;
+  tagline?: string;
+  avatar_url?: string;
+  location_city?: string;
+  location_country?: string;
+  subjects_offered?: string[];
+  category?: string; // 'agency' | 'school' | 'company' | etc.
+  caas_score?: number;
+  total_tutors?: number;
+  avg_rating?: number;
+  total_reviews?: number;
+}
+
+export type MarketplaceItemType = 'profile' | 'listing' | 'organisation';
 
 export interface MarketplaceItem {
   type: MarketplaceItemType;
-  data: TutorProfile | Listing;
+  data: TutorProfile | Listing | OrganisationProfile;
 }
 
 // Type guards
@@ -39,4 +55,8 @@ export function isProfile(item: MarketplaceItem): item is MarketplaceItem & { da
 
 export function isListing(item: MarketplaceItem): item is MarketplaceItem & { data: Listing } {
   return item.type === 'listing';
+}
+
+export function isOrganisation(item: MarketplaceItem): item is MarketplaceItem & { data: OrganisationProfile } {
+  return item.type === 'organisation';
 }

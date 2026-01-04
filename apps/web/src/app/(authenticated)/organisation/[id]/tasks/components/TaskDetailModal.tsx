@@ -56,12 +56,22 @@ export function TaskDetailModal({
   const supabase = createClient();
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [teamMembers, setTeamMembers] = useState<Array<{ id: string; full_name: string }>>([]);
+  const [selectedAssignee, setSelectedAssignee] = useState<string>('');
 
   useEffect(() => {
     if (isOpen && taskId) {
       loadTaskDetails();
+      fetchTeamMembers();
     }
   }, [isOpen, taskId]);
+
+  useEffect(() => {
+    if (task) {
+      setSelectedAssignee(task.assigned?.id || '');
+    }
+  }, [task]);
 
   const loadTaskDetails = async () => {
     try {
@@ -103,6 +113,109 @@ export function TaskDetailModal({
       toast.error('Failed to load task details');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTeamMembers = async () => {
+    try {
+      // Get organisation owner
+      const { data: orgData } = await supabase
+        .from('connection_groups')
+        .select('profile_id, profiles!inner(id, full_name)')
+        .eq('id', organisationId)
+        .single();
+
+      // Get team members
+      const { data: membersData } = await supabase
+        .from('group_members')
+        .select(`
+          connection_id,
+          profile_graph!inner(
+            source_profile_id,
+            target_profile_id,
+            source_profile:source_profile_id(id, full_name),
+            target_profile:target_profile_id(id, full_name)
+          )
+        `)
+        .eq('group_id', organisationId);
+
+      const members = new Map<string, { id: string; full_name: string }>();
+
+      // Add owner (transform array to object)
+      const ownerProfile = Array.isArray(orgData?.profiles)
+        ? orgData.profiles[0]
+        : orgData?.profiles;
+
+      if (ownerProfile?.id) {
+        members.set(ownerProfile.id, {
+          id: ownerProfile.id,
+          full_name: ownerProfile.full_name,
+        });
+      }
+
+      // Add team members from graph (transform arrays to objects)
+      membersData?.forEach((member: any) => {
+        const graph = Array.isArray(member.profile_graph)
+          ? member.profile_graph[0]
+          : member.profile_graph;
+
+        if (!graph) return;
+
+        // Transform source_profile from array to object
+        const sourceProfile = Array.isArray(graph.source_profile)
+          ? graph.source_profile[0]
+          : graph.source_profile;
+
+        if (sourceProfile?.id && sourceProfile?.full_name) {
+          members.set(sourceProfile.id, {
+            id: sourceProfile.id,
+            full_name: sourceProfile.full_name
+          });
+        }
+
+        // Transform target_profile from array to object
+        const targetProfile = Array.isArray(graph.target_profile)
+          ? graph.target_profile[0]
+          : graph.target_profile;
+
+        if (targetProfile?.id && targetProfile?.full_name) {
+          members.set(targetProfile.id, {
+            id: targetProfile.id,
+            full_name: targetProfile.full_name
+          });
+        }
+      });
+
+      setTeamMembers(Array.from(members.values()).sort((a, b) => a.full_name.localeCompare(b.full_name)));
+    } catch (error) {
+      console.error('Error fetching team members:', error);
+    }
+  };
+
+  const handleReassign = async () => {
+    if (!task) return;
+
+    try {
+      const { data: currentUser } = await supabase.auth.getUser();
+      if (!currentUser.user) throw new Error('Not authenticated');
+
+      const { error: rpcError } = await supabase.rpc('assign_task', {
+        p_task_id: taskId,
+        p_assigned_to: selectedAssignee || null,
+        p_performed_by: currentUser.user.id,
+        p_notes: null,
+        p_metadata: {},
+      });
+
+      if (rpcError) throw rpcError;
+
+      toast.success('Task reassigned successfully');
+      setIsEditing(false);
+      loadTaskDetails();
+      onUpdate();
+    } catch (error) {
+      console.error('Error reassigning task:', error);
+      toast.error('Failed to reassign task');
     }
   };
 
@@ -204,12 +317,56 @@ export function TaskDetailModal({
             )}
 
             {/* Assigned To */}
-            {task.assigned && (
-              <div className={styles.section}>
-                <div className={styles.sectionLabel}>Assigned To</div>
-                <div className={styles.value}>{task.assigned.full_name}</div>
+            <div className={styles.section}>
+              <div className={styles.sectionLabel}>
+                Assigned To
+                {!isEditing && (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className={styles.editButton}
+                  >
+                    Edit
+                  </button>
+                )}
               </div>
-            )}
+              {isEditing ? (
+                <div className={styles.reassignContainer}>
+                  <select
+                    value={selectedAssignee}
+                    onChange={(e) => setSelectedAssignee(e.target.value)}
+                    className={styles.reassignSelect}
+                  >
+                    <option value="">Unassigned</option>
+                    {teamMembers.map((member) => (
+                      <option key={member.id} value={member.id}>
+                        {member.full_name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className={styles.reassignActions}>
+                    <button
+                      onClick={handleReassign}
+                      className={styles.saveButton}
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsEditing(false);
+                        setSelectedAssignee(task.assigned?.id || '');
+                      }}
+                      className={styles.cancelButton}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className={styles.value}>
+                  {task.assigned ? task.assigned.full_name : 'Unassigned'}
+                </div>
+              )}
+            </div>
 
             {/* Created By */}
             {task.creator && (

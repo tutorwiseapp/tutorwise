@@ -49,6 +49,7 @@ export default function OrganisationTasksPage({
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [teamMembers, setTeamMembers] = useState<Array<{ id: string; full_name: string }>>([]);
 
   // Fetch organisation details
   const {
@@ -104,6 +105,84 @@ export default function OrganisationTasksPage({
   const isOwner = userRole?.isOwner || false;
   const isAdmin = userRole?.isAdmin || false;
   const hasAccess = isOwner || isAdmin;
+
+  // Fetch team members for assignee filter
+  const { data: teamMembersData } = useQuery({
+    queryKey: ['team-members', params.id],
+    queryFn: async () => {
+      // Get organisation owner
+      const { data: orgData } = await supabase
+        .from('connection_groups')
+        .select('profile_id, profiles!inner(id, full_name)')
+        .eq('id', params.id)
+        .single();
+
+      // Get team members
+      const { data: membersData } = await supabase
+        .from('group_members')
+        .select(`
+          connection_id,
+          profile_graph!inner(
+            source_profile_id,
+            target_profile_id,
+            source_profile:source_profile_id(id, full_name),
+            target_profile:target_profile_id(id, full_name)
+          )
+        `)
+        .eq('group_id', params.id);
+
+      const members = new Map<string, { id: string; full_name: string }>();
+
+      // Add owner (transform array to object)
+      const ownerProfile = Array.isArray(orgData?.profiles)
+        ? orgData.profiles[0]
+        : orgData?.profiles;
+
+      if (ownerProfile?.id) {
+        members.set(ownerProfile.id, {
+          id: ownerProfile.id,
+          full_name: ownerProfile.full_name,
+        });
+      }
+
+      // Add team members from graph (transform arrays to objects)
+      membersData?.forEach((member: any) => {
+        const graph = Array.isArray(member.profile_graph)
+          ? member.profile_graph[0]
+          : member.profile_graph;
+
+        if (!graph) return;
+
+        // Transform source_profile from array to object
+        const sourceProfile = Array.isArray(graph.source_profile)
+          ? graph.source_profile[0]
+          : graph.source_profile;
+
+        if (sourceProfile?.id && sourceProfile?.full_name) {
+          members.set(sourceProfile.id, {
+            id: sourceProfile.id,
+            full_name: sourceProfile.full_name
+          });
+        }
+
+        // Transform target_profile from array to object
+        const targetProfile = Array.isArray(graph.target_profile)
+          ? graph.target_profile[0]
+          : graph.target_profile;
+
+        if (targetProfile?.id && targetProfile?.full_name) {
+          members.set(targetProfile.id, {
+            id: targetProfile.id,
+            full_name: targetProfile.full_name
+          });
+        }
+      });
+
+      return Array.from(members.values()).sort((a, b) => a.full_name.localeCompare(b.full_name));
+    },
+    enabled: !!params.id && hasAccess,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
 
   const handleCardClick = (taskId: string) => {
     setSelectedTaskId(taskId);
@@ -284,6 +363,18 @@ export default function OrganisationTasksPage({
                 { label: 'Other', value: 'other' },
               ],
             },
+            {
+              key: 'assignedTo',
+              label: 'Assigned To',
+              options: [
+                { label: 'All Assignees', value: 'all' },
+                { label: 'Unassigned', value: 'unassigned' },
+                ...(teamMembersData || []).map(member => ({
+                  label: member.full_name,
+                  value: member.id,
+                })),
+              ],
+            },
           ]}
           filterValues={filterValues}
           onFilterChange={(key, value) => setFilterValues({ ...filterValues, [key]: value })}
@@ -306,6 +397,7 @@ export default function OrganisationTasksPage({
           organisationId={params.id}
           priorityFilter={filterValues.priority as string}
           categoryFilter={filterValues.category as string}
+          assignedToFilter={filterValues.assignedTo as string}
           searchQuery={searchQuery}
           onCardClick={handleCardClick}
         />
