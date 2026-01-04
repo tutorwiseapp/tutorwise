@@ -56,13 +56,17 @@ export function SimilarOrganisationsCard({
     <div className={styles.card}>
       <div className={styles.header}>
         <h2 className={styles.title}>Similar Organisations</h2>
-        <p className={styles.subtitle}>
-          Discover other top-rated tutoring organisations
-        </p>
       </div>
 
       <div className={styles.grid}>
-        {filteredOrgs.map((org) => {
+        {filteredOrgs.length === 0 ? (
+          <div className={styles.emptyState}>
+            <p className={styles.emptyText}>
+              No similar organisations found yet.
+            </p>
+          </div>
+        ) : (
+          filteredOrgs.map((org) => {
           const initials = getInitials(org.name);
           const trustBadge = getTrustBadge(org.caas_score);
           const logoUrl = org.logo_url || org.avatar_url;
@@ -141,7 +145,8 @@ export function SimilarOrganisationsCard({
               </div>
             </button>
           );
-        })}
+        })
+        )}
       </div>
     </div>
   );
