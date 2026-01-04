@@ -10,6 +10,7 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import toast from 'react-hot-toast';
+import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
 import styles from './TaskDetailModal.module.css';
 
 interface Task {
@@ -253,17 +254,23 @@ export function TaskDetailModal({
   };
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.header}>
-          <h2 className={styles.title}>Task Details</h2>
-          <button onClick={onClose} className={styles.closeButton}>×</button>
+    <HubComplexModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Task Details"
+      size="lg"
+      footer={
+        <div className={styles.footer}>
+          <button onClick={onClose} className={styles.closeButtonFooter}>
+            Close
+          </button>
         </div>
-
-        {loading ? (
-          <div className={styles.loading}>Loading task details...</div>
-        ) : task ? (
-          <div className={styles.content}>
+      }
+    >
+      {loading ? (
+        <div className={styles.loading}>Loading task details...</div>
+      ) : task ? (
+        <div className={styles.content}>
             {/* Task ID */}
             <div className={styles.section}>
               <div className={styles.sectionLabel}>Task ID</div>
@@ -396,17 +403,10 @@ export function TaskDetailModal({
                 <div className={styles.approvalFlag}>⚠️ Requires approval before completion</div>
               </div>
             )}
-          </div>
-        ) : (
-          <div className={styles.error}>Task not found</div>
-        )}
-
-        <div className={styles.footer}>
-          <button onClick={onClose} className={styles.closeButtonFooter}>
-            Close
-          </button>
         </div>
-      </div>
-    </div>
+      ) : (
+        <div className={styles.error}>Task not found</div>
+      )}
+    </HubComplexModal>
   );
 }

@@ -9,6 +9,7 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import toast from 'react-hot-toast';
+import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
 import styles from './CreateTaskModal.module.css';
 
 interface CreateTaskModalProps {
@@ -179,14 +180,33 @@ export function CreateTaskModal({
   };
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.header}>
-          <h2 className={styles.title}>Create New Task</h2>
-          <button onClick={onClose} className={styles.closeButton}>×</button>
+    <HubComplexModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Create New Task"
+      size="md"
+      footer={
+        <div className={styles.footer}>
+          <button
+            type="button"
+            onClick={onClose}
+            className={styles.cancelButton}
+            disabled={creating}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="create-task-form"
+            className={styles.createButton}
+            disabled={creating}
+          >
+            {creating ? 'Creating...' : 'Create Task'}
+          </button>
         </div>
-
-        <form onSubmit={handleSubmit} className={styles.form}>
+      }
+    >
+      <form id="create-task-form" onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.field}>
             <label className={styles.label}>
               Title <span className={styles.required}>*</span>
@@ -295,26 +315,7 @@ export function CreateTaskModal({
               <span>Requires approval</span>
             </label>
           </div>
-
-          <div className={styles.footer}>
-            <button
-              type="button"
-              onClick={onClose}
-              className={styles.cancelButton}
-              disabled={creating}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className={styles.createButton}
-              disabled={creating}
-            >
-              {creating ? 'Creating...' : 'Create Task'}
-            </button>
-          </div>
         </form>
-      </div>
-    </div>
+    </HubComplexModal>
   );
 }
