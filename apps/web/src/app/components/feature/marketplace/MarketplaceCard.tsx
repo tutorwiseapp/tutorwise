@@ -91,7 +91,11 @@ export default function MarketplaceCard({
         {onSave && (
           <button
             className={styles.saveButton}
-            onClick={onSave}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onSave(e);
+            }}
             aria-label={isSaved ? 'Remove from My Saves' : 'Save to My Saves'}
             disabled={isLoading}
           >
