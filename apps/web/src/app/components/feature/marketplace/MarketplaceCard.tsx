@@ -55,9 +55,13 @@ export default function MarketplaceCard({
   children,
 }: MarketplaceCardProps) {
   const handleCardClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    // Prevent navigation if clicking on the save button
+    // Prevent navigation if clicking on interactive elements (buttons or nested links)
     const target = e.target as HTMLElement;
-    if (target.closest('button')) {
+    const button = target.closest('button');
+    const link = target.closest('a[href]');
+
+    // Only prevent if the interactive element is not the card itself
+    if ((button || (link && link !== e.currentTarget))) {
       e.preventDefault();
     }
   };

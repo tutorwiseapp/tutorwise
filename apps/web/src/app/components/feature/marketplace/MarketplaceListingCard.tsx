@@ -173,7 +173,9 @@ export default function MarketplaceListingCard({ listing, matchScore }: Marketpl
 
       {/* Line 3: Tutor Name & Delivery Mode */}
       <CardRow>
-        <CardLocation>{listing.full_name || 'Tutor'}</CardLocation>
+        <CardBookLink href={`/public-profile/${listing.profile_id}`}>
+          {listing.full_name || 'Tutor'}
+        </CardBookLink>
         <CardDeliveryMode>
           {listing.location_type === 'online' ? 'Online' :
            listing.location_type === 'in_person' ? 'In Person' :
