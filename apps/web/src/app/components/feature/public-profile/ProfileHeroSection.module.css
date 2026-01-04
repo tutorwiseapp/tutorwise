@@ -314,11 +314,12 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 24px;
+  min-height: var(--button-height-standard, 40px);
+  padding: var(--button-padding-v-standard, 10px) 24px;
   background: var(--color-primary-default, #006c67);
-  border: 2px solid var(--color-primary-default, #006c67);
+  border: none;
   border-radius: var(--radius-md, 8px);
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-weight: 700;
   color: white;
   cursor: pointer;
@@ -328,7 +329,6 @@
 
 .referButton:hover {
   background: var(--color-primary-hover, #005550);
-  border-color: var(--color-primary-hover, #005550);
   box-shadow: 0 4px 8px rgba(0, 108, 103, 0.3);
   transform: translateY(-1px);
 }

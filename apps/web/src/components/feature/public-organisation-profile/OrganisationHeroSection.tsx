@@ -11,10 +11,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Heart, Share2, MapPin, Award, Users, Star, Eye, Building2 } from 'lucide-react';
+import { Heart, Share2, Edit, Award, Users, Star, MapPin, Building2, Gift } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { ShareModal } from '@/app/components/ui/feedback/ShareModal';
+import { quickSaveItem, isItemSaved } from '@/lib/api/wiselists';
 import { getInitials } from '@/lib/utils/initials';
 import styles from './OrganisationHeroSection.module.css';
 
@@ -25,11 +26,52 @@ interface OrganisationHeroSectionProps {
 
 export function OrganisationHeroSection({ organisation, isOwner }: OrganisationHeroSectionProps) {
   const [showShareModal, setShowShareModal] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { profile: currentUser } = useUserProfile();
   const router = useRouter();
 
   // Get organisation initials for fallback avatar
   const orgInitials = getInitials(organisation.name);
+
+  // Check if organisation is saved in "My Saves" wiselist on mount
+  useEffect(() => {
+    const checkSavedStatus = async () => {
+      try {
+        const saved = await isItemSaved({ organisationId: organisation.id });
+        setIsSaved(saved);
+      } catch (error) {
+        console.error('Error checking saved status:', error);
+      }
+    };
+
+    checkSavedStatus();
+  }, [currentUser, organisation.id]);
+
+  // Handle Save button - Quick save to "My Saves" wiselist
+  const handleSave = async () => {
+    setIsLoading(true);
+    try {
+      const result = await quickSaveItem({ organisationId: organisation.id });
+
+      setIsSaved(result.saved);
+
+      if (result.saved) {
+        if (!currentUser) {
+          toast.success('Saved! Sign in to sync across devices.');
+        } else {
+          toast.success('Organisation saved to My Saves!');
+        }
+      } else {
+        toast.success('Organisation removed from My Saves');
+      }
+    } catch (error) {
+      console.error('Error saving/unsaving organisation:', error);
+      toast.error('Something went wrong');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Handle Share button
   const handleShare = () => {
@@ -38,7 +80,7 @@ export function OrganisationHeroSection({ organisation, isOwner }: OrganisationH
 
   // Handle Edit button (for owners)
   const handleEdit = () => {
-    router.push(`/organisation/${organisation.slug}/settings`);
+    router.push(`/organisation?tab=info`);
   };
 
   // Handle Join Team CTA
@@ -75,14 +117,14 @@ export function OrganisationHeroSection({ organisation, isOwner }: OrganisationH
             <Image
               src={organisation.logo_url || organisation.avatar_url}
               alt={`${organisation.name} logo`}
-              width={120}
-              height={120}
+              width={160}
+              height={160}
               className={styles.logo}
               priority
             />
           ) : (
             <div className={styles.logoFallback}>
-              <Building2 size={48} />
+              <Building2 size={64} />
             </div>
           )}
 
@@ -156,32 +198,44 @@ export function OrganisationHeroSection({ organisation, isOwner }: OrganisationH
           )}
         </div>
 
-        {/* Right: Utility Buttons & CTAs */}
-        <div className={styles.ctaSection}>
-          {/* Utility Buttons Row */}
-          <div className={styles.utilityButtons}>
-            {/* Edit Button (only for owners) */}
-            {isOwner && (
-              <button
-                className={styles.utilityButton}
-                onClick={handleEdit}
-                aria-label="Edit organisation"
-              >
-                <MapPin size={18} />
-                <span>Edit</span>
-              </button>
-            )}
-
-            {/* Share Button */}
+        {/* Utility Buttons (top-right, positioned absolutely) */}
+        <div className={styles.utilityButtons}>
+          {/* Edit Button (only for owners) */}
+          {isOwner && (
             <button
               className={styles.utilityButton}
-              onClick={handleShare}
-              aria-label="Share organisation"
+              onClick={handleEdit}
+              aria-label="Edit organisation"
+              title="Edit organisation"
             >
-              <Share2 size={18} />
-              <span>Share</span>
+              <Edit size={20} />
             </button>
-          </div>
+          )}
+
+          {/* Save Button */}
+          <button
+            className={styles.utilityButton}
+            onClick={handleSave}
+            aria-label={isSaved ? 'Remove from saved' : 'Save organisation'}
+            title={isSaved ? 'Remove from saved' : 'Save organisation'}
+            disabled={isLoading}
+          >
+            <Heart size={20} fill={isSaved ? 'currentColor' : 'none'} />
+          </button>
+
+          {/* Share Button */}
+          <button
+            className={styles.utilityButton}
+            onClick={handleShare}
+            aria-label="Share organisation"
+            title="Share organisation"
+          >
+            <Share2 size={20} />
+          </button>
+        </div>
+
+        {/* Right: Primary CTAs */}
+        <div className={styles.ctaSection}>
 
           {/* Primary CTAs */}
           <div className={styles.primaryCtas}>
@@ -189,14 +243,14 @@ export function OrganisationHeroSection({ organisation, isOwner }: OrganisationH
               className={styles.primaryButton}
               onClick={handleBookSession}
             >
-              📅 Book a Session
+              Book a Session
             </button>
 
             <button
               className={styles.secondaryButton}
               onClick={handleJoinTeam}
             >
-              🤝 Join Our Team
+              Join Our Team
             </button>
           </div>
 
@@ -205,8 +259,8 @@ export function OrganisationHeroSection({ organisation, isOwner }: OrganisationH
             className={styles.referralButton}
             onClick={() => router.push(`/organisation/${organisation.slug}/join?ref=hero`)}
           >
-            <Award size={16} />
-            <span>Refer & Earn 10%</span>
+            <Gift size={20} />
+            Refer & Earn 10%
           </button>
         </div>
       </div>
