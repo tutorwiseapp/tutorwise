@@ -316,8 +316,8 @@ export default async function PublicOrganisationPage({ params }: PublicOrganisat
         />,
       ]}
       sidebar={[
-        <OrganisationStatsCard key="stats" organisation={enrichedOrganisation} />,
         <VerificationCard key="verification" organisation={enrichedOrganisation} />,
+        <OrganisationStatsCard key="stats" organisation={enrichedOrganisation} />,
       ]}
       relatedSection={
         <SimilarOrganisationsCard
