@@ -145,8 +145,10 @@
   display: flex;
   gap: 12px;
   justify-content: flex-end;
+  padding: 24px;
   padding-top: 8px;
   border-top: 1px solid #e5e7eb;
+  margin-top: 4px;
 }
 
 .cancelButton,
@@ -189,10 +191,5 @@
 @media (max-width: 640px) {
   .row {
     grid-template-columns: 1fr;
-  }
-
-  .modal {
-    max-height: 100vh;
-    border-radius: 0;
   }
 }
