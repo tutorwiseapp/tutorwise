@@ -13,7 +13,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, Share2, Gift, MapPin, Video } from 'lucide-react';
+import { Heart, Share2, Gift, MapPin, Video, Edit } from 'lucide-react';
 import type { ListingV41 } from '@/types/listing-v4.1';
 import toast from 'react-hot-toast';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
@@ -34,9 +34,10 @@ interface ListingHeroSectionProps {
     responseTimeHours: number;
     responseRate: number;
   };
+  isOwnListing?: boolean;
 }
 
-export default function ListingHeroSection({ listing, tutorProfile, tutorStats }: ListingHeroSectionProps) {
+export default function ListingHeroSection({ listing, tutorProfile, tutorStats, isOwnListing = false }: ListingHeroSectionProps) {
   const [isSaved, setIsSaved] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -151,6 +152,18 @@ export default function ListingHeroSection({ listing, tutorProfile, tutorStats }
       <div className={styles.banner}>
         {/* Utility Actions (top-right) */}
         <div className={styles.utilityActions}>
+          {/* Edit Button (only for listing owner) */}
+          {isOwnListing && (
+            <button
+              onClick={() => router.push(`/listings?edit=${listing.id}`)}
+              className={styles.iconButton}
+              aria-label="Edit listing"
+              title="Edit listing"
+            >
+              <Edit size={20} />
+            </button>
+          )}
+
           <button
             onClick={handleSave}
             className={styles.iconButton}

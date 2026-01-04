@@ -274,6 +274,7 @@ export default async function ListingDetailsPage({ params }: ListingDetailsPageP
             listing={listing}
             tutorProfile={enrichedProfile}
             tutorStats={tutorStats}
+            isOwnListing={isOwnProfile}
           />
         </div>
 

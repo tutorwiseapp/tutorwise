@@ -279,8 +279,8 @@ export function VerificationBadges({ identityVerified, dbsVerified }: Verificati
     <div className={styles.verificationBadge}>
       {identityVerified && (
         <svg
-          width="18"
-          height="18"
+          width="32"
+          height="32"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -294,8 +294,8 @@ export function VerificationBadges({ identityVerified, dbsVerified }: Verificati
       )}
       {dbsVerified && (
         <svg
-          width="18"
-          height="18"
+          width="32"
+          height="32"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"

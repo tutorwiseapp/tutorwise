@@ -20,18 +20,17 @@ export const revalidate = 300; // 5 minutes
 
 import { notFound } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
-import Container from '@/app/components/layout/Container';
-import { checkSEOEligibility } from '@/services/seo/eligibility-resolver';
+import { PublicPageShell } from '@/app/components/layout/PublicPageShell';
 import { OrganisationHeroSection } from '@/components/feature/public-organisation-profile/OrganisationHeroSection';
 import { OrganisationStatsCard } from '@/components/feature/public-organisation-profile/OrganisationStatsCard';
 import { TeamMembersCard } from '@/components/feature/public-organisation-profile/TeamMembersCard';
 import { AboutCard } from '@/components/feature/public-organisation-profile/AboutCard';
+import { ServicesCard } from '@/components/feature/public-organisation-profile/ServicesCard';
 import { ReviewsCard } from '@/components/feature/public-organisation-profile/ReviewsCard';
 import { VerificationCard } from '@/components/feature/public-organisation-profile/VerificationCard';
 import { OrganisationViewTracker } from '@/components/feature/public-organisation-profile/OrganisationViewTracker';
 import { SimilarOrganisationsCard } from '@/components/feature/public-organisation-profile/SimilarOrganisationsCard';
 import { MobileBottomCTA } from '@/components/feature/public-organisation-profile/MobileBottomCTA';
-import styles from './page.module.css';
 
 interface PublicOrganisationPageProps {
   params: {
@@ -284,73 +283,57 @@ export default async function PublicOrganisationPage({ params }: PublicOrganisat
   });
 
   // ===========================================================
-  // STEP 9: Render organisation page
+  // STEP 9: Render organisation page using PublicPageShell
   // ===========================================================
   return (
-    <Container>
-      {/* JSON-LD Structured Data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: structuredData }}
-      />
-
-      {/* View Tracking - only for non-owners */}
-      {!isOwner && <OrganisationViewTracker organisationId={organisation.id} />}
-
-      {/* SECTION 1: Hero Section */}
-      <div className={styles.heroSection}>
+    <PublicPageShell
+      metadata={{
+        title: `${organisation.name} | Tutorwise`,
+        description: organisation.tagline?.substring(0, 160) || organisation.bio?.substring(0, 160) || `View ${organisation.name} on Tutorwise`,
+        canonicalUrl: `https://tutorwise.io/organisation/${organisation.slug}`,
+        structuredData: JSON.parse(structuredData),
+        ogImage: organisation.avatar_url,
+        isIndexable: (organisation.allow_indexing && (organisation.caas_score || 0) >= 75),
+      }}
+      hero={
         <OrganisationHeroSection
           organisation={enrichedOrganisation}
           isOwner={isOwner}
         />
-      </div>
-
-      {/* SECTION 2: Body (2-column layout) */}
-      <div className={styles.bodySection}>
-        {/* Column 1: Main content */}
-        <div className={styles.mainColumn}>
-          {/* About Card */}
-          <AboutCard organisation={enrichedOrganisation} />
-
-          {/* Team Members Card */}
-          <TeamMembersCard
-            members={teamMembers}
-            organisation={enrichedOrganisation}
+      }
+      mainContent={[
+        <AboutCard key="about" organisation={enrichedOrganisation} isOwner={isOwner} />,
+        <ServicesCard key="services" organisation={enrichedOrganisation} />,
+        <TeamMembersCard
+          key="team"
+          members={teamMembers}
+          organisation={enrichedOrganisation}
+        />,
+        <ReviewsCard
+          key="reviews"
+          reviews={transformedReviews}
+          organisation={enrichedOrganisation}
+        />,
+      ]}
+      sidebar={[
+        <OrganisationStatsCard key="stats" organisation={enrichedOrganisation} />,
+        <VerificationCard key="verification" organisation={enrichedOrganisation} />,
+      ]}
+      relatedSection={
+        enrichedSimilarOrgs && enrichedSimilarOrgs.length > 0 ? (
+          <SimilarOrganisationsCard
+            organisations={enrichedSimilarOrgs}
+            currentOrganisationId={organisation.id}
           />
-
-          {/* Reviews Card */}
-          <ReviewsCard
-            reviews={transformedReviews}
-            organisation={enrichedOrganisation}
-          />
-        </div>
-
-        {/* Column 2: Sidebar */}
-        <div className={styles.sidebarColumn}>
-          {/* Stats Card */}
-          <OrganisationStatsCard organisation={enrichedOrganisation} />
-
-          {/* Verification Card */}
-          <VerificationCard organisation={enrichedOrganisation} />
-        </div>
-      </div>
-
-      {/* SECTION 3: Similar Organisations */}
-      {enrichedSimilarOrgs && enrichedSimilarOrgs.length > 0 && (
-        <SimilarOrganisationsCard
-          organisations={enrichedSimilarOrgs}
-          currentOrganisationId={organisation.id}
+        ) : undefined
+      }
+      mobileBottomCTA={
+        <MobileBottomCTA
+          organisation={enrichedOrganisation}
+          isOwner={isOwner}
         />
-      )}
-
-      {/* Bottom spacer */}
-      <div className={styles.bottomSpacer} />
-
-      {/* Mobile Bottom CTA */}
-      <MobileBottomCTA
-        organisation={enrichedOrganisation}
-        isOwner={isOwner}
-      />
-    </Container>
+      }
+      viewTracker={!isOwner ? <OrganisationViewTracker organisationId={organisation.id} /> : undefined}
+    />
   );
 }

@@ -7,15 +7,18 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, Play } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ChevronDown, ChevronUp, Play, Edit } from 'lucide-react';
 import { VideoModal } from '@/app/components/ui/feedback/VideoModal';
 import styles from './AboutCard.module.css';
 
 interface AboutCardProps {
   organisation: any;
+  isOwner?: boolean;
 }
 
-export function AboutCard({ organisation }: AboutCardProps) {
+export function AboutCard({ organisation, isOwner = false }: AboutCardProps) {
+  const router = useRouter();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
 
@@ -38,86 +41,104 @@ export function AboutCard({ organisation }: AboutCardProps) {
   return (
     <>
       <div className={styles.card}>
+        {/* Header with light teal background */}
         <div className={styles.header}>
           <h2 className={styles.title}>About {organisation.name}</h2>
 
-          {/* Video Introduction Button */}
-          {videoUrl && (
-            <button
-              className={styles.videoButton}
-              onClick={() => setShowVideoModal(true)}
-              aria-label="Watch introduction video"
-            >
-              <Play size={16} />
-              <span>Watch Video</span>
-            </button>
-          )}
-        </div>
-
-        {/* Tagline */}
-        {tagline && (
-          <div className={styles.tagline}>
-            &ldquo;{tagline}&rdquo;
-          </div>
-        )}
-
-        {/* Bio/Description */}
-        {bio && (
-          <div className={styles.bioSection}>
-            <div className={styles.bioText}>
-              {displayBio}
-            </div>
-
-            {/* Read More / Show Less Button */}
-            {needsExpansion && (
+          <div className={styles.headerActions}>
+            {/* Edit Button (only for owners) */}
+            {isOwner && (
               <button
-                className={styles.expandButton}
-                onClick={() => setIsExpanded(!isExpanded)}
+                className={styles.editButton}
+                onClick={() => router.push('/organisation?tab=info')}
+                aria-label="Edit about section"
+                title="Edit about section"
               >
-                {isExpanded ? (
-                  <>
-                    <span>Show Less</span>
-                    <ChevronUp size={16} />
-                  </>
-                ) : (
-                  <>
-                    <span>Read More</span>
-                    <ChevronDown size={16} />
-                  </>
-                )}
+                <Edit size={16} />
+              </button>
+            )}
+
+            {/* Video Introduction Button */}
+            {videoUrl && (
+              <button
+                className={styles.videoButton}
+                onClick={() => setShowVideoModal(true)}
+                aria-label="Watch introduction video"
+              >
+                <Play size={16} />
+                <span>Watch Video</span>
               </button>
             )}
           </div>
-        )}
+        </div>
 
-        {/* Additional Info */}
-        {organisation.website && (
-          <div className={styles.websiteSection}>
-            <span className={styles.websiteLabel}>Website:</span>
-            <a
-              href={organisation.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.websiteLink}
-            >
-              {organisation.website}
-            </a>
-          </div>
-        )}
-
-        {/* Service Area */}
-        {organisation.service_area && organisation.service_area.length > 0 && (
-          <div className={styles.serviceArea}>
-            <span className={styles.serviceAreaLabel}>We serve:</span>
-            <div className={styles.serviceAreaList}>
-              {organisation.service_area.map((area: string) => (
-                <span key={area} className={styles.areaTag}>
-                  📍 {area}
-                </span>
-              ))}
+        {/* Content wrapper for padding */}
+        <div className={styles.bioContent}>
+          {/* Tagline */}
+          {tagline && (
+            <div className={styles.tagline}>
+              &ldquo;{tagline}&rdquo;
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Bio/Description */}
+          {bio && (
+            <div className={styles.bioSection}>
+              <div className={styles.bioText}>
+                {displayBio}
+              </div>
+
+              {/* Read More / Show Less Button */}
+              {needsExpansion && (
+                <button
+                  className={styles.expandButton}
+                  onClick={() => setIsExpanded(!isExpanded)}
+                >
+                  {isExpanded ? (
+                    <>
+                      <span>Show Less</span>
+                      <ChevronUp size={16} />
+                    </>
+                  ) : (
+                    <>
+                      <span>Read More</span>
+                      <ChevronDown size={16} />
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Additional Info */}
+          {organisation.website && (
+            <div className={styles.websiteSection}>
+              <span className={styles.websiteLabel}>Website:</span>
+              <a
+                href={organisation.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.websiteLink}
+              >
+                {organisation.website}
+              </a>
+            </div>
+          )}
+
+          {/* Service Area */}
+          {organisation.service_area && organisation.service_area.length > 0 && (
+            <div className={styles.serviceArea}>
+              <span className={styles.serviceAreaLabel}>We serve:</span>
+              <div className={styles.serviceAreaList}>
+                {organisation.service_area.map((area: string) => (
+                  <span key={area} className={styles.areaTag}>
+                    📍 {area}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Video Modal */}

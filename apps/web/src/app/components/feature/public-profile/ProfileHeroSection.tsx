@@ -188,6 +188,18 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
       <div className={styles.banner}>
         {/* Utility Actions (top-right) */}
         <div className={styles.utilityActions}>
+          {/* Edit Button (only for own profile) */}
+          {isOwnProfile && (
+            <button
+              onClick={() => router.push('/account')}
+              className={styles.iconButton}
+              aria-label="Edit profile"
+              title="Edit profile"
+            >
+              <Edit size={20} />
+            </button>
+          )}
+
           <button
             onClick={handleSave}
             className={styles.iconButton}
@@ -254,7 +266,7 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
             )}
           </div>
 
-          {/* Line 3: Role | Location | Edit (or Free Help Badge) */}
+          {/* Line 3: Role | Location | Free Help Badge */}
           <div className={styles.roleLine}>
             <span className={styles.roleLabel}>{roleLabel}</span>
 
@@ -266,20 +278,6 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
                   <MapPin size={16} className={styles.locationIcon} />
                   {profile.city}
                 </span>
-              </>
-            )}
-
-            {/* Move Edit after location (only for own profile) */}
-            {isOwnProfile && (
-              <>
-                <span className={styles.separator}>|</span>
-                <button
-                  onClick={() => router.push('/account')}
-                  className={styles.editLink}
-                >
-                  <Edit size={16} />
-                  Edit
-                </button>
               </>
             )}
 

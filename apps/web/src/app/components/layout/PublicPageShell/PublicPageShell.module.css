@@ -1,0 +1,155 @@
+/**
+ * PublicPageShell.module.css
+ * Purpose: Responsive layout styles for public-facing pages
+ * Created: 2026-01-04
+ * Based on: public-profile and public-organisation-profile page.module.css
+ *
+ * Layout Structure:
+ * - Hero Section (1-column full width)
+ * - Body Section (2-column grid on desktop: 2fr main + 1fr sidebar)
+ * - Related Section (1-column full width)
+ * - Follows Hub design system spacing tokens
+ *
+ * Responsive Breakpoints:
+ * - Mobile: ≤639px (single column, 16px gaps)
+ * - Tablet: 640px-1023px (single column, 24px gaps)
+ * - Desktop: ≥1024px (2-column, 32px gaps, sticky sidebar)
+ * - Large Desktop: ≥1440px (enhanced spacing)
+ */
+
+/* ===================================================================
+ * HERO SECTION (1-column, full-width)
+ * =================================================================== */
+.heroSection {
+  margin-bottom: var(--space-4, 32px); /* Gap between hero and body */
+}
+
+/* ===================================================================
+ * BODY SECTION (2-column grid on desktop)
+ * =================================================================== */
+.bodySection {
+  display: grid;
+  grid-template-columns: 1fr; /* Mobile: single column */
+  gap: var(--space-4, 32px); /* Gap between columns */
+  margin-bottom: var(--space-3, 24px);
+}
+
+/* ===================================================================
+ * MAIN COLUMN (left side, 2fr width on desktop)
+ * =================================================================== */
+.mainColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 24px); /* Gap between sections */
+}
+
+/* ===================================================================
+ * SIDEBAR COLUMN (right side, 1fr width, sticky on desktop)
+ * =================================================================== */
+.sidebarColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 24px); /* Gap between widgets */
+}
+
+/* ===================================================================
+ * RELATED SECTION (optional, 1-column full-width)
+ * =================================================================== */
+.relatedSection {
+  margin-bottom: var(--space-4, 32px);
+}
+
+/* ===================================================================
+ * BOTTOM SPACER (for mobile CTA clearance)
+ * =================================================================== */
+.bottomSpacer {
+  height: var(--space-4, 32px);
+}
+
+/* ===================================================================
+ * RESPONSIVE: TABLET (640px - 1023px)
+ * Single column with medium gaps
+ * =================================================================== */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .bodySection {
+    grid-template-columns: 1fr; /* Tablet: single column */
+    gap: var(--space-3, 24px);
+  }
+
+  .heroSection {
+    margin-bottom: var(--space-3, 24px);
+  }
+
+  .mainColumn {
+    gap: var(--space-3, 24px);
+  }
+
+  .sidebarColumn {
+    gap: var(--space-3, 24px);
+  }
+
+  .relatedSection {
+    margin-bottom: var(--space-4, 32px);
+  }
+
+  .bottomSpacer {
+    height: 120px; /* 65px CTA bar + 56px bottom nav bar (if present) */
+  }
+}
+
+/* ===================================================================
+ * RESPONSIVE: DESKTOP (≥1024px)
+ * 2-column layout with sticky sidebar
+ * =================================================================== */
+@media (min-width: 1024px) {
+  .bodySection {
+    grid-template-columns: 2fr 1fr; /* Desktop: 2fr main + 1fr sidebar */
+  }
+
+  /* Make sidebar sticky on desktop */
+  .sidebarColumn {
+    position: sticky;
+    top: var(--space-4, 32px); /* Stick 32px from top */
+    align-self: flex-start; /* Prevent stretching */
+  }
+}
+
+/* ===================================================================
+ * RESPONSIVE: MOBILE (≤639px)
+ * Single column with compact gaps
+ * =================================================================== */
+@media (max-width: 639px) {
+  .heroSection {
+    margin-bottom: var(--space-2, 16px);
+  }
+
+  .bodySection {
+    gap: var(--space-2, 16px);
+  }
+
+  .mainColumn {
+    gap: var(--space-2, 16px);
+  }
+
+  .sidebarColumn {
+    gap: var(--space-2, 16px);
+  }
+
+  .relatedSection {
+    margin-bottom: var(--space-3, 24px);
+  }
+
+  .bottomSpacer {
+    height: 120px; /* 65px CTA bar + 56px bottom nav bar */
+  }
+}
+
+/* ===================================================================
+ * RESPONSIVE: LARGE DESKTOP (≥1440px)
+ * Enhanced spacing for wider viewports
+ * =================================================================== */
+@media (min-width: 1440px) {
+  .bodySection {
+    gap: var(--space-4, 32px);
+  }
+}

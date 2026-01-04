@@ -66,13 +66,14 @@
   justify-content: center;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  transition: transform 0.2s;
+  transition: transform 0.2s, background-color 0.2s;
   z-index: 3;
   color: #111827;
 }
 
 .saveButton:hover {
   transform: scale(1.1);
+  background-color: #E6F0F0;
 }
 
 .saveButton:disabled {
@@ -240,7 +241,7 @@
   border-radius: 50%;
   padding: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  color: var(--color-primary, #006C67);
+  color: #000000;
 }
 
 /* ========================================

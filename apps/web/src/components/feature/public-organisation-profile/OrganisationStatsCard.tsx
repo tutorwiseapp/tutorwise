@@ -22,9 +22,14 @@ export function OrganisationStatsCard({ organisation }: OrganisationStatsCardPro
 
   return (
     <div className={styles.card}>
-      <h3 className={styles.title}>Organisation Stats</h3>
+      {/* Header with light teal background */}
+      <div className={styles.cardHeader}>
+        <h3 className={styles.title}>Organisation Stats</h3>
+      </div>
 
-      <div className={styles.statsGrid}>
+      {/* Content wrapper for padding */}
+      <div className={styles.statsContainer}>
+        <div className={styles.statsGrid}>
         {/* Sessions Completed */}
         {organisation.total_sessions > 0 && (
           <div className={styles.statItem}>
@@ -102,46 +107,47 @@ export function OrganisationStatsCard({ organisation }: OrganisationStatsCardPro
             </div>
           </div>
         )}
+        </div>
+
+        {/* Subjects Offered Section */}
+        {organisation.unique_subjects && organisation.unique_subjects.length > 0 && (
+          <div className={styles.subjectsSection}>
+            <h4 className={styles.subjectsTitle}>Subjects Offered</h4>
+            <div className={styles.subjectsList}>
+              {organisation.unique_subjects.map((subject: string) => (
+                <span key={subject} className={styles.subjectTag}>
+                  {subject}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Levels Offered Section */}
+        {organisation.unique_levels && organisation.unique_levels.length > 0 && (
+          <div className={styles.levelsSection}>
+            <h4 className={styles.levelsTitle}>Levels Offered</h4>
+            <div className={styles.levelsList}>
+              {organisation.unique_levels.map((level: string) => (
+                <span key={level} className={styles.levelTag}>
+                  {level}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Total Clients Served */}
+        {organisation.total_clients > 0 && (
+          <div className={styles.clientsServed}>
+            <div className={styles.clientsIcon}>👥</div>
+            <div>
+              <div className={styles.clientsValue}>{organisation.total_clients}+ Clients</div>
+              <div className={styles.clientsLabel}>Successfully Served</div>
+            </div>
+          </div>
+        )}
       </div>
-
-      {/* Subjects Offered Section */}
-      {organisation.unique_subjects && organisation.unique_subjects.length > 0 && (
-        <div className={styles.subjectsSection}>
-          <h4 className={styles.subjectsTitle}>Subjects Offered</h4>
-          <div className={styles.subjectsList}>
-            {organisation.unique_subjects.map((subject: string) => (
-              <span key={subject} className={styles.subjectTag}>
-                {subject}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Levels Offered Section */}
-      {organisation.unique_levels && organisation.unique_levels.length > 0 && (
-        <div className={styles.levelsSection}>
-          <h4 className={styles.levelsTitle}>Levels Offered</h4>
-          <div className={styles.levelsList}>
-            {organisation.unique_levels.map((level: string) => (
-              <span key={level} className={styles.levelTag}>
-                {level}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Total Clients Served */}
-      {organisation.total_clients > 0 && (
-        <div className={styles.clientsServed}>
-          <div className={styles.clientsIcon}>👥</div>
-          <div>
-            <div className={styles.clientsValue}>{organisation.total_clients}+ Clients</div>
-            <div className={styles.clientsLabel}>Successfully Served</div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

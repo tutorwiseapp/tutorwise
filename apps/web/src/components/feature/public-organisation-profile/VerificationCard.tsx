@@ -35,12 +35,15 @@ export function VerificationCard({ organisation }: VerificationCardProps) {
 
   return (
     <div className={styles.card}>
+      {/* Header with light teal background */}
       <div className={styles.header}>
         <Shield className={styles.headerIcon} size={24} />
         <h2 className={styles.title}>Credentials & Trust</h2>
       </div>
 
-      <div className={styles.verificationsList}>
+      {/* Content wrapper for padding */}
+      <div className={styles.verificationsContainer}>
+        <div className={styles.verificationsList}>
         {/* Business Verified */}
         {organisation.business_verified && (
           <div className={styles.verificationItem}>
@@ -141,30 +144,31 @@ export function VerificationCard({ organisation }: VerificationCardProps) {
             </div>
           </div>
         )}
-      </div>
+        </div>
 
-      {/* Trust Score Badge (if CaaS score is high) */}
-      {organisation.caas_score && organisation.caas_score >= 80 && (
-        <div className={styles.trustBadge}>
-          <div className={styles.trustBadgeContent}>
-            <div className={styles.trustBadgeIcon}>
-              <Shield size={24} />
-            </div>
-            <div className={styles.trustBadgeText}>
-              <div className={styles.trustBadgeTitle}>Highly Trusted</div>
-              <div className={styles.trustBadgeSubtitle}>
-                {organisation.caas_score >= 90 ? 'Top 5%' : 'Top 10%'} rated organisation
+        {/* Trust Score Badge (if CaaS score is high) */}
+        {organisation.caas_score && organisation.caas_score >= 80 && (
+          <div className={styles.trustBadge}>
+            <div className={styles.trustBadgeContent}>
+              <div className={styles.trustBadgeIcon}>
+                <Shield size={24} />
+              </div>
+              <div className={styles.trustBadgeText}>
+                <div className={styles.trustBadgeTitle}>Highly Trusted</div>
+                <div className={styles.trustBadgeSubtitle}>
+                  {organisation.caas_score >= 90 ? 'Top 5%' : 'Top 10%'} rated organisation
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Verification Footer */}
-      <div className={styles.footer}>
-        <p className={styles.footerText}>
-          All credentials are independently verified by Tutorwise
-        </p>
+        {/* Verification Footer */}
+        <div className={styles.footer}>
+          <p className={styles.footerText}>
+            All credentials are independently verified by Tutorwise
+          </p>
+        </div>
       </div>
     </div>
   );

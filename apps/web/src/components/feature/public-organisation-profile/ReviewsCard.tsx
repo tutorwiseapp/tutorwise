@@ -81,9 +81,13 @@ export function ReviewsCard({ reviews, organisation }: ReviewsCardProps) {
   if (reviews.length === 0) {
     return (
       <div className={styles.card}>
-        <h2 className={styles.title}>Reviews</h2>
-        <div className={styles.emptyState}>
-          <p>No reviews yet. Be the first to leave a review!</p>
+        <div className={styles.header}>
+          <h2 className={styles.title}>Reviews</h2>
+        </div>
+        <div className={styles.content}>
+          <div className={styles.emptyState}>
+            <p>No reviews yet. Be the first to leave a review!</p>
+          </div>
         </div>
       </div>
     );
@@ -91,51 +95,17 @@ export function ReviewsCard({ reviews, organisation }: ReviewsCardProps) {
 
   return (
     <div className={styles.card}>
-      {/* Header */}
+      {/* Header with teal background */}
       <div className={styles.header}>
-        <div>
-          <h2 className={styles.title}>
-            Reviews ({reviews.length})
-          </h2>
-          <div className={styles.averageRating}>
-            <Star size={20} fill="#fbbf24" color="#fbbf24" />
-            <span className={styles.ratingValue}>
-              {organisation.avg_rating?.toFixed(1) || '0.0'}
-            </span>
-            <span className={styles.ratingLabel}>
-              average from {reviews.length} review{reviews.length !== 1 ? 's' : ''}
-            </span>
-          </div>
-        </div>
-
-        {/* Rating Filter */}
-        {reviews.length > 5 && (
-          <div className={styles.filterSection}>
-            <label htmlFor="rating-filter" className={styles.filterLabel}>
-              Filter:
-            </label>
-            <div className={styles.selectWrapper}>
-              <select
-                id="rating-filter"
-                value={filterRating}
-                onChange={(e) => setFilterRating(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                className={styles.select}
-              >
-                <option value="all">All Ratings ({reviews.length})</option>
-                <option value="5">5 Stars ({ratingCounts[5] || 0})</option>
-                <option value="4">4 Stars ({ratingCounts[4] || 0})</option>
-                <option value="3">3 Stars ({ratingCounts[3] || 0})</option>
-                <option value="2">2 Stars ({ratingCounts[2] || 0})</option>
-                <option value="1">1 Star ({ratingCounts[1] || 0})</option>
-              </select>
-              <ChevronDown className={styles.selectIcon} size={14} />
-            </div>
-          </div>
-        )}
+        <h2 className={styles.title}>
+          Reviews
+        </h2>
       </div>
 
-      {/* Reviews List */}
-      <div className={styles.reviewsList}>
+      {/* Content wrapper */}
+      <div className={styles.content}>
+        {/* Reviews List */}
+        <div className={styles.reviewsList}>
         {visibleReviews.map((review) => {
           const reviewerInitials = getInitials(review.reviewer_name);
 
@@ -192,17 +162,18 @@ export function ReviewsCard({ reviews, organisation }: ReviewsCardProps) {
         })}
       </div>
 
-      {/* Load More Button */}
-      {hasMore && (
-        <div className={styles.loadMoreSection}>
-          <button
-            className={styles.loadMoreButton}
-            onClick={() => setVisibleCount(prev => prev + 5)}
-          >
-            Load More Reviews ({filteredReviews.length - visibleCount} remaining)
-          </button>
-        </div>
-      )}
+        {/* Load More Button */}
+        {hasMore && (
+          <div className={styles.loadMoreSection}>
+            <button
+              className={styles.loadMoreButton}
+              onClick={() => setVisibleCount(prev => prev + 5)}
+            >
+              Load More Reviews ({filteredReviews.length - visibleCount} remaining)
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

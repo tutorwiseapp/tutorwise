@@ -1,21 +1,44 @@
-/* OrganisationStatsCard.module.css */
+/**
+ * Filename: OrganisationStatsCard.module.css
+ * Purpose: Styles for organisation Stats card (matches public-profile design)
+ * Created: 2025-12-31
+ * Updated: 2026-01-04
+ */
 
+/* Override Card default padding to allow header to extend to edges */
 .card {
   background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--color-border, #dfe1e5);
+  border-radius: 8px;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.04));
   position: sticky;
   top: 1rem;
 }
 
+/* Header with light teal background */
+.cardHeader {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #E6F0F0;
+  border-radius: 8px 8px 0 0; /* Match card's top corners */
+}
+
 .title {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0 0 1.25rem 0;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid #f1f5f9;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Content wrapper for padding */
+.statsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
 }
 
 /* Stats Grid */
@@ -23,7 +46,7 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
 }
 
 .statItem {
@@ -40,7 +63,7 @@
   height: 40px;
   border-radius: 10px;
   background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  color: #667eea;
+  color: var(--color-primary-default, #006c67);
   flex-shrink: 0;
 }
 
@@ -64,8 +87,8 @@
 
 /* Subjects Section */
 .subjectsSection {
-  margin-bottom: 1.5rem;
-  padding-top: 1.5rem;
+  margin-bottom: 0;
+  padding-top: 16px;
   border-top: 1px solid #f1f5f9;
 }
 
@@ -87,24 +110,24 @@
 .subjectTag {
   display: inline-block;
   padding: 0.375rem 0.75rem;
-  background: rgba(102, 126, 234, 0.1);
-  color: #667eea;
+  background: var(--color-primary-light, #E6F0F0);
+  color: var(--color-primary-default, #006c67);
   border-radius: 6px;
   font-size: 0.8125rem;
   font-weight: 500;
-  border: 1px solid rgba(102, 126, 234, 0.2);
+  border: 1px solid var(--color-primary-default, #006c67);
   transition: all 0.2s;
 }
 
 .subjectTag:hover {
-  background: rgba(102, 126, 234, 0.15);
-  border-color: rgba(102, 126, 234, 0.3);
+  background: var(--color-primary-default, #006c67);
+  color: white;
 }
 
 /* Levels Section */
 .levelsSection {
-  margin-bottom: 1.5rem;
-  padding-top: 1.5rem;
+  margin-bottom: 0;
+  padding-top: 16px;
   border-top: 1px solid #f1f5f9;
 }
 
@@ -126,12 +149,12 @@
 .levelTag {
   display: inline-block;
   padding: 0.375rem 0.75rem;
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
+  background: var(--color-primary-light, #E6F0F0);
+  color: var(--color-primary-default, #006c67);
   border-radius: 6px;
   font-size: 0.8125rem;
   font-weight: 500;
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  border: 1px solid var(--color-primary-default, #006c67);
 }
 
 /* Clients Served */
@@ -166,7 +189,6 @@
 @media (max-width: 1024px) {
   .card {
     position: static;
-    margin-bottom: 2rem;
   }
 
   .statsGrid {

@@ -1,43 +1,104 @@
-/* MobileBottomCTA.module.css */
+/**
+ * Filename: MobileBottomCTA.module.css
+ * Purpose: Styles for mobile bottom CTA bar (matches public-profile design)
+ * Created: 2025-12-31
+ * Updated: 2026-01-04
+ */
 
+/* Mobile Bottom CTA Bar */
 .container {
   position: fixed;
-  bottom: 0;
+  bottom: 56px; /* Position above bottom nav bar (56px = approx bottom nav height) */
   left: 0;
   right: 0;
-  background: white;
-  border-top: 1px solid #e2e8f0;
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
-  padding: 0.75rem 1rem;
-  z-index: 50;
-  display: none;
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  padding: 12px 16px; /* Reduced from 16px for more compact bar */
+  z-index: 101; /* Higher than bottom nav (100) to ensure visibility */
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+  display: block;
 }
 
+/* Show on mobile and tablet, hide on desktop */
+@media (min-width: 1024px) {
+  .container {
+    display: none;
+  }
+}
+
+/* Tablet styling */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .container {
+    padding: 12px 24px;
+  }
+}
+
+/* CTA Container */
 .content {
   display: flex;
-  gap: 0.75rem;
+  gap: 12px;
   max-width: 100%;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
+/* Tablet: Constrain width */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .content {
+    max-width: 600px;
+    gap: 16px;
+  }
+}
+
+/* CTA Buttons - Standard 40px height */
 .ctaButton {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1rem;
-  border-radius: 8px;
-  font-size: 0.9375rem;
+  gap: 8px;
   font-weight: 600;
+  min-height: 40px !important;
+  font-size: 1rem;
+  padding: 10px 24px !important; /* 10px top/bottom for ~40px total */
+  border-radius: 8px;
+  box-shadow: none !important;
+  outline: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
   cursor: pointer;
   transition: all 0.2s;
-  border: none;
   white-space: nowrap;
 }
 
-.primaryButton {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+.ctaButton:focus,
+.ctaButton:active,
+.ctaButton:hover {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Tablet: Keep standard height */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .ctaButton {
+    min-height: 40px !important;
+    font-size: 1rem;
+    padding: 10px 32px !important;
+  }
+}
+
+/* Book Session Button (Primary style with teal) */
+.primaryButton,
+.primaryButton:hover,
+.primaryButton:focus,
+.primaryButton:active {
+  background-color: var(--color-primary-default, #006c67) !important;
+  color: white !important;
+  border: 1px solid var(--color-primary-default, #006c67) !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .primaryButton:active {
@@ -45,21 +106,38 @@
   opacity: 0.9;
 }
 
-.secondaryButton {
-  background: white;
-  color: #667eea;
-  border: 2px solid #667eea;
+/* Join Team Button (Secondary/Outline style with teal) */
+.secondaryButton,
+.secondaryButton:hover,
+.secondaryButton:focus,
+.secondaryButton:active {
+  background-color: transparent !important;
+  color: var(--color-primary-default, #006c67) !important;
+  border: 1px solid var(--color-primary-default, #006c67) !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .secondaryButton:active {
   transform: scale(0.98);
-  background: #f8f9ff;
+  background: var(--color-primary-light, #E6F0F0) !important;
 }
 
-/* Show on mobile only */
-@media (max-width: 768px) {
+/* Responsive - Extra small mobile */
+@media (max-width: 480px) {
   .container {
-    display: block;
+    padding: 10px 12px;
+    bottom: 54px; /* Slightly adjust for smaller bottom nav on extra small screens */
+  }
+
+  .content {
+    gap: 8px;
+  }
+
+  .ctaButton {
+    font-size: 0.9375rem;
+    padding: 10px 16px !important;
+    min-height: 40px !important;
   }
 }
 
@@ -71,7 +149,7 @@
   }
 
   .ctaButton {
-    padding: 0.75rem 1rem;
+    padding: 10px 16px !important;
     font-size: 0.875rem;
   }
 }
