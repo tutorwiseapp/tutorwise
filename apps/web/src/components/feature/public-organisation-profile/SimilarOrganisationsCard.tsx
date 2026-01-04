@@ -41,18 +41,14 @@ export function SimilarOrganisationsCard({
     .filter(org => org.id !== currentOrganisationId)
     .slice(0, 6);
 
-  if (filteredOrgs.length === 0) {
-    return null;
-  }
-
   const handleOrgClick = (org: Organisation) => {
     router.push(`/organisation/${org.slug}`);
   };
 
   const getTrustBadge = (score?: number) => {
     if (!score) return null;
-    if (score >= 90) return { label: 'Top 5%', color: '#10b981' };
-    if (score >= 80) return { label: 'Top 10%', color: '#3b82f6' };
+    if (score >= 90) return { label: 'Top 5%', color: '#006c67' };
+    if (score >= 80) return { label: 'Top 10%', color: '#006c67' };
     return null;
   };
 

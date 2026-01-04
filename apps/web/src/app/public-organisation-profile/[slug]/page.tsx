@@ -320,12 +320,10 @@ export default async function PublicOrganisationPage({ params }: PublicOrganisat
         <VerificationCard key="verification" organisation={enrichedOrganisation} />,
       ]}
       relatedSection={
-        enrichedSimilarOrgs && enrichedSimilarOrgs.length > 0 ? (
-          <SimilarOrganisationsCard
-            organisations={enrichedSimilarOrgs}
-            currentOrganisationId={organisation.id}
-          />
-        ) : undefined
+        <SimilarOrganisationsCard
+          organisations={enrichedSimilarOrgs || []}
+          currentOrganisationId={organisation.id}
+        />
       }
       mobileBottomCTA={
         <MobileBottomCTA

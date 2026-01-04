@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronDown, ChevronUp, Play, Edit } from 'lucide-react';
+import { ChevronDown, ChevronUp, Play } from 'lucide-react';
 import { VideoModal } from '@/app/components/ui/feedback/VideoModal';
 import styles from './AboutCard.module.css';
 
@@ -18,7 +18,6 @@ interface AboutCardProps {
 }
 
 export function AboutCard({ organisation, isOwner = false }: AboutCardProps) {
-  const router = useRouter();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
 
@@ -45,31 +44,17 @@ export function AboutCard({ organisation, isOwner = false }: AboutCardProps) {
         <div className={styles.header}>
           <h2 className={styles.title}>About {organisation.name}</h2>
 
-          <div className={styles.headerActions}>
-            {/* Edit Button (only for owners) */}
-            {isOwner && (
-              <button
-                className={styles.editButton}
-                onClick={() => router.push('/organisation?tab=info')}
-                aria-label="Edit about section"
-                title="Edit about section"
-              >
-                <Edit size={16} />
-              </button>
-            )}
-
-            {/* Video Introduction Button */}
-            {videoUrl && (
-              <button
-                className={styles.videoButton}
-                onClick={() => setShowVideoModal(true)}
-                aria-label="Watch introduction video"
-              >
-                <Play size={16} />
-                <span>Watch Video</span>
-              </button>
-            )}
-          </div>
+          {/* Video Introduction Button */}
+          {videoUrl && (
+            <button
+              className={styles.videoButton}
+              onClick={() => setShowVideoModal(true)}
+              aria-label="Watch introduction video"
+            >
+              <Play size={16} />
+              <span>Watch Video</span>
+            </button>
+          )}
         </div>
 
         {/* Content wrapper for padding */}

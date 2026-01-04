@@ -100,9 +100,9 @@ export function OrganisationHeroSection({ organisation, isOwner }: OrganisationH
   // Format CaaS score for display
   const getCaaSBadge = () => {
     const score = organisation.caas_score || 0;
-    if (score >= 90) return { label: 'Top 5%', color: '#10b981' };
-    if (score >= 80) return { label: 'Top 10%', color: '#3b82f6' };
-    if (score >= 70) return { label: 'Verified', color: '#6366f1' };
+    if (score >= 90) return { label: 'Top 5%', color: '#006c67' };
+    if (score >= 80) return { label: 'Top 10%', color: '#006c67' };
+    if (score >= 70) return { label: 'Verified', color: '#006c67' };
     return null;
   };
 
