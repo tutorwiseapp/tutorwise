@@ -54,8 +54,16 @@ export default function MarketplaceCard({
   isLoading = false,
   children,
 }: MarketplaceCardProps) {
+  const handleCardClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Prevent navigation if clicking on the save button
+    const target = e.target as HTMLElement;
+    if (target.closest('button')) {
+      e.preventDefault();
+    }
+  };
+
   return (
-    <Link href={href} className={styles.tutorCard}>
+    <Link href={href} className={styles.tutorCard} onClick={handleCardClick}>
       {/* Image Section */}
       <div className={styles.imageContainer}>
         {imageUrl ? (
