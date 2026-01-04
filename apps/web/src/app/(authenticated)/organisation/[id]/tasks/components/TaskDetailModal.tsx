@@ -39,6 +39,29 @@ interface Task {
   } | null;
 }
 
+interface Comment {
+  id: string;
+  comment_text: string;
+  created_at: string;
+  user: {
+    id: string;
+    full_name: string;
+  };
+}
+
+interface Attachment {
+  id: string;
+  file_name: string;
+  file_size: number;
+  file_type: string | null;
+  storage_path: string;
+  uploaded_at: string;
+  uploader: {
+    id: string;
+    full_name: string;
+  };
+}
+
 interface TaskDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -61,10 +84,21 @@ export function TaskDetailModal({
   const [teamMembers, setTeamMembers] = useState<Array<{ id: string; full_name: string }>>([]);
   const [selectedAssignee, setSelectedAssignee] = useState<string>('');
 
+  // Comments state
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState('');
+  const [submittingComment, setSubmittingComment] = useState(false);
+
+  // Attachments state
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [uploading, setUploading] = useState(false);
+
   useEffect(() => {
     if (isOpen && taskId) {
       loadTaskDetails();
       fetchTeamMembers();
+      loadComments();
+      loadAttachments();
     }
   }, [isOpen, taskId]);
 
@@ -218,6 +252,199 @@ export function TaskDetailModal({
       console.error('Error reassigning task:', error);
       toast.error('Failed to reassign task');
     }
+  };
+
+  const loadComments = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('org_task_comments')
+        .select(`
+          id,
+          comment_text,
+          created_at,
+          user:user_id(id, full_name)
+        `)
+        .eq('task_id', taskId)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      // Transform array relations to single objects
+      const transformedComments = data?.map((comment: any) => ({
+        ...comment,
+        user: Array.isArray(comment.user) ? comment.user[0] : comment.user,
+      })) || [];
+
+      setComments(transformedComments);
+    } catch (error) {
+      console.error('Error loading comments:', error);
+    }
+  };
+
+  const handleSubmitComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+
+    try {
+      setSubmittingComment(true);
+      const { data: currentUser } = await supabase.auth.getUser();
+      if (!currentUser.user) throw new Error('Not authenticated');
+
+      const { error } = await supabase
+        .from('org_task_comments')
+        .insert({
+          task_id: taskId,
+          user_id: currentUser.user.id,
+          comment_text: newComment.trim(),
+        });
+
+      if (error) throw error;
+
+      setNewComment('');
+      loadComments();
+      toast.success('Comment added');
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      toast.error('Failed to add comment');
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
+
+  const loadAttachments = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('org_task_attachments')
+        .select(`
+          id,
+          file_name,
+          file_size,
+          file_type,
+          storage_path,
+          uploaded_at,
+          uploader:uploaded_by(id, full_name)
+        `)
+        .eq('task_id', taskId)
+        .order('uploaded_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Transform array relations to single objects
+      const transformedAttachments = data?.map((attachment: any) => ({
+        ...attachment,
+        uploader: Array.isArray(attachment.uploader) ? attachment.uploader[0] : attachment.uploader,
+      })) || [];
+
+      setAttachments(transformedAttachments);
+    } catch (error) {
+      console.error('Error loading attachments:', error);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // 10MB limit
+    if (file.size > 10485760) {
+      toast.error('File size must be less than 10MB');
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const { data: currentUser } = await supabase.auth.getUser();
+      if (!currentUser.user) throw new Error('Not authenticated');
+
+      // Upload to Supabase Storage
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${organisationId}/${taskId}/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('task-attachments')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Save attachment record
+      const { error: dbError } = await supabase
+        .from('org_task_attachments')
+        .insert({
+          task_id: taskId,
+          file_name: file.name,
+          file_size: file.size,
+          file_type: file.type || null,
+          storage_path: filePath,
+          uploaded_by: currentUser.user.id,
+        });
+
+      if (dbError) throw dbError;
+
+      loadAttachments();
+      toast.success('File uploaded successfully');
+      e.target.value = ''; // Reset input
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast.error('Failed to upload file');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDeleteAttachment = async (attachmentId: string, storagePath: string) => {
+    if (!confirm('Are you sure you want to delete this attachment?')) return;
+
+    try {
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
+        .from('task-attachments')
+        .remove([storagePath]);
+
+      if (storageError) throw storageError;
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from('org_task_attachments')
+        .delete()
+        .eq('id', attachmentId);
+
+      if (dbError) throw dbError;
+
+      loadAttachments();
+      toast.success('Attachment deleted');
+    } catch (error) {
+      console.error('Error deleting attachment:', error);
+      toast.error('Failed to delete attachment');
+    }
+  };
+
+  const downloadAttachment = async (storagePath: string, fileName: string) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('task-attachments')
+        .download(storagePath);
+
+      if (error) throw error;
+
+      // Create download link
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      toast.error('Failed to download file');
+    }
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / 1048576).toFixed(1) + ' MB';
   };
 
   if (!isOpen) return null;
@@ -403,6 +630,94 @@ export function TaskDetailModal({
                 <div className={styles.approvalFlag}>⚠️ Requires approval before completion</div>
               </div>
             )}
+
+            {/* Attachments Section */}
+            <div className={styles.section}>
+              <div className={styles.sectionLabel}>Attachments ({attachments.length})</div>
+
+              <div className={styles.attachmentsList}>
+                {attachments.map((attachment) => (
+                  <div key={attachment.id} className={styles.attachmentItem}>
+                    <div className={styles.attachmentInfo}>
+                      <div className={styles.attachmentName}>{attachment.file_name}</div>
+                      <div className={styles.attachmentMeta}>
+                        {formatFileSize(attachment.file_size)} • Uploaded by {attachment.uploader.full_name} • {formatDate(attachment.uploaded_at)}
+                      </div>
+                    </div>
+                    <div className={styles.attachmentActions}>
+                      <button
+                        onClick={() => downloadAttachment(attachment.storage_path, attachment.file_name)}
+                        className={styles.downloadButton}
+                      >
+                        Download
+                      </button>
+                      <button
+                        onClick={() => handleDeleteAttachment(attachment.id, attachment.storage_path)}
+                        className={styles.deleteButton}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                {attachments.length === 0 && (
+                  <div className={styles.emptyState}>No attachments yet</div>
+                )}
+              </div>
+
+              <div className={styles.uploadSection}>
+                <input
+                  type="file"
+                  onChange={handleFileUpload}
+                  disabled={uploading}
+                  className={styles.fileInput}
+                  id="file-upload"
+                />
+                <label htmlFor="file-upload" className={styles.uploadButton}>
+                  {uploading ? 'Uploading...' : 'Upload File (Max 10MB)'}
+                </label>
+              </div>
+            </div>
+
+            {/* Comments Section */}
+            <div className={styles.section}>
+              <div className={styles.sectionLabel}>Comments ({comments.length})</div>
+
+              <div className={styles.commentsList}>
+                {comments.map((comment) => (
+                  <div key={comment.id} className={styles.commentItem}>
+                    <div className={styles.commentHeader}>
+                      <span className={styles.commentAuthor}>{comment.user.full_name}</span>
+                      <span className={styles.commentDate}>{formatDate(comment.created_at)}</span>
+                    </div>
+                    <div className={styles.commentText}>{comment.comment_text}</div>
+                  </div>
+                ))}
+
+                {comments.length === 0 && (
+                  <div className={styles.emptyState}>No comments yet</div>
+                )}
+              </div>
+
+              <form onSubmit={handleSubmitComment} className={styles.commentForm}>
+                <textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Add a comment..."
+                  className={styles.commentInput}
+                  rows={3}
+                  disabled={submittingComment}
+                />
+                <button
+                  type="submit"
+                  disabled={submittingComment || !newComment.trim()}
+                  className={styles.submitCommentButton}
+                >
+                  {submittingComment ? 'Posting...' : 'Post Comment'}
+                </button>
+              </form>
+            </div>
         </div>
       ) : (
         <div className={styles.error}>Task not found</div>
