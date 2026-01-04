@@ -198,6 +198,7 @@ export async function addWiselistItem(data: {
   wiselistId: string;
   profileId?: string;
   listingId?: string;
+  organisationId?: string;
   notes?: string;
 }): Promise<WiselistItem> {
   console.log('[addWiselistItem] Starting with data:', data);
@@ -210,6 +211,7 @@ export async function addWiselistItem(data: {
     wiselist_id: data.wiselistId,
     profile_id: data.profileId || null,
     listing_id: data.listingId || null,
+    organisation_id: data.organisationId || null,
     notes: data.notes || null,
     added_by_profile_id: user.id,
   };

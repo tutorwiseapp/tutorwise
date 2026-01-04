@@ -123,7 +123,7 @@ export default function MarketplaceOrganisationCard({ organisation }: Organisati
 
   return (
     <MarketplaceCard
-      href={`/organisation/${organisation.slug}`}
+      href={`/public-organisation-profile/${organisation.slug}`}
       imageUrl={organisation.avatar_url}
       imageFallback={imageFallback}
       badges={badges}
