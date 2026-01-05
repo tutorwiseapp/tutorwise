@@ -22,6 +22,7 @@ interface Organisation {
   id: string;
   name: string;
   allow_team_join?: boolean;
+  profile_id: string; // Organisation owner's profile ID
 }
 
 interface Profile {
@@ -60,13 +61,20 @@ export function GetInTouchCard({ organisation, currentUser, isOwner = false }: G
       return;
     }
 
+    // Check if trying to connect to self (organisation owner)
+    if (currentUser.id === organisation.profile_id) {
+      toast.error('You cannot connect to your own organisation');
+      return;
+    }
+
     setIsConnecting(true);
     try {
-      const response = await fetch('/api/network/organisation/request', {
+      // Send connection request to organisation owner using standard network API
+      const response = await fetch('/api/network/request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          organisation_id: organisation.id,
+          receiver_ids: [organisation.profile_id],
         }),
       });
 
@@ -74,7 +82,7 @@ export function GetInTouchCard({ organisation, currentUser, isOwner = false }: G
 
       if (!response.ok) {
         if (data.error?.includes('already connected')) {
-          toast.error('You are already connected with this organisation');
+          toast.error('You are already connected with this organisation owner');
         } else if (data.error?.includes('pending request')) {
           toast.error('You already have a pending connection request');
         } else {
@@ -83,7 +91,7 @@ export function GetInTouchCard({ organisation, currentUser, isOwner = false }: G
         return;
       }
 
-      toast.success('Connection request sent!');
+      toast.success('Connection request sent to organisation owner!');
     } catch (error) {
       console.error('Failed to send connection request:', error);
       toast.error('Failed to send connection request. Please try again.');
