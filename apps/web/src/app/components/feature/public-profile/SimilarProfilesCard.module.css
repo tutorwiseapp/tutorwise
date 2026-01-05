@@ -183,7 +183,7 @@
   font-size: 1rem; /* 16px - matching ReviewsCard empty state */
   color: #6b7280;
   text-align: center;
-  padding: var(--space-4, 32px);
+  padding: 48px 16px;
   margin: 0;
 }
 
