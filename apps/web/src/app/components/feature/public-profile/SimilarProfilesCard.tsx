@@ -55,12 +55,11 @@ export function SimilarProfilesCard({ profiles = [] }: SimilarProfilesCardProps)
         <h2 className={styles.cardTitle}>You might also like</h2>
       </div>
 
-      {/* Card content section */}
-      <div className={styles.cardContent}>
-        {/* Empty state */}
-        {(!profiles || profiles.length === 0) ? (
-          <p className={styles.emptyMessage}>No matching profiles or listings yet.</p>
-        ) : (
+      {/* Empty state or card content section */}
+      {(!profiles || profiles.length === 0) ? (
+        <p className={styles.emptyMessage}>No matching profiles or listings yet.</p>
+      ) : (
+        <div className={styles.cardContent}>
           <div className={styles.profilesGrid}>
             {profiles.map((profile) => {
               const roleLabel = profile.active_role === 'tutor' ? 'Tutor'
@@ -136,8 +135,8 @@ export function SimilarProfilesCard({ profiles = [] }: SimilarProfilesCardProps)
               );
             })}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </Card>
   );
 }

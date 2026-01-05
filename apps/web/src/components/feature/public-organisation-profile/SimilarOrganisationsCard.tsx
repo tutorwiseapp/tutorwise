@@ -59,10 +59,10 @@ export function SimilarOrganisationsCard({
         <h2 className={styles.title}>You might also like</h2>
       </div>
 
-      <div className={styles.content}>
-        {filteredOrgs.length === 0 ? (
-          <p className={styles.emptyMessage}>No matching profiles or listings yet.</p>
-        ) : (
+      {filteredOrgs.length === 0 ? (
+        <p className={styles.emptyMessage}>No matching profiles or listings yet.</p>
+      ) : (
+        <div className={styles.content}>
           <div className={styles.grid}>
             {filteredOrgs.map((org) => {
               const initials = getInitials(org.name);
@@ -145,8 +145,8 @@ export function SimilarOrganisationsCard({
               );
             })}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </Card>
   );
 }

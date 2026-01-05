@@ -61,9 +61,7 @@ export default function RelatedListingsCard({
         <div className={styles.cardHeader}>
           <h2 className={styles.cardTitle}>You might also like</h2>
         </div>
-        <div className={styles.cardContent}>
-          <p className={styles.emptyMessage}>No matching profiles or listings yet.</p>
-        </div>
+        <p className={styles.emptyMessage}>No matching profiles or listings yet.</p>
       </Card>
     );
   }
