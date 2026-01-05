@@ -100,17 +100,16 @@
   color: #111827;
 }
 
-/* Empty State */
+/* Empty State - standardized across all cards */
 .emptyState {
-  padding: var(--space-4, 32px) 0;
+  padding: 48px 16px;
   text-align: center;
 }
 
 .emptyText {
-  font-size: 0.875rem;
-  color: #9ca3af;
+  font-size: 1rem;
+  color: #6b7280;
   margin: 0;
-  font-style: italic;
 }
 
 /* Responsive */

@@ -140,16 +140,16 @@
   flex: 1;
 }
 
-/* Empty State */
+/* Empty State - standardized across all cards */
 .emptyState {
-  padding: var(--space-4, 32px);
+  padding: 48px 16px;
   background-color: #f9fafb;
   border-radius: var(--radius-md, 8px);
   text-align: center;
 }
 
 .emptyText {
-  font-size: 0.9375rem; /* 15px */
+  font-size: 1rem; /* 16px - standardized */
   color: #6b7280;
   margin: 0;
   line-height: 1.5;
