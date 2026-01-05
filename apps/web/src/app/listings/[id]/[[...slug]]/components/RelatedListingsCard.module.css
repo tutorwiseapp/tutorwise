@@ -29,9 +29,8 @@
 }
 
 .emptyMessage {
-  font-size: 0.875rem; /* 14px */
-  color: var(--color-gray-700, #4B4B4B);
-  opacity: 0.7;
+  font-size: 1rem; /* 16px - standardized across all cards */
+  color: #6b7280;
   text-align: center;
   padding: var(--space-4, 32px);
   margin: 0;

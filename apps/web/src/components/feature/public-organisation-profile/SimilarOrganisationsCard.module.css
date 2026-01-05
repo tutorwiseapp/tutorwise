@@ -1,12 +1,7 @@
 /* SimilarOrganisationsCard.module.css */
 
 .card {
-  background: white;
-  border: 1px solid var(--color-border, #dfe1e5);
-  border-radius: 8px;
   padding: 0 !important;
-  margin: 0 !important;
-  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.04));
 }
 
 /* Header with light teal background (matching ReviewsCard) */
@@ -32,12 +27,16 @@
   line-height: 1.3;
 }
 
+/* Content section */
+.content {
+  padding: var(--space-4, 32px);
+}
+
 /* Grid */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
-  padding: 16px;
 }
 
 /* Organisation Card */
@@ -165,16 +164,12 @@
   justify-content: center;
 }
 
-/* Empty State */
-.emptyState {
-  grid-column: 1 / -1;
+/* Empty State - standardized across all cards */
+.emptyMessage {
+  font-size: 1rem; /* 16px - standardized across all cards */
+  color: #6b7280;
   text-align: center;
-  padding: 3rem 1.5rem;
-}
-
-.emptyText {
-  font-size: 1rem;
-  color: #64748b;
+  padding: 0;
   margin: 0;
 }
 
@@ -187,8 +182,12 @@
 }
 
 @media (max-width: 768px) {
-  .card {
-    padding: 1.5rem 1.25rem;
+  .title {
+    font-size: 15px;
+  }
+
+  .content {
+    padding: var(--space-3, 24px);
   }
 
   .grid {

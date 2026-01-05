@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Building2, MapPin, Star, Users } from 'lucide-react';
 import { getInitials } from '@/lib/utils/initials';
+import Card from '@/app/components/ui/data-display/Card';
 import styles from './SimilarOrganisationsCard.module.css';
 
 interface Organisation {
@@ -53,101 +54,99 @@ export function SimilarOrganisationsCard({
   };
 
   return (
-    <div className={styles.card}>
+    <Card className={styles.card}>
       <div className={styles.header}>
-        <h2 className={styles.title}>Similar Organisations</h2>
+        <h2 className={styles.title}>You might also like</h2>
       </div>
 
-      <div className={styles.grid}>
+      <div className={styles.content}>
         {filteredOrgs.length === 0 ? (
-          <div className={styles.emptyState}>
-            <p className={styles.emptyText}>
-              No similar organisations found yet.
-            </p>
-          </div>
+          <p className={styles.emptyMessage}>No matching profiles or listings yet.</p>
         ) : (
-          filteredOrgs.map((org) => {
-          const initials = getInitials(org.name);
-          const trustBadge = getTrustBadge(org.caas_score);
-          const logoUrl = org.logo_url || org.avatar_url;
+          <div className={styles.grid}>
+            {filteredOrgs.map((org) => {
+              const initials = getInitials(org.name);
+              const trustBadge = getTrustBadge(org.caas_score);
+              const logoUrl = org.logo_url || org.avatar_url;
 
-          return (
-            <button
-              key={org.id}
-              className={styles.orgCard}
-              onClick={() => handleOrgClick(org)}
-              aria-label={`View ${org.name}'s profile`}
-            >
-              {/* Logo */}
-              <div className={styles.logoWrapper}>
-                {logoUrl ? (
-                  <Image
-                    src={logoUrl}
-                    alt={org.name}
-                    width={80}
-                    height={80}
-                    className={styles.logo}
-                  />
-                ) : (
-                  <div className={styles.logoFallback}>
-                    <Building2 size={32} />
+              return (
+                <button
+                  key={org.id}
+                  className={styles.orgCard}
+                  onClick={() => handleOrgClick(org)}
+                  aria-label={`View ${org.name}'s profile`}
+                >
+                  {/* Logo */}
+                  <div className={styles.logoWrapper}>
+                    {logoUrl ? (
+                      <Image
+                        src={logoUrl}
+                        alt={org.name}
+                        width={80}
+                        height={80}
+                        className={styles.logo}
+                      />
+                    ) : (
+                      <div className={styles.logoFallback}>
+                        <Building2 size={32} />
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
 
-              {/* Organisation Info */}
-              <div className={styles.info}>
-                <h3 className={styles.name}>{org.name}</h3>
+                  {/* Organisation Info */}
+                  <div className={styles.info}>
+                    <h3 className={styles.name}>{org.name}</h3>
 
-                {/* Trust Badge */}
-                {trustBadge && (
-                  <div
-                    className={styles.trustBadge}
-                    style={{ backgroundColor: `${trustBadge.color}15`, color: trustBadge.color }}
-                  >
-                    {trustBadge.label}
+                    {/* Trust Badge */}
+                    {trustBadge && (
+                      <div
+                        className={styles.trustBadge}
+                        style={{ backgroundColor: `${trustBadge.color}15`, color: trustBadge.color }}
+                      >
+                        {trustBadge.label}
+                      </div>
+                    )}
+
+                    {/* Tagline */}
+                    {org.tagline && (
+                      <p className={styles.tagline}>{org.tagline}</p>
+                    )}
+
+                    {/* Stats */}
+                    <div className={styles.stats}>
+                      {org.avg_rating && org.avg_rating > 0 && (
+                        <div className={styles.statItem}>
+                          <Star size={14} fill="#fbbf24" color="#fbbf24" />
+                          <span>{org.avg_rating.toFixed(1)}</span>
+                        </div>
+                      )}
+
+                      {org.total_tutors && org.total_tutors > 0 && (
+                        <div className={styles.statItem}>
+                          <Users size={14} />
+                          <span>{org.total_tutors} tutors</span>
+                        </div>
+                      )}
+
+                      {org.location_city && (
+                        <div className={styles.statItem}>
+                          <MapPin size={14} />
+                          <span>{org.location_city}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                )}
 
-                {/* Tagline */}
-                {org.tagline && (
-                  <p className={styles.tagline}>{org.tagline}</p>
-                )}
-
-                {/* Stats */}
-                <div className={styles.stats}>
-                  {org.avg_rating && org.avg_rating > 0 && (
-                    <div className={styles.statItem}>
-                      <Star size={14} fill="#fbbf24" color="#fbbf24" />
-                      <span>{org.avg_rating.toFixed(1)}</span>
-                    </div>
-                  )}
-
-                  {org.total_tutors && org.total_tutors > 0 && (
-                    <div className={styles.statItem}>
-                      <Users size={14} />
-                      <span>{org.total_tutors} tutors</span>
-                    </div>
-                  )}
-
-                  {org.location_city && (
-                    <div className={styles.statItem}>
-                      <MapPin size={14} />
-                      <span>{org.location_city}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Hover Overlay */}
-              <div className={styles.hoverOverlay}>
-                <span>View Profile →</span>
-              </div>
-            </button>
-          );
-        })
+                  {/* Hover Overlay */}
+                  <div className={styles.hoverOverlay}>
+                    <span>View Profile →</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
