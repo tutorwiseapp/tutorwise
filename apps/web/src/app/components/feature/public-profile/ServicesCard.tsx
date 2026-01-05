@@ -84,14 +84,14 @@ export function ServicesCard({ profile, listings = [], isOwnProfile = false, exc
           </span>
         )}
       </div>
-      <div className={styles.cardContent}>
-        {totalCount === 0 ? (
-          <div className={styles.emptyState}>
-            <p className={styles.emptyStateText}>
-              {firstName} hasn&apos;t listed any services yet.
-            </p>
-          </div>
-        ) : (
+      {totalCount === 0 ? (
+        <div className={styles.emptyState}>
+          <p className={styles.emptyStateText}>
+            {firstName} hasn&apos;t listed any services yet.
+          </p>
+        </div>
+      ) : (
+        <div className={styles.cardContent}>
           <div className={styles.listingsContainer}>
             {displayedListings.map((listing) => {
               // Get subjects array (handle both subjects and subject)
@@ -127,8 +127,8 @@ export function ServicesCard({ profile, listings = [], isOwnProfile = false, exc
               );
             })}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </Card>
   );
 }
