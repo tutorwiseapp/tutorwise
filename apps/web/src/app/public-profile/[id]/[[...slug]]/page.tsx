@@ -2,13 +2,13 @@
  * Filename: apps/web/src/app/public-profile/[id]/[[...slug]]/page.tsx
  * Purpose: Public Profile Page - Server Component (v4.9 Redesign)
  * Created: 2025-11-10
- * Updated: 2025-12-21 - Added Next.js revalidation for performance optimization
+ * Updated: 2026-01-05 - Migrated to PublicPageShell for consistency
  *
  * Features:
  * - SEO-optimized server-side rendering
  * - Resilient URLs with [id]/[slug] format
  * - 301 redirect if slug doesn't match current profile slug
- * - 2-column layout matching listing details page (2fr 1fr)
+ * - Uses PublicPageShell for consistent layout with organisation profiles
  * - No AppSidebar on public profile (anonymous experience)
  * - Hero section with avatar left, info center, CTAs bottom-right
  * - Sticky right sidebar with verification, stats, and CTAs
@@ -23,12 +23,11 @@ import { notFound, redirect } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
 import { generateSlug } from '@/lib/utils/slugify';
 import type { Profile } from '@/types';
-import Container from '@/app/components/layout/Container';
+import { PublicPageShell } from '@/app/components/layout/PublicPageShell';
 import { checkSEOEligibility } from '@/services/seo/eligibility-resolver';
 import { ProfileHeroSection } from '@/app/components/feature/public-profile/ProfileHeroSection';
 import { AboutCard } from '@/app/components/feature/public-profile/AboutCard';
 import { ProfessionalInfoCard } from '@/app/components/feature/public-profile/ProfessionalInfoCard';
-import { AvailabilityCard } from '@/app/components/feature/public-profile/AvailabilityCard';
 import { AvailabilityScheduleCard } from '@/app/components/feature/public-profile/AvailabilityScheduleCard';
 import { VerificationCard } from '@/app/components/feature/public-profile/VerificationCard';
 import { RoleStatsCard } from '@/app/components/feature/public-profile/RoleStatsCard';
@@ -39,7 +38,6 @@ import { SimilarProfilesCard } from '@/app/components/feature/public-profile/Sim
 import { MobileBottomCTA } from '@/app/components/feature/public-profile/MobileBottomCTA';
 import { ProfileViewTracker } from '@/app/components/feature/public-profile/ProfileViewTracker';
 import { generateProfileSchema } from '@/services/seo/schema-generator';
-import styles from './page.module.css';
 
 interface PublicProfilePageProps {
   params: {
@@ -297,74 +295,54 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   const structuredData = await generateProfileSchema(profile.id);
 
   // ===========================================================
-  // STEP 10: Render with 2-column layout (no AppSidebar)
+  // STEP 10: Get SEO eligibility for metadata
+  // ===========================================================
+  const eligibility = await checkSEOEligibility('profile', profile.id);
+
+  const roleLabel = profile.active_role === 'tutor' ? 'Tutor'
+    : profile.active_role === 'agent' ? 'Agent'
+    : 'Client';
+
+  // ===========================================================
+  // STEP 11: Render with PublicPageShell (matches organisation layout)
   // ===========================================================
   return (
-    <Container>
-      {/* JSON-LD Structured Data with CaaS trust signals */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: structuredData }}
-      />
-
-      {/* Track profile view (client-side component) */}
-      {!isOwnProfile && <ProfileViewTracker profileId={profile.id} />}
-
-      {/* SECTION 1: Hero Section (1-column) */}
-      <div className={styles.heroSection}>
+    <PublicPageShell
+      metadata={{
+        title: `${profile.full_name} - ${roleLabel} | Tutorwise`,
+        description: profile.bio?.substring(0, 160) || `View ${profile.full_name}'s profile on Tutorwise`,
+        canonicalUrl: `https://tutorwise.io/public-profile/${profile.id}/${correctSlug}`,
+        structuredData: JSON.parse(structuredData),
+        ogImage: profile.avatar_url,
+        isIndexable: eligibility.isEligible,
+      }}
+      hero={
         <ProfileHeroSection profile={enrichedProfile} isOwnProfile={isOwnProfile} />
-      </div>
-
-      {/* SECTION 2: Body (2-column layout) */}
-      <div className={styles.bodySection}>
-        {/* Column 1: Main content (2fr width on desktop) */}
-        <div className={styles.mainColumn}>
-          {/* About Card */}
-          <AboutCard profile={enrichedProfile} />
-
-          {/* Professional Information Card */}
-          <ProfessionalInfoCard profile={enrichedProfile} />
-
-          {/* Services Card */}
-          <ServicesCard profile={enrichedProfile} listings={listings || []} isOwnProfile={isOwnProfile} />
-
-          {/* Availability Schedule Card (Structured Format) */}
-          <AvailabilityScheduleCard profile={enrichedProfile} />
-
-          {/* Reviews Card */}
-          <ReviewsCard profile={enrichedProfile} reviews={transformedReviews} />
-        </div>
-
-        {/* Column 2: Sticky Sidebar (1fr width on desktop) */}
-        <div className={styles.sidebarColumn}>
-          {/* Verification Card */}
-          <VerificationCard profile={enrichedProfile} />
-
-          {/* Role Stats Card - Always show with calculated stats */}
-          <RoleStatsCard profile={enrichedProfile} />
-
-          {/* Get in Touch Card - Always show */}
-          <GetInTouchCard
-            profile={enrichedProfile}
-            currentUser={currentUserProfile}
-          />
-        </div>
-      </div>
-
-      {/* SECTION 3: Related Profiles (1-column full width) */}
-      <div className={styles.relatedSection}>
+      }
+      mainContent={[
+        <AboutCard key="about" profile={enrichedProfile} />,
+        <ProfessionalInfoCard key="professional" profile={enrichedProfile} />,
+        <ServicesCard key="services" profile={enrichedProfile} listings={listings || []} isOwnProfile={isOwnProfile} />,
+        <AvailabilityScheduleCard key="availability" profile={enrichedProfile} />,
+        <ReviewsCard key="reviews" profile={enrichedProfile} reviews={transformedReviews} />,
+      ]}
+      sidebar={[
+        <VerificationCard key="verification" profile={enrichedProfile} />,
+        <RoleStatsCard key="stats" profile={enrichedProfile} />,
+        <GetInTouchCard key="contact" profile={enrichedProfile} currentUser={currentUserProfile} />,
+      ]}
+      relatedSection={
         <SimilarProfilesCard profiles={similarProfiles || []} />
-      </div>
-
-      {/* Empty spacer for consistent bottom padding */}
-      <div className={styles.bottomSpacer} />
-
-      {/* Mobile-only: Fixed bottom CTA bar */}
-      <MobileBottomCTA
-        profile={enrichedProfile}
-        currentUser={currentUserProfile}
-        isOwnProfile={isOwnProfile}
-      />
-    </Container>
+      }
+      mobileBottomCTA={
+        <MobileBottomCTA
+          profile={enrichedProfile}
+          currentUser={currentUserProfile}
+          isOwnProfile={isOwnProfile}
+        />
+      }
+      viewTracker={!isOwnProfile ? <ProfileViewTracker profileId={profile.id} /> : undefined}
+      showBottomSpacer={true}
+    />
   );
 }
