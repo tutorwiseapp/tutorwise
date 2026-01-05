@@ -28,7 +28,7 @@ export interface PublicPageShellMetadata {
   title: string;
   description: string;
   canonicalUrl: string;
-  structuredData: object; // JSON-LD structured data
+  structuredData: object | string; // JSON-LD structured data (object or pre-stringified JSON)
   ogImage?: string;
   isIndexable: boolean; // From checkSEOEligibility()
 }
@@ -68,7 +68,11 @@ export default function PublicPageShell({
       {/* JSON-LD Structured Data for SEO */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(metadata.structuredData) }}
+        dangerouslySetInnerHTML={{
+          __html: typeof metadata.structuredData === 'string'
+            ? metadata.structuredData
+            : JSON.stringify(metadata.structuredData)
+        }}
       />
 
       {/* View Tracker (hidden component for analytics) */}

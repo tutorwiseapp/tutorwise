@@ -312,7 +312,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
         title: `${profile.full_name} - ${roleLabel} | Tutorwise`,
         description: profile.bio?.substring(0, 160) || `View ${profile.full_name}'s profile on Tutorwise`,
         canonicalUrl: `https://tutorwise.io/public-profile/${profile.id}/${correctSlug}`,
-        structuredData: JSON.parse(structuredData),
+        structuredData: structuredData, // Pass string directly to avoid hydration mismatch
         ogImage: profile.avatar_url,
         isIndexable: eligibility.isEligible,
       }}
