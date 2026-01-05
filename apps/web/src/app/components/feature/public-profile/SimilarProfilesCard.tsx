@@ -49,93 +49,95 @@ export function SimilarProfilesCard({ profiles = [] }: SimilarProfilesCardProps)
 
   // Always show card, even with empty state
   return (
-    <Card className={styles.similarProfilesCard}>
-      <h2 className={styles.cardTitle}>You might also like</h2>
-
-      {/* Empty state */}
-      {(!profiles || profiles.length === 0) ? (
-        <div className={styles.emptyState}>
-          <p className={styles.emptyStateText}>No similar profiles found at the moment.</p>
-          <p className={styles.emptyStateSubtext}>Check back later for recommendations!</p>
-        </div>
-      ) : (
-
-      <div className={styles.profilesGrid}>
-        {profiles.map((profile) => {
-          const roleLabel = profile.active_role === 'tutor' ? 'Tutor'
-            : profile.active_role === 'agent' ? 'Agent'
-            : 'Client';
-
-          // Get primary subject/service
-          const tutorDetails = profile.professional_details?.tutor;
-          const clientDetails = profile.professional_details?.client;
-          const agentDetails = profile.professional_details?.agent;
-
-          const primaryItem = tutorDetails?.subjects?.[0] ||
-                             clientDetails?.subjects?.[0] ||
-                             agentDetails?.services?.[0] ||
-                             null;
-
-          return (
-            <button
-              key={profile.id}
-              className={styles.profileCard}
-              onClick={() => handleProfileClick(profile)}
-              type="button"
-            >
-              {/* Avatar */}
-              <div className={styles.avatarContainer}>
-                {profile.avatar_url ? (
-                  <Image
-                    src={profile.avatar_url}
-                    width={48}
-                    height={48}
-                    alt={profile.full_name}
-                    className={styles.avatar}
-                  />
-                ) : (
-                  <div className={styles.avatarPlaceholder}>
-                    {profile.full_name?.[0]?.toUpperCase() || '?'}
-                  </div>
-                )}
-              </div>
-
-              {/* Profile Info */}
-              <div className={styles.profileInfo}>
-                <h3 className={styles.profileName}>{profile.full_name}</h3>
-                <p className={styles.profileRole}>{roleLabel}</p>
-
-                {/* Primary Subject/Service */}
-                {primaryItem && (
-                  <p className={styles.primaryItem}>{primaryItem}</p>
-                )}
-
-                {/* Location */}
-                {profile.city && (
-                  <div className={styles.location}>
-                    <MapPin size={14} />
-                    {profile.city}
-                  </div>
-                )}
-
-                {/* Rating (if available) */}
-                {profile.average_rating && profile.total_reviews ? (
-                  <div className={styles.rating}>
-                    <Star size={14} fill="#fbbf24" stroke="#fbbf24" />
-                    <span className={styles.ratingValue}>
-                      {profile.average_rating.toFixed(1)}
-                    </span>
-                    <span className={styles.reviewCount}>
-                      ({profile.total_reviews})
-                    </span>
-                  </div>
-                ) : null}
-              </div>
-            </button>
-          );
-        })}
+    <Card className={styles.card}>
+      {/* Teal header section matching standard card pattern */}
+      <div className={styles.cardHeader}>
+        <h2 className={styles.cardTitle}>You might also like</h2>
       </div>
-      )}
+
+      {/* Card content section */}
+      <div className={styles.cardContent}>
+        {/* Empty state */}
+        {(!profiles || profiles.length === 0) ? (
+          <p className={styles.emptyMessage}>No matching profiles or listings yet.</p>
+        ) : (
+          <div className={styles.profilesGrid}>
+            {profiles.map((profile) => {
+              const roleLabel = profile.active_role === 'tutor' ? 'Tutor'
+                : profile.active_role === 'agent' ? 'Agent'
+                : 'Client';
+
+              // Get primary subject/service
+              const tutorDetails = profile.professional_details?.tutor;
+              const clientDetails = profile.professional_details?.client;
+              const agentDetails = profile.professional_details?.agent;
+
+              const primaryItem = tutorDetails?.subjects?.[0] ||
+                                 clientDetails?.subjects?.[0] ||
+                                 agentDetails?.services?.[0] ||
+                                 null;
+
+              return (
+                <button
+                  key={profile.id}
+                  className={styles.profileCard}
+                  onClick={() => handleProfileClick(profile)}
+                  type="button"
+                >
+                  {/* Avatar */}
+                  <div className={styles.avatarContainer}>
+                    {profile.avatar_url ? (
+                      <Image
+                        src={profile.avatar_url}
+                        width={48}
+                        height={48}
+                        alt={profile.full_name}
+                        className={styles.avatar}
+                      />
+                    ) : (
+                      <div className={styles.avatarPlaceholder}>
+                        {profile.full_name?.[0]?.toUpperCase() || '?'}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Profile Info */}
+                  <div className={styles.profileInfo}>
+                    <h3 className={styles.profileName}>{profile.full_name}</h3>
+                    <p className={styles.profileRole}>{roleLabel}</p>
+
+                    {/* Primary Subject/Service */}
+                    {primaryItem && (
+                      <p className={styles.primaryItem}>{primaryItem}</p>
+                    )}
+
+                    {/* Location */}
+                    {profile.city && (
+                      <div className={styles.location}>
+                        <MapPin size={14} />
+                        {profile.city}
+                      </div>
+                    )}
+
+                    {/* Rating (if available) */}
+                    {profile.average_rating && profile.total_reviews ? (
+                      <div className={styles.rating}>
+                        <Star size={14} fill="#fbbf24" stroke="#fbbf24" />
+                        <span className={styles.ratingValue}>
+                          {profile.average_rating.toFixed(1)}
+                        </span>
+                        <span className={styles.reviewCount}>
+                          ({profile.total_reviews})
+                        </span>
+                      </div>
+                    ) : null}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </Card>
   );
 }

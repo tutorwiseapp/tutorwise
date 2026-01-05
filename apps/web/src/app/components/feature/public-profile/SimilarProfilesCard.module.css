@@ -2,18 +2,36 @@
  * Filename: SimilarProfilesCard.module.css
  * Purpose: Styles for Similar Profiles card
  * Created: 2025-11-12
+ * Updated: 2026-01-05 - Matched standard card pattern with teal header
  */
 
-.similarProfilesCard {
-  padding: var(--space-5, 40px);
+/* Override Card default padding to match standard pattern */
+.card {
+  padding: 0 !important;
+}
+
+/* Teal header section matching standard card styling */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: #E6F0F0;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .cardTitle {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #111827;
-  margin: 0 0 var(--space-5, 40px) 0;
-  line-height: 1.2;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Card content section with proper padding */
+.cardContent {
+  padding: var(--space-4, 32px);
 }
 
 /* Profiles Grid */
@@ -138,30 +156,14 @@
   color: #6b7280;
 }
 
-/* Empty State */
-.emptyState {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-5, 40px) var(--space-4, 32px);
+/* Empty State - matching RelatedListingsCard pattern */
+.emptyMessage {
+  font-size: 0.875rem; /* 14px */
+  color: var(--color-gray-700, #4B4B4B);
+  opacity: 0.7;
   text-align: center;
-  min-height: 200px;
-}
-
-.emptyStateText {
-  font-size: 1rem;
-  font-weight: 500;
-  color: #6b7280;
-  margin: 0 0 8px 0;
-  line-height: 1.5;
-}
-
-.emptyStateSubtext {
-  font-size: 0.875rem;
-  color: #9ca3af;
+  padding: 0;
   margin: 0;
-  line-height: 1.5;
 }
 
 /* Responsive */
@@ -173,12 +175,12 @@
 }
 
 @media (max-width: 768px) {
-  .similarProfilesCard {
-    padding: var(--space-4, 32px);
+  .cardTitle {
+    font-size: 15px;
   }
 
-  .cardTitle {
-    font-size: 1.25rem;
+  .cardContent {
+    padding: var(--space-3, 24px);
   }
 
   .profilesGrid {
