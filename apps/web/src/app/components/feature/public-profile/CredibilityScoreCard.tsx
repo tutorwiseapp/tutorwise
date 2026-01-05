@@ -106,9 +106,6 @@ export function CredibilityScoreCard({ profileId, scoreData: initialScoreData }:
           <h3 className={styles.cardTitle}>Credibility Score</h3>
         </div>
         <div className={styles.placeholderContainer}>
-          <div className={styles.placeholderIcon}>
-            <Award size={40} strokeWidth={1.5} />
-          </div>
           <p className={styles.placeholderText}>Score not calculated yet</p>
         </div>
       </Card>
@@ -123,9 +120,6 @@ export function CredibilityScoreCard({ profileId, scoreData: initialScoreData }:
           <h3 className={styles.cardTitle}>Credibility Score</h3>
         </div>
         <div className={styles.placeholderContainer}>
-          <div className={styles.placeholderIcon}>
-            <Award size={40} strokeWidth={1.5} />
-          </div>
           <p className={styles.placeholderText}>Available for tutors only</p>
         </div>
       </Card>

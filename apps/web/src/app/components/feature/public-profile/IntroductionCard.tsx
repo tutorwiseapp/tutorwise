@@ -61,9 +61,6 @@ export function IntroductionCard({ profile }: IntroductionCardProps) {
           </div>
         ) : (
           <div className={styles.placeholderContainer}>
-            <div className={styles.placeholderIcon}>
-              <Video size={40} strokeWidth={1.5} />
-            </div>
             <p className={styles.placeholderText}>No video introduction yet</p>
           </div>
         )}

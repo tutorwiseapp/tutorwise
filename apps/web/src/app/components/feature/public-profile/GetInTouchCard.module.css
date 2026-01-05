@@ -29,33 +29,6 @@
   padding: 16px;
 }
 
-/* Placeholder State (for own profile) - standardized across all cards */
-.placeholderContainer {
-  padding: 48px 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  text-align: center;
-}
-
-.placeholderIcon {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: #f3f4f6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #9ca3af;
-}
-
-.placeholderText {
-  font-size: 1rem;
-  color: #6b7280;
-  margin: 0;
-}
-
 /* Free Help Now Button - Green gradient for community/free feature */
 .freeHelpContainer {
   position: relative;
