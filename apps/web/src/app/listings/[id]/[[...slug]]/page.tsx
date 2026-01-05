@@ -2,13 +2,13 @@
  * Filename: apps/web/src/app/listings/[id]/[[...slug]]/page.tsx
  * Purpose: Dynamic Listing Details Page (v4.1) - Server Component
  * Architecture: Replaces legacy /tutor/[id]/[slug] route
- * Updated: 2025-12-21 - Added Next.js revalidation for performance optimization
+ * Updated: 2026-01-05 - Migrated to PublicPageShell for layout consistency
  *
  * Features:
  * - Server-side rendering for SEO
  * - Support for both /listings/[id] and /listings/[id]/[slug]
  * - Dynamic service type variants (one-to-one, group-session, workshop, study-package)
- * - Sticky ActionCard on desktop, fixed bottom CTA on mobile
+ * - Uses PublicPageShell for consistent layout with profile/organisation pages
  * - Related listings recommendations
  * - 3-minute revalidation (more dynamic than profiles)
  */
@@ -22,7 +22,7 @@ import { getProfile } from '@/lib/api/profiles';
 import { createClient } from '@/utils/supabase/server';
 import type { ListingV41 } from '@/types/listing-v4.1';
 import type { Profile } from '@/types';
-import Container from '@/app/components/layout/Container';
+import { PublicPageShell } from '@/app/components/layout/PublicPageShell';
 import ListingHeroSection from './components/ListingHeroSection';
 import ListingImageGrid from './components/ListingImageGrid';
 import { ListingDetailsCard } from './components/ListingDetailsCard';
@@ -35,7 +35,6 @@ import { ListingStatsCard } from './components/ListingStatsCard';
 import RelatedListingsCard from './components/RelatedListingsCard';
 import MobileBottomCTA from './components/MobileBottomCTA';
 import { generateListingSchemaForPage } from '@/services/seo/schema-generator';
-import styles from './page.module.css';
 
 interface ListingDetailsPageProps {
   params: {
@@ -259,80 +258,60 @@ export default async function ListingDetailsPage({ params }: ListingDetailsPageP
   // JSON-LD structured data with CaaS trust signals
   const structuredData = await generateListingSchemaForPage(listing.id);
 
-  return (
-    <>
-      {/* JSON-LD Structured Data with CaaS trust signals */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: structuredData }}
-      />
+  // Service type label for metadata
+  const serviceTypeLabel =
+    listing.service_type === 'one-to-one' ? 'One-to-One Tutoring' :
+    listing.service_type === 'group-session' ? 'Group Session' :
+    listing.service_type === 'workshop' ? 'Workshop' :
+    listing.service_type === 'study-package' ? 'Study Package' :
+    'Tutoring';
 
-      <Container>
-        {/* SECTION 1: Hero Section (1-column full width) */}
-        <div className={styles.heroSection}>
+  return (
+    <PublicPageShell
+      metadata={{
+        title: `${listing.title} | ${tutorProfile.full_name}`,
+        description: listing.description?.substring(0, 160) || `Book ${serviceTypeLabel} with ${tutorProfile.full_name} on Tutorwise`,
+        canonicalUrl: `https://tutorwise.io/listings/${listing.id}`,
+        structuredData: structuredData, // Pass string directly
+        ogImage: listing.hero_image_url,
+        isIndexable: true, // Listings are always indexable when published
+      }}
+      hero={
+        <>
           <ListingHeroSection
             listing={listing}
             tutorProfile={enrichedProfile}
             tutorStats={tutorStats}
             isOwnListing={isOwnProfile}
           />
-        </div>
-
-        {/* Images below hero */}
-        {images.length > 0 && (
-          <div className={styles.imagesSection}>
-            <ListingImageGrid images={images} listingTitle={listing.title} />
-          </div>
-        )}
-
-        {/* SECTION 2: Body (2-column layout: 2fr main + 1fr sidebar) */}
-        <div className={styles.bodySection}>
-          {/* Column 1: Main content (2fr width on desktop) */}
-          <div className={styles.mainColumn}>
-            {/* Listing Details Card - Listing description */}
-            <ListingDetailsCard listing={listing} />
-
-            {/* Cancellation Policy Card - Only shown if policy exists */}
-            <CancellationPolicyCard listing={listing} />
-
-            {/* Availability Schedule Card - Tutor's general schedule */}
-            <AvailabilityScheduleCard profile={enrichedProfile} />
-
-            {/* Reviews Card - Tutor's reviews */}
-            <ReviewsCard profile={enrichedProfile} reviews={transformedReviews} />
-          </div>
-
-          {/* Column 2: Sticky Sidebar (1fr width on desktop) */}
-          <div className={styles.sidebarColumn}>
-            {/* Verification Card */}
-            <VerificationCard profile={enrichedProfile} />
-
-            {/* Listing Stats Card - Shows listing-specific metrics */}
-            <ListingStatsCard listing={listing} />
-
-            {/* Get in Touch Card - Replaces ActionCard */}
-            <GetInTouchCard
-              profile={enrichedProfile}
-              currentUser={currentUserProfile}
-            />
-          </div>
-        </div>
-
-        {/* SECTION 3: Related Listings (1-column full width) */}
-        <div className={styles.relatedSection}>
-          <RelatedListingsCard
-            listingId={listing.id}
-            currentSubjects={listing.subjects}
-            currentLocation={listing.location_city}
-          />
-        </div>
-
-        {/* Empty spacer for consistent bottom padding */}
-        <div className={styles.bottomSpacer} />
-      </Container>
-
-      {/* Mobile-only: Fixed bottom CTA bar */}
-      <MobileBottomCTA listing={listing} />
-    </>
+          {/* Images below hero (if available) */}
+          {images.length > 0 && (
+            <div style={{ marginTop: 'var(--space-4, 32px)' }}>
+              <ListingImageGrid images={images} listingTitle={listing.title} />
+            </div>
+          )}
+        </>
+      }
+      mainContent={[
+        <ListingDetailsCard key="details" listing={listing} />,
+        <CancellationPolicyCard key="cancellation" listing={listing} />,
+        <AvailabilityScheduleCard key="availability" profile={enrichedProfile} />,
+        <ReviewsCard key="reviews" profile={enrichedProfile} reviews={transformedReviews} />,
+      ]}
+      sidebar={[
+        <VerificationCard key="verification" profile={enrichedProfile} />,
+        <ListingStatsCard key="stats" listing={listing} />,
+        <GetInTouchCard key="contact" profile={enrichedProfile} currentUser={currentUserProfile} />,
+      ]}
+      relatedSection={
+        <RelatedListingsCard
+          listingId={listing.id}
+          currentSubjects={listing.subjects}
+          currentLocation={listing.location_city}
+        />
+      }
+      mobileBottomCTA={<MobileBottomCTA listing={listing} />}
+      showBottomSpacer={true}
+    />
   );
 }
