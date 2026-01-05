@@ -103,11 +103,6 @@ export function GetInTouchCard({ organisation, currentUser, isOwner = false }: G
     router.push(`/organisation/${organisation.id}/join`);
   };
 
-  // Don't show card to owners
-  if (isOwner) {
-    return null;
-  }
-
   return (
     <Card className={styles.getInTouchCard}>
       <div className={styles.cardHeader}>
