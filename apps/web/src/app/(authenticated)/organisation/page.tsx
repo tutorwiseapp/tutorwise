@@ -28,6 +28,7 @@ import {
   getOrganisationStats,
   getOrganisationClients,
   getOrganisationSubscription,
+  getOrganisationRecruitments,
   createOrganisation,
   removeMember,
 } from '@/lib/api/organisation';
@@ -52,6 +53,7 @@ import OrganisationStudentCard from '@/app/components/feature/organisation/conte
 import OrganisationPerformanceTab from '@/app/components/feature/organisation/tabs/OrganisationPerformanceTab';
 // OrganisationReferralsTab removed - now has dedicated page at /organisation/[id]/referrals
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
+import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import SubscriptionRequired from '@/app/components/feature/organisation/content/SubscriptionRequired';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
@@ -62,7 +64,7 @@ import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 import type { OrganisationMember } from '@/lib/api/organisation';
 
-type TabType = 'team' | 'clients' | 'performance' | 'info';
+type TabType = 'team' | 'clients' | 'recruitments' | 'performance' | 'info';
 type SortType = 'newest' | 'oldest' | 'name-asc' | 'name-desc';
 
 const ITEMS_PER_PAGE = 4;
@@ -167,6 +169,20 @@ export default function OrganisationPage() {
     enabled: !!organisation && activeTab === 'clients',
     placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000,
+  });
+
+  // Fetch recruitments (only when Recruitments tab is active)
+  // isLoading is true only on first fetch; isFetching is true on all fetches
+  const {
+    data: recruitments = [],
+    isLoading: recruitmentsLoading,
+    isFetching: recruitmentsFetching,
+  } = useQuery({
+    queryKey: ['organisation-recruitments', organisation?.id],
+    queryFn: () => getOrganisationRecruitments(organisation!.id),
+    enabled: !!organisation && activeTab === 'recruitments',
+    placeholderData: keepPreviousData,
+    staleTime: 2 * 60 * 1000,
   });
 
   // Remove member mutation
@@ -276,6 +292,45 @@ export default function OrganisationPage() {
     return filtered;
   }, [clients, searchQuery, sortBy]);
 
+  // Filtered and sorted recruitments
+  const filteredRecruitments = useMemo(() => {
+    if (!recruitments) return [];
+
+    let filtered = [...recruitments];
+
+    // Search filtering
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((recruitment) => {
+        const name = recruitment.applicant_name?.toLowerCase() || '';
+        const email = recruitment.applicant_email?.toLowerCase() || '';
+        const expertise = recruitment.expertise?.toLowerCase() || '';
+
+        return name.includes(query) ||
+               email.includes(query) ||
+               expertise.includes(query);
+      });
+    }
+
+    // Sorting
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'newest':
+          return new Date(b.applied_at).getTime() - new Date(a.applied_at).getTime();
+        case 'oldest':
+          return new Date(a.applied_at).getTime() - new Date(b.applied_at).getTime();
+        case 'name-asc':
+          return (a.applicant_name || '').localeCompare(b.applicant_name || '');
+        case 'name-desc':
+          return (b.applicant_name || '').localeCompare(a.applicant_name || '');
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [recruitments, searchQuery, sortBy]);
+
   // Pagination for team
   const paginatedMembers = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -289,6 +344,13 @@ export default function OrganisationPage() {
     const endIndex = startIndex + ITEMS_PER_PAGE;
     return filteredClients.slice(startIndex, endIndex);
   }, [filteredClients, currentPage]);
+
+  // Pagination for recruitments
+  const paginatedRecruitments = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return filteredRecruitments.slice(startIndex, endIndex);
+  }, [filteredRecruitments, currentPage]);
 
   // Reset to page 1 when filters or tab change
   React.useEffect(() => {
@@ -649,7 +711,11 @@ export default function OrganisationPage() {
                 {/* Search Input */}
                 <input
                   type="search"
-                  placeholder={`Search ${activeTab === 'team' ? 'team members' : 'clients'}...`}
+                  placeholder={`Search ${
+                    activeTab === 'team' ? 'team members' :
+                    activeTab === 'clients' ? 'clients' :
+                    'applications'
+                  }...`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className={filterStyles.searchInput}
@@ -745,6 +811,7 @@ export default function OrganisationPage() {
           tabs={[
             { id: 'team', label: 'Team', count: members.length, active: activeTab === 'team' },
             { id: 'clients', label: 'Clients', count: clients.length, active: activeTab === 'clients' },
+            { id: 'recruitments', label: 'Recruitments', count: recruitments.length, active: activeTab === 'recruitments' },
             { id: 'performance', label: 'Performance', active: activeTab === 'performance' },
             { id: 'info', label: 'Organisation Info', active: activeTab === 'info' },
           ]}
@@ -842,6 +909,175 @@ export default function OrganisationPage() {
                 <HubPagination
                   currentPage={currentPage}
                   totalItems={filteredClients.length}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  onPageChange={setCurrentPage}
+                />
+              )}
+            </>
+          )}
+        </>
+      )}
+
+      {/* Recruitments Tab */}
+      {activeTab === 'recruitments' && (
+        <>
+          {recruitmentsLoading ? (
+            <div className={styles.loading}>Loading applications...</div>
+          ) : paginatedRecruitments.length === 0 ? (
+            recruitments.length === 0 ? (
+              <HubEmptyState
+                title="No Applications Yet"
+                description="Recruitment applications will appear here when people apply to join your team."
+              />
+            ) : (
+              <HubEmptyState
+                title="No Applications Found"
+                description="No applications match your current search."
+              />
+            )
+          ) : (
+            <>
+              <div className={styles.cardList}>
+                {paginatedRecruitments.map((application) => {
+                  // Get status badge variant
+                  const getStatusVariant = (status: string) => {
+                    switch (status) {
+                      case 'PENDING':
+                        return 'warning';
+                      case 'ACTIVE':
+                        return 'success';
+                      case 'REJECTED':
+                        return 'error';
+                      default:
+                        return 'neutral';
+                    }
+                  };
+
+                  // Format status label
+                  const getStatusLabel = (status: string) => {
+                    switch (status) {
+                      case 'PENDING':
+                        return 'Pending Review';
+                      case 'ACTIVE':
+                        return 'Approved';
+                      case 'REJECTED':
+                        return 'Rejected';
+                      default:
+                        return status;
+                    }
+                  };
+
+                  // Format date
+                  const appliedDate = new Date(application.applied_at).toLocaleDateString('en-GB', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                  });
+
+                  return (
+                    <HubDetailCard
+                      key={application.id}
+                      image={{
+                        src: application.applicant_avatar_url,
+                        alt: application.applicant_name,
+                        fallbackChar: application.applicant_name
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('')
+                          .toUpperCase()
+                          .slice(0, 2),
+                      }}
+                      title={application.applicant_name}
+                      titleHref={`/public-profile/${application.applicant_id}`}
+                      status={{
+                        label: getStatusLabel(application.status),
+                        variant: getStatusVariant(application.status) as 'success' | 'warning' | 'error' | 'neutral',
+                      }}
+                      description={`Applied ${appliedDate}`}
+                      details={[
+                        { label: 'Email', value: application.applicant_email },
+                        { label: 'Subjects', value: application.subjects.join(', ') },
+                        {
+                          label: 'Expertise',
+                          value: application.expertise,
+                          fullWidth: true,
+                        },
+                        {
+                          label: 'Why Join',
+                          value: application.why_join,
+                          fullWidth: true,
+                        },
+                        {
+                          label: 'Availability',
+                          value: application.availability.join(', '),
+                          fullWidth: true,
+                        },
+                        {
+                          label: 'Fee Expectation',
+                          value: application.tuition_fee_expectation
+                            ? `£${application.tuition_fee_expectation}/hr`
+                            : 'Not specified',
+                        },
+                        {
+                          label: 'Salary Expectation',
+                          value: application.salary_expectation
+                            ? `£${application.salary_expectation.toLocaleString()}/yr`
+                            : 'Not specified',
+                        },
+                      ]}
+                      actions={
+                        application.status === 'PENDING' ? (
+                          <>
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              onClick={() => {
+                                toast('Approve functionality coming soon!', { icon: '✅' });
+                              }}
+                            >
+                              Approve
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => {
+                                router.push(`/messages?userId=${application.applicant_id}`);
+                              }}
+                            >
+                              Message
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => {
+                                toast('Reject functionality coming soon!', { icon: '❌' });
+                              }}
+                            >
+                              Reject
+                            </Button>
+                          </>
+                        ) : (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => {
+                              router.push(`/messages?userId=${application.applicant_id}`);
+                            }}
+                          >
+                            Message
+                          </Button>
+                        )
+                      }
+                    />
+                  );
+                })}
+              </div>
+
+              {/* Pagination */}
+              {filteredRecruitments.length > ITEMS_PER_PAGE && (
+                <HubPagination
+                  currentPage={currentPage}
+                  totalItems={filteredRecruitments.length}
                   itemsPerPage={ITEMS_PER_PAGE}
                   onPageChange={setCurrentPage}
                 />

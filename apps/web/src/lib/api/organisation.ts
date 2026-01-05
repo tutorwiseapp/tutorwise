@@ -736,3 +736,100 @@ export async function getOrganisationSubscription(
 
   return data as OrganisationSubscription;
 }
+
+/**
+ * Recruitment Application interface
+ */
+export interface RecruitmentApplication {
+  id: string;
+  applicant_id: string;
+  applicant_name: string;
+  applicant_email: string;
+  applicant_avatar_url: string | null;
+  status: 'PENDING' | 'ACTIVE' | 'REJECTED';
+  expertise: string;
+  subjects: string[];
+  why_join: string;
+  availability: string[];
+  tuition_fee_expectation: number | null;
+  salary_expectation: number | null;
+  applied_at: string;
+  created_at: string;
+}
+
+/**
+ * Get all recruitment applications for an organisation
+ * Returns applications from profile_graph with relationship_type='ORGANISATION_RECRUITMENT'
+ */
+export async function getOrganisationRecruitments(
+  organisationId: string
+): Promise<RecruitmentApplication[]> {
+  const supabase = createClient();
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    throw new Error('Not authenticated');
+  }
+
+  // Verify ownership
+  const { data: org, error: orgError } = await supabase
+    .from('connection_groups')
+    .select('profile_id')
+    .eq('id', organisationId)
+    .single();
+
+  if (orgError || !org || org.profile_id !== user.id) {
+    throw new Error('Unauthorized: You do not own this organisation');
+  }
+
+  // Query profile_graph for ORGANISATION_RECRUITMENT relationships
+  // target_profile_id should be the organisation owner (user.id)
+  const { data, error } = await supabase
+    .from('profile_graph')
+    .select(`
+      id,
+      source_profile_id,
+      status,
+      metadata,
+      created_at,
+      source:source_profile_id(
+        id,
+        full_name,
+        email,
+        avatar_url
+      )
+    `)
+    .eq('relationship_type', 'ORGANISATION_RECRUITMENT')
+    .eq('target_profile_id', user.id)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('[getOrganisationRecruitments] Error:', error);
+    throw error;
+  }
+
+  // Map to RecruitmentApplication format
+  const applications: RecruitmentApplication[] = (data || []).map((app: any) => {
+    const applicant = app.source;
+    const metadata = app.metadata || {};
+
+    return {
+      id: app.id,
+      applicant_id: applicant.id,
+      applicant_name: applicant.full_name || 'Unknown',
+      applicant_email: applicant.email,
+      applicant_avatar_url: applicant.avatar_url,
+      status: app.status as 'PENDING' | 'ACTIVE' | 'REJECTED',
+      expertise: metadata.expertise || '',
+      subjects: metadata.subjects || [],
+      why_join: metadata.why_join || '',
+      availability: metadata.availability || [],
+      tuition_fee_expectation: metadata.tuition_fee_expectation || null,
+      salary_expectation: metadata.salary_expectation || null,
+      applied_at: metadata.applied_at || app.created_at,
+      created_at: app.created_at,
+    };
+  });
+
+  return applications;
+}
