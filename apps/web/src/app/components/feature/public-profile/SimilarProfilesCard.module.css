@@ -31,7 +31,7 @@
 
 /* Card content section with proper padding */
 .cardContent {
-  padding: var(--space-4, 32px);
+  padding: 16px;
 }
 
 /* Horizontal Scroll Container */
@@ -194,7 +194,7 @@
   }
 
   .cardContent {
-    padding: var(--space-3, 24px);
+    padding: 16px;
   }
 
   .profileCard {

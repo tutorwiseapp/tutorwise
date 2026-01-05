@@ -27,7 +27,7 @@
 
 /* Card Content */
 .cardContent {
-  padding: var(--space-4, 32px);
+  padding: 16px;
 }
 
 /* 2-Column Layout */
@@ -170,7 +170,7 @@
 /* Mobile Responsive */
 @media (max-width: 640px) {
   .cardContent {
-    padding: var(--space-3, 24px);
+    padding: 16px;
   }
 
   .periodItem,

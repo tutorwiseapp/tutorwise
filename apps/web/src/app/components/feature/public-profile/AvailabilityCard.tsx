@@ -45,9 +45,14 @@ export function AvailabilityCard({ profile }: AvailabilityCardProps) {
 
   return (
     <Card className={styles.availabilityCard}>
-      <h2 className={styles.cardTitle}>Availability</h2>
+      {/* Header with light teal background */}
+      <div className={styles.cardHeader}>
+        <h2 className={styles.cardTitle}>Availability</h2>
+      </div>
 
-      <div className={styles.columnsContainer}>
+      {/* Content wrapper for padding */}
+      <div className={styles.cardContent}>
+        <div className={styles.columnsContainer}>
         {/* Left Column: Availability Periods */}
         <div className={styles.column}>
           <h3 className={styles.columnTitle}>Available</h3>
@@ -73,6 +78,7 @@ export function AvailabilityCard({ profile }: AvailabilityCardProps) {
             </div>
           )}
         </div>
+      </div>
       </div>
     </Card>
   );

@@ -2,18 +2,33 @@
  * Filename: AvailabilityCard.module.css
  * Purpose: Styles for Availability card with 2-column layout
  * Created: 2025-11-12
+ * Updated: 2026-01-05 - Converted to standard header/content pattern
  */
 
+/* Override Card default padding to allow header to extend to edges */
 .availabilityCard {
-  padding: var(--space-5, 40px);
+  padding: 0 !important;
+}
+
+/* Header with light teal background */
+.cardHeader {
+  padding: 12px 16px;
+  background-color: #E6F0F0;
+  border-bottom: 1px solid #e5e7eb;
+  border-radius: 8px 8px 0 0; /* Match card's top corners */
 }
 
 .cardTitle {
-  font-size: 20px;
-  font-weight: 700;
-  color: #111827;
-  margin: 0 0 var(--space-5, 40px) 0;
-  line-height: 1.2;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Content wrapper for padding */
+.cardContent {
+  padding: 16px;
 }
 
 /* 2-Column Layout */
@@ -114,13 +129,8 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .availabilityCard {
-    padding: var(--space-4, 32px);
-  }
-
   .cardTitle {
-    font-size: 1.25rem;
-    margin-bottom: var(--space-4, 32px);
+    font-size: 15px;
   }
 
   .columnsContainer {

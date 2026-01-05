@@ -30,7 +30,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: var(--space-4, 32px);
+  padding: 16px;
 }
 
 .verificationItem {
@@ -91,7 +91,7 @@
 /* Responsive - Mobile and Tablet */
 @media (max-width: 1023px) {
   .verificationsContainer {
-    gap: var(--space-3, 24px);
-    padding: var(--space-3, 24px);
+    gap: 16px;
+    padding: 16px;
   }
 }
