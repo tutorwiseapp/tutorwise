@@ -83,19 +83,19 @@ export function OrganisationHeroSection({ organisation, isOwner }: OrganisationH
     router.push(`/organisation?tab=info`);
   };
 
-  // Handle Join Team CTA
-  const handleJoinTeam = () => {
-    router.push(`/organisation/${organisation.slug}/join`);
-  };
+  // Handle Join Team CTA (removed - now in GetInTouchCard)
+  // const handleJoinTeam = () => {
+  //   router.push(`/organisation/${organisation.slug}/join`);
+  // };
 
-  // Handle Book Session CTA
-  const handleBookSession = () => {
-    // Scroll to team members section or show booking modal
-    const teamSection = document.getElementById('team-members');
-    if (teamSection) {
-      teamSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  // Handle Book Session CTA (removed - now in GetInTouchCard)
+  // const handleBookSession = () => {
+  //   // Scroll to team members section or show booking modal
+  //   const teamSection = document.getElementById('team-members');
+  //   if (teamSection) {
+  //     teamSection.scrollIntoView({ behavior: 'smooth' });
+  //   }
+  // };
 
   // Format CaaS score for display
   const getCaaSBadge = () => {
@@ -234,26 +234,8 @@ export function OrganisationHeroSection({ organisation, isOwner }: OrganisationH
           </button>
         </div>
 
-        {/* Right: Primary CTAs */}
+        {/* Right: Referral CTA */}
         <div className={styles.ctaSection}>
-
-          {/* Primary CTAs */}
-          <div className={styles.primaryCtas}>
-            <button
-              className={styles.primaryButton}
-              onClick={handleBookSession}
-            >
-              Book a Session
-            </button>
-
-            <button
-              className={styles.secondaryButton}
-              onClick={handleJoinTeam}
-            >
-              Join Our Team
-            </button>
-          </div>
-
           {/* Referral CTA */}
           <button
             className={styles.referralButton}

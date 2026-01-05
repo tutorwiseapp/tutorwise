@@ -164,6 +164,7 @@
   gap: 0.75rem;
   justify-self: end;
   align-self: end; /* Align to bottom so Refer & Earn matches logo bottom */
+  margin-bottom: 8px; /* Move referral button 8px up */
 }
 
 .utilityButtons {
