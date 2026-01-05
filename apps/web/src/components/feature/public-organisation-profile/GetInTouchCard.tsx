@@ -21,6 +21,7 @@ import styles from './GetInTouchCard.module.css';
 interface Organisation {
   id: string;
   name: string;
+  slug: string;
   allow_team_join?: boolean;
   profile_id: string; // Organisation owner's profile ID
 }
@@ -107,8 +108,8 @@ export function GetInTouchCard({ organisation, currentUser, isOwner = false }: G
       return;
     }
 
-    // Navigate to join team page or modal
-    router.push(`/organisation/${organisation.id}/join`);
+    // Navigate to referral join page
+    router.push(`/join/${organisation.slug}`);
   };
 
   return (
