@@ -28,6 +28,7 @@ import { AboutCard } from '@/components/feature/public-organisation-profile/Abou
 import { ServicesCard } from '@/components/feature/public-organisation-profile/ServicesCard';
 import { ReviewsCard } from '@/components/feature/public-organisation-profile/ReviewsCard';
 import { VerificationCard } from '@/components/feature/public-organisation-profile/VerificationCard';
+import { GetInTouchCard } from '@/components/feature/public-organisation-profile/GetInTouchCard';
 import { OrganisationViewTracker } from '@/components/feature/public-organisation-profile/OrganisationViewTracker';
 import { SimilarOrganisationsCard } from '@/components/feature/public-organisation-profile/SimilarOrganisationsCard';
 import { MobileBottomCTA } from '@/components/feature/public-organisation-profile/MobileBottomCTA';
@@ -115,10 +116,21 @@ export default async function PublicOrganisationPage({ params }: PublicOrganisat
   }
 
   // ===========================================================
-  // STEP 2: Get current user (for ownership check)
+  // STEP 2: Get current user (for ownership check and GetInTouchCard)
   // ===========================================================
   const { data: { user } } = await supabase.auth.getUser();
   const isOwner = user?.id === organisation.profile_id;
+
+  // Fetch current user's profile (if authenticated)
+  let currentUserProfile = null;
+  if (user) {
+    const { data } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', user.id)
+      .single();
+    currentUserProfile = data;
+  }
 
   // ===========================================================
   // STEP 3: Fetch organisation stats using RPC
@@ -318,6 +330,7 @@ export default async function PublicOrganisationPage({ params }: PublicOrganisat
       sidebar={[
         <VerificationCard key="verification" organisation={enrichedOrganisation} />,
         <OrganisationStatsCard key="stats" organisation={enrichedOrganisation} />,
+        <GetInTouchCard key="contact" organisation={enrichedOrganisation} currentUser={currentUserProfile} isOwner={isOwner} />,
       ]}
       relatedSection={
         <SimilarOrganisationsCard
