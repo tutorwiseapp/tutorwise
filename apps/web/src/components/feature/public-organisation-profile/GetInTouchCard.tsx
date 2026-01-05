@@ -110,44 +110,43 @@ export function GetInTouchCard({ organisation, currentUser, isOwner = false }: G
       </div>
 
       <div className={styles.cardContent}>
-        {/* Contact Button */}
+        {/* Primary CTA: Book Session - full width */}
         <Button
           variant="primary"
           fullWidth
           onClick={handleContact}
           className={styles.primaryButton}
         >
-          Contact
+          Book Session
         </Button>
 
-        {/* Divider */}
-        <div className={styles.divider} />
+        {/* Secondary CTAs: Contact and Connect */}
+        <div className={styles.ctaGrid}>
+          <button
+            onClick={handleContact}
+            className={styles.ctaButton}
+          >
+            <span className={styles.ctaText}>Contact</span>
+          </button>
 
-        {/* Connect Button */}
+          <button
+            onClick={handleConnect}
+            disabled={isConnecting}
+            className={styles.ctaButton}
+          >
+            <span className={styles.ctaText}>{isConnecting ? 'Connecting...' : 'Connect'}</span>
+          </button>
+        </div>
+
+        {/* Join Team Button */}
         <Button
-          variant="secondary"
+          variant="ghost"
           fullWidth
-          onClick={handleConnect}
-          disabled={isConnecting}
-          className={styles.secondaryButton}
+          onClick={handleJoinTeam}
+          className={styles.joinTeamButton}
         >
-          {isConnecting ? 'Connecting...' : 'Connect'}
+          Join Our Team
         </Button>
-
-        {/* Join Team Button (if enabled) */}
-        {organisation.allow_team_join && (
-          <>
-            <div className={styles.divider} />
-            <Button
-              variant="ghost"
-              fullWidth
-              onClick={handleJoinTeam}
-              className={styles.outlineButton}
-            >
-              Join Our Team
-            </Button>
-          </>
-        )}
       </div>
     </Card>
   );
