@@ -22,7 +22,6 @@ export function AboutCard({ organisation, isOwner = false }: AboutCardProps) {
   const [showVideoModal, setShowVideoModal] = useState(false);
 
   const bio = organisation.bio || '';
-  const tagline = organisation.tagline || '';
   const videoUrl = organisation.video_intro_url;
 
   // Determine if bio is long enough to need expansion
@@ -33,7 +32,7 @@ export function AboutCard({ organisation, isOwner = false }: AboutCardProps) {
     : bio;
 
   // Don't render if no content
-  if (!bio && !tagline && !videoUrl) {
+  if (!bio && !videoUrl) {
     return null;
   }
 
@@ -59,13 +58,6 @@ export function AboutCard({ organisation, isOwner = false }: AboutCardProps) {
 
         {/* Content wrapper for padding */}
         <div className={styles.bioContent}>
-          {/* Tagline */}
-          {tagline && (
-            <div className={styles.tagline}>
-              &ldquo;{tagline}&rdquo;
-            </div>
-          )}
-
           {/* Bio/Description */}
           {bio && (
             <div className={styles.bioSection}>
