@@ -30,9 +30,10 @@ export default function AppSidebar() {
   const navItems: NavItem[] = [
     { href: '/dashboard', label: 'Dashboard' },
     {
-      href: '/organisation',
+      href: '/organisation?tab=team',
       label: 'Organisation',
       subItems: [
+        { href: '/organisation?tab=team', label: 'Team', indent: true },
         { href: '/organisation/tasks', label: 'Tasks', indent: true },
         { href: '/organisation/referrals', label: 'Referrals', indent: true },
       ],
