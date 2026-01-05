@@ -121,10 +121,10 @@
   margin: 0;
 }
 
-/* Empty State */
+/* Empty State - standardized across all cards */
 .emptyState {
   text-align: center;
-  padding: 3rem 1rem;
+  padding: 48px 16px;
 }
 
 .emptyText {
