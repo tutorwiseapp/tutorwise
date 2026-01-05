@@ -271,6 +271,28 @@
   transform: translateY(-2px);
 }
 
+.applyButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background: var(--color-primary-default, #006c67);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 108, 103, 0.3);
+}
+
+.applyButton:hover {
+  background: var(--color-primary-hover, #005550);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 108, 103, 0.4);
+}
+
 /* Footer Note */
 .footerNote {
   text-align: center;

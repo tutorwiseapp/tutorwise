@@ -21,10 +21,30 @@
  *   onClose={onClose}
  *   title="Connect with Others"
  *   size="md"
- *   footer={<Button>Send Request</Button>}
+ *   footer={
+ *     <div className={styles.footer}>
+ *       <Button variant="secondary">Cancel</Button>
+ *       <Button variant="primary">Submit</Button>
+ *     </div>
+ *   }
  * >
  *   <YourCustomContent />
  * </HubComplexModal>
+ *
+ * IMPORTANT: The footer prop content is automatically wrapped in a styled div that provides:
+ * - Padding: 24px 32px
+ * - Border-top: 1px solid #e5e7eb
+ * - Background: white
+ * Your footer content should ONLY handle button layout (flex, gap, justify-content).
+ * Do NOT add padding, border, or background to your footer content.
+ *
+ * Example footer styles:
+ * .footer {
+ *   display: flex;
+ *   justify-content: flex-end;
+ *   gap: 12px;
+ *   width: 100%;
+ * }
  */
 
 'use client';

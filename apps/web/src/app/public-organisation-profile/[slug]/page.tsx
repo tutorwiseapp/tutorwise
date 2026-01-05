@@ -126,7 +126,7 @@ export default async function PublicOrganisationPage({ params }: PublicOrganisat
   if (user) {
     const { data } = await supabase
       .from('profiles')
-      .select('id')
+      .select('id, full_name, email')
       .eq('id', user.id)
       .single();
     currentUserProfile = data;

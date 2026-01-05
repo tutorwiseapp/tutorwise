@@ -9,6 +9,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { CheckCircle2, Users, TrendingUp, Award, MapPin, ArrowRight } from 'lucide-react';
+import { ApplyButton } from './ApplyButton';
 import styles from './page.module.css';
 
 interface JoinPageProps {
@@ -22,6 +23,21 @@ interface JoinPageProps {
 
 export default async function JoinPage({ params, searchParams }: JoinPageProps) {
   const supabase = await createClient();
+
+  // Get current user with profile
+  const { data: { user } } = await supabase.auth.getUser();
+  let currentUser = null;
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id, full_name, email')
+      .eq('id', user.id)
+      .single();
+
+    if (profile) {
+      currentUser = profile;
+    }
+  }
 
   // Get organisation by slug
   const { data: organisation, error: orgError } = await supabase
@@ -202,6 +218,14 @@ export default async function JoinPage({ params, searchParams }: JoinPageProps) 
               : `Explore tutors from ${organisation.name} and find the perfect match for your needs.`}
           </p>
           <div className={styles.ctaButtons}>
+            <ApplyButton
+              organisation={{
+                id: organisation.id,
+                name: organisation.name,
+                slug: organisation.slug,
+              }}
+              currentUser={currentUser}
+            />
             <Link
               href={`/organisation/${organisation.slug}`}
               className={styles.primaryButton}

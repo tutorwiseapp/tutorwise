@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation';
 import Card from '@/app/components/ui/data-display/Card';
 import Button from '@/app/components/ui/actions/Button';
 import toast from 'react-hot-toast';
+import { JoinTeamModal } from './JoinTeamModal';
 import styles from './GetInTouchCard.module.css';
 
 interface Organisation {
@@ -28,6 +29,8 @@ interface Organisation {
 
 interface Profile {
   id: string;
+  full_name: string;
+  email: string;
 }
 
 interface GetInTouchCardProps {
@@ -39,6 +42,7 @@ interface GetInTouchCardProps {
 export function GetInTouchCard({ organisation, currentUser, isOwner = false }: GetInTouchCardProps) {
   const router = useRouter();
   const [isConnecting, setIsConnecting] = useState(false);
+  const [showJoinTeamModal, setShowJoinTeamModal] = useState(false);
 
   const handleContact = async () => {
     if (!currentUser) {
@@ -108,8 +112,8 @@ export function GetInTouchCard({ organisation, currentUser, isOwner = false }: G
       return;
     }
 
-    // Navigate to referral join page
-    router.push(`/join/${organisation.slug}`);
+    // Open join team modal
+    setShowJoinTeamModal(true);
   };
 
   return (
@@ -157,6 +161,16 @@ export function GetInTouchCard({ organisation, currentUser, isOwner = false }: G
           Join Our Team
         </Button>
       </div>
+
+      {/* Join Team Modal */}
+      {showJoinTeamModal && currentUser && (
+        <JoinTeamModal
+          isOpen={showJoinTeamModal}
+          onClose={() => setShowJoinTeamModal(false)}
+          organisation={organisation}
+          currentUser={currentUser}
+        />
+      )}
     </Card>
   );
 }
