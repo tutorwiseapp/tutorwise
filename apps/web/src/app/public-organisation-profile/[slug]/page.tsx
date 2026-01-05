@@ -249,9 +249,9 @@ export default async function PublicOrganisationPage({ params }: PublicOrganisat
   };
 
   // ===========================================================
-  // STEP 8: Generate JSON-LD structured data
+  // STEP 8: Generate JSON-LD structured data (as object for PublicPageShell)
   // ===========================================================
-  const structuredData = JSON.stringify({
+  const structuredData = {
     "@context": "https://schema.org",
     "@type": "EducationalOrganization",
     "name": organisation.name,
@@ -280,7 +280,7 @@ export default async function PublicOrganisationPage({ params }: PublicOrganisat
     ].filter(Boolean),
     "award": (organisation.caas_score || 0) >= 80 ? "Top 10% Rated Organisation" : undefined,
     "knowsAbout": (organisationStats as any)?.unique_subjects || [],
-  });
+  };
 
   // ===========================================================
   // STEP 9: Render organisation page using PublicPageShell
@@ -291,7 +291,7 @@ export default async function PublicOrganisationPage({ params }: PublicOrganisat
         title: `${organisation.name} | Tutorwise`,
         description: organisation.tagline?.substring(0, 160) || organisation.bio?.substring(0, 160) || `View ${organisation.name} on Tutorwise`,
         canonicalUrl: `https://tutorwise.io/organisation/${organisation.slug}`,
-        structuredData: JSON.parse(structuredData),
+        structuredData: structuredData, // Pass object directly, PublicPageShell handles stringification
         ogImage: organisation.avatar_url,
         isIndexable: (organisation.allow_indexing && (organisation.caas_score || 0) >= 75),
       }}
