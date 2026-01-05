@@ -35,6 +35,7 @@ export default function AppSidebar() {
       subItems: [
         { href: '/organisation?tab=team', label: 'Team', indent: true },
         { href: '/organisation?tab=clients', label: 'Clients', indent: true },
+        { href: '/organisation/recruitments', label: 'Recruitments', indent: true },
         { href: '/organisation?tab=performance', label: 'Performance', indent: true },
         { href: '/organisation?tab=info', label: 'Settings', indent: true },
         { href: '/organisation/tasks', label: 'Tasks', indent: true },
@@ -119,6 +120,11 @@ export default function AppSidebar() {
     // Special case: /organisation/tasks should match /organisation/[id]/tasks
     if (href === '/organisation/tasks') {
       return pathname === '/organisation/tasks' || pathname?.match(/^\/organisation\/[^/]+\/tasks/);
+    }
+
+    // Special case: /organisation/recruitments should match /organisation/[id]/recruitments
+    if (href === '/organisation/recruitments') {
+      return pathname === '/organisation/recruitments' || pathname?.match(/^\/organisation\/[^/]+\/recruitments/);
     }
 
     // For non-query param links, use exact match
