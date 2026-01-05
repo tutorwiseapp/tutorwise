@@ -47,14 +47,18 @@ export function SimilarProfilesCard({ profiles = [] }: SimilarProfilesCardProps)
     router.push(`/public-profile/${profile.id}/${slug}`);
   };
 
-  // Empty state
-  if (!profiles || profiles.length === 0) {
-    return null; // Don't show card if no similar profiles
-  }
-
+  // Always show card, even with empty state
   return (
     <Card className={styles.similarProfilesCard}>
-      <h2 className={styles.cardTitle}>Similar Profiles</h2>
+      <h2 className={styles.cardTitle}>You might also like</h2>
+
+      {/* Empty state */}
+      {(!profiles || profiles.length === 0) ? (
+        <div className={styles.emptyState}>
+          <p className={styles.emptyStateText}>No similar profiles found at the moment.</p>
+          <p className={styles.emptyStateSubtext}>Check back later for recommendations!</p>
+        </div>
+      ) : (
 
       <div className={styles.profilesGrid}>
         {profiles.map((profile) => {
@@ -131,6 +135,7 @@ export function SimilarProfilesCard({ profiles = [] }: SimilarProfilesCardProps)
           );
         })}
       </div>
+      )}
     </Card>
   );
 }

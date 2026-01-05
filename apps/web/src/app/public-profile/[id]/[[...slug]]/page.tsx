@@ -194,14 +194,70 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   }));
 
   // ===========================================================
-  // STEP 7: Fetch similar profiles (same role, city, or subjects)
+  // STEP 7: Fetch similar profiles with smart matching
+  // Priority: Subject match > Location match > Role match
   // ===========================================================
-  const { data: similarProfiles } = await supabase
-    .from('profiles')
-    .select('id, full_name, avatar_url, city, active_role, slug, professional_details, average_rating, total_reviews')
-    .eq('active_role', profile.active_role)
-    .neq('id', profile.id)
-    .limit(6);
+
+  // Extract primary subject from current profile
+  let primarySubject: string | null = null;
+  if (profile.active_role === 'tutor' && profile.professional_details?.tutor?.subjects?.[0]) {
+    primarySubject = profile.professional_details.tutor.subjects[0];
+  } else if (profile.active_role === 'client' && profile.professional_details?.client?.subjects?.[0]) {
+    primarySubject = profile.professional_details.client.subjects[0];
+  }
+
+  let similarProfiles: any[] = [];
+
+  // Tier 1: Subject match - get all profiles and filter client-side for now
+  // (JSONB array querying is complex in Supabase, so we filter in-memory)
+  if (primarySubject) {
+    const { data: allProfiles } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url, city, active_role, slug, professional_details, average_rating, total_reviews')
+      .neq('id', profile.id)
+      .limit(50); // Get more profiles to filter
+
+    if (allProfiles) {
+      const subjectMatches = allProfiles.filter(p => {
+        const tutorSubjects = p.professional_details?.tutor?.subjects || [];
+        const clientSubjects = p.professional_details?.client?.subjects || [];
+        return tutorSubjects.includes(primarySubject) || clientSubjects.includes(primarySubject);
+      }).slice(0, 6);
+
+      similarProfiles = subjectMatches;
+    }
+  }
+
+  // Tier 2: Location + Role match (if we have fewer than 3 profiles)
+  if (similarProfiles.length < 3 && profile.city) {
+    const { data: locationMatches } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url, city, active_role, slug, professional_details, average_rating, total_reviews')
+      .eq('active_role', profile.active_role)
+      .eq('city', profile.city)
+      .neq('id', profile.id)
+      .not('id', 'in', `(${similarProfiles.map(p => p.id).join(',') || 'null'})`)
+      .limit(6 - similarProfiles.length);
+
+    if (locationMatches && locationMatches.length > 0) {
+      similarProfiles = [...similarProfiles, ...locationMatches];
+    }
+  }
+
+  // Tier 3: Same role (fallback)
+  if (similarProfiles.length < 3) {
+    const { data: roleMatches } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url, city, active_role, slug, professional_details, average_rating, total_reviews')
+      .eq('active_role', profile.active_role)
+      .neq('id', profile.id)
+      .not('id', 'in', `(${similarProfiles.map(p => p.id).join(',') || 'null'})`)
+      .limit(6 - similarProfiles.length);
+
+    if (roleMatches && roleMatches.length > 0) {
+      similarProfiles = [...similarProfiles, ...roleMatches];
+    }
+  }
 
   // ===========================================================
   // STEP 8: Calculate real-time statistics

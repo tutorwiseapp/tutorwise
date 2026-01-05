@@ -138,6 +138,32 @@
   color: #6b7280;
 }
 
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5, 40px) var(--space-4, 32px);
+  text-align: center;
+  min-height: 200px;
+}
+
+.emptyStateText {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin: 0 0 8px 0;
+  line-height: 1.5;
+}
+
+.emptyStateSubtext {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin: 0;
+  line-height: 1.5;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .profilesGrid {
