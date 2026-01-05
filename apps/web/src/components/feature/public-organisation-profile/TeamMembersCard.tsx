@@ -87,16 +87,15 @@ export function TeamMembersCard({ members, organisation }: TeamMembersCardProps)
         <h2 className={styles.title}>Our Team</h2>
       </div>
 
-      {/* Content wrapper for padding */}
-      <div className={styles.content}>
-        {members.length === 0 ? (
-          <p className={styles.placeholderText}>
-            No team members yet.
-          </p>
-        ) : (
-          <>
-            {/* Members Grid */}
-            <div className={styles.grid}>
+      {/* Empty state or content wrapper */}
+      {members.length === 0 ? (
+        <p className={styles.placeholderText}>
+          No team members yet.
+        </p>
+      ) : (
+        <div className={styles.content}>
+          {/* Members Grid */}
+          <div className={styles.grid}>
               {displayMembers.map((member) => {
                 const initials = getInitials(member.full_name);
                 const primarySubject = getPrimarySubject(member);
@@ -188,9 +187,8 @@ export function TeamMembersCard({ members, organisation }: TeamMembersCardProps)
                 </button>
               </div>
             )}
-          </>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -41,12 +41,13 @@
   padding: 16px;
 }
 
+/* Empty state - standardized across all cards */
 .placeholderText {
   font-size: 1rem;
   color: #6b7280;
   text-align: center;
   margin: 0;
-  padding: 3rem 1rem;
+  padding: 48px 16px;
 }
 
 /* Filter Section */

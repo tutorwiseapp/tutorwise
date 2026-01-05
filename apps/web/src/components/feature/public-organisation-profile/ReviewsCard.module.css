@@ -198,16 +198,17 @@
   font-weight: 500;
 }
 
-/* Empty State */
+/* Empty State - standardized across all cards */
 .emptyState {
   text-align: center;
-  padding: 3rem 1rem;
+  padding: 48px 16px;
   color: #64748b;
 }
 
 .emptyState p {
   margin: 0;
   font-size: 1rem;
+  color: #6b7280;
 }
 
 /* Load More Section */

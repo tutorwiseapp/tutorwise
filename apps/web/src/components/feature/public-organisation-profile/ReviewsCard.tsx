@@ -84,10 +84,8 @@ export function ReviewsCard({ reviews, organisation }: ReviewsCardProps) {
         <div className={styles.header}>
           <h2 className={styles.title}>Reviews</h2>
         </div>
-        <div className={styles.content}>
-          <div className={styles.emptyState}>
-            <p>No reviews yet. Be the first to leave a review!</p>
-          </div>
+        <div className={styles.emptyState}>
+          <p>No reviews yet. Be the first to leave a review!</p>
         </div>
       </div>
     );
