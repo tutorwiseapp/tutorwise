@@ -13,7 +13,7 @@
 
 .banner {
   background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-  border-radius: var(--radius-lg, 12px);
+  border-radius: 8px;
   padding: var(--space-5, 40px); /* Reduced from 48px */
   display: grid;
   grid-template-columns: auto 1fr auto;

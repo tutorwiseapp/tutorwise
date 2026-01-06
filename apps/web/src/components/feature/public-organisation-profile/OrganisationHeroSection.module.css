@@ -7,7 +7,7 @@
   gap: var(--space-3, 24px); /* Match ProfileHeroSection grid gap */
   padding: var(--space-5, 40px); /* Match ProfileHeroSection */
   background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); /* Match ProfileHeroSection gray gradient */
-  border-radius: var(--radius-lg, 12px);
+  border-radius: 8px;
   margin-bottom: var(--space-4, 32px);
   position: relative;
   align-items: start;

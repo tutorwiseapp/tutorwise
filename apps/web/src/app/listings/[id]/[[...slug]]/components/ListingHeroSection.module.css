@@ -14,7 +14,7 @@
 
 .banner {
   background: #e6f0f0; /* Light teal matching card headers */
-  border-radius: var(--radius-lg, 12px);
+  border-radius: 8px;
   padding: var(--space-5, 40px);
   display: grid;
   grid-template-columns: auto 1fr auto;

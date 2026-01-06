@@ -1,10 +1,11 @@
-/* PayoutExportCard.module.css */
+/* PayoutExportCard.module.css - Updated to match app standard */
 
 .card {
   background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 /* Header */
@@ -12,26 +13,24 @@
   display: flex;
   align-items: flex-start;
   gap: 1rem;
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 2px solid #f1f5f9;
+  margin-bottom: 1.5rem;
 }
 
 .headerIcon {
-  color: #667eea;
+  color: var(--color-primary-default, #006c67);
   margin-top: 0.25rem;
 }
 
 .title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1e293b;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
   margin: 0 0 0.5rem 0;
 }
 
 .subtitle {
-  font-size: 0.9375rem;
-  color: #64748b;
+  font-size: 0.875rem;
+  color: #6b7280;
   margin: 0;
   line-height: 1.5;
 }
@@ -44,7 +43,7 @@
   padding: 1rem 1.25rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-weight: 500;
   background: rgba(16, 185, 129, 0.1);
   color: #10b981;
@@ -55,7 +54,7 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .formRow {
@@ -68,31 +67,41 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  color: #1e293b;
+  color: #1f2937;
 }
 
 .select,
 .input {
-  padding: 0.75rem 1rem;
-  border: 1px solid #e2e8f0;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid #d1d5db;
   border-radius: 8px;
-  font-size: 0.9375rem;
-  color: #1e293b;
-  background: white;
+  font-size: 0.875rem;
+  color: #1f2937;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
   transition: all 0.2s;
+  width: 100%;
+}
+
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.75rem center !important;
+  background-size: 1rem !important;
+  padding-right: 2.5rem;
+  cursor: pointer;
 }
 
 .select:focus,
 .input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.select {
-  cursor: pointer;
+  border-color: var(--color-primary-default, #006c67);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
 }
 
 /* Date Range */
@@ -101,9 +110,9 @@
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
   padding: 1rem;
-  background: #f8fafc;
+  background: #f9fafb;
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e5e7eb;
 }
 
 /* Format Toggle */
@@ -116,23 +125,23 @@
   flex: 1;
   padding: 0.75rem 1.5rem;
   background: white;
-  border: 2px solid #e2e8f0;
+  border: 1px solid #d1d5db;
   border-radius: 8px;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  color: #475569;
+  color: #4b5563;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .formatButton:hover {
-  border-color: #cbd5e1;
-  background: #f8fafc;
+  border-color: #9ca3af;
+  background: #f9fafb;
 }
 
 .formatButton.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-color: #667eea;
+  background: var(--color-primary-default, #006c67);
+  border-color: var(--color-primary-default, #006c67);
   color: white;
 }
 
@@ -142,8 +151,8 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  padding: 0.75rem 1.5rem;
+  background: var(--color-primary-default, #006c67);
   color: white;
   border: none;
   border-radius: 8px;
@@ -155,8 +164,7 @@
 }
 
 .exportButton:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  background: var(--color-primary-dark, #005550);
 }
 
 .exportButton:disabled {
@@ -164,16 +172,14 @@
   cursor: not-allowed;
 }
 
-/* Info Section */
+/* Info Section - Removed border-top divider to reduce visual clutter */
 .info {
   margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e2e8f0;
 }
 
 .infoText {
   font-size: 0.8125rem;
-  color: #64748b;
+  color: #6b7280;
   line-height: 1.5;
   margin: 0 0 0.5rem 0;
 }
@@ -185,7 +191,7 @@
 /* Responsive */
 @media (max-width: 768px) {
   .card {
-    padding: 1.5rem 1.25rem;
+    padding: 1rem;
   }
 
   .header {

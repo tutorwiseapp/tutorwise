@@ -46,51 +46,60 @@
 .card {
   background: #ffffff;
   border: 1px solid #e5e7eb;
-  border-radius: 7px;
-  padding: 14px;
+  border-radius: 8px;
+  padding: 12px;
   cursor: grab;
   transition: all 0.2s;
-  touch-action: none; /* Prevent default touch actions during drag */
+  touch-action: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .card:hover {
   border-color: #006c67;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .card:active {
   cursor: grabbing;
 }
 
+/* Row 1: Name (2 lines max with truncation) */
 .cardName {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   color: #111827;
-  margin-bottom: 4px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
 }
 
+/* Row 2: Email */
 .cardEmail {
-  font-size: 13px;
+  font-size: 12px;
   color: #6b7280;
-  margin-bottom: 12px;
+  margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+/* Row 3: Date and Value */
 .cardMeta {
   display: flex;
   justify-content: space-between;
-  padding: 8px 10px;
-  background: #f9fafb;
-  border-radius: 5px;
-  margin-bottom: 10px;
+  align-items: center;
+  margin: 0;
 }
 
 .cardDate {
-  font-size: 14px;
-  font-weight: 400;
+  font-size: 12px;
+  font-weight: 500;
   color: #6b7280;
   text-transform: uppercase;
 }
@@ -101,10 +110,13 @@
   color: #059669;
 }
 
+/* Row 4: Footer with Referrer */
 .cardReferrer {
-  font-size: 13px; /* Match cardEmail font size */
-  color: #6b7280; /* Match cardEmail color */
-  padding-top: 10px;
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0;
+  margin-top: 4px;
+  padding-top: 8px;
   border-top: 1px solid #f3f4f6;
 }
 
@@ -113,17 +125,18 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 40px 16px;
+  gap: 0.75rem;
+  padding: 2.5rem 1rem;
   text-align: center;
-  color: #9ca3af;
+  color: #6b7280;
 }
 
 .empty svg {
-  color: #e5e7eb;
+  color: #d1d5db;
 }
 
 .empty p {
   margin: 0;
-  font-size: 13px;
+  font-size: 0.875rem;
+  color: #6b7280;
 }

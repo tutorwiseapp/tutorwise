@@ -331,7 +331,7 @@ export function OrganisationReferralDetailModal({
       isOpen={isOpen}
       onClose={onClose}
       title="Referral Details"
-      subtitle={referral.profile?.full_name || 'Referral Details'}
+      subtitle={formatIdForDisplay(referral.id)}
       size="xl"
       sections={sections}
       actions={

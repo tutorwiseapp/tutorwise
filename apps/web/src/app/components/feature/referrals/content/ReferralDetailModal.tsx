@@ -12,6 +12,7 @@ import { Referral } from '@/types';
 import { HubDetailModal } from '@/app/components/hub/modal';
 import type { DetailSection } from '@/app/components/hub/modal';
 import Button from '@/app/components/ui/actions/Button';
+import { formatIdForDisplay } from '@/lib/utils/formatId';
 
 interface ReferralDetailModalProps {
   isOpen: boolean;
@@ -64,8 +65,8 @@ export default function ReferralDetailModal({
     }
   };
 
-  // Build subtitle
-  const subtitle = referral.referred_user?.full_name || 'Anonymous Referral Lead';
+  // Build subtitle - use formatted ID to match task modal
+  const subtitle = formatIdForDisplay(referral.id);
 
   // Build sections
   const sections: DetailSection[] = [

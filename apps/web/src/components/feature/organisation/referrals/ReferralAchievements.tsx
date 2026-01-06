@@ -9,6 +9,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { Award, TrendingUp, Trophy, Star, Flame } from 'lucide-react';
+import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import styles from './ReferralAchievements.module.css';
 
 interface Achievement {
@@ -314,10 +315,11 @@ export function ReferralAchievements({
       </div>
 
       {filteredAchievements.length === 0 && (
-        <div className={styles.empty}>
-          <Award size={48} />
-          <p>No achievements in this category yet</p>
-        </div>
+        <HubEmptyState
+          icon={<Award size={48} />}
+          title="No achievements found"
+          description={`No achievements in the ${filter === 'all' ? 'all' : filter} category yet. Keep making referrals to unlock badges!`}
+        />
       )}
     </div>
   );
