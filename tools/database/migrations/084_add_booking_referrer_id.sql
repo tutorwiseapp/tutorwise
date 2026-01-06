@@ -16,7 +16,7 @@ ADD COLUMN IF NOT EXISTS booking_referrer_id UUID REFERENCES public.profiles(id)
 
 COMMENT ON COLUMN public.bookings.booking_referrer_id IS
 'v5.7: Tracks if this booking was initiated from a shared Wiselist (e.g., /w/[slug]).
-Used for in-network sales attribution and commission payouts (v4.9 Payments System).';
+Used for analytics tracking to measure which wiselists drive bookings. For analytics/reporting only.';
 
 -- Create index for efficient lookups
 CREATE INDEX IF NOT EXISTS idx_bookings_referrer_id

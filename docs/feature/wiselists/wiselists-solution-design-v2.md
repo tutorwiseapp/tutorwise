@@ -26,14 +26,14 @@
 
 ## Executive Summary
 
-**Wiselists** is TutorWise's "Save & Share" growth engine - an **Airbnb-style collections feature** that transforms passive browsing into active viral loops. Users create curated lists of tutors and listings, then share them publicly to earn referral credits and commissions.
+**Wiselists** is TutorWise's "Save & Share" growth engine - an **Airbnb-style collections feature** that transforms passive browsing into active viral loops. Users create curated lists of tutors and listings, then share them publicly. Attribution tracking measures wiselist impact on bookings.
 
 ### Business Impact
 
 | Metric | Target | Impact |
 |--------|--------|--------|
 | **Viral Coefficient** | 1.2x | Each shared wiselist brings 1.2 new users |
-| **Referral Revenue** | 15% of GMV | Commission from bookings via shared lists |
+| **Attribution Tracking** | Analytics | Measure which wiselists drive bookings |
 | **Search Quality** | +20% CTR | "Total Saves" boosts tutor ranking (CaaS integration) |
 | **User Retention** | +30% | List creators return to update/share collections |
 
@@ -44,10 +44,10 @@
 - Friend must sign up to view full list → Referral credit to creator
 - **Growth mechanic**: Social proof + FOMO (hidden items until signup)
 
-**Loop 2: In-Network Sales** (Commission Attribution)
+**Loop 2: In-Network Sales** (Attribution Tracking)
 - User shares wiselist → Viewer books tutor from list
-- System tracks `booking_referrer_id` → Creator earns 5% commission
-- **Growth mechanic**: Financial incentive to curate quality lists
+- System tracks `booking_referrer_id` → Attribution recorded for analytics
+- **Growth mechanic**: Data insights to understand wiselist impact
 
 **Loop 3: CaaS Data** (Search Ranking Boost)
 - User saves tutor to wiselist → Increments `total_saves` on profile
@@ -153,13 +153,13 @@
 
 ---
 
-### Loop 2: In-Network Sales (Commission Engine)
+### Loop 2: In-Network Sales (Attribution Tracking)
 
 **How It Works**:
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│ Loop 2: In-Network Sales - Booking Attribution & Commission          │
+│ Loop 2: In-Network Sales - Booking Attribution Tracking              │
 ├──────────────────────────────────────────────────────────────────────┤
 │                                                                       │
 │  Step 1: Viewer Books Tutor from Wiselist                            │
@@ -175,30 +175,31 @@
 │  │   booking_id: uuid-abc123                                  │     │
 │  │   tutor_id: tutor-xyz                                      │     │
 │  │   client_id: client-123                                    │     │
-│  │   booking_referrer_id: wiselist-456  ← CRITICAL FIELD      │     │
+│  │   booking_referrer_id: wiselist-456  ← ANALYTICS TRACKING  │     │
 │  │   total_amount: £400                                       │     │
 │  │ → Booking referrer links back to wiselist                  │     │
 │  │ → Can trace creator_id from wiselist table                 │     │
 │  └────────────────────────────────────────────────────────────┘     │
 │                                                                       │
-│  Step 3: Commission Payout                                           │
+│  Step 3: Analytics & Reporting                                       │
 │  ┌────────────────────────────────────────────────────────────┐     │
-│  │ After session completes (7 days later):                    │     │
-│  │ • Platform fee: £400 × 15% = £60                           │     │
-│  │ • Creator commission: £60 × 33% = £20                      │     │
-│  │ → Creator earns £20 for curating quality list              │     │
-│  │ → Payout via Stripe Connect after 30-day dispute window    │     │
+│  │ Data tracked for analytics:                                │     │
+│  │ • Which wiselists drive the most bookings                  │     │
+│  │ • Conversion rates per wiselist                            │     │
+│  │ • Total booking value attributed to wiselists              │     │
+│  │ → Used for reporting and product insights                  │     │
+│  │ → No commission payments to creators                       │     │
 │  └────────────────────────────────────────────────────────────┘     │
 │                                                                       │
-│  Growth Mechanic: Financial incentive to curate & share lists        │
-│  Revenue Impact: 15% of GMV now attributable to wiselist referrers   │
+│  Growth Mechanic: Data insights to measure wiselist impact           │
+│  Analytics Value: Track attribution for product & business decisions │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
 **Key Design Decisions**:
 
-- **Why 5% commission?**: High enough to motivate sharing, low enough to maintain margin
-- **Why 7-day delay?**: Ensures session completed before payout (anti-fraud)
+- **Why track attribution?**: Understand which wiselists drive platform value
+- **Why booking_referrer_id?**: Enables analytics queries without affecting payment logic
 - **Why cookie tracking?**: Persists attribution even if user browses other pages before booking
 
 ---

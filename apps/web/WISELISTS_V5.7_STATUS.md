@@ -257,10 +257,10 @@ v4.9 commission payouts use referrer
 - Metadata includes wiselist context
 - Enables collaboration network tracking
 
-### v4.9 Payments System ✅
-- `booking_referrer_id` enables commission payouts
-- Wiselist owners get credit for referred bookings
-- Attribution tracked through entire booking lifecycle
+### v4.9 Payments System ⚠️ (Analytics Only)
+- `booking_referrer_id` enables attribution tracking
+- Analytics show which wiselists drive bookings
+- **No commission calculation** - tracking for analytics/reporting purposes only
 
 ---
 
@@ -334,9 +334,9 @@ v4.9 commission payouts use referrer
    - TODO: When user signs up via invite token, auto-add as collaborator
    - TODO: Mark invitation as accepted
 
-3. **Commission Calculation** - v4.9 payout logic needs wiselist referrer support
-   - TODO: Update commission RPC to include wiselist referrer payouts
-   - TODO: Define commission % for wiselist referrers
+3. **Commission Calculation** - NOT IMPLEMENTED (Decision: Will not be built)
+   - Wiselist commission feature has been removed from roadmap
+   - Attribution tracking remains for analytics purposes only
 
 4. **Wiselist Analytics** - track views, clicks, conversions
    - TODO: Add analytics events
