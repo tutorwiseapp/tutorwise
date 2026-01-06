@@ -157,7 +157,7 @@ export default function OrganisationPage() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Fetch clients (only when Clients tab is active)
+  // Fetch clients (always load like Team tab for instant display)
   // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: clients = [],
@@ -166,12 +166,12 @@ export default function OrganisationPage() {
   } = useQuery({
     queryKey: ['organisation-clients', organisation?.id],
     queryFn: () => getOrganisationClients(organisation!.id),
-    enabled: !!organisation && activeTab === 'clients',
+    enabled: !!organisation,
     placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000,
   });
 
-  // Fetch recruitments (only when Recruitments tab is active)
+  // Fetch recruitments (always load like Team tab for instant display)
   // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: recruitments = [],
@@ -180,7 +180,7 @@ export default function OrganisationPage() {
   } = useQuery({
     queryKey: ['organisation-recruitments', organisation?.id],
     queryFn: () => getOrganisationRecruitments(organisation!.id),
-    enabled: !!organisation && activeTab === 'recruitments',
+    enabled: !!organisation,
     placeholderData: keepPreviousData,
     staleTime: 2 * 60 * 1000,
   });

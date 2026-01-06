@@ -1,16 +1,17 @@
-/* ReferralAchievements.module.css */
+/* ReferralAchievements.module.css - Updated to match app standard */
 
 .card {
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .loading {
   text-align: center;
   padding: 3rem 2rem;
-  color: #64748b;
+  color: #6b7280;
 }
 
 /* Header */
@@ -18,20 +19,20 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   gap: 2rem;
 }
 
 .title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1e293b;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
   margin: 0 0 0.5rem 0;
 }
 
 .subtitle {
-  font-size: 0.9375rem;
-  color: #64748b;
+  font-size: 0.875rem;
+  color: #6b7280;
   margin: 0;
 }
 
@@ -46,13 +47,13 @@
   align-items: center;
   gap: 0.75rem;
   padding: 1rem 1.25rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
 }
 
 .statIcon {
-  color: #667eea;
+  color: var(--color-primary-default, #006c67);
 }
 
 .statContent {
@@ -64,21 +65,21 @@
 .statValue {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1e293b;
+  color: #1f2937;
 }
 
 .statLabel {
   font-size: 0.75rem;
-  color: #64748b;
+  color: #6b7280;
   font-weight: 500;
 }
 
 /* Streak Card */
 .streakCard {
-  background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
-  border-radius: 12px;
+  background: #fbbf24;
+  border-radius: 8px;
   padding: 1.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   color: white;
 }
 
@@ -90,22 +91,11 @@
 }
 
 .streakFlame {
-  animation: flicker 1.5s ease-in-out infinite alternate;
-}
-
-@keyframes flicker {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.9;
-  }
+  /* Removed animation to reduce visual complexity */
 }
 
 .streakTitle {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
 }
 
@@ -129,41 +119,39 @@
   transition: width 0.5s ease;
 }
 
-/* Filters */
+/* Filters - Removed border-bottom divider to reduce visual clutter */
 .filters {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
-  border-bottom: 2px solid #f1f5f9;
 }
 
 .filterButton {
   padding: 0.75rem 1.5rem;
   background: none;
   border: none;
-  border-bottom: 3px solid transparent;
-  font-size: 0.9375rem;
+  border-bottom: 2px solid transparent;
+  font-size: 0.875rem;
   font-weight: 600;
-  color: #64748b;
+  color: #6b7280;
   cursor: pointer;
   transition: all 0.2s;
-  margin-bottom: -2px;
 }
 
 .filterButton:hover {
-  color: #475569;
+  color: #4b5563;
 }
 
 .filterButton.active {
-  color: #667eea;
-  border-bottom-color: #667eea;
+  color: var(--color-primary-default, #006c67);
+  border-bottom-color: var(--color-primary-default, #006c67);
 }
 
 /* Achievements Grid */
 .achievementsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .achievementCard {
@@ -172,20 +160,19 @@
   align-items: center;
   text-align: center;
   padding: 1.5rem;
-  border-radius: 12px;
-  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
   background: white;
-  transition: all 0.3s;
+  transition: all 0.2s;
 }
 
 .achievementCard.earned {
-  border-color: transparent;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+  border-color: var(--color-primary-default, #006c67);
+  box-shadow: 0 4px 12px rgba(0, 108, 103, 0.08);
 }
 
 .achievementCard.earned:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 108, 103, 0.12);
 }
 
 .achievementCard.locked {
@@ -205,18 +192,11 @@
   height: 80px;
   border-radius: 50%;
   margin-bottom: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s;
 }
 
-.achievementCard.earned .badge {
-  animation: bounce 0.6s ease-in-out;
-}
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
+/* Removed bounce animation to reduce visual complexity */
 
 .badgeIcon {
   font-size: 2.5rem;
@@ -232,14 +212,14 @@
 }
 
 .achievementName {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: #1e293b;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
 }
 
 .achievementDescription {
   font-size: 0.875rem;
-  color: #64748b;
+  color: #6b7280;
   line-height: 1.5;
 }
 
@@ -250,7 +230,7 @@
   gap: 1rem;
   margin-top: 0.5rem;
   padding-top: 0.75rem;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid #f3f4f6;
 }
 
 .tier {
@@ -277,31 +257,9 @@
 
 .requirement {
   font-size: 0.8125rem;
-  color: #64748b;
+  color: #6b7280;
   font-style: italic;
   margin-top: 0.5rem;
-}
-
-/* Empty State */
-.empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  padding: 4rem 2rem;
-  text-align: center;
-  color: #cbd5e1;
-}
-
-.empty svg {
-  color: #cbd5e1;
-}
-
-.empty p {
-  margin: 0;
-  font-size: 1rem;
-  color: #94a3b8;
 }
 
 /* Responsive */
@@ -323,11 +281,11 @@
 
 @media (max-width: 768px) {
   .card {
-    padding: 1.5rem;
+    padding: 1rem;
   }
 
   .title {
-    font-size: 1.25rem;
+    font-size: 1rem;
   }
 
   .stats {
@@ -343,7 +301,7 @@
   }
 
   .streakTitle {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
   }
 
   .achievementsGrid {

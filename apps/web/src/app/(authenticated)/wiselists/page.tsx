@@ -75,7 +75,7 @@ export default function WiselistsPage() {
     return wiselists.find((w: any) => w.is_owner === true && w.name === 'My Saves');
   }, [wiselists]);
 
-  // Fetch My Saves items
+  // Fetch My Saves items (always load for instant display when switching tabs)
   // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: mySavesData,
@@ -84,7 +84,7 @@ export default function WiselistsPage() {
   } = useQuery({
     queryKey: ['wiselist', mySavesWiselist?.id],
     queryFn: () => getWiselist(mySavesWiselist!.id),
-    enabled: !!mySavesWiselist?.id && activeTab === 'my-saves',
+    enabled: !!mySavesWiselist?.id,
     placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
