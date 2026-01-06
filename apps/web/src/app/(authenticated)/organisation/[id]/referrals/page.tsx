@@ -20,6 +20,7 @@ import { ReferralAnalyticsDashboard } from '@/components/feature/organisation/re
 import { ReferralAchievements } from '@/components/feature/organisation/referrals/ReferralAchievements';
 import { MonthlyChallenges } from '@/components/feature/organisation/referrals/MonthlyChallenges';
 import { OrganisationReferralDetailModal } from '@/components/feature/organisation/referrals/OrganisationReferralDetailModal';
+import { CreateReferralModal } from '@/components/feature/organisation/referrals/CreateReferralModal';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
@@ -57,6 +58,8 @@ export default function OrganisationReferralsPage({
   });
   const [selectedReferralId, setSelectedReferralId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [pipelineKey, setPipelineKey] = useState(0);
 
   // Fetch organisation details
   const {
@@ -140,6 +143,12 @@ export default function OrganisationReferralsPage({
   const handleReferralUpdate = () => {
     // Invalidate relevant queries to refresh data
     queryClient.invalidateQueries({ queryKey: ['referral-config', params.id] });
+  };
+
+  const handleReferralCreate = () => {
+    // Trigger pipeline reload
+    setPipelineKey(prev => prev + 1);
+    handleReferralUpdate();
   };
 
   const handleEnableProgram = async () => {
@@ -331,11 +340,20 @@ export default function OrganisationReferralsPage({
               filterValues={filterValues}
               onFilterChange={(key, value) => setFilterValues({ ...filterValues, [key]: value })}
               onExport={handleExportCSV}
+              toolbarActions={
+                <button
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className={styles.addReferralButton}
+                >
+                  + Add Referral
+                </button>
+              }
               variant="minimal"
             />
 
             {/* Kanban Board */}
             <ReferralPipeline
+              key={pipelineKey}
               organisationId={params.id}
               dateFilter={filterValues.dateRange as DateFilterType}
               searchQuery={searchQuery}
@@ -501,6 +519,14 @@ export default function OrganisationReferralsPage({
           onUpdate={handleReferralUpdate}
         />
       )}
+
+      {/* Create Referral Modal */}
+      <CreateReferralModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        organisationId={params.id}
+        onCreate={handleReferralCreate}
+      />
     </HubPageLayout>
   );
 }

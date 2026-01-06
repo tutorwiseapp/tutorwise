@@ -1,0 +1,142 @@
+/**
+ * CreateReferralModal.module.css
+ * Styles for create referral modal (using HubComplexModal)
+ * Created: 2026-01-06
+ */
+
+.form {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.helpText {
+  padding: 12px 16px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #1e40af;
+  line-height: 1.5;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.required {
+  color: #ef4444;
+}
+
+.input,
+.textarea,
+.select {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #111827;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  transition: all 0.2s;
+  font-family: inherit;
+  width: 100%;
+}
+
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 8px center !important;
+  background-size: 16px !important;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+  outline: none;
+  border-color: #006c67;
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
+}
+
+.input:disabled,
+.textarea:disabled,
+.select:disabled {
+  background: #f3f4f6 !important;
+  cursor: not-allowed;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.cancelButton,
+.createButton {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.cancelButton {
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+
+.createButton {
+  background: #006c67;
+  color: #ffffff;
+}
+
+.createButton:hover:not(:disabled) {
+  background: #005550;
+}
+
+.cancelButton:disabled,
+.createButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}

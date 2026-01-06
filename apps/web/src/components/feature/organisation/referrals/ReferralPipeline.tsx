@@ -136,7 +136,6 @@ export function ReferralPipeline({
 
   useEffect(() => {
     loadPipeline();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organisationId]);
 
   // Apply date filter and search to referrals
