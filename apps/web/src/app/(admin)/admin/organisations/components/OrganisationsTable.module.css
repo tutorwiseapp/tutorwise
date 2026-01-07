@@ -168,6 +168,16 @@
   background-color: #f9fafb;
 }
 
+.menuItem:disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.menuItem:disabled:hover {
+  background-color: transparent;
+}
+
 /* Advanced Filters Button */
 .filtersButton {
   position: relative;
@@ -350,4 +360,105 @@
 
 .linkButton:hover {
   color: #005a56;
+}
+
+/* Trial Status Cell */
+.trialStatusCell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.statusActive {
+  background-color: #10b981;
+}
+
+.statusExpired {
+  background-color: #ef4444;
+}
+
+.trialDays {
+  font-size: 0.875rem;
+  color: #374151;
+  font-weight: 500;
+}
+
+.trialExpired {
+  font-size: 0.875rem;
+  color: #ef4444;
+  font-weight: 500;
+}
+
+/* Status Text - Plain text status (no badge) */
+.statusText {
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+/* Status Badge - Lesson #7: Rounded badges (kept for detail modal if needed) */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.statusTrialing {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.statusActive {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.statusCanceled {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.statusPastDue {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.statusUnpaid {
+  background-color: #fecaca;
+  color: #7f1d1d;
+}
+
+.statusNone {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Billing Cell */
+.billingCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.billingAction {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.billingRenews {
+  color: #059669;
+}
+
+.billingCancels {
+  color: #dc2626;
 }

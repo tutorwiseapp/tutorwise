@@ -36,6 +36,7 @@ export default function AppSidebar() {
         { href: '/organisation?tab=team', label: 'Team', indent: true },
         { href: '/organisation/tasks', label: 'Tasks', indent: true },
         { href: '/organisation/referrals', label: 'Referrals', indent: true },
+        { href: '/organisation/settings', label: 'Settings', indent: true },
       ],
     },
     { href: '/listings', label: 'Listings' },
@@ -116,6 +117,11 @@ export default function AppSidebar() {
     // Special case: /organisation/tasks should match /organisation/[id]/tasks
     if (href === '/organisation/tasks') {
       return pathname === '/organisation/tasks' || pathname?.match(/^\/organisation\/[^/]+\/tasks/);
+    }
+
+    // Special case: /organisation/settings should match /organisation/settings/*
+    if (href === '/organisation/settings') {
+      return pathname?.startsWith('/organisation/settings');
     }
 
     // For non-query param links, use exact match

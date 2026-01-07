@@ -21,6 +21,7 @@ export interface Organisation {
   is_favorite: boolean;
   member_count: number;
   settings: Record<string, any>;
+  timezone?: string | null; // v8.1: Organisation timezone setting
   // Contact fields
   contact_name?: string | null;
   contact_email?: string | null;

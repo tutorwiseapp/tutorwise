@@ -232,11 +232,16 @@ export async function middleware(request: NextRequest) {
     // Admin dashboard access control
     if (pathname.startsWith('/admin')) {
       try {
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('is_admin, admin_role')
           .eq('id', user.id)
           .single()
+
+        if (profileError) {
+          console.error('Middleware: Error fetching profile:', profileError)
+          return NextResponse.redirect(new URL('/dashboard?error=unauthorized', request.url))
+        }
 
         // Check if user has admin access
         if (!profile?.is_admin) {

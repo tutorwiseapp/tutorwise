@@ -213,6 +213,7 @@ export default function PaymentSettingsPage() {
       platform: '/admin/settings',
       email: '/admin/settings/email',
       payments: '/admin/settings/payments',
+      subscriptions: '/admin/settings/subscriptions',
       security: '/admin/settings/security',
       integrations: '/admin/settings/integrations',
     };
@@ -235,6 +236,7 @@ export default function PaymentSettingsPage() {
             { id: 'platform', label: 'Platform', active: false },
             { id: 'email', label: 'Email', active: false },
             { id: 'payments', label: 'Payments', active: true },
+            { id: 'subscriptions', label: 'Subscriptions', active: false },
             { id: 'security', label: 'Security', active: false },
             { id: 'integrations', label: 'Integrations', active: false },
           ]}
@@ -363,7 +365,7 @@ export default function PaymentSettingsPage() {
               <HubForm.Field label="Live Publishable Key">
                 <input
                   type="text"
-                  value={formData.stripeLivePublishableKey}
+                  value={formData.stripeLivePublishableKey === 'tbc' || !formData.stripeLivePublishableKey ? 'Not set in .env.local' : formData.stripeLivePublishableKey}
                   onChange={(e) => handleChange('stripeLivePublishableKey', e.target.value)}
                   disabled={!canEditStripeKeys}
                   placeholder="pk_live_..."
@@ -373,7 +375,7 @@ export default function PaymentSettingsPage() {
               <HubForm.Field label="Live Secret Key">
                 <input
                   type="text"
-                  value={formData.stripeLiveSecretKey}
+                  value={formData.stripeLiveSecretKey === 'tbc' || !formData.stripeLiveSecretKey ? 'Not set in .env.local' : formData.stripeLiveSecretKey}
                   onChange={(e) => handleChange('stripeLiveSecretKey', e.target.value)}
                   disabled={!canEditStripeKeys}
                   placeholder="sk_live_..."

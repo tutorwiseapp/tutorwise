@@ -1,0 +1,72 @@
+/**
+ * Filename: SettingsTabs.module.css
+ * Purpose: Styles for Settings tabs - Matches HubTabs design
+ * Created: 2026-01-07
+ */
+
+/* Outer container - Border extends full width */
+.tabsContainer {
+  position: relative;
+  border-bottom: 2px solid #e5e7eb;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+/* Inner wrapper - Contains tab buttons with padding */
+.tabs {
+  display: flex;
+  gap: 1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  position: relative;
+}
+
+.tab {
+  padding: 0.75rem 0.5rem;
+  background: none;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4b4b4b;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  position: relative;
+  z-index: 1;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.tab:hover {
+  color: #006c67;
+  background-color: #e6f0f0;
+  border-radius: 0.375rem 0.375rem 0 0;
+}
+
+.tabActive {
+  color: #006c67;
+  border-bottom-color: #006c67;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tabsContainer {
+    margin-bottom: 1.5rem;
+  }
+
+  .tabs {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .tabs {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}

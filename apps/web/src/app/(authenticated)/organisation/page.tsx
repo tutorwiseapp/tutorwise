@@ -40,6 +40,7 @@ import {
   dismissReminderForToday,
   getReminderMessage,
 } from '@/lib/stripe/organisation-trial-status';
+import { FEATURES } from '@/config/organisation-features';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import OrganisationStatsWidget from '@/app/components/feature/organisation/sidebar/OrganisationStatsWidget';
 import OrganisationHelpWidget from '@/app/components/feature/organisation/sidebar/OrganisationHelpWidget';
@@ -537,6 +538,79 @@ export default function OrganisationPage() {
     toast.success('Your data has been exported successfully.');
   };
 
+  // Handle Manage Subscription - Opens Stripe Customer Portal
+  const handleManageSubscription = async () => {
+    if (!organisation) {
+      toast.error('Organisation not found');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/stripe/customer-portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ organisationId: organisation.id }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create customer portal session');
+      }
+
+      const { url } = await response.json();
+      window.location.href = url;
+    } catch (error) {
+      console.error('Error opening customer portal:', error);
+      toast.error('Failed to open subscription management. Please try again.');
+    }
+  };
+
+  // Handle Update Payment Method - Opens Stripe Customer Portal (payment method page)
+  const handleUpdatePayment = async () => {
+    if (!organisation) {
+      toast.error('Organisation not found');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/stripe/customer-portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          organisationId: organisation.id,
+          returnUrl: window.location.href,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create customer portal session');
+      }
+
+      const { url } = await response.json();
+      window.location.href = url;
+    } catch (error) {
+      console.error('Error opening payment update:', error);
+      toast.error('Failed to open payment method update. Please try again.');
+    }
+  };
+
+  // Handle Cancel Subscription - Show confirmation dialog
+  const handleCancelSubscription = () => {
+    if (!organisation || !subscription) {
+      toast.error('No active subscription to cancel');
+      return;
+    }
+
+    const confirmed = confirm(
+      'Are you sure you want to cancel your subscription?\n\n' +
+      'Your subscription will remain active until the end of the current billing period, ' +
+      'then you will lose access to premium features.'
+    );
+
+    if (confirmed) {
+      handleManageSubscription(); // Redirect to Stripe portal where they can cancel
+    }
+  };
+
   // Loading state
   if (profileLoading || orgLoading) {
     return (
@@ -549,7 +623,13 @@ export default function OrganisationPage() {
               totalClients={0}
               monthlyRevenue={0}
             />
-            <OrganisationHelpWidget onSubscribeClick={handleStartTrial} />
+            <OrganisationHelpWidget
+              onSubscribeClick={handleStartTrial}
+              subscription={subscription || null}
+              onManageSubscription={handleManageSubscription}
+              onUpdatePayment={handleUpdatePayment}
+              onCancelSubscription={handleCancelSubscription}
+            />
             <OrganisationTipWidget />
             <OrganisationVideoWidget />
           </HubSidebar>
@@ -572,7 +652,13 @@ export default function OrganisationPage() {
               totalClients={0}
               monthlyRevenue={0}
             />
-            <OrganisationHelpWidget onSubscribeClick={handleStartTrial} />
+            <OrganisationHelpWidget
+              onSubscribeClick={handleStartTrial}
+              subscription={subscription || null}
+              onManageSubscription={handleManageSubscription}
+              onUpdatePayment={handleUpdatePayment}
+              onCancelSubscription={handleCancelSubscription}
+            />
             <OrganisationTipWidget />
             <OrganisationVideoWidget />
           </HubSidebar>
@@ -587,15 +673,13 @@ export default function OrganisationPage() {
     );
   }
 
-  // v7.0: Subscription check - Block access if no active subscription
-  // v8.0: Smart Trial Reminder System - Show popup based on trial status
+  // v9.0: HARD PAYWALL - Block access if no active subscription
+  // Always show subscription required screen when not premium (ignore dismissal)
   if (organisation && !subscriptionLoading && !isPremium(subscription || null)) {
-    // Check if we should show the popup based on trial status
-    const shouldShow = shouldShowPopup(organisation.id, subscription || null);
     const trialStatus = getTrialStatus(subscription || null);
 
-    // Only render if popup should be shown OR if modal state is true
-    if (shouldShow && showSubscriptionModal) {
+    // HARD PAYWALL: Always block access if feature flag enabled
+    if (FEATURES.SUBSCRIPTION_PAYWALL.enabled) {
       return (
         <HubPageLayout
           header={<HubHeader title="Organisation" />}
@@ -606,7 +690,10 @@ export default function OrganisationPage() {
                 totalClients={stats?.total_clients || 0}
                 monthlyRevenue={stats?.monthly_revenue || 0}
               />
-              <OrganisationHelpWidget onSubscribeClick={handleStartTrial} />
+              <OrganisationHelpWidget
+                onSubscribeClick={handleStartTrial}
+                subscription={subscription || null}
+              />
               <OrganisationTipWidget />
               <OrganisationVideoWidget />
             </HubSidebar>
@@ -616,9 +703,9 @@ export default function OrganisationPage() {
             organisation={organisation}
             subscription={subscription || null}
             onStartTrial={handleStartTrial}
-            onDismiss={trialStatus?.canDismiss ? handleDismissReminder : undefined}
+            onDismiss={undefined} // No dismissal in hard paywall
             onExportData={handleExportData}
-            canDismiss={trialStatus?.canDismiss || false}
+            canDismiss={false} // Cannot dismiss when expired
           />
         </HubPageLayout>
       );
@@ -647,7 +734,13 @@ export default function OrganisationPage() {
               totalClients={0}
               monthlyRevenue={0}
             />
-            <OrganisationHelpWidget onSubscribeClick={handleStartTrial} />
+            <OrganisationHelpWidget
+              onSubscribeClick={handleStartTrial}
+              subscription={subscription || null}
+              onManageSubscription={handleManageSubscription}
+              onUpdatePayment={handleUpdatePayment}
+              onCancelSubscription={handleCancelSubscription}
+            />
             <OrganisationTipWidget />
             <OrganisationVideoWidget />
           </HubSidebar>
@@ -833,7 +926,10 @@ export default function OrganisationPage() {
             totalClients={stats?.total_clients || 0}
             monthlyRevenue={stats?.monthly_revenue || 0}
           />
-          <OrganisationHelpWidget onSubscribeClick={handleStartTrial} />
+          <OrganisationHelpWidget
+            onSubscribeClick={handleStartTrial}
+            subscription={subscription || null}
+          />
           <OrganisationTipWidget />
           <OrganisationVideoWidget />
         </HubSidebar>

@@ -16,7 +16,13 @@ export default function OrganisationTipWidget() {
       <h3 className={styles.title}>Organisation Tips</h3>
       <div className={styles.content}>
         <p className={styles.text}>
-          Set clear roles and responsibilities for team members to streamline operations and avoid conflicts.
+          Invite team members to collaborate and manage bookings together.
+        </p>
+        <p className={styles.text}>
+          Assign roles and permissions to control access levels.
+        </p>
+        <p className={styles.text}>
+          Track organisation performance and team member activity.
         </p>
       </div>
     </HubComplexCard>

@@ -1,0 +1,254 @@
+/**
+ * Filename: page.module.css
+ * Purpose: Styles for Billing & Subscription Settings page
+ * Created: 2026-01-07
+ */
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: #64748b;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+/* Card Styles */
+.card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  padding: 16px 20px;
+  margin: 0;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.cardContent {
+  padding: 20px;
+}
+
+/* Status Box - Subscription Status */
+.statusBox {
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid;
+}
+
+.statusContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.statusTitle {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+}
+
+.statusText {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0.25rem 0;
+  line-height: 1.5;
+}
+
+/* Status Box Variants */
+.neutralAlert {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.neutralAlert .statusTitle {
+  color: #6b7280;
+}
+
+.activeAlert {
+  background-color: #f0fdf4;
+  border-color: #86efac;
+}
+
+.activeAlert .statusTitle {
+  color: #166534;
+}
+
+.infoAlert {
+  background-color: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.infoAlert .statusTitle {
+  color: #2563eb;
+}
+
+.warningAlert {
+  background-color: #fff7ed;
+  border-color: #fed7aa;
+}
+
+.warningAlert .statusTitle {
+  color: #ea580c;
+}
+
+.urgentAlert {
+  background-color: #fef2f2;
+  border-color: #fca5a5;
+}
+
+.urgentAlert .statusTitle {
+  color: #dc2626;
+}
+
+.expiredAlert {
+  background-color: #fef2f2;
+  border-color: #ef4444;
+}
+
+.expiredAlert .statusTitle {
+  color: #dc2626;
+}
+
+/* Info Text */
+.infoText {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+}
+
+/* Plan Details */
+.planDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.planItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.planLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.planValue {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.featureList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.featureList li {
+  font-size: 14px;
+  color: #374151;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.featureList li:before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #006c67;
+  font-weight: 700;
+}
+
+/* Buttons */
+.buttonPrimary,
+.buttonSecondary {
+  padding: 0.625rem 1.25rem;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  white-space: nowrap;
+}
+
+.buttonPrimary {
+  background-color: #006c67;
+  color: white;
+}
+
+.buttonPrimary:hover:not(:disabled) {
+  background-color: #005550;
+}
+
+.buttonPrimary:active:not(:disabled) {
+  background-color: #004440;
+}
+
+.buttonSecondary {
+  background-color: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.buttonSecondary:hover:not(:disabled) {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.buttonPrimary:disabled,
+.buttonSecondary:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Sidebar Placeholder */
+.sidebarPlaceholder {
+  padding: 1rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .content {
+    padding: 0.5rem;
+  }
+
+  .statusContent {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .buttonPrimary,
+  .buttonSecondary {
+    width: 100%;
+  }
+}

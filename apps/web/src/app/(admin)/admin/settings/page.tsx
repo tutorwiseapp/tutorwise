@@ -204,6 +204,7 @@ export default function PlatformSettingsPage() {
       platform: '/admin/settings',
       email: '/admin/settings/email',
       payments: '/admin/settings/payments',
+      subscriptions: '/admin/settings/subscriptions',
       security: '/admin/settings/security',
       integrations: '/admin/settings/integrations',
     };
@@ -226,6 +227,7 @@ export default function PlatformSettingsPage() {
             { id: 'platform', label: 'Platform', active: true },
             { id: 'email', label: 'Email', active: false },
             { id: 'payments', label: 'Payments', active: false },
+            { id: 'subscriptions', label: 'Subscriptions', active: false },
             { id: 'security', label: 'Security', active: false },
             { id: 'integrations', label: 'Integrations', active: false },
           ]}

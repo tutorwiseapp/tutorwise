@@ -66,3 +66,72 @@
   color: #005a56;
   text-decoration: underline;
 }
+
+/* Status Badge */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.statusBadge[data-status="trialing"] {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.statusBadge[data-status="active"] {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.statusBadge[data-status="canceled"] {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.statusBadge[data-status="past_due"],
+.statusBadge[data-status="unpaid"] {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.statusBadge[data-status="none"] {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Trial Status */
+.trialActive {
+  font-size: 0.875rem;
+  color: #059669;
+  font-weight: 500;
+}
+
+.trialExpired {
+  font-size: 0.875rem;
+  color: #ef4444;
+  font-weight: 500;
+}
+
+/* Billing Info */
+.billingInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.billingRenews {
+  font-size: 0.75rem;
+  color: #059669;
+  font-weight: 500;
+}
+
+.billingCancels {
+  font-size: 0.75rem;
+  color: #dc2626;
+  font-weight: 500;
+}

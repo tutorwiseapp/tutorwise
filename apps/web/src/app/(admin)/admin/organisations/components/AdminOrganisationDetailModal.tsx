@@ -14,6 +14,7 @@ import { createClient } from '@/utils/supabase/client';
 import { HubDetailModal } from '@/app/components/hub/modal';
 import Button from '@/app/components/ui/actions/Button'; // ✅ Lesson #3: Use Button component
 import { formatIdForDisplay } from '@/lib/utils/formatId';
+import { formatDate, calculateDaysRemaining } from '@/lib/utils/format-date';
 import styles from './AdminOrganisationDetailModal.module.css';
 
 interface Organisation {
@@ -42,6 +43,17 @@ interface Organisation {
     email: string;
     avatar_url: string | null;
   };
+  subscription?: {
+    stripe_subscription_id: string | null;
+    stripe_customer_id: string | null;
+    status: 'trialing' | 'active' | 'past_due' | 'canceled' | 'incomplete' | 'incomplete_expired' | 'unpaid' | 'none';
+    trial_start: string | null;
+    trial_end: string | null;
+    current_period_start: string;
+    current_period_end: string;
+    cancel_at_period_end: boolean;
+    canceled_at: string | null;
+  } | null;
 }
 
 interface AdminOrganisationDetailModalProps {
@@ -61,8 +73,13 @@ export default function AdminOrganisationDetailModal({
   const supabase = createClient();
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Format date helper
-  const formatDate = (dateString: string) => {
+  // Normalize subscription data (handle both single object and array from join)
+  const subscription = Array.isArray(organisation.subscription)
+    ? organisation.subscription[0]
+    : organisation.subscription;
+
+  // Format datetime helper
+  const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
     const day = date.getDate().toString().padStart(2, '0');
     const month = date.toLocaleDateString('en-GB', { month: 'short' });
@@ -253,15 +270,91 @@ export default function AdminOrganisationDetailModal({
     },
   ];
 
-  // Section 6: System Information
+  // Section 6: Subscription Information
+  const subscriptionFields = subscription
+    ? [
+        {
+          label: 'Status',
+          value: subscription.status,
+        },
+        {
+          label: 'Trial Start',
+          value: subscription.trial_start
+            ? formatDate(subscription.trial_start)
+            : <span className={styles.notAvailable}>No trial</span>,
+        },
+        {
+          label: 'Trial End',
+          value: subscription.trial_end
+            ? formatDate(subscription.trial_end)
+            : <span className={styles.notAvailable}>No trial</span>,
+        },
+        {
+          label: 'Trial Status',
+          value: subscription.trial_end ? (() => {
+            const daysRemaining = calculateDaysRemaining(subscription.trial_end);
+            return daysRemaining > 0 ? (
+              <span className={styles.trialActive}>{daysRemaining}d left</span>
+            ) : (
+              <span className={styles.trialExpired}>Expired</span>
+            );
+          })() : <span className={styles.notAvailable}>No trial</span>,
+        },
+        {
+          label: 'Current Period Start',
+          value: formatDate(subscription.current_period_start),
+        },
+        {
+          label: 'Current Period End',
+          value: formatDate(subscription.current_period_end),
+        },
+        {
+          label: 'Next Billing',
+          value: formatDate(subscription.current_period_end),
+        },
+        {
+          label: 'Billing Action',
+          value: subscription.cancel_at_period_end ? (
+            <span className={styles.billingCancels}>Cancels</span>
+          ) : (
+            <span className={styles.billingRenews}>Renews</span>
+          ),
+        },
+        {
+          label: 'Canceled At',
+          value: subscription.canceled_at
+            ? formatDate(subscription.canceled_at)
+            : <span className={styles.notAvailable}>Not canceled</span>,
+        },
+        {
+          label: 'Stripe Customer ID',
+          value: subscription.stripe_customer_id
+            ? <span className={styles.idText}>{subscription.stripe_customer_id}</span>
+            : <span className={styles.notAvailable}>Not available</span>,
+        },
+        {
+          label: 'Stripe Subscription ID',
+          value: subscription.stripe_subscription_id
+            ? <span className={styles.idText}>{subscription.stripe_subscription_id}</span>
+            : <span className={styles.notAvailable}>Not available</span>,
+        },
+      ]
+    : [
+        {
+          label: 'Subscription',
+          value: <span className={styles.notAvailable}>No subscription data</span>,
+        },
+      ];
+
+  // Section 7: System Information
   const systemFields = [
     {
       label: 'Created At',
-      value: formatDate(organisation.created_at),
+      value: formatDateTime(organisation.created_at),
     },
     {
       label: 'Last Updated',
-      value: formatDate(organisation.updated_at),
+      value: formatDateTime(organisation.updated_at),
     },
   ];
 
@@ -291,6 +384,10 @@ export default function AdminOrganisationDetailModal({
         {
           title: 'Statistics',
           fields: statsFields,
+        },
+        {
+          title: 'Subscription Information',
+          fields: subscriptionFields,
         },
         {
           title: 'System Information',
