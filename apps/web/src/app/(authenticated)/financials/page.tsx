@@ -65,7 +65,7 @@ export default function TransactionsPage() {
     enabled: !!profile?.id, // Wait for profile to load before fetching
     placeholderData: keepPreviousData,
     staleTime: 30 * 1000, // 30 seconds
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
     refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
     refetchOnWindowFocus: true, // Refetch when user returns to tab
     retry: 2,

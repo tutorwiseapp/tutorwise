@@ -15,7 +15,7 @@
  * ```
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 
 export type MetricName =
@@ -165,7 +165,11 @@ export function useAdminMetric({
         previousValue: (previousData as any)?.[metric] ?? null,
       };
     },
+    placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000, // 5 minutes - statistics don't change frequently
+    gcTime: 10 * 60 * 1000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
     retry: 2,
   });
 

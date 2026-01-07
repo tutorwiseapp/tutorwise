@@ -37,6 +37,9 @@ export default function HomePage() {
     placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnMount: 'always', // Always refetch when component mounts
+    refetchOnWindowFocus: true, // Auto-refresh when user returns to tab
+    retry: 2, // Retry failed requests twice
     enabled: !hasSearched,
   });
 
@@ -49,7 +52,10 @@ export default function HomePage() {
     queryFn: () => searchMarketplace(searchFilters),
     placeholderData: keepPreviousData,
     staleTime: 2 * 60 * 1000, // 2 minutes
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes (standardized)
+    refetchOnMount: 'always', // Always refetch when component mounts
+    refetchOnWindowFocus: true, // Auto-refresh when user returns to tab
+    retry: 2, // Retry failed requests twice
     enabled: hasSearched && Object.keys(searchFilters).length > 0,
   });
 

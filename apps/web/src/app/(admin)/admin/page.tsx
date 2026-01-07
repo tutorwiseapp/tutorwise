@@ -10,7 +10,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
@@ -47,7 +47,12 @@ export default function AdminOverviewPage() {
   };
 
   // Fetch real platform statistics
-  const { data: stats } = useQuery({
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    isFetching: statsFetching,
+    error: statsError,
+  } = useQuery({
     queryKey: ['admin', 'platform-stats'],
     queryFn: async () => {
       // Fetch total users count
@@ -91,6 +96,12 @@ export default function AdminOverviewPage() {
         platformRevenue,
       };
     },
+    placeholderData: keepPreviousData,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    retry: 2,
   });
 
   return (

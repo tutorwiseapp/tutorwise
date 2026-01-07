@@ -52,9 +52,11 @@ export default function OrganisationTasksPage({
   const [teamMembers, setTeamMembers] = useState<Array<{ id: string; full_name: string }>>([]);
 
   // Fetch organisation details
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: organisation,
     isLoading: orgLoading,
+    isFetching: orgFetching,
     error: orgError,
   } = useQuery({
     queryKey: ['organisation', params.id],
@@ -69,13 +71,20 @@ export default function OrganisationTasksPage({
       return data;
     },
     enabled: !!params.id,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    placeholderData: keepPreviousData,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
+    retry: 2,
   });
 
   // Check if user is owner or admin
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: userRole,
     isLoading: roleLoading,
+    isFetching: roleFetching,
   } = useQuery({
     queryKey: ['user-role', params.id, profile?.id],
     queryFn: async () => {
@@ -99,6 +108,9 @@ export default function OrganisationTasksPage({
       };
     },
     enabled: !!profile?.id && !!params.id && !!organisation,
+    placeholderData: keepPreviousData,
+    staleTime: 2 * 60 * 1000,
+    retry: 2,
   });
 
   const isLoading = profileLoading || orgLoading || roleLoading;
@@ -181,7 +193,9 @@ export default function OrganisationTasksPage({
       return Array.from(members.values()).sort((a, b) => a.full_name.localeCompare(b.full_name));
     },
     enabled: !!params.id && hasAccess,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    placeholderData: keepPreviousData,
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
   });
 
   const handleCardClick = (taskId: string) => {

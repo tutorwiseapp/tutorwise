@@ -112,6 +112,7 @@ export default function OrganisationPage() {
     gcTime: 10 * 60 * 1000,
     refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
     refetchOnWindowFocus: true, // Refetch when user returns to tab
+    retry: 2,
   });
 
   // Fetch subscription status (v7.0: Check Premium access)
@@ -126,6 +127,7 @@ export default function OrganisationPage() {
     enabled: !!organisation,
     placeholderData: keepPreviousData,
     staleTime: 2 * 60 * 1000,
+    retry: 2,
   });
 
   // Fetch members (only if organisation exists)
@@ -141,6 +143,7 @@ export default function OrganisationPage() {
     enabled: !!organisation,
     placeholderData: keepPreviousData,
     staleTime: 2 * 60 * 1000,
+    retry: 2,
   });
 
   // Fetch stats
@@ -155,6 +158,7 @@ export default function OrganisationPage() {
     enabled: !!organisation,
     placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000,
+    retry: 2,
   });
 
   // Fetch clients (always load like Team tab for instant display)
@@ -169,6 +173,7 @@ export default function OrganisationPage() {
     enabled: !!organisation,
     placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000,
+    retry: 2,
   });
 
   // Fetch recruitments (always load like Team tab for instant display)
@@ -183,6 +188,7 @@ export default function OrganisationPage() {
     enabled: !!organisation,
     placeholderData: keepPreviousData,
     staleTime: 2 * 60 * 1000,
+    retry: 2,
   });
 
   // Remove member mutation

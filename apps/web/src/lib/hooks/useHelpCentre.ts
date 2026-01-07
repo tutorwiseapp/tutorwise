@@ -26,7 +26,7 @@ import {
  * - Automatic caching (5min staleTime)
  * - placeholderData to prevent flickering
  * - Only runs when query is provided
- * - Consistent with home page pattern
+ * - Consistent with user/admin dashboard pattern
  */
 export function useSearchArticles(query: string | null) {
   return useQuery({
@@ -44,6 +44,9 @@ export function useSearchArticles(query: string | null) {
     placeholderData: keepPreviousData, // Prevents skeleton flickering on refetch
     staleTime: 5 * 60 * 1000, // 5 minutes (same as home page featured items)
     gcTime: 10 * 60 * 1000, // 10 minutes garbage collection
+    refetchOnMount: 'always', // Always refetch when component mounts
+    refetchOnWindowFocus: true, // Auto-refresh when user returns to tab
+    retry: 2, // Retry failed requests twice
   });
 }
 
@@ -52,14 +55,18 @@ export function useSearchArticles(query: string | null) {
  *
  * Features:
  * - Long cache time (10min) since popular articles change slowly
- * - Auto-refetch on mount to ensure freshness
+ * - Full optimization matching user/admin dashboard pattern
  */
 export function usePopularArticles(limit: number = 5) {
   return useQuery({
     queryKey: ['help-centre-popular', limit],
     queryFn: () => getPopularArticles(limit),
+    placeholderData: keepPreviousData, // Prevents skeleton flickering on refetch
     staleTime: 10 * 60 * 1000, // 10 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
+    refetchOnMount: 'always', // Always refetch when component mounts
+    refetchOnWindowFocus: true, // Auto-refresh when user returns to tab
+    retry: 2, // Retry failed requests twice
   });
 }
 
@@ -69,13 +76,18 @@ export function usePopularArticles(limit: number = 5) {
  * Features:
  * - Cached per article slug
  * - Moderate cache time (3min) to show updated feedback
+ * - Full optimization matching user/admin dashboard pattern
  */
 export function useArticleHelpfulness(articleSlug: string) {
   return useQuery({
     queryKey: ['help-centre-helpfulness', articleSlug],
     queryFn: () => getArticleHelpfulness(articleSlug),
+    placeholderData: keepPreviousData, // Prevents skeleton flickering on refetch
     staleTime: 3 * 60 * 1000, // 3 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnMount: 'always', // Always refetch when component mounts
+    refetchOnWindowFocus: true, // Auto-refresh when user returns to tab
+    retry: 2, // Retry failed requests twice
   });
 }
 

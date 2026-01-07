@@ -62,9 +62,11 @@ export default function OrganisationReferralsPage({
   const [pipelineKey, setPipelineKey] = useState(0);
 
   // Fetch organisation details
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: organisation,
     isLoading: orgLoading,
+    isFetching: orgFetching,
     error: orgError,
   } = useQuery({
     queryKey: ['organisation', params.id],
@@ -79,13 +81,20 @@ export default function OrganisationReferralsPage({
       return data;
     },
     enabled: !!params.id,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    placeholderData: keepPreviousData,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
+    retry: 2,
   });
 
   // Check if user is owner or member
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: membership,
     isLoading: membershipLoading,
+    isFetching: membershipFetching,
   } = useQuery({
     queryKey: ['membership', params.id, profile?.id],
     queryFn: async () => {
@@ -101,12 +110,17 @@ export default function OrganisationReferralsPage({
       return data;
     },
     enabled: !!profile?.id && !!params.id,
+    placeholderData: keepPreviousData,
+    staleTime: 2 * 60 * 1000,
+    retry: 2,
   });
 
   // Fetch referral config
+  // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: config,
     isLoading: configLoading,
+    isFetching: configFetching,
   } = useQuery({
     queryKey: ['referral-config', params.id],
     queryFn: async () => {
@@ -119,6 +133,9 @@ export default function OrganisationReferralsPage({
       return data;
     },
     enabled: !!params.id,
+    placeholderData: keepPreviousData,
+    staleTime: 2 * 60 * 1000,
+    retry: 2,
   });
 
   const isLoading = profileLoading || orgLoading || membershipLoading || configLoading;

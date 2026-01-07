@@ -15,7 +15,7 @@
  * ```
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import type { MetricName } from './useAdminMetric';
 import type { TrendDataPoint } from '@/app/components/hub/charts';
@@ -111,7 +111,11 @@ export function useAdminTrendData({
 
       return filledData;
     },
+    placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
     retry: 2,
   });
 
