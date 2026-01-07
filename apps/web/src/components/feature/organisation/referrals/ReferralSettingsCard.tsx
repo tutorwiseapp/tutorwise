@@ -131,25 +131,25 @@ export function ReferralSettingsCard({ organisationId, isOwner }: ReferralSettin
     return (
       <div className={styles.card}>
         <div className={styles.header}>
-          <SkeletonLine style={{ width: '200px', height: '24px' }} />
-          <SkeletonLine style={{ width: '300px', height: '16px', marginTop: '8px' }} />
+          <div style={{ width: '200px', height: '24px' }}><SkeletonLine /></div>
+          <div style={{ width: '300px', height: '16px', marginTop: '8px' }}><SkeletonLine /></div>
         </div>
         <div className={styles.form}>
           <div className={styles.formRow}>
-            <SkeletonLine style={{ width: '150px', height: '20px' }} />
-            <SkeletonRect style={{ width: '100%', height: '40px', marginTop: '8px' }} />
+            <div style={{ width: '150px', height: '20px' }}><SkeletonLine /></div>
+            <div style={{ width: '100%', height: '40px', marginTop: '8px' }}><SkeletonRect /></div>
           </div>
           <div className={styles.formRow}>
-            <SkeletonLine style={{ width: '180px', height: '20px' }} />
-            <SkeletonRect style={{ width: '100%', height: '40px', marginTop: '8px' }} />
+            <div style={{ width: '180px', height: '20px' }}><SkeletonLine /></div>
+            <div style={{ width: '100%', height: '40px', marginTop: '8px' }}><SkeletonRect /></div>
           </div>
           <div className={styles.formRow}>
-            <SkeletonLine style={{ width: '160px', height: '20px' }} />
-            <SkeletonRect style={{ width: '100%', height: '40px', marginTop: '8px' }} />
+            <div style={{ width: '160px', height: '20px' }}><SkeletonLine /></div>
+            <div style={{ width: '100%', height: '40px', marginTop: '8px' }}><SkeletonRect /></div>
           </div>
           <div className={styles.formRow}>
-            <SkeletonLine style={{ width: '140px', height: '20px' }} />
-            <SkeletonRect style={{ width: '100%', height: '40px', marginTop: '8px' }} />
+            <div style={{ width: '140px', height: '20px' }}><SkeletonLine /></div>
+            <div style={{ width: '100%', height: '40px', marginTop: '8px' }}><SkeletonRect /></div>
           </div>
         </div>
       </div>

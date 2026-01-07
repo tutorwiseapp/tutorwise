@@ -291,9 +291,9 @@ export function ReferralPipeline({
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '16px', padding: '24px' }}>
         {STAGE_CONFIG.map((stage) => (
           <div key={stage.key} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <SkeletonRect style={{ width: '100%', height: '40px' }} />
-            <SkeletonRect style={{ width: '100%', height: '120px' }} />
-            <SkeletonRect style={{ width: '100%', height: '120px' }} />
+            <div style={{ width: '100%', height: '40px' }}><SkeletonRect /></div>
+            <div style={{ width: '100%', height: '120px' }}><SkeletonRect /></div>
+            <div style={{ width: '100%', height: '120px' }}><SkeletonRect /></div>
           </div>
         ))}
       </div>

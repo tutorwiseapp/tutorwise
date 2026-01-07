@@ -175,26 +175,26 @@ export function ReferralAnalyticsDashboard({
       <div className={styles.dashboard}>
         <div className={styles.header}>
           <div>
-            <SkeletonLine style={{ width: '180px', height: '24px' }} />
-            <SkeletonLine style={{ width: '350px', height: '16px', marginTop: '8px' }} />
+            <div style={{ width: '180px', height: '24px' }}><SkeletonLine /></div>
+            <div style={{ width: '350px', height: '16px', marginTop: '8px' }}><SkeletonLine /></div>
           </div>
         </div>
 
         <div className={styles.section}>
-          <SkeletonLine style={{ width: '200px', height: '20px', marginBottom: '16px' }} />
+          <div style={{ width: '200px', height: '20px', marginBottom: '16px' }}><SkeletonLine /></div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <SkeletonRect style={{ width: '100%', height: '80px' }} />
-            <SkeletonRect style={{ width: '100%', height: '80px' }} />
-            <SkeletonRect style={{ width: '100%', height: '80px' }} />
+            <div style={{ width: '100%', height: '80px' }}><SkeletonRect /></div>
+            <div style={{ width: '100%', height: '80px' }}><SkeletonRect /></div>
+            <div style={{ width: '100%', height: '80px' }}><SkeletonRect /></div>
           </div>
         </div>
 
         <div className={styles.section}>
-          <SkeletonLine style={{ width: '150px', height: '20px', marginBottom: '16px' }} />
+          <div style={{ width: '150px', height: '20px', marginBottom: '16px' }}><SkeletonLine /></div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-            <SkeletonRect style={{ width: '100%', height: '120px' }} />
-            <SkeletonRect style={{ width: '100%', height: '120px' }} />
-            <SkeletonRect style={{ width: '100%', height: '120px' }} />
+            <div style={{ width: '100%', height: '120px' }}><SkeletonRect /></div>
+            <div style={{ width: '100%', height: '120px' }}><SkeletonRect /></div>
+            <div style={{ width: '100%', height: '120px' }}><SkeletonRect /></div>
           </div>
         </div>
       </div>
