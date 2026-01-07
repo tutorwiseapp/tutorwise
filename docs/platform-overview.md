@@ -233,6 +233,9 @@ Tutorwise is a next-generation EdTech platform that reimagines the tutoring mark
    - Public business pages
    - £50/month Premium subscription
 
+**Payment Architecture Note**:
+The £50/month organisation subscription is for TutorWise Premium platform access only. Student payments to organisations for tutoring services happen outside the TutorWise platform using the organisation's existing payment methods (bank transfer, PayPal, cash, etc.). TutorWise does not process or handle tutoring service payments for organisations.
+
 ---
 
 ## 3. Revenue Model & Economics
