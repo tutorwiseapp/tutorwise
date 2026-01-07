@@ -8,7 +8,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type {
-  ICaaSStrategy,
+  IProfileCaaSStrategy,
   CaaSScoreData,
   CaaSProfile,
   PerformanceStats,
@@ -37,7 +37,7 @@ import {
  *
  * Note: Total is 110 points. Scores are normalized to /100 scale for consistency.
  */
-export class TutorCaaSStrategy implements ICaaSStrategy {
+export class TutorCaaSStrategy implements IProfileCaaSStrategy {
   /**
    * Calculate CaaS score for a TUTOR
    * @param userId - The profile_id to calculate score for

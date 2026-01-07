@@ -79,6 +79,9 @@ export interface CaaSScoreData {
 
     // Gate failure message (when score = 0 due to safety gate)
     gate?: string; // e.g., "Identity not verified" or "Profile not found"
+
+    // Allow any additional properties for strategy-specific breakdowns
+    [key: string]: number | string | boolean | Record<string, any> | undefined;
   };
 }
 
@@ -90,9 +93,9 @@ export interface CaaSScoreRecord {
   profile_id: string;
   total_score: number; // 0-100
   score_breakdown: Record<string, number | string>; // JSONB breakdown
-  role_type: 'TUTOR' | 'CLIENT' | 'AGENT' | 'STUDENT';
+  role_type: 'TUTOR' | 'CLIENT' | 'AGENT' | 'STUDENT' | 'ORGANISATION';
   calculated_at: string; // ISO 8601 timestamp
-  calculation_version: string; // e.g., "tutor-v5.5", "client-v1.0"
+  calculation_version: string; // e.g., "tutor-v5.5", "client-v1.0", "agent-v1.0", "organisation-v1.0"
   created_at: string;
   updated_at: string;
 }
@@ -122,15 +125,68 @@ export const defaultDigitalStats: DigitalStats = {
 };
 
 /**
- * Strategy Pattern interface
- * All CaaS strategies (Tutor, Client, Agent) must implement this interface
+ * Strategy Pattern interface for PROFILE-based CaaS scoring
+ *
+ * Profile-based strategies calculate scores for users (Tutor, Client, Agent, Student).
+ * Scores are stored in the caas_scores table.
+ *
+ * Examples: TutorCaaSStrategy, ClientCaaSStrategy, AgentCaaSStrategy
  */
-export interface ICaaSStrategy {
+export interface IProfileCaaSStrategy {
   /**
-   * Calculate the CaaS score for a given user
+   * Calculate the CaaS score for a given user profile
    * @param userId - The profile_id to calculate score for
    * @param supabase - Supabase client instance (with service_role for RPC access)
    * @returns CaaSScoreData with total score and breakdown
+   */
+  calculate(userId: string, supabase: SupabaseClient): Promise<CaaSScoreData>;
+}
+
+/**
+ * Strategy Pattern interface for ENTITY-based CaaS scoring
+ *
+ * Entity-based strategies calculate scores for non-user entities (Organisation, Team, Group).
+ * Scores are stored in the entity's own table (e.g., connection_groups.caas_score).
+ *
+ * Example: OrganisationCaaSStrategy
+ *
+ * @template TEntity - The entity type string (e.g., 'organisation', 'team', 'group')
+ */
+export interface IEntityCaaSStrategy<TEntity extends string = string> {
+  /**
+   * Calculate the CaaS score for a given entity
+   * @param entityId - The entity ID to calculate score for (e.g., organisation_id, team_id)
+   * @param supabase - Supabase client instance (with service_role for RPC access)
+   * @returns CaaSScoreData with total score and breakdown
+   */
+  calculate(entityId: string, supabase: SupabaseClient): Promise<CaaSScoreData>;
+
+  /**
+   * Get the entity type this strategy scores
+   * @returns Entity type string (e.g., 'organisation', 'team', 'group')
+   */
+  getEntityType(): TEntity;
+
+  /**
+   * Get the table where scores are stored
+   * @returns Table name (e.g., 'connection_groups', 'teams')
+   */
+  getStorageTable(): string;
+
+  /**
+   * Get the column name where scores are stored
+   * @returns Column name (e.g., 'caas_score', 'credibility_score')
+   */
+  getStorageColumn(): string;
+}
+
+/**
+ * Legacy interface alias for backwards compatibility
+ * @deprecated Use IProfileCaaSStrategy instead for profile-based strategies
+ */
+export interface ICaaSStrategy extends IProfileCaaSStrategy {
+  /**
+   * @deprecated Use IProfileCaaSStrategy.calculate instead
    */
   calculate(userId: string, supabase: SupabaseClient): Promise<CaaSScoreData>;
 }
@@ -140,17 +196,18 @@ export interface ICaaSStrategy {
  * Used for calculation_version column in caas_scores table
  */
 export const CaaSVersions = {
-  TUTOR: 'tutor-v5.5', // The finalized 5-bucket model
-  CLIENT: 'client-v1.0', // Basic client scoring (future)
-  AGENT: 'agent-v1.0', // Agent scoring (future)
+  TUTOR: 'tutor-v5.5', // The finalized 5-bucket model (v5.9 updated)
+  CLIENT: 'client-v1.0', // 3-bucket client scoring model
+  AGENT: 'agent-v1.0', // 4-bucket agent scoring model (subscription-incentive based)
+  ORGANISATION: 'organisation-v1.0', // Weighted team average organisation scoring
   STUDENT: 'student-v1.0', // Student scoring (future)
 } as const;
 
 /**
  * Role type for CaaS scoring
- * Matches the profiles.roles text[] values
+ * Matches the profiles.roles text[] values and connection_groups for organisations
  */
-export type CaaSRole = 'TUTOR' | 'CLIENT' | 'AGENT' | 'STUDENT';
+export type CaaSRole = 'TUTOR' | 'CLIENT' | 'AGENT' | 'STUDENT' | 'ORGANISATION';
 
 /**
  * CaaS recalculation queue record

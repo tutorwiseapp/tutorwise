@@ -6,7 +6,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { ICaaSStrategy, CaaSScoreData, CaaSProfile } from '../types';
+import type { IProfileCaaSStrategy, CaaSScoreData, CaaSProfile } from '../types';
 
 /**
  * ClientCaaSStrategy
@@ -26,7 +26,7 @@ import type { ICaaSStrategy, CaaSScoreData, CaaSProfile } from '../types';
  * - Review feedback from tutors (tutor→client reviews)
  * - Session attendance rate
  */
-export class ClientCaaSStrategy implements ICaaSStrategy {
+export class ClientCaaSStrategy implements IProfileCaaSStrategy {
   /**
    * Calculate CaaS score for a CLIENT
    * @param userId - The profile_id to calculate score for

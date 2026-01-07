@@ -1,27 +1,41 @@
 /**
  * Filename: apps/web/src/lib/services/caas/index.ts
- * Purpose: Main CaaS Service - Strategy Pattern router (v5.5)
+ * Purpose: Main CaaS Service - Dual-Path Strategy Pattern Router
  * Created: 2025-11-15
+ * Updated: 2026-01-07 (Added Entity-Based Scoring)
  * Pattern: Service Layer + Strategy Pattern (API Solution Design v5.1)
+ *
+ * Architecture:
+ * - PROFILE-based scoring: Tutor, Client, Agent, Student → caas_scores table
+ * - ENTITY-based scoring: Organisation, Team, Group → entity's own table
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { TutorCaaSStrategy } from './strategies/tutor';
 import { ClientCaaSStrategy } from './strategies/client';
-import type { CaaSScoreData, CaaSRole, CaaSProfile } from './types';
+import { AgentCaaSStrategy } from './strategies/agent';
+import { OrganisationCaaSStrategy } from './strategies/organisation';
+import type {
+  CaaSScoreData,
+  CaaSRole,
+  CaaSProfile,
+  IEntityCaaSStrategy,
+  IProfileCaaSStrategy,
+} from './types';
 import { CaaSVersions } from './types';
 
 /**
  * CaaSService
  * Main service for Credibility as a Service (CaaS) Engine
  *
- * This service implements the Strategy Pattern to route scoring logic
- * to the appropriate strategy based on the user's role (TUTOR, CLIENT, etc.).
+ * This service implements a dual-path Strategy Pattern:
+ * 1. PROFILE-based scoring (Tutor, Client, Agent, Student) → caas_scores table
+ * 2. ENTITY-based scoring (Organisation, Team, Group) → entity's own table
  *
  * Architecture:
- * - CaaSService.calculate_caas() → Selects strategy → Calls strategy.calculate()
- * - Each strategy implements ICaaSStrategy interface
- * - Results are cached in caas_scores table
+ * - Profile path: calculateProfileCaaS() → Strategy → caas_scores table
+ * - Entity path: calculateEntityCaaS() → Strategy → entity's table
+ * - Legacy path: calculate_caas() → Wrapper for backwards compatibility
  *
  * Usage:
  * - Called by POST /api/caas-worker (Pattern 2 - Internal Worker)
@@ -30,9 +44,81 @@ import { CaaSVersions } from './types';
  */
 export class CaaSService {
   /**
-   * Calculate CaaS score for a profile
+   * Calculate CaaS score for an ENTITY (Organisation, Team, Group)
    *
-   * This is the main entry point for all CaaS score calculations.
+   * Entity-based scoring path - for non-user entities.
+   * Scores are stored in the entity's own table (e.g., connection_groups.caas_score).
+   *
+   * @param entityId - The entity ID to calculate score for
+   * @param strategy - The entity CaaS strategy instance
+   * @param supabase - Supabase client (MUST be service_role for RPC access and score writes)
+   * @returns CaaSScoreData with total score and breakdown
+   */
+  static async calculateEntityCaaS<T extends IEntityCaaSStrategy>(
+    entityId: string,
+    strategy: T,
+    supabase: SupabaseClient
+  ): Promise<CaaSScoreData> {
+    try {
+      // ================================================================
+      // STEP 1: CALCULATE SCORE USING STRATEGY
+      // ================================================================
+      const scoreData = await strategy.calculate(entityId, supabase);
+
+      // ================================================================
+      // STEP 2: SAVE SCORE TO ENTITY'S TABLE
+      // ================================================================
+      const { error: updateError } = await supabase
+        .from(strategy.getStorageTable())
+        .update({
+          [strategy.getStorageColumn()]: scoreData.total,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', entityId);
+
+      if (updateError) {
+        console.error(
+          `[CaaS] Failed to save ${strategy.getEntityType()} score to database:`,
+          updateError
+        );
+        throw new Error(
+          `Failed to save ${strategy.getEntityType()} score: ${updateError.message}`
+        );
+      }
+
+      console.log(
+        `[CaaS] ${strategy.getEntityType()} score calculated and saved for ${entityId}: ${scoreData.total}/100`
+      );
+
+      return scoreData;
+    } catch (error) {
+      console.error(`[CaaS] Error calculating ${strategy.getEntityType()} score:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Convenience method for calculating Organisation CaaS scores
+   *
+   * @param organisationId - The connection_groups.id for the organisation
+   * @param supabase - Supabase client (MUST be service_role for RPC access and score writes)
+   * @returns CaaSScoreData with total score and breakdown
+   */
+  static async calculateOrganisationCaaS(
+    organisationId: string,
+    supabase: SupabaseClient
+  ): Promise<CaaSScoreData> {
+    const strategy = new OrganisationCaaSStrategy();
+    return this.calculateEntityCaaS(organisationId, strategy, supabase);
+  }
+
+  /**
+   * Calculate CaaS score for a PROFILE (Tutor, Client, Agent, Student)
+   *
+   * Profile-based scoring path - for user profiles.
+   * Scores are stored in the caas_scores table.
+   *
+   * This is the main entry point for profile-based CaaS score calculations.
    * It selects the appropriate scoring strategy based on the user's role
    * and saves the result to the caas_scores table.
    *
@@ -40,7 +126,7 @@ export class CaaSService {
    * @param supabase - Supabase client (MUST be service_role for RPC access and score writes)
    * @returns CaaSScoreData with total score and breakdown
    */
-  static async calculate_caas(
+  static async calculateProfileCaaS(
     profileId: string,
     supabase: SupabaseClient
   ): Promise<CaaSScoreData> {
@@ -112,9 +198,8 @@ export class CaaSService {
           break;
 
         case 'AGENT':
-          // Agent scoring not yet implemented - return default score
-          console.warn(`[CaaS] Agent scoring not yet implemented for ${profileId}`);
-          scoreData = { total: 0, breakdown: { gate: 'Agent scoring not implemented' } };
+          const agentStrategy = new AgentCaaSStrategy();
+          scoreData = await agentStrategy.calculate(profileId, supabase);
           break;
 
         case 'STUDENT':
@@ -203,6 +288,36 @@ export class CaaSService {
       console.error('[CaaS] Error fetching score for profile', profileId, error);
       throw error;
     }
+  }
+
+  /**
+   * Legacy method for backwards compatibility
+   *
+   * @deprecated Use calculateOrganisationCaaS() instead
+   * @param organisationId - The connection_groups.id for the organisation
+   * @param supabase - Supabase client (MUST be service_role for RPC access and score writes)
+   * @returns CaaSScoreData with total score and breakdown
+   */
+  static async calculate_organisation_caas(
+    organisationId: string,
+    supabase: SupabaseClient
+  ): Promise<CaaSScoreData> {
+    return this.calculateOrganisationCaaS(organisationId, supabase);
+  }
+
+  /**
+   * Legacy method for backwards compatibility
+   *
+   * @deprecated Use calculateProfileCaaS() instead for profile-based scoring
+   * @param profileId - The profile_id to calculate score for
+   * @param supabase - Supabase client (MUST be service_role for RPC access and score writes)
+   * @returns CaaSScoreData with total score and breakdown
+   */
+  static async calculate_caas(
+    profileId: string,
+    supabase: SupabaseClient
+  ): Promise<CaaSScoreData> {
+    return this.calculateProfileCaaS(profileId, supabase);
   }
 
   /**

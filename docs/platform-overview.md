@@ -417,13 +417,50 @@ Auto-Setup       KPI Charts      Assignment     Analytics        Public Page
 
 ## 5. Credibility as a Service (CaaS)
 
-### 5.1 Trust Scoring Algorithm
+### 5.1 Dual-Path Trust Scoring Architecture
 
 **Philosophy**: Transparent, gamified trust algorithm that rewards quality and effort, not just tenure.
 
+**Architecture**: CaaS implements a **dual-path system** to score different entity types:
+
+1. **PROFILE-based scoring** (Tutor, Client, Agent, Student) → `caas_scores` table
+2. **ENTITY-based scoring** (Organisation, Team, Group) → entity's own table
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│              CaaS SCORE (0-100 Points)                          │
+│                   CaaS Service Router                           │
+│                   (Dual-Path Strategy)                          │
+└────────────────┬────────────────────────────┬───────────────────┘
+                 │                            │
+      ┌──────────┴──────────┐      ┌─────────┴──────────────┐
+      │  PROFILE PATH       │      │  ENTITY PATH           │
+      │  (Individual Users) │      │  (Organisations/Teams) │
+      └──────────┬──────────┘      └─────────┬──────────────┘
+                 │                            │
+      ┌──────────┴──────────┐      ┌─────────┴──────────────┐
+      │ IProfileCaaSStrategy│      │ IEntityCaaSStrategy    │
+      └──────────┬──────────┘      └─────────┬──────────────┘
+                 │                            │
+      ┌──────────┴──────────┐      ┌─────────┴──────────────┐
+      │ TutorStrategy       │      │ OrganisationStrategy   │
+      │ ClientStrategy      │      │ TeamStrategy (future)  │
+      │ AgentStrategy       │      │ GroupStrategy (future) │
+      └──────────┬──────────┘      └─────────┬──────────────┘
+                 │                            │
+      ┌──────────┴──────────┐      ┌─────────┴──────────────┐
+      │ caas_scores table   │      │ connection_groups.     │
+      │ (centralized)       │      │   caas_score           │
+      └─────────────────────┘      │ (distributed storage)  │
+                                   └────────────────────────┘
+```
+
+### 5.2 Tutor CaaS (6-Bucket Model)
+
+**For Tutors**: Individual educators teaching on the platform
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│            TUTOR CaaS SCORE (0-110 Points, /100 Display)        │
 ├─────────────────────────────────────────────────────────────────┤
 │  BUCKET                           │  MAX   │  CRITERIA           │
 ├─────────────────────────────────────────────────────────────────┤
@@ -458,7 +495,100 @@ Auto-Setup       KPI Charts      Assignment     Analytics        Public Page
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 5.2 CaaS Calculation System
+**Safety Gate**: Unverified tutors (no identity check) receive 0 score, hidden from marketplace
+**Cold Start**: New tutors (0 sessions) get 30-point provisional score based on qualifications
+
+### 5.3 Client CaaS (3-Bucket Model)
+
+**For Clients**: Parents/guardians booking tutors
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              CLIENT CaaS SCORE (0-100 Points)                   │
+├─────────────────────────────────────────────────────────────────┤
+│  BUCKET                           │  MAX   │  CRITERIA           │
+├─────────────────────────────────────────────────────────────────┤
+│  1. Identity Verification         │  40    │  Safety gate        │
+│     - Government ID verified      │  40    │  All or nothing     │
+├─────────────────────────────────────────────────────────────────┤
+│  2. Booking History               │  40    │  Reliability        │
+│     - Completed bookings          │  40    │  Progressive scale  │
+│       • 0 bookings                │   0    │  New user           │
+│       • 1-2 bookings              │  10    │  Getting started    │
+│       • 3-5 bookings              │  20    │  Regular user       │
+│       • 6-10 bookings             │  30    │  Loyal client       │
+│       • 11+ bookings              │  40    │  Champion           │
+├─────────────────────────────────────────────────────────────────┤
+│  3. Profile Completeness          │  20    │  Engagement         │
+│     - Bio (50+ characters)        │  10    │  Shows effort       │
+│     - Avatar uploaded             │  10    │  Personalization    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 5.4 Agent CaaS (4-Bucket Model)
+
+**For Agents**: Network builders who recruit tutors at scale
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              AGENT CaaS SCORE (0-100 Points)                    │
+├─────────────────────────────────────────────────────────────────┤
+│  BUCKET                           │  MAX   │  CRITERIA           │
+├─────────────────────────────────────────────────────────────────┤
+│  1. Recruitment Performance       │  40    │  Quality of recruits│
+│     - Recruited tutor quality     │  25    │  Avg CaaS of tutors │
+│     - Active tutor rate           │  15    │  % actively teaching│
+│     - Min 3 recruited tutors      │        │  (threshold)        │
+├─────────────────────────────────────────────────────────────────┤
+│  2. Business Growth               │  30    │  Network performance│
+│     - Total sessions facilitated  │  20    │  Progressive scale  │
+│     - Revenue generated           │  10    │  Booking volume     │
+├─────────────────────────────────────────────────────────────────┤
+│  3. Professional Operations       │  20    │  Business legitimacy│
+│     - Organisation Premium sub    │  10    │  Active subscription│
+│     - Business verification       │  10    │  Verified entity    │
+├─────────────────────────────────────────────────────────────────┤
+│  4. Platform Engagement           │  10    │  Activity & support │
+│     - Active recruitment          │   5    │  Recent activity    │
+│     - Response rate               │   5    │  Tutor support      │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Dual Score**: Agents who own organisations have TWO scores:
+- **Agent CaaS** (personal): Recruitment quality → `caas_scores` table
+- **Organisation CaaS** (entity): Team performance → `connection_groups.caas_score`
+
+### 5.5 Organisation CaaS (Entity-Based Scoring)
+
+**For Organisations**: Teams, agencies, and schools
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│         ORGANISATION CaaS SCORE (0-106 Points)                  │
+├─────────────────────────────────────────────────────────────────┤
+│  COMPONENT                        │  MAX   │  CRITERIA           │
+├─────────────────────────────────────────────────────────────────┤
+│  Base Score: Team Quality         │  100   │  Weighted average   │
+│     - Activity-weighted CaaS avg  │  100   │  Last 90 days       │
+│     - High activity (20+ sessions)│        │  Full weight        │
+│     - Medium (10-19 sessions)     │        │  Moderate weight    │
+│     - Low (1-9 sessions)          │        │  Reduced weight     │
+│     - Inactive (0 sessions)       │        │  Not counted        │
+│     - Min 3 active members        │        │  (threshold)        │
+├─────────────────────────────────────────────────────────────────┤
+│  Verification Bonuses             │   6    │  Professional creds │
+│     - Business verified           │  +2    │  Gov registration   │
+│     - Safeguarding certified      │  +2    │  All DBS checked    │
+│     - Professional insurance      │  +1    │  Liability coverage │
+│     - Association member          │  +1    │  ISA/NAHT/etc       │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Storage**: Entity-based scores stored in entity's own table (e.g., `connection_groups.caas_score`)
+**Updates**: Auto-recalculates when members join/leave or scores change
+**Example**: 5 tutors (CaaS: 92, 85, 88, 70, 78) weighted by activity → Base 85 + Bonuses +4 = 89/100
+
+### 5.6 CaaS Calculation System
 
 **Architecture**:
 ```
@@ -485,11 +615,11 @@ Auto-Setup       KPI Charts      Assignment     Analytics        Public Page
 
 **Queue-Based System**: Profile changes → caas_recalculation_queue → worker processes → update denormalized score
 
-**Safety Gate**: Unverified tutors (no identity check) receive 0 score, hidden from marketplace
+**Dual Storage**:
+- Profile scores: `caas_scores` table (centralized)
+- Entity scores: Entity's own table (e.g., `connection_groups.caas_score`)
 
-**Cold Start**: New tutors (0 sessions) get 30-point provisional score based on qualifications + verification
-
-### 5.3 CaaS Impact on Platform
+### 5.7 CaaS Impact on Platform
 
 **Marketplace Ranking**: Higher CaaS → higher search ranking → more bookings
 **Trust Signal**: Visible score badge (e.g., "CaaS Score: 78/100") on profiles

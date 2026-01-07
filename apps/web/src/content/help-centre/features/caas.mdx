@@ -176,49 +176,163 @@ Client scoring is simpler and focuses on being a trustworthy, reliable booking p
 - Uploading a profile photo
 - Shows engagement and transparency
 
-### For Agents (Agencies & Schools)
+### For Agents (4-Bucket Model)
 
-<CalloutBox type="warning">
-**CaaS Coming Soon:** Agent credibility scoring is currently in development. Agents will receive a score based on their organisation's performance, tutor quality, and business metrics.
+<CalloutBox type="success">
+**Agent CaaS is Live!** Agents now have their own credibility score based on recruitment quality, business operations, and platform engagement.
 </CalloutBox>
 
-**Planned Agent Scoring Model:**
+Agent credibility is calculated across four weighted categories:
 
-Agents will be scored based on:
+<Tabs>
+  <Tab label="Recruitment">
+    **Recruitment Performance (40 points)**
 
-- **Organisation Performance**:
-  - Average credibility score of managed tutors
-  - Total bookings facilitated through the organisation
-  - Client satisfaction and retention rates
-  - Organisation growth and sustainability
+    Based on the quality of tutors you recruit:
 
-- **Tutor Quality**:
-  - Quality of tutors recruited and managed
-  - Average tutor credibility scores
-  - Professional development support provided
-  - Retention of high-performing tutors
+    - **Recruited Tutor Quality**:
+      - Average CaaS score of tutors you've recruited
+      - Higher quality tutors = higher score
+      - Minimum 3 recruited tutors required
 
-- **Business Operations**:
-  - Response time to client inquiries
-  - Professional communication standards
-  - Transparent pricing and policies
-  - Compliance with platform guidelines
+    - **Active Tutor Rate**:
+      - Percentage of your recruited tutors actively teaching
+      - Shows sustainable recruitment (not just volume)
+      - Rewards retention and support
 
-- **Community Contribution**:
-  - Number of active referrals generated
-  - Support for educational access initiatives
-  - Platform engagement and feedback
-  - Training and mentorship provided to tutors
+    <CalloutBox type="info">
+    **Quality Over Quantity:** One excellent tutor (CaaS 80+) contributes more to your score than five inactive tutors. Focus on recruiting and supporting high-quality educators.
+    </CalloutBox>
+  </Tab>
 
-**Current Status:**
+  <Tab label="Business Growth">
+    **Business Growth (30 points)**
 
-Until agent scoring is implemented, agents can:
-- Build their organisation's reputation through tutor performance
-- Focus on recruiting and supporting high-quality tutors
-- Engage with the platform and community
-- Provide excellent service to clients
+    Based on your network's performance:
 
-Your organisation's credibility is currently reflected through the average scores of your tutors. See [Organisations](/help-centre/features/organisations) for more details.
+    - **Total Sessions Facilitated**:
+      - Combined sessions completed by your recruited tutors
+      - Progressive scoring: 10 sessions = 10pts, 50+ = 20pts
+      - Demonstrates business impact
+
+    - **Revenue Generated**:
+      - Total booking value from your network
+      - Scaled scoring based on volume
+      - Shows commercial success
+
+    <CalloutBox type="tip">
+    **Growth Strategy:** Support your tutors' success through training and client matching. Their success directly boosts your Agent CaaS score.
+    </CalloutBox>
+  </Tab>
+
+  <Tab label="Operations">
+    **Professional Operations (20 points)**
+
+    Based on how you run your agency:
+
+    - **Subscription Tier**:
+      - Having an active Organisation Premium subscription
+      - Shows professional commitment
+      - 10 points for active subscription
+
+    - **Organisation Verification**:
+      - Business verification status
+      - Professional credentials
+      - Shows legitimacy and trustworthiness
+
+    <CalloutBox type="info">
+    **Professional Edge:** Verified agents with Organisation subscriptions earn trust from both tutors and clients, leading to better recruitment and retention.
+    </CalloutBox>
+  </Tab>
+
+  <Tab label="Engagement">
+    **Platform Engagement (10 points)**
+
+    Based on your platform activity:
+
+    - **Active Recruitment**:
+      - Recent tutor recruitment activity
+      - Engaged vs. dormant agents
+      - Shows ongoing business operations
+
+    - **Response Rate**:
+      - How quickly you respond to tutor inquiries
+      - Professional communication
+      - Support responsiveness
+
+    <CalloutBox type="success">
+    **Stay Active:** Regular engagement with your recruited tutors and consistent recruitment activity keeps your score high and your network thriving.
+    </CalloutBox>
+  </Tab>
+</Tabs>
+
+**Important Distinction:**
+
+If you're an agent who owns an organisation, you have **TWO separate credibility scores**:
+
+1. **Your Agent CaaS** (personal): Based on recruitment performance → stored in `caas_scores` table
+2. **Your Organisation CaaS** (entity): Based on team performance → see next section
+
+Both scores are visible on different parts of the platform and serve different purposes.
+
+### For Organisations (Team-Based Scoring)
+
+<CalloutBox type="success">
+**Organisation CaaS is Live!** Organisations now have credibility scores based on team quality and verification status.
+</CalloutBox>
+
+Organisation credibility scoring is fundamentally different from individual scoring - it's an **entity-based score** that reflects your team's collective performance.
+
+**Scoring Model:**
+
+**Base Score: Weighted Team Average**
+- Average CaaS score of all active team members
+- Weighted by member activity (active tutors contribute more)
+- Based on sessions completed in last 90 days
+- Minimum 3 active members required for valid score
+
+**Verification Bonuses:**
+- Business Verified: +2 points
+- Safeguarding Certified: +2 points
+- Professional Insurance: +1 point
+- Association Member: +1 point
+
+**Total Possible:** Up to 106 points (100 base + 6 bonus)
+
+**Example Calculation:**
+```
+Team of 5 tutors:
+- Tutor A: CaaS 85 (20 sessions in 90d) → High activity weight
+- Tutor B: CaaS 78 (15 sessions in 90d) → Medium activity weight
+- Tutor C: CaaS 90 (25 sessions in 90d) → High activity weight
+- Tutor D: CaaS 65 (5 sessions in 90d) → Low activity weight
+- Tutor E: CaaS 72 (0 sessions in 90d) → Not counted (inactive)
+
+Weighted Average: ~82/100
+Business Verified: +2
+Safeguarding Certified: +2
+Professional Insurance: +1
+
+Final Organisation CaaS: 87/100
+```
+
+**How Organisation CaaS Updates:**
+
+Your organisation score recalculates automatically when:
+- Team members join or leave
+- Member CaaS scores change
+- Verification statuses update
+- Activity patterns shift (every 90 days)
+
+**Where Organisation Scores Are Stored:**
+
+Unlike individual profiles, organisation scores are stored directly in the `connection_groups` table's `caas_score` column (not in the `caas_scores` table).
+
+<CalloutBox type="success">
+**Synergy Effect:** Strong organisations attract high-credibility tutors, which further boosts organisation credibility - creating a positive growth cycle.
+</CalloutBox>
+
+Learn more about [Organisations](/help-centre/features/organisations) and team management.
 
 ## Understanding Your Score
 
@@ -422,49 +536,131 @@ Your score is recalculated when:
 
 ## Credibility for Organisations
 
-<CalloutBox type="warning">
-**CaaS Coming Soon:** Organisation credibility scores are being built. Organisations will inherit credibility from their team members.
-</CalloutBox>
-
-**Planned Organisation Score Model:**
-
-Organisations will have their credibility calculated based on:
-
-- **Team Quality (Primary Factor)**:
-  - Average CaaS score of all active team members
-  - Weighted by member activity (active tutors contribute more)
-  - Minimum team requirement (3+ members for valid score)
-  - Recalculated when members join/leave or improve scores
-
-- **Collective Performance**:
-  - Total completed sessions across the team
-  - Overall client satisfaction and retention
-  - Team-wide average ratings from families
-  - Consistency of service quality
-
-- **Organisation Verification**:
-  - Business verification status
-  - Safeguarding certification
-  - Professional insurance coverage
-  - Association memberships
-
-- **Growth & Impact**:
-  - Number of active tutors managed
-  - Geographic reach and service areas
-  - Contribution to educational access
-  - Community engagement initiatives
-
-**Current Status:**
-
-Your organisation's credibility is currently reflected through:
-- The individual scores of your team members
-- Team member profiles and achievements
-- Collective reviews and ratings
-- Organisation verification badges
-
 <CalloutBox type="success">
-**Synergy Effect:** Strong organisations attract high-credibility tutors, which further boosts organisation credibility - creating a positive growth cycle.
+**Organisation CaaS is Live!** Organisations now have their own credibility scores based on team performance and professional verification.
 </CalloutBox>
+
+Organisation credibility is calculated using an **entity-based scoring model** that's fundamentally different from individual profile scoring:
+
+### How Organisation Scores Work
+
+**Base Score: Activity-Weighted Team Average**
+
+Your organisation's base score is the weighted average of your active team members' CaaS scores:
+
+1. **Calculate Individual Scores**: Each team member has their own CaaS score (Tutor, Client, Agent, or Student)
+2. **Apply Activity Weighting**: Members are weighted by their session activity in the last 90 days
+   - High activity (20+ sessions): Full weight
+   - Medium activity (10-19 sessions): Moderate weight
+   - Low activity (1-9 sessions): Reduced weight
+   - Inactive (0 sessions): Not counted
+3. **Compute Weighted Average**: Activity-weighted average of all active members
+4. **Minimum Requirement**: Need at least 3 active members for a valid score
+
+**Verification Bonuses**
+
+Organisations can earn bonus points for professional credentials:
+
+- **Business Verified** (+2 points): Government-registered business
+- **Safeguarding Certified** (+2 points): Enhanced DBS checks for all team members
+- **Professional Insurance** (+1 point): Public liability and professional indemnity
+- **Association Member** (+1 point): Educational association membership (e.g., ISA, NAHT)
+
+**Total Scoring Range**: 0-106 points (100 base + up to 6 bonus)
+
+### Example Score Calculation
+
+```
+Cambridge Tutoring Academy (8 team members):
+
+Active Members (5):
+- Sarah (Tutor): CaaS 92, 30 sessions → Weight: 1.0
+- James (Tutor): CaaS 85, 18 sessions → Weight: 0.8
+- Emily (Tutor): CaaS 88, 22 sessions → Weight: 1.0
+- Tom (Client): CaaS 70, 8 sessions → Weight: 0.4
+- Lisa (Agent): CaaS 78, 12 sessions → Weight: 0.6
+
+Inactive Members (3):
+- Mark (Tutor): CaaS 65, 0 sessions → Not counted
+- Rachel (Tutor): CaaS 74, 0 sessions → Not counted
+- David (Client): CaaS 55, 0 sessions → Not counted
+
+Weighted Average Calculation:
+(92×1.0 + 85×0.8 + 88×1.0 + 70×0.4 + 78×0.6) / (1.0 + 0.8 + 1.0 + 0.4 + 0.6)
+= 338.8 / 3.8
+= 89.2
+
+Bonuses:
++ Business Verified: +2
++ Safeguarding Certified: +2
++ Professional Insurance: +1
+
+Final Organisation CaaS: 94/100
+```
+
+### When Scores Update
+
+Organisation scores recalculate automatically:
+- **Real-time**: When team members join or leave
+- **Hourly**: When member individual scores change
+- **Daily**: When activity weighting shifts (90-day rolling window)
+- **On-demand**: When verification status updates
+
+### Benefits of High Organisation CaaS
+
+**For the Organisation:**
+- Higher visibility in search results
+- Featured in "Top Organisations" lists
+- Premium pricing justified
+- Easier tutor recruitment
+- Client trust and credibility
+
+**For Team Members:**
+- Benefit from organisation's reputation
+- Higher booking conversion
+- Professional development support
+- Collaborative success
+
+**For Clients:**
+- Confidence in team quality
+- Consistent service standards
+- Multiple tutor options
+- Professional accountability
+
+### Improving Your Organisation Score
+
+**Short-Term (1-3 Months):**
+1. Help existing tutors improve their individual CaaS scores
+2. Complete business verification
+3. Obtain professional insurance
+4. Remove inactive team members (if permanently inactive)
+5. Encourage active tutors to complete more sessions
+
+**Long-Term (3-12 Months):**
+1. Recruit high-quality tutors (CaaS 70+)
+2. Provide professional development training
+3. Achieve safeguarding certification for all members
+4. Join educational associations
+5. Build consistent team performance culture
+
+<CalloutBox type="tip">
+**Strategic Insight:** Focus on quality over quantity. An organisation with 5 highly active tutors (CaaS 85+) will score higher than one with 20 inactive tutors (CaaS 60).
+</CalloutBox>
+
+### Organisation vs Agent CaaS
+
+**Important:** If you're an agent who owns an organisation, you have **two separate scores**:
+
+| Aspect | Agent CaaS | Organisation CaaS |
+|--------|-----------|-------------------|
+| **What it measures** | Your recruitment quality | Your team's performance |
+| **Scored as** | Profile (individual) | Entity (organisation) |
+| **Storage** | `caas_scores` table | `connection_groups.caas_score` |
+| **Factors** | Tutors recruited, business ops | Team quality, verifications |
+| **Updates** | When you recruit/manage | When team performs/changes |
+| **Visibility** | Your personal profile | Organisation page |
+
+Both scores are valuable and serve different purposes - your Agent CaaS shows your recruitment expertise, while Organisation CaaS shows your team's quality.
 
 Learn more about [Organisations](/help-centre/features/organisations) and team management.
 
