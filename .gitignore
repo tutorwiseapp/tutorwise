@@ -98,6 +98,7 @@ vercel-env-commands.sh
 .migration-backup/
 *.original
 *.new
+*.backup
 
 # App-specific ignores
 apps/web/.next/

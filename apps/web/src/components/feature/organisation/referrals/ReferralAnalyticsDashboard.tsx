@@ -9,6 +9,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { TrendingUp, TrendingDown, Users, Target, DollarSign, Calendar, ArrowRight } from 'lucide-react';
+import { SkeletonLine, SkeletonRect } from '@/app/components/ui/feedback/LoadingSkeleton';
 import styles from './ReferralAnalyticsDashboard.module.css';
 
 interface FunnelStage {
@@ -171,8 +172,31 @@ export function ReferralAnalyticsDashboard({
 
   if (loading) {
     return (
-      <div className={styles.card}>
-        <div className={styles.loading}>Loading analytics...</div>
+      <div className={styles.dashboard}>
+        <div className={styles.header}>
+          <div>
+            <SkeletonLine style={{ width: '180px', height: '24px' }} />
+            <SkeletonLine style={{ width: '350px', height: '16px', marginTop: '8px' }} />
+          </div>
+        </div>
+
+        <div className={styles.section}>
+          <SkeletonLine style={{ width: '200px', height: '20px', marginBottom: '16px' }} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <SkeletonRect style={{ width: '100%', height: '80px' }} />
+            <SkeletonRect style={{ width: '100%', height: '80px' }} />
+            <SkeletonRect style={{ width: '100%', height: '80px' }} />
+          </div>
+        </div>
+
+        <div className={styles.section}>
+          <SkeletonLine style={{ width: '150px', height: '20px', marginBottom: '16px' }} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+            <SkeletonRect style={{ width: '100%', height: '120px' }} />
+            <SkeletonRect style={{ width: '100%', height: '120px' }} />
+            <SkeletonRect style={{ width: '100%', height: '120px' }} />
+          </div>
+        </div>
       </div>
     );
   }

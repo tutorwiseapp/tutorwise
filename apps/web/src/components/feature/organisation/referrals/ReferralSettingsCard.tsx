@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { Save, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { SkeletonLine, SkeletonRect } from '@/app/components/ui/feedback/LoadingSkeleton';
 import styles from './ReferralSettingsCard.module.css';
 
 interface ReferralConfig {
@@ -129,7 +130,28 @@ export function ReferralSettingsCard({ organisationId, isOwner }: ReferralSettin
   if (loading) {
     return (
       <div className={styles.card}>
-        <div className={styles.loading}>Loading referral settings...</div>
+        <div className={styles.header}>
+          <SkeletonLine style={{ width: '200px', height: '24px' }} />
+          <SkeletonLine style={{ width: '300px', height: '16px', marginTop: '8px' }} />
+        </div>
+        <div className={styles.form}>
+          <div className={styles.formRow}>
+            <SkeletonLine style={{ width: '150px', height: '20px' }} />
+            <SkeletonRect style={{ width: '100%', height: '40px', marginTop: '8px' }} />
+          </div>
+          <div className={styles.formRow}>
+            <SkeletonLine style={{ width: '180px', height: '20px' }} />
+            <SkeletonRect style={{ width: '100%', height: '40px', marginTop: '8px' }} />
+          </div>
+          <div className={styles.formRow}>
+            <SkeletonLine style={{ width: '160px', height: '20px' }} />
+            <SkeletonRect style={{ width: '100%', height: '40px', marginTop: '8px' }} />
+          </div>
+          <div className={styles.formRow}>
+            <SkeletonLine style={{ width: '140px', height: '20px' }} />
+            <SkeletonRect style={{ width: '100%', height: '40px', marginTop: '8px' }} />
+          </div>
+        </div>
       </div>
     );
   }

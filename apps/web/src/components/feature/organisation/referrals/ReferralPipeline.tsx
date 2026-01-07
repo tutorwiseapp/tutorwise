@@ -14,6 +14,7 @@ import type { KanbanColumn } from '@/app/components/hub/kanban/HubKanbanBoard';
 import { Users, Phone, Calendar, FileText, CheckCircle2, Briefcase } from 'lucide-react';
 import { useDraggable } from '@dnd-kit/core';
 import toast from 'react-hot-toast';
+import { SkeletonRect } from '@/app/components/ui/feedback/LoadingSkeleton';
 import styles from './ReferralPipeline.module.css';
 
 interface PipelineStage {
@@ -287,8 +288,14 @@ export function ReferralPipeline({
 
   if (loading) {
     return (
-      <div className={styles.loading}>
-        <p>Loading pipeline...</p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '16px', padding: '24px' }}>
+        {STAGE_CONFIG.map((stage) => (
+          <div key={stage.key} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <SkeletonRect style={{ width: '100%', height: '40px' }} />
+            <SkeletonRect style={{ width: '100%', height: '120px' }} />
+            <SkeletonRect style={{ width: '100%', height: '120px' }} />
+          </div>
+        ))}
       </div>
     );
   }
