@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json();
-    const { name, description, color, icon, is_favorite } = body;
+    const { name, description, color, icon, is_favorite, type } = body;
 
     // Validate required fields
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
@@ -99,6 +99,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate type if provided
+    if (type && type !== 'personal' && type !== 'organisation') {
+      return NextResponse.json(
+        { error: 'Invalid type. Must be "personal" or "organisation"' },
+        { status: 400 }
+      );
+    }
+
     // Create group
     const { data: group, error: createError } = await supabase
       .from('connection_groups')
@@ -109,6 +117,7 @@ export async function POST(request: NextRequest) {
         color: color || '#006c67',
         icon: icon || 'folder',
         is_favorite: is_favorite || false,
+        type: type || 'personal', // Default to 'personal' if not specified
       })
       .select()
       .single();
