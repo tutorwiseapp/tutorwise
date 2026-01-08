@@ -5,7 +5,6 @@
  */
 
 export const ORGANISATION_SETTINGS_TABS = [
-  { id: 'general', label: 'General' },
   { id: 'billing', label: 'Billing & Subscription' },
   { id: 'team-permissions', label: 'Team Permissions' },
   { id: 'integrations', label: 'Integrations' },

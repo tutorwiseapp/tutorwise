@@ -1,8 +1,9 @@
 /**
  * Filename: /organisation/settings/page.tsx
- * Purpose: Redirect to organisation settings/general page
+ * Purpose: Redirect to organisation settings/billing page
  * Created: 2026-01-07
- * Pattern: Fetches user's organisation and redirects to /organisation/settings/general
+ * Updated: 2026-01-08 - Changed default from general to billing after removing General Settings page
+ * Pattern: Fetches user's organisation and redirects to /organisation/settings/billing
  */
 
 'use client';
@@ -32,8 +33,8 @@ export default function OrganisationSettingsRedirect() {
   useEffect(() => {
     if (!profileLoading && !orgLoading) {
       if (organisation?.id) {
-        // Redirect to the general settings page (default tab)
-        router.replace('/organisation/settings/general');
+        // Redirect to the billing settings page (default tab)
+        router.replace('/organisation/settings/billing');
       } else if (error || !organisation) {
         // No organisation found, redirect to organisation page to create one
         router.replace('/organisation');
