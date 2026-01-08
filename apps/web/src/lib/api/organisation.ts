@@ -819,3 +819,109 @@ export async function getOrganisationRecruitments(
 
   return applications;
 }
+
+/**
+ * ============================================================================
+ * ORGANISATION SUBSCRIPTION PAYMENT METHODS
+ * ============================================================================
+ * Functions for managing payment methods (cards) for organisation subscriptions
+ */
+
+export interface OrganisationCard {
+  id: string;
+  brand: string | undefined;
+  last4: string | undefined;
+  exp_month: number | undefined;
+  exp_year: number | undefined;
+}
+
+/**
+ * Get saved payment methods for organisation subscription
+ */
+export async function getOrganisationCards(organisationId: string): Promise<{
+  cards: OrganisationCard[];
+  defaultPaymentMethodId: string | null;
+}> {
+  const response = await fetch('/api/stripe/organisation/get-cards', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ organisationId }),
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Failed to fetch organisation cards');
+  }
+
+  const data = await response.json();
+  return {
+    cards: data.cards || [],
+    defaultPaymentMethodId: data.defaultPaymentMethodId || null,
+  };
+}
+
+/**
+ * Set default payment method for organisation subscription
+ */
+export async function setOrganisationDefaultCard(
+  organisationId: string,
+  paymentMethodId: string
+): Promise<void> {
+  const response = await fetch('/api/stripe/organisation/set-default-card', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ organisationId, paymentMethodId }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Failed to set default card');
+  }
+}
+
+/**
+ * Remove a payment method from organisation subscription
+ */
+export async function removeOrganisationCard(
+  organisationId: string,
+  paymentMethodId: string
+): Promise<void> {
+  const response = await fetch('/api/stripe/organisation/remove-card', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ organisationId, paymentMethodId }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Failed to remove card');
+  }
+}
+
+/**
+ * Create checkout session to add new payment method for organisation subscription
+ */
+export async function createOrganisationCardCheckoutSession(
+  organisationId: string
+): Promise<string> {
+  const response = await fetch('/api/stripe/organisation/add-card-checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ organisationId }),
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Failed to create checkout session');
+  }
+
+  const { sessionId } = await response.json();
+
+  if (!sessionId) {
+    throw new Error('Invalid session ID received');
+  }
+
+  return sessionId;
+}

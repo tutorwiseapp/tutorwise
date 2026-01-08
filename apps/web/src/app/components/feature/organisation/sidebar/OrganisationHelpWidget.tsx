@@ -2,7 +2,7 @@
  * Filename: OrganisationHelpWidget.tsx
  * Purpose: Organisation Subscription Management Widget
  * Created: 2025-12-03
- * Updated: 2026-01-08 - Connected CTAs to Settings Billing page instead of Stripe Customer Portal
+ * Updated: 2026-01-08 - Connected Manage Subscription button to Stripe Customer Portal, removed duplicate links
  * Updated: 2026-01-07 - Added trial countdown timer, removed tips (moved to OrganisationTipWidget)
  *
  * Displays:
@@ -10,7 +10,7 @@
  * - Expired trial alert
  * - Subscription status (active/canceled)
  * - Next billing date and billing action
- * - Subscribe/Manage subscription button
+ * - Subscribe/Manage subscription button (opens Stripe Customer Portal)
  */
 
 'use client';
@@ -23,19 +23,13 @@ import type { OrganisationSubscription } from '@/lib/stripe/subscription-utils';
 import styles from './OrganisationHelpWidget.module.css';
 
 interface OrganisationHelpWidgetProps {
-  onSubscribeClick?: () => void;
   subscription?: OrganisationSubscription | null;
   onManageSubscription?: () => void;
-  onUpdatePayment?: () => void;
-  onCancelSubscription?: () => void;
 }
 
 export default function OrganisationHelpWidget({
-  onSubscribeClick,
   subscription,
   onManageSubscription,
-  onUpdatePayment,
-  onCancelSubscription,
 }: OrganisationHelpWidgetProps) {
   const router = useRouter();
 
@@ -51,9 +45,13 @@ export default function OrganisationHelpWidget({
     });
   };
 
-  // Navigate to billing settings page
-  const handleNavigateToBilling = () => {
-    router.push('/organisation/settings/billing');
+  // Handle button click - either use provided handler or navigate to billing page
+  const handleButtonClick = () => {
+    if (onManageSubscription) {
+      onManageSubscription();
+    } else {
+      router.push('/organisation/settings/billing');
+    }
   };
 
   return (
@@ -123,7 +121,7 @@ export default function OrganisationHelpWidget({
           <button
             onClick={(e) => {
               e.preventDefault();
-              handleNavigateToBilling();
+              handleButtonClick();
             }}
             className={styles.subscribeButton}
           >
@@ -135,33 +133,6 @@ export default function OrganisationHelpWidget({
         <p className={styles.pricingInfo}>
           Subscription: £50/month after trial
         </p>
-
-        {/* Divider */}
-        <div className={styles.divider}></div>
-
-        {/* Secondary Actions */}
-        <div className={styles.secondaryActions}>
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              handleNavigateToBilling();
-            }}
-            className={styles.secondaryLink}
-          >
-            Update Payment Method
-          </a>
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              handleNavigateToBilling();
-            }}
-            className={styles.secondaryLink}
-          >
-            Cancel Subscription
-          </a>
-        </div>
       </div>
     </HubComplexCard>
   );

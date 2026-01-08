@@ -624,11 +624,8 @@ export default function OrganisationPage() {
               monthlyRevenue={0}
             />
             <OrganisationHelpWidget
-              onSubscribeClick={handleStartTrial}
               subscription={subscription || null}
               onManageSubscription={handleManageSubscription}
-              onUpdatePayment={handleUpdatePayment}
-              onCancelSubscription={handleCancelSubscription}
             />
             <OrganisationTipWidget />
             <OrganisationVideoWidget />
@@ -653,11 +650,8 @@ export default function OrganisationPage() {
               monthlyRevenue={0}
             />
             <OrganisationHelpWidget
-              onSubscribeClick={handleStartTrial}
               subscription={subscription || null}
               onManageSubscription={handleManageSubscription}
-              onUpdatePayment={handleUpdatePayment}
-              onCancelSubscription={handleCancelSubscription}
             />
             <OrganisationTipWidget />
             <OrganisationVideoWidget />
@@ -691,7 +685,6 @@ export default function OrganisationPage() {
                 monthlyRevenue={stats?.monthly_revenue || 0}
               />
               <OrganisationHelpWidget
-                onSubscribeClick={handleStartTrial}
                 subscription={subscription || null}
               />
               <OrganisationTipWidget />
@@ -735,11 +728,8 @@ export default function OrganisationPage() {
               monthlyRevenue={0}
             />
             <OrganisationHelpWidget
-              onSubscribeClick={handleStartTrial}
               subscription={subscription || null}
               onManageSubscription={handleManageSubscription}
-              onUpdatePayment={handleUpdatePayment}
-              onCancelSubscription={handleCancelSubscription}
             />
             <OrganisationTipWidget />
             <OrganisationVideoWidget />
@@ -927,7 +917,6 @@ export default function OrganisationPage() {
             monthlyRevenue={stats?.monthly_revenue || 0}
           />
           <OrganisationHelpWidget
-            onSubscribeClick={handleStartTrial}
             subscription={subscription || null}
           />
           <OrganisationTipWidget />

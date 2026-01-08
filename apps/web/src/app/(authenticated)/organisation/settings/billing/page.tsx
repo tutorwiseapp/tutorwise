@@ -6,9 +6,18 @@
 
 'use client';
 
-import React from 'react';
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { getOrganisationSubscription, getOrganisationStats } from '@/lib/api/organisation';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import {
+  getOrganisationSubscription,
+  getOrganisationStats,
+  getOrganisationCards,
+  setOrganisationDefaultCard,
+  removeOrganisationCard,
+  createOrganisationCardCheckoutSession,
+  type OrganisationCard,
+} from '@/lib/api/organisation';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import Button from '@/app/components/ui/actions/Button';
@@ -18,7 +27,9 @@ import OrganisationHelpWidget from '@/app/components/feature/organisation/sideba
 import OrganisationTipWidget from '@/app/components/feature/organisation/sidebar/OrganisationTipWidget';
 import OrganisationVideoWidget from '@/app/components/feature/organisation/sidebar/OrganisationVideoWidget';
 import { getTrialStatus } from '@/lib/stripe/organisation-trial-status';
+import getStripe from '@/lib/utils/get-stripejs';
 import toast from 'react-hot-toast';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import styles from './page.module.css';
 
 export default function BillingSettingsPage() {
@@ -50,6 +61,69 @@ export default function BillingSettingsPage() {
     placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
+  });
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
+  const [isVerifying, setIsVerifying] = useState(false);
+
+  // Fetch payment methods (cards) for organisation subscription
+  const {
+    data: cardsData,
+    isLoading: cardsLoading,
+    refetch: refetchCards,
+  } = useQuery({
+    queryKey: ['organisation-cards', organisation?.id],
+    queryFn: () => getOrganisationCards(organisation!.id),
+    enabled: !!organisation?.id && !!subscription?.stripe_customer_id,
+    placeholderData: keepPreviousData,
+    staleTime: 30 * 1000,
+    gcTime: 5 * 60 * 1000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    retry: 2,
+  });
+
+  const savedCards = cardsData?.cards || [];
+  const defaultPaymentMethodId = cardsData?.defaultPaymentMethodId || null;
+
+  // Mutation: Set default card
+  const setDefaultMutation = useMutation({
+    mutationFn: ({ paymentMethodId }: { paymentMethodId: string }) =>
+      setOrganisationDefaultCard(organisation!.id, paymentMethodId),
+    onSuccess: (_, { paymentMethodId }) => {
+      queryClient.setQueryData(
+        ['organisation-cards', organisation?.id],
+        (old: any) => ({
+          ...old,
+          defaultPaymentMethodId: paymentMethodId,
+        })
+      );
+      toast.success('Default payment method updated');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to set default card');
+    },
+  });
+
+  // Mutation: Remove card
+  const removeCardMutation = useMutation({
+    mutationFn: ({ paymentMethodId }: { paymentMethodId: string }) =>
+      removeOrganisationCard(organisation!.id, paymentMethodId),
+    onSuccess: (_, { paymentMethodId }) => {
+      queryClient.setQueryData(
+        ['organisation-cards', organisation?.id],
+        (old: any) => ({
+          ...old,
+          cards: old.cards.filter((card: OrganisationCard) => card.id !== paymentMethodId),
+        })
+      );
+      toast.success('Card removed successfully');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to remove card');
+    },
   });
 
   const trialStatus = getTrialStatus(subscription || null);
@@ -163,6 +237,102 @@ export default function BillingSettingsPage() {
     }
   };
 
+  // Card verification polling after checkout
+  useEffect(() => {
+    const status = searchParams?.get('status');
+    const customerId = searchParams?.get('customer_id');
+    const orgId = searchParams?.get('organisation_id');
+
+    if (status === 'success' && customerId && orgId === organisation?.id && !isVerifying) {
+      setIsVerifying(true);
+      const toastId = toast.loading('Verifying your new card...');
+      let attempts = 0;
+      const maxAttempts = 6;
+      const initialCardCount = savedCards.length;
+
+      const pollForNewCard = async () => {
+        try {
+          const data = await getOrganisationCards(organisation!.id);
+          const newCards = data.cards || [];
+
+          if (newCards.length > initialCardCount) {
+            queryClient.setQueryData(
+              ['organisation-cards', organisation?.id],
+              data
+            );
+            toast.success('Your new card was added successfully!', { id: toastId });
+            router.replace('/organisation/settings/billing', { scroll: false });
+            setIsVerifying(false);
+            return true;
+          }
+
+          return false;
+        } catch (error) {
+          console.error('Polling error:', error);
+          return false;
+        }
+      };
+
+      const poll = setInterval(async () => {
+        attempts++;
+
+        const success = await pollForNewCard();
+        if (success) {
+          clearInterval(poll);
+          return;
+        }
+
+        if (attempts >= maxAttempts) {
+          clearInterval(poll);
+          toast.error('Card verification timed out. Please refresh to see your new card.', { id: toastId });
+          router.replace('/organisation/settings/billing', { scroll: false });
+          setIsVerifying(false);
+          setTimeout(() => refetchCards(), 1000);
+        }
+      }, 2000);
+
+      return () => clearInterval(poll);
+    }
+  }, [searchParams, isVerifying, router, savedCards.length, refetchCards, queryClient, organisation]);
+
+  // Handle Add New Card
+  const handleAddNewCard = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!organisation) return;
+
+    const toastId = toast.loading('Redirecting to Stripe...');
+    try {
+      const sessionId = await createOrganisationCardCheckoutSession(organisation.id);
+      const stripe = await getStripe();
+
+      if (!stripe) {
+        throw new Error('Stripe.js failed to load');
+      }
+
+      await stripe.redirectToCheckout({ sessionId });
+      toast.dismiss(toastId);
+    } catch (error) {
+      console.error('Add card error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to add card', { id: toastId });
+    }
+  };
+
+  // Handle Set Default Card
+  const handleSetDefault = async (paymentMethodId: string) => {
+    setDefaultMutation.mutate({ paymentMethodId });
+  };
+
+  // Handle Remove Card
+  const handleRemove = async (paymentMethodId: string) => {
+    removeCardMutation.mutate({ paymentMethodId });
+  };
+
+  // Handle Refresh Cards
+  const handleRefreshCards = async () => {
+    await refetchCards();
+    toast.success('Card data refreshed');
+  };
+
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('en-GB', {
@@ -205,7 +375,10 @@ export default function BillingSettingsPage() {
             totalClients={stats?.total_clients || 0}
             monthlyRevenue={stats?.monthly_revenue || 0}
           />
-          <OrganisationHelpWidget subscription={subscription || null} />
+          <OrganisationHelpWidget
+            subscription={subscription || null}
+            onManageSubscription={handleManageSubscription}
+          />
           <OrganisationTipWidget />
           <OrganisationVideoWidget />
         </HubSidebar>
@@ -318,7 +491,7 @@ export default function BillingSettingsPage() {
                       </div>
                       <Button
                         onClick={handleManageSubscription}
-                        variant="secondary" size="md"
+                        variant="primary" size="md"
                         disabled={!isStripeConfigured}
                       >
                         Manage Subscription
@@ -355,29 +528,93 @@ export default function BillingSettingsPage() {
           </div>
         </div>
 
-        {/* Payment Method Card */}
+        {/* Payment Methods */}
         <div className={styles.card}>
-          <h3 className={styles.cardTitle}>Payment Method</h3>
+          <h3 className={styles.cardTitle}>Payment Methods</h3>
           <div className={styles.cardContent}>
-            {subscription?.stripe_customer_id ? (
-              <>
+            {/* 2-Column Grid */}
+            <div className={styles.paymentMethodsGrid}>
+              {/* Left Column: Saved Cards List */}
+              <div className={styles.leftColumn}>
+                <div className={styles.savedCardsHeader}>
+                  <h4 className={styles.savedCardsTitle}>Saved Cards</h4>
+                  <a href="#" onClick={(e) => { e.preventDefault(); handleRefreshCards(); }} className={styles.cardLink}>
+                    Refresh
+                  </a>
+                </div>
+
+                <div className={styles.savedCardsList}>
+                  {!subscription?.stripe_customer_id ? (
+                    <div className={styles.noCardsMessage}>
+                      Add your first card to start managing subscription payments.
+                    </div>
+                  ) : cardsLoading ? (
+                    <div className={styles.noCardsMessage}>
+                      Loading cards...
+                    </div>
+                  ) : savedCards.length === 0 ? (
+                    <div className={styles.noCardsMessage}>
+                      You have no saved cards. Add a card to manage your subscription.
+                    </div>
+                  ) : (
+                    savedCards.map((card) => (
+                      <div key={card.id} className={styles.savedCard}>
+                        <span className={styles.cardIcon}></span>
+                        <div className={styles.savedCardDetails}>
+                          <span>
+                            {card.brand?.toUpperCase()} **** {card.last4}
+                            {card.id === defaultPaymentMethodId && (
+                              <span className={styles.defaultBadge}>DEFAULT</span>
+                            )}
+                          </span>
+                          <span className={styles.cardExpiry}>
+                            Expires: {String(card.exp_month).padStart(2, '0')}/{card.exp_year}
+                          </span>
+                        </div>
+                        <DropdownMenu.Root>
+                          <DropdownMenu.Trigger asChild>
+                            <button className={styles.manageButton}>Manage</button>
+                          </DropdownMenu.Trigger>
+                          <DropdownMenu.Portal>
+                            <DropdownMenu.Content className={styles.dropdownContent} sideOffset={5} align="end">
+                              {card.id !== defaultPaymentMethodId && (
+                                <DropdownMenu.Item
+                                  className={styles.dropdownItem}
+                                  onSelect={() => handleSetDefault(card.id)}
+                                >
+                                  Set as default
+                                </DropdownMenu.Item>
+                              )}
+                              <DropdownMenu.Item
+                                className={`${styles.dropdownItem} ${styles.destructive}`}
+                                onSelect={() => handleRemove(card.id)}
+                              >
+                                Remove
+                              </DropdownMenu.Item>
+                            </DropdownMenu.Content>
+                          </DropdownMenu.Portal>
+                        </DropdownMenu.Root>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Right Column: Add Card Action */}
+              <div className={styles.rightColumn}>
                 <p className={styles.infoText}>
-                  Manage your payment methods through the Stripe Customer Portal.
+                  Add or manage credit and debit cards for your subscription payments.
                 </p>
                 <Button
-                  onClick={handleManageSubscription}
-                  variant="secondary" size="md"
+                  onClick={handleAddNewCard}
+                  variant="primary"
+                  size="md"
                   disabled={!isStripeConfigured}
                 >
-                  Update Payment Method
+                  Add New Card
                 </Button>
-              </>
-            ) : (
-              <p className={styles.infoText}>
-                Payment method management is available when you set up Stripe billing.
-                Your subscription is currently managed internally.
-              </p>
-            )}
+              </div>
+            </div>
           </div>
         </div>
 
