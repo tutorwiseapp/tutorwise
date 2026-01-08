@@ -7,11 +7,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useQuery, keepPreviousData } from '@tanstack/react-query';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { createClient } from '@/utils/supabase/client';
 import { useOrganisationSettings } from '@/app/hooks/useOrganisationSettings';
+import { getOrganisationStats, getOrganisationSubscription } from '@/lib/api/organisation';
+import OrganisationStatsWidget from '@/app/components/feature/organisation/sidebar/OrganisationStatsWidget';
+import OrganisationHelpWidget from '@/app/components/feature/organisation/sidebar/OrganisationHelpWidget';
+import OrganisationTipWidget from '@/app/components/feature/organisation/sidebar/OrganisationTipWidget';
+import OrganisationVideoWidget from '@/app/components/feature/organisation/sidebar/OrganisationVideoWidget';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
 
@@ -27,6 +32,26 @@ export default function GeneralSettingsPage() {
   const [timezone, setTimezone] = useState('Europe/London');
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+
+  // Fetch organisation stats for sidebar
+  const { data: stats } = useQuery({
+    queryKey: ['organisation-stats', organisation?.id],
+    queryFn: () => getOrganisationStats(organisation!.id),
+    enabled: !!organisation,
+    placeholderData: keepPreviousData,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
+
+  // Fetch organisation subscription for sidebar
+  const { data: subscription } = useQuery({
+    queryKey: ['organisation-subscription', organisation?.id],
+    queryFn: () => getOrganisationSubscription(organisation!.id),
+    enabled: !!organisation,
+    placeholderData: keepPreviousData,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
 
   // Initialize form when organisation loads
   useEffect(() => {
@@ -113,10 +138,14 @@ export default function GeneralSettingsPage() {
       tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
       sidebar={
         <HubSidebar>
-          {/* Sidebar widgets will be added here */}
-          <div className={styles.sidebarPlaceholder}>
-            Settings sidebar widgets coming soon
-          </div>
+          <OrganisationStatsWidget
+            teamSize={stats?.team_size || 0}
+            totalClients={stats?.total_clients || 0}
+            monthlyRevenue={stats?.monthly_revenue || 0}
+          />
+          <OrganisationHelpWidget subscription={subscription || null} />
+          <OrganisationTipWidget />
+          <OrganisationVideoWidget />
         </HubSidebar>
       }
     >

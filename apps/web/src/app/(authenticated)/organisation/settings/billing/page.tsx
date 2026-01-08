@@ -9,11 +9,15 @@
 import React, { useState } from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { getMyOrganisation, getOrganisationSubscription } from '@/lib/api/organisation';
+import { getMyOrganisation, getOrganisationSubscription, getOrganisationStats } from '@/lib/api/organisation';
 import { useRouter } from 'next/navigation';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import OrganisationStatsWidget from '@/app/components/feature/organisation/sidebar/OrganisationStatsWidget';
+import OrganisationHelpWidget from '@/app/components/feature/organisation/sidebar/OrganisationHelpWidget';
+import OrganisationTipWidget from '@/app/components/feature/organisation/sidebar/OrganisationTipWidget';
+import OrganisationVideoWidget from '@/app/components/feature/organisation/sidebar/OrganisationVideoWidget';
 import { getTrialStatus } from '@/lib/stripe/organisation-trial-status';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
@@ -54,6 +58,16 @@ export default function BillingSettingsPage() {
     refetchOnMount: 'always',
     refetchOnWindowFocus: true,
     retry: 2,
+  });
+
+  // Fetch organisation stats for sidebar
+  const { data: stats } = useQuery({
+    queryKey: ['organisation-stats', organisation?.id],
+    queryFn: () => getOrganisationStats(organisation!.id),
+    enabled: !!organisation,
+    placeholderData: keepPreviousData,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   const tabs: HubTab[] = [
@@ -211,9 +225,14 @@ export default function BillingSettingsPage() {
       tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
       sidebar={
         <HubSidebar>
-          <div className={styles.sidebarPlaceholder}>
-            Settings sidebar widgets coming soon
-          </div>
+          <OrganisationStatsWidget
+            teamSize={stats?.team_size || 0}
+            totalClients={stats?.total_clients || 0}
+            monthlyRevenue={stats?.monthly_revenue || 0}
+          />
+          <OrganisationHelpWidget subscription={subscription || null} />
+          <OrganisationTipWidget />
+          <OrganisationVideoWidget />
         </HubSidebar>
       }
     >
