@@ -15,7 +15,7 @@
 .content {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem; /* Match Team tab card gap (16px) */
   padding: 1rem;
 }
 
