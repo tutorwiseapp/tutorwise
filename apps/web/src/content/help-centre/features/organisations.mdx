@@ -526,19 +526,25 @@ Go to Info tab to update:
 Changes to organisation information reflect immediately on all member profiles and public-facing pages.
 </CalloutBox>
 
-### Managing Subscription
+### Managing Subscription & Billing
 
-**During Trial (Days 1-14):**
+**Billing Settings Location:**
+Go to **Organisation → Settings → Billing** to manage your subscription and payment methods.
+
+#### During Trial (Days 1-14)
+
 - Full access to all features
 - No payment method required
 - Reminders appear at 3, 2, 1 days before trial ends
 - Add payment method anytime to continue after trial
 
-**Subscribe After Trial:**
-1. Click "Subscribe Now" when prompted (or in Organisation → Info tab)
-2. Complete payment via Stripe Checkout
-3. £50/month recurring subscription starts
-4. Organisation status changes from "trialing" to "active"
+#### Subscribe After Trial
+
+1. Go to **Organisation → Settings → Billing**
+2. Click "Subscribe Now" when prompted
+3. Add payment method via Stripe Checkout
+4. £50/month recurring subscription starts
+5. Organisation status changes from "trialing" to "active"
 
 **If No Payment Added:**
 - Trial automatically cancels on day 14
@@ -546,12 +552,42 @@ Changes to organisation information reflect immediately on all member profiles a
 - You can restart trial or subscribe anytime
 - No charges applied
 
-**Cancel Subscription:**
-1. Go to Organisation → Info tab
+#### Managing Payment Methods
+
+**Add Cards:**
+1. Go to **Organisation → Settings → Billing → Payment Methods**
+2. Click "Add New Card"
+3. Complete Stripe Checkout process (securely adds card)
+4. Card appears in your saved cards list
+
+**Saved Cards Management:**
+- View all saved cards with last 4 digits and expiry dates
+- Set default payment method for recurring subscription charges
+- Remove unused cards
+- Refresh card list to see latest updates
+
+<CalloutBox type="tip">
+**Security:** All payment information is securely processed and stored by Stripe. Tutorwise never sees or stores your full card details.
+</CalloutBox>
+
+#### Manage Subscription
+
+**Access Stripe Customer Portal:**
+1. Go to **Organisation → Settings → Billing**
 2. Click "Manage Subscription" (opens Stripe billing portal)
-3. Click "Cancel subscription" and confirm
-4. Organisation continues until end of current billing period
-5. You retain access until period ends
+3. From portal you can:
+   - Update payment methods
+   - View billing history and invoices
+   - Download receipts
+   - Update billing information
+   - Cancel subscription
+   - View upcoming charges
+
+**Cancel Subscription:**
+1. Click "Manage Subscription" to open Stripe portal
+2. Click "Cancel subscription" and confirm
+3. Organisation continues until end of current billing period
+4. You retain access until period ends
 
 **Reactivate Canceled Subscription:**
 - If you canceled but period hasn't ended, you can reactivate
@@ -564,6 +600,10 @@ Changes to organisation information reflect immediately on all member profiles a
 - Historical data is retained (read-only for 30 days)
 - Export all data before closure via CSV/JSON
 - Tutors can join another organisation or continue as solo agents
+
+<CalloutBox type="info">
+**Billing Reminders:** You'll receive email notifications before each billing cycle and if payment fails. Update your payment method promptly to avoid service interruption.
+</CalloutBox>
 
 ## Best Practices for Organisations
 
