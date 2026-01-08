@@ -2,6 +2,7 @@
  * Filename: OrganisationHelpWidget.tsx
  * Purpose: Organisation Subscription Management Widget
  * Created: 2025-12-03
+ * Updated: 2026-01-08 - Connected CTAs to Settings Billing page instead of Stripe Customer Portal
  * Updated: 2026-01-07 - Added trial countdown timer, removed tips (moved to OrganisationTipWidget)
  *
  * Displays:
@@ -15,6 +16,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import HubComplexCard from '@/app/components/hub/sidebar/cards/HubComplexCard';
 import { getTrialStatus } from '@/lib/stripe/organisation-trial-status';
 import type { OrganisationSubscription } from '@/lib/stripe/subscription-utils';
@@ -35,6 +37,8 @@ export default function OrganisationHelpWidget({
   onUpdatePayment,
   onCancelSubscription,
 }: OrganisationHelpWidgetProps) {
+  const router = useRouter();
+
   const trialStatus = useMemo(() => {
     return getTrialStatus(subscription || null);
   }, [subscription]);
@@ -45,6 +49,11 @@ export default function OrganisationHelpWidget({
       month: 'short',
       year: 'numeric',
     });
+  };
+
+  // Navigate to billing settings page
+  const handleNavigateToBilling = () => {
+    router.push('/organisation/settings/billing');
   };
 
   return (
@@ -114,11 +123,7 @@ export default function OrganisationHelpWidget({
           <button
             onClick={(e) => {
               e.preventDefault();
-              if (subscription && subscription.status === 'active') {
-                onManageSubscription?.();
-              } else {
-                onSubscribeClick?.();
-              }
+              handleNavigateToBilling();
             }}
             className={styles.subscribeButton}
           >
@@ -140,7 +145,7 @@ export default function OrganisationHelpWidget({
             href="#"
             onClick={(e) => {
               e.preventDefault();
-              onUpdatePayment?.();
+              handleNavigateToBilling();
             }}
             className={styles.secondaryLink}
           >
@@ -150,7 +155,7 @@ export default function OrganisationHelpWidget({
             href="#"
             onClick={(e) => {
               e.preventDefault();
-              onCancelSubscription?.();
+              handleNavigateToBilling();
             }}
             className={styles.secondaryLink}
           >
