@@ -1,0 +1,67 @@
+/**
+ * Filename: Tooltip.module.css
+ * Purpose: Styles for accessible tooltip component
+ * Created: 2026-01-08
+ */
+
+/* Tooltip Content */
+.content {
+  background-color: var(--color-gray-900);
+  color: white;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  max-width: 300px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 1000;
+  word-wrap: break-word;
+  animation: fadeIn 0.15s ease-out;
+}
+
+/* Arrow pointing to trigger */
+.arrow {
+  fill: var(--color-gray-900);
+}
+
+/* Simple text content */
+.text {
+  display: block;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Ensure tooltip doesn't overflow viewport */
+.content[data-side='top'] {
+  margin-bottom: 4px;
+}
+
+.content[data-side='bottom'] {
+  margin-top: 4px;
+}
+
+.content[data-side='left'] {
+  margin-right: 4px;
+}
+
+.content[data-side='right'] {
+  margin-left: 4px;
+}
+
+/* Responsive: Reduce max-width on mobile */
+@media (max-width: 768px) {
+  .content {
+    max-width: 250px;
+    font-size: 12px;
+  }
+}

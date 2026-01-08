@@ -30,6 +30,7 @@ import FirstLoginModal from '@/app/components/feature/dashboard/content/FirstLog
 import TipsCard from '@/app/components/feature/dashboard/performance/TipsCard';
 import DashboardHelpWidget from '@/app/components/feature/dashboard/sidebar/DashboardHelpWidget';
 import DashboardVideoWidget from '@/app/components/feature/dashboard/sidebar/DashboardVideoWidget';
+import { TooltipProvider } from '@/app/components/ui/Tooltip';
 import MessagesWidget from '@/app/components/feature/dashboard/performance/MessagesWidget';
 import PayoutWidget from '@/app/components/feature/dashboard/performance/PayoutWidget';
 import { HubStudentTypeBreakdown, type StudentTypeData } from '@/app/components/hub/charts';
@@ -299,7 +300,7 @@ const DashboardPage = () => {
   };
 
   return (
-    <>
+    <TooltipProvider>
       {/* First Login Welcome Modal - Track B Phase 1.2 */}
       <FirstLoginModal
         isOpen={showFirstLoginModal}
@@ -341,7 +342,11 @@ const DashboardPage = () => {
           />
 
           {/* Help Widget */}
-          <DashboardHelpWidget />
+          <DashboardHelpWidget
+            role={activeRole === 'client' ? 'client' : activeRole === 'agent' ? 'agent' : 'tutor'}
+            caasScore={profile.caas_score || 0}
+            profileComplete={!!profile?.onboarding_progress?.onboarding_completed}
+          />
 
           {/* Video Widget */}
           <DashboardVideoWidget />
@@ -433,7 +438,7 @@ const DashboardPage = () => {
         </>
       )}
     </HubPageLayout>
-    </>
+    </TooltipProvider>
   );
 };
 

@@ -36,3 +36,18 @@
 .text:last-child {
   margin-bottom: 0;
 }
+
+.link {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #006C67;
+  text-decoration: none;
+  margin-top: 8px;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: #005550;
+  text-decoration: underline;
+}

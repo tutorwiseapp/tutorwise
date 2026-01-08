@@ -18,6 +18,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import HubComplexCard from '@/app/components/hub/sidebar/cards/HubComplexCard';
+import { InfoTooltip } from '@/app/components/ui/Tooltip';
 import styles from './ProfileGrowthWidget.module.css';
 
 interface CaaSScoreData {
@@ -198,10 +199,15 @@ export default function ProfileGrowthWidget({ userId, role }: ProfileGrowthWidge
           <>
             {/* Score Display */}
             <div className={styles.scoreSection}>
-              <div className={`${styles.scoreCircle} ${getScoreColor(score)}`}>
-                <span className={styles.scoreNumber}>{score}</span>
-                <span className={styles.scoreOutOf}>/100</span>
-              </div>
+              <InfoTooltip
+                text="Your Credibility Score is calculated based on profile completion, verification status, credentials, availability, and response rates. Higher scores improve your visibility in search results."
+                side="right"
+              >
+                <div className={`${styles.scoreCircle} ${getScoreColor(score)}`}>
+                  <span className={styles.scoreNumber}>{score}</span>
+                  <span className={styles.scoreOutOf}>/100</span>
+                </div>
+              </InfoTooltip>
 
               {/* Star Rating */}
               <div className={styles.starRating}>
@@ -275,7 +281,12 @@ export default function ProfileGrowthWidget({ userId, role }: ProfileGrowthWidge
                           <span className={styles.stepTitle}>{step.title}</span>
                         </div>
                         {step.pointsGain > 0 && (
-                          <span className={styles.stepPoints}>+{step.pointsGain}</span>
+                          <InfoTooltip
+                            text={`Complete this step to gain ${step.pointsGain} points towards your Credibility Score`}
+                            side="left"
+                          >
+                            <span className={styles.stepPoints}>+{step.pointsGain}</span>
+                          </InfoTooltip>
                         )}
                       </Link>
                     </li>
