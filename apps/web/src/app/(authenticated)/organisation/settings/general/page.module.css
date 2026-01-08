@@ -65,7 +65,7 @@
   padding: 0.625rem 0.75rem;
   font-size: var(--font-size-sm);
   color: var(--color-gray-800);
-  background-color: var(--color-gray-50);
+  background-color: white;
   border: 1px solid var(--color-gray-300);
   border-radius: 6px;
   transition: all 0.2s ease;
