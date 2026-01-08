@@ -11,6 +11,7 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getOrganisationStats, getOrganisationSubscription } from '@/lib/api/organisation';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import Button from '@/app/components/ui/actions/Button';
 import { useOrganisationSettings } from '@/app/hooks/useOrganisationSettings';
 import OrganisationStatsWidget from '@/app/components/feature/organisation/sidebar/OrganisationStatsWidget';
 import OrganisationHelpWidget from '@/app/components/feature/organisation/sidebar/OrganisationHelpWidget';
@@ -182,12 +183,14 @@ export default function IntegrationsSettingsPage() {
                     <p className={styles.integrationDescription}>
                       {integration.description}
                     </p>
-                    <button
-                      className={styles.connectButton}
+                    <Button
+                      variant="primary"
+                      size="md"
+                      fullWidth={true}
                       disabled={integration.comingSoon}
                     >
                       {integration.comingSoon ? 'Coming Soon' : 'Connect'}
-                    </button>
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -202,9 +205,9 @@ export default function IntegrationsSettingsPage() {
             <p className={styles.description}>
               Don&apos;t see the integration you need? Let us know what tools you&apos;d like to connect with TutorWise.
             </p>
-            <button className={styles.buttonSecondary} disabled>
+            <Button variant="secondary" size="md" disabled>
               Request Integration
-            </button>
+            </Button>
           </div>
         </div>
       </div>

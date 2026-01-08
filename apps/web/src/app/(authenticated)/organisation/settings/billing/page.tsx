@@ -11,6 +11,7 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getOrganisationSubscription, getOrganisationStats } from '@/lib/api/organisation';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import Button from '@/app/components/ui/actions/Button';
 import { useOrganisationSettings } from '@/app/hooks/useOrganisationSettings';
 import OrganisationStatsWidget from '@/app/components/feature/organisation/sidebar/OrganisationStatsWidget';
 import OrganisationHelpWidget from '@/app/components/feature/organisation/sidebar/OrganisationHelpWidget';
@@ -247,13 +248,13 @@ export default function BillingSettingsPage() {
                           Trial ends {formatDate(subscription?.trial_end || null)}
                         </p>
                       </div>
-                      <button
+                      <Button
                         onClick={handleManageSubscription}
-                        className={styles.buttonPrimary}
+                        variant="primary" size="md"
                         disabled={!isStripeConfigured}
                       >
                         Subscribe Now
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 );
@@ -270,13 +271,13 @@ export default function BillingSettingsPage() {
                           Your trial ended on {formatDate(subscription?.trial_end || null)}
                         </p>
                       </div>
-                      <button
+                      <Button
                         onClick={handleManageSubscription}
-                        className={styles.buttonPrimary}
+                        variant="primary" size="md"
                         disabled={!isStripeConfigured}
                       >
                         Subscribe to Restore Access
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 );
@@ -296,13 +297,13 @@ export default function BillingSettingsPage() {
                           {subscription.cancel_at_period_end ? 'Cancels automatically at end of period' : 'Renews automatically'}
                         </p>
                       </div>
-                      <button
+                      <Button
                         onClick={handleManageSubscription}
-                        className={styles.buttonSecondary}
+                        variant="secondary" size="md"
                         disabled={!isStripeConfigured}
                       >
                         Manage Subscription
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 );
@@ -321,13 +322,13 @@ export default function BillingSettingsPage() {
                         £50/month after trial period
                       </p>
                     </div>
-                    <button
+                    <Button
                       onClick={handleManageSubscription}
-                      className={styles.buttonPrimary}
+                      variant="primary" size="md"
                       disabled={!isStripeConfigured}
                     >
                       Start Free Trial
-                    </button>
+                    </Button>
                   </div>
                 </div>
               );
@@ -342,13 +343,13 @@ export default function BillingSettingsPage() {
             <p className={styles.infoText}>
               Manage your payment methods through the Stripe Customer Portal.
             </p>
-            <button
+            <Button
               onClick={handleManageSubscription}
-              className={styles.buttonSecondary}
+              variant="secondary" size="md"
               disabled={!isStripeConfigured}
             >
               Update Payment Method
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -359,13 +360,13 @@ export default function BillingSettingsPage() {
             <p className={styles.infoText}>
               View and download your billing history and invoices through the Stripe Customer Portal.
             </p>
-            <button
+            <Button
               onClick={handleManageSubscription}
-              className={styles.buttonSecondary}
+              variant="secondary" size="md"
               disabled={!isStripeConfigured}
             >
               View Billing History
-            </button>
+            </Button>
           </div>
         </div>
 
