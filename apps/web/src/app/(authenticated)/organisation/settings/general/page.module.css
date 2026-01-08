@@ -63,20 +63,19 @@
 .select {
   width: 100%;
   padding: 0.625rem 0.75rem;
-  font-size: var(--font-size-sm);
-  color: var(--color-gray-800);
-  background-color: white;
-  border: 1px solid var(--color-gray-300);
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  color: #1f2937;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  transition: all 0.15s ease;
 }
 
 .input:focus,
 .textarea:focus,
 .select:focus {
   outline: none;
-  border-color: var(--color-primary);
-  background-color: var(--color-bg-card);
+  border-color: #006c67;
   box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
 }
 
