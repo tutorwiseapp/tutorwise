@@ -307,16 +307,15 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
         return (
           <ClientPersonalInfoStep
             onNext={handlePersonalInfoSubmit}
-            onSkip={handleSkipHandler}
             isLoading={isLoading}
           />
         );
       case 'subjects':
-        return <ClientSubjectSelectionStep onNext={handleSubjectsNext} onBack={handleBack} onSkip={handleSkipHandler} isLoading={isLoading} initialSubjects={subjects} />;
+        return <ClientSubjectSelectionStep onNext={handleSubjectsNext} onBack={handleBack} isLoading={isLoading} initialSubjects={subjects} />;
       case 'preferences':
-        return <ClientLearningPreferencesStep onNext={handlePreferencesNext} onBack={handleBack} onSkip={handleSkipHandler} isLoading={isLoading} />;
+        return <ClientLearningPreferencesStep onNext={handlePreferencesNext} onBack={handleBack} isLoading={isLoading} />;
       case 'availability':
-        return <ClientAvailabilityStep onNext={handleAvailabilityNext} onBack={handleBack} onSkip={handleSkipHandler} isLoading={isLoading} />;
+        return <ClientAvailabilityStep onNext={handleAvailabilityNext} onBack={handleBack} isLoading={isLoading} />;
       default:
         return null;
     }

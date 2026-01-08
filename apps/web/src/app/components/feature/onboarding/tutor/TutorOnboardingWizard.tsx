@@ -356,17 +356,16 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
         return (
           <TutorPersonalInfoStep
             onNext={handlePersonalInfoSubmit}
-            onSkip={handleSkipHandler}
             isLoading={isLoading}
             userRole="tutor" // For tutor onboarding, always show DBS fields
           />
         );
       case 'subjects':
-        return <TutorSubjectSelectionStep onNext={handleSubjectsSubmit} onBack={handleBack} onSkip={handleSkipHandler} isLoading={isLoading} />;
+        return <TutorSubjectSelectionStep onNext={handleSubjectsSubmit} onBack={handleBack} isLoading={isLoading} />;
       case 'qualifications':
-        return <TutorQualificationsStep onNext={handleQualificationsSubmit} onBack={handleBack} onSkip={handleSkipHandler} isLoading={isLoading} />;
+        return <TutorQualificationsStep onNext={handleQualificationsSubmit} onBack={handleBack} isLoading={isLoading} />;
       case 'availability':
-        return <TutorAvailabilityStep onNext={handleAvailabilitySubmit} onBack={handleBack} onSkip={handleSkipHandler} isLoading={isLoading} />;
+        return <TutorAvailabilityStep onNext={handleAvailabilitySubmit} onBack={handleBack} isLoading={isLoading} />;
       default:
         return null;
     }

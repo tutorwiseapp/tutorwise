@@ -8,7 +8,7 @@ import { MultiSelectCardGroup } from '../shared/SelectableCard';
 interface TutorSubjectSelectionStepProps {
   onNext: (subjects: string[]) => void;
   onBack?: () => void;
-  onSkip: () => void;
+  onSkip?: () => void;
   isLoading: boolean;
 }
 

@@ -8,7 +8,7 @@ import { SingleSelectCardGroup } from '../shared/SelectableCard';
 interface AgentDetailsStepProps {
   onNext: (details: AgencyDetailsData) => void;
   onBack?: () => void;
-  onSkip: () => void;
+  onSkip?: () => void;
   isLoading: boolean;
 }
 

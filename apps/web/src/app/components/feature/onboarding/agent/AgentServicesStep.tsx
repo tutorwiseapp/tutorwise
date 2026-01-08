@@ -8,7 +8,7 @@ import { MultiSelectCardGroup } from '../shared/SelectableCard';
 interface AgentServicesStepProps {
   onNext: (services: string[]) => void;
   onBack?: () => void;
-  onSkip: () => void;
+  onSkip?: () => void;
   isLoading: boolean;
 }
 

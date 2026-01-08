@@ -6,10 +6,10 @@ import React, { useState, useEffect } from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { format, parse } from 'date-fns';
 import styles from '../OnboardingWizard.module.css';
-import formStyles from '../PersonalInfoForm.module.css';
 import { WizardActionButtons } from '../shared/WizardButton';
 import { PersonalInfoData } from './TutorOnboardingWizard';
 import DatePicker from '@/app/components/ui/forms/DatePicker';
+import { HubForm } from '@/app/components/hub/form/HubForm';
 
 interface TutorPersonalInfoStepProps {
   onNext: (data: PersonalInfoData) => void;
@@ -135,133 +135,115 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
     console.log('[TutorPersonalInfoStep] onNext called successfully');
   };
 
+  // Get role display name
+  const roleDisplayNames = {
+    tutor: 'Tutor',
+    agent: 'Agent',
+    client: 'Client'
+  };
+  const roleDisplayName = roleDisplayNames[userRole] || 'Tutor';
+
   return (
     <div className={styles.stepContent}>
       <div className={styles.stepHeader}>
         <h2 className={styles.stepTitle}>Personal Information</h2>
         <p className={styles.stepSubtitle}>
-          Let&apos;s start with your basic information
+          {roleDisplayName} Onboarding • Let&apos;s start with your basic information
         </p>
       </div>
 
       <div className={styles.stepBody}>
-        {/* Name and Gender - 2 Column Layout */}
-        <div className={formStyles.twoColumnGrid}>
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel} htmlFor="firstName">
-              First Name *
-            </label>
-            <input
-              id="firstName"
-              name="firstName"
-              type="text"
-              value={formData.firstName}
-              onChange={handleChange}
-              placeholder="John"
-              disabled={isLoading}
-              required
-              className={styles.formInput}
-            />
-          </div>
+        <HubForm.Section>
+          <HubForm.Grid>
+            <HubForm.Field label="First Name" required>
+              <input
+                id="firstName"
+                name="firstName"
+                type="text"
+                value={formData.firstName}
+                onChange={handleChange}
+                placeholder="John"
+                disabled={isLoading}
+                required
+              />
+            </HubForm.Field>
 
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel} htmlFor="lastName">
-              Last Name *
-            </label>
-            <input
-              id="lastName"
-              name="lastName"
-              type="text"
-              value={formData.lastName}
-              onChange={handleChange}
-              placeholder="Smith"
-              disabled={isLoading}
-              required
-              className={styles.formInput}
-            />
-          </div>
+            <HubForm.Field label="Last Name" required>
+              <input
+                id="lastName"
+                name="lastName"
+                type="text"
+                value={formData.lastName}
+                onChange={handleChange}
+                placeholder="Smith"
+                disabled={isLoading}
+                required
+              />
+            </HubForm.Field>
 
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel} htmlFor="gender">
-              Gender *
-            </label>
-            <select
-              id="gender"
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-              disabled={isLoading}
-              required
-              className={styles.formInput}
-              style={{
-                appearance: 'none',
-                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E")`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'right 12px center',
-                backgroundSize: '12px',
-                paddingRight: '2.5rem'
-              }}
-            >
-              <option value="">Select gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-              <option value="Prefer not to say">Prefer not to say</option>
-            </select>
-          </div>
+            <HubForm.Field label="Gender" required>
+              <select
+                id="gender"
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                disabled={isLoading}
+                required
+                style={{
+                  appearance: 'none',
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E")`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'right 12px center',
+                  backgroundSize: '12px',
+                  paddingRight: '2.5rem'
+                }}
+              >
+                <option value="">Select gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+            </HubForm.Field>
 
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel} htmlFor="dateOfBirth">
-              Date of Birth *
-            </label>
-            <DatePicker
-              selected={selectedDate}
-              onSelect={handleDateChange}
-            />
-          </div>
-        </div>
+            <HubForm.Field label="Date of Birth" required>
+              <DatePicker
+                selected={selectedDate}
+                onSelect={handleDateChange}
+              />
+            </HubForm.Field>
 
-        {/* Email and Phone - 2 Column Layout */}
-        <div className={formStyles.twoColumnGrid}>
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel} htmlFor="email">
-              Email *
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="johnsmith@gmail.com"
-              disabled={isLoading}
-              required
-              className={styles.formInput}
-            />
-          </div>
+            <HubForm.Field label="Email" required>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="johnsmith@gmail.com"
+                disabled={isLoading}
+                required
+              />
+            </HubForm.Field>
 
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel} htmlFor="phone">
-              Phone
-            </label>
-            <input
-              id="phone"
-              name="phone"
-              type="tel"
-              value={formData.phone}
-              onChange={handleChange}
-              placeholder="+44 07575 123456"
-              disabled={isLoading}
-              className={styles.formInput}
-            />
-          </div>
-        </div>
+            <HubForm.Field label="Phone">
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="+44 07575 123456"
+                disabled={isLoading}
+              />
+            </HubForm.Field>
+          </HubForm.Grid>
+        </HubForm.Section>
       </div>
 
       <WizardActionButtons
         onContinue={handleContinue}
         continueEnabled={isFormValid}
-        onSkip={onSkip}
         isLoading={isLoading}
       />
     </div>

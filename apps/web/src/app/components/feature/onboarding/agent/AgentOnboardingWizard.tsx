@@ -314,16 +314,15 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
         return (
           <AgentPersonalInfoStep
             onNext={handlePersonalInfoSubmit}
-            onSkip={handleSkipHandler}
             isLoading={isLoading}
           />
         );
       case 'details':
-        return <AgentDetailsStep onNext={handleDetailsSubmit} onBack={handleBack} onSkip={handleSkipHandler} isLoading={isLoading} />;
+        return <AgentDetailsStep onNext={handleDetailsSubmit} onBack={handleBack} isLoading={isLoading} />;
       case 'services':
-        return <AgentServicesStep onNext={handleServicesSubmit} onBack={handleBack} onSkip={handleSkipHandler} isLoading={isLoading} />;
+        return <AgentServicesStep onNext={handleServicesSubmit} onBack={handleBack} isLoading={isLoading} />;
       case 'capacity':
-        return <AgentCapacityStep onNext={handleCapacitySubmit} onBack={handleBack} onSkip={handleSkipHandler} isLoading={isLoading} />;
+        return <AgentCapacityStep onNext={handleCapacitySubmit} onBack={handleBack} isLoading={isLoading} />;
       default:
         return null;
     }

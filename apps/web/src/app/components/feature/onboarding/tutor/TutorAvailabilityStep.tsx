@@ -8,7 +8,7 @@ import { SingleSelectCardGroup, MultiSelectCardGroup } from '../shared/Selectabl
 interface TutorAvailabilityStepProps {
   onNext: (availability: AvailabilityData) => void;
   onBack?: () => void;
-  onSkip: () => void;
+  onSkip?: () => void;
   isLoading: boolean;
 }
 

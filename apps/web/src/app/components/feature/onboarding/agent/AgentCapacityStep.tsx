@@ -8,7 +8,7 @@ import { SingleSelectCardGroup, MultiSelectCardGroup } from '../shared/Selectabl
 interface AgentCapacityStepProps {
   onNext: (capacity: CapacityData) => void;
   onBack?: () => void;
-  onSkip: () => void;
+  onSkip?: () => void;
   isLoading: boolean;
 }
 

@@ -13,7 +13,7 @@ export interface PreferencesData {
 interface ClientLearningPreferencesStepProps {
   onNext: (preferences: PreferencesData) => void;
   onBack: () => void;
-  onSkip: () => void;
+  onSkip?: () => void;
   isLoading: boolean;
 }
 

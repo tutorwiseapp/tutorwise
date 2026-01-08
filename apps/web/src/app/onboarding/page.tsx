@@ -74,7 +74,17 @@ export default function OnboardingPage() {
             disabled={hasSeeker}
             className={`${styles.roleCard} ${hasSeeker ? styles.disabled : ''}`}
           >
-            <div className={styles.roleIcon}>📚</div>
+            <div className={styles.roleIconWrapper}>
+              <svg className={styles.roleIcon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {/* Book outline */}
+                <path d="M5 18.5C5 17.837 5.26339 17.2011 5.73223 16.7322C6.20107 16.2634 6.83696 16 7.5 16H19" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M7.5 3H19V21H7.5C6.83696 21 6.20107 20.7366 5.73223 20.2678C5.26339 19.7989 5 19.163 5 18.5V5.5C5 4.83696 5.26339 4.20107 5.73223 3.73223C6.20107 3.26339 6.83696 3 7.5 3Z" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+                {/* Page lines */}
+                <line x1="10" y1="7" x2="16" y2="7" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round"/>
+                <line x1="10" y1="10" x2="16" y2="10" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round"/>
+                <line x1="10" y1="13" x2="16" y2="13" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round"/>
+              </svg>
+            </div>
             <h3 className={styles.roleTitle}>Client</h3>
             <p className={styles.roleDescription}>
               Find expert tutors and start your learning journey
@@ -90,7 +100,13 @@ export default function OnboardingPage() {
             disabled={hasProvider}
             className={`${styles.roleCard} ${hasProvider ? styles.disabled : ''}`}
           >
-            <div className={styles.roleIcon}>🎓</div>
+            <div className={styles.roleIconWrapper}>
+              <svg className={styles.roleIcon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 9.5L12 5L21 9.5L12 14L3 9.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M21 9.5V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M7 12V16.5C7 16.5 9 19.5 12 19.5C15 19.5 17 16.5 17 16.5V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
             <h3 className={styles.roleTitle}>Tutor</h3>
             <p className={styles.roleDescription}>
               Share your knowledge and earn income teaching others
@@ -106,10 +122,25 @@ export default function OnboardingPage() {
             disabled={hasAgent}
             className={`${styles.roleCard} ${hasAgent ? styles.disabled : ''}`}
           >
-            <div className={styles.roleIcon}>🏠</div>
+            <div className={styles.roleIconWrapper}>
+              <svg className={styles.roleIcon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 3H10V21H4V3Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M10 8H20V21H10V8Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <rect x="6" y="6" width="1.5" height="1.5" fill="currentColor"/>
+                <rect x="6" y="10" width="1.5" height="1.5" fill="currentColor"/>
+                <rect x="6" y="14" width="1.5" height="1.5" fill="currentColor"/>
+                <rect x="6" y="18" width="1.5" height="1.5" fill="currentColor"/>
+                <rect x="13" y="10" width="1.5" height="1.5" fill="currentColor"/>
+                <rect x="16.5" y="10" width="1.5" height="1.5" fill="currentColor"/>
+                <rect x="13" y="14" width="1.5" height="1.5" fill="currentColor"/>
+                <rect x="16.5" y="14" width="1.5" height="1.5" fill="currentColor"/>
+                <rect x="13" y="18" width="1.5" height="1.5" fill="currentColor"/>
+                <rect x="16.5" y="18" width="1.5" height="1.5" fill="currentColor"/>
+              </svg>
+            </div>
             <h3 className={styles.roleTitle}>Agent</h3>
             <p className={styles.roleDescription}>
-              Manage tutoring services and grow your business
+              Manage educational services and grow your business
             </p>
             {hasAgent && (
               <div className={styles.badge}>Already enrolled</div>

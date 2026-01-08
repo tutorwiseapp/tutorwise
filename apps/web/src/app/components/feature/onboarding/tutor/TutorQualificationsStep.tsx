@@ -8,7 +8,7 @@ import { SingleSelectCardGroup, MultiSelectCardGroup } from '../shared/Selectabl
 interface TutorQualificationsStepProps {
   onNext: (qualifications: QualificationsData) => void;
   onBack?: () => void;
-  onSkip: () => void;
+  onSkip?: () => void;
   isLoading: boolean;
 }
 

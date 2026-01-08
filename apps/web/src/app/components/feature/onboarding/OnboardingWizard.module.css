@@ -21,6 +21,11 @@
   width: 100%;
   max-width: 1200px; /* Design system: shared form group wizard width */
   margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--space-2, 16px);
 }
 
 .wizardContainer.fullPage {
@@ -52,44 +57,50 @@
 }
 
 .stepContent {
-  padding: 1.5rem; /* Mobile: reduced padding for more content space */
-  max-width: 1200px; /* Design system: content width constraint */
+  padding: 0; /* No extra padding - controlled by wizardContainer */
+  max-width: 1000px; /* Design system: narrower for better readability */
   margin: 0 auto; /* Center content within container */
   width: 100%;
-}
-
-@media (min-width: 768px) {
-  .stepContent {
-    padding: 2rem; /* Tablet: moderate padding */
-  }
-}
-
-@media (min-width: 1024px) {
-  .stepContent {
-    padding: 3rem; /* Desktop: comfortable padding */
-  }
+  transform: translateY(-80px); /* Shift up more for better visual centering */
 }
 
 .stepHeader {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-5, 48px); /* 48px - design system */
 }
 
 .stepTitle {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: var(--color-text-primary, #1f2937);
-  margin: 0 0 0.5rem 0;
+  font-size: var(--font-size-3xl, 2rem); /* 32px - h1 from design system */
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-text-primary, #202124);
+  margin: 0 0 var(--space-2, 16px) 0; /* 16px below title */
+  line-height: 1.2;
 }
 
 .stepSubtitle {
-  font-size: 1.125rem;
-  color: var(--color-text-secondary, #6b7280);
+  font-size: var(--font-size-lg, 1.125rem); /* 18px - body large from design system */
+  color: var(--color-text-secondary, #5f6368);
   margin: 0;
+  line-height: 1.5;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+  .stepHeader {
+    margin-bottom: var(--space-4, 32px); /* Less space on mobile */
+  }
+
+  .stepTitle {
+    font-size: var(--font-size-2xl, 1.5rem); /* 24px on mobile */
+  }
+
+  .stepSubtitle {
+    font-size: var(--font-size-base, 1rem); /* 16px on mobile */
+  }
 }
 
 .stepBody {
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-5, 48px); /* 48px - design system spacing */
 }
 
 .stepActions {
@@ -267,17 +278,17 @@
   text-align: center;
 }
 
-/* Form styles - Using 8px-based spacing */
+/* Form styles - Using design system tokens */
 .formGroup {
-  margin-bottom: 32px; /* 8px × 4 */
+  margin-bottom: var(--space-4, 32px); /* 32px - 8px × 4 */
 }
 
 .formLabel {
   display: block;
-  font-weight: 500;
-  color: var(--color-text-primary, #1f2937);
-  margin-bottom: 8px; /* 8px × 1 */
-  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-primary, #202124);
+  margin-bottom: var(--space-1, 8px); /* 8px */
+  font-size: var(--font-size-sm, 0.875rem); /* 14px */
 }
 
 .helperText {
@@ -298,12 +309,20 @@
 .formSelect,
 .formTextarea {
   width: 100%;
-  padding: 12px; /* 8px × 1.5 for better text readability */
-  border: 1px solid var(--color-border, #dfe1e5);
-  border-radius: 8px; /* 8px × 1 */
-  font-size: 1rem;
-  font-family: inherit; /* Use the same font as rest of the page (not monospace) */
-  transition: border-color 0.2s ease-in-out;
+  padding: var(--space-2, 16px); /* 16px - cleaner than 12px */
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  font-size: var(--font-size-base, 1rem); /* 16px */
+  font-family: inherit; /* Use the same font as rest of the page */
+  color: var(--color-text-primary, #202124);
+  transition: all 0.2s ease;
+  background-color: var(--color-bg-card, #ffffff);
+}
+
+.formInput::placeholder,
+.formSelect::placeholder,
+.formTextarea::placeholder {
+  color: var(--color-text-tertiary, #80868b);
 }
 
 .formInput:focus,
