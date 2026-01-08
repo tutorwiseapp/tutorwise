@@ -359,16 +359,25 @@ export default function BillingSettingsPage() {
         <div className={styles.card}>
           <h3 className={styles.cardTitle}>Payment Method</h3>
           <div className={styles.cardContent}>
-            <p className={styles.infoText}>
-              Manage your payment methods through the Stripe Customer Portal.
-            </p>
-            <Button
-              onClick={handleManageSubscription}
-              variant="secondary" size="md"
-              disabled={!isStripeConfigured}
-            >
-              Update Payment Method
-            </Button>
+            {subscription?.stripe_customer_id ? (
+              <>
+                <p className={styles.infoText}>
+                  Manage your payment methods through the Stripe Customer Portal.
+                </p>
+                <Button
+                  onClick={handleManageSubscription}
+                  variant="secondary" size="md"
+                  disabled={!isStripeConfigured}
+                >
+                  Update Payment Method
+                </Button>
+              </>
+            ) : (
+              <p className={styles.infoText}>
+                Payment method management is available when you set up Stripe billing.
+                Your subscription is currently managed internally.
+              </p>
+            )}
           </div>
         </div>
 
@@ -376,16 +385,41 @@ export default function BillingSettingsPage() {
         <div className={styles.card}>
           <h3 className={styles.cardTitle}>Billing History</h3>
           <div className={styles.cardContent}>
-            <p className={styles.infoText}>
-              View and download your billing history and invoices through the Stripe Customer Portal.
-            </p>
-            <Button
-              onClick={handleManageSubscription}
-              variant="secondary" size="md"
-              disabled={!isStripeConfigured}
-            >
-              View Billing History
-            </Button>
+            {subscription && subscription.status !== 'none' ? (
+              <div className={styles.planDetails}>
+                <div className={styles.planItem}>
+                  <span className={styles.planLabel}>Subscription Started:</span>
+                  <span className={styles.planValue}>{formatDate(subscription.created_at)}</span>
+                </div>
+                <div className={styles.planItem}>
+                  <span className={styles.planLabel}>Current Period:</span>
+                  <span className={styles.planValue}>
+                    {formatDate(subscription.current_period_start)} - {formatDate(subscription.current_period_end)}
+                  </span>
+                </div>
+                <div className={styles.planItem}>
+                  <span className={styles.planLabel}>Status:</span>
+                  <span className={styles.planValue}>
+                    {subscription.status === 'active' ? 'Active' :
+                     subscription.status === 'trialing' ? 'Trial' :
+                     subscription.status === 'canceled' ? 'Canceled' :
+                     subscription.status}
+                  </span>
+                </div>
+                {subscription.trial_start && subscription.trial_end && (
+                  <div className={styles.planItem}>
+                    <span className={styles.planLabel}>Trial Period:</span>
+                    <span className={styles.planValue}>
+                      {formatDate(subscription.trial_start)} - {formatDate(subscription.trial_end)}
+                    </span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className={styles.infoText}>
+                No billing history available. Start your subscription to see billing details.
+              </p>
+            )}
           </div>
         </div>
 
