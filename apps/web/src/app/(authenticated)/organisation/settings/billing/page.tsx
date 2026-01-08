@@ -104,9 +104,19 @@ export default function BillingSettingsPage() {
   // Handle Manage Subscription - Opens Stripe Customer Portal
   const handleManageSubscription = async () => {
     if (!organisation) {
+      console.error('handleManageSubscription: organisation is null/undefined', {
+        organisation,
+        isLoading,
+        profile,
+      });
       toast.error('Organisation not found');
       return;
     }
+
+    console.log('handleManageSubscription: organisation exists', {
+      id: organisation.id,
+      name: organisation.name,
+    });
 
     // If no subscription exists, redirect to trial checkout instead
     if (!subscription || subscription.status === 'none') {
@@ -166,6 +176,15 @@ export default function BillingSettingsPage() {
     return (
       <div className={styles.loading}>
         <p>Loading billing settings...</p>
+      </div>
+    );
+  }
+
+  // Guard against missing organisation after loading
+  if (!organisation) {
+    return (
+      <div className={styles.loading}>
+        <p>Organisation not found. Please create an organisation first.</p>
       </div>
     );
   }
