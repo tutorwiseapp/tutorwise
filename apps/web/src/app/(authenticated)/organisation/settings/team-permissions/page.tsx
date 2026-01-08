@@ -6,14 +6,13 @@
 
 'use client';
 
-import React, { useState } from 'react';
-import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { getMyOrganisation, getOrganisationStats, getOrganisationSubscription } from '@/lib/api/organisation';
+import React from 'react';
 import { useRouter } from 'next/navigation';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { getOrganisationStats, getOrganisationSubscription } from '@/lib/api/organisation';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
-import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import { useOrganisationSettings } from '@/app/hooks/useOrganisationSettings';
 import OrganisationStatsWidget from '@/app/components/feature/organisation/sidebar/OrganisationStatsWidget';
 import OrganisationHelpWidget from '@/app/components/feature/organisation/sidebar/OrganisationHelpWidget';
 import OrganisationTipWidget from '@/app/components/feature/organisation/sidebar/OrganisationTipWidget';
@@ -21,24 +20,9 @@ import OrganisationVideoWidget from '@/app/components/feature/organisation/sideb
 import styles from './page.module.css';
 
 export default function TeamPermissionsSettingsPage() {
-  const { profile, isLoading: profileLoading } = useUserProfile();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('team-permissions');
-
-  const {
-    data: organisation,
-    isLoading: orgLoading,
-    isFetching: orgFetching,
-  } = useQuery({
-    queryKey: ['organisation', profile?.id],
-    queryFn: getMyOrganisation,
-    enabled: !!profile?.id,
-    placeholderData: keepPreviousData,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
-    retry: 2,
+  const { organisation, profile, isLoading, tabs, handleTabChange } = useOrganisationSettings({
+    currentTab: 'team-permissions',
   });
 
   // Fetch organisation stats for sidebar
@@ -60,33 +44,6 @@ export default function TeamPermissionsSettingsPage() {
     staleTime: 2 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
-
-  const tabs: HubTab[] = [
-    { id: 'general', label: 'General', active: activeTab === 'general' },
-    { id: 'billing', label: 'Billing & Subscription', active: activeTab === 'billing' },
-    { id: 'team-permissions', label: 'Team Permissions', active: activeTab === 'team-permissions' },
-    { id: 'integrations', label: 'Integrations', active: activeTab === 'integrations' },
-  ];
-
-  const handleTabChange = (tabId: string) => {
-    setActiveTab(tabId);
-    router.push(`/organisation/settings/${tabId}`);
-  };
-
-  const isLoading = profileLoading || orgLoading;
-  const isOwner = organisation?.profile_id === profile?.id;
-
-  // Redirect if not authorized
-  if (!isLoading && organisation && !isOwner) {
-    router.push('/organisation');
-    return null;
-  }
-
-  // Redirect if no organisation found
-  if (!isLoading && !organisation) {
-    router.push('/organisation');
-    return null;
-  }
 
   if (isLoading) {
     return (
