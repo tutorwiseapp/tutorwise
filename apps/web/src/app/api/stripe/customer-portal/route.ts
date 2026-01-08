@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     // Verify user has access to this organisation
     const { data: org, error: orgError } = await supabase
       .from('connection_groups')
-      .select('id, name, stripe_customer_id')
+      .select('id, name')
       .eq('id', organisationId)
       .eq('type', 'organisation')
       .single();
@@ -54,16 +54,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!org.stripe_customer_id) {
+    // Get Stripe customer ID from organisation_subscriptions table
+    const { data: subscription, error: subError } = await supabase
+      .from('organisation_subscriptions')
+      .select('stripe_customer_id')
+      .eq('organisation_id', organisationId)
+      .single();
+
+    if (subError || !subscription) {
       return NextResponse.json(
-        { error: 'No Stripe customer found for this organisation' },
+        { error: 'No subscription found for this organisation' },
+        { status: 404 }
+      );
+    }
+
+    if (!subscription.stripe_customer_id) {
+      return NextResponse.json(
+        { error: 'No Stripe customer found for this organisation. Please start a trial first.' },
         { status: 400 }
       );
     }
 
     // Create Stripe Customer Portal session
     const session = await stripe.billingPortal.sessions.create({
-      customer: org.stripe_customer_id,
+      customer: subscription.stripe_customer_id,
       return_url: returnUrl || `${process.env.NEXT_PUBLIC_SITE_URL}/organisation`,
     });
 
