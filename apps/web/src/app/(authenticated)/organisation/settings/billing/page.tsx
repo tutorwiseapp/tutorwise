@@ -11,10 +11,11 @@ import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getMyOrganisation, getOrganisationSubscription } from '@/lib/api/organisation';
 import { useRouter } from 'next/navigation';
-import { HubPageLayout, HubHeader } from '@/app/components/hub/layout';
+import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
+import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import SettingsTabs from '@/components/feature/organisation/settings/SettingsTabs';
-import type { SettingsTab } from '@/components/feature/organisation/settings/SettingsTabs';
+// Removed SettingsTabs import
+// Removed SettingsTab type import
 import { getTrialStatus } from '@/lib/stripe/organisation-trial-status';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';

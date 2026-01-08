@@ -11,10 +11,9 @@ import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useQuery, keepPreviousData, useQueryClient } from '@tanstack/react-query';
 import { getMyOrganisation } from '@/lib/api/organisation';
 import { useRouter } from 'next/navigation';
-import { HubPageLayout, HubHeader } from '@/app/components/hub/layout';
+import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
+import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import SettingsTabs from '@/components/feature/organisation/settings/SettingsTabs';
-import type { SettingsTab } from '@/components/feature/organisation/settings/SettingsTabs';
 import { createClient } from '@/utils/supabase/client';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
@@ -47,12 +46,19 @@ export default function GeneralSettingsPage() {
     retry: 2,
   });
 
-  const tabs: SettingsTab[] = [
-    { id: 'general', label: 'General', href: '/organisation/settings/general' },
-    { id: 'billing', label: 'Billing & Subscription', href: '/organisation/settings/billing' },
-    { id: 'team-permissions', label: 'Team Permissions', href: '/organisation/settings/team-permissions' },
-    { id: 'integrations', label: 'Integrations', href: '/organisation/settings/integrations' },
+  const [activeTab, setActiveTab] = useState('general');
+
+  const tabs: HubTab[] = [
+    { id: 'general', label: 'General', active: activeTab === 'general' },
+    { id: 'billing', label: 'Billing & Subscription', active: activeTab === 'billing' },
+    { id: 'team-permissions', label: 'Team Permissions', active: activeTab === 'team-permissions' },
+    { id: 'integrations', label: 'Integrations', active: activeTab === 'integrations' },
   ];
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    router.push(`/organisation/settings/${tabId}`);
+  };
 
   const isLoading = profileLoading || orgLoading;
   const isOwner = organisation?.profile_id === profile?.id;
@@ -151,7 +157,7 @@ export default function GeneralSettingsPage() {
           subtitle="Manage your organisation profile, preferences, and configuration"
         />
       }
-      tabs={<SettingsTabs tabs={tabs} />}
+      tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
       sidebar={
         <HubSidebar>
           {/* Sidebar widgets will be added here */}

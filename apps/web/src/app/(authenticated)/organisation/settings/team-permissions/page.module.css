@@ -15,7 +15,7 @@
 .content {
   display: flex;
   flex-direction: column;
-  gap: 1rem; /* Match Team tab card gap (16px) */
+  gap: 1.5rem; /* Match Team tab card gap (24px) */
   /* No padding - HubPageLayout contentContainer provides padding */
 }
 

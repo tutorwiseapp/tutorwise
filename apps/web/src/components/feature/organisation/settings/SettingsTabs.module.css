@@ -9,7 +9,7 @@
   position: relative;
   border-bottom: 2px solid #e5e7eb;
   margin-top: 0;
-  margin-bottom: 0; /* No bottom margin - content starts immediately after tabs */
+  margin-bottom: 1rem; 
 }
 
 /* Inner wrapper - Contains tab buttons with padding */
