@@ -10,6 +10,7 @@ import React, { useState, useEffect } from 'react';
 import { useQueryClient, useQuery, keepPreviousData } from '@tanstack/react-query';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import Button from '@/app/components/ui/actions/Button';
 import { createClient } from '@/utils/supabase/client';
 import { useOrganisationSettings } from '@/app/hooks/useOrganisationSettings';
 import { getOrganisationStats, getOrganisationSubscription } from '@/lib/api/organisation';
@@ -200,20 +201,23 @@ export default function GeneralSettingsPage() {
             </div>
 
             <div className={styles.formActions}>
-              <button
-                className={styles.buttonSecondary}
+              <Button
+                variant="secondary"
+                size="md"
                 onClick={handleCancel}
                 disabled={!hasChanges || isSaving}
               >
                 Cancel
-              </button>
-              <button
-                className={styles.buttonPrimary}
+              </Button>
+              <Button
+                variant="primary"
+                size="md"
                 onClick={handleSave}
                 disabled={!hasChanges || isSaving}
+                isLoading={isSaving}
               >
                 {isSaving ? 'Saving...' : 'Save Changes'}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -229,9 +233,9 @@ export default function GeneralSettingsPage() {
                     {organisation?.name?.charAt(0) || 'O'}
                   </span>
                 </div>
-                <button className={styles.buttonSecondary} disabled>
+                <Button variant="secondary" size="md" disabled>
                   Upload Logo
-                </button>
+                </Button>
               </div>
               <p className={styles.helpText}>
                 Recommended size: 200x200px. Max file size: 2MB.
