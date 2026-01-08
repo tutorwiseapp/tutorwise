@@ -6,7 +6,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getMyOrganisation } from '@/lib/api/organisation';
@@ -14,13 +14,12 @@ import { useRouter } from 'next/navigation';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-// Removed SettingsTabs import
-// Removed SettingsTab type import
 import styles from './page.module.css';
 
 export default function TeamPermissionsSettingsPage() {
   const { profile, isLoading: profileLoading } = useUserProfile();
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState('team-permissions');
 
   const {
     data: organisation,
@@ -38,12 +37,17 @@ export default function TeamPermissionsSettingsPage() {
     retry: 2,
   });
 
-  const tabs: SettingsTab[] = [
-    { id: 'general', label: 'General', href: '/organisation/settings/general' },
-    { id: 'billing', label: 'Billing & Subscription', href: '/organisation/settings/billing' },
-    { id: 'team-permissions', label: 'Team Permissions', href: '/organisation/settings/team-permissions' },
-    { id: 'integrations', label: 'Integrations', href: '/organisation/settings/integrations' },
+  const tabs: HubTab[] = [
+    { id: 'general', label: 'General', active: activeTab === 'general' },
+    { id: 'billing', label: 'Billing & Subscription', active: activeTab === 'billing' },
+    { id: 'team-permissions', label: 'Team Permissions', active: activeTab === 'team-permissions' },
+    { id: 'integrations', label: 'Integrations', active: activeTab === 'integrations' },
   ];
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    router.push(`/organisation/settings/${tabId}`);
+  };
 
   const isLoading = profileLoading || orgLoading;
   const isOwner = organisation?.profile_id === profile?.id;
@@ -76,7 +80,7 @@ export default function TeamPermissionsSettingsPage() {
           subtitle="Manage team member roles and access levels"
         />
       }
-      tabs={<SettingsTabs tabs={tabs} />}
+      tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
       sidebar={
         <HubSidebar>
           <div className={styles.sidebarPlaceholder}>

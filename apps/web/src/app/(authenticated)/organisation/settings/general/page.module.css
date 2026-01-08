@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: center;
   min-height: 400px;
-  color: #64748b;
+  color: var(--color-text-light);
 }
 
 .content {
@@ -21,20 +21,20 @@
 
 /* Card Styles */
 .card {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-light);
   border-radius: 8px;
   overflow: hidden;
 }
 
 .cardTitle {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1f2937;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-800);
   padding: 16px 20px;
   margin: 0;
-  background-color: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
+  background-color: var(--color-gray-50);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .cardContent {
@@ -52,9 +52,9 @@
 
 .label {
   display: block;
-  font-size: 14px;
-  font-weight: 600;
-  color: #374151;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-700);
   margin-bottom: 0.5rem;
 }
 
@@ -63,10 +63,10 @@
 .select {
   width: 100%;
   padding: 0.625rem 0.75rem;
-  font-size: 14px;
-  color: #1f2937;
-  background-color: #f9fafb;
-  border: 1px solid #d1d5db;
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-800);
+  background-color: var(--color-gray-50);
+  border: 1px solid var(--color-gray-300);
   border-radius: 6px;
   transition: all 0.2s ease;
 }
@@ -75,8 +75,8 @@
 .textarea:focus,
 .select:focus {
   outline: none;
-  border-color: #006c67;
-  background-color: white;
+  border-color: var(--color-primary);
+  background-color: var(--color-bg-card);
   box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
 }
 
@@ -93,8 +93,8 @@
 }
 
 .helpText {
-  font-size: 12px;
-  color: #6b7280;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-light);
   margin: 0.5rem 0 0 0;
   line-height: 1.5;
 }
@@ -109,18 +109,18 @@
 .logoPreview {
   width: 80px;
   height: 80px;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--color-border-light);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f9fafb;
+  background-color: var(--color-gray-50);
 }
 
 .logoPlaceholder {
   font-size: 32px;
-  font-weight: 600;
-  color: #006c67;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
 }
 
 /* Buttons */
@@ -130,14 +130,14 @@
   justify-content: flex-end;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--color-border-light);
 }
 
 .buttonPrimary,
 .buttonSecondary {
   padding: 0.625rem 1.25rem;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -145,12 +145,12 @@
 }
 
 .buttonPrimary {
-  background-color: #006c67;
-  color: white;
+  background-color: var(--color-primary);
+  color: var(--color-bg-card);
 }
 
 .buttonPrimary:hover:not(:disabled) {
-  background-color: #005550;
+  background-color: var(--color-primary-dark);
 }
 
 .buttonPrimary:active:not(:disabled) {
@@ -158,14 +158,14 @@
 }
 
 .buttonSecondary {
-  background-color: white;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  background-color: var(--color-bg-card);
+  color: var(--color-gray-700);
+  border: 1px solid var(--color-gray-300);
 }
 
 .buttonSecondary:hover:not(:disabled) {
-  background-color: #f9fafb;
-  border-color: #9ca3af;
+  background-color: var(--color-gray-50);
+  border-color: var(--color-gray-400);
 }
 
 .buttonPrimary:disabled,
@@ -177,12 +177,12 @@
 /* Sidebar Placeholder */
 .sidebarPlaceholder {
   padding: 1rem;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background: var(--color-gray-50);
+  border: 1px solid var(--color-border-light);
   border-radius: 8px;
   text-align: center;
-  color: #6b7280;
-  font-size: 14px;
+  color: var(--color-text-light);
+  font-size: var(--font-size-sm);
 }
 
 /* Responsive */

@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: center;
   min-height: 400px;
-  color: #64748b;
+  color: var(--color-text-light);
 }
 
 .content {
@@ -21,20 +21,20 @@
 
 /* Card Styles */
 .card {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-light);
   border-radius: 8px;
   overflow: hidden;
 }
 
 .cardTitle {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1f2937;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-800);
   padding: 16px 20px;
   margin: 0;
-  background-color: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
+  background-color: var(--color-gray-50);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .cardContent {
@@ -42,8 +42,8 @@
 }
 
 .description {
-  font-size: 14px;
-  color: #6b7280;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-light);
   margin: 0 0 1rem 0;
   line-height: 1.5;
 }
@@ -56,10 +56,10 @@
 }
 
 .integrationCard {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border-light);
   border-radius: 8px;
   padding: 1.25rem;
-  background: white;
+  background: var(--color-bg-card);
   transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
@@ -67,7 +67,7 @@
 }
 
 .integrationCard:hover {
-  border-color: #006c67;
+  border-color: var(--color-primary);
   box-shadow: 0 2px 8px rgba(0, 108, 103, 0.1);
 }
 
@@ -97,15 +97,15 @@
 }
 
 .integrationName {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1f2937;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-800);
   margin: 0 0 0.25rem 0;
 }
 
 .comingSoonBadge {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: #ea580c;
   background: #fff7ed;
   padding: 0.25rem 0.5rem;
@@ -117,8 +117,8 @@
 }
 
 .integrationDescription {
-  font-size: 13px;
-  color: #6b7280;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-light);
   margin: 0;
   line-height: 1.5;
   flex: 1;
@@ -126,19 +126,19 @@
 
 .connectButton {
   padding: 0.625rem 1rem;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
-  background-color: #006c67;
+  background-color: var(--color-primary);
   color: white;
   border: none;
   width: 100%;
 }
 
 .connectButton:hover:not(:disabled) {
-  background-color: #005550;
+  background-color: var(--color-primary-dark);
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 108, 103, 0.2);
 }
@@ -150,27 +150,27 @@
 
 .connectButton:disabled {
   cursor: not-allowed;
-  background-color: #f9fafb;
+  background-color: var(--color-gray-50);
   color: #9ca3af;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border-light);
 }
 
 /* Buttons */
 .buttonSecondary {
   padding: 0.625rem 1.25rem;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
-  background-color: white;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  background-color: var(--color-bg-card);
+  color: var(--color-gray-700);
+  border: 1px solid var(--color-gray-300);
 }
 
 .buttonSecondary:hover:not(:disabled) {
-  background-color: #f9fafb;
-  border-color: #9ca3af;
+  background-color: var(--color-gray-50);
+  border-color: var(--color-gray-400);
 }
 
 .buttonSecondary:disabled {
@@ -181,12 +181,12 @@
 /* Sidebar Placeholder */
 .sidebarPlaceholder {
   padding: 1rem;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background: var(--color-gray-50);
+  border: 1px solid var(--color-border-light);
   border-radius: 8px;
   text-align: center;
-  color: #6b7280;
-  font-size: 14px;
+  color: var(--color-text-light);
+  font-size: var(--font-size-sm);
 }
 
 /* Responsive */

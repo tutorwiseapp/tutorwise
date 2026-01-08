@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: center;
   min-height: 400px;
-  color: #64748b;
+  color: var(--color-text-light);
 }
 
 .content {
@@ -21,20 +21,20 @@
 
 /* Card Styles */
 .card {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-light);
   border-radius: 8px;
   overflow: hidden;
 }
 
 .cardTitle {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1f2937;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-800);
   padding: 16px 20px;
   margin: 0;
-  background-color: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
+  background-color: var(--color-gray-50);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .cardContent {
@@ -56,26 +56,26 @@
 }
 
 .statusTitle {
-  font-size: 16px;
+  font-size: var(--font-size-base);
   font-weight: 700;
   margin: 0 0 0.5rem 0;
 }
 
 .statusText {
-  font-size: 14px;
-  color: #6b7280;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-light);
   margin: 0.25rem 0;
   line-height: 1.5;
 }
 
 /* Status Box Variants */
 .neutralAlert {
-  background-color: #f9fafb;
-  border-color: #d1d5db;
+  background-color: var(--color-gray-50);
+  border-color: var(--color-gray-300);
 }
 
 .neutralAlert .statusTitle {
-  color: #6b7280;
+  color: var(--color-text-light);
 }
 
 .activeAlert {
@@ -125,8 +125,8 @@
 
 /* Info Text */
 .infoText {
-  font-size: 14px;
-  color: #6b7280;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-light);
   margin: 0 0 1rem 0;
   line-height: 1.5;
 }
@@ -145,17 +145,17 @@
 }
 
 .planLabel {
-  font-size: 13px;
-  font-weight: 600;
-  color: #6b7280;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-light);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .planValue {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1f2937;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-800);
 }
 
 .featureList {
@@ -168,8 +168,8 @@
 }
 
 .featureList li {
-  font-size: 14px;
-  color: #374151;
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-700);
   padding-left: 1.5rem;
   position: relative;
 }
@@ -178,7 +178,7 @@
   content: '✓';
   position: absolute;
   left: 0;
-  color: #006c67;
+  color: var(--color-primary);
   font-weight: 700;
 }
 
@@ -186,8 +186,8 @@
 .buttonPrimary,
 .buttonSecondary {
   padding: 0.625rem 1.25rem;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -196,12 +196,12 @@
 }
 
 .buttonPrimary {
-  background-color: #006c67;
+  background-color: var(--color-primary);
   color: white;
 }
 
 .buttonPrimary:hover:not(:disabled) {
-  background-color: #005550;
+  background-color: var(--color-primary-dark);
 }
 
 .buttonPrimary:active:not(:disabled) {
@@ -209,14 +209,14 @@
 }
 
 .buttonSecondary {
-  background-color: white;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  background-color: var(--color-bg-card);
+  color: var(--color-gray-700);
+  border: 1px solid var(--color-gray-300);
 }
 
 .buttonSecondary:hover:not(:disabled) {
-  background-color: #f9fafb;
-  border-color: #9ca3af;
+  background-color: var(--color-gray-50);
+  border-color: var(--color-gray-400);
 }
 
 .buttonPrimary:disabled,
@@ -228,12 +228,12 @@
 /* Sidebar Placeholder */
 .sidebarPlaceholder {
   padding: 1rem;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background: var(--color-gray-50);
+  border: 1px solid var(--color-border-light);
   border-radius: 8px;
   text-align: center;
-  color: #6b7280;
-  font-size: 14px;
+  color: var(--color-text-light);
+  font-size: var(--font-size-sm);
 }
 
 /* Responsive */
