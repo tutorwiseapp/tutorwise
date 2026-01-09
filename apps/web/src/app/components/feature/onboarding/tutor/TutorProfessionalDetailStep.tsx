@@ -119,6 +119,33 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
     formData.deliveryMode.length > 0 &&
     formData.oneOnOneRate > 0;
 
+  // Debug validation
+  React.useEffect(() => {
+    console.log('[TutorProfessionalDetailStep] Validation state:', {
+      bio: formData.bio.trim().length,
+      bioValid: formData.bio.trim().length >= 50,
+      status: formData.status,
+      statusValid: formData.status !== '',
+      academicQualifications: formData.academicQualifications.length,
+      academicValid: formData.academicQualifications.length > 0,
+      teachingExperience: formData.teachingExperience,
+      teachingExpValid: formData.teachingExperience !== '',
+      tutoringExperience: formData.tutoringExperience,
+      tutoringExpValid: formData.tutoringExperience !== '',
+      keyStages: formData.keyStages.length,
+      keyStagesValid: formData.keyStages.length > 0,
+      subjects: formData.subjects.length,
+      subjectsValid: formData.subjects.length > 0,
+      sessionType: formData.sessionType.length,
+      sessionTypeValid: formData.sessionType.length > 0,
+      deliveryMode: formData.deliveryMode.length,
+      deliveryModeValid: formData.deliveryMode.length > 0,
+      oneOnOneRate: formData.oneOnOneRate,
+      rateValid: formData.oneOnOneRate > 0,
+      isValid
+    });
+  }, [formData, isValid]);
+
   const handleContinue = () => {
     onNext(formData);
   };
