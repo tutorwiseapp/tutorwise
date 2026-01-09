@@ -91,6 +91,7 @@ const UnifiedSelect = React.forwardRef<HTMLSelectElement, UnifiedSelectProps>(({
           color: disabled ? '#9ca3af' : '#6b7280',
           display: 'flex',
           alignItems: 'center',
+          zIndex: 10,
         }}
       >
         <ChevronDown size={16} />
