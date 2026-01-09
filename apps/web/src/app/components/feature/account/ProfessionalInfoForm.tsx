@@ -3,10 +3,10 @@
 import { useState, useEffect, useRef } from 'react';
 import type { Profile } from '@/types';
 import HubForm from '@/app/components/hub/form/HubForm';
-import MultiSelectDropdown from '@/app/components/ui/forms/MultiSelectDropdown';
+import UnifiedMultiSelect from '@/app/components/ui/forms/UnifiedMultiSelect';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import CustomTimePicker from '@/app/components/feature/listings/wizard-steps/CustomTimePicker';
 import DatePicker from '@/app/components/ui/forms/DatePicker';
-import Select from '@/app/components/ui/forms/Select';
 import Button from '@/app/components/ui/actions/Button';
 import { useDocumentUpload } from '@/hooks/useDocumentUpload';
 import hubFormStyles from '@/app/components/hub/form/HubForm.module.css';
@@ -871,31 +871,31 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
           <>
             {type === 'multiselect' ? (
               <div onBlur={() => handleBlur(field)}>
-                <MultiSelectDropdown
-                  triggerLabel={Array.isArray(fieldValue) && fieldValue.length > 0
-                    ? fieldValue.join(', ')
-                    : `Select ${label.toLowerCase()}...`}
+                <UnifiedMultiSelect
+                  triggerLabel={label}
+                  placeholder={placeholder || `Select ${label.toLowerCase()}...`}
                   options={options || []}
                   selectedValues={Array.isArray(fieldValue) ? fieldValue : []}
                   onSelectionChange={(values) => handleMultiSelectChange(fieldKey, values)}
+                  disabled={isSaving}
                 />
               </div>
             ) : type === 'select' ? (
-              <select
+              <UnifiedSelect
                 ref={(el) => { inputRefs.current[field] = el; }}
-                name={fieldKey}
                 value={fieldValue as string}
-                onChange={handleChange}
+                onChange={(value) => {
+                  const syntheticEvent = {
+                    target: { name: fieldKey, value }
+                  } as React.ChangeEvent<HTMLSelectElement>;
+                  handleChange(syntheticEvent);
+                }}
                 onBlur={() => handleBlur(field)}
-                onKeyDown={(e) => handleKeyDown(e, field)}
+                onKeyDown={(e) => handleKeyDown(e as any, field)}
+                options={options || []}
+                placeholder={placeholder || `Select ${label.toLowerCase()}`}
                 disabled={isSaving}
-                {...(isSaving && { style: { opacity: 0.6, cursor: 'wait' } })}
-              >
-                <option value="">Select {label.toLowerCase()}</option>
-                {options?.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+              />
             ) : type === 'textarea' ? (
               <textarea
                 ref={(el) => { inputRefs.current[field] = el; }}
@@ -1352,34 +1352,20 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                   <HubForm.Field label="Document Type">
-                    <div style={{ position: 'relative' }}>
-                      <Select
-                        value={formData.proof_of_address_type}
-                        onChange={(e) => {
-                          setFormData(prev => ({ ...prev, proof_of_address_type: e.target.value }));
-                          handleBlur('proof_of_address_type');
-                        }}
-                        options={[
-                          { value: 'Utility Bill', label: 'Utility Bill' },
-                          { value: 'Bank Statement', label: 'Bank Statement' },
-                          { value: 'Tax Bill', label: 'Tax Bill' },
-                          { value: 'Solicitor Letter', label: 'Solicitor Letter' },
-                        ]}
-                        placeholder="Select document type"
-                      />
-                      <div style={{
-                        position: 'absolute',
-                        right: '12px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        pointerEvents: 'none',
-                        color: '#6b7280'
-                      }}>
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                          <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </div>
-                    </div>
+                    <UnifiedSelect
+                      value={formData.proof_of_address_type}
+                      onChange={(value) => {
+                        setFormData(prev => ({ ...prev, proof_of_address_type: value }));
+                        handleBlur('proof_of_address_type');
+                      }}
+                      options={[
+                        { value: 'Utility Bill', label: 'Utility Bill' },
+                        { value: 'Bank Statement', label: 'Bank Statement' },
+                        { value: 'Tax Bill', label: 'Tax Bill' },
+                        { value: 'Solicitor Letter', label: 'Solicitor Letter' },
+                      ]}
+                      placeholder="Select document type"
+                    />
                   </HubForm.Field>
                   <HubForm.Field label="Issue Date">
                     <DatePicker
@@ -1590,34 +1576,20 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 <HubForm.Field label="Document Type">
-                  <div style={{ position: 'relative' }}>
-                    <Select
-                      value={formData.proof_of_address_type}
-                      onChange={(e) => {
-                        setFormData(prev => ({ ...prev, proof_of_address_type: e.target.value }));
-                        handleBlur('proof_of_address_type');
-                      }}
-                      options={[
-                        { value: 'Utility Bill', label: 'Utility Bill' },
-                        { value: 'Bank Statement', label: 'Bank Statement' },
-                        { value: 'Tax Bill', label: 'Tax Bill' },
-                        { value: 'Solicitor Letter', label: 'Solicitor Letter' },
-                      ]}
-                      placeholder="Select document type"
-                    />
-                    <div style={{
-                      position: 'absolute',
-                      right: '12px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      pointerEvents: 'none',
-                      color: '#6b7280'
-                    }}>
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                  </div>
+                  <UnifiedSelect
+                    value={formData.proof_of_address_type}
+                    onChange={(value) => {
+                      setFormData(prev => ({ ...prev, proof_of_address_type: value }));
+                      handleBlur('proof_of_address_type');
+                    }}
+                    options={[
+                      { value: 'Utility Bill', label: 'Utility Bill' },
+                      { value: 'Bank Statement', label: 'Bank Statement' },
+                      { value: 'Tax Bill', label: 'Tax Bill' },
+                      { value: 'Solicitor Letter', label: 'Solicitor Letter' },
+                    ]}
+                    placeholder="Select document type"
+                  />
                 </HubForm.Field>
                 <HubForm.Field label="Issue Date">
                   <DatePicker
