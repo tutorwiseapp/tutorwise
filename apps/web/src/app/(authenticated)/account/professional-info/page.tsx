@@ -29,9 +29,18 @@ import styles from './page.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
 export default function ProfessionalPage() {
-  const { profile, refreshProfile } = useUserProfile();
+  const { profile, refreshProfile, isLoading } = useUserProfile();
   const pathname = usePathname();
   const [showActionsMenu, setShowActionsMenu] = useState(false);
+
+  // Debug: Log profile state
+  console.log('[ProfessionalPage] Render - isLoading:', isLoading, 'profile:', profile ? {
+    id: profile.id,
+    email: profile.email,
+    full_name: profile.full_name,
+    first_name: profile.first_name,
+    last_name: profile.last_name
+  } : 'NULL');
 
   const handleSave = async (updatedProfile: Partial<Profile>) => {
     try {
@@ -165,7 +174,7 @@ export default function ProfessionalPage() {
     window.location.href = `/account/${tabId}`;
   };
 
-  if (!profile) {
+  if (isLoading || !profile) {
     return (
       <HubPageLayout
         header={<AccountHeroHeader />}
