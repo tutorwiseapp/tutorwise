@@ -79,7 +79,7 @@ export const WizardPrimaryButton: React.FC<WizardButtonProps> = ({
 };
 
 /**
- * Secondary wizard button - used for secondary actions (Back, Skip, Cancel)
+ * Secondary wizard button - used for secondary actions (Back, Cancel)
  */
 export const WizardSecondaryButton: React.FC<WizardButtonProps> = ({
   children,
@@ -121,23 +121,19 @@ export const WizardSecondaryButton: React.FC<WizardButtonProps> = ({
 };
 
 /**
- * Wizard action button group - manages Back, Skip, and Continue buttons with consistent layout
+ * Wizard action button group - manages Back and Next buttons with consistent layout
  */
 export interface WizardActionButtonsProps {
   /** Continue button click handler */
   onContinue: () => void;
   /** Continue button enabled state */
   continueEnabled: boolean;
-  /** Continue button label (default: "Continue →") */
+  /** Continue button label (default: "Next →") */
   continueLabel?: string;
   /** Back button click handler (if provided, button shows) */
   onBack?: () => void;
   /** Back button label (default: "← Back") */
   backLabel?: string;
-  /** Skip button click handler (if provided, button shows) */
-  onSkip?: () => void;
-  /** Skip button label (default: "Skip for now") */
-  skipLabel?: string;
   /** Loading state (disables all buttons) */
   isLoading?: boolean;
   /** Enable debug logging */
@@ -145,17 +141,15 @@ export interface WizardActionButtonsProps {
 }
 
 /**
- * Complete action button group with Back, Skip, and Continue buttons
+ * Complete action button group with Back and Next buttons
  * Handles layout and consistent styling
  */
 export const WizardActionButtons: React.FC<WizardActionButtonsProps> = ({
   onContinue,
   continueEnabled,
-  continueLabel = 'Continue →',
+  continueLabel = 'Next →',
   onBack,
   backLabel = '← Back',
-  onSkip,
-  skipLabel = 'Skip for now',
   isLoading = false,
   debug = false,
 }) => {
@@ -170,16 +164,6 @@ export const WizardActionButtons: React.FC<WizardActionButtonsProps> = ({
             ariaLabel="Go back to previous step"
           >
             {backLabel}
-          </WizardSecondaryButton>
-        )}
-        {onSkip && (
-          <WizardSecondaryButton
-            onClick={onSkip}
-            disabled={isLoading}
-            debug={debug}
-            ariaLabel="Skip this step"
-          >
-            {skipLabel}
           </WizardSecondaryButton>
         )}
       </div>

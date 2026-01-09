@@ -1,19 +1,17 @@
 'use client';
 import React from 'react';
-// Corrected: Removed unused 'styles' import.
-// import styles from './form.module.css';
+import styles from './form.module.css';
 
 interface ToggleSwitchProps extends React.ComponentPropsWithoutRef<'input'> {
   label: string;
 }
 
-// Corrected: The function now uses its props.
 const ToggleSwitch = React.forwardRef<HTMLInputElement, ToggleSwitchProps>(({ label, ...props }, ref) => (
-  <label className="toggleLabel">
+  <label className={styles.toggleLabel}>
     <span>{label}</span>
-    <div className="toggleSwitch">
-      <input type="checkbox" ref={ref} {...props} className="toggleInput" />
-      <span className="toggleSlider"></span>
+    <div className={styles.toggleSwitch}>
+      <input type="checkbox" ref={ref} {...props} className={styles.toggleInput} />
+      <span className={styles.toggleSlider}></span>
     </div>
   </label>
 ));

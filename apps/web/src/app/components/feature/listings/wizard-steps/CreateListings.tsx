@@ -18,11 +18,11 @@ import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import type { CreateListingInput, ServiceType, AvailabilityPeriod } from '@tutorwise/shared-types';
 import Button from '@/app/components/ui/actions/Button';
 import Card from '@/app/components/ui/data-display/Card';
-import FormSection from '@/app/components/ui/forms/FormSection';
+import HubForm from '@/app/components/hub/form/HubForm';
 import ImageUpload, { type ImageUploadRef } from '@/app/components/feature/listings/ImageUpload';
 import AvailabilityFormSection from '@/app/components/feature/listings/AvailabilityFormSection';
 import UnavailabilityFormSection from '@/app/components/feature/listings/UnavailabilityFormSection';
-import MultiSelectDropdown from '@/app/components/ui/forms/MultiSelectDropdown';
+import UnifiedMultiSelect from '@/app/components/ui/forms/UnifiedMultiSelect';
 import toast from 'react-hot-toast';
 import styles from './CreateListings.module.css';
 
@@ -500,10 +500,7 @@ export default function CreateListings({
 
       {/* CARD 1: Service Type Selector */}
       <Card>
-        <FormSection
-          title="Service Type"
-          description="Select the type of service you want to offer"
-        >
+        <HubForm.Section title="Service Type">
           <div className={styles.formSection}>
             <select
               value={serviceType}
@@ -517,15 +514,12 @@ export default function CreateListings({
               ))}
             </select>
           </div>
-        </FormSection>
+        </HubForm.Section>
       </Card>
 
       {/* CARD 2: Core Details (Dynamic) */}
       <Card>
-        <FormSection
-          title="Core Details"
-          description="Basic information about your service"
-        >
+        <HubForm.Section title="Core Details">
           <div className={styles.twoColumnLayout}>
             {/* Service Name */}
             <div className={styles.formSection}>
@@ -702,7 +696,7 @@ export default function CreateListings({
               <label className={styles.label}>
                 Subjects <span className={styles.required}>*</span>
               </label>
-              <MultiSelectDropdown
+              <UnifiedMultiSelect
                 triggerLabel={
                   selectedSubjects.length > 0
                     ? selectedSubjects.length === 1
@@ -722,7 +716,7 @@ export default function CreateListings({
               <label className={styles.label}>
                 Education Levels <span className={styles.required}>*</span>
               </label>
-              <MultiSelectDropdown
+              <UnifiedMultiSelect
                 triggerLabel={
                   selectedLevels.length > 0
                     ? selectedLevels.length === 1
@@ -759,16 +753,13 @@ export default function CreateListings({
               )}
             </div>
           </div>
-        </FormSection>
+        </HubForm.Section>
       </Card>
 
       {/* CARD 3: Availability (Conditional - one-to-one and group-session) */}
       {(serviceType === 'one-to-one' || serviceType === 'group-session') && (
         <Card>
-          <FormSection
-            title="Service Availability"
-            description="Set when this service is available and when you're unavailable"
-          >
+          <HubForm.Section title="Service Availability">
             <div className={styles.availabilityGrid}>
               {/* Left Column: Availability Periods */}
               <AvailabilityFormSection
@@ -784,17 +775,14 @@ export default function CreateListings({
               />
             </div>
             {errors.availability && <p className={styles.errorText}>{errors.availability}</p>}
-          </FormSection>
+          </HubForm.Section>
         </Card>
       )}
 
       {/* CARD 4: Workshop Details (Conditional) */}
       {serviceType === 'workshop' && (
         <Card>
-          <FormSection
-            title="Workshop Details"
-            description="Set the date, time, and agenda for your event"
-          >
+          <HubForm.Section title="Workshop Details">
             <div className={styles.twoColumnLayout}>
               {/* Event Date */}
               <div className={styles.formSection}>
@@ -859,17 +847,14 @@ export default function CreateListings({
                 />
               </div>
             </div>
-          </FormSection>
+          </HubForm.Section>
         </Card>
       )}
 
       {/* CARD 4: Study Package Materials (Conditional) */}
       {serviceType === 'study-package' && (
         <Card>
-          <FormSection
-            title="Study Package Materials"
-            description="Upload your digital materials (clients get access after purchase)"
-          >
+          <HubForm.Section title="Study Package Materials">
             <div className={styles.formSection}>
               <label className={styles.label}>Material URL (Optional)</label>
               <input
@@ -883,16 +868,13 @@ export default function CreateListings({
                 Or use the image upload below to upload files
               </p>
             </div>
-          </FormSection>
+          </HubForm.Section>
         </Card>
       )}
 
       {/* CARD 5: Booking Options */}
       <Card>
-        <FormSection
-          title="Booking Options"
-          description="Configure trial sessions and booking settings"
-        >
+        <HubForm.Section title="Booking Options">
           <div className={styles.twoColumnLayout}>
             <div className={styles.formSection}>
               <label className={styles.checkboxLabel}>
@@ -924,15 +906,12 @@ export default function CreateListings({
               </p>
             </div>
           </div>
-        </FormSection>
+        </HubForm.Section>
       </Card>
 
       {/* CARD 6: Location Details */}
       <Card>
-        <FormSection
-          title="Location Details"
-          description="Set how and where you'll deliver this service"
-        >
+        <HubForm.Section title="Location Details">
           {/* Delivery Mode - Full width */}
           <div className={styles.fullWidthSection}>
             <div className={styles.formSection}>
@@ -972,15 +951,12 @@ export default function CreateListings({
               </div>
             </div>
           )}
-        </FormSection>
+        </HubForm.Section>
       </Card>
 
       {/* CARD 7: Referral Partner (Commission Delegation) - SDD v4.3, Section 3.1 */}
       <Card>
-        <FormSection
-          title="Referral Partner (Optional)"
-          description="Delegate commissions from this listing to a connected agent"
-        >
+        <HubForm.Section title="Referral Partner (Optional)">
           <div className={styles.fullWidthSection}>
             <div className={styles.formSection}>
               <label className={styles.label}>
@@ -1012,34 +988,28 @@ export default function CreateListings({
               )}
             </div>
           </div>
-        </FormSection>
+        </HubForm.Section>
       </Card>
 
       {/* CARD 8: Hero Image Upload */}
       <Card>
-        <FormSection
-          title="Hero Image"
-          description="Upload a hero image for your service"
-        >
+        <HubForm.Section title="Hero Image">
           <ImageUpload
             ref={imageUploadRef}
             onUploadComplete={handleUploadComplete}
             existingImages={imageUrls.slice(1)}
           />
-        </FormSection>
+        </HubForm.Section>
       </Card>
 
       {/* CARD 9: AI Tools */}
       <Card>
-        <FormSection
-          title="AI Tools"
-          description="Select AI tools you incorporate into your teaching"
-        >
+        <HubForm.Section title="AI Tools">
           <div className={styles.formSection}>
             <label className={styles.label}>
               AI Tools Used (Optional)
             </label>
-            <MultiSelectDropdown
+            <UnifiedMultiSelect
               triggerLabel={
                 selectedAITools.length > 0
                   ? `${selectedAITools.length} tool${selectedAITools.length > 1 ? 's' : ''} selected`
@@ -1051,15 +1021,12 @@ export default function CreateListings({
             />
             <p className={styles.helperText}>AI tools you incorporate in lessons</p>
           </div>
-        </FormSection>
+        </HubForm.Section>
       </Card>
 
       {/* CARD 10: Cancellation Policy */}
       <Card>
-        <FormSection
-          title="Cancellation Policy"
-          description="Set clear expectations for cancellations"
-        >
+        <HubForm.Section title="Cancellation Policy">
           <div className={styles.fullWidthSection}>
             <div className={styles.formSection}>
               <label className={styles.label}>
@@ -1078,7 +1045,7 @@ export default function CreateListings({
               </p>
             </div>
           </div>
-        </FormSection>
+        </HubForm.Section>
       </Card>
 
       {/* Action Buttons */}

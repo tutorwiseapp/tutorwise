@@ -244,7 +244,7 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
       <WizardActionButtons
         onContinue={handleContinue}
         onBack={onBack}
-        backLabel="← Back to Role Selection"
+        backLabel="← Back"
         continueEnabled={isFormValid}
         isLoading={isLoading}
       />

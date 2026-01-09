@@ -1,39 +1,45 @@
 /**
  * Filename: UnifiedSelect.tsx
- * Purpose: Unified single-select dropdown component with consistent chevron icon
+ * Purpose: Unified single-select dropdown component with consistent styling
  * Created: 2026-01-09
+ * Updated: 2026-01-09 - Rebuilt with Radix UI for consistency with UnifiedMultiSelect
  *
  * Features:
- * - Native <select> element for performance and accessibility
- * - Consistent Lucide ChevronDown icon (matches HubToolbar)
+ * - Radix UI dropdown menu for consistent styling
+ * - Radix UI ChevronDownIcon (matches UnifiedMultiSelect)
  * - Error state styling
  * - Disabled state support
  * - Placeholder support
+ * - Keyboard navigation
  *
- * Replaces: Select.tsx and Dropdown.tsx
+ * Replaces: Select.tsx and Dropdown.tsx (native select version)
  */
 
 'use client';
 
 import React from 'react';
-import { ChevronDown } from 'lucide-react';
-import styles from './form.module.css';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { ChevronDownIcon } from '@radix-ui/react-icons';
+import styles from './FormControls.module.css';
 
 export interface SelectOption {
   value: string | number;
   label: string;
 }
 
-export interface UnifiedSelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'onChange'> {
+export interface UnifiedSelectProps {
   options: SelectOption[];
   value?: string | number;
-  onChange?: (value: string) => void;
+  onChange?: (value: string | number) => void;
   placeholder?: string;
   error?: boolean;
+  disabled?: boolean;
   className?: string;
+  onBlur?: () => void;
+  onKeyDown?: (e: React.KeyboardEvent) => void;
 }
 
-const UnifiedSelect = React.forwardRef<HTMLSelectElement, UnifiedSelectProps>(({
+const UnifiedSelect = React.forwardRef<HTMLButtonElement, UnifiedSelectProps>(({
   options,
   value,
   onChange,
@@ -41,62 +47,59 @@ const UnifiedSelect = React.forwardRef<HTMLSelectElement, UnifiedSelectProps>(({
   error = false,
   disabled = false,
   className = '',
-  ...props
+  onBlur,
+  onKeyDown,
 }, ref) => {
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    onChange?.(e.target.value);
+  const selectedOption = options.find(opt => opt.value === value);
+  const displayLabel = selectedOption?.label || placeholder || 'Select...';
+
+  const handleSelect = (selectedValue: string) => {
+    // Convert back to number if original value was number
+    const option = options.find(opt => String(opt.value) === selectedValue);
+    if (option) {
+      onChange?.(option.value);
+    }
   };
 
-  const baseStyles = 'w-full border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors bg-white';
-  const normalStyles = 'border-gray-300 focus:border-blue-500 focus:ring-blue-500';
-  const errorStyles = 'border-red-300 focus:border-red-500 focus:ring-red-500';
-  const disabledStyles = 'bg-gray-50 cursor-not-allowed text-gray-500';
-
   return (
-    <div className={styles.dropdownWrapper}>
-      <select
-        ref={ref}
-        value={value}
-        onChange={handleChange}
-        disabled={disabled}
-        className={`${styles.dropdownSelect} ${baseStyles} ${error ? errorStyles : normalStyles} ${disabled ? disabledStyles : ''} ${className}`}
-        style={{
-          paddingRight: '2.5rem', // Make room for chevron icon
-          appearance: 'none',
-          WebkitAppearance: 'none',
-          MozAppearance: 'none',
-        }}
-        {...props}
-      >
-        {placeholder && (
-          <option value="" disabled>
-            {placeholder}
-          </option>
-        )}
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger asChild>
+        <button
+          ref={ref}
+          className={`${styles.selectTrigger} ${error ? styles.selectTriggerError : ''} ${className}`}
+          disabled={disabled}
+          onBlur={onBlur}
+          onKeyDown={onKeyDown}
+          style={{
+            opacity: disabled ? 0.6 : 1,
+            cursor: disabled ? 'not-allowed' : 'pointer',
+          }}
+        >
+          <span className={!selectedOption ? styles.selectPlaceholder : ''}>
+            {displayLabel}
+          </span>
+          <ChevronDownIcon className={styles.selectChevron} />
+        </button>
+      </DropdownMenu.Trigger>
 
-      {/* Chevron Icon */}
-      <div
-        style={{
-          position: 'absolute',
-          right: '12px',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          pointerEvents: 'none',
-          color: disabled ? '#9ca3af' : '#6b7280',
-          display: 'flex',
-          alignItems: 'center',
-          zIndex: 10,
-        }}
-      >
-        <ChevronDown size={16} />
-      </div>
-    </div>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content
+          className={styles.selectContent}
+          sideOffset={5}
+          align="start"
+        >
+          {options.map(option => (
+            <DropdownMenu.Item
+              key={option.value}
+              className={`${styles.selectItem} ${value === option.value ? styles.selectItemSelected : ''}`}
+              onSelect={() => handleSelect(String(option.value))}
+            >
+              {option.label}
+            </DropdownMenu.Item>
+          ))}
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
   );
 });
 

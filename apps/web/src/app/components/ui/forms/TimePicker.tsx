@@ -1,5 +1,5 @@
 import React from 'react';
-import Dropdown from '@/app/components/ui/forms/Dropdown'; // Reusing our Dropdown component!
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 
 // Helper to generate time options
 const generateTimeOptions = (interval: 15 | 30 | 60 = 30) => {
@@ -15,14 +15,20 @@ const generateTimeOptions = (interval: 15 | 30 | 60 = 30) => {
   return options;
 };
 
-interface TimePickerProps extends React.ComponentPropsWithoutRef<'select'> {
+interface TimePickerProps {
   interval?: 15 | 30 | 60;
+  value?: string | number;
+  onChange?: (value: string | number) => void;
+  placeholder?: string;
+  disabled?: boolean;
+  error?: boolean;
+  className?: string;
 }
 
-const TimePicker = React.forwardRef<HTMLSelectElement, TimePickerProps>(
+const TimePicker = React.forwardRef<HTMLButtonElement, TimePickerProps>(
   ({ interval = 30, ...props }, ref) => {
     const timeOptions = generateTimeOptions(interval);
-    return <Dropdown ref={ref} options={timeOptions} {...props} />;
+    return <UnifiedSelect ref={ref} options={timeOptions} {...props} />;
   }
 );
 

@@ -132,8 +132,7 @@ export interface ClientProgress {
 }
 
 export interface TutorProgress {
-  subjects?: string[];
-  qualifications?: QualificationsData;
+  professionalDetails?: Partial<ProfessionalDetailsData>;
   availability?: AvailabilityData;
 }
 
@@ -155,11 +154,38 @@ export interface CapacityData {
   serviceAreas: string[];
 }
 
+// Legacy interface - deprecated, use ProfessionalDetailsData instead
 export interface QualificationsData {
   experience: string;
   education: string;
   certifications: string[];
   bio: string;
+}
+
+// Extended professional details for tutor onboarding
+export interface ProfessionalDetailsData {
+  // Bio & Status
+  bio: string;
+  bioVideoUrl?: string; // Optional 30-second intro video
+  status: string; // Professional Tutor, Solo Tutor, Part-time Tutor
+
+  // Education & Qualifications
+  academicQualifications: string[]; // University Degree, Master's, PhD, etc.
+  teachingProfessionalQualifications: string[]; // QTLS, QTS, PGCE, etc.
+
+  // Experience
+  teachingExperience: string; // Experienced Teacher (4-7 years), etc.
+  tutoringExperience: string; // Experienced Tutor (3-5 years), etc.
+
+  // Service Details
+  keyStages: string[]; // KS1-KS2, KS3, KS4, A-Levels
+  subjects: string[]; // Mathematics, English, Science, etc.
+  sessionType: string[]; // One-to-One Session, Group Session
+  deliveryMode: string[]; // Online, In-person, Hybrid
+
+  // Rates
+  oneOnOneRate: number;
+  groupSessionRate: number;
 }
 
 export interface AvailabilityData {

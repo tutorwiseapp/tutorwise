@@ -16,7 +16,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
-import MultiSelectDropdown from '@/app/components/ui/forms/MultiSelectDropdown';
+import UnifiedMultiSelect from '@/app/components/ui/forms/UnifiedMultiSelect';
 import Button from '@/app/components/ui/actions/Button';
 import toast from 'react-hot-toast';
 import styles from './JoinTeamModal.module.css';
@@ -224,7 +224,7 @@ export function JoinTeamModal({ isOpen, onClose, organisation, currentUser }: Jo
           <label htmlFor="subjects" className={styles.label}>
             Subjects <span className={styles.required}>*</span>
           </label>
-          <MultiSelectDropdown
+          <UnifiedMultiSelect
             triggerLabel={subjects.length > 0 ? `${subjects.length} selected` : 'Select subjects you teach'}
             options={subjectsOptions}
             selectedValues={subjects}
@@ -255,7 +255,7 @@ export function JoinTeamModal({ isOpen, onClose, organisation, currentUser }: Jo
           <label htmlFor="availability" className={styles.label}>
             Availability <span className={styles.required}>*</span>
           </label>
-          <MultiSelectDropdown
+          <UnifiedMultiSelect
             triggerLabel={availability.length > 0 ? `${availability.length} selected` : 'Select your availability'}
             options={availabilityOptions}
             selectedValues={availability}

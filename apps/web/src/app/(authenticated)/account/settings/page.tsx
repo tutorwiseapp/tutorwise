@@ -121,6 +121,7 @@ export default function SettingsPage() {
               <div className={actionStyles.dropdownContainer}>
                 <Button
                   variant="secondary"
+                  size="sm"
                   square
                   onClick={() => setShowActionsMenu(!showActionsMenu)}
                 >

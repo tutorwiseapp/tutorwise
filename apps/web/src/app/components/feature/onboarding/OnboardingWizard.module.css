@@ -91,14 +91,25 @@
 @media (max-width: 640px) {
   .stepHeader {
     margin-bottom: var(--space-4, 32px); /* Less space on mobile */
+    padding: 0 var(--space-2, 16px); /* Add horizontal padding on mobile */
   }
 
   .stepTitle {
     font-size: var(--font-size-2xl, 1.5rem); /* 24px on mobile */
+    padding: 0 var(--space-1, 8px); /* Extra padding to prevent clipping */
   }
 
   .stepSubtitle {
     font-size: var(--font-size-base, 1rem); /* 16px on mobile */
+    padding: 0 var(--space-1, 8px); /* Extra padding to prevent clipping */
+  }
+
+  .wizardContainer {
+    padding: var(--space-1, 8px); /* Reduce overall padding on very small screens */
+  }
+
+  .stepContent {
+    padding: 0 var(--space-1, 8px); /* Add padding on mobile */
   }
 }
 

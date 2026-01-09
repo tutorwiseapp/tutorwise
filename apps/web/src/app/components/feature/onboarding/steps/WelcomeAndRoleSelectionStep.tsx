@@ -83,7 +83,6 @@ const WelcomeAndRoleSelectionStep: React.FC<WelcomeAndRoleSelectionStepProps> = 
       <WizardActionButtons
         onContinue={handleContinue}
         continueEnabled={selectedRoles.length > 0}
-        onSkip={onSkip}
         isLoading={isLoading}
         debug={true}
       />

@@ -188,7 +188,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
   const [fileError, setFileError] = useState<string>('');
 
   // Refs for auto-focus
-  const inputRefs = useRef<{ [key: string]: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null }>({});
+  const inputRefs = useRef<{ [key: string]: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | HTMLButtonElement | null }>({});
 
   // Form data with multi-select fields as arrays
   const [formData, setFormData] = useState({
@@ -861,6 +861,45 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
         ? ''  // Don't render objects directly
         : fieldValue;
 
+    // For select/multiselect, always show the dropdown (no click-to-edit)
+    if (type === 'select' || type === 'multiselect') {
+      return (
+        <HubForm.Field
+          label={label}
+          isEditing={true}  // Always in edit mode for dropdowns
+          onClick={undefined}  // No click handler
+        >
+          {type === 'multiselect' ? (
+            <UnifiedMultiSelect
+              triggerLabel={label}
+              placeholder={placeholder || `Select ${label.toLowerCase()}...`}
+              options={options || []}
+              selectedValues={Array.isArray(fieldValue) ? fieldValue : []}
+              onSelectionChange={(values) => handleMultiSelectChange(fieldKey, values)}
+              disabled={isSaving}
+            />
+          ) : (
+            <UnifiedSelect
+              ref={(el) => { inputRefs.current[field] = el; }}
+              value={fieldValue as string}
+              onChange={(value) => {
+                const syntheticEvent = {
+                  target: { name: fieldKey, value }
+                } as React.ChangeEvent<HTMLSelectElement>;
+                handleChange(syntheticEvent);
+              }}
+              onBlur={() => handleBlur(field)}
+              onKeyDown={(e) => handleKeyDown(e as any, field)}
+              options={options || []}
+              placeholder={placeholder || `Select ${label.toLowerCase()}`}
+              disabled={isSaving}
+            />
+          )}
+        </HubForm.Field>
+      );
+    }
+
+    // For text inputs and textareas, use click-to-edit pattern
     return (
       <HubForm.Field
         label={label}
@@ -869,34 +908,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
       >
         {isEditing ? (
           <>
-            {type === 'multiselect' ? (
-              <div onBlur={() => handleBlur(field)}>
-                <UnifiedMultiSelect
-                  triggerLabel={label}
-                  placeholder={placeholder || `Select ${label.toLowerCase()}...`}
-                  options={options || []}
-                  selectedValues={Array.isArray(fieldValue) ? fieldValue : []}
-                  onSelectionChange={(values) => handleMultiSelectChange(fieldKey, values)}
-                  disabled={isSaving}
-                />
-              </div>
-            ) : type === 'select' ? (
-              <UnifiedSelect
-                ref={(el) => { inputRefs.current[field] = el; }}
-                value={fieldValue as string}
-                onChange={(value) => {
-                  const syntheticEvent = {
-                    target: { name: fieldKey, value }
-                  } as React.ChangeEvent<HTMLSelectElement>;
-                  handleChange(syntheticEvent);
-                }}
-                onBlur={() => handleBlur(field)}
-                onKeyDown={(e) => handleKeyDown(e as any, field)}
-                options={options || []}
-                placeholder={placeholder || `Select ${label.toLowerCase()}`}
-                disabled={isSaving}
-              />
-            ) : type === 'textarea' ? (
+            {type === 'textarea' ? (
               <textarea
                 ref={(el) => { inputRefs.current[field] = el; }}
                 name={fieldKey}
@@ -1355,7 +1367,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                     <UnifiedSelect
                       value={formData.proof_of_address_type}
                       onChange={(value) => {
-                        setFormData(prev => ({ ...prev, proof_of_address_type: value }));
+                        setFormData(prev => ({ ...prev, proof_of_address_type: String(value) }));
                         handleBlur('proof_of_address_type');
                       }}
                       options={[
@@ -1503,55 +1515,43 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     // Default to provider/tutor fields
     return (
       <HubForm.Root>
-        {/* About */}
         <HubForm.Section>
+          {/* About */}
           <HubForm.Grid columns={1}>
             {renderField('bio', 'About', 'textarea', 'Describe your tutoring or teaching style, strengths, and what areas you specialise in')}
           </HubForm.Grid>
-        </HubForm.Section>
 
-        {/* 30-Second Intro Video and Status */}
-        <HubForm.Section>
+          {/* 30-Second Intro Video and Status */}
           <HubForm.Grid>
             {renderField('bio_video_url', '30-Second Intro Video (Optional)', 'text', 'Paste YouTube, Loom, or Vimeo URL for +5 CaaS points')}
             {renderField('status', 'Status', 'select', 'Select status', statusOptions)}
           </HubForm.Grid>
-        </HubForm.Section>
 
-        {/* Key Stages and Academic Qualifications */}
-        <HubForm.Section>
+          {/* Academic Qualifications and Teaching Professional Qualifications */}
           <HubForm.Grid>
-            {renderField('key_stages', 'Key Stages', 'multiselect', 'Select key stage', keyStagesOptions)}
             {renderField('academic_qualifications', 'Academic Qualifications', 'multiselect', 'Select qualifications', academicQualificationsOptions)}
-          </HubForm.Grid>
-        </HubForm.Section>
-
-        {/* Subjects and Teaching Professional Qualifications */}
-        <HubForm.Section>
-          <HubForm.Grid>
-            {renderField('subjects', 'Subjects', 'multiselect', 'Mathematics, English', subjectsOptions)}
             {renderField('teaching_professional_qualifications', 'Teaching Professional Qualifications', 'multiselect', 'Select qualification', teachingProfessionalQualificationsOptions)}
           </HubForm.Grid>
-        </HubForm.Section>
 
-        {/* Session Type and Teaching Experience */}
-        <HubForm.Section>
+          {/* Teaching Experience and Tutoring Experience */}
           <HubForm.Grid>
-            {renderField('session_type', 'Session Type', 'multiselect', 'Select session type', sessionTypeOptions)}
             {renderField('teaching_experience', 'Teaching Experience', 'select', 'Select experience', teachingExperienceOptions)}
-          </HubForm.Grid>
-        </HubForm.Section>
-
-        {/* Delivery Mode and Tutoring Experience */}
-        <HubForm.Section>
-          <HubForm.Grid>
-            {renderField('delivery_mode', 'Delivery Mode', 'multiselect', 'Select delivery mode', deliveryModeOptions)}
             {renderField('tutoring_experience', 'Tutoring Experience', 'select', 'Select tutoring experience', tutoringExperienceOptions)}
           </HubForm.Grid>
-        </HubForm.Section>
 
-        {/* Rates */}
-        <HubForm.Section>
+          {/* Key Stages and Subjects */}
+          <HubForm.Grid>
+            {renderField('key_stages', 'Key Stages', 'multiselect', 'Select key stage', keyStagesOptions)}
+            {renderField('subjects', 'Subjects', 'multiselect', 'Mathematics, English', subjectsOptions)}
+          </HubForm.Grid>
+
+          {/* Session Type and Delivery Mode */}
+          <HubForm.Grid>
+            {renderField('session_type', 'Session Type', 'multiselect', 'Select session type', sessionTypeOptions)}
+            {renderField('delivery_mode', 'Delivery Mode', 'multiselect', 'Select delivery mode', deliveryModeOptions)}
+          </HubForm.Grid>
+
+          {/* Rates */}
           <HubForm.Grid>
             {renderField('one_on_one_rate', 'One-on-One Session Rate (1 hour session, 1 student)', 'number', '£50')}
             {renderField('group_session_rate', 'Group Session Rate (1 hour session, 1 student)', 'number', '£25')}
@@ -1579,7 +1579,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                   <UnifiedSelect
                     value={formData.proof_of_address_type}
                     onChange={(value) => {
-                      setFormData(prev => ({ ...prev, proof_of_address_type: value }));
+                      setFormData(prev => ({ ...prev, proof_of_address_type: String(value) }));
                       handleBlur('proof_of_address_type');
                     }}
                     options={[

@@ -7,10 +7,9 @@ import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useAutoSaveDraft, loadDraft, clearDraft, saveCurrentStep, loadSavedStep } from '@/lib/utils/wizardUtils';
 import TutorWelcomeStep from '@/app/components/feature/onboarding/steps/WelcomeStep';
 import TutorPersonalInfoStep from './TutorPersonalInfoStep';
-import TutorSubjectSelectionStep from './TutorSubjectSelectionStep';
-import TutorQualificationsStep from './TutorQualificationsStep';
+import TutorProfessionalDetailStep from './TutorProfessionalDetailStep';
 import TutorAvailabilityStep from './TutorAvailabilityStep';
-import { QualificationsData, AvailabilityData } from '@/types';
+import { ProfessionalDetailsData, AvailabilityData } from '@/types';
 import styles from '../OnboardingWizard.module.css';
 
 export interface PersonalInfoData {
@@ -22,7 +21,7 @@ export interface PersonalInfoData {
   phone: string;
 }
 
-export type TutorOnboardingStep = 'personalInfo' | 'subjects' | 'qualifications' | 'availability' | 'completion';
+export type TutorOnboardingStep = 'personalInfo' | 'professionalDetails' | 'availability' | 'completion';
 
 interface TutorOnboardingWizardProps {
   onComplete: () => void;
@@ -33,8 +32,7 @@ interface TutorOnboardingWizardProps {
 
 interface TutorDraftData {
   personalInfo: Partial<PersonalInfoData>;
-  subjects: string[];
-  qualifications: Partial<QualificationsData>;
+  professionalDetails: Partial<ProfessionalDetailsData>;
   availability: Partial<AvailabilityData>;
 }
 
@@ -51,8 +49,7 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
     (initialStep as TutorOnboardingStep) || 'personalInfo'
   );
   const [personalInfo, setPersonalInfo] = useState<Partial<PersonalInfoData>>({});
-  const [subjects, setSubjects] = useState<string[]>([]);
-  const [qualifications, setQualifications] = useState<Partial<QualificationsData>>({});
+  const [professionalDetails, setProfessionalDetails] = useState<Partial<ProfessionalDetailsData>>({});
   const [availability, setAvailability] = useState<Partial<AvailabilityData>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isDraftLoaded, setIsDraftLoaded] = useState(false);
@@ -65,8 +62,7 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
         const draft = await loadDraft<TutorDraftData>(user?.id, DRAFT_KEY);
         if (draft) {
           if (draft.personalInfo) setPersonalInfo(draft.personalInfo);
-          if (draft.subjects) setSubjects(draft.subjects);
-          if (draft.qualifications) setQualifications(draft.qualifications);
+          if (draft.professionalDetails) setProfessionalDetails(draft.professionalDetails);
           if (draft.availability) setAvailability(draft.availability);
         }
 
@@ -88,14 +84,13 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
   // Prepare form data for auto-save - memoized to prevent unnecessary re-renders
   const formData = React.useMemo<TutorDraftData>(() => ({
     personalInfo,
-    subjects,
-    qualifications,
+    professionalDetails,
     availability,
-  }), [personalInfo, subjects, qualifications, availability]);
+  }), [personalInfo, professionalDetails, availability]);
 
   // Memoize shouldSave callback to prevent recreation on every render
   const shouldSave = React.useCallback(
-    (data: TutorDraftData) => !!data.personalInfo?.firstName || data.subjects.length > 0,
+    (data: TutorDraftData) => !!data.personalInfo?.firstName || !!data.professionalDetails?.bio,
     []
   );
 
@@ -127,9 +122,8 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
   };
 
   const handleBack = () => {
-    if (currentStep === 'subjects') setCurrentStep('personalInfo');
-    if (currentStep === 'qualifications') setCurrentStep('subjects');
-    if (currentStep === 'availability') setCurrentStep('qualifications');
+    if (currentStep === 'professionalDetails') setCurrentStep('personalInfo');
+    if (currentStep === 'availability') setCurrentStep('professionalDetails');
   }
 
   const handlePersonalInfoSubmit = async (data: PersonalInfoData) => {
@@ -166,11 +160,11 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
       console.log('[TutorOnboardingWizard] ✓ Personal info saved to profile');
 
       // Move to next step
-      setCurrentStep('subjects');
+      setCurrentStep('professionalDetails');
 
       // Update onboarding progress in background
       updateOnboardingProgress({
-        current_step: 'subjects',
+        current_step: 'professionalDetails',
       }).catch(error => {
         console.error('[TutorOnboardingWizard] Error updating progress:', error);
       });
@@ -183,33 +177,17 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
     }
   };
 
-  const handleSubjectsSubmit = async (selectedSubjects: string[]) => {
-    console.log('[TutorOnboardingWizard] handleSubjectsSubmit called', selectedSubjects);
+  const handleProfessionalDetailsSubmit = async (data: ProfessionalDetailsData) => {
+    console.log('[TutorOnboardingWizard] handleProfessionalDetailsSubmit called', data);
 
     // Update state and UI immediately
-    setSubjects(selectedSubjects);
-    setCurrentStep('qualifications');
-
-    // Update database in background (don't await)
-    updateOnboardingProgress({
-      current_step: 'qualifications',
-      tutor: { subjects: selectedSubjects }
-    }).catch(error => {
-      console.error('[TutorOnboardingWizard] Error updating progress:', error);
-    });
-  };
-
-  const handleQualificationsSubmit = async (data: QualificationsData) => {
-    console.log('[TutorOnboardingWizard] handleQualificationsSubmit called', data);
-
-    // Update state and UI immediately
-    setQualifications(data);
+    setProfessionalDetails(data);
     setCurrentStep('availability');
 
     // Update database in background (don't await)
     updateOnboardingProgress({
       current_step: 'availability',
-      tutor: { subjects, qualifications: data }
+      tutor: { professionalDetails: data }
     }).catch(error => {
       console.error('[TutorOnboardingWizard] Error updating progress:', error);
     });
@@ -219,8 +197,7 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
     console.log('[TutorOnboardingWizard] ========================================');
     console.log('[TutorOnboardingWizard] handleAvailabilitySubmit START');
     console.log('[TutorOnboardingWizard] Input data:', JSON.stringify(data, null, 2));
-    console.log('[TutorOnboardingWizard] Current state - subjects:', subjects);
-    console.log('[TutorOnboardingWizard] Current state - qualifications:', qualifications);
+    console.log('[TutorOnboardingWizard] Current state - professionalDetails:', professionalDetails);
     console.log('[TutorOnboardingWizard] User ID:', user?.id);
 
     // Set availability state immediately
@@ -276,12 +253,12 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
       const roleDetailsData = {
         profile_id: user!.id,
         role_type: 'tutor',
-        subjects: subjects || [],
+        subjects: professionalDetails?.subjects || [],
         qualifications: {
-          experience_level: qualifications.experience || '',
-          education: qualifications.education || '',
-          certifications: qualifications.certifications || [],
-          bio: qualifications.bio || '',
+          experience_level: professionalDetails?.tutoringExperience || '',
+          education: professionalDetails?.academicQualifications?.[0] || '',
+          certifications: professionalDetails?.teachingProfessionalQualifications || [],
+          bio: professionalDetails?.bio || '',
         },
         hourly_rate: data.hourlyRate || 0,
         availability: {
@@ -313,8 +290,7 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
         onboarding_completed: true,
         completed_at: new Date().toISOString(),
         tutor: {
-          subjects,
-          ...(Object.keys(qualifications).length > 0 && { qualifications: qualifications as QualificationsData }),
+          ...(professionalDetails && Object.keys(professionalDetails).length > 0 && { professionalDetails }),
           availability: data
         }
       });
@@ -379,10 +355,8 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
             userRole="tutor" // For tutor onboarding, always show DBS fields
           />
         );
-      case 'subjects':
-        return <TutorSubjectSelectionStep onNext={handleSubjectsSubmit} onBack={handleBack} isLoading={isLoading} />;
-      case 'qualifications':
-        return <TutorQualificationsStep onNext={handleQualificationsSubmit} onBack={handleBack} isLoading={isLoading} />;
+      case 'professionalDetails':
+        return <TutorProfessionalDetailStep onNext={handleProfessionalDetailsSubmit} onBack={handleBack} isLoading={isLoading} />;
       case 'availability':
         return <TutorAvailabilityStep onNext={handleAvailabilitySubmit} onBack={handleBack} isLoading={isLoading} />;
       default:

@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import styles from '../OnboardingWizard.module.css';
 import { WizardActionButtons } from '../shared/WizardButton';
-import { MultiSelectCardGroup } from '../shared/SelectableCard';
+import HubForm from '@/app/components/hub/form/HubForm';
+import UnifiedMultiSelect from '@/app/components/ui/forms/UnifiedMultiSelect';
 
 interface TutorSubjectSelectionStepProps {
   onNext: (subjects: string[]) => void;
@@ -11,47 +12,17 @@ interface TutorSubjectSelectionStepProps {
   isLoading: boolean;
 }
 
-const subjects = [
-  {
-    value: 'mathematics',
-    label: 'Mathematics',
-    description: 'Algebra, Calculus, Geometry, Statistics',
-  },
-  {
-    value: 'languages',
-    label: 'Languages',
-    description: 'English, Spanish, French, Mandarin',
-  },
-  {
-    value: 'computer_science',
-    label: 'Programming',
-    description: 'Python, JavaScript, Java, Web Development',
-  },
-  {
-    value: 'sciences',
-    label: 'Sciences',
-    description: 'Physics, Chemistry, Biology'
-  },
-  {
-    value: 'business',
-    label: 'Business',
-    description: 'Accounting, Finance, Marketing'
-  },
-  {
-    value: 'test_prep',
-    label: 'Test Prep',
-    description: 'SAT, ACT, GRE, GMAT'
-  },
-  {
-    value: 'arts',
-    label: 'Arts & Music',
-    description: 'Drawing, Piano, Guitar, Singing'
-  },
-  {
-    value: 'other',
-    label: 'Other Subjects',
-    description: 'History, Geography, Philosophy'
-  }
+const subjectOptions = [
+  { value: 'Mathematics, English', label: 'Mathematics, English' },
+  { value: 'Science', label: 'Science' },
+  { value: 'History', label: 'History' },
+  { value: 'Geography', label: 'Geography' },
+  { value: 'Languages', label: 'Languages' },
+  { value: 'Computer Science', label: 'Computer Science' },
+  { value: 'Business Studies', label: 'Business Studies' },
+  { value: 'Arts & Music', label: 'Arts & Music' },
+  { value: 'Physical Education', label: 'Physical Education' },
+  { value: 'Religious Studies', label: 'Religious Studies' },
 ];
 
 const TutorSubjectSelectionStep: React.FC<TutorSubjectSelectionStepProps> = ({
@@ -62,7 +33,6 @@ const TutorSubjectSelectionStep: React.FC<TutorSubjectSelectionStepProps> = ({
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
 
   const handleContinue = () => {
-    // The WizardActionButtons component ensures this only runs when valid
     onNext(selectedSubjects);
   };
 
@@ -78,17 +48,39 @@ const TutorSubjectSelectionStep: React.FC<TutorSubjectSelectionStepProps> = ({
       </div>
 
       <div className={styles.stepBody}>
-        <MultiSelectCardGroup
-          options={subjects}
-          selectedValues={selectedSubjects}
-          onChange={(values) => setSelectedSubjects(values as string[])}
-          debug={true}
-        />
+        <HubForm.Root>
+          <HubForm.Section>
+            <HubForm.Grid columns={1}>
+              <HubForm.Field
+                label="Subjects"
+                isEditing={true}
+                required
+              >
+                <UnifiedMultiSelect
+                  triggerLabel="Subjects"
+                  placeholder="Select subjects you teach..."
+                  options={subjectOptions}
+                  selectedValues={selectedSubjects}
+                  onSelectionChange={setSelectedSubjects}
+                  disabled={isLoading}
+                />
+              </HubForm.Field>
+            </HubForm.Grid>
+          </HubForm.Section>
 
-        <p className={styles.progressIndicator}>
-          {selectedSubjects.length === 0 ? 'Select at least one subject' :
-           `${selectedSubjects.length} subject${selectedSubjects.length > 1 ? 's' : ''} selected`}
-        </p>
+          {selectedSubjects.length > 0 && (
+            <div style={{
+              marginTop: '16px',
+              padding: '12px 16px',
+              backgroundColor: '#f9fafb',
+              borderRadius: '8px',
+              fontSize: '14px',
+              color: '#6b7280'
+            }}>
+              {selectedSubjects.length} subject{selectedSubjects.length > 1 ? 's' : ''} selected
+            </div>
+          )}
+        </HubForm.Root>
       </div>
 
       <WizardActionButtons
