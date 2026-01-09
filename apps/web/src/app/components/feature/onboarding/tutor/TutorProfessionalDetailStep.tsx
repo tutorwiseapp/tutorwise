@@ -85,6 +85,14 @@ const deliveryModeOptions = [
   { value: 'Hybrid', label: 'Hybrid' },
 ];
 
+// Helper function to format multi-select trigger label
+const formatMultiSelectLabel = (selectedValues: string[], placeholder: string): string => {
+  if (selectedValues.length === 0) return placeholder;
+  if (selectedValues.length === 1) return selectedValues[0];
+  if (selectedValues.length === 2) return `${selectedValues[0]}, ${selectedValues[1]}`;
+  return `${selectedValues[0]}, ${selectedValues[1]}, +${selectedValues.length - 2}`;
+};
+
 const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = ({
   onNext,
   onBack,
@@ -111,6 +119,7 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
     formData.bio.trim().length >= 50 &&
     formData.status !== '' &&
     formData.academicQualifications.length > 0 &&
+    formData.teachingProfessionalQualifications.length > 0 &&
     formData.teachingExperience !== '' &&
     formData.tutoringExperience !== '' &&
     formData.keyStages.length > 0 &&
@@ -128,6 +137,8 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
       statusValid: formData.status !== '',
       academicQualifications: formData.academicQualifications.length,
       academicValid: formData.academicQualifications.length > 0,
+      teachingProfessionalQualifications: formData.teachingProfessionalQualifications.length,
+      teachingProfQualValid: formData.teachingProfessionalQualifications.length > 0,
       teachingExperience: formData.teachingExperience,
       teachingExpValid: formData.teachingExperience !== '',
       tutoringExperience: formData.tutoringExperience,
@@ -206,24 +217,16 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
             <HubForm.Grid>
               <HubForm.Field label="Academic Qualifications" required>
                 <UnifiedMultiSelect
-                  triggerLabel={
-                    formData.academicQualifications.length > 0
-                      ? `${formData.academicQualifications.length} selected`
-                      : 'Select qualifications'
-                  }
+                  triggerLabel={formatMultiSelectLabel(formData.academicQualifications, 'Select qualifications')}
                   options={academicQualificationsOptions}
                   selectedValues={formData.academicQualifications}
                   onSelectionChange={(values) => setFormData(prev => ({ ...prev, academicQualifications: values }))}
                 />
               </HubForm.Field>
 
-              <HubForm.Field label="Teaching Professional Qualifications">
+              <HubForm.Field label="Teaching Professional Qualifications" required>
                 <UnifiedMultiSelect
-                  triggerLabel={
-                    formData.teachingProfessionalQualifications.length > 0
-                      ? `${formData.teachingProfessionalQualifications.length} selected`
-                      : 'Select qualifications'
-                  }
+                  triggerLabel={formatMultiSelectLabel(formData.teachingProfessionalQualifications, 'Select qualifications')}
                   options={teachingProfessionalQualificationsOptions}
                   selectedValues={formData.teachingProfessionalQualifications}
                   onSelectionChange={(values) => setFormData(prev => ({ ...prev, teachingProfessionalQualifications: values }))}
@@ -258,11 +261,7 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
             <HubForm.Grid>
               <HubForm.Field label="Key Stages" required>
                 <UnifiedMultiSelect
-                  triggerLabel={
-                    formData.keyStages.length > 0
-                      ? `${formData.keyStages.length} selected`
-                      : 'Select key stages'
-                  }
+                  triggerLabel={formatMultiSelectLabel(formData.keyStages, 'Select key stages')}
                   options={keyStagesOptions}
                   selectedValues={formData.keyStages}
                   onSelectionChange={(values) => setFormData(prev => ({ ...prev, keyStages: values }))}
@@ -271,11 +270,7 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
 
               <HubForm.Field label="Subjects" required>
                 <UnifiedMultiSelect
-                  triggerLabel={
-                    formData.subjects.length > 0
-                      ? `${formData.subjects.length} selected`
-                      : 'Select subjects'
-                  }
+                  triggerLabel={formatMultiSelectLabel(formData.subjects, 'Select subjects')}
                   options={subjectsOptions}
                   selectedValues={formData.subjects}
                   onSelectionChange={(values) => setFormData(prev => ({ ...prev, subjects: values }))}
@@ -287,11 +282,7 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
             <HubForm.Grid>
               <HubForm.Field label="Session Type" required>
                 <UnifiedMultiSelect
-                  triggerLabel={
-                    formData.sessionType.length > 0
-                      ? `${formData.sessionType.length} selected`
-                      : 'Select session types'
-                  }
+                  triggerLabel={formatMultiSelectLabel(formData.sessionType, 'Select session types')}
                   options={sessionTypeOptions}
                   selectedValues={formData.sessionType}
                   onSelectionChange={(values) => setFormData(prev => ({ ...prev, sessionType: values }))}
@@ -300,11 +291,7 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
 
               <HubForm.Field label="Delivery Mode" required>
                 <UnifiedMultiSelect
-                  triggerLabel={
-                    formData.deliveryMode.length > 0
-                      ? `${formData.deliveryMode.length} selected`
-                      : 'Select delivery modes'
-                  }
+                  triggerLabel={formatMultiSelectLabel(formData.deliveryMode, 'Select delivery modes')}
                   options={deliveryModeOptions}
                   selectedValues={formData.deliveryMode}
                   onSelectionChange={(values) => setFormData(prev => ({ ...prev, deliveryMode: values }))}

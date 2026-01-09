@@ -17,7 +17,7 @@
 
 import React from 'react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { CheckIcon, ChevronDownIcon } from '@radix-ui/react-icons';
+import { ChevronDownIcon } from '@radix-ui/react-icons';
 import styles from './FormControls.module.css';
 
 export interface MultiSelectOption {
@@ -86,9 +86,6 @@ const UnifiedMultiSelect: React.FC<UnifiedMultiSelectProps> = ({
               onCheckedChange={() => handleSelect(option.value)}
               onSelect={(e) => e.preventDefault()} // Prevents menu from closing on click
             >
-              <DropdownMenu.ItemIndicator className={styles.multiSelectItemIndicator}>
-                <CheckIcon />
-              </DropdownMenu.ItemIndicator>
               {option.label}
             </DropdownMenu.CheckboxItem>
           ))}
