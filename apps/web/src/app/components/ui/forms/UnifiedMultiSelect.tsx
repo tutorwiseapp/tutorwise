@@ -33,6 +33,7 @@ export interface UnifiedMultiSelectProps {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  error?: boolean;
 }
 
 const UnifiedMultiSelect: React.FC<UnifiedMultiSelectProps> = ({
@@ -43,6 +44,7 @@ const UnifiedMultiSelect: React.FC<UnifiedMultiSelectProps> = ({
   placeholder,
   disabled = false,
   className = '',
+  error = false,
 }) => {
   const handleSelect = (value: string) => {
     const newSelection = selectedValues.includes(value)
@@ -60,7 +62,7 @@ const UnifiedMultiSelect: React.FC<UnifiedMultiSelectProps> = ({
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <button
-          className={`${styles.multiSelectTrigger} ${className}`}
+          className={`${styles.multiSelectTrigger} ${error ? styles.multiSelectTriggerError : ''} ${className}`}
           disabled={disabled}
           style={{
             opacity: disabled ? 0.6 : 1,
@@ -89,6 +91,20 @@ const UnifiedMultiSelect: React.FC<UnifiedMultiSelectProps> = ({
               {option.label}
             </DropdownMenu.CheckboxItem>
           ))}
+          {selectedValues.length > 0 && (
+            <>
+              <DropdownMenu.Separator className={styles.multiSelectSeparator} />
+              <DropdownMenu.Item
+                className={styles.multiSelectClearButton}
+                onSelect={(e) => {
+                  e.preventDefault();
+                  onSelectionChange([]);
+                }}
+              >
+                Clear All
+              </DropdownMenu.Item>
+            </>
+          )}
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>

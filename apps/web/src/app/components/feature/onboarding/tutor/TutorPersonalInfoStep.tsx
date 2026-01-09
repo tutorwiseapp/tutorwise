@@ -9,6 +9,7 @@ import styles from '../OnboardingWizard.module.css';
 import { WizardActionButtons } from '../shared/WizardButton';
 import { PersonalInfoData } from './TutorOnboardingWizard';
 import DatePicker from '@/app/components/ui/forms/DatePicker';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import { HubForm } from '@/app/components/hub/form/HubForm';
 
 interface TutorPersonalInfoStepProps {
@@ -182,28 +183,26 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
             </HubForm.Field>
 
             <HubForm.Field label="Gender" required>
-              <select
-                id="gender"
-                name="gender"
+              <UnifiedSelect
                 value={formData.gender}
-                onChange={handleChange}
-                disabled={isLoading}
-                required
-                style={{
-                  appearance: 'none',
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E")`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 12px center',
-                  backgroundSize: '12px',
-                  paddingRight: '2.5rem'
+                onChange={(value) => {
+                  const event = {
+                    target: {
+                      name: 'gender',
+                      value: String(value)
+                    }
+                  } as React.ChangeEvent<HTMLInputElement>;
+                  handleChange(event);
                 }}
-              >
-                <option value="">Select gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-                <option value="Prefer not to say">Prefer not to say</option>
-              </select>
+                options={[
+                  { value: 'Male', label: 'Male' },
+                  { value: 'Female', label: 'Female' },
+                  { value: 'Other', label: 'Other' },
+                  { value: 'Prefer not to say', label: 'Prefer not to say' }
+                ]}
+                placeholder="Select gender"
+                disabled={isLoading}
+              />
             </HubForm.Field>
 
             <HubForm.Field label="Date of Birth" required>

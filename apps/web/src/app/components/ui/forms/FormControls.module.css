@@ -35,6 +35,16 @@
   background-color: #f5f5f5;
 }
 
+/* Error state for multi-select trigger */
+.multiSelectTriggerError {
+  border-color: #dc2626;
+}
+
+.multiSelectTriggerError:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
 /* Chevron icon in trigger */
 .multiSelectChevron {
   width: 1.25rem;
@@ -115,6 +125,37 @@
 .multiSelectItemIndicator svg {
   width: 1rem;
   height: 1rem;
+}
+
+/* Separator for Clear All button */
+.multiSelectSeparator {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 0.5rem 0;
+}
+
+/* Clear All button */
+.multiSelectClearButton {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #dc2626;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 4px;
+  outline: none;
+  user-select: none;
+  transition: background-color 0.15s ease;
+}
+
+.multiSelectClearButton:hover {
+  background-color: #fef2f2;
+}
+
+.multiSelectClearButton:focus {
+  background-color: #fef2f2;
 }
 
 /* ============================================

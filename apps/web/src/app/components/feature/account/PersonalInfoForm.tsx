@@ -5,6 +5,7 @@ import { format, parse } from 'date-fns';
 import type { Profile } from '@/types';
 import HubForm from '@/app/components/hub/form/HubForm';
 import DatePicker from '@/app/components/ui/forms/DatePicker';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import Button from '@/app/components/ui/actions/Button';
 import styles from './PersonalInfoForm.module.css';
 import hubFormStyles from '@/app/components/hub/form/HubForm.module.css';
@@ -24,7 +25,7 @@ export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormPr
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
   // Refs for auto-focus
-  const inputRefs = useRef<{ [key: string]: HTMLInputElement | HTMLSelectElement | null }>({});
+  const inputRefs = useRef<{ [key: string]: HTMLInputElement | HTMLSelectElement | HTMLButtonElement | null }>({});
 
   const [formData, setFormData] = useState({
     first_name: profile.first_name || '',
@@ -183,22 +184,24 @@ export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormPr
         {isEditing ? (
           <>
             {type === 'select' ? (
-              <select
+              <UnifiedSelect
                 ref={(el) => { inputRefs.current[field] = el; }}
-                className={hubFormStyles.input}
-                name={fieldKey}
                 value={formData[fieldKey]}
-                onChange={handleChange}
-                onBlur={() => handleBlur(field)}
-                onKeyDown={(e) => handleKeyDown(e, field)}
+                onChange={(value) => {
+                  const event = {
+                    target: {
+                      name: fieldKey,
+                      value: String(value)
+                    }
+                  } as React.ChangeEvent<HTMLSelectElement>;
+                  handleChange(event);
+                }}
+                options={options || []}
+                placeholder={`Select ${label.toLowerCase()}`}
                 disabled={isSaving}
-                {...(isSaving && { style: { opacity: 0.6, cursor: 'wait' } })}
-              >
-                <option value="">Select {label.toLowerCase()}</option>
-                {options?.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+                onBlur={() => handleBlur(field)}
+                onKeyDown={(e) => handleKeyDown(e as any, field)}
+              />
             ) : type === 'date' ? (
               <div onBlur={() => handleBlur(field)}>
                 <DatePicker
