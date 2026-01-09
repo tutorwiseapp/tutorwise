@@ -8,7 +8,6 @@ import { MultiSelectCardGroup } from '../shared/SelectableCard';
 interface TutorSubjectSelectionStepProps {
   onNext: (subjects: string[]) => void;
   onBack?: () => void;
-  onSkip?: () => void;
   isLoading: boolean;
 }
 
@@ -58,7 +57,6 @@ const subjects = [
 const TutorSubjectSelectionStep: React.FC<TutorSubjectSelectionStepProps> = ({
   onNext,
   onBack,
-  onSkip,
   isLoading
 }) => {
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
@@ -97,7 +95,6 @@ const TutorSubjectSelectionStep: React.FC<TutorSubjectSelectionStepProps> = ({
         onContinue={handleContinue}
         continueEnabled={selectedSubjects.length > 0}
         onBack={onBack}
-        onSkip={onSkip}
         isLoading={isLoading}
         debug={true}
       />

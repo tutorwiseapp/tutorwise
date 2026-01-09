@@ -8,7 +8,6 @@ import { SingleSelectCardGroup } from '../shared/SelectableCard';
 interface AgentDetailsStepProps {
   onNext: (details: AgencyDetailsData) => void;
   onBack?: () => void;
-  onSkip?: () => void;
   isLoading: boolean;
 }
 
@@ -36,7 +35,6 @@ const yearsOptions = [
 const AgentDetailsStep: React.FC<AgentDetailsStepProps> = ({
   onNext,
   onBack,
-  onSkip,
   isLoading
 }) => {
   const [agencyName, setAgencyName] = useState('');
@@ -135,7 +133,6 @@ const AgentDetailsStep: React.FC<AgentDetailsStepProps> = ({
         onContinue={handleContinue}
         continueEnabled={isValid}
         onBack={onBack}
-        onSkip={onSkip}
         isLoading={isLoading}
         debug={true}
       />

@@ -49,7 +49,7 @@
 }
 
 .form {
-  max-width: 480px;
+  max-width: 600px;
   padding-top: var(--space-5);
   padding-bottom: var(--space-5);
 }

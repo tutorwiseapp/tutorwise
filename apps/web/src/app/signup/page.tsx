@@ -23,17 +23,75 @@ import Input from '@/app/components/ui/forms/Input';
 import FormGroup from '@/app/components/ui/forms/FormGroup';
 import Message from '@/app/components/ui/feedback/Message';
 
+// Password strength calculation helper
+const calculatePasswordStrength = (password: string) => {
+  let strength = 0;
+  const checks = {
+    length: password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /[0-9]/.test(password),
+    special: /[^A-Za-z0-9]/.test(password),
+  };
+
+  // Calculate strength score
+  if (checks.length) strength += 20;
+  if (checks.uppercase) strength += 20;
+  if (checks.lowercase) strength += 20;
+  if (checks.number) strength += 20;
+  if (checks.special) strength += 20;
+
+  // Determine label
+  let label = 'Weak';
+  let color = '#ef4444'; // red
+  if (strength >= 80) {
+    label = 'Strong';
+    color = '#10b981'; // green
+  } else if (strength >= 60) {
+    label = 'Medium';
+    color = '#f59e0b'; // orange
+  }
+
+  return { strength, label, color, checks };
+};
+
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [referralCode, setReferralCode] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+
+  // Calculate password strength
+  const passwordStrength = password ? calculatePasswordStrength(password) : null;
+
+  // Email validation
+  const validateEmail = (email: string) => {
+    if (!email) {
+      setEmailError(null);
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setEmailError('Please enter a valid email address');
+    } else {
+      setEmailError(null);
+    }
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEmail(value);
+    validateEmail(value);
+  };
 
   useEffect(() => {
     document.title = 'Sign Up - Tutorwise';
@@ -59,6 +117,13 @@ export default function SignUpPage() {
     e.preventDefault();
     setError(null);
     setMessage(null);
+
+    // Validate terms acceptance
+    if (!acceptedTerms) {
+      setError('You must accept the Terms & Conditions to create an account.');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -179,17 +244,105 @@ export default function SignUpPage() {
         {message && <Message type="success">{message}</Message>}
         {error && <Message type="error">{error}</Message>}
         <form onSubmit={handleSignUp}>
-          <FormGroup label="First Name" htmlFor="firstName">
-            <Input id="firstName" name="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="John" required />
-          </FormGroup>
-          <FormGroup label="Last Name" htmlFor="lastName">
-            <Input id="lastName" name="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Smith" required />
-          </FormGroup>
+          <div className={authStyles.twoColGrid}>
+            <FormGroup label="First Name" htmlFor="firstName">
+              <Input
+                id="firstName"
+                name="given-name"
+                autoComplete="given-name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="John"
+                style={{ fontSize: '16px' }}
+                required
+              />
+            </FormGroup>
+            <FormGroup label="Last Name" htmlFor="lastName">
+              <Input
+                id="lastName"
+                name="family-name"
+                autoComplete="family-name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Smith"
+                style={{ fontSize: '16px' }}
+                required
+              />
+            </FormGroup>
+          </div>
           <FormGroup label="Email" htmlFor="email">
-            <Input id="email" name="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="johnsmith@gmail.com" required />
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              inputMode="email"
+              value={email}
+              onChange={handleEmailChange}
+              placeholder="johnsmith@gmail.com"
+              style={{ fontSize: '16px' }}
+              required
+            />
+            {emailError && (
+              <div className={authStyles.inlineError}>
+                {emailError}
+              </div>
+            )}
           </FormGroup>
           <FormGroup label="Password" htmlFor="password">
-            <Input id="password" name="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <div className={authStyles.passwordInputWrapper}>
+              <Input
+                id="password"
+                name="new-password"
+                autoComplete="new-password"
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                style={{ fontSize: '16px', paddingRight: '60px' }}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className={authStyles.togglePasswordButton}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
+            {/* Password Strength Indicator */}
+            {password && passwordStrength && (
+              <div className={authStyles.passwordStrength}>
+                <div className={authStyles.strengthHeader}>
+                  <span className={authStyles.strengthLabel} style={{ color: passwordStrength.color }}>
+                    {passwordStrength.label}
+                  </span>
+                  <div className={authStyles.strengthBar}>
+                    <div
+                      className={authStyles.strengthBarFill}
+                      style={{
+                        width: `${passwordStrength.strength}%`,
+                        backgroundColor: passwordStrength.color,
+                      }}
+                    />
+                  </div>
+                </div>
+                <ul className={authStyles.strengthChecklist}>
+                  <li className={passwordStrength.checks.length ? authStyles.checkPassed : ''}>
+                    {passwordStrength.checks.length ? '✓' : '○'} At least 8 characters
+                  </li>
+                  <li className={passwordStrength.checks.uppercase ? authStyles.checkPassed : ''}>
+                    {passwordStrength.checks.uppercase ? '✓' : '○'} One uppercase letter
+                  </li>
+                  <li className={passwordStrength.checks.number ? authStyles.checkPassed : ''}>
+                    {passwordStrength.checks.number ? '✓' : '○'} One number
+                  </li>
+                  <li className={passwordStrength.checks.special ? authStyles.checkPassed : ''}>
+                    {passwordStrength.checks.special ? '✓' : '○'} One special character
+                  </li>
+                </ul>
+              </div>
+            )}
           </FormGroup>
           <FormGroup label="Referral Code (Optional)" htmlFor="referralCode">
             <Input
@@ -200,12 +353,36 @@ export default function SignUpPage() {
               placeholder="Enter referral code if you have one"
             />
           </FormGroup>
-          <Button type="submit" variant="primary" fullWidth disabled={isLoading}>
-            {isLoading ? 'Creating account...' : 'Sign Up'}
-          </Button>
+
+          {/* Terms & Conditions Checkbox */}
+          <div className={authStyles.termsCheckbox}>
+            <label>
+              <input
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                style={{ marginRight: '8px' }}
+              />
+              <span>
+                I agree to the{' '}
+                <Link href="/terms" target="_blank" rel="noopener noreferrer">
+                  Terms & Conditions
+                </Link>
+                {' '}and{' '}
+                <Link href="/privacy" target="_blank" rel="noopener noreferrer">
+                  Privacy Policy
+                </Link>
+              </span>
+            </label>
+          </div>
+
+          <div className={authStyles.buttonGrid}>
+            <Button type="submit" variant="primary" fullWidth disabled={isLoading || !acceptedTerms}>
+              {isLoading ? 'Creating account...' : 'Sign Up'}
+            </Button>
+            <Button variant='secondary' fullWidth onClick={handleGoogleSignUp}>Sign Up with Google</Button>
+          </div>
         </form>
-        <div className={authStyles.separator}>or</div>
-        <Button variant='secondary' fullWidth onClick={handleGoogleSignUp}>Sign Up with Google</Button>
       </div>
       <div className={authStyles.authSwitch}>
         Already have an account? <Link href="/login">Log In</Link>

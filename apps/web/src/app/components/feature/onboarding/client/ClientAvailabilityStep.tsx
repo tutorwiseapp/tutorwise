@@ -8,7 +8,6 @@ import { SingleSelectCardGroup, MultiSelectCardGroup } from '../shared/Selectabl
 interface ClientAvailabilityStepProps {
   onNext: (availability: AvailabilityData) => void;
   onBack?: () => void;
-  onSkip?: () => void;
   isLoading: boolean;
 }
 
@@ -45,7 +44,6 @@ const sessionTypeOptions = [
 const ClientAvailabilityStep: React.FC<ClientAvailabilityStepProps> = ({
   onNext,
   onBack,
-  onSkip,
   isLoading
 }) => {
   const [hourlyBudget, setHourlyBudget] = useState<number>(0);
@@ -154,7 +152,6 @@ const ClientAvailabilityStep: React.FC<ClientAvailabilityStepProps> = ({
         onContinue={handleContinue}
         continueEnabled={isValid}
         onBack={onBack}
-        onSkip={onSkip}
         isLoading={isLoading}
         debug={true}
       />

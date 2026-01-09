@@ -8,7 +8,6 @@ import { SingleSelectCardGroup, MultiSelectCardGroup } from '../shared/Selectabl
 interface TutorQualificationsStepProps {
   onNext: (qualifications: QualificationsData) => void;
   onBack?: () => void;
-  onSkip?: () => void;
   isLoading: boolean;
 }
 
@@ -45,7 +44,6 @@ const commonCertifications = [
 const TutorQualificationsStep: React.FC<TutorQualificationsStepProps> = ({
   onNext,
   onBack,
-  onSkip,
   isLoading
 }) => {
   const [experience, setExperience] = useState('');
@@ -142,7 +140,6 @@ const TutorQualificationsStep: React.FC<TutorQualificationsStepProps> = ({
         onContinue={handleContinue}
         continueEnabled={isValid}
         onBack={onBack}
-        onSkip={onSkip}
         isLoading={isLoading}
         debug={true}
       />

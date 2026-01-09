@@ -21,6 +21,9 @@
 /* Specific styling for the card on auth pages */
 .authCard {
   aspect-ratio: unset;
+  background: var(--color-primary-light, #E6F0F0);
+  padding: var(--space-4, 32px);
+  border-radius: var(--border-radius-lg, 12px);
 }
 
 .twoColGrid {
@@ -35,7 +38,7 @@
   text-align: center;
   color: var(--color-text-secondary);
   font-size: var(--font-size-xs);
-  margin: var(--space-3) 0;
+  margin: var(--space-2) 0;
 }
 
 .separator::before, .separator::after {
@@ -54,7 +57,7 @@
 
 .authSwitch {
   text-align: center;
-  margin-top: var(--space-3);
+  margin-top: var(--space-2);
   font-size: var(--font-size-sm);
 }
 
@@ -71,8 +74,168 @@
   color: var(--color-text-secondary);
 }
 
+/* Password Input Wrapper - for Show/Hide toggle */
+.passwordInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.togglePasswordButton {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  min-height: 44px; /* Touch target minimum */
+}
+
+.togglePasswordButton:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-secondary);
+}
+
+.togglePasswordButton:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.togglePasswordButton:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+/* Password Strength Indicator */
+.passwordStrength {
+  margin-top: var(--space-1);
+  padding: 10px var(--space-2);
+  background-color: var(--color-bg-tertiary);
+  border-radius: 6px;
+  font-size: var(--font-size-sm);
+}
+
+.strengthHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
+}
+
+.strengthLabel {
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-xs);
+  min-width: 60px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.strengthBar {
+  flex: 1;
+  height: 6px;
+  background-color: var(--color-border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.strengthBarFill {
+  height: 100%;
+  transition: width 0.3s ease, background-color 0.3s ease;
+  border-radius: 3px;
+}
+
+.strengthChecklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.strengthChecklist li {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  transition: color 0.2s ease;
+}
+
+.strengthChecklist li.checkPassed {
+  color: #10b981;
+  font-weight: var(--font-weight-medium);
+}
+
+/* Terms & Conditions Checkbox */
+.termsCheckbox {
+  margin: var(--space-2) 0;
+  padding: var(--space-2);
+  background-color: var(--color-bg-tertiary);
+  border-radius: 6px;
+}
+
+.termsCheckbox label {
+  display: flex;
+  align-items: flex-start;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  line-height: 1.5;
+}
+
+.termsCheckbox input[type="checkbox"] {
+  margin-top: 2px;
+  cursor: pointer;
+  min-width: 16px;
+  min-height: 16px;
+}
+
+.termsCheckbox a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  font-weight: var(--font-weight-medium);
+}
+
+.termsCheckbox a:hover {
+  color: var(--color-primary-dark);
+}
+
+/* Inline Validation Error */
+.inlineError {
+  margin-top: 6px;
+  font-size: var(--font-size-xs);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.inlineError::before {
+  content: '⚠';
+  font-size: var(--font-size-sm);
+}
+
+/* Button Grid for side-by-side layout */
+.buttonGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
 @media (max-width: 480px) {
     .twoColGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .strengthChecklist {
+        grid-template-columns: 1fr;
+    }
+
+    .buttonGrid {
         grid-template-columns: 1fr;
     }
 }

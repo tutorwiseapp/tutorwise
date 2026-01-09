@@ -13,7 +13,6 @@ export interface PreferencesData {
 interface ClientLearningPreferencesStepProps {
   onNext: (preferences: PreferencesData) => void;
   onBack: () => void;
-  onSkip?: () => void;
   isLoading: boolean;
 }
 
@@ -27,7 +26,6 @@ const learningStyleOptions = [
 const ClientLearningPreferencesStep: React.FC<ClientLearningPreferencesStepProps> = ({
   onNext,
   onBack,
-  onSkip,
   isLoading,
 }) => {
   const [location, setLocation] = useState('');
@@ -86,7 +84,6 @@ const ClientLearningPreferencesStep: React.FC<ClientLearningPreferencesStepProps
         onContinue={handleContinue}
         continueEnabled={true}
         onBack={onBack}
-        onSkip={onSkip}
         isLoading={isLoading}
         debug={true}
       />

@@ -8,7 +8,6 @@ import { MultiSelectCardGroup } from '../shared/SelectableCard';
 interface ClientSubjectSelectionStepProps {
   onNext: (subjects: string[]) => void;
   onBack?: () => void;
-  onSkip?: () => void;
   isLoading: boolean;
   initialSubjects?: string[];
 }
@@ -59,7 +58,6 @@ const LEARNING_SUBJECTS = [
 const ClientSubjectSelectionStep: React.FC<ClientSubjectSelectionStepProps> = ({
   onNext,
   onBack,
-  onSkip,
   isLoading,
   initialSubjects = []
 }) => {
@@ -100,7 +98,6 @@ const ClientSubjectSelectionStep: React.FC<ClientSubjectSelectionStepProps> = ({
         onContinue={handleContinue}
         continueEnabled={selectedSubjects.length > 0}
         onBack={onBack}
-        onSkip={onSkip}
         isLoading={isLoading}
         debug={true}
       />

@@ -25,6 +25,7 @@ import Message from '@/app/components/ui/feedback/Message';
 function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -72,15 +73,48 @@ function LoginForm() {
         {error && <Message type="error">{error}</Message>}
         <form onSubmit={handleSignIn}>
           <FormGroup label="Email" htmlFor="email">
-            <Input id="email" name="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              inputMode="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={{ fontSize: '16px' }}
+              required
+            />
           </FormGroup>
           <FormGroup label="Password" htmlFor="password">
-            <Input id="password" name="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <div className={authStyles.passwordInputWrapper}>
+              <Input
+                id="password"
+                name="current-password"
+                autoComplete="current-password"
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                style={{ fontSize: '16px', paddingRight: '60px' }}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className={authStyles.togglePasswordButton}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
           </FormGroup>
-          <Button type="submit" variant="primary" fullWidth>Sign In</Button>
+          <Link href="/forgot-password" className={authStyles.forgotPasswordLink}>
+            Forgot password?
+          </Link>
+          <div className={authStyles.buttonGrid}>
+            <Button type="submit" variant="primary" fullWidth>Sign In</Button>
+            <Button variant='secondary' fullWidth onClick={handleGoogleSignIn}>Sign In with Google</Button>
+          </div>
         </form>
-        <div className={authStyles.separator}>or</div>
-        <Button variant='secondary' fullWidth onClick={handleGoogleSignIn}>Sign In with Google</Button>
       </div>
       <div className={authStyles.authSwitch}>
         Don&apos;t have an account? <Link href="/signup">Sign Up</Link>

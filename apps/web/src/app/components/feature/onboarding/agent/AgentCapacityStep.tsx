@@ -8,7 +8,6 @@ import { SingleSelectCardGroup, MultiSelectCardGroup } from '../shared/Selectabl
 interface AgentCapacityStepProps {
   onNext: (capacity: CapacityData) => void;
   onBack?: () => void;
-  onSkip?: () => void;
   isLoading: boolean;
 }
 
@@ -34,7 +33,6 @@ const serviceAreaOptions = [
 const AgentCapacityStep: React.FC<AgentCapacityStepProps> = ({
   onNext,
   onBack,
-  onSkip,
   isLoading
 }) => {
   const [commissionRate, setCommissionRate] = useState<number>(0);
@@ -102,7 +100,6 @@ const AgentCapacityStep: React.FC<AgentCapacityStepProps> = ({
         onContinue={handleContinue}
         continueEnabled={isValid}
         onBack={onBack}
-        onSkip={onSkip}
         isLoading={isLoading}
         debug={true}
       />

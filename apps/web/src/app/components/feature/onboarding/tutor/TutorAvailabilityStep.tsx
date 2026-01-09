@@ -8,7 +8,6 @@ import { SingleSelectCardGroup, MultiSelectCardGroup } from '../shared/Selectabl
 interface TutorAvailabilityStepProps {
   onNext: (availability: AvailabilityData) => void;
   onBack?: () => void;
-  onSkip?: () => void;
   isLoading: boolean;
 }
 
@@ -45,7 +44,6 @@ const sessionTypeOptions = [
 const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
   onNext,
   onBack,
-  onSkip,
   isLoading
 }) => {
   const [hourlyRate, setHourlyRate] = useState<number>(0);
@@ -154,7 +152,6 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
         onContinue={handleContinue}
         continueEnabled={isValid}
         onBack={onBack}
-        onSkip={onSkip}
         isLoading={isLoading}
         debug={true}
       />

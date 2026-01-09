@@ -8,7 +8,6 @@ import { MultiSelectCardGroup } from '../shared/SelectableCard';
 interface AgentServicesStepProps {
   onNext: (services: string[]) => void;
   onBack?: () => void;
-  onSkip?: () => void;
   isLoading: boolean;
 }
 
@@ -58,7 +57,6 @@ const services = [
 const AgentServicesStep: React.FC<AgentServicesStepProps> = ({
   onNext,
   onBack,
-  onSkip,
   isLoading
 }) => {
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
@@ -97,7 +95,6 @@ const AgentServicesStep: React.FC<AgentServicesStepProps> = ({
         onContinue={handleContinue}
         continueEnabled={selectedServices.length > 0}
         onBack={onBack}
-        onSkip={onSkip}
         isLoading={isLoading}
         debug={true}
       />
