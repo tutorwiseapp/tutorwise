@@ -75,7 +75,7 @@ const TutorSubjectSelectionStep: React.FC<TutorSubjectSelectionStepProps> = ({
           What subjects do you teach?
         </h2>
         <p className={styles.stepSubtitle}>
-          Select all subjects you&apos;re qualified to tutor. You can always add more later.
+          Tutor Onboarding • Select all subjects you&apos;re qualified to tutor
         </p>
       </div>
 

@@ -7,12 +7,14 @@ import TutorPersonalInfoStep from '../tutor/TutorPersonalInfoStep';
 import { PersonalInfoData } from '../tutor/TutorOnboardingWizard';
 
 interface AgentPersonalInfoStepProps {
+  onBack?: () => void;
   onNext: (data: PersonalInfoData) => void;
   onSkip?: () => void;
   isLoading?: boolean;
 }
 
 const AgentPersonalInfoStep: React.FC<AgentPersonalInfoStepProps> = ({
+  onBack,
   onNext,
   onSkip,
   isLoading = false
@@ -20,6 +22,7 @@ const AgentPersonalInfoStep: React.FC<AgentPersonalInfoStepProps> = ({
   return (
     <TutorPersonalInfoStep
       onNext={onNext}
+      onBack={onBack}
       onSkip={onSkip}
       isLoading={isLoading}
       userRole="agent"

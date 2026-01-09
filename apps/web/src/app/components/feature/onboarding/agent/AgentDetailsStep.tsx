@@ -68,7 +68,7 @@ const AgentDetailsStep: React.FC<AgentDetailsStepProps> = ({
           Tell us about your agency
         </h2>
         <p className={styles.stepSubtitle}>
-          Help clients understand what makes your agency special
+          Agent Onboarding • Help clients understand what makes your agency special
         </p>
       </div>
 

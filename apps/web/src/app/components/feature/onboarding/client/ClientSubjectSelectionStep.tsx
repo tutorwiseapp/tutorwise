@@ -77,7 +77,7 @@ const ClientSubjectSelectionStep: React.FC<ClientSubjectSelectionStepProps> = ({
           What subjects do you want to learn?
         </h2>
         <p className={styles.stepSubtitle}>
-          Select all subjects you&apos;re interested in. This helps us match you with the right tutors.
+          Client Onboarding • Select all subjects you&apos;re interested in learning
         </p>
       </div>
 

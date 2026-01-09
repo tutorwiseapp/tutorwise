@@ -99,7 +99,7 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
           Set your availability and rates
         </h2>
         <p className={styles.stepSubtitle}>
-          Let students know when you&apos;re available and what you charge
+          Tutor Onboarding • Let students know when you&apos;re available and your rates
         </p>
       </div>
 

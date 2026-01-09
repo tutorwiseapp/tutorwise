@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { useAutoSaveDraft, loadDraft, clearDraft, saveCurrentStep } from '@/lib/utils/wizardUtils';
+import { useAutoSaveDraft, loadDraft, clearDraft, saveCurrentStep, loadSavedStep } from '@/lib/utils/wizardUtils';
 import { OnboardingProgress } from '@/types';
 import { createClient } from '@/utils/supabase/client';
 
@@ -53,7 +53,7 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isDraftLoaded, setIsDraftLoaded] = useState(false);
 
-  // Load draft from database on mount
+  // Load draft AND saved step from database on mount
   useEffect(() => {
     async function loadSavedDraft() {
       if (!isDraftLoaded) {
@@ -64,11 +64,21 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
           if (draft.preferences) setPreferences(draft.preferences);
           if (draft.availability) setAvailability(draft.availability);
         }
+
+        // Load saved step (only if not explicitly provided via initialStep prop)
+        if (!initialStep) {
+          const savedStep = await loadSavedStep(user?.id, DRAFT_KEY);
+          if (savedStep && savedStep !== 'completion') {
+            console.log('[Wizard] Restoring saved step:', savedStep);
+            setCurrentStep(savedStep as any);
+          }
+        }
+
         setIsDraftLoaded(true);
       }
     }
     loadSavedDraft();
-  }, [user?.id, isDraftLoaded]);
+  }, [user?.id, isDraftLoaded, initialStep]);
 
   // Prepare form data for auto-save - memoized to prevent unnecessary re-renders
   const formData = React.useMemo<ClientDraftData>(() => ({
@@ -104,7 +114,19 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentStep]);
 
+
   const handleBack = () => {
+    if (currentStep === "subjects") setCurrentStep("personalInfo");
+    if (currentStep === "preferences") setCurrentStep("subjects");
+    if (currentStep === "availability") setCurrentStep("preferences");
+  };
+
+  const handleBackToLanding = () => {
+    // Navigate back to role selection landing page
+    if (typeof window !== "undefined") {
+      window.location.href = "/onboarding";
+    }
+  };
     if (currentStep === 'subjects') setCurrentStep('personalInfo');
     if (currentStep === 'preferences') setCurrentStep('subjects');
     if (currentStep === 'availability') setCurrentStep('preferences');
@@ -307,6 +329,7 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
         return (
           <ClientPersonalInfoStep
             onNext={handlePersonalInfoSubmit}
+            onBack={handleBackToLanding}
             isLoading={isLoading}
           />
         );

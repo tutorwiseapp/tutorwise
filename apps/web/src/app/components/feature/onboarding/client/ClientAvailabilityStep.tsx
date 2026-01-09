@@ -99,7 +99,7 @@ const ClientAvailabilityStep: React.FC<ClientAvailabilityStepProps> = ({
           Set your availability and budget preferences
         </h2>
         <p className={styles.stepSubtitle}>
-          Help us match you with tutors who fit your schedule and budget
+          Client Onboarding • Share your schedule and budget to find the right tutors
         </p>
       </div>
 

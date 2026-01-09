@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { useAutoSaveDraft, loadDraft, clearDraft, saveCurrentStep } from '@/lib/utils/wizardUtils';
+import { useAutoSaveDraft, loadDraft, clearDraft, saveCurrentStep, loadSavedStep } from '@/lib/utils/wizardUtils';
 import { createClient } from '@/utils/supabase/client';
 import AgentWelcomeStep from '@/app/components/feature/onboarding/steps/WelcomeStep';
 import AgentPersonalInfoStep from './AgentPersonalInfoStep';
@@ -51,7 +51,7 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isDraftLoaded, setIsDraftLoaded] = useState(false);
 
-  // Load draft from database on mount
+  // Load draft AND saved step from database on mount
   useEffect(() => {
     async function loadSavedDraft() {
       if (!isDraftLoaded) {
@@ -62,11 +62,21 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
           if (draft.services) setServices(draft.services);
           if (draft.capacity) setCapacity(draft.capacity);
         }
+
+        // Load saved step (only if not explicitly provided via initialStep prop)
+        if (!initialStep) {
+          const savedStep = await loadSavedStep(user?.id, DRAFT_KEY);
+          if (savedStep && savedStep !== 'completion') {
+            console.log('[Wizard] Restoring saved step:', savedStep);
+            setCurrentStep(savedStep as any);
+          }
+        }
+
         setIsDraftLoaded(true);
       }
     }
     loadSavedDraft();
-  }, [user?.id, isDraftLoaded]);
+  }, [user?.id, isDraftLoaded, initialStep]);
 
   // Prepare form data for auto-save - memoized to prevent unnecessary re-renders
   const formData = React.useMemo<AgentDraftData>(() => ({
@@ -294,11 +304,19 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
     console.log('[AgentOnboardingWizard] ========================================');
   };
 
+
   const handleBack = () => {
-    if (currentStep === 'details') setCurrentStep('personalInfo');
-    if (currentStep === 'services') setCurrentStep('details');
-    if (currentStep === 'capacity') setCurrentStep('services');
-  }
+    if (currentStep === "details") setCurrentStep("personalInfo");
+    if (currentStep === "services") setCurrentStep("details");
+    if (currentStep === "capacity") setCurrentStep("services");
+  };
+
+  const handleBackToLanding = () => {
+    // Navigate back to role selection landing page
+    if (typeof window !== "undefined") {
+      window.location.href = "/onboarding";
+    }
+  };
 
   const handleSkipHandler = () => {
     if (onSkip) {
@@ -314,6 +332,7 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
         return (
           <AgentPersonalInfoStep
             onNext={handlePersonalInfoSubmit}
+            onBack={handleBackToLanding}
             isLoading={isLoading}
           />
         );

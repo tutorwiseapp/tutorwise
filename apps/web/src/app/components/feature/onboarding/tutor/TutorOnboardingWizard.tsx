@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { useAutoSaveDraft, loadDraft, clearDraft, saveCurrentStep } from '@/lib/utils/wizardUtils';
+import { useAutoSaveDraft, loadDraft, clearDraft, saveCurrentStep, loadSavedStep } from '@/lib/utils/wizardUtils';
 import TutorWelcomeStep from '@/app/components/feature/onboarding/steps/WelcomeStep';
 import TutorPersonalInfoStep from './TutorPersonalInfoStep';
 import TutorSubjectSelectionStep from './TutorSubjectSelectionStep';
@@ -57,10 +57,11 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isDraftLoaded, setIsDraftLoaded] = useState(false);
 
-  // Load draft from database on mount
+  // Load draft AND saved step from database on mount
   useEffect(() => {
     async function loadSavedDraft() {
       if (!isDraftLoaded) {
+        // Load draft data
         const draft = await loadDraft<TutorDraftData>(user?.id, DRAFT_KEY);
         if (draft) {
           if (draft.personalInfo) setPersonalInfo(draft.personalInfo);
@@ -68,11 +69,21 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
           if (draft.qualifications) setQualifications(draft.qualifications);
           if (draft.availability) setAvailability(draft.availability);
         }
+
+        // Load saved step (only if not explicitly provided via initialStep prop)
+        if (!initialStep) {
+          const savedStep = await loadSavedStep(user?.id, DRAFT_KEY);
+          if (savedStep && savedStep !== 'completion') {
+            console.log('[TutorOnboardingWizard] Restoring saved step:', savedStep);
+            setCurrentStep(savedStep as TutorOnboardingStep);
+          }
+        }
+
         setIsDraftLoaded(true);
       }
     }
     loadSavedDraft();
-  }, [user?.id, isDraftLoaded]);
+  }, [user?.id, isDraftLoaded, initialStep]);
 
   // Prepare form data for auto-save - memoized to prevent unnecessary re-renders
   const formData = React.useMemo<TutorDraftData>(() => ({
@@ -109,6 +120,13 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
   }, [currentStep]);
 
   const handleBack = () => {
+
+  const handleBackToLanding = () => {
+    // Navigate back to role selection landing page
+    if (typeof window !== "undefined") {
+      window.location.href = "/onboarding";
+    }
+  };
     if (currentStep === 'subjects') setCurrentStep('personalInfo');
     if (currentStep === 'qualifications') setCurrentStep('subjects');
     if (currentStep === 'availability') setCurrentStep('qualifications');
@@ -356,6 +374,7 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
         return (
           <TutorPersonalInfoStep
             onNext={handlePersonalInfoSubmit}
+            onBack={handleBackToLanding}
             isLoading={isLoading}
             userRole="tutor" // For tutor onboarding, always show DBS fields
           />

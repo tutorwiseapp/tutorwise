@@ -44,7 +44,7 @@ const ClientLearningPreferencesStep: React.FC<ClientLearningPreferencesStepProps
       <div className={styles.stepHeader}>
         <h2 className={styles.stepTitle}>Learning Preferences</h2>
         <p className={styles.stepSubtitle}>
-          Help us match you with the best tutors by sharing your preferences (all optional)
+          Client Onboarding • Share your learning preferences to find the best tutors
         </p>
       </div>
 

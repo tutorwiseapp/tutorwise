@@ -75,7 +75,7 @@ const AgentServicesStep: React.FC<AgentServicesStepProps> = ({
           What services does your agency provide?
         </h2>
         <p className={styles.stepSubtitle}>
-          Select all services your agency offers. You can always add more later.
+          Agent Onboarding • Select all educational services your agency offers
         </p>
       </div>
 

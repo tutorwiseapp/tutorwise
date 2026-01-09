@@ -13,6 +13,7 @@ import { HubForm } from '@/app/components/hub/form/HubForm';
 
 interface TutorPersonalInfoStepProps {
   onNext: (data: PersonalInfoData) => void;
+  onBack?: () => void;
   onSkip?: () => void;
   isLoading?: boolean;
   userRole?: 'tutor' | 'agent' | 'client';
@@ -20,6 +21,7 @@ interface TutorPersonalInfoStepProps {
 
 const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
   onNext,
+  onBack,
   onSkip,
   isLoading = false,
   userRole = 'tutor'
@@ -243,6 +245,8 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
 
       <WizardActionButtons
         onContinue={handleContinue}
+        onBack={onBack}
+        backLabel="← Back to Role Selection"
         continueEnabled={isFormValid}
         isLoading={isLoading}
       />

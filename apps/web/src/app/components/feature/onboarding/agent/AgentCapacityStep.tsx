@@ -62,7 +62,7 @@ const AgentCapacityStep: React.FC<AgentCapacityStepProps> = ({
           Set your commission and service areas
         </h2>
         <p className={styles.stepSubtitle}>
-          You can adjust these anytime in settings
+          Agent Onboarding • Define your commission rates and geographic reach
         </p>
       </div>
 

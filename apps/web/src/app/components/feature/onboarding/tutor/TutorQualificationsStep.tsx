@@ -76,7 +76,7 @@ const TutorQualificationsStep: React.FC<TutorQualificationsStepProps> = ({
           Tell us about your qualifications
         </h2>
         <p className={styles.stepSubtitle}>
-          Help students understand why you&apos;re the perfect tutor for them
+          Tutor Onboarding • Help students understand why you&apos;re the perfect tutor
         </p>
       </div>
 
