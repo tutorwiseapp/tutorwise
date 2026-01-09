@@ -110,6 +110,7 @@
 
   .stepContent {
     padding: 0 var(--space-1, 8px); /* Add padding on mobile */
+    transform: translateY(0); /* Remove upward shift on mobile to prevent clipping */
   }
 }
 
