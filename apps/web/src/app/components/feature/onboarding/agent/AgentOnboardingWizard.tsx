@@ -305,17 +305,17 @@ const AgentOnboardingWizard: React.FC<AgentOnboardingWizardProps> = ({
   };
 
 
-  const handleBack = () => {
-    if (currentStep === "details") setCurrentStep("personalInfo");
-    if (currentStep === "services") setCurrentStep("details");
-    if (currentStep === "capacity") setCurrentStep("services");
-  };
-
   const handleBackToLanding = () => {
     // Navigate back to role selection landing page
     if (typeof window !== "undefined") {
       window.location.href = "/onboarding";
     }
+  };
+
+  const handleBack = () => {
+    if (currentStep === "details") setCurrentStep("personalInfo");
+    if (currentStep === "services") setCurrentStep("details");
+    if (currentStep === "capacity") setCurrentStep("services");
   };
 
   const handleSkipHandler = () => {

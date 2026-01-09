@@ -115,22 +115,18 @@ const ClientOnboardingWizard: React.FC<ClientOnboardingWizardProps> = ({
   }, [currentStep]);
 
 
-  const handleBack = () => {
-    if (currentStep === "subjects") setCurrentStep("personalInfo");
-    if (currentStep === "preferences") setCurrentStep("subjects");
-    if (currentStep === "availability") setCurrentStep("preferences");
-  };
-
   const handleBackToLanding = () => {
     // Navigate back to role selection landing page
     if (typeof window !== "undefined") {
       window.location.href = "/onboarding";
     }
   };
-    if (currentStep === 'subjects') setCurrentStep('personalInfo');
-    if (currentStep === 'preferences') setCurrentStep('subjects');
-    if (currentStep === 'availability') setCurrentStep('preferences');
-  }
+
+  const handleBack = () => {
+    if (currentStep === "subjects") setCurrentStep("personalInfo");
+    if (currentStep === "preferences") setCurrentStep("subjects");
+    if (currentStep === "availability") setCurrentStep("preferences");
+  };
 
   const handleSkipHandler = () => {
     if (onSkip) {

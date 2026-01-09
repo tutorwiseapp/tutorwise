@@ -119,14 +119,14 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentStep]);
 
-  const handleBack = () => {
-
   const handleBackToLanding = () => {
     // Navigate back to role selection landing page
     if (typeof window !== "undefined") {
       window.location.href = "/onboarding";
     }
   };
+
+  const handleBack = () => {
     if (currentStep === 'subjects') setCurrentStep('personalInfo');
     if (currentStep === 'qualifications') setCurrentStep('subjects');
     if (currentStep === 'availability') setCurrentStep('qualifications');
