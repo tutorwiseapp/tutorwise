@@ -100,7 +100,7 @@ export type Role = 'client' | 'tutor' | 'agent' | 'student'; // v5.0: Added stud
 
 export type OnboardingStep = 'welcome-and-role-selection' | 'role-specific-details' | 'completion';
 export type ClientStep = 'welcome' | 'subjects' | 'preferences' | 'completion';
-export type TutorOnboardingStep = 'welcome' | 'subjects' | 'qualifications' | 'availability' | 'completion';
+export type TutorOnboardingStep = 'personalInfo' | 'professionalDetails' | 'verification' | 'availability' | 'completion';
 export type AgentOnboardingStep = 'welcome' | 'details' | 'services' | 'capacity' | 'completion';
 
 export interface RoleDetails {
@@ -133,6 +133,7 @@ export interface ClientProgress {
 
 export interface TutorProgress {
   professionalDetails?: Partial<ProfessionalDetailsData>;
+  verification?: Partial<VerificationDetailsData>;
   availability?: AvailabilityData;
 }
 
@@ -186,6 +187,26 @@ export interface ProfessionalDetailsData {
   // Rates
   oneOnOneRate: number;
   groupSessionRate: number;
+}
+
+// Verification details for tutor onboarding
+export interface VerificationDetailsData {
+  // Proof of Address
+  proof_of_address_url?: string;
+  proof_of_address_type: string;
+  address_document_issue_date: string;
+
+  // Government ID
+  identity_verification_document_url?: string;
+  identity_document_number: string;
+  identity_issue_date: string;
+  identity_expiry_date: string;
+
+  // DBS Certificate
+  dbs_certificate_url?: string;
+  dbs_certificate_number: string;
+  dbs_certificate_date: string;
+  dbs_expiry_date: string;
 }
 
 export interface AvailabilityData {

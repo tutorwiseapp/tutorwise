@@ -8,8 +8,9 @@ import { useAutoSaveDraft, loadDraft, clearDraft, saveCurrentStep, loadSavedStep
 import TutorWelcomeStep from '@/app/components/feature/onboarding/steps/WelcomeStep';
 import TutorPersonalInfoStep from './TutorPersonalInfoStep';
 import TutorProfessionalDetailStep from './TutorProfessionalDetailStep';
+import TutorProfessionalVerificationStep from './TutorProfessionalVerificationStep';
 import TutorAvailabilityStep from './TutorAvailabilityStep';
-import { ProfessionalDetailsData, AvailabilityData } from '@/types';
+import { ProfessionalDetailsData, VerificationDetailsData, AvailabilityData } from '@/types';
 import styles from '../OnboardingWizard.module.css';
 
 export interface PersonalInfoData {
@@ -21,7 +22,7 @@ export interface PersonalInfoData {
   phone: string;
 }
 
-export type TutorOnboardingStep = 'personalInfo' | 'professionalDetails' | 'availability' | 'completion';
+export type TutorOnboardingStep = 'personalInfo' | 'professionalDetails' | 'verification' | 'availability' | 'completion';
 
 interface TutorOnboardingWizardProps {
   onComplete: () => void;
@@ -33,6 +34,7 @@ interface TutorOnboardingWizardProps {
 interface TutorDraftData {
   personalInfo: Partial<PersonalInfoData>;
   professionalDetails: Partial<ProfessionalDetailsData>;
+  verification: Partial<VerificationDetailsData>;
   availability: Partial<AvailabilityData>;
 }
 
@@ -50,6 +52,7 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
   );
   const [personalInfo, setPersonalInfo] = useState<Partial<PersonalInfoData>>({});
   const [professionalDetails, setProfessionalDetails] = useState<Partial<ProfessionalDetailsData>>({});
+  const [verification, setVerification] = useState<Partial<VerificationDetailsData>>({});
   const [availability, setAvailability] = useState<Partial<AvailabilityData>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isDraftLoaded, setIsDraftLoaded] = useState(false);
@@ -63,6 +66,7 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
         if (draft) {
           if (draft.personalInfo) setPersonalInfo(draft.personalInfo);
           if (draft.professionalDetails) setProfessionalDetails(draft.professionalDetails);
+          if (draft.verification) setVerification(draft.verification);
           if (draft.availability) setAvailability(draft.availability);
         }
 
@@ -85,8 +89,9 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
   const formData = React.useMemo<TutorDraftData>(() => ({
     personalInfo,
     professionalDetails,
+    verification,
     availability,
-  }), [personalInfo, professionalDetails, availability]);
+  }), [personalInfo, professionalDetails, verification, availability]);
 
   // Memoize shouldSave callback to prevent recreation on every render
   const shouldSave = React.useCallback(
@@ -123,7 +128,8 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
 
   const handleBack = () => {
     if (currentStep === 'professionalDetails') setCurrentStep('personalInfo');
-    if (currentStep === 'availability') setCurrentStep('professionalDetails');
+    if (currentStep === 'verification') setCurrentStep('professionalDetails');
+    if (currentStep === 'availability') setCurrentStep('verification');
   }
 
   const handlePersonalInfoSubmit = async (data: PersonalInfoData) => {
@@ -182,15 +188,70 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
 
     // Update state and UI immediately
     setProfessionalDetails(data);
-    setCurrentStep('availability');
+    setCurrentStep('verification');
 
     // Update database in background (don't await)
     updateOnboardingProgress({
-      current_step: 'availability',
+      current_step: 'verification',
       tutor: { professionalDetails: data }
     }).catch(error => {
       console.error('[TutorOnboardingWizard] Error updating progress:', error);
     });
+  };
+
+  const handleVerificationSubmit = async (data: VerificationDetailsData) => {
+    console.log('[TutorOnboardingWizard] handleVerificationSubmit called', data);
+
+    // Update state immediately
+    setVerification(data);
+    setIsLoading(true);
+
+    try {
+      const { createClient } = await import('@/utils/supabase/client');
+      const supabase = createClient();
+
+      // Save verification data to profile
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          proof_of_address_url: data.proof_of_address_url,
+          proof_of_address_type: data.proof_of_address_type,
+          address_document_issue_date: data.address_document_issue_date,
+          identity_verification_document_url: data.identity_verification_document_url,
+          identity_document_number: data.identity_document_number,
+          identity_issue_date: data.identity_issue_date,
+          identity_expiry_date: data.identity_expiry_date,
+          dbs_certificate_url: data.dbs_certificate_url,
+          dbs_certificate_number: data.dbs_certificate_number,
+          dbs_certificate_date: data.dbs_certificate_date,
+          dbs_expiry_date: data.dbs_expiry_date,
+        })
+        .eq('id', user!.id);
+
+      if (error) {
+        console.error('[TutorOnboardingWizard] Error saving verification:', error);
+        throw error;
+      }
+
+      console.log('[TutorOnboardingWizard] ✓ Verification saved to profile');
+
+      // Move to next step
+      setCurrentStep('availability');
+
+      // Update onboarding progress in background
+      updateOnboardingProgress({
+        current_step: 'availability',
+        tutor: { verification: data }
+      }).catch(error => {
+        console.error('[TutorOnboardingWizard] Error updating progress:', error);
+      });
+
+    } catch (error) {
+      console.error('[TutorOnboardingWizard] Error in handleVerificationSubmit:', error);
+      alert('Failed to save verification information. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleAvailabilitySubmit = async (data: AvailabilityData) => {
@@ -357,6 +418,8 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
         );
       case 'professionalDetails':
         return <TutorProfessionalDetailStep onNext={handleProfessionalDetailsSubmit} onBack={handleBack} isLoading={isLoading} />;
+      case 'verification':
+        return <TutorProfessionalVerificationStep onNext={handleVerificationSubmit} onBack={handleBack} isLoading={isLoading} profileId={user?.id} />;
       case 'availability':
         return <TutorAvailabilityStep onNext={handleAvailabilitySubmit} onBack={handleBack} isLoading={isLoading} />;
       default:
