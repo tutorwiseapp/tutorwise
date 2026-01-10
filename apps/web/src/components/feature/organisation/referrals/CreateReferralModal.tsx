@@ -10,6 +10,7 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import toast from 'react-hot-toast';
 import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import styles from './CreateReferralModal.module.css';
 
 interface CreateReferralModalProps {
@@ -289,19 +290,19 @@ export function CreateReferralModal({
             <label className={styles.label}>
               Referred By <span className={styles.required}>*</span>
             </label>
-            <select
+            <UnifiedSelect
               value={formData.referrerMemberId}
-              onChange={(e) => setFormData({ ...formData, referrerMemberId: e.target.value })}
-              className={styles.select}
+              onChange={(value) => setFormData({ ...formData, referrerMemberId: String(value) })}
+              options={[
+                { value: '', label: 'Select team member...' },
+                ...teamMembers.map((member) => ({
+                  value: member.id,
+                  label: member.full_name
+                }))
+              ]}
+              placeholder="Select team member..."
               disabled={creating || loadingMembers}
-            >
-              <option value="">Select team member...</option>
-              {teamMembers.map((member) => (
-                <option key={member.id} value={member.id}>
-                  {member.full_name}
-                </option>
-              ))}
-            </select>
+            />
           </div>
 
           <div className={styles.field}>

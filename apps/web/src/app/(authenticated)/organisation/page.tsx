@@ -59,6 +59,7 @@ import SubscriptionRequired from '@/app/components/feature/organisation/content/
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import Button from '@/app/components/ui/actions/Button';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
@@ -813,16 +814,17 @@ export default function OrganisationPage() {
                 />
 
                 {/* Sort Dropdown */}
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as SortType)}
-                  className={filterStyles.filterSelect}
-                >
-                  <option value="newest">Newest First</option>
-                  <option value="oldest">Oldest First</option>
-                  <option value="name-asc">Name (A-Z)</option>
-                  <option value="name-desc">Name (Z-A)</option>
-                </select>
+                <UnifiedSelect
+                value={sortBy}
+                onChange={(value) => setSortBy(value as SortType)}
+                options={[
+                  { value: 'newest', label: 'Newest First' },
+                  { value: 'oldest', label: 'Oldest First' },
+                  { value: 'name-asc', label: 'Name (A-Z)' },
+                  { value: 'name-desc', label: 'Name (Z-A)' }
+                ]}
+                placeholder="Sort by"
+              />
               </div>
             ) : undefined
           }

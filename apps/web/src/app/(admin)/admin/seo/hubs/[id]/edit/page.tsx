@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { usePermission } from '@/lib/rbac';
 import styles from './page.module.css';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 
 export const dynamic = 'force-dynamic';
 
@@ -443,18 +444,18 @@ export default function HubEditPage() {
 
           <div className={styles.formGroup}>
             <label className={styles.label}>Target Keyword</label>
-            <select
+            <UnifiedSelect
               value={targetKeywordId || ''}
-              onChange={(e) => setTargetKeywordId(e.target.value || null)}
-              className={styles.select}
-            >
-              <option value="">Select a target keyword...</option>
-              {keywords?.map((kw) => (
-                <option key={kw.id} value={kw.id}>
-                  {kw.keyword} (Vol: {kw.search_volume?.toLocaleString()}, KD: {kw.keyword_difficulty})
-                </option>
-              ))}
-            </select>
+              onChange={(value) => setTargetKeywordId(String(value) || null)}
+              options={[
+                { value: '', label: 'Select a target keyword...' },
+                ...(keywords?.map((kw) => ({
+                  value: kw.id,
+                  label: `${kw.keyword} (Vol: ${kw.search_volume?.toLocaleString()}, KD: ${kw.keyword_difficulty})`
+                })) || [])
+              ]}
+              placeholder="Select a target keyword"
+            />
           </div>
         </section>
 

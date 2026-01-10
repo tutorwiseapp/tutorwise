@@ -25,6 +25,7 @@ import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/componen
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import type { HubTab } from '@/app/components/hub/layout';
 import Button from '@/app/components/ui/actions/Button';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
@@ -289,29 +290,31 @@ export default function TransactionsPage() {
               />
 
               {/* Date Range Dropdown */}
-              <select
+              <UnifiedSelect
                 value={dateRange}
-                onChange={(e) => setDateRange(e.target.value as DateRangeType)}
-                className={filterStyles.filterSelect}
-              >
-                <option value="all">All Time</option>
-                <option value="7days">Last 7 Days</option>
-                <option value="30days">Last 30 Days</option>
-                <option value="3months">Last 3 Months</option>
-                <option value="6months">Last 6 Months</option>
-                <option value="1year">Last Year</option>
-              </select>
+                onChange={(value) => setDateRange(value as DateRangeType)}
+                options={[
+                  { value: 'all', label: 'All Time' },
+                  { value: '7days', label: 'Last 7 Days' },
+                  { value: '30days', label: 'Last 30 Days' },
+                  { value: '3months', label: 'Last 3 Months' },
+                  { value: '6months', label: 'Last 6 Months' },
+                  { value: '1year', label: 'Last Year' }
+                ]}
+                placeholder="Date range"
+              />
 
               {/* Type Dropdown */}
-              <select
+              <UnifiedSelect
                 value={transactionType}
-                onChange={(e) => setTransactionType(e.target.value as TransactionType)}
-                className={filterStyles.filterSelect}
-              >
-                <option value="all">All Types</option>
-                <option value="income">Income</option>
-                <option value="expense">Expense</option>
-              </select>
+                onChange={(value) => setTransactionType(value as TransactionType)}
+                options={[
+                  { value: 'all', label: 'All Types' },
+                  { value: 'income', label: 'Income' },
+                  { value: 'expense', label: 'Expense' }
+                ]}
+                placeholder="Transaction type"
+              />
             </div>
           }
           actions={

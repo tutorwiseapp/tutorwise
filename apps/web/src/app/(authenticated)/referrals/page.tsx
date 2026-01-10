@@ -31,6 +31,7 @@ import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/componen
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import type { HubTab } from '@/app/components/hub/layout';
 import Button from '@/app/components/ui/actions/Button';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import toast from 'react-hot-toast';
 import { Referral, ReferralStatus } from '@/types';
 import styles from './page.module.css';
@@ -413,28 +414,30 @@ export default function ReferralsPage() {
                 />
 
                 {/* Date Range Filter */}
-                <select
+                <UnifiedSelect
                   value={dateRange}
-                  onChange={(e) => setDateRange(e.target.value as 'all' | 'last7' | 'last30' | 'last90')}
-                  className={filterStyles.filterSelect}
-                >
-                  <option value="all">All Time</option>
-                  <option value="last7">Last 7 Days</option>
-                  <option value="last30">Last 30 Days</option>
-                  <option value="last90">Last 3 Months</option>
-                </select>
+                  onChange={(value) => setDateRange(value as 'all' | 'last7' | 'last30' | 'last90')}
+                  options={[
+                    { value: 'all', label: 'All Time' },
+                    { value: 'last7', label: 'Last 7 Days' },
+                    { value: 'last30', label: 'Last 30 Days' },
+                    { value: 'last90', label: 'Last 3 Months' }
+                  ]}
+                  placeholder="Date range"
+                />
 
                 {/* Sort Dropdown */}
-                <select
+                <UnifiedSelect
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as SortType)}
-                  className={filterStyles.filterSelect}
-                >
-                  <option value="newest">Newest First</option>
-                  <option value="oldest">Oldest First</option>
-                  <option value="name-asc">Name (A-Z)</option>
-                  <option value="name-desc">Name (Z-A)</option>
-                </select>
+                  onChange={(value) => setSortBy(value as SortType)}
+                  options={[
+                    { value: 'newest', label: 'Newest First' },
+                    { value: 'oldest', label: 'Oldest First' },
+                    { value: 'name-asc', label: 'Name (A-Z)' },
+                    { value: 'name-desc', label: 'Name (Z-A)' }
+                  ]}
+                  placeholder="Sort by"
+                />
               </div>
             ) : undefined
           }

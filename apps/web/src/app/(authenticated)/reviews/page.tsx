@@ -26,6 +26,7 @@ import ReviewsError from '@/app/components/feature/reviews/ReviewsError';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import Button from '@/app/components/ui/actions/Button';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import toast from 'react-hot-toast';
 import type { PendingReviewTask, ProfileReview } from '@/types/reviews';
 import styles from './page.module.css';
@@ -377,32 +378,34 @@ export default function ReviewsPage() {
               />
 
               {/* Rating Filter */}
-              <select
+              <UnifiedSelect
                 value={ratingFilter}
-                onChange={(e) => setRatingFilter(e.target.value as RatingFilter)}
-                className={filterStyles.filterSelect}
-              >
-                <option value="all">All Ratings</option>
-                <option value="5">5 Stars ⭐⭐⭐⭐⭐</option>
-                <option value="4">4 Stars ⭐⭐⭐⭐</option>
-                <option value="3">3 Stars ⭐⭐⭐</option>
-                <option value="2">2 Stars ⭐⭐</option>
-                <option value="1">1 Star ⭐</option>
-              </select>
+                onChange={(value) => setRatingFilter(value as RatingFilter)}
+                options={[
+                  { value: 'all', label: 'All Ratings' },
+                  { value: '5', label: '5 Stars ⭐⭐⭐⭐⭐' },
+                  { value: '4', label: '4 Stars ⭐⭐⭐⭐' },
+                  { value: '3', label: '3 Stars ⭐⭐⭐' },
+                  { value: '2', label: '2 Stars ⭐⭐' },
+                  { value: '1', label: '1 Star ⭐' }
+                ]}
+                placeholder="Filter by rating"
+              />
 
               {/* Date Range Filter */}
-              <select
+              <UnifiedSelect
                 value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value as DateFilter)}
-                className={filterStyles.filterSelect}
-              >
-                <option value="all">All Time</option>
-                <option value="7days">Last 7 Days</option>
-                <option value="30days">Last 30 Days</option>
-                <option value="3months">Last 3 Months</option>
-                <option value="6months">Last 6 Months</option>
-                <option value="1year">Last Year</option>
-              </select>
+                onChange={(value) => setDateFilter(value as DateFilter)}
+                options={[
+                  { value: 'all', label: 'All Time' },
+                  { value: '7days', label: 'Last 7 Days' },
+                  { value: '30days', label: 'Last 30 Days' },
+                  { value: '3months', label: 'Last 3 Months' },
+                  { value: '6months', label: 'Last 6 Months' },
+                  { value: '1year', label: 'Last Year' }
+                ]}
+                placeholder="Filter by date"
+              />
             </div>
           }
           actions={

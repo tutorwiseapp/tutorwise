@@ -17,6 +17,7 @@ import { HubForm } from '@/app/components/hub/form/HubForm';
 import HubToggle from '@/app/components/hub/form/HubToggle';
 import { AdminHelpWidget, AdminStatsWidget, AdminTipWidget } from '@/app/components/admin/widgets';
 import Button from '@/app/components/ui/actions/Button';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import { Save } from 'lucide-react';
 import { usePermission } from '@/lib/rbac';
 import styles from './page.module.css';
@@ -355,14 +356,16 @@ export default function AdminSeoConfigPage() {
             <HubForm.Field
               label="OG Type"
             >
-              <select
+              <UnifiedSelect
                 value={formData.ogType}
-                onChange={(e) => handleChange('ogType', e.target.value)}
+                onChange={(value) => handleChange('ogType', String(value))}
+                options={[
+                  { value: 'website', label: 'Website' },
+                  { value: 'article', label: 'Article' }
+                ]}
+                placeholder="Select OG type"
                 disabled={isLoading || !canUpdate}
-              >
-                <option value="website">Website</option>
-                <option value="article">Article</option>
-              </select>
+              />
             </HubForm.Field>
           </HubForm.Section>
 
@@ -423,19 +426,21 @@ export default function AdminSeoConfigPage() {
             <HubForm.Field
               label="Update Frequency"
             >
-              <select
+              <UnifiedSelect
                 value={formData.updateFrequency}
-                onChange={(e) => handleChange('updateFrequency', e.target.value)}
+                onChange={(value) => handleChange('updateFrequency', String(value))}
+                options={[
+                  { value: 'always', label: 'Always' },
+                  { value: 'hourly', label: 'Hourly' },
+                  { value: 'daily', label: 'Daily' },
+                  { value: 'weekly', label: 'Weekly' },
+                  { value: 'monthly', label: 'Monthly' },
+                  { value: 'yearly', label: 'Yearly' },
+                  { value: 'never', label: 'Never' }
+                ]}
+                placeholder="Select update frequency"
                 disabled={isLoading || !canUpdate || !formData.enableSitemap}
-              >
-                <option value="always">Always</option>
-                <option value="hourly">Hourly</option>
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
-                <option value="yearly">Yearly</option>
-                <option value="never">Never</option>
-              </select>
+              />
             </HubForm.Field>
 
             <HubForm.Field

@@ -15,6 +15,7 @@
 
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import styles from './page.module.css';
 
 interface SEOStats {
@@ -153,23 +154,33 @@ export default function SEOEligibilityPage() {
       <div className={styles.filters}>
         <div className={styles.filterGroup}>
           <label>Score Range:</label>
-          <select value={scoreFilter} onChange={(e) => setScoreFilter(e.target.value as any)}>
-            <option value="all">All Scores</option>
-            <option value="high">High Trust (80+)</option>
-            <option value="trusted">Trusted (75-79)</option>
-            <option value="moderate">Moderate (60-74)</option>
-            <option value="low">Low (&lt;60)</option>
-          </select>
+          <UnifiedSelect
+            value={scoreFilter}
+            onChange={(value) => setScoreFilter(String(value) as any)}
+            options={[
+              { value: 'all', label: 'All Scores' },
+              { value: 'high', label: 'High Trust (80+)' },
+              { value: 'trusted', label: 'Trusted (75-79)' },
+              { value: 'moderate', label: 'Moderate (60-74)' },
+              { value: 'low', label: 'Low (<60)' }
+            ]}
+            placeholder="Select score range"
+          />
         </div>
 
         <div className={styles.filterGroup}>
           <label>Role:</label>
-          <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value as any)}>
-            <option value="all">All Roles</option>
-            <option value="tutor">Tutor</option>
-            <option value="agent">Agent</option>
-            <option value="client">Client</option>
-          </select>
+          <UnifiedSelect
+            value={roleFilter}
+            onChange={(value) => setRoleFilter(String(value) as any)}
+            options={[
+              { value: 'all', label: 'All Roles' },
+              { value: 'tutor', label: 'Tutor' },
+              { value: 'agent', label: 'Agent' },
+              { value: 'client', label: 'Client' }
+            ]}
+            placeholder="Select role"
+          />
         </div>
 
         <div className={styles.filterGroup}>

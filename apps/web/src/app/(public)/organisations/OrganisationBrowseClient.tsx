@@ -17,6 +17,7 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search, MapPin, Building2, Star, Users } from 'lucide-react';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import styles from './OrganisationBrowseClient.module.css';
 
 interface Organisation {
@@ -127,50 +128,50 @@ export default function OrganisationBrowseClient({
         <div className={styles.filters}>
           {/* Category filter (only show if not pre-filtered) */}
           {!defaultCategory && categories.length > 0 && (
-            <select
+            <UnifiedSelect
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className={styles.filterSelect}
-            >
-              <option value="">All Categories</option>
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category.charAt(0).toUpperCase() + category.slice(1)}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => setSelectedCategory(String(value))}
+              options={[
+                { value: '', label: 'All Categories' },
+                ...categories.map((category) => ({
+                  value: category,
+                  label: category.charAt(0).toUpperCase() + category.slice(1)
+                }))
+              ]}
+              placeholder="All Categories"
+            />
           )}
 
           {/* Location filter */}
           {cities.length > 0 && (
-            <select
+            <UnifiedSelect
               value={selectedCity}
-              onChange={(e) => setSelectedCity(e.target.value)}
-              className={styles.filterSelect}
-            >
-              <option value="">All Locations</option>
-              {cities.map((city) => (
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => setSelectedCity(String(value))}
+              options={[
+                { value: '', label: 'All Locations' },
+                ...cities.map((city) => ({
+                  value: city,
+                  label: city
+                }))
+              ]}
+              placeholder="All Locations"
+            />
           )}
 
           {/* Subject filter */}
           {subjects.length > 0 && (
-            <select
+            <UnifiedSelect
               value={selectedSubject}
-              onChange={(e) => setSelectedSubject(e.target.value)}
-              className={styles.filterSelect}
-            >
-              <option value="">All Subjects</option>
-              {subjects.map((subject) => (
-                <option key={subject} value={subject}>
-                  {subject}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => setSelectedSubject(String(value))}
+              options={[
+                { value: '', label: 'All Subjects' },
+                ...subjects.map((subject) => ({
+                  value: subject,
+                  label: subject
+                }))
+              ]}
+              placeholder="All Subjects"
+            />
           )}
 
           {/* Clear filters */}

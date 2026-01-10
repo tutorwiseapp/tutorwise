@@ -9,6 +9,7 @@
 
 import React from 'react';
 import { X } from 'lucide-react';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import styles from './AdvancedFiltersDrawer.module.css';
 
 export interface AdvancedFilters {
@@ -101,21 +102,22 @@ export default function AdvancedFiltersDrawer({
           {/* Attribution Method */}
           <div className={styles.filterSection}>
             <h4 className={styles.sectionTitle}>Attribution Method</h4>
-            <select
+            <UnifiedSelect
               value={filters.attributionMethod || ''}
-              onChange={(e) =>
+              onChange={(value) =>
                 onFiltersChange({
                   ...filters,
-                  attributionMethod: e.target.value,
+                  attributionMethod: String(value),
                 })
               }
-              className={styles.select}
-            >
-              <option value="">All Methods</option>
-              <option value="url_parameter">URL Parameter</option>
-              <option value="cookie">Cookie</option>
-              <option value="manual_entry">Manual Entry</option>
-            </select>
+              options={[
+                { value: '', label: 'All Methods' },
+                { value: 'url_parameter', label: 'URL Parameter' },
+                { value: 'cookie', label: 'Cookie' },
+                { value: 'manual_entry', label: 'Manual Entry' }
+              ]}
+              placeholder="All Methods"
+            />
           </div>
 
           {/* Checkboxes */}

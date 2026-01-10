@@ -21,6 +21,7 @@ import MessageHelpWidget from '@/app/components/feature/messages/MessageHelpWidg
 import MessageTipWidget from '@/app/components/feature/messages/MessageTipWidget';
 import MessageVideoWidget from '@/app/components/feature/messages/MessageVideoWidget';
 import type { HubTab } from '@/app/components/hub/layout';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import styles from './page.module.css';
 
@@ -163,15 +164,16 @@ export default function MessagesPage() {
         onChange={(e) => setSearchQuery(e.target.value)}
         className={filterStyles.searchInput}
       />
-      <select
+      <UnifiedSelect
         value={sortBy}
-        onChange={(e) => setSortBy(e.target.value as SortOption)}
-        className={filterStyles.filterSelect}
-      >
-        <option value="recent">Most Recent</option>
-        <option value="name">Name (A-Z)</option>
-        <option value="unread">Unread First</option>
-      </select>
+        onChange={(value) => setSortBy(value as SortOption)}
+        options={[
+          { value: 'recent', label: 'Most Recent' },
+          { value: 'name', label: 'Name (A-Z)' },
+          { value: 'unread', label: 'Unread First' }
+        ]}
+        placeholder="Sort by"
+      />
     </div>
   );
 

@@ -16,6 +16,7 @@ import HubForm from '@/app/components/hub/form/HubForm';
 import HubToggle from '@/app/components/hub/form/HubToggle';
 import { AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
 import Button from '@/app/components/ui/actions/Button';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import { useAdminProfile } from '@/lib/rbac';
 import styles from './page.module.css';
 
@@ -295,45 +296,51 @@ export default function PlatformSettingsPage() {
             </HubForm.Field>
 
             <HubForm.Field label="Timezone">
-              <select
+              <UnifiedSelect
                 value={formData.timezone}
-                onChange={(e) => handleChange('timezone', e.target.value)}
-              >
-                <option value="Europe/London">Europe/London (GMT)</option>
-                <option value="America/New_York">America/New_York (EST)</option>
-                <option value="America/Los_Angeles">America/Los_Angeles (PST)</option>
-                <option value="Europe/Paris">Europe/Paris (CET)</option>
-                <option value="Asia/Tokyo">Asia/Tokyo (JST)</option>
-                <option value="Asia/Shanghai">Asia/Shanghai (China - Shanghai)</option>
-                <option value="Asia/Chongqing">Asia/Chongqing (China - Beijing)</option>
-                <option value="Asia/Hong_Kong">Asia/Hong_Kong (Hong Kong)</option>
-                <option value="Asia/Hanoi">Asia/Hanoi (Vietnam - Hanoi)</option>
-                <option value="Asia/Singapore">Asia/Singapore (Singapore)</option>
-                <option value="Asia/Kolkata">Asia/Kolkata (India - New Delhi)</option>
-                <option value="Australia/Sydney">Australia/Sydney (Australia)</option>
-              </select>
+                onChange={(value) => handleChange('timezone', String(value))}
+                options={[
+                  { value: 'Europe/London', label: 'Europe/London (GMT)' },
+                  { value: 'America/New_York', label: 'America/New_York (EST)' },
+                  { value: 'America/Los_Angeles', label: 'America/Los_Angeles (PST)' },
+                  { value: 'Europe/Paris', label: 'Europe/Paris (CET)' },
+                  { value: 'Asia/Tokyo', label: 'Asia/Tokyo (JST)' },
+                  { value: 'Asia/Shanghai', label: 'Asia/Shanghai (China - Shanghai)' },
+                  { value: 'Asia/Chongqing', label: 'Asia/Chongqing (China - Beijing)' },
+                  { value: 'Asia/Hong_Kong', label: 'Asia/Hong_Kong (Hong Kong)' },
+                  { value: 'Asia/Hanoi', label: 'Asia/Hanoi (Vietnam - Hanoi)' },
+                  { value: 'Asia/Singapore', label: 'Asia/Singapore (Singapore)' },
+                  { value: 'Asia/Kolkata', label: 'Asia/Kolkata (India - New Delhi)' },
+                  { value: 'Australia/Sydney', label: 'Australia/Sydney (Australia)' }
+                ]}
+                placeholder="Select timezone"
+              />
             </HubForm.Field>
 
             <HubForm.Field label="Default Currency">
-              <select
+              <UnifiedSelect
                 value={formData.defaultCurrency}
-                onChange={(e) => handleChange('defaultCurrency', e.target.value)}
-              >
-                <option value="GBP">GBP (£)</option>
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-              </select>
+                onChange={(value) => handleChange('defaultCurrency', String(value))}
+                options={[
+                  { value: 'GBP', label: 'GBP (£)' },
+                  { value: 'USD', label: 'USD ($)' },
+                  { value: 'EUR', label: 'EUR (€)' }
+                ]}
+                placeholder="Select currency"
+              />
             </HubForm.Field>
 
             <HubForm.Field label="Date Format">
-              <select
+              <UnifiedSelect
                 value={formData.dateFormat}
-                onChange={(e) => handleChange('dateFormat', e.target.value)}
-              >
-                <option value="DD/MM/YYYY">DD/MM/YYYY (31/12/2025)</option>
-                <option value="MM/DD/YYYY">MM/DD/YYYY (12/31/2025)</option>
-                <option value="YYYY-MM-DD">YYYY-MM-DD (2025-12-31)</option>
-              </select>
+                onChange={(value) => handleChange('dateFormat', String(value))}
+                options={[
+                  { value: 'DD/MM/YYYY', label: 'DD/MM/YYYY (31/12/2025)' },
+                  { value: 'MM/DD/YYYY', label: 'MM/DD/YYYY (12/31/2025)' },
+                  { value: 'YYYY-MM-DD', label: 'YYYY-MM-DD (2025-12-31)' }
+                ]}
+                placeholder="Select date format"
+              />
             </HubForm.Field>
           </HubForm.Grid>
         </HubForm.Section>

@@ -23,6 +23,7 @@ import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import Button from '@/app/components/ui/actions/Button';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import { Wiselist } from '@/types';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
@@ -414,16 +415,17 @@ export default function WiselistsPage() {
               />
 
               {/* Sort Dropdown */}
-              <select
+              <UnifiedSelect
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as SortType)}
-                className={filterStyles.filterSelect}
-              >
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="name-asc">Name (A-Z)</option>
-                <option value="name-desc">Name (Z-A)</option>
-              </select>
+                onChange={(value) => setSortBy(value as SortType)}
+                options={[
+                  { value: 'newest', label: 'Newest First' },
+                  { value: 'oldest', label: 'Oldest First' },
+                  { value: 'name-asc', label: 'Name (A-Z)' },
+                  { value: 'name-desc', label: 'Name (Z-A)' }
+                ]}
+                placeholder="Sort by"
+              />
             </div>
           }
           actions={

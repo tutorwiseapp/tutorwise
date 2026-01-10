@@ -17,6 +17,7 @@ import HubForm from '@/app/components/hub/form/HubForm';
 import HubToggle from '@/app/components/hub/form/HubToggle';
 import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
 import Button from '@/app/components/ui/actions/Button';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import { useAdminProfile } from '@/lib/rbac';
 import styles from './page.module.css';
 
@@ -452,42 +453,40 @@ export default function PaymentSettingsPage() {
         <HubForm.Section title="Payout Schedule">
           <HubForm.Grid columns={2}>
             <HubForm.Field label="Payout Frequency">
-              <select
+              <UnifiedSelect
                 value={formData.payoutFrequency}
-                onChange={(e) => handleChange('payoutFrequency', e.target.value)}
-              >
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
-              </select>
+                onChange={(value) => handleChange('payoutFrequency', String(value))}
+                options={[
+                  { value: 'daily', label: 'Daily' },
+                  { value: 'weekly', label: 'Weekly' },
+                  { value: 'monthly', label: 'Monthly' }
+                ]}
+                placeholder="Select payout frequency"
+              />
             </HubForm.Field>
 
             <HubForm.Field label="Payout Day">
-              <select
+              <UnifiedSelect
                 value={formData.payoutDay}
-                onChange={(e) => handleChange('payoutDay', e.target.value)}
+                onChange={(value) => handleChange('payoutDay', String(value))}
+                options={
+                  formData.payoutFrequency === 'weekly' ? [
+                    { value: 'monday', label: 'Monday' },
+                    { value: 'tuesday', label: 'Tuesday' },
+                    { value: 'wednesday', label: 'Wednesday' },
+                    { value: 'thursday', label: 'Thursday' },
+                    { value: 'friday', label: 'Friday' }
+                  ] : formData.payoutFrequency === 'monthly' ? [
+                    { value: '1', label: '1st of month' },
+                    { value: '15', label: '15th of month' },
+                    { value: 'last', label: 'Last day of month' }
+                  ] : [
+                    { value: 'daily', label: 'Every Day' }
+                  ]
+                }
+                placeholder="Select payout day"
                 disabled={formData.payoutFrequency === 'daily'}
-              >
-                {formData.payoutFrequency === 'weekly' && (
-                  <>
-                    <option value="monday">Monday</option>
-                    <option value="tuesday">Tuesday</option>
-                    <option value="wednesday">Wednesday</option>
-                    <option value="thursday">Thursday</option>
-                    <option value="friday">Friday</option>
-                  </>
-                )}
-                {formData.payoutFrequency === 'monthly' && (
-                  <>
-                    <option value="1">1st of month</option>
-                    <option value="15">15th of month</option>
-                    <option value="last">Last day of month</option>
-                  </>
-                )}
-                {formData.payoutFrequency === 'daily' && (
-                  <option value="daily">Every Day</option>
-                )}
-              </select>
+              />
             </HubForm.Field>
 
             <HubForm.Field label="Minimum Payout Amount (£)" error={errors.minimumPayoutAmount}>

@@ -25,6 +25,7 @@ import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/componen
 import type { HubTab } from '@/app/components/hub/layout';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import Button from '@/app/components/ui/actions/Button';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
@@ -329,15 +330,16 @@ export default function BookingsPage() {
               />
 
               {/* Sort Dropdown */}
-              <select
+              <UnifiedSelect
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as SortType)}
-                className={filterStyles.filterSelect}
-              >
-                <option value="date-desc">Newest First</option>
-                <option value="date-asc">Oldest First</option>
-                <option value="status">By Status</option>
-              </select>
+                onChange={(value) => setSortBy(value as SortType)}
+                options={[
+                  { value: 'date-desc', label: 'Newest First' },
+                  { value: 'date-asc', label: 'Oldest First' },
+                  { value: 'status', label: 'By Status' }
+                ]}
+                placeholder="Sort by"
+              />
             </div>
           }
           actions={

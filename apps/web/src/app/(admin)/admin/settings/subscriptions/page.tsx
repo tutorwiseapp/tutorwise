@@ -17,6 +17,7 @@ import HubForm from '@/app/components/hub/form/HubForm';
 import HubToggle from '@/app/components/hub/form/HubToggle';
 import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
 import Button from '@/app/components/ui/actions/Button';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import { useAdminProfile } from '@/lib/rbac';
 import styles from './page.module.css';
 
@@ -397,15 +398,17 @@ export default function SubscriptionSettingsPage() {
             </HubForm.Field>
 
             <HubForm.Field label="Currency">
-              <select
+              <UnifiedSelect
                 value={formData.currency}
-                onChange={(e) => handleChange('currency', e.target.value)}
+                onChange={(value) => handleChange('currency', String(value))}
+                options={[
+                  { value: 'GBP', label: 'GBP (£)' },
+                  { value: 'USD', label: 'USD ($)' },
+                  { value: 'EUR', label: 'EUR (€)' }
+                ]}
+                placeholder="Select currency"
                 disabled={!canEditSubscriptionConfig}
-              >
-                <option value="GBP">GBP (£)</option>
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-              </select>
+              />
             </HubForm.Field>
           </HubForm.Grid>
         </HubForm.Section>

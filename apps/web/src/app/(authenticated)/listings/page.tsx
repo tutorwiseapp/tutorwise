@@ -18,6 +18,7 @@ import toast from 'react-hot-toast';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import styles from './page.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
@@ -399,18 +400,19 @@ export default function ListingsPage() {
               />
 
               {/* Sort Dropdown */}
-              <select
+              <UnifiedSelect
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as SortType)}
-                className={filterStyles.filterSelect}
-              >
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="views-high">Views: High to Low</option>
-                <option value="views-low">Views: Low to High</option>
-              </select>
+                onChange={(value) => setSortBy(value as SortType)}
+                options={[
+                  { value: 'newest', label: 'Newest First' },
+                  { value: 'oldest', label: 'Oldest First' },
+                  { value: 'price-high', label: 'Price: High to Low' },
+                  { value: 'price-low', label: 'Price: Low to High' },
+                  { value: 'views-high', label: 'Views: High to Low' },
+                  { value: 'views-low', label: 'Views: Low to High' }
+                ]}
+                placeholder="Sort by"
+              />
             </div>
           }
           actions={

@@ -24,6 +24,7 @@ import DisputeTipWidget from '@/app/components/feature/financials/DisputeTipWidg
 import DisputeVideoWidget from '@/app/components/feature/financials/DisputeVideoWidget';
 import DisputeCard from '@/app/components/feature/financials/DisputeCard';
 import Button from '@/app/components/ui/actions/Button';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import { Transaction } from '@/types';
 import toast from 'react-hot-toast';
 import styles from '../page.module.css';
@@ -251,18 +252,19 @@ export default function DisputesPage() {
               />
 
               {/* Date Range Dropdown */}
-              <select
+              <UnifiedSelect
                 value={dateRange}
-                onChange={(e) => setDateRange(e.target.value as DateRangeType)}
-                className={filterStyles.filterSelect}
-              >
-                <option value="all">All Time</option>
-                <option value="7days">Last 7 Days</option>
-                <option value="30days">Last 30 Days</option>
-                <option value="3months">Last 3 Months</option>
-                <option value="6months">Last 6 Months</option>
-                <option value="1year">Last Year</option>
-              </select>
+                onChange={(value) => setDateRange(value as DateRangeType)}
+                options={[
+                  { value: 'all', label: 'All Time' },
+                  { value: '7days', label: 'Last 7 Days' },
+                  { value: '30days', label: 'Last 30 Days' },
+                  { value: '3months', label: 'Last 3 Months' },
+                  { value: '6months', label: 'Last 6 Months' },
+                  { value: '1year', label: 'Last Year' }
+                ]}
+                placeholder="Date range"
+              />
             </div>
           }
           actions={
