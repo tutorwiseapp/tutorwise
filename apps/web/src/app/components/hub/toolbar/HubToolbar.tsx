@@ -23,6 +23,7 @@
 
 import React, { useRef, useEffect, useState } from 'react';
 import { Search, ChevronDown, RefreshCw, Download, Save, X, MoreVertical, Trash2 } from 'lucide-react';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import type { HubToolbarProps } from './types';
 import styles from './HubToolbar.module.css';
 
@@ -221,23 +222,27 @@ export default function HubToolbar({
       {/* Filters */}
       {filters.length > 0 && (
         <div className={styles.filters}>
-          {filters.map((filter) => (
-            <div key={filter.key} className={styles.filterWrapper}>
-              <select
-                value={filterValues[filter.key] || ''}
-                onChange={(e) => onFilterChange?.(filter.key, e.target.value)}
-                className={styles.filterSelect}
-              >
-                <option value="">{filter.label}</option>
-                {filter.options.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className={styles.filterIcon} />
-            </div>
-          ))}
+          {filters.map((filter) => {
+            const filterValue = filterValues[filter.key];
+            const stringValue = Array.isArray(filterValue) ? filterValue[0] || '' : (filterValue || '');
+
+            return (
+              <div key={filter.key} className={styles.filterWrapper}>
+                <UnifiedSelect
+                  value={stringValue}
+                  onChange={(value) => onFilterChange?.(filter.key, String(value))}
+                  options={[
+                    { value: '', label: filter.label },
+                    ...filter.options.map(option => ({
+                      value: option.value,
+                      label: option.label
+                    }))
+                  ]}
+                  placeholder={filter.label}
+                />
+              </div>
+            );
+          })}
         </div>
       )}
 

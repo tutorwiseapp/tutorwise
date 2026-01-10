@@ -10,6 +10,7 @@
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import styles from './CreateWiselistModal.module.css';
 
 interface CreateWiselistModalProps {
@@ -127,15 +128,16 @@ export default function CreateWiselistModal({
           {/* Visibility Select */}
           <div className={styles.formGroup}>
             <label className={styles.label}>Visibility</label>
-            <select
+            <UnifiedSelect
               value={formData.visibility}
-              onChange={(e) => setFormData({ ...formData, visibility: e.target.value as 'private' | 'public' })}
-              className={styles.select}
+              onChange={(value) => setFormData({ ...formData, visibility: value as 'private' | 'public' })}
+              options={[
+                { value: 'private', label: 'Private - Only you' },
+                { value: 'public', label: 'Public - Share with link' }
+              ]}
+              placeholder="Select visibility"
               disabled={isCreating}
-            >
-              <option value="private">Private - Only you</option>
-              <option value="public">Public - Share with link</option>
-            </select>
+            />
           </div>
 
           {/* Action Buttons */}

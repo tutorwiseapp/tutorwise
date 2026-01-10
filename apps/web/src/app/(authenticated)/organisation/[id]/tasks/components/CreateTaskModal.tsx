@@ -9,6 +9,7 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import toast from 'react-hot-toast';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
 import styles from './CreateTaskModal.module.css';
 
@@ -237,55 +238,57 @@ export function CreateTaskModal({
           <div className={styles.row}>
             <div className={styles.field}>
               <label className={styles.label}>Priority</label>
-              <select
+              <UnifiedSelect
                 value={formData.priority}
-                onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                className={styles.select}
+                onChange={(value) => setFormData({ ...formData, priority: String(value) })}
+                options={[
+                  { value: 'low', label: 'Low' },
+                  { value: 'medium', label: 'Medium' },
+                  { value: 'high', label: 'High' },
+                  { value: 'urgent', label: 'Urgent' }
+                ]}
+                placeholder="Select priority"
                 disabled={creating}
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="urgent">Urgent</option>
-              </select>
+              />
             </div>
 
             <div className={styles.field}>
               <label className={styles.label}>Category</label>
-              <select
+              <UnifiedSelect
                 value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className={styles.select}
+                onChange={(value) => setFormData({ ...formData, category: String(value) })}
+                options={[
+                  { value: 'account', label: 'Account' },
+                  { value: 'admin', label: 'Admin' },
+                  { value: 'agent_issue', label: 'Agent Issue' },
+                  { value: 'booking_issue', label: 'Booking Issue' },
+                  { value: 'client_issue', label: 'Client Issue' },
+                  { value: 'developer', label: 'Developer' },
+                  { value: 'disputes', label: 'Disputes' },
+                  { value: 'financial', label: 'Financial' },
+                  { value: 'help_centre', label: 'Help Centre' },
+                  { value: 'listing', label: 'Listing' },
+                  { value: 'marketplace', label: 'Marketplace' },
+                  { value: 'messages', label: 'Messages' },
+                  { value: 'network', label: 'Network' },
+                  { value: 'organisation', label: 'Organisation' },
+                  { value: 'other', label: 'Other' },
+                  { value: 'payment_issue', label: 'Payment Issue' },
+                  { value: 'payouts', label: 'Payouts' },
+                  { value: 'profile', label: 'Profile' },
+                  { value: 'public_listing', label: 'Public Listing' },
+                  { value: 'public_organisation', label: 'Public Organisation' },
+                  { value: 'public_profile', label: 'Public Profile' },
+                  { value: 'referral', label: 'Referral' },
+                  { value: 'reviews', label: 'Reviews' },
+                  { value: 'safeguarding', label: 'Safeguarding' },
+                  { value: 'transactions', label: 'Transactions' },
+                  { value: 'tutor_issue', label: 'Tutor Issue' },
+                  { value: 'wiselist', label: 'Wiselist' }
+                ]}
+                placeholder="Select category"
                 disabled={creating}
-              >
-                <option value="account">Account</option>
-                <option value="admin">Admin</option>
-                <option value="agent_issue">Agent Issue</option>
-                <option value="booking_issue">Booking Issue</option>
-                <option value="client_issue">Client Issue</option>
-                <option value="developer">Developer</option>
-                <option value="disputes">Disputes</option>
-                <option value="financial">Financial</option>
-                <option value="help_centre">Help Centre</option>
-                <option value="listing">Listing</option>
-                <option value="marketplace">Marketplace</option>
-                <option value="messages">Messages</option>
-                <option value="network">Network</option>
-                <option value="organisation">Organisation</option>
-                <option value="other">Other</option>
-                <option value="payment_issue">Payment Issue</option>
-                <option value="payouts">Payouts</option>
-                <option value="profile">Profile</option>
-                <option value="public_listing">Public Listing</option>
-                <option value="public_organisation">Public Organisation</option>
-                <option value="public_profile">Public Profile</option>
-                <option value="referral">Referral</option>
-                <option value="reviews">Reviews</option>
-                <option value="safeguarding">Safeguarding</option>
-                <option value="transactions">Transactions</option>
-                <option value="tutor_issue">Tutor Issue</option>
-                <option value="wiselist">Wiselist</option>
-              </select>
+              />
             </div>
           </div>
 
@@ -293,32 +296,33 @@ export function CreateTaskModal({
           <div className={styles.row}>
             <div className={styles.field}>
               <label className={styles.label}>Assign To</label>
-              <select
+              <UnifiedSelect
                 value={formData.assignedTo}
-                onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
-                className={styles.select}
+                onChange={(value) => setFormData({ ...formData, assignedTo: String(value) })}
+                options={[
+                  { value: '', label: 'Unassigned' },
+                  ...teamMembers.map((member) => ({
+                    value: member.id,
+                    label: member.full_name
+                  }))
+                ]}
+                placeholder="Unassigned"
                 disabled={creating || loadingMembers}
-              >
-                <option value="">Unassigned</option>
-                {teamMembers.map((member) => (
-                  <option key={member.id} value={member.id}>
-                    {member.full_name}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
             <div className={styles.field}>
               <label className={styles.label}>Initial Status</label>
-              <select
+              <UnifiedSelect
                 value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                className={styles.select}
+                onChange={(value) => setFormData({ ...formData, status: String(value) })}
+                options={[
+                  { value: 'backlog', label: 'Backlog' },
+                  { value: 'todo', label: 'To Do' }
+                ]}
+                placeholder="Select status"
                 disabled={creating}
-              >
-                <option value="backlog">Backlog</option>
-                <option value="todo">To Do</option>
-              </select>
+              />
             </div>
           </div>
 

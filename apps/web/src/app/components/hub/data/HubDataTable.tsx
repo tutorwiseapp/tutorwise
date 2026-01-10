@@ -50,6 +50,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import HubPagination from '@/app/components/hub/layout/HubPagination';
 import HubToolbar from '@/app/components/hub/toolbar/HubToolbar';
 import type { SavedView } from '@/app/components/hub/toolbar/types';
@@ -475,20 +476,18 @@ export default function HubDataTable<T extends Record<string, any>>({
         <div className={styles.paginationWrapper}>
           {/* Page Size Selector - Left aligned */}
           {pagination.onLimitChange && (
-            <select
+            <UnifiedSelect
               value={pagination.limit}
-              onChange={(e) => {
-                pagination.onLimitChange!(Number(e.target.value));
+              onChange={(value) => {
+                pagination.onLimitChange!(Number(value));
                 pagination.onPageChange(1); // Reset to first page when changing page size
               }}
-              className={styles.pageSizeSelector}
-            >
-              {(pagination.pageSizeOptions || [10, 20, 50, 100]).map((size) => (
-                <option key={size} value={size}>
-                  {size} per page
-                </option>
-              ))}
-            </select>
+              options={(pagination.pageSizeOptions || [10, 20, 50, 100]).map((size) => ({
+                value: size,
+                label: `${size} per page`
+              }))}
+              placeholder="Page size"
+            />
           )}
           {/* HubPagination Component - Centered */}
           <div className={styles.paginationCenter}>
