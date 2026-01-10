@@ -9,6 +9,7 @@
 import { useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { Download, FileSpreadsheet, Calendar, Filter, CheckCircle2 } from 'lucide-react';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import styles from './PayoutExportCard.module.css';
 
 interface PayoutExportCardProps {
@@ -257,17 +258,18 @@ export function PayoutExportCard({
             <Calendar size={18} />
             Date Range
           </label>
-          <select
+          <UnifiedSelect
             value={dateRange}
-            onChange={(e) => setDateRange(e.target.value as DateRange)}
-            className={styles.select}
-          >
-            <option value="all">All Time</option>
-            <option value="this-month">This Month</option>
-            <option value="last-month">Last Month</option>
-            <option value="this-year">This Year</option>
-            <option value="custom">Custom Range</option>
-          </select>
+            onChange={(value) => setDateRange(value as DateRange)}
+            options={[
+              { value: 'all', label: 'All Time' },
+              { value: 'this-month', label: 'This Month' },
+              { value: 'last-month', label: 'Last Month' },
+              { value: 'this-year', label: 'This Year' },
+              { value: 'custom', label: 'Custom Range' }
+            ]}
+            placeholder="Select date range"
+          />
         </div>
 
         {/* Custom Date Range */}
@@ -300,15 +302,16 @@ export function PayoutExportCard({
             <Filter size={18} />
             Payout Status
           </label>
-          <select
+          <UnifiedSelect
             value={payoutStatus}
-            onChange={(e) => setPayoutStatus(e.target.value as PayoutStatus)}
-            className={styles.select}
-          >
-            <option value="all">All Statuses</option>
-            <option value="pending">Pending Only</option>
-            <option value="paid">Paid Only</option>
-          </select>
+            onChange={(value) => setPayoutStatus(value as PayoutStatus)}
+            options={[
+              { value: 'all', label: 'All Statuses' },
+              { value: 'pending', label: 'Pending Only' },
+              { value: 'paid', label: 'Paid Only' }
+            ]}
+            placeholder="Select status"
+          />
         </div>
 
         {/* Export Format */}

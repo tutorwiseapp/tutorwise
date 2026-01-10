@@ -9,6 +9,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import styles from './AdvancedFiltersDrawer.module.css';
 
 export interface AdvancedFilters {
@@ -84,67 +85,68 @@ export default function AdvancedFiltersDrawer({
           {/* Booking Type */}
           <div className={styles.filterSection}>
             <h3 className={styles.sectionTitle}>Booking Type</h3>
-            <select
-              className={styles.filterSelect}
+            <UnifiedSelect
               value={localFilters.bookingType}
-              onChange={(e) => setLocalFilters({ ...localFilters, bookingType: e.target.value })}
-            >
-              <option value="">All Types</option>
-              <option value="direct">Direct</option>
-              <option value="referred">Referred</option>
-              <option value="agent_job">Agent Job</option>
-            </select>
+              onChange={(value) => setLocalFilters({ ...localFilters, bookingType: String(value) })}
+              options={[
+                { value: '', label: 'All Types' },
+                { value: 'direct', label: 'Direct' },
+                { value: 'referred', label: 'Referred' },
+                { value: 'agent_job', label: 'Agent Job' }
+              ]}
+              placeholder="All Types"
+            />
           </div>
 
           {/* Client */}
           <div className={styles.filterSection}>
             <h3 className={styles.sectionTitle}>Client</h3>
-            <select
-              className={styles.filterSelect}
+            <UnifiedSelect
               value={localFilters.client}
-              onChange={(e) => setLocalFilters({ ...localFilters, client: e.target.value })}
-            >
-              <option value="">All Clients</option>
-              {filterOptions?.clients.map((client) => (
-                <option key={client.id} value={client.id}>
-                  {client.full_name}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => setLocalFilters({ ...localFilters, client: String(value) })}
+              options={[
+                { value: '', label: 'All Clients' },
+                ...(filterOptions?.clients.map((client) => ({
+                  value: client.id,
+                  label: client.full_name
+                })) || [])
+              ]}
+              placeholder="All Clients"
+            />
           </div>
 
           {/* Agent */}
           <div className={styles.filterSection}>
             <h3 className={styles.sectionTitle}>Agent</h3>
-            <select
-              className={styles.filterSelect}
+            <UnifiedSelect
               value={localFilters.agent}
-              onChange={(e) => setLocalFilters({ ...localFilters, agent: e.target.value })}
-            >
-              <option value="">All Agents</option>
-              {filterOptions?.agents.map((agent) => (
-                <option key={agent.id} value={agent.id}>
-                  {agent.full_name}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => setLocalFilters({ ...localFilters, agent: String(value) })}
+              options={[
+                { value: '', label: 'All Agents' },
+                ...(filterOptions?.agents.map((agent) => ({
+                  value: agent.id,
+                  label: agent.full_name
+                })) || [])
+              ]}
+              placeholder="All Agents"
+            />
           </div>
 
           {/* Tutor */}
           <div className={styles.filterSection}>
             <h3 className={styles.sectionTitle}>Tutor</h3>
-            <select
-              className={styles.filterSelect}
+            <UnifiedSelect
               value={localFilters.tutor}
-              onChange={(e) => setLocalFilters({ ...localFilters, tutor: e.target.value })}
-            >
-              <option value="">All Tutors</option>
-              {filterOptions?.tutors.map((tutor) => (
-                <option key={tutor.id} value={tutor.id}>
-                  {tutor.full_name}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => setLocalFilters({ ...localFilters, tutor: String(value) })}
+              options={[
+                { value: '', label: 'All Tutors' },
+                ...(filterOptions?.tutors.map((tutor) => ({
+                  value: tutor.id,
+                  label: tutor.full_name
+                })) || [])
+              ]}
+              placeholder="All Tutors"
+            />
           </div>
 
           {/* Amount Range */}

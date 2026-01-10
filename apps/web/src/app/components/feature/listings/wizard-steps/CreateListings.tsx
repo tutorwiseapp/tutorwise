@@ -23,6 +23,7 @@ import ImageUpload, { type ImageUploadRef } from '@/app/components/feature/listi
 import AvailabilityFormSection from '@/app/components/feature/listings/AvailabilityFormSection';
 import UnavailabilityFormSection from '@/app/components/feature/listings/UnavailabilityFormSection';
 import UnifiedMultiSelect from '@/app/components/ui/forms/UnifiedMultiSelect';
+import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
 import toast from 'react-hot-toast';
 import styles from './CreateListings.module.css';
 
@@ -697,13 +698,7 @@ export default function CreateListings({
                 Subjects <span className={styles.required}>*</span>
               </label>
               <UnifiedMultiSelect
-                triggerLabel={
-                  selectedSubjects.length > 0
-                    ? selectedSubjects.length === 1
-                      ? selectedSubjects[0]
-                      : `${selectedSubjects.length} subjects selected`
-                    : 'Select subjects'
-                }
+                triggerLabel={formatMultiSelectLabel(selectedSubjects, 'Select subjects')}
                 options={SUBJECT_OPTIONS}
                 selectedValues={selectedSubjects}
                 onSelectionChange={setSelectedSubjects}
@@ -717,13 +712,7 @@ export default function CreateListings({
                 Education Levels <span className={styles.required}>*</span>
               </label>
               <UnifiedMultiSelect
-                triggerLabel={
-                  selectedLevels.length > 0
-                    ? selectedLevels.length === 1
-                      ? selectedLevels[0]
-                      : `${selectedLevels.length} levels selected`
-                    : 'Select levels'
-                }
+                triggerLabel={formatMultiSelectLabel(selectedLevels, 'Select levels')}
                 options={LEVEL_OPTIONS}
                 selectedValues={selectedLevels}
                 onSelectionChange={setSelectedLevels}
@@ -1010,11 +999,7 @@ export default function CreateListings({
               AI Tools Used (Optional)
             </label>
             <UnifiedMultiSelect
-              triggerLabel={
-                selectedAITools.length > 0
-                  ? `${selectedAITools.length} tool${selectedAITools.length > 1 ? 's' : ''} selected`
-                  : 'Select AI tools'
-              }
+              triggerLabel={formatMultiSelectLabel(selectedAITools, 'Select AI tools')}
               options={AI_TOOLS_OPTIONS}
               selectedValues={selectedAITools}
               onSelectionChange={setSelectedAITools}

@@ -11,6 +11,7 @@ import { createClient } from '@/utils/supabase/client';
 import { HubDetailModal } from '@/app/components/hub/modal';
 import type { DetailSection } from '@/app/components/hub/modal';
 import Button from '@/app/components/ui/actions/Button';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import { CheckCircle2, XCircle, ChevronDown } from 'lucide-react';
 import styles from './OrganisationReferralDetailModal.module.css';
@@ -336,21 +337,18 @@ export function OrganisationReferralDetailModal({
       sections={sections}
       actions={
         <div className={styles.stageDropdownWrapper}>
-          <div className={styles.stageDropdown}>
-            <select
-              value={newStage}
-              onChange={handleStageChange}
-              className={styles.stageSelect}
-              disabled={updating}
-            >
-              {STAGE_OPTIONS.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown size={16} className={styles.dropdownIcon} />
-          </div>
+          <UnifiedSelect
+            value={newStage}
+            onChange={(value) => {
+              const event = {
+                target: { value: String(value) }
+              } as React.ChangeEvent<HTMLSelectElement>;
+              handleStageChange(event);
+            }}
+            options={STAGE_OPTIONS}
+            placeholder="Select stage"
+            disabled={updating}
+          />
         </div>
       }
     />

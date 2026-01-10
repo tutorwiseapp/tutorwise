@@ -9,6 +9,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import styles from './AdvancedFiltersDrawer.module.css';
 
 export interface AdvancedFilters {
@@ -80,73 +81,78 @@ export default function AdvancedFiltersDrawer({
           {/* User Type */}
           <div className={styles.filterSection}>
             <h3 className={styles.sectionTitle}>User Type</h3>
-            <select
-              className={styles.filterSelect}
+            <UnifiedSelect
               value={localFilters.userType}
-              onChange={(e) => setLocalFilters({ ...localFilters, userType: e.target.value })}
-            >
-              <option value="">All Types</option>
-              <option value="tutor">Tutors</option>
-              <option value="client">Clients</option>
-              <option value="agent">Agents</option>
-              <option value="admin">Admins</option>
-            </select>
+              onChange={(value) => setLocalFilters({ ...localFilters, userType: String(value) })}
+              options={[
+                { value: '', label: 'All Types' },
+                { value: 'tutor', label: 'Tutors' },
+                { value: 'client', label: 'Clients' },
+                { value: 'agent', label: 'Agents' },
+                { value: 'admin', label: 'Admins' }
+              ]}
+              placeholder="All Types"
+            />
           </div>
 
           {/* Onboarding Status */}
           <div className={styles.filterSection}>
             <h3 className={styles.sectionTitle}>Onboarding Status</h3>
-            <select
-              className={styles.filterSelect}
+            <UnifiedSelect
               value={localFilters.onboardingStatus}
-              onChange={(e) => setLocalFilters({ ...localFilters, onboardingStatus: e.target.value })}
-            >
-              <option value="">All Statuses</option>
-              <option value="completed">Completed</option>
-              <option value="pending">Pending</option>
-            </select>
+              onChange={(value) => setLocalFilters({ ...localFilters, onboardingStatus: String(value) })}
+              options={[
+                { value: '', label: 'All Statuses' },
+                { value: 'completed', label: 'Completed' },
+                { value: 'pending', label: 'Pending' }
+              ]}
+              placeholder="All Statuses"
+            />
           </div>
 
           {/* Identity Verified */}
           <div className={styles.filterSection}>
             <h3 className={styles.sectionTitle}>Identity Verification</h3>
-            <select
-              className={styles.filterSelect}
+            <UnifiedSelect
               value={localFilters.identityVerified}
-              onChange={(e) => setLocalFilters({ ...localFilters, identityVerified: e.target.value })}
-            >
-              <option value="">All</option>
-              <option value="verified">Verified</option>
-              <option value="unverified">Unverified</option>
-            </select>
+              onChange={(value) => setLocalFilters({ ...localFilters, identityVerified: String(value) })}
+              options={[
+                { value: '', label: 'All' },
+                { value: 'verified', label: 'Verified' },
+                { value: 'unverified', label: 'Unverified' }
+              ]}
+              placeholder="All"
+            />
           </div>
 
           {/* DBS Verified */}
           <div className={styles.filterSection}>
             <h3 className={styles.sectionTitle}>DBS Verification</h3>
-            <select
-              className={styles.filterSelect}
+            <UnifiedSelect
               value={localFilters.dbsVerified}
-              onChange={(e) => setLocalFilters({ ...localFilters, dbsVerified: e.target.value })}
-            >
-              <option value="">All</option>
-              <option value="verified">Verified</option>
-              <option value="unverified">Unverified</option>
-            </select>
+              onChange={(value) => setLocalFilters({ ...localFilters, dbsVerified: String(value) })}
+              options={[
+                { value: '', label: 'All' },
+                { value: 'verified', label: 'Verified' },
+                { value: 'unverified', label: 'Unverified' }
+              ]}
+              placeholder="All"
+            />
           </div>
 
           {/* POA Verified */}
           <div className={styles.filterSection}>
             <h3 className={styles.sectionTitle}>Proof of Address</h3>
-            <select
-              className={styles.filterSelect}
+            <UnifiedSelect
               value={localFilters.poaVerified}
-              onChange={(e) => setLocalFilters({ ...localFilters, poaVerified: e.target.value })}
-            >
-              <option value="">All</option>
-              <option value="verified">Verified</option>
-              <option value="unverified">Unverified</option>
-            </select>
+              onChange={(value) => setLocalFilters({ ...localFilters, poaVerified: String(value) })}
+              options={[
+                { value: '', label: 'All' },
+                { value: 'verified', label: 'Verified' },
+                { value: 'unverified', label: 'Unverified' }
+              ]}
+              placeholder="All"
+            />
           </div>
 
           {/* Created Date Range */}

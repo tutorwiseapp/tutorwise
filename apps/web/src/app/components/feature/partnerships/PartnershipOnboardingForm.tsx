@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Button from '@/app/components/ui/actions/Button';
 import Input from '@/app/components/ui/forms/Input';
 import FormGroup from '@/app/components/ui/forms/FormGroup';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 
 const PARTNER_TYPES = [
   'coffee_shop',
@@ -60,20 +61,19 @@ export function PartnershipOnboardingForm() {
       </FormGroup>
 
       <FormGroup label="Partner Type" htmlFor="partner_type">
-        <select
-          id="partner_type"
+        <UnifiedSelect
           value={formData.partner_type}
-          onChange={(e) => setFormData({ ...formData, partner_type: e.target.value })}
-          className="w-full px-3 py-2 border rounded"
-          required
-        >
-          <option value="">Select type</option>
-          {PARTNER_TYPES.map((type) => (
-            <option key={type} value={type}>
-              {type.replace('_', ' ')}
-            </option>
-          ))}
-        </select>
+          onChange={(value) => setFormData({ ...formData, partner_type: String(value) })}
+          options={[
+            { value: '', label: 'Select type' },
+            ...PARTNER_TYPES.map((type) => ({
+              value: type,
+              label: type.replace('_', ' ')
+            }))
+          ]}
+          placeholder="Select type"
+          disabled={loading}
+        />
       </FormGroup>
 
       <FormGroup label="Contact Name" htmlFor="contact_name">

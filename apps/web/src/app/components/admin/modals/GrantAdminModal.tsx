@@ -8,6 +8,7 @@
 
 import React, { useState } from 'react';
 import Button from '@/app/components/ui/actions/Button';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import type { AdminRole } from '@/lib/rbac/types';
 import { ROLE_HIERARCHY } from '@/lib/rbac/types';
 import { useAdminProfile } from '@/lib/rbac';
@@ -123,19 +124,16 @@ export default function GrantAdminModal({ isOpen, onClose, onSuccess }: GrantAdm
               <label htmlFor="role" className={styles.label}>
                 Admin Role <span className={styles.required}>*</span>
               </label>
-              <select
-                id="role"
-                className={styles.select}
+              <UnifiedSelect
                 value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value as AdminRole)}
-                required
-              >
-                {availableRoles.map((role) => (
-                  <option key={role} value={role}>
-                    {role.charAt(0).toUpperCase() + role.slice(1)} - {ROLE_HIERARCHY[role].description}
-                  </option>
-                ))}
-              </select>
+                onChange={(value) => setSelectedRole(value as AdminRole)}
+                options={availableRoles.map((role) => ({
+                  value: role,
+                  label: `${role.charAt(0).toUpperCase() + role.slice(1)} - ${ROLE_HIERARCHY[role].description}`
+                }))}
+                placeholder="Select a role..."
+                disabled={isSubmitting}
+              />
               <p className={styles.helpText}>
                 You can only grant roles at or below your current level.
               </p>

@@ -9,6 +9,9 @@
 
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
+import UnifiedMultiSelect from '@/app/components/ui/forms/UnifiedMultiSelect';
+import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
 import styles from './AdvancedFiltersDrawer.module.css';
 
 export interface AdvancedFilters {
@@ -179,52 +182,35 @@ export function AdvancedFiltersDrawer({
             {/* 3. Subjects (Multi-select) */}
             <div className={styles.filterRow}>
               <label className={styles.filterLabel}>Subjects</label>
-              <div className={styles.multiSelect}>
-                {commonSubjects.map((subject) => (
-                  <div key={subject} className={styles.checkboxRow}>
-                    <input
-                      type="checkbox"
-                      id={`subject-${subject}`}
-                      checked={localFilters.subjects?.includes(subject) || false}
-                      onChange={(e) => {
-                        const currentSubjects = localFilters.subjects || [];
-                        if (e.target.checked) {
-                          setLocalFilters({
-                            ...localFilters,
-                            subjects: [...currentSubjects, subject],
-                          });
-                        } else {
-                          setLocalFilters({
-                            ...localFilters,
-                            subjects: currentSubjects.filter((s) => s !== subject),
-                          });
-                        }
-                      }}
-                      className={styles.checkbox}
-                    />
-                    <label htmlFor={`subject-${subject}`} className={styles.checkboxLabel}>
-                      {subject}
-                    </label>
-                  </div>
-                ))}
-              </div>
+              <UnifiedMultiSelect
+                triggerLabel={formatMultiSelectLabel(localFilters.subjects || [], 'All subjects')}
+                options={commonSubjects.map((subject) => ({
+                  value: subject,
+                  label: subject
+                }))}
+                selectedValues={localFilters.subjects || []}
+                onSelectionChange={(values) =>
+                  setLocalFilters({ ...localFilters, subjects: values.length > 0 ? values : undefined })
+                }
+              />
             </div>
 
             {/* 4. Service Type (Location Type) */}
             <div className={styles.filterRow}>
               <label className={styles.filterLabel}>Service Type</label>
-              <select
+              <UnifiedSelect
                 value={localFilters.locationType || ''}
-                onChange={(e) =>
-                  setLocalFilters({ ...localFilters, locationType: e.target.value || undefined })
+                onChange={(value) =>
+                  setLocalFilters({ ...localFilters, locationType: value ? String(value) : undefined })
                 }
-                className={styles.filterSelect}
-              >
-                <option value="">All</option>
-                <option value="online">Online</option>
-                <option value="in_person">In Person</option>
-                <option value="hybrid">Hybrid</option>
-              </select>
+                options={[
+                  { value: '', label: 'All' },
+                  { value: 'online', label: 'Online' },
+                  { value: 'in_person', label: 'In Person' },
+                  { value: 'hybrid', label: 'Hybrid' }
+                ]}
+                placeholder="All"
+              />
             </div>
           </div>
 

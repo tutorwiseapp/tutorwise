@@ -7,6 +7,7 @@ import { ProfessionalDetailsData } from '@/types';
 import { HubForm } from '@/app/components/hub/form/HubForm';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import UnifiedMultiSelect from '@/app/components/ui/forms/UnifiedMultiSelect';
+import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
 
 interface TutorProfessionalDetailStepProps {
   onNext: (details: ProfessionalDetailsData) => void;
@@ -84,14 +85,6 @@ const deliveryModeOptions = [
   { value: 'In-person', label: 'In-person' },
   { value: 'Hybrid', label: 'Hybrid' },
 ];
-
-// Helper function to format multi-select trigger label
-const formatMultiSelectLabel = (selectedValues: string[], placeholder: string): string => {
-  if (selectedValues.length === 0) return placeholder;
-  if (selectedValues.length === 1) return selectedValues[0];
-  if (selectedValues.length === 2) return `${selectedValues[0]}, ${selectedValues[1]}`;
-  return `${selectedValues[0]}, ${selectedValues[1]}, +${selectedValues.length - 2}`;
-};
 
 const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = ({
   onNext,
