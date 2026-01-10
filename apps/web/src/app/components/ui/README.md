@@ -6,20 +6,27 @@ This directory contains reusable UI components for the TutorWise application. Th
 
 ```
 ui/
-├── form/              # Form-related components
-│   ├── FormGroup.tsx  # Form field wrapper with label/error
-│   ├── Input.tsx      # Text input component
-│   ├── Textarea.tsx   # Multi-line text input
-│   ├── Select.tsx     # Dropdown select
-│   ├── Checkbox.tsx   # Checkbox input (TODO)
-│   └── Radio.tsx      # Radio button (TODO)
-├── Button.tsx         # Button component
-├── Chip.tsx           # Tag/chip component
-├── Badge.tsx          # Status badge (TODO)
-├── Card.tsx           # Content card (TODO)
-├── Modal.tsx          # Dialog/modal (TODO)
-├── Spinner.tsx        # Loading indicator (TODO)
-└── README.md          # This file
+├── forms/                    # Form-related components
+│   ├── FormGroup.tsx         # Form field wrapper with label/error
+│   ├── Input.tsx            # Text input component
+│   ├── Textarea.tsx         # Multi-line text input
+│   ├── UnifiedSelect.tsx    # ✨ NEW: Radix-based single select dropdown
+│   ├── UnifiedMultiSelect.tsx # ✨ NEW: Radix-based multi-select dropdown
+│   ├── Select.tsx           # ⚠️ DEPRECATED: Use UnifiedSelect instead
+│   ├── TimePicker.tsx       # Time selection component
+│   ├── ToggleSwitch.tsx     # Toggle switch component
+│   ├── Checkbox.tsx         # Checkbox input (TODO)
+│   └── Radio.tsx            # Radio button (TODO)
+├── actions/
+│   └── Button.tsx           # Button component
+├── data-display/
+│   ├── Chip.tsx            # Tag/chip component
+│   ├── Card.tsx            # Content card
+│   └── Badge.tsx           # Status badge (TODO)
+├── feedback/
+│   ├── Modal.tsx           # Dialog/modal (TODO)
+│   └── Spinner.tsx         # Loading indicator (TODO)
+└── README.md               # This file
 ```
 
 ## Available Components
@@ -154,31 +161,247 @@ import Textarea from '@/app/components/ui/form/Textarea';
 
 ---
 
-#### Select
+#### Select (DEPRECATED)
 
-Dropdown select component with options support.
+⚠️ **DEPRECATED:** This component uses native HTML `<select>` and should not be used in new code. Use `UnifiedSelect` instead for consistent styling and better UX.
+
+**Migration Guide:** See UnifiedSelect section below.
+
+---
+
+#### UnifiedSelect ✨ RECOMMENDED
+
+**Modern single-select dropdown component built on Radix UI with consistent chevron icons and styling.**
+
+This is the **standard dropdown component** for all new development. It provides a consistent user experience across the application with proper keyboard navigation, accessibility, and visual design.
 
 **Props:**
-- `options`: Array<{value: string, label: string}> - Select options
-- `error`: boolean - Apply error styling
-- `placeholder`: string - Placeholder option text
-- All standard select HTML attributes
+- `value`: string | number - Current selected value
+- `onChange`: (value: string | number) => void - Callback when selection changes
+- `options`: Array<{value: string | number, label: string}> - Options to display
+- `placeholder`: string - Placeholder text when no value selected
+- `disabled`: boolean - Disable the select (optional)
+- `error`: boolean - Apply error styling (optional)
+- `className`: string - Additional CSS classes (optional)
 
-**Example:**
+**Example - Basic Usage:**
 ```tsx
-import Select from '@/app/components/ui/form/Select';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 
-<Select
+// Simple string values
+<UnifiedSelect
+  value={sortBy}
+  onChange={(value) => setSortBy(value as SortType)}
+  options={[
+    { value: 'newest', label: 'Newest First' },
+    { value: 'oldest', label: 'Oldest First' },
+    { value: 'price-high', label: 'Price: High to Low' },
+    { value: 'price-low', label: 'Price: Low to High' }
+  ]}
+  placeholder="Sort by"
+/>
+```
+
+**Example - With Type Casting:**
+```tsx
+type Status = 'active' | 'inactive' | 'pending';
+
+const [status, setStatus] = useState<Status>('active');
+
+<UnifiedSelect
+  value={status}
+  onChange={(value) => setStatus(value as Status)}
+  options={[
+    { value: 'active', label: 'Active' },
+    { value: 'inactive', label: 'Inactive' },
+    { value: 'pending', label: 'Pending' }
+  ]}
+  placeholder="Select status"
+/>
+```
+
+**Example - Dynamic Options from API:**
+```tsx
+<UnifiedSelect
+  value={selectedMemberId}
+  onChange={(value) => setSelectedMemberId(String(value))}
+  options={[
+    { value: '', label: 'Select team member...' },
+    ...teamMembers.map((member) => ({
+      value: member.id,
+      label: member.full_name
+    }))
+  ]}
+  placeholder="Select team member"
+  disabled={loading}
+/>
+```
+
+**Example - With Error State:**
+```tsx
+<UnifiedSelect
+  value={category}
+  onChange={(value) => setCategory(String(value))}
+  options={categoryOptions}
+  placeholder="Select category"
+  error={!!errors.category}
+/>
+{errors.category && <p className={styles.errorText}>{errors.category}</p>}
+```
+
+**Migration from Native Select:**
+```tsx
+// OLD - Native select
+<select
+  value={sortBy}
+  onChange={(e) => setSortBy(e.target.value as SortType)}
+  className={styles.select}
+>
+  <option value="newest">Newest First</option>
+  <option value="oldest">Oldest First</option>
+</select>
+
+// NEW - UnifiedSelect
+<UnifiedSelect
+  value={sortBy}
+  onChange={(value) => setSortBy(value as SortType)}
+  options={[
+    { value: 'newest', label: 'Newest First' },
+    { value: 'oldest', label: 'Oldest First' }
+  ]}
+  placeholder="Sort by"
+/>
+```
+
+**Key Benefits:**
+- ✅ Consistent chevron icon (Radix ChevronDownIcon)
+- ✅ Better keyboard navigation
+- ✅ Cleaner onChange API (no event.target.value)
+- ✅ Built-in accessibility features
+- ✅ Unified styling across the application
+- ✅ Type-safe options
+
+---
+
+#### UnifiedMultiSelect ✨ RECOMMENDED
+
+**Modern multi-select dropdown component built on Radix UI with checkboxes and item count display.**
+
+Use this component when users need to select multiple options from a list. It shows selected items as a count in the trigger button and provides checkboxes in the dropdown.
+
+**Props:**
+- `triggerLabel`: string - Base label for the trigger button
+- `selectedValues`: string[] - Array of currently selected values
+- `onSelectionChange`: (values: string[]) => void - Callback when selection changes
+- `options`: Array<{value: string, label: string}> - Options to display
+- `placeholder`: string - Placeholder text when nothing selected (optional)
+- `disabled`: boolean - Disable the select (optional)
+- `error`: boolean - Apply error styling (optional)
+- `className`: string - Additional CSS classes (optional)
+
+**Example - Basic Usage:**
+```tsx
+import UnifiedMultiSelect from '@/app/components/ui/forms/UnifiedMultiSelect';
+import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
+
+const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
+
+<UnifiedMultiSelect
+  triggerLabel={formatMultiSelectLabel(selectedSubjects, 'Select subjects')}
   options={[
     { value: 'math', label: 'Mathematics' },
     { value: 'science', label: 'Science' },
-    { value: 'english', label: 'English' }
+    { value: 'english', label: 'English' },
+    { value: 'history', label: 'History' }
   ]}
-  value={subject}
-  onChange={(e) => setSubject(e.target.value)}
-  placeholder="Select a subject"
+  selectedValues={selectedSubjects}
+  onSelectionChange={setSelectedSubjects}
 />
 ```
+
+**Example - With Custom Label Formatting:**
+```tsx
+// Using the formatMultiSelectLabel helper
+import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
+
+<UnifiedMultiSelect
+  triggerLabel={formatMultiSelectLabel(
+    selectedLevels,
+    'Select levels',
+    30  // truncate at 30 characters
+  )}
+  options={LEVEL_OPTIONS}
+  selectedValues={selectedLevels}
+  onSelectionChange={setSelectedLevels}
+/>
+
+// Display examples:
+// - No selection: "Select levels"
+// - 1 selected: "Primary School"
+// - 2 selected: "Primary School, Secondary"
+// - 3+ selected: "Primary School, Secondary, +2"
+```
+
+**Example - With Error State:**
+```tsx
+<div className={styles.formSection}>
+  <label className={styles.label}>
+    Subjects <span className={styles.required}>*</span>
+  </label>
+  <UnifiedMultiSelect
+    triggerLabel={formatMultiSelectLabel(selectedSubjects, 'Select subjects')}
+    options={SUBJECT_OPTIONS}
+    selectedValues={selectedSubjects}
+    onSelectionChange={setSelectedSubjects}
+    error={!!errors.subjects}
+  />
+  {errors.subjects && <p className={styles.errorText}>{errors.subjects}</p>}
+</div>
+```
+
+**Example - Dynamic Options:**
+```tsx
+<UnifiedMultiSelect
+  triggerLabel={formatMultiSelectLabel(selectedFilters, 'All subjects')}
+  options={commonSubjects.map((subject) => ({
+    value: subject,
+    label: subject
+  }))}
+  selectedValues={selectedFilters}
+  onSelectionChange={(values) => {
+    setSelectedFilters(values.length > 0 ? values : undefined);
+  }}
+/>
+```
+
+**Helper Function - formatMultiSelectLabel:**
+```tsx
+// Located in: apps/web/src/app/utils/formHelpers.ts
+import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
+
+/**
+ * Formats multi-select trigger label showing selected items or count
+ * @param selectedValues - Array of selected value strings
+ * @param defaultLabel - Label to show when nothing selected
+ * @param maxLength - Maximum character length before truncation (default: 30)
+ * @returns Formatted label string
+ *
+ * Examples:
+ * - [] => "Select items"
+ * - ["Math"] => "Math"
+ * - ["Math", "Science"] => "Math, Science"
+ * - ["Math", "Science", "English", "History"] => "Math, Science, +2"
+ */
+formatMultiSelectLabel(selectedValues, defaultLabel, maxLength?)
+```
+
+**Key Benefits:**
+- ✅ Shows item count when multiple items selected
+- ✅ Individual item names when space allows
+- ✅ Checkboxes for clear selection state
+- ✅ "Clear All" button for bulk deselection
+- ✅ Keyboard accessible
+- ✅ Consistent with single-select styling
 
 ---
 
@@ -285,25 +508,36 @@ Follow these steps:
 
 | Component | Status | Priority | Notes |
 |-----------|--------|----------|-------|
-| Button | ✅ Complete | High | Basic functionality complete |
-| Chip | ✅ Complete | High | Basic functionality complete |
-| FormGroup | ✅ Complete | High | Basic functionality complete |
-| Input | ✅ Complete | High | Basic functionality complete |
-| Textarea | ✅ Complete | High | Basic functionality complete |
-| Select | ✅ Complete | High | Basic functionality complete |
+| **Form Components** ||||
+| UnifiedSelect | ✅ Complete | High | **USE THIS** - Radix UI based, consistent chevrons |
+| UnifiedMultiSelect | ✅ Complete | High | **USE THIS** - Multi-select with checkboxes |
+| Input | ✅ Complete | High | Text input component |
+| Textarea | ✅ Complete | High | Multi-line text input |
+| FormGroup | ✅ Complete | High | Form field wrapper |
+| TimePicker | ✅ Complete | Medium | Time selection |
+| ToggleSwitch | ✅ Complete | Medium | Toggle switch |
+| Select | ⚠️ Deprecated | Low | **DO NOT USE** - Use UnifiedSelect instead |
 | Checkbox | 📝 TODO | High | Needed for forms |
 | Radio | 📝 TODO | High | Needed for forms |
+| **Action Components** ||||
+| Button | ✅ Complete | High | Primary button component |
+| **Display Components** ||||
+| Chip | ✅ Complete | High | Tag/chip component |
+| Card | ✅ Complete | Medium | Content card component |
 | Badge | 📝 TODO | Medium | For status indicators |
-| Card | 📝 TODO | Medium | For content layout |
+| **Feedback Components** ||||
+| Toast | ✅ Using `sonner` | High | External library (react-hot-toast) |
 | Modal | 📝 TODO | Medium | For dialogs |
 | Spinner | 📝 TODO | Medium | For loading states |
-| Toast | ✅ Using `sonner` | High | External library |
 
 ## Dependencies
 
 Current external UI dependencies:
-- **sonner** - Toast notifications (used in listings, marketplace)
+- **@radix-ui/react-dropdown-menu** - Dropdown primitives for UnifiedSelect and UnifiedMultiSelect
+- **@radix-ui/react-icons** - Icon components (ChevronDownIcon, CheckIcon)
+- **react-hot-toast** - Toast notifications (used throughout the app)
 - **Tailwind CSS** - Utility-first CSS framework
+- **CSS Modules** - Component-scoped styling
 
 ## Related Documentation
 
@@ -322,6 +556,22 @@ If you encounter issues with UI components or need a new component:
 
 ---
 
-**Last Updated:** 2025-10-09  
-**Maintained By:** Development Team  
+## Quick Reference
+
+**For New Dropdowns:**
+- Single-select → Use `UnifiedSelect`
+- Multi-select → Use `UnifiedMultiSelect` with `formatMultiSelectLabel`
+- Native `<select>` → ⚠️ Don't use, migrate to UnifiedSelect
+
+**Common Imports:**
+```tsx
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
+import UnifiedMultiSelect from '@/app/components/ui/forms/UnifiedMultiSelect';
+import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
+```
+
+---
+
+**Last Updated:** 2026-01-10
+**Maintained By:** Development Team
 **Status:** Active
