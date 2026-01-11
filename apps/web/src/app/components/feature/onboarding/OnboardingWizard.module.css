@@ -339,7 +339,8 @@
 .formInput::placeholder,
 .formSelect::placeholder,
 .formTextarea::placeholder {
-  color: var(--color-text-tertiary, #80868b);
+  color: #9ca3af;
+  font-style: italic;
 }
 
 .formInput:focus,

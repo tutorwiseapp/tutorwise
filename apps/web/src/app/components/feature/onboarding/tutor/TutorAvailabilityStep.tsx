@@ -10,9 +10,7 @@ import DatePicker from '@/app/components/ui/forms/DatePicker';
 import CustomTimePicker from '@/app/components/feature/listings/wizard-steps/CustomTimePicker';
 import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
 import InlineProgressBadge from '../shared/InlineProgressBadge';
-import { useOnboardingAutoSave } from '@/hooks/useAutoSave';
-import { useDifferentiatedSave } from '../shared/useDifferentiatedSave';
-import { saveOnboardingProgress, getOnboardingProgress } from '@/lib/api/onboarding';
+import { getOnboardingProgress } from '@/lib/api/onboarding';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 
 interface ProgressData {
@@ -30,7 +28,7 @@ interface ProgressData {
 
 interface TutorAvailabilityStepProps {
   onNext: (availability: AvailabilityData) => void;
-  onBack?: (availability: AvailabilityData) => void;
+  onBack?: () => void;
   isLoading: boolean;
   progressData?: ProgressData;
 }
@@ -170,40 +168,13 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
     }
   }, [user?.id, isRestored]);
 
-  // Save strategies
-  const { saveOnNavigate, saveOnContinue } = useDifferentiatedSave<AvailabilityData>();
-
-  // Build availability data for auto-save
+  // Build availability data to pass to wizard
   const availabilityData: AvailabilityData = {
     generalDays,
     generalTimes,
     availabilityPeriods: availabilityPeriods.length > 0 ? availabilityPeriods : undefined,
     unavailabilityPeriods: unavailabilityPeriods.length > 0 ? unavailabilityPeriods : undefined,
   };
-
-  // Auto-save with 5-second debounce (only after restoration)
-  const { saveStatus, lastSaved, error } = useOnboardingAutoSave(
-    availabilityData,
-    async (data) => {
-      if (!user?.id) throw new Error('User not authenticated');
-
-      console.log('[TutorAvailabilityStep] Auto-saving data:', data);
-
-      await saveOnboardingProgress({
-        userId: user.id,
-        progress: {
-          tutor: {
-            availability: data
-          }
-        }
-      });
-
-      console.log('[TutorAvailabilityStep] Auto-save completed successfully');
-    },
-    {
-      enabled: isRestored, // Only auto-save after restoration
-    }
-  );
 
   // Validation - Only Section 1 is required
   const isValid = generalDays.length > 0 && generalTimes.length > 0;
@@ -412,67 +383,19 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
   const recurringPeriods = availabilityPeriods.filter(p => p.type === 'recurring');
   const oneTimePeriods = availabilityPeriods.filter(p => p.type === 'one-time');
 
-  const handleContinue = async () => {
-    if (!user?.id) {
-      console.error('[TutorAvailabilityStep] User not authenticated');
-      return;
-    }
+  const handleContinue = () => {
+    console.log('[TutorAvailabilityStep] handleContinue called');
+    console.log('[TutorAvailabilityStep] Form data:', availabilityData);
+    console.log('[TutorAvailabilityStep] isValid:', isValid);
+    console.log('[TutorAvailabilityStep] Calling onNext...');
 
-    console.log('[TutorAvailabilityStep] handleContinue called with data:', availabilityData);
+    // The WizardActionButtons component ensures this only runs when isValid is true
+    // Pass data to wizard - wizard handles all database operations in background
+    onNext(availabilityData);
 
-    // Use blocking save strategy for manual continue
-    const success = await saveOnContinue({
-      data: availabilityData,
-      onSave: async (data) => {
-        console.log('[TutorAvailabilityStep] Saving on continue:', data);
-        await saveOnboardingProgress({
-          userId: user.id,
-          progress: {
-            tutor: {
-              availability: data
-            }
-          }
-        });
-        console.log('[TutorAvailabilityStep] Save on continue completed');
-      },
-    });
-
-    console.log('[TutorAvailabilityStep] Save success:', success);
-
-    if (success) {
-      console.log('[TutorAvailabilityStep] Calling onNext with data');
-      onNext(availabilityData);
-    } else {
-      console.error('[TutorAvailabilityStep] Save failed, not advancing');
-    }
+    console.log('[TutorAvailabilityStep] onNext called successfully');
   };
 
-  const handleBack = () => {
-    if (!user?.id || !onBack) return;
-
-    console.log('[TutorAvailabilityStep] handleBack called with data:', availabilityData);
-
-    // Use optimistic save strategy for navigation
-    saveOnNavigate({
-      data: availabilityData,
-      onSave: async (data) => {
-        console.log('[TutorAvailabilityStep] Saving on navigate (back):', data);
-        await saveOnboardingProgress({
-          userId: user.id,
-          progress: {
-            tutor: {
-              availability: data
-            }
-          }
-        });
-        console.log('[TutorAvailabilityStep] Save on navigate (back) completed');
-      },
-    });
-
-    // Navigate immediately and pass data to wizard (optimistic)
-    console.log('[TutorAvailabilityStep] Calling onBack with data');
-    onBack(availabilityData);
-  };
 
   return (
     <div className={styles.stepContent}>
@@ -870,7 +793,7 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
       <WizardActionButtons
         onContinue={handleContinue}
         continueEnabled={isValid}
-        onBack={handleBack}
+        onBack={onBack}
         isLoading={isLoading}
       />
     </div>

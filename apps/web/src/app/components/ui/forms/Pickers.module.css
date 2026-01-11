@@ -40,7 +40,10 @@
 }
 
 .datePickerPlaceholder {
-  color: var(--color-text-tertiary, #9ca3af);
+  font-size: 14px;
+  font-weight: 400;
+  color: #9ca3af;
+  font-style: italic;
 }
 
 .datePickerContent {

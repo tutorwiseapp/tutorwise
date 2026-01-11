@@ -198,8 +198,7 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
     setCurrentStep('professionalDetails');
   };
 
-  const handleBackFromAvailability = (data: AvailabilityData) => {
-    setAvailability(data);
+  const handleBackFromAvailability = () => {
     setCurrentStep('verification');
   };
 
