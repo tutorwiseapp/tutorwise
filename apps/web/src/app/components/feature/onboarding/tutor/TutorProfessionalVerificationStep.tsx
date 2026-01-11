@@ -28,7 +28,7 @@ interface ProgressData {
 
 interface TutorProfessionalVerificationStepProps {
   onNext: (details: VerificationDetailsData) => void;
-  onBack?: (details: VerificationDetailsData) => void;
+  onBack?: () => void;
   isLoading: boolean;
   profileId?: string;
   progressData?: ProgressData;
@@ -118,36 +118,14 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
   }, [user?.id, isRestored]);
 
   // Save strategies
-  const { saveOnNavigate, saveOnContinue } = useDifferentiatedSave<VerificationDetailsData>();
-
-  // Auto-save with 5-second debounce (only after restoration)
-  const { saveStatus, lastSaved, error } = useOnboardingAutoSave(
-    formData,
-    async (data) => {
-      if (!user?.id) throw new Error('User not authenticated');
-
-      await saveOnboardingProgress({
-        userId: user.id,
-        progress: {
-          tutor: {
-            verificationDetails: data
-          }
-        }
-      });
-    },
-    {
-      enabled: isRestored, // Only auto-save after restoration
     }
   );
 
   // No validation - all fields are optional for faster onboarding
   const isValid = true;
 
-  const handleNext = async () => {
-    if (!user?.id) {
-      console.error('[TutorProfessionalVerificationStep] User not authenticated');
-      return;
-    }
+  const handleNext = () => {
+    console.log('[TutorProfessionalVerificationStep] handleNext called');
 
     const dataToSave = {
       ...formData,
@@ -156,54 +134,12 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
       dbs_certificate_url: uploadedFiles.dbs,
     };
 
-    // Use blocking save strategy for manual continue
-    const success = await saveOnContinue({
-      data: dataToSave,
-      onSave: async (data) => {
-        await saveOnboardingProgress({
-          userId: user.id,
-          progress: {
-            tutor: {
-              verificationDetails: data
-            }
-          }
-        });
-      },
-    });
-
-    if (success) {
-      onNext(dataToSave);
-    }
+    console.log('[TutorProfessionalVerificationStep] Calling onNext...');
+    // Page handles all database operations
+    onNext(dataToSave);
+    console.log('[TutorProfessionalVerificationStep] onNext called successfully');
   };
 
-  const handleBack = () => {
-    if (!user?.id || !onBack) return;
-
-    const dataToSave = {
-      ...formData,
-      proof_of_address_url: uploadedFiles.address,
-      identity_verification_document_url: uploadedFiles.identity,
-      dbs_certificate_url: uploadedFiles.dbs,
-    };
-
-    // Use optimistic save strategy for navigation
-    saveOnNavigate({
-      data: dataToSave,
-      onSave: async (data) => {
-        await saveOnboardingProgress({
-          userId: user.id,
-          progress: {
-            tutor: {
-              verificationDetails: data
-            }
-          }
-        });
-      },
-    });
-
-    // Navigate immediately and pass data to wizard (optimistic)
-    onBack(dataToSave);
-  };
 
   return (
     <div className={styles.stepContent}>
@@ -385,7 +321,7 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
       <WizardActionButtons
         onNext={handleNext}
         nextEnabled={isValid}
-        onBack={handleBack}
+        onBack={onBack}
         isLoading={isLoading}
       />
     </div>

@@ -30,7 +30,7 @@ interface ProgressData {
 
 interface TutorProfessionalDetailStepProps {
   onNext: (details: ProfessionalDetailsData) => void;
-  onBack?: (details: ProfessionalDetailsData) => void;
+  onBack?: () => void;
   isLoading: boolean;
   progressData?: ProgressData;
 }
@@ -151,29 +151,6 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
     }
   }, [user?.id, isRestored]);
 
-  // Save strategies
-  const { saveOnNavigate, saveOnContinue } = useDifferentiatedSave<ProfessionalDetailsData>();
-
-  // Auto-save with 5-second debounce (only after restoration)
-  const { saveStatus, lastSaved, error } = useOnboardingAutoSave(
-    formData,
-    async (data) => {
-      if (!user?.id) throw new Error('User not authenticated');
-
-      await saveOnboardingProgress({
-        userId: user.id,
-        progress: {
-          tutor: {
-            professionalDetails: data
-          }
-        }
-      });
-    },
-    {
-      enabled: isRestored, // Only auto-save after restoration
-    }
-  );
-
   // Validation - required fields
   const isValid =
     formData.bio.trim().length >= 50 &&
@@ -217,67 +194,18 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
     });
   }, [formData, isValid]);
 
-  const handleNext = async () => {
-    if (!user?.id) {
-      console.error('[TutorProfessionalDetailStep] User not authenticated');
-      toast.error('Please log in to continue');
-      return;
-    }
-
-    console.log('[TutorProfessionalDetailStep] handleNext called, formData:', formData);
+  const handleNext = () => {
+    console.log('[TutorProfessionalDetailStep] handleNext called');
+    console.log('[TutorProfessionalDetailStep] Form data:', formData);
     console.log('[TutorProfessionalDetailStep] isValid:', isValid);
+    console.log('[TutorProfessionalDetailStep] Calling onNext...');
 
-    // Use blocking save strategy for manual continue
-    const success = await saveOnContinue({
-      data: formData,
-      onSave: async (data) => {
-        console.log('[TutorProfessionalDetailStep] Saving data:', data);
-        await saveOnboardingProgress({
-          userId: user.id,
-          progress: {
-            tutor: {
-              professionalDetails: data
-            }
-          }
-        });
-      },
-      onError: (error) => {
-        console.error('[TutorProfessionalDetailStep] Save error:', error);
-        toast.error(error.message || 'Failed to save progress');
-      },
-    });
+    // Page handles all database operations
+    onNext(formData);
 
-    console.log('[TutorProfessionalDetailStep] Save success:', success);
-
-    if (success) {
-      console.log('[TutorProfessionalDetailStep] Calling onNext with data');
-      onNext(formData);
-    } else {
-      console.error('[TutorProfessionalDetailStep] Save failed, not advancing');
-    }
+    console.log('[TutorProfessionalDetailStep] onNext called successfully');
   };
 
-  const handleBack = () => {
-    if (!user?.id || !onBack) return;
-
-    // Use optimistic save strategy for navigation
-    saveOnNavigate({
-      data: formData,
-      onSave: async (data) => {
-        await saveOnboardingProgress({
-          userId: user.id,
-          progress: {
-            tutor: {
-              professionalDetails: data
-            }
-          }
-        });
-      },
-    });
-
-    // Navigate immediately and pass data to wizard (optimistic)
-    onBack(formData);
-  };
 
   return (
     <div className={styles.stepContent}>
@@ -474,7 +402,7 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
       <WizardActionButtons
         onNext={handleNext}
         nextEnabled={isValid}
-        onBack={handleBack}
+        onBack={onBack}
         isLoading={isLoading}
       />
     </div>
