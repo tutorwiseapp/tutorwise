@@ -11,7 +11,6 @@ import InlineProgressBadge from '../shared/InlineProgressBadge';
 import { useOnboardingAutoSave } from '@/hooks/useAutoSave';
 import { useDifferentiatedSave } from '../shared/useDifferentiatedSave';
 import { saveOnboardingProgress, getOnboardingProgress } from '@/lib/api/onboarding';
-import AutoSaveIndicator from '../shared/AutoSaveIndicator';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 
 interface ProgressData {
@@ -239,12 +238,6 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
             )}
 
             {/* Auto-save Indicator */}
-            <AutoSaveIndicator
-              saveStatus={saveStatus}
-              lastSaved={lastSaved}
-              error={error}
-              variant="inline"
-            />
             {/* 1. Proof of Address */}
             <div style={{ marginBottom: '24px' }}>
               <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '16px', color: '#111827' }}>

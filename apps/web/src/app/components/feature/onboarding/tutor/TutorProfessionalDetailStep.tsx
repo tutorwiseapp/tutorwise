@@ -12,7 +12,6 @@ import InlineProgressBadge from '../shared/InlineProgressBadge';
 import { useOnboardingAutoSave } from '@/hooks/useAutoSave';
 import { useDifferentiatedSave } from '../shared/useDifferentiatedSave';
 import { saveOnboardingProgress, getOnboardingProgress } from '@/lib/api/onboarding';
-import AutoSaveIndicator from '../shared/AutoSaveIndicator';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 
 interface ProgressData {
@@ -302,12 +301,6 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
             )}
 
             {/* Auto-save Indicator */}
-            <AutoSaveIndicator
-              saveStatus={saveStatus}
-              lastSaved={lastSaved}
-              error={error}
-              variant="inline"
-            />
 
             {/* About & Status */}
             <HubForm.Grid columns={1}>
