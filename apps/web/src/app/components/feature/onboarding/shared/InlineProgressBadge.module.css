@@ -14,23 +14,6 @@
   user-select: none;
 }
 
-/* Info Icon */
-.infoIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  font-size: 14px;
-  color: var(--color-text-tertiary, #9ca3af);
-  cursor: help;
-  transition: color 0.2s ease;
-}
-
-.container:hover .infoIcon {
-  color: var(--color-primary, #006C67);
-}
-
 /* Earn Badge - Green chip matching Chip component success variant */
 .earnBadge {
   display: inline-flex;
