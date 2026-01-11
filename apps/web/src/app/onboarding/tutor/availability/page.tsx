@@ -177,7 +177,10 @@ export default function TutorAvailabilityPage() {
         completed_at: new Date().toISOString(),
         tutor: {
           professionalDetails,
-          availability: data
+          availability: {
+            ...data,
+            completed: true  // Completion flag - step is fully done
+          }
         }
       });
 

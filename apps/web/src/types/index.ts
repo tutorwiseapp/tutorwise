@@ -188,6 +188,9 @@ export interface ProfessionalDetailsData {
   // Rates
   oneOnOneRate: number;
   groupSessionRate: number;
+
+  // Completion flag for step tracking
+  completed?: boolean;
 }
 
 // Verification details for tutor onboarding (v4.9: All fields optional for faster onboarding)
@@ -208,6 +211,9 @@ export interface VerificationDetailsData {
   dbs_certificate_number?: string;
   dbs_certificate_date?: string;
   dbs_expiry_date?: string;
+
+  // Completion flag for step tracking
+  completed?: boolean;
 }
 
 // Availability period types
@@ -236,6 +242,9 @@ export interface AvailabilityData {
   // Section 2: Detailed Schedule (Optional)
   availabilityPeriods?: AvailabilityPeriod[];
   unavailabilityPeriods?: UnavailabilityPeriod[];
+
+  // Completion flag for step tracking
+  completed?: boolean;
 }
 
 export interface LearningPreferencesData {

@@ -207,11 +207,18 @@ export default function TutorVerificationPage() {
         console.log('[TutorVerification] ⏩ No verification data, skipping save');
       }
 
-      // Update onboarding progress
+      // Mark step as completed in onboarding progress with completion flag
       await updateOnboardingProgress({
         current_step: 'availability',
-        tutor: { verification: data }
+        tutor: {
+          verification: {
+            ...data,
+            completed: true  // Completion flag - step is fully done
+          }
+        }
       });
+
+      console.log('[TutorVerification] ✓ Step marked as completed');
 
       // Navigate to next step
       router.push('/onboarding/tutor/availability');

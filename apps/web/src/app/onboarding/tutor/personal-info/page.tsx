@@ -14,6 +14,7 @@ export interface PersonalInfoData {
   dateOfBirth: string;
   email: string;
   phone: string;
+  completed?: boolean;  // Completion flag for step tracking
 }
 
 // CaaS Points
@@ -29,7 +30,7 @@ const TOTAL_POINTS = 55;
 
 export default function TutorPersonalInfoPage() {
   const router = useRouter();
-  const { user, profile, isLoading } = useUserProfile();
+  const { user, profile, isLoading, updateOnboardingProgress } = useUserProfile();
   const [isPageLoading, setIsPageLoading] = useState(false);
 
   useEffect(() => {
@@ -114,25 +115,43 @@ export default function TutorPersonalInfoPage() {
 
       const fullName = `${data.firstName} ${data.lastName}`.trim();
 
-      // Save to profiles table
-      const { error } = await supabase
+      // Write ALL personal info fields to profiles table atomically
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({
           first_name: data.firstName,
           last_name: data.lastName,
           full_name: fullName,
+          email: data.email,
+          phone: data.phone,
           gender: data.gender,
           date_of_birth: data.dateOfBirth,
-          phone: data.phone,
+          updated_at: new Date().toISOString(),
         })
         .eq('id', user.id);
 
-      if (error) {
-        console.error('[TutorPersonalInfo] Error saving:', error);
-        throw error;
+      if (profileError) {
+        console.error('[TutorPersonalInfo] Error saving to profiles:', profileError);
+        throw profileError;
       }
 
-      console.log('[TutorPersonalInfo] ✓ Saved to profile');
+      console.log('[TutorPersonalInfo] ✓ Saved all fields to profiles table');
+
+      // Mark step as completed in onboarding_progress with completion flag
+      await updateOnboardingProgress({
+        userId: user.id,
+        progress: {
+          current_step: 'professionalDetails',
+          tutor: {
+            personalInfo: {
+              ...data,
+              completed: true,  // Completion flag - step is fully done
+            }
+          }
+        }
+      });
+
+      console.log('[TutorPersonalInfo] ✓ Step marked as completed');
 
       // Navigate to next step
       router.push('/onboarding/tutor/professional-details');

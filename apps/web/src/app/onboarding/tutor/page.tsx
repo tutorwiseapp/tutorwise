@@ -34,27 +34,35 @@ function TutorOnboardingPageContent() {
 
     // Determine first incomplete step and redirect
     if (!isLoading && profile) {
-      // Check personal info - must be present in profiles table (first_name is saved on Next button)
-      // Note: onboarding_progress may have auto-saved data, but we check profiles table for step completion
-      if (!profile.first_name) {
+      // Check personal info - must have completed flag set (only set when Next button clicked)
+      // Auto-save preserves draft in onboarding_progress, but completion requires explicit Next click
+      const personalInfoComplete = profile.onboarding_progress?.tutor?.personalInfo?.completed === true;
+
+      if (!personalInfoComplete) {
         router.push('/onboarding/tutor/personal-info');
         return;
       }
 
-      // Check professional details
-      if (!profile.onboarding_progress?.tutor?.professionalDetails) {
+      // Check professional details - must have completed flag
+      const professionalDetailsComplete = profile.onboarding_progress?.tutor?.professionalDetails?.completed === true;
+
+      if (!professionalDetailsComplete) {
         router.push('/onboarding/tutor/professional-details');
         return;
       }
 
-      // Check verification (optional but we route through it)
-      if (!profile.onboarding_progress?.tutor?.verification) {
+      // Check verification - must have completed flag (optional but we route through it)
+      const verificationComplete = profile.onboarding_progress?.tutor?.verification?.completed === true;
+
+      if (!verificationComplete) {
         router.push('/onboarding/tutor/verification');
         return;
       }
 
-      // Check availability
-      if (!profile.onboarding_progress?.tutor?.availability) {
+      // Check availability - must have completed flag
+      const availabilityComplete = profile.onboarding_progress?.tutor?.availability?.completed === true;
+
+      if (!availabilityComplete) {
         router.push('/onboarding/tutor/availability');
         return;
       }

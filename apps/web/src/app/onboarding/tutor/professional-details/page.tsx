@@ -144,13 +144,18 @@ export default function TutorProfessionalDetailsPage() {
       if (roleDetailsError) throw roleDetailsError;
       console.log('[TutorProfessionalDetails] ✓ Saved to role_details');
 
-      // Save to onboarding_progress
+      // Mark step as completed in onboarding_progress with completion flag
       await updateOnboardingProgress({
         current_step: 'verification',
-        tutor: { professionalDetails: data }
+        tutor: {
+          professionalDetails: {
+            ...data,
+            completed: true  // Completion flag - step is fully done
+          }
+        }
       });
 
-      console.log('[TutorProfessionalDetails] ✓ Saved progress');
+      console.log('[TutorProfessionalDetails] ✓ Step marked as completed');
 
       // Navigate to next step
       router.push('/onboarding/tutor/verification');
