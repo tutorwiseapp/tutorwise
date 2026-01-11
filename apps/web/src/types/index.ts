@@ -139,9 +139,10 @@ export interface TutorProgress {
 }
 
 export interface AgentProgress {
-  details?: AgencyDetailsData;
-  services?: string[];
-  capacity?: CapacityData;
+  personalInfo?: any;
+  professionalDetails?: Partial<ProfessionalDetailsData>;
+  verification?: Partial<VerificationDetailsData>;
+  availability?: AvailabilityData;
 }
 
 export interface AgencyDetailsData {

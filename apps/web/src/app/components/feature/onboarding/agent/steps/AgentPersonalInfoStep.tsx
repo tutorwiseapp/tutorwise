@@ -1,4 +1,4 @@
-// apps/web/src/app/components/feature/onboarding/tutor/TutorPersonalInfoStep.tsx
+// apps/web/src/app/components/feature/onboarding/agent/AgentPersonalInfoStep.tsx
 
 'use client';
 
@@ -14,7 +14,7 @@ import InlineProgressBadge from '../../shared/InlineProgressBadge';
 import { getOnboardingProgress, saveOnboardingProgress } from '@/lib/api/onboarding';
 import { useOnboardingAutoSave } from '@/hooks/useAutoSave';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
-import { hasUnsavedChanges as checkUnsavedChanges} from '@/lib/offlineQueue';
+import { hasUnsavedChanges as checkUnsavedChanges } from '@/lib/offlineQueue';
 
 export interface PersonalInfoData {
   firstName: string;
@@ -39,7 +39,7 @@ interface ProgressData {
   }>;
 }
 
-interface TutorPersonalInfoStepProps {
+interface AgentPersonalInfoStepProps {
   onNext: (data: PersonalInfoData) => void;
   onBack?: () => void;
   isLoading?: boolean;
@@ -47,7 +47,7 @@ interface TutorPersonalInfoStepProps {
   progressData?: ProgressData;
 }
 
-const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
+const AgentPersonalInfoStep: React.FC<AgentPersonalInfoStepProps> = ({
   onNext,
   onBack,
   isLoading = false,
@@ -80,7 +80,7 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
       await saveOnboardingProgress({
         userId: user.id,
         progress: {
-          tutor: {
+          agent: {
             personalInfo: data
           }
         }
@@ -91,7 +91,7 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
     }
   );
 
-  console.log('[TutorPersonalInfoStep] Component render', {
+  console.log('[AgentPersonalInfoStep] Component render', {
     hasProfile: !!profile,
     hasUser: !!user,
     profileLoading,
@@ -104,7 +104,7 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
 
   // Pre-populate from profile AND restore saved onboarding progress
   useEffect(() => {
-    console.log('[TutorPersonalInfoStep] useEffect triggered', {
+    console.log('[AgentPersonalInfoStep] useEffect triggered', {
       hasProfile: !!profile,
       hasUser: !!user,
       profileLoading,
@@ -120,12 +120,12 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
 
     // Only initialize once when profile loads and we haven't initialized yet
     if (profile && !isInitialized && !profileLoading) {
-      console.log('[TutorPersonalInfoStep] ✨ INITIALIZING form with profile data');
+      console.log('[AgentPersonalInfoStep] ✨ INITIALIZING form with profile data');
 
       // Load saved onboarding progress first
-      getOnboardingProgress('tutor')
+      getOnboardingProgress('agent')
         .then(savedProgress => {
-          const savedData = savedProgress?.progress?.tutor?.personalInfo;
+          const savedData = savedProgress?.progress?.agent?.personalInfo;
 
           const newFormData = {
             // Priority: saved progress > profile data > empty
@@ -137,7 +137,7 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
             phone: savedData?.phone || profile.phone || '',
           };
 
-          console.log('[TutorPersonalInfoStep] ✅ Restored data:', {
+          console.log('[AgentPersonalInfoStep] ✅ Restored data:', {
             hasSavedProgress: !!savedData,
             formData: newFormData
           });
@@ -151,12 +151,12 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
               const parsedDate = parse(newFormData.dateOfBirth, 'yyyy-MM-dd', new Date());
               setSelectedDate(parsedDate);
             } catch (e) {
-              console.error('[TutorPersonalInfoStep] Error parsing date of birth:', e);
+              console.error('[AgentPersonalInfoStep] Error parsing date of birth:', e);
             }
           }
         })
         .catch(error => {
-          console.error('[TutorPersonalInfoStep] Error loading saved progress:', error);
+          console.error('[AgentPersonalInfoStep] Error loading saved progress:', error);
 
           // Fallback to profile data only
           const newFormData = {
@@ -172,9 +172,9 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
           setIsInitialized(true);
         });
     } else if (!profile && !profileLoading) {
-      console.log('[TutorPersonalInfoStep] ⚠️  Profile loaded but is null/undefined');
+      console.log('[AgentPersonalInfoStep] ⚠️  Profile loaded but is null/undefined');
     } else if (profileLoading) {
-      console.log('[TutorPersonalInfoStep] ⏳ Profile is still loading...');
+      console.log('[AgentPersonalInfoStep] ⏳ Profile is still loading...');
     }
   }, [profile, user, profileLoading, isInitialized]);
 
@@ -212,19 +212,19 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
     setTimeout(() => {
       if (editingField !== fieldName) return;
 
-      console.log(`[TutorPersonalInfoStep] onBlur save for: ${fieldName}`);
+      console.log(`[AgentPersonalInfoStep] onBlur save for: ${fieldName}`);
       setIsSaving(true);
 
       saveOnboardingProgress({
         userId: user.id,
         progress: {
-          tutor: {
+          agent: {
             personalInfo: formData
           }
         }
       })
-        .then(() => console.log('[TutorPersonalInfoStep] ✓ Blur save completed'))
-        .catch((error) => console.error('[TutorPersonalInfoStep] ❌ Blur save failed:', error))
+        .then(() => console.log('[AgentPersonalInfoStep] ✓ Blur save completed'))
+        .catch((error) => console.error('[AgentPersonalInfoStep] ❌ Blur save failed:', error))
         .finally(() => {
           setIsSaving(false);
           setEditingField(null);
@@ -239,17 +239,17 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
 
     if (!user?.id) return;
 
-    console.log(`[TutorPersonalInfoStep] Immediate save for select: ${field}`);
+    console.log(`[AgentPersonalInfoStep] Immediate save for select: ${field}`);
     saveOnboardingProgress({
       userId: user.id,
       progress: {
-        tutor: {
+        agent: {
           personalInfo: newData
         }
       }
     })
-      .then(() => console.log('[TutorPersonalInfoStep] ✓ Select save completed'))
-      .catch((error) => console.error('[TutorPersonalInfoStep] ❌ Select save failed:', error));
+      .then(() => console.log('[AgentPersonalInfoStep] ✓ Select save completed'))
+      .catch((error) => console.error('[AgentPersonalInfoStep] ❌ Select save failed:', error));
   }, [formData, user?.id]);
 
   const handleDateChange = (date: Date | undefined) => {
@@ -263,30 +263,30 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
 
     // Immediate save for date picker
     if (user?.id) {
-      console.log('[TutorPersonalInfoStep] Immediate save for date picker');
+      console.log('[AgentPersonalInfoStep] Immediate save for date picker');
       saveOnboardingProgress({
         userId: user.id,
         progress: {
-          tutor: {
+          agent: {
             personalInfo: newFormData
           }
         }
       })
-        .then(() => console.log('[TutorPersonalInfoStep] ✓ Date save completed'))
-        .catch((error) => console.error('[TutorPersonalInfoStep] ❌ Date save failed:', error));
+        .then(() => console.log('[AgentPersonalInfoStep] ✓ Date save completed'))
+        .catch((error) => console.error('[AgentPersonalInfoStep] ❌ Date save failed:', error));
     }
   };
 
   const handleNext = () => {
-    console.log('[TutorPersonalInfoStep] handleNext called');
-    console.log('[TutorPersonalInfoStep] Form data:', formData);
-    console.log('[TutorPersonalInfoStep] isFormValid:', isFormValid);
-    console.log('[TutorPersonalInfoStep] Calling onNext...');
+    console.log('[AgentPersonalInfoStep] handleNext called');
+    console.log('[AgentPersonalInfoStep] Form data:', formData);
+    console.log('[AgentPersonalInfoStep] isFormValid:', isFormValid);
+    console.log('[AgentPersonalInfoStep] Calling onNext...');
 
     // Page handles all database operations
     onNext(formData);
 
-    console.log('[TutorPersonalInfoStep] onNext called successfully');
+    console.log('[AgentPersonalInfoStep] onNext called successfully');
   };
 
 
@@ -429,4 +429,4 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
   );
 };
 
-export default TutorPersonalInfoStep;
+export default AgentPersonalInfoStep;

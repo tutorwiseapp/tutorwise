@@ -30,7 +30,7 @@ interface ProgressData {
   }>;
 }
 
-interface TutorProfessionalDetailStepProps {
+interface AgentProfessionalDetailStepProps {
   onNext: (details: ProfessionalDetailsData) => void;
   onBack?: () => void;
   isLoading: boolean;
@@ -108,7 +108,7 @@ const deliveryModeOptions = [
   { value: 'Hybrid', label: 'Hybrid' },
 ];
 
-const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = ({
+const AgentProfessionalDetailStep: React.FC<AgentProfessionalDetailStepProps> = ({
   onNext,
   onBack,
   isLoading,
@@ -137,19 +137,19 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
   // Restore saved onboarding progress on mount
   React.useEffect(() => {
     if (!isRestored && user?.id) {
-      getOnboardingProgress('tutor')
+      getOnboardingProgress('agent')
         .then(savedProgress => {
-          const savedData = savedProgress?.progress?.tutor?.professionalDetails;
+          const savedData = savedProgress?.progress?.agent?.professionalDetails;
 
           if (savedData) {
-            console.log('[TutorProfessionalDetailStep] ✅ Restored saved progress:', savedData);
+            console.log('[AgentProfessionalDetailStep] ✅ Restored saved progress:', savedData);
             setFormData(prev => ({ ...prev, ...savedData }));
           }
 
           setIsRestored(true);
         })
         .catch(error => {
-          console.error('[TutorProfessionalDetailStep] Error loading saved progress:', error);
+          console.error('[AgentProfessionalDetailStep] Error loading saved progress:', error);
           setIsRestored(true);
         });
     }
@@ -167,7 +167,7 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
       await saveOnboardingProgress({
         userId: user.id,
         progress: {
-          tutor: {
+          agent: {
             professionalDetails: data
           }
         }
@@ -189,16 +189,16 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
       saveOnboardingProgress({
         userId: user.id,
         progress: {
-          tutor: {
+          agent: {
             professionalDetails: formData
           }
         }
       })
         .then(() => {
-          console.log('[TutorProfessionalDetailStep] ✓ Blur save completed');
+          console.log('[AgentProfessionalDetailStep] ✓ Blur save completed');
         })
         .catch((error) => {
-          console.error('[TutorProfessionalDetailStep] ❌ Blur save failed:', error);
+          console.error('[AgentProfessionalDetailStep] ❌ Blur save failed:', error);
         })
         .finally(() => {
           setIsSaving(false);
@@ -218,12 +218,12 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
     saveOnboardingProgress({
       userId: user.id,
       progress: {
-        tutor: {
+        agent: {
           professionalDetails: newData
         }
       }
     }).catch((error) => {
-      console.error('[TutorProfessionalDetailStep] ❌ Select save failed:', error);
+      console.error('[AgentProfessionalDetailStep] ❌ Select save failed:', error);
     });
   }, [formData, user?.id]);
 
@@ -257,7 +257,7 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
 
   // Debug validation
   React.useEffect(() => {
-    console.log('[TutorProfessionalDetailStep] Validation state:', {
+    console.log('[AgentProfessionalDetailStep] Validation state:', {
       bio: formData.bio.trim().length,
       bioValid: formData.bio.trim().length >= 50,
       status: formData.status,
@@ -285,15 +285,15 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
   }, [formData, isValid]);
 
   const handleNext = () => {
-    console.log('[TutorProfessionalDetailStep] handleNext called');
-    console.log('[TutorProfessionalDetailStep] Form data:', formData);
-    console.log('[TutorProfessionalDetailStep] isValid:', isValid);
-    console.log('[TutorProfessionalDetailStep] Calling onNext...');
+    console.log('[AgentProfessionalDetailStep] handleNext called');
+    console.log('[AgentProfessionalDetailStep] Form data:', formData);
+    console.log('[AgentProfessionalDetailStep] isValid:', isValid);
+    console.log('[AgentProfessionalDetailStep] Calling onNext...');
 
     // Page handles all database operations
     onNext(formData);
 
-    console.log('[TutorProfessionalDetailStep] onNext called successfully');
+    console.log('[AgentProfessionalDetailStep] onNext called successfully');
   };
 
 
@@ -507,4 +507,4 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
   );
 };
 
-export default TutorProfessionalDetailStep;
+export default AgentProfessionalDetailStep;

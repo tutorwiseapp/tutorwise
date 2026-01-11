@@ -1,19 +1,21 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import AgentOnboardingWizard from '@/app/components/feature/onboarding/agent/AgentOnboardingWizard';
 import styles from '../page.module.css';
 
+/**
+ * Smart Router for Agent Onboarding
+ *
+ * This page redirects to the appropriate onboarding step based on:
+ * 1. User authentication status
+ * 2. Completion status of previous steps
+ * 3. Whether user already has agent role
+ */
 function AgentOnboardingPageContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const { user, profile, isLoading, availableRoles, refreshProfile, setActiveRole } = useUserProfile();
-  const [isCompleting, setIsCompleting] = useState(false);
-
-  // Get step from URL parameters for auto-resume functionality
-  const resumeStep = searchParams?.get('step');
+  const { user, profile, isLoading, availableRoles } = useUserProfile();
 
   useEffect(() => {
     // Redirect to login if not authenticated
@@ -22,97 +24,59 @@ function AgentOnboardingPageContent() {
       return;
     }
 
-    // Redirect to dashboard if user already has agent role
-    // BUT NOT during the completion process (prevents race condition)
-    if (!isLoading && profile && availableRoles?.includes('agent') && !isCompleting) {
-      console.log('[AgentOnboardingPage] User already has agent role, redirecting to dashboard');
+    // Redirect to dashboard if user already has the agent role AND completed onboarding
+    if (!isLoading && profile && availableRoles?.includes('agent') &&
+        profile.onboarding_progress?.onboarding_completed) {
+      console.log('[AgentOnboarding] User already completed agent onboarding, redirecting to dashboard');
       router.push('/dashboard');
       return;
     }
-  }, [user, profile, isLoading, availableRoles, router, isCompleting]);
 
-  // Handle browser back button to prevent auth flow state issues
-  useEffect(() => {
-    const handlePopState = (event: PopStateEvent) => {
-      // If user is authenticated and on agent onboarding, prevent default back behavior
-      if (user) {
-        event.preventDefault();
-        // Instead, use the onboarding wizard's built-in back functionality
-        console.log('Browser back prevented during agent onboarding - use wizard Back button instead');
+    // Determine first incomplete step and redirect
+    if (!isLoading && profile) {
+      // Check personal info - must have completed flag set (only set when Next button clicked)
+      // Auto-save preserves draft in onboarding_progress, but completion requires explicit Next click
+      const personalInfoComplete = profile.onboarding_progress?.agent?.personalInfo?.completed === true;
+
+      if (!personalInfoComplete) {
+        router.push('/onboarding/agent/personal-info');
+        return;
       }
-    };
 
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [user]);
+      // Check professional details - must have completed flag
+      const professionalDetailsComplete = profile.onboarding_progress?.agent?.professionalDetails?.completed === true;
 
-  // Show loading state while checking authentication
-  if (isLoading) {
-    return (
-      <div className={styles.loading}>
-        <div className={styles.spinner}></div>
-        <p>Loading your profile...</p>
-      </div>
-    );
-  }
+      if (!professionalDetailsComplete) {
+        router.push('/onboarding/agent/professional-details');
+        return;
+      }
 
-  // Don't render onboarding if user is not authenticated
-  if (!user) {
-    return null;
-  }
+      // Check verification - must have completed flag (optional but we route through it)
+      const verificationComplete = profile.onboarding_progress?.agent?.verification?.completed === true;
 
-  const handleOnboardingComplete = async () => {
-    console.log('[AgentOnboarding] Onboarding complete!');
-    setIsCompleting(true); // Prevent race condition with useEffect redirect
+      if (!verificationComplete) {
+        router.push('/onboarding/agent/verification');
+        return;
+      }
 
-    try {
-      console.log('[AgentOnboarding] Refreshing profile...');
-      await Promise.race([
-        refreshProfile(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Profile refresh timeout')), 3000))
-      ]);
-      console.log('[AgentOnboarding] Profile refreshed successfully');
-    } catch (error) {
-      console.error('[AgentOnboarding] Profile refresh failed or timed out:', error);
-      // Continue anyway - the profile will refresh on dashboard load
+      // Check availability - must have completed flag
+      const availabilityComplete = profile.onboarding_progress?.agent?.availability?.completed === true;
+
+      if (!availabilityComplete) {
+        router.push('/onboarding/agent/availability');
+        return;
+      }
+
+      // All steps completed but no role yet - go to availability to complete
+      router.push('/onboarding/agent/availability');
     }
+  }, [user, profile, isLoading, availableRoles, router]);
 
-    console.log('[AgentOnboarding] Setting active role to agent...');
-    setActiveRole('agent');
-    console.log('[AgentOnboarding] Active role set, redirecting to dashboard...');
-    router.push('/dashboard');
-  };
-
-  const handleOnboardingSkip = async () => {
-    console.log('[AgentOnboarding] Onboarding skipped');
-    setIsCompleting(true);
-
-    try {
-      console.log('[AgentOnboarding] Refreshing profile...');
-      await Promise.race([
-        refreshProfile(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Profile refresh timeout')), 3000))
-      ]);
-      console.log('[AgentOnboarding] Profile refreshed successfully');
-    } catch (error) {
-      console.error('[AgentOnboarding] Profile refresh failed or timed out:', error);
-      // Continue anyway - the profile will refresh on dashboard load
-    }
-
-    console.log('[AgentOnboarding] Setting active role to agent...');
-    setActiveRole('agent');
-    console.log('[AgentOnboarding] Active role set, redirecting to dashboard...');
-    router.push('/dashboard');
-  };
-
+  // Show loading state while determining redirect
   return (
-    <div className={styles.onboardingPage}>
-      <AgentOnboardingWizard
-        mode="fullPage"
-        onComplete={handleOnboardingComplete}
-        onSkip={handleOnboardingSkip}
-        initialStep={resumeStep || undefined}
-      />
+    <div className={styles.loading}>
+      <div className={styles.spinner}></div>
+      <p>Loading agent onboarding...</p>
     </div>
   );
 }
@@ -122,7 +86,7 @@ export default function AgentOnboardingPage() {
     <Suspense fallback={
       <div className={styles.loading}>
         <div className={styles.spinner}></div>
-        <p>Loading agent onboarding...</p>
+        <p>Loading...</p>
       </div>
     }>
       <AgentOnboardingPageContent />

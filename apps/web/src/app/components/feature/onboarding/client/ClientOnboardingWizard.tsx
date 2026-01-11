@@ -16,7 +16,7 @@ import ClientPersonalInfoStep from './ClientPersonalInfoStep';
 import ClientSubjectSelectionStep from './ClientSubjectSelectionStep';
 import ClientLearningPreferencesStep from './ClientLearningPreferencesStep';
 import ClientAvailabilityStep from './ClientAvailabilityStep';
-import { PersonalInfoData } from '../tutor/TutorOnboardingWizard';
+import { PersonalInfoData } from '../tutor/steps/TutorPersonalInfoStep';
 import styles from '../OnboardingWizard.module.css';
 
 export type ClientStep = 'personalInfo' | 'subjects' | 'preferences' | 'availability' | 'completion';

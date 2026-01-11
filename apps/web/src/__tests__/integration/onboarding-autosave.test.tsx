@@ -6,7 +6,7 @@
 
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import TutorPersonalInfoStep from '@/app/components/feature/onboarding/tutor/TutorPersonalInfoStep';
+import TutorPersonalInfoStep from '@/app/components/feature/onboarding/tutor/steps/TutorPersonalInfoStep';
 import { saveOnboardingProgress, getOnboardingProgress } from '@/lib/api/onboarding';
 
 // Mock dependencies

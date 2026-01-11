@@ -3,7 +3,7 @@
 'use client';
 
 import React from 'react';
-import TutorPersonalInfoStep from '../tutor/TutorPersonalInfoStep';
+import TutorPersonalInfoStep from '../tutor/steps/TutorPersonalInfoStep';
 import { PersonalInfoData } from '../tutor/TutorOnboardingWizard';
 
 interface ClientPersonalInfoStepProps {
