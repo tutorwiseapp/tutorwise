@@ -12,9 +12,7 @@ import DatePicker from '@/app/components/ui/forms/DatePicker';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import { HubForm } from '@/app/components/hub/form/HubForm';
 import InlineProgressBadge from '../shared/InlineProgressBadge';
-import { useOnboardingAutoSave } from '@/hooks/useAutoSave';
-import { useDifferentiatedSave } from '../shared/useDifferentiatedSave';
-import { saveOnboardingProgress, getOnboardingProgress } from '@/lib/api/onboarding';
+import { getOnboardingProgress } from '@/lib/api/onboarding';
 
 interface ProgressData {
   currentPoints: number;
@@ -31,7 +29,7 @@ interface ProgressData {
 
 interface TutorPersonalInfoStepProps {
   onNext: (data: PersonalInfoData) => void;
-  onBack?: (data: PersonalInfoData) => void;
+  onBack?: () => void;
   isLoading?: boolean;
   userRole?: 'tutor' | 'agent' | 'client';
   progressData?: ProgressData;
@@ -56,36 +54,6 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
   const [isInitialized, setIsInitialized] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
-  // Save strategies
-  const { saveOnNavigate, saveOnAutoSave, saveOnContinue } = useDifferentiatedSave<PersonalInfoData>();
-
-  // Auto-save with 5-second debounce
-  const { saveStatus, lastSaved, error } = useOnboardingAutoSave(
-    formData,
-    async (data) => {
-      if (!user?.id) throw new Error('User not authenticated');
-
-      await saveOnboardingProgress({
-        userId: user.id,
-        progress: {
-          tutor: {
-            personalInfo: {
-              firstName: data.firstName,
-              lastName: data.lastName,
-              gender: data.gender,
-              dateOfBirth: data.dateOfBirth,
-              email: data.email,
-              phone: data.phone,
-            }
-          }
-        }
-      });
-    },
-    {
-      enabled: isInitialized && !profileLoading, // Only auto-save after initialization
-    }
-  );
-
   console.log('[TutorPersonalInfoStep] Component render', {
     hasProfile: !!profile,
     hasUser: !!user,
@@ -94,8 +62,7 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
     formDataFirstName: formData.firstName,
     formDataLastName: formData.lastName,
     profileFirstName: profile?.first_name,
-    profileLastName: profile?.last_name,
-    saveStatus
+    profileLastName: profile?.last_name
   });
 
   // Pre-populate from profile AND restore saved onboarding progress
@@ -197,74 +164,18 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
     }
   };
 
-  const handleContinue = async () => {
+  const handleContinue = () => {
     console.log('[TutorPersonalInfoStep] handleContinue called');
     console.log('[TutorPersonalInfoStep] Form data:', formData);
     console.log('[TutorPersonalInfoStep] isFormValid:', isFormValid);
+    console.log('[TutorPersonalInfoStep] Calling onNext...');
 
-    if (!user?.id) {
-      console.error('[TutorPersonalInfoStep] User not authenticated');
-      return;
-    }
+    // Page handles all database operations
+    onNext(formData);
 
-    // Use blocking save strategy for manual continue
-    const success = await saveOnContinue({
-      data: formData,
-      onSave: async (data) => {
-        await saveOnboardingProgress({
-          userId: user.id,
-          progress: {
-            tutor: {
-              personalInfo: {
-                firstName: data.firstName,
-                lastName: data.lastName,
-                gender: data.gender,
-                dateOfBirth: data.dateOfBirth,
-                email: data.email,
-                phone: data.phone,
-              }
-            }
-          }
-        });
-      },
-    });
-
-    if (success) {
-      console.log('[TutorPersonalInfoStep] Save successful, calling onNext...');
-      onNext(formData);
-    } else {
-      console.error('[TutorPersonalInfoStep] Save failed, not advancing');
-    }
+    console.log('[TutorPersonalInfoStep] onNext called successfully');
   };
 
-  const handleBack = () => {
-    if (!user?.id || !onBack) return;
-
-    // Use optimistic save strategy for navigation
-    saveOnNavigate({
-      data: formData,
-      onSave: async (data) => {
-        await saveOnboardingProgress({
-          userId: user.id,
-          progress: {
-            tutor: {
-              personalInfo: {
-                firstName: data.firstName,
-                lastName: data.lastName,
-                gender: data.gender,
-                dateOfBirth: data.dateOfBirth,
-                email: data.email,
-                phone: data.phone,
-              }
-            }
-          }
-        });
-      },
-    });
-
-    // Navigate immediately and pass data to wizard (optimistic)
-    onBack(formData);
-  };
 
   // Get role display name
   const roleDisplayNames = {
@@ -396,7 +307,7 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
 
       <WizardActionButtons
         onContinue={handleContinue}
-        onBack={handleBack}
+        onBack={onBack}
         backLabel="← Back"
         continueEnabled={isFormValid}
         isLoading={isLoading}
