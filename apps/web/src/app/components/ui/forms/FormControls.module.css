@@ -16,6 +16,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
+  font-family: inherit;
 }
 
 .multiSelectTrigger:hover {
@@ -43,6 +44,12 @@
 .multiSelectTriggerError:focus {
   border-color: #dc2626;
   box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+/* Placeholder text styling */
+.multiSelectPlaceholder {
+  color: #9ca3af;
+  font-style: italic;
 }
 
 /* Chevron icon in trigger */

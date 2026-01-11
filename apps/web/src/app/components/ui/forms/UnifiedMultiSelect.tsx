@@ -69,7 +69,9 @@ const UnifiedMultiSelect: React.FC<UnifiedMultiSelectProps> = ({
             cursor: disabled ? 'not-allowed' : 'pointer',
           }}
         >
-          {displayLabel}
+          <span className={selectedValues.length === 0 ? styles.multiSelectPlaceholder : ''}>
+            {displayLabel}
+          </span>
           <ChevronDownIcon className={styles.multiSelectChevron} />
         </button>
       </DropdownMenu.Trigger>
