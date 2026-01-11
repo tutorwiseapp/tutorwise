@@ -38,6 +38,17 @@ interface TutorDraftData {
   availability: Partial<AvailabilityData>;
 }
 
+// CaaS Points for each onboarding step
+const STEP_POINTS = {
+  personalInfo: 15,
+  professionalDetails: 20,
+  verification: 10, // Optional
+  availability: 10,
+} as const;
+
+const REQUIRED_POINTS = 45; // personalInfo + professionalDetails + availability
+const TOTAL_POINTS = 55; // includes optional verification
+
 const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
   onComplete,
   onSkip,
@@ -56,6 +67,9 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
   const [availability, setAvailability] = useState<Partial<AvailabilityData>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isDraftLoaded, setIsDraftLoaded] = useState(false);
+
+  // Track completed steps for progress calculation
+  const [completedSteps, setCompletedSteps] = useState<Set<TutorOnboardingStep>>(new Set());
 
   // Load draft AND saved step from database on mount
   useEffect(() => {
@@ -119,6 +133,54 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentStep]);
 
+  // Calculate progress for InlineProgressBadge
+  const getProgressData = React.useMemo(() => {
+    // Calculate current points
+    const currentPoints = Array.from(completedSteps).reduce(
+      (sum, step) => sum + (STEP_POINTS[step as keyof typeof STEP_POINTS] || 0),
+      0
+    );
+
+    // Get current step points
+    const currentStepPoints = STEP_POINTS[currentStep as keyof typeof STEP_POINTS] || 0;
+
+    // Build steps array for progress badge
+    const steps = [
+      {
+        name: 'Personal Info',
+        points: STEP_POINTS.personalInfo,
+        completed: completedSteps.has('personalInfo'),
+        current: currentStep === 'personalInfo',
+      },
+      {
+        name: 'Professional Details',
+        points: STEP_POINTS.professionalDetails,
+        completed: completedSteps.has('professionalDetails'),
+        current: currentStep === 'professionalDetails',
+      },
+      {
+        name: 'Verification',
+        points: STEP_POINTS.verification,
+        completed: completedSteps.has('verification'),
+        current: currentStep === 'verification',
+      },
+      {
+        name: 'Availability',
+        points: STEP_POINTS.availability,
+        completed: completedSteps.has('availability'),
+        current: currentStep === 'availability',
+      },
+    ];
+
+    return {
+      currentPoints,
+      totalPoints: TOTAL_POINTS,
+      currentStepPoints,
+      requiredPoints: REQUIRED_POINTS,
+      steps,
+    };
+  }, [completedSteps, currentStep]);
+
   const handleBackToLanding = () => {
     // Navigate back to role selection landing page
     if (typeof window !== "undefined") {
@@ -126,11 +188,20 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
     }
   };
 
-  const handleBack = () => {
-    if (currentStep === 'professionalDetails') setCurrentStep('personalInfo');
-    if (currentStep === 'verification') setCurrentStep('professionalDetails');
-    if (currentStep === 'availability') setCurrentStep('verification');
-  }
+  const handleBackFromProfessionalDetails = (data: ProfessionalDetailsData) => {
+    setProfessionalDetails(data);
+    setCurrentStep('personalInfo');
+  };
+
+  const handleBackFromVerification = (data: VerificationDetailsData) => {
+    setVerification(data);
+    setCurrentStep('professionalDetails');
+  };
+
+  const handleBackFromAvailability = (data: AvailabilityData) => {
+    setAvailability(data);
+    setCurrentStep('verification');
+  };
 
   const handlePersonalInfoSubmit = async (data: PersonalInfoData) => {
     console.log('[TutorOnboardingWizard] handlePersonalInfoSubmit called', data);
@@ -165,6 +236,9 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
 
       console.log('[TutorOnboardingWizard] ✓ Personal info saved to profile');
 
+      // Mark step as completed
+      setCompletedSteps(prev => new Set(prev).add('personalInfo'));
+
       // Move to next step
       setCurrentStep('professionalDetails');
 
@@ -188,6 +262,10 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
 
     // Update state and UI immediately
     setProfessionalDetails(data);
+
+    // Mark step as completed
+    setCompletedSteps(prev => new Set(prev).add('professionalDetails'));
+
     setCurrentStep('verification');
 
     // Update database in background (don't await)
@@ -204,54 +282,69 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
 
     // Update state immediately
     setVerification(data);
-    setIsLoading(true);
 
-    try {
-      const { createClient } = await import('@/utils/supabase/client');
-      const supabase = createClient();
+    // Mark step as completed (verification is optional, so always mark as completed)
+    setCompletedSteps(prev => new Set(prev).add('verification'));
 
-      // Save verification data to profile
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          proof_of_address_url: data.proof_of_address_url,
-          proof_of_address_type: data.proof_of_address_type,
-          address_document_issue_date: data.address_document_issue_date,
-          identity_verification_document_url: data.identity_verification_document_url,
-          identity_document_number: data.identity_document_number,
-          identity_issue_date: data.identity_issue_date,
-          identity_expiry_date: data.identity_expiry_date,
-          dbs_certificate_url: data.dbs_certificate_url,
-          dbs_certificate_number: data.dbs_certificate_number,
-          dbs_certificate_date: data.dbs_certificate_date,
-          dbs_expiry_date: data.dbs_expiry_date,
-        })
-        .eq('id', user!.id);
+    // Navigate to next step IMMEDIATELY (optimistic, non-blocking)
+    setCurrentStep('availability');
 
-      if (error) {
-        console.error('[TutorOnboardingWizard] Error saving verification:', error);
-        throw error;
-      }
+    // Save verification data in BACKGROUND (don't block navigation)
+    // Only save if user has actually filled in some data
+    const hasVerificationData =
+      data.proof_of_address_url ||
+      data.proof_of_address_type ||
+      data.identity_verification_document_url ||
+      data.identity_document_number ||
+      data.dbs_certificate_url ||
+      data.dbs_certificate_number;
 
-      console.log('[TutorOnboardingWizard] ✓ Verification saved to profile');
+    if (hasVerificationData) {
+      // Save to database in background (non-blocking)
+      (async () => {
+        try {
+          const { createClient } = await import('@/utils/supabase/client');
+          const supabase = createClient();
 
-      // Move to next step
-      setCurrentStep('availability');
+          const { error } = await supabase
+            .from('profiles')
+            .update({
+              proof_of_address_url: data.proof_of_address_url,
+              proof_of_address_type: data.proof_of_address_type,
+              address_document_issue_date: data.address_document_issue_date,
+              identity_verification_document_url: data.identity_verification_document_url,
+              identity_document_number: data.identity_document_number,
+              identity_issue_date: data.identity_issue_date,
+              identity_expiry_date: data.identity_expiry_date,
+              dbs_certificate_url: data.dbs_certificate_url,
+              dbs_certificate_number: data.dbs_certificate_number,
+              dbs_certificate_date: data.dbs_certificate_date,
+              dbs_expiry_date: data.dbs_expiry_date,
+            })
+            .eq('id', user!.id);
 
-      // Update onboarding progress in background
-      updateOnboardingProgress({
-        current_step: 'availability',
-        tutor: { verification: data }
-      }).catch(error => {
-        console.error('[TutorOnboardingWizard] Error updating progress:', error);
-      });
-
-    } catch (error) {
-      console.error('[TutorOnboardingWizard] Error in handleVerificationSubmit:', error);
-      alert('Failed to save verification information. Please try again.');
-    } finally {
-      setIsLoading(false);
+          if (error) {
+            console.error('[TutorOnboardingWizard] ⚠️ Background verification save failed:', error);
+            // Don't block user - error is logged only
+          } else {
+            console.log('[TutorOnboardingWizard] ✓ Verification saved to profile (background)');
+          }
+        } catch (error) {
+          console.error('[TutorOnboardingWizard] ⚠️ Background verification save error:', error);
+          // Don't block user - error is logged only
+        }
+      })();
+    } else {
+      console.log('[TutorOnboardingWizard] ⏩ No verification data provided, skipping save');
     }
+
+    // Update onboarding progress in background
+    updateOnboardingProgress({
+      current_step: 'availability',
+      tutor: { verification: data }
+    }).catch(error => {
+      console.error('[TutorOnboardingWizard] Error updating progress:', error);
+    });
   };
 
   const handleAvailabilitySubmit = async (data: AvailabilityData) => {
@@ -321,10 +414,13 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
           certifications: professionalDetails?.teachingProfessionalQualifications || [],
           bio: professionalDetails?.bio || '',
         },
-        hourly_rate: data.hourlyRate || 0,
+        hourly_rate: professionalDetails?.oneOnOneRate || 0,
         availability: {
-          session_types: data.sessionTypes || [],
-          availability_slots: data.availability || [],
+          // v4.9: New availability structure
+          general_days: data.generalDays || [],
+          general_times: data.generalTimes || [],
+          availability_periods: data.availabilityPeriods || [],
+          unavailability_periods: data.unavailabilityPeriods || [],
         },
         completed_at: new Date().toISOString(),
       };
@@ -406,6 +502,8 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
   }
 
   const renderCurrentStep = () => {
+    const progressProps = getProgressData;
+
     switch (currentStep) {
       case 'personalInfo':
         return (
@@ -414,14 +512,37 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
             onBack={handleBackToLanding}
             isLoading={isLoading}
             userRole="tutor" // For tutor onboarding, always show DBS fields
+            progressData={progressProps}
           />
         );
       case 'professionalDetails':
-        return <TutorProfessionalDetailStep onNext={handleProfessionalDetailsSubmit} onBack={handleBack} isLoading={isLoading} />;
+        return (
+          <TutorProfessionalDetailStep
+            onNext={handleProfessionalDetailsSubmit}
+            onBack={handleBackFromProfessionalDetails}
+            isLoading={isLoading}
+            progressData={progressProps}
+          />
+        );
       case 'verification':
-        return <TutorProfessionalVerificationStep onNext={handleVerificationSubmit} onBack={handleBack} isLoading={isLoading} profileId={user?.id} />;
+        return (
+          <TutorProfessionalVerificationStep
+            onNext={handleVerificationSubmit}
+            onBack={handleBackFromVerification}
+            isLoading={isLoading}
+            profileId={user?.id}
+            progressData={progressProps}
+          />
+        );
       case 'availability':
-        return <TutorAvailabilityStep onNext={handleAvailabilitySubmit} onBack={handleBack} isLoading={isLoading} />;
+        return (
+          <TutorAvailabilityStep
+            onNext={handleAvailabilitySubmit}
+            onBack={handleBackFromAvailability}
+            isLoading={isLoading}
+            progressData={progressProps}
+          />
+        );
       default:
         return null;
     }

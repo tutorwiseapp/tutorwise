@@ -7,39 +7,61 @@ import { HubForm } from '@/app/components/hub/form/HubForm';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import DatePicker from '@/app/components/ui/forms/DatePicker';
 import { useDocumentUpload } from '@/hooks/useDocumentUpload';
+import InlineProgressBadge from '../shared/InlineProgressBadge';
+import { useOnboardingAutoSave } from '@/hooks/useAutoSave';
+import { useDifferentiatedSave } from '../shared/useDifferentiatedSave';
+import { saveOnboardingProgress, getOnboardingProgress } from '@/lib/api/onboarding';
+import AutoSaveIndicator from '../shared/AutoSaveIndicator';
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
+
+interface ProgressData {
+  currentPoints: number;
+  totalPoints: number;
+  currentStepPoints: number;
+  requiredPoints: number;
+  steps: Array<{
+    name: string;
+    points: number;
+    completed: boolean;
+    current: boolean;
+  }>;
+}
 
 interface TutorProfessionalVerificationStepProps {
   onNext: (details: VerificationDetailsData) => void;
-  onBack?: () => void;
+  onBack?: (details: VerificationDetailsData) => void;
   isLoading: boolean;
   profileId?: string;
+  progressData?: ProgressData;
 }
 
 export interface VerificationDetailsData {
-  // Proof of Address
+  // Proof of Address (all optional for faster onboarding)
   proof_of_address_url?: string;
-  proof_of_address_type: string;
-  address_document_issue_date: string;
+  proof_of_address_type?: string;
+  address_document_issue_date?: string;
 
-  // Government ID
+  // Government ID (all optional for faster onboarding)
   identity_verification_document_url?: string;
-  identity_document_number: string;
-  identity_issue_date: string;
-  identity_expiry_date: string;
+  identity_document_number?: string;
+  identity_issue_date?: string;
+  identity_expiry_date?: string;
 
-  // DBS Certificate
+  // DBS Certificate (all optional for faster onboarding)
   dbs_certificate_url?: string;
-  dbs_certificate_number: string;
-  dbs_certificate_date: string;
-  dbs_expiry_date: string;
+  dbs_certificate_number?: string;
+  dbs_certificate_date?: string;
+  dbs_expiry_date?: string;
 }
 
 const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationStepProps> = ({
   onNext,
   onBack,
   isLoading,
-  profileId
+  profileId,
+  progressData
 }) => {
+  const { user } = useUserProfile();
   const [formData, setFormData] = useState<VerificationDetailsData>({
     proof_of_address_type: '',
     address_document_issue_date: '',
@@ -57,28 +79,131 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
     identity?: string;
     dbs?: string;
   }>({});
+  const [isRestored, setIsRestored] = useState(false);
 
-  // Validation - all fields are required
-  const isValid =
-    formData.proof_of_address_type !== '' &&
-    formData.address_document_issue_date !== '' &&
-    !!uploadedFiles.address &&
-    formData.identity_document_number !== '' &&
-    formData.identity_issue_date !== '' &&
-    formData.identity_expiry_date !== '' &&
-    !!uploadedFiles.identity &&
-    formData.dbs_certificate_number !== '' &&
-    formData.dbs_certificate_date !== '' &&
-    formData.dbs_expiry_date !== '' &&
-    !!uploadedFiles.dbs;
+  // Restore saved onboarding progress on mount
+  React.useEffect(() => {
+    if (!isRestored && user?.id) {
+      getOnboardingProgress('tutor')
+        .then(savedProgress => {
+          const savedData = savedProgress?.progress?.tutor?.verificationDetails;
 
-  const handleContinue = () => {
-    onNext({
+          if (savedData) {
+            console.log('[TutorProfessionalVerificationStep] ✅ Restored saved progress:', savedData);
+
+            // Restore form fields
+            const {
+              proof_of_address_url,
+              identity_verification_document_url,
+              dbs_certificate_url,
+              ...formFields
+            } = savedData;
+
+            setFormData(prev => ({ ...prev, ...formFields }));
+
+            // Restore uploaded file URLs
+            setUploadedFiles({
+              address: proof_of_address_url,
+              identity: identity_verification_document_url,
+              dbs: dbs_certificate_url,
+            });
+          }
+
+          setIsRestored(true);
+        })
+        .catch(error => {
+          console.error('[TutorProfessionalVerificationStep] Error loading saved progress:', error);
+          setIsRestored(true);
+        });
+    }
+  }, [user?.id, isRestored]);
+
+  // Save strategies
+  const { saveOnNavigate, saveOnContinue } = useDifferentiatedSave<VerificationDetailsData>();
+
+  // Auto-save with 5-second debounce (only after restoration)
+  const { saveStatus, lastSaved, error } = useOnboardingAutoSave(
+    formData,
+    async (data) => {
+      if (!user?.id) throw new Error('User not authenticated');
+
+      await saveOnboardingProgress({
+        userId: user.id,
+        progress: {
+          tutor: {
+            verificationDetails: data
+          }
+        }
+      });
+    },
+    {
+      enabled: isRestored, // Only auto-save after restoration
+    }
+  );
+
+  // No validation - all fields are optional for faster onboarding
+  const isValid = true;
+
+  const handleContinue = async () => {
+    if (!user?.id) {
+      console.error('[TutorProfessionalVerificationStep] User not authenticated');
+      return;
+    }
+
+    const dataToSave = {
       ...formData,
       proof_of_address_url: uploadedFiles.address,
       identity_verification_document_url: uploadedFiles.identity,
       dbs_certificate_url: uploadedFiles.dbs,
+    };
+
+    // Use blocking save strategy for manual continue
+    const success = await saveOnContinue({
+      data: dataToSave,
+      onSave: async (data) => {
+        await saveOnboardingProgress({
+          userId: user.id,
+          progress: {
+            tutor: {
+              verificationDetails: data
+            }
+          }
+        });
+      },
     });
+
+    if (success) {
+      onNext(dataToSave);
+    }
+  };
+
+  const handleBack = () => {
+    if (!user?.id || !onBack) return;
+
+    const dataToSave = {
+      ...formData,
+      proof_of_address_url: uploadedFiles.address,
+      identity_verification_document_url: uploadedFiles.identity,
+      dbs_certificate_url: uploadedFiles.dbs,
+    };
+
+    // Use optimistic save strategy for navigation
+    saveOnNavigate({
+      data: dataToSave,
+      onSave: async (data) => {
+        await saveOnboardingProgress({
+          userId: user.id,
+          progress: {
+            tutor: {
+              verificationDetails: data
+            }
+          }
+        });
+      },
+    });
+
+    // Navigate immediately and pass data to wizard (optimistic)
+    onBack(dataToSave);
   };
 
   return (
@@ -94,7 +219,32 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
 
       <div className={styles.stepBody}>
         <HubForm.Root>
-          <HubForm.Section title="Trust and Verification">
+          <HubForm.Section>
+            {/* Progress Badge - Top Right Corner of Form */}
+            {progressData && (
+              <div style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                marginBottom: '24px',
+                marginTop: '-8px'
+              }}>
+                <InlineProgressBadge
+                  currentPoints={progressData.currentPoints}
+                  totalPoints={progressData.totalPoints}
+                  currentStepPoints={progressData.currentStepPoints}
+                  requiredPoints={progressData.requiredPoints}
+                  steps={progressData.steps}
+                />
+              </div>
+            )}
+
+            {/* Auto-save Indicator */}
+            <AutoSaveIndicator
+              saveStatus={saveStatus}
+              lastSaved={lastSaved}
+              error={error}
+              variant="inline"
+            />
             {/* 1. Proof of Address */}
             <div style={{ marginBottom: '24px' }}>
               <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '16px', color: '#111827' }}>
@@ -111,7 +261,7 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
                   disabled={isLoading}
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                  <HubForm.Field label="Document Type" required>
+                  <HubForm.Field label="Document Type">
                     <UnifiedSelect
                       value={formData.proof_of_address_type}
                       onChange={(value) => setFormData(prev => ({ ...prev, proof_of_address_type: String(value) }))}
@@ -125,7 +275,7 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
                       disabled={isLoading}
                     />
                   </HubForm.Field>
-                  <HubForm.Field label="Issue Date" required>
+                  <HubForm.Field label="Issue Date">
                     <DatePicker
                       selected={formData.address_document_issue_date ? new Date(formData.address_document_issue_date) : undefined}
                       onSelect={(date) => {
@@ -154,7 +304,7 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
                   disabled={isLoading}
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                  <HubForm.Field label="Document Number" required>
+                  <HubForm.Field label="Document Number">
                     <input
                       type="text"
                       value={formData.identity_document_number}
@@ -164,7 +314,7 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
                     />
                   </HubForm.Field>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                    <HubForm.Field label="Issue Date" required>
+                    <HubForm.Field label="Issue Date">
                       <DatePicker
                         selected={formData.identity_issue_date ? new Date(formData.identity_issue_date) : undefined}
                         onSelect={(date) => {
@@ -173,7 +323,7 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
                         placeholder="Select issue date"
                       />
                     </HubForm.Field>
-                    <HubForm.Field label="Expiry Date" required>
+                    <HubForm.Field label="Expiry Date">
                       <DatePicker
                         selected={formData.identity_expiry_date ? new Date(formData.identity_expiry_date) : undefined}
                         onSelect={(date) => {
@@ -203,7 +353,7 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
                   disabled={isLoading}
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                  <HubForm.Field label="Certificate Number" required>
+                  <HubForm.Field label="Certificate Number">
                     <input
                       type="text"
                       value={formData.dbs_certificate_number}
@@ -213,7 +363,7 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
                     />
                   </HubForm.Field>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                    <HubForm.Field label="Issue Date" required>
+                    <HubForm.Field label="Issue Date">
                       <DatePicker
                         selected={formData.dbs_certificate_date ? new Date(formData.dbs_certificate_date) : undefined}
                         onSelect={(date) => {
@@ -222,7 +372,7 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
                         placeholder="Select issue date"
                       />
                     </HubForm.Field>
-                    <HubForm.Field label="Expiry Date" required>
+                    <HubForm.Field label="Expiry Date">
                       <DatePicker
                         selected={formData.dbs_expiry_date ? new Date(formData.dbs_expiry_date) : undefined}
                         onSelect={(date) => {
@@ -242,7 +392,7 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
       <WizardActionButtons
         onContinue={handleContinue}
         continueEnabled={isValid}
-        onBack={onBack}
+        onBack={handleBack}
         isLoading={isLoading}
       />
     </div>
@@ -292,7 +442,7 @@ const DocumentUploadField: React.FC<DocumentUploadFieldProps> = ({
   };
 
   return (
-    <HubForm.Field label={label} required>
+    <HubForm.Field label={label}>
       <div
         style={{
           padding: '24px',

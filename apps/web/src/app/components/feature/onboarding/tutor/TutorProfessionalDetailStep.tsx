@@ -8,11 +8,31 @@ import { HubForm } from '@/app/components/hub/form/HubForm';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import UnifiedMultiSelect from '@/app/components/ui/forms/UnifiedMultiSelect';
 import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
+import InlineProgressBadge from '../shared/InlineProgressBadge';
+import { useOnboardingAutoSave } from '@/hooks/useAutoSave';
+import { useDifferentiatedSave } from '../shared/useDifferentiatedSave';
+import { saveOnboardingProgress, getOnboardingProgress } from '@/lib/api/onboarding';
+import AutoSaveIndicator from '../shared/AutoSaveIndicator';
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
+
+interface ProgressData {
+  currentPoints: number;
+  totalPoints: number;
+  currentStepPoints: number;
+  requiredPoints: number;
+  steps: Array<{
+    name: string;
+    points: number;
+    completed: boolean;
+    current: boolean;
+  }>;
+}
 
 interface TutorProfessionalDetailStepProps {
   onNext: (details: ProfessionalDetailsData) => void;
-  onBack?: () => void;
+  onBack?: (details: ProfessionalDetailsData) => void;
   isLoading: boolean;
+  progressData?: ProgressData;
 }
 
 // Status options
@@ -89,8 +109,10 @@ const deliveryModeOptions = [
 const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = ({
   onNext,
   onBack,
-  isLoading
+  isLoading,
+  progressData
 }) => {
+  const { user } = useUserProfile();
   const [formData, setFormData] = useState<ProfessionalDetailsData>({
     bio: '',
     bioVideoUrl: '',
@@ -106,6 +128,51 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
     oneOnOneRate: 0,
     groupSessionRate: 0,
   });
+  const [isRestored, setIsRestored] = useState(false);
+
+  // Restore saved onboarding progress on mount
+  React.useEffect(() => {
+    if (!isRestored && user?.id) {
+      getOnboardingProgress('tutor')
+        .then(savedProgress => {
+          const savedData = savedProgress?.progress?.tutor?.professionalDetails;
+
+          if (savedData) {
+            console.log('[TutorProfessionalDetailStep] ✅ Restored saved progress:', savedData);
+            setFormData(prev => ({ ...prev, ...savedData }));
+          }
+
+          setIsRestored(true);
+        })
+        .catch(error => {
+          console.error('[TutorProfessionalDetailStep] Error loading saved progress:', error);
+          setIsRestored(true);
+        });
+    }
+  }, [user?.id, isRestored]);
+
+  // Save strategies
+  const { saveOnNavigate, saveOnContinue } = useDifferentiatedSave<ProfessionalDetailsData>();
+
+  // Auto-save with 5-second debounce (only after restoration)
+  const { saveStatus, lastSaved, error } = useOnboardingAutoSave(
+    formData,
+    async (data) => {
+      if (!user?.id) throw new Error('User not authenticated');
+
+      await saveOnboardingProgress({
+        userId: user.id,
+        progress: {
+          tutor: {
+            professionalDetails: data
+          }
+        }
+      });
+    },
+    {
+      enabled: isRestored, // Only auto-save after restoration
+    }
+  );
 
   // Validation - required fields
   const isValid =
@@ -150,24 +217,98 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
     });
   }, [formData, isValid]);
 
-  const handleContinue = () => {
-    onNext(formData);
+  const handleContinue = async () => {
+    if (!user?.id) {
+      console.error('[TutorProfessionalDetailStep] User not authenticated');
+      return;
+    }
+
+    // Use blocking save strategy for manual continue
+    const success = await saveOnContinue({
+      data: formData,
+      onSave: async (data) => {
+        await saveOnboardingProgress({
+          userId: user.id,
+          progress: {
+            tutor: {
+              professionalDetails: data
+            }
+          }
+        });
+      },
+    });
+
+    if (success) {
+      onNext(formData);
+    }
+  };
+
+  const handleBack = () => {
+    if (!user?.id || !onBack) return;
+
+    // Use optimistic save strategy for navigation
+    saveOnNavigate({
+      data: formData,
+      onSave: async (data) => {
+        await saveOnboardingProgress({
+          userId: user.id,
+          progress: {
+            tutor: {
+              professionalDetails: data
+            }
+          }
+        });
+      },
+    });
+
+    // Navigate immediately and pass data to wizard (optimistic)
+    onBack(formData);
   };
 
   return (
     <div className={styles.stepContent}>
       <div className={styles.stepHeader}>
-        <h2 className={styles.stepTitle}>
-          Professional Details
-        </h2>
-        <p className={styles.stepSubtitle}>
-          Tutor Onboarding • Tell us about your professional background and services
-        </p>
+        <div>
+          <h2 className={styles.stepTitle}>
+            Professional Details
+          </h2>
+          <p className={styles.stepSubtitle}>
+            Tutor Onboarding • Tell us about your professional background and services
+          </p>
+        </div>
       </div>
 
       <div className={styles.stepBody}>
         <HubForm.Root>
           <HubForm.Section>
+            {/* Progress Badge - Top Right Corner of Form */}
+            {progressData && (
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  marginBottom: '24px',
+                  marginTop: '-8px',
+                }}
+              >
+                <InlineProgressBadge
+                  currentPoints={progressData.currentPoints}
+                  totalPoints={progressData.totalPoints}
+                  currentStepPoints={progressData.currentStepPoints}
+                  requiredPoints={progressData.requiredPoints}
+                  steps={progressData.steps}
+                />
+              </div>
+            )}
+
+            {/* Auto-save Indicator */}
+            <AutoSaveIndicator
+              saveStatus={saveStatus}
+              lastSaved={lastSaved}
+              error={error}
+              variant="inline"
+            />
+
             {/* About & Status */}
             <HubForm.Grid columns={1}>
               <HubForm.Field label="About You" required>
@@ -325,7 +466,7 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
       <WizardActionButtons
         onContinue={handleContinue}
         continueEnabled={isValid}
-        onBack={onBack}
+        onBack={handleBack}
         isLoading={isLoading}
       />
     </div>

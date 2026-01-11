@@ -1,0 +1,237 @@
+/**
+ * InlineProgressBadge Styles
+ * Aligned with existing design system from Chip.tsx and StatusBadge.module.css
+ */
+
+.container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 1;
+  cursor: default;
+  user-select: none;
+}
+
+/* Earn Badge - Green chip matching Chip component success variant */
+.earnBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--border-radius-full, 9999px);
+  background-color: #dcfce7; /* green-100 - matches Chip success variant */
+  color: #166534; /* green-800 - matches Chip success variant */
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold, 600);
+  white-space: nowrap;
+}
+
+/* Separator Dots */
+.separator {
+  color: var(--color-text-tertiary, #9ca3af);
+  font-size: 14px;
+  font-weight: var(--font-weight-medium, 500);
+}
+
+/* Visual Progress Dots */
+.dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dotCompleted {
+  color: var(--color-primary, #006C67); /* Teal - app theme color */
+  font-size: 10px;
+  line-height: 1;
+}
+
+.dotCurrent {
+  color: var(--color-primary, #006C67); /* Teal - app theme color */
+  font-size: 10px;
+  line-height: 1;
+}
+
+.dotPending {
+  color: var(--color-text-tertiary, #d1d5db);
+  font-size: 10px;
+  line-height: 1;
+}
+
+/* Progress Fraction */
+.progress {
+  color: var(--color-text-secondary, #5f6368);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium, 500);
+  white-space: nowrap;
+}
+
+/* Percentage with color coding */
+.percentage {
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold, 600);
+  white-space: nowrap;
+}
+
+.percentageExcellent {
+  color: var(--color-success, #34a853);
+}
+
+.percentageGood {
+  color: var(--color-primary, #006C67);
+}
+
+.percentageFair {
+  color: var(--color-warning, #fbbc05);
+}
+
+.percentagePoor {
+  color: var(--color-error, #d93025);
+}
+
+/* Chevron Icon */
+.chevron {
+  color: var(--color-text-tertiary, #9ca3af);
+  font-size: 16px;
+  transition: transform 0.2s ease;
+  margin-left: -2px;
+}
+
+.container:hover .chevron {
+  color: var(--color-primary, #006C67);
+}
+
+/* Hover Tooltip */
+.tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 280px;
+  padding: 12px;
+  background-color: var(--color-bg-card, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-lg, 8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tooltipHeader {
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary, #202124);
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.stepsList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 8px 0;
+}
+
+.stepsList li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.stepIcon {
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+  font-size: 12px;
+}
+
+.stepName {
+  flex: 1;
+  color: var(--color-text-secondary, #5f6368);
+}
+
+.stepPoints {
+  flex-shrink: 0;
+  font-weight: var(--font-weight-semibold, 600);
+  font-size: 11px;
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+/* Step State Colors */
+.stepCompleted .stepIcon {
+  color: var(--color-success, #34a853);
+}
+
+.stepCompleted .stepName {
+  color: var(--color-text-secondary, #5f6368);
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.stepCurrent .stepIcon {
+  color: var(--color-primary, #006C67);
+}
+
+.stepCurrent .stepName {
+  color: var(--color-text-primary, #202124);
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+.stepCurrent .stepPoints {
+  color: var(--color-primary, #006C67);
+}
+
+.stepPending .stepIcon {
+  color: var(--color-text-tertiary, #d1d5db);
+}
+
+.stepPending .stepName {
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+/* Tooltip Footer */
+.tooltipFooter {
+  padding-top: 8px;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+  font-size: 12px;
+  color: var(--color-text-secondary, #5f6368);
+  text-align: center;
+}
+
+.tooltipFooter strong {
+  color: var(--color-text-primary, #202124);
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+.optionalNote {
+  color: var(--color-text-tertiary, #5f6368);
+  font-size: 11px;
+}
+
+/* Responsive: Stack on very small screens */
+@media (max-width: 640px) {
+  .container {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tooltip {
+    right: auto;
+    left: 0;
+    min-width: 240px;
+  }
+}

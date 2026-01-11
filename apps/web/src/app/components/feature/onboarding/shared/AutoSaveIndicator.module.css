@@ -1,0 +1,159 @@
+/**
+ * AutoSaveIndicator Styles
+ */
+
+/* Inline Indicator (in header) */
+.inlineIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: var(--border-radius-md, 6px);
+  transition: all 0.2s ease;
+}
+
+.inlineIndicator .icon {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.inlineIndicator .text {
+  font-size: 12px;
+  font-weight: var(--font-weight-medium, 500);
+  white-space: nowrap;
+}
+
+/* Floating Indicator (bottom-left corner) */
+.floatingIndicator {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: var(--color-bg-card, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-lg, 8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-size: 13px;
+  z-index: 999;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.floatingIndicator .icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.floatingIndicator .text {
+  font-size: 13px;
+  font-weight: var(--font-weight-medium, 500);
+}
+
+/* Status Colors - Inline */
+.inlineIndicator.idle {
+  background-color: transparent;
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+.inlineIndicator.pending {
+  background-color: #fef3c7; /* yellow-100 */
+  color: #92400e; /* yellow-800 */
+}
+
+.inlineIndicator.saving {
+  background-color: #dbeafe; /* blue-100 */
+  color: #1e40af; /* blue-800 */
+}
+
+.inlineIndicator.saving .icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.inlineIndicator.success {
+  background-color: #dcfce7; /* green-100 */
+  color: #166534; /* green-800 */
+}
+
+.inlineIndicator.error {
+  background-color: #fee2e2; /* red-100 */
+  color: #991b1b; /* red-800 */
+}
+
+/* Status Colors - Floating */
+.floatingIndicator.idle .icon {
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+.floatingIndicator.pending .icon {
+  color: var(--color-warning, #fbbc05);
+}
+
+.floatingIndicator.saving .icon {
+  color: var(--color-primary, #006C67);
+  animation: spin 1s linear infinite;
+}
+
+.floatingIndicator.success .icon {
+  color: var(--color-success, #34a853);
+}
+
+.floatingIndicator.error .icon {
+  color: var(--color-error, #d93025);
+}
+
+/* Compact Icon */
+.compactIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  cursor: default;
+  transition: all 0.2s ease;
+}
+
+.compactIcon:hover {
+  transform: scale(1.1);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .floatingIndicator {
+    bottom: 16px;
+    left: 16px;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .floatingIndicator .icon {
+    font-size: 12px;
+  }
+
+  .floatingIndicator .text {
+    font-size: 12px;
+  }
+}

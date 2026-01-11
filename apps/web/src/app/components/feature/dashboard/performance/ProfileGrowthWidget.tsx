@@ -32,6 +32,11 @@ interface CaaSScoreData {
     availability?: number;
     response_rate?: number;
     reviews?: number;
+    verification_details?: {
+      dbs_verified?: boolean;
+      identity_verified?: boolean;
+      address_verified?: boolean;
+    };
   };
   role_type: 'tutor' | 'client' | 'agent';
   calculated_at: string;
@@ -97,6 +102,13 @@ export default function ProfileGrowthWidget({ userId, role }: ProfileGrowthWidge
   const getProfileSteps = (): ProfileStep[] => {
     const steps: ProfileStep[] = [];
 
+    // Extract verification sub-scores for individual documents
+    // Check if verification_details exists, otherwise fall back to overall verification score
+    const verificationDetails = breakdown.verification_details || {};
+    const dbsVerified = verificationDetails.dbs_verified || false;
+    const identityVerified = verificationDetails.identity_verified || false;
+    const addressVerified = verificationDetails.address_verified || false;
+
     // Step 1: Complete Your Profile
     steps.push({
       id: 1,
@@ -109,21 +121,45 @@ export default function ProfileGrowthWidget({ userId, role }: ProfileGrowthWidge
       icon: '✏️',
     });
 
-    // Step 2: Upload DBS Certificate
+    // Step 2: Upload DBS Certificate (Highest Priority)
     steps.push({
       id: 2,
-      title: 'Upload your DBS certificate',
+      title: 'Upload DBS Certificate',
       description: 'Verified tutors get 3x more inquiries',
       action: 'Upload DBS',
       href: '/account/professional-info',
       pointsGain: 10,
-      completed: (breakdown.verification || 0) >= 10,
+      completed: dbsVerified,
       icon: '🛡️',
     });
 
-    // Step 3: Set Your Availability
+    // Step 3: Upload ID Document (Passport/Driving License)
     steps.push({
       id: 3,
+      title: 'Upload ID Document',
+      description: 'Verify your identity with passport or driving license',
+      action: 'Upload ID',
+      href: '/account/professional-info',
+      pointsGain: 5,
+      completed: identityVerified,
+      icon: '🪪',
+    });
+
+    // Step 4: Upload Proof of Address
+    steps.push({
+      id: 4,
+      title: 'Upload Proof of Address',
+      description: 'Verify your address with utility bill or bank statement',
+      action: 'Upload Address',
+      href: '/account/professional-info',
+      pointsGain: 3,
+      completed: addressVerified,
+      icon: '🏠',
+    });
+
+    // Step 5: Set Your Availability
+    steps.push({
+      id: 5,
       title: 'Set Your Availability',
       description: 'Students book tutors with clear schedules',
       action: 'Set Availability',
@@ -133,9 +169,9 @@ export default function ProfileGrowthWidget({ userId, role }: ProfileGrowthWidge
       icon: '📅',
     });
 
-    // Step 4: Verify Your Qualifications
+    // Step 6: Verify Your Qualifications
     steps.push({
-      id: 4,
+      id: 6,
       title: 'Verify Your Qualifications',
       description: 'Upload certificates to increase trust',
       action: 'Add Credentials',
@@ -145,9 +181,9 @@ export default function ProfileGrowthWidget({ userId, role }: ProfileGrowthWidge
       icon: '🎓',
     });
 
-    // Step 5: Set Up Payouts
+    // Step 7: Set Up Payouts
     steps.push({
-      id: 5,
+      id: 7,
       title: 'Set Up Payouts',
       description: 'Configure your bank account to receive payments',
       action: 'Payout Settings',

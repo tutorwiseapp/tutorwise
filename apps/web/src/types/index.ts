@@ -189,30 +189,52 @@ export interface ProfessionalDetailsData {
   groupSessionRate: number;
 }
 
-// Verification details for tutor onboarding
+// Verification details for tutor onboarding (v4.9: All fields optional for faster onboarding)
 export interface VerificationDetailsData {
   // Proof of Address
   proof_of_address_url?: string;
-  proof_of_address_type: string;
-  address_document_issue_date: string;
+  proof_of_address_type?: string;
+  address_document_issue_date?: string;
 
   // Government ID
   identity_verification_document_url?: string;
-  identity_document_number: string;
-  identity_issue_date: string;
-  identity_expiry_date: string;
+  identity_document_number?: string;
+  identity_issue_date?: string;
+  identity_expiry_date?: string;
 
   // DBS Certificate
   dbs_certificate_url?: string;
-  dbs_certificate_number: string;
-  dbs_certificate_date: string;
-  dbs_expiry_date: string;
+  dbs_certificate_number?: string;
+  dbs_certificate_date?: string;
+  dbs_expiry_date?: string;
 }
 
+// Availability period types
+export interface AvailabilityPeriod {
+  id: string;
+  type: 'recurring' | 'one-time';
+  days?: string[];
+  fromDate: string;
+  toDate?: string;
+  startTime: string;
+  endTime: string;
+}
+
+export interface UnavailabilityPeriod {
+  id: string;
+  fromDate: string;
+  toDate: string;
+}
+
+// Tutor onboarding availability data (updated v4.9)
 export interface AvailabilityData {
-  hourlyRate: number;
-  availability: string[];
-  sessionTypes: string[];
+  // Section 1: General Availability (Required)
+  generalDays: string[];
+  generalTimes: string[];
+
+  // Section 2: Detailed Schedule (Optional)
+  availabilityPeriods?: AvailabilityPeriod[];
+  unavailabilityPeriods?: UnavailabilityPeriod[];
 }
 
 export interface LearningPreferencesData {
