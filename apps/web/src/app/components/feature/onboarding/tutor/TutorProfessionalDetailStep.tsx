@@ -13,6 +13,7 @@ import { useOnboardingAutoSave } from '@/hooks/useAutoSave';
 import { useDifferentiatedSave } from '../shared/useDifferentiatedSave';
 import { saveOnboardingProgress, getOnboardingProgress } from '@/lib/api/onboarding';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import toast from 'react-hot-toast';
 
 interface ProgressData {
   currentPoints: number;
@@ -219,13 +220,18 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
   const handleContinue = async () => {
     if (!user?.id) {
       console.error('[TutorProfessionalDetailStep] User not authenticated');
+      toast.error('Please log in to continue');
       return;
     }
+
+    console.log('[TutorProfessionalDetailStep] handleContinue called, formData:', formData);
+    console.log('[TutorProfessionalDetailStep] isValid:', isValid);
 
     // Use blocking save strategy for manual continue
     const success = await saveOnContinue({
       data: formData,
       onSave: async (data) => {
+        console.log('[TutorProfessionalDetailStep] Saving data:', data);
         await saveOnboardingProgress({
           userId: user.id,
           progress: {
@@ -235,10 +241,19 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
           }
         });
       },
+      onError: (error) => {
+        console.error('[TutorProfessionalDetailStep] Save error:', error);
+        toast.error(error.message || 'Failed to save progress');
+      },
     });
 
+    console.log('[TutorProfessionalDetailStep] Save success:', success);
+
     if (success) {
+      console.log('[TutorProfessionalDetailStep] Calling onNext with data');
       onNext(formData);
+    } else {
+      console.error('[TutorProfessionalDetailStep] Save failed, not advancing');
     }
   };
 
