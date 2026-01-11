@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import TutorAvailabilityStep from '@/app/components/feature/onboarding/tutor/TutorAvailabilityStep';
-import { AvailabilityData } from '@/app/components/feature/onboarding/tutor/TutorAvailabilityStep';
+import TutorAvailabilityStep from '@/app/components/feature/onboarding/tutor/steps/TutorAvailabilityStep';
+import { AvailabilityData } from '@/app/components/feature/onboarding/tutor/steps/TutorAvailabilityStep';
 import styles from '../../page.module.css';
 
 // CaaS Points

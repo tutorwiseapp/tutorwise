@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import TutorPersonalInfoStep from '@/app/components/feature/onboarding/tutor/TutorPersonalInfoStep';
+import TutorPersonalInfoStep from '@/app/components/feature/onboarding/tutor/steps/TutorPersonalInfoStep';
 import { getOnboardingProgress } from '@/lib/api/onboarding';
 import styles from '../../page.module.css';
 

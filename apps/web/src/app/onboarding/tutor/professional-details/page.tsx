@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import TutorProfessionalDetailStep from '@/app/components/feature/onboarding/tutor/TutorProfessionalDetailStep';
+import TutorProfessionalDetailStep from '@/app/components/feature/onboarding/tutor/steps/TutorProfessionalDetailStep';
 import { ProfessionalDetailsData } from '@/types';
 import styles from '../../page.module.css';
 
