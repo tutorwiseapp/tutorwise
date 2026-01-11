@@ -63,6 +63,7 @@ export class TutorCaaSStrategy implements IProfileCaaSStrategy {
           created_at,
           bio_video_url,
           available_free_help,
+          onboarding_progress,
           role_details!inner(
             qualifications,
             teaching_experience
@@ -95,6 +96,7 @@ export class TutorCaaSStrategy implements IProfileCaaSStrategy {
         degree_level: null, // Will extract from qualifications.education below
         bio: null,
         avatar_url: null,
+        onboarding_progress: profileData.onboarding_progress || null,
       };
 
       // Extract degree_level from qualifications.education
@@ -106,8 +108,14 @@ export class TutorCaaSStrategy implements IProfileCaaSStrategy {
         else profile.degree_level = 'NONE';
       }
 
-      if (!profile.identity_verified) {
-        return { total: 0, breakdown: { gate: 'Identity not verified' } };
+      // SAFETY GATE: Modified to support provisional onboarding scores
+      // Allow through if EITHER:
+      // 1. identity_verified = true (admin verified)
+      // 2. onboarding_completed = true (just finished onboarding, awaiting verification)
+      const hasCompletedOnboarding = profile.onboarding_progress?.onboarding_completed === true;
+
+      if (!profile.identity_verified && !hasCompletedOnboarding) {
+        return { total: 0, breakdown: { gate: 'Identity not verified and onboarding incomplete' } };
       }
 
       // ================================================================
@@ -205,6 +213,9 @@ export class TutorCaaSStrategy implements IProfileCaaSStrategy {
   /**
    * BUCKET 2: QUALIFICATIONS & AUTHORITY (30 points)
    * Honors institutional credibility and veteran experience
+   *
+   * ONBOARDING BRIDGE: Awards provisional points for qualifications entered during onboarding
+   * even if not yet admin-verified. This ensures new tutors see immediate CaaS score.
    */
   private calcQualifications(profile: CaaSProfile): number {
     let score = 0;
@@ -224,12 +235,17 @@ export class TutorCaaSStrategy implements IProfileCaaSStrategy {
       score += 10;
     }
 
-    // 10 points for 10+ years of teaching experience
-    // teaching_experience is JSONB in role_details - for now skip this check
-    // TODO: Implement proper teaching_experience extraction from JSONB
-    // if (profile.teaching_experience?.years >= 10) {
-    //   score += 10;
-    // }
+    // PROVISIONAL ONBOARDING POINTS: Award 10 points if tutor has completed onboarding
+    // with tutoring experience entered, even if not admin-verified yet
+    // This bridges the onboarding → CaaS gap
+    const hasCompletedOnboarding = profile.onboarding_progress?.onboarding_completed === true;
+    const hasTutoringExperience = profile.onboarding_progress?.tutor?.professionalDetails?.tutoringExperience;
+
+    if (hasCompletedOnboarding && hasTutoringExperience) {
+      // Award provisional 10 points for having tutoring experience
+      // This will be replaced by proper teaching_experience extraction later
+      score += 10;
+    }
 
     return score;
   }
@@ -257,14 +273,20 @@ export class TutorCaaSStrategy implements IProfileCaaSStrategy {
 
   /**
    * BUCKET 4: VERIFICATION & SAFETY (10 points)
-   * The "scored" component of safety (identity_verified is the gate, not scored here)
+   * The "scored" component of safety
+   *
+   * ONBOARDING BRIDGE: Awards provisional points for identity if onboarding completed
    */
   private calcSafety(profile: CaaSProfile): number {
     let score = 0;
 
     // 5 points for passing the Identity Gate
-    // This is always true if we reach this function (gate check happens first)
-    score += 5;
+    // Award if EITHER identity_verified = true OR onboarding_completed = true
+    const hasCompletedOnboarding = profile.onboarding_progress?.onboarding_completed === true;
+
+    if (profile.identity_verified || hasCompletedOnboarding) {
+      score += 5;
+    }
 
     // 5 points bonus for having a valid DBS check
     // DBS = Disclosure and Barring Service (UK background check for working with children)

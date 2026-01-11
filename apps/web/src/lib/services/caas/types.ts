@@ -24,6 +24,7 @@ export interface CaaSProfile {
   bio_video_url: string | null; // v5.5: "Credibility Clip" URL
   bio: string | null; // Used by ClientCaaSStrategy
   avatar_url: string | null; // Used by ClientCaaSStrategy
+  onboarding_progress: any | null; // JSONB onboarding progress data for provisional scoring
 }
 
 /**

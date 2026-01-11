@@ -198,6 +198,26 @@ export default function TutorAvailabilityPage() {
 
       console.log('[TutorAvailability] ✓ Onboarding completed');
 
+      // Trigger CaaS recalculation to award provisional onboarding points
+      console.log('[TutorAvailability] Triggering CaaS recalculation...');
+      try {
+        const { error: queueError } = await supabase
+          .from('caas_recalculation_queue')
+          .insert({
+            profile_id: user.id,
+          });
+
+        if (queueError) {
+          console.error('[TutorAvailability] ❌ Failed to queue CaaS recalculation:', queueError);
+          // Don't block onboarding completion if queue fails - worker will catch up eventually
+        } else {
+          console.log('[TutorAvailability] ✓ CaaS recalculation queued');
+        }
+      } catch (error) {
+        console.error('[TutorAvailability] ❌ CaaS queue error:', error);
+        // Non-blocking error
+      }
+
       // Refresh profile and redirect - wait for refresh to complete
       console.log('[TutorAvailability] Refreshing profile...');
       try {
