@@ -4,7 +4,7 @@
 
 import React from 'react';
 import TutorPersonalInfoStep from '../tutor/steps/TutorPersonalInfoStep';
-import { PersonalInfoData } from '../tutor/TutorOnboardingWizard';
+import { PersonalInfoData } from '../tutor/steps/TutorPersonalInfoStep';
 
 interface ClientPersonalInfoStepProps {
   onBack?: () => void;
