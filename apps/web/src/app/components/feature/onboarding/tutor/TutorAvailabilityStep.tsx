@@ -398,17 +398,23 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
       <div className={styles.stepBody}>
         <HubForm.Root>
           {/* Section 1: General Availability (Required) */}
-          <HubForm.Section title="General Availability">
-            {/* Progress Badge - Top Right Corner of Form */}
-            {progressData && (
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  marginBottom: '24px',
-                  marginTop: '-8px',
-                }}
-              >
+          <HubForm.Section>
+            {/* Section Title with Progress Badge */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '24px'
+            }}>
+              <h3 style={{
+                fontSize: '16px',
+                fontWeight: '600',
+                color: '#111827',
+                margin: 0
+              }}>
+                General Availability
+              </h3>
+              {progressData && (
                 <InlineProgressBadge
                   currentPoints={progressData.currentPoints}
                   totalPoints={progressData.totalPoints}
@@ -416,10 +422,8 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
                   requiredPoints={progressData.requiredPoints}
                   steps={progressData.steps}
                 />
-              </div>
-            )}
-
-            {/* Auto-save Indicator */}
+              )}
+            </div>
 
             <HubForm.Grid>
               <HubForm.Field label="Days of the week" required>
@@ -440,12 +444,6 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
                 />
               </HubForm.Field>
             </HubForm.Grid>
-
-            <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
-              <p style={{ margin: 0, color: '#6b7280', fontSize: '14px' }}>
-                💡 This gives students a general idea of your schedule. You can add detailed availability below (optional).
-              </p>
-            </div>
           </HubForm.Section>
 
           {/* Section 2: Detailed Schedule (Optional) - Copied from ProfessionalInfoForm */}
@@ -714,10 +712,6 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
             </div>
           </HubForm.Section>
         </HubForm.Root>
-
-        <p className={styles.progressIndicator}>
-          {isValid ? '✓ All set! Ready to continue' : 'Please complete the required fields in General Availability'}
-        </p>
       </div>
 
       {/* Action Buttons using shared component */}
