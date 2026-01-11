@@ -198,24 +198,27 @@ export default function TutorAvailabilityPage() {
 
       console.log('[TutorAvailability] ✓ Onboarding completed');
 
-      // Trigger CaaS recalculation to award provisional onboarding points
-      console.log('[TutorAvailability] Triggering CaaS recalculation...');
+      // Trigger IMMEDIATE CaaS calculation to award provisional onboarding points
+      // This ensures the dashboard shows the score right away (not 0/100)
+      console.log('[TutorAvailability] Calculating CaaS score...');
       try {
-        const { error: queueError } = await supabase
-          .from('caas_recalculation_queue')
-          .insert({
-            profile_id: user.id,
-          });
+        const response = await fetch('/api/caas/calculate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
-        if (queueError) {
-          console.error('[TutorAvailability] ❌ Failed to queue CaaS recalculation:', queueError);
-          // Don't block onboarding completion if queue fails - worker will catch up eventually
+        if (!response.ok) {
+          console.error('[TutorAvailability] ❌ CaaS calculation failed:', response.status);
+          // Non-blocking - continue to dashboard even if calculation fails
         } else {
-          console.log('[TutorAvailability] ✓ CaaS recalculation queued');
+          const result = await response.json();
+          console.log('[TutorAvailability] ✓ CaaS score calculated:', result.data?.total_score);
         }
       } catch (error) {
-        console.error('[TutorAvailability] ❌ CaaS queue error:', error);
-        // Non-blocking error
+        console.error('[TutorAvailability] ❌ CaaS calculation error:', error);
+        // Non-blocking error - continue to dashboard
       }
 
       // Refresh profile and redirect - wait for refresh to complete
