@@ -102,7 +102,7 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
   const [unavailabilityPeriods, setUnavailabilityPeriods] = useState<UnavailabilityPeriod[]>([]);
   const [unavailErrors, setUnavailErrors] = useState<{ dates?: string }>({});
   const [isRestored, setIsRestored] = useState(false);
-  const [conflictWarnings, setConflictWarnings] = useState<string[]>([]);
+  const [periodConflicts, setPeriodConflicts] = useState<Map<string, string[]>>(new Map());
 
   // Restore saved onboarding progress on mount
   React.useEffect(() => {
@@ -210,8 +210,8 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
 
   // Detect conflicts whenever periods change
   React.useEffect(() => {
-    const warnings = detectConflicts(availabilityPeriods, unavailabilityPeriods);
-    setConflictWarnings(warnings);
+    const conflicts = detectConflicts(availabilityPeriods, unavailabilityPeriods);
+    setPeriodConflicts(conflicts);
   }, [availabilityPeriods, unavailabilityPeriods]);
 
   // Conflict detection helpers
@@ -362,8 +362,8 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
     return `${period.fromDate} - ${period.toDate}`;
   };
 
-  const detectConflicts = (periods: AvailabilityPeriod[], unavailPeriods: UnavailabilityPeriod[]): string[] => {
-    const warnings: string[] = [];
+  const detectConflicts = (periods: AvailabilityPeriod[], unavailPeriods: UnavailabilityPeriod[]): Map<string, string[]> => {
+    const conflicts = new Map<string, string[]>();
 
     // Check for overlapping availability periods
     for (let i = 0; i < periods.length; i++) {
@@ -381,7 +381,16 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
 
         // Check if time ranges overlap
         if (doTimeRangesOverlap(p1.startTime, p1.endTime, p2.startTime, p2.endTime)) {
-          warnings.push(`Overlapping availability: ${formatAvailabilityText(p1)} conflicts with ${formatAvailabilityText(p2)}`);
+          const message = `Overlaps with: ${formatAvailabilityText(p2)}`;
+
+          // Add to p1's conflicts
+          if (!conflicts.has(p1.id)) conflicts.set(p1.id, []);
+          conflicts.get(p1.id)!.push(message);
+
+          // Add to p2's conflicts
+          const message2 = `Overlaps with: ${formatAvailabilityText(p1)}`;
+          if (!conflicts.has(p2.id)) conflicts.set(p2.id, []);
+          conflicts.get(p2.id)!.push(message2);
         }
       }
     }
@@ -390,12 +399,14 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
     for (const availPeriod of periods) {
       for (const unavailPeriod of unavailPeriods) {
         if (doDateRangesOverlap(availPeriod.fromDate, availPeriod.toDate, unavailPeriod.fromDate, unavailPeriod.toDate)) {
-          warnings.push(`Availability conflicts with unavailability: ${formatAvailabilityText(availPeriod)} overlaps with ${formatUnavailabilityText(unavailPeriod)}`);
+          const message = `Conflicts with unavailable period: ${formatUnavailabilityText(unavailPeriod)}`;
+          if (!conflicts.has(availPeriod.id)) conflicts.set(availPeriod.id, []);
+          conflicts.get(availPeriod.id)!.push(message);
         }
       }
     }
 
-    return warnings;
+    return conflicts;
   };
 
   const recurringPeriods = availabilityPeriods.filter(p => p.type === 'recurring');
@@ -529,35 +540,6 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
 
           {/* Section 2: Detailed Schedule (Optional) - Copied from ProfessionalInfoForm */}
           <HubForm.Section title="Detailed Availability (Optional)">
-            {/* Conflict Warnings */}
-            {conflictWarnings.length > 0 && (
-              <div style={{
-                marginBottom: '24px',
-                padding: '12px 16px',
-                backgroundColor: '#FEF3C7',
-                border: '1px solid #F59E0B',
-                borderRadius: '8px'
-              }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '8px'
-                }}>
-                  <span style={{ fontSize: '18px', flexShrink: 0 }}>⚠️</span>
-                  <div style={{ flex: 1 }}>
-                    <strong style={{ color: '#92400E', fontSize: '14px', fontWeight: 600 }}>
-                      Schedule Conflicts Detected
-                    </strong>
-                    <ul style={{ margin: '8px 0 0 0', paddingLeft: '20px', color: '#92400E', fontSize: '14px' }}>
-                      {conflictWarnings.map((warning, index) => (
-                        <li key={index} style={{ marginBottom: '4px' }}>{warning}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            )}
-
             <div className={professionalStyles.availabilityGrid}>
               {/* Left Column: Availability Periods */}
               <div>
@@ -679,30 +661,60 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
                   <div className={professionalStyles.formGroup}>
                     <label className={professionalStyles.formLabel}>Recurring Availability</label>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {recurringPeriods.map(period => (
-                        <div
-                          key={period.id}
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: '12px 16px',
-                            backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
-                            borderRadius: '8px',
-                            border: '1px solid var(--color-border, #dfe1e5)'
-                          }}
-                        >
-                          <span style={{ fontSize: '0.875rem' }}>{formatAvailabilityText(period)}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveAvailability(period.id)}
-                            className={professionalStyles.buttonSecondary}
-                            style={{ padding: '4px 12px', fontSize: '0.875rem' }}
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      ))}
+                      {recurringPeriods.map(period => {
+                        const conflicts = periodConflicts.get(period.id);
+                        const hasConflict = conflicts && conflicts.length > 0;
+
+                        return (
+                          <div key={period.id}>
+                            <div
+                              style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                padding: '12px 16px',
+                                backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
+                                borderRadius: '8px',
+                                border: hasConflict ? '1px solid #F59E0B' : '1px solid var(--color-border, #dfe1e5)'
+                              }}
+                            >
+                              <span style={{ fontSize: '0.875rem' }}>{formatAvailabilityText(period)}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveAvailability(period.id)}
+                                className={professionalStyles.buttonSecondary}
+                                style={{ padding: '4px 12px', fontSize: '0.875rem' }}
+                              >
+                                Remove
+                              </button>
+                            </div>
+                            {hasConflict && (
+                              <div style={{
+                                marginTop: '4px',
+                                padding: '8px 12px',
+                                backgroundColor: '#FEF3C7',
+                                borderRadius: '6px',
+                                border: '1px solid #F59E0B'
+                              }}>
+                                <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
+                                  <span style={{ fontSize: '14px' }}>⚠️</span>
+                                  <div style={{ flex: 1 }}>
+                                    {conflicts.map((msg, idx) => (
+                                      <div key={idx} style={{
+                                        color: '#92400E',
+                                        fontSize: '13px',
+                                        marginBottom: idx < conflicts.length - 1 ? '4px' : '0'
+                                      }}>
+                                        {msg}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -711,30 +723,60 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
                   <div className={professionalStyles.formGroup}>
                     <label className={professionalStyles.formLabel}>One-time Availability</label>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {oneTimePeriods.map(period => (
-                        <div
-                          key={period.id}
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: '12px 16px',
-                            backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
-                            borderRadius: '8px',
-                            border: '1px solid var(--color-border, #dfe1e5)'
-                          }}
-                        >
-                          <span style={{ fontSize: '0.875rem' }}>{formatAvailabilityText(period)}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveAvailability(period.id)}
-                            className={professionalStyles.buttonSecondary}
-                            style={{ padding: '4px 12px', fontSize: '0.875rem' }}
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      ))}
+                      {oneTimePeriods.map(period => {
+                        const conflicts = periodConflicts.get(period.id);
+                        const hasConflict = conflicts && conflicts.length > 0;
+
+                        return (
+                          <div key={period.id}>
+                            <div
+                              style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                padding: '12px 16px',
+                                backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
+                                borderRadius: '8px',
+                                border: hasConflict ? '1px solid #F59E0B' : '1px solid var(--color-border, #dfe1e5)'
+                              }}
+                            >
+                              <span style={{ fontSize: '0.875rem' }}>{formatAvailabilityText(period)}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveAvailability(period.id)}
+                                className={professionalStyles.buttonSecondary}
+                                style={{ padding: '4px 12px', fontSize: '0.875rem' }}
+                              >
+                                Remove
+                              </button>
+                            </div>
+                            {hasConflict && (
+                              <div style={{
+                                marginTop: '4px',
+                                padding: '8px 12px',
+                                backgroundColor: '#FEF3C7',
+                                borderRadius: '6px',
+                                border: '1px solid #F59E0B'
+                              }}>
+                                <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
+                                  <span style={{ fontSize: '14px' }}>⚠️</span>
+                                  <div style={{ flex: 1 }}>
+                                    {conflicts.map((msg, idx) => (
+                                      <div key={idx} style={{
+                                        color: '#92400E',
+                                        fontSize: '13px',
+                                        marginBottom: idx < conflicts.length - 1 ? '4px' : '0'
+                                      }}>
+                                        {msg}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
