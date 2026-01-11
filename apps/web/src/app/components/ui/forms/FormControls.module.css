@@ -188,7 +188,7 @@
   font-family: inherit;
 }
 
-.selectTrigger:hover {
+.selectTrigger:hover:not(:disabled) {
   border-color: #006C67;
   background-color: #f9fafb;
 }
@@ -214,9 +214,14 @@
   box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
 
+/* Selected value text - should be black */
+.selectTrigger span {
+  color: #202124;
+}
+
 /* Placeholder text styling */
 .selectPlaceholder {
-  color: #9ca3af;
+  color: #9ca3af !important;
   font-style: italic;
 }
 
