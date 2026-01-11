@@ -48,7 +48,7 @@ const AgentCapacityStep: React.FC<AgentCapacityStepProps> = ({
     debug: true,
   });
 
-  const handleContinue = () => {
+  const handleNext = () => {
     // The WizardActionButtons component ensures this only runs when isValid is true
     onNext({ commissionRate, serviceAreas });
   };
@@ -97,11 +97,10 @@ const AgentCapacityStep: React.FC<AgentCapacityStepProps> = ({
       </div>
 
       <WizardActionButtons
-        onContinue={handleContinue}
-        continueEnabled={isValid}
+        onNext={handleNext}
+        nextEnabled={isValid}
         onBack={onBack}
         isLoading={isLoading}
-        debug={true}
       />
     </div>
   );

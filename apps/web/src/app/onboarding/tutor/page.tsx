@@ -24,16 +24,18 @@ function TutorOnboardingPageContent() {
       return;
     }
 
-    // Redirect to dashboard if user already has the tutor role
-    if (!isLoading && profile && availableRoles?.includes('tutor')) {
-      console.log('[TutorOnboarding] User already has tutor role, redirecting to dashboard');
+    // Redirect to dashboard if user already has the tutor role AND completed onboarding
+    if (!isLoading && profile && availableRoles?.includes('tutor') &&
+        profile.onboarding_progress?.onboarding_completed) {
+      console.log('[TutorOnboarding] User already completed tutor onboarding, redirecting to dashboard');
       router.push('/dashboard');
       return;
     }
 
     // Determine first incomplete step and redirect
     if (!isLoading && profile) {
-      // Check personal info (stored in profiles table)
+      // Check personal info - must be present in profiles table (first_name is saved on Next button)
+      // Note: onboarding_progress may have auto-saved data, but we check profiles table for step completion
       if (!profile.first_name) {
         router.push('/onboarding/tutor/personal-info');
         return;

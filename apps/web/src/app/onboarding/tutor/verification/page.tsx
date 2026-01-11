@@ -141,7 +141,68 @@ export default function TutorVerificationPage() {
           .eq('id', user.id);
 
         if (error) throw error;
-        console.log('[TutorVerification] ✓ Saved verification data');
+        console.log('[TutorVerification] ✓ Saved verification data to profiles');
+
+        // Write-through to role_details table
+        // Fetch existing role_details to preserve other data
+        const { data: existingRoleDetails } = await supabase
+          .from('role_details')
+          .select('*')
+          .eq('profile_id', user.id)
+          .eq('role_type', 'tutor')
+          .single();
+
+        console.log('[TutorVerification] Existing role_details:', existingRoleDetails);
+
+        // Build verification certifications array
+        const verificationCerts = [];
+        if (data.dbs_certificate_url && data.dbs_certificate_number) {
+          verificationCerts.push({
+            type: 'dbs',
+            url: data.dbs_certificate_url,
+            number: data.dbs_certificate_number,
+            issue_date: data.dbs_certificate_date,
+            expiry_date: data.dbs_expiry_date,
+          });
+        }
+
+        // Update role_details with verification data
+        const updatedQualifications = {
+          ...(existingRoleDetails?.qualifications || {}),
+          verification: {
+            proof_of_address: {
+              url: data.proof_of_address_url,
+              type: data.proof_of_address_type,
+              issue_date: data.address_document_issue_date,
+            },
+            identity: {
+              url: data.identity_verification_document_url,
+              number: data.identity_document_number,
+              issue_date: data.identity_issue_date,
+              expiry_date: data.identity_expiry_date,
+            },
+            certifications: verificationCerts,
+          },
+        };
+
+        const roleDetailsData = {
+          profile_id: user.id,
+          role_type: 'tutor',
+          ...(existingRoleDetails?.subjects && { subjects: existingRoleDetails.subjects }),
+          ...(existingRoleDetails?.hourly_rate && { hourly_rate: existingRoleDetails.hourly_rate }),
+          ...(existingRoleDetails?.availability && { availability: existingRoleDetails.availability }),
+          qualifications: updatedQualifications,
+          updated_at: new Date().toISOString(),
+        };
+
+        const { error: roleDetailsError } = await supabase
+          .from('role_details')
+          .upsert(roleDetailsData, {
+            onConflict: 'profile_id,role_type'
+          });
+
+        if (roleDetailsError) throw roleDetailsError;
+        console.log('[TutorVerification] ✓ Saved verification to role_details');
       } else {
         console.log('[TutorVerification] ⏩ No verification data, skipping save');
       }

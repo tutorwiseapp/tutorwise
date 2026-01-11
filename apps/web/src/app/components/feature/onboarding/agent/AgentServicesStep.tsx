@@ -61,7 +61,7 @@ const AgentServicesStep: React.FC<AgentServicesStepProps> = ({
 }) => {
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
 
-  const handleContinue = () => {
+  const handleNext = () => {
     // The WizardActionButtons component ensures this only runs when valid
     onNext(selectedServices);
   };
@@ -92,11 +92,10 @@ const AgentServicesStep: React.FC<AgentServicesStepProps> = ({
       </div>
 
       <WizardActionButtons
-        onContinue={handleContinue}
-        continueEnabled={selectedServices.length > 0}
+        onNext={handleNext}
+        nextEnabled={selectedServices.length > 0}
         onBack={onBack}
         isLoading={isLoading}
-        debug={true}
       />
     </div>
   );

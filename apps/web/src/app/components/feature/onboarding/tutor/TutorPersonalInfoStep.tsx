@@ -12,7 +12,10 @@ import DatePicker from '@/app/components/ui/forms/DatePicker';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import { HubForm } from '@/app/components/hub/form/HubForm';
 import InlineProgressBadge from '../shared/InlineProgressBadge';
-import { getOnboardingProgress } from '@/lib/api/onboarding';
+import { getOnboardingProgress, saveOnboardingProgress } from '@/lib/api/onboarding';
+import { useOnboardingAutoSave } from '@/hooks/useAutoSave';
+import { useOfflineSync } from '@/hooks/useOfflineSync';
+import { hasUnsavedChanges as checkUnsavedChanges } from '@/lib/offlineQueue';
 
 interface ProgressData {
   currentPoints: number;
@@ -53,6 +56,31 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
   });
   const [isInitialized, setIsInitialized] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Offline sync - auto-sync when connection restored
+  useOfflineSync(user?.id);
+
+  // Auto-save with 3-second debounce (runs in background, doesn't block Next button)
+  const { saveStatus } = useOnboardingAutoSave(
+    formData,
+    async (data) => {
+      if (!user?.id) throw new Error('User not authenticated');
+
+      await saveOnboardingProgress({
+        userId: user.id,
+        progress: {
+          tutor: {
+            personalInfo: data
+          }
+        }
+      });
+    },
+    {
+      enabled: isInitialized && !profileLoading,
+    }
+  );
 
   console.log('[TutorPersonalInfoStep] Component render', {
     hasProfile: !!profile,
@@ -141,6 +169,20 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
     }
   }, [profile, user, profileLoading, isInitialized]);
 
+  // beforeunload warning - prevent accidental close with unsaved changes
+  React.useEffect(() => {
+    const handleBeforeUnload = async (e: BeforeUnloadEvent) => {
+      const hasUnsaved = await checkUnsavedChanges();
+      if (saveStatus === 'saving' || isSaving || hasUnsaved) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [saveStatus, isSaving]);
+
   // MVP Validation - Only required fields
   const isFormValid =
     formData.firstName.trim() !== '' &&
@@ -154,13 +196,75 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  // onBlur save handler (150ms delay - matches ProfessionalInfoForm pattern)
+  const handleBlur = React.useCallback((fieldName: string) => {
+    if (!fieldName || isSaving || !user?.id) return;
+
+    setTimeout(() => {
+      if (editingField !== fieldName) return;
+
+      console.log(`[TutorPersonalInfoStep] onBlur save for: ${fieldName}`);
+      setIsSaving(true);
+
+      saveOnboardingProgress({
+        userId: user.id,
+        progress: {
+          tutor: {
+            personalInfo: formData
+          }
+        }
+      })
+        .then(() => console.log('[TutorPersonalInfoStep] ✓ Blur save completed'))
+        .catch((error) => console.error('[TutorPersonalInfoStep] ❌ Blur save failed:', error))
+        .finally(() => {
+          setIsSaving(false);
+          setEditingField(null);
+        });
+    }, 150);
+  }, [editingField, isSaving, user?.id, formData]);
+
+  // Immediate save for select changes
+  const handleSelectChange = React.useCallback((field: string, value: string) => {
+    const newData = { ...formData, [field]: value };
+    setFormData(newData);
+
+    if (!user?.id) return;
+
+    console.log(`[TutorPersonalInfoStep] Immediate save for select: ${field}`);
+    saveOnboardingProgress({
+      userId: user.id,
+      progress: {
+        tutor: {
+          personalInfo: newData
+        }
+      }
+    })
+      .then(() => console.log('[TutorPersonalInfoStep] ✓ Select save completed'))
+      .catch((error) => console.error('[TutorPersonalInfoStep] ❌ Select save failed:', error));
+  }, [formData, user?.id]);
+
   const handleDateChange = (date: Date | undefined) => {
     setSelectedDate(date);
-    if (date) {
-      const formattedDate = format(date, 'yyyy-MM-dd');
-      setFormData(prev => ({ ...prev, dateOfBirth: formattedDate }));
-    } else {
-      setFormData(prev => ({ ...prev, dateOfBirth: '' }));
+
+    const newFormData = date
+      ? { ...formData, dateOfBirth: format(date, 'yyyy-MM-dd') }
+      : { ...formData, dateOfBirth: '' };
+
+    setFormData(newFormData);
+
+    // Immediate save for date picker
+    if (user?.id) {
+      console.log('[TutorPersonalInfoStep] Immediate save for date picker');
+      saveOnboardingProgress({
+        userId: user.id,
+        progress: {
+          tutor: {
+            personalInfo: newFormData
+          }
+        }
+      })
+        .then(() => console.log('[TutorPersonalInfoStep] ✓ Date save completed'))
+        .catch((error) => console.error('[TutorPersonalInfoStep] ❌ Date save failed:', error));
     }
   };
 
@@ -228,8 +332,10 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
                 type="text"
                 value={formData.firstName}
                 onChange={handleChange}
+                onFocus={() => setEditingField('firstName')}
+                onBlur={() => handleBlur('firstName')}
                 placeholder="John"
-                disabled={isLoading}
+                disabled={isLoading || isSaving}
                 required
               />
             </HubForm.Field>
@@ -241,8 +347,10 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
                 type="text"
                 value={formData.lastName}
                 onChange={handleChange}
+                onFocus={() => setEditingField('lastName')}
+                onBlur={() => handleBlur('lastName')}
                 placeholder="Smith"
-                disabled={isLoading}
+                disabled={isLoading || isSaving}
                 required
               />
             </HubForm.Field>
@@ -250,15 +358,7 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
             <HubForm.Field label="Gender" required>
               <UnifiedSelect
                 value={formData.gender}
-                onChange={(value) => {
-                  const event = {
-                    target: {
-                      name: 'gender',
-                      value: String(value)
-                    }
-                  } as React.ChangeEvent<HTMLInputElement>;
-                  handleChange(event);
-                }}
+                onChange={(value) => handleSelectChange('gender', String(value))}
                 options={[
                   { value: 'Male', label: 'Male' },
                   { value: 'Female', label: 'Female' },
@@ -266,7 +366,7 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
                   { value: 'Prefer not to say', label: 'Prefer not to say' }
                 ]}
                 placeholder="Select gender"
-                disabled={isLoading}
+                disabled={isLoading || isSaving}
               />
             </HubForm.Field>
 
@@ -284,8 +384,10 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
                 type="email"
                 value={formData.email}
                 onChange={handleChange}
+                onFocus={() => setEditingField('email')}
+                onBlur={() => handleBlur('email')}
                 placeholder="johnsmith@gmail.com"
-                disabled={isLoading}
+                disabled={isLoading || isSaving}
                 required
               />
             </HubForm.Field>
@@ -297,8 +399,10 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
                 type="tel"
                 value={formData.phone}
                 onChange={handleChange}
+                onFocus={() => setEditingField('phone')}
+                onBlur={() => handleBlur('phone')}
                 placeholder="+44 07575 123456"
-                disabled={isLoading}
+                disabled={isLoading || isSaving}
               />
             </HubForm.Field>
           </HubForm.Grid>

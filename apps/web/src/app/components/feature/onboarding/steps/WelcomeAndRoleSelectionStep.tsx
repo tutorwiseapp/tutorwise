@@ -43,7 +43,7 @@ const WelcomeAndRoleSelectionStep: React.FC<WelcomeAndRoleSelectionStepProps> = 
 }) => {
   const [selectedRoles, setSelectedRoles] = useState<string[]>(initialRoles);
 
-  const handleContinue = async () => {
+  const handleNext = async () => {
     if (selectedRoles.length > 0) {
       await onNext(selectedRoles as Role[]);
     }
@@ -69,7 +69,7 @@ const WelcomeAndRoleSelectionStep: React.FC<WelcomeAndRoleSelectionStepProps> = 
             options={roleOptions}
             selectedValues={selectedRoles}
             onChange={(values) => setSelectedRoles(values as string[])}
-            debug={true}
+            
           />
         </div>
 
@@ -81,10 +81,10 @@ const WelcomeAndRoleSelectionStep: React.FC<WelcomeAndRoleSelectionStepProps> = 
       </div>
 
       <WizardActionButtons
-        onContinue={handleContinue}
-        continueEnabled={selectedRoles.length > 0}
+        onNext={handleNext}
+        nextEnabled={selectedRoles.length > 0}
         isLoading={isLoading}
-        debug={true}
+        
       />
     </div>
   );

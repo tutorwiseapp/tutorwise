@@ -103,6 +103,47 @@ export default function TutorProfessionalDetailsPage() {
     setIsPageLoading(true);
 
     try {
+      const { createClient } = await import('@/utils/supabase/client');
+      const supabase = createClient();
+
+      // Fetch existing role_details to preserve availability data
+      const { data: existingRoleDetails } = await supabase
+        .from('role_details')
+        .select('availability')
+        .eq('profile_id', user.id)
+        .eq('role_type', 'tutor')
+        .single();
+
+      console.log('[TutorProfessionalDetails] Existing availability:', existingRoleDetails?.availability);
+
+      // Write-through to role_details table
+      const roleDetailsData = {
+        profile_id: user.id,
+        role_type: 'tutor',
+        subjects: data.subjects || [],
+        qualifications: {
+          bio: data.bio || '',
+          experience_level: data.tutoringExperience || '',
+          education: data.academicQualifications?.[0] || '',
+          certifications: data.teachingProfessionalQualifications || [],
+        },
+        hourly_rate: data.oneOnOneRate || 0,
+        // Preserve existing availability data if it exists
+        ...(existingRoleDetails?.availability && {
+          availability: existingRoleDetails.availability
+        }),
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error: roleDetailsError } = await supabase
+        .from('role_details')
+        .upsert(roleDetailsData, {
+          onConflict: 'profile_id,role_type'
+        });
+
+      if (roleDetailsError) throw roleDetailsError;
+      console.log('[TutorProfessionalDetails] ✓ Saved to role_details');
+
       // Save to onboarding_progress
       await updateOnboardingProgress({
         current_step: 'verification',

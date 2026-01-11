@@ -11,9 +11,11 @@ import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
 import InlineProgressBadge from '../shared/InlineProgressBadge';
 
 
-import { getOnboardingProgress } from '@/lib/api/onboarding';
+import { getOnboardingProgress, saveOnboardingProgress } from '@/lib/api/onboarding';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import toast from 'react-hot-toast';
+import { useOnboardingAutoSave } from '@/hooks/useAutoSave';
+import { useOfflineSync } from '@/hooks/useOfflineSync';
+import { hasUnsavedChanges as checkUnsavedChanges } from '@/lib/offlineQueue';
 
 interface ProgressData {
   currentPoints: number;
@@ -129,6 +131,8 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
     groupSessionRate: 0,
   });
   const [isRestored, setIsRestored] = useState(false);
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Restore saved onboarding progress on mount
   React.useEffect(() => {
@@ -150,6 +154,92 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
         });
     }
   }, [user?.id, isRestored]);
+
+  // Offline sync - auto-sync when connection restored
+  useOfflineSync(user?.id);
+
+  // Auto-save with 3-second debounce (runs in background, doesn't block Next button)
+  const { saveStatus } = useOnboardingAutoSave(
+    formData,
+    async (data) => {
+      if (!user?.id) throw new Error('User not authenticated');
+
+      await saveOnboardingProgress({
+        userId: user.id,
+        progress: {
+          tutor: {
+            professionalDetails: data
+          }
+        }
+      });
+    },
+    {
+      enabled: isRestored && !isLoading,
+    }
+  );
+
+  // onBlur save handler (150ms delay like ProfessionalInfoForm)
+  const handleBlur = React.useCallback((fieldName: string) => {
+    if (!fieldName || isSaving || !user?.id) return;
+
+    setTimeout(() => {
+      if (editingField !== fieldName) return;
+
+      setIsSaving(true);
+      saveOnboardingProgress({
+        userId: user.id,
+        progress: {
+          tutor: {
+            professionalDetails: formData
+          }
+        }
+      })
+        .then(() => {
+          console.log('[TutorProfessionalDetailStep] ✓ Blur save completed');
+        })
+        .catch((error) => {
+          console.error('[TutorProfessionalDetailStep] ❌ Blur save failed:', error);
+        })
+        .finally(() => {
+          setIsSaving(false);
+          setEditingField(null);
+        });
+    }, 150);
+  }, [editingField, isSaving, user?.id, formData]);
+
+  // Immediate save for selects/multiselects
+  const handleSelectChange = React.useCallback((field: string, value: string | string[] | number) => {
+    const newData = { ...formData, [field]: value };
+    setFormData(newData);
+
+    if (!user?.id) return;
+
+    // Immediate save for select changes
+    saveOnboardingProgress({
+      userId: user.id,
+      progress: {
+        tutor: {
+          professionalDetails: newData
+        }
+      }
+    }).catch((error) => {
+      console.error('[TutorProfessionalDetailStep] ❌ Select save failed:', error);
+    });
+  }, [formData, user?.id]);
+
+  // beforeunload warning (internal only - no popup, just prevents accidental close)
+  React.useEffect(() => {
+    const handleBeforeUnload = async (e: BeforeUnloadEvent) => {
+      const hasUnsaved = await checkUnsavedChanges();
+      if (saveStatus === 'saving' || isSaving || hasUnsaved) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [saveStatus, isSaving]);
 
   // Validation - required fields
   const isValid =
@@ -251,9 +341,11 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
                 <textarea
                   value={formData.bio}
                   onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
+                  onFocus={() => setEditingField('bio')}
+                  onBlur={() => handleBlur('bio')}
                   placeholder="Describe your tutoring or teaching style, strengths, and what areas you specialise in"
                   rows={4}
-                  disabled={isLoading}
+                  disabled={isLoading || isSaving}
                 />
                 <span style={{ fontSize: '12px', color: '#5f6368', marginTop: '4px', display: 'block' }}>
                   {formData.bio.length}/50 characters minimum
@@ -267,18 +359,20 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
                   type="url"
                   value={formData.bioVideoUrl}
                   onChange={(e) => setFormData(prev => ({ ...prev, bioVideoUrl: e.target.value }))}
+                  onFocus={() => setEditingField('bioVideoUrl')}
+                  onBlur={() => handleBlur('bioVideoUrl')}
                   placeholder="Paste YouTube, Loom, or Vimeo URL for +5 CaaS points"
-                  disabled={isLoading}
+                  disabled={isLoading || isSaving}
                 />
               </HubForm.Field>
 
               <HubForm.Field label="Status" required>
                 <UnifiedSelect
                   value={formData.status}
-                  onChange={(value) => setFormData(prev => ({ ...prev, status: String(value) }))}
+                  onChange={(value) => handleSelectChange('status', String(value))}
                   options={statusOptions}
                   placeholder="Select status"
-                  disabled={isLoading}
+                  disabled={isLoading || isSaving}
                 />
               </HubForm.Field>
             </HubForm.Grid>
@@ -290,7 +384,7 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
                   triggerLabel={formatMultiSelectLabel(formData.academicQualifications, 'Select qualifications')}
                   options={academicQualificationsOptions}
                   selectedValues={formData.academicQualifications}
-                  onSelectionChange={(values) => setFormData(prev => ({ ...prev, academicQualifications: values }))}
+                  onSelectionChange={(values) => handleSelectChange('academicQualifications', values)}
                 />
               </HubForm.Field>
 
@@ -299,7 +393,7 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
                   triggerLabel={formatMultiSelectLabel(formData.teachingProfessionalQualifications, 'Select qualifications')}
                   options={teachingProfessionalQualificationsOptions}
                   selectedValues={formData.teachingProfessionalQualifications}
-                  onSelectionChange={(values) => setFormData(prev => ({ ...prev, teachingProfessionalQualifications: values }))}
+                  onSelectionChange={(values) => handleSelectChange('teachingProfessionalQualifications', values)}
                 />
               </HubForm.Field>
             </HubForm.Grid>
@@ -309,20 +403,20 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
               <HubForm.Field label="Teaching Experience" required>
                 <UnifiedSelect
                   value={formData.teachingExperience}
-                  onChange={(value) => setFormData(prev => ({ ...prev, teachingExperience: String(value) }))}
+                  onChange={(value) => handleSelectChange('teachingExperience', String(value))}
                   options={teachingExperienceOptions}
                   placeholder="Select experience"
-                  disabled={isLoading}
+                  disabled={isLoading || isSaving}
                 />
               </HubForm.Field>
 
               <HubForm.Field label="Tutoring Experience" required>
                 <UnifiedSelect
                   value={formData.tutoringExperience}
-                  onChange={(value) => setFormData(prev => ({ ...prev, tutoringExperience: String(value) }))}
+                  onChange={(value) => handleSelectChange('tutoringExperience', String(value))}
                   options={tutoringExperienceOptions}
                   placeholder="Select experience"
-                  disabled={isLoading}
+                  disabled={isLoading || isSaving}
                 />
               </HubForm.Field>
             </HubForm.Grid>
@@ -334,7 +428,7 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
                   triggerLabel={formatMultiSelectLabel(formData.keyStages, 'Select key stages')}
                   options={keyStagesOptions}
                   selectedValues={formData.keyStages}
-                  onSelectionChange={(values) => setFormData(prev => ({ ...prev, keyStages: values }))}
+                  onSelectionChange={(values) => handleSelectChange('keyStages', values)}
                 />
               </HubForm.Field>
 
@@ -343,7 +437,7 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
                   triggerLabel={formatMultiSelectLabel(formData.subjects, 'Select subjects')}
                   options={subjectsOptions}
                   selectedValues={formData.subjects}
-                  onSelectionChange={(values) => setFormData(prev => ({ ...prev, subjects: values }))}
+                  onSelectionChange={(values) => handleSelectChange('subjects', values)}
                 />
               </HubForm.Field>
             </HubForm.Grid>
@@ -355,7 +449,7 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
                   triggerLabel={formatMultiSelectLabel(formData.sessionType, 'Select session types')}
                   options={sessionTypeOptions}
                   selectedValues={formData.sessionType}
-                  onSelectionChange={(values) => setFormData(prev => ({ ...prev, sessionType: values }))}
+                  onSelectionChange={(values) => handleSelectChange('sessionType', values)}
                 />
               </HubForm.Field>
 
@@ -364,7 +458,7 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
                   triggerLabel={formatMultiSelectLabel(formData.deliveryMode, 'Select delivery modes')}
                   options={deliveryModeOptions}
                   selectedValues={formData.deliveryMode}
-                  onSelectionChange={(values) => setFormData(prev => ({ ...prev, deliveryMode: values }))}
+                  onSelectionChange={(values) => handleSelectChange('deliveryMode', values)}
                 />
               </HubForm.Field>
             </HubForm.Grid>
@@ -376,8 +470,10 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
                   type="number"
                   value={formData.oneOnOneRate || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, oneOnOneRate: parseFloat(e.target.value) || 0 }))}
+                  onFocus={() => setEditingField('oneOnOneRate')}
+                  onBlur={() => handleBlur('oneOnOneRate')}
                   placeholder="£50"
-                  disabled={isLoading}
+                  disabled={isLoading || isSaving}
                   min="0"
                   step="1"
                 />
@@ -388,8 +484,10 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
                   type="number"
                   value={formData.groupSessionRate || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, groupSessionRate: parseFloat(e.target.value) || 0 }))}
+                  onFocus={() => setEditingField('groupSessionRate')}
+                  onBlur={() => handleBlur('groupSessionRate')}
                   placeholder="£25"
-                  disabled={isLoading}
+                  disabled={isLoading || isSaving}
                   min="0"
                   step="1"
                 />

@@ -4,7 +4,7 @@
  * Created: 2026-01-10
  *
  * Features:
- * - 5-second debounce delay (balances responsiveness vs server load)
+ * - 3-second debounce delay (balances responsiveness vs server load)
  * - Non-blocking saves (users can continue editing/navigating)
  * - Save status tracking (idle, pending, saving, success, error)
  * - Automatic retry on failure
@@ -41,7 +41,7 @@ interface UseAutoSaveReturn {
 export function useAutoSave<T>({
   data,
   onSave,
-  debounceMs = 5000, // 5 seconds default
+  debounceMs = 3000, // 3 seconds default (better data protection)
   enabled = true,
   onSuccess,
   onError,

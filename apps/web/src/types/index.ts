@@ -132,6 +132,7 @@ export interface ClientProgress {
 }
 
 export interface TutorProgress {
+  personalInfo?: any;
   professionalDetails?: Partial<ProfessionalDetailsData>;
   verification?: Partial<VerificationDetailsData>;
   availability?: AvailabilityData;
@@ -257,6 +258,7 @@ export interface SaveProgressPayload {
 export interface OnboardingProgressResponse {
   success: boolean;
   error?: string;
+  progress?: OnboardingProgress;
 }
 
 /**

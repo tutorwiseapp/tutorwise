@@ -188,13 +188,11 @@ const TutorOnboardingWizard: React.FC<TutorOnboardingWizardProps> = ({
     }
   };
 
-  const handleBackFromProfessionalDetails = (data: ProfessionalDetailsData) => {
-    setProfessionalDetails(data);
+  const handleBackFromProfessionalDetails = () => {
     setCurrentStep('personalInfo');
   };
 
-  const handleBackFromVerification = (data: VerificationDetailsData) => {
-    setVerification(data);
+  const handleBackFromVerification = () => {
     setCurrentStep('professionalDetails');
   };
 

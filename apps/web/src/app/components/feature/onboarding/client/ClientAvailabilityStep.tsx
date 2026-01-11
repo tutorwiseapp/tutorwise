@@ -78,8 +78,8 @@ const ClientAvailabilityStep: React.FC<ClientAvailabilityStepProps> = ({
     });
   }, [isValid, hourlyBudget, availability.length, sessionTypes.length]);
 
-  const handleContinue = () => {
-    console.log('[ClientAvailabilityStep] handleContinue called');
+  const handleNext = () => {
+    console.log('[ClientAvailabilityStep] handleNext called');
     console.log('[ClientAvailabilityStep] Form data:', { hourlyBudget, availability, sessionTypes });
     console.log('[ClientAvailabilityStep] isValid:', isValid);
     console.log('[ClientAvailabilityStep] Calling onNext...');
@@ -109,7 +109,7 @@ const ClientAvailabilityStep: React.FC<ClientAvailabilityStepProps> = ({
             options={budgetRanges}
             selectedValue={hourlyBudget}
             onChange={(value) => setHourlyBudget(value as number)}
-            debug={true}
+            
           />
           <p className={styles.progressIndicator}>
             💡 You can adjust your budget anytime in settings
@@ -125,7 +125,7 @@ const ClientAvailabilityStep: React.FC<ClientAvailabilityStepProps> = ({
             options={availabilityOptions}
             selectedValues={availability}
             onChange={(values) => setAvailability(values as string[])}
-            debug={true}
+            
           />
         </div>
 
@@ -138,7 +138,7 @@ const ClientAvailabilityStep: React.FC<ClientAvailabilityStepProps> = ({
             options={sessionTypeOptions}
             selectedValues={sessionTypes}
             onChange={(values) => setSessionTypes(values as string[])}
-            debug={true}
+            
           />
         </div>
 
@@ -149,11 +149,11 @@ const ClientAvailabilityStep: React.FC<ClientAvailabilityStepProps> = ({
 
       {/* Action Buttons using shared component */}
       <WizardActionButtons
-        onContinue={handleContinue}
-        continueEnabled={isValid}
+        onNext={handleNext}
+        nextEnabled={isValid}
         onBack={onBack}
         isLoading={isLoading}
-        debug={true}
+        
       />
     </div>
   );

@@ -8,10 +8,11 @@ import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import DatePicker from '@/app/components/ui/forms/DatePicker';
 import { useDocumentUpload } from '@/hooks/useDocumentUpload';
 import InlineProgressBadge from '../shared/InlineProgressBadge';
-import { useOnboardingAutoSave } from '@/hooks/useAutoSave';
-import { useDifferentiatedSave } from '../shared/useDifferentiatedSave';
 import { saveOnboardingProgress, getOnboardingProgress } from '@/lib/api/onboarding';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { useOnboardingAutoSave } from '@/hooks/useAutoSave';
+import { useOfflineSync } from '@/hooks/useOfflineSync';
+import { hasUnsavedChanges as checkUnsavedChanges } from '@/lib/offlineQueue';
 
 interface ProgressData {
   currentPoints: number;
@@ -79,13 +80,21 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
     dbs?: string;
   }>({});
   const [isRestored, setIsRestored] = useState(false);
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Combine form data and uploaded files for saving
+  const combinedData = { ...formData, ...uploadedFiles };
+
+  // Offline sync - auto-sync when connection restored
+  useOfflineSync(user?.id);
 
   // Restore saved onboarding progress on mount
   React.useEffect(() => {
     if (!isRestored && user?.id) {
       getOnboardingProgress('tutor')
         .then(savedProgress => {
-          const savedData = savedProgress?.progress?.tutor?.verificationDetails;
+          const savedData = savedProgress?.progress?.tutor?.verification;
 
           if (savedData) {
             console.log('[TutorProfessionalVerificationStep] ✅ Restored saved progress:', savedData);
@@ -117,9 +126,107 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
     }
   }, [user?.id, isRestored]);
 
-  // Save strategies
+  // Auto-save with 3-second debounce (runs in background, doesn't block Next button)
+  const { saveStatus } = useOnboardingAutoSave(
+    combinedData,
+    async (data) => {
+      if (!user?.id) throw new Error('User not authenticated');
+
+      await saveOnboardingProgress({
+        userId: user.id,
+        progress: {
+          tutor: {
+            verification: data
+          }
+        }
+      });
+    },
+    {
+      enabled: isRestored && !isLoading,
     }
   );
+
+  // onBlur save handler (150ms delay - matches ProfessionalInfoForm pattern)
+  const handleBlur = React.useCallback((fieldName: string) => {
+    if (!fieldName || isSaving || !user?.id) return;
+
+    setTimeout(() => {
+      if (editingField !== fieldName) return;
+
+      console.log(`[TutorProfessionalVerificationStep] onBlur save for: ${fieldName}`);
+      setIsSaving(true);
+
+      saveOnboardingProgress({
+        userId: user.id,
+        progress: {
+          tutor: {
+            verification: combinedData
+          }
+        }
+      })
+        .then(() => console.log('[TutorProfessionalVerificationStep] ✓ Blur save completed'))
+        .catch((error) => console.error('[TutorProfessionalVerificationStep] ❌ Blur save failed:', error))
+        .finally(() => {
+          setIsSaving(false);
+          setEditingField(null);
+        });
+    }, 150);
+  }, [editingField, isSaving, user?.id, combinedData]);
+
+  // Immediate save for select and date picker changes
+  const handleSelectChange = React.useCallback((field: string, value: string) => {
+    const newFormData = { ...formData, [field]: value };
+    setFormData(newFormData);
+
+    if (!user?.id) return;
+
+    console.log(`[TutorProfessionalVerificationStep] Immediate save for select: ${field}`);
+    const newCombinedData = { ...newFormData, ...uploadedFiles };
+    saveOnboardingProgress({
+      userId: user.id,
+      progress: {
+        tutor: {
+          verification: newCombinedData
+        }
+      }
+    })
+      .then(() => console.log('[TutorProfessionalVerificationStep] ✓ Select save completed'))
+      .catch((error) => console.error('[TutorProfessionalVerificationStep] ❌ Select save failed:', error));
+  }, [formData, uploadedFiles, user?.id]);
+
+  const handleDateChange = React.useCallback((field: string, dateStr: string) => {
+    const newFormData = { ...formData, [field]: dateStr };
+    setFormData(newFormData);
+
+    if (!user?.id) return;
+
+    console.log(`[TutorProfessionalVerificationStep] Immediate save for date: ${field}`);
+    const newCombinedData = { ...newFormData, ...uploadedFiles };
+    saveOnboardingProgress({
+      userId: user.id,
+      progress: {
+        tutor: {
+          verification: newCombinedData
+        }
+      }
+    })
+      .then(() => console.log('[TutorProfessionalVerificationStep] ✓ Date save completed'))
+      .catch((error) => console.error('[TutorProfessionalVerificationStep] ❌ Date save failed:', error));
+  }, [formData, uploadedFiles, user?.id]);
+
+  // beforeunload warning - prevent accidental close with unsaved changes
+  React.useEffect(() => {
+    const handleBeforeUnload = async (e: BeforeUnloadEvent) => {
+      const hasUnsaved = await checkUnsavedChanges();
+      if (saveStatus === 'saving' || isSaving || hasUnsaved) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [saveStatus, isSaving]);
 
   // No validation - all fields are optional for faster onboarding
   const isValid = true;
@@ -193,7 +300,7 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
                   <HubForm.Field label="Document Type">
                     <UnifiedSelect
                       value={formData.proof_of_address_type}
-                      onChange={(value) => setFormData(prev => ({ ...prev, proof_of_address_type: String(value) }))}
+                      onChange={(value) => handleSelectChange('proof_of_address_type', String(value))}
                       options={[
                         { value: 'Utility Bill', label: 'Utility Bill' },
                         { value: 'Bank Statement', label: 'Bank Statement' },
@@ -201,14 +308,14 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
                         { value: 'Solicitor Letter', label: 'Solicitor Letter' },
                       ]}
                       placeholder="Select document type"
-                      disabled={isLoading}
+                      disabled={isLoading || isSaving}
                     />
                   </HubForm.Field>
                   <HubForm.Field label="Issue Date">
                     <DatePicker
                       selected={formData.address_document_issue_date ? new Date(formData.address_document_issue_date) : undefined}
                       onSelect={(date) => {
-                        setFormData(prev => ({ ...prev, address_document_issue_date: date ? date.toISOString().split('T')[0] : '' }));
+                        handleDateChange('address_document_issue_date', date ? date.toISOString().split('T')[0] : '');
                       }}
                       placeholder="Select issue date"
                     />
@@ -238,8 +345,10 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
                       type="text"
                       value={formData.identity_document_number}
                       onChange={(e) => setFormData(prev => ({ ...prev, identity_document_number: e.target.value }))}
+                      onFocus={() => setEditingField('identity_document_number')}
+                      onBlur={() => handleBlur('identity_document_number')}
                       placeholder="Enter passport or license number"
-                      disabled={isLoading}
+                      disabled={isLoading || isSaving}
                     />
                   </HubForm.Field>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
@@ -247,7 +356,7 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
                       <DatePicker
                         selected={formData.identity_issue_date ? new Date(formData.identity_issue_date) : undefined}
                         onSelect={(date) => {
-                          setFormData(prev => ({ ...prev, identity_issue_date: date ? date.toISOString().split('T')[0] : '' }));
+                          handleDateChange('identity_issue_date', date ? date.toISOString().split('T')[0] : '');
                         }}
                         placeholder="Select issue date"
                       />
@@ -256,7 +365,7 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
                       <DatePicker
                         selected={formData.identity_expiry_date ? new Date(formData.identity_expiry_date) : undefined}
                         onSelect={(date) => {
-                          setFormData(prev => ({ ...prev, identity_expiry_date: date ? date.toISOString().split('T')[0] : '' }));
+                          handleDateChange('identity_expiry_date', date ? date.toISOString().split('T')[0] : '');
                         }}
                         placeholder="Select expiry date"
                       />
@@ -287,8 +396,10 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
                       type="text"
                       value={formData.dbs_certificate_number}
                       onChange={(e) => setFormData(prev => ({ ...prev, dbs_certificate_number: e.target.value }))}
+                      onFocus={() => setEditingField('dbs_certificate_number')}
+                      onBlur={() => handleBlur('dbs_certificate_number')}
                       placeholder="Enter DBS certificate number"
-                      disabled={isLoading}
+                      disabled={isLoading || isSaving}
                     />
                   </HubForm.Field>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
@@ -296,7 +407,7 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
                       <DatePicker
                         selected={formData.dbs_certificate_date ? new Date(formData.dbs_certificate_date) : undefined}
                         onSelect={(date) => {
-                          setFormData(prev => ({ ...prev, dbs_certificate_date: date ? date.toISOString().split('T')[0] : '' }));
+                          handleDateChange('dbs_certificate_date', date ? date.toISOString().split('T')[0] : '');
                         }}
                         placeholder="Select issue date"
                       />
@@ -305,7 +416,7 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
                       <DatePicker
                         selected={formData.dbs_expiry_date ? new Date(formData.dbs_expiry_date) : undefined}
                         onSelect={(date) => {
-                          setFormData(prev => ({ ...prev, dbs_expiry_date: date ? date.toISOString().split('T')[0] : '' }));
+                          handleDateChange('dbs_expiry_date', date ? date.toISOString().split('T')[0] : '');
                         }}
                         placeholder="Select expiry date"
                       />

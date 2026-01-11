@@ -10,8 +10,11 @@ import DatePicker from '@/app/components/ui/forms/DatePicker';
 import CustomTimePicker from '@/app/components/feature/listings/wizard-steps/CustomTimePicker';
 import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
 import InlineProgressBadge from '../shared/InlineProgressBadge';
-import { getOnboardingProgress } from '@/lib/api/onboarding';
+import { getOnboardingProgress, saveOnboardingProgress } from '@/lib/api/onboarding';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { useOnboardingAutoSave } from '@/hooks/useAutoSave';
+import { useOfflineSync } from '@/hooks/useOfflineSync';
+import { hasUnsavedChanges as checkUnsavedChanges } from '@/lib/offlineQueue';
 
 interface ProgressData {
   currentPoints: number;
@@ -101,6 +104,55 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
   const [unavailErrors, setUnavailErrors] = useState<{ dates?: string }>({});
   const [isRestored, setIsRestored] = useState(false);
   const [periodConflicts, setPeriodConflicts] = useState<Map<string, string[]>>(new Map());
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Build availability data to pass to wizard
+  const availabilityData: AvailabilityData = {
+    generalDays,
+    generalTimes,
+    availabilityPeriods: availabilityPeriods.length > 0 ? availabilityPeriods : undefined,
+    unavailabilityPeriods: unavailabilityPeriods.length > 0 ? unavailabilityPeriods : undefined,
+  };
+
+  // Offline sync - auto-sync when connection restored
+  useOfflineSync(user?.id);
+
+  // Auto-save with 3-second debounce (runs in background, doesn't block Next button)
+  const { saveStatus } = useOnboardingAutoSave(
+    availabilityData,
+    async (data) => {
+      if (!user?.id) throw new Error('User not authenticated');
+
+      await saveOnboardingProgress({
+        userId: user.id,
+        progress: {
+          tutor: {
+            availability: data
+          }
+        }
+      });
+    },
+    {
+      enabled: isRestored && !isLoading,
+    }
+  );
+
+  // Immediate save function for multiselect changes
+  const handleImmediateSave = React.useCallback(() => {
+    if (!user?.id) return;
+
+    console.log('[TutorAvailabilityStep] Immediate save triggered');
+    saveOnboardingProgress({
+      userId: user.id,
+      progress: {
+        tutor: {
+          availability: availabilityData
+        }
+      }
+    })
+      .then(() => console.log('[TutorAvailabilityStep] ✓ Immediate save completed'))
+      .catch((error) => console.error('[TutorAvailabilityStep] ❌ Immediate save failed:', error));
+  }, [user?.id, availabilityData]);
 
   // Restore saved onboarding progress on mount
   React.useEffect(() => {
@@ -168,13 +220,19 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
     }
   }, [user?.id, isRestored]);
 
-  // Build availability data to pass to wizard
-  const availabilityData: AvailabilityData = {
-    generalDays,
-    generalTimes,
-    availabilityPeriods: availabilityPeriods.length > 0 ? availabilityPeriods : undefined,
-    unavailabilityPeriods: unavailabilityPeriods.length > 0 ? unavailabilityPeriods : undefined,
-  };
+  // beforeunload warning - prevent accidental close with unsaved changes
+  React.useEffect(() => {
+    const handleBeforeUnload = async (e: BeforeUnloadEvent) => {
+      const hasUnsaved = await checkUnsavedChanges();
+      if (saveStatus === 'saving' || isSaving || hasUnsaved) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [saveStatus, isSaving]);
 
   // Validation - Only Section 1 is required
   const isValid = generalDays.length > 0 && generalTimes.length > 0;
@@ -446,7 +504,10 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
                   triggerLabel={formatMultiSelectLabel(generalDays, 'Select days')}
                   options={dayOptions}
                   selectedValues={generalDays}
-                  onSelectionChange={setGeneralDays}
+                  onSelectionChange={(values) => {
+                    setGeneralDays(values);
+                    handleImmediateSave();
+                  }}
                 />
               </HubForm.Field>
 
@@ -455,7 +516,10 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
                   triggerLabel={formatMultiSelectLabel(generalTimes, 'Select times')}
                   options={timeOptions}
                   selectedValues={generalTimes}
-                  onSelectionChange={setGeneralTimes}
+                  onSelectionChange={(values) => {
+                    setGeneralTimes(values);
+                    handleImmediateSave();
+                  }}
                 />
               </HubForm.Field>
             </HubForm.Grid>

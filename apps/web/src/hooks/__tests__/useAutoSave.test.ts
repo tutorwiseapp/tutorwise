@@ -189,9 +189,11 @@ describe('formatLastSaved', () => {
 
     const now = new Date();
     const fiveSecondsAgo = new Date(now.getTime() - 5000);
+    const fifteenSecondsAgo = new Date(now.getTime() - 15000);
     const twoMinutesAgo = new Date(now.getTime() - 120000);
 
-    expect(formatLastSaved(fiveSecondsAgo)).toBe('Saved 5 seconds ago');
+    expect(formatLastSaved(fiveSecondsAgo)).toBe('Saved just now');
+    expect(formatLastSaved(fifteenSecondsAgo)).toBe('Saved 15 seconds ago');
     expect(formatLastSaved(twoMinutesAgo)).toBe('Saved 2 minutes ago');
   });
 

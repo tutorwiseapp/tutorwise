@@ -31,7 +31,7 @@ const ClientLearningPreferencesStep: React.FC<ClientLearningPreferencesStepProps
   const [location, setLocation] = useState('');
   const [learningStyle, setLearningStyle] = useState('');
 
-  const handleContinue = () => {
+  const handleNext = () => {
     // The WizardActionButtons component ensures this only runs when valid
     // These fields are all optional, so we always allow continuing
     onNext({ location, learningStyle });
@@ -71,7 +71,7 @@ const ClientLearningPreferencesStep: React.FC<ClientLearningPreferencesStepProps
             options={learningStyleOptions}
             selectedValue={learningStyle}
             onChange={(value) => setLearningStyle(value as string)}
-            debug={true}
+            
           />
         </div>
 
@@ -81,11 +81,11 @@ const ClientLearningPreferencesStep: React.FC<ClientLearningPreferencesStepProps
       </div>
 
       <WizardActionButtons
-        onContinue={handleContinue}
-        continueEnabled={true}
+        onNext={handleNext}
+        nextEnabled={true}
         onBack={onBack}
         isLoading={isLoading}
-        debug={true}
+        
       />
     </div>
   );

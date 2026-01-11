@@ -63,7 +63,7 @@ const ClientSubjectSelectionStep: React.FC<ClientSubjectSelectionStepProps> = ({
 }) => {
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>(initialSubjects);
 
-  const handleContinue = () => {
+  const handleNext = () => {
     // The WizardActionButtons component ensures this only runs when valid
     onNext(selectedSubjects);
   };
@@ -84,7 +84,7 @@ const ClientSubjectSelectionStep: React.FC<ClientSubjectSelectionStepProps> = ({
           options={LEARNING_SUBJECTS}
           selectedValues={selectedSubjects}
           onChange={(values) => setSelectedSubjects(values as string[])}
-          debug={true}
+          
         />
 
         <p className={styles.progressIndicator}>
@@ -95,11 +95,11 @@ const ClientSubjectSelectionStep: React.FC<ClientSubjectSelectionStepProps> = ({
       </div>
 
       <WizardActionButtons
-        onContinue={handleContinue}
-        continueEnabled={selectedSubjects.length > 0}
+        onNext={handleNext}
+        nextEnabled={selectedSubjects.length > 0}
         onBack={onBack}
         isLoading={isLoading}
-        debug={true}
+        
       />
     </div>
   );
