@@ -143,7 +143,7 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
   // No validation - all fields are optional for faster onboarding
   const isValid = true;
 
-  const handleContinue = async () => {
+  const handleNext = async () => {
     if (!user?.id) {
       console.error('[TutorProfessionalVerificationStep] User not authenticated');
       return;
@@ -383,8 +383,8 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
       </div>
 
       <WizardActionButtons
-        onContinue={handleContinue}
-        continueEnabled={isValid}
+        onNext={handleNext}
+        nextEnabled={isValid}
         onBack={handleBack}
         isLoading={isLoading}
       />

@@ -62,7 +62,7 @@ const TutorQualificationsStep: React.FC<TutorQualificationsStepProps> = ({
     debug: true,
   });
 
-  const handleContinue = () => {
+  const handleNext = () => {
     // The WizardActionButtons component ensures this only runs when isValid is true
     onNext({ experience, education, certifications, bio });
   };
@@ -137,8 +137,8 @@ const TutorQualificationsStep: React.FC<TutorQualificationsStepProps> = ({
       </div>
 
       <WizardActionButtons
-        onContinue={handleContinue}
-        continueEnabled={isValid}
+        onNext={handleNext}
+        nextEnabled={isValid}
         onBack={onBack}
         isLoading={isLoading}
         debug={true}

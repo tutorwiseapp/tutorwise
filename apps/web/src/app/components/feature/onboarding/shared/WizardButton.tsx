@@ -125,11 +125,11 @@ export const WizardSecondaryButton: React.FC<WizardButtonProps> = ({
  */
 export interface WizardActionButtonsProps {
   /** Continue button click handler */
-  onContinue: () => void;
+  onNext: () => void;
   /** Continue button enabled state */
-  continueEnabled: boolean;
+  nextEnabled: boolean;
   /** Continue button label (default: "Next →") */
-  continueLabel?: string;
+  nextLabel?: string;
   /** Back button click handler (if provided, button shows) */
   onBack?: () => void;
   /** Back button label (default: "← Back") */
@@ -145,9 +145,9 @@ export interface WizardActionButtonsProps {
  * Handles layout and consistent styling
  */
 export const WizardActionButtons: React.FC<WizardActionButtonsProps> = ({
-  onContinue,
-  continueEnabled,
-  continueLabel = 'Next →',
+  onNext,
+  nextEnabled,
+  nextLabel = 'Next →',
   onBack,
   backLabel = '← Back',
   isLoading = false,
@@ -170,13 +170,13 @@ export const WizardActionButtons: React.FC<WizardActionButtonsProps> = ({
 
       <div className={styles.actionRight}>
         <WizardPrimaryButton
-          onClick={onContinue}
-          disabled={!continueEnabled}
+          onClick={onNext}
+          disabled={!nextEnabled}
           isLoading={isLoading}
           debug={debug}
           ariaLabel="Continue to next step"
         >
-          {continueLabel}
+          {nextLabel}
         </WizardPrimaryButton>
       </div>
     </div>

@@ -164,8 +164,8 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
     }
   };
 
-  const handleContinue = () => {
-    console.log('[TutorPersonalInfoStep] handleContinue called');
+  const handleNext = () => {
+    console.log('[TutorPersonalInfoStep] handleNext called');
     console.log('[TutorPersonalInfoStep] Form data:', formData);
     console.log('[TutorPersonalInfoStep] isFormValid:', isFormValid);
     console.log('[TutorPersonalInfoStep] Calling onNext...');
@@ -306,10 +306,10 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
       </div>
 
       <WizardActionButtons
-        onContinue={handleContinue}
+        onNext={handleNext}
         onBack={onBack}
         backLabel="← Back"
-        continueEnabled={isFormValid}
+        nextEnabled={isFormValid}
         isLoading={isLoading}
       />
     </div>

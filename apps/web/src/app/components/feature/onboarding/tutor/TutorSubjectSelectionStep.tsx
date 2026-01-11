@@ -32,7 +32,7 @@ const TutorSubjectSelectionStep: React.FC<TutorSubjectSelectionStepProps> = ({
 }) => {
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
 
-  const handleContinue = () => {
+  const handleNext = () => {
     onNext(selectedSubjects);
   };
 
@@ -84,8 +84,8 @@ const TutorSubjectSelectionStep: React.FC<TutorSubjectSelectionStepProps> = ({
       </div>
 
       <WizardActionButtons
-        onContinue={handleContinue}
-        continueEnabled={selectedSubjects.length > 0}
+        onNext={handleNext}
+        nextEnabled={selectedSubjects.length > 0}
         onBack={onBack}
         isLoading={isLoading}
         debug={true}

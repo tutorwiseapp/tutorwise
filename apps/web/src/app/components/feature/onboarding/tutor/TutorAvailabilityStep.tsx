@@ -383,8 +383,8 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
   const recurringPeriods = availabilityPeriods.filter(p => p.type === 'recurring');
   const oneTimePeriods = availabilityPeriods.filter(p => p.type === 'one-time');
 
-  const handleContinue = () => {
-    console.log('[TutorAvailabilityStep] handleContinue called');
+  const handleNext = () => {
+    console.log('[TutorAvailabilityStep] handleNext called');
     console.log('[TutorAvailabilityStep] Form data:', availabilityData);
     console.log('[TutorAvailabilityStep] isValid:', isValid);
     console.log('[TutorAvailabilityStep] Calling onNext...');
@@ -791,8 +791,8 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
 
       {/* Action Buttons using shared component */}
       <WizardActionButtons
-        onContinue={handleContinue}
-        continueEnabled={isValid}
+        onNext={handleNext}
+        nextEnabled={isValid}
         onBack={onBack}
         isLoading={isLoading}
       />

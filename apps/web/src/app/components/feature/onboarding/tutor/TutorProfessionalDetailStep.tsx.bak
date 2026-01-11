@@ -9,9 +9,9 @@ import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import UnifiedMultiSelect from '@/app/components/ui/forms/UnifiedMultiSelect';
 import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
 import InlineProgressBadge from '../shared/InlineProgressBadge';
-
-
-import { getOnboardingProgress } from '@/lib/api/onboarding';
+import { useOnboardingAutoSave } from '@/hooks/useAutoSave';
+import { useDifferentiatedSave } from '../shared/useDifferentiatedSave';
+import { saveOnboardingProgress, getOnboardingProgress } from '@/lib/api/onboarding';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import toast from 'react-hot-toast';
 
@@ -217,14 +217,14 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
     });
   }, [formData, isValid]);
 
-  const handleNext = async () => {
+  const handleContinue = async () => {
     if (!user?.id) {
       console.error('[TutorProfessionalDetailStep] User not authenticated');
       toast.error('Please log in to continue');
       return;
     }
 
-    console.log('[TutorProfessionalDetailStep] handleNext called, formData:', formData);
+    console.log('[TutorProfessionalDetailStep] handleContinue called, formData:', formData);
     console.log('[TutorProfessionalDetailStep] isValid:', isValid);
 
     // Use blocking save strategy for manual continue
@@ -472,8 +472,8 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
       </div>
 
       <WizardActionButtons
-        onNext={handleNext}
-        nextEnabled={isValid}
+        onContinue={handleContinue}
+        continueEnabled={isValid}
         onBack={handleBack}
         isLoading={isLoading}
       />
