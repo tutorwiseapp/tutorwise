@@ -105,29 +105,67 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
 
   // Restore saved onboarding progress on mount
   React.useEffect(() => {
+    console.log('[TutorAvailabilityStep] Restoration useEffect triggered', {
+      isRestored,
+      hasUserId: !!user?.id,
+      userId: user?.id
+    });
+
     if (!isRestored && user?.id) {
+      console.log('[TutorAvailabilityStep] Starting getOnboardingProgress call...');
+
       getOnboardingProgress('tutor')
         .then(savedProgress => {
+          console.log('[TutorAvailabilityStep] getOnboardingProgress returned:', savedProgress);
+
           const savedData = savedProgress?.progress?.tutor?.availability;
+          console.log('[TutorAvailabilityStep] Extracted availability data:', savedData);
 
           if (savedData) {
-            console.log('[TutorAvailabilityStep] ✅ Restored saved progress:', savedData);
+            console.log('[TutorAvailabilityStep] ✅ Restoring saved progress');
 
             // Restore general availability
-            if (savedData.generalDays) setGeneralDays(savedData.generalDays);
-            if (savedData.generalTimes) setGeneralTimes(savedData.generalTimes);
+            if (savedData.generalDays) {
+              console.log('[TutorAvailabilityStep] Setting generalDays:', savedData.generalDays);
+              setGeneralDays(savedData.generalDays);
+            } else {
+              console.log('[TutorAvailabilityStep] No generalDays to restore');
+            }
+
+            if (savedData.generalTimes) {
+              console.log('[TutorAvailabilityStep] Setting generalTimes:', savedData.generalTimes);
+              setGeneralTimes(savedData.generalTimes);
+            } else {
+              console.log('[TutorAvailabilityStep] No generalTimes to restore');
+            }
 
             // Restore detailed schedule
-            if (savedData.availabilityPeriods) setAvailabilityPeriods(savedData.availabilityPeriods);
-            if (savedData.unavailabilityPeriods) setUnavailabilityPeriods(savedData.unavailabilityPeriods);
+            if (savedData.availabilityPeriods) {
+              console.log('[TutorAvailabilityStep] Setting availabilityPeriods:', savedData.availabilityPeriods);
+              setAvailabilityPeriods(savedData.availabilityPeriods);
+            }
+            if (savedData.unavailabilityPeriods) {
+              console.log('[TutorAvailabilityStep] Setting unavailabilityPeriods:', savedData.unavailabilityPeriods);
+              setUnavailabilityPeriods(savedData.unavailabilityPeriods);
+            }
+          } else {
+            console.log('[TutorAvailabilityStep] ⚠️ No saved availability data found');
           }
 
+          console.log('[TutorAvailabilityStep] Setting isRestored to true');
           setIsRestored(true);
         })
         .catch(error => {
-          console.error('[TutorAvailabilityStep] Error loading saved progress:', error);
+          console.error('[TutorAvailabilityStep] ❌ Error loading saved progress:', error);
           setIsRestored(true);
         });
+    } else {
+      if (isRestored) {
+        console.log('[TutorAvailabilityStep] Skipping restoration - already restored');
+      }
+      if (!user?.id) {
+        console.log('[TutorAvailabilityStep] Skipping restoration - no user ID');
+      }
     }
   }, [user?.id, isRestored]);
 
@@ -148,6 +186,8 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
     async (data) => {
       if (!user?.id) throw new Error('User not authenticated');
 
+      console.log('[TutorAvailabilityStep] Auto-saving data:', data);
+
       await saveOnboardingProgress({
         userId: user.id,
         progress: {
@@ -156,6 +196,8 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
           }
         }
       });
+
+      console.log('[TutorAvailabilityStep] Auto-save completed successfully');
     },
     {
       enabled: isRestored, // Only auto-save after restoration
@@ -284,10 +326,13 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
       return;
     }
 
+    console.log('[TutorAvailabilityStep] handleContinue called with data:', availabilityData);
+
     // Use blocking save strategy for manual continue
     const success = await saveOnContinue({
       data: availabilityData,
       onSave: async (data) => {
+        console.log('[TutorAvailabilityStep] Saving on continue:', data);
         await saveOnboardingProgress({
           userId: user.id,
           progress: {
@@ -296,21 +341,30 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
             }
           }
         });
+        console.log('[TutorAvailabilityStep] Save on continue completed');
       },
     });
 
+    console.log('[TutorAvailabilityStep] Save success:', success);
+
     if (success) {
+      console.log('[TutorAvailabilityStep] Calling onNext with data');
       onNext(availabilityData);
+    } else {
+      console.error('[TutorAvailabilityStep] Save failed, not advancing');
     }
   };
 
   const handleBack = () => {
     if (!user?.id || !onBack) return;
 
+    console.log('[TutorAvailabilityStep] handleBack called with data:', availabilityData);
+
     // Use optimistic save strategy for navigation
     saveOnNavigate({
       data: availabilityData,
       onSave: async (data) => {
+        console.log('[TutorAvailabilityStep] Saving on navigate (back):', data);
         await saveOnboardingProgress({
           userId: user.id,
           progress: {
@@ -319,10 +373,12 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
             }
           }
         });
+        console.log('[TutorAvailabilityStep] Save on navigate (back) completed');
       },
     });
 
     // Navigate immediately and pass data to wizard (optimistic)
+    console.log('[TutorAvailabilityStep] Calling onBack with data');
     onBack(availabilityData);
   };
 
