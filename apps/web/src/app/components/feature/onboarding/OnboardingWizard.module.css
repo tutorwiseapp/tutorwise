@@ -325,10 +325,11 @@
 .formSelect,
 .formTextarea {
   width: 100%;
-  padding: 12px; /* Matches dropdown height (0.75rem) */
+  padding: 0.75rem 1rem; /* Match dropdown padding exactly (12px vertical, 16px horizontal) */
   border: 1px solid var(--color-border, #e5e7eb);
   border-radius: var(--border-radius-md, 8px);
-  font-size: var(--font-size-base, 1rem); /* 16px */
+  font-size: 14px; /* Match dropdown font-size */
+  line-height: 1.5; /* Match dropdown line-height */
   font-family: inherit; /* Use the same font as rest of the page */
   color: var(--color-text-primary, #202124);
   transition: all 0.2s ease;
