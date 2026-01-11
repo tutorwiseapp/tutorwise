@@ -119,6 +119,18 @@ export default function TutorAvailabilityPage() {
 
       const professionalDetails = profile?.onboarding_progress?.tutor?.professionalDetails;
 
+      // Validate previous steps' data exists before final save
+      if (!professionalDetails?.subjects?.length ||
+          !professionalDetails?.tutoringExperience ||
+          !professionalDetails?.oneOnOneRate) {
+        console.error('[TutorAvailability] ❌ Missing professional details data');
+        alert('Please complete Professional Details step first. Missing required fields: subjects, experience, or rate.');
+        setIsPageLoading(false);
+        setIsCompleting(false);
+        router.push('/onboarding/tutor/professional-details');
+        return;
+      }
+
       // Add 'tutor' role to user's roles if not already present
       const currentRoles = profile?.roles || [];
       console.log('[TutorAvailability] Current roles:', currentRoles);
@@ -186,14 +198,21 @@ export default function TutorAvailabilityPage() {
 
       console.log('[TutorAvailability] ✓ Onboarding completed');
 
-      // Refresh profile and redirect
+      // Refresh profile and redirect - wait for refresh to complete
+      console.log('[TutorAvailability] Refreshing profile...');
       try {
         await Promise.race([
           refreshProfile(),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 3000))
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
         ]);
+        console.log('[TutorAvailability] ✓ Profile refreshed successfully');
       } catch (error) {
-        console.error('[TutorAvailability] Profile refresh timeout:', error);
+        console.error('[TutorAvailability] ❌ Profile refresh failed:', error);
+        // Don't proceed if refresh fails - user may see stale data
+        alert('Onboarding completed but profile refresh failed. Please reload the page.');
+        setIsPageLoading(false);
+        setIsCompleting(false);
+        return;
       }
 
       setActiveRole('tutor');

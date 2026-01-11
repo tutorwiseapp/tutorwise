@@ -139,14 +139,11 @@ export default function TutorPersonalInfoPage() {
 
       // Mark step as completed in onboarding_progress with completion flag
       await updateOnboardingProgress({
-        userId: user.id,
-        progress: {
-          current_step: 'professionalDetails',
-          tutor: {
-            personalInfo: {
-              ...data,
-              completed: true,  // Completion flag - step is fully done
-            }
+        current_step: 'professionalDetails',
+        tutor: {
+          personalInfo: {
+            ...data,
+            completed: true,  // Completion flag - step is fully done
           }
         }
       });
