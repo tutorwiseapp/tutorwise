@@ -55,6 +55,11 @@ export default function InlineProgressBadge({
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
+      {/* Info Icon */}
+      <span className={styles.infoIcon} title="What are CaaS points?">
+        ⓘ
+      </span>
+
       {/* Earn Badge */}
       <span className={styles.earnBadge}>
         Earn +{currentStepPoints} pts
@@ -107,8 +112,12 @@ export default function InlineProgressBadge({
       {showTooltip && (
         <div className={styles.tooltip}>
           <div className={styles.tooltipHeader}>
-            Profile Setup Progress
+            CaaS Credibility Score
           </div>
+          <div className={styles.tooltipExplanation}>
+            Your credibility score determines your visibility in search results and client trust. Higher scores = more bookings.
+          </div>
+          <div className={styles.stepsHeader}>Profile Completion:</div>
           <ul className={styles.stepsList}>
             {steps.map((step, index) => (
               <li
