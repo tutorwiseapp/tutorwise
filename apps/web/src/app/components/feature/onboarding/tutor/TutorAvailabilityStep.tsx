@@ -102,6 +102,7 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
   const [unavailabilityPeriods, setUnavailabilityPeriods] = useState<UnavailabilityPeriod[]>([]);
   const [unavailErrors, setUnavailErrors] = useState<{ dates?: string }>({});
   const [isRestored, setIsRestored] = useState(false);
+  const [conflictWarnings, setConflictWarnings] = useState<string[]>([]);
 
   // Restore saved onboarding progress on mount
   React.useEffect(() => {
@@ -206,6 +207,50 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
 
   // Validation - Only Section 1 is required
   const isValid = generalDays.length > 0 && generalTimes.length > 0;
+
+  // Detect conflicts whenever periods change
+  React.useEffect(() => {
+    const warnings = detectConflicts(availabilityPeriods, unavailabilityPeriods);
+    setConflictWarnings(warnings);
+  }, [availabilityPeriods, unavailabilityPeriods]);
+
+  // Conflict detection helpers
+  const convertTimeToMinutes = (timeStr: string): number => {
+    const match = timeStr.match(/^(\d+):(\d+)\s(AM|PM)$/);
+    if (!match) return 0;
+
+    let hours = parseInt(match[1]);
+    const minutes = parseInt(match[2]);
+    const period = match[3];
+
+    if (period === 'PM' && hours !== 12) hours += 12;
+    if (period === 'AM' && hours === 12) hours = 0;
+
+    return hours * 60 + minutes;
+  };
+
+  const doTimeRangesOverlap = (start1: string, end1: string, start2: string, end2: string): boolean => {
+    const s1 = convertTimeToMinutes(start1);
+    const e1 = convertTimeToMinutes(end1);
+    const s2 = convertTimeToMinutes(start2);
+    const e2 = convertTimeToMinutes(end2);
+
+    return s1 < e2 && s2 < e1;
+  };
+
+  const doDateRangesOverlap = (from1: string, to1: string | undefined, from2: string, to2: string | undefined): boolean => {
+    const d1Start = new Date(from1);
+    const d1End = to1 ? new Date(to1) : new Date(from1);
+    const d2Start = new Date(from2);
+    const d2End = to2 ? new Date(to2) : new Date(from2);
+
+    return d1Start <= d2End && d2Start <= d1End;
+  };
+
+  const doDaysOverlap = (days1: string[] | undefined, days2: string[] | undefined): boolean => {
+    if (!days1 || !days2) return true; // one-time periods always considered overlapping
+    return days1.some(day => days2.includes(day));
+  };
 
   // Helper functions (copied from ProfessionalInfoForm)
   const toggleDay = (day: string) => {
@@ -315,6 +360,42 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
 
   const formatUnavailabilityText = (period: UnavailabilityPeriod) => {
     return `${period.fromDate} - ${period.toDate}`;
+  };
+
+  const detectConflicts = (periods: AvailabilityPeriod[], unavailPeriods: UnavailabilityPeriod[]): string[] => {
+    const warnings: string[] = [];
+
+    // Check for overlapping availability periods
+    for (let i = 0; i < periods.length; i++) {
+      for (let j = i + 1; j < periods.length; j++) {
+        const p1 = periods[i];
+        const p2 = periods[j];
+
+        // Check if date ranges overlap
+        if (!doDateRangesOverlap(p1.fromDate, p1.toDate, p2.fromDate, p2.toDate)) continue;
+
+        // For recurring periods, check if days overlap
+        if (p1.type === 'recurring' && p2.type === 'recurring') {
+          if (!doDaysOverlap(p1.days, p2.days)) continue;
+        }
+
+        // Check if time ranges overlap
+        if (doTimeRangesOverlap(p1.startTime, p1.endTime, p2.startTime, p2.endTime)) {
+          warnings.push(`Overlapping availability: ${formatAvailabilityText(p1)} conflicts with ${formatAvailabilityText(p2)}`);
+        }
+      }
+    }
+
+    // Check for availability conflicting with unavailability
+    for (const availPeriod of periods) {
+      for (const unavailPeriod of unavailPeriods) {
+        if (doDateRangesOverlap(availPeriod.fromDate, availPeriod.toDate, unavailPeriod.fromDate, unavailPeriod.toDate)) {
+          warnings.push(`Availability conflicts with unavailability: ${formatAvailabilityText(availPeriod)} overlaps with ${formatUnavailabilityText(unavailPeriod)}`);
+        }
+      }
+    }
+
+    return warnings;
   };
 
   const recurringPeriods = availabilityPeriods.filter(p => p.type === 'recurring');
@@ -448,6 +529,35 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
 
           {/* Section 2: Detailed Schedule (Optional) - Copied from ProfessionalInfoForm */}
           <HubForm.Section title="Detailed Availability (Optional)">
+            {/* Conflict Warnings */}
+            {conflictWarnings.length > 0 && (
+              <div style={{
+                marginBottom: '24px',
+                padding: '12px 16px',
+                backgroundColor: '#FEF3C7',
+                border: '1px solid #F59E0B',
+                borderRadius: '8px'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '8px'
+                }}>
+                  <span style={{ fontSize: '18px', flexShrink: 0 }}>⚠️</span>
+                  <div style={{ flex: 1 }}>
+                    <strong style={{ color: '#92400E', fontSize: '14px', fontWeight: 600 }}>
+                      Schedule Conflicts Detected
+                    </strong>
+                    <ul style={{ margin: '8px 0 0 0', paddingLeft: '20px', color: '#92400E', fontSize: '14px' }}>
+                      {conflictWarnings.map((warning, index) => (
+                        <li key={index} style={{ marginBottom: '4px' }}>{warning}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className={professionalStyles.availabilityGrid}>
               {/* Left Column: Availability Periods */}
               <div>

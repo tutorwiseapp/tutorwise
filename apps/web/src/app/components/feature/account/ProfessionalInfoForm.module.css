@@ -30,7 +30,7 @@
   justify-content: center;
   padding: 12px 16px; /* 8px × 1.5 and 8px × 2 */
   background-color: var(--color-bg-secondary, #f9fafb);
-  border: 2px solid var(--color-border, #dfe1e5);
+  border: 1px solid var(--color-border, #dfe1e5);
   border-radius: 8px; /* 8px × 1 */
   cursor: pointer;
   transition: all 0.2s ease-in-out;
