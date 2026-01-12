@@ -530,7 +530,7 @@ export default function FormsAdminPage() {
               description="Choose a field from the list to view and edit its configuration"
               icon={<Edit2 size={48} strokeWidth={1} opacity={0.3} />}
             />
-          ) : isLoadingFieldConfig || (isFetchingFieldConfig && !selectedFieldConfig) ? (
+          ) : isLoadingFieldConfig ? (
             <div className={styles.loading}>Loading field configuration...</div>
           ) : selectedFieldConfig ? (
             <div className={styles.editorContent}>
