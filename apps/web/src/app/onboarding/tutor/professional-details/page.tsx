@@ -177,6 +177,7 @@ export default function TutorProfessionalDetailsPage() {
         onNext={handleNext}
         onBack={handleBack}
         isLoading={isPageLoading}
+        userRole="tutor"
         progressData={progressData}
       />
     </div>

@@ -34,6 +34,7 @@ interface TutorProfessionalDetailStepProps {
   onNext: (details: ProfessionalDetailsData) => void;
   onBack?: () => void;
   isLoading: boolean;
+  userRole?: 'tutor' | 'agent' | 'client';
   progressData?: ProgressData;
 }
 
