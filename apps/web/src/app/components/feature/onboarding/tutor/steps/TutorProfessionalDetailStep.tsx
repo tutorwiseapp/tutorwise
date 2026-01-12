@@ -113,6 +113,7 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
   onNext,
   onBack,
   isLoading,
+  userRole = 'tutor',
   progressData
 }) => {
   const { user } = useUserProfile();
@@ -155,9 +156,9 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
   // Restore saved onboarding progress on mount
   React.useEffect(() => {
     if (!isRestored && user?.id) {
-      getOnboardingProgress('tutor')
+      getOnboardingProgress(userRole)
         .then(savedProgress => {
-          const savedData = savedProgress?.progress?.tutor?.professionalDetails;
+          const savedData = savedProgress?.progress?.[userRole]?.professionalDetails;
 
           if (savedData) {
             console.log('[TutorProfessionalDetailStep] ✅ Restored saved progress:', savedData);

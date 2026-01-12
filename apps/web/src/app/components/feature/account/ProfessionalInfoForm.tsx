@@ -10,6 +10,8 @@ import DatePicker from '@/app/components/ui/forms/DatePicker';
 import Button from '@/app/components/ui/actions/Button';
 import { useDocumentUpload } from '@/hooks/useDocumentUpload';
 import { useFormConfigs } from '@/hooks/useFormConfig';
+import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
+import toast from 'react-hot-toast';
 import hubFormStyles from '@/app/components/hub/form/HubForm.module.css';
 import styles from './ProfessionalInfoForm.module.css';
 
@@ -182,6 +184,16 @@ const sessionDurationOptions = [
 
 const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
+// General availability options (matching onboarding)
+const dayOptions = DAYS_OF_WEEK.map(day => ({ value: day, label: day }));
+
+const timeOptions = [
+  { value: 'morning', label: 'Morning (6am-12pm)' },
+  { value: 'afternoon', label: 'Afternoon (12pm-5pm)' },
+  { value: 'evening', label: 'Evening (5pm-10pm)' },
+  { value: 'all_day', label: 'All day (6am-10pm)' }
+];
+
 export default function ProfessionalInfoForm({ profile, onSave, activeRole }: ProfessionalInfoFormProps) {
   const [editingField, setEditingField] = useState<EditingField>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -275,6 +287,10 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     dbs_expiry_date: '',
   });
 
+  // General Availability state (from onboarding)
+  const [generalDays, setGeneralDays] = useState<string[]>([]);
+  const [generalTimes, setGeneralTimes] = useState<string[]>([]);
+
   // Availability state
   const [availabilityType, setAvailabilityType] = useState<AvailabilityType>('recurring');
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
@@ -366,13 +382,28 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
       dbs_expiry_date: profile.dbs_expiry_date || '',
     }));
 
-    // Load client availability/unavailability if present
-    if (activeRole === 'client' && clientData) {
-      if (clientData.availability) {
-        setAvailabilityPeriods(clientData.availability);
+    // Load availability data based on active role
+    const roleData = activeRole === 'client' ? clientData : activeRole === 'agent' ? agentData : tutorData;
+
+    if (roleData?.availability) {
+      const availData = roleData.availability;
+
+      // Load general availability (from onboarding)
+      if (availData.general_days) {
+        setGeneralDays(availData.general_days);
       }
-      if (clientData.unavailability) {
-        setUnavailabilityPeriods(clientData.unavailability);
+      if (availData.general_times) {
+        setGeneralTimes(availData.general_times);
+      }
+
+      // Load calendar-based availability periods
+      if (availData.availability_periods) {
+        setAvailabilityPeriods(availData.availability_periods);
+      }
+
+      // Load unavailability periods
+      if (availData.unavailability_periods) {
+        setUnavailabilityPeriods(availData.unavailability_periods);
       }
     }
 
@@ -749,6 +780,45 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     setUnavailErrors({});
   };
 
+  // Save general availability changes
+  const handleSaveGeneralAvailability = async () => {
+    setIsSaving(true);
+    try {
+      const roleType = activeRole || profile.active_role || 'tutor';
+
+      // Get existing availability data
+      const roleDetailsArray = (profile as any).role_details || [];
+      const currentRoleDetails = roleDetailsArray.find((rd: any) => rd.role_type === roleType);
+      const existingAvailability = currentRoleDetails?.availability || {};
+
+      // Update with new general availability
+      const updatedAvailability = {
+        ...existingAvailability,
+        general_days: generalDays,
+        general_times: generalTimes,
+      };
+
+      // Save to role_details via the account page handler
+      const updateData: Partial<Profile> = {
+        professional_details: {
+          ...profile.professional_details,
+          [roleType]: {
+            ...(profile.professional_details as any)?.[roleType],
+            availability: updatedAvailability
+          }
+        }
+      };
+
+      await onSave(updateData);
+      toast.success('General availability updated');
+    } catch (error) {
+      console.error('Failed to save general availability:', error);
+      toast.error('Failed to save general availability');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleRemoveAvailability = (id: string) => {
     setAvailabilityPeriods(availabilityPeriods.filter(p => p.id !== id));
   };
@@ -1025,8 +1095,40 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
             </HubForm.Grid>
           </HubForm.Section>
 
-          {/* Availability Section */}
-          <HubForm.Section title="Availability">
+          {/* General Availability Section */}
+          <HubForm.Section title="General Availability">
+            <HubForm.Grid>
+              <HubForm.Field label="Days of the week" required>
+                <UnifiedMultiSelect
+                  triggerLabel={formatMultiSelectLabel(generalDays, 'Select days')}
+                  options={dayOptions}
+                  selectedValues={generalDays}
+                  onSelectionChange={(values) => {
+                    setGeneralDays(values);
+                    handleSaveGeneralAvailability();
+                  }}
+                  disabled={isSaving}
+                />
+              </HubForm.Field>
+
+              <HubForm.Field label="Times of day" required>
+                <UnifiedMultiSelect
+                  triggerLabel={formatMultiSelectLabel(generalTimes, 'Select times')}
+                  options={timeOptions}
+                  selectedValues={generalTimes}
+                  onSelectionChange={(values) => {
+                    setGeneralTimes(values);
+                    handleSaveGeneralAvailability();
+                  }}
+                  disabled={isSaving}
+                />
+              </HubForm.Field>
+            </HubForm.Grid>
+
+          </HubForm.Section>
+
+          {/* Detailed Availability Section */}
+          <HubForm.Section title="Detailed Schedule (Optional)">
             <div className={styles.availabilityGrid}>
               {/* Left Column: Availability Periods */}
               <div>
@@ -1504,6 +1606,38 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
             </div>
           </HubForm.Section>
 
+          {/* General Availability Section */}
+          <HubForm.Section title="General Availability">
+            <HubForm.Grid>
+              <HubForm.Field label="Days of the week" required>
+                <UnifiedMultiSelect
+                  triggerLabel={formatMultiSelectLabel(generalDays, 'Select days')}
+                  options={dayOptions}
+                  selectedValues={generalDays}
+                  onSelectionChange={(values) => {
+                    setGeneralDays(values);
+                    handleSaveGeneralAvailability();
+                  }}
+                  disabled={isSaving}
+                />
+              </HubForm.Field>
+
+              <HubForm.Field label="Times of day" required>
+                <UnifiedMultiSelect
+                  triggerLabel={formatMultiSelectLabel(generalTimes, 'Select times')}
+                  options={timeOptions}
+                  selectedValues={generalTimes}
+                  onSelectionChange={(values) => {
+                    setGeneralTimes(values);
+                    handleSaveGeneralAvailability();
+                  }}
+                  disabled={isSaving}
+                />
+              </HubForm.Field>
+            </HubForm.Grid>
+
+          </HubForm.Section>
+
           {/* Availability Note */}
           <HubForm.Section>
             <div style={{ padding: '20px', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
@@ -1716,8 +1850,41 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
           </div>
         </HubForm.Section>
 
-        {/* Availability Section */}
-        <HubForm.Section title="Availability">
+        {/* General Availability Section */}
+        <HubForm.Section title="General Availability">
+          <HubForm.Grid>
+            <HubForm.Field label="Days of the week *">
+              <UnifiedMultiSelect
+                triggerLabel="Days of the week"
+                placeholder="Select days you're generally available"
+                options={dayOptions}
+                selectedValues={generalDays}
+                onSelectionChange={(values) => {
+                  setGeneralDays(values);
+                  handleSaveGeneralAvailability();
+                }}
+                disabled={isSaving}
+              />
+            </HubForm.Field>
+
+            <HubForm.Field label="Times of day *">
+              <UnifiedMultiSelect
+                triggerLabel="Times of day"
+                placeholder="Select times you're generally available"
+                options={timeOptions}
+                selectedValues={generalTimes}
+                onSelectionChange={(values) => {
+                  setGeneralTimes(values);
+                  handleSaveGeneralAvailability();
+                }}
+                disabled={isSaving}
+              />
+            </HubForm.Field>
+          </HubForm.Grid>
+        </HubForm.Section>
+
+        {/* Detailed Availability Section */}
+        <HubForm.Section title="Detailed Schedule (Optional)">
           <div className={styles.availabilityGrid}>
             {/* Left Column: Availability Periods */}
             <div>
