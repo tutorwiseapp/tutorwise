@@ -6,7 +6,7 @@ import styles from './Button.module.css';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'google';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
   href?: string;

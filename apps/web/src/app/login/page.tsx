@@ -112,7 +112,7 @@ function LoginForm() {
           </Link>
           <div className={authStyles.buttonGrid}>
             <Button type="submit" variant="primary" fullWidth>Sign In</Button>
-            <Button variant="secondary" fullWidth onClick={handleGoogleSignIn}>Sign In with Google</Button>
+            <Button variant="google" fullWidth onClick={handleGoogleSignIn}>Sign In with Google</Button>
           </div>
         </form>
       </div>
