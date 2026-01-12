@@ -40,6 +40,7 @@ import Button from '@/app/components/ui/actions/Button';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 import styles from './page.module.css';
+import { ADMIN_TABLE_DEFAULTS } from '@/constants/admin';
 import {
   fetchAllFormConfigs,
   fetchFieldConfig,
@@ -234,26 +235,22 @@ export default function FormsAdminPage() {
   const {
     data: fieldNames,
     isLoading: isLoadingFields,
-    isFetching: isFetchingFields,
   } = useQuery({
     queryKey: ['admin', 'field-names', contextFilter],
     queryFn: () => getFieldNamesForContext(contextFilter),
     placeholderData: keepPreviousData,
-    staleTime: 2 * 60 * 1000,
-    refetchOnMount: 'always',
+    staleTime: ADMIN_TABLE_DEFAULTS.STALE_TIME,
   });
 
   // Fetch selected field config
   const {
     data: selectedFieldConfig,
     isLoading: isLoadingFieldConfig,
-    isFetching: isFetchingFieldConfig,
   } = useQuery({
     queryKey: ['admin', 'field-config', selectedField, contextFilter],
     queryFn: () => fetchFieldConfig(selectedField!, contextFilter),
     enabled: !!selectedField,
-    staleTime: 2 * 60 * 1000,
-    refetchOnMount: 'always',
+    staleTime: ADMIN_TABLE_DEFAULTS.STALE_TIME,
   });
 
   // Update field metadata mutation
@@ -500,9 +497,6 @@ export default function FormsAdminPage() {
         <div className={styles.fieldList}>
           <div className={styles.fieldListHeader}>
             <h3>Fields ({filteredFieldNames?.length || 0})</h3>
-            {isFetchingFields && !isLoadingFields && (
-              <span className={styles.refreshingIndicator}>Refreshing...</span>
-            )}
           </div>
 
           {isLoadingFields ? (
@@ -543,14 +537,7 @@ export default function FormsAdminPage() {
               {/* Field name header */}
               <div className={styles.section}>
                 <div className={styles.sectionHeader}>
-                  <h3>
-                    {selectedField}
-                    {isFetchingFieldConfig && !isLoadingFieldConfig && (
-                      <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', color: '#14b8a6', fontWeight: 500 }}>
-                        Refreshing...
-                      </span>
-                    )}
-                  </h3>
+                  <h3>{selectedField}</h3>
                 </div>
               </div>
 
