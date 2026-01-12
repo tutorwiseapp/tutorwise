@@ -7,14 +7,10 @@
 
 import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useQueryClient } from '@tanstack/react-query';
-import { RefreshCw } from 'lucide-react';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar, { SidebarWidget } from '@/app/components/hub/sidebar/HubSidebar';
-import Button from '@/app/components/ui/actions/Button';
 import FormFieldEditor from '../components/FormFieldEditor';
-import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
 // Force dynamic rendering (no SSR/SSG) for admin pages
 export const dynamic = 'force-dynamic';
@@ -25,7 +21,6 @@ type RoleFilter = 'tutor' | 'agent' | 'client';
 export default function OrganisationFormsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const queryClient = useQueryClient();
 
   const roleFilter = (searchParams?.get('role') as RoleFilter) || 'tutor';
   const context = `organisation.${roleFilter}`;
@@ -53,17 +48,6 @@ export default function OrganisationFormsPage() {
         <HubHeader
           title="Organisation Forms"
           subtitle="Manage form configurations for organisation members"
-          actions={
-            <div className={actionStyles.actions}>
-              <Button
-                variant="secondary"
-                onClick={() => queryClient.invalidateQueries({ queryKey: ['admin', 'form-configs'] })}
-              >
-                <RefreshCw size={16} />
-                Refresh
-              </Button>
-            </div>
-          }
         />
       }
       tabs={<HubTabs tabs={roleTabs} onTabChange={handleRoleChange} />}
