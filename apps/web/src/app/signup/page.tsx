@@ -382,7 +382,7 @@ export default function SignUpPage() {
             <Button type="submit" variant="primary" fullWidth disabled={isLoading || !acceptedTerms}>
               {isLoading ? 'Creating account...' : 'Sign Up'}
             </Button>
-            <Button variant='google' fullWidth onClick={handleGoogleSignUp}>Sign Up with Google</Button>
+            <Button variant="secondary" fullWidth onClick={handleGoogleSignUp}>Sign Up with Google</Button>
           </div>
         </form>
       </div>
