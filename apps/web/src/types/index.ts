@@ -126,9 +126,12 @@ export interface OnboardingProgress {
 }
 
 export interface ClientProgress {
+  personalInfo?: any;
+  professionalDetails?: Partial<ProfessionalDetailsData>;
+  verification?: Partial<VerificationDetailsData>;
+  availability?: any;
   subjects?: string[];
   preferences?: LearningPreferencesData;
-  availability?: any;
 }
 
 export interface TutorProgress {
