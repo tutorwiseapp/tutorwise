@@ -24,6 +24,27 @@
   padding-left: 1rem; /* Align tabs with header content */
   padding-right: 1rem; /* Add right padding for symmetry */
   position: relative;
+  overflow-x: auto; /* Enable horizontal scrolling when tabs overflow */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #cbd5e0 transparent; /* Firefox */
+}
+
+/* Webkit scrollbar styling */
+.filterTabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.filterTabs::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.filterTabs::-webkit-scrollbar-thumb {
+  background-color: #cbd5e0;
+  border-radius: 2px;
+}
+
+.filterTabs::-webkit-scrollbar-thumb:hover {
+  background-color: #a0aec0;
 }
 
 .filterTab {

@@ -57,7 +57,16 @@ import {
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
-type ContextFilter = 'onboarding.tutor' | 'onboarding.agent' | 'onboarding.client' | 'account' | 'organisation.tutor';
+type ContextFilter =
+  | 'onboarding.tutor'
+  | 'onboarding.agent'
+  | 'onboarding.client'
+  | 'account.tutor'
+  | 'account.agent'
+  | 'account.client'
+  | 'organisation.tutor'
+  | 'organisation.agent'
+  | 'organisation.client';
 
 // Sortable Option Item Component
 interface SortableOptionProps {
@@ -359,8 +368,12 @@ export default function FormsAdminPage() {
     { id: 'onboarding.tutor', label: 'Tutor Onboarding', active: contextFilter === 'onboarding.tutor' },
     { id: 'onboarding.agent', label: 'Agent Onboarding', active: contextFilter === 'onboarding.agent' },
     { id: 'onboarding.client', label: 'Client Onboarding', active: contextFilter === 'onboarding.client' },
-    { id: 'account', label: 'Account Forms', active: contextFilter === 'account' },
-    { id: 'organisation.tutor', label: 'Organisation', active: contextFilter === 'organisation.tutor' },
+    { id: 'account.tutor', label: 'Tutor Account', active: contextFilter === 'account.tutor' },
+    { id: 'account.agent', label: 'Agent Account', active: contextFilter === 'account.agent' },
+    { id: 'account.client', label: 'Client Account', active: contextFilter === 'account.client' },
+    { id: 'organisation.tutor', label: 'Tutor Organisation', active: contextFilter === 'organisation.tutor' },
+    { id: 'organisation.agent', label: 'Agent Organisation', active: contextFilter === 'organisation.agent' },
+    { id: 'organisation.client', label: 'Client Organisation', active: contextFilter === 'organisation.client' },
   ];
 
   // Handle save field metadata
