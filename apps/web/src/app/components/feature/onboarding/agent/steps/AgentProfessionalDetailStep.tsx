@@ -34,6 +34,7 @@ interface AgentProfessionalDetailStepProps {
   onNext: (details: ProfessionalDetailsData) => void;
   onBack?: () => void;
   isLoading: boolean;
+  userRole?: 'tutor' | 'agent' | 'client';
   progressData?: ProgressData;
 }
 
@@ -112,6 +113,7 @@ const AgentProfessionalDetailStep: React.FC<AgentProfessionalDetailStepProps> = 
   onNext,
   onBack,
   isLoading,
+  userRole = 'agent',
   progressData
 }) => {
   const { user } = useUserProfile();
@@ -296,6 +298,13 @@ const AgentProfessionalDetailStep: React.FC<AgentProfessionalDetailStepProps> = 
     console.log('[AgentProfessionalDetailStep] onNext called successfully');
   };
 
+  // Get role display name
+  const roleDisplayNames = {
+    tutor: 'Tutor',
+    agent: 'Agent',
+    client: 'Client'
+  };
+  const roleDisplayName = roleDisplayNames[userRole] || 'Agent';
 
   return (
     <div className={styles.stepContent}>
@@ -305,7 +314,7 @@ const AgentProfessionalDetailStep: React.FC<AgentProfessionalDetailStepProps> = 
             Professional Details
           </h2>
           <p className={styles.stepSubtitle}>
-            Tutor Onboarding • Tell us about your professional background and services
+            {roleDisplayName} Onboarding • Tell us about your professional background and services
           </p>
         </div>
       </div>

@@ -177,6 +177,7 @@ export default function AgentProfessionalDetailsPage() {
         onNext={handleNext}
         onBack={handleBack}
         isLoading={isPageLoading}
+        userRole="agent"
         progressData={progressData}
       />
     </div>
