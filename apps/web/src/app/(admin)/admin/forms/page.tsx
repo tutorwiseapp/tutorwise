@@ -243,7 +243,6 @@ export default function FormsAdminPage() {
     queryKey: ['admin', 'field-config', selectedField, contextFilter],
     queryFn: () => fetchFieldConfig(selectedField!, contextFilter),
     enabled: !!selectedField,
-    placeholderData: keepPreviousData,
     staleTime: 2 * 60 * 1000,
     refetchOnMount: 'always',
   });
@@ -322,7 +321,15 @@ export default function FormsAdminPage() {
     );
   }, [fieldNames, searchQuery]);
 
-  // Initialize edit fields when field is selected
+  // Reset editing states when selected field changes
+  useEffect(() => {
+    setEditingOption(null);
+    setIsAddingOption(false);
+    setNewOptionValue('');
+    setNewOptionLabel('');
+  }, [selectedField, contextFilter]);
+
+  // Initialize edit fields when field config is loaded
   useEffect(() => {
     if (selectedFieldConfig) {
       setEditLabel(selectedFieldConfig.label || '');
@@ -516,10 +523,24 @@ export default function FormsAdminPage() {
               description="Choose a field from the list to view and edit its configuration"
               icon={<Edit2 size={48} strokeWidth={1} opacity={0.3} />}
             />
-          ) : isLoadingFieldConfig ? (
+          ) : isLoadingFieldConfig || (isFetchingFieldConfig && !selectedFieldConfig) ? (
             <div className={styles.loading}>Loading field configuration...</div>
           ) : selectedFieldConfig ? (
             <div className={styles.editorContent}>
+              {/* Field name header */}
+              <div className={styles.section}>
+                <div className={styles.sectionHeader}>
+                  <h3>
+                    {selectedField}
+                    {isFetchingFieldConfig && !isLoadingFieldConfig && (
+                      <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', color: '#14b8a6', fontWeight: 500 }}>
+                        Refreshing...
+                      </span>
+                    )}
+                  </h3>
+                </div>
+              </div>
+
               {/* Field Metadata Section */}
               <div className={styles.section}>
                 <div className={styles.sectionHeader}>
