@@ -172,11 +172,12 @@ export default function TutorProfessionalDetailsPage() {
   };
 
   return (
-    <div className={styles.onboardingPage}>
+    <div className={styles.onboardingStepPage}>
       <TutorProfessionalDetailStep
         onNext={handleNext}
         onBack={handleBack}
         isLoading={isPageLoading}
+        userRole="tutor"
         progressData={progressData}
       />
     </div>

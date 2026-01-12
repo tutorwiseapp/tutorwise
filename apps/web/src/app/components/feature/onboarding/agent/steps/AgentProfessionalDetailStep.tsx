@@ -9,7 +9,7 @@ import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import UnifiedMultiSelect from '@/app/components/ui/forms/UnifiedMultiSelect';
 import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
 import InlineProgressBadge from '../../shared/InlineProgressBadge';
-
+import { useFormConfigs } from '@/hooks/useFormConfig';
 
 import { getOnboardingProgress, saveOnboardingProgress } from '@/lib/api/onboarding';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
@@ -135,6 +135,23 @@ const AgentProfessionalDetailStep: React.FC<AgentProfessionalDetailStepProps> = 
   const [isRestored, setIsRestored] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Fetch dynamic form configs (with fallback to hardcoded values)
+  const { configs, isLoading: isLoadingConfigs } = useFormConfigs([
+    { fieldName: 'bio', context: 'onboarding.agent', fallback: { label: 'About You', placeholder: 'Describe your tutoring or teaching style, strengths, and what areas you specialise in', helpText: 'characters minimum' } },
+    { fieldName: 'bioVideoUrl', context: 'onboarding.agent', fallback: { label: '30-Second Intro Video (Optional)', placeholder: 'Paste YouTube, Loom, or Vimeo URL for +5 CaaS points' } },
+    { fieldName: 'status', context: 'onboarding.agent', fallback: { label: 'Status', placeholder: 'Select status', options: statusOptions } },
+    { fieldName: 'academicQualifications', context: 'onboarding.agent', fallback: { label: 'Academic Qualifications', placeholder: 'Select qualifications', options: academicQualificationsOptions } },
+    { fieldName: 'teachingProfessionalQualifications', context: 'onboarding.agent', fallback: { label: 'Teaching Professional Qualifications', placeholder: 'Select qualifications', options: teachingProfessionalQualificationsOptions } },
+    { fieldName: 'teachingExperience', context: 'onboarding.agent', fallback: { label: 'Teaching Experience', placeholder: 'Select experience', options: teachingExperienceOptions } },
+    { fieldName: 'tutoringExperience', context: 'onboarding.agent', fallback: { label: 'Tutoring Experience', placeholder: 'Select experience', options: tutoringExperienceOptions } },
+    { fieldName: 'keyStages', context: 'onboarding.agent', fallback: { label: 'Key Stages', placeholder: 'Select key stages', options: keyStagesOptions } },
+    { fieldName: 'subjects', context: 'onboarding.agent', fallback: { label: 'Subjects', placeholder: 'Select subjects', options: subjectsOptions } },
+    { fieldName: 'sessionType', context: 'onboarding.agent', fallback: { label: 'Session Type', placeholder: 'Select session types', options: sessionTypeOptions } },
+    { fieldName: 'deliveryMode', context: 'onboarding.agent', fallback: { label: 'Delivery Mode', placeholder: 'Select delivery modes', options: deliveryModeOptions } },
+    { fieldName: 'oneOnOneRate', context: 'onboarding.agent', fallback: { label: 'One-on-One Session Rate (1 hour session, 1 student)', placeholder: '£50' } },
+    { fieldName: 'groupSessionRate', context: 'onboarding.agent', fallback: { label: 'Group Session Rate (1 hour session, 1 student)', placeholder: '£25' } },
+  ]);
 
   // Restore saved onboarding progress on mount
   React.useEffect(() => {
@@ -346,41 +363,41 @@ const AgentProfessionalDetailStep: React.FC<AgentProfessionalDetailStepProps> = 
 
             {/* About & Status */}
             <HubForm.Grid columns={1}>
-              <HubForm.Field label="About You" required>
+              <HubForm.Field label={configs.get('bio')?.label || 'About You'} required>
                 <textarea
                   value={formData.bio}
                   onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
                   onFocus={() => setEditingField('bio')}
                   onBlur={() => handleBlur('bio')}
-                  placeholder="Describe your tutoring or teaching style, strengths, and what areas you specialise in"
+                  placeholder={configs.get('bio')?.placeholder || 'Describe your tutoring or teaching style, strengths, and what areas you specialise in'}
                   rows={4}
                   disabled={isLoading || isSaving}
                 />
                 <span style={{ fontSize: '12px', color: '#5f6368', marginTop: '4px', display: 'block' }}>
-                  {formData.bio.length}/50 characters minimum
+                  {formData.bio.length}/50 {configs.get('bio')?.helpText || 'characters minimum'}
                 </span>
               </HubForm.Field>
             </HubForm.Grid>
 
             <HubForm.Grid>
-              <HubForm.Field label="30-Second Intro Video (Optional)">
+              <HubForm.Field label={configs.get('bioVideoUrl')?.label || '30-Second Intro Video (Optional)'}>
                 <input
                   type="url"
                   value={formData.bioVideoUrl}
                   onChange={(e) => setFormData(prev => ({ ...prev, bioVideoUrl: e.target.value }))}
                   onFocus={() => setEditingField('bioVideoUrl')}
                   onBlur={() => handleBlur('bioVideoUrl')}
-                  placeholder="Paste YouTube, Loom, or Vimeo URL for +5 CaaS points"
+                  placeholder={configs.get('bioVideoUrl')?.placeholder || 'Paste YouTube, Loom, or Vimeo URL for +5 CaaS points'}
                   disabled={isLoading || isSaving}
                 />
               </HubForm.Field>
 
-              <HubForm.Field label="Status" required>
+              <HubForm.Field label={configs.get('status')?.label || 'Status'} required>
                 <UnifiedSelect
                   value={formData.status}
                   onChange={(value) => handleSelectChange('status', String(value))}
-                  options={statusOptions}
-                  placeholder="Select status"
+                  options={configs.get('status')?.options || statusOptions}
+                  placeholder={configs.get('status')?.placeholder || 'Select status'}
                   disabled={isLoading || isSaving}
                 />
               </HubForm.Field>
@@ -388,19 +405,19 @@ const AgentProfessionalDetailStep: React.FC<AgentProfessionalDetailStepProps> = 
 
             {/* Education & Qualifications */}
             <HubForm.Grid>
-              <HubForm.Field label="Academic Qualifications" required>
+              <HubForm.Field label={configs.get('academicQualifications')?.label || 'Academic Qualifications'} required>
                 <UnifiedMultiSelect
-                  triggerLabel={formatMultiSelectLabel(formData.academicQualifications, 'Select qualifications')}
-                  options={academicQualificationsOptions}
+                  triggerLabel={formatMultiSelectLabel(formData.academicQualifications, configs.get('academicQualifications')?.placeholder || 'Select qualifications')}
+                  options={configs.get('academicQualifications')?.options || academicQualificationsOptions}
                   selectedValues={formData.academicQualifications}
                   onSelectionChange={(values) => handleSelectChange('academicQualifications', values)}
                 />
               </HubForm.Field>
 
-              <HubForm.Field label="Teaching Professional Qualifications" required>
+              <HubForm.Field label={configs.get('teachingProfessionalQualifications')?.label || 'Teaching Professional Qualifications'} required>
                 <UnifiedMultiSelect
-                  triggerLabel={formatMultiSelectLabel(formData.teachingProfessionalQualifications, 'Select qualifications')}
-                  options={teachingProfessionalQualificationsOptions}
+                  triggerLabel={formatMultiSelectLabel(formData.teachingProfessionalQualifications, configs.get('teachingProfessionalQualifications')?.placeholder || 'Select qualifications')}
+                  options={configs.get('teachingProfessionalQualifications')?.options || teachingProfessionalQualificationsOptions}
                   selectedValues={formData.teachingProfessionalQualifications}
                   onSelectionChange={(values) => handleSelectChange('teachingProfessionalQualifications', values)}
                 />
@@ -409,22 +426,22 @@ const AgentProfessionalDetailStep: React.FC<AgentProfessionalDetailStepProps> = 
 
             {/* Experience */}
             <HubForm.Grid>
-              <HubForm.Field label="Teaching Experience" required>
+              <HubForm.Field label={configs.get('teachingExperience')?.label || 'Teaching Experience'} required>
                 <UnifiedSelect
                   value={formData.teachingExperience}
                   onChange={(value) => handleSelectChange('teachingExperience', String(value))}
-                  options={teachingExperienceOptions}
-                  placeholder="Select experience"
+                  options={configs.get('teachingExperience')?.options || teachingExperienceOptions}
+                  placeholder={configs.get('teachingExperience')?.placeholder || 'Select experience'}
                   disabled={isLoading || isSaving}
                 />
               </HubForm.Field>
 
-              <HubForm.Field label="Tutoring Experience" required>
+              <HubForm.Field label={configs.get('tutoringExperience')?.label || 'Tutoring Experience'} required>
                 <UnifiedSelect
                   value={formData.tutoringExperience}
                   onChange={(value) => handleSelectChange('tutoringExperience', String(value))}
-                  options={tutoringExperienceOptions}
-                  placeholder="Select experience"
+                  options={configs.get('tutoringExperience')?.options || tutoringExperienceOptions}
+                  placeholder={configs.get('tutoringExperience')?.placeholder || 'Select experience'}
                   disabled={isLoading || isSaving}
                 />
               </HubForm.Field>
@@ -432,19 +449,19 @@ const AgentProfessionalDetailStep: React.FC<AgentProfessionalDetailStepProps> = 
 
             {/* Subjects & Key Stages */}
             <HubForm.Grid>
-              <HubForm.Field label="Key Stages" required>
+              <HubForm.Field label={configs.get('keyStages')?.label || 'Key Stages'} required>
                 <UnifiedMultiSelect
-                  triggerLabel={formatMultiSelectLabel(formData.keyStages, 'Select key stages')}
-                  options={keyStagesOptions}
+                  triggerLabel={formatMultiSelectLabel(formData.keyStages, configs.get('keyStages')?.placeholder || 'Select key stages')}
+                  options={configs.get('keyStages')?.options || keyStagesOptions}
                   selectedValues={formData.keyStages}
                   onSelectionChange={(values) => handleSelectChange('keyStages', values)}
                 />
               </HubForm.Field>
 
-              <HubForm.Field label="Subjects" required>
+              <HubForm.Field label={configs.get('subjects')?.label || 'Subjects'} required>
                 <UnifiedMultiSelect
-                  triggerLabel={formatMultiSelectLabel(formData.subjects, 'Select subjects')}
-                  options={subjectsOptions}
+                  triggerLabel={formatMultiSelectLabel(formData.subjects, configs.get('subjects')?.placeholder || 'Select subjects')}
+                  options={configs.get('subjects')?.options || subjectsOptions}
                   selectedValues={formData.subjects}
                   onSelectionChange={(values) => handleSelectChange('subjects', values)}
                 />
@@ -453,19 +470,19 @@ const AgentProfessionalDetailStep: React.FC<AgentProfessionalDetailStepProps> = 
 
             {/* Session Details */}
             <HubForm.Grid>
-              <HubForm.Field label="Session Type" required>
+              <HubForm.Field label={configs.get('sessionType')?.label || 'Session Type'} required>
                 <UnifiedMultiSelect
-                  triggerLabel={formatMultiSelectLabel(formData.sessionType, 'Select session types')}
-                  options={sessionTypeOptions}
+                  triggerLabel={formatMultiSelectLabel(formData.sessionType, configs.get('sessionType')?.placeholder || 'Select session types')}
+                  options={configs.get('sessionType')?.options || sessionTypeOptions}
                   selectedValues={formData.sessionType}
                   onSelectionChange={(values) => handleSelectChange('sessionType', values)}
                 />
               </HubForm.Field>
 
-              <HubForm.Field label="Delivery Mode" required>
+              <HubForm.Field label={configs.get('deliveryMode')?.label || 'Delivery Mode'} required>
                 <UnifiedMultiSelect
-                  triggerLabel={formatMultiSelectLabel(formData.deliveryMode, 'Select delivery modes')}
-                  options={deliveryModeOptions}
+                  triggerLabel={formatMultiSelectLabel(formData.deliveryMode, configs.get('deliveryMode')?.placeholder || 'Select delivery modes')}
+                  options={configs.get('deliveryMode')?.options || deliveryModeOptions}
                   selectedValues={formData.deliveryMode}
                   onSelectionChange={(values) => handleSelectChange('deliveryMode', values)}
                 />
@@ -474,28 +491,28 @@ const AgentProfessionalDetailStep: React.FC<AgentProfessionalDetailStepProps> = 
 
             {/* Rates */}
             <HubForm.Grid>
-              <HubForm.Field label="One-on-One Session Rate (1 hour session, 1 student)" required>
+              <HubForm.Field label={configs.get('oneOnOneRate')?.label || 'One-on-One Session Rate (1 hour session, 1 student)'} required>
                 <input
                   type="number"
                   value={formData.oneOnOneRate || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, oneOnOneRate: parseFloat(e.target.value) || 0 }))}
                   onFocus={() => setEditingField('oneOnOneRate')}
                   onBlur={() => handleBlur('oneOnOneRate')}
-                  placeholder="£50"
+                  placeholder={configs.get('oneOnOneRate')?.placeholder || '£50'}
                   disabled={isLoading || isSaving}
                   min="0"
                   step="1"
                 />
               </HubForm.Field>
 
-              <HubForm.Field label="Group Session Rate (1 hour session, 1 student)">
+              <HubForm.Field label={configs.get('groupSessionRate')?.label || 'Group Session Rate (1 hour session, 1 student)'}>
                 <input
                   type="number"
                   value={formData.groupSessionRate || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, groupSessionRate: parseFloat(e.target.value) || 0 }))}
                   onFocus={() => setEditingField('groupSessionRate')}
                   onBlur={() => handleBlur('groupSessionRate')}
-                  placeholder="£25"
+                  placeholder={configs.get('groupSessionRate')?.placeholder || '£25'}
                   disabled={isLoading || isSaving}
                   min="0"
                   step="1"

@@ -54,16 +54,16 @@ export default function AgentPersonalInfoPage() {
   // Calculate progress for badge
   const completedSteps = new Set<string>();
   // Check which steps are completed from saved progress
-  if (profile?.onboarding_progress?.tutor?.personalInfo) {
+  if (profile?.onboarding_progress?.agent?.personalInfo) {
     completedSteps.add('personalInfo');
   }
-  if (profile?.onboarding_progress?.tutor?.professionalDetails) {
+  if (profile?.onboarding_progress?.agent?.professionalDetails) {
     completedSteps.add('professionalDetails');
   }
-  if (profile?.onboarding_progress?.tutor?.verification) {
+  if (profile?.onboarding_progress?.agent?.verification) {
     completedSteps.add('verification');
   }
-  if (profile?.onboarding_progress?.tutor?.availability) {
+  if (profile?.onboarding_progress?.agent?.availability) {
     completedSteps.add('availability');
   }
 
@@ -165,7 +165,7 @@ export default function AgentPersonalInfoPage() {
   };
 
   return (
-    <div className={styles.onboardingPage}>
+    <div className={styles.onboardingStepPage}>
       <AgentPersonalInfoStep
         onNext={handleNext}
         onBack={handleBack}

@@ -56,13 +56,13 @@ export default function AgentVerificationPage() {
   // Calculate progress
   const completedSteps = new Set<string>();
   if (profile?.first_name) completedSteps.add('personalInfo');
-  if (profile?.onboarding_progress?.tutor?.professionalDetails) {
+  if (profile?.onboarding_progress?.agent?.professionalDetails) {
     completedSteps.add('professionalDetails');
   }
-  if (profile?.onboarding_progress?.tutor?.verification) {
+  if (profile?.onboarding_progress?.agent?.verification) {
     completedSteps.add('verification');
   }
-  if (profile?.onboarding_progress?.tutor?.availability) {
+  if (profile?.onboarding_progress?.agent?.availability) {
     completedSteps.add('availability');
   }
 
@@ -149,7 +149,7 @@ export default function AgentVerificationPage() {
           .from('role_details')
           .select('*')
           .eq('profile_id', user.id)
-          .eq('role_type', 'tutor')
+          .eq('role_type', 'agent')
           .single();
 
         console.log('[AgentVerification] Existing role_details:', existingRoleDetails);
@@ -187,7 +187,7 @@ export default function AgentVerificationPage() {
 
         const roleDetailsData = {
           profile_id: user.id,
-          role_type: 'tutor',
+          role_type: 'agent',
           ...(existingRoleDetails?.subjects && { subjects: existingRoleDetails.subjects }),
           ...(existingRoleDetails?.hourly_rate && { hourly_rate: existingRoleDetails.hourly_rate }),
           ...(existingRoleDetails?.availability && { availability: existingRoleDetails.availability }),
@@ -235,7 +235,7 @@ export default function AgentVerificationPage() {
   };
 
   return (
-    <div className={styles.onboardingPage}>
+    <div className={styles.onboardingStepPage}>
       <AgentProfessionalVerificationStep
         onNext={handleNext}
         onBack={handleBack}

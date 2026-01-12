@@ -15,6 +15,14 @@ import { getOnboardingProgress, saveOnboardingProgress } from '@/lib/api/onboard
 import { useOnboardingAutoSave } from '@/hooks/useAutoSave';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { hasUnsavedChanges as checkUnsavedChanges} from '@/lib/offlineQueue';
+import { useFormConfig } from '@/hooks/useFormConfig';
+
+const genderOptions = [
+  { value: 'Male', label: 'Male' },
+  { value: 'Female', label: 'Female' },
+  { value: 'Other', label: 'Other' },
+  { value: 'Prefer not to say', label: 'Prefer not to say' }
+];
 
 export interface PersonalInfoData {
   firstName: string;
@@ -67,6 +75,17 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Fetch dynamic form config for gender field (with fallback to hardcoded values)
+  const { config: genderConfig } = useFormConfig({
+    fieldName: 'gender',
+    context: 'onboarding.tutor',
+    fallback: {
+      label: 'Gender',
+      placeholder: 'Select gender',
+      options: genderOptions
+    }
+  });
 
   // Offline sync - auto-sync when connection restored
   useOfflineSync(user?.id);
@@ -364,17 +383,12 @@ const TutorPersonalInfoStep: React.FC<TutorPersonalInfoStepProps> = ({
               />
             </HubForm.Field>
 
-            <HubForm.Field label="Gender" required>
+            <HubForm.Field label={genderConfig.label || 'Gender'} required>
               <UnifiedSelect
                 value={formData.gender}
                 onChange={(value) => handleSelectChange('gender', String(value))}
-                options={[
-                  { value: 'Male', label: 'Male' },
-                  { value: 'Female', label: 'Female' },
-                  { value: 'Other', label: 'Other' },
-                  { value: 'Prefer not to say', label: 'Prefer not to say' }
-                ]}
-                placeholder="Select gender"
+                options={genderConfig.options || genderOptions}
+                placeholder={genderConfig.placeholder || 'Select gender'}
                 disabled={isLoading || isSaving}
               />
             </HubForm.Field>

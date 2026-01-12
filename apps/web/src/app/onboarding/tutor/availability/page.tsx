@@ -139,15 +139,28 @@ export default function TutorAvailabilityPage() {
         console.log('[TutorAvailability] Adding tutor role...');
         const updatedRoles = [...currentRoles, 'tutor'];
 
-        const { error: roleError } = await supabase
+        const { data, error: roleError, count } = await supabase
           .from('profiles')
           .update({
             roles: updatedRoles,
             active_role: 'tutor'
           })
-          .eq('id', user.id);
+          .eq('id', user.id)
+          .select();
 
-        if (roleError) throw roleError;
+        console.log('[TutorAvailability] Update response:', { data, error: roleError, count });
+
+        if (roleError) {
+          console.error('[TutorAvailability] ❌ Role update error:', roleError);
+          throw roleError;
+        }
+
+        if (!data || data.length === 0) {
+          const errorMsg = 'Role update failed - no rows affected. This may be an RLS policy issue.';
+          console.error('[TutorAvailability] ❌', errorMsg);
+          throw new Error(errorMsg);
+        }
+
         console.log('[TutorAvailability] ✓ Tutor role added');
       }
 
@@ -173,13 +186,26 @@ export default function TutorAvailabilityPage() {
         completed_at: new Date().toISOString(),
       };
 
-      const { error: roleDetailsError } = await supabase
+      const { data: roleDetailsResult, error: roleDetailsError } = await supabase
         .from('role_details')
         .upsert(roleDetailsData, {
           onConflict: 'profile_id,role_type'
-        });
+        })
+        .select();
 
-      if (roleDetailsError) throw roleDetailsError;
+      console.log('[TutorAvailability] role_details response:', { data: roleDetailsResult, error: roleDetailsError });
+
+      if (roleDetailsError) {
+        console.error('[TutorAvailability] ❌ role_details save error:', roleDetailsError);
+        throw roleDetailsError;
+      }
+
+      if (!roleDetailsResult || roleDetailsResult.length === 0) {
+        const errorMsg = 'role_details save failed - no rows affected.';
+        console.error('[TutorAvailability] ❌', errorMsg);
+        throw new Error(errorMsg);
+      }
+
       console.log('[TutorAvailability] ✓ Saved to role_details');
 
       // Update onboarding progress with completion flag
@@ -257,7 +283,7 @@ export default function TutorAvailabilityPage() {
   };
 
   return (
-    <div className={styles.onboardingPage}>
+    <div className={styles.onboardingStepPage}>
       <TutorAvailabilityStep
         onNext={handleNext}
         onBack={handleBack}

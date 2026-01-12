@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import TutorPersonalInfoStep from '@/app/components/feature/onboarding/tutor/steps/TutorPersonalInfoStep';
+import ClientPersonalInfoStep from '@/app/components/feature/onboarding/client/steps/ClientPersonalInfoStep';
 import { getOnboardingProgress } from '@/lib/api/onboarding';
 import styles from '../../page.module.css';
 
@@ -28,7 +28,7 @@ const STEP_POINTS = {
 const REQUIRED_POINTS = 45;
 const TOTAL_POINTS = 55;
 
-export default function TutorPersonalInfoPage() {
+export default function ClientPersonalInfoPage() {
   const router = useRouter();
   const { user, profile, isLoading, updateOnboardingProgress } = useUserProfile();
   const [isPageLoading, setIsPageLoading] = useState(false);
@@ -36,7 +36,7 @@ export default function TutorPersonalInfoPage() {
   useEffect(() => {
     // Redirect to login if not authenticated
     if (!isLoading && !user) {
-      router.push('/login?redirect=/onboarding/tutor/personal-info');
+      router.push('/login?redirect=/onboarding/client/personal-info');
       return;
     }
   }, [user, isLoading, router]);
@@ -54,16 +54,16 @@ export default function TutorPersonalInfoPage() {
   // Calculate progress for badge
   const completedSteps = new Set<string>();
   // Check which steps are completed from saved progress
-  if (profile?.onboarding_progress?.tutor?.personalInfo) {
+  if (profile?.onboarding_progress?.client?.personalInfo) {
     completedSteps.add('personalInfo');
   }
-  if (profile?.onboarding_progress?.tutor?.professionalDetails) {
+  if (profile?.onboarding_progress?.client?.professionalDetails) {
     completedSteps.add('professionalDetails');
   }
-  if (profile?.onboarding_progress?.tutor?.verification) {
+  if (profile?.onboarding_progress?.client?.verification) {
     completedSteps.add('verification');
   }
-  if (profile?.onboarding_progress?.tutor?.availability) {
+  if (profile?.onboarding_progress?.client?.availability) {
     completedSteps.add('availability');
   }
 
@@ -106,7 +106,7 @@ export default function TutorPersonalInfoPage() {
   };
 
   const handleNext = async (data: PersonalInfoData) => {
-    console.log('[TutorPersonalInfo] handleNext called', data);
+    console.log('[ClientPersonalInfo] handleNext called', data);
     setIsPageLoading(true);
 
     try {
@@ -131,16 +131,16 @@ export default function TutorPersonalInfoPage() {
         .eq('id', user.id);
 
       if (profileError) {
-        console.error('[TutorPersonalInfo] Error saving to profiles:', profileError);
+        console.error('[ClientPersonalInfo] Error saving to profiles:', profileError);
         throw profileError;
       }
 
-      console.log('[TutorPersonalInfo] ✓ Saved all fields to profiles table');
+      console.log('[ClientPersonalInfo] ✓ Saved all fields to profiles table');
 
       // Mark step as completed in onboarding_progress with completion flag
       await updateOnboardingProgress({
         current_step: 'professionalDetails',
-        tutor: {
+        client: {
           personalInfo: {
             ...data,
             completed: true,  // Completion flag - step is fully done
@@ -148,12 +148,12 @@ export default function TutorPersonalInfoPage() {
         }
       });
 
-      console.log('[TutorPersonalInfo] ✓ Step marked as completed');
+      console.log('[ClientPersonalInfo] ✓ Step marked as completed');
 
       // Navigate to next step
-      router.push('/onboarding/tutor/professional-details');
+      router.push('/onboarding/client/professional-details');
     } catch (error) {
-      console.error('[TutorPersonalInfo] Error:', error);
+      console.error('[ClientPersonalInfo] Error:', error);
       alert('Failed to save. Please try again.');
     } finally {
       setIsPageLoading(false);
@@ -165,12 +165,12 @@ export default function TutorPersonalInfoPage() {
   };
 
   return (
-    <div className={styles.onboardingPage}>
-      <TutorPersonalInfoStep
+    <div className={styles.onboardingStepPage}>
+      <ClientPersonalInfoStep
         onNext={handleNext}
         onBack={handleBack}
         isLoading={isPageLoading}
-        userRole="tutor"
+        userRole="client"
         progressData={progressData}
       />
     </div>

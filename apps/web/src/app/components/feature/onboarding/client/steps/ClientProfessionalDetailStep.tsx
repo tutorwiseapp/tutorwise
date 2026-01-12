@@ -9,7 +9,7 @@ import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import UnifiedMultiSelect from '@/app/components/ui/forms/UnifiedMultiSelect';
 import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
 import InlineProgressBadge from '../../shared/InlineProgressBadge';
-
+import { useFormConfigs } from '@/hooks/useFormConfig';
 
 import { getOnboardingProgress, saveOnboardingProgress } from '@/lib/api/onboarding';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
@@ -30,18 +30,20 @@ interface ProgressData {
   }>;
 }
 
-interface TutorProfessionalDetailStepProps {
+interface ClientProfessionalDetailStepProps {
   onNext: (details: ProfessionalDetailsData) => void;
   onBack?: () => void;
   isLoading: boolean;
+  userRole?: 'tutor' | 'agent' | 'client';
   progressData?: ProgressData;
 }
 
-// Status options
-const statusOptions = [
-  { value: 'Professional Tutor', label: 'Professional Tutor' },
-  { value: 'Solo Tutor', label: 'Solo Tutor' },
-  { value: 'Part-time Tutor', label: 'Part-time Tutor' },
+// Who Needs Tutoring options
+const whoNeedsTutoringOptions = [
+  { value: 'Myself (Adult Learner)', label: 'Myself (Adult Learner)' },
+  { value: 'My Child/Student (Primary)', label: 'My Child/Student (Primary)' },
+  { value: 'My Child/Student (Secondary)', label: 'My Child/Student (Secondary)' },
+  { value: 'My Child/Student (College/University)', label: 'My Child/Student (College/University)' },
 ];
 
 // Academic qualifications
@@ -60,8 +62,9 @@ const teachingProfessionalQualificationsOptions = [
   { value: 'None', label: 'None' },
 ];
 
-// Teaching experience
-const teachingExperienceOptions = [
+// Preferred tutor experience level
+const preferredTutorExperienceOptions = [
+  { value: 'Any Experience Level', label: 'Any Experience Level' },
   { value: 'New Teacher (0-3 years)', label: 'New Teacher (0-3 years)' },
   { value: 'Experienced Teacher (4-7 years)', label: 'Experienced Teacher (4-7 years)' },
   { value: 'Senior Teacher (8+ years)', label: 'Senior Teacher (8+ years)' },
@@ -108,10 +111,11 @@ const deliveryModeOptions = [
   { value: 'Hybrid', label: 'Hybrid' },
 ];
 
-const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = ({
+const ClientProfessionalDetailStep: React.FC<ClientProfessionalDetailStepProps> = ({
   onNext,
   onBack,
   isLoading,
+  userRole = 'client',
   progressData
 }) => {
   const { user } = useUserProfile();
@@ -134,22 +138,39 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
   const [editingField, setEditingField] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Fetch dynamic form configs (with fallback to hardcoded values)
+  const { configs, isLoading: isLoadingConfigs } = useFormConfigs([
+    { fieldName: 'bio', context: 'onboarding.client', fallback: { label: 'About Your Learning Needs', placeholder: 'Tell us about your learning needs or the learning needs of your child/student who needs tutoring...', helpText: 'characters minimum' } },
+    { fieldName: 'bioVideoUrl', context: 'onboarding.client', fallback: { label: '30-Second Intro Video (Optional)', placeholder: 'Paste YouTube, Loom, or Vimeo URL (optional)' } },
+    { fieldName: 'status', context: 'onboarding.client', fallback: { label: 'Who Needs Tutoring?', placeholder: 'Select who needs tutoring', options: whoNeedsTutoringOptions } },
+    { fieldName: 'academicQualifications', context: 'onboarding.client', fallback: { label: 'Preferred Tutor Qualifications', placeholder: 'Select preferred qualifications (optional)', options: academicQualificationsOptions } },
+    { fieldName: 'teachingProfessionalQualifications', context: 'onboarding.client', fallback: { label: 'Preferred Teaching Credentials', placeholder: 'Select preferred credentials (optional)', options: teachingProfessionalQualificationsOptions } },
+    { fieldName: 'teachingExperience', context: 'onboarding.client', fallback: { label: 'Preferred Teaching Background', placeholder: 'Select preferred background (optional)', options: preferredTutorExperienceOptions } },
+    { fieldName: 'tutoringExperience', context: 'onboarding.client', fallback: { label: 'Preferred Tutor Experience Level', placeholder: 'Select preferred experience level', options: tutoringExperienceOptions } },
+    { fieldName: 'keyStages', context: 'onboarding.client', fallback: { label: 'Student\'s Education Level', placeholder: 'Select education level(s)', options: keyStagesOptions } },
+    { fieldName: 'subjects', context: 'onboarding.client', fallback: { label: 'Subjects Needed', placeholder: 'Select subjects', options: subjectsOptions } },
+    { fieldName: 'sessionType', context: 'onboarding.client', fallback: { label: 'Preferred Session Type', placeholder: 'Select preferred session types', options: sessionTypeOptions } },
+    { fieldName: 'deliveryMode', context: 'onboarding.client', fallback: { label: 'Preferred Delivery Mode', placeholder: 'Select preferred delivery modes', options: deliveryModeOptions } },
+    { fieldName: 'oneOnOneRate', context: 'onboarding.client', fallback: { label: 'Budget for One-on-One Sessions (per hour)', placeholder: '£50' } },
+    { fieldName: 'groupSessionRate', context: 'onboarding.client', fallback: { label: 'Budget for Group Sessions (per hour)', placeholder: '£25 (skip if flexible)' } },
+  ]);
+
   // Restore saved onboarding progress on mount
   React.useEffect(() => {
     if (!isRestored && user?.id) {
-      getOnboardingProgress('tutor')
+      getOnboardingProgress(userRole)
         .then(savedProgress => {
-          const savedData = savedProgress?.progress?.tutor?.professionalDetails;
+          const savedData = savedProgress?.progress?.[userRole]?.professionalDetails;
 
           if (savedData) {
-            console.log('[TutorProfessionalDetailStep] ✅ Restored saved progress:', savedData);
+            console.log('[ClientProfessionalDetailStep] ✅ Restored saved progress:', savedData);
             setFormData(prev => ({ ...prev, ...savedData }));
           }
 
           setIsRestored(true);
         })
         .catch(error => {
-          console.error('[TutorProfessionalDetailStep] Error loading saved progress:', error);
+          console.error('[ClientProfessionalDetailStep] Error loading saved progress:', error);
           setIsRestored(true);
         });
     }
@@ -167,7 +188,7 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
       await saveOnboardingProgress({
         userId: user.id,
         progress: {
-          tutor: {
+          client: {
             professionalDetails: data
           }
         }
@@ -189,16 +210,16 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
       saveOnboardingProgress({
         userId: user.id,
         progress: {
-          tutor: {
+          client: {
             professionalDetails: formData
           }
         }
       })
         .then(() => {
-          console.log('[TutorProfessionalDetailStep] ✓ Blur save completed');
+          console.log('[ClientProfessionalDetailStep] ✓ Blur save completed');
         })
         .catch((error) => {
-          console.error('[TutorProfessionalDetailStep] ❌ Blur save failed:', error);
+          console.error('[ClientProfessionalDetailStep] ❌ Blur save failed:', error);
         })
         .finally(() => {
           setIsSaving(false);
@@ -218,12 +239,12 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
     saveOnboardingProgress({
       userId: user.id,
       progress: {
-        tutor: {
+        client: {
           professionalDetails: newData
         }
       }
     }).catch((error) => {
-      console.error('[TutorProfessionalDetailStep] ❌ Select save failed:', error);
+      console.error('[ClientProfessionalDetailStep] ❌ Select save failed:', error);
     });
   }, [formData, user?.id]);
 
@@ -241,13 +262,13 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [saveStatus, isSaving]);
 
-  // Validation - required fields
+  // Validation - required fields (client-specific: optional qualifications, credentials, and background)
   const isValid =
     formData.bio.trim().length >= 50 &&
     formData.status !== '' &&
-    formData.academicQualifications.length > 0 &&
-    formData.teachingProfessionalQualifications.length > 0 &&
-    formData.teachingExperience !== '' &&
+    // academicQualifications is optional for clients
+    // teachingProfessionalQualifications is optional for clients
+    // teachingExperience is optional for clients
     formData.tutoringExperience !== '' &&
     formData.keyStages.length > 0 &&
     formData.subjects.length > 0 &&
@@ -257,43 +278,45 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
 
   // Debug validation
   React.useEffect(() => {
-    console.log('[TutorProfessionalDetailStep] Validation state:', {
+    console.log('[ClientProfessionalDetailStep] Validation state:', {
       bio: formData.bio.trim().length,
       bioValid: formData.bio.trim().length >= 50,
-      status: formData.status,
-      statusValid: formData.status !== '',
-      academicQualifications: formData.academicQualifications.length,
-      academicValid: formData.academicQualifications.length > 0,
-      teachingProfessionalQualifications: formData.teachingProfessionalQualifications.length,
-      teachingProfQualValid: formData.teachingProfessionalQualifications.length > 0,
-      teachingExperience: formData.teachingExperience,
-      teachingExpValid: formData.teachingExperience !== '',
-      tutoringExperience: formData.tutoringExperience,
-      tutoringExpValid: formData.tutoringExperience !== '',
-      keyStages: formData.keyStages.length,
-      keyStagesValid: formData.keyStages.length > 0,
-      subjects: formData.subjects.length,
-      subjectsValid: formData.subjects.length > 0,
-      sessionType: formData.sessionType.length,
-      sessionTypeValid: formData.sessionType.length > 0,
-      deliveryMode: formData.deliveryMode.length,
-      deliveryModeValid: formData.deliveryMode.length > 0,
-      oneOnOneRate: formData.oneOnOneRate,
-      rateValid: formData.oneOnOneRate > 0,
+      whoNeedsTutoring: formData.status,
+      whoNeedsTutoringValid: formData.status !== '',
+      preferredQualifications: formData.academicQualifications.length,
+      preferredQualificationsOptional: true,
+      preferredCredentials: formData.teachingProfessionalQualifications.length,
+      preferredCredentialsOptional: true,
+      preferredBackground: formData.teachingExperience,
+      preferredBackgroundOptional: true,
+      preferredExperienceLevel: formData.tutoringExperience,
+      preferredExperienceLevelValid: formData.tutoringExperience !== '',
+      educationLevel: formData.keyStages.length,
+      educationLevelValid: formData.keyStages.length > 0,
+      subjectsNeeded: formData.subjects.length,
+      subjectsNeededValid: formData.subjects.length > 0,
+      preferredSessionType: formData.sessionType.length,
+      preferredSessionTypeValid: formData.sessionType.length > 0,
+      preferredDeliveryMode: formData.deliveryMode.length,
+      preferredDeliveryModeValid: formData.deliveryMode.length > 0,
+      budgetOneOnOne: formData.oneOnOneRate,
+      budgetOneOnOneValid: formData.oneOnOneRate > 0,
+      budgetGroup: formData.groupSessionRate,
+      budgetGroupOptional: true,
       isValid
     });
   }, [formData, isValid]);
 
   const handleNext = () => {
-    console.log('[TutorProfessionalDetailStep] handleNext called');
-    console.log('[TutorProfessionalDetailStep] Form data:', formData);
-    console.log('[TutorProfessionalDetailStep] isValid:', isValid);
-    console.log('[TutorProfessionalDetailStep] Calling onNext...');
+    console.log('[ClientProfessionalDetailStep] handleNext called');
+    console.log('[ClientProfessionalDetailStep] Form data:', formData);
+    console.log('[ClientProfessionalDetailStep] isValid:', isValid);
+    console.log('[ClientProfessionalDetailStep] Calling onNext...');
 
     // Page handles all database operations
     onNext(formData);
 
-    console.log('[TutorProfessionalDetailStep] onNext called successfully');
+    console.log('[ClientProfessionalDetailStep] onNext called successfully');
   };
 
 
@@ -305,7 +328,7 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
             Professional Details
           </h2>
           <p className={styles.stepSubtitle}>
-            Tutor Onboarding • Tell us about your professional background and services
+            Client Onboarding • Tell us what you're looking for in a tutor
           </p>
         </div>
       </div>
@@ -335,158 +358,158 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
 
             {/* Auto-save Indicator */}
 
-            {/* About & Status */}
+            {/* About Learning Needs & Who Needs Tutoring */}
             <HubForm.Grid columns={1}>
-              <HubForm.Field label="About You" required>
+              <HubForm.Field label={configs.get('bio')?.label || 'About Your Learning Needs'} required>
                 <textarea
                   value={formData.bio}
                   onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
                   onFocus={() => setEditingField('bio')}
                   onBlur={() => handleBlur('bio')}
-                  placeholder="Describe your tutoring or teaching style, strengths, and what areas you specialise in"
+                  placeholder={configs.get('bio')?.placeholder || 'Tell us about your learning needs or the learning needs of your child/student who needs tutoring...'}
                   rows={4}
                   disabled={isLoading || isSaving}
                 />
                 <span style={{ fontSize: '12px', color: '#5f6368', marginTop: '4px', display: 'block' }}>
-                  {formData.bio.length}/50 characters minimum
+                  {formData.bio.length}/50 {configs.get('bio')?.helpText || 'characters minimum'}
                 </span>
               </HubForm.Field>
             </HubForm.Grid>
 
             <HubForm.Grid>
-              <HubForm.Field label="30-Second Intro Video (Optional)">
+              <HubForm.Field label={configs.get('bioVideoUrl')?.label || '30-Second Intro Video (Optional)'}>
                 <input
                   type="url"
                   value={formData.bioVideoUrl}
                   onChange={(e) => setFormData(prev => ({ ...prev, bioVideoUrl: e.target.value }))}
                   onFocus={() => setEditingField('bioVideoUrl')}
                   onBlur={() => handleBlur('bioVideoUrl')}
-                  placeholder="Paste YouTube, Loom, or Vimeo URL for +5 CaaS points"
+                  placeholder={configs.get('bioVideoUrl')?.placeholder || 'Paste YouTube, Loom, or Vimeo URL (optional)'}
                   disabled={isLoading || isSaving}
                 />
               </HubForm.Field>
 
-              <HubForm.Field label="Status" required>
+              <HubForm.Field label={configs.get('status')?.label || 'Who Needs Tutoring?'} required>
                 <UnifiedSelect
                   value={formData.status}
                   onChange={(value) => handleSelectChange('status', String(value))}
-                  options={statusOptions}
-                  placeholder="Select status"
+                  options={configs.get('status')?.options || whoNeedsTutoringOptions}
+                  placeholder={configs.get('status')?.placeholder || 'Select who needs tutoring'}
                   disabled={isLoading || isSaving}
                 />
               </HubForm.Field>
             </HubForm.Grid>
 
-            {/* Education & Qualifications */}
+            {/* Preferred Tutor Qualifications & Credentials */}
             <HubForm.Grid>
-              <HubForm.Field label="Academic Qualifications" required>
+              <HubForm.Field label={configs.get('academicQualifications')?.label || 'Preferred Tutor Qualifications'}>
                 <UnifiedMultiSelect
-                  triggerLabel={formatMultiSelectLabel(formData.academicQualifications, 'Select qualifications')}
-                  options={academicQualificationsOptions}
+                  triggerLabel={formatMultiSelectLabel(formData.academicQualifications, configs.get('academicQualifications')?.placeholder || 'Select preferred qualifications (optional)')}
+                  options={configs.get('academicQualifications')?.options || academicQualificationsOptions}
                   selectedValues={formData.academicQualifications}
                   onSelectionChange={(values) => handleSelectChange('academicQualifications', values)}
                 />
               </HubForm.Field>
 
-              <HubForm.Field label="Teaching Professional Qualifications" required>
+              <HubForm.Field label={configs.get('teachingProfessionalQualifications')?.label || 'Preferred Teaching Credentials'}>
                 <UnifiedMultiSelect
-                  triggerLabel={formatMultiSelectLabel(formData.teachingProfessionalQualifications, 'Select qualifications')}
-                  options={teachingProfessionalQualificationsOptions}
+                  triggerLabel={formatMultiSelectLabel(formData.teachingProfessionalQualifications, configs.get('teachingProfessionalQualifications')?.placeholder || 'Select preferred credentials (optional)')}
+                  options={configs.get('teachingProfessionalQualifications')?.options || teachingProfessionalQualificationsOptions}
                   selectedValues={formData.teachingProfessionalQualifications}
                   onSelectionChange={(values) => handleSelectChange('teachingProfessionalQualifications', values)}
                 />
               </HubForm.Field>
             </HubForm.Grid>
 
-            {/* Experience */}
+            {/* Preferred Teaching Background & Experience */}
             <HubForm.Grid>
-              <HubForm.Field label="Teaching Experience" required>
+              <HubForm.Field label={configs.get('teachingExperience')?.label || 'Preferred Teaching Background'}>
                 <UnifiedSelect
                   value={formData.teachingExperience}
                   onChange={(value) => handleSelectChange('teachingExperience', String(value))}
-                  options={teachingExperienceOptions}
-                  placeholder="Select experience"
+                  options={configs.get('teachingExperience')?.options || preferredTutorExperienceOptions}
+                  placeholder={configs.get('teachingExperience')?.placeholder || 'Select preferred background (optional)'}
                   disabled={isLoading || isSaving}
                 />
               </HubForm.Field>
 
-              <HubForm.Field label="Tutoring Experience" required>
+              <HubForm.Field label={configs.get('tutoringExperience')?.label || 'Preferred Tutor Experience Level'} required>
                 <UnifiedSelect
                   value={formData.tutoringExperience}
                   onChange={(value) => handleSelectChange('tutoringExperience', String(value))}
-                  options={tutoringExperienceOptions}
-                  placeholder="Select experience"
+                  options={configs.get('tutoringExperience')?.options || tutoringExperienceOptions}
+                  placeholder={configs.get('tutoringExperience')?.placeholder || 'Select preferred experience level'}
                   disabled={isLoading || isSaving}
                 />
               </HubForm.Field>
             </HubForm.Grid>
 
-            {/* Subjects & Key Stages */}
+            {/* Student's Education Level & Subjects Needed */}
             <HubForm.Grid>
-              <HubForm.Field label="Key Stages" required>
+              <HubForm.Field label={configs.get('keyStages')?.label || 'Student\'s Education Level'} required>
                 <UnifiedMultiSelect
-                  triggerLabel={formatMultiSelectLabel(formData.keyStages, 'Select key stages')}
-                  options={keyStagesOptions}
+                  triggerLabel={formatMultiSelectLabel(formData.keyStages, configs.get('keyStages')?.placeholder || 'Select education level(s)')}
+                  options={configs.get('keyStages')?.options || keyStagesOptions}
                   selectedValues={formData.keyStages}
                   onSelectionChange={(values) => handleSelectChange('keyStages', values)}
                 />
               </HubForm.Field>
 
-              <HubForm.Field label="Subjects" required>
+              <HubForm.Field label={configs.get('subjects')?.label || 'Subjects Needed'} required>
                 <UnifiedMultiSelect
-                  triggerLabel={formatMultiSelectLabel(formData.subjects, 'Select subjects')}
-                  options={subjectsOptions}
+                  triggerLabel={formatMultiSelectLabel(formData.subjects, configs.get('subjects')?.placeholder || 'Select subjects')}
+                  options={configs.get('subjects')?.options || subjectsOptions}
                   selectedValues={formData.subjects}
                   onSelectionChange={(values) => handleSelectChange('subjects', values)}
                 />
               </HubForm.Field>
             </HubForm.Grid>
 
-            {/* Session Details */}
+            {/* Preferred Session Details */}
             <HubForm.Grid>
-              <HubForm.Field label="Session Type" required>
+              <HubForm.Field label={configs.get('sessionType')?.label || 'Preferred Session Type'} required>
                 <UnifiedMultiSelect
-                  triggerLabel={formatMultiSelectLabel(formData.sessionType, 'Select session types')}
-                  options={sessionTypeOptions}
+                  triggerLabel={formatMultiSelectLabel(formData.sessionType, configs.get('sessionType')?.placeholder || 'Select preferred session types')}
+                  options={configs.get('sessionType')?.options || sessionTypeOptions}
                   selectedValues={formData.sessionType}
                   onSelectionChange={(values) => handleSelectChange('sessionType', values)}
                 />
               </HubForm.Field>
 
-              <HubForm.Field label="Delivery Mode" required>
+              <HubForm.Field label={configs.get('deliveryMode')?.label || 'Preferred Delivery Mode'} required>
                 <UnifiedMultiSelect
-                  triggerLabel={formatMultiSelectLabel(formData.deliveryMode, 'Select delivery modes')}
-                  options={deliveryModeOptions}
+                  triggerLabel={formatMultiSelectLabel(formData.deliveryMode, configs.get('deliveryMode')?.placeholder || 'Select preferred delivery modes')}
+                  options={configs.get('deliveryMode')?.options || deliveryModeOptions}
                   selectedValues={formData.deliveryMode}
                   onSelectionChange={(values) => handleSelectChange('deliveryMode', values)}
                 />
               </HubForm.Field>
             </HubForm.Grid>
 
-            {/* Rates */}
+            {/* Budget */}
             <HubForm.Grid>
-              <HubForm.Field label="One-on-One Session Rate (1 hour session, 1 student)" required>
+              <HubForm.Field label={configs.get('oneOnOneRate')?.label || 'Budget for One-on-One Sessions (per hour)'} required>
                 <input
                   type="number"
                   value={formData.oneOnOneRate || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, oneOnOneRate: parseFloat(e.target.value) || 0 }))}
                   onFocus={() => setEditingField('oneOnOneRate')}
                   onBlur={() => handleBlur('oneOnOneRate')}
-                  placeholder="£50"
+                  placeholder={configs.get('oneOnOneRate')?.placeholder || '£50'}
                   disabled={isLoading || isSaving}
                   min="0"
                   step="1"
                 />
               </HubForm.Field>
 
-              <HubForm.Field label="Group Session Rate (1 hour session, 1 student)">
+              <HubForm.Field label={configs.get('groupSessionRate')?.label || 'Budget for Group Sessions (per hour)'}>
                 <input
                   type="number"
                   value={formData.groupSessionRate || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, groupSessionRate: parseFloat(e.target.value) || 0 }))}
                   onFocus={() => setEditingField('groupSessionRate')}
                   onBlur={() => handleBlur('groupSessionRate')}
-                  placeholder="£25"
+                  placeholder={configs.get('groupSessionRate')?.placeholder || '£25 (skip if flexible)'}
                   disabled={isLoading || isSaving}
                   min="0"
                   step="1"
@@ -507,4 +530,4 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
   );
 };
 
-export default TutorProfessionalDetailStep;
+export default ClientProfessionalDetailStep;

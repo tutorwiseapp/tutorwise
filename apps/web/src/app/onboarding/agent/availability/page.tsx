@@ -57,13 +57,13 @@ export default function AgentAvailabilityPage() {
   // Calculate progress
   const completedSteps = new Set<string>();
   if (profile?.first_name) completedSteps.add('personalInfo');
-  if (profile?.onboarding_progress?.tutor?.professionalDetails) {
+  if (profile?.onboarding_progress?.agent?.professionalDetails) {
     completedSteps.add('professionalDetails');
   }
-  if (profile?.onboarding_progress?.tutor?.verification) {
+  if (profile?.onboarding_progress?.agent?.verification) {
     completedSteps.add('verification');
   }
-  if (profile?.onboarding_progress?.tutor?.availability) {
+  if (profile?.onboarding_progress?.agent?.availability) {
     completedSteps.add('availability');
   }
 
@@ -117,7 +117,7 @@ export default function AgentAvailabilityPage() {
       const { createClient } = await import('@/utils/supabase/client');
       const supabase = createClient();
 
-      const professionalDetails = profile?.onboarding_progress?.tutor?.professionalDetails;
+      const professionalDetails = profile?.onboarding_progress?.agent?.professionalDetails;
 
       // Validate previous steps' data exists before final save
       if (!professionalDetails?.subjects?.length ||
@@ -131,31 +131,44 @@ export default function AgentAvailabilityPage() {
         return;
       }
 
-      // Add 'tutor' role to user's roles if not already present
+      // Add 'agent' role to user's roles if not already present
       const currentRoles = profile?.roles || [];
       console.log('[AgentAvailability] Current roles:', currentRoles);
 
-      if (!currentRoles.includes('tutor')) {
-        console.log('[AgentAvailability] Adding tutor role...');
-        const updatedRoles = [...currentRoles, 'tutor'];
+      if (!currentRoles.includes('agent')) {
+        console.log('[AgentAvailability] Adding agent role...');
+        const updatedRoles = [...currentRoles, 'agent'];
 
-        const { error: roleError } = await supabase
+        const { data, error: roleError, count } = await supabase
           .from('profiles')
           .update({
             roles: updatedRoles,
-            active_role: 'tutor'
+            active_role: 'agent'
           })
-          .eq('id', user.id);
+          .eq('id', user.id)
+          .select();
 
-        if (roleError) throw roleError;
-        console.log('[AgentAvailability] ✓ Tutor role added');
+        console.log('[AgentAvailability] Update response:', { data, error: roleError, count });
+
+        if (roleError) {
+          console.error('[AgentAvailability] ❌ Role update error:', roleError);
+          throw roleError;
+        }
+
+        if (!data || data.length === 0) {
+          const errorMsg = 'Role update failed - no rows affected. This may be an RLS policy issue.';
+          console.error('[AgentAvailability] ❌', errorMsg);
+          throw new Error(errorMsg);
+        }
+
+        console.log('[AgentAvailability] ✓ Agent role added');
       }
 
       // Save to role_details table
       console.log('[AgentAvailability] Saving to role_details...');
       const roleDetailsData = {
         profile_id: user.id,
-        role_type: 'tutor',
+        role_type: 'agent',
         subjects: professionalDetails?.subjects || [],
         qualifications: {
           experience_level: professionalDetails?.tutoringExperience || '',
@@ -173,13 +186,26 @@ export default function AgentAvailabilityPage() {
         completed_at: new Date().toISOString(),
       };
 
-      const { error: roleDetailsError } = await supabase
+      const { data: roleDetailsResult, error: roleDetailsError } = await supabase
         .from('role_details')
         .upsert(roleDetailsData, {
           onConflict: 'profile_id,role_type'
-        });
+        })
+        .select();
 
-      if (roleDetailsError) throw roleDetailsError;
+      console.log('[AgentAvailability] role_details response:', { data: roleDetailsResult, error: roleDetailsError });
+
+      if (roleDetailsError) {
+        console.error('[AgentAvailability] ❌ role_details save error:', roleDetailsError);
+        throw roleDetailsError;
+      }
+
+      if (!roleDetailsResult || roleDetailsResult.length === 0) {
+        const errorMsg = 'role_details save failed - no rows affected.';
+        console.error('[AgentAvailability] ❌', errorMsg);
+        throw new Error(errorMsg);
+      }
+
       console.log('[AgentAvailability] ✓ Saved to role_details');
 
       // Update onboarding progress with completion flag
@@ -238,7 +264,7 @@ export default function AgentAvailabilityPage() {
         return;
       }
 
-      setActiveRole('tutor');
+      setActiveRole('agent');
       router.push('/dashboard');
     } catch (error) {
       console.error('[AgentAvailability] ❌ Error:', error);
@@ -257,7 +283,7 @@ export default function AgentAvailabilityPage() {
   };
 
   return (
-    <div className={styles.onboardingPage}>
+    <div className={styles.onboardingStepPage}>
       <AgentAvailabilityStep
         onNext={handleNext}
         onBack={handleBack}

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import TutorProfessionalDetailStep from '@/app/components/feature/onboarding/tutor/steps/TutorProfessionalDetailStep';
+import ClientProfessionalDetailStep from '@/app/components/feature/onboarding/client/steps/ClientProfessionalDetailStep';
 import { ProfessionalDetailsData } from '@/types';
 import styles from '../../page.module.css';
 
@@ -18,7 +18,7 @@ const STEP_POINTS = {
 const REQUIRED_POINTS = 45;
 const TOTAL_POINTS = 55;
 
-export default function TutorProfessionalDetailsPage() {
+export default function ClientProfessionalDetailsPage() {
   const router = useRouter();
   const { user, profile, isLoading, updateOnboardingProgress } = useUserProfile();
   const [isPageLoading, setIsPageLoading] = useState(false);
@@ -26,13 +26,13 @@ export default function TutorProfessionalDetailsPage() {
   useEffect(() => {
     // Redirect to login if not authenticated
     if (!isLoading && !user) {
-      router.push('/login?redirect=/onboarding/tutor/professional-details');
+      router.push('/login?redirect=/onboarding/client/professional-details');
       return;
     }
 
     // Redirect to first step if personal info not completed
     if (!isLoading && profile && !profile.first_name) {
-      router.push('/onboarding/tutor/personal-info');
+      router.push('/onboarding/client/personal-info');
       return;
     }
   }, [user, profile, isLoading, router]);
@@ -50,13 +50,13 @@ export default function TutorProfessionalDetailsPage() {
   // Calculate progress
   const completedSteps = new Set<string>();
   if (profile?.first_name) completedSteps.add('personalInfo');
-  if (profile?.onboarding_progress?.tutor?.professionalDetails) {
+  if (profile?.onboarding_progress?.client?.professionalDetails) {
     completedSteps.add('professionalDetails');
   }
-  if (profile?.onboarding_progress?.tutor?.verification) {
+  if (profile?.onboarding_progress?.client?.verification) {
     completedSteps.add('verification');
   }
-  if (profile?.onboarding_progress?.tutor?.availability) {
+  if (profile?.onboarding_progress?.client?.availability) {
     completedSteps.add('availability');
   }
 
@@ -99,7 +99,7 @@ export default function TutorProfessionalDetailsPage() {
   };
 
   const handleNext = async (data: ProfessionalDetailsData) => {
-    console.log('[TutorProfessionalDetails] handleNext called', data);
+    console.log('[ClientProfessionalDetails] handleNext called', data);
     setIsPageLoading(true);
 
     try {
@@ -111,15 +111,15 @@ export default function TutorProfessionalDetailsPage() {
         .from('role_details')
         .select('availability')
         .eq('profile_id', user.id)
-        .eq('role_type', 'tutor')
+        .eq('role_type', 'client')
         .single();
 
-      console.log('[TutorProfessionalDetails] Existing availability:', existingRoleDetails?.availability);
+      console.log('[ClientProfessionalDetails] Existing availability:', existingRoleDetails?.availability);
 
       // Write-through to role_details table
       const roleDetailsData = {
         profile_id: user.id,
-        role_type: 'tutor',
+        role_type: 'client',
         subjects: data.subjects || [],
         qualifications: {
           bio: data.bio || '',
@@ -142,12 +142,12 @@ export default function TutorProfessionalDetailsPage() {
         });
 
       if (roleDetailsError) throw roleDetailsError;
-      console.log('[TutorProfessionalDetails] ✓ Saved to role_details');
+      console.log('[ClientProfessionalDetails] ✓ Saved to role_details');
 
       // Mark step as completed in onboarding_progress with completion flag
       await updateOnboardingProgress({
         current_step: 'verification',
-        tutor: {
+        client: {
           professionalDetails: {
             ...data,
             completed: true  // Completion flag - step is fully done
@@ -155,12 +155,12 @@ export default function TutorProfessionalDetailsPage() {
         }
       });
 
-      console.log('[TutorProfessionalDetails] ✓ Step marked as completed');
+      console.log('[ClientProfessionalDetails] ✓ Step marked as completed');
 
       // Navigate to next step
-      router.push('/onboarding/tutor/verification');
+      router.push('/onboarding/client/verification');
     } catch (error) {
-      console.error('[TutorProfessionalDetails] Error:', error);
+      console.error('[ClientProfessionalDetails] Error:', error);
       alert('Failed to save. Please try again.');
     } finally {
       setIsPageLoading(false);
@@ -168,15 +168,16 @@ export default function TutorProfessionalDetailsPage() {
   };
 
   const handleBack = () => {
-    router.push('/onboarding/tutor/personal-info');
+    router.push('/onboarding/client/personal-info');
   };
 
   return (
-    <div className={styles.onboardingPage}>
-      <TutorProfessionalDetailStep
+    <div className={styles.onboardingStepPage}>
+      <ClientProfessionalDetailStep
         onNext={handleNext}
         onBack={handleBack}
         isLoading={isPageLoading}
+        userRole="client"
         progressData={progressData}
       />
     </div>

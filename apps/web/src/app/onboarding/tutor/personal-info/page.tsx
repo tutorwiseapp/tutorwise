@@ -165,7 +165,7 @@ export default function TutorPersonalInfoPage() {
   };
 
   return (
-    <div className={styles.onboardingPage}>
+    <div className={styles.onboardingStepPage}>
       <TutorPersonalInfoStep
         onNext={handleNext}
         onBack={handleBack}

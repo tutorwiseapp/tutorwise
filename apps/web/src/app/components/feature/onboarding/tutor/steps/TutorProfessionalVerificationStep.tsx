@@ -13,6 +13,14 @@ import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useOnboardingAutoSave } from '@/hooks/useAutoSave';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { hasUnsavedChanges as checkUnsavedChanges } from '@/lib/offlineQueue';
+import { useFormConfig } from '@/hooks/useFormConfig';
+
+const proofOfAddressTypeOptions = [
+  { value: 'Utility Bill', label: 'Utility Bill' },
+  { value: 'Bank Statement', label: 'Bank Statement' },
+  { value: 'Tax Bill', label: 'Tax Bill' },
+  { value: 'Solicitor Letter', label: 'Solicitor Letter' }
+];
 
 interface ProgressData {
   currentPoints: number;
@@ -82,6 +90,17 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
   const [isRestored, setIsRestored] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Fetch dynamic form config for proof_of_address_type field (with fallback to hardcoded values)
+  const { config: proofOfAddressTypeConfig } = useFormConfig({
+    fieldName: 'proof_of_address_type',
+    context: 'onboarding.tutor',
+    fallback: {
+      label: 'Document Type',
+      placeholder: 'Select document type',
+      options: proofOfAddressTypeOptions
+    }
+  });
 
   // Combine form data and uploaded files for saving
   const combinedData = { ...formData, ...uploadedFiles };
@@ -297,17 +316,12 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
                   disabled={isLoading}
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                  <HubForm.Field label="Document Type">
+                  <HubForm.Field label={proofOfAddressTypeConfig.label || 'Document Type'}>
                     <UnifiedSelect
                       value={formData.proof_of_address_type}
                       onChange={(value) => handleSelectChange('proof_of_address_type', String(value))}
-                      options={[
-                        { value: 'Utility Bill', label: 'Utility Bill' },
-                        { value: 'Bank Statement', label: 'Bank Statement' },
-                        { value: 'Tax Bill', label: 'Tax Bill' },
-                        { value: 'Solicitor Letter', label: 'Solicitor Letter' },
-                      ]}
-                      placeholder="Select document type"
+                      options={proofOfAddressTypeConfig.options || proofOfAddressTypeOptions}
+                      placeholder={proofOfAddressTypeConfig.placeholder || 'Select document type'}
                       disabled={isLoading || isSaving}
                     />
                   </HubForm.Field>

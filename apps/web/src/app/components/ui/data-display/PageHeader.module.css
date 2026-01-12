@@ -1,49 +1,75 @@
 /*
  * Filename: src/app/components/ui/PageHeader.module.css
- * Purpose: Provides styles for the PageHeader component.
- * UPDATED: 2025-10-20 - Added responsive typography scaling
+ * Purpose: Reusable shell component styles for page headers with alignment variants
+ * UPDATED: 2026-01-12 - Redesigned with onboarding font styles and center alignment as default
  *
  * Change History:
+ * C005 - 2026-01-12 : Redesigned with center-aligned variant as default, onboarding font styles
  * C004 - 2025-10-20 : Added mobile-first responsive typography
  * C003 - 2025-07-22 : 02:00 - Removed the .compact variant as it was the incorrect approach.
  * C002 - 2025-07-22 : 01:30 - Added a .compact variant.
  * C001 - [Date] : [Time] - Initial creation.
  */
 
+/* ========================================
+   BASE HEADER CONTAINER
+   ======================================== */
 .pageHeader {
-  /* Mobile-first spacing */
-  margin-bottom: 1.5rem; /* Mobile: 24px */
+  margin-bottom: var(--space-5, 48px); /* Consistent spacing across all pages */
 }
 
-@media (min-width: 768px) {
+/* Mobile: Less space */
+@media (max-width: 640px) {
   .pageHeader {
-    margin-bottom: var(--space-4, 32px); /* Tablet+: 32px */
+    margin-bottom: var(--space-4, 32px);
   }
 }
 
+/* ========================================
+   ALIGNMENT VARIANTS
+   ======================================== */
+.center {
+  text-align: center;
+}
+
+.left {
+  text-align: left;
+}
+
+/* ========================================
+   TITLE STYLES (Onboarding Standard)
+   ======================================== */
 .title {
-  font-size: 1.75rem; /* Mobile: 28px */
-  font-weight: var(--font-weight-semibold, 600);
+  /* Mobile: 24px */
+  font-size: var(--font-size-2xl, 1.5rem);
+  font-weight: var(--font-weight-bold, 700);
   color: var(--color-text-primary, #202124);
-  margin-bottom: 0;
+  margin: 0 0 var(--space-2, 16px) 0;
+  line-height: 1.2;
 }
 
-@media (min-width: 768px) {
+/* Desktop: 32px */
+@media (min-width: 640px) {
   .title {
-    font-size: var(--font-size-3xl, 32px); /* Tablet+: 32px */
+    font-size: var(--font-size-3xl, 2rem);
   }
 }
 
+/* ========================================
+   SUBTITLE STYLES (Onboarding Standard)
+   ======================================== */
 .subtitle {
-  font-size: 1rem; /* Mobile: 16px */
+  /* Mobile: 16px */
+  font-size: 1rem;
   font-weight: var(--font-weight-regular, 400);
   color: var(--color-text-secondary, #5f6368);
-  line-height: 1.6;
-  margin-top: var(--space-1, 8px);
+  line-height: 1.5;
+  margin: 0;
 }
 
-@media (min-width: 768px) {
+/* Desktop: 18px */
+@media (min-width: 640px) {
   .subtitle {
-    font-size: var(--font-size-lg, 18px); /* Tablet+: 18px */
+    font-size: var(--font-size-lg, 1.125rem);
   }
 }

@@ -65,6 +65,7 @@ export default function AdminSidebar() {
     },
     { href: '/admin/reviews', label: 'Reviews' },
     { href: '/admin/reports', label: 'Reports' },
+    { href: '/admin/forms', label: 'Forms' },
     { href: '/admin/settings', label: 'Settings' },
   ];
 

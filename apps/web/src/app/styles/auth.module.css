@@ -3,19 +3,18 @@
  * Purpose: Provides a single, shared source of truth for all authentication page styles.
  *
  * Change History:
+ * C004 - 2026-01-12 : Added autofill override to maintain consistent background color
  * C003 - 2025-07-22 : 02:30 - Removed the invalid .page-tagline override.
  * C002 - 2025-07-22 : 01:00 - Removed invalid :global override.
  * C001 - 2025-07-22 : 00:30 - Initial creation.
  *
- * Last Modified: 2025-07-22 : 02:30
+ * Last Modified: 2026-01-12
  * Requirement ID (optional): VIN-UI-015
  *
  * Change Summary:
- * The invalid `:global(.page-tagline)` rule has been removed from this file. The logic
- * is now correctly and safely handled in the `Container.module.css` file.
- *
- * Impact Analysis:
- * This change cleans up the CSS and prevents build errors.
+ * Added autofill override styles to prevent browser's blue autofill background from
+ * affecting the form background color. This ensures login and signup pages have
+ * identical background colors.
  */
 
 /* Specific styling for the card on auth pages */
@@ -24,6 +23,23 @@
   background: var(--color-primary-light, #E6F0F0);
   padding: var(--space-4, 32px);
   border-radius: var(--border-radius-lg, 12px);
+}
+
+/* Override browser autofill background to keep input fields white */
+.authCard input:-webkit-autofill,
+.authCard input:-webkit-autofill:hover,
+.authCard input:-webkit-autofill:focus,
+.authCard input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: var(--color-text-primary, #202124) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Firefox autofill override */
+.authCard input:-moz-autofill,
+.authCard input:-moz-autofill-preview {
+  background-color: #ffffff !important;
+  color: var(--color-text-primary, #202124) !important;
 }
 
 .twoColGrid {

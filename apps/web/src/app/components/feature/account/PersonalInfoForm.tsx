@@ -7,6 +7,7 @@ import HubForm from '@/app/components/hub/form/HubForm';
 import DatePicker from '@/app/components/ui/forms/DatePicker';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import Button from '@/app/components/ui/actions/Button';
+import { useFormConfig } from '@/hooks/useFormConfig';
 import styles from './PersonalInfoForm.module.css';
 import hubFormStyles from '@/app/components/hub/form/HubForm.module.css';
 
@@ -19,6 +20,13 @@ type EditingField = 'first_name' | 'last_name' | 'gender' | 'date_of_birth' | 'e
   'address_line1' | 'town' | 'city' | 'country' | 'postal_code' |
   'emergency_contact_name' | 'emergency_contact_email' | null;
 
+const genderOptions = [
+  { value: 'Male', label: 'Male' },
+  { value: 'Female', label: 'Female' },
+  { value: 'Other', label: 'Other' },
+  { value: 'Prefer not to say', label: 'Prefer not to say' }
+];
+
 export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormProps) {
   const [editingField, setEditingField] = useState<EditingField>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -26,6 +34,17 @@ export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormPr
 
   // Refs for auto-focus
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | HTMLSelectElement | HTMLButtonElement | null }>({});
+
+  // Fetch dynamic form config for gender field (with fallback to hardcoded values)
+  const { config: genderConfig } = useFormConfig({
+    fieldName: 'gender',
+    context: 'account',
+    fallback: {
+      label: 'Gender',
+      placeholder: 'Select gender',
+      options: genderOptions
+    }
+  });
 
   const [formData, setFormData] = useState({
     first_name: profile.first_name || '',
@@ -247,12 +266,7 @@ export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormPr
         <HubForm.Grid>
           {renderField('first_name', 'First Name', 'text', 'Mike')}
           {renderField('last_name', 'Last Name', 'text', 'Quinn')}
-          {renderField('gender', 'Gender', 'select', 'Select gender', [
-            { value: 'Male', label: 'Male' },
-            { value: 'Female', label: 'Female' },
-            { value: 'Other', label: 'Other' },
-            { value: 'Prefer not to say', label: 'Prefer not to say' }
-          ])}
+          {renderField('gender', genderConfig.label || 'Gender', 'select', genderConfig.placeholder || 'Select gender', genderConfig.options || genderOptions)}
           {renderField('date_of_birth', 'Date of Birth', 'date', '01 October 1990')}
         </HubForm.Grid>
       </HubForm.Section>

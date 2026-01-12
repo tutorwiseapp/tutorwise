@@ -235,7 +235,7 @@ export default function TutorVerificationPage() {
   };
 
   return (
-    <div className={styles.onboardingPage}>
+    <div className={styles.onboardingStepPage}>
       <TutorProfessionalVerificationStep
         onNext={handleNext}
         onBack={handleBack}

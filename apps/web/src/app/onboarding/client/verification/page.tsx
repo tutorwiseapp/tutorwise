@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import TutorProfessionalVerificationStep from '@/app/components/feature/onboarding/tutor/steps/TutorProfessionalVerificationStep';
+import ClientProfessionalVerificationStep from '@/app/components/feature/onboarding/client/steps/ClientProfessionalVerificationStep';
 import { VerificationDetailsData } from '@/types';
 import styles from '../../page.module.css';
 
@@ -18,7 +18,7 @@ const STEP_POINTS = {
 const REQUIRED_POINTS = 45;
 const TOTAL_POINTS = 55;
 
-export default function TutorVerificationPage() {
+export default function ClientVerificationPage() {
   const router = useRouter();
   const { user, profile, isLoading, updateOnboardingProgress } = useUserProfile();
   const [isPageLoading, setIsPageLoading] = useState(false);
@@ -26,18 +26,18 @@ export default function TutorVerificationPage() {
   useEffect(() => {
     // Redirect to login if not authenticated
     if (!isLoading && !user) {
-      router.push('/login?redirect=/onboarding/tutor/verification');
+      router.push('/login?redirect=/onboarding/client/verification');
       return;
     }
 
     // Redirect if previous steps not completed
     if (!isLoading && profile) {
       if (!profile.first_name) {
-        router.push('/onboarding/tutor/personal-info');
+        router.push('/onboarding/client/personal-info');
         return;
       }
-      if (!profile.onboarding_progress?.tutor?.professionalDetails) {
-        router.push('/onboarding/tutor/professional-details');
+      if (!profile.onboarding_progress?.client?.professionalDetails) {
+        router.push('/onboarding/client/professional-details');
         return;
       }
     }
@@ -56,13 +56,13 @@ export default function TutorVerificationPage() {
   // Calculate progress
   const completedSteps = new Set<string>();
   if (profile?.first_name) completedSteps.add('personalInfo');
-  if (profile?.onboarding_progress?.tutor?.professionalDetails) {
+  if (profile?.onboarding_progress?.client?.professionalDetails) {
     completedSteps.add('professionalDetails');
   }
-  if (profile?.onboarding_progress?.tutor?.verification) {
+  if (profile?.onboarding_progress?.client?.verification) {
     completedSteps.add('verification');
   }
-  if (profile?.onboarding_progress?.tutor?.availability) {
+  if (profile?.onboarding_progress?.client?.availability) {
     completedSteps.add('availability');
   }
 
@@ -105,7 +105,7 @@ export default function TutorVerificationPage() {
   };
 
   const handleNext = async (data: VerificationDetailsData) => {
-    console.log('[TutorVerification] handleNext called', data);
+    console.log('[ClientVerification] handleNext called', data);
     setIsPageLoading(true);
 
     try {
@@ -141,7 +141,7 @@ export default function TutorVerificationPage() {
           .eq('id', user.id);
 
         if (error) throw error;
-        console.log('[TutorVerification] ✓ Saved verification data to profiles');
+        console.log('[ClientVerification] ✓ Saved verification data to profiles');
 
         // Write-through to role_details table
         // Fetch existing role_details to preserve other data
@@ -149,10 +149,10 @@ export default function TutorVerificationPage() {
           .from('role_details')
           .select('*')
           .eq('profile_id', user.id)
-          .eq('role_type', 'tutor')
+          .eq('role_type', 'client')
           .single();
 
-        console.log('[TutorVerification] Existing role_details:', existingRoleDetails);
+        console.log('[ClientVerification] Existing role_details:', existingRoleDetails);
 
         // Build verification certifications array
         const verificationCerts = [];
@@ -187,7 +187,7 @@ export default function TutorVerificationPage() {
 
         const roleDetailsData = {
           profile_id: user.id,
-          role_type: 'tutor',
+          role_type: 'client',
           ...(existingRoleDetails?.subjects && { subjects: existingRoleDetails.subjects }),
           ...(existingRoleDetails?.hourly_rate && { hourly_rate: existingRoleDetails.hourly_rate }),
           ...(existingRoleDetails?.availability && { availability: existingRoleDetails.availability }),
@@ -202,15 +202,15 @@ export default function TutorVerificationPage() {
           });
 
         if (roleDetailsError) throw roleDetailsError;
-        console.log('[TutorVerification] ✓ Saved verification to role_details');
+        console.log('[ClientVerification] ✓ Saved verification to role_details');
       } else {
-        console.log('[TutorVerification] ⏩ No verification data, skipping save');
+        console.log('[ClientVerification] ⏩ No verification data, skipping save');
       }
 
       // Mark step as completed in onboarding progress with completion flag
       await updateOnboardingProgress({
         current_step: 'availability',
-        tutor: {
+        client: {
           verification: {
             ...data,
             completed: true  // Completion flag - step is fully done
@@ -218,12 +218,12 @@ export default function TutorVerificationPage() {
         }
       });
 
-      console.log('[TutorVerification] ✓ Step marked as completed');
+      console.log('[ClientVerification] ✓ Step marked as completed');
 
       // Navigate to next step
-      router.push('/onboarding/tutor/availability');
+      router.push('/onboarding/client/availability');
     } catch (error) {
-      console.error('[TutorVerification] Error:', error);
+      console.error('[ClientVerification] Error:', error);
       alert('Failed to save. Please try again.');
     } finally {
       setIsPageLoading(false);
@@ -231,12 +231,12 @@ export default function TutorVerificationPage() {
   };
 
   const handleBack = () => {
-    router.push('/onboarding/tutor/professional-details');
+    router.push('/onboarding/client/professional-details');
   };
 
   return (
-    <div className={styles.onboardingPage}>
-      <TutorProfessionalVerificationStep
+    <div className={styles.onboardingStepPage}>
+      <ClientProfessionalVerificationStep
         onNext={handleNext}
         onBack={handleBack}
         isLoading={isPageLoading}

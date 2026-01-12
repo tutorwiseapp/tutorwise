@@ -238,8 +238,10 @@ export default function SignUpPage() {
 
   return (
     <Container variant="form">
-      <PageHeader title="Create Your Account" />
-      <p className="page-tagline">Join Tutorwise Free: Start Tutoring Now!</p>
+      <PageHeader
+        title="Create Your Account"
+        subtitle="Join Tutorwise Free: Start Tutoring Now!"
+      />
       <div className={authStyles.authCard}>
         {message && <Message type="success">{message}</Message>}
         {error && <Message type="error">{error}</Message>}
@@ -380,7 +382,7 @@ export default function SignUpPage() {
             <Button type="submit" variant="primary" fullWidth disabled={isLoading || !acceptedTerms}>
               {isLoading ? 'Creating account...' : 'Sign Up'}
             </Button>
-            <Button variant='secondary' fullWidth onClick={handleGoogleSignUp}>Sign Up with Google</Button>
+            <Button variant='google' fullWidth onClick={handleGoogleSignUp}>Sign Up with Google</Button>
           </div>
         </form>
       </div>

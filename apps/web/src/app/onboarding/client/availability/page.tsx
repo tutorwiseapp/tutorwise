@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import TutorAvailabilityStep from '@/app/components/feature/onboarding/tutor/steps/TutorAvailabilityStep';
-import { AvailabilityData } from '@/app/components/feature/onboarding/tutor/steps/TutorAvailabilityStep';
+import ClientAvailabilityStep from '@/app/components/feature/onboarding/client/steps/ClientAvailabilityStep';
+import { AvailabilityData } from '@/app/components/feature/onboarding/client/steps/ClientAvailabilityStep';
 import styles from '../../page.module.css';
 
 // CaaS Points
@@ -18,7 +18,7 @@ const STEP_POINTS = {
 const REQUIRED_POINTS = 45;
 const TOTAL_POINTS = 55;
 
-export default function TutorAvailabilityPage() {
+export default function ClientAvailabilityPage() {
   const router = useRouter();
   const { user, profile, isLoading, updateOnboardingProgress, refreshProfile, setActiveRole } = useUserProfile();
   const [isPageLoading, setIsPageLoading] = useState(false);
@@ -27,18 +27,18 @@ export default function TutorAvailabilityPage() {
   useEffect(() => {
     // Redirect to login if not authenticated
     if (!isLoading && !user) {
-      router.push('/login?redirect=/onboarding/tutor/availability');
+      router.push('/login?redirect=/onboarding/client/availability');
       return;
     }
 
     // Redirect if previous steps not completed
     if (!isLoading && profile && !isCompleting) {
       if (!profile.first_name) {
-        router.push('/onboarding/tutor/personal-info');
+        router.push('/onboarding/client/personal-info');
         return;
       }
-      if (!profile.onboarding_progress?.tutor?.professionalDetails) {
-        router.push('/onboarding/tutor/professional-details');
+      if (!profile.onboarding_progress?.client?.professionalDetails) {
+        router.push('/onboarding/client/professional-details');
         return;
       }
     }
@@ -57,13 +57,13 @@ export default function TutorAvailabilityPage() {
   // Calculate progress
   const completedSteps = new Set<string>();
   if (profile?.first_name) completedSteps.add('personalInfo');
-  if (profile?.onboarding_progress?.tutor?.professionalDetails) {
+  if (profile?.onboarding_progress?.client?.professionalDetails) {
     completedSteps.add('professionalDetails');
   }
-  if (profile?.onboarding_progress?.tutor?.verification) {
+  if (profile?.onboarding_progress?.client?.verification) {
     completedSteps.add('verification');
   }
-  if (profile?.onboarding_progress?.tutor?.availability) {
+  if (profile?.onboarding_progress?.client?.availability) {
     completedSteps.add('availability');
   }
 
@@ -106,9 +106,9 @@ export default function TutorAvailabilityPage() {
   };
 
   const handleNext = async (data: AvailabilityData) => {
-    console.log('[TutorAvailability] ========================================');
-    console.log('[TutorAvailability] handleNext START');
-    console.log('[TutorAvailability] Input data:', JSON.stringify(data, null, 2));
+    console.log('[ClientAvailability] ========================================');
+    console.log('[ClientAvailability] handleNext START');
+    console.log('[ClientAvailability] Input data:', JSON.stringify(data, null, 2));
 
     setIsPageLoading(true);
     setIsCompleting(true); // Prevent redirect loop
@@ -117,45 +117,58 @@ export default function TutorAvailabilityPage() {
       const { createClient } = await import('@/utils/supabase/client');
       const supabase = createClient();
 
-      const professionalDetails = profile?.onboarding_progress?.tutor?.professionalDetails;
+      const professionalDetails = profile?.onboarding_progress?.client?.professionalDetails;
 
       // Validate previous steps' data exists before final save
       if (!professionalDetails?.subjects?.length ||
           !professionalDetails?.tutoringExperience ||
           !professionalDetails?.oneOnOneRate) {
-        console.error('[TutorAvailability] ❌ Missing professional details data');
+        console.error('[ClientAvailability] ❌ Missing professional details data');
         alert('Please complete Professional Details step first. Missing required fields: subjects, experience, or rate.');
         setIsPageLoading(false);
         setIsCompleting(false);
-        router.push('/onboarding/tutor/professional-details');
+        router.push('/onboarding/client/professional-details');
         return;
       }
 
-      // Add 'tutor' role to user's roles if not already present
+      // Add 'client' role to user's roles if not already present
       const currentRoles = profile?.roles || [];
-      console.log('[TutorAvailability] Current roles:', currentRoles);
+      console.log('[ClientAvailability] Current roles:', currentRoles);
 
-      if (!currentRoles.includes('tutor')) {
-        console.log('[TutorAvailability] Adding tutor role...');
-        const updatedRoles = [...currentRoles, 'tutor'];
+      if (!currentRoles.includes('client')) {
+        console.log('[ClientAvailability] Adding client role...');
+        const updatedRoles = [...currentRoles, 'client'];
 
-        const { error: roleError } = await supabase
+        const { data, error: roleError, count } = await supabase
           .from('profiles')
           .update({
             roles: updatedRoles,
-            active_role: 'tutor'
+            active_role: 'client'
           })
-          .eq('id', user.id);
+          .eq('id', user.id)
+          .select();
 
-        if (roleError) throw roleError;
-        console.log('[TutorAvailability] ✓ Tutor role added');
+        console.log('[ClientAvailability] Update response:', { data, error: roleError, count });
+
+        if (roleError) {
+          console.error('[ClientAvailability] ❌ Role update error:', roleError);
+          throw roleError;
+        }
+
+        if (!data || data.length === 0) {
+          const errorMsg = 'Role update failed - no rows affected. This may be an RLS policy issue.';
+          console.error('[ClientAvailability] ❌', errorMsg);
+          throw new Error(errorMsg);
+        }
+
+        console.log('[ClientAvailability] ✓ Client role added');
       }
 
       // Save to role_details table
-      console.log('[TutorAvailability] Saving to role_details...');
+      console.log('[ClientAvailability] Saving to role_details...');
       const roleDetailsData = {
         profile_id: user.id,
-        role_type: 'tutor',
+        role_type: 'client',
         subjects: professionalDetails?.subjects || [],
         qualifications: {
           experience_level: professionalDetails?.tutoringExperience || '',
@@ -173,21 +186,34 @@ export default function TutorAvailabilityPage() {
         completed_at: new Date().toISOString(),
       };
 
-      const { error: roleDetailsError } = await supabase
+      const { data: roleDetailsResult, error: roleDetailsError } = await supabase
         .from('role_details')
         .upsert(roleDetailsData, {
           onConflict: 'profile_id,role_type'
-        });
+        })
+        .select();
 
-      if (roleDetailsError) throw roleDetailsError;
-      console.log('[TutorAvailability] ✓ Saved to role_details');
+      console.log('[ClientAvailability] role_details response:', { data: roleDetailsResult, error: roleDetailsError });
+
+      if (roleDetailsError) {
+        console.error('[ClientAvailability] ❌ role_details save error:', roleDetailsError);
+        throw roleDetailsError;
+      }
+
+      if (!roleDetailsResult || roleDetailsResult.length === 0) {
+        const errorMsg = 'role_details save failed - no rows affected.';
+        console.error('[ClientAvailability] ❌', errorMsg);
+        throw new Error(errorMsg);
+      }
+
+      console.log('[ClientAvailability] ✓ Saved to role_details');
 
       // Update onboarding progress with completion flag
       await updateOnboardingProgress({
         current_step: 'completion',
         onboarding_completed: true,
         completed_at: new Date().toISOString(),
-        tutor: {
+        client: {
           professionalDetails,
           availability: {
             ...data,
@@ -196,11 +222,11 @@ export default function TutorAvailabilityPage() {
         }
       });
 
-      console.log('[TutorAvailability] ✓ Onboarding completed');
+      console.log('[ClientAvailability] ✓ Onboarding completed');
 
       // Trigger IMMEDIATE CaaS calculation to award provisional onboarding points
       // This ensures the dashboard shows the score right away (not 0/100)
-      console.log('[TutorAvailability] Calculating CaaS score...');
+      console.log('[ClientAvailability] Calculating CaaS score...');
       try {
         const response = await fetch('/api/caas/calculate', {
           method: 'POST',
@@ -210,27 +236,27 @@ export default function TutorAvailabilityPage() {
         });
 
         if (!response.ok) {
-          console.error('[TutorAvailability] ❌ CaaS calculation failed:', response.status);
+          console.error('[ClientAvailability] ❌ CaaS calculation failed:', response.status);
           // Non-blocking - continue to dashboard even if calculation fails
         } else {
           const result = await response.json();
-          console.log('[TutorAvailability] ✓ CaaS score calculated:', result.data?.total_score);
+          console.log('[ClientAvailability] ✓ CaaS score calculated:', result.data?.total_score);
         }
       } catch (error) {
-        console.error('[TutorAvailability] ❌ CaaS calculation error:', error);
+        console.error('[ClientAvailability] ❌ CaaS calculation error:', error);
         // Non-blocking error - continue to dashboard
       }
 
       // Refresh profile and redirect - wait for refresh to complete
-      console.log('[TutorAvailability] Refreshing profile...');
+      console.log('[ClientAvailability] Refreshing profile...');
       try {
         await Promise.race([
           refreshProfile(),
           new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
         ]);
-        console.log('[TutorAvailability] ✓ Profile refreshed successfully');
+        console.log('[ClientAvailability] ✓ Profile refreshed successfully');
       } catch (error) {
-        console.error('[TutorAvailability] ❌ Profile refresh failed:', error);
+        console.error('[ClientAvailability] ❌ Profile refresh failed:', error);
         // Don't proceed if refresh fails - user may see stale data
         alert('Onboarding completed but profile refresh failed. Please reload the page.');
         setIsPageLoading(false);
@@ -238,27 +264,27 @@ export default function TutorAvailabilityPage() {
         return;
       }
 
-      setActiveRole('tutor');
+      setActiveRole('client');
       router.push('/dashboard');
     } catch (error) {
-      console.error('[TutorAvailability] ❌ Error:', error);
+      console.error('[ClientAvailability] ❌ Error:', error);
       alert('Failed to complete onboarding. Please try again.');
       setIsCompleting(false);
     } finally {
       setIsPageLoading(false);
     }
 
-    console.log('[TutorAvailability] handleNext COMPLETE');
-    console.log('[TutorAvailability] ========================================');
+    console.log('[ClientAvailability] handleNext COMPLETE');
+    console.log('[ClientAvailability] ========================================');
   };
 
   const handleBack = () => {
-    router.push('/onboarding/tutor/verification');
+    router.push('/onboarding/client/verification');
   };
 
   return (
-    <div className={styles.onboardingPage}>
-      <TutorAvailabilityStep
+    <div className={styles.onboardingStepPage}>
+      <ClientAvailabilityStep
         onNext={handleNext}
         onBack={handleBack}
         isLoading={isPageLoading}

@@ -71,10 +71,10 @@
   border-color: #4CAEAD !important;
 }
 
-.secondary { 
-  background-color: transparent; 
-  color: #2c7a7b; 
-  border-color: #2c7a7b; 
+.secondary {
+  background-color: #ffffff;
+  color: #2c7a7b;
+  border-color: #2c7a7b;
 }
 .secondary:hover:not(:disabled) {
   background-color: #f0fdfa;
@@ -93,16 +93,16 @@
 }
 
 .google {
-    background-color: #E9ECEF;
+    background-color: #f3f4f6; /* Gray 100 - design system */
     color: #3c4043;
-    border: 1px solid transparent;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    border: 1px solid #e5e7eb; /* Gray 200 - standard border */
+    border-radius: 8px;
     gap: 12px;
-    transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease;
 }
 .google:hover:not(:disabled) {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    background-color: #DEE2E6; 
+    background-color: #e5e7eb; /* Gray 200 - darker on hover */
+    border-color: #d1d5db; /* Gray 300 - darker border on hover */
 }
 .google::before {
     content: '';

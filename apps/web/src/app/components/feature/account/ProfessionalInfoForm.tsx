@@ -9,6 +9,7 @@ import CustomTimePicker from '@/app/components/feature/listings/wizard-steps/Cus
 import DatePicker from '@/app/components/ui/forms/DatePicker';
 import Button from '@/app/components/ui/actions/Button';
 import { useDocumentUpload } from '@/hooks/useDocumentUpload';
+import { useFormConfigs } from '@/hooks/useFormConfig';
 import hubFormStyles from '@/app/components/hub/form/HubForm.module.css';
 import styles from './ProfessionalInfoForm.module.css';
 
@@ -189,6 +190,31 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
   // Refs for auto-focus
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | HTMLButtonElement | null }>({});
+
+  // Fetch dynamic form configs (with fallback to hardcoded values)
+  const { configs } = useFormConfigs([
+    { fieldName: 'status', context: 'account', fallback: { label: 'Status', placeholder: 'Select status', options: statusOptions } },
+    { fieldName: 'academicQualifications', context: 'account', fallback: { label: 'Academic Qualifications', placeholder: 'Select qualifications', options: academicQualificationsOptions } },
+    { fieldName: 'keyStages', context: 'account', fallback: { label: 'Key Stages', placeholder: 'Select key stages', options: keyStagesOptions } },
+    { fieldName: 'teachingProfessionalQualifications', context: 'account', fallback: { label: 'Teaching Professional Qualifications', placeholder: 'Select qualifications', options: teachingProfessionalQualificationsOptions } },
+    { fieldName: 'subjects', context: 'account', fallback: { label: 'Subjects', placeholder: 'Select subjects', options: subjectsOptions } },
+    { fieldName: 'teachingExperience', context: 'account', fallback: { label: 'Teaching Experience', placeholder: 'Select experience', options: teachingExperienceOptions } },
+    { fieldName: 'sessionType', context: 'account', fallback: { label: 'Session Type', placeholder: 'Select session types', options: sessionTypeOptions } },
+    { fieldName: 'tutoringExperience', context: 'account', fallback: { label: 'Tutoring Experience', placeholder: 'Select experience', options: tutoringExperienceOptions } },
+    { fieldName: 'deliveryMode', context: 'account', fallback: { label: 'Delivery Mode', placeholder: 'Select delivery modes', options: deliveryModeOptions } },
+    { fieldName: 'educationLevel', context: 'account', fallback: { label: 'Education Level', placeholder: 'Select education level', options: educationLevelOptions } },
+    { fieldName: 'learningGoals', context: 'account', fallback: { label: 'Learning Goals', placeholder: 'Select learning goals', options: learningGoalsOptions } },
+    { fieldName: 'learningPreferences', context: 'account', fallback: { label: 'Learning Preferences', placeholder: 'Select preferences', options: learningPreferencesOptions } },
+    { fieldName: 'specialNeeds', context: 'account', fallback: { label: 'Special Educational Needs', placeholder: 'Select special needs (if any)', options: specialNeedsOptions } },
+    { fieldName: 'sessionsPerWeek', context: 'account', fallback: { label: 'Sessions Per Week', placeholder: 'Select sessions per week', options: sessionsPerWeekOptions } },
+    { fieldName: 'sessionDuration', context: 'account', fallback: { label: 'Session Duration', placeholder: 'Select duration', options: sessionDurationOptions } },
+    { fieldName: 'proofOfAddressType', context: 'account', fallback: { label: 'Document Type', placeholder: 'Select document type', options: [
+      { value: 'Utility Bill', label: 'Utility Bill' },
+      { value: 'Bank Statement', label: 'Bank Statement' },
+      { value: 'Tax Bill', label: 'Tax Bill' },
+      { value: 'Solicitor Letter', label: 'Solicitor Letter' }
+    ] } }
+  ]);
 
   // Form data with multi-select fields as arrays
   const [formData, setFormData] = useState({
@@ -962,16 +988,16 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
           {/* Subjects and Education Level */}
           <HubForm.Section>
             <HubForm.Grid>
-              {renderField('subjects_client', 'Subjects', 'multiselect', 'Select subjects', subjectsOptions)}
-              {renderField('education_level', 'Education Level', 'select', 'Select your current level', educationLevelOptions)}
+              {renderField('subjects_client', 'Subjects', 'multiselect', 'Select subjects', configs.get('subjects')?.options || subjectsOptions)}
+              {renderField('education_level', 'Education Level', 'select', 'Select your current level', configs.get('educationLevel')?.options || educationLevelOptions)}
             </HubForm.Grid>
           </HubForm.Section>
 
           {/* Learning Goals and Learning Preferences */}
           <HubForm.Section>
             <HubForm.Grid>
-              {renderField('learning_goals', 'Learning Goals', 'multiselect', 'Select your goals', learningGoalsOptions)}
-              {renderField('learning_preferences', 'Learning Preferences', 'multiselect', 'Select preferences', learningPreferencesOptions)}
+              {renderField('learning_goals', 'Learning Goals', 'multiselect', 'Select your goals', configs.get('learningGoals')?.options || learningGoalsOptions)}
+              {renderField('learning_preferences', 'Learning Preferences', 'multiselect', 'Select preferences', configs.get('learningPreferences')?.options || learningPreferencesOptions)}
             </HubForm.Grid>
           </HubForm.Section>
 
@@ -986,15 +1012,15 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
           {/* Sessions Per Week and Session Duration */}
           <HubForm.Section>
             <HubForm.Grid>
-              {renderField('sessions_per_week', 'Sessions Per Week', 'select', 'Select frequency', sessionsPerWeekOptions)}
-              {renderField('session_duration', 'Session Duration', 'select', 'Select duration', sessionDurationOptions)}
+              {renderField('sessions_per_week', 'Sessions Per Week', 'select', 'Select frequency', configs.get('sessionsPerWeek')?.options || sessionsPerWeekOptions)}
+              {renderField('session_duration', 'Session Duration', 'select', 'Select duration', configs.get('sessionDuration')?.options || sessionDurationOptions)}
             </HubForm.Grid>
           </HubForm.Section>
 
           {/* Special Needs */}
           <HubForm.Section>
             <HubForm.Grid>
-              {renderField('special_needs', 'Special Educational Needs (SEN)', 'multiselect', 'Select if applicable', specialNeedsOptions)}
+              {renderField('special_needs', 'Special Educational Needs (SEN)', 'multiselect', 'Select if applicable', configs.get('specialNeeds')?.options || specialNeedsOptions)}
               <div></div>
             </HubForm.Grid>
           </HubForm.Section>
@@ -1370,7 +1396,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                         setFormData(prev => ({ ...prev, proof_of_address_type: String(value) }));
                         handleBlur('proof_of_address_type');
                       }}
-                      options={[
+                      options={configs.get('proofOfAddressType')?.options || [
                         { value: 'Utility Bill', label: 'Utility Bill' },
                         { value: 'Bank Statement', label: 'Bank Statement' },
                         { value: 'Tax Bill', label: 'Tax Bill' },
@@ -1524,31 +1550,31 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
           {/* 30-Second Intro Video and Status */}
           <HubForm.Grid>
             {renderField('bio_video_url', '30-Second Intro Video (Optional)', 'text', 'Paste YouTube, Loom, or Vimeo URL for +5 CaaS points')}
-            {renderField('status', 'Status', 'select', 'Select status', statusOptions)}
+            {renderField('status', 'Status', 'select', 'Select status', configs.get('status')?.options || statusOptions)}
           </HubForm.Grid>
 
           {/* Academic Qualifications and Teaching Professional Qualifications */}
           <HubForm.Grid>
-            {renderField('academic_qualifications', 'Academic Qualifications', 'multiselect', 'Select qualifications', academicQualificationsOptions)}
-            {renderField('teaching_professional_qualifications', 'Teaching Professional Qualifications', 'multiselect', 'Select qualification', teachingProfessionalQualificationsOptions)}
+            {renderField('academic_qualifications', 'Academic Qualifications', 'multiselect', 'Select qualifications', configs.get('academicQualifications')?.options || academicQualificationsOptions)}
+            {renderField('teaching_professional_qualifications', 'Teaching Professional Qualifications', 'multiselect', 'Select qualification', configs.get('teachingProfessionalQualifications')?.options || teachingProfessionalQualificationsOptions)}
           </HubForm.Grid>
 
           {/* Teaching Experience and Tutoring Experience */}
           <HubForm.Grid>
-            {renderField('teaching_experience', 'Teaching Experience', 'select', 'Select experience', teachingExperienceOptions)}
-            {renderField('tutoring_experience', 'Tutoring Experience', 'select', 'Select tutoring experience', tutoringExperienceOptions)}
+            {renderField('teaching_experience', 'Teaching Experience', 'select', 'Select experience', configs.get('teachingExperience')?.options || teachingExperienceOptions)}
+            {renderField('tutoring_experience', 'Tutoring Experience', 'select', 'Select tutoring experience', configs.get('tutoringExperience')?.options || tutoringExperienceOptions)}
           </HubForm.Grid>
 
           {/* Key Stages and Subjects */}
           <HubForm.Grid>
-            {renderField('key_stages', 'Key Stages', 'multiselect', 'Select key stage', keyStagesOptions)}
-            {renderField('subjects', 'Subjects', 'multiselect', 'Mathematics, English', subjectsOptions)}
+            {renderField('key_stages', 'Key Stages', 'multiselect', 'Select key stage', configs.get('keyStages')?.options || keyStagesOptions)}
+            {renderField('subjects', 'Subjects', 'multiselect', 'Mathematics, English', configs.get('subjects')?.options || subjectsOptions)}
           </HubForm.Grid>
 
           {/* Session Type and Delivery Mode */}
           <HubForm.Grid>
-            {renderField('session_type', 'Session Type', 'multiselect', 'Select session type', sessionTypeOptions)}
-            {renderField('delivery_mode', 'Delivery Mode', 'multiselect', 'Select delivery mode', deliveryModeOptions)}
+            {renderField('session_type', 'Session Type', 'multiselect', 'Select session type', configs.get('sessionType')?.options || sessionTypeOptions)}
+            {renderField('delivery_mode', 'Delivery Mode', 'multiselect', 'Select delivery mode', configs.get('deliveryMode')?.options || deliveryModeOptions)}
           </HubForm.Grid>
 
           {/* Rates */}
@@ -1582,7 +1608,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                       setFormData(prev => ({ ...prev, proof_of_address_type: String(value) }));
                       handleBlur('proof_of_address_type');
                     }}
-                    options={[
+                    options={configs.get('proofOfAddressType')?.options || [
                       { value: 'Utility Bill', label: 'Utility Bill' },
                       { value: 'Bank Statement', label: 'Bank Statement' },
                       { value: 'Tax Bill', label: 'Tax Bill' },

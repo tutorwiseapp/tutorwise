@@ -1,0 +1,378 @@
+/*
+ * Filename: src/app/(admin)/admin/forms/page.module.css
+ * Purpose: Styles for Forms Admin page
+ * Created: 2026-01-12
+ */
+
+/* Content wrapper - split layout */
+.contentWrapper {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1.5rem;
+  height: calc(100vh - 280px);
+}
+
+@media (max-width: 768px) {
+  .contentWrapper {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+}
+
+/* Field List (Left) */
+.fieldList {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: #ffffff;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.fieldListHeader {
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fieldListHeader h3 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.refreshingIndicator {
+  font-size: 0.75rem;
+  color: #14b8a6;
+  font-weight: 500;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.fieldItems {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.fieldItem {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-bottom: 1px solid #f3f4f6;
+  background-color: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.fieldItem:hover {
+  background-color: #f9fafb;
+}
+
+.fieldItem:active {
+  background-color: #f3f4f6;
+}
+
+.fieldItemActive {
+  background-color: #ecfdf5;
+  border-left: 3px solid #14b8a6;
+}
+
+.fieldItemActive:hover {
+  background-color: #d1fae5;
+}
+
+.fieldName {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+/* Field Editor (Right) */
+.fieldEditor {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: #ffffff;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.editorContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Section */
+.section {
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.section:last-child {
+  border-bottom: none;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.sectionHeader h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Form Elements */
+.formGroup {
+  margin-bottom: 1rem;
+}
+
+.formGroup:last-child {
+  margin-bottom: 0;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #111827;
+  background-color: #ffffff;
+  transition: all 0.15s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #14b8a6;
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+}
+
+.input::placeholder {
+  color: #9ca3af;
+}
+
+.formRow {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* Add Option Form */
+.addOptionForm {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+/* Options List */
+.optionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.optionItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.875rem 1rem;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  gap: 0.75rem;
+}
+
+.dragHandle {
+  cursor: grab;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.dragHandle:hover {
+  color: #6b7280;
+  background-color: #e5e7eb;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.optionItem:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.optionInactive {
+  opacity: 0.5;
+  background-color: #fef2f2;
+  border-color: #fecaca;
+}
+
+.optionInfo {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.optionValue {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+  min-width: 150px;
+}
+
+.optionLabel {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.optionActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.iconButton {
+  padding: 0.375rem 0.5rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.15s ease;
+  border-radius: 4px;
+  color: #6b7280;
+}
+
+.iconButton:hover:not(:disabled) {
+  background-color: #e5e7eb;
+  color: #111827;
+}
+
+.iconButton:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.iconButton:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.inactiveBadge {
+  padding: 0.125rem 0.5rem;
+  background-color: #fee2e2;
+  color: #dc2626;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+/* Edit Option Form */
+.editOptionForm {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.editOptionForm .input {
+  flex: 1;
+}
+
+/* Empty States */
+.noOptions {
+  padding: 2rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.875rem;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.loading {
+  padding: 2rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Sidebar Widgets */
+.statsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.statItem {
+  text-align: center;
+}
+
+.statValue {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #14b8a6;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.helpContent {
+  font-size: 0.875rem;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.helpContent p {
+  margin: 0 0 0.75rem 0;
+}
+
+.helpContent p:last-child {
+  margin-bottom: 0;
+}
+
+.helpContent strong {
+  color: #111827;
+  font-weight: 600;
+}

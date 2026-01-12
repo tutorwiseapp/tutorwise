@@ -15,6 +15,7 @@ import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useOnboardingAutoSave } from '@/hooks/useAutoSave';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { hasUnsavedChanges as checkUnsavedChanges } from '@/lib/offlineQueue';
+import { useFormConfigs } from '@/hooks/useFormConfig';
 
 interface ProgressData {
   currentPoints: number;
@@ -86,6 +87,28 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
   // Section 1: General Availability (Required)
   const [generalDays, setGeneralDays] = useState<string[]>([]);
   const [generalTimes, setGeneralTimes] = useState<string[]>([]);
+
+  // Fetch dynamic form configs (with fallback to hardcoded values)
+  const { configs } = useFormConfigs([
+    {
+      fieldName: 'availabilityDays',
+      context: 'onboarding.client',
+      fallback: {
+        label: 'Days of Week',
+        placeholder: 'Select days',
+        options: dayOptions
+      }
+    },
+    {
+      fieldName: 'availabilityTimes',
+      context: 'onboarding.client',
+      fallback: {
+        label: 'Time of Day',
+        placeholder: 'Select times',
+        options: timeOptions
+      }
+    }
+  ]);
 
   // Section 2: Detailed Schedule (Optional) - State from ProfessionalInfoForm
   const [availabilityType, setAvailabilityType] = useState<AvailabilityType>('recurring');
@@ -463,7 +486,7 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
             Set your availability
           </h2>
           <p className={styles.stepSubtitle}>
-            Tutor Onboarding • Let students know when you&apos;re available
+            Client Onboarding • Let students know when you&apos;re available
           </p>
         </div>
       </div>
@@ -499,10 +522,10 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
             </div>
 
             <HubForm.Grid>
-              <HubForm.Field label="Days of the week" required>
+              <HubForm.Field label={configs.get('availabilityDays')?.label || 'Days of the week'} required>
                 <UnifiedMultiSelect
-                  triggerLabel={formatMultiSelectLabel(generalDays, 'Select days')}
-                  options={dayOptions}
+                  triggerLabel={formatMultiSelectLabel(generalDays, configs.get('availabilityDays')?.placeholder || 'Select days')}
+                  options={configs.get('availabilityDays')?.options || dayOptions}
                   selectedValues={generalDays}
                   onSelectionChange={(values) => {
                     setGeneralDays(values);
@@ -511,10 +534,10 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
                 />
               </HubForm.Field>
 
-              <HubForm.Field label="Times of day" required>
+              <HubForm.Field label={configs.get('availabilityTimes')?.label || 'Times of day'} required>
                 <UnifiedMultiSelect
-                  triggerLabel={formatMultiSelectLabel(generalTimes, 'Select times')}
-                  options={timeOptions}
+                  triggerLabel={formatMultiSelectLabel(generalTimes, configs.get('availabilityTimes')?.placeholder || 'Select times')}
+                  options={configs.get('availabilityTimes')?.options || timeOptions}
                   selectedValues={generalTimes}
                   onSelectionChange={(values) => {
                     setGeneralTimes(values);

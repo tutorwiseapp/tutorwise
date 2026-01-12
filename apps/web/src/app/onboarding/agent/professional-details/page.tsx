@@ -50,13 +50,13 @@ export default function AgentProfessionalDetailsPage() {
   // Calculate progress
   const completedSteps = new Set<string>();
   if (profile?.first_name) completedSteps.add('personalInfo');
-  if (profile?.onboarding_progress?.tutor?.professionalDetails) {
+  if (profile?.onboarding_progress?.agent?.professionalDetails) {
     completedSteps.add('professionalDetails');
   }
-  if (profile?.onboarding_progress?.tutor?.verification) {
+  if (profile?.onboarding_progress?.agent?.verification) {
     completedSteps.add('verification');
   }
-  if (profile?.onboarding_progress?.tutor?.availability) {
+  if (profile?.onboarding_progress?.agent?.availability) {
     completedSteps.add('availability');
   }
 
@@ -111,7 +111,7 @@ export default function AgentProfessionalDetailsPage() {
         .from('role_details')
         .select('availability')
         .eq('profile_id', user.id)
-        .eq('role_type', 'tutor')
+        .eq('role_type', 'agent')
         .single();
 
       console.log('[AgentProfessionalDetails] Existing availability:', existingRoleDetails?.availability);
@@ -119,7 +119,7 @@ export default function AgentProfessionalDetailsPage() {
       // Write-through to role_details table
       const roleDetailsData = {
         profile_id: user.id,
-        role_type: 'tutor',
+        role_type: 'agent',
         subjects: data.subjects || [],
         qualifications: {
           bio: data.bio || '',
@@ -172,7 +172,7 @@ export default function AgentProfessionalDetailsPage() {
   };
 
   return (
-    <div className={styles.onboardingPage}>
+    <div className={styles.onboardingStepPage}>
       <AgentProfessionalDetailStep
         onNext={handleNext}
         onBack={handleBack}
