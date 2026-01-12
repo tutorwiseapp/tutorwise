@@ -328,7 +328,7 @@ const ClientProfessionalDetailStep: React.FC<ClientProfessionalDetailStepProps> 
             Professional Details
           </h2>
           <p className={styles.stepSubtitle}>
-            Client Onboarding • Tell us what you're looking for in a tutor
+            Client Onboarding • Tell us what you&apos;re looking for in a tutor
           </p>
         </div>
       </div>
