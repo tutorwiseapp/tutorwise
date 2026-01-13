@@ -4,12 +4,12 @@
  * Created: 2026-01-12
  */
 
-/* Content wrapper - split layout */
+/* Content wrapper - 2 separate columns with gap */
 .contentWrapper {
   display: grid;
   grid-template-columns: 320px 1fr;
   gap: 1.5rem;
-  height: calc(100vh - 280px);
+  height: calc(100vh - 320px);
 }
 
 @media (max-width: 768px) {
@@ -19,7 +19,7 @@
   }
 }
 
-/* Field List (Left) */
+/* Field List (Left) - separate white box with border */
 .fieldList {
   border: 1px solid #e5e7eb;
   border-radius: 8px;
@@ -330,6 +330,85 @@
   text-align: center;
   color: #6b7280;
   font-size: 0.875rem;
+}
+
+/* Add Option Actions */
+.addOptionActions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+/* Option Content */
+.optionContent {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Context Badge */
+.contextBadge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background-color: #ecfdf5;
+  color: #14b8a6;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+/* Checkbox Label */
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #374151;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
+/* Field Row - 2 column layout for default vs custom */
+.fieldRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.fieldColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.defaultValue {
+  padding: 0.625rem 0.875rem;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #6b7280;
+  min-height: 40px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .fieldRow {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 }
 
 /* Sidebar Widgets */

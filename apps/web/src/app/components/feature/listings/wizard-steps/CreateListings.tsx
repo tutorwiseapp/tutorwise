@@ -14,6 +14,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import type { CreateListingInput, ServiceType, AvailabilityPeriod } from '@tutorwise/shared-types';
 import Button from '@/app/components/ui/actions/Button';
@@ -24,6 +25,7 @@ import AvailabilityFormSection from '@/app/components/feature/listings/Availabil
 import UnavailabilityFormSection from '@/app/components/feature/listings/UnavailabilityFormSection';
 import UnifiedMultiSelect from '@/app/components/ui/forms/UnifiedMultiSelect';
 import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
+import { fetchFieldsForContext } from '@/lib/api/sharedFields';
 import toast from 'react-hot-toast';
 import styles from './CreateListings.module.css';
 
@@ -35,99 +37,14 @@ interface CreateListingsProps {
   isSaving?: boolean;
 }
 
-// Comprehensive subject options
-const SUBJECT_OPTIONS = [
-  { value: 'Mathematics', label: 'Mathematics' },
-  { value: 'English', label: 'English' },
-  { value: 'Science', label: 'Science' },
-  { value: 'Physics', label: 'Physics' },
-  { value: 'Chemistry', label: 'Chemistry' },
-  { value: 'Biology', label: 'Biology' },
-  { value: 'History', label: 'History' },
-  { value: 'Geography', label: 'Geography' },
-  { value: 'Computer Science', label: 'Computer Science' },
-  { value: 'Languages', label: 'Languages' },
-  { value: 'French', label: 'French' },
-  { value: 'Spanish', label: 'Spanish' },
-  { value: 'German', label: 'German' },
-  { value: 'Art & Design', label: 'Art & Design' },
-  { value: 'Music', label: 'Music' },
-  { value: 'Business Studies', label: 'Business Studies' },
-  { value: 'Economics', label: 'Economics' }
-];
-
-// Level/Key Stage options
-const LEVEL_OPTIONS = [
-  { value: 'Primary (KS1-KS2)', label: 'Primary (KS1-KS2) - Age 5-11' },
-  { value: 'Secondary (KS3)', label: 'Secondary (KS3) - Age 11-14' },
-  { value: 'GCSE (KS4)', label: 'GCSE (KS4) - Age 14-16' },
-  { value: 'A-Level', label: 'A-Level - Age 16-18' },
-  { value: 'University', label: 'University/Adult' },
-  { value: 'Professional', label: 'Professional Development' }
-];
-
-// Predefined AI tools list
-const AI_TOOLS_OPTIONS = [
-  { value: 'ChatGPT', label: 'ChatGPT' },
-  { value: 'Claude', label: 'Claude' },
-  { value: 'Grammarly', label: 'Grammarly' },
-  { value: 'Khan Academy', label: 'Khan Academy' },
-  { value: 'Quizlet', label: 'Quizlet' },
-  { value: 'Duolingo', label: 'Duolingo' },
-  { value: 'Photomath', label: 'Photomath' },
-  { value: 'Socratic', label: 'Socratic' },
-  { value: 'Other', label: 'Other' }
-];
-
-// Duration options in minutes - Standardized across all service types
-const DURATION_OPTIONS = [
-  { value: 30, label: '30 minutes' },
-  { value: 45, label: '45 minutes' },
-  { value: 60, label: '1 hour' },
-  { value: 90, label: '1.5 hours' },
-  { value: 120, label: '2 hours' },
-  { value: 150, label: '2.5 hours' },
-  { value: 180, label: '3 hours' },
-  { value: 240, label: '4 hours' },
-  { value: 300, label: '5 hours' },
-  { value: 360, label: '6 hours' },
-  { value: 420, label: '7 hours' },
-  { value: 480, label: '8 hours' },
-  { value: 540, label: '9+ hours' }
-];
-
-// v4.0: Service type options (all enabled)
-const SERVICE_TYPE_OPTIONS: Array<{ value: ServiceType; label: string }> = [
-  { value: 'one-to-one', label: 'One-to-One Session' },
-  { value: 'group-session', label: 'Group Session' },
-  { value: 'workshop', label: 'Workshop / Webinar' },
-  { value: 'study-package', label: 'Study Package' }
-];
-
-// Category options
-const CATEGORY_OPTIONS = [
-  { value: 'Mathematics', label: 'Mathematics' },
-  { value: 'English', label: 'English' },
-  { value: 'Science', label: 'Science' },
-  { value: 'Languages', label: 'Languages' },
-  { value: 'Humanities', label: 'Humanities' },
-  { value: 'Arts', label: 'Arts' },
-  { value: 'Professional', label: 'Professional Development' }
-];
-
-// Package type options (for Study Package)
-const PACKAGE_TYPE_OPTIONS = [
-  { value: 'pdf', label: 'PDF / eBook' },
-  { value: 'video', label: 'Video Course' },
-  { value: 'bundle', label: 'Bundle (PDF + Video)' }
-];
-
-// Delivery modes
-const DELIVERY_MODES = [
-  { value: 'online', label: 'Online' },
-  { value: 'in-person', label: 'In-Person' },
-  { value: 'hybrid', label: 'Hybrid (Online & In-Person)' }
-];
+// Helper function to extract options from shared field
+function getOptionsFromField(field: any): Array<{ value: string | number; label: string }> {
+  if (!field?.shared_fields?.options) return [];
+  return field.shared_fields.options.map((opt: any) => ({
+    value: opt.value,
+    label: opt.label,
+  }));
+}
 
 export default function CreateListings({
   formData,
@@ -138,6 +55,31 @@ export default function CreateListings({
 }: CreateListingsProps) {
   const { profile, activeRole, isLoading: isProfileLoading } = useUserProfile();
   const imageUploadRef = useRef<ImageUploadRef>(null);
+
+  // Fetch field options from shared_fields API based on user role
+  const listingContext = activeRole === 'tutor' ? 'listing.tutor' : activeRole === 'agent' ? 'listing.agent' : 'listing.client';
+
+  const { data: contextFields = [], isLoading: isLoadingFields } = useQuery({
+    queryKey: ['listing-fields', listingContext],
+    queryFn: () => fetchFieldsForContext(listingContext),
+    enabled: !!activeRole,
+  });
+
+  // Extract options from shared fields with fallbacks
+  const SUBJECT_OPTIONS = getOptionsFromField(contextFields.find(f => f.shared_fields?.field_name === 'subjects'));
+  const LEVEL_OPTIONS = getOptionsFromField(contextFields.find(f => f.shared_fields?.field_name === 'keyStages'));
+  const AI_TOOLS_OPTIONS = getOptionsFromField(contextFields.find(f => f.shared_fields?.field_name === 'aiTools'));
+
+  const durationField = contextFields.find(f => f.shared_fields?.field_name === 'sessionDuration');
+  const DURATION_OPTIONS = durationField ? getOptionsFromField(durationField).map(opt => ({
+    value: parseInt(opt.value as string),
+    label: opt.label
+  })) : [];
+
+  const SERVICE_TYPE_OPTIONS = getOptionsFromField(contextFields.find(f => f.shared_fields?.field_name === 'serviceType')) as Array<{ value: ServiceType; label: string }>;
+  const CATEGORY_OPTIONS = getOptionsFromField(contextFields.find(f => f.shared_fields?.field_name === 'category'));
+  const PACKAGE_TYPE_OPTIONS = getOptionsFromField(contextFields.find(f => f.shared_fields?.field_name === 'packageType'));
+  const DELIVERY_MODES = getOptionsFromField(contextFields.find(f => f.shared_fields?.field_name === 'deliveryMode'));
 
   // v4.0: Form state with new service type fields
   const [serviceType, setServiceType] = useState<ServiceType>('one-to-one');
@@ -467,10 +409,10 @@ export default function CreateListings({
     onSubmit(listingData);
   };
 
-  if (isProfileLoading) {
+  if (isProfileLoading || isLoadingFields) {
     return (
       <div className={styles.loadingContainer}>
-        <p>Loading your profile...</p>
+        <p>Loading form configuration...</p>
       </div>
     );
   }
@@ -482,6 +424,16 @@ export default function CreateListings({
         <h2>Profile Required</h2>
         <p>Please complete your profile before creating a listing.</p>
         <Button onClick={onCancel}>Back</Button>
+      </div>
+    );
+  }
+
+  // Check if we have the minimum required options loaded
+  if (contextFields.length === 0 || SERVICE_TYPE_OPTIONS.length === 0) {
+    return (
+      <div className={styles.errorContainer}>
+        <h2>Configuration Loading</h2>
+        <p>Loading form configuration from admin settings...</p>
       </div>
     );
   }

@@ -1,14 +1,30 @@
 // apps/web/tests/test-utils.tsx
 import React, { ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { UserProfileProvider } from '../src/app/contexts/UserProfileContext';
 
-// Create a wrapper component that provides the UserProfileContext
+// Create a new QueryClient for each test to avoid cache pollution
+const createTestQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        gcTime: 0,
+      },
+    },
+  });
+
+// Create a wrapper component that provides all necessary contexts
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
+  const queryClient = createTestQueryClient();
+
   return (
-    <UserProfileProvider>
-      {children}
-    </UserProfileProvider>
+    <QueryClientProvider client={queryClient}>
+      <UserProfileProvider>
+        {children}
+      </UserProfileProvider>
+    </QueryClientProvider>
   );
 };
 

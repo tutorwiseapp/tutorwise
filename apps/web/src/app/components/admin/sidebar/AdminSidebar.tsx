@@ -65,15 +65,7 @@ export default function AdminSidebar() {
     },
     { href: '/admin/reviews', label: 'Reviews' },
     { href: '/admin/reports', label: 'Reports' },
-    {
-      href: '/admin/forms',
-      label: 'Forms',
-      subItems: [
-        { href: '/admin/forms/onboarding', label: 'Onboarding', indent: true },
-        { href: '/admin/forms/account', label: 'Account', indent: true },
-        { href: '/admin/forms/organisation', label: 'Organisation', indent: true },
-      ],
-    },
+    { href: '/admin/configurations', label: 'Configurations' },
     { href: '/admin/settings', label: 'Settings' },
   ];
 
