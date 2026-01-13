@@ -2,8 +2,8 @@
 
 **Full-stack tutoring marketplace platform**
 
-**Version**: 1.0.0
-**Status**: Active Development
+**Version**: 1.0.0-beta
+**Status**: Pre-Launch (Beta Release: End of January 2026)
 **Last Updated**: 2026-01-13
 
 ---
@@ -492,6 +492,8 @@ Co-Authored-By: CAS <cas@tutorwise.com>
 ## Project Status
 
 **Current Phase**: Final Implementation (95% Complete)
+**Beta Release Target**: End of January 2026
+**Target Launch**: Q1 2026
 
 **Recent Completions**:
 - ✅ Authentication system (Supabase + Kinde migration)
@@ -543,13 +545,25 @@ Co-Authored-By: CAS <cas@tutorwise.com>
   - ✅ Connection management
   - ✅ Network building tools
 
-**In Progress (Final 5%)**:
+**In Progress (Pre-Beta)**:
 - 🔄 Booking system final enhancements
 - 🔄 Mobile responsiveness optimization
 - 🔄 Performance optimization and caching
 - 🔄 Final UI/UX polish
+- 🔄 Beta testing preparation
+- 🔄 Production environment setup
 
-**Planned (Post-Launch)**:
+**Beta Release Scope (Jan 2026)**:
+- ✅ All core marketplace features
+- ✅ Complete admin dashboard
+- ✅ Referral system (Tier 1)
+- ✅ Payment processing
+- ✅ Help centre & support
+- ✅ User onboarding flows
+- 🎯 Initial user acquisition
+- 🎯 Early adopter feedback collection
+
+**Planned (Post-Beta)**:
 - Messaging system with real-time chat
 - Review and ratings system expansion
 - Advanced analytics dashboard
