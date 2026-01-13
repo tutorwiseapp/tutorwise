@@ -185,12 +185,52 @@ CAS will apply 8 agent perspectives:
 
 ### Admin Features
 - **User Management**: Comprehensive admin dashboard with user CRUD operations
-- **Soft Delete**: Account deactivation with PII anonymization while preserving audit trails
-- **Hard Delete**: GDPR-compliant complete data purge with Stripe cleanup
-- **Field Configuration**: Dynamic form field management with shared field system
+  - Soft Delete: Account deactivation with PII anonymization
+  - Hard Delete: GDPR-compliant complete data purge with Stripe cleanup
+  - Advanced Filtering: Multi-criteria user filtering and search
+  - Data Export: CSV export functionality
+- **Forms Configuration**: Dynamic form field management system
+  - Shared Fields: Centralized field definitions across contexts
+  - Drag-and-drop reordering
+  - Context-specific configurations (Account, Organisation, Listings)
+  - Option management with active/inactive states
+- **Accounts Management**: Complete account oversight
+  - User accounts with role management
+  - Admin role hierarchy (Super Admin, Admin, System Admin, Support Admin)
+- **Listings Management**: Tutor listing administration
+- **Organisations Management**: Organisation account oversight
+- **Referrals Management**: Commission tracking and fraud detection
+- **Bookings Management**: Booking and session oversight
+- **Reviews Management**: Review moderation
+- **Financials Management**: Payment and commission tracking
 - **Action Logging**: Complete audit trail of all admin actions
-- **Advanced Filtering**: Multi-criteria user filtering and search
-- **Data Export**: CSV export functionality for reporting
+
+### Help Centre & Support
+- **Custom Report Modal**: In-app bug reporting with screenshot capture
+- **Jira Service Desk Integration**: Automatic ticket creation
+- **Context Capture**: Auto-captures page URL, user role, user agent
+- **Screenshot System**: Automatic visual bug documentation
+- **Support Snapshots**: Database tracking with sync status
+- **Progressive Capture Levels**: Minimal/standard/diagnostic data collection
+
+### Core Features by Module
+- **Authentication**: Kinde Auth with multi-role support
+- **Onboarding**: Role-specific onboarding flows (Tutor, Client, Agent)
+- **Profiles**: Dynamic profile management for all user types
+- **Marketplace**: Tutor discovery with advanced filtering
+- **Listings**: Service listings with shared field configuration
+- **Bookings**: Session scheduling and management
+- **Payments**: Stripe Connect integration with commission handling
+- **Messages**: User communication system
+- **Network**: Connection management and networking
+- **Wiselists**: Collaborative tutor lists and recommendations
+- **WiseSpace**: Virtual classroom environment
+- **Reviews**: Tutor ratings and feedback
+- **CaaS (Credibility as a Service)**: Trust scoring system
+- **Partnerships**: Referral partner onboarding
+- **Financials**: Payment tracking and reporting
+- **Fraud Detection**: ML-powered anomaly detection
+- **Developer Tools**: API endpoints and integrations
 
 ---
 
@@ -451,7 +491,7 @@ Co-Authored-By: CAS <cas@tutorwise.com>
 
 ## Project Status
 
-**Current Phase**: Active Development
+**Current Phase**: Final Implementation (95% Complete)
 
 **Recent Completions**:
 - ✅ Authentication system (Supabase + Kinde migration)
@@ -480,19 +520,41 @@ Co-Authored-By: CAS <cas@tutorwise.com>
   - ✅ Context-specific configurations
   - ✅ Dynamic form generation
   - ✅ Field reusability across forms
+- ✅ **Help Centre & Support**:
+  - ✅ Custom in-app bug reporting modal
+  - ✅ Jira Service Desk integration
+  - ✅ Automatic screenshot capture
+  - ✅ Context-aware ticket creation
+  - ✅ Support snapshot database tracking
+- ✅ **Marketplace & Listings**:
+  - ✅ Tutor listing creation and management
+  - ✅ Advanced search and filtering
+  - ✅ Listing detail pages
+  - ✅ Service type configuration
+- ✅ **Payment Processing**:
+  - ✅ Stripe Connect integration
+  - ✅ Commission calculation and splitting
+  - ✅ Payout management
+- ✅ **User Profiles**:
+  - ✅ Multi-role support (Tutor, Client, Agent)
+  - ✅ Professional info templates
+  - ✅ Profile verification system
+- ✅ **Network & Connections**:
+  - ✅ Connection management
+  - ✅ Network building tools
 
-**In Progress**:
-- Booking system enhancement
-- Advanced marketplace features
-- Mobile responsiveness optimization
-- Real-time notifications
+**In Progress (Final 5%)**:
+- 🔄 Booking system final enhancements
+- 🔄 Mobile responsiveness optimization
+- 🔄 Performance optimization and caching
+- 🔄 Final UI/UX polish
 
-**Planned**:
+**Planned (Post-Launch)**:
 - Messaging system with real-time chat
-- Review and ratings system
+- Review and ratings system expansion
 - Advanced analytics dashboard
-- Multi-tier commission expansion (Tier 2-3 activation after legal review)
-- WiseSpace virtual classroom enhancements
+- Multi-tier commission expansion (Tier 2-3)
+- WiseSpace virtual classroom v2
 - Mobile app (React Native)
 
 ---
