@@ -4,7 +4,7 @@
 
 **Version**: 1.0.0
 **Status**: Active Development
-**Last Updated**: 2025-11-01
+**Last Updated**: 2026-01-13
 
 ---
 
@@ -75,21 +75,39 @@ tutorwise/
 ## Tech Stack
 
 ### Frontend
-- **Next.js 14.2.33** - React framework
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Styling
-- **Supabase** - Authentication & database
+- **Next.js 15.x** - React framework with App Router
+- **TypeScript 5.x** - Type safety and developer experience
+- **React 18** - UI library with Server Components
+- **Tailwind CSS** - Utility-first styling
+- **Kinde Auth** - Authentication and user management
+- **React Query (TanStack Query)** - Data fetching and state management
+- **Zustand** - Lightweight state management
 
-### Backend
-- **FastAPI** - Python web framework
-- **Supabase** - PostgreSQL database
-- **Python 3.11+** - Runtime
+### Backend & Database
+- **Supabase** - PostgreSQL database with real-time capabilities
+- **Supabase Auth** - Authentication backend
+- **Supabase Storage** - File storage for avatars and documents
+- **Stripe Connect** - Payment processing and marketplace commissions
+
+### Admin & Management
+- **Custom Admin Dashboard** - Built with Next.js App Router
+- **RBAC System** - Role-based access control (Super Admin, Admin, System Admin, Support Admin)
+- **Audit Logging** - Complete action tracking and compliance
+- **Soft Delete System** - GDPR-compliant data anonymization
+- **Hard Delete System** - Complete data purge with Stripe cleanup
+
+### UI Components
+- **Custom Design System** - Consistent, accessible component library
+- **Hub Components** - Reusable admin/dashboard components
+- **Form System** - Dynamic form generation with shared fields
+- **Modal System** - Accessible, portal-based modals
+- **Data Tables** - Feature-rich tables with sorting, filtering, pagination
 
 ### Testing
 - **Jest** - Unit testing
 - **Playwright** - E2E testing
-- **Percy** - Visual regression testing
 - **React Testing Library** - Component testing
+- **Percy** - Visual regression testing
 
 ---
 
@@ -147,13 +165,14 @@ CAS will apply 8 agent perspectives:
 - **Agents** - Manage tutors and clients
 
 ### Core Functionality
-- User authentication (Supabase)
-- Profile management (all 3 roles)
-- Professional info templates
-- Listing creation and management
-- Search and discovery
-- Booking system (planned)
-- Payment processing (planned - Stripe)
+- **User authentication** (Supabase + Kinde)
+- **Profile management** (all 3 roles: Tutor, Client, Agent)
+- **Professional info templates** with dynamic field configuration
+- **Listing creation and management** with shared field system
+- **Search and discovery** with advanced filtering
+- **Admin dashboard** with comprehensive user management
+- **Payment processing** (Stripe Connect integration)
+- **Booking system** (in progress)
 
 ### Referral System
 - **Hierarchical Attribution**: URL → Cookie (HMAC-signed) → Manual entry
@@ -163,6 +182,15 @@ CAS will apply 8 agent perspectives:
 - **Partnership Onboarding**: Offline partner applications with QR code generation
 - **Client Referrals**: Two-sided marketplace monetization (tutor + client referrals)
 - **QR Code API**: Generate scannable referral links for physical marketing
+
+### Admin Features
+- **User Management**: Comprehensive admin dashboard with user CRUD operations
+- **Soft Delete**: Account deactivation with PII anonymization while preserving audit trails
+- **Hard Delete**: GDPR-compliant complete data purge with Stripe cleanup
+- **Field Configuration**: Dynamic form field management with shared field system
+- **Action Logging**: Complete audit trail of all admin actions
+- **Advanced Filtering**: Multi-criteria user filtering and search
+- **Data Export**: CSV export functionality for reporting
 
 ---
 
@@ -277,10 +305,15 @@ npm run migrate
 ```
 
 **Key tables**:
-- `profiles` - User profiles (all roles)
-- `listings` - Tutor listings
-- `onboarding_progress` - Onboarding state
+- `profiles` - User profiles (all roles) with soft delete support
+- `listings` - Tutor listings with dynamic field configuration
+- `shared_fields` - Centralized field definitions for forms
+- `shared_field_contexts` - Context-specific field configurations
+- `onboarding_progress` - Onboarding state tracking
 - `professional_info` - Professional templates
+- `admin_action_logs` - Complete audit trail of admin actions
+- `referral_links` - Referral tracking and attribution
+- `referral_activities` - Commission and conversion tracking
 
 ---
 
@@ -421,12 +454,19 @@ Co-Authored-By: CAS <cas@tutorwise.com>
 **Current Phase**: Active Development
 
 **Recent Completions**:
-- ✅ Authentication system (Supabase)
+- ✅ Authentication system (Supabase + Kinde migration)
 - ✅ Profile management (all 3 roles)
 - ✅ Professional info templates
-- ✅ Onboarding flows
+- ✅ Onboarding flows with dynamic field configuration
 - ✅ Testing infrastructure (Jest, Playwright, Percy)
 - ✅ CAS development framework (hybrid mode)
+- ✅ **Admin Dashboard** with comprehensive management tools:
+  - ✅ User management with soft/hard delete
+  - ✅ GDPR-compliant data deletion with Stripe cleanup
+  - ✅ Admin action logging and audit trails
+  - ✅ Advanced filtering and search
+  - ✅ CSV export functionality
+  - ✅ Field configuration management
 - ✅ **Complete referral system** (Phases 1-3):
   - ✅ Hierarchical attribution with HMAC cookie signing
   - ✅ Commission delegation mechanism (patent-protected)
@@ -435,18 +475,25 @@ Co-Authored-By: CAS <cas@tutorwise.com>
   - ✅ Partnership onboarding system
   - ✅ Client referral monetization
   - ✅ QR code generation API
+- ✅ **Shared Fields System**:
+  - ✅ Centralized field definitions
+  - ✅ Context-specific configurations
+  - ✅ Dynamic form generation
+  - ✅ Field reusability across forms
 
 **In Progress**:
-- Listing creation and management
-- Search and discovery
-- Mobile responsiveness
+- Booking system enhancement
+- Advanced marketplace features
+- Mobile responsiveness optimization
+- Real-time notifications
 
 **Planned**:
-- Booking system
-- Payment processing (Stripe)
-- Messaging system
-- Review and ratings
+- Messaging system with real-time chat
+- Review and ratings system
+- Advanced analytics dashboard
 - Multi-tier commission expansion (Tier 2-3 activation after legal review)
+- WiseSpace virtual classroom enhancements
+- Mobile app (React Native)
 
 ---
 
@@ -472,9 +519,13 @@ MIT License - See LICENSE file for details
 
 ---
 
-**Last Updated**: 2025-12-16
+**Last Updated**: 2026-01-13
 **CAS Version**: 2.0 (Hybrid Framework Mode)
-**Next.js Version**: 14.2.33
+**Next.js Version**: 15.x
 **Node Version**: 18.x+
-**Python Version**: 3.11+
+**TypeScript Version**: 5.x
+**Database**: Supabase (PostgreSQL)
+**Authentication**: Kinde Auth
+**Payment Processing**: Stripe Connect
 **Referral System**: v7.0 (Complete with Multi-Tier Infrastructure)
+**Admin System**: v2.0 (Full CRUD + GDPR Compliance)
