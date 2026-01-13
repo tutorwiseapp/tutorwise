@@ -337,7 +337,7 @@ export default function SharedFieldsPage() {
   const handleDeleteOption = (index: number) => {
     if (!selectedField || !selectedField.options) return;
 
-    const newOptions = selectedField.options.filter((_, i) => i !== index);
+    const newOptions = selectedField.options.filter((_opt: any, i: number) => i !== index);
 
     updateMutation.mutate({
       id: selectedField.id,

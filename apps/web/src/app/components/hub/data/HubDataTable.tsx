@@ -476,18 +476,20 @@ export default function HubDataTable<T extends Record<string, any>>({
         <div className={styles.paginationWrapper}>
           {/* Page Size Selector - Left aligned */}
           {pagination.onLimitChange && (
-            <UnifiedSelect
-              value={pagination.limit}
-              onChange={(value) => {
-                pagination.onLimitChange!(Number(value));
-                pagination.onPageChange(1); // Reset to first page when changing page size
-              }}
-              options={(pagination.pageSizeOptions || [10, 20, 50, 100]).map((size) => ({
-                value: size,
-                label: `${size} per page`
-              }))}
-              placeholder="Page size"
-            />
+            <div className={styles.pageSizeWrapper}>
+              <UnifiedSelect
+                value={pagination.limit}
+                onChange={(value) => {
+                  pagination.onLimitChange!(Number(value));
+                  pagination.onPageChange(1); // Reset to first page when changing page size
+                }}
+                options={(pagination.pageSizeOptions || [10, 20, 50, 100]).map((size) => ({
+                  value: size,
+                  label: `${size} per page`
+                }))}
+                placeholder="Page size"
+              />
+            </div>
           )}
           {/* HubPagination Component - Centered */}
           <div className={styles.paginationCenter}>

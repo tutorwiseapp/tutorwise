@@ -638,6 +638,12 @@
   background-size: 12px;
 }
 
+/* Wrapper for UnifiedSelect component in pagination */
+.pageSizeWrapper {
+  position: absolute;
+  left: 1rem; /* Left-aligned */
+}
+
 .pageSizeSelector:hover {
   border-color: #d1d5db;
   background-color: #fafafa;
