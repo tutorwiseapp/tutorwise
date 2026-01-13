@@ -12,6 +12,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { createClient as createAdminClient } from '@supabase/supabase-js';
+import { stripe } from '@/lib/stripe';
 
 /**
  * POST /api/admin/users/delete
@@ -163,6 +165,48 @@ export async function POST(request: NextRequest) {
       );
     } else {
       // Hard Delete: Complete data purge (GDPR compliance only)
+
+      // Initialize admin client with service role key
+      const supabaseAdmin = createAdminClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+
+      // Fetch Stripe IDs before deletion
+      const { data: stripeData } = await supabaseAdmin
+        .from('profiles')
+        .select('stripe_customer_id, stripe_account_id')
+        .eq('id', userId)
+        .single();
+
+      // Delete Stripe Connect Account (if exists)
+      if (stripeData?.stripe_account_id) {
+        try {
+          console.log(`[Admin Delete] Deleting Stripe Connect account: ${stripeData.stripe_account_id}`);
+          await stripe.accounts.del(stripeData.stripe_account_id);
+        } catch (stripeError: any) {
+          console.error('[Admin Delete] Stripe Connect deletion error:', stripeError.message);
+          // Continue with deletion even if Stripe fails (account may already be deleted)
+          if (stripeError.code !== 'resource_missing') {
+            console.warn('[Admin Delete] Continuing despite Stripe Connect error');
+          }
+        }
+      }
+
+      // Delete Stripe Customer (if exists)
+      if (stripeData?.stripe_customer_id) {
+        try {
+          console.log(`[Admin Delete] Deleting Stripe customer: ${stripeData.stripe_customer_id}`);
+          await stripe.customers.del(stripeData.stripe_customer_id);
+        } catch (stripeError: any) {
+          console.error('[Admin Delete] Stripe customer deletion error:', stripeError.message);
+          // Continue with deletion even if Stripe fails
+          if (stripeError.code !== 'resource_missing') {
+            console.warn('[Admin Delete] Continuing despite Stripe customer error');
+          }
+        }
+      }
+
       // Log admin action BEFORE deletion (since user will be gone)
       await supabase.from('admin_action_logs').insert({
         admin_id: adminUser.id,
@@ -176,20 +220,26 @@ export async function POST(request: NextRequest) {
             full_name: userToDelete.full_name,
             active_role: userToDelete.active_role,
           },
+          stripeData: {
+            had_customer: !!stripeData?.stripe_customer_id,
+            had_account: !!stripeData?.stripe_account_id,
+          },
         },
         created_at: new Date().toISOString(),
       });
 
       // Delete from auth.users (cascade will handle profiles via FK)
-      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+      const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
       if (authError) {
-        console.error('Error deleting user from auth:', authError);
+        console.error('[Admin Delete] Error deleting user from auth:', authError);
         return NextResponse.json(
-          { error: 'Failed to permanently delete user account' },
+          { error: `Failed to permanently delete user account: ${authError.message}` },
           { status: 500 }
         );
       }
+
+      console.log(`[Admin Delete] Successfully deleted user: ${userId}`);
 
       return NextResponse.json(
         {
