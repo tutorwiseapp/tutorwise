@@ -90,8 +90,8 @@ export default function DeleteUserModal({
       if (!gdprReference.trim()) {
         return 'GDPR reference is required for hard delete';
       }
-      if (confirmationText !== 'PERMANENTLY DELETE') {
-        return 'Please type "PERMANENTLY DELETE" to confirm';
+      if (confirmationText !== 'DELETE') {
+        return 'Please type "DELETE" to confirm';
       }
     }
 
@@ -335,11 +335,11 @@ export default function DeleteUserModal({
                   value={confirmationText}
                   onChange={(e) => setConfirmationText(e.target.value)}
                   className={styles.input}
-                  placeholder="Type &quot;PERMANENTLY DELETE&quot; to confirm"
+                  placeholder="Type &quot;DELETE&quot; to confirm"
                   disabled={isDeleting}
                 />
                 <span className={styles.helpText}>
-                  Type <strong>PERMANENTLY DELETE</strong> exactly as shown to confirm
+                  Type <strong>DELETE</strong> exactly as shown to confirm
                 </span>
               </div>
             </>
