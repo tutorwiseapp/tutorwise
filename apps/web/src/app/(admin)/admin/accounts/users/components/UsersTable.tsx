@@ -14,6 +14,7 @@ import type { Column, Filter, PaginationConfig } from '@/app/components/hub/data
 import { MoreVertical, CheckCircle2, XCircle, Filter as FilterIcon } from 'lucide-react';
 import styles from './UsersTable.module.css';
 import AdvancedFiltersDrawer, { AdvancedFilters } from './AdvancedFiltersDrawer';
+import DeleteUserModal from './DeleteUserModal';
 
 // User type
 interface User {
@@ -82,6 +83,10 @@ export default function UsersTable() {
   // Actions menu state
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
+
+  // Delete modal state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
   // Advanced filters state
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
@@ -161,12 +166,15 @@ export default function UsersTable() {
     }
   };
 
-  const handleDeleteUser = async (user: User) => {
-    if (confirm(`Are you sure you want to DELETE this user? This action cannot be undone.\n\nUser: ${user.full_name || user.email}`)) {
-      // TODO: Implement delete user
-      alert('Delete user functionality coming soon');
-      setOpenMenuId(null);
-    }
+  const handleDeleteUser = (user: User) => {
+    setUserToDelete(user);
+    setIsDeleteModalOpen(true);
+    setOpenMenuId(null);
+  };
+
+  const handleDeleteComplete = () => {
+    // Refresh the users list after successful deletion
+    refetch();
   };
 
   // Define columns
@@ -432,6 +440,14 @@ export default function UsersTable() {
 
   return (
     <>
+      {/* Delete User Modal */}
+      <DeleteUserModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        user={userToDelete}
+        onDeleteComplete={handleDeleteComplete}
+      />
+
       {/* Advanced Filters Drawer */}
       <AdvancedFiltersDrawer
         isOpen={isAdvancedFiltersOpen}

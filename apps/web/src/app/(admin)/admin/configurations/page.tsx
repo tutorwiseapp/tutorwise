@@ -499,6 +499,7 @@ export default function SharedFieldsPage() {
           filters={[
             {
               key: 'context',
+              label: 'All Contexts',
               options: [
                 { label: 'All Fields', value: 'all' },
                 ...availableContexts.map((context) => ({
@@ -509,6 +510,7 @@ export default function SharedFieldsPage() {
             },
             {
               key: 'type',
+              label: 'All Types',
               options: [
                 { label: 'All Types', value: 'all' },
                 { label: 'Select', value: 'select' },
@@ -796,10 +798,10 @@ export default function SharedFieldsPage() {
                         onDragEnd={handleDragEnd}
                       >
                         <SortableContext
-                          items={(selectedField.options || []).map((_, i) => `option-${i}`)}
+                          items={(selectedField.options || []).map((_opt: any, i: number) => `option-${i}`)}
                           strategy={verticalListSortingStrategy}
                         >
-                          {selectedField.options.map((option, index) => (
+                          {selectedField.options.map((option: any, index: number) => (
                             <SortableOption
                               key={`option-${index}`}
                               option={option}
