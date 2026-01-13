@@ -3,7 +3,7 @@
 **Full-stack tutoring marketplace platform**
 
 **Version**: 1.0.0-beta
-**Status**: Pre-Launch (Beta Release: End of January 2026)
+**Status**: Pre-Launch (Beta Release: 1 Feb 2026)
 **Last Updated**: 2026-01-13
 
 ---
@@ -79,7 +79,7 @@ tutorwise/
 - **TypeScript 5.x** - Type safety and developer experience
 - **React 18** - UI library with Server Components
 - **Tailwind CSS** - Utility-first styling
-- **Kinde Auth** - Authentication and user management
+- **Supabase Auth** - Authentication and user management
 - **React Query (TanStack Query)** - Data fetching and state management
 - **Zustand** - Lightweight state management
 
@@ -165,7 +165,7 @@ CAS will apply 8 agent perspectives:
 - **Agents** - Manage tutors and clients
 
 ### Core Functionality
-- **User authentication** (Supabase + Kinde)
+- **User authentication** (Supabase Auth)
 - **Profile management** (all 3 roles: Tutor, Client, Agent)
 - **Professional info templates** with dynamic field configuration
 - **Listing creation and management** with shared field system
@@ -213,24 +213,25 @@ CAS will apply 8 agent perspectives:
 - **Support Snapshots**: Database tracking with sync status
 - **Progressive Capture Levels**: Minimal/standard/diagnostic data collection
 
-### Core Features by Module
-- **Authentication**: Kinde Auth with multi-role support
-- **Onboarding**: Role-specific onboarding flows (Tutor, Client, Agent)
-- **Profiles**: Dynamic profile management for all user types
-- **Marketplace**: Tutor discovery with advanced filtering
-- **Listings**: Service listings with shared field configuration
-- **Bookings**: Session scheduling and management
-- **Payments**: Stripe Connect integration with commission handling
-- **Messages**: User communication system
-- **Network**: Connection management and networking
-- **Wiselists**: Collaborative tutor lists and recommendations
-- **WiseSpace**: Virtual classroom environment
-- **Reviews**: Tutor ratings and feedback
-- **CaaS (Credibility as a Service)**: Trust scoring system
-- **Partnerships**: Referral partner onboarding
-- **Financials**: Payment tracking and reporting
-- **Fraud Detection**: ML-powered anomaly detection
-- **Developer Tools**: API endpoints and integrations
+### Core Features by Module (18 Features)
+- **Authentication**: Supabase Auth with OAuth and multi-role support
+- **Onboarding**: Page-based routing for all 3 roles (Tutor, Client, Agent) with zero data loss
+- **Profiles**: Dynamic profile management with public/private views
+- **Marketplace**: Search with 141 API endpoints, smart matching, recommendations
+- **Listings**: Dynamic listing creation with shared fields system (23 global fields)
+- **Bookings**: Session scheduling, calendar management, assignments
+- **Payments**: Stripe Connect with commission splitting and payouts
+- **Messages**: WiseChat - WhatsApp-style messaging interface with real-time updates
+- **Network**: Connection management, groups, trust graph
+- **Wiselists**: Collaborative lists ("My Saves" feature) with sharing
+- **WiseSpace**: Hybrid virtual classroom with tldraw whiteboard + Google Meet
+- **Reviews**: Mutual review system with moderation
+- **CaaS**: Credibility scoring (Tutor complete, Agent/Org designed)
+- **Referrals**: Multi-tier attribution system with QR codes and gamification
+- **Financials**: Earnings tracking, transaction history, payout management
+- **Organisations**: Team management, subscriptions, tasks, recruitment
+- **Developer Tools**: API key management, webhooks, integrations
+- **Help Centre**: In-app bug reporting with Jira Service Desk integration
 
 ---
 
@@ -344,16 +345,23 @@ cd apps/api
 npm run migrate
 ```
 
-**Key tables**:
-- `profiles` - User profiles (all roles) with soft delete support
+**Key tables** (237 migrations, 172 numbered):
+- `profiles` - User profiles (all roles) with soft delete and PII anonymization
 - `listings` - Tutor listings with dynamic field configuration
-- `shared_fields` - Centralized field definitions for forms
-- `shared_field_contexts` - Context-specific field configurations
-- `onboarding_progress` - Onboarding state tracking
-- `professional_info` - Professional templates
-- `admin_action_logs` - Complete audit trail of admin actions
-- `referral_links` - Referral tracking and attribution
-- `referral_activities` - Commission and conversion tracking
+- `shared_fields` - 23 centralized field definitions across 9 contexts
+- `form_context_fields` - 106 context-specific field mappings
+- `onboarding_progress` - Zero data loss state tracking across all steps
+- `professional_info` - Professional templates with field metadata
+- `admin_action_logs` - Complete audit trail of all admin actions
+- `referral_links` - Multi-tier attribution with HMAC signing
+- `referral_activities` - Commission delegation and conversion tracking
+- `organisation_subscriptions` - Stripe billing (Starter £49/mo, Pro £99/mo)
+- `org_tasks` - Task management with comments and attachments
+- `bookings` - Session scheduling with availability tracking
+- `reviews` - Mutual review system with moderation
+- `help_support_snapshots` - Bug reports with Jira sync status
+- `network_trust_graph` - Network trust and SEO eligibility
+- `seo_hubs` - Location-based SEO with automated cron jobs
 
 ---
 
@@ -492,23 +500,52 @@ Co-Authored-By: CAS <cas@tutorwise.com>
 ## Project Status
 
 **Current Phase**: Final Implementation (95% Complete)
-**Beta Release Target**: End of January 2026
+**Beta Release Target**: 1 Feb 2026
 **Target Launch**: Q1 2026
 
+### Development Activity (Oct 2025 - Jan 2026)
+- **1,400 commits** across 3.5 months
+- **82 new features** implemented
+- **151 bug fixes** resolved
+- **63 refactors** for code quality
+- **55 documentation** updates
+- **260 pages** implemented
+- **141 API endpoints** created
+- **237 database migrations** executed
+- **353 components** in library
+
 **Recent Completions**:
-- ✅ Authentication system (Supabase + Kinde migration)
-- ✅ Profile management (all 3 roles)
-- ✅ Professional info templates
-- ✅ Onboarding flows with dynamic field configuration
-- ✅ Testing infrastructure (Jest, Playwright, Percy)
-- ✅ CAS development framework (hybrid mode)
-- ✅ **Admin Dashboard** with comprehensive management tools:
-  - ✅ User management with soft/hard delete
-  - ✅ GDPR-compliant data deletion with Stripe cleanup
-  - ✅ Admin action logging and audit trails
-  - ✅ Advanced filtering and search
-  - ✅ CSV export functionality
-  - ✅ Field configuration management
+- ✅ **Onboarding System** (Jan 2026):
+  - ✅ Migrated from wizard to page-based routing for reliability
+  - ✅ Zero data loss implementation across all steps
+  - ✅ Role-specific flows: Tutor, Agent, Client (5 steps each)
+  - ✅ CaaS calculation bridge for immediate scoring
+  - ✅ Trust & Verification step integration
+  - ✅ UnifiedSelect/UnifiedMultiSelect standardization (63 refactors)
+- ✅ **Authentication & Profiles**:
+  - ✅ Supabase Auth with Google OAuth
+  - ✅ Multi-role support (Tutor, Agent, Client, Organisation Owner)
+  - ✅ Public/private profile views
+  - ✅ Professional info templates with metadata
+- ✅ **Testing Infrastructure**:
+  - ✅ Jest unit tests (106 passing)
+  - ✅ Playwright E2E tests
+  - ✅ Percy visual regression
+  - ✅ Storybook component library
+- ✅ **CAS Development Framework**: Hybrid mode
+- ✅ **Admin Dashboard** (12 admin sections):
+  - ✅ **Accounts Management**: Soft/hard delete with Stripe cleanup
+  - ✅ **Forms Admin**: Drag-and-drop UI for shared fields (23 fields, 106 mappings)
+  - ✅ **Organisations**: Team management, subscriptions, verification
+  - ✅ **Listings**: Service listing administration
+  - ✅ **Bookings**: Session and calendar management
+  - ✅ **Referrals**: Commission tracking, QR codes, fraud detection
+  - ✅ **Reviews**: Moderation and dispute handling
+  - ✅ **Financials**: Transactions, payouts, commission splits
+  - ✅ **SEO**: Hub management, trust graph, eligibility tracking, cron jobs
+  - ✅ **Settings**: Payments, subscriptions, security, integrations, email
+  - ✅ **Configurations**: Platform-wide settings
+  - ✅ **Action Logging**: Complete GDPR-compliant audit trail
 - ✅ **Complete referral system** (Phases 1-3):
   - ✅ Hierarchical attribution with HMAC cookie signing
   - ✅ Commission delegation mechanism (patent-protected)
@@ -517,22 +554,28 @@ Co-Authored-By: CAS <cas@tutorwise.com>
   - ✅ Partnership onboarding system
   - ✅ Client referral monetization
   - ✅ QR code generation API
-- ✅ **Shared Fields System**:
-  - ✅ Centralized field definitions
-  - ✅ Context-specific configurations
-  - ✅ Dynamic form generation
-  - ✅ Field reusability across forms
+- ✅ **Shared Fields System** (Jan 2026):
+  - ✅ 23 global field definitions (single source of truth)
+  - ✅ 106 field mappings across 9 contexts
+  - ✅ Admin UI with drag-and-drop reordering
+  - ✅ Dynamic form generation with metadata management
+  - ✅ Edit once → updates all 9 contexts automatically
+  - ✅ Onboarding, Account, Organisation × Tutor, Agent, Client roles
 - ✅ **Help Centre & Support**:
   - ✅ Custom in-app bug reporting modal
   - ✅ Jira Service Desk integration
   - ✅ Automatic screenshot capture
   - ✅ Context-aware ticket creation
   - ✅ Support snapshot database tracking
-- ✅ **Marketplace & Listings**:
-  - ✅ Tutor listing creation and management
-  - ✅ Advanced search and filtering
-  - ✅ Listing detail pages
-  - ✅ Service type configuration
+- ✅ **Marketplace & Listings** (141 API endpoints):
+  - ✅ Smart matching with similarity scores
+  - ✅ Advanced search with autocomplete
+  - ✅ Recommendations engine
+  - ✅ Listing creation with shared fields (23 global fields)
+  - ✅ Service type configuration with Free Help badge
+  - ✅ Listing widgets in contextual sidebar
+  - ✅ Mobile/tablet/desktop optimization
+  - ✅ Organisation listings support
 - ✅ **Payment Processing**:
   - ✅ Stripe Connect integration
   - ✅ Commission calculation and splitting
@@ -542,16 +585,28 @@ Co-Authored-By: CAS <cas@tutorwise.com>
   - ✅ Professional info templates
   - ✅ Profile verification system
 - ✅ **Network & Connections**:
-  - ✅ Connection management
-  - ✅ Network building tools
+  - ✅ Connection management with trust graph
+  - ✅ Network building tools and groups
+  - ✅ Presence tracking (online/offline status)
+  - ✅ WiseChat - WhatsApp-style messaging with real-time updates
+  - ✅ Network trust scoring for SEO eligibility
+- ✅ **Organisations & Teams** (Jan 2026):
+  - ✅ Team management with member roles
+  - ✅ Subscription system (Starter £49/mo, Pro £99/mo)
+  - ✅ Stripe billing integration with card management
+  - ✅ Task management with comments and attachments
+  - ✅ Recruitment system (Phase 1 complete)
+  - ✅ Organisation CaaS scoring (designed, ready for implementation)
+  - ✅ Test/Live mode configuration for admins
 
-**In Progress (Pre-Beta)**:
-- 🔄 Booking system final enhancements
-- 🔄 Mobile responsiveness optimization
+**In Progress (Final 5%)**:
+- 🔄 Agent CaaS implementation (designed, architecture complete)
+- 🔄 Organisation CaaS implementation (designed, 4-bucket scoring ready)
+- 🔄 Recruitment system Phase 2 (Phase 1 complete Jan 2026)
+- 🔄 Final mobile responsiveness polish (80% complete)
 - 🔄 Performance optimization and caching
-- 🔄 Final UI/UX polish
 - 🔄 Beta testing preparation
-- 🔄 Production environment setup
+- 🔄 Production environment hardening
 
 **Beta Release Scope (Jan 2026)**:
 - ✅ All core marketplace features
@@ -601,7 +656,7 @@ MIT License - See LICENSE file for details
 **Node Version**: 18.x+
 **TypeScript Version**: 5.x
 **Database**: Supabase (PostgreSQL)
-**Authentication**: Kinde Auth
+**Authentication**: Supabase Auth
 **Payment Processing**: Stripe Connect
 **Referral System**: v7.0 (Complete with Multi-Tier Infrastructure)
 **Admin System**: v2.0 (Full CRUD + GDPR Compliance)
