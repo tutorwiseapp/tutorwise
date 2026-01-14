@@ -131,6 +131,7 @@
 **Status**: Production-ready
 **Completion**: 100%
 
+- ✅ 5-stage booking workflow (discover > book > schedule > pay > review)
 - ✅ Calendar integration (react-day-picker)
 - ✅ Lesson scheduling interface
 - ✅ Automated booking confirmations
@@ -177,10 +178,10 @@
 **Status**: Production-ready
 **Completion**: 100%
 
-- ✅ Review submission (clients → tutors)
+- ✅ Review submission (clients → tutors, agents → tutors, tutors → clients, agents → clients, tutors → agents, clients → agents)
 - ✅ Rating system (1-5 stars)
 - ✅ Review moderation (admin)
-- ✅ Review responses (tutors)
+- ✅ Review responses (tutors, agents, clients)
 - ✅ Review aggregation
 - ✅ Helpful votes
 - ✅ Review filtering
@@ -221,7 +222,7 @@
 - ✅ Tutor Dashboard (bookings, earnings, reviews, availability)
 - ✅ Client Dashboard (bookings, favorites, messages, payment history)
 - ✅ Agent Dashboard (referrals, commissions, clients, analytics)
-- ✅ Organisation Dashboard (members, settings, billing)
+- ✅ Organisation Dashboard (team, members, clients, organisation-info, billing)
 
 ### 14. Database Architecture ✅
 **Status**: Production-ready
@@ -248,7 +249,7 @@ CaaS provides credibility scoring across all platform roles with role-specific a
 - ✅ `connection_groups.caas_score` column (entity-based: Organisation)
 - ✅ `caas_recalculation_queue` (profile queue, Migration 075)
 - ✅ `organisation_caas_queue` (org queue, Migration 159)
-- ✅ RLS policies (public view for TUTOR/CLIENT, private for AGENT)
+- ✅ RLS policies (public view for TUTOR/CLIENT/ORGANISATION, private for AGENT)
 - ✅ Indexes for ranking and percentile calculations
 
 **API Endpoints**:
