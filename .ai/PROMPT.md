@@ -1,8 +1,9 @@
 # Tutorwise AI Development Context
 
 > **Universal AI Context File** - Compatible with Claude, Cursor, Copilot, and other AI tools
-> **Last Updated**: 2025-09-25
+> **Last Updated**: 2026-01-14
 > **Context Engineering**: Autonomous development enabled
+> **Project Status**: 95% Complete - Beta Release Feb 1, 2026
 
 ---
 
@@ -51,8 +52,8 @@ When COLLABORATIVE mode is enabled:
 ### **Decision Framework (Autonomous Mode)**
 **Priority Order for Independent Decisions:**
 1. **Existing Codebase Patterns** (highest priority) - Follow established conventions
-2. **Tutorwise Architecture** - Align with system design and tech stack
-3. **Best Practices** - Apply industry standards for Next.js/TypeScript/Supabase
+2. **Tutorwise Architecture** (see PLATFORM-SPECIFICATION.md) - Align with system design
+3. **Best Practices** - Apply industry standards for Next.js 15/TypeScript/Supabase
 4. **Performance & Maintainability** - Optimize for long-term code health
 5. **Documentation** - Document decisions made autonomously
 
@@ -64,7 +65,7 @@ When COLLABORATIVE mode is enabled:
 - Performance optimizations
 - Bug fixes and refactoring
 - Component design and styling
-- Database queries and schema updates (non-breaking)
+- Database queries and non-breaking schema updates
 
 **❓ Ask for Input:**
 - Business logic requirements and rules
@@ -81,131 +82,191 @@ When COLLABORATIVE mode is enabled:
 - **Proactive**: Suggest next steps and related improvements
 - **Concise**: Brief explanations, detailed implementation
 
-### **Quick Mode Toggle Instructions**
-```
-To switch modes, edit this section:
-- AUTONOMOUS: Make independent technical decisions
-- COLLABORATIVE: Provide options and ask for preferences
-
-Change "CURRENT MODE:" and update the comment above.
-```
-
 ---
 
 ## 🧠 Context Retrieval Protocol
+
 Before writing code or planning tasks, you MUST check the following documentation sources in this specific order. Consider these files the **Immutable Source of Truth**.
 
-### 1. Design Standards (Check First)
-* **Project Design System:** `docs/design/design-system.md` (UI patterns, colors, typography specific to TutorWise)
-* **CAS Framework Design:** `cas/docs/cas-design-system.md` (Core components, architecture patterns)
-* *Instruction:* If these files conflict, `docs/design/design-system.md` takes precedence for UI/UX.
+### 1. Platform Specification (Primary Reference)
+* **`.ai/PLATFORM-SPECIFICATION.md`** (3,194 lines, 203KB) - Complete technical + strategic specification
+  - System architecture (260 pages, 141 APIs, 353 components)
+  - Database schema (237 migrations)
+  - Admin Dashboard (12 sections)
+  - Shared Fields System (23 fields → 106 mappings)
+  - User journeys for all 3 roles
+  - Business model and valuation
+* **Status**: ✅ Excellent (Updated 2026-01-14)
+* **When to use**: Primary reference for all architectural decisions, features, and system design
 
-### 2. Feature Specifications (Check Second)
-* **Feature Directory:** `docs/features/`
-* *Instruction:* Search this directory for the specific feature being requested (e.g., if building "reviews", look for `docs/features/reviews/reviews-solution-design-*.md`).
-* **Solution Design Documents (SDD):** If an SDD exists (e.g., `*-solution-design-v*.md`), implement strictly according to its specs. Do not reinvent logic defined here.
+### 2. Feature-Specific Documentation (Secondary Reference)
+* **Admin Dashboard**: `.ai/ADMIN-DASHBOARD.md` (if created - see todos)
+* **Shared Fields**: `.ai/SHARED-FIELDS.md` (if created - see todos)
+* **Onboarding**: `.ai/ONBOARDING.md` (if created - see todos)
+* **Help Centre**: `docs/feature/help-centre/IMPLEMENTATION-COMPLETE.md` (Dec 2025)
+* **Referrals**: `docs/feature/referrals/IMPLEMENTATION-COMPLETE.md`
+* **Network**: `docs/feature/network/NETWORK-V4.6-ENHANCEMENTS.md`
 
-### 3. Development Patterns
-* **Proven Patterns:** `cas/docs/proven-patterns.md` (Copy-paste implementation patterns)
+### 3. Design & Development Standards
+* **Project Design System**: `docs/design/DESIGN-SYSTEM.md` (UI patterns, TutorWise-specific)
+* **CAS Framework Design**: `cas/docs/cas-design-system.md` (Core components, architecture patterns)
+* **Proven Patterns**: `cas/docs/proven-patterns.md` (Copy-paste implementation patterns)
+* **Development Standards**: `cas/docs/proven-patterns.md`
+
+### 4. Code Patterns (Check codebase directly)
+* **HubComplexModal Pattern**: See `.ai/PATTERNS.md` (once updated)
+* **UnifiedSelect/UnifiedMultiSelect**: See admin forms and onboarding
+* **Shared Fields Integration**: See `apps/web/src/lib/api/sharedFields.ts`
+
+**Important Note**: Some docs in `docs/` may be outdated. When in doubt, **check the actual codebase** for current implementations.
 
 ---
 
-## <� **Project Overview**
-TutorWise is a production-grade, full-stack EdTech marketplace and CRM ecosystem designed to unify the fragmented tutoring economy. Built on a modern Next.js (Frontend) + FastAPI (Backend) architecture, it features a unique "Single Account, Multi-Role" identity system that allows users to seamlessly switch between Student, Tutor, and Agent personas.
+## 📋 **Project Overview**
+
+### **Current Status (Jan 2026)**
+- **Version**: 1.0.0-beta
+- **Completion**: 95%
+- **Beta Release**: February 1, 2026
+- **Development Activity**: 1,400 commits (Oct 2025 - Jan 2026)
+  - 82 new features implemented
+  - 151 bug fixes resolved
+  - 63 refactors for code quality
+  - 55 documentation updates
+
+### **What is TutorWise?**
+TutorWise is a production-grade, full-stack EdTech marketplace and CRM ecosystem designed to unify the fragmented tutoring economy. Built with Next.js 15 (Frontend) + Supabase (Backend), it features a unique "Single Account, Multi-Role" identity system that allows users to seamlessly switch between Student, Tutor, and Agent personas.
 
 Unlike standard marketplaces, TutorWise integrates a sophisticated "Growth Engine" directly into its core, leveraging a proprietary Profile Graph to power viral referrals, network building, and commission tracking.
 
-Key Pillars & Capabilities
-1. AI-Powered Credibility (CaaS)
-The platform features a built-in Credibility as a Service (CaaS) engine. This system automatically scores tutor reliability and professionalism based on verified "Proof of Work" data points—such as completed sessions and saved artifacts—rather than just subjective reviews.
+### **Key Differentiators**
+1. **AI-Native Development**: Built for £1,000 in 6 months (2,850x cost advantage vs traditional £2.85M build)
+2. **Three-Sided Marketplace**: Agents as distinct supply-side with patent-pending referral system
+3. **Career Progression Platform**: Solo tutor → Full-time professional → Agency owner (without switching platforms)
+4. **Triple Integration**: Marketplace + CRM + Referrals (competitors structurally locked out)
+5. **Transparent Trust**: Open-source CaaS algorithm shows tutors exactly how to grow bookings
 
-2. WiseSpace (Hybrid Virtual Classroom)
-A cost-optimized, zero-marginal-cost virtual learning environment. It employs a "Hybrid Model" that embeds a collaborative whiteboard (powered by tldraw and Ably real-time sync) alongside external video conferencing (Google Meet integration), ensuring a robust classroom experience without heavy infrastructure costs.
+### **Core Capabilities**
 
-3. Collaborative Wiselists (Planning & Growth)
-An "Airbnb-style" planning tool that serves as a dual-purpose growth engine. Users can curate and share lists of tutors (e.g., "GCSE Maths Prep"), which drives both viral user acquisition (via external invites) and in-network sales attribution (via tracking cookies and Stripe webhooks).
+#### 1. AI-Powered Credibility (CaaS)
+Built-in Credibility as a Service (CaaS) engine that scores tutor reliability based on verified "Proof of Work" data points—completed sessions, saved artifacts, trust graph positioning—rather than subjective reviews.
 
-4. Smart Marketplace & CRM
-Listings: Granular service listings with "Free Help" options and dynamic availability.
+#### 2. WiseSpace (Hybrid Virtual Classroom)
+Cost-optimized virtual learning environment with collaborative whiteboard (tldraw + real-time sync) alongside Google Meet integration.
 
-Bookings & Payments: Integrated Stripe Connect flow handling complex commission splitting, payouts, and dispute management.
+#### 3. Collaborative Wiselists
+"Airbnb-style" planning tool for curating tutor lists, driving viral acquisition and in-network attribution via tracking cookies and Stripe webhooks.
 
-Network: A LinkedIn-style connection graph allowing Agents to manage tutor rosters and students to build educational networks.
+#### 4. Smart Marketplace & CRM
+- **Listings**: 23 global shared fields with dynamic availability and "Free Help" options
+- **Bookings & Payments**: Stripe Connect with commission splitting, payouts, dispute management
+- **Network**: LinkedIn-style connection graph for Agents managing tutor rosters
 
-5. Contextual Autonomous System (CAS)
-The platform is developed and maintained by CAS, an AI-driven "Product Team" framework. This system utilizes specialized AI agents (Planner, Analyst, Developer, Tester) to auto-maintain project plans, execute code, and enforce "Production-Ready" quality standards through automated auditing.
+#### 5. Admin Dashboard (12 Sections)
+Comprehensive platform management with:
+- Accounts (soft/hard delete with GDPR compliance)
+- Forms (drag-and-drop UI for 23 shared fields → 106 mappings)
+- Organisations (team management, subscriptions, verification)
+- Listings, Bookings, Referrals, Reviews, Financials, SEO, Settings, Configurations, Action Logging
 
-Short Description: TutorWise is an AI-enhanced tutoring ecosystem that merges a professional marketplace with powerful CRM tools. Featuring the WiseSpace hybrid classroom, CaaS credibility scoring, and Collaborative Wiselists, it empowers Tutors, Students, and Agents to connect, plan, and learn within a single, trust-based network.
-
-### **Core Mission**
-- Connect qualified tutors with students seeking personalized education
-- Provide role-based dashboards for different user types
-- Enable secure payment processing and booking management
-- Maintain high-quality codebase with comprehensive testing
+#### 6. Contextual Autonomous System (CAS)
+AI-driven "Product Team" framework with specialized agents (Planner, Analyst, Developer, Tester) for auto-maintaining project plans and enforcing production-ready quality standards.
 
 ---
 
-## <� **System Architecture**
+## 🏗️ **System Architecture**
 
 ### **Frontend Stack**
-- **Framework**: Next.js 14+ with App Router
-- **Language**: TypeScript (strict mode)
+- **Framework**: Next.js 15.x with App Router
+- **Language**: TypeScript 5.x (strict mode)
 - **Styling**: Tailwind CSS + CSS Modules
-- **State Management**: React Context + local state
-- **UI Components**: Custom design system in `/components/ui/`
+- **State Management**:
+  - React Query (TanStack Query) for server state
+  - Zustand for client state
+  - React Context for auth/theme
+- **UI Components**: Custom design system in `apps/web/src/components/ui/`
+- **Key Patterns**:
+  - HubComplexModal (admin detail views)
+  - UnifiedSelect/UnifiedMultiSelect (form standardization)
+  - Shared Fields System (23 global fields)
 
 ### **Backend & Data**
 - **Primary Database**: Supabase PostgreSQL (auth, profiles, business data)
-- **Graph Database**: Neo4j Aura (relationships, recommendations) via Railway
-- **Cache Layer**: Redis via Vercel and/or Redis via Railway
-- **Authentication**: Supabase Auth with JWT
-- **Real-time**: Supabase subscriptions
+- **Authentication**: Supabase Auth with Google OAuth
+- **Real-time**: Supabase subscriptions and presence tracking
+- **Migrations**: 237 migrations (172 numbered + 65 supporting files)
+- **Key Tables**: profiles, shared_fields, form_context_fields, onboarding_progress, org_subscriptions, org_tasks, help_support_snapshots, admin_action_logs, referral_links, referral_activities
+- **Row-Level Security**: 200+ RLS policies with granular RBAC
 
 ### **External Services**
-- **Payments**: Stripe with Connect (user sending and receiving payments)
-- **Email**: Integrated email service (Resend)
-- **File Storage**: Vercel Blob storage and Supabase Storage
-- **Hosting**: Vercel (frontend and backend) and Railway (custom backend services)
+- **Payments**: Stripe Connect (user sending and receiving payments)
+- **Support**: Jira Service Desk integration with automatic ticket creation
+- **Email**: Resend
+- **File Storage**: Supabase Storage
+
+### **Infrastructure**
+- **Hosting**: Vercel (Next.js app)
+- **Database**: Supabase (PostgreSQL, Auth, Storage, Realtime)
+- **CDN**: Vercel Edge Network
 
 ### **Testing & Quality**
-- **E2E Testing**: Playwright (135 tests, multi-browser)
-- **Unit Testing**: Jest + React Testing Library
-- **Integration Testing**: API endpoint testing
-- **Health Monitoring**: Custom TestAssured platform
-- **Linting**: ESLint (frontend) + Ruff (backend)
+- **Unit Testing**: Jest + React Testing Library (106 passing tests)
+- **E2E Testing**: Playwright (multi-browser)
+- **Visual Regression**: Percy
+- **Component Library**: Storybook
+- **Linting**: ESLint + TypeScript strict mode
 
 ---
 
-## =� **Project Structure & Patterns**
+## 📂 **Project Structure & Patterns**
 
 ### **Directory Organization**
 ```
-src/app/
-   (auth)/              # Authentication route group
-   (dashboard)/         # Protected dashboard routes [PLANNED]
-   components/          # Reusable UI components
-      ui/              # Base design system components
-      layout/          # Layout components (Header, Container)
-      forms/           # Form-specific components
-   contexts/            # React Context providers
-   api/                 # Next.js API routes
-   styles/              # Global styles and CSS modules
+apps/web/src/
+├── app/
+│   ├── (admin)/admin/              # 12 admin sections
+│   │   ├── accounts/               # User management (soft/hard delete)
+│   │   ├── forms/                  # Shared fields admin (drag-and-drop UI)
+│   │   ├── organisations/          # Team management
+│   │   ├── listings/               # Service listings admin
+│   │   ├── bookings/               # Session management
+│   │   ├── referrals/              # Commission tracking
+│   │   ├── reviews/                # Moderation
+│   │   ├── financials/             # Transactions, payouts
+│   │   ├── seo/                    # Hub management, trust graph
+│   │   ├── settings/               # Platform settings
+│   │   ├── configurations/         # System config
+│   │   └── action-logging/         # Audit trail (GDPR)
+│   ├── (auth)/                     # Authentication routes
+│   ├── (dashboard)/                # User dashboards (role-based)
+│   ├── api/                        # API routes (141 endpoints)
+│   ├── components/                 # Reusable components
+│   │   ├── ui/                     # Base design system (353 components)
+│   │   ├── admin/                  # Admin-specific components
+│   │   ├── feature/                # Feature-specific components
+│   │   └── layout/                 # Layout components
+│   └── onboarding/                 # Page-based onboarding (5 steps/role)
+├── lib/
+│   ├── api/                        # API utilities
+│   │   ├── formConfig.ts           # Form configuration API
+│   │   └── sharedFields.ts         # Shared fields API
+│   └── supabase/                   # Supabase clients
+│       └── server.ts               # Server-side Supabase client
+└── utils/                          # Utility functions
 
-tests/
-   unit/               # Jest unit tests
-   integration/        # API integration tests
-   e2e/               # Playwright E2E tests
-   fixtures/          # Test data and helpers
+tools/database/migrations/          # 237 database migrations
 ```
 
 ### **Naming Conventions**
 - **Files**: PascalCase for components, camelCase for utilities
-- **Components**: PascalCase (`<StatusBadge />`)
+- **Components**: PascalCase (`<HubComplexModal />`, `<UnifiedSelect />`)
 - **Variables**: camelCase (`isLoading`, `userProfile`)
 - **Constants**: SCREAMING_SNAKE_CASE (`API_BASE_URL`)
 - **CSS Modules**: camelCase (`styles.cardContainer`)
 
 ### **Component Patterns**
+
+#### Standard Component Pattern
 ```typescript
 'use client';
 
@@ -240,46 +301,76 @@ export default function ComponentName({ title, isVisible = true, onAction }: Com
 }
 ```
 
----
+#### HubComplexModal Pattern (Admin Details)
+Used across all 12 admin sections for detail views. See `apps/web/src/app/(admin)/admin/accounts/components/` for examples.
 
-## =� **Development Roadmap & Priorities**
-
-### **Current Sprint (P0 - Next 2 weeks)**
-
-#### **Role-Based Dashboard Foundation** P
-- **Status**: Ready to implement
-- **Effort**: 5-7 days
-- **Dependencies**: Authentication system ( Complete)
-- **Technical Requirements**:
-  - Extend Supabase user profiles with role field
-  - Create dashboard route group `(dashboard)/`
-  - Implement role-based middleware
-  - Design responsive dashboard layouts
-
-#### **Payment Processing Enhancement**
-- **Status**: Foundation complete
-- **Effort**: 3-4 days
-- **Focus**: Stripe Connect integration for tutors, subscription management
-
-### **Near Term (P1 - Next Month)**
-1. **Tutor Marketplace** (10-12 days) - Profile creation, service listings, search
-2. **Booking System** (8-10 days) - Calendar integration, lesson scheduling
-3. **Enhanced TestAssured** (6-8 days) - Performance, security, API testing
-
-### **Future (P2 - Next Quarter)**
-- Video call integration, advanced analytics, mobile app
-- AI-powered tutor matching, business intelligence dashboard
+#### UnifiedSelect/UnifiedMultiSelect Pattern
+Standardized form components for shared fields. Used in onboarding, account forms, organisation forms, and listings.
 
 ---
 
-## =� **Development Patterns & Best Practices**
+## 🛣️ **Development Roadmap & Current Status**
 
-### **API Integration**
+### **✅ Completed (95%)**
+- Authentication & Profiles (Supabase Auth, multi-role support)
+- Onboarding System (page-based routing, zero data loss, 5 steps per role)
+- Admin Dashboard (12 sections with full CRUD + GDPR compliance)
+- Shared Fields System (23 fields → 106 mappings → 9 contexts)
+- Referral System (Phases 1-3, multi-tier infrastructure)
+- Help Centre & Support (Jira Service Desk integration, screenshot capture)
+- Marketplace & Listings (141 API endpoints, smart matching, recommendations)
+- Payment Processing (Stripe Connect, commission splitting)
+- Network & Connections (trust graph, WiseChat messaging)
+- Organisations & Teams (subscriptions, tasks, recruitment Phase 1)
+- Testing Infrastructure (Jest, Playwright, Percy, Storybook)
+
+### **🔄 In Progress (Final 5%)**
+- Agent CaaS implementation (designed, architecture complete)
+- Organisation CaaS implementation (designed, 4-bucket scoring ready)
+- Recruitment system Phase 2 (Phase 1 complete)
+- Final mobile responsiveness polish (80% complete)
+- Performance optimization and caching
+- Beta testing preparation
+- Production environment hardening
+
+### **🎯 Beta Release Scope (Feb 1, 2026)**
+- All core marketplace features ✅
+- Complete admin dashboard ✅
+- Referral system (Tier 1) ✅
+- Payment processing ✅
+- Help centre & support ✅
+- User onboarding flows ✅
+- Basic mobile responsiveness
+- Production-ready security & compliance
+
+---
+
+## 💻 **Development Patterns & Best Practices**
+
+### **API Integration Pattern**
 ```typescript
-// API Route Pattern
+// API Route Pattern (Next.js 15)
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/utils/supabase/server';
+
 export async function GET(request: NextRequest) {
   try {
+    const supabase = await createClient();
+
+    // Verify authentication
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     // API logic
+    const { data, error } = await supabase
+      .from('table_name')
+      .select('*')
+      .eq('user_id', user.id);
+
+    if (error) throw error;
+
     return NextResponse.json({ success: true, data });
   } catch (error) {
     console.error('API Error:', error);
@@ -290,67 +381,88 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Client-side fetch pattern
-const fetchData = async () => {
-  setLoading(true);
-  try {
+// Client-side fetch pattern (React Query)
+import { useQuery } from '@tanstack/react-query';
+
+const { data, isLoading, error } = useQuery({
+  queryKey: ['key'],
+  queryFn: async () => {
     const response = await fetch('/api/endpoint');
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-    setData(data);
-  } catch (error) {
-    setError(error instanceof Error ? error.message : 'Unknown error');
-  } finally {
-    setLoading(false);
-  }
-};
+    return response.json();
+  },
+});
 ```
 
 ### **Database Patterns**
+
+#### Supabase Integration
 ```typescript
-// Supabase integration
+import { createClient } from '@/utils/supabase/server';
+
+// Standard query
+const supabase = await createClient();
 const { data, error } = await supabase
   .from('profiles')
   .select('*')
   .eq('id', userId)
   .single();
 
-// Error handling
 if (error) {
   console.error('Database error:', error);
   return { error: error.message };
 }
 ```
 
+#### Service Role Client (Admin Operations)
+```typescript
+import { createClient as createAdminClient } from '@supabase/supabase-js';
+
+// For operations requiring service role (bypasses RLS)
+const supabaseAdmin = createAdminClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+// Use for admin operations like user deletion
+const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+```
+
 ### **Authentication Flow**
 ```typescript
-// Route protection middleware
+// Middleware for route protection
+import { createClient } from '@/utils/supabase/server';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
 export async function middleware(request: NextRequest) {
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
+
+  return NextResponse.next();
 }
 ```
 
 ---
 
-## >� **Testing Strategy**
+## ✅ **Testing Strategy**
 
-### **E2E Testing Framework** 
-- **Playwright**: 135 tests across Chrome, Firefox, Safari, Mobile
-- **Coverage**: Authentication flows, TestAssured platform, user journeys
-- **Status**: Operational, 67% pass rate, issues being addressed
-- **Commands**: `npm run test:e2e`, `npm run test:e2e:ui`
+### **Testing Framework**
+- **Unit Tests**: Jest + React Testing Library (106 passing tests)
+- **E2E Tests**: Playwright (multi-browser: Chrome, Firefox, Safari, Mobile)
+- **Visual Regression**: Percy
+- **Component Library**: Storybook
 
-### **Testing Structure**
+### **Testing Commands**
 ```bash
-npm test                # Jest unit tests
-npm run test:integration # API integration tests
-npm run test:e2e        # Playwright E2E tests
-npm run test:all        # All test suites + backend
-npm run quality:check   # Linting + all tests
+npm test                    # Jest unit tests
+npm run test:e2e           # Playwright E2E tests
+npm run test:e2e:ui        # Playwright UI mode
+npm run quality:check      # Linting + all tests
 ```
 
 ### **Coverage Requirements**
@@ -360,28 +472,31 @@ npm run quality:check   # Linting + all tests
 
 ---
 
-## <� **AI Development Instructions**
+## 🤖 **AI Development Instructions**
 
 ### **Context Engineering Principles**
-1. **Read existing patterns** before implementing new features
-2. **Follow established conventions** in codebase
+1. **Read PLATFORM-SPECIFICATION.md** before implementing new features
+2. **Follow established patterns** in codebase (HubComplexModal, UnifiedSelect, Shared Fields)
 3. **Use existing components** and utilities where possible
 4. **Maintain consistent code style** and architecture
 5. **Update tests** when adding/modifying functionality
+6. **Check actual codebase** when documentation conflicts arise
 
 ### **When Building New Features**
-1. **Check roadmap** for priorities and technical requirements
-2. **Review architecture** for system constraints and patterns
+1. **Check PLATFORM-SPECIFICATION.md** for architecture and system constraints
+2. **Review feature-specific docs** in `docs/feature/` for implementation details
 3. **Follow component patterns** for consistent implementation
 4. **Add proper TypeScript types** for all new interfaces
 5. **Include tests** for critical functionality
+6. **Update documentation** for significant changes
 
 ### **Code Quality Standards**
-- **TypeScript**: Strict mode, proper typing
-- **Error Handling**: Comprehensive try/catch, user feedback
-- **Performance**: Optimize queries, lazy loading, caching
-- **Accessibility**: ARIA labels, keyboard navigation
-- **Security**: Input validation, authentication checks
+- **TypeScript**: Strict mode, proper typing, no `any` without justification
+- **Error Handling**: Comprehensive try/catch, user-friendly feedback
+- **Performance**: Optimize queries, lazy loading, React Query caching
+- **Accessibility**: ARIA labels, keyboard navigation, WCAG compliance
+- **Security**: Input validation, RLS policies, authentication checks
+- **GDPR Compliance**: Data anonymization, audit trails, right to deletion
 
 ### **Testing Requirements**
 - **Unit tests** for utility functions and complex logic
@@ -391,258 +506,114 @@ npm run quality:check   # Linting + all tests
 
 ---
 
-## =' **Development Workflow**
-
-### **Quality Gates**
-```bash
-# Before committing
-npm run quality:check   # Linting + all tests
-npm run test:e2e       # E2E validation
-
-# Before deploying
-npm run build          # Production build check
-npm run test:all       # Complete test suite
-```
-
-### **Git Conventions**
-```
-feat: add user role-based dashboard routing
-fix: resolve health monitor 404 error handling
-docs: update API documentation
-test: add E2E tests for authentication flow
-style: update component styling
-refactor: consolidate user profile logic
-```
-
-### **Deployment**
-- **Frontend**: Automatic Vercel deployment on push
-- **Backend**: Railway auto-deployment
-- **Database**: Supabase cloud hosting
-- **Monitoring**: TestAssured health checks
-
----
-
-## =� **Critical Technical Notes**
+## 🔐 **Critical Technical Notes**
 
 ### **Authentication**
-- **Supabase Auth**: JWT-based with role-based access control
+- **Supabase Auth**: JWT-based with Google OAuth
+- **Multi-Role Support**: Tutor, Client, Agent, Organisation Owner
 - **Route Protection**: Middleware handles protected routes
-- **User Profiles**: Extended with role field (student/tutor/agent)
+- **Service Role**: Use `createAdminClient()` for admin operations only
 
 ### **Payment Processing**
-- **Stripe**: Never expose secret keys client-side
+- **Stripe Connect**: Never expose secret keys client-side
 - **Webhooks**: Handle async payment confirmations
-- **Connect**: Tutor payout system integration
+- **Commission Splitting**: Automated through Stripe Connect
+- **GDPR**: Delete both Stripe Customer and Connect Account on hard delete
 
 ### **Performance**
-- **Next.js**: Server-side rendering where appropriate
-- **Caching**: Redis for sessions and temporary data
-- **Database**: Proper indexing and query optimization
+- **Next.js 15**: Server Components for optimal performance
+- **React Query**: Caching and optimistic updates
+- **Database**: Proper indexing (see migrations), connection pooling
+- **Edge Functions**: For authentication and real-time features
 
 ### **Security**
-- **Input Validation**: Server-side validation required
+- **Input Validation**: Server-side validation required (never trust client)
 - **HTTPS**: Everywhere, encrypted database connections
-- **RLS**: Supabase Row Level Security policies
+- **RLS Policies**: 200+ Row Level Security policies in Supabase
 - **CORS**: Proper cross-origin request handling
+- **Admin Operations**: Service role client only for trusted operations
 
 ---
 
-## =� **Current Status**
+## 📊 **Current Status**
 
-### ** Completed Infrastructure**
-- Next.js 14+ with TypeScript
-- Supabase authentication and database
-- Stripe payment processing
-- Railway backend services
-- TestAssured monitoring platform
-- Complete E2E testing framework
-- Context engineering system
-- **AI Integration Suite**: Jira, GitHub, Google Calendar, Google Docs, Mermaid diagrams
-- **Gemini CLI**: Full AI development assistant with project context
-- **Automation Scripts**: Context syncing, workflow automation
+### **✅ Completed Infrastructure**
+- Next.js 15 with TypeScript 5.x ✅
+- Supabase authentication and database (237 migrations) ✅
+- Stripe Connect payment processing ✅
+- Admin Dashboard (12 sections) ✅
+- Shared Fields System (23 → 106 mappings) ✅
+- Complete testing framework (Jest, Playwright, Percy) ✅
+- Help Centre with Jira Service Desk integration ✅
+- Referral system with multi-tier infrastructure ✅
+- Page-based onboarding (zero data loss) ✅
 
 ### **⚡ In Progress**
-- E2E test issue resolution (form validation, navigation)
-- Enhanced Jira integration with comprehensive field extraction
+- Agent/Org CaaS implementation (5% remaining)
+- Final mobile responsiveness polish
+- Performance optimization
+- Beta testing preparation
 
 ### **🎯 Next Implementation Priority**
-**Role-Based Dashboard Foundation** - Ready to begin implementation with:
-- User role detection system
-- Dashboard route structure
-- Role-based middleware
-- Responsive dashboard layouts
+**Beta Launch Preparation** - Final 5% to production-ready:
+- Complete Agent/Org CaaS scoring
+- Mobile responsiveness final polish
+- Performance optimization and caching
+- Production environment hardening
+- Beta testing with early users
 
 ---
 
-## > **AI Assistant Guidelines**
+## 🤝 **AI Assistant Guidelines**
 
 ### **Autonomous Development**
-- **Use this context** to make informed decisions without asking for clarification
-- **Follow established patterns** throughout the codebase
+- **Use PLATFORM-SPECIFICATION.md** as primary reference for all architectural decisions
+- **Follow established patterns** (HubComplexModal, UnifiedSelect, Shared Fields)
 - **Maintain consistency** with existing architecture and conventions
 - **Update documentation** when making significant changes
+- **Check actual codebase** when documentation may be outdated
 
 ### **Decision Making Framework**
-1. **Check roadmap** for feature priorities and requirements
-2. **Review patterns** for implementation approach
-3. **Consider architecture** for technical constraints
-4. **Apply best practices** for code quality and security
+1. **Check PLATFORM-SPECIFICATION.md** for platform architecture and requirements
+2. **Review feature docs** in `docs/feature/` for specific implementations
+3. **Check codebase** for current patterns (don't assume from old docs)
+4. **Apply best practices** for Next.js 15, TypeScript 5.x, Supabase
 5. **Add appropriate tests** for new functionality
 
 ### **Communication Style**
 - **Be concise** and direct in responses
 - **Focus on solutions** rather than extensive explanations
 - **Provide code examples** when implementing features
+- **Reference specific files** with line numbers when relevant
 - **Update todos** to track progress on complex tasks
 
 ---
 
-## AI Integration Suite
+## 📚 **Key Documentation References**
 
-### Context Engineering System
-Tutorwise features a comprehensive AI context engineering system that automatically syncs data from multiple sources to provide rich context for AI-assisted development.
+### **Primary References** (Always Up-to-Date)
+- `.ai/PLATFORM-SPECIFICATION.md` - Complete platform specification (Updated 2026-01-14)
+- `README.md` - Project overview and quick start (Updated 2026-01-13)
+- Actual codebase - Source of truth for current implementations
 
-### Available Integrations
+### **Feature Documentation** (Generally Accurate)
+- `docs/feature/help-centre/IMPLEMENTATION-COMPLETE.md` (Dec 2025)
+- `docs/feature/referrals/IMPLEMENTATION-COMPLETE.md`
+- `docs/feature/network/NETWORK-V4.6-ENHANCEMENTS.md`
 
-**Jira Integration**
-- Status: Fully operational
-- Syncs: Current sprint, individual tickets, comprehensive field data
-- Files: `.ai/jira/current-sprint.md`, `.ai/jira/tickets/*.md`
-- Usage: `npm run sync:jira`
-- Features: Sprint analysis, ticket details, time tracking, relationships
+### **Development Standards**
+- `cas/docs/proven-patterns.md` - Copy-paste implementation patterns
+- `cas/docs/cas-design-system.md` - Core components
+- `docs/design/DESIGN-SYSTEM.md` - TutorWise-specific UI patterns
 
-**GitHub Integration**
-- Status: Operational
-- Syncs: Repository overview, issues, pull requests
-- Files: `.ai/github/repository-overview.md`
-- Usage: `npm run sync:github`
-- Features: Issue tracking, PR status, repository metrics
-
-**Google Calendar Integration**
-- Status: Operational
-- Syncs: Development schedule, project milestones
-- Files: `.ai/calendar/development-schedule.md`
-- Usage: `npm run sync:calendar`
-- Features: Event analysis, development impact assessment
-
-**Google Docs Integration**
-- Status: Available (requires service account)
-- Syncs: Project documentation, requirements
-- Files: `.ai/google-docs/overview.md`
-- Usage: `npm run sync:google-docs`
-- Features: Document content extraction, change tracking
-
-**Mermaid Diagrams Integration**
-- Status: Operational
-- Syncs: Visual diagrams, architecture flows
-- Files: `.ai/mermaid/overview.md`, `.ai/mermaid/diagrams/*.html`
-- Usage: `npm run sync:mermaid`
-- Features: Diagram parsing, visual context generation
-
-**Gemini CLI Integration**
-- Status: Fully operational
-- Purpose: AI-powered development assistant
-- Files: `.ai/scripts/gemini-cli.py`, `.ai/scripts/gemini-workflow.sh`
-- Usage: `npm run gemini`, `npm run ai:gemini`
-- Features: Context-aware chat, ticket analysis, code review, debugging
-
-### Automation Commands
-```bash
-# Individual syncs
-npm run sync:jira          # Sync Jira tickets
-npm run sync:github        # Sync GitHub data
-npm run sync:calendar      # Sync Google Calendar
-npm run sync:mermaid       # Sync Mermaid diagrams
-
-# Bulk operations
-npm run sync:context       # Sync core integrations
-npm run sync:all          # Sync all available integrations
-
-# AI assistance
-npm run gemini            # Interactive Gemini CLI menu
-npm run ai:gemini         # Sync context + start Gemini CLI
-```
-
-### Context Usage in Development
-- Autonomous AI: Use integrated context for independent decision making
-- Sprint Planning: Leverage Jira and calendar data for project planning
-- Code Review: Context-aware analysis using project patterns
-- Documentation: Auto-generated context from multiple sources
-- Debugging: Historical context from tickets and documentation
+### **To Be Created** (See todos)
+- `.ai/ADMIN-DASHBOARD.md` - 12 admin sections documentation
+- `.ai/SHARED-FIELDS.md` - Shared fields system architecture
+- `.ai/ONBOARDING.md` - Page-based onboarding documentation
+- `.ai/PATTERNS.md` (updated) - HubComplexModal, UnifiedSelect patterns
 
 ---
 
 *This context file enables autonomous AI development with full project understanding.*
 *Keep updated as project evolves and new patterns emerge.*
-
-
-
-
-
-
-
-
-
-
-
-## Current Sprint Context (Auto-generated from Jira)
-
-**Sprint**: TUTOR board - Current Issues
-**Status**: ACTIVE
-**Issues**: 21
-
-**Key Tickets in Progress**:
-- **TUTOR-1**: Tutorwise Environment Setup (In Progress)
-- **TUTOR-21**: Playwright and Claude Code integration for Visual testing and UI debugging (In Progress)
-
-**Priority Items**:
-- No high priority items
-
-> This context is automatically updated when you run Jira sync.
-> Detailed ticket information is available in `.ai/jira/tickets/`
-
----
-
-
-## GitHub Repository Context (Auto-generated)
-
-**Repository**: tutorwiseapp/tutorwise
-**Open Issues**: 0 | **Open PRs**: 0
-
-**Priority Issues**:
-- No open issues
-
-**Active Pull Requests**:
-- No open pull requests
-
-
-
-> This context is automatically updated when you run GitHub sync.
-> Detailed issue/PR information is available in `.ai/github/`
-
----
-
-
-## Mermaid Diagrams Context (Auto-generated)
-
-**Total Diagrams**: 1 (test)
-**Last Synced**: 9/26/2025
-
-**Available Diagrams**:
-- **Sample Architecture Diagram** (Flowchart)
-
-> This context is automatically updated when you run Mermaid diagram sync.
-> Visual diagrams available in `.ai/mermaid/diagrams/`
-
----
-
-
-## Google Integrations Context (Auto-generated)
-
-**Google Docs**: 0 documents synced
-**Google Calendar**: 0 events synced
-**Last Synced**: 9/26/2025
-
-> Context available in `.ai/google-docs/` and `.ai/calendar/`
-
----
+*Last major update: 2026-01-14 (Platform at 95% completion, beta Feb 1, 2026)*
