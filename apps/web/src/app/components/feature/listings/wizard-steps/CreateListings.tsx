@@ -38,10 +38,12 @@ interface CreateListingsProps {
 }
 
 // Helper function to extract options from shared field
-function getOptionsFromField(field: any): Array<{ value: string | number; label: string }> {
-  if (!field?.shared_fields?.options) return [];
-  return field.shared_fields.options.map((opt: any) => ({
-    value: opt.value,
+function getOptionsFromField(field: any): Array<{ value: string; label: string }> {
+  if (!field) return [];
+  const sharedFields = (field as any).shared_fields;
+  if (!sharedFields?.options) return [];
+  return sharedFields.options.map((opt: any) => ({
+    value: String(opt.value),
     label: opt.label,
   }));
 }
@@ -66,20 +68,20 @@ export default function CreateListings({
   });
 
   // Extract options from shared fields with fallbacks
-  const SUBJECT_OPTIONS = getOptionsFromField(contextFields.find(f => f.shared_fields?.field_name === 'subjects'));
-  const LEVEL_OPTIONS = getOptionsFromField(contextFields.find(f => f.shared_fields?.field_name === 'keyStages'));
-  const AI_TOOLS_OPTIONS = getOptionsFromField(contextFields.find(f => f.shared_fields?.field_name === 'aiTools'));
+  const SUBJECT_OPTIONS = getOptionsFromField(contextFields.find(f => (f as any).shared_fields?.field_name === 'subjects'));
+  const LEVEL_OPTIONS = getOptionsFromField(contextFields.find(f => (f as any).shared_fields?.field_name === 'keyStages'));
+  const AI_TOOLS_OPTIONS = getOptionsFromField(contextFields.find(f => (f as any).shared_fields?.field_name === 'aiTools'));
 
-  const durationField = contextFields.find(f => f.shared_fields?.field_name === 'sessionDuration');
+  const durationField = contextFields.find(f => (f as any).shared_fields?.field_name === 'sessionDuration');
   const DURATION_OPTIONS = durationField ? getOptionsFromField(durationField).map(opt => ({
     value: parseInt(opt.value as string),
     label: opt.label
   })) : [];
 
-  const SERVICE_TYPE_OPTIONS = getOptionsFromField(contextFields.find(f => f.shared_fields?.field_name === 'serviceType')) as Array<{ value: ServiceType; label: string }>;
-  const CATEGORY_OPTIONS = getOptionsFromField(contextFields.find(f => f.shared_fields?.field_name === 'category'));
-  const PACKAGE_TYPE_OPTIONS = getOptionsFromField(contextFields.find(f => f.shared_fields?.field_name === 'packageType'));
-  const DELIVERY_MODES = getOptionsFromField(contextFields.find(f => f.shared_fields?.field_name === 'deliveryMode'));
+  const SERVICE_TYPE_OPTIONS = getOptionsFromField(contextFields.find(f => (f as any).shared_fields?.field_name === 'serviceType')) as Array<{ value: ServiceType; label: string }>;
+  const CATEGORY_OPTIONS = getOptionsFromField(contextFields.find(f => (f as any).shared_fields?.field_name === 'category'));
+  const PACKAGE_TYPE_OPTIONS = getOptionsFromField(contextFields.find(f => (f as any).shared_fields?.field_name === 'packageType'));
+  const DELIVERY_MODES = getOptionsFromField(contextFields.find(f => (f as any).shared_fields?.field_name === 'deliveryMode'));
 
   // v4.0: Form state with new service type fields
   const [serviceType, setServiceType] = useState<ServiceType>('one-to-one');
