@@ -1,9 +1,11 @@
-# Tutorwise Platform Overview
+# Tutorwise Platform Specification
 
-**Document Version**: 1.2
-**Last Updated**: 2026-01-13
+**Document Type**: Complete Platform Specification (Technical + Strategic)
+**Document Version**: 1.3
+**Last Updated**: 2026-01-14
 **Author**: Platform Architecture Team
 **Classification**: Internal - Strategic
+**Location**: `.ai/PLATFORM-SPECIFICATION.md` (Replaces: `docs/platform-overview.md`, `.ai/ARCHITECTURE.md`)
 
 ---
 

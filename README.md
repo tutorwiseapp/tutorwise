@@ -1,6 +1,6 @@
 # TutorWise
 
-**Full-stack tutoring marketplace platform**
+**Tutoring Marketplace and CRM Platform**
 
 **Version**: 1.0.0-beta
 **Status**: Pre-Launch (Beta Release: 1 Feb 2026)
@@ -244,6 +244,7 @@ CAS will apply 8 agent perspectives:
 - **Design System**: [cas/docs/design-system.md](cas/docs/design-system.md)
 
 ### Architecture
+- **Platform Specification**: [.ai/PLATFORM-SPECIFICATION.md](.ai/PLATFORM-SPECIFICATION.md) - Complete technical + strategic specification
 - **CAS Architecture**: [cas/CAS-DESIGN-AND-IMPLEMENTATION.md](cas/CAS-DESIGN-AND-IMPLEMENTATION.md)
 - **Detailed Architecture**: [cas/docs/cas-architecture-detailed.md](cas/docs/cas-architecture-detailed.md)
 - **System Overview**: [cas/docs/guides/cas-overview.md](cas/docs/guides/cas-overview.md)
