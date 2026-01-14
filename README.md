@@ -75,18 +75,19 @@ tutorwise/
 ## Tech Stack
 
 ### Frontend
-- **Next.js 15.x** - React framework with App Router
+- **Next.js 14.x** - React framework with App Router
 - **TypeScript 5.x** - Type safety and developer experience
 - **React 18** - UI library with Server Components
 - **Tailwind CSS** - Utility-first styling
 - **Supabase Auth** - Authentication and user management
-- **React Query (TanStack Query)** - Data fetching and state management
-- **Zustand** - Lightweight state management
+- **React Query (TanStack Query)** - Data fetching and server state management
+- **React Context API** - Client state management
 
 ### Backend & Database
-- **Supabase** - PostgreSQL database with real-time capabilities
+- **Supabase** - PostgreSQL database
 - **Supabase Auth** - Authentication backend
 - **Supabase Storage** - File storage for avatars and documents
+- **Ably** - Real-time messaging, presence, and typing indicators
 - **Stripe Connect** - Payment processing and marketplace commissions
 
 ### Admin & Management
@@ -221,7 +222,7 @@ CAS will apply 8 agent perspectives:
 - **Listings**: Dynamic listing creation with shared fields system (23 global fields)
 - **Bookings**: Session scheduling, calendar management, assignments
 - **Payments**: Stripe Connect with commission splitting and payouts
-- **Messages**: WiseChat - WhatsApp-style messaging interface with real-time updates
+- **Messages**: WhatsApp-style messaging with Ably real-time platform (typing indicators, presence, delivery status)
 - **Network**: Connection management, groups, trust graph
 - **Wiselists**: Collaborative lists ("My Saves" feature) with sharing
 - **WiseSpace**: Hybrid virtual classroom with tldraw whiteboard + Google Meet
@@ -237,6 +238,16 @@ CAS will apply 8 agent perspectives:
 
 ## Documentation
 
+### Core Documentation (.ai/)
+- **[ROADMAP.md](.ai/ROADMAP.md)** - Development roadmap (98% complete, 17 systems)
+- **[PLATFORM-SPECIFICATION.md](.ai/PLATFORM-SPECIFICATION.md)** - Complete technical + strategic specification
+- **[ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md)** - Admin dashboard architecture (11 hubs)
+- **[SHARED-FIELDS.md](.ai/SHARED-FIELDS.md)** - Shared fields system (23 fields, 106 mappings)
+- **[ONBOARDING.md](.ai/ONBOARDING.md)** - Onboarding system (page-based, 3 roles)
+- **[PATTERNS.md](.ai/PATTERNS.md)** - Development patterns and conventions
+- **[CONTEXT-MAP.md](.ai/CONTEXT-MAP.md)** - Codebase context and navigation
+- **[PROMPT.md](.ai/PROMPT.md)** - AI assistant prompt and guidelines
+
 ### Getting Started
 - **Project Setup**: See "Quick Start" above
 - **CAS Framework**: [cas/CAS-USER-GUIDE.md](cas/CAS-USER-GUIDE.md)
@@ -244,10 +255,14 @@ CAS will apply 8 agent perspectives:
 - **Design System**: [cas/docs/design-system.md](cas/docs/design-system.md)
 
 ### Architecture
-- **Platform Specification**: [.ai/PLATFORM-SPECIFICATION.md](.ai/PLATFORM-SPECIFICATION.md) - Complete technical + strategic specification
+- **Platform Specification**: [.ai/PLATFORM-SPECIFICATION.md](.ai/PLATFORM-SPECIFICATION.md)
 - **CAS Architecture**: [cas/CAS-DESIGN-AND-IMPLEMENTATION.md](cas/CAS-DESIGN-AND-IMPLEMENTATION.md)
 - **Detailed Architecture**: [cas/docs/cas-architecture-detailed.md](cas/docs/cas-architecture-detailed.md)
 - **System Overview**: [cas/docs/guides/cas-overview.md](cas/docs/guides/cas-overview.md)
+
+### Feature Documentation
+- **Help Centre**: [docs/feature/help-centre/](docs/feature/help-centre/) - Jira Service Desk integration
+- **Referrals**: [docs/feature/referrals/](docs/feature/referrals/) - Multi-tier referral system
 
 ### Quality Standards
 - **Feature Checklist**: [cas/docs/feature-development-checklist.md](cas/docs/feature-development-checklist.md)
@@ -346,7 +361,7 @@ cd apps/api
 npm run migrate
 ```
 
-**Key tables** (237 migrations, 172 numbered):
+**Key tables** (192 migrations, 191 numbered):
 - `profiles` - User profiles (all roles) with soft delete and PII anonymization
 - `listings` - Tutor listings with dynamic field configuration
 - `shared_fields` - 23 centralized field definitions across 9 contexts
@@ -512,7 +527,7 @@ Co-Authored-By: CAS <cas@tutorwise.com>
 - **55 documentation** updates
 - **260 pages** implemented
 - **141 API endpoints** created
-- **237 database migrations** executed
+- **192 database migrations** executed
 - **353 components** in library
 
 **Recent Completions**:
@@ -534,19 +549,18 @@ Co-Authored-By: CAS <cas@tutorwise.com>
   - ✅ Percy visual regression
   - ✅ Storybook component library
 - ✅ **CAS Development Framework**: Hybrid mode
-- ✅ **Admin Dashboard** (12 admin sections):
-  - ✅ **Accounts Management**: Soft/hard delete with Stripe cleanup
-  - ✅ **Forms Admin**: Drag-and-drop UI for shared fields (23 fields, 106 mappings)
-  - ✅ **Organisations**: Team management, subscriptions, verification
-  - ✅ **Listings**: Service listing administration
-  - ✅ **Bookings**: Session and calendar management
-  - ✅ **Referrals**: Commission tracking, QR codes, fraud detection
-  - ✅ **Reviews**: Moderation and dispute handling
-  - ✅ **Financials**: Transactions, payouts, commission splits
-  - ✅ **SEO**: Hub management, trust graph, eligibility tracking, cron jobs
-  - ✅ **Settings**: Payments, subscriptions, security, integrations, email
-  - ✅ **Configurations**: Platform-wide settings
-  - ✅ **Action Logging**: Complete GDPR-compliant audit trail
+- ✅ **Admin Dashboard** (11 admin hubs):
+  - ✅ **Accounts Hub**: Soft/hard delete with Stripe cleanup
+  - ✅ **Bookings Hub**: Session and calendar management
+  - ✅ **Configurations Hub**: Platform-wide settings and shared fields management
+  - ✅ **Financials Hub**: Transactions, payouts, commission splits
+  - ✅ **Listings Hub**: Service listing administration
+  - ✅ **Organisations Hub**: Team management, subscriptions, verification
+  - ✅ **Referrals Hub**: Commission tracking, QR codes, fraud detection
+  - ✅ **Reviews Hub**: Moderation and dispute handling
+  - ✅ **SEO Hub**: Hub management, trust graph, eligibility tracking, cron jobs
+  - ✅ **Settings Hub**: Payments, subscriptions, security, integrations, email
+  - ✅ **Users Hub**: User administration and permissions
 - ✅ **Complete referral system** (Phases 1-3):
   - ✅ Hierarchical attribution with HMAC cookie signing
   - ✅ Commission delegation mechanism (patent-protected)
@@ -588,26 +602,34 @@ Co-Authored-By: CAS <cas@tutorwise.com>
 - ✅ **Network & Connections**:
   - ✅ Connection management with trust graph
   - ✅ Network building tools and groups
-  - ✅ Presence tracking (online/offline status)
-  - ✅ WiseChat - WhatsApp-style messaging with real-time updates
+  - ✅ Presence tracking (online/offline status via Ably)
+  - ✅ Messages - WhatsApp-style messaging with Ably real-time platform
   - ✅ Network trust scoring for SEO eligibility
 - ✅ **Organisations & Teams** (Jan 2026):
   - ✅ Team management with member roles
   - ✅ Subscription system (Starter £49/mo, Pro £99/mo)
   - ✅ Stripe billing integration with card management
-  - ✅ Task management with comments and attachments
-  - ✅ Recruitment system (Phase 1 complete)
-  - ✅ Organisation CaaS scoring (designed, ready for implementation)
+  - ✅ Task management with comments and attachments (5-stage Kanban pipeline)
+  - ✅ Recruitment system (Phases 1 & 2 complete - leverages Messages + task management)
+  - ✅ Organisation CaaS scoring (100% complete - activity-weighted team average model)
   - ✅ Test/Live mode configuration for admins
+- ✅ **Agent CaaS** (Jan 2026):
+  - ✅ 4-bucket scoring model (100 points max: 70 base + 30 org bonus)
+  - ✅ Recruitment tracking (tutors recruited, quality, retention)
+  - ✅ Organisation business metrics (bookings, clients, growth)
+  - ✅ Subscription-gated bonuses (active org required)
+  - ✅ Verification credentials (business, insurance, association)
+- ✅ **Messages System** (Jan 2026):
+  - ✅ WhatsApp-style interface with Ably real-time platform
+  - ✅ Typing indicators and presence tracking
+  - ✅ Message persistence via Supabase chat_messages table
+  - ✅ File attachments and delivery status
+  - ✅ Integration with Network connections
 
-**In Progress (Final 5%)**:
-- 🔄 Agent CaaS implementation (designed, architecture complete)
-- 🔄 Organisation CaaS implementation (designed, 4-bucket scoring ready)
-- 🔄 Recruitment system Phase 2 (Phase 1 complete Jan 2026)
-- 🔄 Final mobile responsiveness polish (80% complete)
-- 🔄 Performance optimization and caching
-- 🔄 Beta testing preparation
-- 🔄 Production environment hardening
+**In Progress (Final 2%)**:
+- 🔄 Final mobile responsiveness polish (85% complete)
+- 🔄 Performance optimization and caching (70% complete)
+- 🔄 Beta testing preparation (50% complete)
 
 **Beta Release Scope (Jan 2026)**:
 - ✅ All core marketplace features
@@ -620,12 +642,12 @@ Co-Authored-By: CAS <cas@tutorwise.com>
 - 🎯 Early adopter feedback collection
 
 **Planned (Post-Beta)**:
-- Messaging system with real-time chat
 - Review and ratings system expansion
 - Advanced analytics dashboard
 - Multi-tier commission expansion (Tier 2-3)
 - WiseSpace virtual classroom v2
 - Mobile app (React Native)
+- Video call integration
 
 ---
 
@@ -651,13 +673,14 @@ MIT License - See LICENSE file for details
 
 ---
 
-**Last Updated**: 2026-01-13
+**Last Updated**: 2026-01-14
 **CAS Version**: 2.0 (Hybrid Framework Mode)
-**Next.js Version**: 15.x
+**Next.js Version**: 14.x
 **Node Version**: 18.x+
 **TypeScript Version**: 5.x
-**Database**: Supabase (PostgreSQL)
+**Database**: Supabase (PostgreSQL) - 192 migrations
 **Authentication**: Supabase Auth
+**Real-time**: Ably (messaging, presence, typing indicators)
 **Payment Processing**: Stripe Connect
 **Referral System**: v7.0 (Complete with Multi-Tier Infrastructure)
-**Admin System**: v2.0 (Full CRUD + GDPR Compliance)
+**Admin System**: v2.0 (11 hubs + GDPR Compliance)
