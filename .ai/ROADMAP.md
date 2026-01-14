@@ -249,7 +249,7 @@ CaaS provides credibility scoring across all platform roles with role-specific a
 - ✅ `connection_groups.caas_score` column (entity-based: Organisation)
 - ✅ `caas_recalculation_queue` (profile queue, Migration 075)
 - ✅ `organisation_caas_queue` (org queue, Migration 159)
-- ✅ RLS policies (public view for TUTOR/CLIENT/ORGANISATION, private for AGENT)
+- ✅ RLS policies (public view for ALL roles: TUTOR/CLIENT/AGENT/ORGANISATION)
 - ✅ Indexes for ranking and percentile calculations
 
 **API Endpoints**:
