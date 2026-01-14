@@ -161,12 +161,12 @@ CHECK (
 **New Column**:
 - `booking_referrer_id` (UUID) - FK to wiselists (nullable)
 
-**Purpose**: Track which wiselist drove a booking for commission payout
+**Purpose**: Track which wiselist drove a booking for attribution analytics
 
 **How it works**:
 1. User clicks `/w/[slug]` → Middleware sets cookie `wiselist_referrer=[wiselist_id]`
 2. User books tutor → Booking created with `booking_referrer_id` from cookie
-3. After session completes → Calculate 5% commission for wiselist creator
+3. Attribution data tracked in analytics for wiselist performance metrics
 
 **Migration**: `apps/api/migrations/084_add_booking_referrer_to_bookings.sql`
 
@@ -441,29 +441,26 @@ EXECUTE FUNCTION increment_profile_save_count();
 
 ### Integration 3: Payments v4.9
 
-**What it does**: Commission payouts for wiselist creators
+**What it does**: Attribution tracking for wiselist-driven bookings
 
-**When it triggers**: After booking session completes (7 days later)
+**When it triggers**: After booking session completes
 
 **Data flow**:
 ```
-Booking Completed → Detect booking_referrer_id → Calculate 5% → Queue Payout
+Booking Completed → Detect booking_referrer_id → Track Attribution → Update Analytics
 ```
 
-**Commission Calculation**:
+**Attribution Tracking**:
 ```typescript
-// Platform fee: 15% of £400 = £60
-const platformFee = booking.total_amount * 0.15;
-
-// Creator commission: 33% of platform fee = £20
-const commission = platformFee * 0.33;
-
-// Queue payout (processed after 30-day dispute window)
-await queueStripeConnectPayout(creator, commission, {
-  booking_id: booking.id,
-  wiselist_id: wiselist.id,
-  reason: 'Wiselist referral commission'
-});
+// Track wiselist performance for analytics
+if (booking.booking_referrer_id) {
+  await trackWiselistAttribution({
+    booking_id: booking.id,
+    wiselist_id: booking.booking_referrer_id,
+    conversion_value: booking.total_amount,
+    event_type: 'booking_completed'
+  });
+}
 ```
 
 **Error handling**: If wiselist deleted, booking referrer stays (historical data)

@@ -34,7 +34,6 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 # Attribution tracking
 WISELIST_COOKIE_MAX_AGE=604800  # 7 days in seconds
-WISELIST_COMMISSION_RATE=0.05   # 5% commission
 
 # Feature flags (optional)
 ENABLE_WISELIST_ANALYTICS=true

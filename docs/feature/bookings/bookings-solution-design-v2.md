@@ -960,7 +960,7 @@ Note: This is different from agent-led bookings where `agent_profile_id` is expl
 4. Checkout session includes cookie value in metadata
 5. Payment webhook saves to booking: `booking_referrer_id = wiselist_referrer_id`
 
-**Future Use**: Currently tracking only. Future version will calculate secondary commission for wiselist owner (e.g., 5% split from platform fee, not tutor's share). This enables "curated tutor list" business model where influencers earn commission promoting specific tutors.
+**Current Use**: Attribution tracking for analytics purposes. This data helps measure the effectiveness of wiselist sharing and understand which marketing channels drive conversions.
 
 **Why Cookie vs Database?**: Attribution must persist across anonymous browsing before user creates account. Cookie allows tracking pre-signup, then associates with booking post-signup. 30-day window matches industry standard (Amazon, Booking.com).
 

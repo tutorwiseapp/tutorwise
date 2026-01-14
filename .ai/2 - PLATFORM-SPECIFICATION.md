@@ -258,7 +258,6 @@ Tutorwise is a next-generation EdTech platform that reimagines the tutoring mark
    - Create profile (can also be tutor simultaneously)
    - Build tutor network through referrals
    - Earn **10% commission** on all referred tutor earnings (perpetual)
-   - Earn **5% commission** on wiselist bookings
    - **Two-sided referrals**: refer tutors (supply) OR clients (demand)
    - Track referral performance with analytics dashboard
    - **Fraud detection** protects commission integrity
@@ -390,14 +389,14 @@ Client Payment:           £100.00
 └─ Tutor Net Earnings:    £81.00  (81%)
 ```
 
-**Wiselist Booking (Future Enhancement)**:
+**Wiselist Booking (Attribution Tracking)**:
 ```
 Client Payment:           £100.00
 ├─ Platform Fee:         -£10.00  (10%)
-├─ Wiselist Creator:      -£5.00  (5% attribution)
-├─ Agent (if referred):   -£9.00  (10% of tutor net)
-└─ Tutor Net:             £76.00 or £85.00
+├─ Agent (if referred):  -£9.00   (10% of tutor net)
+└─ Tutor Net:             £81.00
 ```
+*Note: Wiselist attribution is tracked for analytics but does not affect commission structure.*
 
 **Multi-Tier Referral (Planned - 3 Tiers)**:
 ```
@@ -949,13 +948,13 @@ Final Organisation CaaS: 87.2 + 4 = 91.2 (rounded to 91)
                                                       │
                                                       ▼
                                               ┌──────────────┐
-                                              │ Agent Earns  │
-                                              │ 5% Commission│
-                                              │ (£5/£100)    │
+                                              │ Attribution  │
+                                              │ Tracked for  │
+                                              │ Analytics    │
                                               └──────────────┘
 ```
 
-**Stacking Commissions**: Agent who creates Wiselist AND referred tutor earns 15% total (10% agent + 5% wiselist)
+**Attribution Tracking**: Wiselist shares are tracked for analytics and growth metrics, helping agents understand which marketing efforts drive conversions.
 
 **Use Cases**:
 - Agents curate subject-specific lists (e.g., "Best GCSE Tutors London")
@@ -2409,7 +2408,7 @@ Effective rate varies: 2% for high-earners (£1k+/month), 10-20% for casual tuto
 
 **For Agents** (Tutors Who Recruit):
 11. **Network Building**: Solo tutor → recruit 10 peers → £500/month passive income
-12. **Wiselist Stacking**: 10% agent commission + 5% wiselist = 15% total
+12. **Wiselist Marketing**: Create curated tutor lists to promote your network and drive bookings
 13. **Scalable**: Recruit 50 tutors → £2,500/month → create Organisation → agency owner
 
 **For Organisations** (Agencies):
@@ -2989,7 +2988,7 @@ By 2027, Tutorwise aims to be the default platform for tutors who want to build 
 ├─────────────────────────────────────────────────────────────────────────────────────────┤
 │  Referral Program      │ ✓ Multi-tier │ ✗            │ ✗            │ ✓ Basic referral │
 │  Tutor Referrals       │ ✓ 10% comm.  │ ✗            │ ✗            │ ✗                │
-│  Wiselist Sharing      │ ✓ 5% comm.   │ ✗            │ ✗            │ ✗                │
+│  Wiselist Sharing      │ ✓ Tracking   │ ✗            │ ✗            │ ✗                │
 │  Agent Model           │ ✓ Core       │ ✗            │ ✗            │ ✗                │
 │  Organisation Pages    │ ✓ Public     │ ✓ Agency pgs │ ✗            │ ✓ Agency pages   │
 │  Social Sharing        │ ✓ Wiselists  │ ✓ Profiles   │ ✗            │ ✓ Profiles       │
@@ -3360,8 +3359,8 @@ Industry research confirms solo founder with AI can match output of 15-20 tradit
 
 10. **Wiselist Viral Mechanism**:
    - **Market Value**: £100k - £300k (unique growth engine)
-   - **Innovation**: Attribution-tracked collections with commission stacking (10% agent + 5% wiselist = 15% total)
-   - **Features**: Collaborative wiselists, public sharing, QR code referrals
+   - **Innovation**: Attribution-tracked collections with viral sharing mechanics
+   - **Features**: Collaborative wiselists, public sharing, QR code referrals, analytics tracking
 
 11. **Organisation-Level Referral Infrastructure**:
    - **Market Value**: £150k - £300k (B2B2C revenue unlock)

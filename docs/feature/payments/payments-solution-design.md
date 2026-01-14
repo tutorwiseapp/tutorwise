@@ -472,8 +472,7 @@ ADD COLUMN booking_referrer_id uuid REFERENCES profiles(id);
 - **File**: `/apps/web/src/app/api/webhooks/stripe/route.ts` (lines 84-100)
 - **Migration**: `084_add_booking_referrer_id.sql`
 
-**Current Status**: Tracking only (no commission calculation yet)
-**Future Enhancement**: Could add in-network sales commission (e.g., 5% to wiselist sharer)
+**Current Status**: Attribution tracking for analytics purposes only (no commission structure)
 
 ---
 
