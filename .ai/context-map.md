@@ -1,190 +1,657 @@
 # Tutorwise Context Map
 
-## 📊 **Context Engineering System Overview**
+**Document Version**: 2.0
+**Last Updated**: 2026-01-14
+**Purpose**: Maps how all context files interconnect to enable autonomous AI development
 
-This document maps how all context files work together to enable autonomous AI development.
+---
+
+## 📊 **AI Context System Overview**
+
+This document maps the complete AI context engineering system for Tutorwise, showing how all files work together to enable autonomous development.
+
+### **Context File Structure**
 
 ```
-.claude/
-├── CLAUDE.md           # 🎯 Project overview & guidelines
-├── roadmap.md          # 🚀 Development priorities & timeline
-├── patterns.md         # 🧩 Code patterns & conventions
-├── architecture.md     # 🏗️ System design & infrastructure
-└── context-map.md      # 📊 This file - how everything connects
+.ai/
+├── PROMPT.md                    # 🎯 Universal AI context & development guidelines
+├── PLATFORM-SPECIFICATION.md    # 📖 Complete technical + strategic specification
+├── ROADMAP.md                   # 🚀 Development roadmap & completion status
+├── PATTERNS.md                  # 🧩 Code patterns & conventions
+├── CONTEXT-MAP.md               # 📊 This file - how everything connects
+├── ADMIN-DASHBOARD.md           # 🛠️ Admin Dashboard documentation (pending)
+├── SHARED-FIELDS.md             # 🔧 Shared Fields System documentation (pending)
+└── ONBOARDING.md                # 📝 Onboarding flows documentation (pending)
 ```
+
+---
 
 ## 🔗 **How Context Files Interconnect**
 
-### **CLAUDE.md** → Foundation
-- **Purpose**: Project overview, tech stack, development preferences
-- **Used For**: Understanding project scope, preferred technologies, development workflow
-- **Connects To**: All other files reference this as the source of truth
+### **1. PROMPT.md** → Universal AI Context (Entry Point)
+**Size**: 25KB | **Priority**: P0 - Read First
+**Last Updated**: 2026-01-14
 
-### **roadmap.md** → Direction
-- **Purpose**: Feature priorities, timelines, effort estimates
-- **Used For**: Understanding what to build next, dependencies, technical requirements
-- **Connects To**: patterns.md (implementation approach), architecture.md (technical feasibility)
+**Purpose**: Primary AI context file providing project overview, development guidelines, and context retrieval protocol
 
-### **patterns.md** → Implementation
-- **Purpose**: Code conventions, component structures, best practices
-- **Used For**: Writing consistent code that matches existing codebase
-- **Connects To**: architecture.md (technical constraints), roadmap.md (feature requirements)
+**Contains**:
+- Current project status (95% complete, beta Feb 1, 2026)
+- Tech stack (Next.js 15, TypeScript 5.x, Supabase)
+- Context retrieval protocol (what to read when)
+- Development workflows
+- AI behavior guidelines
 
-### **architecture.md** → Technical Design
-- **Purpose**: System design, infrastructure, data flow, security
-- **Used For**: Understanding technical constraints, making architectural decisions
-- **Connects To**: patterns.md (implementation details), roadmap.md (scalability planning)
+**Used For**:
+- Understanding project scope and current state
+- Knowing which specialized files to reference
+- Development workflow and preferences
+- Tech stack decisions
 
-## 🎯 **AI Decision Making Framework**
+**Connects To**:
+- **PLATFORM-SPECIFICATION.md** (primary reference for implementation)
+- **ROADMAP.md** (current priorities)
+- **PATTERNS.md** (code conventions)
+
+**When to Read**: Always first - provides navigation to all other context
+
+---
+
+### **2. PLATFORM-SPECIFICATION.md** → Complete Technical Reference
+**Size**: 203KB (3,194 lines) | **Priority**: P0 - Reference for Implementation
+**Last Updated**: 2026-01-14
+
+**Purpose**: Comprehensive technical and strategic specification covering all platform systems
+
+**Contains** (20 sections):
+1. Executive Summary & Vision
+2. Platform Overview
+3. Tech Stack Architecture
+4. Database Architecture
+5. Authentication & Authorization
+6. User Roles & Permissions
+7. Core Features (Marketplace, Booking, Payments)
+8. Admin Dashboard (12 sections)
+9. Forms & Onboarding
+10. Referral System
+11. Reviews & Ratings
+12. Help Centre
+13. SEO & Sitemap
+14. Testing Strategy
+15. Deployment & Infrastructure
+16. Security & Compliance
+17. Performance Optimization
+18. Development Workflow
+19. Future Roadmap
+20. Appendix (API Endpoints, Database Tables)
+
+**Used For**:
+- Understanding complete system architecture
+- Implementation details for any feature
+- Database schema reference
+- API endpoint specifications
+- Security policies and RLS
+
+**Connects To**:
+- **PATTERNS.md** (implementation patterns for features)
+- **ROADMAP.md** (what's complete vs in-progress)
+- **SHARED-FIELDS.md** (forms architecture details)
+- **ADMIN-DASHBOARD.md** (admin sections deep dive)
+
+**When to Read**: When implementing features, understanding architecture, or needing technical details
+
+---
+
+### **3. ROADMAP.md** → Development Status & Timeline
+**Size**: 500 lines | **Priority**: P1 - Check for Priorities
+**Last Updated**: 2026-01-14
+
+**Purpose**: Current development status, completed features, in-progress work, and future plans
+
+**Contains**:
+- Platform completion status (95%)
+- 14 completed core systems
+- In-progress final 5% (Agent CaaS, Org CaaS, Recruitment Phase 2)
+- Beta release timeline (Feb 1, 2026)
+- Production launch timeline (Mar 1, 2026)
+- Success metrics
+- Known technical debt
+
+**Used For**:
+- Understanding what's complete vs in-progress
+- Prioritizing new work
+- Checking dependencies before starting features
+- Understanding project timeline
+
+**Connects To**:
+- **PROMPT.md** (current status summary)
+- **PLATFORM-SPECIFICATION.md** (feature details)
+- **PATTERNS.md** (implementation approach)
+
+**When to Read**: When planning work, checking feature status, or understanding priorities
+
+---
+
+### **4. PATTERNS.md** → Code Conventions & Patterns
+**Size**: 850 lines | **Priority**: P1 - Read for Implementation
+**Last Updated**: 2026-01-14
+
+**Purpose**: Code patterns, component structures, and conventions used throughout the codebase
+
+**Contains** (14 pattern categories):
+1. HubComplexModal Pattern (Admin detail modals)
+2. UnifiedSelect/UnifiedMultiSelect Pattern (Form components)
+3. Shared Fields System Pattern (23 → 106 → 9 architecture)
+4. Service Role Client Pattern (Admin operations)
+5. Server Component Pattern
+6. API Route Pattern
+7. Form Handling Pattern
+8. Database Query Pattern
+9. Authentication Pattern
+10. Error Handling Pattern
+11. File Upload Pattern
+12. Pagination Pattern
+13. Search/Filter Pattern
+14. Real-time Pattern (Supabase Realtime)
+
+**Used For**:
+- Writing consistent code
+- Following established conventions
+- Understanding component structures
+- Implementing common functionality
+
+**Connects To**:
+- **PLATFORM-SPECIFICATION.md** (technical constraints)
+- **SHARED-FIELDS.md** (form field patterns)
+- **ADMIN-DASHBOARD.md** (HubComplexModal usage)
+
+**When to Read**: When writing new code, creating components, or implementing features
+
+---
+
+### **5. CONTEXT-MAP.md** → This File
+**Size**: Current document | **Priority**: P2 - Read for Understanding
+**Last Updated**: 2026-01-14
+
+**Purpose**: Maps how all context files interconnect and guides AI decision-making
+
+**Contains**:
+- Context file relationships
+- AI decision-making framework
+- System architecture overview
+- When to read which files
+- Context update guidelines
+
+**Used For**:
+- Understanding the context system
+- Knowing which file to reference
+- Guiding autonomous development decisions
+
+**Connects To**: All other context files
+
+**When to Read**: When understanding the context system or needing guidance on which file to read
+
+---
+
+### **6. ADMIN-DASHBOARD.md** → Admin Dashboard Deep Dive
+**Status**: Pending creation
+**Estimated Size**: 1,000+ lines | **Priority**: P2
+
+**Planned Contents**:
+- Overview of 12 admin sections
+- HubComplexModal pattern implementation for each section
+- Soft delete vs hard delete flows
+- GDPR compliance implementation
+- Advanced filtering and search
+- Bulk operations
+- Export functionality
+- Code examples for each hub
+
+**Will Connect To**:
+- **PLATFORM-SPECIFICATION.md** (references admin section)
+- **PATTERNS.md** (HubComplexModal pattern)
+
+---
+
+### **7. SHARED-FIELDS.md** → Shared Fields System Deep Dive
+**Status**: Pending creation
+**Estimated Size**: 800+ lines | **Priority**: P2
+
+**Planned Contents**:
+- Architecture overview (23 fields → 106 mappings → 9 contexts)
+- Database schema (shared_fields, form_config tables)
+- UnifiedSelect/UnifiedMultiSelect components
+- Field customization per context
+- Migration from hardcoded options
+- Admin configuration UI
+- Implementation examples
+
+**Will Connect To**:
+- **PLATFORM-SPECIFICATION.md** (references forms section)
+- **PATTERNS.md** (UnifiedSelect pattern, Shared Fields pattern)
+
+---
+
+### **8. ONBOARDING.md** → Onboarding Flows Documentation
+**Status**: Pending creation
+**Estimated Size**: 600+ lines | **Priority**: P2
+
+**Planned Contents**:
+- Page-based onboarding architecture
+- Migration from wizard (zero data loss)
+- Role-specific flows (5 steps per role)
+- Draft saving mechanism
+- Progress tracking
+- Validation rules
+- Implementation examples
+
+**Will Connect To**:
+- **PLATFORM-SPECIFICATION.md** (references onboarding section)
+- **SHARED-FIELDS.md** (form fields integration)
+- **PATTERNS.md** (form handling pattern)
+
+---
+
+## 🎯 **AI Decision-Making Framework**
 
 ### **When Asked to Build a Feature:**
 
-1. **Check roadmap.md** → Is this feature prioritized? What are the requirements?
-2. **Review architecture.md** → What are the technical constraints and patterns?
-3. **Apply patterns.md** → How should this be implemented consistently?
-4. **Reference CLAUDE.md** → What are the project preferences and guidelines?
+```
+1. Start with PROMPT.md
+   ↓ Understand current project status and context retrieval protocol
 
-### **Example: "Add role-based dashboards"**
+2. Check ROADMAP.md
+   ↓ Is this feature complete? In-progress? Prioritized?
+
+3. Review PLATFORM-SPECIFICATION.md
+   ↓ What are the technical requirements? Database schema? API endpoints?
+
+4. Apply PATTERNS.md
+   ↓ What patterns should be used? Component structure? Conventions?
+
+5. Check specialized docs if applicable
+   ↓ ADMIN-DASHBOARD.md, SHARED-FIELDS.md, ONBOARDING.md
+
+6. Implement autonomously with full context
+```
+
+### **Example Decision Flows**
+
+#### **Example 1: "Add a new admin hub section"**
 
 ```
-roadmap.md → Priority P0, 5-7 days effort, depends on auth system
-architecture.md → Use route groups, role detection, protected routes
-patterns.md → Follow component structure, use TypeScript interfaces
-CLAUDE.md → Prefer Next.js patterns, use Supabase for auth
-Result → Autonomous implementation with full context
+PROMPT.md → Platform is 95% complete, admin sections use HubComplexModal pattern
+ROADMAP.md → Admin Dashboard is complete (12 sections), check if new section fits
+PLATFORM-SPECIFICATION.md → Review admin dashboard architecture, database schema
+PATTERNS.md → Apply HubComplexModal pattern, follow conventions
+ADMIN-DASHBOARD.md → Reference existing hub implementations
+Result → Autonomous implementation following established patterns
 ```
 
-## 📁 **Codebase Context Sources**
+#### **Example 2: "Add a new form field to onboarding"**
 
-### **Live Codebase Analysis**
-```javascript
-// AI automatically analyzes:
-package.json          → Available dependencies, scripts, project setup
-src/app/              → Route structure, existing patterns
-src/components/       → UI components, styling approach
-types/                → TypeScript definitions, data models
-.env.example          → Environment variables, external services
+```
+PROMPT.md → Onboarding uses page-based approach with Shared Fields
+ROADMAP.md → Onboarding system is complete, Shared Fields is production-ready
+PLATFORM-SPECIFICATION.md → Review forms architecture, Shared Fields tables
+PATTERNS.md → Apply UnifiedSelect pattern, Shared Fields integration
+SHARED-FIELDS.md → Check 23 → 106 → 9 architecture, field customization
+ONBOARDING.md → Review onboarding flow, step structure
+Result → Add field using Shared Fields system, update form_config
+```
+
+#### **Example 3: "Fix a performance issue"**
+
+```
+PROMPT.md → Platform uses Next.js 15 Server Components, React Query
+ROADMAP.md → Performance optimization is 70% complete, check known issues
+PLATFORM-SPECIFICATION.md → Review performance optimization section, caching strategies
+PATTERNS.md → Apply Server Component pattern, database query optimization
+Result → Implement fix following performance best practices
+```
+
+---
+
+## 🏗️ **System Architecture Overview**
+
+### **Core Systems Map**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     Tutorwise Platform                      │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
+│  │ User Roles   │  │ Authentication│  │ Authorization│    │
+│  │ (4 types)    │→ │ (Supabase)    │→ │ (RLS + RBAC) │    │
+│  └──────────────┘  └──────────────┘  └──────────────┘    │
+│                                                             │
+│  ┌──────────────────────────────────────────────────────┐ │
+│  │           Admin Dashboard (12 Sections)              │ │
+│  │  Accounts │ Forms │ Orgs │ Listings │ Bookings │... │ │
+│  │  (HubComplexModal Pattern for all sections)          │ │
+│  └──────────────────────────────────────────────────────┘ │
+│                                                             │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
+│  │ Shared Fields│→ │ Form Contexts│→ │ 27 Forms      │    │
+│  │ (23 fields)  │  │ (106 mappings)│  │ (9 contexts)  │    │
+│  └──────────────┘  └──────────────┘  └──────────────┘    │
+│                                                             │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
+│  │ Onboarding   │  │ Marketplace  │  │ Booking       │    │
+│  │ (Page-based) │  │ (Listings)   │  │ (Calendar)    │    │
+│  └──────────────┘  └──────────────┘  └──────────────┘    │
+│                                                             │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
+│  │ Payments     │  │ Referrals    │  │ Reviews       │    │
+│  │ (Stripe)     │  │ (3 phases)   │  │ (Moderation)  │    │
+│  └──────────────┘  └──────────────┘  └──────────────┘    │
+│                                                             │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
+│  │ Messaging    │  │ Help Centre  │  │ Dashboards    │    │
+│  │ (WiseChat)   │  │ (Jira SD)    │  │ (4 roles)     │    │
+│  └──────────────┘  └──────────────┘  └──────────────┘    │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### **Shared Fields Architecture**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              Shared Fields System (23 → 106 → 9)            │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌──────────────────────────────────────────────────────┐ │
+│  │         23 Global Shared Fields                      │ │
+│  │  subject_specializations │ grade_levels │ tutoring... │ │
+│  └──────────────────────────────────────────────────────┘ │
+│                          ↓                                  │
+│  ┌──────────────────────────────────────────────────────┐ │
+│  │         106 Context Mappings (form_config)           │ │
+│  │  Each field × each context = customization          │ │
+│  │  (isRequired, isEnabled, displayOrder, customLabel)  │ │
+│  └──────────────────────────────────────────────────────┘ │
+│                          ↓                                  │
+│  ┌──────────────────────────────────────────────────────┐ │
+│  │              9 Form Contexts                         │ │
+│  │  ┌────────────┬────────────┬────────────────────┐   │ │
+│  │  │ Form Type  │   Role     │  Example Form      │   │ │
+│  │  ├────────────┼────────────┼────────────────────┤   │ │
+│  │  │ Onboarding │ Tutor      │ Tutor Professional │   │ │
+│  │  │ Onboarding │ Client     │ Client Preferences │   │ │
+│  │  │ Onboarding │ Agent      │ Agent Professional │   │ │
+│  │  │ Account    │ Tutor      │ Tutor Services     │   │ │
+│  │  │ Account    │ Client     │ Client Preferences │   │ │
+│  │  │ Account    │ Agent      │ Agent Details      │   │ │
+│  │  │ Organisation│ Tutor     │ Org Settings       │   │ │
+│  │  │ Organisation│ Client    │ Org Settings       │   │ │
+│  │  │ Organisation│ Agent     │ Org Settings       │   │ │
+│  │  └────────────┴────────────┴────────────────────┘   │ │
+│  └──────────────────────────────────────────────────────┘ │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### **Admin Dashboard Architecture**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│           Admin Dashboard (12 Sections)                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Each section follows HubComplexModal Pattern:             │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │ 1. List View (AdminHubPage)                         │  │
+│  │    - Table with data                                │  │
+│  │    - Filters and search                             │  │
+│  │    - Pagination                                     │  │
+│  │    - Click row → Open detail modal                  │  │
+│  └─────────────────────────────────────────────────────┘  │
+│                          ↓                                  │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │ 2. Detail Modal (HubComplexModal)                   │  │
+│  │    ┌────────────────────────────────────┐          │  │
+│  │    │ Header (Title, Close Button)       │          │  │
+│  │    ├────────────────────────────────────┤          │  │
+│  │    │ Tabs (Overview, Details, Actions)  │          │  │
+│  │    ├────────────────────────────────────┤          │  │
+│  │    │ Content (Tab-specific data)        │          │  │
+│  │    ├────────────────────────────────────┤          │  │
+│  │    │ Actions (Edit, Delete, etc.)       │          │  │
+│  │    └────────────────────────────────────┘          │  │
+│  └─────────────────────────────────────────────────────┘  │
+│                                                             │
+│  Sections:                                                 │
+│  1. Accounts Hub     7. Reviews Hub                        │
+│  2. Forms Hub        8. Financials Hub                     │
+│  3. Organisations    9. SEO Hub                            │
+│  4. Listings Hub     10. Settings Hub                      │
+│  5. Bookings Hub     11. Configurations Hub                │
+│  6. Referrals Hub    12. Action Logging Hub                │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📁 **Codebase Structure Context**
+
+### **Key Directories to Understand**
+
+```
+tutorwise/
+├── apps/
+│   └── web/                    # Next.js application
+│       ├── src/
+│       │   ├── app/            # App Router pages
+│       │   │   ├── (admin)/    # Admin routes (12 sections)
+│       │   │   ├── (auth)/     # Auth routes (login, signup)
+│       │   │   ├── (dashboard)/# User dashboards (4 roles)
+│       │   │   ├── api/        # API routes (141 endpoints)
+│       │   │   └── components/ # Page-specific components
+│       │   ├── components/     # Shared components (353 total)
+│       │   │   ├── admin/      # Admin-specific (HubComplexModal)
+│       │   │   ├── auth/       # Auth components
+│       │   │   ├── feature/    # Feature-specific
+│       │   │   └── ui/         # UI primitives
+│       │   ├── lib/            # Utilities and helpers
+│       │   │   ├── api/        # API client functions
+│       │   │   ├── hooks/      # Custom React hooks
+│       │   │   └── utils/      # Utility functions
+│       │   └── utils/          # Supabase clients
+│       │       └── supabase/   # Server & client setup
+│       └── public/             # Static assets
+├── tools/
+│   └── database/
+│       └── migrations/         # 237 Supabase migrations
+├── docs/                       # Documentation (non-AI)
+│   ├── feature/                # Feature implementation docs
+│   ├── help-centre/            # User documentation
+│   ├── testing/                # Testing documentation
+│   ├── integration/            # Integration guides
+│   └── database/               # Database documentation
+└── .ai/                        # AI context files (this folder)
 ```
 
 ### **Pattern Recognition**
+
+When implementing features, AI analyzes:
+
 ```javascript
-// AI learns from existing code:
-- Component naming conventions
-- State management approaches
-- API integration patterns
-- Error handling strategies
-- Styling methodologies
-- Testing approaches
+// Component Naming
+✅ UnifiedSelect.tsx         // Feature + component type
+✅ HubComplexModal.tsx       // Pattern name
+✅ AdminSidebar.tsx          // Context + component type
+
+// API Routes
+✅ /api/admin/accounts/[id]/route.ts    // RESTful naming
+✅ /api/shared-fields/[fieldName]/options/route.ts
+
+// Database Tables
+✅ shared_fields              // Lowercase, underscores
+✅ form_config                // Descriptive, clear purpose
+✅ user_profiles              // Relation to users table
+
+// TypeScript Patterns
+✅ Strict mode enabled
+✅ Interfaces over types (for extensibility)
+✅ Proper null/undefined handling
+✅ Zod for runtime validation
 ```
+
+---
 
 ## 🔄 **Context Update Cycle**
 
-### **Continuous Learning**
-1. **New code written** → Patterns updated
-2. **Architecture changes** → architecture.md updated
-3. **Priorities shift** → roadmap.md updated
-4. **Project evolution** → CLAUDE.md updated
+### **When to Update Context Files**
 
-### **Context Validation**
-- **Weekly reviews** → Ensure context files stay current
-- **Feature completion** → Update patterns and architecture
-- **Major changes** → Comprehensive context refresh
+| File | Update Trigger | Frequency |
+|------|---------------|-----------|
+| **PROMPT.md** | Project status change, tech stack change | Monthly or on major milestones |
+| **PLATFORM-SPECIFICATION.md** | Architecture change, new major feature | After significant feature completion |
+| **ROADMAP.md** | Feature completion, priority shift | Weekly during active development |
+| **PATTERNS.md** | New pattern introduced, pattern refinement | When new patterns are established |
+| **CONTEXT-MAP.md** | New context file added, structure change | When context system evolves |
+| **Specialized docs** | Related system changes | After related feature completion |
 
-## 🚀 **E2E Testing Context**
+### **Context Validation Checklist**
 
-### **Current State Assessment**
-```
-Frontend E2E: ✅ Playwright installed and configured
-Backend E2E:  📁 Empty folder ready for setup
-Integration:  ✅ Existing test structure
+Before considering context complete:
+- [ ] All tech stack references accurate (Next.js 15, TypeScript 5.x, Supabase)
+- [ ] No outdated technology references (FastAPI, Railway, Neo4j, Kinde)
+- [ ] Current completion status reflected (95%)
+- [ ] New patterns documented (HubComplexModal, UnifiedSelect, Shared Fields)
+- [ ] Cross-references between files accurate
+- [ ] File sizes and line counts updated
+- [ ] Last updated dates current
+- [ ] Examples reflect actual codebase patterns
 
-Recommendation: Set up unified E2E testing approach
-```
+---
 
-### **E2E Testing Strategy**
-```
-tests/
-├── e2e/                    # 🎭 Playwright end-to-end tests
-│   ├── auth.spec.ts        # Authentication flows
-│   ├── dashboard.spec.ts   # Role-based dashboard testing
-│   ├── payments.spec.ts    # Stripe payment flows
-│   └── booking.spec.ts     # Booking system workflows
-├── integration/            # 🔗 API integration tests
-└── unit/                   # 🧪 Component unit tests
-```
-
-## 🎯 **Autonomous Development Benefits**
+## 🚀 **Autonomous Development Benefits**
 
 ### **Before Context Engineering**
 ```
-User: "Add user dashboards"
-AI: "What kind of dashboard? What data? What styling?"
+User: "Add a new form field to tutor onboarding"
+AI: "What form? Where should it go? What type of field? Should it be required?"
+User: Provides all details manually
+AI: Implements based on user guidance
+Result: 10+ back-and-forth messages, potential inconsistencies
 ```
 
 ### **After Context Engineering**
 ```
-User: "Add user dashboards"
-AI: *Reads context, understands requirements, implements immediately*
-- Checks roadmap.md for role-based dashboard specs
-- Follows patterns.md for component structure
-- Uses architecture.md for route protection
-- Applies CLAUDE.md preferences
+User: "Add 'teaching_methodology' field to tutor onboarding"
+AI:
+  ✓ Reads PROMPT.md → Understands Shared Fields system
+  ✓ Checks ROADMAP.md → Onboarding is complete, can extend
+  ✓ Reviews PLATFORM-SPECIFICATION.md → Finds form schema
+  ✓ Applies PATTERNS.md → Uses UnifiedSelect pattern
+  ✓ References SHARED-FIELDS.md → 23 → 106 → 9 architecture
+  ✓ Implements autonomously:
+    1. Add field to shared_fields table
+    2. Create form_config mapping for tutor onboarding context
+    3. Update onboarding form component with UnifiedSelect
+    4. Add validation rules
+    5. Test and verify
+Result: 1-2 messages, complete implementation, full consistency
 ```
 
 ### **Development Speed Impact**
-- **Requirements gathering**: 90% reduced
-- **Pattern consistency**: 100% maintained
-- **Architectural alignment**: Automatic
-- **Feature completeness**: Higher quality
 
-## 📊 **Context Metrics**
-
-### **Context Coverage**
-- **Project Overview**: ✅ Complete (CLAUDE.md)
-- **Development Roadmap**: ✅ Complete (roadmap.md)
-- **Code Patterns**: ✅ Complete (patterns.md)
-- **System Architecture**: ✅ Complete (architecture.md)
-- **Testing Strategy**: 🟡 Partial (needs E2E setup)
-
-### **Context Quality Indicators**
-- **Specificity**: High - Detailed patterns and conventions
-- **Completeness**: High - Covers all major areas
-- **Currency**: Fresh - Recently created/updated
-- **Actionability**: High - Enables autonomous development
-
-## 🔮 **Future Context Enhancements**
-
-### **Planned Additions**
-- **API_DOCS.md** → Comprehensive API documentation
-- **DEPLOYMENT.md** → Deployment procedures and environments
-- **MONITORING.md** → Observability and alerting setup
-- **SECURITY.md** → Security policies and procedures
-
-### **Context Evolution**
-As the project grows, context files will:
-- **Expand** → More detailed patterns and conventions
-- **Specialize** → Domain-specific context files
-- **Integrate** → Better cross-referencing between files
-- **Automate** → Self-updating context from code analysis
+| Metric | Before | After | Improvement |
+|--------|--------|-------|-------------|
+| Requirements gathering | 15-20 min | 1-2 min | **90% reduction** |
+| Pattern consistency | 60-70% | 98-100% | **Consistent** |
+| Architectural alignment | Manual review | Automatic | **100% aligned** |
+| Feature completeness | 70-80% | 95-100% | **Higher quality** |
+| Implementation time | 2-4 hours | 30-60 min | **60-75% faster** |
 
 ---
 
-## 💡 **Using This Context System**
+## 📊 **Context Coverage Assessment**
+
+### **Current State (Jan 2026)**
+
+| Context Area | Coverage | Quality | File |
+|--------------|----------|---------|------|
+| Project Overview | ✅ Complete | High | PROMPT.md |
+| Technical Specification | ✅ Complete | High | PLATFORM-SPECIFICATION.md |
+| Development Roadmap | ✅ Complete | High | ROADMAP.md |
+| Code Patterns | ✅ Complete | High | PATTERNS.md |
+| Context Mapping | ✅ Complete | High | CONTEXT-MAP.md (this file) |
+| Admin Dashboard | 🔄 Pending | - | ADMIN-DASHBOARD.md |
+| Shared Fields System | 🔄 Pending | - | SHARED-FIELDS.md |
+| Onboarding Flows | 🔄 Pending | - | ONBOARDING.md |
+
+### **Quality Indicators**
+
+- **Specificity**: ⭐⭐⭐⭐⭐ High - Detailed patterns and implementations
+- **Completeness**: ⭐⭐⭐⭐☆ Very Good - Core complete, specialized pending
+- **Currency**: ⭐⭐⭐⭐⭐ Excellent - Updated Jan 2026, reflects current state
+- **Actionability**: ⭐⭐⭐⭐⭐ Excellent - Enables autonomous development
+- **Cross-referencing**: ⭐⭐⭐⭐⭐ Excellent - Clear connections between files
+
+---
+
+## 💡 **Best Practices for Using This Context System**
 
 ### **For AI Development**
-1. **Always start** with context file review
-2. **Follow established patterns** from patterns.md
-3. **Respect architectural constraints** from architecture.md
-4. **Align with roadmap priorities** from roadmap.md
-5. **Maintain project consistency** with CLAUDE.md
+
+1. **Always start with PROMPT.md** - Understand current project state and context retrieval protocol
+2. **Check ROADMAP.md** - Verify feature status and priorities before implementing
+3. **Reference PLATFORM-SPECIFICATION.md** - Get complete technical details
+4. **Apply PATTERNS.md** - Ensure code consistency and follow established conventions
+5. **Use specialized docs** - When working with admin, forms, or onboarding
+6. **Validate context** - If something seems outdated, check code directly
+7. **Update context** - After implementing major features or patterns
 
 ### **For Human Developers**
-1. **Read context files** before starting new features
-2. **Update patterns** when introducing new approaches
-3. **Review architecture** for major system changes
-4. **Keep roadmap current** with changing priorities
+
+1. **Read context files** - Before starting new features or making architectural changes
+2. **Follow patterns** - Maintain consistency with established conventions
+3. **Update documentation** - When introducing new patterns or completing features
+4. **Keep roadmap current** - Update priorities and completion status regularly
+5. **Validate AI outputs** - Review generated code for correctness and consistency
+
+### **For Project Management**
+
+1. **Track completion** - Use ROADMAP.md to monitor progress
+2. **Prioritize updates** - Keep PROMPT.md and ROADMAP.md current
+3. **Plan context additions** - Create specialized docs as systems mature
+4. **Review periodically** - Ensure context remains accurate and useful
 
 ---
 
-*This context map ensures consistent, autonomous, and high-quality development*
-*Last Updated: 2025-09-25*
+## 🔮 **Future Context Evolution**
+
+### **Planned Additions (Q1 2026)**
+
+- **ADMIN-DASHBOARD.md** - Deep dive into 12 admin sections
+- **SHARED-FIELDS.md** - Comprehensive Shared Fields documentation
+- **ONBOARDING.md** - Complete onboarding flow documentation
+
+### **Potential Additions (Q2-Q4 2026)**
+
+- **API-REFERENCE.md** - Complete API documentation
+- **DEPLOYMENT.md** - Deployment procedures and environments
+- **MONITORING.md** - Observability and alerting setup
+- **SECURITY.md** - Security policies and procedures
+- **TESTING.md** - Testing strategies and frameworks
+- **PERFORMANCE.md** - Performance optimization guide
+
+### **Context Automation Ideas**
+
+- Auto-generate API documentation from route files
+- Extract patterns from codebase automatically
+- Track context staleness and suggest updates
+- Generate context diffs when major changes occur
+
+---
+
+*This context map ensures consistent, autonomous, and high-quality AI-assisted development for Tutorwise*
+
+**Last Updated**: 2026-01-14
+**Next Review**: 2026-01-21
+**Maintained By**: Platform Architecture Team
