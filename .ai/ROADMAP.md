@@ -202,13 +202,17 @@
 **Status**: Production-ready
 **Completion**: 100%
 
-- ✅ Real-time messaging (Supabase Realtime)
-- ✅ Conversation threads
-- ✅ Unread message indicators
-- ✅ Message notifications
-- ✅ File attachments
-- ✅ Typing indicators
-- ✅ Message search
+- ✅ Real-time messaging (Ably real-time platform)
+- ✅ WhatsApp-style interface (2-pane split layout)
+- ✅ Conversation threads with connections from Network
+- ✅ Message persistence (Supabase `chat_messages` table)
+- ✅ Unread message indicators and counters
+- ✅ Typing indicators (Ably Chat SDK)
+- ✅ Presence tracking (online/offline status)
+- ✅ Message search and filtering
+- ✅ File attachments support
+- ✅ Message delivery status tracking
+- ✅ Real-time synchronization across devices
 
 ### 13. User Dashboards ✅
 **Status**: Production-ready
@@ -409,10 +413,11 @@
 - Supabase PostgreSQL (auth, profiles, business data)
 - Supabase Auth with Google OAuth
 - Supabase Storage for file uploads
-- Supabase Realtime for messaging
+- Ably real-time platform (messaging, presence, typing indicators)
 
 ### Payments & External Services
 - Stripe Connect for payments
+- Ably (real-time messaging and presence)
 - Jira Service Desk for help centre
 - Google OAuth for authentication
 
