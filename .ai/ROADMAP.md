@@ -12,7 +12,7 @@
 ### Platform Completion: 98%
 - **260 pages** implemented across all user roles
 - **141 API endpoints** (Next.js Route Handlers + API routes)
-- **237 database migrations** (172 numbered + 65 supporting)
+- **192 database migrations** (191 numbered + 1 supporting)
 - **353 components** in unified design system
 - **200+ RLS policies** enforcing data security
 - **82 features** completed
@@ -41,21 +41,20 @@
 
 ### 2. Admin Dashboard ✅
 **Status**: Production-ready
-**Completion**: 100% (12 sections)
+**Completion**: 100% (11 hubs)
 
-**Sections Implemented**:
+**Hubs Implemented**:
 1. ✅ **Accounts Hub** - User management (soft/hard delete, GDPR compliance)
-2. ✅ **Forms Hub** - 9 forms × 3 roles configuration
-3. ✅ **Organisations Hub** - Organisation management
-4. ✅ **Listings Hub** - Service listing moderation
-5. ✅ **Bookings Hub** - Booking oversight and management
-6. ✅ **Referrals Hub** - Referral tracking and analytics
-7. ✅ **Reviews Hub** - Review moderation
-8. ✅ **Financials Hub** - Payment tracking and reconciliation
+2. ✅ **Bookings Hub** - Booking oversight and management
+3. ✅ **Configurations Hub** - System configuration and shared fields management
+4. ✅ **Financials Hub** - Payment tracking and reconciliation
+5. ✅ **Listings Hub** - Service listing moderation
+6. ✅ **Organisations Hub** - Organisation management
+7. ✅ **Referrals Hub** - Referral tracking and analytics
+8. ✅ **Reviews Hub** - Review moderation
 9. ✅ **SEO Hub** - SEO management and optimization
 10. ✅ **Settings Hub** - Platform configuration
-11. ✅ **Configurations Hub** - System configuration
-12. ✅ **Action Logging Hub** - Audit trails and compliance
+11. ✅ **Users Hub** - User administration and permissions
 
 **Features**:
 - ✅ HubComplexModal pattern (standardized detail modals)
@@ -125,7 +124,7 @@
 - ✅ Geographic location services
 - ✅ Tutor, agent, client and organisation profile and verification system
 - ✅ Rating and review system
-- ✅ Favorites/saved tutors, agents, oranisations and service listings
+- ✅ Favorites/saved tutors, agents, organisations and service listings
 - ✅ Social proof (reviews, ratings, bookings)
 
 ### 7. Booking System ✅
@@ -228,7 +227,7 @@
 **Status**: Production-ready
 **Completion**: 100%
 
-- ✅ 237 migrations (172 numbered + 65 supporting)
+- ✅ 192 migrations (191 numbered + 1 supporting)
 - ✅ Comprehensive schema (60+ tables)
 - ✅ Row-Level Security (200+ policies)
 - ✅ Indexes and performance optimization
@@ -293,23 +292,23 @@
 
 **Phase 1** ✅:
 - ✅ Job posting creation
-- ✅ Application submission
-- ✅ Basic tracking (profile_graph ORGANISATION_RECRUITMENT entries)
+- ✅ Application submission API endpoint
+- ✅ Application tracking via organisation task management
 
 **Phase 2** ✅:
-- ✅ Application review workflow (owner reviews candidate profiles via profile_graph)
-- ✅ Interview scheduling (via WiseChat messaging + organisation task management)
-- ✅ Candidate communication (via WiseChat real-time messaging system)
+- ✅ Application review workflow (owner reviews candidate applications)
+- ✅ Interview scheduling (via Messages + organisation task management)
+- ✅ Candidate communication (via Messages real-time platform)
 - ✅ Hiring pipeline management (via organisation task management Kanban: Backlog → To Do → In Progress → Approved → Done)
 
 **Implementation**:
-- ✅ Profile graph relationship type: ORGANISATION_RECRUITMENT
-- ✅ Application submission API endpoint
-- ✅ Integration with WiseChat for communication
+- ✅ Application submission API (`/api/organisation/recruitment/apply`)
+- ✅ Integration with Messages for communication
 - ✅ Integration with organisation task management (5-stage Kanban pipeline)
 - ✅ Drag-and-drop task management with priorities and assignments
+- ✅ Organisation task categories include recruitment workflows
 
-**Note**: Recruitment leverages existing platform features (WiseChat messaging + organisation task management) rather than dedicated recruitment-specific tools for a streamlined hiring workflow.
+**Note**: Recruitment leverages existing platform features (Messages + organisation task management) rather than dedicated recruitment-specific tools for a streamlined hiring workflow.
 
 ---
 
@@ -403,11 +402,11 @@
 ## 🛠️ **Technology Stack**
 
 ### Frontend
-- Next.js 15.x with App Router
+- Next.js 14.x with App Router
 - TypeScript 5.x (strict mode)
 - React 18 with Server Components
 - React Query (TanStack Query) for server state
-- Zustand for client state
+- React Context API for client state
 
 ### Backend & Data
 - Supabase PostgreSQL (auth, profiles, business data)
