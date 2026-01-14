@@ -176,45 +176,42 @@ Client scoring is simpler and focuses on being a trustworthy, reliable booking p
 - Uploading a profile photo
 - Shows engagement and transparency
 
-### For Agents (4-Bucket Model with Subscription Incentives)
+### For Agents
 
 <CalloutBox type="success">
 **Agent CaaS is Live!** Agents now have their own credibility score based on recruitment quality, business operations, and professional standards.
 </CalloutBox>
 
-Agent credibility is calculated across four weighted categories, with **base points (70 max)** and **organisation subscription bonuses (+30 max)** for a total of 100 points:
+Agent credibility is evaluated across four key areas. Agents with active organisation subscriptions can achieve higher scores through additional credibility factors:
 
 <Tabs>
   <Tab label="Team Quality">
-    **Bucket 1: Team Quality & Development (35 points max)**
+    **Team Quality & Development**
 
-    - **Base Points (25 max)**: Average CaaS score of tutors you've recruited
-      - Higher quality tutors = higher score
-      - Quality over quantity approach
-      - Progressive scaling based on team average
+    Based on the quality of tutors you recruit:
 
-    - **Organisation Bonus (+10 points)**: Unlocked with active organisation subscription
-      - Team integration and development
-      - Member quality improvement tracking
-      - Organisation average CaaS contribution
+    - Average CaaS score of tutors you've recruited
+    - Quality over quantity approach - focus on recruiting excellent tutors
+    - Team integration and professional development
+
+    **Organisation Benefit**: Active organisation subscription unlocks additional scoring for team performance metrics
 
     <CalloutBox type="info">
-    **Quality Focus:** Recruiting one excellent tutor (CaaS 85+) contributes more than five mediocre tutors. Support your recruits to succeed.
+    **Quality Focus:** Recruiting one excellent tutor contributes more than several mediocre tutors. Support your recruits to succeed.
     </CalloutBox>
   </Tab>
 
   <Tab label="Business Operations">
-    **Bucket 2: Business Operations & Scale (30 points max)**
+    **Business Operations & Scale**
 
-    - **Base Points (20 max)**: Performance metrics of recruited tutors
-      - Average rating of recruited tutors
-      - Total sessions completed by your network
-      - 6-month retention rate
+    Based on your network's performance:
 
-    - **Organisation Bonus (+10 points)**: Unlocked with active organisation subscription
-      - Brand presence (org page bookings)
-      - Client acquisition via organisation
-      - Internal referral collaboration rate
+    - Average rating of recruited tutors
+    - Total sessions completed by your network
+    - Tutor retention over time
+    - Brand presence and client acquisition
+
+    **Organisation Benefit**: Active organisation subscription unlocks additional scoring for business growth metrics
 
     <CalloutBox type="tip">
     **Synergy Effect:** When you create an organisation, your recruited tutors' success benefits both your Agent CaaS and Organisation CaaS scores.
@@ -222,17 +219,16 @@ Agent credibility is calculated across four weighted categories, with **base poi
   </Tab>
 
   <Tab label="Growth">
-    **Bucket 3: Growth & Expansion (20 points max)**
+    **Growth & Expansion**
 
-    - **Base Points (15 max)**: Recruitment activity and diversity
-      - Total number of recruited tutors
-      - Recent recruitment (90-day activity)
-      - Subject diversity across your network
+    Based on recruitment activity and diversity:
 
-    - **Organisation Bonus (+5 points)**: Unlocked with active organisation subscription
-      - Current team size
-      - Growth momentum (new members in 90 days)
-      - Geographic expansion (service areas)
+    - Total number of recruited tutors
+    - Recent recruitment activity
+    - Subject diversity across your network
+    - Team size and growth momentum
+
+    **Organisation Benefit**: Active organisation subscription unlocks additional scoring for expansion metrics
 
     <CalloutBox type="success">
     **Scale Strategically:** Consistent recruitment across multiple subjects and locations demonstrates professional agency operations.
@@ -240,18 +236,17 @@ Agent credibility is calculated across four weighted categories, with **base poi
   </Tab>
 
   <Tab label="Standards">
-    **Bucket 4: Professional Standards (15 points max)**
+    **Professional Standards**
 
-    - **Base Points (10 max)**: Personal credentials
-      - Identity verification (3 base points - required)
-      - DBS check
-      - Professional insurance
-      - Association membership
+    Based on your professional credentials:
 
-    - **Organisation Bonus (+5 points)**: Unlocked with active organisation subscription
-      - Business verification status
-      - Organisational safeguarding certification
-      - Organisation insurance coverage
+    - Identity verification (required)
+    - DBS check
+    - Professional insurance
+    - Association membership
+    - Business verification status
+
+    **Organisation Benefit**: Active organisation subscription unlocks additional scoring for organisational credentials
 
     <CalloutBox type="info">
     **Safety First:** Identity verification is a hard requirement. Without it, your Agent CaaS is locked at 0.
@@ -259,21 +254,16 @@ Agent credibility is calculated across four weighted categories, with **base poi
   </Tab>
 </Tabs>
 
-**Subscription Incentive Structure:**
+**Organisation Subscription Benefits:**
 
-| Subscription Status | Maximum Score | Bonus Buckets |
-|---------------------|---------------|---------------|
-| **Free Tier** | 70 points | Base points only |
-| **Active Organisation** | 100 points | Base + Org bonuses |
-
-Having an active organisation subscription (status = 'active' or 'trialing') unlocks an additional 30 points across all four buckets, incentivizing agents to build professional teams.
+Having an active organisation subscription unlocks additional credibility scoring across all four categories, allowing you to achieve higher overall scores by demonstrating professional team management and business operations.
 
 **Important Distinction:**
 
 If you're an agent who owns an organisation, you have **TWO separate credibility scores**:
 
-1. **Your Agent CaaS** (personal): Based on recruitment performance → stored in `caas_scores` table
-2. **Your Organisation CaaS** (entity): Based on team performance → see next section
+1. **Your Agent CaaS** (personal): Based on your recruitment performance and professional credentials
+2. **Your Organisation CaaS** (team): Based on your team's collective performance and quality
 
 Both scores are visible on different parts of the platform and serve different purposes.
 
@@ -285,50 +275,29 @@ Both scores are visible on different parts of the platform and serve different p
 
 Organisation credibility scoring is fundamentally different from individual scoring - it's an **entity-based score** that reflects your team's collective performance.
 
-**Scoring Model:**
+**How Organisation Scoring Works (0-100 points):**
 
-**Base Score: Weighted Team Average**
-- Average CaaS score of all active team members
-- Weighted by member activity (active tutors contribute more)
-- Based on sessions completed in last 90 days
-- Minimum 3 active members required for valid score
+**Team Performance:**
+- Based on the average CaaS score of your active team members
+- More active tutors (higher recent session activity) contribute more to your score
+- Inactive team members don't negatively impact your score
+- Minimum 3 active members required
 
-**Verification Bonuses:**
-- Business Verified: +2 points
-- Safeguarding Certified: +2 points
-- Professional Insurance: +1 point
-- Association Member: +1 point
+**Professional Verification Bonuses:**
+- Business verification status
+- Safeguarding certification
+- Professional insurance coverage
+- Educational association membership
 
-**Total Possible:** Up to 106 points (100 base + 6 bonus)
+All verification credentials boost your organisation's overall credibility score.
 
-**Example Calculation:**
-```
-Team of 5 tutors:
-- Tutor A: CaaS 85 (20 sessions in 90d) → High activity weight
-- Tutor B: CaaS 78 (15 sessions in 90d) → Medium activity weight
-- Tutor C: CaaS 90 (25 sessions in 90d) → High activity weight
-- Tutor D: CaaS 65 (5 sessions in 90d) → Low activity weight
-- Tutor E: CaaS 72 (0 sessions in 90d) → Not counted (inactive)
-
-Weighted Average: ~82/100
-Business Verified: +2
-Safeguarding Certified: +2
-Professional Insurance: +1
-
-Final Organisation CaaS: 87/100
-```
-
-**How Organisation CaaS Updates:**
+**Automatic Updates:**
 
 Your organisation score recalculates automatically when:
 - Team members join or leave
 - Member CaaS scores change
 - Verification statuses update
-- Activity patterns shift (every 90 days)
-
-**Where Organisation Scores Are Stored:**
-
-Unlike individual profiles, organisation scores are stored directly in the `connection_groups` table's `caas_score` column (not in the `caas_scores` table).
+- Activity patterns shift
 
 <CalloutBox type="success">
 **Synergy Effect:** Strong organisations attract high-credibility tutors, which further boosts organisation credibility - creating a positive growth cycle.
