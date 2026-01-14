@@ -1,7 +1,7 @@
 # Tutorwise Platform Overview
 
-**Document Version**: 1.1
-**Last Updated**: 2026-01-07
+**Document Version**: 1.2
+**Last Updated**: 2026-01-13
 **Author**: Platform Architecture Team
 **Classification**: Internal - Strategic
 
@@ -49,13 +49,17 @@ Tutorwise is a next-generation EdTech platform that reimagines the tutoring mark
 - **Online Tutoring Growth**: 14-16.5% CAGR (faster than overall 7-10%)
 
 **Platform Complexity**:
-- 219 database migrations, 50+ tables
-- 200+ Row-Level Security policies
-- ML-powered fraud detection system
-- Neo4j graph database with PageRank trust propagation
-- AI semantic search (pgvector, 1536-dim embeddings)
-- Automated CI/CD DevOps pipeline
-- "Impressive for a beta" - production-ready in 6 months
+- **237 database migrations** (172 numbered, 65 supporting files), 60+ tables
+- **260 pages** implemented across web application
+- **141 API endpoints** (REST + RPC functions)
+- **353 components** in design system library
+- **200+ Row-Level Security policies** with granular RBAC
+- **ML-powered fraud detection system** with automated triggers
+- **Neo4j graph database** with PageRank trust propagation
+- **AI semantic search** (pgvector, 1536-dim embeddings)
+- **Automated CI/CD DevOps pipeline** with Jest, Playwright, Percy
+- **1,400 commits** (Oct 2025 - Jan 2026): 82 features, 151 fixes, 63 refactors
+- "Impressive for a beta" - production-ready in 6 months, 95% feature-complete
 
 ### Valuation Summary (January 2026)
 
@@ -78,54 +82,76 @@ Tutorwise is a next-generation EdTech platform that reimagines the tutoring mark
 ### 1.1 System Architecture Diagram
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        CLIENT APPLICATIONS                          │
-├─────────────────────────────────────────────────────────────────────┤
-│  Web App (Next.js 14)  │  Mobile App (Future)  │  Public API (v1)  │
-└──────────────┬──────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                          CLIENT APPLICATIONS                                 │
+├──────────────────────────────────────────────────────────────────────────────┤
+│  Web App (Next.js 15, React 18)  │  Mobile (Future)  │  Public API (v1)     │
+│  - 260 pages implemented          │  - React Native   │  - Developer tools   │
+│  - 353 components library         │  - iOS/Android    │  - Webhook system    │
+│  - Responsive design (mobile/tablet/desktop)          │  - API key mgmt      │
+└──────────────┬───────────────────────────────────────────────────────────────┘
                │
                ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                     API LAYER (Next.js + FastAPI)                   │
-├─────────────────────────────────────────────────────────────────────┤
-│ REST Endpoints │ GraphQL (Future) │ Server Actions │ RPC Functions  │
-└──────────────┬──────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                     API LAYER (141 REST Endpoints)                           │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ REST API Routes   │ Server Actions  │ RPC Functions  │ GraphQL (Future)      │
+│ - /api/onboarding │ - Form handling │ - CaaS calc    │ - Planned v2          │
+│ - /api/marketplace│ - Data mutations│ - Analytics    │                       │
+│ - /api/admin/*    │ - Real-time ops │ - Aggregations │                       │
+│ - /api/caas       │                 │                │                       │
+└──────────────┬───────────────────────────────────────────────────────────────┘
                │
                ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                       BUSINESS LOGIC LAYER                          │
-├───────────────┬──────────────┬──────────────┬──────────────────────┤
-│ Marketplace   │ CRM Engine   │ Commission   │ Trust & Safety       │
-│ Matching      │ Booking Flow │ Calculation  │ CaaS Scoring         │
-└───────────────┴──────────────┴──────────────┴──────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                       BUSINESS LOGIC LAYER                                   │
+├──────────────┬──────────────┬──────────────┬───────────────┬────────────────┤
+│ Marketplace  │ CRM Engine   │ Commission   │ Trust & Safety│ Admin Platform │
+│ - Matching   │ - Bookings   │ - Multi-tier │ - CaaS scoring│ - 12 sections  │
+│ - Search     │ - Calendar   │ - Delegation │ - Fraud detect│ - RBAC/GDPR    │
+│ - Recommend  │ - WiseSpace  │ - Payouts    │ - Verification│ - Audit logs   │
+└──────────────┴──────────────┴──────────────┴───────────────┴────────────────┘
                │
                ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                         DATA LAYER                                  │
-├─────────────────────────────────────────────────────────────────────┤
-│           Supabase PostgreSQL (200+ Migrations, 50+ Tables)         │
-│  RLS Policies │ Functions │ Triggers │ Materialized Views │ Indexes │
-└──────────────┬──────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                         DATA LAYER (237 Migrations)                          │
+├──────────────────────────────────────────────────────────────────────────────┤
+│         Supabase PostgreSQL (172 numbered migrations, 60+ tables)            │
+│ ─────────────────────────────────────────────────────────────────────────────│
+│ RLS Policies (200+) │ Functions │ Triggers │ Materialized Views │ Indexes    │
+│ - Granular RBAC     │ - CaaS    │ - Audit  │ - Analytics cache  │ - B-tree   │
+│ - Row-level security│ - Stats   │ - Logging│ - Leaderboards     │ - GiST     │
+│ ─────────────────────────────────────────────────────────────────────────────│
+│ Key Tables: profiles, listings, shared_fields (23), form_context_fields      │
+│ (106 mappings), bookings, org_subscriptions, org_tasks, help_support_        │
+│ snapshots, network_trust_graph, seo_hubs, admin_action_logs                  │
+└──────────────┬───────────────────────────────────────────────────────────────┘
                │
                ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                    INFRASTRUCTURE SERVICES                          │
-├─────────────────┬──────────────┬──────────────┬────────────────────┤
-│ Stripe Connect  │ Supabase     │ Upstash      │ Ably Realtime      │
-│ Payments        │ Auth/Storage │ Redis        │ WiseSpace Sync     │
-├─────────────────┼──────────────┼──────────────┼────────────────────┤
-│ Google APIs     │ Neo4j        │ Resend       │ Vercel Edge        │
-│ Calendar/Meet   │ Graph        │ Email        │ Hosting/CDN        │
-└─────────────────┴──────────────┴──────────────┴────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                    INFRASTRUCTURE SERVICES                                   │
+├──────────────┬──────────────┬──────────────┬──────────────┬─────────────────┤
+│Stripe Connect│ Supabase     │ Upstash Redis│ Ably Realtime│ Google APIs     │
+│- Payments    │- Auth (SSR)  │- Rate limit  │- WiseSpace   │- Calendar       │
+│- Connect acc │- Storage     │- Presence    │- WiseChat    │- Meet (hybrid)  │
+│- Subscriptions│- Realtime   │- Caching     │- Collab      │- Classroom      │
+├──────────────┼──────────────┼──────────────┼──────────────┼─────────────────┤
+│ Neo4j Graph  │ Resend Email │ Vercel Edge  │ Jira SD      │ Sentry Monitor  │
+│- Network     │- Transactional│- Hosting    │- Help Centre │- Error tracking │
+│- Trust       │- Notifications│- CDN        │- Bug reports │- Performance    │
+│- PageRank    │- Templates   │- Serverless  │- Tickets     │- Analytics      │
+└──────────────┴──────────────┴──────────────┴──────────────┴─────────────────┘
 ```
 
 ### 1.2 Technology Stack
 
 **Frontend**:
-- Next.js 14 (App Router, React Server Components)
-- TypeScript (type-safe development)
-- TailwindCSS (utility-first styling)
-- React Query (server state management with platform-wide optimization)
+- Next.js 15.x (App Router, React Server Components, page-based routing)
+- TypeScript 5.x (strict mode, type-safe development)
+- React 18 (Server Components, Suspense)
+- TailwindCSS (utility-first styling with 70+ CSS variables)
+- React Query (TanStack Query - server state with platform-wide optimization)
+- Zustand (lightweight client state management)
 
 **Backend**:
 - Next.js API Routes (primary API)
@@ -134,8 +160,9 @@ Tutorwise is a next-generation EdTech platform that reimagines the tutoring mark
 
 **Database**:
 - PostgreSQL (via Supabase)
-- Row-Level Security (200+ policies)
-- 219 migrations (production-ready schema)
+- Row-Level Security (200+ policies with granular RBAC)
+- **237 migrations** (172 numbered + 65 supporting files, production-ready schema)
+- 60+ tables with comprehensive relationships
 - Neo4j Graph Database (network relationships, trust propagation)
 - pgvector extension (semantic search with 1536-dim embeddings)
 
@@ -232,6 +259,85 @@ Tutorwise is a next-generation EdTech platform that reimagines the tutoring mark
    - Track team performance
    - Public business pages
    - £50/month Premium subscription
+
+### 2.2 Shared Fields System (Implemented Jan 2026)
+
+**Single Source of Truth for Form Fields**:
+
+```
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                        SHARED FIELDS ARCHITECTURE                            │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌────────────────────────────────────────────────────────────────┐        │
+│  │               SHARED_FIELDS (23 Global Definitions)            │        │
+│  ├────────────────────────────────────────────────────────────────┤        │
+│  │ - subjects (100+ options)  - keyStages (7 options)             │        │
+│  │ - specialNeeds (12 options)- qualifications (15 options)       │        │
+│  │ - languages (20+ options)  - aiTools (8 options)               │        │
+│  │ - availabilityMode (3)     - generalAvailability (structured)  │        │
+│  │ + 15 more fields...                                            │        │
+│  └────────────────┬───────────────────────────────────────────────┘        │
+│                   │                                                          │
+│                   │ Edit Once → Updates All Contexts                        │
+│                   │                                                          │
+│                   ▼                                                          │
+│  ┌────────────────────────────────────────────────────────────────┐        │
+│  │      FORM_CONTEXT_FIELDS (106 Mappings Across 9 Contexts)      │        │
+│  ├────────────────────────────────────────────────────────────────┤        │
+│  │                                                                 │        │
+│  │  Context 1: onboarding_tutor    (15 fields) ────────────────┐  │        │
+│  │  Context 2: onboarding_agent    (15 fields)                 │  │        │
+│  │  Context 3: onboarding_client   (12 fields)                 │  │        │
+│  │  Context 4: account_tutor       (18 fields)                 │  │        │
+│  │  Context 5: account_agent       (14 fields)                 ├──┼────►   │
+│  │  Context 6: account_client      (10 fields)                 │  │   Maps │
+│  │  Context 7: organisation_tutor  (12 fields)                 │  │   to   │
+│  │  Context 8: organisation_agent  (7 fields)                  │  │  Shared│
+│  │  Context 9: organisation_client (3 fields)                  │  │  Fields│
+│  │                                                              │  │        │
+│  └──────────────────────────────────────────────────────────────┘  │        │
+│                                                                     │        │
+└─────────────────────────────────────────────────────────────────────┘        │
+                                                                                │
+  ┌───────────────────────────────────────────────────────────────────────────┘
+  │
+  ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                           ADMIN INTERFACE                                    │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  Context-Specific Pages:         Hybrid Global UI:                          │
+│  ┌──────────────────────────┐   ┌───────────────────────────────────┐      │
+│  │ /admin/forms/onboarding  │   │  /admin/forms/fields             │      │
+│  │  - Tutor tab             │   │   ┌─────────────┬───────────────┐ │      │
+│  │  - Agent tab             │   │   │ Field List  │ Field Editor  │ │      │
+│  │  - Client tab            │   │   │ (search/    │ (metadata +   │ │      │
+│  │  - Drag-drop reorder     │   │   │  filter)    │  options mgmt)│ │      │
+│  │  - Inline editing        │   │   │             │               │ │      │
+│  ├──────────────────────────┤   │   │  subjects   │ Edit subjects │ │      │
+│  │ /admin/forms/account     │   │   │  keyStages  │ 100+ options  │ │      │
+│  │  - Tutor/Agent/Client    │   │   │  languages  │ drag-drop     │ │      │
+│  ├──────────────────────────┤   │   │  ...        │               │ │      │
+│  │ /admin/forms/organisation│   │   │             │ Sidebar:      │ │      │
+│  │  - Role-specific tabs    │   │   │             │ Context usage │ │      │
+│  └──────────────────────────┘   │   └─────────────┴───────────────┘ │      │
+│                                  └───────────────────────────────────┘      │
+│                                                                              │
+│  Example: Admin adds "Spanish" to subjects field                            │
+│  Result: "Spanish" appears in ALL 9 contexts automatically                  │
+│         (3 onboarding + 3 account + 3 organisation forms)                   │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Key Benefits**:
+- **Edit Once → Update Everywhere**: Change a field definition → instantly reflects in all 9 contexts
+- **Data Consistency**: Same options across onboarding, account forms, organisation forms, listings
+- **Admin Efficiency**: Manage 23 fields instead of 106 individual field configurations
+- **Context Customization**: Override labels, placeholders, help text per context
+- **Usage Tracking**: See which contexts use each field
+- **Drag-and-Drop**: Visual reordering of fields and options
+- **Active/Inactive States**: Toggle field visibility without deletion
 
 **Payment Architecture Note**:
 The £50/month organisation subscription is for TutorWise Premium platform access only. Student payments to organisations for tutoring services happen outside the TutorWise platform using the organisation's existing payment methods (bank transfer, PayPal, cash, etc.). TutorWise does not process or handle tutoring service payments for organisations.
@@ -365,12 +471,12 @@ Referral Code     Location         Schedule        Review         Refer Tutors
 ```
 
 **Journey Steps**:
-1. **Onboarding**: Identity verification, DBS upload (UK), set up Stripe Connect
-2. **Listing Creation**: Define subjects, set hourly rate, availability, location type
-3. **Profile Building**: Build CaaS score (verification +10, integrations +3, network +6)
-4. **Booking Management**: Accept/decline requests, manage calendar, communicate
-5. **Session Delivery**: Conduct sessions in WiseSpace, mark complete, receive payment
-6. **Growth**: Refer other tutors → become Agent, join Organisation, share Wiselists
+1. **Onboarding**: Page-based routing with zero data loss (5 steps: Personal Info, Professional Details, Availability, Verification, Review). Identity verification, DBS upload (UK), set up Stripe Connect. CaaS calculation bridge for immediate scoring.
+2. **Listing Creation**: Dynamic form with shared fields system (23 global fields). Define subjects, set hourly rate, availability, location type. Smart matching with similarity scores.
+3. **Profile Building**: Build CaaS score (verification +10, integrations +3, network +6). Public/private profile views with professional templates.
+4. **Booking Management**: Accept/decline requests, manage calendar, communicate via WiseChat (WhatsApp-style interface)
+5. **Session Delivery**: Conduct sessions in WiseSpace (tldraw + Google Meet hybrid), mark complete, receive payment
+6. **Growth**: Refer other tutors → become Agent, join Organisation, share Wiselists, build network trust graph
 
 ### 4.4 Agent Journey
 
@@ -618,6 +724,13 @@ Auto-Setup       KPI Charts      Assignment     Analytics        Public Page
 
 **Queue-Based System**: Profile changes → caas_recalculation_queue → worker processes → update denormalized score
 
+**Onboarding Integration** (Jan 2026):
+- **Immediate Calculation**: Endpoint `/api/caas/[profile_id]` calculates score upon onboarding completion
+- **Bridge System**: Onboarding completion triggers CaaS calculation bridge
+- **Dashboard Display**: Inline progress badge with enhanced tooltip shows live CaaS score
+- **Zero Data Loss**: Page-based routing ensures all onboarding data captured before scoring
+- **Initial Score**: New users start with base score (verification steps add immediate points)
+
 **Dual Storage**:
 - Profile scores: `caas_scores` table (centralized)
 - Entity scores: Entity's own table (e.g., `connection_groups.caas_score`)
@@ -849,7 +962,7 @@ Session Complete ──► 24hrs ──► Charge Student ──► 7 days ─�
 
 ## 8. Organisation & Team Management
 
-### 8.1 Organisation Architecture (Updated 2026-01-07)
+### 8.1 Organisation Architecture (Updated 2026-01-13)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -886,13 +999,16 @@ Session Complete ──► 24hrs ──► Charge Student ──► 7 days ─�
 - **Tab Navigation**: Dashboard, Activity, Alerts tabs
 - **Team Metrics**: Total members, active clients, revenue tracking, session counts
 
-**Tasks System**:
+**Tasks System** (Jan 2026):
+- **Database Tables**: `org_tasks`, `org_task_comments`, `org_task_attachments`
 - **Kanban Pipeline**: 6-stage workflow (Referred → Contacted → Meeting → Proposal → Negotiating → Won)
-- **Task Assignment**: Assign tasks to team members
-- **Task Categories**: 70+ predefined types (interview, onboarding, training, admin, etc.)
-- **Drag-and-Drop**: Visual task management
-- **Filters**: Filter by status, assignee, priority, category
-- **Real-Time Updates**: Changes sync instantly across team members
+- **Task Assignment**: Assign tasks to team members with notifications
+- **Task Categories**: 70+ predefined types (interview, onboarding, training, admin, client_follow_up, etc.)
+- **Comments & Attachments**: Full collaboration with file uploads to Supabase storage
+- **Drag-and-Drop**: Visual task management with real-time sync
+- **Filters**: Filter by status, assignee, priority, category, date range
+- **Real-Time Updates**: Changes sync instantly across team members via React Query
+- **Recruitment Integration**: Phase 1 complete - JoinTeamModal and API endpoints
 
 **Referrals Network**:
 - **Referral Dashboard**: Comprehensive analytics with charts and trends
@@ -1097,7 +1213,148 @@ Tasks can link to any platform entity for context:
 
 ---
 
-## 9. Integrations Ecosystem
+## 9. Admin Dashboard & Platform Management
+
+### 9.1 Admin Dashboard Architecture (Implemented Jan 2026)
+
+**Comprehensive Platform Administration**:
+- **260 pages** across entire platform (141 API endpoints)
+- **12 major admin sections** with granular RBAC
+- **HubComplexModal pattern** for all detail views
+- **Advanced filtering** with multi-criteria search
+- **Real-time data** with React Query optimization
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    ADMIN DASHBOARD STRUCTURE                    │
+├─────────────────────────────────────────────────────────────────┤
+│  Accounts  │  Forms  │  Org  │  Listings │ Bookings │ Referrals│
+│  ────────  │  ─────  │  ───  │  ────────  │ ────────  │ ────────│
+│  Users     │ Fields  │ Teams │ Services  │ Calendar  │ QR Codes │
+│  Admins    │ Onboard │ Subs  │ Approval  │ Sessions  │ Pipeline │
+│  Delete    │ Account │ Tasks │ Widgets   │ Disputes  │ Fraud    │
+└─────────────────────────────────────────────────────────────────┘
+│  Reviews  │ Financials │   SEO   │ Settings │ Config │ Actions │
+│  ───────  │ ──────────  │  ─────  │ ────────  │ ──────  │ ───────│
+│  Moderate │ Transactions│  Hubs   │ Payments │Platform│ Logging │
+│  Disputes │  Payouts   │  Trust  │ Security │ Custom │ Auditing│
+│  Ratings  │  Splits    │ Eligib. │ Integr.  │        │ GDPR    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 9.2 Core Admin Features
+
+**1. Accounts Management** (`/admin/accounts`):
+- **User CRUD**: Create, read, update, delete with soft/hard options
+- **Soft Delete** (default): Deactivates account + PII anonymization
+- **Hard Delete** (GDPR): Complete data purge + Stripe cleanup (Connect + Customer)
+- **Advanced Filters**: Role, status, created date, verification, CaaS score
+- **CSV Export**: Full user data export with configurable fields
+- **Modal Detail View**: Comprehensive user information in HubComplexModal
+
+**2. Forms Administration** (`/admin/forms`):
+- **Shared Fields System**: 23 global field definitions, single source of truth
+- **106 Field Mappings**: Across 9 contexts (Onboarding, Account, Organisation × 3 roles)
+- **Drag-and-Drop UI**: Reorder fields and options with visual handles
+- **Context-Specific Pages**: `/forms/onboarding`, `/forms/account`, `/forms/organisation`
+- **Hybrid Global UI**: `/forms/fields` - field list + integrated editor + usage stats
+- **Edit Once → Update All**: Change "Spanish" in one place → appears in all 9 contexts
+- **Metadata Management**: Labels, placeholders, help text, validation rules
+- **Active/Inactive States**: Toggle field and option visibility
+
+**3. Organisations Management** (`/admin/organisations`):
+- **Team Oversight**: Member management, role assignments
+- **Subscription Management**: Starter (£49/mo) vs Pro (£99/mo) tier tracking
+- **Verification Status**: Business verification, safeguarding, insurance, associations
+- **Task Pipeline**: View organisation tasks and recruitment pipeline
+- **Commission Tracking**: Monitor organisation referral earnings
+- **Public Page SEO**: Trust-based indexing (CaaS >= 75 required)
+
+**4. Listings Management** (`/admin/listings`):
+- **Service Administration**: View, edit, approve/reject listings
+- **Shared Fields Integration**: Listings use same 23 global fields as onboarding
+- **Approval Workflow**: Quality control before marketplace visibility
+- **Widget Configuration**: Contextual sidebar listings widgets
+- **Free Help Badge**: Manage Free Help Now status (active/inactive)
+
+**5. Bookings Management** (`/admin/bookings`):
+- **Session Oversight**: Calendar view of all platform bookings
+- **Status Management**: Pending, confirmed, completed, cancelled, disputed
+- **Assignment Tracking**: Tutor-client matching and scheduling
+- **Dispute Resolution**: Handle booking conflicts and refunds
+
+**6. Referrals Management** (`/admin/referrals`):
+- **Commission Tracking**: Multi-tier attribution (1-tier active, 3-tier ready)
+- **QR Code Generation**: Manage physical marketing referral codes
+- **Fraud Detection**: Automated triggers with admin investigation workflow
+- **Attribution Analytics**: URL → Cookie → Manual entry hierarchy
+- **Delegation Management**: Partner commission routing
+
+**7. Reviews Management** (`/admin/reviews`):
+- **Moderation Queue**: Review all tutor/client feedback
+- **Dispute Handling**: Handle contested reviews
+- **Rating Analytics**: Platform-wide review statistics
+- **Content Filtering**: Flag inappropriate content
+
+**8. Financials Management** (`/admin/financials`):
+- **Transactions**: Complete payment history with Stripe integration
+- **Payouts**: Track tutor earnings and disbursements
+- **Commission Splits**: Verify multi-party commission calculations
+- **Disputes**: Handle payment disputes and refunds
+- **Advanced Filtering**: Date range, user, amount, status
+
+**9. SEO Management** (`/admin/seo`):
+- **Hub Management**: Location-based SEO pages with cron jobs
+- **Trust Graph**: Network trust propagation with PageRank
+- **Eligibility Tracking**: CaaS-based SEO indexing (75+ threshold)
+- **Citation Management**: Local SEO citations and backlinks
+- **Keyword Tracking**: Platform SEO keyword rankings
+- **Template System**: Automated SEO content generation
+
+**10. Settings Management** (`/admin/settings`):
+- **Payment Settings**: Stripe configuration (Test/Live mode)
+- **Subscription Settings**: Organisation tier pricing and features
+- **Security Settings**: Platform-wide security policies
+- **Integration Settings**: External service configuration (Jira, Google, etc.)
+- **Email Settings**: Transactional email templates (Resend)
+
+**11. Configurations** (`/admin/configurations`):
+- **Platform Settings**: Global platform configuration
+- **Feature Flags**: Enable/disable features per environment
+- **Custom Settings**: Dynamic key-value configuration
+
+**12. Action Logging** (`/admin/action-logs`):
+- **Complete Audit Trail**: All admin actions logged with GDPR compliance
+- **Action Types**: user_soft_delete, user_hard_delete, listing_approve, etc.
+- **Target Tracking**: Links to affected users/entities
+- **Details JSON**: Full context of each admin action
+- **Immutable Log**: Cannot be deleted (compliance requirement)
+
+### 9.3 Admin Dashboard Technical Implementation
+
+**Technology Stack**:
+- **HubComplexModal**: Standardized modal pattern for all detail views
+- **HubDataTable**: Feature-rich tables with sorting, filtering, pagination
+- **React Query**: Optimized caching with 10-minute standardized TTL
+- **Advanced Filters**: Multi-criteria drawer filters on all list pages
+- **Responsive Design**: Mobile-optimized admin interface
+
+**Security & Access Control**:
+- **RBAC**: Super Admin, Admin, System Admin, Support Admin roles
+- **Service Role Client**: Elevated permissions for sensitive operations
+- **Audit Trail**: Every admin action logged to `admin_action_logs`
+- **GDPR Compliance**: Hard delete with complete Stripe data cleanup
+- **Self-Protection**: Admins cannot delete themselves or Super Admins
+
+**Data Management**:
+- **Soft Delete Default**: Account deactivation + PII anonymization
+- **Hard Delete**: auth.users deletion → CASCADE to profiles via FK
+- **Stripe Cleanup**: Delete Connect accounts + Customer records before user deletion
+- **Transaction Safety**: All delete operations wrapped in error handling
+
+---
+
+## 10. Integrations Ecosystem
 
 ### 9.1 Google Workspace Integration
 
