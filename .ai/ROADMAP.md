@@ -235,55 +235,171 @@
 - ✅ Triggers and stored procedures
 - ✅ Audit tables
 
-### 15. Agent CaaS (Credibility as a Service) ✅
-**Status**: Production-ready
-**Completion**: 100%
-**Completed**: 2026-01-07
+### 15. CaaS (Credibility as a Service) - Multi-Role System ✅
+**Status**: Production-ready (4 roles complete, 1 designed)
+**Completion**: 100% for Tutor/Client/Agent/Organisation
+**Completed**: Tutor v5.9 (2025-12), Client v1.0 (2026-01), Agent v1.0 (2026-01), Org v1.0 (2026-01)
 
-**4-Bucket Scoring Model** (100 points max):
-- ✅ Bucket 1: Team Quality & Development (35 points max)
-- ✅ Bucket 2: Business Operations & Scale (30 points max)
-- ✅ Bucket 3: Growth & Expansion (20 points max)
-- ✅ Bucket 4: Professional Standards (15 points max)
+**System Overview**:
+CaaS provides credibility scoring across all platform roles with role-specific algorithms, safety gates, and public visibility controls. Scores are cached in the database and recalculated based on profile changes.
 
-**Implementation**:
-- ✅ Database schema (5 migrations: 155-159)
-- ✅ RPC functions (4 functions for data aggregation)
-- ✅ AgentCaaSStrategy class (TypeScript implementation)
-- ✅ Subscription-gated bonuses (70 base + 30 org = 100 max)
-- ✅ Identity verification gate
-- ✅ Profile graph integration (AGENT_REFERRAL edges)
+**Database Schema**:
+- ✅ `caas_scores` table (profile-based: Tutor/Client/Agent)
+- ✅ `connection_groups.caas_score` column (entity-based: Organisation)
+- ✅ `caas_recalculation_queue` (profile queue, Migration 075)
+- ✅ `organisation_caas_queue` (org queue, Migration 159)
+- ✅ RLS policies (public view for TUTOR/CLIENT, private for AGENT)
+- ✅ Indexes for ranking and percentile calculations
 
-**Features**:
-- ✅ Recruitment tracking (tutors recruited, quality, retention)
-- ✅ Organisation business metrics (bookings, clients, growth)
-- ✅ Subscription validation (active org required for bonuses)
-- ✅ Verification credentials (business, insurance, association)
+**API Endpoints**:
+- ✅ POST `/api/caas/calculate` - Immediate calculation (onboarding trigger)
+- ✅ GET `/api/caas/[profile_id]` - Fetch cached score
+- ✅ GET `/api/v1/caas/[profile_id]` - Platform API with percentile ranking
 
-### 16. Organisation CaaS ✅
-**Status**: Production-ready
-**Completion**: 100%
-**Completed**: 2026-01-07
+---
 
-**Activity-Weighted Team Average Model**:
-- ✅ Base score: Weighted average of member CaaS scores
-- ✅ Activity weighting: Members with more sessions (90 days) contribute more
-- ✅ Verification bonuses: business_verified (+2), safeguarding_certified (+2), professional_insurance (+1), association_member (+1)
-- ✅ Minimum requirement: 3 active members for valid score
+#### 15.1. Tutor CaaS ✅ (v5.9 - Most Mature)
+**Scoring Model**: 6-Bucket System (110 raw points → normalized to /100)
 
-**Implementation**:
-- ✅ Database schema (connection_groups.caas_score column)
-- ✅ RPC function: calculate_organisation_caas()
-- ✅ OrganisationCaaSStrategy class (TypeScript implementation)
-- ✅ Automatic recalculation queue (triggers on member changes)
-- ✅ Entity-based scoring (not profile-based)
+**Buckets**:
+- ✅ **Bucket 1: Performance & Quality** (30 points)
+  - Average rating (0-5): `(avg_rating / 5) × 15`
+  - Completion rate: `retention_rate × 15`
+  - Provisional: New tutors (0 sessions) get full 30 points
+- ✅ **Bucket 2: Qualifications & Authority** (30 points)
+  - University degree (Bachelors/Masters/PhD): 10 points
+  - QTS (UK teaching qualification): 10 points
+  - Onboarding experience bridging: 10 points (provisional)
+- ✅ **Bucket 3: Network & Referrals** (20 points)
+  - Agent referrals count: 4 points per referral (max 12)
+  - Social connections (>10): 8 bonus points
+  - Agent-referred status: 8 bonus points
+- ✅ **Bucket 4: Verification & Safety** (10 points)
+  - Identity verification: 5 points (or onboarding completed)
+  - DBS check validity: 5 points (must not be expired)
+- ✅ **Bucket 5: Digital Professionalism** (10 points)
+  - Google Calendar/Classroom sync: 5 points
+  - Manual session logging (>80%) OR credibility clip: 5 points
+- ✅ **Bucket 6: Social Impact** (10 points)
+  - Free help availability: 5 points
+  - Completed free sessions: 1 point per session (max 5)
 
-**Features**:
-- ✅ Team performance tracking
-- ✅ Member activity weighting (sessions in last 90 days)
-- ✅ Verification status bonuses
-- ✅ Public visibility toggle
-- ✅ Organisation detail fetching (helper methods)
+**Safety Gate**: `identity_verified = true` OR `onboarding_completed = true`
+
+**RPC Functions** (Migration 077):
+- `get_performance_stats(user_id)` - Bookings + reviews aggregation
+- `get_network_stats(user_id)` - Profile graph relationships
+- `get_digital_stats(user_id)` - Integrations + session data
+
+---
+
+#### 15.2. Client CaaS ✅ (v1.0)
+**Scoring Model**: 3-Bucket System (100 points total)
+
+**Buckets**:
+- ✅ **Bucket 1: Identity Verification** (40 points)
+  - `identity_verified = true`: 40 points
+  - Hard requirement (no provisional scoring)
+- ✅ **Bucket 2: Booking History** (40 points)
+  - 0 completed: 0 points
+  - 1-2 completed: 10 points
+  - 3-5 completed: 20 points
+  - 6-10 completed: 30 points
+  - 11+ completed: 40 points
+- ✅ **Bucket 3: Profile Completeness** (20 points)
+  - Bio >50 characters: 10 points
+  - Avatar URL present: 10 points
+
+**Safety Gate**: None (identity is scored bucket, not gate)
+
+**Implementation**: Direct SQL queries (no RPC functions)
+
+**Future Enhancements** (v2.0+): Payment history, response rate, tutor reviews, attendance rate
+
+---
+
+#### 15.3. Agent CaaS ✅ (v1.0)
+**Scoring Model**: 4-Bucket System with Subscription Bonuses (70-100 points)
+
+**Free Tier Max**: 70 points (realistically 60-75)
+**With Active Org Subscription**: 100 points
+
+**Buckets**:
+- ✅ **Bucket 1: Team Quality & Development** (25 base + 10 org bonus = 35 max)
+  - Base: Average CaaS of recruited tutors (0-25)
+  - Bonus: Team integration, org quality, member development (0-10)
+- ✅ **Bucket 2: Business Operations & Scale** (20 base + 10 org bonus = 30 max)
+  - Base: Recruited performance + rating + retention (0-20)
+  - Bonus: Brand presence, client acquisition, collaboration (0-10)
+- ✅ **Bucket 3: Growth & Expansion** (15 base + 5 org bonus = 20 max)
+  - Base: Total recruited, recent activity, subject diversity (0-15)
+  - Bonus: Team size, growth momentum, geographic expansion (0-5)
+- ✅ **Bucket 4: Professional Standards** (10 base + 5 org bonus = 15 max)
+  - Base: Personal credentials (3 base + DBS/insurance/association)
+  - Bonus: Business verification, safeguarding, org insurance (0-5)
+
+**Safety Gate**: `identity_verified = true`
+
+**Subscription Integration**:
+- ✅ Checks `check_org_subscription_active(agent_id)` RPC
+- ✅ Unlocks bonus buckets when `organisation_subscriptions.status IN ('active', 'trialing')`
+- ✅ Incentivizes organisation adoption (+30 point potential)
+
+**RPC Functions** (Migration 158):
+- `get_agent_recruitment_stats(agent_id)` - 10 recruitment metrics
+- `get_organisation_business_stats(org_id)` - 7 business metrics
+- `check_org_subscription_active(agent_id)` - Subscription gate
+- `calculate_organisation_caas(org_id)` - Organisation score reference
+
+---
+
+#### 15.4. Organisation CaaS ✅ (v1.0)
+**Type**: Entity-based (not profile-based)
+**Storage**: `connection_groups.caas_score` column
+
+**Scoring Model**: Activity-Weighted Team Average + Verification Bonuses
+
+**Algorithm**:
+```
+weighted_avg = SUM(member_caas × session_weight) / SUM(session_weights)
+where session_weight = MAX(sessions_90d, 1)
+```
+
+**Components**:
+- ✅ **Base Score**: Weighted average of member CaaS scores
+  - Activity-weighted by sessions in last 90 days
+  - Only counts members active in last 30 days
+  - Members with more recent sessions contribute more
+- ✅ **Verification Bonuses**:
+  - business_verified: +2 points
+  - safeguarding_certified: +2 points
+  - professional_insurance: +1 point
+  - association_member: +1 point
+
+**Safety Gate**: Minimum 3 active members required
+
+**RPC Function** (Migration 158):
+- `calculate_organisation_caas(org_id)` - Weighted average calculation
+
+**Automatic Recalculation**:
+- ✅ Triggers on member join/leave (`group_members` changes)
+- ✅ Triggers on organisation detail changes
+- ✅ Manual requeue: `queue_organisation_for_caas_recalc(org_id)`
+
+---
+
+---
+
+**CaaS System Features**:
+- ✅ Role-specific algorithms (4 complete: Tutor, Client, Agent, Organisation)
+- ✅ Safety gates and minimum requirements
+- ✅ Provisional scoring for new users (Tutor CaaS)
+- ✅ Subscription incentives (Agent CaaS)
+- ✅ Activity weighting (Organisation CaaS)
+- ✅ Public/private visibility controls (RLS policies)
+- ✅ Percentile ranking API
+- ✅ Automatic recalculation queues
+- ✅ Graceful degradation (Promise.allSettled for RPC failures)
 
 ### 17. Recruitment System ✅
 **Status**: Production-ready
