@@ -238,31 +238,69 @@ CAS will apply 8 agent perspectives:
 
 ## Documentation
 
-### Core Documentation (.ai/)
-- **[ROADMAP.md](.ai/ROADMAP.md)** - Development roadmap (98% complete, 17 systems)
+### 📋 Core Documentation (.ai/)
+- **[ROADMAP.md](.ai/ROADMAP.md)** - Development roadmap (98% complete, 17 systems, beta Feb 1 2026)
 - **[PLATFORM-SPECIFICATION.md](.ai/PLATFORM-SPECIFICATION.md)** - Complete technical + strategic specification
 - **[ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md)** - Admin dashboard architecture (11 hubs)
-- **[SHARED-FIELDS.md](.ai/SHARED-FIELDS.md)** - Shared fields system (23 fields, 106 mappings)
-- **[ONBOARDING.md](.ai/ONBOARDING.md)** - Onboarding system (page-based, 3 roles)
-- **[PATTERNS.md](.ai/PATTERNS.md)** - Development patterns and conventions
-- **[CONTEXT-MAP.md](.ai/CONTEXT-MAP.md)** - Codebase context and navigation
-- **[PROMPT.md](.ai/PROMPT.md)** - AI assistant prompt and guidelines
+- **[SHARED-FIELDS.md](.ai/SHARED-FIELDS.md)** - Shared fields system (23 fields, 106 mappings, 9 contexts)
+- **[ONBOARDING.md](.ai/ONBOARDING.md)** - Onboarding system (page-based, 3 roles × 5 steps)
+- **[PATTERNS.md](.ai/PATTERNS.md)** - Development patterns and code conventions
+- **[CONTEXT-MAP.md](.ai/CONTEXT-MAP.md)** - Codebase context and navigation guide
+- **[PROMPT.md](.ai/PROMPT.md)** - AI assistant configuration and guidelines
 
-### Getting Started
-- **Project Setup**: See "Quick Start" above
-- **CAS Framework**: [cas/CAS-USER-GUIDE.md](cas/CAS-USER-GUIDE.md)
-- **Development Standards**: [cas/docs/proven-patterns.md](cas/docs/proven-patterns.md)
-- **Design System**: [cas/docs/design-system.md](cas/docs/design-system.md)
+### 🚀 Getting Started
+- **Quick Start**: See "Quick Start" section above
+- **[Environment Setup](docs/development/environment-setup.md)** - Complete setup guide
+- **[Development Workflow](docs/development/DEVELOPMENT-WORKFLOW.md)** - Daily development process
+- **[Quick Start Guide](docs/development/quick-start-guide.md)** - New developer onboarding
 
-### Architecture
-- **Platform Specification**: [.ai/PLATFORM-SPECIFICATION.md](.ai/PLATFORM-SPECIFICATION.md)
-- **CAS Architecture**: [cas/CAS-DESIGN-AND-IMPLEMENTATION.md](cas/CAS-DESIGN-AND-IMPLEMENTATION.md)
-- **Detailed Architecture**: [cas/docs/cas-architecture-detailed.md](cas/docs/cas-architecture-detailed.md)
-- **System Overview**: [cas/docs/guides/cas-overview.md](cas/docs/guides/cas-overview.md)
+### 🏗️ Architecture & Design
+- **[Platform Specification](.ai/PLATFORM-SPECIFICATION.md)** - Full technical architecture
+- **[Design System](docs/design/DESIGN-SYSTEM.md)** - UI/UX design system and components
+- **[System Map](docs/design/system-map.md)** - System architecture overview
+- **[Role-Based Dashboard Design](docs/design/role-based-dashboard-design.md)** - Dashboard architecture
+- **[Architecture Docs](docs/architecture/)** - Detailed system architecture
 
-### Feature Documentation
-- **Help Centre**: [docs/feature/help-centre/](docs/feature/help-centre/) - Jira Service Desk integration
-- **Referrals**: [docs/feature/referrals/](docs/feature/referrals/) - Multi-tier referral system
+### 🔧 Feature Documentation
+- **[Admin Dashboard](docs/admin/)** - Admin hub architecture and features
+- **[Referrals System](docs/feature/referrals/)** - Multi-tier referral system (Phases 1-3)
+  - [Solution Design](docs/feature/referrals/referrals-solution-design-v2.md)
+  - [Deployment Guide](docs/feature/referrals/DEPLOYMENT-GUIDE.md)
+  - [Multi-Tier Decision Rationale](docs/feature/referrals/MULTI_TIER_DECISION_RATIONALE.md)
+- **[Help Centre](docs/feature/help-centre/)** - Jira Service Desk integration
+  - [Implementation Complete](docs/feature/help-centre/IMPLEMENTATION-COMPLETE.md)
+  - [Service Desk Integration](docs/feature/help-centre/service-desk-integration.md)
+- **[SEO System](docs/seo/)** - SEO hub implementation and strategy
+  - [Implementation Complete](docs/seo-implementation-complete.md)
+  - [Top 5 Implementation Plan](docs/seo-top5-implementation-plan.md)
+- **[Forms System](docs/FORMS_ADMIN_GUIDE.md)** - Admin forms and shared fields guide
+- **[Agent CaaS](docs/design/agent-caas-subscription-incentive-model.md)** - Agent credibility scoring model
+- **[Organisation CaaS](docs/design/agent-org-caas-implementation-summary.md)** - Organisation scoring implementation
+
+### 💾 Database
+- **[Migration Notes](docs/database/migration-notes.md)** - Database migration guide (192 migrations)
+- **[Database Docs](docs/database/)** - Schema and migration documentation
+
+### 🔐 Security
+- **[Credential Backup Guide](docs/security/credential-backup-guide.md)** - Security credentials management
+- **[Security Docs](docs/security/)** - Security policies and guidelines
+
+### 🧪 Testing
+- **[Testing Docs](docs/testing/)** - Testing strategies and guides
+- **Jest**: Unit testing (106 passing tests)
+- **Playwright**: E2E testing
+- **Percy**: Visual regression testing
+
+### 📦 Deployment
+- **[Deployment Docs](docs/deployment/)** - Deployment guides and processes
+- **[Infrastructure](docs/infrastructure/)** - Infrastructure setup and configuration
+
+### 📚 Additional Resources
+- **[Help Centre - For Tutors](docs/help-centre/getting-started/for-tutors.md)** - Tutor onboarding guide
+- **[User Journey Map](docs/USER-JOURNEY-MAP.md)** - End-to-end user flows
+- **[Project Management](docs/project-management/)** - Sprint planning and tracking
+- **[Development Guide](docs/development/)** - Development best practices
+- **[CAS Framework](cas/)** - Optional: AI-assisted development framework
 
 ### Quality Standards
 - **Feature Checklist**: [cas/docs/feature-development-checklist.md](cas/docs/feature-development-checklist.md)
