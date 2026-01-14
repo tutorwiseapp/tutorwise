@@ -638,40 +638,100 @@ Auto-Setup       KPI Charts      Assignment     Analytics        Public Page
 
 ### 5.4 Agent CaaS (4-Bucket Model)
 
-**For Agents**: Network builders who recruit tutors at scale
+**Status**: ✅ Production-ready (Implemented 2026-01-07)
+**For Agents**: Network builders who recruit tutors and build organisations
+
+**Implementation**: 4-bucket model with subscription-incentive design (70 base + 30 org bonus = 100 max)
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│              AGENT CaaS SCORE (0-100 Points)                    │
-├─────────────────────────────────────────────────────────────────┤
-│  BUCKET                           │  MAX   │  CRITERIA           │
-├─────────────────────────────────────────────────────────────────┤
-│  1. Recruitment Performance       │  40    │  Quality of recruits│
-│     - Recruited tutor quality     │  25    │  Avg CaaS of tutors │
-│     - Active tutor rate           │  15    │  % actively teaching│
-│     - Min 3 recruited tutors      │        │  (threshold)        │
-├─────────────────────────────────────────────────────────────────┤
-│  2. Business Growth               │  30    │  Network performance│
-│     - Total sessions facilitated  │  20    │  Progressive scale  │
-│     - Revenue generated           │  10    │  Booking volume     │
-├─────────────────────────────────────────────────────────────────┤
-│  3. Professional Operations       │  20    │  Business legitimacy│
-│     - Organisation Premium sub    │  10    │  Active subscription│
-│     - Business verification       │  10    │  Verified entity    │
-├─────────────────────────────────────────────────────────────────┤
-│  4. Platform Engagement           │  10    │  Activity & support │
-│     - Active recruitment          │   5    │  Recent activity    │
-│     - Response rate               │   5    │  Tutor support      │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│              AGENT CaaS SCORE (0-100 Points)                        │
+├─────────────────────────────────────────────────────────────────────┤
+│  BUCKET                              │  BASE  │  ORG   │  MAX      │
+│                                      │  (Free)│ BONUS  │  TOTAL    │
+├─────────────────────────────────────────────────────────────────────┤
+│  1. Team Quality & Development       │   25   │  +10   │   35      │
+│     - Recruited tutor quality        │   15   │  +5    │   20      │
+│     - Tutor retention (6+ months)    │    5   │  +2    │    7      │
+│     - Subject diversity              │    3   │  +2    │    5      │
+│     - Member CaaS improvement        │    2   │  +1    │    3      │
+│     Gate: Identity verification required                           │
+├─────────────────────────────────────────────────────────────────────┤
+│  2. Business Operations & Scale      │   20   │  +10   │   30      │
+│     - Organisation brand presence    │    0   │  +5    │    5      │
+│     - Client acquisition (org-driven)│    0   │  +3    │    3      │
+│     - Recruitment volume (baseline)  │   10   │  +0    │   10      │
+│     - Total sessions by recruited    │   10   │  +2    │   12      │
+├─────────────────────────────────────────────────────────────────────┤
+│  3. Growth & Expansion               │   15   │  +5    │   20      │
+│     - Recent recruitment (90 days)   │   10   │  +0    │   10      │
+│     - Team collaboration rate        │    0   │  +3    │    3      │
+│     - Geographic expansion           │    0   │  +2    │    2      │
+│     - New member growth              │    5   │  +0    │    5      │
+├─────────────────────────────────────────────────────────────────────┤
+│  4. Professional Standards           │   10   │  +5    │   15      │
+│     - Business verification          │    5   │  +0    │    5      │
+│     - Professional insurance         │    3   │  +2    │    5      │
+│     - Association membership         │    2   │  +1    │    3      │
+│     - Safeguarding certification     │    0   │  +2    │    2      │
+├─────────────────────────────────────────────────────────────────────┤
+│  TOTAL                               │   70   │  +30   │  100      │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
-**Dual Score**: Agents who own organisations have TWO scores:
-- **Agent CaaS** (personal): Recruitment quality → `caas_scores` table
-- **Organisation CaaS** (entity): Team performance → `connection_groups.caas_score`
+**Key Features**:
+- **Free Tier Cap**: 70 points (realistically 60-75 for active solo agents)
+- **Organisation Bonuses**: +30 points across all buckets (requires active subscription)
+- **Subscription Gating**: Embedded bonuses (subtle incentive, not paywall)
+- **Strategic Steering**: Guides agents toward building scalable organisations
+
+**Implementation Details**:
+```typescript
+// Database: 5 migrations (155-159)
+// - Migration 155: Agent verification fields (profiles table)
+// - Migration 156: Organisation subscriptions (Stripe integration)
+// - Migration 157: Booking source tracking (org attribution)
+// - Migration 158: RPC functions (data aggregation)
+// - Migration 159: Organisation CaaS queue (auto-recalc triggers)
+
+// RPC Functions:
+// - get_agent_recruitment_stats(agent_id) → Recruitment metrics
+// - get_organisation_business_stats(org_id) → Business metrics
+// - check_org_subscription_active(agent_id) → Subscription validation
+
+// TypeScript: AgentCaaSStrategy class
+// - File: apps/web/src/lib/services/caas/strategies/agent.ts
+// - Pattern: Strategy pattern (IProfileCaaSStrategy implementation)
+// - Storage: caas_scores table (profile-based)
+```
+
+**Dual Score System**: Agents who own organisations have TWO separate scores:
+- **Agent CaaS** (personal): Recruitment quality → stored in `caas_scores` table
+- **Organisation CaaS** (entity): Team performance → stored in `connection_groups.caas_score`
+
+**Example Calculation**:
+```
+Agent with 5 recruited tutors (avg CaaS 85), 3 active >6 months, no organisation:
+- Bucket 1: 15 (quality) + 3 (retention) + 2 (diversity) = 20/35
+- Bucket 2: 8 (volume) + 8 (sessions) = 16/30
+- Bucket 3: 8 (recent) + 3 (growth) = 11/20
+- Bucket 4: 5 (verified) + 3 (insurance) + 2 (association) = 10/15
+Total: 57/100 (free tier)
+
+Same agent with active organisation subscription:
+- Bucket 1: 20 + 10 (org bonus) = 30/35
+- Bucket 2: 16 + 10 (org bonus) = 26/30
+- Bucket 3: 11 + 5 (org bonus) = 16/20
+- Bucket 4: 10 + 5 (org bonus) = 15/15
+Total: 87/100 (with organisation)
+```
 
 ### 5.5 Organisation CaaS (Entity-Based Scoring)
 
+**Status**: ✅ Production-ready (Implemented 2026-01-07)
 **For Organisations**: Teams, agencies, and schools
+
+**Implementation**: Activity-weighted team average with verification bonuses
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -695,9 +755,79 @@ Auto-Setup       KPI Charts      Assignment     Analytics        Public Page
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Storage**: Entity-based scores stored in entity's own table (e.g., `connection_groups.caas_score`)
-**Updates**: Auto-recalculates when members join/leave or scores change
-**Example**: 5 tutors (CaaS: 92, 85, 88, 70, 78) weighted by activity → Base 85 + Bonuses +4 = 89/100
+**Calculation Formula**:
+```sql
+-- Activity-weighted team average
+weighted_avg = SUM(member_caas * sessions_last_90d) / SUM(sessions_last_90d)
+
+-- Where:
+-- - member_caas: Each member's current CaaS score
+-- - sessions_last_90d: Completed sessions in last 90 days per member
+-- - Only active members counted (last_active_at within 30 days)
+-- - Minimum 3 active members required for valid score
+```
+
+**Implementation Details**:
+```typescript
+// RPC Function: calculate_organisation_caas(org_id)
+// - Migration: 158_create_agent_caas_rpc_functions.sql (lines 234-314)
+// - Returns: total_score, base_score, verification_bonus, active_member_count, team_avg_caas
+
+// TypeScript: OrganisationCaaSStrategy class
+// - File: apps/web/src/lib/services/caas/strategies/organisation.ts
+// - Pattern: Strategy pattern (IEntityCaaSStrategy implementation)
+// - Storage: connection_groups.caas_score (entity-based, not profile-based)
+
+// Auto-Recalculation:
+// - Trigger: member joins/leaves organisation
+// - Queue: organisation_caas_queue table
+// - Process: Automatic background recalculation
+```
+
+**Key Design Decisions**:
+1. **Entity-Based Scoring**: Organisation scores stored in `connection_groups.caas_score`, NOT in `caas_scores` table
+2. **Activity Weighting**: Members with more recent activity contribute more (prevents inactive members from dragging score down)
+3. **Minimum Threshold**: 3 active members required (prevents gaming with 1-2 high-scoring members)
+4. **Separate from Agent CaaS**: Organisation owner's Agent CaaS ≠ Organisation CaaS (two independent scores)
+
+**Storage Architecture**:
+```
+Agent (profile_id: 123) owns Organisation (org_id: 456)
+
+Two separate scores:
+1. Agent CaaS (profile-based):
+   - Stored in: caas_scores table (profile_id = 123)
+   - Measures: Agent's recruitment quality
+
+2. Organisation CaaS (entity-based):
+   - Stored in: connection_groups.caas_score (id = 456)
+   - Measures: Organisation team performance
+```
+
+**Example Calculation**:
+```
+Organisation with 5 members:
+- Member A: CaaS 92, 25 sessions (90d) → weight: 25
+- Member B: CaaS 85, 18 sessions (90d) → weight: 18
+- Member C: CaaS 88, 12 sessions (90d) → weight: 12
+- Member D: CaaS 70, 5 sessions (90d)  → weight: 5
+- Member E: CaaS 78, 0 sessions (90d)  → weight: 0 (not counted)
+
+Weighted average:
+(92×25 + 85×18 + 88×12 + 70×5) / (25 + 18 + 12 + 5) = 87.2
+
+Verification bonuses:
+- Business verified: +2
+- Safeguarding certified: +2
+Total bonuses: +4
+
+Final Organisation CaaS: 87.2 + 4 = 91.2 (rounded to 91)
+```
+
+**Updates**: Auto-recalculates when:
+- Member joins/leaves organisation
+- Member's individual CaaS score changes
+- Member's activity level changes (session completion)
 
 ### 5.6 CaaS Calculation System
 

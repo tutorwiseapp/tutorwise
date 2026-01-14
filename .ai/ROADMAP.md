@@ -1,15 +1,15 @@
 # Tutorwise Development Roadmap
 
-**Document Version**: 2.0
+**Document Version**: 2.1
 **Last Updated**: 2026-01-14
-**Project Status**: 95% Complete - Beta Release Feb 1, 2026
+**Project Status**: 97% Complete - Beta Release Feb 1, 2026
 **Development Velocity**: 1,400 commits (Oct 2025 - Jan 2026)
 
 ---
 
 ## 🎯 **Current Status Overview**
 
-### Platform Completion: 95%
+### Platform Completion: 97%
 - **260 pages** implemented across all user roles
 - **141 API endpoints** (Next.js Route Handlers + API routes)
 - **237 database migrations** (172 numbered + 65 supporting)
@@ -25,7 +25,7 @@
 
 ---
 
-## ✅ **Completed Core Systems (90%)**
+## ✅ **Completed Core Systems (94%)**
 
 ### 1. Authentication & Authorization ✅
 **Status**: Production-ready
@@ -232,35 +232,61 @@
 - ✅ Triggers and stored procedures
 - ✅ Audit tables
 
+### 15. Agent CaaS (Credibility as a Service) ✅
+**Status**: Production-ready
+**Completion**: 100%
+**Completed**: 2026-01-07
+
+**4-Bucket Scoring Model** (100 points max):
+- ✅ Bucket 1: Team Quality & Development (35 points max)
+- ✅ Bucket 2: Business Operations & Scale (30 points max)
+- ✅ Bucket 3: Growth & Expansion (20 points max)
+- ✅ Bucket 4: Professional Standards (15 points max)
+
+**Implementation**:
+- ✅ Database schema (5 migrations: 155-159)
+- ✅ RPC functions (4 functions for data aggregation)
+- ✅ AgentCaaSStrategy class (TypeScript implementation)
+- ✅ Subscription-gated bonuses (70 base + 30 org = 100 max)
+- ✅ Identity verification gate
+- ✅ Profile graph integration (AGENT_REFERRAL edges)
+
+**Features**:
+- ✅ Recruitment tracking (tutors recruited, quality, retention)
+- ✅ Organisation business metrics (bookings, clients, growth)
+- ✅ Subscription validation (active org required for bonuses)
+- ✅ Verification credentials (business, insurance, association)
+
+### 16. Organisation CaaS ✅
+**Status**: Production-ready
+**Completion**: 100%
+**Completed**: 2026-01-07
+
+**Activity-Weighted Team Average Model**:
+- ✅ Base score: Weighted average of member CaaS scores
+- ✅ Activity weighting: Members with more sessions (90 days) contribute more
+- ✅ Verification bonuses: business_verified (+2), safeguarding_certified (+2), professional_insurance (+1), association_member (+1)
+- ✅ Minimum requirement: 3 active members for valid score
+
+**Implementation**:
+- ✅ Database schema (connection_groups.caas_score column)
+- ✅ RPC function: calculate_organisation_caas()
+- ✅ OrganisationCaaSStrategy class (TypeScript implementation)
+- ✅ Automatic recalculation queue (triggers on member changes)
+- ✅ Entity-based scoring (not profile-based)
+
+**Features**:
+- ✅ Team performance tracking
+- ✅ Member activity weighting (sessions in last 90 days)
+- ✅ Verification status bonuses
+- ✅ Public visibility toggle
+- ✅ Organisation detail fetching (helper methods)
+
 ---
 
-## 🚧 **In Progress - Final 5%**
+## 🚧 **In Progress - Final 3%**
 
-### 1. Agent CaaS (Consultancy-as-a-Service) 🔄
-**Priority**: P0
-**Target**: Jan 20, 2026
-**Completion**: 60%
-
-- ✅ Database schema (agent consultancy tables)
-- ✅ Admin configuration UI
-- 🔄 Agent onboarding for consultancy services
-- 🔄 Consultancy listing creation
-- ⏳ Client discovery and booking
-- ⏳ Commission tracking
-
-### 2. Organisation CaaS 🔄
-**Priority**: P0
-**Target**: Jan 22, 2026
-**Completion**: 60%
-
-- ✅ Database schema (organisation consultancy tables)
-- ✅ Admin configuration UI
-- 🔄 Organisation onboarding
-- 🔄 Member management
-- ⏳ Billing and subscriptions
-- ⏳ Analytics dashboard
-
-### 3. Recruitment System (Phase 2) 🔄
+### 1. Recruitment System (Phase 2) 🔄
 **Priority**: P1
 **Target**: Jan 25, 2026
 **Completion**: 40%
@@ -276,7 +302,7 @@
 - ⏳ Candidate communication
 - ⏳ Hiring pipeline management
 
-### 4. Mobile Responsiveness Polish 🔄
+### 2. Mobile Responsiveness Polish 🔄
 **Priority**: P1
 **Target**: Jan 28, 2026
 **Completion**: 85%
@@ -288,7 +314,7 @@
 - ⏳ Tablet optimization
 - ⏳ Cross-device testing
 
-### 5. Performance Optimization 🔄
+### 3. Performance Optimization 🔄
 **Priority**: P1
 **Target**: Jan 30, 2026
 **Completion**: 70%
@@ -300,7 +326,7 @@
 - ⏳ Caching strategy enhancement
 - ⏳ Bundle size reduction
 
-### 6. Beta Testing Preparation 🔄
+### 4. Beta Testing Preparation 🔄
 **Priority**: P0
 **Target**: Jan 31, 2026
 **Completion**: 50%
