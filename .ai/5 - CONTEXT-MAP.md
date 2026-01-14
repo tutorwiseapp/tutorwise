@@ -16,12 +16,14 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 .ai/
 ├── PROMPT.md                    # 🎯 Universal AI context & development guidelines
 ├── PLATFORM-SPECIFICATION.md    # 📖 Complete technical + strategic specification
-├── ROADMAP.md                   # 🚀 Development roadmap & completion status
+├── SYSTEM-NAVIGATION.md         # 🗺️ Complete codebase navigation & user flows
+├── ROADMAP.md                   # 🚀 Development roadmap & completion status (98%)
 ├── PATTERNS.md                  # 🧩 Code patterns & conventions
+├── DESIGN-SYSTEM.md             # 🎨 UI/UX component library & design tokens
 ├── CONTEXT-MAP.md               # 📊 This file - how everything connects
-├── ADMIN-DASHBOARD.md           # 🛠️ Admin Dashboard documentation (pending)
-├── SHARED-FIELDS.md             # 🔧 Shared Fields System documentation (pending)
-└── ONBOARDING.md                # 📝 Onboarding flows documentation (pending)
+├── ADMIN-DASHBOARD.md           # 🛠️ Admin Dashboard documentation (11 hubs)
+├── SHARED-FIELDS.md             # 🔧 Shared Fields System (23 fields, 106 mappings)
+└── ONBOARDING.md                # 📝 Onboarding flows (page-based, 3 roles × 5 steps)
 ```
 
 ---
@@ -35,8 +37,8 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 **Purpose**: Primary AI context file providing project overview, development guidelines, and context retrieval protocol
 
 **Contains**:
-- Current project status (95% complete, beta Feb 1, 2026)
-- Tech stack (Next.js 15, TypeScript 5.x, Supabase)
+- Current project status (98% complete, beta Feb 1, 2026)
+- Tech stack (Next.js 14.x, TypeScript 5.x, Supabase)
 - Context retrieval protocol (what to read when)
 - Development workflows
 - AI behavior guidelines
@@ -49,6 +51,7 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 
 **Connects To**:
 - **PLATFORM-SPECIFICATION.md** (primary reference for implementation)
+- **SYSTEM-NAVIGATION.md** (find where code lives)
 - **ROADMAP.md** (current priorities)
 - **PATTERNS.md** (code conventions)
 
@@ -56,7 +59,40 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 
 ---
 
-### **2. PLATFORM-SPECIFICATION.md** → Complete Technical Reference
+### **2. SYSTEM-NAVIGATION.md** → Complete Codebase Navigation & User Flows
+**Size**: 850 lines | **Priority**: P0 - Essential for Navigation
+**Last Updated**: 2026-01-14
+
+**Purpose**: Complete navigation map for developers and stakeholders to understand where everything lives and how users flow through the platform
+
+**Contains**:
+- Quick start guide for new developers
+- Documentation map (where to find what)
+- Feature → File location map (all 18 features)
+- User journey flows (Tutor, Client, Agent)
+- Complete codebase structure
+- "I Want To..." quick reference guide
+- Architecture references
+
+**Used For**:
+- Finding where specific features are implemented
+- Understanding user flows through the platform
+- Locating components, services, API routes
+- Navigating the 260-page codebase
+- Understanding how features interconnect
+
+**Connects To**:
+- **PLATFORM-SPECIFICATION.md** (what features do)
+- **PATTERNS.md** (how code is structured)
+- **ROADMAP.md** (what's implemented)
+- **DESIGN-SYSTEM.md** (UI components)
+- Feature-specific docs in `docs/features/`
+
+**When to Read**: When you need to find code, understand user flows, or navigate the codebase
+
+---
+
+### **3. PLATFORM-SPECIFICATION.md** → Complete Technical Reference
 **Size**: 203KB (3,194 lines) | **Priority**: P0 - Reference for Implementation
 **Last Updated**: 2026-01-14
 
@@ -92,29 +128,31 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 - Security policies and RLS
 
 **Connects To**:
+- **SYSTEM-NAVIGATION.md** (where features are implemented)
 - **PATTERNS.md** (implementation patterns for features)
 - **ROADMAP.md** (what's complete vs in-progress)
 - **SHARED-FIELDS.md** (forms architecture details)
 - **ADMIN-DASHBOARD.md** (admin sections deep dive)
+- **DESIGN-SYSTEM.md** (UI component specifications)
 
 **When to Read**: When implementing features, understanding architecture, or needing technical details
 
 ---
 
-### **3. ROADMAP.md** → Development Status & Timeline
+### **4. ROADMAP.md** → Development Status & Timeline
 **Size**: 500 lines | **Priority**: P1 - Check for Priorities
 **Last Updated**: 2026-01-14
 
 **Purpose**: Current development status, completed features, in-progress work, and future plans
 
 **Contains**:
-- Platform completion status (95%)
-- 14 completed core systems
-- In-progress final 5% (Agent CaaS, Org CaaS, Recruitment Phase 2)
+- Platform completion status (98%)
+- 18 completed features
+- In-progress final 2% (mobile polish, performance, beta prep)
 - Beta release timeline (Feb 1, 2026)
-- Production launch timeline (Mar 1, 2026)
+- Technology stack (current + future)
 - Success metrics
-- Known technical debt
+- Recent completions
 
 **Used For**:
 - Understanding what's complete vs in-progress
@@ -124,6 +162,7 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 
 **Connects To**:
 - **PROMPT.md** (current status summary)
+- **SYSTEM-NAVIGATION.md** (where features are located)
 - **PLATFORM-SPECIFICATION.md** (feature details)
 - **PATTERNS.md** (implementation approach)
 
@@ -131,7 +170,7 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 
 ---
 
-### **4. PATTERNS.md** → Code Conventions & Patterns
+### **5. PATTERNS.md** → Code Conventions & Patterns
 **Size**: 850 lines | **Priority**: P1 - Read for Implementation
 **Last Updated**: 2026-01-14
 
@@ -161,6 +200,8 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 
 **Connects To**:
 - **PLATFORM-SPECIFICATION.md** (technical constraints)
+- **SYSTEM-NAVIGATION.md** (file locations)
+- **DESIGN-SYSTEM.md** (UI component patterns)
 - **SHARED-FIELDS.md** (form field patterns)
 - **ADMIN-DASHBOARD.md** (HubComplexModal usage)
 
@@ -168,7 +209,38 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 
 ---
 
-### **5. CONTEXT-MAP.md** → This File
+### **6. DESIGN-SYSTEM.md** → UI/UX Component Library & Design Tokens
+**Size**: TBD | **Priority**: P1 - Essential for UI Development
+**Last Updated**: 2026-01-14
+
+**Purpose**: Complete UI/UX design system with component library, design tokens, and implementation guidelines
+
+**Contains**:
+- Design tokens (colors, typography, spacing)
+- Component library (353 components)
+- Grid systems and layouts
+- Responsive design patterns
+- Accessibility guidelines
+- Animation and transitions
+- Figma design reference
+
+**Used For**:
+- Building consistent UI components
+- Implementing design system
+- Understanding visual design standards
+- Ensuring accessibility compliance
+- Responsive design implementation
+
+**Connects To**:
+- **SYSTEM-NAVIGATION.md** (component file locations)
+- **PATTERNS.md** (component code patterns)
+- **PLATFORM-SPECIFICATION.md** (UI requirements)
+
+**When to Read**: When building UI components, implementing designs, or ensuring visual consistency
+
+---
+
+### **7. CONTEXT-MAP.md** → This File
 **Size**: Current document | **Priority**: P2 - Read for Understanding
 **Last Updated**: 2026-01-14
 
@@ -192,62 +264,97 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 
 ---
 
-### **6. ADMIN-DASHBOARD.md** → Admin Dashboard Deep Dive
-**Status**: Pending creation
-**Estimated Size**: 1,000+ lines | **Priority**: P2
+### **8. ADMIN-DASHBOARD.md** → Admin Dashboard Deep Dive
+**Size**: TBD | **Priority**: P1 - Essential for Admin Development
+**Last Updated**: 2026-01-14
 
-**Planned Contents**:
-- Overview of 12 admin sections
-- HubComplexModal pattern implementation for each section
+**Purpose**: Complete admin dashboard architecture covering all 11 hubs
+
+**Contains**:
+- Overview of 11 admin hubs
+- HubComplexModal pattern implementation
 - Soft delete vs hard delete flows
 - GDPR compliance implementation
 - Advanced filtering and search
 - Bulk operations
 - Export functionality
-- Code examples for each hub
+- RBAC system (4 admin roles)
+- Audit logging
 
-**Will Connect To**:
-- **PLATFORM-SPECIFICATION.md** (references admin section)
+**Used For**:
+- Building admin features
+- Understanding admin architecture
+- Implementing admin modals
+- GDPR compliance workflows
+
+**Connects To**:
+- **SYSTEM-NAVIGATION.md** (admin hub file locations)
 - **PATTERNS.md** (HubComplexModal pattern)
+- **PLATFORM-SPECIFICATION.md** (admin requirements)
+
+**When to Read**: When building admin features or implementing admin hubs
 
 ---
 
-### **7. SHARED-FIELDS.md** → Shared Fields System Deep Dive
-**Status**: Pending creation
-**Estimated Size**: 800+ lines | **Priority**: P2
+### **9. SHARED-FIELDS.md** → Shared Fields System Deep Dive
+**Size**: TBD | **Priority**: P1 - Essential for Forms Development
+**Last Updated**: 2026-01-14
 
-**Planned Contents**:
-- Architecture overview (23 fields → 106 mappings → 9 contexts)
-- Database schema (shared_fields, form_config tables)
+**Purpose**: Complete shared fields architecture (23 global fields → 106 context mappings → 9 form contexts)
+
+**Contains**:
+- Architecture overview (3-layer system)
+- Database schema (shared_fields, form_context_fields)
 - UnifiedSelect/UnifiedMultiSelect components
 - Field customization per context
 - Migration from hardcoded options
 - Admin configuration UI
 - Implementation examples
 
-**Will Connect To**:
-- **PLATFORM-SPECIFICATION.md** (references forms section)
+**Used For**:
+- Building forms with shared fields
+- Understanding field configuration
+- Implementing UnifiedSelect components
+- Admin field management
+
+**Connects To**:
+- **SYSTEM-NAVIGATION.md** (shared fields file locations)
 - **PATTERNS.md** (UnifiedSelect pattern, Shared Fields pattern)
+- **PLATFORM-SPECIFICATION.md** (forms architecture)
+
+**When to Read**: When working with forms, field configuration, or onboarding
 
 ---
 
-### **8. ONBOARDING.md** → Onboarding Flows Documentation
-**Status**: Pending creation
-**Estimated Size**: 600+ lines | **Priority**: P2
+### **10. ONBOARDING.md** → Onboarding Flows Documentation
+**Size**: TBD | **Priority**: P1 - Essential for Onboarding Development
+**Last Updated**: 2026-01-14
 
-**Planned Contents**:
+**Purpose**: Complete onboarding system architecture (page-based, 3 roles × 5 steps each)
+
+**Contains**:
 - Page-based onboarding architecture
 - Migration from wizard (zero data loss)
-- Role-specific flows (5 steps per role)
+- Role-specific flows (Tutor, Client, Agent)
 - Draft saving mechanism
 - Progress tracking
 - Validation rules
+- CaaS calculation bridge
 - Implementation examples
 
-**Will Connect To**:
-- **PLATFORM-SPECIFICATION.md** (references onboarding section)
+**Used For**:
+- Understanding onboarding flows
+- Implementing role-specific steps
+- Zero data loss state management
+- Onboarding modifications
+
+**Connects To**:
+- **SYSTEM-NAVIGATION.md** (onboarding file locations)
 - **SHARED-FIELDS.md** (form fields integration)
 - **PATTERNS.md** (form handling pattern)
+- **PLATFORM-SPECIFICATION.md** (onboarding requirements)
+
+**When to Read**: When working on onboarding flows or user registration
 
 ---
 
@@ -259,10 +366,13 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 1. Start with PROMPT.md
    ↓ Understand current project status and context retrieval protocol
 
-2. Check ROADMAP.md
+2. Check SYSTEM-NAVIGATION.md
+   ↓ Where are related features? What's the file structure?
+
+3. Check ROADMAP.md
    ↓ Is this feature complete? In-progress? Prioritized?
 
-3. Review PLATFORM-SPECIFICATION.md
+4. Review PLATFORM-SPECIFICATION.md
    ↓ What are the technical requirements? Database schema? API endpoints?
 
 4. Apply PATTERNS.md

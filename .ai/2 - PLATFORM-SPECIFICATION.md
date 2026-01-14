@@ -50,18 +50,27 @@ Tutorwise is a next-generation EdTech platform that reimagines the tutoring mark
 - **Europe**: £20B-£25B (£2.0B UK confirmed)
 - **Online Tutoring Growth**: 14-16.5% CAGR (faster than overall 7-10%)
 
-**Platform Complexity**:
-- **237 database migrations** (172 numbered, 65 supporting files), 60+ tables
-- **260 pages** implemented across web application
-- **141 API endpoints** (REST + RPC functions)
-- **353 components** in design system library
+**Platform Scale**: See [SYSTEM-NAVIGATION.md](3 - SYSTEM-NAVIGATION.md#platform-metrics-single-source-of-truth) for complete codebase metrics.
+
+**Key Statistics**:
+- **260 pages** (107 UI + 141 API endpoints)
+- **148K lines of code** + 176K lines of documentation
+- **196 database migrations** (190 numbered + 6 supporting), 60+ tables
+- **353 components** across 22 feature directories
+- **27 major features** (98% complete, production-ready)
+
+**Advanced Technical Capabilities**:
+- **Neo4j graph database** with PageRank trust propagation for SEO eligibility
+- **ML-powered fraud detection** with automated triggers and pattern recognition
+- **AI semantic search** using pgvector (1,536-dimensional embeddings)
+- **Real-time infrastructure** (Ably) for messaging, presence, typing indicators
 - **200+ Row-Level Security policies** with granular RBAC
-- **ML-powered fraud detection system** with automated triggers
-- **Neo4j graph database** with PageRank trust propagation
-- **AI semantic search** (pgvector, 1536-dim embeddings)
-- **Automated CI/CD DevOps pipeline** with Jest, Playwright, Percy
-- **1,400 commits** (Oct 2025 - Jan 2026): 82 features, 151 fixes, 63 refactors
-- "Impressive for a beta" - production-ready in 6 months, 95% feature-complete
+- **Automated CI/CD pipeline** with comprehensive testing (Jest, Playwright, Percy)
+
+**Development Velocity** (Oct 2025 - Jan 2026):
+- **1,400 commits**: 82 features, 151 fixes, 63 refactors
+- Production-ready in 6 months, 98% feature-complete
+- "Impressive for a beta" - enterprise-grade quality in record time
 
 ### Valuation Summary (January 2026)
 

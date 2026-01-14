@@ -10,12 +10,17 @@
 ## 🎯 **Current Status Overview**
 
 ### Platform Completion: 98%
-- **260 pages** implemented across all user roles
-- **141 API endpoints** (Next.js Route Handlers + API routes)
-- **192 database migrations** (191 numbered + 1 supporting)
+
+**See [SYSTEM-NAVIGATION.md](3 - SYSTEM-NAVIGATION.md#platform-metrics-single-source-of-truth) for complete codebase metrics.**
+
+**Key Metrics**:
+- **260 pages** implemented (107 UI pages + 141 API endpoints + dynamic routes)
+- **148K lines of code** (TypeScript/TSX)
+- **196 database migrations** (190 numbered + 6 supporting files)
 - **353 components** in unified design system
 - **200+ RLS policies** enforcing data security
-- **82 features** completed
+- **27 major features** completed (18 core systems + 14 platform hubs - 5 overlap)
+- **82 feature enhancements** implemented
 - **151 bug fixes** implemented
 - **63 refactors** completed
 
@@ -41,10 +46,10 @@
 
 ### 2. Admin Dashboard ✅
 **Status**: Production-ready
-**Completion**: 100% (11 hubs)
+**Completion**: 100% (10 hubs)
 
 **Hubs Implemented**:
-1. ✅ **Accounts Hub** - User management (soft/hard delete, GDPR compliance)
+1. ✅ **Accounts Hub** - User management with soft/hard delete, GDPR compliance, and role-based admin user management
 2. ✅ **Bookings Hub** - Booking oversight and management
 3. ✅ **Configurations Hub** - System configuration and shared fields management
 4. ✅ **Financials Hub** - Payment tracking and reconciliation
@@ -54,7 +59,6 @@
 8. ✅ **Reviews Hub** - Review moderation
 9. ✅ **SEO Hub** - SEO management and optimization
 10. ✅ **Settings Hub** - Platform configuration
-11. ✅ **Users Hub** - User administration and permissions
 
 **Features**:
 - ✅ HubComplexModal pattern (standardized detail modals)
@@ -214,21 +218,337 @@
 - ✅ Message delivery status tracking
 - ✅ Real-time synchronization across devices
 
-### 13. User Dashboards ✅
+### 13. Role-Based Dashboards ✅
 **Status**: Production-ready
 **Completion**: 100%
 
-**Role-Specific Dashboards**:
+**Dashboards Implemented**:
 - ✅ Tutor Dashboard (bookings, earnings, reviews, availability)
 - ✅ Client Dashboard (bookings, favorites, messages, payment history)
 - ✅ Agent Dashboard (referrals, commissions, clients, analytics)
 - ✅ Organisation Dashboard (team, members, clients, organisation-info, billing)
 
-### 14. Database Architecture ✅
+**Features**:
+- ✅ Role-specific widgets and metrics
+- ✅ Real-time data updates
+- ✅ Customizable layouts
+- ✅ Quick actions and shortcuts
+- ✅ Activity feeds
+- ✅ Performance analytics
+
+### 14. Accounts & Profile Management ✅
 **Status**: Production-ready
 **Completion**: 100%
 
-- ✅ 192 migrations (191 numbered + 1 supporting)
+**Features**:
+- ✅ Multi-role profile management (Tutor, Client, Agent, Organisation)
+- ✅ Profile editing with Shared Fields integration
+- ✅ Avatar and media management
+- ✅ Hard delete with GDPR compliance
+- ✅ PII anonymization on soft delete
+- ✅ Referral delegation
+- ✅ Account settings and preferences
+- ✅ Privacy controls
+- ✅ Email and notification preferences
+
+**User Interfaces**:
+- ✅ Tutor Account Hub
+- ✅ Client Account Hub
+- ✅ Agent Account Hub
+- ✅ Organisation Account Hub
+- ✅ Admin Accounts Hub (user management)
+
+### 15. Bookings Management ✅
+**Status**: Production-ready
+**Completion**: 100%
+
+**Features**:
+- ✅ 5-stage booking workflow (discover → book → schedule → pay → review)
+- ✅ Calendar integration (react-day-picker)
+- ✅ Booking creation and management
+- ✅ Cancellation and rescheduling
+- ✅ Automated confirmations
+- ✅ Booking history
+- ✅ Status tracking
+- ✅ Payment integration
+
+**User Interfaces**:
+- ✅ Tutor Bookings Hub
+- ✅ Client Bookings Hub
+- ✅ Admin Bookings Hub (oversight)
+
+### 16. Developer Tools ✅
+**Status**: Production-ready
+**Completion**: 100%
+
+**API Platform**:
+- ✅ RESTful API endpoints (141 endpoints)
+- ✅ Authentication and authorization
+- ✅ Rate limiting (Upstash Redis)
+- ✅ API documentation
+- ✅ Webhook support
+- ✅ Public API versioning (`/api/v1/`)
+
+**Features**:
+- ✅ CaaS API (`/api/v1/caas/[profile_id]`)
+- ✅ Booking API endpoints
+- ✅ User management API
+- ✅ Organisation API
+- ✅ Payment webhooks
+- ✅ Real-time subscriptions
+
+**Developer Hub**:
+- ✅ API key management
+- ✅ Usage analytics
+- ✅ Request logs
+- ✅ Integration testing tools
+
+### 17. Financials ✅
+**Status**: Production-ready
+**Completion**: 100%
+
+**Features**:
+- ✅ Transaction tracking
+- ✅ Payment reconciliation
+- ✅ Commission calculations
+- ✅ Payout management
+- ✅ Refund processing
+- ✅ Revenue analytics
+- ✅ Financial reporting
+- ✅ Stripe integration
+
+**User Interfaces**:
+- ✅ Tutor Financials Hub (earnings, payouts)
+- ✅ Agent Financials Hub (commissions)
+- ✅ Organisation Financials Hub (billing, invoices)
+- ✅ Admin Financials Hub (platform financial oversight)
+
+### 18. Help Centre ✅
+**Status**: Production-ready
+**Completion**: 100%
+
+**Features**:
+- ✅ FAQ system with categories
+- ✅ Article search and filtering
+- ✅ Jira Service Desk integration
+- ✅ Ticket submission
+- ✅ Ticket tracking
+- ✅ Support documentation
+- ✅ Contact forms
+
+**User Interfaces**:
+- ✅ Public Help Centre (all users)
+- ✅ Tutor Help Hub
+- ✅ Client Help Hub
+- ✅ Agent Help Hub
+- ✅ Admin Help Hub (ticket management)
+
+### 19. Listings Management ✅
+**Status**: Production-ready
+**Completion**: 100%
+
+**Features**:
+- ✅ Service listing creation (unified service_type architecture)
+- ✅ Service types: one-to-one, group-session, workshop, study-package
+- ✅ Subjects, rates, and availability
+- ✅ Advanced search and filtering
+- ✅ Geographic location services
+- ✅ Listing moderation (admin)
+- ✅ Listing status management
+- ✅ Public listing pages
+- ✅ SEO optimization
+
+**User Interfaces**:
+- ✅ Tutor Listings Hub (manage services)
+- ✅ Agent Listings Hub (manage client services)
+- ✅ Public Marketplace (discovery)
+- ✅ Admin Listings Hub (moderation)
+
+### 20. Messages (Real-Time Messaging) ✅
+**Status**: Production-ready
+**Completion**: 100%
+
+**Features**:
+- ✅ Real-time messaging (Ably platform)
+- ✅ WhatsApp-style 2-pane interface
+- ✅ Conversation threads
+- ✅ Message persistence (Supabase)
+- ✅ Unread indicators and counters
+- ✅ Typing indicators
+- ✅ Presence tracking (online/offline)
+- ✅ Message search
+- ✅ File attachments
+- ✅ Delivery status
+- ✅ Cross-device synchronization
+
+**User Interfaces**:
+- ✅ Tutor Messages Hub
+- ✅ Client Messages Hub
+- ✅ Agent Messages Hub
+- ✅ Organisation Messages Hub
+
+### 21. Network & Connections ✅
+**Status**: Production-ready
+**Completion**: 100%
+
+**Features**:
+- ✅ Connection management (social graph)
+- ✅ Connection groups (organisations, teams)
+- ✅ Trust graph relationships
+- ✅ Network analytics
+- ✅ Connection requests
+- ✅ Group membership
+- ✅ Network discovery
+- ✅ Social proof indicators
+
+**User Interfaces**:
+- ✅ Tutor Network Hub
+- ✅ Client Network Hub
+- ✅ Agent Network Hub
+- ✅ Organisation Network Hub
+
+### 22. Organisations ✅
+**Status**: Production-ready
+**Completion**: 100%
+
+**Features**:
+- ✅ Organisation types: individuals, agencies, companies, schools
+- ✅ Organisation profiles
+- ✅ Team and member management
+- ✅ Client management
+- ✅ Organisation settings
+- ✅ Billing and subscriptions
+- ✅ Organisation CaaS scoring
+- ✅ Task management (Kanban pipeline)
+- ✅ Recruitment workflows
+
+**Organisation Types**:
+- ✅ Individual Tutors
+- ✅ Tutoring Agencies
+- ✅ Educational Companies
+- ✅ Schools and Institutions
+
+**User Interfaces**:
+- ✅ Organisation Dashboard (owners)
+- ✅ Organisation Hub (team view)
+- ✅ Admin Organisations Hub (oversight)
+
+### 23. Payments ✅
+**Status**: Production-ready
+**Completion**: 100%
+
+**Features**:
+- ✅ Stripe Connect integration
+- ✅ Bank card management
+- ✅ Stripe account setup
+- ✅ Payment methods (cards, bank accounts)
+- ✅ Payment scheduling
+- ✅ Subscription management
+- ✅ Payment history
+- ✅ Invoices and receipts
+- ✅ Refund processing
+- ✅ Payout management
+- ✅ Webhook handling
+
+**User Interfaces**:
+- ✅ Tutor Payments Hub (payout setup)
+- ✅ Client Payments Hub (payment methods)
+- ✅ Agent Payments Hub (commission payouts)
+- ✅ Organisation Payments Hub (billing)
+
+### 24. Referrals ✅
+**Status**: Production-ready
+**Completion**: 100% (Phases 1-3)
+
+**Phase 1: Foundation** ✅
+- ✅ Referral code generation
+- ✅ Referral tracking
+- ✅ Basic analytics
+
+**Phase 2: Rewards** ✅
+- ✅ Credit system
+- ✅ Automated reward distribution
+- ✅ Reward history
+
+**Phase 3: Advanced** ✅
+- ✅ Tiered rewards
+- ✅ Leaderboards
+- ✅ Referral campaigns
+- ✅ Analytics dashboard
+
+**User Interfaces**:
+- ✅ Tutor Referrals Hub
+- ✅ Client Referrals Hub
+- ✅ Agent Referrals Hub (recruitment tracking)
+- ✅ Admin Referrals Hub (platform oversight)
+
+### 25. Reviews & Ratings ✅
+**Status**: Production-ready
+**Completion**: 100%
+
+**Features**:
+- ✅ Multi-directional reviews (clients ↔ tutors ↔ agents)
+- ✅ Rating system (1-5 stars)
+- ✅ Review submission
+- ✅ Review moderation (admin)
+- ✅ Review responses
+- ✅ Review aggregation
+- ✅ Helpful votes
+- ✅ Review filtering
+- ✅ Rating distribution
+- ✅ Social proof integration
+
+**User Interfaces**:
+- ✅ Tutor Reviews Hub
+- ✅ Client Reviews Hub
+- ✅ Agent Reviews Hub
+- ✅ Public Profile Reviews
+- ✅ Admin Reviews Hub (moderation)
+
+### 26. Student Management 🔄
+**Status**: In development
+**Completion**: 75%
+
+**Features**:
+- ✅ Student profiles
+- ✅ Student-tutor relationships
+- ✅ Learning progress tracking
+- 🔄 Academic records
+- 🔄 Attendance tracking
+- ⏳ Performance analytics
+- ⏳ Parent/guardian access
+
+**User Interfaces**:
+- ✅ Tutor Student Hub (basic)
+- 🔄 Client Student Hub (family management)
+- ⏳ Admin Student Hub (oversight)
+
+**Note**: Basic student management is production-ready; advanced features planned for Q2 2026.
+
+### 27. Wiselists (Saved Lists) ✅
+**Status**: Production-ready
+**Completion**: 100%
+
+**Features**:
+- ✅ Saved tutors (favorites)
+- ✅ Saved agents
+- ✅ Saved organisations
+- ✅ Saved service listings
+- ✅ List creation and management
+- ✅ Planning and prebooking
+- ✅ List sharing
+- ✅ Quick booking from lists
+
+**User Interfaces**:
+- ✅ Tutor Wiselists Hub (saved clients)
+- ✅ Client Wiselists Hub (saved tutors, listings)
+- ✅ Agent Wiselists Hub (saved tutors, clients)
+
+### 28. Database Architecture ✅
+**Status**: Production-ready
+**Completion**: 100%
+
+- ✅ 196 migrations (190 numbered: 000-173 + 6 supporting files)
 - ✅ Comprehensive schema (60+ tables)
 - ✅ Row-Level Security (200+ policies)
 - ✅ Indexes and performance optimization
@@ -236,7 +556,7 @@
 - ✅ Triggers and stored procedures
 - ✅ Audit tables
 
-### 15. CaaS (Credibility as a Service) - Multi-Role System ✅
+### 29. CaaS (Credibility as a Service) - Multi-Role System ✅
 **Status**: Production-ready (4 roles complete, 1 designed)
 **Completion**: 100% for Tutor/Client/Agent/Organisation
 **Completed**: Tutor v5.9 (2025-12), Client v1.0 (2026-01), Agent v1.0 (2026-01), Org v1.0 (2026-01)
@@ -259,7 +579,7 @@ CaaS provides credibility scoring across all platform roles with role-specific a
 
 ---
 
-#### 15.1. Tutor CaaS ✅ (v5.9 - Most Mature)
+#### 29.1. Tutor CaaS ✅ (v5.9 - Most Mature)
 **Scoring Model**: 6-Bucket System (110 raw points → normalized to /100)
 
 **Buckets**:
@@ -294,7 +614,7 @@ CaaS provides credibility scoring across all platform roles with role-specific a
 
 ---
 
-#### 15.2. Client CaaS ✅ (v1.0)
+#### 29.2. Client CaaS ✅ (v1.0)
 **Scoring Model**: 3-Bucket System (100 points total)
 
 **Buckets**:
@@ -319,7 +639,7 @@ CaaS provides credibility scoring across all platform roles with role-specific a
 
 ---
 
-#### 15.3. Agent CaaS ✅ (v1.0)
+#### 29.3. Agent CaaS ✅ (v1.0)
 **Scoring Model**: 4-Bucket System with Subscription Bonuses (70-100 points)
 
 **Free Tier Max**: 70 points (realistically 60-75)
@@ -354,7 +674,7 @@ CaaS provides credibility scoring across all platform roles with role-specific a
 
 ---
 
-#### 15.4. Organisation CaaS ✅ (v1.0)
+#### 29.4. Organisation CaaS ✅ (v1.0)
 **Type**: Entity-based (not profile-based)
 **Storage**: `connection_groups.caas_score` column
 
@@ -402,7 +722,7 @@ where session_weight = MAX(sessions_90d, 1)
 - ✅ Automatic recalculation queues
 - ✅ Graceful degradation (Promise.allSettled for RPC failures)
 
-### 17. Recruitment System ✅
+### 30. Recruitment System ✅
 **Status**: Production-ready
 **Completion**: 100%
 **Completed**: 2026-01-14

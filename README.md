@@ -239,13 +239,15 @@ CAS will apply 8 agent perspectives:
 ## Documentation
 
 ### 📋 Core Documentation (.ai/)
-- **[ROADMAP.md](.ai/ROADMAP.md)** - Development roadmap (98% complete, 17 systems, beta Feb 1 2026)
-- **[PLATFORM-SPECIFICATION.md](.ai/PLATFORM-SPECIFICATION.md)** - Complete technical + strategic specification
+- **[ROADMAP.md](.ai/ROADMAP.md)** - Development roadmap (98% complete, 18 features, beta Feb 1 2026)
+- **[PLATFORM-SPECIFICATION.md](.ai/PLATFORM-SPECIFICATION.md)** - Complete technical + strategic specification (3,194 lines)
+- **[SYSTEM-NAVIGATION.md](.ai/SYSTEM-NAVIGATION.md)** - Complete codebase navigation & user flows (NEW)
+- **[PATTERNS.md](.ai/PATTERNS.md)** - Development patterns and code conventions
+- **[DESIGN-SYSTEM.md](.ai/DESIGN-SYSTEM.md)** - UI/UX component library & design tokens
+- **[CONTEXT-MAP.md](.ai/CONTEXT-MAP.md)** - How all context files interconnect
 - **[ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md)** - Admin dashboard architecture (11 hubs)
 - **[SHARED-FIELDS.md](.ai/SHARED-FIELDS.md)** - Shared fields system (23 fields, 106 mappings, 9 contexts)
 - **[ONBOARDING.md](.ai/ONBOARDING.md)** - Onboarding system (page-based, 3 roles × 5 steps)
-- **[PATTERNS.md](.ai/PATTERNS.md)** - Development patterns and code conventions
-- **[CONTEXT-MAP.md](.ai/CONTEXT-MAP.md)** - Codebase context and navigation guide
 - **[PROMPT.md](.ai/PROMPT.md)** - AI assistant configuration and guidelines
 
 ### 🚀 Getting Started
@@ -255,14 +257,18 @@ CAS will apply 8 agent perspectives:
 - **[Quick Start Guide](docs/development/quick-start-guide.md)** - New developer onboarding
 
 ### 🏗️ Architecture & Design
+- **[System Navigation](.ai/SYSTEM-NAVIGATION.md)** - Find where everything lives in the codebase
 - **[Platform Specification](.ai/PLATFORM-SPECIFICATION.md)** - Full technical architecture
-- **[Design System](docs/design/DESIGN-SYSTEM.md)** - UI/UX design system and components
-- **[System Map](docs/design/system-map.md)** - System architecture overview
-- **[Role-Based Dashboard Design](docs/design/role-based-dashboard-design.md)** - Dashboard architecture
-- **[Architecture Docs](docs/architecture/)** - Detailed system architecture
+- **[Design System](.ai/DESIGN-SYSTEM.md)** - UI/UX component library (353 components)
+- **[Role-Based Dashboard Design](docs/features/dashboard/role-based-dashboard-design.md)** - Dashboard architecture
+- **[User Journey Map](docs/USER-JOURNEY-MAP.md)** - End-to-end user flows
 
 ### 🔧 Feature Documentation
 - **[Admin Dashboard](docs/admin/)** - Admin hub architecture and features
+- **[CaaS System](docs/features/caas/)** - Credibility as a Service
+  - [Agent CaaS Model](docs/features/caas/agent-caas-subscription-incentive-model.md)
+  - [Organisation CaaS](docs/features/caas/agent-org-caas-implementation-summary.md)
+  - [Dual-Path Architecture](docs/feature/caas/caas-dual-path-architecture.md)
 - **[Referrals System](docs/feature/referrals/)** - Multi-tier referral system (Phases 1-3)
   - [Solution Design](docs/feature/referrals/referrals-solution-design-v2.md)
   - [Deployment Guide](docs/feature/referrals/DEPLOYMENT-GUIDE.md)
@@ -274,8 +280,6 @@ CAS will apply 8 agent perspectives:
   - [Implementation Complete](docs/seo-implementation-complete.md)
   - [Top 5 Implementation Plan](docs/seo-top5-implementation-plan.md)
 - **[Forms System](docs/FORMS_ADMIN_GUIDE.md)** - Admin forms and shared fields guide
-- **[Agent CaaS](docs/design/agent-caas-subscription-incentive-model.md)** - Agent credibility scoring model
-- **[Organisation CaaS](docs/design/agent-org-caas-implementation-summary.md)** - Organisation scoring implementation
 
 ### 💾 Database
 - **[Migration Notes](docs/database/migration-notes.md)** - Database migration guide (192 migrations)
@@ -297,7 +301,6 @@ CAS will apply 8 agent perspectives:
 
 ### 📚 Additional Resources
 - **[Help Centre - For Tutors](docs/help-centre/getting-started/for-tutors.md)** - Tutor onboarding guide
-- **[User Journey Map](docs/USER-JOURNEY-MAP.md)** - End-to-end user flows
 - **[Project Management](docs/project-management/)** - Sprint planning and tracking
 - **[Development Guide](docs/development/)** - Development best practices
 - **[CAS Framework](cas/)** - Optional: AI-assisted development framework
