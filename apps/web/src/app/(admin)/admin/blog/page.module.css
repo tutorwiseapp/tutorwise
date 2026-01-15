@@ -1,0 +1,44 @@
+/**
+ * Filename: apps/web/src/app/(admin)/admin/blog/page.module.css
+ * Purpose: Blog admin page layout spacing (aligned with users page)
+ */
+
+/* ============================================
+   HEADER SPACING
+   ============================================ */
+.blogHeader {
+  /* Spacing */
+  --hub-header-margin-top: 1.5rem;  /* Extra spacing from global header */
+  --hub-header-margin-bottom: 0;     /* No margin below header (tabs control the gap) */
+
+  /* Layout */
+  --hub-header-height: 3rem;
+  --hub-header-padding-x: 1rem;
+
+  /* Actions (CTA buttons) */
+  --hub-header-actions-gap: 0.5rem;
+  --hub-header-actions-margin-left: 1rem;
+}
+
+/* Mobile: Smaller header spacing */
+@media (max-width: 767px) {
+  .blogHeader {
+    --hub-header-margin-top: 0rem;
+  }
+}
+
+/* ============================================
+   TABS SPACING
+   ============================================ */
+.blogTabs {
+  --hub-tabs-margin-top: 3rem;  /* Desktop: 3rem spacing (default) */
+  --hub-tabs-margin-bottom: 1rem;  /* Bottom spacing to content */
+}
+
+/* Mobile: Smaller spacing */
+@media (max-width: 767px) {
+  .blogTabs {
+    --hub-tabs-margin-top: 0rem;
+    --hub-tabs-margin-bottom: 1rem;
+  }
+}

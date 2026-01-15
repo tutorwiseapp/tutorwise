@@ -6,7 +6,7 @@
  */
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
@@ -24,6 +24,9 @@ export default function AppSidebar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { activeRole } = useUserProfile();
+
+  // Track which sections are expanded (use Set for efficient lookups)
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
   // Universal navigation menu - SAME for all roles (do not reorder or rename)
   // Client note: Clients can list lesson requests under Listings
@@ -128,6 +131,35 @@ export default function AppSidebar() {
     return pathname === href;
   };
 
+  // Auto-expand section when navigating to its routes
+  useEffect(() => {
+    navItems.forEach((item) => {
+      if (item.subItems && isParentActive(item.href)) {
+        setExpandedSections((prev) => new Set(prev).add(item.href));
+      }
+    });
+  }, [pathname]);
+
+  // Toggle section expansion
+  const toggleSection = (href: string, hasSubItems: boolean) => {
+    if (!hasSubItems) return; // Only toggle items with submenus
+
+    setExpandedSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(href)) {
+        next.delete(href);
+      } else {
+        next.add(href);
+      }
+      return next;
+    });
+  };
+
+  // Check if section is expanded (either manually or by route)
+  const isSectionExpanded = (href: string) => {
+    return expandedSections.has(href);
+  };
+
   return (
     <aside className={styles.appSidebar}>
       <nav className={styles.nav}>
@@ -141,22 +173,33 @@ export default function AppSidebar() {
             return (
             <React.Fragment key={item.href}>
               <li>
-                <Link
-                  href={item.href}
-                  className={`${styles.navItem} ${
-                    isActive(item.href, !!item.subItems) ? styles.navItemActive : ''
-                  } ${item.indent ? styles.navItemIndent : ''}`}
-                >
-                  <span className={styles.navItemLabel}>{item.label}</span>
-                  {item.subItems && (
-                    <span className={`${styles.chevron} ${isParentActive(item.href) ? styles.chevronExpanded : ''}`}>
+                {item.subItems ? (
+                  // Parent item with submenu - clickable to toggle
+                  <button
+                    onClick={() => toggleSection(item.href, !!item.subItems)}
+                    className={`${styles.navItem} ${styles.navItemButton} ${
+                      isParentActive(item.href) ? styles.navItemActive : ''
+                    }`}
+                  >
+                    <span className={styles.navItemLabel}>{item.label}</span>
+                    <span className={`${styles.chevron} ${isSectionExpanded(item.href) ? styles.chevronExpanded : ''}`}>
                       ▼
                     </span>
-                  )}
-                </Link>
+                  </button>
+                ) : (
+                  // Regular link item without submenu
+                  <Link
+                    href={item.href}
+                    className={`${styles.navItem} ${
+                      isActive(item.href, false) ? styles.navItemActive : ''
+                    } ${item.indent ? styles.navItemIndent : ''}`}
+                  >
+                    <span className={styles.navItemLabel}>{item.label}</span>
+                  </Link>
+                )}
               </li>
-              {/* Render sub-items if they exist and parent section is active */}
-              {item.subItems && isParentActive(item.href) && (
+              {/* Render sub-items if section is expanded */}
+              {item.subItems && isSectionExpanded(item.href) && (
                 <>
                   {item.subItems.map((subItem) => (
                     <li key={subItem.href}>

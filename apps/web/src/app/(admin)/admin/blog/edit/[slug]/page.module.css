@@ -1,0 +1,27 @@
+/* Edit Blog Article Page Styles */
+
+.blogHeader {
+  --hub-header-margin-top: 1.5rem;
+  --hub-header-margin-bottom: 0;
+  --hub-header-height: 3rem;
+  --hub-header-padding-x: 1rem;
+  --hub-header-actions-gap: 0.5rem;
+  --hub-header-actions-margin-left: 1rem;
+}
+
+.loadingState,
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+  gap: 1rem;
+}
+
+.loadingState p,
+.errorState p {
+  color: #6b7280;
+  font-size: 1rem;
+}

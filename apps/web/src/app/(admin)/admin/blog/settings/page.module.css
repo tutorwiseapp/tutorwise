@@ -1,0 +1,73 @@
+/**
+ * Filename: apps/web/src/app/(admin)/admin/blog/settings/page.module.css
+ * Purpose: Styles for blog settings page
+ */
+
+/* Header spacing to align with blog page */
+.blogHeader {
+  --hub-header-margin-top: 1.5rem;
+  --hub-header-margin-bottom: 0;
+  --hub-header-height: 3rem;
+  --hub-header-padding-x: 1rem;
+  --hub-header-actions-gap: 0.5rem;
+  --hub-header-actions-margin-left: 1rem;
+}
+
+/* Mobile: Smaller header spacing */
+@media (max-width: 767px) {
+  .blogHeader {
+    --hub-header-margin-top: 0rem;
+  }
+}
+
+/* Tabs spacing to align with blog page */
+.blogTabs {
+  --hub-tabs-margin-top: 3rem;
+  --hub-tabs-margin-bottom: 1rem;
+}
+
+/* Mobile: Smaller spacing */
+@media (max-width: 767px) {
+  .blogTabs {
+    --hub-tabs-margin-top: 0rem;
+    --hub-tabs-margin-bottom: 1rem;
+  }
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.settingsCard {
+  padding: 1.5rem;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.settingsTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #111827;
+}
+
+.settingsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.settingsItem {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.8;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.settingsItem:last-child {
+  border-bottom: none;
+}

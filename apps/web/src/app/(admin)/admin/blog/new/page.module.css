@@ -1,0 +1,31 @@
+/* New Blog Article Page Styles */
+
+.blogHeader {
+  --hub-header-margin-top: 1.5rem;
+  --hub-header-margin-bottom: 0;
+  --hub-header-height: 3rem;
+  --hub-header-padding-x: 1rem;
+  --hub-header-actions-gap: 0.5rem;
+  --hub-header-actions-margin-left: 1rem;
+}
+
+/* Mobile: Smaller header spacing */
+@media (max-width: 767px) {
+  .blogHeader {
+    --hub-header-margin-top: 0rem;
+  }
+}
+
+/* Tabs spacing to align with blog page */
+.blogTabs {
+  --hub-tabs-margin-top: 3rem;
+  --hub-tabs-margin-bottom: 1rem;
+}
+
+/* Mobile: Smaller spacing */
+@media (max-width: 767px) {
+  .blogTabs {
+    --hub-tabs-margin-top: 0rem;
+    --hub-tabs-margin-bottom: 1rem;
+  }
+}

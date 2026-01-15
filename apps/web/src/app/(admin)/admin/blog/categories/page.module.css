@@ -1,0 +1,79 @@
+/**
+ * Filename: apps/web/src/app/(admin)/admin/blog/categories/page.module.css
+ * Purpose: Styles for blog categories management page
+ */
+
+/* Header spacing to align with blog page */
+.blogHeader {
+  --hub-header-margin-top: 1.5rem;
+  --hub-header-margin-bottom: 0;
+  --hub-header-height: 3rem;
+  --hub-header-padding-x: 1rem;
+  --hub-header-actions-gap: 0.5rem;
+  --hub-header-actions-margin-left: 1rem;
+}
+
+/* Mobile: Smaller header spacing */
+@media (max-width: 767px) {
+  .blogHeader {
+    --hub-header-margin-top: 0rem;
+  }
+}
+
+/* Tabs spacing to align with blog page */
+.blogTabs {
+  --hub-tabs-margin-top: 3rem;
+  --hub-tabs-margin-bottom: 1rem;
+}
+
+/* Mobile: Smaller spacing */
+@media (max-width: 767px) {
+  .blogTabs {
+    --hub-tabs-margin-top: 0rem;
+    --hub-tabs-margin-bottom: 1rem;
+  }
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.categoriesGrid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  margin-bottom: 2rem;
+}
+
+.categoryCard {
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.categoryCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.categoryName {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #111827;
+}
+
+.categorySlug {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+.categoryCount {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}

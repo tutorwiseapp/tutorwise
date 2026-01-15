@@ -1,0 +1,262 @@
+/* Blog Category Page Styles */
+
+.categoryPage {
+  padding: 2rem 0;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  margin-bottom: 2rem;
+}
+
+.breadcrumbLink {
+  color: #6b7280;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.breadcrumbLink:hover {
+  color: var(--color-primary, #006c67);
+}
+
+.breadcrumbSeparator {
+  color: #d1d5db;
+}
+
+.breadcrumbCurrent {
+  color: #111827;
+  font-weight: 500;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 1rem 0;
+}
+
+.description {
+  font-size: 1.125rem;
+  color: #6b7280;
+  margin: 0 0 1rem 0;
+  line-height: 1.6;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.count {
+  font-size: 0.9375rem;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+/* Articles Grid */
+.articlesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.articleCard {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  height: 100%;
+}
+
+.articleCard:hover {
+  border-color: var(--color-primary, #006c67);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.articleHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.categoryBadge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.categoryBadge[data-category='for-clients'] {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.categoryBadge[data-category='for-tutors'] {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.categoryBadge[data-category='for-agents'] {
+  background-color: #fce7f3;
+  color: #9f1239;
+}
+
+.categoryBadge[data-category='education-insights'] {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.categoryBadge[data-category='company-news'] {
+  background-color: #e9d5ff;
+  color: #6b21a8;
+}
+
+.readTime {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.articleTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.75rem 0;
+  line-height: 1.4;
+}
+
+.articleDescription {
+  font-size: 0.9375rem;
+  color: #6b7280;
+  margin: 0 0 auto 0;
+  line-height: 1.6;
+  flex: 1;
+}
+
+.articleFooter {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+  gap: 1rem;
+}
+
+.author {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.authorName {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.authorRole {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.date {
+  font-size: 0.8125rem;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
+/* No Articles State */
+.noArticles {
+  text-align: center;
+  padding: 4rem 2rem;
+  background-color: #f9fafb;
+  border-radius: 8px;
+}
+
+.noArticles p {
+  font-size: 1.125rem;
+  color: #6b7280;
+  margin: 0 0 1.5rem 0;
+}
+
+.backLink {
+  display: inline-block;
+  font-size: 0.9375rem;
+  color: var(--color-primary, #006c67);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
+
+/* Mobile Responsive */
+@media (max-width: 767px) {
+  .categoryPage {
+    padding: 1.5rem 0;
+  }
+
+  .breadcrumb {
+    font-size: 0.8125rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .icon {
+    font-size: 2.5rem;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .description {
+    font-size: 1rem;
+  }
+
+  .articlesGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .articleFooter {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .date {
+    align-self: flex-start;
+  }
+}

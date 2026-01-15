@@ -1,0 +1,66 @@
+/* Popular Articles Widget Styles */
+
+.widget {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.widgetTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 1rem 0;
+}
+
+.articleList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.articleItem {
+  padding: 1rem;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.articleItem:hover {
+  background-color: #ffffff;
+  border-color: var(--color-primary, #006c67);
+  transform: translateX(4px);
+}
+
+.articleTitle {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.articleMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.category {
+  font-weight: 500;
+  color: var(--color-primary, #006c67);
+}
+
+.separator {
+  color: #d1d5db;
+}
+
+.readTime {
+  color: #9ca3af;
+}

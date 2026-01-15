@@ -16,6 +16,39 @@
 - **353 components** (22 feature component directories + UI library)
 - **27 major features** (18 core systems + 14 platform hubs - 5 overlap)
 
+### Total User-Facing Views Including Modals
+- 150 total UI views that users can see and interact with:
+
+#### 107 Route-based Pages (with URLs)
+- 39 Admin pages
+- 4 Auth pages
+- 13 Public pages
+- 5 Public profile pages
+- 16 Onboarding pages
+- 30 Authenticated user pages
+
+#### 36 Interactive Modals (overlay views)
+- 7 Admin detail modals
+- 3 Admin user management modals
+- 6 Organisation modals
+- 3 Financial modals
+- 1 Booking modal
+- 2 Student modals
+- 3 Wiselist modals
+- 4 Referral modals
+- 2 Network/connection modals
+- 5 Other feature modals (video, share, first login, reviews, snapshot)
+
+#### 7 Dialogs & Drawers
+- 1 Confirmation dialog (reusable)
+- 6 Advanced filter drawers (admin hubs)
+
+#### Summary:
+- Original documentation: 260 pages = 107 UI pages + 141 API routes + 12 dynamic patterns
+- Including all interactive views: 150 UI views = 107 pages + 36 modals + 7 dialogs/drawers
+- Pure user interaction surfaces: 143 views (if excluding filter drawers, which are utility overlays)
+- The 107 UI pages metric counts only route-based pages with distinct URLs. Modals are separate interactive components that overlay existing pages and are not included in that count.
+
 ### API & Database
 - **141 API endpoints** (REST + webhooks + RPC functions)
 - **196 database migrations** (190 numbered: 000-173 + 6 supporting files)
