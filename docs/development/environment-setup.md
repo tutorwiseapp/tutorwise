@@ -2,6 +2,10 @@
 
 > **Get productive in 5 minutes with our automated development workflow**
 
+> **Note**: This is a quick reference for daily development. For complete setup instructions, see:
+> - **[.ai/QUICK-START.md](../../.ai/QUICK-START.md)** - 5-minute setup for new developers
+> - **[.ai/DEVELOPER-SETUP.md](../../.ai/DEVELOPER-SETUP.md)** - Complete setup guide with all tools
+
 ## ⚡ One-Click Setup (New Developers)
 
 ```bash
@@ -128,9 +132,12 @@ npm run dev
 
 ## 📚 More Information
 
-- 📖 **Full Documentation**: [docs/DEVELOPMENT_WORKFLOW.md](docs/DEVELOPMENT_WORKFLOW.md)
+- 📖 **Complete Setup Guide**: [.ai/DEVELOPER-SETUP.md](../../.ai/DEVELOPER-SETUP.md)
+- ⚡ **Quick Start**: [.ai/QUICK-START.md](../../.ai/QUICK-START.md)
 - 🔧 **Troubleshooting**: Run `./scripts/dev-workflow.sh --help`
 - 🤖 **CI/CD**: Automated via GitHub Actions
+- 🗺️ **Product Roadmap**: [.ai/1 - ROADMAP.md](../../.ai/1 - ROADMAP.md)
+- 🏗️ **Architecture**: [.ai/2 - PLATFORM-SPECIFICATION.md](../../.ai/2 - PLATFORM-SPECIFICATION.md)
 
 ## 💡 Pro Tips
 

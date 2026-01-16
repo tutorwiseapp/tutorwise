@@ -80,18 +80,24 @@ print_step "Installing project dependencies..."
 npm install
 print_success "Dependencies installed"
 
-# Setup environment files
+# Setup environment files using smart sync
 print_step "Setting up environment configuration..."
-if [ ! -f ".env.local" ]; then
-    if [ -f ".env.example" ]; then
-        cp .env.example .env.local
-        print_success "Created .env.local from template"
-        print_warning "Please update .env.local with your actual environment variables"
-    else
-        print_warning ".env.example not found - you may need to create .env.local manually"
-    fi
+if [ -f "tools/scripts/setup/sync-env.sh" ]; then
+    chmod +x tools/scripts/setup/sync-env.sh
+    ./tools/scripts/setup/sync-env.sh
 else
-    print_success ".env.local already exists"
+    # Fallback to simple copy if sync script doesn't exist
+    if [ ! -f ".env.local" ]; then
+        if [ -f ".env.example" ]; then
+            cp .env.example .env.local
+            print_success "Created .env.local from template"
+            print_warning "Please update .env.local with your actual environment variables"
+        else
+            print_warning ".env.example not found - you may need to create .env.local manually"
+        fi
+    else
+        print_success ".env.local already exists"
+    fi
 fi
 
 # Setup git hooks
@@ -163,7 +169,9 @@ echo "  npm run workflow:check    - Quick health check"
 echo "  npm run workflow:full     - Complete development workflow"
 echo ""
 echo -e "${BLUE}Documentation:${NC}"
-echo "  docs/DEVELOPMENT_WORKFLOW.md - Detailed workflow guide"
+echo "  .ai/DEVELOPER-SETUP.md       - Complete setup guide"
+echo "  .ai/QUICK-START.md           - 5-minute quick start"
+echo "  docs/development/environment-setup.md - Daily workflow"
 echo ""
 echo -e "${BLUE}Need help?${NC}"
 echo "  Run './scripts/dev-workflow.sh --help' for workflow options"

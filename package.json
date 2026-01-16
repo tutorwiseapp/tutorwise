@@ -92,6 +92,7 @@
     "setup-aliases": "bash tools/scripts/setup/setup-aliases.sh",
     "setup:direnv": "bash tools/scripts/setup/setup-direnv.sh",
     "setup:cas": "bash tools/scripts/setup/install-cas-global.sh",
+    "sync:env": "bash tools/scripts/setup/sync-env.sh",
     "deploy:railway": "bash tools/scripts/deployment/railway-deploy.sh",
     "deploy:vercel": "bash tools/scripts/deployment/vercel-deploy.sh",
     "deploy:vercel:prod": "bash tools/scripts/deployment/vercel-deploy.sh prod",

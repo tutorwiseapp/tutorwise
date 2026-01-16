@@ -39,19 +39,22 @@ Short Description: TutorWise is an AI-enhanced tutoring ecosystem that merges a 
 
 ## Quick Start
 
+**New developers**: See **[.ai/QUICK-START.md](.ai/QUICK-START.md)** for complete 5-minute setup guide.
+
 ```bash
-# Install dependencies
-npm install
+# Automated setup (recommended for first-time setup)
+./tools/scripts/setup/setup-dev-env.sh
 
-# Start development servers
-cd apps/web && npm run dev        # Frontend (Next.js)
-cd apps/api && npm run dev:api    # Backend (FastAPI)
+# Or manual setup:
+npm install                       # Install dependencies
+npm run sync:env                  # Sync environment variables
+npm run dev                       # Start both frontend & backend
 
-# Run tests
-npm test                          # All tests
-npm run test:unit                 # Unit tests
-npm run test:e2e                  # E2E tests (Playwright)
+# Frontend: http://localhost:3000
+# Backend API: http://localhost:8000/docs
 ```
+
+**Complete setup guide**: [.ai/DEVELOPER-SETUP.md](.ai/DEVELOPER-SETUP.md)
 
 ---
 
@@ -251,10 +254,10 @@ CAS will apply 8 agent perspectives:
 - **[PROMPT.md](.ai/PROMPT.md)** - AI assistant configuration and guidelines
 
 ### 🚀 Getting Started
-- **Quick Start**: See "Quick Start" section above
-- **[Environment Setup](docs/development/environment-setup.md)** - Complete setup guide
-- **[Development Workflow](docs/development/DEVELOPMENT-WORKFLOW.md)** - Daily development process
-- **[Quick Start Guide](docs/development/quick-start-guide.md)** - New developer onboarding
+- **[QUICK-START.md](.ai/QUICK-START.md)** - ⚡ Get running in 5 minutes (NEW)
+- **[DEVELOPER-SETUP.md](.ai/DEVELOPER-SETUP.md)** - 📖 Complete setup guide with all tools (NEW)
+- **[Environment Setup](docs/development/environment-setup.md)** - Daily workflow reference
+- **[Development Workflow](docs/development/DEVELOPMENT-WORKFLOW.md)** - Coding patterns and best practices
 
 ### 🏗️ Architecture & Design
 - **[System Navigation](.ai/SYSTEM-NAVIGATION.md)** - Find where everything lives in the codebase
