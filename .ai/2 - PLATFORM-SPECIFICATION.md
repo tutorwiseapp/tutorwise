@@ -1,8 +1,8 @@
 # Tutorwise Platform Specification
 
 **Document Type**: Complete Platform Specification (Technical + Strategic)
-**Document Version**: 1.3
-**Last Updated**: 2026-01-14
+**Document Version**: 1.4
+**Last Updated**: 2026-01-16
 **Author**: Platform Architecture Team
 **Classification**: Internal - Strategic
 **Location**: `.ai/PLATFORM-SPECIFICATION.md` (Replaces: `docs/platform-overview.md`, `.ai/ARCHITECTURE.md`)
@@ -53,11 +53,11 @@ Tutorwise is a next-generation EdTech platform that reimagines the tutoring mark
 **Platform Scale**: See [SYSTEM-NAVIGATION.md](3 - SYSTEM-NAVIGATION.md#platform-metrics-single-source-of-truth) for complete codebase metrics.
 
 **Key Statistics**:
-- **260 pages** (107 UI + 141 API endpoints)
+- **267 pages** (110 UI + 144 API endpoints)
 - **148K lines of code** + 176K lines of documentation
 - **196 database migrations** (190 numbered + 6 supporting), 60+ tables
 - **353 components** across 22 feature directories
-- **27 major features** (98% complete, production-ready)
+- **31 major features** (98% complete, production-ready)
 
 **Advanced Technical Capabilities**:
 - **Neo4j graph database** with PageRank trust propagation for SEO eligibility
@@ -351,6 +351,174 @@ Tutorwise is a next-generation EdTech platform that reimagines the tutoring mark
 
 **Payment Architecture Note**:
 The £50/month organisation subscription is for TutorWise Premium platform access only. Student payments to organisations for tutoring services happen outside the TutorWise platform using the organisation's existing payment methods (bank transfer, PayPal, cash, etc.). TutorWise does not process or handle tutoring service payments for organisations.
+
+### 2.3 Blog-to-Marketplace Demand Engine (Implemented Jan 2026)
+
+**Strategic Purpose**: Transform the blog from static content into an active demand generation engine that drives marketplace conversions through comprehensive attribution tracking.
+
+**Core Philosophy**: **SEO builds demand → Blog educates → Marketplace converts → Wiselists retain → Referrals multiply**
+
+```
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                    BLOG-TO-MARKETPLACE ATTRIBUTION FLOW                      │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  Step 1: SEO Discovery                Step 2: Blog Education                │
+│  ┌─────────────────────┐             ┌──────────────────────────┐          │
+│  │   Google Search     │────────────▶│   Blog Article           │          │
+│  │ "Maths tutor GCSE"  │             │  - Educational content   │          │
+│  └─────────────────────┘             │  - Embedded tutors       │          │
+│                                      │  - Embedded listings     │          │
+│                                      │  - Save to Wiselist CTA  │          │
+│                                      └────────┬─────────────────┘          │
+│                                               │                             │
+│                                               │ 30-day cookie session       │
+│                                               │ tracks attribution          │
+│                                               │                             │
+│                                               ▼                             │
+│  Step 3: Marketplace Conversion       Step 4: Retention & Amplification    │
+│  ┌──────────────────────────┐        ┌──────────────────────────┐         │
+│  │  Click Embedded Content  │───────▶│   Wiselist Save          │         │
+│  │  - Tutor profile         │        │  - Private collections   │         │
+│  │  - Service listing       │        │  - Share publicly (opt-in)│        │
+│  │  - Carousel of tutors    │        │  - Include blog articles │         │
+│  └────────┬─────────────────┘        └────────┬─────────────────┘         │
+│           │                                    │                            │
+│           ▼                                    ▼                            │
+│  ┌──────────────────────────┐        ┌──────────────────────────┐         │
+│  │   Booking Created        │        │   Referral Share         │         │
+│  │  - Dual-write attribution│        │  - Social share w/ ref   │         │
+│  │  - Event stream (truth)  │        │  - Blog URL + ref code   │         │
+│  │  - Cache field (perf)    │        │  - Commission tracking   │         │
+│  └──────────────────────────┘        └──────────────────────────┘         │
+│                                                                              │
+│                                ▼                                            │
+│                   ┌───────────────────────────┐                            │
+│                   │  Admin Dashboard          │                            │
+│                   │  /admin/blog/orchestrator │                            │
+│                   │  - Performance metrics    │                            │
+│                   │  - Conversion funnel      │                            │
+│                   │  - Attribution analytics  │                            │
+│                   └───────────────────────────┘                            │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Architecture: Event-Based Attribution System**
+
+```
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                          EVENT-BASED ATTRIBUTION                             │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  Source of Truth: blog_attribution_events (Immutable Event Stream)          │
+│  ┌────────────────────────────────────────────────────────────────────────┐ │
+│  │ event_type:      impression | click | save | refer | convert           │ │
+│  │ target_type:     article | tutor | listing | booking | wiselist_item   │ │
+│  │ blog_article_id: UUID (which article influenced this event)            │ │
+│  │ user_id:         UUID (nullable, for logged-in users)                  │ │
+│  │ session_id:      TEXT (30-day cookie, bridges anonymous → logged-in)   │ │
+│  │ source_component: tutor_embed | listing_grid | tutor_carousel | etc.   │ │
+│  │ metadata:        JSONB (embed_instance_id, position, context)          │ │
+│  │ created_at:      Timestamp                                              │ │
+│  └────────────────────────────────────────────────────────────────────────┘ │
+│                                                                              │
+│  Dual-Write Pattern: Events (Truth) + Cache Fields (Performance)            │
+│  ┌────────────────────────────────────────────────────────────────────────┐ │
+│  │ Write 1: INSERT INTO blog_attribution_events (...)                     │ │
+│  │ Write 2: UPDATE target_table SET source_blog_article_id = article_id   │ │
+│  │                                                                         │ │
+│  │ Why Both?                                                               │ │
+│  │ - Events: Complete history for multi-touch attribution                 │ │
+│  │ - Cache:  Fast queries for simple "last-touch" attribution            │ │
+│  │ - Graceful degradation if event write fails                            │ │
+│  └────────────────────────────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Phase 3 Implementation (Complete - January 2026)**:
+
+**Database Layer** (Migrations 179-182):
+- **Migration 179**: `blog_attribution_events` table - immutable event stream with RLS policies
+- **Migration 180**: `blog_listing_links` metadata enhancements (position, embed_instance_id, metadata)
+- **Migration 181**: Privacy controls for article saves (visibility column, opt-in sharing)
+- **Migration 182**: Four analytics RPCs with explicit attribution window parameters
+
+**Infrastructure** (Phase 1-2):
+- **Session Tracking**: 30-day cookie-based UUID (persists across login/logout)
+- **Embed Instance IDs**: Stable hash-based IDs for A/B testing (same embed → same ID across users)
+- **MDX Components**: TutorEmbed, ListingGrid, TutorCarousel with attribution tracking
+- **Wiselist Integration**: SaveArticleButton with dual-write and privacy-first design
+- **API Routes**: Event recording, dual-write conversions, article saves
+
+**Dashboard UI** (Phase 3):
+- **Location**: `/admin/blog/orchestrator` (admin-only)
+- **Four Tabs**:
+  1. **Overview**: KPI cards (Total Articles, Blog-Assisted Bookings, Revenue, Conversion Rate)
+  2. **Top Articles**: Revenue-sorted performance table with all metrics
+  3. **Conversion Funnel**: Four-stage funnel (View → Interact → Save → Book)
+  4. **Listing Visibility**: Blog-assisted listings with baseline comparison
+- **Controls**: Date range selector (30/60/90 days), Attribution window selector (7/14/30 days)
+- **Design**: Responsive, mobile-friendly, follows SEO hub pattern
+
+**Key Technical Features**:
+
+1. **Event-Based Attribution** (not field-based):
+   - Immutable event stream captures ALL interactions
+   - Attribution models become query-time concerns
+   - Enables answering: "Which 3 articles influenced this booking?"
+
+2. **Dual-Write Pattern**:
+   - Events table = complete truth (multi-touch attribution)
+   - Cache columns = fast performance (simple last-touch queries)
+   - Graceful degradation if event write fails
+
+3. **Privacy-First Design**:
+   - Article saves are private by default
+   - Users must explicitly opt-in to share reading history on public wiselists
+   - RLS policies enforce `visibility` column checks
+
+4. **Explicit Attribution Window**:
+   - Every RPC takes `p_attribution_window_days` parameter (default: 7)
+   - Not hard-coded, enables Phase 4+ experimentation
+   - Prevents baking assumptions into SQL
+
+5. **Canonical Event Semantics** (documented in migration):
+   - Article View: `blog_article_metrics.page_views`
+   - Marketplace Interaction: `event_type IN ('click', 'save')` + `target_type IN ('tutor', 'listing')`
+   - Wiselist Save: `event_type = 'save'`
+   - Booking: `event_type = 'convert'` + `target_type = 'booking'`
+   - Blog-Assisted Booking: ANY blog event within attribution window before booking
+
+**Analytics RPCs** (Migration 182):
+
+1. **get_article_performance_summary**: Per-article metrics (views, interactions, saves, bookings, revenue, conversion rate)
+2. **get_conversion_funnel**: Four-stage funnel with stage-to-stage conversion rates
+3. **get_blog_assisted_listings**: Correlation signals with baseline comparison (same-category average)
+4. **get_time_to_conversion_distribution**: Validates 7-day attribution window assumption
+
+**Phase 3 Stopping Point - Observation Before Optimization**:
+
+Phase 3 implements the **observation layer only**:
+- ✅ Shows what's happening (views, clicks, conversions)
+- ✅ Exposes correlation signals (blog-assisted bookings)
+- ✅ Read-only analytics (no optimization recommendations)
+- ❌ Does NOT implement attribution model selection (Phase 6)
+- ❌ Does NOT implement A/B testing (Phase 7)
+- ❌ Does NOT implement referral integration (Phase 4)
+
+**Future Phases** (Planned, not implemented):
+- **Phase 4**: Referral integration (social share with referral codes)
+- **Phase 5**: Cross-linking & SEO amplification (bidirectional blog ↔ marketplace)
+- **Phase 6**: Attribution model selection (First-Touch, Last-Touch, Linear, Time-Decay)
+- **Phase 7**: A/B testing & optimization (experiment framework)
+
+**Decision Framework**: Wait for 3 months of real usage data before proceeding to Phase 4. Move to Phase 4 only when:
+- ✅ Dashboard is live and being used weekly
+- ✅ Team has identified 3-5 "high-signal" articles
+- ✅ Can answer: "Which article drove most bookings this quarter?"
+- ✅ Want to amplify top articles via referral sharing
+
+**Documentation**: See [2-BLOG/BLOG-DEMAND-ENGINE.md](../../2-BLOG/BLOG-DEMAND-ENGINE.md) for complete Phase 1-7 documentation.
 
 ---
 
