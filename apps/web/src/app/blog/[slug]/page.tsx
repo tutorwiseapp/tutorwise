@@ -9,6 +9,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/server';
 import ArticleStructuredData from '@/app/components/blog/ArticleStructuredData';
+import SaveArticleButton from '@/app/components/blog/SaveArticleButton';
 import styles from './page.module.css';
 
 interface BlogArticle {
@@ -156,8 +157,20 @@ export default async function BlogArticlePage({ params }: { params: { slug: stri
 
       {/* Article Header */}
       <header className={styles.header}>
-        <div className={styles.categoryBadge} data-category={article.category}>
-          {categoryLabel}
+        <div className={styles.headerTop}>
+          <div className={styles.categoryBadge} data-category={article.category}>
+            {categoryLabel}
+          </div>
+          <SaveArticleButton
+            article={{
+              id: article.id,
+              title: article.title,
+              slug: article.slug,
+              description: article.description,
+              featured_image_url: article.featured_image_url,
+            }}
+            variant="icon"
+          />
         </div>
         <h1 className={styles.title}>{article.title}</h1>
         <p className={styles.description}>{article.description}</p>

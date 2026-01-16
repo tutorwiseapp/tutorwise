@@ -1,0 +1,165 @@
+/**
+ * Filename: apps/web/src/app/components/blog/ArticleCard.module.css
+ * Purpose: Styles for ArticleCard component
+ * Created: 2026-01-16
+ */
+
+.cardContainer {
+  position: relative;
+  background-color: white;
+  border: 1px solid #e5e7eb; /* Gray-200 */
+  border-radius: 0.75rem;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.cardContainer:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.cardLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Image Section */
+.imageContainer {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  background-color: #f3f4f6; /* Gray-100 */
+}
+
+.image {
+  object-fit: cover;
+}
+
+.categoryBadge {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  background-color: rgba(5, 150, 105, 0.9); /* Emerald-600 with opacity */
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  text-transform: capitalize;
+}
+
+/* Content Section */
+.contentContainer {
+  padding: 1rem;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827; /* Gray-900 */
+  margin: 0 0 0.5rem 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.description {
+  font-size: 0.875rem;
+  color: #6b7280; /* Gray-500 */
+  line-height: 1.6;
+  margin: 0 0 0.75rem 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Metadata Row */
+.metadataRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  font-size: 0.8125rem;
+  color: #9ca3af; /* Gray-400 */
+}
+
+.author {
+  font-weight: 600;
+  color: #374151; /* Gray-700 */
+}
+
+.date::before,
+.readTime::before {
+  content: '•';
+  margin-right: 0.5rem;
+  color: #d1d5db; /* Gray-300 */
+}
+
+/* Saved Info */
+.savedInfo {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f3f4f6; /* Gray-100 */
+  font-size: 0.75rem;
+  color: #059669; /* Emerald-600 */
+  font-weight: 500;
+}
+
+/* Remove Button */
+.removeButton {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 1px solid #e5e7eb; /* Gray-200 */
+  border-radius: 50%;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #6b7280; /* Gray-500 */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.removeButton:hover {
+  background-color: #dc2626; /* Red-600 */
+  border-color: #dc2626;
+  color: white;
+  transform: scale(1.1);
+}
+
+.removeButton:active {
+  transform: scale(0.95);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .imageContainer {
+    height: 160px;
+  }
+
+  .contentContainer {
+    padding: 0.75rem;
+  }
+
+  .title {
+    font-size: 1rem;
+  }
+
+  .description {
+    font-size: 0.8125rem;
+  }
+
+  .metadataRow {
+    font-size: 0.75rem;
+  }
+}

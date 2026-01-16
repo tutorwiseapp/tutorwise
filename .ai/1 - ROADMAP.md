@@ -19,7 +19,7 @@
 - **196 database migrations** (190 numbered + 6 supporting files)
 - **353 components** in unified design system
 - **200+ RLS policies** enforcing data security
-- **27 major features** completed (18 core systems + 14 platform hubs - 5 overlap)
+- **31 major features** completed (22 core systems + 14 platform hubs - 5 overlap)
 - **82 feature enhancements** implemented
 - **151 bug fixes** implemented
 - **63 refactors** completed
@@ -746,6 +746,60 @@ where session_weight = MAX(sessions_90d, 1)
 - ✅ Organisation task categories include recruitment workflows
 
 **Note**: Recruitment leverages existing platform features (Messages + organisation task management) rather than dedicated recruitment-specific tools for a streamlined hiring workflow.
+
+### 31. Blog-to-Marketplace Demand Engine ✅
+**Status**: Phase 1-3 Complete (Phase 4-7 Planned)
+**Completion**: Phase 3 (Observation Layer)
+**Completed**: 2026-01-16
+
+**Core Philosophy**: SEO builds demand → Blog educates → Marketplace converts → Wiselists retain → Referrals multiply
+
+**Phase 1-2: Foundation** ✅
+- ✅ Event-based attribution infrastructure (immutable event stream)
+- ✅ Dual-write pattern (events + cache fields)
+- ✅ Session tracking (30-day cookie-based)
+- ✅ Stable embed instance IDs (hash-based)
+- ✅ MDX embed components (TutorEmbed, ListingGrid, TutorCarousel)
+- ✅ Wiselist integration (save articles with privacy controls)
+- ✅ API routes for event recording and dual-write conversions
+
+**Phase 3: Unified Dashboard** ✅
+- ✅ Four analytics RPCs with explicit attribution window parameters
+- ✅ Canonical event semantics documentation (single source of truth)
+- ✅ Article performance summary (views, interactions, saves, bookings, revenue)
+- ✅ Conversion funnel analysis (4-stage: View → Interact → Save → Book)
+- ✅ Blog-assisted listing visibility (correlation signals, not causation)
+- ✅ Time-to-conversion distribution (validates 7-day attribution window)
+
+**Database Migrations**:
+- ✅ Migration 179: `blog_attribution_events` table (event stream)
+- ✅ Migration 180: `blog_listing_links` metadata enhancements
+- ✅ Migration 181: Privacy controls for article saves
+- ✅ Migration 182: Blog orchestrator analytics RPCs
+
+**Phase 4-7: Optimization Roadmap** ⏳ (Planned)
+- ⏳ Phase 4: Referral integration (social sharing with referral codes)
+- ⏳ Phase 5: Cross-linking & SEO amplification (bidirectional blog ↔ marketplace links)
+- ⏳ Phase 6: Attribution model selection (First-Touch, Last-Touch, Linear, Time-Decay)
+- ⏳ Phase 7: A/B testing & optimization (experiment framework)
+
+**Key Features**:
+- ✅ Event-based attribution (immutable event stream as source of truth)
+- ✅ Multi-touch attribution tracking (query-time, descriptive in Phase 3)
+- ✅ Session-based anonymous user tracking (30-day cookie persistence)
+- ✅ Privacy-first article saves (opt-in sharing on public wiselists)
+- ✅ Dual-write pattern (events + denormalized cache)
+- ✅ Explicit attribution window (7-day default, parameterized)
+- ✅ Correlation signals for blog-assisted listings (not causation claims)
+
+**Implementation Notes**:
+- Phase 3 is an intentional stopping point (observation before optimization)
+- Dashboard UI implemented and live at `/admin/blog/orchestrator`
+- Phases 4-7 roadmap documented for future optimization
+- Decision framework for phase transitions defined
+
+**Related Documentation**:
+- [BLOG-DEMAND-ENGINE.md](../2-BLOG/BLOG-DEMAND-ENGINE.md) - Complete system documentation (Phases 1-7)
 
 ---
 

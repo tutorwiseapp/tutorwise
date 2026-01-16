@@ -1,0 +1,180 @@
+/**
+ * Filename: apps/web/src/app/components/blog/SaveArticleButton.module.css
+ * Purpose: Styles for SaveArticleButton component
+ * Created: 2026-01-16
+ */
+
+/* Button variant (default) */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background-color: white;
+  border: 2px solid #d1d5db; /* Gray-300 */
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #374151; /* Gray-700 */
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.button:hover {
+  border-color: #059669; /* Emerald-600 */
+  background-color: #f0fdf4; /* Emerald-50 */
+  color: #059669;
+  transform: translateY(-1px);
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.button.saved {
+  background-color: #059669; /* Emerald-600 */
+  border-color: #059669;
+  color: white;
+}
+
+.button.saved:hover {
+  background-color: #047857; /* Emerald-700 */
+  border-color: #047857;
+}
+
+.icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.label {
+  line-height: 1;
+}
+
+/* Icon-only variant */
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: white;
+  border: 2px solid #d1d5db; /* Gray-300 */
+  border-radius: 50%;
+  font-size: 1.5rem;
+  color: #9ca3af; /* Gray-400 */
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.iconButton:hover {
+  border-color: #059669; /* Emerald-600 */
+  color: #059669;
+  transform: scale(1.1);
+}
+
+.iconButton:active {
+  transform: scale(0.95);
+}
+
+.iconButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.iconButton.saved {
+  background-color: #059669; /* Emerald-600 */
+  border-color: #059669;
+  color: #fbbf24; /* Amber-400 - gold star */
+}
+
+.iconButton.saved:hover {
+  background-color: #047857; /* Emerald-700 */
+  border-color: #047857;
+}
+
+/* Floating variant */
+.floatingButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  width: 64px;
+  height: 64px;
+  background-color: white;
+  border: 2px solid #d1d5db; /* Gray-300 */
+  border-radius: 0.75rem;
+  font-size: 1.75rem;
+  color: #9ca3af; /* Gray-400 */
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.floatingButton:hover {
+  border-color: #059669; /* Emerald-600 */
+  color: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.floatingButton:active {
+  transform: translateY(0);
+}
+
+.floatingButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.floatingButton.saved {
+  background-color: #059669; /* Emerald-600 */
+  border-color: #059669;
+  color: #fbbf24; /* Amber-400 - gold star */
+}
+
+.floatingButton.saved:hover {
+  background-color: #047857; /* Emerald-700 */
+  border-color: #047857;
+}
+
+.floatingLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  color: #6b7280; /* Gray-500 */
+}
+
+.floatingButton.saved .floatingLabel {
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .iconButton {
+    width: 36px;
+    height: 36px;
+    font-size: 1.25rem;
+  }
+
+  .floatingButton {
+    width: 56px;
+    height: 56px;
+    font-size: 1.5rem;
+  }
+
+  .floatingLabel {
+    font-size: 0.625rem;
+  }
+}

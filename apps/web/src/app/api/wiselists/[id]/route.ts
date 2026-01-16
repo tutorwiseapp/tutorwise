@@ -44,7 +44,7 @@ export async function GET(
 
     // Fetch related data separately to handle potential RLS issues
     console.log('[GET /api/wiselists/[id]] Fetching items for wiselist:', id);
-    const [itemsResult, collaboratorsResult] = await Promise.all([
+    const [itemsResult, collaboratorsResult, articleSavesResult] = await Promise.all([
       supabase
         .from('wiselist_items')
         .select(`
@@ -61,6 +61,13 @@ export async function GET(
           profile:profiles!wiselist_collaborators_profile_id_fkey(id, full_name, avatar_url, email),
           invited_by:profiles!wiselist_collaborators_invited_by_profile_id_fkey(id, full_name, avatar_url)
         `)
+        .eq('wiselist_id', id),
+      supabase
+        .from('blog_article_saves')
+        .select(`
+          *,
+          article:blog_articles(id, title, slug, description, featured_image_url, read_time, category, published_at, author_name)
+        `)
         .eq('wiselist_id', id)
     ]);
 
@@ -75,17 +82,24 @@ export async function GET(
       console.error('[GET /api/wiselists/[id]] Collaborators fetch error:', collaboratorsResult.error);
     }
 
+    if (articleSavesResult.error) {
+      console.error('[GET /api/wiselists/[id]] Article saves fetch error:', articleSavesResult.error);
+    } else {
+      console.log('[GET /api/wiselists/[id]] Article saves fetched successfully:', articleSavesResult.data?.length || 0, 'articles');
+    }
+
     // Combine the data
     const data = {
       ...basicWiselist,
       items: itemsResult.data || [],
       collaborators: collaboratorsResult.data || [],
+      article_saves: articleSavesResult.data || [],
     };
 
     // Add computed counts
     const wiselist = {
       ...data,
-      item_count: data.items?.length || 0,
+      item_count: (data.items?.length || 0) + (data.article_saves?.length || 0),
       collaborator_count: data.collaborators?.length || 0,
     };
 

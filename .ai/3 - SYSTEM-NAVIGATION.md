@@ -9,12 +9,12 @@
 ## Platform Metrics (Single Source of Truth)
 
 ### Codebase Scale
-- **260 pages** (107 UI pages + 141 API routes + 12 dynamic route patterns)
+- **267 pages** (111 UI pages + 144 API routes + 12 dynamic route patterns)
 - **148,000 lines of code** (TypeScript/TSX across app, components, lib)
-- **176,000 lines of documentation** (12K AI context + 164K feature/technical docs)
+- **180,000 lines of documentation** (16K AI context + 164K feature/technical docs)
 - **29,000 lines of SQL** (196 migration files, 60+ tables)
 - **353 components** (22 feature component directories + UI library)
-- **27 major features** (18 core systems + 14 platform hubs - 5 overlap)
+- **31 major features** (22 core systems + 14 platform hubs - 5 overlap)
 
 ### Total User-Facing Views Including Modals
 - 150 total UI views that users can see and interact with:
@@ -50,8 +50,8 @@
 - The 107 UI pages metric counts only route-based pages with distinct URLs. Modals are separate interactive components that overlay existing pages and are not included in that count.
 
 ### API & Database
-- **141 API endpoints** (REST + webhooks + RPC functions)
-- **196 database migrations** (190 numbered: 000-173 + 6 supporting files)
+- **144 API endpoints** (REST + webhooks + RPC functions)
+- **196 database migrations** (190 numbered: 000-182 + 6 supporting files)
 - **200+ Row-Level Security policies** with granular RBAC
 - **60+ database tables** with comprehensive relationships
 
@@ -122,7 +122,7 @@
 
 | File | Purpose | When to Use |
 |------|---------|-------------|
-| [ROADMAP.md](.ai/ROADMAP.md) | Development status, 98% complete, 18 features | Check what's implemented vs planned |
+| [ROADMAP.md](.ai/ROADMAP.md) | Development status, 98% complete, 31 features | Check what's implemented vs planned |
 | [PLATFORM-SPECIFICATION.md](.ai/PLATFORM-SPECIFICATION.md) | Complete technical + strategic spec (3,194 lines) | Understand business logic, architecture, APIs |
 | [SYSTEM-NAVIGATION.md](.ai/SYSTEM-NAVIGATION.md) | This file - where everything lives | Find code locations, user flows |
 | [PATTERNS.md](.ai/PATTERNS.md) | Code conventions, standards | Write consistent code |
@@ -131,6 +131,7 @@
 | [ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md) | 11 admin hubs architecture | Work on admin features |
 | [SHARED-FIELDS.md](.ai/SHARED-FIELDS.md) | 23 global fields, 106 mappings, 9 contexts | Work with form system |
 | [ONBOARDING.md](.ai/ONBOARDING.md) | Page-based onboarding (3 roles × 5 steps) | Work on onboarding flows |
+| [BLOG-SEO.md](.ai/BLOG-SEO.md) | Blog attribution system (Phases 1-3 complete) | Work on blog-to-marketplace demand engine |
 | [PROMPT.md](.ai/PROMPT.md) | AI assistant configuration | Configure AI behavior |
 
 ### Development Docs (`docs/development/`)
@@ -176,7 +177,7 @@
 
 ## Visual Page Sitemap
 
-**All 260 Platform Pages** - Complete route hierarchy showing every page and API endpoint in the Tutorwise platform.
+**All 260+ Platform Pages** - Complete route hierarchy showing every page and API endpoint in the Tutorwise platform.
 
 ### Summary
 
@@ -186,13 +187,14 @@
 | **Auth & Redirects** | 4 | Login, OAuth callbacks, referral links |
 | **Public Profiles** | 5 | Listings, profiles, organisations (dynamic) |
 | **Marketplace Pages** | 5 | Directories (orgs, schools, agencies, companies, docs) |
+| **Blog Pages** | 3 | Blog index, article view, public wiselist articles |
 | **Onboarding Flows** | 16 | 3 roles × 5 steps (Tutor, Client, Agent) + hub |
 | **Dashboard Pages** | 30 | Account, bookings, financials, network, org management |
-| **Admin Pages** | 34 | 13 admin hubs + SEO management + settings |
-| **Total UI Pages** | **107** | |
-| **API Endpoints** | **141** | REST APIs + webhooks |
+| **Admin Pages** | 35 | 13 admin hubs + SEO management + Blog orchestrator + settings |
+| **Total UI Pages** | **111** | |
+| **API Endpoints** | **144** | REST APIs + webhooks |
 | **Dynamic Routes** | **~12** | [id], [slug], etc. (counted in category totals) |
-| **GRAND TOTAL** | **260+** | All pages including dynamic variations |
+| **GRAND TOTAL** | **267+** | All pages including dynamic variations |
 
 ---
 
@@ -213,6 +215,16 @@
 /help-centre                         # Help centre hub
   /help-centre/[category]            # Help by category (dynamic)
     /help-centre/[category]/[slug]   # Help article (dynamic)
+```
+
+---
+
+### Blog Pages (3 pages)
+
+```
+/blog                                # Blog index (article list)
+/blog/[slug]                         # Article detail page (dynamic)
+/w/[slug]                            # Public wiselist with articles (dynamic)
 ```
 
 ---
@@ -331,7 +343,7 @@
 
 ---
 
-### Admin Panel (34 pages)
+### Admin Panel (35 pages)
 
 ```
 # Admin Home
@@ -377,11 +389,21 @@
   /admin/settings/integrations       # Integrations
   /admin/settings/security           # Security settings
   /admin/settings/subscriptions      # Subscription management
+
+# Blog Management (1 page - planned)
+/admin/blog/orchestrator             # Blog demand orchestrator dashboard (Phase 3)
 ```
 
 ---
 
-### API Endpoints (141 routes)
+### API Endpoints (144 routes)
+
+#### Blog Attribution (3 endpoints)
+```
+POST /api/blog/attribution/events    # Record blog interaction events
+POST /api/blog/attribution           # Record conversion attribution (dual-write)
+POST /api/blog/saves                 # Save article to wiselist (dual-write)
+```
 
 #### Activity & System (4 endpoints)
 ```
@@ -1357,7 +1379,65 @@ Database:
 
 ---
 
-### 18. Admin Dashboard (11 Hubs)
+### 18. Blog-to-Marketplace Demand Engine
+
+**Description**: Event-based attribution system tracking blog → marketplace conversions (Phase 1-3 complete)
+
+**User Flow**:
+- `/blog` → Browse articles
+- `/blog/[slug]` → Read article with embedded marketplace content
+- Click embed → Track attribution → Book/Save → Record conversion
+- `/admin/blog/orchestrator` → View analytics (Phase 3 - planned)
+
+**File Locations**:
+```
+apps/web/src/app/
+├── blog/
+│   ├── page.tsx                          # Blog index (planned)
+│   └── [slug]/page.tsx                   # Article detail (planned)
+├── (admin)/admin/blog/
+│   └── orchestrator/page.tsx             # Analytics dashboard (Phase 3 - planned)
+└── api/blog/
+    ├── attribution/
+    │   ├── route.ts                      # Dual-write conversions
+    │   └── events/route.ts               # Event recording
+    └── saves/route.ts                    # Article saves
+
+Components:
+apps/web/src/app/components/blog/
+├── embeds/
+│   ├── TutorEmbed.tsx                    # Embed tutor profiles in MDX
+│   ├── ListingGrid.tsx                   # Embed marketplace listings
+│   ├── TutorCarousel.tsx                 # Swipeable tutor carousel
+│   └── useBlogAttribution.ts             # Attribution tracking hook
+└── SaveArticleButton.tsx                 # Save articles to wiselists
+
+Utilities:
+apps/web/src/lib/utils/
+├── sessionTracking.ts                    # 30-day cookie-based sessions
+└── embedInstanceId.ts                    # Stable hash-based embed IDs
+
+Database:
+- tools/database/migrations/179_create_blog_attribution_events.sql
+- tools/database/migrations/180_update_blog_listing_links_metadata.sql
+- tools/database/migrations/181_add_visibility_to_blog_article_saves.sql
+- tools/database/migrations/182_create_blog_orchestrator_rpcs.sql
+```
+
+**Related Docs**:
+- [BLOG-SEO.md](.ai/BLOG-SEO.md) - Complete system documentation
+- [PHASE_4_7_ROADMAP.md](../2-BLOG/PHASE_4_7_ROADMAP.md) - Future phases planning
+
+**Key Concepts**:
+- **Event-based attribution**: Immutable event stream as source of truth
+- **Dual-write pattern**: Events (truth) + cache fields (performance)
+- **Session tracking**: 30-day cookie persistence across login/logout
+- **Privacy-first**: Article saves private by default (opt-in sharing)
+- **Multi-touch attribution**: Query-time, descriptive (Phase 3 observation only)
+
+---
+
+### 19. Admin Dashboard (11 Hubs)
 
 **Description**: Complete admin system with RBAC (Super Admin, Admin, System Admin, Support Admin), audit logging, soft/hard delete
 
@@ -1594,12 +1674,12 @@ Database:
 ```
 📊 Codebase Statistics:
 ├── 148,000 lines of TypeScript/TSX code
-├── 176,000 lines of documentation (12K AI context + 164K features)
-├── 29,000 lines of SQL (192 migrations)
-├── 260 pages (107 UI + 141 API + dynamic routes)
+├── 180,000 lines of documentation (16K AI context + 164K features)
+├── 29,000 lines of SQL (196 migrations)
+├── 267 pages (111 UI + 144 API + dynamic routes)
 ├── 353 components (22 feature components + UI library)
-├── 141 API endpoints
-└── 27 major features
+├── 144 API endpoints
+└── 31 major features
 ```
 
 ### Complete Directory Tree
@@ -1607,8 +1687,8 @@ Database:
 ```
 tutorwise/
 ├── .ai/                                   # AI context files (START HERE)
-│   │                                      # 12,310 lines of documentation
-│   ├── 1 - ROADMAP.md                     # 670 lines - 98% complete, 27 features
+│   │                                      # 16,310 lines of documentation
+│   ├── 1 - ROADMAP.md                     # 670 lines - 98% complete, 31 features
 │   ├── 2 - PLATFORM-SPECIFICATION.md      # 3,194 lines - Complete tech spec
 │   ├── 3 - SYSTEM-NAVIGATION.md           # This file - Complete navigation
 │   ├── 4 - PATTERNS.md                    # Code conventions & standards
@@ -1617,7 +1697,8 @@ tutorwise/
 │   ├── 7 - PROMPT.md                      # AI configuration
 │   ├── ADMIN-DASHBOARD.md                 # 11 admin hubs architecture
 │   ├── SHARED-FIELDS.md                   # 23 global fields, 106 mappings
-│   └── ONBOARDING.md                      # Page-based onboarding (3 roles)
+│   ├── ONBOARDING.md                      # Page-based onboarding (3 roles)
+│   └── BLOG-SEO.md                        # Blog attribution system (Phases 1-3)
 │
 ├── apps/
 │   └── web/                               # Next.js 14.x frontend (148K lines)
@@ -1830,6 +1911,7 @@ tutorwise/
 | Update marketplace | `apps/web/src/app/(admin)/marketplace/` |
 | Add messaging features | `apps/web/src/app/(admin)/messages/` + `apps/web/src/lib/ably/` |
 | Modify CaaS scoring | `apps/web/src/lib/services/caas/` + [caas-dual-path-architecture.md](../docs/feature/caas/caas-dual-path-architecture.md) |
+| Work on blog attribution | `apps/web/src/app/components/blog/` + [BLOG-SEO.md](.ai/BLOG-SEO.md) |
 | Work on admin dashboard | `apps/web/src/app/(admin)/admin/` + [ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md) |
 | Update referrals | `apps/web/src/app/(admin)/referral-activities/` + [referrals docs](../docs/feature/referrals/) |
 | Modify organisations | `apps/web/src/app/(admin)/organisations/` |
@@ -1879,6 +1961,7 @@ tutorwise/
 | **Admin Dashboard** | 11 hubs with HubComplexModal | [ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md) |
 | **Onboarding System** | Page-based routing | [ONBOARDING.md](.ai/ONBOARDING.md) |
 | **Referrals System** | Multi-tier attribution | [referrals-solution-design-v2.md](../docs/feature/referrals/referrals-solution-design-v2.md) |
+| **Blog Attribution** | Event-based demand engine | [BLOG-SEO.md](.ai/BLOG-SEO.md) |
 | **Design System** | UI component library | [DESIGN-SYSTEM.md](.ai/DESIGN-SYSTEM.md) |
 
 ### Tech Stack Summary

@@ -192,7 +192,11 @@ export async function deleteWiselist(id: string): Promise<void> {
 }
 
 /**
- * Add an item to a wiselist
+ * Add an item to a wiselist with optional blog attribution tracking
+ *
+ * Implements dual-write pattern when blog attribution context is provided:
+ * 1. Insert wiselist_item (user intent)
+ * 2. Write 'save' event to blog_attribution_events (attribution signal)
  */
 export async function addWiselistItem(data: {
   wiselistId: string;
@@ -200,6 +204,8 @@ export async function addWiselistItem(data: {
   listingId?: string;
   organisationId?: string;
   notes?: string;
+  source_blog_article_id?: string; // Optional: blog article that influenced this save
+  save_context?: string; // Optional: context like 'blog_embed', 'blog_related'
 }): Promise<WiselistItem> {
   console.log('[addWiselistItem] Starting with data:', data);
   const supabase = createClient();
@@ -214,9 +220,12 @@ export async function addWiselistItem(data: {
     organisation_id: data.organisationId || null,
     notes: data.notes || null,
     added_by_profile_id: user.id,
+    source_blog_article_id: data.source_blog_article_id || null,
+    save_context: data.save_context || null,
   };
   console.log('[addWiselistItem] Inserting:', insertData);
 
+  // STEP 1: Create wiselist item (user intent)
   const { data: item, error } = await supabase
     .from('wiselist_items')
     .insert(insertData)
@@ -228,6 +237,42 @@ export async function addWiselistItem(data: {
     throw error;
   }
   console.log('[addWiselistItem] Item inserted successfully:', item);
+
+  // STEP 2: Write attribution event if blog context provided (influence signal)
+  if (data.source_blog_article_id && item) {
+    try {
+      // Get session ID from cookie (client-side tracking)
+      const sessionId = typeof window !== 'undefined'
+        ? document.cookie.split('; ').find(row => row.startsWith('tutorwise_session_id='))?.split('=')[1]
+        : null;
+
+      const targetType = data.profileId ? 'tutor' : 'listing';
+      const targetId = data.profileId || data.listingId;
+
+      if (targetId) {
+        await fetch('/api/blog/attribution/events', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            blog_article_id: data.source_blog_article_id,
+            event_type: 'save',
+            target_type: targetType,
+            target_id: targetId,
+            source_component: data.save_context || 'direct_save',
+            session_id: sessionId,
+            metadata: {
+              wiselist_id: data.wiselistId,
+              wiselist_item_id: item.id,
+            },
+          }),
+        });
+      }
+    } catch (eventError) {
+      // Log but don't fail the save if event tracking fails (graceful degradation)
+      console.error('[addWiselistItem] Event tracking failed (non-fatal):', eventError);
+    }
+  }
+
   return item as WiselistItem;
 }
 

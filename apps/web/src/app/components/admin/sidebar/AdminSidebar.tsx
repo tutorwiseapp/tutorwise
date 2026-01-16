@@ -76,6 +76,7 @@ export default function AdminSidebar() {
         { href: '/admin/blog/new', label: 'New Article', indent: true },
         { href: '/admin/blog/categories', label: 'Categories', indent: true },
         { href: '/admin/blog/seo', label: 'SEO & Analytics', indent: true },
+        { href: '/admin/blog/orchestrator', label: 'Orchestrator', indent: true },
         { href: '/admin/blog/settings', label: 'Settings', indent: true },
       ],
     },

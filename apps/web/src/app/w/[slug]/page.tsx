@@ -13,6 +13,7 @@ import { createClient } from '@/utils/supabase/server';
 import type { WiselistWithDetails } from '@/types';
 import Link from 'next/link';
 import Image from 'next/image';
+import ArticleCard from '@/app/components/blog/ArticleCard';
 
 interface PageProps {
   params: { slug: string };
@@ -23,6 +24,7 @@ export default async function PublicWiselistPage({ params }: PageProps) {
   const supabase = await createClient();
 
   // Fetch public wiselist by slug
+  // Note: article_saves with visibility='private' are filtered out (privacy-first)
   const { data: wiselist, error } = await supabase
     .from('wiselists')
     .select(`
@@ -33,6 +35,10 @@ export default async function PublicWiselistPage({ params }: PageProps) {
         profile:profiles(id, full_name, avatar_url, bio, city, slug, headline),
         listing:listings(id, title, description, hourly_rate, slug, subjects, levels)
       ),
+      article_saves:blog_article_saves!inner(
+        *,
+        article:blog_articles(id, title, slug, description, featured_image_url, read_time, category, published_at, author_name)
+      ),
       collaborators:wiselist_collaborators(
         *,
         profile:profiles!profile_id(id, full_name, avatar_url)
@@ -40,6 +46,7 @@ export default async function PublicWiselistPage({ params }: PageProps) {
     `)
     .eq('slug', slug)
     .eq('visibility', 'public')
+    .eq('article_saves.visibility', 'inherit_wiselist')
     .single();
 
   if (error || !wiselist) {
@@ -75,7 +82,7 @@ export default async function PublicWiselistPage({ params }: PageProps) {
               <div className="mt-3 flex items-center gap-2 text-sm text-gray-500">
                 <span>Curated by {wiselistData.owner?.full_name || 'Unknown'}</span>
                 {wiselistData.owner?.city && <span>• {wiselistData.owner.city}</span>}
-                <span>• {wiselistData.items?.length || 0} {wiselistData.items?.length === 1 ? 'item' : 'items'}</span>
+                <span>• {(wiselistData.items?.length || 0) + (wiselistData.article_saves?.length || 0)} {((wiselistData.items?.length || 0) + (wiselistData.article_saves?.length || 0)) === 1 ? 'item' : 'items'}</span>
               </div>
             </div>
           </div>
@@ -84,9 +91,10 @@ export default async function PublicWiselistPage({ params }: PageProps) {
 
       {/* Main Content */}
       <main className="max-w-5xl mx-auto px-4 py-8">
-        {wiselistData.items && wiselistData.items.length > 0 ? (
+        {((wiselistData.items && wiselistData.items.length > 0) || (wiselistData.article_saves && wiselistData.article_saves.length > 0)) ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {wiselistData.items.map((item) => {
+            {/* Render wiselist items (tutors and listings) */}
+            {wiselistData.items?.map((item) => {
               // Render profile card
               if (item.profile) {
                 return (
@@ -178,6 +186,20 @@ export default async function PublicWiselistPage({ params }: PageProps) {
                 );
               }
 
+              return null;
+            })}
+
+            {/* Render saved articles */}
+            {wiselistData.article_saves?.map((save: any) => {
+              if (save.article) {
+                return (
+                  <ArticleCard
+                    key={save.id}
+                    article={save.article}
+                    savedAt={save.created_at}
+                  />
+                );
+              }
               return null;
             })}
           </div>

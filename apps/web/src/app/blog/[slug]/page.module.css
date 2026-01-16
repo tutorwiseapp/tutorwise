@@ -45,6 +45,13 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
+.headerTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
 .categoryBadge {
   display: inline-block;
   font-size: 0.75rem;
@@ -53,7 +60,6 @@
   border-radius: 12px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 1rem;
 }
 
 .categoryBadge[data-category='for-clients'] {
