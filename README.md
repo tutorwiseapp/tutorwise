@@ -4,7 +4,7 @@
 
 **Version**: 1.0.0-beta
 **Status**: Pre-Launch (Beta Release: 1 Feb 2026)
-**Last Updated**: 2026-01-13
+**Last Updated**: 2026-01-16
 
 ---
 
@@ -242,16 +242,16 @@ CAS will apply 8 agent perspectives:
 ## Documentation
 
 ### 📋 Core Documentation (.ai/)
-- **[ROADMAP.md](.ai/ROADMAP.md)** - Development roadmap (98% complete, 18 features, beta Feb 1 2026)
-- **[PLATFORM-SPECIFICATION.md](.ai/PLATFORM-SPECIFICATION.md)** - Complete technical + strategic specification (3,194 lines)
-- **[SYSTEM-NAVIGATION.md](.ai/SYSTEM-NAVIGATION.md)** - Complete codebase navigation & user flows (NEW)
-- **[PATTERNS.md](.ai/PATTERNS.md)** - Development patterns and code conventions
-- **[DESIGN-SYSTEM.md](.ai/DESIGN-SYSTEM.md)** - UI/UX component library & design tokens
-- **[CONTEXT-MAP.md](.ai/CONTEXT-MAP.md)** - How all context files interconnect
+- **[1-ROADMAP.md](.ai/1-ROADMAP.md)** - Development roadmap (98% complete, 18 features, beta Feb 1 2026)
+- **[2-PLATFORM-SPECIFICATION.md](.ai/2-PLATFORM-SPECIFICATION.md)** - Complete technical + strategic specification (3,194 lines)
+- **[3-SYSTEM-NAVIGATION.md](.ai/3-STEM-NAVIGATION.md)** - Complete codebase navigation & user flows (NEW)
+- **[4-PATTERNS.md](.ai/4-PATTERNS.md)** - Development patterns and code conventions
+- **[5-CONTEXT-MAP.md](.ai/5-CONTEXT-MAP.md)** - How all context files interconnect
+- **[6-DESIGN-SYSTEM.md](.ai/6-DESIGN-SYSTEM.md)** - UI/UX component library & design tokens
+- **[7-PROMPT.md](.ai/7-PROMPT.md)** - Tutorwise AI Development Context
 - **[ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md)** - Admin dashboard architecture (11 hubs)
 - **[SHARED-FIELDS.md](.ai/SHARED-FIELDS.md)** - Shared fields system (23 fields, 106 mappings, 9 contexts)
 - **[ONBOARDING.md](.ai/ONBOARDING.md)** - Onboarding system (page-based, 3 roles × 5 steps)
-- **[PROMPT.md](.ai/PROMPT.md)** - AI assistant configuration and guidelines
 
 ### 🚀 Getting Started
 - **[QUICK-START.md](.ai/QUICK-START.md)** - ⚡ Get running in 5 minutes (NEW)

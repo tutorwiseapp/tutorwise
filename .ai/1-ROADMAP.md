@@ -1,7 +1,7 @@
 # Tutorwise Development Roadmap
 
-**Document Version**: 2.1
-**Last Updated**: 2026-01-14
+**Document Version**: 2.2
+**Last Updated**: 2026-01-16
 **Project Status**: 98% Complete - Beta Release Feb 1, 2026
 **Development Velocity**: 1,400 commits (Oct 2025 - Jan 2026)
 
@@ -161,6 +161,8 @@
 ### 9. Referral System ✅
 **Status**: Production-ready
 **Completion**: 100% (Phases 1-3)
+- ✅ Referral system (refer > convert > reward)
+- ✅ 5-stage referral workflow (refer > book > schedule > pay > review)
 
 **Phase 1: Foundation** ✅
 - ✅ Referral code generation
