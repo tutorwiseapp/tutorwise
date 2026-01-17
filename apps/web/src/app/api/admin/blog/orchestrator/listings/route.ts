@@ -20,14 +20,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Admin role check
+    // Admin role check (roles is text[], not admin_role boolean)
     const { data: profile } = await supabase
       .from('profiles')
-      .select('admin_role')
+      .select('roles')
       .eq('id', user.id)
       .single();
 
-    if (!profile?.admin_role) {
+    if (!profile?.roles || !profile.roles.includes('admin')) {
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
     }
 
