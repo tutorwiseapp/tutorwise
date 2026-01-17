@@ -1,8 +1,9 @@
-/*
+/**
  * Filename: src/app/api/admin/blog/orchestrator/stats/route.ts
  * Purpose: Fetch blog orchestrator overview stats (performance + funnel)
  * Created: 2026-01-16
- * Pattern: Admin-only API route calling Migration 182 RPCs
+ * Updated: 2026-01-17 - Updated to use roles array + Migration 187 RPCs
+ * Pattern: Admin-only API route calling Migration 187 RPCs (signal_events)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -20,14 +21,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Admin role check
+    // Admin role check (roles is text[], not admin_role boolean)
     const { data: profile } = await supabase
       .from('profiles')
-      .select('admin_role')
+      .select('roles')
       .eq('id', user.id)
       .single();
 
-    if (!profile?.admin_role) {
+    if (!profile?.roles || !profile.roles.includes('admin')) {
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
     }
 
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Attribution window must be 7, 14, or 30 days' }, { status: 400 });
     }
 
-    // Call RPCs from Migration 182
+    // Call RPCs from Migration 187 (updated to use signal_events)
     const { data: performanceData, error: perfError } = await supabase
       .rpc('get_article_performance_summary', {
         p_days: days,
@@ -59,17 +60,31 @@ export async function GET(request: NextRequest) {
 
     if (perfError) {
       console.error('[Blog Orchestrator] Performance RPC Error:', perfError);
-      return NextResponse.json({ error: 'Failed to fetch performance data' }, { status: 500 });
+      return NextResponse.json({ error: 'Failed to fetch performance data', details: perfError }, { status: 500 });
     }
 
     if (funnelError) {
       console.error('[Blog Orchestrator] Funnel RPC Error:', funnelError);
-      return NextResponse.json({ error: 'Failed to fetch funnel data' }, { status: 500 });
+      return NextResponse.json({ error: 'Failed to fetch funnel data', details: funnelError }, { status: 500 });
     }
+
+    // Calculate summary stats from performance data
+    const summary = {
+      total_articles: performanceData?.length || 0,
+      total_bookings: performanceData?.reduce((sum: number, row: any) => sum + (row.attributed_bookings || 0), 0) || 0,
+      total_revenue: performanceData?.reduce((sum: number, row: any) => sum + parseFloat(row.attributed_revenue || '0'), 0) || 0,
+      conversion_rate: 0,
+      signal_journeys: performanceData?.reduce((sum: number, row: any) => sum + (row.signal_count || 0), 0) || 0, // NEW from Migration 187
+    };
+
+    // Calculate conversion rate (bookings / total views)
+    const totalViews = performanceData?.reduce((sum: number, row: any) => sum + (row.total_views || 0), 0) || 0;
+    summary.conversion_rate = totalViews > 0 ? (summary.total_bookings / totalViews) * 100 : 0;
 
     return NextResponse.json({
       performance: performanceData || [],
       funnel: funnelData || [],
+      summary,
     });
   } catch (error) {
     console.error('[Blog Orchestrator] Error:', error);

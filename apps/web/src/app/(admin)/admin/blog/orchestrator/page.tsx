@@ -1,7 +1,8 @@
-/*
+/**
  * Filename: src/app/(admin)/admin/blog/orchestrator/page.tsx
  * Purpose: Blog Demand Orchestrator dashboard - Phase 3 observation layer
  * Created: 2026-01-16
+ * Updated: 2026-01-17 - Added Signal Journey Viewer + Attribution Models (Migration 187)
  * Pattern: Follows SEO hub pattern with multi-tab navigation and KPI cards
  * Phase: 3 - Observation Layer (read-only analytics)
  */
@@ -73,9 +74,11 @@ interface ListingsData {
 }
 
 export default function BlogOrchestratorPage() {
-  const [activeTab, setActiveTab] = useState<'overview' | 'articles' | 'funnel' | 'listings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'articles' | 'funnel' | 'listings' | 'journeys' | 'attribution'>('overview');
   const [days, setDays] = useState(30);
   const [attributionWindow, setAttributionWindow] = useState(7);
+  const [signalIdInput, setSignalIdInput] = useState(''); // For signal journey search
+  const [searchedSignalId, setSearchedSignalId] = useState<string | null>(null);
 
   // Fetch overview stats
   const { data: statsData, isLoading: isLoadingStats } = useQuery<StatsData>({
@@ -107,6 +110,29 @@ export default function BlogOrchestratorPage() {
       return res.json();
     },
     enabled: activeTab === 'listings',
+  });
+
+  // Fetch signal journey (NEW - Migration 187)
+  const { data: journeyData, isLoading: isLoadingJourney, error: journeyError } = useQuery({
+    queryKey: ['blog-orchestrator-journey', searchedSignalId],
+    queryFn: async () => {
+      if (!searchedSignalId) return null;
+      const res = await fetch(`/api/admin/blog/orchestrator/journey?signal_id=${searchedSignalId}`);
+      if (!res.ok) throw new Error('Failed to fetch journey');
+      return res.json();
+    },
+    enabled: activeTab === 'journeys' && !!searchedSignalId,
+  });
+
+  // Fetch attribution comparison (NEW - Migration 187)
+  const { data: attributionData, isLoading: isLoadingAttribution } = useQuery({
+    queryKey: ['blog-orchestrator-attribution', days],
+    queryFn: async () => {
+      const res = await fetch(`/api/admin/blog/orchestrator/attribution?days=${days}`);
+      if (!res.ok) throw new Error('Failed to fetch attribution comparison');
+      return res.json();
+    },
+    enabled: activeTab === 'attribution',
   });
 
   // Calculate KPI values from stats data
@@ -182,6 +208,8 @@ export default function BlogOrchestratorPage() {
             { id: 'articles', label: 'Top Articles', active: activeTab === 'articles' },
             { id: 'funnel', label: 'Conversion Funnel', active: activeTab === 'funnel' },
             { id: 'listings', label: 'Listing Visibility', active: activeTab === 'listings' },
+            { id: 'journeys', label: 'Signal Journeys', active: activeTab === 'journeys' },
+            { id: 'attribution', label: 'Attribution Models', active: activeTab === 'attribution' },
           ]}
           onTabChange={(tabId) => setActiveTab(tabId as typeof activeTab)}
         />
@@ -396,6 +424,210 @@ export default function BlogOrchestratorPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'journeys' && (
+        <div className={styles.journeysTab}>
+          <h2>Signal Journey Viewer</h2>
+          <p className={styles.tabDescription}>
+            Trace a complete user journey using signal_id (dist_* or session_*).
+            Shows all events from first touch to conversion.
+          </p>
+
+          <div className={styles.searchContainer}>
+            <input
+              type="text"
+              placeholder="Enter signal_id (e.g., dist_abc123 or session_550e8400-...)"
+              value={signalIdInput}
+              onChange={(e) => setSignalIdInput(e.target.value)}
+              className={styles.searchInput}
+            />
+            <button
+              onClick={() => setSearchedSignalId(signalIdInput)}
+              className={styles.searchButton}
+              disabled={!signalIdInput}
+            >
+              Search Journey
+            </button>
+          </div>
+
+          {journeyError && (
+            <div className={styles.error}>
+              Failed to fetch journey. Check that the signal_id is valid.
+            </div>
+          )}
+
+          {isLoadingJourney && (
+            <div className={styles.loading}>Loading journey...</div>
+          )}
+
+          {journeyData && journeyData.events && journeyData.events.length > 0 && (
+            <div className={styles.journeyContainer}>
+              <div className={styles.journeyMetadata}>
+                <h3>Journey Metadata</h3>
+                <div className={styles.metadataGrid}>
+                  <div className={styles.metadataItem}>
+                    <span className={styles.metadataLabel}>Signal ID:</span>
+                    <span className={styles.metadataValue}>{journeyData.metadata.signal_id}</span>
+                  </div>
+                  <div className={styles.metadataItem}>
+                    <span className={styles.metadataLabel}>Total Events:</span>
+                    <span className={styles.metadataValue}>{journeyData.metadata.total_events}</span>
+                  </div>
+                  <div className={styles.metadataItem}>
+                    <span className={styles.metadataLabel}>Journey Duration:</span>
+                    <span className={styles.metadataValue}>{journeyData.metadata.journey_duration || 'N/A'}</span>
+                  </div>
+                  <div className={styles.metadataItem}>
+                    <span className={styles.metadataLabel}>Source:</span>
+                    <span className={styles.metadataValue}>
+                      {journeyData.metadata.is_distribution ? 'Distribution (LinkedIn/Social)' : 'Organic'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.journeyTimeline}>
+                <h3>Event Timeline</h3>
+                <div className={styles.timeline}>
+                  {journeyData.events.map((event: any, index: number) => (
+                    <div key={event.event_id} className={styles.timelineEvent}>
+                      <div className={styles.timelineMarker}>
+                        <span className={styles.eventNumber}>{index + 1}</span>
+                      </div>
+                      <div className={styles.timelineContent}>
+                        <div className={styles.eventHeader}>
+                          <span className={styles.eventType}>{event.event_type}</span>
+                          <span className={styles.eventTime}>
+                            {event.time_since_first || 'Start'}
+                          </span>
+                        </div>
+                        <div className={styles.eventDetails}>
+                          <div className={styles.eventDetail}>
+                            <strong>Target:</strong> {event.target_type} - {event.target_name || event.target_id}
+                          </div>
+                          <div className={styles.eventDetail}>
+                            <strong>Source:</strong> {event.source_component}
+                          </div>
+                          {event.distribution_id && (
+                            <div className={styles.eventDetail}>
+                              <strong>Distribution:</strong> {event.distribution_id}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {journeyData && journeyData.events && journeyData.events.length === 0 && (
+            <div className={styles.placeholder}>
+              <p>No events found for this signal_id</p>
+            </div>
+          )}
+
+          {!searchedSignalId && !isLoadingJourney && (
+            <div className={styles.placeholder}>
+              <p>Enter a signal_id above to view the complete journey</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'attribution' && (
+        <div className={styles.attributionTab}>
+          <h2>Attribution Models Comparison</h2>
+          <p className={styles.tabDescription}>
+            Compare how different attribution models distribute credit for the same bookings.
+            Same conversions, different article attribution.
+          </p>
+
+          {isLoadingAttribution ? (
+            <div className={styles.loading}>Loading attribution comparison...</div>
+          ) : !attributionData?.models || attributionData.models.length === 0 ? (
+            <div className={styles.placeholder}>
+              <p>No attribution data available yet. Need signal journeys with multiple touchpoints.</p>
+            </div>
+          ) : (
+            <div className={styles.attributionContainer}>
+              <div className={styles.attributionSummary}>
+                <h3>Summary Insights</h3>
+                <div className={styles.insightsGrid}>
+                  <div className={styles.insightCard}>
+                    <div className={styles.insightLabel}>Total Bookings</div>
+                    <div className={styles.insightValue}>{attributionData.insights.total_bookings}</div>
+                    <div className={styles.insightNote}>Same across all models</div>
+                  </div>
+                  <div className={styles.insightCard}>
+                    <div className={styles.insightLabel}>First-Touch Articles</div>
+                    <div className={styles.insightValue}>{attributionData.insights.first_touch_articles}</div>
+                    <div className={styles.insightNote}>Entry point attribution</div>
+                  </div>
+                  <div className={styles.insightCard}>
+                    <div className={styles.insightLabel}>Last-Touch Articles</div>
+                    <div className={styles.insightValue}>{attributionData.insights.last_touch_articles}</div>
+                    <div className={styles.insightNote}>Final touchpoint before booking</div>
+                  </div>
+                  <div className={styles.insightCard}>
+                    <div className={styles.insightLabel}>Linear Articles</div>
+                    <div className={styles.insightValue}>{attributionData.insights.linear_articles}</div>
+                    <div className={styles.insightNote}>Distributed across journey</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.modelComparison}>
+                <h3>Model Breakdown</h3>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>Attribution Model</th>
+                      <th>Attributed Articles</th>
+                      <th>Attributed Bookings</th>
+                      <th>Attributed Revenue</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {attributionData.models.map((model: any) => (
+                      <tr key={model.model_type}>
+                        <td className={styles.modelName}>
+                          {model.model_type === 'first_touch' && 'First-Touch'}
+                          {model.model_type === 'last_touch' && 'Last-Touch'}
+                          {model.model_type === 'linear' && 'Linear'}
+                        </td>
+                        <td>{model.attributed_articles}</td>
+                        <td>{model.attributed_bookings}</td>
+                        <td>{formatRevenue(parseFloat(model.attributed_revenue || '0'))}</td>
+                        <td className={styles.modelDescription}>
+                          {model.model_type === 'first_touch' && 'Credits the first article in the journey'}
+                          {model.model_type === 'last_touch' && 'Credits the last article before booking'}
+                          {model.model_type === 'linear' && 'Splits credit equally across all articles'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className={styles.attributionNote}>
+                <h4>How to Choose a Model</h4>
+                <ul>
+                  <li><strong>First-Touch:</strong> Use if you want to optimize for discovery (top-of-funnel content)</li>
+                  <li><strong>Last-Touch:</strong> Use if you want to optimize for conversion (bottom-of-funnel content)</li>
+                  <li><strong>Linear:</strong> Use if you want to reward all touchpoints equally (full-journey content)</li>
+                </ul>
+                <p className={styles.note}>
+                  Note: Phase 6 will allow you to select which model to use for reporting.
+                  Currently, this is for analysis only.
+                </p>
+              </div>
             </div>
           )}
         </div>
