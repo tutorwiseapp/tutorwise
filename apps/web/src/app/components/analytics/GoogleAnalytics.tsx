@@ -27,18 +27,18 @@ export default function GoogleAnalytics() {
   const searchParams = useSearchParams();
   const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
-  // Don't load analytics in development or if no measurement ID
-  if (process.env.NODE_ENV === 'development' || !measurementId) {
-    return null;
-  }
-
   useEffect(() => {
-    if (pathname && typeof window.gtag === 'function') {
+    if (pathname && measurementId && typeof window.gtag === 'function') {
       window.gtag('config', measurementId, {
         page_path: pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : ''),
       });
     }
   }, [pathname, searchParams, measurementId]);
+
+  // Don't load analytics in development or if no measurement ID
+  if (process.env.NODE_ENV === 'development' || !measurementId) {
+    return null;
+  }
 
   return (
     <>
