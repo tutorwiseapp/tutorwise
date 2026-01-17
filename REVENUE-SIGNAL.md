@@ -91,36 +91,44 @@
 - **Distribution v1**: Signal Amplification (active distribution - LinkedIn only) ❄️ **FROZEN**
 - **Phase 4-7**: Signal Optimization (optimization layer - what to improve) ⏳ **FUTURE**
 
-### Naming Strategy (Hybrid Approach)
+### Naming Strategy (Strategic Migration to signal_*)
 
 **Why "Revenue Signal"?**
 - **Signal** = Intelligence, detection, pattern recognition (vs "Engine" = mechanical automation)
 - **Revenue** = Economic outcomes, not vanity metrics (vs "Engagement", "Traffic")
-- **Positioning**: Business intelligence tool, not marketing automation
+- **Positioning**: Platform-level business intelligence ($1B+ vision), not product-level marketing tool
 
-**Implementation Strategy**:
+**Strategic Decision: Full Migration to `signal_*` Tables**
 
-**Existing Code (Phase 1-3)**: Keep `blog_` prefix
-```
-✅ blog_attribution_events      # Event stream (source of truth)
-✅ blog_article_metrics         # Performance metrics
-✅ blog_listing_links           # Embed metadata
-✅ blog_article_saves           # Wiselist integration
-```
+**BREAKING CHANGE (Migrations 183-186)**: Rename core tables from `blog_*` → `signal_*` for future-proofing.
 
-**New Code (Distribution v1+)**: Use `signal_` prefix
+**Tables Being Renamed**:
 ```
-🆕 signal_distributions         # Distribution queue
-🆕 signal_social_accounts       # OAuth tokens
-🆕 /admin/signal/*              # UI routes
-🆕 Signal* components           # React components
+❌ blog_attribution_events  →  ✅ signal_events
+❌ blog_article_metrics     →  ✅ signal_metrics
+❌ blog_listing_links       →  ✅ signal_content_embeds
+❌ blog_article_saves       →  ✅ signal_content_saves
 ```
 
-**Benefits**:
-- ✅ No migration needed for existing Phase 1-3 work
-- ✅ Clear semantic shift: "Blog" = content, "Signal" = intelligence
-- ✅ Gradual adoption (no big-bang rewrite)
-- ✅ Scales to non-blog sources (podcasts, videos → signal)
+**Tables Staying as `blog_*`** (Content-Type Specific):
+```
+✅ blog_articles            # Blog content structure
+✅ blog_categories          # Blog taxonomy
+✅ blog_authors             # Blog authorship
+✅ blog_seo_keywords        # SEO-specific metadata
+```
+
+**Why Rename Now?**
+1. **Platform vs Product**: Signal-instrumented content extends beyond blogs (podcasts, videos, webinars)
+2. **Future-Proofing**: Avoid "the Blog Trap" - naming that limits expansion
+3. **Datadog Parallel**: Generic "traces" beats specific "apm_events" for 10-year vision
+4. **Migration Cost**: 9 days one-time vs 81 days cumulative over 5 years
+5. **Zero-Downtime**: PostgreSQL views provide backward compatibility during transition
+
+**New Schema Enhancements**:
+- **signal_id**: Journey tracking across sessions (like Datadog's trace_id)
+- **content_type**: Extensible to 'article', 'podcast', 'video', 'webinar'
+- **target_type**: Expanded for multi-source attribution
 
 **Navigation Structure**:
 ```
@@ -146,18 +154,30 @@ Admin Sidebar:
 
 ### Event-Based Attribution (Source of Truth)
 
-**Philosophy**: Immutable event stream as single source of truth for all blog interactions
+**Philosophy**: Immutable event stream as single source of truth for all content interactions
 
 ```sql
-CREATE TABLE blog_attribution_events (
+CREATE TABLE signal_events (
   id UUID PRIMARY KEY,
-  blog_article_id UUID REFERENCES blog_articles(id),
+
+  -- NEW: Signal ID for journey tracking (like Datadog's trace_id)
+  signal_id UUID,              -- Links all events in a user journey across sessions
+
+  -- Content Reference (generic, not blog-specific)
+  content_id UUID NOT NULL,
+  content_type TEXT NOT NULL DEFAULT 'article', -- article, podcast, video, webinar
+
+  -- User Identity
   user_id UUID REFERENCES profiles(id),
   session_id TEXT,              -- 30-day cookie-based session
+
+  -- Event Classification
   event_type TEXT NOT NULL,     -- impression, click, save, refer, convert
   target_type TEXT NOT NULL,    -- article, tutor, listing, booking, referral, wiselist_item
-  target_id TEXT NOT NULL,
+  target_id UUID NOT NULL,
   source_component TEXT,        -- listing_grid, tutor_embed, distribution, etc.
+
+  -- Flexible metadata
   metadata JSONB,               -- distribution_id, context, etc.
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -167,6 +187,11 @@ CREATE TABLE blog_attribution_events (
 - **event_type**: impression, click, save, refer, convert
 - **target_type**: article, tutor, listing, booking, referral, wiselist_item
 - **source_component**: listing_grid, tutor_embed, tutor_carousel, distribution, cta_button, floating_save
+
+**Backward Compatibility**:
+- View `blog_attribution_events` → reads from `signal_events WHERE content_type = 'article'`
+- Existing code continues to work during migration (Migrations 183-186)
+- See [SIGNAL-MIGRATION-PLAN.md](./SIGNAL-MIGRATION-PLAN.md) for details
 
 ### Dual-Write Pattern
 
@@ -196,6 +221,64 @@ await supabase.from('wiselist_items')
 - Events table: Complete interaction history for multi-touch attribution
 - Cache columns: Fast queries for simple "last-touch" attribution
 - Graceful degradation: System still functions if event write fails
+
+### Signal ID (Journey Tracking)
+
+**NEW in Migration 183**: Datadog-inspired journey tracking using `signal_id` (like trace_id).
+
+**Purpose**: Link all events in a user journey across sessions to understand multi-touch attribution.
+
+**Generation Logic**:
+```typescript
+export function getOrCreateSignalId(distributionId?: string): string {
+  // Priority 1: Distribution-specific signal (from LinkedIn post)
+  if (distributionId) {
+    const signalId = `dist_${distributionId}`;
+    setCookie('tw_signal_id', signalId, 7); // 7-day attribution window
+    return signalId;
+  }
+
+  // Priority 2: Session-based signal (organic traffic)
+  let signalId = getCookie('tw_signal_id');
+  if (!signalId) {
+    signalId = `session_${uuidv4()}`;
+    setCookie('tw_signal_id', signalId, 30); // 30-day session
+  }
+  return signalId;
+}
+```
+
+**Usage in Components**:
+```typescript
+// In useBlogAttribution.ts → useSignalTracking.ts (Week 2 rename)
+const signalId = getOrCreateSignalId(distributionId);
+
+await supabase.from('signal_events').insert({
+  signal_id: signalId,        // NEW - Links journey
+  content_id: articleId,
+  content_type: 'article',
+  event_type: 'click',
+  target_type: 'listing',
+  target_id: listingId,
+  // ...
+});
+```
+
+**Signal Journey Visualization** (Phase 3+):
+```
+Signal: dist_abc123 (LinkedIn Post → Booking)
+├─ 2026-01-15 10:30: impression (article)
+├─ 2026-01-15 10:32: click (tutor_embed → listing_view)
+├─ 2026-01-15 10:35: save (wiselist_item)
+├─ 2026-01-17 14:20: click (wiselist → listing_view)  # 2 days later
+└─ 2026-01-17 14:25: convert (booking)                 # Within 7-day window
+```
+
+**Implementation Status**:
+- ✅ Week 1: Database schema with signal_id column (Migration 183)
+- ⏳ Week 2: Update components to generate and pass signal_id
+- ⏳ Week 3: Add Signal Path Viewer to /admin/signal dashboard
+- ⏳ Week 4: Enable multi-touch attribution analytics
 
 ---
 
@@ -1047,13 +1130,22 @@ CREATE TABLE signal_social_accounts (
 
 ### ✅ Complete (Phase 1-3)
 
-**Database**:
+**Database** (Original Implementation):
 - ✅ Migration 174: Blog tables (articles, categories, authors)
-- ✅ Migration 175: SEO analytics tables
-- ✅ Migration 179: Attribution events table
-- ✅ Migration 180: Blog listing links metadata
-- ✅ Migration 181: Privacy controls for article saves
-- ✅ Migration 182: Blog orchestrator RPCs
+- ✅ Migration 175: SEO analytics tables (blog_article_metrics - deprecated)
+- ✅ Migration 179: Attribution events table (blog_attribution_events - deprecated)
+- ✅ Migration 180: Blog listing links metadata (blog_listing_links - deprecated)
+- ✅ Migration 181: Privacy controls for article saves (blog_article_saves - deprecated)
+- ✅ Migration 182: Blog orchestrator RPCs (will be updated in Week 3)
+
+**Database** (Strategic Migration - NEW):
+- ✅ Migration 183: Migrate to signal_events (with signal_id column + backward-compatible views)
+- ✅ Migration 184: Migrate to signal_metrics (content_type extensibility)
+- ✅ Migration 185: Migrate to signal_content_embeds (generic embed tracking)
+- ✅ Migration 186: Migrate to signal_content_saves (multi-content-type saves)
+- ⏳ Week 2: Update application code to use signal_* tables
+- ⏳ Week 3: Update RPCs and dashboard to leverage signal_id
+- ⏳ Week 4: Cutover and cleanup (drop views, remove backup tables)
 
 **SEO Infrastructure**:
 - ✅ Dynamic sitemaps
@@ -1114,12 +1206,21 @@ CREATE TABLE signal_social_accounts (
 ```
 tools/database/migrations/
 ├── 174_create_blog_tables.sql
-├── 175_create_blog_seo_analytics_tables.sql
-├── 179_create_blog_attribution_events.sql
-├── 180_update_blog_listing_links_metadata.sql
-├── 181_add_visibility_to_blog_article_saves.sql
-└── 182_create_blog_orchestrator_rpcs.sql
+├── 175_create_blog_seo_analytics_tables.sql (deprecated - see 184)
+├── 179_create_blog_attribution_events.sql (deprecated - see 183)
+├── 180_update_blog_listing_links_metadata.sql (deprecated - see 185)
+├── 181_add_visibility_to_blog_article_saves.sql (deprecated - see 186)
+├── 182_create_blog_orchestrator_rpcs.sql
+├── 183_migrate_to_signal_events.sql ✨ NEW - Zero-downtime migration
+├── 184_migrate_to_signal_metrics.sql ✨ NEW - Content-type extensibility
+├── 185_migrate_to_signal_content_embeds.sql ✨ NEW - Generic embed tracking
+└── 186_migrate_to_signal_content_saves.sql ✨ NEW - Multi-content saves
 ```
+
+**Migration Documentation**:
+- See [SIGNAL-MIGRATION-PLAN.md](./SIGNAL-MIGRATION-PLAN.md) for complete 4-week migration strategy
+- Migrations 183-186 use PostgreSQL views for backward compatibility
+- All existing code continues to work during transition (no breaking changes)
 
 #### Utilities
 ```
