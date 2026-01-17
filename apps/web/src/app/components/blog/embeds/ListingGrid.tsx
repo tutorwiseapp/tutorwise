@@ -12,7 +12,7 @@
 
 import { useState, useEffect } from 'react';
 import MarketplaceListingCard from '@/app/components/feature/marketplace/MarketplaceListingCard';
-import { useBlogAttribution } from './useBlogAttribution';
+import { useSignalTracking } from './useSignalTracking';
 import type { Listing } from '@/types';
 import styles from './ListingGrid.module.css';
 
@@ -31,7 +31,7 @@ interface ListingGridProps {
  * ListingGrid Component
  *
  * Embeds a grid of filtered listings in blog articles.
- * Creates blog_listing_links entries and tracks attribution.
+ * Creates signal_content_embeds entries and tracks signal-based attribution.
  */
 export default function ListingGrid({
   subjects = [],
@@ -52,7 +52,7 @@ export default function ListingGrid({
     articleId ||
     (typeof window !== 'undefined' ? window.location.pathname.split('/blog/')[1]?.split('/')[0] : '');
 
-  const { trackAttribution } = useBlogAttribution(currentArticleId || '');
+  const { trackEvent } = useSignalTracking(currentArticleId || '', 'listing_grid', 'article', 0);
 
   // Fetch listings on mount
   useEffect(() => {
@@ -122,13 +122,16 @@ export default function ListingGrid({
   // Track click when user clicks a listing card
   const handleListingClick = (listing: Listing) => {
     if (currentArticleId && listing.id) {
-      trackAttribution({
+      trackEvent({
+        eventType: 'click',
         targetType: 'listing',
         targetId: listing.id,
-        context: 'embed_listing_grid',
+        metadata: {
+          context: 'embed_listing_grid',
+        },
       });
 
-      // Increment click_count in blog_listing_links
+      // Increment click_count in signal_content_embeds (via view)
       fetch('/api/blog/listing-links/click', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

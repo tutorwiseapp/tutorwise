@@ -16,6 +16,34 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/account/settings', request.url))
   }
 
+  // Revenue Signal: Track distribution parameter (?d=dist_id)
+  // Set signal_id cookie for journey tracking across sessions
+  const distributionId = request.nextUrl.searchParams.get('d');
+  if (distributionId && (pathname.startsWith('/blog') || pathname.startsWith('/tutor') || pathname.startsWith('/listings'))) {
+    const response = NextResponse.next();
+    const signalId = `dist_${distributionId}`;
+    const expires = new Date();
+    expires.setDate(expires.getDate() + 7); // 7-day attribution window
+
+    // Set signal_id cookie (main tracking ID)
+    response.cookies.set('tw_signal_id', signalId, {
+      path: '/',
+      expires,
+      sameSite: 'lax',
+      httpOnly: false, // Allow client-side JavaScript access
+    });
+
+    // Set distribution_id cookie (for metadata)
+    response.cookies.set('tw_distribution_id', distributionId, {
+      path: '/',
+      expires,
+      sameSite: 'lax',
+      httpOnly: false,
+    });
+
+    return response;
+  }
+
   // v5.7: Track wiselist referrals (/w/[slug])
   // Store wiselist owner's profile_id in cookie for booking attribution
   const wiselistMatch = pathname.match(/^\/w\/([^/]+)$/);

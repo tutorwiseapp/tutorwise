@@ -1,11 +1,14 @@
 /**
  * Filename: apps/web/src/app/api/blog/attribution/events/route.ts
- * Purpose: API endpoint for recording blog attribution events (source of truth)
+ * Purpose: API endpoint for recording signal events (journey tracking)
  * Created: 2026-01-16
+ * Updated: 2026-01-17 - Migrated to signal_events with signal_id support
  *
- * This endpoint writes immutable events to blog_attribution_events table.
+ * This endpoint writes immutable events to signal_events table.
  * Events represent evidence of influence, not attribution conclusions.
  * Attribution models are derived at query time from this event stream.
+ *
+ * Supports signal_id for multi-touch attribution across sessions (Datadog-inspired).
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -14,18 +17,22 @@ import { createClient } from '@/utils/supabase/server';
 /**
  * POST /api/blog/attribution/events
  *
- * Record a blog attribution event (immutable event stream)
+ * Record a signal event (immutable event stream with journey tracking)
  *
- * Request body:
+ * Request body (NEW format with signal_id):
  * {
- *   blog_article_id: string;    // UUID of blog article
+ *   signal_id: string;          // Journey tracking ID (dist_* or session_*)
+ *   content_id: string;         // UUID of content (article, podcast, etc.)
+ *   content_type: string;       // 'article' | 'podcast' | 'video' | 'webinar'
  *   event_type: string;         // 'impression' | 'click' | 'save' | 'refer' | 'convert'
  *   target_type: string;        // 'article' | 'tutor' | 'listing' | 'booking' | 'referral' | 'wiselist_item'
  *   target_id: string;          // UUID of target object
  *   source_component: string;   // 'listing_grid' | 'tutor_embed' | etc.
  *   session_id: string;         // Client-generated session UUID
- *   metadata?: object;          // Additional context
+ *   metadata?: object;          // Additional context (distribution_id, etc.)
  * }
+ *
+ * BACKWARD COMPATIBILITY: Also accepts old format with blog_article_id
  *
  * Response:
  * {
@@ -36,12 +43,17 @@ import { createClient } from '@/utils/supabase/server';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { blog_article_id, event_type, target_type, target_id, source_component, session_id, metadata } = body;
+
+    // Support both new format (signal_*) and old format (blog_article_id)
+    const signal_id = body.signal_id;
+    const content_id = body.content_id || body.blog_article_id; // Backward compatibility
+    const content_type = body.content_type || 'article';
+    const { event_type, target_type, target_id, source_component, session_id, metadata } = body;
 
     // Validate required fields
-    if (!blog_article_id || !event_type || !target_type || !target_id || !source_component) {
+    if (!content_id || !event_type || !target_type || !target_id || !source_component) {
       return NextResponse.json(
-        { error: 'Missing required fields: blog_article_id, event_type, target_type, target_id, source_component' },
+        { error: 'Missing required fields: content_id (or blog_article_id), event_type, target_type, target_id, source_component' },
         { status: 400 }
       );
     }
@@ -87,11 +99,14 @@ export async function POST(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    // Insert event into blog_attribution_events table
+    // Insert event into signal_events table
+    // Note: Writing to signal_events, but blog_attribution_events view still works for backward compatibility
     const { data: event, error: insertError } = await supabase
-      .from('blog_attribution_events')
+      .from('signal_events')
       .insert({
-        blog_article_id,
+        signal_id: signal_id || null,   // NEW: Journey tracking ID
+        content_id,                      // NEW: Generic content reference
+        content_type,                    // NEW: Extensible to podcast/video
         user_id: user?.id || null,
         session_id: session_id || null,
         target_type,
@@ -159,12 +174,12 @@ export async function GET(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    // Build query
-    let query = supabase.from('blog_attribution_events').select('*', { count: 'exact' }).order('created_at', { ascending: false }).limit(limit);
+    // Build query (using signal_events table)
+    let query = supabase.from('signal_events').select('*', { count: 'exact' }).order('created_at', { ascending: false }).limit(limit);
 
     // Apply filters
     if (article_id) {
-      query = query.eq('blog_article_id', article_id);
+      query = query.eq('content_id', article_id).eq('content_type', 'article');
     }
 
     if (session_id) {

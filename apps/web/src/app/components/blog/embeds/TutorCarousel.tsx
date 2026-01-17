@@ -12,7 +12,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import TutorProfileCard from '@/app/components/feature/marketplace/TutorProfileCard';
-import { useBlogAttribution } from './useBlogAttribution';
+import { useSignalTracking } from './useSignalTracking';
 import styles from './TutorCarousel.module.css';
 
 interface TutorProfile {
@@ -65,7 +65,7 @@ export default function TutorCarousel({
     articleId ||
     (typeof window !== 'undefined' ? window.location.pathname.split('/blog/')[1]?.split('/')[0] : '');
 
-  const { trackAttribution } = useBlogAttribution(currentArticleId || '');
+  const { trackEvent } = useSignalTracking(currentArticleId || '', 'tutor_carousel', 'article', 0);
 
   // Fetch profiles on mount
   useEffect(() => {
@@ -120,10 +120,13 @@ export default function TutorCarousel({
   // Track click when user clicks a tutor card
   const handleProfileClick = (profile: TutorProfile) => {
     if (currentArticleId && profile.id) {
-      trackAttribution({
-        targetType: 'profile',
+      trackEvent({
+        eventType: 'click',
+        targetType: 'tutor',
         targetId: profile.id,
-        context: 'embed_carousel',
+        metadata: {
+          context: 'embed_carousel',
+        },
       });
 
       if (process.env.NODE_ENV === 'development') {

@@ -16,7 +16,7 @@
 
 import { useState, useEffect } from 'react';
 import TutorProfileCard from '@/app/components/feature/marketplace/TutorProfileCard';
-import { useBlogAttribution } from './useBlogAttribution';
+import { useSignalTracking } from './useSignalTracking';
 import styles from './TutorEmbed.module.css';
 
 interface TutorProfile {
@@ -49,8 +49,8 @@ interface TutorEmbedProps {
 /**
  * TutorEmbed Component
  *
- * Embeds a tutor profile card in blog articles with event-based attribution tracking.
- * When user clicks the card, writes 'click' event to blog_attribution_events table.
+ * Embeds a tutor profile card in blog articles with signal-based journey tracking.
+ * When user clicks the card, writes 'click' event to signal_events table with signal_id.
  */
 export default function TutorEmbed({
   profileId,
@@ -68,7 +68,7 @@ export default function TutorEmbed({
     articleId ||
     (typeof window !== 'undefined' ? window.location.pathname.split('/blog/')[1]?.split('/')[0] : '');
 
-  const { trackEvent, embedInstanceId } = useBlogAttribution(currentArticleId || '', 'tutor_embed', position);
+  const { trackEvent, embedInstanceId } = useSignalTracking(currentArticleId || '', 'tutor_embed', 'article', position);
 
   // Fetch tutor profile on mount
   useEffect(() => {
@@ -101,11 +101,11 @@ export default function TutorEmbed({
   // Track click event when user clicks the tutor card
   const handleClick = async () => {
     if (currentArticleId && profileId) {
-      // Write 'click' event to blog_attribution_events table
+      // Write 'click' event to signal_events table with signal_id
       await trackEvent({
-        event_type: 'click',
-        target_type: 'tutor',
-        target_id: profileId,
+        eventType: 'click',
+        targetType: 'tutor',
+        targetId: profileId,
         metadata: {
           context, // 'recommended', 'author', 'featured'
           tutor_name: profile?.full_name,
