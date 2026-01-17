@@ -265,7 +265,7 @@ USING (
   EXISTS (
     SELECT 1 FROM profiles
     WHERE profiles.id = auth.uid()
-    AND profiles.roles ? 'admin'
+    AND profiles.roles @> ARRAY['admin']
   )
 );
 
@@ -278,7 +278,7 @@ WITH CHECK (
   EXISTS (
     SELECT 1 FROM profiles
     WHERE profiles.id = auth.uid()
-    AND profiles.roles ? 'admin'
+    AND profiles.roles @> ARRAY['admin']
   )
 );
 
@@ -290,7 +290,7 @@ USING (
   EXISTS (
     SELECT 1 FROM profiles
     WHERE profiles.id = auth.uid()
-    AND profiles.roles ? 'admin'
+    AND profiles.roles @> ARRAY['admin']
   )
 );
 
@@ -302,7 +302,7 @@ USING (
   EXISTS (
     SELECT 1 FROM profiles
     WHERE profiles.id = auth.uid()
-    AND profiles.roles ? 'admin'
+    AND profiles.roles @> ARRAY['admin']
   )
 );
 
