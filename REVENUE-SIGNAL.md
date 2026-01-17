@@ -1139,13 +1139,24 @@ CREATE TABLE signal_social_accounts (
 - ✅ Migration 182: Blog orchestrator RPCs (will be updated in Week 3)
 
 **Database** (Strategic Migration - NEW):
-- ✅ Migration 183: Migrate to signal_events (with signal_id column + backward-compatible views)
-- ✅ Migration 184: Migrate to signal_metrics (content_type extensibility)
-- ✅ Migration 185: Migrate to signal_content_embeds (generic embed tracking)
-- ✅ Migration 186: Migrate to signal_content_saves (multi-content-type saves)
-- ⏳ Week 2: Update application code to use signal_* tables
-- ⏳ Week 3: Update RPCs and dashboard to leverage signal_id
-- ⏳ Week 4: Cutover and cleanup (drop views, remove backup tables)
+- ✅ Migration 183: Migrate to signal_events (applied to production)
+- ✅ Migration 184: Migrate to signal_metrics (applied to production)
+- ✅ Migration 185: Migrate to signal_content_embeds (applied to production)
+- ✅ Migration 186: Migrate to signal_content_saves (applied to production)
+- ✅ Week 2: Application code updated (committed & pushed)
+  - Created signalTracking.ts for signal_id generation
+  - Created useSignalTracking.ts hook (replaces useBlogAttribution)
+  - Updated middleware.ts for ?d= parameter detection
+  - Updated all embed components (TutorEmbed, ListingGrid, TutorCarousel)
+  - Updated API route to write to signal_events
+- ✅ Migration 187: Update RPCs for signal_events (created, ready to apply)
+  - Updated 4 existing RPCs to use signal_events
+  - Added get_signal_journey() for journey visualization
+  - Added get_attribution_comparison() for multi-touch attribution
+- ✅ Migration 188: Week 4 cutover - drop views (created, ready for deployment after 30 days)
+  - Safety checks before dropping views
+  - 30-day backup retention strategy
+  - Rollback procedures documented
 
 **SEO Infrastructure**:
 - ✅ Dynamic sitemaps
@@ -1211,10 +1222,12 @@ tools/database/migrations/
 ├── 180_update_blog_listing_links_metadata.sql (deprecated - see 185)
 ├── 181_add_visibility_to_blog_article_saves.sql (deprecated - see 186)
 ├── 182_create_blog_orchestrator_rpcs.sql
-├── 183_migrate_to_signal_events.sql ✨ NEW - Zero-downtime migration
-├── 184_migrate_to_signal_metrics.sql ✨ NEW - Content-type extensibility
-├── 185_migrate_to_signal_content_embeds.sql ✨ NEW - Generic embed tracking
-└── 186_migrate_to_signal_content_saves.sql ✨ NEW - Multi-content saves
+├── 183_migrate_to_signal_events.sql ✨ NEW - Zero-downtime migration (Week 1)
+├── 184_migrate_to_signal_metrics.sql ✨ NEW - Content-type extensibility (Week 1)
+├── 185_migrate_to_signal_content_embeds.sql ✨ NEW - Generic embed tracking (Week 1)
+├── 186_migrate_to_signal_content_saves.sql ✨ NEW - Multi-content saves (Week 1)
+├── 187_update_rpcs_for_signal_events.sql ✨ NEW - RPC updates + multi-touch attribution (Week 3)
+└── 188_week4_cutover_drop_views.sql ✨ NEW - Final cutover, drop views (Week 4)
 ```
 
 **Migration Documentation**:
