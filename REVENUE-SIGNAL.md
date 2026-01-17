@@ -1,9 +1,9 @@
-# Blog Content Engine - Complete Specification
+# Revenue Signal - Complete Specification
 
-**Purpose**: Unified specification for the blog content system covering SEO, attribution tracking, marketplace integration, and distribution
-**Status**: Phase 1-3 Complete, Distribution Spec Frozen (v1), Phases 4-7 Planned
+**Purpose**: Detect and amplify content that generates revenue through intelligent attribution tracking, SEO optimization, and targeted distribution
+**Status**: Phase 1-3 Complete (Signal Detection), Distribution v1 Frozen (Signal Amplification), Phases 4-7 Planned (Signal Optimization)
 **Last Updated**: 2026-01-17
-**Version**: 2.0 (Consolidated)
+**Version**: 3.0 (Revenue Signal)
 
 ---
 
@@ -27,7 +27,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                   BLOG CONTENT ENGINE FLOW                       │
+│                     REVENUE SIGNAL FLOW                          │
 └─────────────────────────────────────────────────────────────────┘
 
 1. CONTENT CREATION (Admin)
@@ -43,45 +43,102 @@
    ├─ Google Search Console integration
    └─ Performance monitoring
 
-3. DISTRIBUTION (Active Amplification) ← NEW
+3. SIGNAL AMPLIFICATION (Active Distribution) ← NEW
    ├─ LinkedIn Company Page posting
    ├─ Scheduled publishing queue
    ├─ UTM tracking for attribution
    └─ Failed post retry workflow
 
-4. ATTRIBUTION TRACKING (Event-Based)
+4. SIGNAL DETECTION (Event-Based Attribution)
    ├─ Session tracking (30-day cookies)
    ├─ Event stream (impressions, clicks, saves, converts)
    ├─ Dual-write pattern (events + cache fields)
    └─ Multi-touch attribution infrastructure
 
-5. MARKETPLACE INTEGRATION
+5. MARKETPLACE INTEGRATION (Signal Conversion)
    ├─ MDX embeds (tutors, listings, carousels)
    ├─ Click tracking with embed instance IDs
    ├─ Wiselist saves from articles
    └─ Conversion to bookings
 
-6. ANALYTICS DASHBOARD (/admin/blog/orchestrator)
+6. SIGNAL ANALYTICS (/admin/signal)
    ├─ Article performance (views, clicks, bookings, revenue)
    ├─ Conversion funnel (View → Interact → Save → Book)
    ├─ Listing visibility uplift
    └─ Time-to-conversion distribution
 
-7. ECONOMIC OUTCOMES
+7. REVENUE OUTCOMES
    ├─ Revenue attribution per article
    ├─ ROI calculation
-   ├─ Blog-assisted bookings
-   └─ Strategic differentiation vs competitors
+   ├─ Signal-attributed bookings
+   └─ Economic outcome tracking (vs vanity metrics)
 ```
 
 ### Core Philosophy
 
-**SEO builds demand → Distribution amplifies → Blog educates → Marketplace converts → Wiselists retain → Referrals multiply**
+**Revenue Signal = Detect content that generates revenue + Amplify it to the right audiences**
+
+**Signal Flow**:
+- **SEO** builds passive demand (organic discovery)
+- **Content** educates and builds trust (blog articles)
+- **Signal Detection** tracks what drives revenue (attribution)
+- **Signal Amplification** reaches targeted audiences (distribution)
+- **Marketplace** converts interest to bookings (transactions)
+- **Analytics** measures economic outcomes (revenue, not vanity metrics)
 
 **Epistemic Boundary**:
-- **Phase 1-3**: Observation layer (visibility into what's happening) ✅ **COMPLETE**
-- **Distribution v1**: Active amplification (LinkedIn only) ❄️ **FROZEN**
-- **Phase 4-7**: Optimization layer (decisions about what to improve) ⏳ **FUTURE**
+- **Phase 1-3**: Signal Detection (observation layer - what's happening) ✅ **COMPLETE**
+- **Distribution v1**: Signal Amplification (active distribution - LinkedIn only) ❄️ **FROZEN**
+- **Phase 4-7**: Signal Optimization (optimization layer - what to improve) ⏳ **FUTURE**
+
+### Naming Strategy (Hybrid Approach)
+
+**Why "Revenue Signal"?**
+- **Signal** = Intelligence, detection, pattern recognition (vs "Engine" = mechanical automation)
+- **Revenue** = Economic outcomes, not vanity metrics (vs "Engagement", "Traffic")
+- **Positioning**: Business intelligence tool, not marketing automation
+
+**Implementation Strategy**:
+
+**Existing Code (Phase 1-3)**: Keep `blog_` prefix
+```
+✅ blog_attribution_events      # Event stream (source of truth)
+✅ blog_article_metrics         # Performance metrics
+✅ blog_listing_links           # Embed metadata
+✅ blog_article_saves           # Wiselist integration
+```
+
+**New Code (Distribution v1+)**: Use `signal_` prefix
+```
+🆕 signal_distributions         # Distribution queue
+🆕 signal_social_accounts       # OAuth tokens
+🆕 /admin/signal/*              # UI routes
+🆕 Signal* components           # React components
+```
+
+**Benefits**:
+- ✅ No migration needed for existing Phase 1-3 work
+- ✅ Clear semantic shift: "Blog" = content, "Signal" = intelligence
+- ✅ Gradual adoption (no big-bang rewrite)
+- ✅ Scales to non-blog sources (podcasts, videos → signal)
+
+**Navigation Structure**:
+```
+Admin Sidebar:
+├─ Content
+│  ├─ Articles (/admin/blog)
+│  └─ SEO (/admin/blog/seo)
+└─ Revenue Signal
+   ├─ Analytics (/admin/signal)              ← Phase 3 dashboard
+   ├─ Distribution (/admin/signal/distribution)  ← Distribution v1
+   ├─ Attribution Models (/admin/signal/attribution) ← Phase 6
+   └─ Experiments (/admin/signal/experiments)    ← Phase 7
+```
+
+**Backward Compatibility**:
+- `/admin/blog/orchestrator` → redirects to `/admin/signal` (permanent)
+- Event tracking continues to work (same events table)
+- RPCs reference existing `blog_` tables (no changes needed)
 
 ---
 
@@ -344,7 +401,7 @@ gtag('event', 'scroll_depth', {
 
 ---
 
-## Attribution & Analytics (Phase 1-3)
+## Signal Detection & Analytics (Phase 1-3)
 
 ### Phase 1-2: Foundation (Complete) ✅
 
@@ -411,11 +468,11 @@ export function generateEmbedInstanceId(
 - Logged-in users: Database with event tracking
 - Privacy-first: articles saved to wiselists are private by default
 
-### Phase 3: Unified Dashboard (Complete) ✅
+### Phase 3: Revenue Signal Analytics Dashboard (Complete) ✅
 
-**Location**: `/admin/blog/orchestrator`
+**Location**: `/admin/signal` (currently `/admin/blog/orchestrator` - will redirect)
 
-**Purpose**: Turn raw attribution data into actionable answers for product, SEO, and content decisions.
+**Purpose**: Detect which content generates revenue and provide actionable intelligence for product, SEO, and content decisions.
 
 **Phase 3 Answers**:
 - Which articles drive the most bookings?
@@ -510,24 +567,30 @@ RETURNS TABLE (
 - Responsive design for mobile
 - Admin-only access (auth checks on both page and API routes)
 
-**API Routes**:
-- `GET /api/admin/blog/orchestrator/stats`
-- `GET /api/admin/blog/orchestrator/top-articles`
-- `GET /api/admin/blog/orchestrator/listings`
+**API Routes** (New Signal namespace):
+- `GET /api/admin/signal/analytics` (stats - performance + funnel)
+- `GET /api/admin/signal/articles` (top articles sorted by revenue)
+- `GET /api/admin/signal/listings` (blog-assisted listings with uplift)
+
+**Legacy Routes** (redirect to new paths):
+- `GET /api/admin/blog/orchestrator/stats` → `/api/admin/signal/analytics`
+- `GET /api/admin/blog/orchestrator/top-articles` → `/api/admin/signal/articles`
+- `GET /api/admin/blog/orchestrator/listings` → `/api/admin/signal/listings`
 
 ### Phase 3 Success Criteria ✅
 
-- ✅ Dashboard is live at `/admin/blog/orchestrator`
+- ✅ Signal Analytics dashboard live at `/admin/signal` (currently `/admin/blog/orchestrator`)
 - ✅ All 4 tabs display correctly with data from RPCs
 - ✅ Can answer: "Which article drove most bookings this quarter?"
 - ✅ Admin-only access enforced
 - ✅ No console errors, responsive design works
+- 🔄 **Next**: Migrate routes from `/admin/blog/orchestrator` → `/admin/signal` (Distribution v1)
 
 **Next Steps**: Wait for 3 months of real usage data before considering Phase 4
 
 ---
 
-## Distribution Layer (Frozen v1)
+## Signal Amplification - Distribution Layer (Frozen v1)
 
 ### Purpose
 
@@ -548,9 +611,9 @@ Publish TutorWise blog articles to TutorWise LinkedIn Page for marketplace deman
 
 ### UI Mapping (Clean Separation)
 
-**Location**: `/admin/blog/distribution`
-**Pattern**: Hub layout (matching existing Orchestrator dashboard)
-**Entity**: `blog_distributions` table
+**Location**: `/admin/signal/distribution`
+**Pattern**: Hub layout (matching existing Signal Analytics dashboard)
+**Entity**: `signal_distributions` table (NEW - uses signal_ prefix)
 
 #### Tab-Driven Lifecycle
 
@@ -742,9 +805,9 @@ await fetch('/api/blog/attribution/events', {
 });
 ```
 
-### Orchestrator Dashboard Enhancement
+### Signal Analytics Dashboard Enhancement
 
-**Add Distribution Filter** to existing `/admin/blog/orchestrator`:
+**Add Distribution Filter** to existing Signal Analytics dashboard (`/admin/signal`):
 
 **New Filter Dropdown**:
 ```
@@ -773,11 +836,13 @@ Filter by: [All Sources ▼]
 
 **This is the moat.**
 
-### Database Schema
+### Database Schema (Hybrid Naming Strategy)
+
+**Strategy**: Existing Phase 1-3 tables keep `blog_` prefix, new Distribution tables use `signal_` prefix
 
 ```sql
--- Distribution queue
-CREATE TABLE blog_distributions (
+-- Signal Amplification - Distribution queue (NEW)
+CREATE TABLE signal_distributions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   article_id UUID NOT NULL REFERENCES blog_articles(id) ON DELETE CASCADE,
 
@@ -804,8 +869,8 @@ CREATE TABLE blog_distributions (
   created_by UUID REFERENCES profiles(id)
 );
 
--- LinkedIn OAuth tokens
-CREATE TABLE blog_social_accounts (
+-- Signal Amplification - Social OAuth tokens (NEW)
+CREATE TABLE signal_social_accounts (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 
   platform TEXT NOT NULL DEFAULT 'linkedin',
@@ -998,20 +1063,19 @@ CREATE TABLE blog_social_accounts (
 - ✅ GoogleAnalytics component
 - ✅ SEO admin dashboard
 
-**Attribution Infrastructure**:
-- ✅ Event tracking system
+**Signal Detection Infrastructure** (Phase 1-3):
+- ✅ Event tracking system (`blog_attribution_events`)
 - ✅ Session tracking (30-day cookies)
-- ✅ Embed instance IDs
-- ✅ Dual-write pattern
+- ✅ Embed instance IDs (stable hash-based)
+- ✅ Dual-write pattern (events + cache)
 - ✅ MDX embed components (TutorEmbed, ListingGrid, TutorCarousel)
 - ✅ SaveArticleButton with wiselist integration
-- ✅ Blog orchestrator dashboard (4 tabs)
+- ✅ Revenue Signal Analytics dashboard (4 tabs)
 
 **Admin UI**:
-- ✅ `/admin/blog` - All articles table
-- ✅ `/admin/blog/new` - Create/edit articles
-- ✅ `/admin/blog/seo` - SEO dashboard
-- ✅ `/admin/blog/orchestrator` - Attribution dashboard
+- ✅ `/admin/blog` - Content management (articles CRUD)
+- ✅ `/admin/blog/seo` - SEO optimization & monitoring
+- ✅ `/admin/blog/orchestrator` - Signal Analytics (will redirect to `/admin/signal`)
 
 ### ⬜ Pending (Manual Setup)
 
@@ -1022,15 +1086,16 @@ CREATE TABLE blog_social_accounts (
 - ⬜ Set up PageSpeed Insights API (optional)
 - ⬜ Configure Ahrefs/SEMrush (optional)
 
-### ❄️ Frozen (Distribution v1)
+### ❄️ Frozen (Signal Amplification - Distribution v1)
 
 **Specification frozen, ready for implementation** (2.5 weeks):
-- ⬜ Database schema (blog_distributions, blog_social_accounts)
-- ⬜ LinkedIn OAuth flow
-- ⬜ Distribution UI (4 tabs)
-- ⬜ Background worker (Vercel Cron)
-- ⬜ Attribution integration (middleware)
-- ⬜ Orchestrator enhancement (distribution filter)
+- ⬜ Database schema (`signal_distributions`, `signal_social_accounts` - NEW signal_ prefix)
+- ⬜ LinkedIn OAuth flow (`/api/admin/signal/distribution/linkedin/*`)
+- ⬜ Signal Amplification UI (`/admin/signal/distribution` - 4 tabs)
+- ⬜ Background worker (Vercel Cron at `/api/admin/signal/cron/distribution`)
+- ⬜ Attribution integration (middleware with `?d=` param)
+- ⬜ Signal Analytics enhancement (distribution source filter)
+- ⬜ Route migration (`/admin/blog/orchestrator` → `/admin/signal` redirect)
 
 ### ⏳ Planned (Phases 4-7)
 
@@ -1081,27 +1146,72 @@ apps/web/src/app/components/
 ```
 
 #### Admin Pages
+
+**Content Management** (`/admin/blog/*`):
 ```
 apps/web/src/app/(admin)/admin/blog/
-├── page.tsx                      # All articles table
+├── page.tsx                      # All articles table (CRUD)
 ├── new/page.tsx                  # Create/edit article
-├── seo/page.tsx                  # SEO dashboard
-└── orchestrator/page.tsx         # Attribution dashboard
+└── seo/page.tsx                  # SEO optimization & monitoring
+```
+
+**Revenue Signal** (`/admin/signal/*` - NEW for Distribution v1):
+```
+apps/web/src/app/(admin)/admin/signal/
+├── page.tsx                      # Signal Analytics dashboard (Phase 3)
+├── distribution/
+│   ├── page.tsx                  # Distribution hub (LinkedIn posting)
+│   ├── components/
+│   │   ├── DistributionTable.tsx
+│   │   ├── NewDistributionModal.tsx
+│   │   └── DistributionSettingsWidget.tsx
+│   └── page.module.css
+└── page.module.css
+```
+
+**Legacy (redirect to Signal)**:
+```
+apps/web/src/app/(admin)/admin/blog/
+└── orchestrator/page.tsx         # → Redirects to /admin/signal
 ```
 
 #### API Routes
+
+**Public API** (blog content & attribution):
 ```
-apps/web/src/app/api/
-├── blog/
-│   ├── articles/route.ts
-│   ├── articles/[slug]/route.ts
-│   ├── attribution/route.ts
-│   ├── attribution/events/route.ts
-│   └── saves/route.ts
-└── admin/blog/orchestrator/
-    ├── stats/route.ts
-    ├── top-articles/route.ts
-    └── listings/route.ts
+apps/web/src/app/api/blog/
+├── articles/route.ts                               # Published articles
+├── articles/[slug]/route.ts                        # Single article
+├── attribution/route.ts                            # Dual-write for conversions
+├── attribution/events/route.ts                     # Event recording
+└── saves/route.ts                                  # Article saves with dual-write
+```
+
+**Admin API - Revenue Signal** (NEW for Distribution v1):
+```
+apps/web/src/app/api/admin/signal/
+├── analytics/route.ts                              # Dashboard stats (performance + funnel)
+├── articles/route.ts                               # Top articles sorted by revenue
+├── listings/route.ts                               # Blog-assisted listings with uplift
+├── distribution/
+│   ├── route.ts                                    # List distributions
+│   ├── [id]/route.ts                               # Get/update/delete distribution
+│   ├── linkedin/
+│   │   ├── authorize/route.ts                      # OAuth flow start
+│   │   ├── callback/route.ts                       # OAuth callback
+│   │   ├── disconnect/route.ts                     # Revoke OAuth
+│   │   └── status/route.ts                         # Connection status
+│   └── schedule/route.ts                           # Create scheduled distribution
+└── cron/
+    └── distribution/route.ts                       # Background worker (Vercel Cron)
+```
+
+**Legacy API** (redirect to Signal):
+```
+apps/web/src/app/api/admin/blog/orchestrator/
+├── stats/route.ts                                  # → /admin/signal/analytics
+├── top-articles/route.ts                           # → /admin/signal/articles
+└── listings/route.ts                               # → /admin/signal/listings
 ```
 
 #### Public Pages
@@ -1162,8 +1272,8 @@ CRON_SECRET=your_secret_key
 | Task | Frequency | Dashboard/Tool |
 |------|-----------|----------------|
 | Page views & top articles | Daily | Google Analytics |
-| Blog-assisted bookings | Daily | `/admin/blog/orchestrator` |
-| Distribution post status | Daily | `/admin/blog/distribution` (future) |
+| Signal-attributed bookings | Daily | `/admin/signal` |
+| Distribution post status | Daily | `/admin/signal/distribution` (future) |
 
 ### Weekly Monitoring Tasks
 
@@ -1171,8 +1281,8 @@ CRON_SECRET=your_secret_key
 |------|-----------|----------------|
 | Keyword rankings | Weekly | Google Search Console |
 | CTR & search position | Weekly | Google Search Console |
-| Conversion funnel | Weekly | `/admin/blog/orchestrator` |
-| Failed distributions | Weekly | `/admin/blog/distribution` (future) |
+| Conversion funnel | Weekly | `/admin/signal` |
+| Failed distributions | Weekly | `/admin/signal/distribution` (future) |
 
 ### Monthly Monitoring Tasks
 
@@ -1181,7 +1291,7 @@ CRON_SECRET=your_secret_key
 | Content freshness (6+ months) | Monthly | Custom query |
 | Backlinks monitoring | Monthly | Ahrefs/SEMrush (optional) |
 | Page speed (Core Web Vitals) | Monthly | PageSpeed Insights |
-| Revenue per article | Monthly | `/admin/blog/orchestrator` |
+| Revenue per article | Monthly | `/admin/signal` |
 
 ### Quarterly Monitoring Tasks
 
@@ -1194,9 +1304,9 @@ CRON_SECRET=your_secret_key
 ### Key Alerts to Set Up
 
 **High Priority**:
-- ⚠️ Blog-assisted bookings drop >50% week-over-week
+- ⚠️ Signal-attributed bookings drop >50% week-over-week
 - ⚠️ Google Search Console crawl errors detected
-- ⚠️ Distribution worker failing (>10 failures) (future)
+- ⚠️ Signal distribution worker failing (>10 failures) (future)
 
 **Medium Priority**:
 - ⚠️ Article views drop >30% week-over-week
@@ -1212,9 +1322,9 @@ CRON_SECRET=your_secret_key
 
 **Weekly Reports** (Automated Email):
 - Top 5 articles by revenue
-- Blog-assisted bookings
+- Signal-attributed bookings
 - Conversion rate trends
-- Distribution performance (future)
+- Signal amplification performance (future)
 
 **Monthly Reports** (Dashboard Export):
 - Month-over-month growth (views, bookings, revenue)
@@ -1304,7 +1414,8 @@ CRON_SECRET=your_secret_key
 | 1.1 | 2026-01-16 | Added Phase 1-3 attribution tracking |
 | 1.2 | 2026-01-16 | Phase 3 dashboard implemented |
 | 1.3 | 2026-01-17 | Distribution spec frozen (v1) |
-| **2.0** | **2026-01-17** | **Consolidated all docs into single spec** |
+| 2.0 | 2026-01-17 | Consolidated all docs into single spec |
+| **3.0** | **2026-01-17** | **Renamed to "Revenue Signal" with hybrid naming strategy** |
 
 ---
 
@@ -1325,7 +1436,8 @@ CRON_SECRET=your_secret_key
 
 ---
 
-**Status**: Phase 1-3 Complete ✅, Distribution v1 Frozen ❄️, Phases 4-7 Planned ⏳
-**Next Action**: Implement Distribution v1 (12 days) OR wait for 3 months Phase 3 data
+**Status**: Phase 1-3 Complete (Signal Detection) ✅, Distribution v1 Frozen (Signal Amplification) ❄️, Phases 4-7 Planned (Signal Optimization) ⏳
+**Next Action**: Implement Signal Amplification v1 (12 days) OR wait for 3 months Signal Analytics data
 **Owner**: Product Lead + Engineering Lead
 **Last Updated**: 2026-01-17
+**Renamed to**: Revenue Signal (v3.0) - Strategic positioning as business intelligence, not marketing automation
