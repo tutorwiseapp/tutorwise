@@ -54,15 +54,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Attribution window must be 7, 14, or 30 days' }, { status: 400 });
     }
 
-    // Call RPCs from Migration 187 (updated to use signal_events)
+    // Call RPCs from Migration 187 (updated to use resource_* tables after Blog→Resources migration)
     const { data: performanceData, error: perfError } = await supabase
-      .rpc('get_article_performance_summary', {
+      .rpc('get_resource_article_performance_summary', {
         p_days: days,
         p_attribution_window_days: attributionWindow
       });
 
     const { data: funnelData, error: funnelError } = await supabase
-      .rpc('get_conversion_funnel', {
+      .rpc('get_resource_conversion_funnel', {
         p_days: days,
         p_attribution_window_days: attributionWindow
       });

@@ -53,9 +53,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Attribution window must be 7, 14, or 30 days' }, { status: 400 });
     }
 
-    // Call RPC and sort by revenue descending
+    // Call RPC and sort by revenue descending (updated for Blog→Resources migration)
     const { data: performanceData, error: perfError } = await supabase
-      .rpc('get_article_performance_summary', {
+      .rpc('get_resource_article_performance_summary', {
         p_days: days,
         p_attribution_window_days: attributionWindow
       });
