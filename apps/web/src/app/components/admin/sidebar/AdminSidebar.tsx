@@ -31,6 +31,18 @@ export default function AdminSidebar() {
   const navItems: NavItem[] = [
     { href: '/admin', label: 'Dashboard' },
     {
+      href: '/admin/blog',
+      label: 'Blog',
+      subItems: [
+        { href: '/admin/blog', label: 'All Articles', indent: true },
+        { href: '/admin/blog/new', label: 'New Article', indent: true },
+        { href: '/admin/blog/orchestrator', label: 'Orchestrator', indent: true },
+        { href: '/admin/blog/seo', label: 'SEO & Analytics', indent: true },
+        { href: '/admin/blog/categories', label: 'Categories', indent: true },
+        { href: '/admin/blog/settings', label: 'Settings', indent: true },
+      ],
+    },
+    {
       href: '/admin/seo',
       label: 'SEO',
       subItems: [
@@ -45,6 +57,9 @@ export default function AdminSidebar() {
         { href: '/admin/seo/settings', label: 'Settings', indent: true },
       ],
     },
+    { href: '/admin/listings', label: 'Listings' },
+    { href: '/admin/bookings', label: 'Bookings' },
+    { href: '/admin/referrals', label: 'Referrals' },
     {
       href: '/admin/accounts',
       label: 'Accounts',
@@ -53,9 +68,6 @@ export default function AdminSidebar() {
         { href: '/admin/accounts/admins', label: 'Admins', indent: true },
       ],
     },
-    { href: '/admin/listings', label: 'Listings' },
-    { href: '/admin/bookings', label: 'Bookings' },
-    { href: '/admin/referrals', label: 'Referrals' },
     { href: '/admin/organisations', label: 'Organisations' },
     {
       href: '/admin/financials',
@@ -68,18 +80,6 @@ export default function AdminSidebar() {
     },
     { href: '/admin/reviews', label: 'Reviews' },
     { href: '/admin/reports', label: 'Reports' },
-    {
-      href: '/admin/blog',
-      label: 'Blog',
-      subItems: [
-        { href: '/admin/blog', label: 'All Articles', indent: true },
-        { href: '/admin/blog/new', label: 'New Article', indent: true },
-        { href: '/admin/blog/categories', label: 'Categories', indent: true },
-        { href: '/admin/blog/seo', label: 'SEO & Analytics', indent: true },
-        { href: '/admin/blog/orchestrator', label: 'Orchestrator', indent: true },
-        { href: '/admin/blog/settings', label: 'Settings', indent: true },
-      ],
-    },
     { href: '/admin/configurations', label: 'Configurations' },
     { href: '/admin/settings', label: 'Settings' },
   ];
