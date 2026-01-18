@@ -89,14 +89,14 @@ BEGIN
     -- Get article views from blog_article_metrics (summed across all days)
     SELECT
       ba.id AS article_id,
-      ba.title AS article_title,
-      ba.slug AS article_slug,
-      ba.category,
+      ba.title::TEXT AS article_title,
+      ba.slug::TEXT AS article_slug,
+      ba.category::TEXT,
       ba.published_at,
-      COALESCE(SUM(bam.page_views), 0) AS views
+      COALESCE(SUM(bam.impressions), 0) AS views
     FROM blog_articles ba
     LEFT JOIN blog_article_metrics bam
-      ON ba.id = bam.article_id
+      ON ba.id = bam.blog_article_id
       AND bam.date >= CURRENT_DATE - p_days
     WHERE ba.published_at >= NOW() - (p_days || ' days')::INTERVAL
     GROUP BY ba.id, ba.title, ba.slug, ba.category, ba.published_at
