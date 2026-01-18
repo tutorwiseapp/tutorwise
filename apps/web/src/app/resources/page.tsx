@@ -1,126 +1,217 @@
+/**
+ * Filename: apps/web/src/app/resources/page.tsx
+ * Purpose: Resources landing page with featured articles and categories
+ * Created: 2026-01-15
+ *
+ * Architecture:
+ * - Server-side rendering for SEO
+ * - Featured articles section
+ * - Category filters
+ * - Latest articles grid
+ * - Newsletter signup CTA
+ */
+
 'use client';
 
-import { useState, useMemo } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-
-// VDL Component Imports
-import Container from '@/app/components/layout/Container';
-import PageHeader from '@/app/components/ui/data-display/PageHeader';
-import Card from '@/app/components/ui/data-display/Card';
-import Button from '@/app/components/ui/actions/Button';
+import { useSearchParams } from 'next/navigation';
 import styles from './page.module.css';
 
-// Mock Data for Resources
-const allResources = [
-  {
-    id: 1,
-    category: 'News & Updates',
-    title: 'Tutorwise Payments Is Here: Get Paid Faster Than Ever',
-    description: 'We are thrilled to launch our integrated payments system, allowing agents and providers to manage payouts and payments seamlessly.',
-    author: 'Jane Doe',
-    authorAvatar: 'https://i.pravatar.cc/40?u=jane',
-    imageUrl: 'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=2070&auto=format&fit=crop',
-    isFeatured: true,
-  },
-  {
-    id: 2,
-    category: 'How-To Guide',
-    title: 'How to Create the Perfect Sharable Tutorwise Link',
-    description: 'Learn the best practices for generating referral links that convert, from choosing the right URL to adding tracking parameters.',
-    author: 'John Smith',
-    authorAvatar: 'https://i.pravatar.cc/40?u=john',
-    imageUrl: 'https://images.unsplash.com/photo-1587614203976-365c7d6297e2?q=80&w=2070&auto=format&fit=crop',
-  },
-  {
-    id: 3,
-    category: 'Case Study',
-    title: 'How a Local Tutor Earned an Extra £500 a Month',
-    description: 'Discover how a freelance math tutor used Tutorwise\'s QR codes and WhatsApp sharing to boost her client sign-ups.',
-    author: 'Emily White',
-    authorAvatar: 'https://i.pravatar.cc/40?u=emily',
-    imageUrl: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070&auto=format&fit=crop',
-  },
-  {
-    id: 4,
-    category: 'News & Updates',
-    title: 'Introducing Our New and Improved Dashboard',
-    description: 'We\'ve redesigned the user dashboard from the ground up to provide more insights and faster access to your most important data.',
-    author: 'Jane Doe',
-    authorAvatar: 'https://i.pravatar.cc/40?u=jane',
-    imageUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop',
-  },
+interface BlogArticle {
+  id: string;
+  title: string;
+  description: string;
+  slug: string;
+  category: string;
+  author_name: string;
+  published_at: string;
+  read_time: string;
+  featured_image_url?: string;
+  view_count?: number;
+}
+
+// Category metadata
+const CATEGORY_LABELS: Record<string, string> = {
+  'for-clients': 'For Clients',
+  'for-tutors': 'For Tutors',
+  'for-agents': 'For Agents',
+  'education-insights': 'Education Insights',
+  'company-news': 'Company News',
+};
+
+const CATEGORIES = [
+  { slug: 'for-clients', label: 'For Clients', description: 'Finding tutors, booking sessions, exam prep' },
+  { slug: 'for-tutors', label: 'For Tutors', description: 'Growing your business, pricing, marketing' },
+  { slug: 'for-agents', label: 'For Agents', description: 'Building teams, recruitment, scaling agencies' },
+  { slug: 'education-insights', label: 'Education Insights', description: 'Industry trends, research, analysis' },
+  { slug: 'company-news', label: 'Company News', description: 'Platform updates, new features, announcements' },
 ];
 
-const categories = ['All', 'News & Updates', 'How-To Guide', 'Case Study'];
+function CategoryTag({ category }: { category: string }) {
+  return (
+    <span className={styles.categoryTag} data-category={category}>
+      {CATEGORY_LABELS[category] || category}
+    </span>
+  );
+}
 
-const ResourcesPage = () => {
-  const [activeFilter, setActiveFilter] = useState('All');
-
-  const featuredArticle = allResources.find(r => r.isFeatured);
-  const filteredResources = useMemo(() => {
-    const regularArticles = allResources.filter(r => !r.isFeatured);
-    if (activeFilter === 'All') {
-      return regularArticles;
-    }
-    return regularArticles.filter(resource => resource.category === activeFilter);
-  }, [activeFilter]);
+function ArticleCard({ article }: { article: BlogArticle }) {
+  const formattedDate = new Date(article.published_at).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
 
   return (
-    <Container>
-      <PageHeader
-        title="Resources & Insights"
-        subtitle="Your hub for news, guides, and stories to help you make the most of Tutorwise."
-      />
+    <Link href={`/resources/${article.slug}`} className={styles.articleCard}>
+      <div className={styles.articleHeader}>
+        <CategoryTag category={article.category} />
+        <span className={styles.readTime}>{article.read_time}</span>
+      </div>
+      <h3 className={styles.articleTitle}>{article.title}</h3>
+      <p className={styles.articleDescription}>{article.description}</p>
+      <div className={styles.articleFooter}>
+        <span className={styles.author}>{article.author_name}</span>
+        <span className={styles.date}>{formattedDate}</span>
+      </div>
+    </Link>
+  );
+}
 
-      {/* Featured Article Section */}
-      {featuredArticle && (
-        <div className={styles.featuredGrid}>
-          <Image src={featuredArticle.imageUrl} alt={featuredArticle.title} width={800} height={450} className={styles.featuredImage} />
-          <div className={styles.featuredContent}>
-            <span className={styles.category}>{featuredArticle.category}</span>
-            <h2 className={styles.title}>{featuredArticle.title}</h2>
-            <p className={styles.description}>{featuredArticle.description}</p>
-            <Link href={`/resources/${featuredArticle.id}`}>
-                <Button variant='primary'>Read More</Button>
+function BlogLandingPageContent() {
+  const searchParams = useSearchParams();
+  const categoryFilter = searchParams?.get('category') ?? null;
+  const [featuredArticles, setFeaturedArticles] = useState<BlogArticle[]>([]);
+  const [latestArticles, setLatestArticles] = useState<BlogArticle[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchArticles() {
+      try {
+        setLoading(true);
+
+        // Fetch featured articles (top 3 by view count)
+        const featuredResponse = await fetch('/api/resources/articles?limit=3');
+        const featuredData = await featuredResponse.json();
+        setFeaturedArticles(featuredData.articles || []);
+
+        // Fetch latest articles
+        const latestUrl = categoryFilter
+          ? `/api/resources/articles?category=${categoryFilter}&limit=8`
+          : '/api/resources/articles?limit=8';
+        const latestResponse = await fetch(latestUrl);
+        const latestData = await latestResponse.json();
+        setLatestArticles(latestData.articles || []);
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchArticles();
+  }, [categoryFilter]);
+
+  if (loading) {
+    return <div className={styles.loading}>Loading articles...</div>;
+  }
+
+  return (
+    <>
+      {/* Hero Section */}
+      <div className={styles.hero}>
+        <div className={styles.heroInner}>
+          <h1 className={styles.heroTitle}>Resources</h1>
+          <p className={styles.heroDescription}>
+            Insights, guides, and resources for tutors, parents, and educational agencies.
+            Learn how to succeed in the tutoring industry.
+          </p>
+        </div>
+      </div>
+
+      {/* Categories Section */}
+      <div className={styles.categoriesSection}>
+        <h2 className={styles.sectionTitle}>Browse by Category</h2>
+        <div className={styles.categoriesGrid}>
+          {CATEGORIES.map((cat) => (
+            <Link
+              key={cat.slug}
+              href={`/resources/category/${cat.slug}`}
+              className={styles.categoryCard}
+            >
+              <h3 className={styles.categoryTitle}>{cat.label}</h3>
+              <p className={styles.categoryDescription}>{cat.description}</p>
+              <span className={styles.categoryArrow}>→</span>
             </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Featured Articles Section */}
+      {featuredArticles.length > 0 && (
+        <div className={styles.featuredSection}>
+          <h2 className={styles.sectionTitle}>Featured Articles</h2>
+          <div className={styles.featuredGrid}>
+            {featuredArticles.map((article) => (
+              <ArticleCard key={article.id} article={article} />
+            ))}
           </div>
         </div>
       )}
 
-      {/* Filter Bar */}
-      <div className={styles.filterBar}>
-        {categories.map(category => (
-          <button
-            key={category}
-            onClick={() => setActiveFilter(category)}
-            className={`${styles.filterButton} ${activeFilter === category ? styles.active : ''}`}
-          >
-            {category}
-          </button>
-        ))}
+      {/* Latest Articles Section */}
+      <div className={styles.latestSection}>
+        <div className={styles.latestHeader}>
+          <h2 className={styles.sectionTitle}>Latest Articles</h2>
+          {categoryFilter && (
+            <Link href="/resources" className={styles.clearFilter}>
+              Clear filter
+            </Link>
+          )}
+        </div>
+        {latestArticles.length > 0 ? (
+          <div className={styles.latestGrid}>
+            {latestArticles.map((article) => (
+              <ArticleCard key={article.id} article={article} />
+            ))}
+          </div>
+        ) : (
+          <p className={styles.noArticles}>No articles found.</p>
+        )}
       </div>
 
-      {/* Resources Grid */}
-      <div className={styles.resourceGrid}>
-        {filteredResources.map(resource => (
-          <Link href={`/resources/${resource.id}`} key={resource.id} style={{ textDecoration: 'none' }}>
-            <Card className={styles.resourceCard}>
-              <Image src={resource.imageUrl} alt={resource.title} width={400} height={200} className={styles.resourceImage} />
-              <div className={styles.resourceContent}>
-                <span className={styles.category}>{resource.category}</span>
-                <h3 className={styles.title}>{resource.title}</h3>
-                <div className={styles.author}>
-                  <Image src={resource.authorAvatar} alt={resource.author} width={40} height={40} className={styles.authorAvatar} />
-                  <span>By {resource.author}</span>
-                </div>
-              </div>
-            </Card>
-          </Link>
-        ))}
+      {/* Newsletter CTA */}
+      <div className={styles.newsletterSection}>
+        <div className={styles.newsletterInner}>
+          <h2 className={styles.newsletterTitle}>Get Tutoring Insights in Your Inbox</h2>
+          <p className={styles.newsletterDescription}>
+            Join 1,000+ tutors and parents receiving weekly tips, guides, and industry updates.
+          </p>
+          <form className={styles.newsletterForm}>
+            <input
+              type="email"
+              placeholder="Enter your email"
+              className={styles.newsletterInput}
+              required
+            />
+            <button type="submit" className={styles.newsletterButton}>
+              Subscribe
+            </button>
+          </form>
+          <p className={styles.newsletterDisclaimer}>
+            We respect your privacy. Unsubscribe anytime.
+          </p>
+        </div>
       </div>
-    </Container>
+    </>
   );
-};
+}
 
-export default ResourcesPage;
+export default function BlogLandingPage() {
+  return (
+    <Suspense fallback={<div className={styles.loading}>Loading...</div>}>
+      <BlogLandingPageContent />
+    </Suspense>
+  );
+}

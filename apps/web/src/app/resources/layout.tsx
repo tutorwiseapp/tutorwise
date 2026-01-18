@@ -1,47 +1,64 @@
 /**
  * Filename: apps/web/src/app/resources/layout.tsx
- * Purpose: Layout wrapper for Resources page with SEO metadata
- * Created: 2025-12-21
+ * Purpose: Resources layout wrapper with SEO metadata
+ * Created: 2026-01-15
  */
 
 import { ReactNode } from 'react';
 import { Metadata } from 'next';
+import ResourceLayoutClient from '@/app/components/resources/layout/ResourceLayoutClient';
 
-// SEO Metadata for Resources page
+// SEO Metadata for Resources
 export const metadata: Metadata = {
-  title: 'Educational Resources | Tutorwise',
-  description: 'Explore educational resources, guides, and tools for tutors, students, and agents on the Tutorwise platform.',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://tutorwise.com'),
+  title: 'Resources | Tutorwise - Tutoring Insights & Education Guides',
+  description: 'Expert guides, industry insights, and practical tips for tutors, parents, and educational agencies. Learn how to succeed in the tutoring industry.',
   keywords: [
-    'tutorwise resources',
-    'educational resources',
     'tutoring resources',
-    'learning resources',
-    'tutor guides',
-    'student resources',
-    'education tools',
-    'tutoring guides',
+    'education guides',
+    'tutoring tips',
+    'how to find a tutor',
+    'tutoring business',
+    'private tutoring',
+    'GCSE tutors',
+    'A-level tutors',
+    'tutoring agency',
+    'tutoring industry',
+    'education insights',
   ],
   openGraph: {
-    title: 'Educational Resources | Tutorwise',
-    description: 'Explore educational resources, guides, and tools on Tutorwise.',
+    title: 'Resources | Tutorwise - Tutoring Insights & Education Guides',
+    description: 'Expert guides, industry insights, and practical tips for tutors, parents, and educational agencies.',
     url: 'https://tutorwise.com/resources',
     siteName: 'Tutorwise',
     type: 'website',
     locale: 'en_GB',
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Resources | Tutorwise',
+    description: 'Expert guides and insights for the tutoring industry.',
+  },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
   },
   alternates: {
     canonical: 'https://tutorwise.com/resources',
+    types: {
+      'application/rss+xml': 'https://tutorwise.com/resources/rss.xml',
+    },
   },
 };
 
-interface ResourcesLayoutProps {
+interface BlogLayoutProps {
   children: ReactNode;
 }
 
-export default function ResourcesLayout({ children }: ResourcesLayoutProps) {
-  return <>{children}</>;
+export default function BlogLayout({ children }: BlogLayoutProps) {
+  return <ResourceLayoutClient>{children}</ResourceLayoutClient>;
 }
