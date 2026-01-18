@@ -53,7 +53,7 @@ export default function NewBlogArticlePage() {
       header={
         <HubHeader
           title="New Article"
-          subtitle="Create and publish new blog content"
+          subtitle="Create and publish new resource content"
           className={styles.blogHeader}
         />
       }

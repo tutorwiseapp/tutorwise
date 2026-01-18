@@ -30,8 +30,8 @@ export default function AdminBlogPage() {
       <HubPageLayout
       header={
         <HubHeader
-          title="Blog Articles"
-          subtitle="Manage blog content and publications"
+          title="Resource Articles"
+          subtitle="Manage resource content and publications"
           actions={
             <Button variant="primary" size="sm" onClick={() => router.push('/admin/blog/new')}>
               New Article
@@ -55,7 +55,7 @@ export default function AdminBlogPage() {
       sidebar={
         <HubSidebar>
           <AdminStatsWidget
-            title="Blog Statistics"
+            title="Resource Statistics"
             stats={[
               { label: 'Total Articles', value: 5 },
               { label: 'Published', value: 5 },
@@ -64,9 +64,9 @@ export default function AdminBlogPage() {
             ]}
           />
           <AdminHelpWidget
-            title="Blog Management"
+            title="Resource Management"
             items={[
-              { question: 'How to create an article?', answer: 'Click "New Article" button to create a new blog post with our MDX editor.' },
+              { question: 'How to create an article?', answer: 'Click "New Article" button to create a new resource article with our MDX editor.' },
               { question: 'What are categories?', answer: 'Categories help organize articles by audience (For Clients, For Tutors, etc.).' },
               { question: 'Can I schedule posts?', answer: 'Yes, set a future publish date when creating or editing an article.' },
             ]}

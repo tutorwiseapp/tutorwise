@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/blog/page.tsx
- * Purpose: Blog landing page with featured articles and categories
+ * Purpose: Resources landing page with featured articles and categories
  * Created: 2026-01-15
  *
  * Architecture:
@@ -122,7 +122,7 @@ function BlogLandingPageContent() {
       {/* Hero Section */}
       <div className={styles.hero}>
         <div className={styles.heroInner}>
-          <h1 className={styles.heroTitle}>Tutorwise Blog</h1>
+          <h1 className={styles.heroTitle}>Resources</h1>
           <p className={styles.heroDescription}>
             Insights, guides, and resources for tutors, parents, and educational agencies.
             Learn how to succeed in the tutoring industry.

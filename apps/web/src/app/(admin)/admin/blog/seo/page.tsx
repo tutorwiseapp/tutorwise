@@ -27,8 +27,8 @@ export default function BlogSEOPage() {
       <HubPageLayout
       header={
         <HubHeader
-          title="Blog SEO"
-          subtitle="Monitor and optimize blog search engine performance"
+          title="Resource SEO"
+          subtitle="Monitor and optimize resource search engine performance"
           className={styles.blogHeader}
         />
       }

@@ -42,7 +42,7 @@ export default function AdminSidebar() {
     },
     {
       href: '/admin/blog',
-      label: 'Blog',
+      label: 'Resources',
       subItems: [
         { href: '/admin/blog', label: 'All Articles', indent: true },
         { href: '/admin/blog/new', label: 'New Article', indent: true },

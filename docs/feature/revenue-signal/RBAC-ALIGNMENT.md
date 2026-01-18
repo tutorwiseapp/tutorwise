@@ -269,3 +269,220 @@ WHERE email = 'your@email.com';
 - ✅ `has_admin_permission()` RPC verified working
 - ✅ Superadmin user (micquan@gmail.com) has blog access
 - ✅ All 5 Blog Orchestrator API routes now use RBAC
+
+---
+
+## Migration 190: Signal Resource Migration (2026-01-18)
+
+### Strategic Context
+
+After implementing Migration 189 (Blog Orchestrator RBAC), we discovered an architectural misalignment:
+
+**The Problem:**
+- Blog Orchestrator was positioned as a blog feature (under `/admin/blog` menu)
+- But the REVENUE-SIGNAL.md spec defines Signal as **platform-level intelligence**
+- Signal spans content, marketplace, experiments, and future phases
+- Treating Signal as a blog sub-feature limited future expansion
+
+**The Solution:**
+- Separate `signal` resource from `blog` resource in RBAC
+- Move Signal to top-level menu (`/admin/signal`)
+- Keep blog permissions for blog-specific SEO analytics
+- Position Signal for future phases (Distribution, Experiments, Attribution Models)
+
+### Migration 190 Details
+
+**File:** `tools/database/migrations/190_add_signal_rbac_permissions.sql`
+
+**Permissions Added:**
+
+```sql
+INSERT INTO admin_role_permissions (role, resource, action, description)
+VALUES
+  -- Superadmin: Full Signal access
+  ('superadmin', 'signal', '*', 'Full access to Revenue Signal platform intelligence'),
+
+  -- Admin: View and manage Signal analytics
+  ('admin', 'signal', 'view_analytics', 'View Revenue Signal analytics dashboard'),
+  ('admin', 'signal', 'export_data', 'Export signal attribution data'),
+  ('admin', 'signal', 'manage_distribution', 'Manage content distribution (future Phase 4)'),
+
+  -- System Admin: View-only Signal analytics
+  ('systemadmin', 'signal', 'view_analytics', 'View Revenue Signal analytics (read-only)')
+
+ON CONFLICT (role, resource, action) DO NOTHING;
+```
+
+### Permission Matrix: Signal vs Blog
+
+| Role | Signal Resource | Blog Resource |
+|------|----------------|---------------|
+| `superadmin` | `*` (all) - Platform intelligence | `*` (all) - Content management |
+| `admin` | `view_analytics`, `export_data`, `manage_distribution` | `view_analytics`, `export_data`, `manage_content` |
+| `systemadmin` | `view_analytics` (read-only) | `view_analytics` (read-only) |
+| `supportadmin` | ❌ None | ❌ None |
+
+**Key Distinction:**
+- **signal:view_analytics** = Revenue attribution intelligence at `/admin/signal`
+- **blog:view_analytics** = SEO performance monitoring at `/admin/blog/seo`
+
+Both resources coexist because they serve different purposes:
+- Signal = Business intelligence (attribution, experiments, distribution)
+- Blog = Content management (articles, SEO, categories)
+
+### Routes Migrated
+
+**Before Migration 190:**
+```
+/admin/blog/orchestrator                     (Signal analytics under Blog menu)
+/api/admin/blog/orchestrator/stats           (Used blog:view_analytics)
+/api/admin/blog/orchestrator/top-articles    (Used blog:view_analytics)
+/api/admin/blog/orchestrator/listings        (Used blog:view_analytics)
+/api/admin/blog/orchestrator/journey         (Used blog:view_analytics)
+/api/admin/blog/orchestrator/attribution     (Used blog:view_analytics)
+```
+
+**After Migration 190:**
+```
+/admin/signal                                (Signal analytics - top-level menu)
+/api/admin/signal/stats                      (Uses signal:view_analytics)
+/api/admin/signal/top-articles               (Uses signal:view_analytics)
+/api/admin/signal/listings                   (Uses signal:view_analytics)
+/api/admin/signal/journey                    (Uses signal:view_analytics)
+/api/admin/signal/attribution                (Uses signal:view_analytics)
+
+/admin/blog/orchestrator                     (Permanent redirect to /admin/signal)
+/api/admin/blog/orchestrator/*               (Permanent redirects - backward compatibility)
+```
+
+### Code Changes
+
+**API Route RBAC Update:**
+
+```typescript
+// BEFORE (Migration 189 - blog resource)
+const { data: hasPermission, error: permError } = await supabase
+  .rpc('has_admin_permission', {
+    p_user_id: user.id,
+    p_resource: 'blog',
+    p_action: 'view_analytics'
+  });
+
+if (!hasPermission) {
+  return NextResponse.json({
+    error: 'Forbidden - Requires blog:view_analytics permission'
+  }, { status: 403 });
+}
+
+// AFTER (Migration 190 - signal resource)
+const { data: hasPermission, error: permError } = await supabase
+  .rpc('has_admin_permission', {
+    p_user_id: user.id,
+    p_resource: 'signal',
+    p_action: 'view_analytics'
+  });
+
+if (!hasPermission) {
+  return NextResponse.json({
+    error: 'Forbidden - Requires signal:view_analytics permission'
+  }, { status: 403 });
+}
+```
+
+**Files Updated:**
+- `apps/web/src/app/api/admin/signal/stats/route.ts` (new location)
+- `apps/web/src/app/api/admin/signal/top-articles/route.ts` (new location)
+- `apps/web/src/app/api/admin/signal/listings/route.ts` (new location)
+- `apps/web/src/app/api/admin/signal/journey/route.ts` (new location)
+- `apps/web/src/app/api/admin/signal/attribution/route.ts` (new location)
+
+**Backward Compatibility:**
+- Old routes redirect with 308 Permanent Redirect
+- Console warnings logged for deprecated route usage
+- 3-month grace period (2026-01-18 to 2026-04-18)
+
+### Execution
+
+```bash
+# Ran on Supabase Production
+psql "postgresql://postgres.lvsmtgmpoysjygdwcrir:[PASSWORD]@aws-0-us-east-1.pooler.supabase.com:6543/postgres" \
+  -f tools/database/migrations/190_add_signal_rbac_permissions.sql
+```
+
+**Result:**
+```
+INSERT 0 5
+```
+
+**Verification:**
+```sql
+SELECT * FROM admin_role_permissions WHERE resource = 'signal';
+```
+
+Returns 5 rows:
+- `superadmin`, `signal`, `*`
+- `admin`, `signal`, `view_analytics`
+- `admin`, `signal`, `export_data`
+- `admin`, `signal`, `manage_distribution`
+- `systemadmin`, `signal`, `view_analytics`
+
+### Benefits of Separation
+
+1. **Architectural Clarity**: Signal is platform intelligence, Blog is content management
+2. **Future-Proof**: Signal can expand to Distribution, Experiments, Attribution Models (Phases 4-7)
+3. **Permission Granularity**: Can grant Signal analytics access without blog content access
+4. **Menu Organization**: Top-level Signal menu clearly separates intelligence from content
+5. **Industry Standard**: Matches patterns in Shopify, WordPress, HubSpot (analytics separate from content)
+
+### Testing
+
+**Test Signal Permissions:**
+```sql
+-- Admin should have signal:view_analytics
+SELECT has_admin_permission(
+  (SELECT id FROM profiles WHERE admin_role = 'admin' LIMIT 1),
+  'signal',
+  'view_analytics'
+);
+-- Should return: true
+
+-- System Admin should have signal:view_analytics (read-only)
+SELECT has_admin_permission(
+  (SELECT id FROM profiles WHERE admin_role = 'systemadmin' LIMIT 1),
+  'signal',
+  'view_analytics'
+);
+-- Should return: true
+
+-- System Admin should NOT have signal:manage_distribution
+SELECT has_admin_permission(
+  (SELECT id FROM profiles WHERE admin_role = 'systemadmin' LIMIT 1),
+  'signal',
+  'manage_distribution'
+);
+-- Should return: false
+```
+
+**Test Blog Permissions Still Work:**
+```sql
+-- Admin should still have blog:view_analytics for SEO
+SELECT has_admin_permission(
+  (SELECT id FROM profiles WHERE admin_role = 'admin' LIMIT 1),
+  'blog',
+  'view_analytics'
+);
+-- Should return: true
+```
+
+### Related Documentation
+
+- [SIGNAL-ROUTE-MIGRATION.md](./SIGNAL-ROUTE-MIGRATION.md) - Complete migration details
+- [REVENUE-SIGNAL.md](./REVENUE-SIGNAL.md) - Signal specification (lines 135-143)
+- Migration 189 - Blog Orchestrator RBAC (initial implementation)
+- Migration 190 - Signal RBAC (strategic separation)
+
+---
+
+**Migration 189 Status:** ✅ Complete (2026-01-18) - Blog permissions
+**Migration 190 Status:** ✅ Complete (2026-01-18) - Signal permissions
+**Impact:** All Signal routes now properly secured with dedicated RBAC resource

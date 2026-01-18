@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/blog/layout.tsx
- * Purpose: Blog layout wrapper with SEO metadata
+ * Purpose: Resources layout wrapper with SEO metadata
  * Created: 2026-01-15
  */
 
@@ -8,14 +8,14 @@ import { ReactNode } from 'react';
 import { Metadata } from 'next';
 import BlogLayoutClient from '@/app/components/blog/layout/BlogLayoutClient';
 
-// SEO Metadata for Blog
+// SEO Metadata for Resources
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://tutorwise.com'),
-  title: 'Blog | Tutorwise - Tutoring Insights & Education Guides',
+  title: 'Resources | Tutorwise - Tutoring Insights & Education Guides',
   description: 'Expert guides, industry insights, and practical tips for tutors, parents, and educational agencies. Learn how to succeed in the tutoring industry.',
   keywords: [
-    'tutoring blog',
-    'education blog',
+    'tutoring resources',
+    'education guides',
     'tutoring tips',
     'how to find a tutor',
     'tutoring business',
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     'education insights',
   ],
   openGraph: {
-    title: 'Blog | Tutorwise - Tutoring Insights & Education Guides',
+    title: 'Resources | Tutorwise - Tutoring Insights & Education Guides',
     description: 'Expert guides, industry insights, and practical tips for tutors, parents, and educational agencies.',
     url: 'https://tutorwise.com/blog',
     siteName: 'Tutorwise',
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Blog | Tutorwise',
+    title: 'Resources | Tutorwise',
     description: 'Expert guides and insights for the tutoring industry.',
   },
   robots: {

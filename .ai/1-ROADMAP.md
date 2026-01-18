@@ -774,12 +774,12 @@ where session_weight = MAX(sessions_90d, 1)
 - ✅ Time-to-conversion distribution (validates 7-day attribution window)
 
 **Database Migrations**:
-- ✅ Migration 179: `blog_attribution_events` table (event stream)
-- ✅ Migration 180: `blog_listing_links` metadata enhancements
-- ✅ Migration 181: Privacy controls for article saves
-- ✅ Migration 182: Blog orchestrator analytics RPCs
+- ✅ Migration 179-181: Signal events infrastructure (`signal_events`, `signal_metrics`, `signal_distributions`)
+- ✅ Migration 182: Signal analytics RPCs (4 RPCs for Phase 3 dashboard)
+- ✅ Migration 187: Updated RPCs for signal_events integration
+- ✅ Migration 189-190: RBAC permissions (blog + signal resources)
 
-**Phase 4-7: Optimization Roadmap** ⏳ (Planned)
+**Phase 4-7: Optimization Roadmap** ⏳ (Frozen)
 - ⏳ Phase 4: Referral integration (social sharing with referral codes)
 - ⏳ Phase 5: Cross-linking & SEO amplification (bidirectional blog ↔ marketplace links)
 - ⏳ Phase 6: Attribution model selection (First-Touch, Last-Touch, Linear, Time-Decay)
@@ -796,12 +796,14 @@ where session_weight = MAX(sessions_90d, 1)
 
 **Implementation Notes**:
 - Phase 3 is an intentional stopping point (observation before optimization)
-- Dashboard UI implemented and live at `/admin/blog/orchestrator`
-- Phases 4-7 roadmap documented for future optimization
+- Dashboard UI implemented and live at `/admin/signal` (migrated from `/admin/blog/orchestrator` on 2026-01-18)
+- Signal positioned as platform-level intelligence (top-level menu, not blog submenu)
+- Phases 4-7 roadmap frozen for future optimization
 - Decision framework for phase transitions defined
 
 **Related Documentation**:
-- [BLOG-DEMAND-ENGINE.md](../2-BLOG/BLOG-DEMAND-ENGINE.md) - Complete system documentation (Phases 1-7)
+- [docs/feature/revenue-signal/REVENUE-SIGNAL.md](../docs/feature/revenue-signal/REVENUE-SIGNAL.md) - Complete specification
+- [docs/feature/revenue-signal/SIGNAL-ROUTE-MIGRATION.md](../docs/feature/revenue-signal/SIGNAL-ROUTE-MIGRATION.md) - Route migration details
 
 ---
 

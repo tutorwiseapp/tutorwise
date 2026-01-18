@@ -22,7 +22,7 @@ type SettingsTab = 'general' | 'seo' | 'authors' | 'newsletter';
 const SETTINGS_SECTIONS = {
   general: {
     title: 'General Settings',
-    items: ['Blog title and tagline', 'Posts per page', 'Default post status', 'Comment settings'],
+    items: ['Resource title and tagline', 'Posts per page', 'Default post status', 'Comment settings'],
   },
   seo: {
     title: 'SEO Settings',
@@ -46,8 +46,8 @@ export default function BlogSettingsPage() {
       <HubPageLayout
       header={
         <HubHeader
-          title="Blog Settings"
-          subtitle="Configure global blog preferences"
+          title="Resource Settings"
+          subtitle="Configure global resource preferences"
           actions={
             <Button variant="primary" size="sm" disabled>
               Save Changes
@@ -73,9 +73,9 @@ export default function BlogSettingsPage() {
           <AdminHelpWidget
             title="Settings Help"
             items={[
-              { question: 'What are general settings?', answer: 'General settings control the basic behavior and appearance of your blog.' },
-              { question: 'Why configure SEO?', answer: 'SEO settings help your blog content rank better in search engines and look good when shared on social media.' },
-              { question: 'Newsletter integration?', answer: 'Connect your email service provider to capture blog subscribers and send automated newsletters.' },
+              { question: 'What are general settings?', answer: 'General settings control the basic behavior and appearance of your resource center.' },
+              { question: 'Why configure SEO?', answer: 'SEO settings help your resource content rank better in search engines and look good when shared on social media.' },
+              { question: 'Newsletter integration?', answer: 'Connect your email service provider to capture resource subscribers and send automated newsletters.' },
             ]}
           />
           <AdminTipWidget

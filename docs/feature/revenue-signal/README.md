@@ -61,7 +61,7 @@
 - **Week 3:** Updated RPCs to use signal_events (Migration 187)
 - **Week 4:** Signal journey tracking & multi-touch attribution
 
-**Dashboard:** `/admin/blog/orchestrator`
+**Dashboard:** `/admin/signal` (formerly `/admin/blog/orchestrator` - redirects automatically)
 
 **Key Features:**
 - Event-based attribution tracking
@@ -109,17 +109,19 @@ get_attribution_comparison(p_days)                                   -- NEW
 ### API Routes
 
 ```
-/api/admin/blog/orchestrator/stats             - Overview metrics
-/api/admin/blog/orchestrator/top-articles      - Top performing articles
-/api/admin/blog/orchestrator/listings          - Blog-assisted listings
-/api/admin/blog/orchestrator/journey           - Signal journey details
-/api/admin/blog/orchestrator/attribution       - Attribution model comparison
+/api/admin/signal/stats             - Overview metrics
+/api/admin/signal/top-articles      - Top performing articles
+/api/admin/signal/listings          - Blog-assisted listings
+/api/admin/signal/journey           - Signal journey details
+/api/admin/signal/attribution       - Attribution model comparison
 ```
+
+**Note:** Old routes (`/api/admin/blog/orchestrator/*`) redirect automatically (308 Permanent Redirect)
 
 ### Frontend Components
 
 ```
-/admin/blog/orchestrator                       - Main dashboard
+/admin/signal                                  - Revenue Signal Analytics (main dashboard)
   ├── Overview                                 - KPI cards, summary
   ├── Top Articles                             - Article performance table
   ├── Conversion Funnel                        - Stage-by-stage funnel
@@ -128,9 +130,20 @@ get_attribution_comparison(p_days)                                   -- NEW
   └── Attribution Models                       - Model comparison
 ```
 
+**Note:** Old route (`/admin/blog/orchestrator`) redirects automatically to `/admin/signal`
+
 ---
 
 ## Related Documentation
+
+### Within docs/feature/revenue-signal/
+
+- **[REVENUE-SIGNAL.md](./REVENUE-SIGNAL.md)** - Complete specification
+- **[SIGNAL-ROUTE-MIGRATION.md](./SIGNAL-ROUTE-MIGRATION.md)** - Route migration details (Blog Orchestrator → Revenue Signal)
+- **[RBAC-ALIGNMENT.md](./RBAC-ALIGNMENT.md)** - RBAC system and Migration 189/190
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Deployment procedures
+- **[SIGNAL_ID_IMPLEMENTATION_PLAN.md](./SIGNAL_ID_IMPLEMENTATION_PLAN.md)** - Journey tracking architecture
+- **[SIGNAL-MIGRATION-PLAN.md](./SIGNAL-MIGRATION-PLAN.md)** - Database migration strategy
 
 ### Within docs/feature/
 
@@ -151,7 +164,7 @@ get_attribution_comparison(p_days)                                   -- NEW
 
 1. **Read:** [REVENUE-SIGNAL.md](./REVENUE-SIGNAL.md) (Executive Overview section)
 2. **Review:** [SIGNAL_ID_IMPLEMENTATION_PLAN.md](./SIGNAL_ID_IMPLEMENTATION_PLAN.md) (Architecture section)
-3. **Explore:** Visit `/admin/blog/orchestrator` in staging/production
+3. **Explore:** Visit `/admin/signal` in staging/production
 4. **Understand:** Check `signal_events` table in Supabase
 
 ### For Deployment
@@ -164,7 +177,7 @@ get_attribution_comparison(p_days)                                   -- NEW
 ### For Development
 
 1. **Read:** [SIGNAL_ID_IMPLEMENTATION_PLAN.md](./SIGNAL_ID_IMPLEMENTATION_PLAN.md) (Event taxonomy)
-2. **Review:** API route implementations in `apps/web/src/app/api/admin/blog/orchestrator/`
+2. **Review:** API route implementations in `apps/web/src/app/api/admin/signal/`
 3. **Test:** Use `useBlogAttribution` hook in blog components
 4. **Verify:** Check events in `signal_events` table after interactions
 
@@ -187,7 +200,7 @@ A: Read [SIGNAL_ID_IMPLEMENTATION_PLAN.md](./SIGNAL_ID_IMPLEMENTATION_PLAN.md) �
 A: Use `useBlogAttribution` hook → call `trackEvent()` with appropriate event_type and target_type
 
 **Q: Where can I see attribution data in the dashboard?**
-A: Visit `/admin/blog/orchestrator` → "Signal Journeys" or "Attribution Models" tabs
+A: Visit `/admin/signal` → "Signal Journeys" or "Attribution Models" tabs
 
 ---
 
@@ -195,6 +208,7 @@ A: Visit `/admin/blog/orchestrator` → "Signal Journeys" or "Attribution Models
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.1 | 2026-01-18 | Strategic migration: Blog Orchestrator → Revenue Signal (Migration 190) |
 | 3.0 | 2026-01-18 | Migration 187 deployed, signal journey tracking live |
 | 2.0 | 2026-01-16 | Distribution v1 frozen, focus on Phase 3 completion |
 | 1.0 | 2025-12-XX | Initial specification, Phase 1-2 complete |
@@ -202,3 +216,4 @@ A: Visit `/admin/blog/orchestrator` → "Signal Journeys" or "Attribution Models
 ---
 
 **Last Updated:** 2026-01-18
+**Latest Change:** Routes migrated from `/admin/blog/orchestrator` → `/admin/signal` (see [SIGNAL-ROUTE-MIGRATION.md](./SIGNAL-ROUTE-MIGRATION.md))

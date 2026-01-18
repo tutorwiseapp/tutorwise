@@ -34,7 +34,7 @@ export default function BlogCategoriesPage() {
       <HubPageLayout
       header={
         <HubHeader
-          title="Blog Categories"
+          title="Resource Categories"
           subtitle="Organize articles by audience and topic"
           actions={
             <Button variant="primary" size="sm" disabled>

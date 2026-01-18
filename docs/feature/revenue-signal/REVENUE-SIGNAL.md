@@ -553,7 +553,7 @@ export function generateEmbedInstanceId(
 
 ### Phase 3: Revenue Signal Analytics Dashboard (Complete) ✅
 
-**Location**: `/admin/signal` (currently `/admin/blog/orchestrator` - will redirect)
+**Location**: `/admin/signal` (migrated from `/admin/blog/orchestrator` on 2026-01-18)
 
 **Purpose**: Detect which content generates revenue and provide actionable intelligence for product, SEO, and content decisions.
 
@@ -655,19 +655,25 @@ RETURNS TABLE (
 - `GET /api/admin/signal/articles` (top articles sorted by revenue)
 - `GET /api/admin/signal/listings` (blog-assisted listings with uplift)
 
-**Legacy Routes** (redirect to new paths):
-- `GET /api/admin/blog/orchestrator/stats` → `/api/admin/signal/analytics`
-- `GET /api/admin/blog/orchestrator/top-articles` → `/api/admin/signal/articles`
+**Legacy Routes** (redirect to new paths - backward compatibility):
+- `GET /api/admin/blog/orchestrator/stats` → `/api/admin/signal/stats`
+- `GET /api/admin/blog/orchestrator/top-articles` → `/api/admin/signal/top-articles`
 - `GET /api/admin/blog/orchestrator/listings` → `/api/admin/signal/listings`
+- `GET /api/admin/blog/orchestrator/journey` → `/api/admin/signal/journey`
+- `GET /api/admin/blog/orchestrator/attribution` → `/api/admin/signal/attribution`
+
+**Note:** All old routes return 308 Permanent Redirect. See [SIGNAL-ROUTE-MIGRATION.md](./SIGNAL-ROUTE-MIGRATION.md)
 
 ### Phase 3 Success Criteria ✅
 
-- ✅ Signal Analytics dashboard live at `/admin/signal` (currently `/admin/blog/orchestrator`)
-- ✅ All 4 tabs display correctly with data from RPCs
+- ✅ Signal Analytics dashboard live at `/admin/signal` (migrated 2026-01-18)
+- ✅ All 6 tabs display correctly with data from RPCs
 - ✅ Can answer: "Which article drove most bookings this quarter?"
-- ✅ Admin-only access enforced
+- ✅ Admin-only access enforced with proper RBAC (Migration 190)
 - ✅ No console errors, responsive design works
-- 🔄 **Next**: Migrate routes from `/admin/blog/orchestrator` → `/admin/signal` (Distribution v1)
+- ✅ Route migration complete: `/admin/blog/orchestrator` → `/admin/signal` (backward compatible)
+- ✅ Signal positioned as top-level menu (platform intelligence, not blog feature)
+- 🔄 **Next**: Wait 3 months for data, then decide on Distribution v1
 
 **Next Steps**: Wait for 3 months of real usage data before considering Phase 4
 
@@ -1177,8 +1183,8 @@ CREATE TABLE signal_social_accounts (
 
 **Admin UI**:
 - ✅ `/admin/blog` - Content management (articles CRUD)
-- ✅ `/admin/blog/seo` - SEO optimization & monitoring
-- ✅ `/admin/blog/orchestrator` - Signal Analytics (will redirect to `/admin/signal`)
+- ✅ `/admin/blog/seo` - SEO Performance (Google Search Console, sitemaps)
+- ✅ `/admin/signal` - Revenue Signal Analytics (migrated from `/admin/blog/orchestrator`)
 
 ### ⬜ Pending (Manual Setup)
 
@@ -1191,13 +1197,15 @@ CREATE TABLE signal_social_accounts (
 
 ### ❄️ Frozen (Signal Amplification - Distribution v1)
 
-**Specification frozen, ready for implementation** (2.5 weeks):
-- ⬜ Database schema (`signal_distributions`, `signal_social_accounts` - NEW signal_ prefix)
+**Specification frozen, ready for implementation when needed** (2.5 weeks):
+- ⬜ Database schema (`signal_distributions`, `signal_social_accounts` - uses signal_ prefix)
 - ⬜ LinkedIn OAuth flow (`/api/admin/signal/distribution/linkedin/*`)
-- ⬜ Signal Amplification UI (`/admin/signal/distribution` - 4 tabs)
+- ⬜ Signal Amplification UI (`/admin/signal/distribution` - 4 tabs) - positioned under Signal menu
 - ⬜ Background worker (Vercel Cron at `/api/admin/signal/cron/distribution`)
 - ⬜ Attribution integration (middleware with `?d=` param)
 - ⬜ Signal Analytics enhancement (distribution source filter)
+
+**Note:** Signal menu structure already supports Distribution as submenu item (future Phase 4)
 - ⬜ Route migration (`/admin/blog/orchestrator` → `/admin/signal` redirect)
 
 ### ⏳ Planned (Phases 4-7)
@@ -1320,13 +1328,17 @@ apps/web/src/app/api/admin/signal/
     └── distribution/route.ts                       # Background worker (Vercel Cron)
 ```
 
-**Legacy API** (redirect to Signal):
+**Legacy API** (redirect to Signal - backward compatibility):
 ```
 apps/web/src/app/api/admin/blog/orchestrator/
-├── stats/route.ts                                  # → /admin/signal/analytics
-├── top-articles/route.ts                           # → /admin/signal/articles
-└── listings/route.ts                               # → /admin/signal/listings
+├── stats/route.ts                                  # → /api/admin/signal/stats (308)
+├── top-articles/route.ts                           # → /api/admin/signal/top-articles (308)
+├── listings/route.ts                               # → /api/admin/signal/listings (308)
+├── journey/route.ts                                # → /api/admin/signal/journey (308)
+└── attribution/route.ts                            # → /api/admin/signal/attribution (308)
 ```
+
+**Migration:** All routes migrated 2026-01-18. See [SIGNAL-ROUTE-MIGRATION.md](./SIGNAL-ROUTE-MIGRATION.md)
 
 #### Public Pages
 ```

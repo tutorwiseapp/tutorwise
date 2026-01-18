@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/(admin)/admin/blog/edit/[slug]/page.tsx
- * Purpose: Edit blog article page
+ * Purpose: Edit resource article page
  * Created: 2026-01-15
  */
 'use client';

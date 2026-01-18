@@ -25,7 +25,7 @@ The Revenue Signal system tracks how blog content drives marketplace conversions
 - Event-based attribution tracking (`signal_events` table)
 - Multi-touch attribution models (First-Touch, Last-Touch, Linear)
 - Signal journey tracking with `signal_id` (distribution vs. organic traffic)
-- Admin dashboard at `/admin/blog/orchestrator`
+- Admin dashboard at `/admin/signal` (formerly `/admin/blog/orchestrator`)
 
 **Key Dependencies:**
 - ✅ PostgreSQL (Supabase) - **Required**
@@ -48,13 +48,15 @@ The Revenue Signal system tracks how blog content drives marketplace conversions
 ### Deployment
 
 - [ ] **Apply Migration 187 to production database** (updates 4 RPCs + adds 2 new RPCs)
-- [ ] **Deploy frontend code** (commits up to `8bd808a5` or later)
+- [ ] **Apply Migration 190 to production database** (adds Signal RBAC permissions)
+- [ ] **Deploy frontend code** (commits up to `5d8e7140` or later - includes route migration)
 - [ ] **Verify Vercel build succeeds** (should pass even without Redis)
-- [ ] **Check API routes are accessible** (`/api/admin/blog/orchestrator/*`)
+- [ ] **Check API routes are accessible** (`/api/admin/signal/*`)
 
 ### Post-Deployment
 
-- [ ] **Verify dashboard loads** (`https://[your-domain]/admin/blog/orchestrator`)
+- [ ] **Verify dashboard loads** (`https://[your-domain]/admin/signal`)
+- [ ] **Test old route redirects** (`/admin/blog/orchestrator` should redirect to `/admin/signal`)
 - [ ] **Test each tab** (Overview, Top Articles, Conversion Funnel, Listing Visibility, Signal Journeys, Attribution Models)
 - [ ] **Check API responses** (stats, top-articles, listings, journey, attribution)
 - [ ] **Monitor error logs** (Vercel/Supabase for any RPC errors)
@@ -338,17 +340,9 @@ export const redis = hasRedisCredentials
 - Actual schema uses `roles` text[] array
 
 **Resolution:**
-✅ **Fixed in commits prior to `8bd808a5`**
+✅ **Fixed in Migration 189/190 (2026-01-18)**
 
-**Changes made:**
-- Updated 5 API routes:
-  - `/api/admin/blog/orchestrator/stats/route.ts`
-  - `/api/admin/blog/orchestrator/top-articles/route.ts`
-  - `/api/admin/blog/orchestrator/listings/route.ts`
-  - `/api/admin/blog/orchestrator/journey/route.ts`
-  - `/api/admin/blog/orchestrator/attribution/route.ts`
-
-**Correct pattern:**
+**Previous incorrect pattern (bypassed RBAC):**
 ```typescript
 const { data: profile } = await supabase
   .from('profiles')
@@ -360,6 +354,28 @@ if (!profile?.roles || !profile.roles.includes('admin')) {
   return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
 }
 ```
+
+**Correct pattern (uses proper RBAC):**
+```typescript
+const { data: hasPermission, error: permError } = await supabase
+  .rpc('has_admin_permission', {
+    p_user_id: user.id,
+    p_resource: 'signal',
+    p_action: 'view_analytics'
+  });
+
+if (!hasPermission) {
+  return NextResponse.json({
+    error: 'Forbidden - Requires signal:view_analytics permission'
+  }, { status: 403 });
+}
+```
+
+**Changes made:**
+- Migrated routes from `/api/admin/blog/orchestrator/*` to `/api/admin/signal/*`
+- Updated all 5 API routes to use proper RBAC permission checks
+- Added Migration 190 for Signal RBAC permissions
+- See [SIGNAL-ROUTE-MIGRATION.md](./SIGNAL-ROUTE-MIGRATION.md) for details
 
 ---
 
@@ -387,32 +403,42 @@ if (!profile?.roles || !profile.roles.includes('admin')) {
 ### 1. Dashboard Accessibility
 
 ```bash
-# Test dashboard loads
-curl -I https://[your-domain]/admin/blog/orchestrator
+# Test new dashboard loads
+curl -I https://[your-domain]/admin/signal
 
 # Expected: 200 OK (or 401/403 if not logged in as admin)
+
+# Test old route redirects
+curl -I https://[your-domain]/admin/blog/orchestrator
+
+# Expected: 308 Permanent Redirect → /admin/signal
 ```
 
 ### 2. API Endpoints
 
 ```bash
-# Test stats endpoint
-curl -X GET "https://[your-domain]/api/admin/blog/orchestrator/stats?days=30&attributionWindow=7" \
+# Test stats endpoint (new route)
+curl -X GET "https://[your-domain]/api/admin/signal/stats?days=30&attributionWindow=7" \
   -H "Authorization: Bearer YOUR_TOKEN"
 
 # Expected: JSON response with performance and funnel data
 
-# Test journey endpoint
-curl -X GET "https://[your-domain]/api/admin/blog/orchestrator/journey?signal_id=test" \
+# Test journey endpoint (new route)
+curl -X GET "https://[your-domain]/api/admin/signal/journey?signal_id=test" \
   -H "Authorization: Bearer YOUR_TOKEN"
 
 # Expected: JSON response (empty events array if no journey exists)
 
-# Test attribution endpoint
-curl -X GET "https://[your-domain]/api/admin/blog/orchestrator/attribution?days=30" \
+# Test attribution endpoint (new route)
+curl -X GET "https://[your-domain]/api/admin/signal/attribution?days=30" \
   -H "Authorization: Bearer YOUR_TOKEN"
 
 # Expected: JSON response with 3 models (first_touch, last_touch, linear)
+
+# Test old route redirects (backward compatibility)
+curl -I "https://[your-domain]/api/admin/blog/orchestrator/stats?days=30"
+
+# Expected: 308 Permanent Redirect → /api/admin/signal/stats?days=30
 ```
 
 ### 3. Database RPCs
@@ -432,18 +458,19 @@ FROM get_attribution_comparison(30);
 ### 4. Frontend Functionality
 
 **Manual testing:**
-1. Navigate to `/admin/blog/orchestrator`
-2. Verify all 6 tabs load:
+1. Navigate to `/admin/signal` (new route)
+2. Verify old route redirects: `/admin/blog/orchestrator` → `/admin/signal`
+3. Verify all 6 tabs load:
    - Overview
    - Top Articles
    - Conversion Funnel
    - Listing Visibility
    - Signal Journeys
    - Attribution Models
-3. Test date range selector (30/60/90 days)
-4. Test attribution window selector (7/14/30 days)
-5. Search for a signal journey (should show "No events found" if empty)
-6. Check KPI cards show reasonable values (may be 0 if no events yet)
+4. Test date range selector (30/60/90 days)
+5. Test attribution window selector (7/14/30 days)
+6. Search for a signal journey (should show "No events found" if empty)
+7. Check KPI cards show reasonable values (may be 0 if no events yet)
 
 ---
 

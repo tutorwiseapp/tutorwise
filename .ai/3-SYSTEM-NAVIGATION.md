@@ -17,10 +17,10 @@
 - **31 major features** (22 core systems + 14 platform hubs - 5 overlap)
 
 ### Total User-Facing Views Including Modals
-- 150 total UI views that users can see and interact with:
+- 155 total UI views that users can see and interact with:
 
-#### 107 Route-based Pages (with URLs)
-- 39 Admin pages
+#### 111 Route-based Pages (with URLs)
+- 44 Admin pages
 - 4 Auth pages
 - 13 Public pages
 - 5 Public profile pages
@@ -190,7 +190,7 @@
 | **Blog Pages** | 3 | Blog index, article view, public wiselist articles |
 | **Onboarding Flows** | 16 | 3 roles × 5 steps (Tutor, Client, Agent) + hub |
 | **Dashboard Pages** | 30 | Account, bookings, financials, network, org management |
-| **Admin Pages** | 35 | 13 admin hubs + SEO management + Blog orchestrator + settings |
+| **Admin Pages** | 35 | 13 admin hubs + SEO management + Signal Analytics + settings |
 | **Total UI Pages** | **111** | |
 | **API Endpoints** | **144** | REST APIs + webhooks |
 | **Dynamic Routes** | **~12** | [id], [slug], etc. (counted in category totals) |
@@ -390,8 +390,8 @@
   /admin/settings/security           # Security settings
   /admin/settings/subscriptions      # Subscription management
 
-# Blog Management (1 page - planned)
-/admin/blog/orchestrator             # Blog demand orchestrator dashboard (Phase 3)
+# Signal Analytics (1 page - live)
+/admin/signal                        # Revenue Signal Analytics dashboard (migrated from /admin/blog/orchestrator)
 ```
 
 ---
@@ -1387,7 +1387,7 @@ Database:
 - `/blog` → Browse articles
 - `/blog/[slug]` → Read article with embedded marketplace content
 - Click embed → Track attribution → Book/Save → Record conversion
-- `/admin/blog/orchestrator` → View analytics (Phase 3 - planned)
+- `/admin/signal` → View Revenue Signal Analytics (Phase 3 - live)
 
 **File Locations**:
 ```
@@ -1418,15 +1418,16 @@ apps/web/src/lib/utils/
 └── embedInstanceId.ts                    # Stable hash-based embed IDs
 
 Database:
-- tools/database/migrations/179_create_blog_attribution_events.sql
-- tools/database/migrations/180_update_blog_listing_links_metadata.sql
-- tools/database/migrations/181_add_visibility_to_blog_article_saves.sql
+- tools/database/migrations/179-181_create_signal_events_infrastructure.sql
 - tools/database/migrations/182_create_blog_orchestrator_rpcs.sql
+- tools/database/migrations/187_update_rpcs_for_signal_events.sql
+- tools/database/migrations/189_add_blog_orchestrator_permissions.sql
+- tools/database/migrations/190_add_signal_rbac_permissions.sql
 ```
 
 **Related Docs**:
-- [BLOG-SEO.md](.ai/BLOG-SEO.md) - Complete system documentation
-- [PHASE_4_7_ROADMAP.md](../2-BLOG/PHASE_4_7_ROADMAP.md) - Future phases planning
+- [docs/feature/revenue-signal/REVENUE-SIGNAL.md](../docs/feature/revenue-signal/REVENUE-SIGNAL.md) - Complete specification
+- [docs/feature/revenue-signal/SIGNAL-ROUTE-MIGRATION.md](../docs/feature/revenue-signal/SIGNAL-ROUTE-MIGRATION.md) - Route migration details
 
 **Key Concepts**:
 - **Event-based attribution**: Immutable event stream as source of truth

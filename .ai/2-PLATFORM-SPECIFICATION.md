@@ -395,7 +395,7 @@ The £50/month organisation subscription is for TutorWise Premium platform acces
 │                                ▼                                            │
 │                   ┌───────────────────────────┐                            │
 │                   │  Admin Dashboard          │                            │
-│                   │  /admin/blog/orchestrator │                            │
+│                   │  /admin/signal            │                            │
 │                   │  - Performance metrics    │                            │
 │                   │  - Conversion funnel      │                            │
 │                   │  - Attribution analytics  │                            │
@@ -451,12 +451,14 @@ The £50/month organisation subscription is for TutorWise Premium platform acces
 - **API Routes**: Event recording, dual-write conversions, article saves
 
 **Dashboard UI** (Phase 3):
-- **Location**: `/admin/blog/orchestrator` (admin-only)
-- **Four Tabs**:
+- **Location**: `/admin/signal` (admin-only, migrated from `/admin/blog/orchestrator`)
+- **Six Tabs**:
   1. **Overview**: KPI cards (Total Articles, Blog-Assisted Bookings, Revenue, Conversion Rate)
   2. **Top Articles**: Revenue-sorted performance table with all metrics
   3. **Conversion Funnel**: Four-stage funnel (View → Interact → Save → Book)
   4. **Listing Visibility**: Blog-assisted listings with baseline comparison
+  5. **Signal Journeys**: Multi-touch attribution journey viewer
+  6. **Attribution Models**: Model comparison (First-Touch, Last-Touch, Linear)
 - **Controls**: Date range selector (30/60/90 days), Attribution window selector (7/14/30 days)
 - **Design**: Responsive, mobile-friendly, follows SEO hub pattern
 

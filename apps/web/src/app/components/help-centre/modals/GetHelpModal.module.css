@@ -1,0 +1,250 @@
+/* Get Help Modal Styles - Matches SnapshotModal design */
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-2, 16px);
+}
+
+.modalContent {
+  background: white;
+  border-radius: var(--border-radius-lg, 12px);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg, 0 10px 25px rgba(0, 0, 0, 0.2));
+}
+
+.modalHeader {
+  position: relative;
+  padding: var(--space-3, 24px);
+  border-bottom: 1px solid var(--color-gray-200, #E5E7EB);
+}
+
+.modalTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-gray-700, #4B4B4B);
+  margin: 0 0 0.25rem 0;
+}
+
+.modalSubtitle {
+  font-size: 0.875rem;
+  color: var(--color-gray-500, #8E8E8E);
+  margin: 0;
+}
+
+.closeButton {
+  position: absolute;
+  top: var(--space-3, 24px);
+  right: var(--space-3, 24px);
+  background: none;
+  border: none;
+  color: var(--color-gray-500, #8E8E8E);
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius-md, 8px);
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: var(--color-gray-100, #F5F5F5);
+  color: var(--color-gray-700, #4B4B4B);
+}
+
+.modalForm {
+  padding: var(--space-3, 24px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 24px);
+}
+
+/* Two-column layout for First Name | Last Name */
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2, 16px);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1, 8px);
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gray-700, #4B4B4B);
+}
+
+.optionalLabel {
+  font-weight: 400;
+  color: var(--color-gray-500, #8E8E8E);
+  font-size: 0.75rem;
+}
+
+.input,
+.select,
+.textarea {
+  padding: var(--space-2, 16px);
+  font-size: 0.875rem;
+  border: 1px solid var(--color-gray-300, #D1D1D1);
+  border-radius: var(--border-radius-md, 8px);
+  background-color: white;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-primary-default, #006c67);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--color-gray-500, #8E8E8E);
+}
+
+/* Select dropdown styling */
+.select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238E8E8E' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+}
+
+/* Textarea specific styling */
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.5;
+}
+
+/* Urgent checkbox section */
+.urgentSection {
+  padding: var(--space-2, 16px);
+  background-color: var(--color-gray-50, #F9FAFB);
+  border-radius: var(--border-radius-md, 8px);
+  border: 1px solid var(--color-gray-200, #E5E7EB);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 16px);
+  font-size: 0.875rem;
+  color: var(--color-gray-700, #4B4B4B);
+  cursor: pointer;
+}
+
+.checkbox {
+  cursor: pointer;
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--color-primary-default, #006c67);
+}
+
+.modalActions {
+  display: flex;
+  gap: var(--space-2, 16px);
+  justify-content: flex-end;
+  padding-top: var(--space-2, 16px);
+}
+
+.button {
+  padding: var(--space-2, 16px) var(--space-3, 24px);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: var(--border-radius-md, 8px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buttonSecondary {
+  color: var(--color-gray-700, #4B4B4B);
+  background-color: white;
+  border: 1px solid var(--color-gray-300, #D1D1D1);
+}
+
+.buttonSecondary:hover:not(:disabled) {
+  background-color: var(--color-gray-50, #F9FAFB);
+  border-color: var(--color-gray-500, #8E8E8E);
+}
+
+.buttonPrimary {
+  color: white;
+  background-color: var(--color-primary-default, #006c67);
+}
+
+.buttonPrimary:hover:not(:disabled) {
+  background-color: var(--color-primary-dark, #005550);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+/* Mobile Responsive */
+@media (max-width: 767px) {
+  .modalOverlay {
+    padding: 0;
+  }
+
+  .modalContent {
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .modalHeader {
+    padding: var(--space-2, 16px);
+  }
+
+  .modalTitle {
+    font-size: 1.125rem;
+  }
+
+  .closeButton {
+    top: var(--space-2, 16px);
+    right: var(--space-2, 16px);
+  }
+
+  .modalForm {
+    padding: var(--space-2, 16px);
+  }
+
+  /* Stack two-column layout on mobile */
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .modalActions {
+    flex-direction: column;
+  }
+
+  .button {
+    width: 100%;
+  }
+}
