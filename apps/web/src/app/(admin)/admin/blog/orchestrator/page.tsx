@@ -81,17 +81,19 @@ export default function BlogOrchestratorPage() {
   const [searchedSignalId, setSearchedSignalId] = useState<string | null>(null);
 
   // Fetch overview stats
-  const { data: statsData, isLoading: isLoadingStats } = useQuery<StatsData>({
+  const { data: statsData, isLoading: isLoadingStats, error: statsError, refetch: refetchStats } = useQuery<StatsData>({
     queryKey: ['blog-orchestrator-stats', days, attributionWindow],
     queryFn: async () => {
       const res = await fetch(`/api/admin/blog/orchestrator/stats?days=${days}&attributionWindow=${attributionWindow}`);
       if (!res.ok) throw new Error('Failed to fetch stats');
       return res.json();
     },
+    retry: 2,
+    staleTime: 30000, // Consider data fresh for 30 seconds
   });
 
   // Fetch top articles (sorted by revenue)
-  const { data: articlesData, isLoading: isLoadingArticles } = useQuery<TopArticlesData>({
+  const { data: articlesData, isLoading: isLoadingArticles, error: articlesError, refetch: refetchArticles } = useQuery<TopArticlesData>({
     queryKey: ['blog-orchestrator-articles', days, attributionWindow],
     queryFn: async () => {
       const res = await fetch(`/api/admin/blog/orchestrator/top-articles?days=${days}&attributionWindow=${attributionWindow}`);
@@ -99,10 +101,12 @@ export default function BlogOrchestratorPage() {
       return res.json();
     },
     enabled: activeTab === 'articles',
+    retry: 2,
+    staleTime: 30000,
   });
 
   // Fetch blog-assisted listings
-  const { data: listingsData, isLoading: isLoadingListings } = useQuery<ListingsData>({
+  const { data: listingsData, isLoading: isLoadingListings, error: listingsError, refetch: refetchListings } = useQuery<ListingsData>({
     queryKey: ['blog-orchestrator-listings', days, attributionWindow],
     queryFn: async () => {
       const res = await fetch(`/api/admin/blog/orchestrator/listings?days=${days}&attributionWindow=${attributionWindow}`);
@@ -110,6 +114,8 @@ export default function BlogOrchestratorPage() {
       return res.json();
     },
     enabled: activeTab === 'listings',
+    retry: 2,
+    staleTime: 30000,
   });
 
   // Fetch signal journey (NEW - Migration 187)
@@ -239,7 +245,14 @@ export default function BlogOrchestratorPage() {
     >
       {activeTab === 'overview' && (
         <div className={styles.overviewTab}>
-          {isLoadingStats ? (
+          {statsError ? (
+            <div className={styles.error}>
+              <p>Failed to load stats: {(statsError as Error).message}</p>
+              <button onClick={() => refetchStats()} className={styles.retryButton}>
+                Retry
+              </button>
+            </div>
+          ) : isLoadingStats ? (
             <div className={styles.loading}>Loading stats...</div>
           ) : totalArticles === 0 ? (
             <div className={styles.placeholder}>
@@ -299,7 +312,14 @@ export default function BlogOrchestratorPage() {
       {activeTab === 'articles' && (
         <div className={styles.articlesTab}>
           <h2>Top Performing Articles</h2>
-          {isLoadingArticles ? (
+          {articlesError ? (
+            <div className={styles.error}>
+              <p>Failed to load articles: {(articlesError as Error).message}</p>
+              <button onClick={() => refetchArticles()} className={styles.retryButton}>
+                Retry
+              </button>
+            </div>
+          ) : isLoadingArticles ? (
             <div className={styles.loading}>Loading articles...</div>
           ) : !articlesData?.articles || articlesData.articles.length === 0 ? (
             <div className={styles.placeholder}>
@@ -386,7 +406,14 @@ export default function BlogOrchestratorPage() {
       {activeTab === 'listings' && (
         <div className={styles.listingsTab}>
           <h2>Blog-Assisted Listing Visibility</h2>
-          {isLoadingListings ? (
+          {listingsError ? (
+            <div className={styles.error}>
+              <p>Failed to load listings: {(listingsError as Error).message}</p>
+              <button onClick={() => refetchListings()} className={styles.retryButton}>
+                Retry
+              </button>
+            </div>
+          ) : isLoadingListings ? (
             <div className={styles.loading}>Loading listings...</div>
           ) : !listingsData?.listings || listingsData.listings.length === 0 ? (
             <div className={styles.placeholder}>
