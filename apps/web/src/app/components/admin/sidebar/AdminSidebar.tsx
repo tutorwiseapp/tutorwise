@@ -41,14 +41,14 @@ export default function AdminSidebar() {
       ],
     },
     {
-      href: '/admin/blog',
+      href: '/admin/resources',
       label: 'Resources',
       subItems: [
-        { href: '/admin/blog', label: 'All Articles', indent: true },
-        { href: '/admin/blog/new', label: 'New Article', indent: true },
-        { href: '/admin/blog/seo', label: 'SEO Performance', indent: true },
-        { href: '/admin/blog/categories', label: 'Categories', indent: true },
-        { href: '/admin/blog/settings', label: 'Settings', indent: true },
+        { href: '/admin/resources', label: 'All Articles', indent: true },
+        { href: '/admin/resources/new', label: 'New Article', indent: true },
+        { href: '/admin/resources/seo', label: 'SEO Performance', indent: true },
+        { href: '/admin/resources/categories', label: 'Categories', indent: true },
+        { href: '/admin/resources/settings', label: 'Settings', indent: true },
       ],
     },
     {
