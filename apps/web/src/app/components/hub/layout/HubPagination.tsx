@@ -72,59 +72,58 @@ export default function HubPagination({
 
   const pageNumbers = getPageNumbers();
 
-  // Don't render anything if no items
-  if (totalItems === 0) {
-    return null;
-  }
-
+  // Always render container to maintain consistent height
+  // Hide page controls if no items, but keep the container for layout stability
   return (
     <div className={styles.paginationContainer}>
-      <div className={styles.pageNumbers}>
-        {/* Previous Arrow */}
-        <button
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-          className={styles.arrowButton}
-          aria-label="Previous page"
-        >
-          ◁
-        </button>
+      {totalItems > 0 && totalPages > 0 && (
+        <div className={styles.pageNumbers}>
+          {/* Previous Arrow */}
+          <button
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={styles.arrowButton}
+            aria-label="Previous page"
+          >
+            ◁
+          </button>
 
-        {/* Page Number Buttons */}
-        {pageNumbers.map((page, index) => {
-          if (page === '...') {
+          {/* Page Number Buttons */}
+          {pageNumbers.map((page, index) => {
+            if (page === '...') {
+              return (
+                <span key={`ellipsis-${index}`} className={styles.ellipsis}>
+                  ...
+                </span>
+              );
+            }
+
             return (
-              <span key={`ellipsis-${index}`} className={styles.ellipsis}>
-                ...
-              </span>
+              <button
+                key={page}
+                onClick={() => onPageChange(page as number)}
+                className={`${styles.pageButton} ${
+                  currentPage === page ? styles.pageButtonActive : ''
+                }`}
+                aria-label={`Page ${page}`}
+                aria-current={currentPage === page ? 'page' : undefined}
+              >
+                {page}
+              </button>
             );
-          }
+          })}
 
-          return (
-            <button
-              key={page}
-              onClick={() => onPageChange(page as number)}
-              className={`${styles.pageButton} ${
-                currentPage === page ? styles.pageButtonActive : ''
-              }`}
-              aria-label={`Page ${page}`}
-              aria-current={currentPage === page ? 'page' : undefined}
-            >
-              {page}
-            </button>
-          );
-        })}
-
-        {/* Next Arrow */}
-        <button
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className={styles.arrowButton}
-          aria-label="Next page"
-        >
-          ▷
-        </button>
-      </div>
+          {/* Next Arrow */}
+          <button
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={styles.arrowButton}
+            aria-label="Next page"
+          >
+            ▷
+          </button>
+        </div>
+      )}
     </div>
   );
 }

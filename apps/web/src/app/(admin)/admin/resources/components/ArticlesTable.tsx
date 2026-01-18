@@ -115,16 +115,23 @@ export default function ArticlesTable() {
   const fetchArticles = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/resources/articles');
-      if (response.ok) {
-        const data = await response.json();
-        setArticles(data.articles || []);
-      } else {
-        console.error('Failed to fetch articles');
-      }
+      // TODO: Create /api/admin/resources/articles endpoint
+      // For now, use mock data
+      setArticles(MOCK_ARTICLES);
+      setLoading(false);
+
+      // Uncomment when API is ready:
+      // const response = await fetch('/api/admin/resources/articles');
+      // if (response.ok) {
+      //   const data = await response.json();
+      //   setArticles(data.articles || []);
+      // } else {
+      //   console.error('Failed to fetch articles');
+      //   setArticles(MOCK_ARTICLES); // Fallback to mock data
+      // }
     } catch (error) {
       console.error('Error fetching articles:', error);
-    } finally {
+      setArticles(MOCK_ARTICLES); // Fallback to mock data
       setLoading(false);
     }
   };
@@ -188,7 +195,7 @@ export default function ArticlesTable() {
       sortable: true,
       render: (article: Article) => (
         <div className={styles.titleCell}>
-          <Link href={`/blog/${article.slug}`} className={styles.titleLink} target="_blank">
+          <Link href={`/resources/${article.slug}`} className={styles.titleLink} target="_blank">
             {article.title}
           </Link>
           <div className={styles.readTime}>{article.readTime}</div>
