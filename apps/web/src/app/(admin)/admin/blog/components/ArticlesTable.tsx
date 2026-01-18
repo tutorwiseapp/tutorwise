@@ -158,7 +158,7 @@ export default function ArticlesTable() {
   };
 
   // Define table columns
-  const columns: Column[] = [
+  const columns: Column<Article>[] = [
     {
       key: 'id',
       label: 'ID',
@@ -221,7 +221,6 @@ export default function ArticlesTable() {
       label: 'Views',
       width: '100px',
       sortable: true,
-      align: 'right',
       render: (article: Article) => (
         <span className={styles.viewsCell}>{article.views?.toLocaleString() || 0}</span>
       ),
@@ -233,8 +232,8 @@ export default function ArticlesTable() {
       sortable: true,
       render: (article: Article) => (
         <StatusBadge
-          status={article.status}
           variant={article.status === 'published' ? 'published' : article.status === 'draft' ? 'pending' : 'neutral'}
+          label={article.status.charAt(0).toUpperCase() + article.status.slice(1)}
         />
       ),
     },
@@ -269,7 +268,6 @@ export default function ArticlesTable() {
     {
       key: 'status',
       label: 'Status',
-      type: 'select',
       options: [
         { value: 'all', label: 'All Statuses' },
         { value: 'published', label: 'Published' },
@@ -280,7 +278,6 @@ export default function ArticlesTable() {
     {
       key: 'category',
       label: 'Category',
-      type: 'select',
       options: [
         { value: 'all', label: 'All Categories' },
         { value: 'for-clients', label: 'For Clients' },
@@ -293,7 +290,6 @@ export default function ArticlesTable() {
     {
       key: 'author',
       label: 'Author',
-      type: 'select',
       options: [
         { value: 'all', label: 'All Authors' },
         { value: 'james-chen', label: 'James Chen' },
@@ -308,19 +304,19 @@ export default function ArticlesTable() {
   const bulkActions: BulkAction[] = [
     {
       label: 'Unpublish',
-      icon: <FileText size={14} />,
-      action: async (ids: Set<string>) => {
-        console.log('Unpublish articles:', Array.from(ids));
-        alert(`Unpublish ${ids.size} article(s) - Coming soon`);
+      value: 'unpublish',
+      onClick: async (ids: string[]) => {
+        console.log('Unpublish articles:', ids);
+        alert(`Unpublish ${ids.length} article(s) - Coming soon`);
       },
     },
     {
       label: 'Delete',
-      icon: <Trash2 size={14} />,
-      action: async (ids: Set<string>) => {
-        if (confirm(`Delete ${ids.size} article(s)?`)) {
-          console.log('Delete articles:', Array.from(ids));
-          alert(`Delete ${ids.size} article(s) - Coming soon`);
+      value: 'delete',
+      onClick: async (ids: string[]) => {
+        if (confirm(`Delete ${ids.length} article(s)?`)) {
+          console.log('Delete articles:', ids);
+          alert(`Delete ${ids.length} article(s) - Coming soon`);
         }
       },
       variant: 'danger',

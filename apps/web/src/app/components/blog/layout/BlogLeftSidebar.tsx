@@ -123,8 +123,8 @@ export default function BlogLeftSidebar({ onLinkClick }: BlogLeftSidebarProps = 
             Tutors
           </button>
           <button
-            className={`${styles.audiencePill} ${audienceFilter === 'agent' ? styles.active : ''}`}
-            onClick={() => setAudienceFilter('agent')}
+            className={`${styles.audiencePill} ${audienceFilter === 'agents' ? styles.active : ''}`}
+            onClick={() => setAudienceFilter('agents')}
           >
             Agents
           </button>

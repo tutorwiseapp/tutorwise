@@ -13,7 +13,7 @@
 import { useState, useEffect } from 'react';
 import MarketplaceListingCard from '@/app/components/feature/marketplace/MarketplaceListingCard';
 import { useSignalTracking } from './useSignalTracking';
-import type { Listing } from '@/types';
+import type { Listing } from '@tutorwise/shared-types';
 import styles from './ListingGrid.module.css';
 
 interface ListingGridProps {

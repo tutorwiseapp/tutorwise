@@ -7,4 +7,4 @@
 export { default as TutorEmbed } from './TutorEmbed';
 export { default as ListingGrid } from './ListingGrid';
 export { default as TutorCarousel } from './TutorCarousel';
-export { useBlogAttribution, getBlogAttributionData, clearBlogAttributionData } from './useBlogAttribution';
+export { useBlogAttribution, getSessionIdStandalone } from './useBlogAttribution';

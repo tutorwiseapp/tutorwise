@@ -741,4 +741,5 @@ export interface WiselistCollaborator {
 export interface WiselistWithDetails extends Wiselist {
   items: WiselistItem[];
   collaborators: WiselistCollaborator[];
+  article_saves?: any[]; // Blog article saves (optional)
 }
