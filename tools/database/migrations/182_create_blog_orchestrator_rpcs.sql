@@ -325,44 +325,12 @@ RETURNS TABLE (
 ) AS $$
 BEGIN
   RETURN QUERY
-  WITH blog_linked_listings AS (
-    -- Listings mentioned in blog articles
-    SELECT DISTINCT listing_id
-    FROM blog_listing_links
-    WHERE created_at >= NOW() - (p_days || ' days')::INTERVAL
-  ),
-  category_baselines AS (
-    -- Calculate baseline performance per category (excluding blog-linked listings)
-    SELECT
-      l.subjects[1] AS category,
-      AVG(COALESCE(listing_views.view_count, 0)) AS avg_views,
-      AVG(COALESCE(listing_bookings.booking_count, 0)) AS avg_bookings
-    FROM listings l
-    LEFT JOIN LATERAL (
-      SELECT COUNT(*) AS view_count
-      FROM listing_views lv
-      WHERE lv.listing_id = l.id
-        AND lv.created_at >= NOW() - (p_days || ' days')::INTERVAL
-    ) listing_views ON true
-    LEFT JOIN LATERAL (
-      SELECT COUNT(*) AS booking_count
-      FROM bookings b
-      WHERE b.listing_id = l.id
-        AND b.created_at >= NOW() - (p_days || ' days')::INTERVAL
-    ) listing_bookings ON true
-    WHERE l.id NOT IN (SELECT listing_id FROM blog_linked_listings)
-      AND l.status = 'active'
-      AND l.created_at < NOW() - INTERVAL '30 days' -- Mature listings only
-      AND l.subjects IS NOT NULL
-      AND array_length(l.subjects, 1) > 0
-    GROUP BY l.subjects[1]
-  ),
-  blog_assisted_performance AS (
+  WITH blog_assisted_performance AS (
     -- Performance metrics for blog-linked listings
     SELECT
-      l.id AS listing_id,
-      l.title AS listing_title,
-      l.subjects[1] AS category,
+      l.id,
+      l.title::TEXT,
+      l.subjects[1]::TEXT AS subj_category,
       COUNT(DISTINCT bll.blog_article_id) AS articles_linking,
       COUNT(DISTINCT CASE
         WHEN e.event_type = 'click' AND e.target_type = 'listing' THEN e.id
@@ -379,29 +347,21 @@ BEGIN
     WHERE l.status = 'active'
       AND l.subjects IS NOT NULL
       AND array_length(l.subjects, 1) > 0
+      AND bll.created_at >= NOW() - (p_days || ' days')::INTERVAL
     GROUP BY l.id, l.title, l.subjects[1]
   )
   SELECT
-    bap.listing_id,
-    bap.listing_title,
-    bap.category,
-    bap.articles_linking AS articles_linking_count,
-    bap.assisted_views AS blog_assisted_views,
-    bap.assisted_bookings AS blog_assisted_bookings,
-    COALESCE(cb.avg_views, 0) AS baseline_views,
-    COALESCE(cb.avg_bookings, 0) AS baseline_bookings,
-    CASE
-      WHEN COALESCE(cb.avg_views, 0) > 0
-      THEN ROUND(((bap.assisted_views::NUMERIC - cb.avg_views) / cb.avg_views) * 100, 2)
-      ELSE 0
-    END AS uplift_views_pct,
-    CASE
-      WHEN COALESCE(cb.avg_bookings, 0) > 0
-      THEN ROUND(((bap.assisted_bookings::NUMERIC - cb.avg_bookings) / cb.avg_bookings) * 100, 2)
-      ELSE 0
-    END AS uplift_bookings_pct
+    bap.id,
+    bap.title,
+    bap.subj_category,
+    bap.articles_linking,
+    bap.assisted_views,
+    bap.assisted_bookings,
+    0::NUMERIC AS baseline_views,  -- Placeholder: listing_views table doesn't exist yet
+    0::NUMERIC AS baseline_bookings,  -- Placeholder: baseline calculation requires listing_views table
+    0::NUMERIC AS uplift_views_pct,  -- Placeholder: will be calculated when baseline data available
+    0::NUMERIC AS uplift_bookings_pct  -- Placeholder: will be calculated when baseline data available
   FROM blog_assisted_performance bap
-  LEFT JOIN category_baselines cb ON bap.category = cb.category
   WHERE bap.assisted_views > 0 OR bap.assisted_bookings > 0
   ORDER BY bap.assisted_bookings DESC, bap.assisted_views DESC
   LIMIT 10;
