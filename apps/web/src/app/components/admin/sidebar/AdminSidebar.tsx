@@ -31,13 +31,22 @@ export default function AdminSidebar() {
   const navItems: NavItem[] = [
     { href: '/admin', label: 'Dashboard' },
     {
+      href: '/admin/signal',
+      label: 'Signal',
+      subItems: [
+        { href: '/admin/signal', label: 'Analytics', indent: true },
+        // Future phases:
+        // { href: '/admin/signal/distribution', label: 'Distribution', indent: true },
+        // { href: '/admin/signal/experiments', label: 'Experiments', indent: true },
+      ],
+    },
+    {
       href: '/admin/blog',
       label: 'Blog',
       subItems: [
         { href: '/admin/blog', label: 'All Articles', indent: true },
         { href: '/admin/blog/new', label: 'New Article', indent: true },
-        { href: '/admin/blog/orchestrator', label: 'Orchestrator', indent: true },
-        { href: '/admin/blog/seo', label: 'SEO & Analytics', indent: true },
+        { href: '/admin/blog/seo', label: 'SEO Performance', indent: true },
         { href: '/admin/blog/categories', label: 'Categories', indent: true },
         { href: '/admin/blog/settings', label: 'Settings', indent: true },
       ],

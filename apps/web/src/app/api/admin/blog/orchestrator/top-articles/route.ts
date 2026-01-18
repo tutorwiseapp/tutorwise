@@ -1,80 +1,23 @@
-/*
+/**
  * Filename: src/app/api/admin/blog/orchestrator/top-articles/route.ts
- * Purpose: Fetch top-performing articles sorted by revenue
+ * Status: DEPRECATED - Redirects to /api/admin/signal/top-articles
  * Created: 2026-01-16
- * Updated: 2026-01-18 - RBAC alignment (Migration 189)
- * Pattern: Admin-only API route with RBAC permission check
+ * Deprecated: 2026-01-18
+ * Reason: Revenue Signal is platform-level intelligence, not blog-specific
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
-  try {
-    const supabase = await createClient();
+  const searchParams = request.nextUrl.searchParams;
+  const queryString = searchParams.toString();
+  const newUrl = `/api/admin/signal/top-articles${queryString ? `?${queryString}` : ''}`;
 
-    // Auth check
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  console.warn('[DEPRECATED] /api/admin/blog/orchestrator/top-articles → /api/admin/signal/top-articles');
 
-    // RBAC permission check (Migration 189)
-    const { data: hasPermission, error: permError } = await supabase
-      .rpc('has_admin_permission', {
-        p_user_id: user.id,
-        p_resource: 'blog',
-        p_action: 'view_analytics'
-      });
-
-    if (permError) {
-      console.error('[Blog Orchestrator] Permission check error:', permError);
-      return NextResponse.json({ error: 'Permission check failed' }, { status: 500 });
-    }
-
-    if (!hasPermission) {
-      return NextResponse.json({
-        error: 'Forbidden - Requires blog:view_analytics permission'
-      }, { status: 403 });
-    }
-
-    // Get query params
-    const searchParams = request.nextUrl.searchParams;
-    const days = parseInt(searchParams.get('days') || '30');
-    const attributionWindow = parseInt(searchParams.get('attributionWindow') || '7');
-
-    // Validate parameters
-    if (days < 1 || days > 365) {
-      return NextResponse.json({ error: 'Days must be between 1 and 365' }, { status: 400 });
-    }
-    if (![7, 14, 30].includes(attributionWindow)) {
-      return NextResponse.json({ error: 'Attribution window must be 7, 14, or 30 days' }, { status: 400 });
-    }
-
-    // Call RPC and sort by revenue descending
-    const { data: performanceData, error: perfError } = await supabase
-      .rpc('get_article_performance_summary', {
-        p_days: days,
-        p_attribution_window_days: attributionWindow
-      });
-
-    if (perfError) {
-      console.error('[Blog Orchestrator] Performance RPC Error:', perfError);
-      return NextResponse.json({ error: 'Failed to fetch article performance' }, { status: 500 });
-    }
-
-    // Sort by revenue descending (client-side since RPC doesn't do this)
-    const sortedArticles = (performanceData || []).sort((a: any, b: any) =>
-      (b.booking_revenue || 0) - (a.booking_revenue || 0)
-    );
-
-    return NextResponse.json({
-      articles: sortedArticles,
-    });
-  } catch (error) {
-    console.error('[Blog Orchestrator] Error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
+  return NextResponse.redirect(new URL(newUrl, request.url), {
+    status: 308, // Permanent redirect
+  });
 }
