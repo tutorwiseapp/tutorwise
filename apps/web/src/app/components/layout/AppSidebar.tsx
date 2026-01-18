@@ -15,7 +15,7 @@ import styles from './AppSidebar.module.css';
 interface NavItem {
   href: string;
   label: string;
-  roles?: ('client' | 'tutor' | 'agent' | 'student')[];
+  roles?: ('client' | 'tutor' | 'agent' | 'student' | 'admin')[];
   subItems?: NavItem[];
   indent?: boolean;
 }

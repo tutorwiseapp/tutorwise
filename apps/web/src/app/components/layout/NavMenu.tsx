@@ -38,7 +38,8 @@ const NavMenu = () => {
     agent: { label: 'Agent', icon: '🏠' },
     tutor: { label: 'Tutor', icon: '🎓' },
     client: { label: 'Client', icon: '📚' },
-    student: { label: 'Student', icon: '🎒' } // v5.0: Added student role
+    student: { label: 'Student', icon: '🎒' }, // v5.0: Added student role
+    admin: { label: 'Admin', icon: '⚙️' } // Admin role for platform admins
   } as const;
 
   const handleRoleSwitch = async (role: Role) => {
@@ -137,6 +138,8 @@ const NavMenu = () => {
                     {availableRoles.map((role) => {
                       if (role === activeRole) return null;
                       const config = roleConfig[role];
+                      // Safety check: skip roles not in roleConfig
+                      if (!config) return null;
                       return (
                         <DropdownMenu.Item
                           key={role}

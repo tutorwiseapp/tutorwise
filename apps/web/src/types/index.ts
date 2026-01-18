@@ -90,7 +90,7 @@ export interface Profile {
   role_details?: RoleDetailsData[]; // Raw array from database JOIN (transformed into professional_details)
 }
 
-export type Role = 'client' | 'tutor' | 'agent' | 'student'; // v5.0: Added student role
+export type Role = 'client' | 'tutor' | 'agent' | 'student' | 'admin'; // v5.0: Added student role, admin role for platform admins
 
 /**
  * ==================================================================

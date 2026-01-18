@@ -61,7 +61,8 @@ export default function MobileMenu({ isOpen, onClose, isAdminMode, setIsAdminMod
     agent: { label: 'Agent', icon: '🏠' },
     tutor: { label: 'Tutor', icon: '🎓' },
     client: { label: 'Client', icon: '📚' },
-    student: { label: 'Student', icon: '🎒' }
+    student: { label: 'Student', icon: '🎒' },
+    admin: { label: 'Admin', icon: '⚙️' }
   } as const;
 
   const handleRoleSwitch = async (role: Role) => {

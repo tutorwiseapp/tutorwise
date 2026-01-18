@@ -8,7 +8,8 @@ const roleConfig: Record<Role, { label: string; color: string }> = {
   agent: { label: 'Agent', color: 'text-purple-600 bg-purple-50' },
   client: { label: 'Client', color: 'text-blue-600 bg-blue-50' },
   tutor: { label: 'Tutor', color: 'text-green-600 bg-green-50' },
-  student: { label: 'Student', color: 'text-orange-600 bg-orange-50' } // v5.0: Added student role
+  student: { label: 'Student', color: 'text-orange-600 bg-orange-50' }, // v5.0: Added student role
+  admin: { label: 'Admin', color: 'text-red-600 bg-red-50' }
 };
 
 const RoleSwitcher: React.FC<{ className?: string }> = ({ className = '' }) => {
