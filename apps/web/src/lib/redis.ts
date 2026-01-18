@@ -9,12 +9,16 @@
 
 import { Redis } from '@upstash/redis';
 
-// Initialize Upstash Redis client
+// Initialize Upstash Redis client only if credentials are provided
 // Uses REST API, so no persistent connections required (perfect for serverless)
-export const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
+const hasRedisCredentials = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN;
+
+export const redis = hasRedisCredentials
+  ? new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL!,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+    })
+  : null;
 
 // Key prefix for free help presence
 const PRESENCE_KEY_PREFIX = 'presence:free-help:';
@@ -27,6 +31,10 @@ const PRESENCE_TTL = 5 * 60; // 300 seconds
  * Creates a Redis key with 5-minute expiry
  */
 export async function setTutorOnline(tutorId: string): Promise<void> {
+  if (!redis) {
+    console.warn('[Redis] Upstash credentials not configured, skipping setTutorOnline');
+    return;
+  }
   const key = `${PRESENCE_KEY_PREFIX}${tutorId}`;
   await redis.set(key, Date.now(), { ex: PRESENCE_TTL });
 }
@@ -36,6 +44,10 @@ export async function setTutorOnline(tutorId: string): Promise<void> {
  * Deletes the Redis key immediately
  */
 export async function setTutorOffline(tutorId: string): Promise<void> {
+  if (!redis) {
+    console.warn('[Redis] Upstash credentials not configured, skipping setTutorOffline');
+    return;
+  }
   const key = `${PRESENCE_KEY_PREFIX}${tutorId}`;
   await redis.del(key);
 }
@@ -45,6 +57,10 @@ export async function setTutorOffline(tutorId: string): Promise<void> {
  * Resets the 5-minute expiry timer
  */
 export async function refreshTutorHeartbeat(tutorId: string): Promise<boolean> {
+  if (!redis) {
+    console.warn('[Redis] Upstash credentials not configured, skipping refreshTutorHeartbeat');
+    return false;
+  }
   const key = `${PRESENCE_KEY_PREFIX}${tutorId}`;
 
   // Check if key exists
@@ -63,6 +79,10 @@ export async function refreshTutorHeartbeat(tutorId: string): Promise<boolean> {
  * Check if tutor is currently online for free help
  */
 export async function isTutorOnline(tutorId: string): Promise<boolean> {
+  if (!redis) {
+    console.warn('[Redis] Upstash credentials not configured, skipping isTutorOnline');
+    return false;
+  }
   const key = `${PRESENCE_KEY_PREFIX}${tutorId}`;
   const exists = await redis.exists(key);
   return exists === 1;
@@ -73,6 +93,10 @@ export async function isTutorOnline(tutorId: string): Promise<boolean> {
  * Returns array of tutor IDs
  */
 export async function getOnlineTutors(): Promise<string[]> {
+  if (!redis) {
+    console.warn('[Redis] Upstash credentials not configured, returning empty array');
+    return [];
+  }
   // Scan for all presence keys
   const keys = await redis.keys(`${PRESENCE_KEY_PREFIX}*`);
 
