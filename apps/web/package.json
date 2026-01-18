@@ -57,6 +57,7 @@
     "encoding": "^0.1.13",
     "gray-matter": "^4.0.3",
     "html2canvas": "^1.4.1",
+    "ioredis": "^5.9.2",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.544.0",
     "nanoid": "^5.1.6",

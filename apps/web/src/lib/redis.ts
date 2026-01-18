@@ -2,21 +2,44 @@
  * Filename: redis.ts
  * Purpose: Redis client for Free Help Now presence system (v5.9)
  * Created: 2025-11-16
+ * Updated: 2026-01-18 - Switched to ioredis for Redis Cloud compatibility
  *
  * Redis is used to track real-time tutor availability with TTL-based expiry.
  * Keys expire after 5 minutes without heartbeat, automatically setting tutors offline.
+ *
+ * Architecture:
+ * - Uses ioredis for traditional Redis protocol (Redis Cloud)
+ * - Lazy connection (only connects when first command is executed)
+ * - Automatic retries on connection failures
+ * - Gracefully handles missing credentials
  */
 
-import { Redis } from '@upstash/redis';
+import Redis from 'ioredis';
 
-// Initialize Upstash Redis client only if credentials are provided
-// Uses REST API, so no persistent connections required (perfect for serverless)
-const hasRedisCredentials = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN;
+// Initialize Redis client only if REDIS_URL is provided
+// Uses traditional Redis protocol with connection pooling
+const hasRedisCredentials = !!process.env.REDIS_URL;
 
 export const redis = hasRedisCredentials
-  ? new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL!,
-      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+  ? new Redis(process.env.REDIS_URL!, {
+      maxRetriesPerRequest: 3,
+      retryStrategy: (times) => {
+        // Exponential backoff: 50ms, 100ms, 200ms, max 2000ms
+        return Math.min(times * 50, 2000);
+      },
+      lazyConnect: true, // Don't connect until first command
+      enableReadyCheck: true,
+      // Connection timeout
+      connectTimeout: 10000,
+      // Reconnect on error
+      reconnectOnError: (err) => {
+        const targetError = 'READONLY';
+        if (err.message.includes(targetError)) {
+          // Only reconnect when the error contains "READONLY"
+          return true;
+        }
+        return false;
+      },
     })
   : null;
 
@@ -32,11 +55,12 @@ const PRESENCE_TTL = 5 * 60; // 300 seconds
  */
 export async function setTutorOnline(tutorId: string): Promise<void> {
   if (!redis) {
-    console.warn('[Redis] Upstash credentials not configured, skipping setTutorOnline');
+    console.warn('[Redis] REDIS_URL not configured, skipping setTutorOnline');
     return;
   }
   const key = `${PRESENCE_KEY_PREFIX}${tutorId}`;
-  await redis.set(key, Date.now(), { ex: PRESENCE_TTL });
+  // ioredis: SET key value EX seconds
+  await redis.set(key, Date.now().toString(), 'EX', PRESENCE_TTL);
 }
 
 /**
@@ -45,7 +69,7 @@ export async function setTutorOnline(tutorId: string): Promise<void> {
  */
 export async function setTutorOffline(tutorId: string): Promise<void> {
   if (!redis) {
-    console.warn('[Redis] Upstash credentials not configured, skipping setTutorOffline');
+    console.warn('[Redis] REDIS_URL not configured, skipping setTutorOffline');
     return;
   }
   const key = `${PRESENCE_KEY_PREFIX}${tutorId}`;
@@ -58,7 +82,7 @@ export async function setTutorOffline(tutorId: string): Promise<void> {
  */
 export async function refreshTutorHeartbeat(tutorId: string): Promise<boolean> {
   if (!redis) {
-    console.warn('[Redis] Upstash credentials not configured, skipping refreshTutorHeartbeat');
+    console.warn('[Redis] REDIS_URL not configured, skipping refreshTutorHeartbeat');
     return false;
   }
   const key = `${PRESENCE_KEY_PREFIX}${tutorId}`;
@@ -66,9 +90,9 @@ export async function refreshTutorHeartbeat(tutorId: string): Promise<boolean> {
   // Check if key exists
   const exists = await redis.exists(key);
 
-  if (exists) {
+  if (exists === 1) {
     // Refresh TTL
-    await redis.set(key, Date.now(), { ex: PRESENCE_TTL });
+    await redis.set(key, Date.now().toString(), 'EX', PRESENCE_TTL);
     return true;
   }
 
@@ -80,7 +104,7 @@ export async function refreshTutorHeartbeat(tutorId: string): Promise<boolean> {
  */
 export async function isTutorOnline(tutorId: string): Promise<boolean> {
   if (!redis) {
-    console.warn('[Redis] Upstash credentials not configured, skipping isTutorOnline');
+    console.warn('[Redis] REDIS_URL not configured, skipping isTutorOnline');
     return false;
   }
   const key = `${PRESENCE_KEY_PREFIX}${tutorId}`;
@@ -94,7 +118,7 @@ export async function isTutorOnline(tutorId: string): Promise<boolean> {
  */
 export async function getOnlineTutors(): Promise<string[]> {
   if (!redis) {
-    console.warn('[Redis] Upstash credentials not configured, returning empty array');
+    console.warn('[Redis] REDIS_URL not configured, returning empty array');
     return [];
   }
   // Scan for all presence keys
