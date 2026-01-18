@@ -111,7 +111,7 @@ export function adminAccessGrantedEmail(data: AdminEmailData): { subject: string
               <p style="margin: 0; color: #8E8E8E; font-size: 12px;">
                 <a href="${process.env.NEXT_PUBLIC_SITE_URL}/terms-of-service" style="color: #006c67; text-decoration: none; margin: 0 10px;">Terms</a> |
                 <a href="${process.env.NEXT_PUBLIC_SITE_URL}/privacy-policy" style="color: #006c67; text-decoration: none; margin: 0 10px;">Privacy</a> |
-                <a href="${process.env.NEXT_PUBLIC_SITE_URL}/contact" style="color: #006c67; text-decoration: none; margin: 0 10px;">Contact</a>
+                <a href="${process.env.NEXT_PUBLIC_SITE_URL}/help-centre" style="color: #006c67; text-decoration: none; margin: 0 10px;">Get Help</a>
               </p>
             </td>
           </tr>
@@ -227,7 +227,7 @@ export function adminRoleChangedEmail(data: AdminEmailData & { oldRole: string; 
               <p style="margin: 0; color: #8E8E8E; font-size: 12px;">
                 <a href="${process.env.NEXT_PUBLIC_SITE_URL}/terms-of-service" style="color: #006c67; text-decoration: none; margin: 0 10px;">Terms</a> |
                 <a href="${process.env.NEXT_PUBLIC_SITE_URL}/privacy-policy" style="color: #006c67; text-decoration: none; margin: 0 10px;">Privacy</a> |
-                <a href="${process.env.NEXT_PUBLIC_SITE_URL}/contact" style="color: #006c67; text-decoration: none; margin: 0 10px;">Contact</a>
+                <a href="${process.env.NEXT_PUBLIC_SITE_URL}/help-centre" style="color: #006c67; text-decoration: none; margin: 0 10px;">Get Help</a>
               </p>
             </td>
           </tr>
@@ -334,7 +334,7 @@ export function adminAccessRevokedEmail(data: AdminEmailData): { subject: string
               <p style="margin: 0; color: #8E8E8E; font-size: 12px;">
                 <a href="${process.env.NEXT_PUBLIC_SITE_URL}/terms-of-service" style="color: #006c67; text-decoration: none; margin: 0 10px;">Terms</a> |
                 <a href="${process.env.NEXT_PUBLIC_SITE_URL}/privacy-policy" style="color: #006c67; text-decoration: none; margin: 0 10px;">Privacy</a> |
-                <a href="${process.env.NEXT_PUBLIC_SITE_URL}/contact" style="color: #006c67; text-decoration: none; margin: 0 10px;">Contact</a>
+                <a href="${process.env.NEXT_PUBLIC_SITE_URL}/help-centre" style="color: #006c67; text-decoration: none; margin: 0 10px;">Get Help</a>
               </p>
             </td>
           </tr>

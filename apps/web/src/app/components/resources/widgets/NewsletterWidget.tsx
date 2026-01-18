@@ -1,6 +1,6 @@
 /**
- * Filename: apps/web/src/app/components/blog/widgets/NewsletterWidget.tsx
- * Purpose: Right sidebar widget for blog newsletter subscription
+ * Filename: apps/web/src/app/components/resources/widgets/NewsletterWidget.tsx
+ * Purpose: Right sidebar widget for resource newsletter subscription
  * Created: 2026-01-15
  */
 

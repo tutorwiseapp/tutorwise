@@ -1,9 +1,9 @@
 /**
- * Filename: apps/web/src/app/components/blog/ArticleCard.tsx
+ * Filename: apps/web/src/app/components/resources/ArticleCard.tsx
  * Purpose: Compact article card for wiselist display
  * Created: 2026-01-16
  *
- * Similar to MarketplaceListingCard pattern but for blog articles
+ * Similar to MarketplaceListingCard pattern but for resource articles
  */
 
 'use client';
@@ -34,7 +34,7 @@ interface ArticleCardProps {
 /**
  * ArticleCard Component
  *
- * Displays a compact blog article card in wiselists.
+ * Displays a compact resource article card in wiselists.
  * Matches the visual style of MarketplaceListingCard.
  */
 export default function ArticleCard({
@@ -43,7 +43,7 @@ export default function ArticleCard({
   onRemove,
   savedAt,
 }: ArticleCardProps) {
-  const imageUrl = article.featured_image_url || '/images/blog-placeholder.jpg';
+  const imageUrl = article.featured_image_url || '/images/resource-placeholder.jpg';
 
   // Format category for display
   const categoryDisplay = article.category
@@ -64,7 +64,7 @@ export default function ArticleCard({
 
   return (
     <div className={styles.cardContainer}>
-      <Link href={`/blog/${article.slug}`} className={styles.cardLink}>
+      <Link href={`/resources/${article.slug}`} className={styles.cardLink}>
         {/* Featured Image */}
         <div className={styles.imageContainer}>
           <Image src={imageUrl} alt={article.title} fill className={styles.image} />

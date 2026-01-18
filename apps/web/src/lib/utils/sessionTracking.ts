@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/lib/utils/sessionTracking.ts
- * Purpose: Session management for blog attribution tracking
+ * Purpose: Session management for resource attribution tracking
  * Created: 2026-01-16
  *
  * Implements hybrid session tracking (Option B from plan):

@@ -63,10 +63,10 @@ export async function GET(
         `)
         .eq('wiselist_id', id),
       supabase
-        .from('blog_article_saves')
+        .from('resource_article_saves')
         .select(`
           *,
-          article:blog_articles(id, title, slug, description, featured_image_url, read_time, category, published_at, author_name)
+          article:resource_articles(id, title, slug, description, featured_image_url, read_time, category, published_at, author_name)
         `)
         .eq('wiselist_id', id)
     ]);

@@ -1,6 +1,6 @@
 /**
- * Filename: apps/web/src/app/components/blog/SaveArticleButton.tsx
- * Purpose: Button for saving blog articles to wiselists with event tracking
+ * Filename: apps/web/src/app/components/resources/SaveArticleButton.tsx
+ * Purpose: Button for saving resource articles to wiselists with event tracking
  * Created: 2026-01-16
  * Updated: 2026-01-16 - Added event tracking for dual-write pattern
  *
@@ -40,7 +40,7 @@ interface SaveArticleButtonProps {
 /**
  * SaveArticleButton Component
  *
- * Allows users to save blog articles to their "My Saves" wiselist.
+ * Allows users to save resource articles to their "My Saves" wiselist.
  * Anonymous users save to localStorage; logged-in users save to database.
  */
 export default function SaveArticleButton({ article, variant = 'button' }: SaveArticleButtonProps) {
@@ -54,7 +54,7 @@ export default function SaveArticleButton({ article, variant = 'button' }: SaveA
       try {
         if (currentUser) {
           // Logged-in user: check database
-          const response = await fetch(`/api/blog/saves/check?articleId=${article.id}`);
+          const response = await fetch(`/api/resources/saves/check?articleId=${article.id}`);
           const data = await response.json();
           setIsSaved(data.isSaved || false);
         } else {
@@ -97,7 +97,7 @@ export default function SaveArticleButton({ article, variant = 'button' }: SaveA
   const handleDatabaseSave = async () => {
     if (isSaved) {
       // Unsave: DELETE
-      const response = await fetch('/api/blog/saves', {
+      const response = await fetch('/api/resources/saves', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ articleId: article.id }),
@@ -114,7 +114,7 @@ export default function SaveArticleButton({ article, variant = 'button' }: SaveA
       const sessionId = getOrCreateSessionId();
       const sourceComponent = variant === 'icon' ? 'article_header' : variant === 'floating' ? 'floating_save' : 'article_header';
 
-      const response = await fetch('/api/blog/saves', {
+      const response = await fetch('/api/resources/saves', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

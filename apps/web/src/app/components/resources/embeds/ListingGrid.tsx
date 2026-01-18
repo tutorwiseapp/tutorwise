@@ -1,6 +1,6 @@
 /**
- * Filename: apps/web/src/app/components/blog/embeds/ListingGrid.tsx
- * Purpose: MDX component for embedding filtered listing grids in blog articles
+ * Filename: apps/web/src/app/components/resources/embeds/ListingGrid.tsx
+ * Purpose: MDX component for embedding filtered listing grids in resource articles
  * Created: 2026-01-16
  *
  * Usage in MDX:
@@ -30,7 +30,7 @@ interface ListingGridProps {
 /**
  * ListingGrid Component
  *
- * Embeds a grid of filtered listings in blog articles.
+ * Embeds a grid of filtered listings in resource articles.
  * Creates signal_content_embeds entries and tracks signal-based attribution.
  */
 export default function ListingGrid({
@@ -50,7 +50,7 @@ export default function ListingGrid({
   // Get article ID from URL if not provided
   const currentArticleId =
     articleId ||
-    (typeof window !== 'undefined' ? window.location.pathname.split('/blog/')[1]?.split('/')[0] : '');
+    (typeof window !== 'undefined' ? window.location.pathname.split('/resources/')[1]?.split('/')[0] : '');
 
   const { trackEvent } = useSignalTracking(currentArticleId || '', 'listing_grid', 'article', 0);
 
@@ -78,9 +78,9 @@ export default function ListingGrid({
         const data = await response.json();
         setListings(data.listings || []);
 
-        // Create blog_listing_links entries for each listing
+        // Create resource_listing_links entries for each listing
         if (currentArticleId && data.listings?.length > 0) {
-          await createBlogListingLinks(currentArticleId, data.listings);
+          await createResourceListingLinks(currentArticleId, data.listings);
         }
       } catch (err) {
         console.error('[ListingGrid] Error fetching listings:', err);
@@ -93,15 +93,15 @@ export default function ListingGrid({
     fetchListings();
   }, [subjects, levels, locationTypes, maxPrice, limit, currentArticleId]);
 
-  // Create blog_listing_links entries
-  const createBlogListingLinks = async (articleId: string, fetchedListings: Listing[]) => {
+  // Create resource_listing_links entries
+  const createResourceListingLinks = async (articleId: string, fetchedListings: Listing[]) => {
     try {
       const promises = fetchedListings.map(async (listing, index) => {
-        const response = await fetch('/api/blog/listing-links', {
+        const response = await fetch('/api/resources/listing-links', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            blogArticleId: articleId,
+            articleId: articleId,
             listingId: listing.id,
             linkType: 'manual_embed',
             positionInArticle: index,
@@ -109,13 +109,13 @@ export default function ListingGrid({
         });
 
         if (!response.ok) {
-          console.warn('[ListingGrid] Failed to create blog_listing_link for:', listing.id);
+          console.warn('[ListingGrid] Failed to create resource_listing_link for:', listing.id);
         }
       });
 
       await Promise.all(promises);
     } catch (err) {
-      console.error('[ListingGrid] Error creating blog_listing_links:', err);
+      console.error('[ListingGrid] Error creating resource_listing_links:', err);
     }
   };
 
@@ -132,11 +132,11 @@ export default function ListingGrid({
       });
 
       // Increment click_count in signal_content_embeds (via view)
-      fetch('/api/blog/listing-links/click', {
+      fetch('/api/resources/listing-links/click', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          blogArticleId: currentArticleId,
+          articleId: currentArticleId,
           listingId: listing.id,
         }),
       }).catch((err) => console.error('[ListingGrid] Error incrementing click count:', err));

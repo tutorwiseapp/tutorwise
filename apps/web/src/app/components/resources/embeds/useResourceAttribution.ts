@@ -1,6 +1,6 @@
 /**
- * Filename: apps/web/src/app/components/blog/embeds/useBlogAttribution.ts
- * Purpose: Client-side event-based attribution tracking for blog embeds
+ * Filename: apps/web/src/app/components/resources/embeds/useResourceAttribution.ts
+ * Purpose: Client-side event-based attribution tracking for resource embeds
  * Created: 2026-01-16
  *
  * Implements event-based attribution architecture:
@@ -31,20 +31,20 @@ export type AttributionEventType = 'impression' | 'click' | 'save' | 'refer' | '
 export type AttributionTargetType = 'article' | 'tutor' | 'listing' | 'booking' | 'referral' | 'wiselist_item';
 
 /**
- * Hook for blog attribution tracking with event-based architecture
+ * Hook for resource attribution tracking with event-based architecture
  *
- * This hook manages all blog-to-marketplace attribution tracking.
+ * This hook manages all resource-to-marketplace attribution tracking.
  * It writes immutable events to the database (source of truth) and provides
  * session/embed identifiers for performance analysis.
  *
- * @param articleId - Current blog article ID
+ * @param articleId - Current resource article ID
  * @param component - Component type (e.g., 'tutor_embed', 'listing_grid')
  * @param position - Zero-indexed position in article (default: 0)
  * @returns Attribution tracking functions and IDs
  *
  * @example
  * ```typescript
- * const { trackEvent, sessionId, embedInstanceId } = useBlogAttribution(
+ * const { trackEvent, sessionId, embedInstanceId } = useResourceAttribution(
  *   article.id,
  *   'tutor_embed',
  *   0
@@ -67,7 +67,7 @@ export type AttributionTargetType = 'article' | 'tutor' | 'listing' | 'booking' 
  * });
  * ```
  */
-export function useBlogAttribution(articleId: string, component: EmbedComponent, position: number = 0) {
+export function useResourceAttribution(articleId: string, component: EmbedComponent, position: number = 0) {
   const [sessionId, setSessionId] = useState<string>('');
   const [embedInstanceId, setEmbedInstanceId] = useState<string>('');
   const [isClient, setIsClient] = useState(false);
@@ -82,7 +82,7 @@ export function useBlogAttribution(articleId: string, component: EmbedComponent,
    * Track an attribution event
    *
    * Writes event to blog_attribution_events table (immutable source of truth).
-   * This is the canonical way to record blog-to-marketplace interactions.
+   * This is the canonical way to record resource-to-marketplace interactions.
    *
    * Events are immutable and represent evidence, not conclusions.
    * Attribution models (first-touch, last-touch) are derived at query time.
@@ -120,16 +120,16 @@ export function useBlogAttribution(articleId: string, component: EmbedComponent,
     metadata?: Record<string, any>;
   }): Promise<string | null> => {
     if (!isClient || !sessionId) {
-      console.warn('[useBlogAttribution] Cannot track event: client not initialized');
+      console.warn('[useResourceAttribution] Cannot track event: client not initialized');
       return null;
     }
 
     try {
-      const response = await fetch('/api/blog/attribution/events', {
+      const response = await fetch('/api/resources/attribution/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          blog_article_id: articleId,
+          article_id: articleId,
           event_type: data.event_type,
           target_type: data.target_type,
           target_id: data.target_id,
@@ -145,7 +145,7 @@ export function useBlogAttribution(articleId: string, component: EmbedComponent,
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('[useBlogAttribution] Failed to track event:', errorText);
+        console.error('[useResourceAttribution] Failed to track event:', errorText);
         return null;
       }
 
@@ -153,7 +153,7 @@ export function useBlogAttribution(articleId: string, component: EmbedComponent,
 
       // Log in development
       if (process.env.NODE_ENV === 'development') {
-        console.log('[useBlogAttribution] Event tracked:', {
+        console.log('[useResourceAttribution] Event tracked:', {
           event_id: result.event_id,
           event_type: data.event_type,
           target_type: data.target_type,
@@ -165,7 +165,7 @@ export function useBlogAttribution(articleId: string, component: EmbedComponent,
 
       return result.event_id || null;
     } catch (error) {
-      console.error('[useBlogAttribution] Error tracking event:', error);
+      console.error('[useResourceAttribution] Error tracking event:', error);
       return null;
     }
   };
@@ -225,7 +225,7 @@ export function useBlogAttribution(articleId: string, component: EmbedComponent,
  * @example
  * ```typescript
  * // In an API route
- * import { getSessionIdStandalone } from './useBlogAttribution';
+ * import { getSessionIdStandalone } from './useResourceAttribution';
  *
  * export async function POST(request: NextRequest) {
  *   const sessionId = getSessionIdStandalone();

@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/resources/category/[category]/page.tsx
- * Purpose: Category page showing all blog articles in a specific category
+ * Purpose: Category page showing all resource articles in a specific category
  * Created: 2026-01-15
  */
 
@@ -59,7 +59,7 @@ async function getCategoryArticles(category: string): Promise<BlogArticle[]> {
   const supabase = await createClient();
 
   const { data: articles, error } = await supabase
-    .from('blog_articles')
+    .from('resource_articles')
     .select('*')
     .eq('category', category)
     .eq('status', 'published')

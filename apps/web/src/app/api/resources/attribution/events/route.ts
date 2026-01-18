@@ -32,7 +32,6 @@ import { createClient } from '@/utils/supabase/server';
  *   metadata?: object;          // Additional context (distribution_id, etc.)
  * }
  *
- * BACKWARD COMPATIBILITY: Also accepts old format with blog_article_id
  *
  * Response:
  * {
@@ -44,16 +43,16 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Support both new format (signal_*) and old format (blog_article_id)
+    // Extract fields from request body
     const signal_id = body.signal_id;
-    const content_id = body.content_id || body.blog_article_id; // Backward compatibility
+    const content_id = body.content_id;
     const content_type = body.content_type || 'article';
     const { event_type, target_type, target_id, source_component, session_id, metadata } = body;
 
     // Validate required fields
     if (!content_id || !event_type || !target_type || !target_id || !source_component) {
       return NextResponse.json(
-        { error: 'Missing required fields: content_id (or blog_article_id), event_type, target_type, target_id, source_component' },
+        { error: 'Missing required fields: content_id, event_type, target_type, target_id, source_component' },
         { status: 400 }
       );
     }
@@ -144,7 +143,7 @@ export async function POST(request: NextRequest) {
  * Query attribution events (for analytics and debugging)
  *
  * Query parameters:
- * - article_id: Filter by blog article ID
+ * - article_id: Filter by resource article ID
  * - session_id: Filter by session ID
  * - user_id: Filter by user ID (requires auth)
  * - event_type: Filter by event type

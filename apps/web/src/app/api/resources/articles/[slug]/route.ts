@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/api/resources/articles/[slug]/route.ts
- * Purpose: Public API route for fetching individual published blog articles by slug
+ * Purpose: Public API route for fetching individual published resource articles by slug
  * Created: 2026-01-15
  */
 
@@ -15,7 +15,7 @@ export async function GET(
     const supabase = await createClient();
 
     const { data: article, error } = await supabase
-      .from('blog_articles')
+      .from('resource_articles')
       .select('*')
       .eq('slug', params.slug)
       .eq('status', 'published')
@@ -31,7 +31,7 @@ export async function GET(
 
     // Increment view count
     await supabase
-      .from('blog_articles')
+      .from('resource_articles')
       .update({ view_count: (article.view_count || 0) + 1 })
       .eq('id', article.id);
 

@@ -1,11 +1,11 @@
 /**
  * Filename: apps/web/src/app/api/resources/saves/route.ts
- * Purpose: API for saving/unsaving blog articles to wiselists
+ * Purpose: API for saving/unsaving resource articles to wiselists
  * Created: 2026-01-16
  * Updated: 2026-01-16 - Added dual-write pattern (event + save record)
  *
  * DUAL-WRITE PATTERN:
- * 1. Create save record in blog_article_saves (user intent)
+ * 1. Create save record in resource_article_saves (user intent)
  * 2. Write 'save' event to blog_attribution_events (attribution signal)
  *
  * Note: blog_article_saves represents intent, not exclusive attribution.
@@ -17,10 +17,10 @@ import { createClient } from '@/utils/supabase/server';
 
 /**
  * POST /api/resources/saves
- * Save a blog article to the user's "My Saves" wiselist
+ * Save a resource article to the user's "My Saves" wiselist
  *
  * DUAL-WRITE IMPLEMENTATION:
- * 1. Create save record in blog_article_saves (user intent)
+ * 1. Create save record in resource_article_saves (user intent)
  * 2. Write 'save' event to blog_attribution_events (attribution signal)
  */
 export async function POST(request: NextRequest) {
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
 
     // Check if article is already saved
     const { data: existingSave } = await supabase
-      .from('blog_article_saves')
+      .from('resource_article_saves')
       .select('id')
       .eq('article_id', articleId)
       .eq('wiselist_id', targetWiselistId)
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
 
     // STEP 1: Create save record (user intent)
     const { data: newSave, error: saveError } = await supabase
-      .from('blog_article_saves')
+      .from('resource_article_saves')
       .insert({
         article_id: articleId,
         wiselist_id: targetWiselistId,
@@ -125,8 +125,8 @@ export async function POST(request: NextRequest) {
     }
 
     // STEP 2: Write attribution event (influence signal)
-    const { error: eventError } = await supabase.from('blog_attribution_events').insert({
-      blog_article_id: articleId,
+    const { error: eventError } = await supabase.from('resource_attribution_events').insert({
+      article_id: articleId,
       user_id: user.id,
       session_id: sessionId || null,
       target_type: 'article',
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
 
 /**
  * DELETE /api/resources/saves
- * Remove a blog article from the user's "My Saves" wiselist
+ * Remove a resource article from the user's "My Saves" wiselist
  */
 export async function DELETE(request: NextRequest) {
   try {
@@ -180,7 +180,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete save (RLS will ensure user owns the save)
-    let query = supabase.from('blog_article_saves').delete().eq('article_id', articleId).eq('profile_id', user.id);
+    let query = supabase.from('resource_article_saves').delete().eq('article_id', articleId).eq('profile_id', user.id);
 
     if (wiselistId) {
       query = query.eq('wiselist_id', wiselistId);

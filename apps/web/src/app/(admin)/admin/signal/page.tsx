@@ -6,7 +6,7 @@
  * Updated: 2026-01-17 - Added Signal Journey Viewer + Attribution Models (Migration 187)
  * Pattern: Follows SEO hub pattern with multi-tab navigation and KPI cards
  * Phase: 3 - Observation Layer (read-only analytics)
- * Note: This is platform-level business intelligence, not blog-specific
+ * Note: This is platform-level business intelligence, not resource-specific
  */
 'use client';
 
@@ -262,7 +262,7 @@ export default function BlogOrchestratorPage() {
           ) : totalArticles === 0 ? (
             <HubEmptyState
               title="No Attribution Data Yet"
-              description="Start embedding content in articles to see attribution data. Once blog articles are viewed and users interact with embedded content, metrics will appear here."
+              description="Start embedding content in articles to see attribution data. Once resource articles are viewed and users interact with embedded content, metrics will appear here."
               icon={<FileText size={48} />}
             />
           ) : (
@@ -283,7 +283,7 @@ export default function BlogOrchestratorPage() {
                 <HubKPICard
                   label="Revenue Generated"
                   value={formatRevenue(totalRevenue)}
-                  sublabel="From blog traffic"
+                  sublabel="From resource traffic"
                   icon={DollarSign}
                 />
                 <HubKPICard
@@ -331,7 +331,7 @@ export default function BlogOrchestratorPage() {
           ) : !articlesData?.articles || articlesData.articles.length === 0 ? (
             <HubEmptyState
               title="No Article Performance Data"
-              description="Article performance metrics will appear once blog articles receive views and interactions."
+              description="Article performance metrics will appear once resource articles receive views and interactions."
               icon={<FileText size={48} />}
             />
           ) : (
@@ -353,7 +353,7 @@ export default function BlogOrchestratorPage() {
                   {articlesData.articles.map((article) => (
                     <tr key={article.article_id}>
                       <td>
-                        <a href={`/blog/${article.article_slug}`} target="_blank" rel="noopener noreferrer">
+                        <a href={`/resources/${article.article_slug}`} target="_blank" rel="noopener noreferrer">
                           {article.article_title}
                         </a>
                       </td>
@@ -381,7 +381,7 @@ export default function BlogOrchestratorPage() {
           ) : !statsData?.funnel || statsData.funnel.length === 0 ? (
             <HubEmptyState
               title="No Funnel Data"
-              description="Conversion funnel metrics will appear once users progress through blog articles to bookings."
+              description="Conversion funnel metrics will appear once users progress through resource articles to bookings."
               icon={<TrendingUp size={48} />}
             />
           ) : (
@@ -429,7 +429,7 @@ export default function BlogOrchestratorPage() {
           ) : !listingsData?.listings || listingsData.listings.length === 0 ? (
             <HubEmptyState
               title="No Blog-Assisted Listings"
-              description="Listing visibility data will appear once blog articles drive traffic to tutor listings."
+              description="Listing visibility data will appear once resource articles drive traffic to tutor listings."
               icon={<Users size={48} />}
             />
           ) : (

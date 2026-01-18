@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/(admin)/admin/resources/seo/page.tsx
- * Purpose: Admin blog SEO dashboard and analytics
+ * Purpose: Admin resource SEO dashboard and analytics
  * Created: 2026-01-15
  */
 'use client';
@@ -113,7 +113,7 @@ export default function BlogSEOPage() {
                   <div className={styles.checklistIcon}>✅</div>
                   <h4 className={styles.checklistTitle}>Sitemaps</h4>
                   <p className={styles.checklistDescription}>
-                    Dynamic sitemap generated at /blog/sitemap.xml
+                    Dynamic sitemap generated at /resources/sitemap.xml
                   </p>
                   <div className={styles.checklistStatus}>Configured</div>
                 </div>
@@ -151,7 +151,7 @@ export default function BlogSEOPage() {
               <h3 className={styles.sectionTitle}>Quick Links</h3>
               <div className={styles.linksGrid}>
                 <a
-                  href="/blog/sitemap.xml"
+                  href="/resources/sitemap.xml"
                   target="_blank"
                   rel="noopener noreferrer"
                   className={styles.linkCard}
@@ -215,7 +215,7 @@ export default function BlogSEOPage() {
         {activeTab === 'backlinks' && (
           <HubEmptyState
             title="Backlink Monitoring Coming Soon"
-            description="Monitor external links to your blog articles once Ahrefs or SEMrush integration is configured."
+            description="Monitor external links to your resource articles once Ahrefs or SEMrush integration is configured."
           />
         )}
       </div>

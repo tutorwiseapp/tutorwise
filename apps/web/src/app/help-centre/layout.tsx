@@ -11,6 +11,7 @@ import HelpCentreLayoutClient from '@/app/components/help-centre/layout/HelpCent
 
 // Enhanced SEO Metadata (Critical for help article discoverability)
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://tutorwise.com'),
   title: 'Help Centre | Tutorwise Support',
   description: 'Find answers to your questions about Tutorwise. Browse guides, tutorials, and FAQs for tutors, students, and agents.',
   keywords: [
@@ -33,6 +34,11 @@ export const metadata: Metadata = {
     siteName: 'Tutorwise',
     type: 'website',
     locale: 'en_GB',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Help Centre | Tutorwise Support',
+    description: 'Find answers to your questions about Tutorwise.',
   },
   robots: {
     index: true,

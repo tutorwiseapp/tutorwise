@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/resources/[slug]/page.tsx
- * Purpose: Individual blog article page with author, social sharing, and related articles
+ * Purpose: Individual resource article page with author, social sharing, and related articles
  * Created: 2026-01-15
  */
 
@@ -47,7 +47,7 @@ async function getArticle(slug: string): Promise<BlogArticle | null> {
   const supabase = await createClient();
 
   const { data: article, error } = await supabase
-    .from('blog_articles')
+    .from('resource_articles')
     .select('*')
     .eq('slug', slug)
     .eq('status', 'published')

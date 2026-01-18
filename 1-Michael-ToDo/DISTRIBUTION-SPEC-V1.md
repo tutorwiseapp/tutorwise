@@ -1,6 +1,6 @@
 # Blog Distribution Specification v1 (FROZEN)
 
-**Purpose**: Publish TutorWise blog articles to TutorWise LinkedIn Page
+**Purpose**: Publish TutorWise resource articles to TutorWise LinkedIn Page
 **Measurement**: Downstream marketplace outcomes (bookings, revenue), NOT social engagement
 **Scope**: LinkedIn Page only, organic posts only
 **Status**: Specification frozen - implement as-is unless LinkedIn forces a change
@@ -91,7 +91,7 @@ This is **growth instrumentation**, not social scheduling.
 | **Schedule** | Draft only | Set scheduled_at, status → 'scheduled' |
 | **Cancel** | Scheduled only | status → 'draft' |
 | **Retry** | Failed only | status → 'scheduled' (retry same time or new) |
-| **View Article** | Always | Open blog article in new tab |
+| **View Article** | Always | Open resource article in new tab |
 | **View Results** | Published only | Deep-link to Phase 3 Orchestrator with distribution filter |
 
 #### Toolbar Actions:
@@ -132,7 +132,7 @@ r_organization_admin     - Verify admin access
 
 **Step 2**: Request permissions
 - When LinkedIn asks "Why do you need these permissions?"
-- Answer EXACTLY: **"The app publishes our company's blog articles to our own LinkedIn Page."**
+- Answer EXACTLY: **"The app publishes our company's resource articles to our own LinkedIn Page."**
 - **STOP THERE.**
 
 **Do NOT mention**:
@@ -393,7 +393,7 @@ Without this, anyone can trigger the cron endpoint.
 ```
 LinkedIn Post (with distribution_id)
         ↓
-User clicks → Blog article loaded
+User clicks → Resource article loaded
         ↓
 Session cookie set → distribution_id captured
         ↓
@@ -521,7 +521,7 @@ type ErrorCode =
   | 'TOKEN_EXPIRED'       // OAuth token invalid
   | 'PERMISSION_REVOKED'  // Admin removed app access
   | 'RATE_LIMITED'        // Hit 100 posts/day limit
-  | 'INVALID_URL'         // Blog article URL malformed
+  | 'INVALID_URL'         // Resource article URL malformed
   | 'NETWORK_ERROR'       // Timeout, connection failed
   | 'UNKNOWN';            // Catch-all
 
@@ -617,7 +617,7 @@ Retry count: 2/3
 
 5. TRACKED BLOG LINK (UTMs + distribution_id)
    User sees post on LinkedIn feed
-   Clicks link → Lands on blog article
+   Clicks link → Lands on resource article
    Middleware captures: distribution_id from ?d=UUID param
    Sets session cookie with attribution data
 
@@ -676,7 +676,7 @@ CREATE TABLE blog_distributions (
 
   -- Post content
   post_text TEXT NOT NULL,  -- Admin can customize
-  post_url TEXT NOT NULL,   -- Blog article URL with UTMs
+  post_url TEXT NOT NULL,   -- Resource article URL with UTMs
 
   -- LinkedIn response
   external_post_id TEXT,    -- urn:li:share:123456789

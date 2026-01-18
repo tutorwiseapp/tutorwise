@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/(admin)/admin/resources/components/ArticleEditorForm.tsx
- * Purpose: Blog article editor form component
+ * Purpose: Resource article editor form component
  * Created: 2026-01-15
  */
 'use client';
@@ -121,7 +121,7 @@ export default function ArticleEditorForm({
             required
             placeholder="url-friendly-slug"
           />
-          <p className={styles.helpText}>URL: /blog/{formData.slug || 'article-slug'}</p>
+          <p className={styles.helpText}>URL: /resources/{formData.slug || 'article-slug'}</p>
         </div>
 
         <div className={styles.formGroup}>

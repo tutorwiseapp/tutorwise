@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/api/resources/listing-links/route.ts
- * Purpose: API for managing blog_listing_links (create links between blog articles and listings)
+ * Purpose: API for managing resource_listing_links (create links between resource articles and listings)
  * Created: 2026-01-16
  */
 
@@ -9,17 +9,17 @@ import { createClient } from '@/utils/supabase/server';
 
 /**
  * POST /api/resources/listing-links
- * Create or update a blog_listing_link entry
+ * Create or update a resource_listing_link entry
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { blogArticleId, listingId, linkType = 'manual_embed', positionInArticle } = body;
+    const { articleId, listingId, linkType = 'manual_embed', positionInArticle } = body;
 
     // Validate required fields
-    if (!blogArticleId || !listingId) {
+    if (!articleId || !listingId) {
       return NextResponse.json(
-        { error: 'Missing required fields: blogArticleId, listingId' },
+        { error: 'Missing required fields: articleId, listingId' },
         { status: 400 }
       );
     }
@@ -28,9 +28,9 @@ export async function POST(request: NextRequest) {
 
     // Check if link already exists
     const { data: existingLink } = await supabase
-      .from('blog_listing_links')
+      .from('resource_listing_links')
       .select('id, click_count')
-      .eq('blog_article_id', blogArticleId)
+      .eq('article_id', articleId)
       .eq('listing_id', listingId)
       .eq('link_type', linkType)
       .single();
@@ -46,9 +46,9 @@ export async function POST(request: NextRequest) {
 
     // Create new link
     const { data: newLink, error } = await supabase
-      .from('blog_listing_links')
+      .from('resource_listing_links')
       .insert({
-        blog_article_id: blogArticleId,
+        article_id: articleId,
         listing_id: listingId,
         link_type: linkType,
         position_in_article: positionInArticle,
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('[API] Error creating blog_listing_link:', error);
+      console.error('[API] Error creating resource_listing_link:', error);
       return NextResponse.json({ error: 'Failed to create link' }, { status: 500 });
     }
 

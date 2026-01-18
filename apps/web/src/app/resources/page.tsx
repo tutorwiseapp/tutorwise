@@ -15,10 +15,10 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import styles from './page.module.css';
 
-interface BlogArticle {
+interface ResourceArticle {
   id: string;
   title: string;
   description: string;
@@ -56,7 +56,7 @@ function CategoryTag({ category }: { category: string }) {
   );
 }
 
-function ArticleCard({ article }: { article: BlogArticle }) {
+function ArticleCard({ article }: { article: ResourceArticle }) {
   const formattedDate = new Date(article.published_at).toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'short',
@@ -79,20 +79,31 @@ function ArticleCard({ article }: { article: BlogArticle }) {
   );
 }
 
-function BlogLandingPageContent() {
+function ResourcesLandingPageContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const categoryFilter = searchParams?.get('category') ?? null;
-  const [featuredArticles, setFeaturedArticles] = useState<BlogArticle[]>([]);
-  const [latestArticles, setLatestArticles] = useState<BlogArticle[]>([]);
+  const searchQuery = searchParams?.get('q') ?? null;
+  const [featuredArticles, setFeaturedArticles] = useState<ResourceArticle[]>([]);
+  const [latestArticles, setLatestArticles] = useState<ResourceArticle[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchInput, setSearchInput] = useState('');
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = searchInput.trim();
+    if (trimmed) {
+      router.push(`/resources?q=${encodeURIComponent(trimmed)}`);
+    }
+  };
 
   useEffect(() => {
     async function fetchArticles() {
       try {
         setLoading(true);
 
-        // Fetch featured articles (top 3 by view count)
-        const featuredResponse = await fetch('/api/resources/articles?limit=3');
+        // Fetch featured articles (top 4 by view count)
+        const featuredResponse = await fetch('/api/resources/articles?limit=4');
         const featuredData = await featuredResponse.json();
         setFeaturedArticles(featuredData.articles || []);
 
@@ -122,11 +133,25 @@ function BlogLandingPageContent() {
       {/* Hero Section */}
       <div className={styles.hero}>
         <div className={styles.heroInner}>
-          <h1 className={styles.heroTitle}>Resources</h1>
+          <h1 className={styles.heroTitle}>Welcome to Tutorwise Resources</h1>
           <p className={styles.heroDescription}>
-            Insights, guides, and resources for tutors, parents, and educational agencies.
-            Learn how to succeed in the tutoring industry.
+            Expert guides and insights to help you succeed. Whether you&apos;re a tutor, parent, or agency,
+            find practical tips and industry knowledge to grow your tutoring journey.
           </p>
+
+          <form onSubmit={handleSearch} className={styles.heroSearch}>
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Search resources..."
+              className={styles.searchInput}
+              aria-label="Search resources"
+            />
+            <button type="submit" className={styles.searchButton}>
+              Search
+            </button>
+          </form>
         </div>
       </div>
 
@@ -208,10 +233,10 @@ function BlogLandingPageContent() {
   );
 }
 
-export default function BlogLandingPage() {
+export default function ResourcesLandingPage() {
   return (
     <Suspense fallback={<div className={styles.loading}>Loading...</div>}>
-      <BlogLandingPageContent />
+      <ResourcesLandingPageContent />
     </Suspense>
   );
 }

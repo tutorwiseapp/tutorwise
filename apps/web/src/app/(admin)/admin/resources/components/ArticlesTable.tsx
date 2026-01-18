@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/(admin)/admin/resources/components/ArticlesTable.tsx
- * Purpose: Blog articles table using HubDataTable pattern
+ * Purpose: Resource articles table using HubDataTable pattern
  * Created: 2026-01-15
  * Pattern: Follows ListingsTable pattern with filters, search, and bulk actions
  */

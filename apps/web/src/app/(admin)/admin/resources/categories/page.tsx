@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/(admin)/admin/resources/categories/page.tsx
- * Purpose: Admin blog - Manage categories
+ * Purpose: Admin resource - Manage categories
  * Created: 2026-01-15
  */
 'use client';

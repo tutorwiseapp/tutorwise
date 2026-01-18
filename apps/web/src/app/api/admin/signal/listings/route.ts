@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Attribution window must be 7, 14, or 30 days' }, { status: 400 });
     }
 
-    // Call RPC from Migration 182 (updated for Blog→Resources migration)
+    // Call RPC from Migration 182 (updated for Resource→Resources migration)
     const { data: listingsData, error: listingsError } = await supabase
       .rpc('get_resource_assisted_listings', {
         p_days: days,

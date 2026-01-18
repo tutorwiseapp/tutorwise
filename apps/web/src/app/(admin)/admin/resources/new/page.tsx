@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/(admin)/admin/resources/new/page.tsx
- * Purpose: Admin blog - Create new article
+ * Purpose: Admin resource - Create new article
  * Created: 2026-01-15
  */
 'use client';

@@ -1,6 +1,6 @@
 /**
- * Filename: apps/web/src/app/components/blog/layout/ResourceLayout.tsx
- * Purpose: Main 3-column layout for blog (320px + fluid + 320px)
+ * Filename: apps/web/src/app/components/resources/layout/ResourceLayout.tsx
+ * Purpose: Main 3-column layout for resource (320px + fluid + 320px)
  * Created: 2026-01-15
  */
 
@@ -38,7 +38,7 @@ export default function ResourceLayout({
         <button
           className={styles.floatingButton}
           onClick={() => setIsRightSidebarOpen(true)}
-          aria-label="View blog widgets and info"
+          aria-label="View resource widgets and info"
         >
           <svg
             width="24"

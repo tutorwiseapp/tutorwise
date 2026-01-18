@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/api/resources/articles/route.ts
- * Purpose: Public API route for fetching published blog articles
+ * Purpose: Public API route for fetching published resource articles
  * Created: 2026-01-15
  */
 
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit');
 
     let query = supabase
-      .from('blog_articles')
+      .from('resource_articles')
       .select('*')
       .eq('status', 'published')
       .lte('published_at', new Date().toISOString())

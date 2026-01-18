@@ -1,6 +1,6 @@
 /**
- * Filename: apps/web/src/app/components/blog/embeds/TutorCarousel.tsx
- * Purpose: MDX component for embedding a horizontal tutor carousel in blog articles
+ * Filename: apps/web/src/app/components/resources/embeds/TutorCarousel.tsx
+ * Purpose: MDX component for embedding a horizontal tutor carousel in resource articles
  * Created: 2026-01-16
  *
  * Usage in MDX:
@@ -63,7 +63,7 @@ export default function TutorCarousel({
   // Get article ID from URL if not provided
   const currentArticleId =
     articleId ||
-    (typeof window !== 'undefined' ? window.location.pathname.split('/blog/')[1]?.split('/')[0] : '');
+    (typeof window !== 'undefined' ? window.location.pathname.split('/resources/')[1]?.split('/')[0] : '');
 
   const { trackEvent } = useSignalTracking(currentArticleId || '', 'tutor_carousel', 'article', 0);
 

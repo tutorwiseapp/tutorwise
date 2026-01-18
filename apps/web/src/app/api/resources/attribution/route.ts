@@ -1,15 +1,15 @@
 /**
  * Filename: apps/web/src/app/api/resources/attribution/route.ts
- * Purpose: Record blog attribution when conversion happens (booking, referral, wiselist save)
+ * Purpose: Record resource attribution when conversion happens (booking, referral, wiselist save)
  * Created: 2026-01-16
  * Updated: 2026-01-16 - Added dual-write pattern (event + cache)
  *
  * DUAL-WRITE PATTERN:
- * 1. Write event to blog_attribution_events (source of truth)
+ * 1. Write event to resource_attribution_events (source of truth)
  * 2. Update cache field in target table (denormalized for performance)
  *
  * Cache fields are "last-touch attribution cache" for fast queries.
- * For multi-touch attribution, query blog_attribution_events table.
+ * For multi-touch attribution, query resource_attribution_events table.
  *
  * Called from:
  * - Booking confirmation page
@@ -35,7 +35,7 @@ interface AttributionRequest {
  * Record attribution when user converts after viewing blog content
  *
  * DUAL-WRITE IMPLEMENTATION:
- * 1. Write 'convert' event to blog_attribution_events (immutable truth)
+ * 1. Write 'convert' event to resource_attribution_events (immutable truth)
  * 2. Update cache field in target table (denormalized performance optimization)
  */
 export async function POST(request: NextRequest) {
@@ -60,8 +60,8 @@ export async function POST(request: NextRequest) {
 
     // STEP 1: Write conversion event (source of truth)
     const eventTargetType = targetType === 'wiselist' ? 'wiselist_item' : targetType;
-    const { error: eventError } = await supabase.from('blog_attribution_events').insert({
-      blog_article_id: articleId,
+    const { error: eventError } = await supabase.from('resource_attribution_events').insert({
+      article_id: articleId,
       user_id: user?.id || null,
       session_id: sessionId || null,
       target_type: eventTargetType,
@@ -110,8 +110,8 @@ export async function POST(request: NextRequest) {
 /**
  * Record attribution for bookings (CACHE UPDATE)
  *
- * Updates bookings.source_blog_article_id (last-touch cache).
- * Source of truth is blog_attribution_events table.
+ * Updates bookings.source_article_id (last-touch cache).
+ * Source of truth is resource_attribution_events table.
  */
 async function recordBookingAttribution(
   supabase: any,
@@ -120,43 +120,33 @@ async function recordBookingAttribution(
   context: string,
   attributionTimestamp?: string
 ) {
-  // Try RPC if it exists, otherwise direct update
-  const { error: rpcError } = await supabase.rpc('record_blog_booking_attribution', {
-    p_booking_id: bookingId,
-    p_blog_article_id: articleId,
-    p_attribution_context: context,
-    p_attribution_timestamp: attributionTimestamp || new Date().toISOString(),
-  });
+  // Direct update to bookings table
+  const { error: updateError } = await supabase
+    .from('bookings')
+    .update({
+      source_article_id: articleId,
+      attribution_timestamp: attributionTimestamp || new Date().toISOString(),
+      attribution_context: context,
+    })
+    .eq('id', bookingId);
 
-  if (rpcError) {
-    // Fallback to direct update if RPC doesn't exist yet
-    const { error: updateError } = await supabase
-      .from('bookings')
-      .update({
-        source_blog_article_id: articleId,
-        attribution_timestamp: attributionTimestamp || new Date().toISOString(),
-        attribution_context: context,
-      })
-      .eq('id', bookingId);
-
-    if (updateError) {
-      console.error('[Attribution] Error recording booking attribution (cache):', updateError);
-      throw new Error('Failed to record booking attribution');
-    }
+  if (updateError) {
+    console.error('[Attribution] Error recording booking attribution (cache):', updateError);
+    throw new Error('Failed to record booking attribution');
   }
 }
 
 /**
  * Record attribution for referrals (CACHE UPDATE)
  *
- * Updates referrals.source_blog_article_id (last-touch cache).
- * Source of truth is blog_attribution_events table.
+ * Updates referrals.source_article_id (last-touch cache).
+ * Source of truth is resource_attribution_events table.
  */
 async function recordReferralAttribution(supabase: any, articleId: string, referralId: string) {
   const { error } = await supabase
     .from('referrals')
     .update({
-      source_blog_article_id: articleId,
+      source_article_id: articleId,
     })
     .eq('id', referralId);
 
@@ -169,8 +159,8 @@ async function recordReferralAttribution(supabase: any, articleId: string, refer
 /**
  * Record attribution for wiselist saves (CACHE UPDATE)
  *
- * Updates wiselist_items.source_blog_article_id (last-touch cache).
- * Source of truth is blog_attribution_events table.
+ * Updates wiselist_items.source_article_id (last-touch cache).
+ * Source of truth is resource_attribution_events table.
  */
 async function recordWiselistAttribution(
   supabase: any,
@@ -181,7 +171,7 @@ async function recordWiselistAttribution(
   const { error } = await supabase
     .from('wiselist_items')
     .update({
-      source_blog_article_id: articleId,
+      source_article_id: articleId,
       save_context: context,
     })
     .eq('id', wiselistItemId);

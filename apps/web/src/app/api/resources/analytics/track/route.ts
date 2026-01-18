@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     // For now, just log the event
-    // In the future, this can store data in blog_article_metrics table
+    // In the future, this can store data in resource_article_metrics table
     console.log('Analytics event:', {
       article_id,
       event_type,

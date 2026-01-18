@@ -3,7 +3,7 @@
  * Status: DEPRECATED - Redirects to /admin/signal
  * Created: 2026-01-16
  * Deprecated: 2026-01-18
- * Reason: Revenue Signal is platform-level intelligence, not blog-specific
+ * Reason: Revenue Signal is platform-level intelligence, not resource-specific
  *
  * This page provides a permanent redirect for backward compatibility.
  * All functionality has been moved to /admin/signal

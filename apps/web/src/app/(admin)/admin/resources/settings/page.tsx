@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/(admin)/admin/resources/settings/page.tsx
- * Purpose: Admin blog - Global settings
+ * Purpose: Admin resource - Global settings
  * Created: 2026-01-15
  */
 'use client';
@@ -104,7 +104,7 @@ export default function BlogSettingsPage() {
 
         <HubEmptyState
           title="Settings Configuration Coming Soon"
-          description="Interactive forms to configure all blog settings will be available here."
+          description="Interactive forms to configure all resource settings will be available here."
         />
       </div>
       </HubPageLayout>

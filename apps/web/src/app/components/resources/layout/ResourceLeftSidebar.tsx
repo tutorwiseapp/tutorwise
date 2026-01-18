@@ -1,6 +1,6 @@
 /**
- * Filename: apps/web/src/app/components/blog/layout/ResourceLeftSidebar.tsx
- * Purpose: Left sidebar navigation (320px) for blog categories
+ * Filename: apps/web/src/app/components/resources/layout/ResourceLeftSidebar.tsx
+ * Purpose: Left sidebar navigation (320px) for resource categories
  * Created: 2026-01-15
  */
 
@@ -95,7 +95,7 @@ export default function ResourceLeftSidebar({ onLinkClick }: ResourceLeftSidebar
   };
 
   const isArticleActive = (categorySlug: string, articleSlug: string) => {
-    return pathname === `/blog/${articleSlug}`;
+    return pathname === `/resources/${articleSlug}`;
   };
 
   return (
@@ -157,7 +157,7 @@ export default function ResourceLeftSidebar({ onLinkClick }: ResourceLeftSidebar
                 {category.articles.map((article) => (
                   <Link
                     key={article.slug}
-                    href={`/blog/${article.slug}`}
+                    href={`/resources/${article.slug}`}
                     className={`${styles.articleLink} ${
                       isArticleActive(category.slug, article.slug) ? styles.active : ''
                     }`}

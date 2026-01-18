@@ -27,7 +27,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const publicPagesWithFooter = [
     '/',
     '/about',
-    '/blog', // Blog articles and category pages
+    '/resources', // Resource articles and category pages
     '/help-centre',
     '/about-tutorwise',
     '/signin',

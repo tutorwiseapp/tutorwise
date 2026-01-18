@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/api/admin/blog/articles/route.ts
- * Purpose: API routes for blog articles CRUD operations
+ * Purpose: API routes for resource articles CRUD operations
  * Created: 2026-01-15
  */
 
@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/admin/blog/articles
- * Fetch all blog articles (admin only)
+ * Fetch all resource articles (admin only)
  */
 export async function GET(request: NextRequest) {
   try {
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
 
     // Fetch all articles
     const { data: articles, error } = await supabase
-      .from('blog_articles')
+      .from('resource_articles')
       .select('*')
       .order('created_at', { ascending: false });
 
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST /api/admin/blog/articles
- * Create a new blog article (admin only)
+ * Create a new resource article (admin only)
  */
 export async function POST(request: NextRequest) {
   try {
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
 
     // Insert article
     const { data: article, error } = await supabase
-      .from('blog_articles')
+      .from('resource_articles')
       .insert({
         title,
         slug,

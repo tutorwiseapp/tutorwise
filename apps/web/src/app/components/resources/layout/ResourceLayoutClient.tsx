@@ -1,6 +1,6 @@
 /**
- * Filename: apps/web/src/app/components/blog/layout/ResourceLayoutClient.tsx
- * Purpose: Client-side wrapper for Blog layout with sidebar management
+ * Filename: apps/web/src/app/components/resources/layout/ResourceLayoutClient.tsx
+ * Purpose: Client-side wrapper for Resource layout with sidebar management
  * Created: 2026-01-15
  */
 

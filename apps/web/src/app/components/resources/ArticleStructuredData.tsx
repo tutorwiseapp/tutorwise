@@ -1,6 +1,6 @@
 /**
- * Filename: apps/web/src/app/components/blog/ArticleStructuredData.tsx
- * Purpose: Generate JSON-LD structured data for blog articles (SEO)
+ * Filename: apps/web/src/app/components/resources/ArticleStructuredData.tsx
+ * Purpose: Generate JSON-LD structured data for resource articles (SEO)
  * Created: 2026-01-15
  */
 
@@ -40,7 +40,7 @@ export default function ArticleStructuredData({ article }: ArticleStructuredData
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://tutorwise.com/blog/${article.slug}`,
+      '@id': `https://tutorwise.com/resources/${article.slug}`,
     },
   };
 

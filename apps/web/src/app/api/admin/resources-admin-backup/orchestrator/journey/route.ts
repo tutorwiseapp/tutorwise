@@ -3,7 +3,7 @@
  * Status: DEPRECATED - Redirects to /api/admin/signal/journey
  * Created: 2026-01-16
  * Deprecated: 2026-01-18
- * Reason: Revenue Signal is platform-level intelligence, not blog-specific
+ * Reason: Revenue Signal is platform-level intelligence, not resource-specific
  */
 
 import { NextRequest, NextResponse } from 'next/server';

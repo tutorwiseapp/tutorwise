@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/api/resources/saves/check/route.ts
- * Purpose: Check if a blog article is saved by the current user
+ * Purpose: Check if a resource article is saved by the current user
  * Created: 2026-01-16
  */
 
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
 
     // Check if article is saved
     const { data: save } = await supabase
-      .from('blog_article_saves')
+      .from('resource_article_saves')
       .select('id')
       .eq('article_id', articleId)
       .eq('profile_id', user.id)

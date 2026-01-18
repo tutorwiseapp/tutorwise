@@ -204,7 +204,7 @@ export async function addWiselistItem(data: {
   listingId?: string;
   organisationId?: string;
   notes?: string;
-  source_blog_article_id?: string; // Optional: blog article that influenced this save
+  source_blog_article_id?: string; // Optional: resource article that influenced this save
   save_context?: string; // Optional: context like 'blog_embed', 'blog_related'
 }): Promise<WiselistItem> {
   console.log('[addWiselistItem] Starting with data:', data);
@@ -220,7 +220,7 @@ export async function addWiselistItem(data: {
     organisation_id: data.organisationId || null,
     notes: data.notes || null,
     added_by_profile_id: user.id,
-    source_blog_article_id: data.source_blog_article_id || null,
+    source_article_id: data.source_blog_article_id || null,
     save_context: data.save_context || null,
   };
   console.log('[addWiselistItem] Inserting:', insertData);
@@ -250,11 +250,11 @@ export async function addWiselistItem(data: {
       const targetId = data.profileId || data.listingId;
 
       if (targetId) {
-        await fetch('/api/blog/attribution/events', {
+        await fetch('/api/resources/attribution/events', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            blog_article_id: data.source_blog_article_id,
+            article_id: data.source_blog_article_id,
             event_type: 'save',
             target_type: targetType,
             target_id: targetId,

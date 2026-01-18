@@ -55,10 +55,10 @@ export const metadata: Metadata = {
   },
 };
 
-interface BlogLayoutProps {
+interface ResourceLayoutProps {
   children: ReactNode;
 }
 
-export default function BlogLayout({ children }: BlogLayoutProps) {
+export default function ResourceLayout({ children }: ResourceLayoutProps) {
   return <ResourceLayoutClient>{children}</ResourceLayoutClient>;
 }

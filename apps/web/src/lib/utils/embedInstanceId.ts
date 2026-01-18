@@ -10,7 +10,7 @@
  */
 
 /**
- * Component types that can be embedded in blog articles
+ * Component types that can be embedded in resource articles
  */
 export type EmbedComponent =
   | 'tutor_embed'
@@ -44,7 +44,7 @@ function hashString(str: string): number {
  * Creates deterministic ID from article ID, component type, and position.
  * Same input parameters always produce same ID, enabling cross-user performance comparison.
  *
- * @param articleId - Blog article UUID
+ * @param articleId - Resource article UUID
  * @param component - Component type (e.g., 'tutor_embed', 'listing_grid')
  * @param position - Zero-indexed position in article (default: 0)
  * @returns Stable embed instance ID (format: "embed_[hash]")

@@ -1,7 +1,7 @@
 /**
- * Filename: apps/web/src/app/components/blog/embeds/useSignalTracking.ts
+ * Filename: apps/web/src/app/components/resources/embeds/useSignalTracking.ts
  * Purpose: Client-side journey tracking for Revenue Signal with signal_id
- * Created: 2026-01-17 (migrated from useBlogAttribution.ts)
+ * Created: 2026-01-17 (migrated from useResourceAttribution.ts)
  *
  * Implements signal-based journey tracking architecture:
  * - Writes immutable events to signal_events table (source of truth)
@@ -10,7 +10,7 @@
  * - Generates stable embed instance IDs for performance comparison
  *
  * Migration from blog_* to signal_*:
- * - Old: blog_attribution_events (blog-specific)
+ * - Old: blog_attribution_events (resource-specific)
  * - New: signal_events (content-agnostic, extensible to podcasts/videos)
  */
 
@@ -152,7 +152,7 @@ export function useSignalTracking(
         .find(c => c.startsWith('tw_distribution_id='))
         ?.split('=')[1];
 
-      const response = await fetch('/api/blog/attribution/events', {
+      const response = await fetch('/api/resources/attribution/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

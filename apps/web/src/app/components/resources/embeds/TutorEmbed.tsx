@@ -1,6 +1,6 @@
 /**
- * Filename: apps/web/src/app/components/blog/embeds/TutorEmbed.tsx
- * Purpose: MDX component for embedding tutor profiles in blog articles with event tracking
+ * Filename: apps/web/src/app/components/resources/embeds/TutorEmbed.tsx
+ * Purpose: MDX component for embedding tutor profiles in resource articles with event tracking
  * Created: 2026-01-16
  * Updated: 2026-01-16 - Migrated to event-based attribution
  *
@@ -49,7 +49,7 @@ interface TutorEmbedProps {
 /**
  * TutorEmbed Component
  *
- * Embeds a tutor profile card in blog articles with signal-based journey tracking.
+ * Embeds a tutor profile card in resource articles with signal-based journey tracking.
  * When user clicks the card, writes 'click' event to signal_events table with signal_id.
  */
 export default function TutorEmbed({
@@ -66,7 +66,7 @@ export default function TutorEmbed({
   // Get article ID from URL if not provided
   const currentArticleId =
     articleId ||
-    (typeof window !== 'undefined' ? window.location.pathname.split('/blog/')[1]?.split('/')[0] : '');
+    (typeof window !== 'undefined' ? window.location.pathname.split('/resources/')[1]?.split('/')[0] : '');
 
   const { trackEvent, embedInstanceId } = useSignalTracking(currentArticleId || '', 'tutor_embed', 'article', position);
 

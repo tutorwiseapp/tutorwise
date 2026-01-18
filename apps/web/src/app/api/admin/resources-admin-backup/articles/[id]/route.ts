@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/api/admin/blog/articles/[id]/route.ts
- * Purpose: API routes for individual blog article operations (get, update, delete)
+ * Purpose: API routes for individual resource article operations (get, update, delete)
  * Created: 2026-01-15
  */
 
@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/admin/blog/articles/[id]
- * Fetch a single blog article by ID or slug
+ * Fetch a single resource article by ID or slug
  */
 export async function GET(
   request: NextRequest,
@@ -32,7 +32,7 @@ export async function GET(
     }
 
     // Try to fetch by ID first, then by slug
-    let query = supabase.from('blog_articles').select('*');
+    let query = supabase.from('resource_articles').select('*');
 
     // Check if ID is a UUID or slug
     const isUUID =
@@ -59,7 +59,7 @@ export async function GET(
 
 /**
  * PUT /api/admin/blog/articles/[id]
- * Update a blog article
+ * Update a resource article
  */
 export async function PUT(
   request: NextRequest,
@@ -118,7 +118,7 @@ export async function PUT(
       // Set published_at when changing to 'published'
       if (status === 'published') {
         const { data: currentArticle } = await supabase
-          .from('blog_articles')
+          .from('resource_articles')
           .select('published_at')
           .eq('id', id)
           .single();
@@ -134,7 +134,7 @@ export async function PUT(
     const isUUID =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
-    let query = supabase.from('blog_articles').update(updates).select();
+    let query = supabase.from('resource_articles').update(updates).select();
 
     if (isUUID) {
       query = query.eq('id', id);
@@ -158,7 +158,7 @@ export async function PUT(
 
 /**
  * DELETE /api/admin/blog/articles/[id]
- * Delete a blog article
+ * Delete a resource article
  */
 export async function DELETE(
   request: NextRequest,
@@ -182,7 +182,7 @@ export async function DELETE(
     const isUUID =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
-    let query = supabase.from('blog_articles').delete();
+    let query = supabase.from('resource_articles').delete();
 
     if (isUUID) {
       query = query.eq('id', id);

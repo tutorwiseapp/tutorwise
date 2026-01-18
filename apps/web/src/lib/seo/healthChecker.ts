@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/lib/seo/healthChecker.ts
- * Purpose: Utility to check SEO health of blog articles
+ * Purpose: Utility to check SEO health of resource articles
  * Created: 2026-01-15
  */
 

@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/resources/sitemap.ts
- * Purpose: Generate dynamic sitemap for blog articles
+ * Purpose: Generate dynamic sitemap for resource articles
  * Created: 2026-01-15
  */
 
@@ -12,7 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Fetch all published articles
   const { data: articles, error } = await supabase
-    .from('blog_articles')
+    .from('resource_articles')
     .select('slug, updated_at, published_at')
     .eq('status', 'published')
     .lte('published_at', new Date().toISOString())
@@ -25,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const baseUrl = 'https://tutorwise.com';
 
-  // Main blog pages
+  // Main resource pages
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: `${baseUrl}/resources`,

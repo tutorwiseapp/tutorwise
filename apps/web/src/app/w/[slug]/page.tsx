@@ -37,7 +37,7 @@ export default async function PublicWiselistPage({ params }: PageProps) {
       ),
       article_saves:blog_article_saves!inner(
         *,
-        article:blog_articles(id, title, slug, description, featured_image_url, read_time, category, published_at, author_name)
+        article:resource_articles(id, title, slug, description, featured_image_url, read_time, category, published_at, author_name)
       ),
       collaborators:wiselist_collaborators(
         *,

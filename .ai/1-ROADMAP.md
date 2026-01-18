@@ -14,8 +14,8 @@
 **See [SYSTEM-NAVIGATION.md](3 - SYSTEM-NAVIGATION.md#platform-metrics-single-source-of-truth) for complete codebase metrics.**
 
 **Key Metrics**:
-- **260 pages** implemented (107 UI pages + 141 API endpoints + dynamic routes)
-- **148K lines of code** (TypeScript/TSX)
+- **260 pages** implemented (111 UI pages + 141 API endpoints + dynamic routes)
+- **155K lines of code** (TypeScript/TSX)
 - **196 database migrations** (190 numbered + 6 supporting files)
 - **353 components** in unified design system
 - **200+ RLS policies** enforcing data security
@@ -59,6 +59,7 @@
 8. ✅ **Reviews Hub** - Review moderation
 9. ✅ **SEO Hub** - SEO management and optimization
 10. ✅ **Settings Hub** - Platform configuration
+11. ✅ **Signal Hub** - Revenue Signal for tracking the economic value from articles to bookings
 
 **Features**:
 - ✅ HubComplexModal pattern (standardized detail modals)

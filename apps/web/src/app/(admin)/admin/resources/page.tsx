@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/(admin)/admin/resources/page.tsx
- * Purpose: Admin blog management - All Articles view
+ * Purpose: Admin resource management - All Articles view
  * Created: 2026-01-15
  */
 'use client';

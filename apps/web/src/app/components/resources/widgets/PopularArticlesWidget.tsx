@@ -1,6 +1,6 @@
 /**
- * Filename: apps/web/src/app/components/blog/widgets/PopularArticlesWidget.tsx
- * Purpose: Right sidebar widget displaying popular blog articles
+ * Filename: apps/web/src/app/components/resources/widgets/PopularArticlesWidget.tsx
+ * Purpose: Right sidebar widget displaying popular resource articles
  * Created: 2026-01-15
  */
 
@@ -48,7 +48,7 @@ export default function PopularArticlesWidget() {
       <h3 className={styles.widgetTitle}>Popular Articles</h3>
       <div className={styles.articleList}>
         {POPULAR_ARTICLES.map((article) => (
-          <Link key={article.slug} href={`/blog/${article.slug}`} className={styles.articleItem}>
+          <Link key={article.slug} href={`/resources/${article.slug}`} className={styles.articleItem}>
             <div className={styles.articleTitle}>{article.title}</div>
             <div className={styles.articleMeta}>
               <span className={styles.category}>{article.category}</span>

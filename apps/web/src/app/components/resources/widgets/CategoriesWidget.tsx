@@ -1,6 +1,6 @@
 /**
- * Filename: apps/web/src/app/components/blog/widgets/CategoriesWidget.tsx
- * Purpose: Right sidebar widget displaying blog categories
+ * Filename: apps/web/src/app/components/resources/widgets/CategoriesWidget.tsx
+ * Purpose: Right sidebar widget displaying resource categories
  * Created: 2026-01-15
  */
 
@@ -50,7 +50,7 @@ export default function CategoriesWidget() {
         {CATEGORIES.map((category) => (
           <Link
             key={category.slug}
-            href={`/blog/category/${category.slug}`}
+            href={`/resources/category/${category.slug}`}
             className={styles.categoryItem}
           >
             <div className={styles.categoryInfo}>
