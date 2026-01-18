@@ -14,9 +14,11 @@ import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
 import HubHeader from '@/app/components/hub/layout/HubHeader';
 import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import { HubKPIGrid, HubKPICard } from '@/app/components/hub/charts';
 import { AdminStatsWidget, AdminTipWidget } from '@/app/components/admin/widgets';
-import { FileText, TrendingUp, Users, DollarSign } from 'lucide-react';
+import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
+import { FileText, TrendingUp, Users, DollarSign, AlertCircle } from 'lucide-react';
 import styles from './page.module.css';
 
 // Force dynamic rendering for admin pages
@@ -199,7 +201,8 @@ export default function BlogOrchestratorPage() {
   );
 
   return (
-    <HubPageLayout
+    <ErrorBoundary>
+      <HubPageLayout
       header={
         <HubHeader
           title="Blog Demand Orchestrator"
@@ -255,9 +258,11 @@ export default function BlogOrchestratorPage() {
           ) : isLoadingStats ? (
             <div className={styles.loading}>Loading stats...</div>
           ) : totalArticles === 0 ? (
-            <div className={styles.placeholder}>
-              <p>Start embedding content in articles to see attribution data</p>
-            </div>
+            <HubEmptyState
+              title="No Attribution Data Yet"
+              description="Start embedding content in articles to see attribution data. Once blog articles are viewed and users interact with embedded content, metrics will appear here."
+              icon={<FileText size={48} />}
+            />
           ) : (
             <>
               <HubKPIGrid>
@@ -322,9 +327,11 @@ export default function BlogOrchestratorPage() {
           ) : isLoadingArticles ? (
             <div className={styles.loading}>Loading articles...</div>
           ) : !articlesData?.articles || articlesData.articles.length === 0 ? (
-            <div className={styles.placeholder}>
-              <p>No article performance data available yet</p>
-            </div>
+            <HubEmptyState
+              title="No Article Performance Data"
+              description="Article performance metrics will appear once blog articles receive views and interactions."
+              icon={<FileText size={48} />}
+            />
           ) : (
             <div className={styles.tableContainer}>
               <table className={styles.table}>
@@ -370,9 +377,11 @@ export default function BlogOrchestratorPage() {
           {isLoadingStats ? (
             <div className={styles.loading}>Loading funnel data...</div>
           ) : !statsData?.funnel || statsData.funnel.length === 0 ? (
-            <div className={styles.placeholder}>
-              <p>No funnel data available yet</p>
-            </div>
+            <HubEmptyState
+              title="No Funnel Data"
+              description="Conversion funnel metrics will appear once users progress through blog articles to bookings."
+              icon={<TrendingUp size={48} />}
+            />
           ) : (
             <div className={styles.funnelVisualization}>
               {statsData.funnel.map((stage, index) => (
@@ -416,9 +425,11 @@ export default function BlogOrchestratorPage() {
           ) : isLoadingListings ? (
             <div className={styles.loading}>Loading listings...</div>
           ) : !listingsData?.listings || listingsData.listings.length === 0 ? (
-            <div className={styles.placeholder}>
-              <p>No blog-assisted listings data available yet</p>
-            </div>
+            <HubEmptyState
+              title="No Blog-Assisted Listings"
+              description="Listing visibility data will appear once blog articles drive traffic to tutor listings."
+              icon={<Users size={48} />}
+            />
           ) : (
             <div className={styles.tableContainer}>
               <table className={styles.table}>
@@ -554,15 +565,19 @@ export default function BlogOrchestratorPage() {
           )}
 
           {journeyData && journeyData.events && journeyData.events.length === 0 && (
-            <div className={styles.placeholder}>
-              <p>No events found for this signal_id</p>
-            </div>
+            <HubEmptyState
+              title="No Events Found"
+              description="No events were found for this signal_id. Verify the ID is correct."
+              icon={<AlertCircle size={48} />}
+            />
           )}
 
           {!searchedSignalId && !isLoadingJourney && (
-            <div className={styles.placeholder}>
-              <p>Enter a signal_id above to view the complete journey</p>
-            </div>
+            <HubEmptyState
+              title="Search for a Journey"
+              description="Enter a signal_id above to view the complete user journey from first touch to conversion."
+              icon={<FileText size={48} />}
+            />
           )}
         </div>
       )}
@@ -578,9 +593,11 @@ export default function BlogOrchestratorPage() {
           {isLoadingAttribution ? (
             <div className={styles.loading}>Loading attribution comparison...</div>
           ) : !attributionData?.models || attributionData.models.length === 0 ? (
-            <div className={styles.placeholder}>
-              <p>No attribution data available yet. Need signal journeys with multiple touchpoints.</p>
-            </div>
+            <HubEmptyState
+              title="No Attribution Data"
+              description="Attribution models require signal journeys with multiple touchpoints. Data will appear once users interact with multiple articles before booking."
+              icon={<TrendingUp size={48} />}
+            />
           ) : (
             <div className={styles.attributionContainer}>
               <div className={styles.attributionSummary}>
@@ -659,6 +676,7 @@ export default function BlogOrchestratorPage() {
           )}
         </div>
       )}
-    </HubPageLayout>
+      </HubPageLayout>
+    </ErrorBoundary>
   );
 }

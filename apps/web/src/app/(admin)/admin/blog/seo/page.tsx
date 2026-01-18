@@ -10,6 +10,7 @@ import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { AdminStatsWidget, AdminHelpWidget } from '@/app/components/admin/widgets';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
+import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import styles from './page.module.css';
 
 // Force dynamic rendering
@@ -22,7 +23,8 @@ export default function BlogSEOPage() {
   const [loading, setLoading] = useState(true);
 
   return (
-    <HubPageLayout
+    <ErrorBoundary>
+      <HubPageLayout
       header={
         <HubHeader
           title="Blog SEO"
@@ -217,6 +219,7 @@ export default function BlogSEOPage() {
           />
         )}
       </div>
-    </HubPageLayout>
+      </HubPageLayout>
+    </ErrorBoundary>
   );
 }

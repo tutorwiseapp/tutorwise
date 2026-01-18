@@ -16,6 +16,7 @@ import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget, AdminVideoWidget, AdminActivityWidget } from '@/app/components/admin/widgets';
+import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import Button from '@/app/components/ui/actions/Button';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
@@ -105,7 +106,8 @@ export default function AdminOverviewPage() {
   });
 
   return (
-    <HubPageLayout
+    <ErrorBoundary>
+      <HubPageLayout
       header={
         <HubHeader
           title="Admin Dashboard"
@@ -229,6 +231,7 @@ export default function AdminOverviewPage() {
           />
         )}
       </div>
-    </HubPageLayout>
+      </HubPageLayout>
+    </ErrorBoundary>
   );
 }

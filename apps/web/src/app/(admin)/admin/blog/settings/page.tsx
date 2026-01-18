@@ -10,6 +10,7 @@ import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import { AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
+import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import Button from '@/app/components/ui/actions/Button';
 import styles from './page.module.css';
 
@@ -41,7 +42,8 @@ export default function BlogSettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
 
   return (
-    <HubPageLayout
+    <ErrorBoundary>
+      <HubPageLayout
       header={
         <HubHeader
           title="Blog Settings"
@@ -105,6 +107,7 @@ export default function BlogSettingsPage() {
           description="Interactive forms to configure all blog settings will be available here."
         />
       </div>
-    </HubPageLayout>
+      </HubPageLayout>
+    </ErrorBoundary>
   );
 }

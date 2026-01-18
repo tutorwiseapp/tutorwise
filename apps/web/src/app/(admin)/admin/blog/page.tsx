@@ -11,6 +11,7 @@ import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
+import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import Button from '@/app/components/ui/actions/Button';
 import ArticlesTable from './components/ArticlesTable';
 import styles from './page.module.css';
@@ -25,7 +26,8 @@ export default function AdminBlogPage() {
   const [activeTab, setActiveTab] = useState<TabFilter>('all');
 
   return (
-    <HubPageLayout
+    <ErrorBoundary>
+      <HubPageLayout
       header={
         <HubHeader
           title="Blog Articles"
@@ -89,6 +91,7 @@ export default function AdminBlogPage() {
           description={activeTab === 'draft' ? 'You don\'t have any draft articles yet. Click "New Article" to start writing.' : 'No scheduled articles at this time.'}
         />
       )}
-    </HubPageLayout>
+      </HubPageLayout>
+    </ErrorBoundary>
   );
 }
