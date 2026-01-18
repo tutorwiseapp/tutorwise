@@ -45,11 +45,23 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Admin role check
-    const { data: profile } = await supabase.from('profiles').select('roles').eq('id', user.id).single();
+    // RBAC permission check (Migration 189)
+    const { data: hasPermission, error: permError } = await supabase
+      .rpc('has_admin_permission', {
+        p_user_id: user.id,
+        p_resource: 'blog',
+        p_action: 'view_analytics'
+      });
 
-    if (!profile?.roles || !profile.roles.includes('admin')) {
-      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
+    if (permError) {
+      console.error('[Blog Orchestrator] Permission check error:', permError);
+      return NextResponse.json({ error: 'Permission check failed' }, { status: 500 });
+    }
+
+    if (!hasPermission) {
+      return NextResponse.json({
+        error: 'Forbidden - Requires blog:view_analytics permission'
+      }, { status: 403 });
     }
 
     // Get query params
