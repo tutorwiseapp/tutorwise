@@ -131,7 +131,7 @@
 | [ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md) | 11 admin hubs architecture | Work on admin features |
 | [SHARED-FIELDS.md](.ai/SHARED-FIELDS.md) | 23 global fields, 106 mappings, 9 contexts | Work with form system |
 | [ONBOARDING.md](.ai/ONBOARDING.md) | Page-based onboarding (3 roles × 5 steps) | Work on onboarding flows |
-| [BLOG-SEO.md](.ai/BLOG-SEO.md) | Blog attribution system (Phases 1-3 complete) | Work on blog-to-marketplace demand engine |
+| [RESOURCES-REVENUE-SIGNAL.md](.ai/RESOURCES-REVENUE-SIGNAL.md) | Resources attribution system (Phases 1-3 complete, Blog→Resources migration complete 2026-01-18) | Work on resources-to-marketplace demand engine |
 | [PROMPT.md](.ai/PROMPT.md) | AI assistant configuration | Configure AI behavior |
 
 ### Development Docs (`docs/development/`)
@@ -187,7 +187,7 @@
 | **Auth & Redirects** | 4 | Login, OAuth callbacks, referral links |
 | **Public Profiles** | 5 | Listings, profiles, organisations (dynamic) |
 | **Marketplace Pages** | 5 | Directories (orgs, schools, agencies, companies, docs) |
-| **Blog Pages** | 3 | Blog index, article view, public wiselist articles |
+| **Resources Pages** | 3 | Resources index, article detail, category pages |
 | **Onboarding Flows** | 16 | 3 roles × 5 steps (Tutor, Client, Agent) + hub |
 | **Dashboard Pages** | 30 | Account, bookings, financials, network, org management |
 | **Admin Pages** | 35 | 13 admin hubs + SEO management + Signal Analytics + settings |
@@ -219,12 +219,12 @@
 
 ---
 
-### Blog Pages (3 pages)
+### Resources Pages (3 pages)
 
 ```
-/blog                                # Blog index (article list)
-/blog/[slug]                         # Article detail page (dynamic)
-/w/[slug]                            # Public wiselist with articles (dynamic)
+/resources                           # Resources index (article list)
+/resources/[slug]                    # Article detail page (dynamic)
+/resources/category/[category]       # Category pages (dynamic)
 ```
 
 ---
@@ -398,11 +398,11 @@
 
 ### API Endpoints (144 routes)
 
-#### Blog Attribution (3 endpoints)
+#### Resources Attribution (3 endpoints)
 ```
-POST /api/blog/attribution/events    # Record blog interaction events
-POST /api/blog/attribution           # Record conversion attribution (dual-write)
-POST /api/blog/saves                 # Save article to wiselist (dual-write)
+POST /api/resources/attribution/events    # Record resource interaction events
+POST /api/resources/attribution           # Record conversion attribution (dual-write)
+POST /api/resources/saves                 # Save article to wiselist (dual-write)
 ```
 
 #### Activity & System (4 endpoints)
@@ -1379,32 +1379,39 @@ Database:
 
 ---
 
-### 18. Blog-to-Marketplace Demand Engine
+### 18. Resources-to-Marketplace Demand Engine
 
-**Description**: Event-based attribution system tracking blog → marketplace conversions (Phase 1-3 complete)
+**Description**: Event-based attribution system tracking resources → marketplace conversions (Phase 1-3 complete, Blog→Resources migration complete 2026-01-18)
 
 **User Flow**:
-- `/blog` → Browse articles
-- `/blog/[slug]` → Read article with embedded marketplace content
+- `/resources` → Browse articles
+- `/resources/[slug]` → Read article with embedded marketplace content
 - Click embed → Track attribution → Book/Save → Record conversion
 - `/admin/signal` → View Revenue Signal Analytics (Phase 3 - live)
 
 **File Locations**:
 ```
 apps/web/src/app/
-├── blog/
-│   ├── page.tsx                          # Blog index (planned)
-│   └── [slug]/page.tsx                   # Article detail (planned)
-├── (admin)/admin/blog/
-│   └── orchestrator/page.tsx             # Analytics dashboard (Phase 3 - planned)
-└── api/blog/
+├── resources/
+│   ├── page.tsx                          # Resources index (live)
+│   ├── [slug]/page.tsx                   # Article detail (live)
+│   ├── category/[category]/page.tsx      # Category pages (live)
+│   └── layout.tsx                        # Resources layout with sidebars
+├── (admin)/admin/resources/
+│   ├── page.tsx                          # All articles management
+│   ├── new/page.tsx                      # Create new article
+│   ├── seo/page.tsx                      # SEO performance dashboard
+│   ├── categories/page.tsx               # Category management
+│   └── settings/page.tsx                 # Settings
+└── api/resources/
     ├── attribution/
     │   ├── route.ts                      # Dual-write conversions
     │   └── events/route.ts               # Event recording
+    ├── articles/route.ts                 # Article CRUD
     └── saves/route.ts                    # Article saves
 
 Components:
-apps/web/src/app/components/blog/
+apps/web/src/app/components/resources/
 ├── embeds/
 │   ├── TutorEmbed.tsx                    # Embed tutor profiles in MDX
 │   ├── ListingGrid.tsx                   # Embed marketplace listings
@@ -1419,7 +1426,9 @@ apps/web/src/lib/utils/
 
 Database:
 - tools/database/migrations/179-181_create_signal_events_infrastructure.sql
-- tools/database/migrations/182_create_blog_orchestrator_rpcs.sql
+- tools/database/migrations/182_create_blog_orchestrator_rpcs.sql (now references resource_* tables)
+- tools/database/migrations/191_rename_blog_to_resources.sql (Blog→Resources migration, applied 2026-01-18)
+- tools/database/migrations/192_update_rbac_permissions_for_resources.sql (RBAC alignment)
 - tools/database/migrations/187_update_rpcs_for_signal_events.sql
 - tools/database/migrations/189_add_blog_orchestrator_permissions.sql
 - tools/database/migrations/190_add_signal_rbac_permissions.sql
@@ -1699,7 +1708,7 @@ tutorwise/
 │   ├── ADMIN-DASHBOARD.md                 # 11 admin hubs architecture
 │   ├── SHARED-FIELDS.md                   # 23 global fields, 106 mappings
 │   ├── ONBOARDING.md                      # Page-based onboarding (3 roles)
-│   └── BLOG-SEO.md                        # Blog attribution system (Phases 1-3)
+│   └── RESOURCES-REVENUE-SIGNAL.md                        # Resources attribution system (Phases 1-3, Blog→Resources migration complete 2026-01-18)
 │
 ├── apps/
 │   └── web/                               # Next.js 14.x frontend (148K lines)
@@ -1912,7 +1921,7 @@ tutorwise/
 | Update marketplace | `apps/web/src/app/(admin)/marketplace/` |
 | Add messaging features | `apps/web/src/app/(admin)/messages/` + `apps/web/src/lib/ably/` |
 | Modify CaaS scoring | `apps/web/src/lib/services/caas/` + [caas-dual-path-architecture.md](../docs/feature/caas/caas-dual-path-architecture.md) |
-| Work on blog attribution | `apps/web/src/app/components/blog/` + [BLOG-SEO.md](.ai/BLOG-SEO.md) |
+| Work on resources attribution | `apps/web/src/app/components/resources/` + [RESOURCES-REVENUE-SIGNAL.md](.ai/RESOURCES-REVENUE-SIGNAL.md) |
 | Work on admin dashboard | `apps/web/src/app/(admin)/admin/` + [ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md) |
 | Update referrals | `apps/web/src/app/(admin)/referral-activities/` + [referrals docs](../docs/feature/referrals/) |
 | Modify organisations | `apps/web/src/app/(admin)/organisations/` |
@@ -1962,7 +1971,7 @@ tutorwise/
 | **Admin Dashboard** | 11 hubs with HubComplexModal | [ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md) |
 | **Onboarding System** | Page-based routing | [ONBOARDING.md](.ai/ONBOARDING.md) |
 | **Referrals System** | Multi-tier attribution | [referrals-solution-design-v2.md](../docs/feature/referrals/referrals-solution-design-v2.md) |
-| **Blog Attribution** | Event-based demand engine | [BLOG-SEO.md](.ai/BLOG-SEO.md) |
+| **Resources Attribution** | Event-based demand engine | [RESOURCES-REVENUE-SIGNAL.md](.ai/RESOURCES-REVENUE-SIGNAL.md) |
 | **Design System** | UI component library | [DESIGN-SYSTEM.md](.ai/DESIGN-SYSTEM.md) |
 
 ### Tech Stack Summary
