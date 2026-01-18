@@ -1381,6 +1381,31 @@ CRON_SECRET=your_secret_key
 
 ## Monitoring & Operations
 
+### Deployment Notes
+
+#### Redis Configuration (Optional Dependency)
+
+**Status:** ✅ Resolved (Build succeeds, feature gracefully degrades)
+**Date:** 2026-01-18
+**Commit:** `8bd808a5` - "fix: Make Redis client initialization optional"
+
+**Background:**
+- Redis is used **only** for the Free Help Now feature (tutor online presence)
+- Migration 187 (Signal Events) does **NOT** require Redis - it uses PostgreSQL
+- During deployment, Vercel build was failing due to missing Upstash Redis credentials
+
+**Current State:**
+- Redis client initialization is now optional (checks for credentials before initializing)
+- If Upstash credentials are missing, Free Help Now feature degrades gracefully
+- All Signal Migration features (attribution, journeys, analytics) work correctly without Redis
+
+**Permanent Solution Needed:**
+- See `1-Michael-ToDo/infrastructure-tasks.md` for detailed options
+- Options: Use existing Redis Cloud, set up Upstash, or hybrid approach
+- **Impact if not addressed:** Free Help Now feature remains disabled in production
+
+---
+
 ### Daily Monitoring Tasks
 
 | Task | Frequency | Dashboard/Tool |
