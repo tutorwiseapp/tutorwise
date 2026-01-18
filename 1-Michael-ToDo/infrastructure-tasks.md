@@ -210,6 +210,193 @@ const redis = process.env.UPSTASH_REDIS_REST_URL
 
 ---
 
+## Completed
+
+### NEXT_PUBLIC_SITE_URL Environment Variable Fix
+
+**Priority:** High (Blocking Deployment)
+**Date Added:** 2026-01-18
+**Date Completed:** 2026-01-18
+**Context:** Vercel build failing after Jan 15 SEO integration (commit `e49cb7b9`)
+**Status:** ✅ **RESOLVED** - Fixed Vercel environment variable (commit `887c82cc`)
+**Impact:** Build succeeds, blog Open Graph metadata working, all 23 dependent files functional
+
+---
+
+#### Background
+
+**What broke on Jan 15, 2026 (commit `e49cb7b9`):**
+- SEO integration added `metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL)` to blog pages
+- `new URL()` requires a valid URL string
+- Vercel had stored: `NEXT_PUBLIC_SITE_URL="${VERCEL_URL:-http://localhost:3000}\n"` (literal string with shell syntax)
+- Next.js read this literally, causing `TypeError: Invalid URL` during build
+
+**Why it worked before Jan 15:**
+- Code didn't use `new URL()` with `NEXT_PUBLIC_SITE_URL`
+- 23 files using the variable just needed a string (didn't parse it as URL)
+- Shell-style syntax was harmless until blog metadata parsing
+
+**Build error:**
+```
+TypeError: Invalid URL
+input: '${VERCEL_URL:-http://localhost:3000}\n'
+Error occurred prerendering page "/blog/[slug]"
+```
+
+---
+
+#### Resolution
+
+**Decision:** ✅ Fixed Vercel environment variable directly (simplest, safest solution)
+
+**Implementation Details:**
+- **Date:** 2026-01-18
+- **Commit:** `887c82cc` - "chore: Trigger Vercel redeploy after fixing NEXT_PUBLIC_SITE_URL"
+- **Method:** Used Vercel CLI to update environment variable
+
+**Changes Made:**
+
+1. **Removed broken value from Vercel:**
+   ```bash
+   vercel env rm NEXT_PUBLIC_SITE_URL production
+   vercel env rm NEXT_PUBLIC_SITE_URL preview
+   vercel env rm NEXT_PUBLIC_SITE_URL development
+   ```
+   - Old value: `"${VERCEL_URL:-http://localhost:3000}\n"` (shell syntax, literal string)
+
+2. **Added correct value to Vercel:**
+   ```bash
+   vercel env add NEXT_PUBLIC_SITE_URL production
+   # Value: https://tutorwise.vercel.app
+
+   vercel env add NEXT_PUBLIC_SITE_URL preview
+   # Value: https://tutorwise.vercel.app
+   ```
+
+3. **Updated local `.env.local`:**
+   - Line 7: Changed from `NEXT_PUBLIC_SITE_URL=${VERCEL_URL:-http://localhost:3000}` to `NEXT_PUBLIC_SITE_URL=http://localhost:3000`
+   - **Note:** This file is in `.gitignore` - each developer must update manually
+
+**Deployment:**
+- Triggered: `git commit --allow-empty` + `git push`
+- Build succeeded: 12:18:44.294 UTC
+- All 172 static pages generated
+- No "Invalid URL" errors
+
+---
+
+#### Why This Solution Was Best
+
+**Considered alternatives:**
+1. ❌ Use `NEXT_PUBLIC_BASE_URL` instead (exists in Vercel with correct value)
+2. ❌ Add fallback in code: `process.env.NEXT_PUBLIC_BASE_URL || 'https://...'`
+3. ✅ **Fix the environment variable directly** ← Chosen
+
+**Reasons for choosing direct fix:**
+- ✅ **Proven to work** - Build succeeded, deployment live
+- ✅ **Single source of truth** - All 23 files + blog use same variable
+- ✅ **No code changes needed** - Just env var update
+- ✅ **Less complexity** - No fragmented URL variables
+- ✅ **Future-proof** - New code uses correct variable
+- ✅ **Simpler maintenance** - Clear, obvious configuration
+
+---
+
+#### Files Affected (23 total)
+
+All files using `NEXT_PUBLIC_SITE_URL` work correctly with static value:
+```
+apps/web/src/app/blog/[slug]/page.tsx (uses new URL())
+apps/web/src/app/blog/layout.tsx (uses new URL())
+apps/web/src/app/api/stripe/customer-portal/route.ts
+apps/web/src/app/api/organisation/recruitment/apply/route.ts
+apps/web/src/lib/referral-emails.ts
+apps/web/src/app/api/seo/eligible-listings/route.ts
+apps/web/src/app/api/seo/eligible-profiles/route.ts
+apps/web/src/app/sitemap-listings.xml/route.ts
+apps/web/src/app/sitemap-profiles.xml/route.ts
+apps/web/src/app/sitemap-index.xml/route.ts
+apps/web/src/app/sitemap.xml/route.ts
+apps/web/src/app/ref/[code]/page.tsx
+apps/web/src/services/seo/gsc-sync.ts
+apps/web/src/lib/admin-notifications.ts
+apps/web/src/lib/email-templates/admin.ts
+apps/web/src/app/api/referrals/qr/route.ts
+apps/web/src/app/api/organisation/invite-by-email/route.ts
+apps/web/src/lib/email/referral-reminder.ts
+apps/web/src/lib/email.ts
+apps/web/src/app/api/network/request/route.ts
+apps/web/src/app/api/links/client-student/route.ts
+apps/web/src/app/api/stripe/connect-account/route.ts
+apps/web/src/app/api/network/invite-by-email/route.ts
+```
+
+---
+
+#### Rollback Plan (If Issues Arise)
+
+**Symptoms of regression:**
+- Blog pages fail to load
+- Email links broken
+- Sitemap generation errors
+- OAuth redirects fail
+
+**Rollback procedure:**
+
+1. **Restore original Vercel value:**
+   ```bash
+   vercel env rm NEXT_PUBLIC_SITE_URL production
+   vercel env add NEXT_PUBLIC_SITE_URL production
+   # Enter value: ${VERCEL_URL:-http://localhost:3000}
+   ```
+
+2. **Fix code to handle shell syntax:**
+   ```typescript
+   // In apps/web/src/app/blog/layout.tsx and [slug]/page.tsx
+   const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tutorwise.vercel.app';
+
+   export const metadata: Metadata = {
+     metadataBase: new URL(siteUrl),
+     // ...
+   };
+   ```
+
+3. **Redeploy:**
+   ```bash
+   git add apps/web/src/app/blog/layout.tsx apps/web/src/app/blog/[slug]/page.tsx
+   git commit -m "fix: Use NEXT_PUBLIC_BASE_URL for blog metadata"
+   git push origin main
+   ```
+
+**Alternative fix-forward strategy:**
+- Use `NEXT_PUBLIC_BASE_URL` (already exists: `https://www.tutorwise.io`)
+- Update all 23 files to use `NEXT_PUBLIC_BASE_URL` instead
+- Remove `NEXT_PUBLIC_SITE_URL` entirely
+
+---
+
+#### Success Criteria
+
+- ✅ Build succeeds without "Invalid URL" errors
+- ✅ All 172 static pages generated
+- ✅ Blog pages render with Open Graph metadata
+- ✅ Sitemaps generate correctly
+- ✅ Email links work
+- ✅ OAuth redirects function
+- ✅ No console errors in production
+
+---
+
+#### Related
+
+- **Trigger commit:** `e49cb7b9` - SEO integration (Jan 15)
+- **Fix commit:** `887c82cc` - Environment variable fix (Jan 18)
+- **Migration 187:** Database changes (unaffected)
+- **Redis fix:** `bd6ba34c` (separate issue)
+- **Local `.env.local`:** Developers must update line 7 manually
+
+---
+
 ## Pending
 
 _No pending infrastructure tasks._

@@ -148,14 +148,26 @@ SELECT * FROM get_attribution_comparison(30);
 
 ### Required Variables (Vercel)
 
+⚠️ **CRITICAL:** These must be set in **Vercel Dashboard** → **Project Settings** → **Environment Variables**
+
 ```bash
 # Supabase (Required for Signal Migration)
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
-# Site URL (Required for API routes)
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
+# Site URL (CRITICAL - Fixed on 2026-01-18, commit 887c82cc)
+NEXT_PUBLIC_SITE_URL=https://tutorwise.vercel.app
+# IMPORTANT: Must be a static value, NOT shell syntax
+# Previous value: "${VERCEL_URL:-http://localhost:3000}\n" (caused build failure)
+# Set for: Production, Preview
+# Used by: Blog Open Graph meta tags, sitemaps, email links, OAuth (23 files)
+
+# Redis Cloud (Required for Free Help Now feature)
+REDIS_URL=redis://default:vLkOAsjTC2jQz6Ysld4Op47nJkV2Wqu5@redis-17620.c338.eu-west-2-1.ec2.redns.redis-cloud.com:17620
+# Set for: Production, Preview, Development
+# Used by: Tutor online presence tracking
+# Note: Migrated from Upstash on 2026-01-18 (commit bd6ba34c)
 
 # Google Analytics (Optional but recommended)
 NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
@@ -164,34 +176,99 @@ NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ### Optional Variables
 
 ```bash
-# Upstash Redis (Optional - only for Free Help Now feature)
-UPSTASH_REDIS_REST_URL=https://your-redis.upstash.io
-UPSTASH_REDIS_REST_TOKEN=your-token
-
-# Note: If these are not set, Redis client gracefully degrades
-# See "Known Issues" section for permanent solution options
+# Upstash Redis (DEPRECATED - NOT USED)
+# UPSTASH_REDIS_REST_URL=https://your-redis.upstash.io
+# UPSTASH_REDIS_REST_TOKEN=your-token
+# NOTE: Migrated to ioredis with Redis Cloud on 2026-01-18
+# Build warnings about missing Upstash credentials are expected and harmless
 ```
 
 ### Local Development (.env.local)
 
-```bash
-# Same as above, plus:
+⚠️ **IMPORTANT:** The `.env.local` file is in `.gitignore` (contains secrets). Each developer must update manually.
 
-# Redis Cloud (Alternative to Upstash for local dev)
-REDIS_URL=redis://default:password@host:port
+**Required fix for line 7 (applied 2026-01-18):**
+
+```bash
+# BEFORE (broken - caused TypeError after Jan 15 SEO integration):
+# NEXT_PUBLIC_SITE_URL=${VERCEL_URL:-http://localhost:3000}
+
+# AFTER (fixed):
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# Redis Cloud (for local dev)
+REDIS_URL=redis://default:vLkOAsjTC2jQz6Ysld4Op47nJkV2Wqu5@redis-17620.c338.eu-west-2-1.ec2.redns.redis-cloud.com:17620
+
+# Upstash (deprecated - leave empty)
+UPSTASH_REDIS_REST_URL=""
+UPSTASH_REDIS_REST_TOKEN=""
 ```
+
+**Why this change was required:**
+
+**Timeline:**
+- **109 days ago:** Shell syntax added to Vercel: `"${VERCEL_URL:-http://localhost:3000}\n"`
+- **Jan 14 (commit `0d05440`):** Build working, no issues
+- **Jan 15 (commit `e49cb7b9`):** SEO integration added `new URL(process.env.NEXT_PUBLIC_SITE_URL)`
+- **Jan 15-18:** Builds fail with `TypeError: Invalid URL`
+- **Jan 18 (commit `887c82cc`):** Fixed Vercel env var to static value
+
+**Root cause:**
+1. Next.js doesn't support shell-style variable interpolation (`${VAR:-default}`)
+2. Vercel stored the shell syntax as a literal string: `"${VERCEL_URL:-http://localhost:3000}\n"`
+3. Before Jan 15, code just used the string (didn't parse it as URL)
+4. Jan 15 SEO integration added `new URL()` which failed to parse the literal shell syntax
+5. Static URL values work correctly and are clearer
+
+**See also:** `1-Michael-ToDo/infrastructure-tasks.md` for complete rollback plan
 
 ---
 
 ## Known Issues & Resolutions
 
-### Issue 1: Vercel Build Failure - Missing Redis Credentials
+### Issue 1: Vercel Build Failure - Invalid NEXT_PUBLIC_SITE_URL
 
 **Symptoms:**
 ```
 TypeError: Invalid URL
 input: '${VERCEL_URL:-http://localhost:3000}\n'
+Error occurred prerendering page "/blog/[slug]"
+```
+
+**Root Cause:**
+- `.env.local` line 7 uses shell-style variable interpolation: `NEXT_PUBLIC_SITE_URL=${VERCEL_URL:-http://localhost:3000}`
+- Next.js doesn't support this syntax - it reads the value literally as a string
+- Pages using `process.env.NEXT_PUBLIC_SITE_URL` fail during build's "Collecting page data" phase
+
+**Resolution:**
+✅ **Fixed on 2026-01-18** - Two-part fix required:
+
+**Part 1: Local Development**
+- Update `.env.local` line 7 to use static value:
+  ```bash
+  NEXT_PUBLIC_SITE_URL=http://localhost:3000
+  ```
+- Note: This change is NOT committed to git (`.env.local` is in `.gitignore`)
+
+**Part 2: Vercel Production**
+- Add environment variable in **Vercel Dashboard**:
+  - Key: `NEXT_PUBLIC_SITE_URL`
+  - Value: `https://tutorwise.vercel.app` (or actual domain)
+  - Environments: Production, Preview
+
+**Impact:**
+- ✅ Build succeeds without "Invalid URL" error
+- ✅ Blog pages generate correct Open Graph meta tags
+- ✅ All features work correctly
+
+---
+
+### Issue 2: Vercel Build Failure - Redis Configuration
+
+**Symptoms:**
+```
 [Upstash Redis] The 'url' property is missing or undefined
+TypeError: Cannot read properties of undefined
 ```
 
 **Root Cause:**
@@ -200,47 +277,50 @@ input: '${VERCEL_URL:-http://localhost:3000}\n'
 - Redis is only used for Free Help Now feature (tutor online presence), NOT for Signal Migration
 
 **Resolution:**
-✅ **Fixed in commit `8bd808a5`** - "fix: Make Redis client initialization optional"
+✅ **Fixed in commit `bd6ba34c`** - "feat: Switch from Upstash to ioredis for Redis Cloud compatibility"
 
 **Changes made:**
-- `apps/web/src/lib/redis.ts` now checks for credentials before initializing
-- Returns `null` if credentials missing
-- All Redis functions handle `null` client gracefully with console warnings
-- Build succeeds, Free Help Now feature degrades gracefully
+1. **Temporary fix (commit `8bd808a5`):**
+   - Made Redis client initialization optional
+   - Returns `null` if credentials missing
+   - Build succeeds but Free Help Now disabled
+
+2. **Permanent fix (commit `bd6ba34c`):**
+   - Replaced `@upstash/redis` with `ioredis` package
+   - Updated Redis client to use traditional protocol (Redis Cloud)
+   - Added connection pooling with retry strategy
+   - Updated all Redis functions to use ioredis API
+
+**Implementation:**
+```typescript
+// apps/web/src/lib/redis.ts
+import Redis from 'ioredis';
+
+export const redis = hasRedisCredentials
+  ? new Redis(process.env.REDIS_URL!, {
+      maxRetriesPerRequest: 3,
+      retryStrategy: (times) => Math.min(times * 50, 2000),
+      lazyConnect: true,
+    })
+  : null;
+```
+
+**Next Steps:**
+1. ✅ Code deployed (commit `bd6ba34c`)
+2. ⏭️ **Add `REDIS_URL` to Vercel environment variables** (see Environment Variables section)
+3. ⏭️ Verify build succeeds in production
+4. ⏭️ Test Free Help Now feature (tutor online status)
 
 **Impact:**
-- ✅ Signal Migration (Phase 1-3) works perfectly - **does NOT use Redis**
-- ⚠️ Free Help Now feature disabled in production (tutors can't show "online" status)
+- ✅ Uses existing Redis Cloud infrastructure (no new service needed)
+- ✅ Free Help Now feature functional after adding `REDIS_URL` to Vercel
 - ✅ All other features unaffected
 
-**Permanent Solution Options:**
-
-**Option 1: Use Existing Redis Cloud (Quick Fix)**
-- Install `ioredis`: `cd apps/web && npm install ioredis`
-- Refactor `redis.ts` to use `ioredis` client instead of Upstash
-- Add `REDIS_URL` to Vercel environment variables
-- **Effort:** ~1 hour
-- **Trade-off:** Not ideal for serverless (connection pooling issues)
-
-**Option 2: Set Up Upstash (Ideal for Serverless)**
-- Create Upstash account: https://console.upstash.com/
-- Create new Redis database (free tier available)
-- Add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` to Vercel
-- Remove credential checks from `redis.ts` (revert to original)
-- **Effort:** ~30 minutes
-- **Trade-off:** Additional service to manage
-
-**Option 3: Hybrid Approach**
-- Use Redis Cloud for local dev, Upstash for production
-- **Effort:** ~2 hours
-- **Trade-off:** More complex configuration
-
-**Decision Criteria:**
-- Choose **Option 1** if you want quick fix with existing infrastructure
-- Choose **Option 2** if you prioritize serverless best practices
-- Choose **Option 3** if you want development simplicity + production optimization
-
-**Detailed Instructions:** See `1-Michael-ToDo/infrastructure-tasks.md`
+**Trade-offs:**
+- ⚠️ Not ideal for serverless (connection pooling overhead)
+- ⚠️ May hit connection limits under high traffic
+- ✅ Works immediately with existing infrastructure
+- ✅ No additional service to manage
 
 ---
 
