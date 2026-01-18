@@ -108,7 +108,7 @@ BEGIN
     SELECT
       se.content_id AS article_id,
       COUNT(DISTINCT b.id) AS booking_count,
-      SUM(b.total_amount) AS booking_revenue
+      SUM(b.amount) AS booking_revenue
     FROM signal_events se
     INNER JOIN bookings b
       ON se.event_type = 'convert'
@@ -364,7 +364,7 @@ BEGIN
     SELECT
       se.target_id AS listing_id,
       COUNT(DISTINCT b.id) AS booking_count,
-      SUM(b.total_amount) AS booking_revenue
+      SUM(b.amount) AS booking_revenue
     FROM signal_events se
     INNER JOIN bookings b
       ON se.event_type = 'convert'
@@ -605,7 +605,7 @@ BEGIN
     SELECT
       se.content_id AS article_id,
       COUNT(DISTINCT b.id) AS booking_count,
-      SUM(b.total_amount) AS revenue
+      SUM(b.amount) AS revenue
     FROM signal_events se
     INNER JOIN bookings b
       ON se.target_type = 'booking'
@@ -625,7 +625,7 @@ BEGIN
     SELECT
       se.content_id AS article_id,
       COUNT(DISTINCT b.id) AS booking_count,
-      SUM(b.total_amount) AS revenue
+      SUM(b.amount) AS revenue
     FROM signal_events se
     INNER JOIN bookings b
       ON se.target_type = 'booking'
@@ -646,7 +646,7 @@ BEGIN
     SELECT
       se.content_id AS article_id,
       COUNT(DISTINCT b.id)::NUMERIC / COUNT(DISTINCT se.content_id) AS booking_count,
-      SUM(b.total_amount)::NUMERIC / COUNT(DISTINCT se.content_id) AS revenue
+      SUM(b.amount)::NUMERIC / COUNT(DISTINCT se.content_id) AS revenue
     FROM signal_events se
     INNER JOIN bookings b
       ON se.target_type = 'booking'
