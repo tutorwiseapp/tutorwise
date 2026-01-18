@@ -379,10 +379,10 @@ BEGIN
   )
   SELECT
     l.id AS listing_id,
-    l.title AS listing_title,
-    p.full_name AS tutor_name,
-    l.subject,
-    l.level,
+    l.title::TEXT AS listing_title,
+    p.full_name::TEXT AS tutor_name,
+    l.subjects[1]::TEXT AS subject,
+    l.levels[1]::TEXT AS level,
     COALESCE(la.article_count, 0) AS article_count,
     COALESCE(lv.view_count, 0) AS view_count,
     COALESCE(lc.click_count, 0) AS click_count,
