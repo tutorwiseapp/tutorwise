@@ -2,34 +2,23 @@
  * Filename: apps/web/src/app/resources/page.tsx
  * Purpose: Resources landing page with featured articles and categories
  * Created: 2026-01-15
+ * Updated: 2026-01-18 - Migrated to React Query pattern (consistent with Help Centre)
  *
- * Architecture:
- * - Server-side rendering for SEO
- * - Featured articles section
- * - Category filters
- * - Latest articles grid
- * - Newsletter signup CTA
+ * Architecture Changes:
+ * - Replaced manual useState + useEffect with React Query hooks
+ * - Added placeholderData to prevent skeleton flickering
+ * - Implemented 5min caching strategy (consistent with Help Centre)
+ * - Enhanced loading states with proper skeleton UI
  */
 
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useFeaturedArticles, useLatestArticles, useSearchArticles } from '@/lib/hooks/useResources';
+import type { ResourceArticle } from '@/lib/hooks/useResources';
 import styles from './page.module.css';
-
-interface ResourceArticle {
-  id: string;
-  title: string;
-  description: string;
-  slug: string;
-  category: string;
-  author_name: string;
-  published_at: string;
-  read_time: string;
-  featured_image_url?: string;
-  view_count?: number;
-}
 
 // Category metadata
 const CATEGORY_LABELS: Record<string, string> = {
@@ -53,6 +42,28 @@ function CategoryTag({ category }: { category: string }) {
     <span className={styles.categoryTag} data-category={category}>
       {CATEGORY_LABELS[category] || category}
     </span>
+  );
+}
+
+/**
+ * Article Card Skeleton
+ * Shows while loading articles - prevents layout shift
+ */
+function ArticleCardSkeleton() {
+  return (
+    <div className={styles.articleCardSkeleton}>
+      <div className={styles.skeletonHeader}>
+        <div className={styles.skeletonCategory}></div>
+        <div className={styles.skeletonReadTime}></div>
+      </div>
+      <div className={styles.skeletonTitle}></div>
+      <div className={styles.skeletonDescription}></div>
+      <div className={styles.skeletonDescriptionShort}></div>
+      <div className={styles.skeletonFooter}>
+        <div className={styles.skeletonAuthor}></div>
+        <div className={styles.skeletonDate}></div>
+      </div>
+    </div>
   );
 }
 
@@ -84,10 +95,17 @@ function ResourcesLandingPageContent() {
   const router = useRouter();
   const categoryFilter = searchParams?.get('category') ?? null;
   const searchQuery = searchParams?.get('q') ?? null;
-  const [featuredArticles, setFeaturedArticles] = useState<ResourceArticle[]>([]);
-  const [latestArticles, setLatestArticles] = useState<ResourceArticle[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchInput, setSearchInput] = useState('');
+
+  // React Query hooks - replaces manual useState + useEffect pattern
+  // Features: caching, placeholderData (no flickering), automatic refetch management
+  const { data: featuredArticles = [], isLoading: isFeaturedLoading } = useFeaturedArticles(4);
+  const { data: latestArticles = [], isLoading: isLatestLoading } = useLatestArticles({
+    limit: 12,
+    category: categoryFilter,
+    searchQuery: searchQuery,
+  });
+  const { data: searchResults = [], isLoading: isSearchLoading } = useSearchArticles(searchQuery);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,37 +115,77 @@ function ResourcesLandingPageContent() {
     }
   };
 
-  useEffect(() => {
-    async function fetchArticles() {
-      try {
-        setLoading(true);
+  // Show search results if query exists
+  if (searchQuery) {
+    return (
+      <>
+        {/* Search Header */}
+        <div className={styles.searchHeader}>
+          <h1 className={styles.searchTitle}>Search Results for &ldquo;{searchQuery}&rdquo;</h1>
+          {!isSearchLoading && (
+            <p className={styles.searchSubtitle}>
+              {searchResults.length} {searchResults.length === 1 ? 'article' : 'articles'} found
+            </p>
+          )}
+          <form onSubmit={handleSearch} className={styles.heroSearch}>
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Search resources..."
+              className={styles.searchInput}
+              aria-label="Search resources"
+            />
+            <button type="submit" className={styles.searchButton}>
+              Search
+            </button>
+          </form>
+        </div>
 
-        // Fetch featured articles (top 4 by view count)
-        const featuredResponse = await fetch('/api/resources/articles?limit=4');
-        const featuredData = await featuredResponse.json();
-        setFeaturedArticles(featuredData.articles || []);
+        {/* Search Results */}
+        <div className={styles.searchResults}>
+          {isSearchLoading ? (
+            <div className={styles.resultsGrid}>
+              {[1, 2, 3, 4].map((i) => (
+                <ArticleCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : searchResults.length > 0 ? (
+            <div className={styles.resultsGrid}>
+              {searchResults.map((article) => (
+                <ArticleCard key={article.id} article={article} />
+              ))}
+            </div>
+          ) : (
+            <div className={styles.noResults}>
+              <h2>No results found</h2>
+              <p>Try different keywords or browse our categories below.</p>
+            </div>
+          )}
+        </div>
 
-        // Fetch latest articles
-        const latestUrl = categoryFilter
-          ? `/api/resources/articles?category=${categoryFilter}&limit=8`
-          : '/api/resources/articles?limit=8';
-        const latestResponse = await fetch(latestUrl);
-        const latestData = await latestResponse.json();
-        setLatestArticles(latestData.articles || []);
-      } catch (error) {
-        console.error('Error fetching articles:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchArticles();
-  }, [categoryFilter]);
-
-  if (loading) {
-    return <div className={styles.loading}>Loading articles...</div>;
+        {/* Categories Section */}
+        <div className={styles.categoriesSection}>
+          <h2 className={styles.sectionTitle}>Browse by Category</h2>
+          <div className={styles.categoriesGrid}>
+            {CATEGORIES.map((cat) => (
+              <Link
+                key={cat.slug}
+                href={`/resources/category/${cat.slug}`}
+                className={styles.categoryCard}
+              >
+                <h3 className={styles.categoryTitle}>{cat.label}</h3>
+                <p className={styles.categoryDescription}>{cat.description}</p>
+                <span className={styles.categoryArrow}>→</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </>
+    );
   }
 
+  // Show landing page if no search query
   return (
     <>
       {/* Hero Section */}
@@ -174,28 +232,44 @@ function ResourcesLandingPageContent() {
       </div>
 
       {/* Featured Articles Section */}
-      {featuredArticles.length > 0 && (
-        <div className={styles.featuredSection}>
-          <h2 className={styles.sectionTitle}>Featured Articles</h2>
+      <div className={styles.featuredSection}>
+        <h2 className={styles.sectionTitle}>Featured Articles</h2>
+        {isFeaturedLoading ? (
+          <div className={styles.featuredGrid}>
+            {[1, 2, 3, 4].map((i) => (
+              <ArticleCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : featuredArticles.length > 0 ? (
           <div className={styles.featuredGrid}>
             {featuredArticles.map((article) => (
               <ArticleCard key={article.id} article={article} />
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <p className={styles.noArticles}>No featured articles available.</p>
+        )}
+      </div>
 
       {/* Latest Articles Section */}
       <div className={styles.latestSection}>
         <div className={styles.latestHeader}>
-          <h2 className={styles.sectionTitle}>Latest Articles</h2>
+          <h2 className={styles.sectionTitle}>
+            {categoryFilter ? `Latest in ${CATEGORY_LABELS[categoryFilter] || categoryFilter}` : 'Latest Articles'}
+          </h2>
           {categoryFilter && (
             <Link href="/resources" className={styles.clearFilter}>
               Clear filter
             </Link>
           )}
         </div>
-        {latestArticles.length > 0 ? (
+        {isLatestLoading ? (
+          <div className={styles.latestGrid}>
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <ArticleCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : latestArticles.length > 0 ? (
           <div className={styles.latestGrid}>
             {latestArticles.map((article) => (
               <ArticleCard key={article.id} article={article} />
