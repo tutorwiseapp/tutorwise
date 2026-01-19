@@ -1,0 +1,12 @@
+.requestPage {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: var(--color-base-white, #FFFFFF);
+}
+
+@media (max-width: 767px) {
+  .requestPage {
+    padding: 1rem;
+  }
+}

@@ -1093,11 +1093,16 @@ where session_weight = MAX(sessions_90d, 1)
 - ✅ Recruitment Phase 2 completion
 
 ### Week of Jan 20-26, 2026
-- ⏳ Mobile responsiveness final polish
-- ⏳ Performance optimization pass
-- ⏳ Beta user recruitment
+- ⏳ Final authentication (Google social login)
+- ⏳ Final user onboarding
+- ⏳ Set up the email notifcation for the authentication and user onboarding workflow
+- ⏳ Final booking worflow enhancement
+- ⏳ Final service listing creation, listing UI (use hub architecture) and worflow
 
 ### Week of Jan 27 - Feb 1, 2026
+- ⏳ Create Terms of Service and Privacy Policy
+- ⏳ Mobile responsiveness final polish (Directly impacts user experience, Quick wins with testing and fixes, Can be done incrementally page-by-page)
+- ⏳ Performance optimization pass (Improves perceived speed, Reduces costs eg smaller bundles / fewer queries, Makes a great first impression for beta users)
 - ⏳ Final bug fixes
 - ⏳ Beta environment preparation
 - ⏳ Beta documentation

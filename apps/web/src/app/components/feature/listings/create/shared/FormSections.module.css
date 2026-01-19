@@ -1,0 +1,172 @@
+/**
+ * Filename: FormSections.module.css
+ * Purpose: Shared styles for listing creation form sections (matches existing design system)
+ * Created: 2026-01-19
+ * Design: Matches CreateListings.module.css for consistency
+ */
+
+/* Layout - Matches existing 2-column layout */
+.twoColumnLayout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem; /* 32px - matches existing */
+  margin-bottom: 2rem;
+  align-items: start; /* Prevents stretching */
+}
+
+@media (max-width: 767px) {
+  .twoColumnLayout {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+/* Form Section - Matches existing */
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* 8px - space-xs */
+}
+
+/* Labels - Matches existing */
+.label {
+  display: block;
+  font-size: 0.875rem; /* 14px - body-sm */
+  font-weight: 600;
+  color: var(--color-gray-700, #4B4B4B);
+}
+
+.required {
+  color: var(--color-error-default, #F44336);
+}
+
+/* Input Fields - Matches existing design system */
+.input,
+.textarea {
+  width: 100%;
+  padding: 0.75rem; /* 12px */
+  border: 1px solid var(--color-gray-300, #D1D1D1);
+  border-radius: var(--border-radius-md, 8px);
+  font-size: 1rem; /* 16px - body-base */
+  line-height: 1.5;
+  color: var(--color-gray-700, #4B4B4B);
+  background-color: var(--color-base-white, #FFFFFF);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+/* Remove spinner arrows from number inputs */
+.input[type="number"]::-webkit-outer-spin-button,
+.input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-primary-default, #006c67);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
+}
+
+.input:disabled,
+.textarea:disabled {
+  opacity: 0.6;
+  background-color: var(--color-gray-100, #F5F5F5);
+  cursor: not-allowed;
+}
+
+.textarea {
+  resize: vertical;
+  font-family: inherit;
+  min-height: 120px;
+}
+
+.inputError {
+  border-color: var(--color-error-default, #F44336);
+}
+
+.inputError:focus {
+  border-color: var(--color-error-default, #F44336);
+  box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
+}
+
+/* Select Dropdown - Matches existing with Radix UI chevron */
+.select {
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 0.75rem; /* Extra padding-right for chevron */
+  border: 1px solid var(--color-gray-300, #D1D1D1);
+  border-radius: var(--border-radius-md, 8px);
+  font-size: 1rem; /* 16px - body-base */
+  line-height: 1.5;
+  color: var(--color-gray-700, #4B4B4B);
+  background-color: var(--color-base-white, #FFFFFF);
+  /* Radix UI ChevronDownIcon SVG */
+  background-image: url("data:image/svg+xml,%3Csvg width='15' height='15' viewBox='0 0 15 15' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11.1581 6.13499C11.3595 5.94644 11.6763 5.95708 11.8651 6.15843C12.0536 6.3599 12.043 6.67669 11.8416 6.86546L7.84165 10.6155C7.64941 10.7954 7.35029 10.7954 7.15805 10.6155L3.15805 6.86546L3.09165 6.78831C2.95746 6.59859 2.96967 6.33468 3.13461 6.15843C3.29985 5.98217 3.56347 5.95169 3.76157 6.07347L3.84165 6.13499L7.49985 9.5637L11.1581 6.13499Z' fill='%235f6368'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1.25rem;
+  appearance: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.select:hover {
+  border-color: var(--color-primary-default, #006c67);
+  background-color: #f9fafb;
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--color-primary-default, #006c67);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
+}
+
+.select:disabled {
+  opacity: 0.6;
+  background-color: var(--color-gray-100, #F5F5F5);
+  cursor: not-allowed;
+}
+
+/* Helper Text - Matches existing */
+.helperText {
+  font-size: 0.75rem; /* 12px - body-xs */
+  color: var(--color-gray-700, #4B4B4B);
+  opacity: 0.6;
+}
+
+.errorText {
+  font-size: 0.75rem; /* 12px - body-xs */
+  color: var(--color-error-default, #F44336);
+}
+
+.warningText {
+  font-size: 0.75rem; /* 12px - body-xs */
+  color: var(--color-warning-default, #FF9800);
+}
+
+/* Character Count */
+.characterCount {
+  font-size: 0.75rem;
+  color: var(--color-gray-700, #4B4B4B);
+  opacity: 0.6;
+}
+
+.characterCount.warning {
+  color: var(--color-warning-default, #FF9800);
+}
+
+.characterCount.error {
+  color: var(--color-error-default, #F44336);
+}
