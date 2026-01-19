@@ -64,7 +64,8 @@ export function useRoleGuard(
     showWarnings = process.env.NODE_ENV === 'development'
   } = config;
 
-  const isAllowed = activeRole ? allowedRoles.includes(activeRole) : false;
+  // Allow admin role to bypass all role guards (admins can access everything)
+  const isAllowed = activeRole ? (activeRole === 'admin' || allowedRoles.includes(activeRole)) : false;
 
   useEffect(() => {
     // Don't redirect while loading
