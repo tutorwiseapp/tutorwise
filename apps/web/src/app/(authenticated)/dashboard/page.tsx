@@ -20,6 +20,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { useAdminProfile } from '@/lib/rbac';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { PendingLogsWidget } from '@/app/components/feature/dashboard/content/PendingLogsWidget';
@@ -42,6 +43,7 @@ import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
 const DashboardPage = () => {
   const { profile, activeRole, isLoading, needsOnboarding } = useUserProfile();
+  const { profile: adminProfile } = useAdminProfile();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'overview'>('overview');
   const [showActionsMenu, setShowActionsMenu] = useState(false);
@@ -219,13 +221,35 @@ const DashboardPage = () => {
     }
   };
 
-  // Get formatted role name
+  // Get formatted role name (show both regular role and admin role if applicable)
   const getFormattedRole = () => {
+    let regularRole = '';
     switch (activeRole) {
-      case 'client': return 'Client';
-      case 'tutor': return 'Tutor';
-      case 'agent': return 'Agent';
-      default: return '';
+      case 'client': regularRole = 'Client'; break;
+      case 'tutor': regularRole = 'Tutor'; break;
+      case 'agent': regularRole = 'Agent'; break;
+      case 'admin': regularRole = ''; break; // Don't show 'Admin' as regular role
+      default: regularRole = '';
+    }
+
+    // Get admin role if user is admin
+    let adminRoleName = '';
+    if (adminProfile?.admin_role) {
+      switch (adminProfile.admin_role) {
+        case 'superadmin': adminRoleName = 'Superadmin'; break;
+        case 'admin': adminRoleName = 'Admin'; break;
+        case 'systemadmin': adminRoleName = 'System Admin'; break;
+        case 'supportadmin': adminRoleName = 'Support Admin'; break;
+      }
+    }
+
+    // Combine roles with bullet separator
+    if (regularRole && adminRoleName) {
+      return `${regularRole} • ${adminRoleName}`;
+    } else if (adminRoleName) {
+      return adminRoleName;
+    } else {
+      return regularRole;
     }
   };
 
