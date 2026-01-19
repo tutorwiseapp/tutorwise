@@ -88,8 +88,8 @@ export default function StudyPackageForm({
       package_price: parseFloat(packagePrice),
       package_sessions: parseInt(packageSessions),
       images,
-      status: 'active',
-    } as CreateListingInput);
+      status: 'published',
+    } as any);
   };
 
   return (

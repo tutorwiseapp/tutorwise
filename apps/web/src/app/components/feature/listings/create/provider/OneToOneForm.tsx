@@ -133,7 +133,7 @@ export default function OneToOneForm({
       return;
     }
 
-    const formData: CreateListingInput = {
+    const formData: any = {
       listing_type: 'service',
       service_type: 'one-to-one',
       title,
@@ -147,7 +147,7 @@ export default function OneToOneForm({
       hourly_rate_min: parseFloat(hourlyRateMin),
       hourly_rate_max: hourlyRateMax ? parseFloat(hourlyRateMax) : undefined,
       images,
-      status: 'active',
+      status: 'published',
     };
 
     onSubmit(formData);

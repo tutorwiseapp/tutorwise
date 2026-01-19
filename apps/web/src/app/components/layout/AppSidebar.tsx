@@ -42,7 +42,14 @@ export default function AppSidebar() {
         { href: '/organisation/settings', label: 'Settings', indent: true },
       ],
     },
-    { href: '/listings', label: 'Listings' },
+    {
+      href: '/listings',
+      label: 'Listings',
+      subItems: [
+        { href: '/listings', label: 'My Listings', indent: true },
+        { href: '/listings/create', label: 'Create Listing', indent: true },
+      ],
+    },
     { href: '/bookings', label: 'Bookings' },
     { href: '/referrals', label: 'Referrals' },
     {

@@ -96,8 +96,8 @@ export default function WorkshopForm({
       delivery_mode: deliveryMode,
       package_price: parseFloat(packagePrice),
       images,
-      status: 'active',
-    } as CreateListingInput);
+      status: 'published',
+    } as any);
   };
 
   return (
