@@ -46,7 +46,7 @@
 
 ### 2. Admin Dashboard ✅
 **Status**: Production-ready
-**Completion**: 100% (10 hubs)
+**Completion**: 100% (12 hubs)
 
 **Hubs Implemented**:
 1. ✅ **Accounts Hub** - User management with soft/hard delete, GDPR compliance, and role-based admin user management
@@ -56,10 +56,11 @@
 5. ✅ **Listings Hub** - Service listing moderation
 6. ✅ **Organisations Hub** - Organisation management
 7. ✅ **Referrals Hub** - Referral tracking and analytics
-8. ✅ **Reviews Hub** - Review moderation
-9. ✅ **SEO Hub** - SEO management and optimization
-10. ✅ **Settings Hub** - Platform configuration
-11. ✅ **Signal Hub** - Revenue Signal for tracking the economic value from articles to bookings
+8. ✅ **Resources Hub** - Article management, SEO settings, performance analytics (added 2026-01-18)
+9. ✅ **Reviews Hub** - Review moderation
+10. ✅ **SEO Hub** - SEO management and optimization
+11. ✅ **Settings Hub** - Platform configuration
+12. ✅ **Signal Hub** - Revenue Signal for tracking the economic value from articles to bookings
 
 **Features**:
 - ✅ HubComplexModal pattern (standardized detail modals)
