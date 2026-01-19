@@ -43,7 +43,7 @@ export default function StudyPackageForm({
   const [description, setDescription] = useState(initialData.description || '');
   const [packageType, setPackageType] = useState(initialData.package_type || '');
   const [materialUrl, setMaterialUrl] = useState(initialData.material_url || '');
-  const [deliveryMode, setDeliveryMode] = useState(initialData.delivery_mode || []);
+  const [deliveryMode, setDeliveryMode] = useState('');
   const [packagePrice, setPackagePrice] = useState(initialData.package_price?.toString() || '');
   const [packageSessions, setPackageSessions] = useState(initialData.package_sessions?.toString() || '');
   const [images, setImages] = useState<string[]>(initialData.images || []);
@@ -62,7 +62,7 @@ export default function StudyPackageForm({
     if (levels.length === 0) newErrors.levels = 'Please select at least one level';
     if (!description.trim() || description.length < 50) newErrors.description = 'Description must be at least 50 characters';
     if (!packageType) newErrors.packageType = 'Please select a package type';
-    if (deliveryMode.length === 0) newErrors.deliveryMode = 'Please select at least one delivery mode';
+    if (!deliveryMode) newErrors.deliveryMode = 'Please select at least one delivery mode';
     if (!packagePrice || parseFloat(packagePrice) <= 0) newErrors.packagePrice = 'Please enter a valid package price';
     if (!packageSessions || parseInt(packageSessions) <= 0) newErrors.packageSessions = 'Please enter number of sessions';
     setErrors(newErrors);

@@ -45,7 +45,7 @@ export default function GroupSessionForm({
   const [description, setDescription] = useState(initialData.description || '');
   const [sessionDuration, setSessionDuration] = useState('');
   const [maxAttendees, setMaxAttendees] = useState('');
-  const [deliveryMode, setDeliveryMode] = useState<string[]>([]);
+  const [deliveryMode, setDeliveryMode] = useState('');
   const [availability, setAvailability] = useState(initialData.availability || []);
   const [unavailability, setUnavailability] = useState<any[]>([]);
   const [hourlyRateMin, setHourlyRateMin] = useState(
@@ -112,7 +112,7 @@ export default function GroupSessionForm({
     if (!maxAttendees || parseInt(maxAttendees) < 2 || parseInt(maxAttendees) > 10) {
       newErrors.maxAttendees = 'Max attendees must be between 2 and 10';
     }
-    if (deliveryMode.length === 0) {
+    if (!deliveryMode) {
       newErrors.deliveryMode = 'Please select at least one delivery mode';
     }
     if (availability.length === 0) {

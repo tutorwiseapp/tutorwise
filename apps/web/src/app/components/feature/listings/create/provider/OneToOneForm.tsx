@@ -44,7 +44,7 @@ export default function OneToOneForm({
   const [levels, setLevels] = useState<string[]>(initialData.levels || []);
   const [description, setDescription] = useState(initialData.description || '');
   const [sessionDuration, setSessionDuration] = useState('');
-  const [deliveryMode, setDeliveryMode] = useState<string[]>([]);
+  const [deliveryMode, setDeliveryMode] = useState('');
   const [availability, setAvailability] = useState(initialData.availability || []);
   const [unavailability, setUnavailability] = useState<any[]>([]);
   const [hourlyRateMin, setHourlyRateMin] = useState(
@@ -106,7 +106,7 @@ export default function OneToOneForm({
     if (!sessionDuration) {
       newErrors.sessionDuration = 'Please select a session duration';
     }
-    if (deliveryMode.length === 0) {
+    if (!deliveryMode) {
       newErrors.deliveryMode = 'Please select at least one delivery mode';
     }
     if (availability.length === 0) {

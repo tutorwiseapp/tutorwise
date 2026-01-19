@@ -19,7 +19,7 @@ export default function CreateListingRedirect() {
     // Role-based redirect
     if (activeRole === 'client') {
       router.replace('/listings/create/request');
-    } else if (activeRole === 'tutor' || activeRole === 'agent') {
+    } else if (activeRole === 'tutor' || activeRole === 'agent' || activeRole === 'admin') {
       router.replace('/listings/create/one-to-one');
     } else {
       // Fallback to main listings page

@@ -46,7 +46,7 @@ export default function WorkshopForm({
   const [startTime, setStartTime] = useState(initialData.start_time || '');
   const [endTime, setEndTime] = useState(initialData.end_time || '');
   const [location, setLocation] = useState(initialData.location || '');
-  const [deliveryMode, setDeliveryMode] = useState(initialData.delivery_mode || []);
+  const [deliveryMode, setDeliveryMode] = useState('');
   const [packagePrice, setPackagePrice] = useState(initialData.package_price?.toString() || '');
   const [images, setImages] = useState<string[]>(initialData.images || []);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -69,7 +69,7 @@ export default function WorkshopForm({
     if (!startTime) newErrors.startTime = 'Please select a start time';
     if (!endTime) newErrors.endTime = 'Please select an end time';
     if (!location.trim()) newErrors.location = 'Please enter a location';
-    if (deliveryMode.length === 0) newErrors.deliveryMode = 'Please select at least one delivery mode';
+    if (!deliveryMode) newErrors.deliveryMode = 'Please select at least one delivery mode';
     if (!packagePrice || parseFloat(packagePrice) <= 0) newErrors.packagePrice = 'Please enter a valid workshop price';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
