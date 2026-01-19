@@ -1,22 +1,35 @@
+/**
+ * Filename: one-to-one/page.tsx
+ * Purpose: One-to-One tutoring service listing creation page
+ * Updated: 2026-01-19 - Migrated to Hub Layout Architecture
+ */
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { createListing } from '@/lib/api/listings';
 import type { CreateListingInput } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
-import OneToOneForm from '@/app/components/feature/listings/create/provider/OneToOneForm';
+import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
+import type { HubTab } from '@/app/components/hub/layout';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import ListingsHeader from '@/app/components/feature/listings/create/ListingsHeader';
+import ListingsStatsWidget from '@/app/components/feature/listings/create/ListingsStatsWidget';
+import ListingsHelpWidget from '@/app/components/feature/listings/create/ListingsHelpWidget';
+import ListingsTipWidget from '@/app/components/feature/listings/create/ListingsTipWidget';
+import ListingsVideoWidget from '@/app/components/feature/listings/create/ListingsVideoWidget';
+import OneToOneForm from '@/app/components/feature/listings/create/tutor/OneToOneForm';
 import styles from './page.module.css';
 
 export default function CreateOneToOnePage() {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, activeRole, profile, isLoading: userLoading } = useUserProfile();
   const { isAllowed, isLoading: roleLoading } = useRoleGuard(['tutor', 'agent']);
   const [isSaving, setIsSaving] = useState(false);
   const [initialData, setInitialData] = useState<Partial<CreateListingInput>>({});
-  const [activeTab, setActiveTab] = useState<'one-to-one' | 'group-session' | 'workshop' | 'study-package'>('one-to-one');
 
   // Pre-fill form from professional_details
   useEffect(() => {
@@ -47,14 +60,34 @@ export default function CreateOneToOnePage() {
     setInitialData(prefillData);
   }, [profile, activeRole]);
 
+  // Prepare tabs data
+  const tabs: HubTab[] = [
+    { id: 'one-to-one', label: 'One-to-One', active: pathname === '/listings/create/one-to-one' },
+    { id: 'group-session', label: 'Group Session', active: pathname === '/listings/create/group-session' },
+    { id: 'workshop', label: 'Workshop', active: pathname === '/listings/create/workshop' },
+    { id: 'study-package', label: 'Study Package', active: pathname === '/listings/create/study-package' },
+  ];
+
+  const handleTabChange = (tabId: string) => {
+    router.push(`/listings/create/${tabId}`);
+  };
+
   if (userLoading || roleLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
+      <HubPageLayout
+        header={<ListingsHeader title="Create Listing" subtitle="Set up your tutoring services" />}
+        tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
+        sidebar={
+          <HubSidebar>
+            <ListingsStatsWidget />
+            <ListingsHelpWidget />
+            <ListingsTipWidget />
+            <ListingsVideoWidget />
+          </HubSidebar>
+        }
+      >
+        <div className={styles.loading}>Loading...</div>
+      </HubPageLayout>
     );
   }
 
@@ -86,49 +119,32 @@ export default function CreateOneToOnePage() {
     router.push('/listings');
   };
 
-  const handleTabChange = (tab: string) => {
-    router.push(`/listings/create/${tab}`);
-  };
-
   return (
-    <div className={styles.createPage}>
-      {/* Tabs Navigation */}
-      <div className={styles.tabsContainer}>
-        <div className={styles.tabs}>
-          <button
-            className={`${styles.tab} ${activeTab === 'one-to-one' ? styles.tabActive : ''}`}
-            onClick={() => handleTabChange('one-to-one')}
-          >
-            One-to-One
-          </button>
-          <button
-            className={`${styles.tab} ${activeTab === 'group-session' ? styles.tabActive : ''}`}
-            onClick={() => handleTabChange('group-session')}
-          >
-            Group Session
-          </button>
-          <button
-            className={`${styles.tab} ${activeTab === 'workshop' ? styles.tabActive : ''}`}
-            onClick={() => handleTabChange('workshop')}
-          >
-            Workshop
-          </button>
-          <button
-            className={`${styles.tab} ${activeTab === 'study-package' ? styles.tabActive : ''}`}
-            onClick={() => handleTabChange('study-package')}
-          >
-            Study Package
-          </button>
-        </div>
+    <HubPageLayout
+      header={
+        <ListingsHeader
+          title="Create Listing"
+          subtitle="Set up your personalized one-on-one tutoring service"
+        />
+      }
+      tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
+      sidebar={
+        <HubSidebar>
+          <ListingsStatsWidget />
+          <ListingsHelpWidget />
+          <ListingsTipWidget />
+          <ListingsVideoWidget />
+        </HubSidebar>
+      }
+    >
+      <div className={styles.content}>
+        <OneToOneForm
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          isSaving={isSaving}
+          initialData={initialData}
+        />
       </div>
-
-      {/* Form Content */}
-      <OneToOneForm
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-        isSaving={isSaving}
-        initialData={initialData}
-      />
-    </div>
+    </HubPageLayout>
   );
 }

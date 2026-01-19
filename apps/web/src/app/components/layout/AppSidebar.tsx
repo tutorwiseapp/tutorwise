@@ -134,6 +134,11 @@ export default function AppSidebar() {
       return pathname?.startsWith('/organisation/settings');
     }
 
+    // Special case: /listings/create should match /listings/create/*
+    if (href === '/listings/create') {
+      return pathname?.startsWith('/listings/create');
+    }
+
     // For non-query param links, use exact match
     return pathname === href;
   };

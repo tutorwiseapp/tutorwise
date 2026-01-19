@@ -41,7 +41,7 @@ export function FormActionsSection({
       <Button variant="secondary" onClick={onCancel} disabled={isSaving}>
         {cancelLabel}
       </Button>
-      <Button variant="outline" onClick={onSaveDraft} disabled={isSaving}>
+      <Button variant="secondary" onClick={onSaveDraft} disabled={isSaving}>
         {saveDraftLabel}
       </Button>
       <Button variant="primary" onClick={onPublish} disabled={isSaving}>

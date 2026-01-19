@@ -1,50 +1,51 @@
 /**
- * Filename: GroupSessionForm.tsx
- * Purpose: Complete group session listing form
- * Usage: Provider (tutor/agent) group-session service type
+ * Filename: OneToOneForm.tsx
+ * Purpose: Complete one-to-one tutoring service listing form
+ * Usage: Provider (tutor/agent) one-to-one service type
  * Created: 2026-01-19
+ * Updated: 2026-01-19 - Refactored to use HubForm components matching ProfessionalInfoForm quality
  */
 
 'use client';
 
 import { useState, useEffect } from 'react';
 import type { CreateListingInput } from '@tutorwise/shared-types';
+import HubForm from '@/app/components/hub/form/HubForm';
+import Button from '@/app/components/ui/actions/Button';
 import {
   SubjectsSection,
   LevelsSection,
   DescriptionSection,
   DeliveryModeSection,
   AvailabilitySection,
-  FormActionsSection,
 } from '../shared';
 import {
   BasicInformationSection,
   PricingSection,
   ImagesSection,
 } from './index';
-import { GroupSessionFields } from '../types';
-import styles from '../shared/FormSections.module.css';
+import { OneToOneFields } from '../types';
+import styles from './OneToOneForm.module.css';
 
-interface GroupSessionFormProps {
+interface OneToOneFormProps {
   onSubmit: (data: CreateListingInput) => void;
   onCancel: () => void;
   isSaving?: boolean;
   initialData?: Partial<CreateListingInput>;
 }
 
-export default function GroupSessionForm({
+export default function OneToOneForm({
   onSubmit,
   onCancel,
   isSaving = false,
   initialData = {},
-}: GroupSessionFormProps) {
+}: OneToOneFormProps) {
   // Form state
   const [title, setTitle] = useState(initialData.title || '');
   const [subjects, setSubjects] = useState<string[]>(initialData.subjects || []);
   const [levels, setLevels] = useState<string[]>(initialData.levels || []);
   const [description, setDescription] = useState(initialData.description || '');
   const [sessionDuration, setSessionDuration] = useState('');
-  const [maxAttendees, setMaxAttendees] = useState('');
   const [deliveryMode, setDeliveryMode] = useState('');
   const [availability, setAvailability] = useState(initialData.availability || []);
   const [unavailability, setUnavailability] = useState<any[]>([]);
@@ -66,7 +67,6 @@ export default function GroupSessionForm({
       levels,
       description,
       sessionDuration,
-      maxAttendees,
       deliveryMode,
       availability,
       unavailability,
@@ -74,14 +74,13 @@ export default function GroupSessionForm({
       hourlyRateMax,
       images,
     };
-    localStorage.setItem('group_session_draft', JSON.stringify(draftData));
+    localStorage.setItem('one_to_one_draft', JSON.stringify(draftData));
   }, [
     title,
     subjects,
     levels,
     description,
     sessionDuration,
-    maxAttendees,
     deliveryMode,
     availability,
     unavailability,
@@ -109,9 +108,6 @@ export default function GroupSessionForm({
     if (!sessionDuration) {
       newErrors.sessionDuration = 'Please select a session duration';
     }
-    if (!maxAttendees || parseInt(maxAttendees) < 2 || parseInt(maxAttendees) > 10) {
-      newErrors.maxAttendees = 'Max attendees must be between 2 and 10';
-    }
     if (!deliveryMode) {
       newErrors.deliveryMode = 'Please select at least one delivery mode';
     }
@@ -119,7 +115,7 @@ export default function GroupSessionForm({
       newErrors.availability = 'Please add at least one availability period';
     }
     if (!hourlyRateMin || parseFloat(hourlyRateMin) <= 0) {
-      newErrors.hourlyRateMin = 'Please enter a valid rate per student';
+      newErrors.hourlyRateMin = 'Please enter a valid hourly rate';
     }
     if (hourlyRateMax && parseFloat(hourlyRateMax) < parseFloat(hourlyRateMin)) {
       newErrors.hourlyRateMax = 'Maximum rate must be greater than minimum rate';
@@ -132,7 +128,8 @@ export default function GroupSessionForm({
   // Handle publish
   const handlePublish = () => {
     if (!validateForm()) {
-      const firstErrorElement = document.querySelector(`.${styles.inputError}`);
+      // Scroll to first error
+      const firstErrorElement = document.querySelector('[data-error="true"]');
       if (firstErrorElement) {
         firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
@@ -141,13 +138,12 @@ export default function GroupSessionForm({
 
     const formData: any = {
       listing_type: 'service',
-      service_type: 'group-session',
+      service_type: 'one-to-one',
       title,
       subjects,
       levels,
       description,
       session_duration: sessionDuration,
-      max_attendees: parseInt(maxAttendees),
       delivery_mode: deliveryMode,
       availability,
       unavailability,
@@ -166,33 +162,23 @@ export default function GroupSessionForm({
   };
 
   return (
-    <div className={styles.formContainer}>
-      <div className={styles.formHeader}>
-        <h1 className={styles.formTitle}>Create Group Session Service</h1>
-        <p className={styles.formSubtitle}>
-          Set up your small group tutoring sessions (2-10 students)
-        </p>
-      </div>
-
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handlePublish();
-        }}
-      >
-        {/* Basic Information */}
+    <HubForm.Root>
+      {/* Section 1: Basic Information */}
+      <HubForm.Section title="Basic Information">
         <BasicInformationSection
           title={title}
           onTitleChange={setTitle}
           showHeadline={false}
           showBio={false}
           titleLabel="Service Title"
-          titlePlaceholder="E.g., Small Group GCSE Maths Revision Sessions"
+          titlePlaceholder="E.g., Expert GCSE Maths Tutor - Build Confidence & Achieve A*"
           errors={errors}
         />
+      </HubForm.Section>
 
-        {/* Subjects & Levels */}
-        <div className={styles.twoColumnLayout}>
+      {/* Section 2: Subjects & Levels */}
+      <HubForm.Section title="Subjects & Education Levels">
+        <HubForm.Grid>
           <SubjectsSection
             selectedSubjects={subjects}
             onSubjectsChange={setSubjects}
@@ -210,31 +196,35 @@ export default function GroupSessionForm({
             required={true}
             errors={errors}
           />
-        </div>
+        </HubForm.Grid>
+      </HubForm.Section>
 
-        {/* Description */}
+      {/* Section 3: Description */}
+      <HubForm.Section title="Service Description">
         <DescriptionSection
           description={description}
           onDescriptionChange={setDescription}
           label="Service Description"
-          placeholder="Describe your group session approach, group dynamics, what students can expect..."
+          placeholder="Describe your teaching approach, what makes you unique, what students can expect..."
           minLength={50}
           maxLength={1000}
           required={true}
           errors={errors}
         />
+      </HubForm.Section>
 
-        {/* Group Session Fields */}
-        <GroupSessionFields
+      {/* Section 4: Session Duration */}
+      <HubForm.Section title="Session Details">
+        <OneToOneFields
           sessionDuration={sessionDuration}
-          maxAttendees={maxAttendees}
           onSessionDurationChange={setSessionDuration}
-          onMaxAttendeesChange={setMaxAttendees}
           required={true}
           errors={errors}
         />
+      </HubForm.Section>
 
-        {/* Pricing */}
+      {/* Section 5: Pricing */}
+      <HubForm.Section title="Pricing">
         <PricingSection
           hourlyRateMin={hourlyRateMin}
           hourlyRateMax={hourlyRateMax}
@@ -242,12 +232,14 @@ export default function GroupSessionForm({
           onHourlyRateMaxChange={setHourlyRateMax}
           showHourlyRate={true}
           showPackagePricing={false}
-          hourlyRateLabel="Rate Per Student Per Hour"
+          hourlyRateLabel="Hourly Rate"
           required={true}
           errors={errors}
         />
+      </HubForm.Section>
 
-        {/* Delivery Mode */}
+      {/* Section 6: Delivery Mode */}
+      <HubForm.Section title="Delivery Mode">
         <DeliveryModeSection
           deliveryMode={deliveryMode}
           onDeliveryModeChange={setDeliveryMode}
@@ -255,8 +247,10 @@ export default function GroupSessionForm({
           required={true}
           errors={errors}
         />
+      </HubForm.Section>
 
-        {/* Availability */}
+      {/* Section 7: Availability */}
+      <HubForm.Section title="Availability">
         <AvailabilitySection
           availability={availability}
           unavailability={unavailability}
@@ -265,8 +259,10 @@ export default function GroupSessionForm({
           showUnavailability={true}
           errors={errors}
         />
+      </HubForm.Section>
 
-        {/* Images */}
+      {/* Section 8: Images */}
+      <HubForm.Section title="Images (Optional)">
         <ImagesSection
           images={images}
           onImagesChange={setImages}
@@ -275,16 +271,38 @@ export default function GroupSessionForm({
           required={false}
           errors={errors}
         />
+      </HubForm.Section>
 
-        {/* Form Actions */}
-        <FormActionsSection
-          onSaveDraft={handleSaveDraft}
-          onCancel={onCancel}
-          onPublish={handlePublish}
-          isSaving={isSaving}
-          publishLabel="Publish Listing"
-        />
-      </form>
-    </div>
+      {/* Form Actions */}
+      <div className={styles.actionButtons}>
+        <Button
+          type="button"
+          variant="secondary"
+          size="md"
+          onClick={onCancel}
+          disabled={isSaving}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          size="md"
+          onClick={handleSaveDraft}
+          disabled={isSaving}
+        >
+          Save Draft
+        </Button>
+        <Button
+          type="button"
+          variant="primary"
+          size="md"
+          onClick={handlePublish}
+          disabled={isSaving}
+        >
+          {isSaving ? 'Publishing...' : 'Publish Listing'}
+        </Button>
+      </div>
+    </HubForm.Root>
   );
 }

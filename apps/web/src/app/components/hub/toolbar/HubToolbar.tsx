@@ -239,6 +239,7 @@ export default function HubToolbar({
                     }))
                   ]}
                   placeholder={filter.label}
+                  size="sm"
                 />
               </div>
             );

@@ -10,8 +10,10 @@ import DatePicker from '@/app/components/ui/forms/DatePicker';
 import CustomTimePicker from '@/app/components/feature/listings/wizard-steps/CustomTimePicker';
 import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
 import InlineProgressBadge from '../../shared/InlineProgressBadge';
+import HubListItem from '@/app/components/hub/content/HubListItem/HubListItem';
 import { getOnboardingProgress, saveOnboardingProgress } from '@/lib/api/onboarding';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import Button from '@/app/components/ui/actions/Button';
 import { useOnboardingAutoSave } from '@/hooks/useAutoSave';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { hasUnsavedChanges as checkUnsavedChanges } from '@/lib/offlineQueue';
@@ -656,14 +658,9 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
 
                 {/* Add Button */}
                 <div style={{ marginBottom: '32px' }}>
-                  <button
-                    type="button"
-                    onClick={handleAddAvailability}
-                    className={professionalStyles.buttonPrimary}
-                    style={{ width: '100%' }}
-                  >
+                  <Button variant="primary" size="md" onClick={handleAddAvailability} style={{ width: '100%' }}>
                     Add
-                  </button>
+                  </Button>
                 </div>
 
                 {/* Summary Sections */}
@@ -677,27 +674,16 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
 
                         return (
                           <div key={period.id}>
-                            <div
-                              style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                padding: '12px 16px',
-                                backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
-                                borderRadius: '8px',
-                                border: hasConflict ? '1px solid #F59E0B' : '1px solid var(--color-border, #dfe1e5)'
-                              }}
+                            <HubListItem
+                              hasError={hasConflict}
+                              actions={
+                                <Button variant="danger" size="sm" onClick={() => handleRemoveAvailability(period.id)}>
+                                  Remove
+                                </Button>
+                              }
                             >
-                              <span style={{ fontSize: '0.875rem' }}>{formatAvailabilityText(period)}</span>
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveAvailability(period.id)}
-                                className={professionalStyles.buttonSecondary}
-                                style={{ padding: '4px 12px', fontSize: '0.875rem' }}
-                              >
-                                Remove
-                              </button>
-                            </div>
+                              {formatAvailabilityText(period)}
+                            </HubListItem>
                             {hasConflict && (
                               <div style={{
                                 marginTop: '4px',
@@ -739,27 +725,16 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
 
                         return (
                           <div key={period.id}>
-                            <div
-                              style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                padding: '12px 16px',
-                                backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
-                                borderRadius: '8px',
-                                border: hasConflict ? '1px solid #F59E0B' : '1px solid var(--color-border, #dfe1e5)'
-                              }}
+                            <HubListItem
+                              hasError={hasConflict}
+                              actions={
+                                <Button variant="danger" size="sm" onClick={() => handleRemoveAvailability(period.id)}>
+                                  Remove
+                                </Button>
+                              }
                             >
-                              <span style={{ fontSize: '0.875rem' }}>{formatAvailabilityText(period)}</span>
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveAvailability(period.id)}
-                                className={professionalStyles.buttonSecondary}
-                                style={{ padding: '4px 12px', fontSize: '0.875rem' }}
-                              >
-                                Remove
-                              </button>
-                            </div>
+                              {formatAvailabilityText(period)}
+                            </HubListItem>
                             {hasConflict && (
                               <div style={{
                                 marginTop: '4px',
@@ -828,14 +803,9 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
 
                 {/* Add Button */}
                 <div style={{ marginBottom: '32px' }}>
-                  <button
-                    type="button"
-                    onClick={handleAddUnavailability}
-                    className={professionalStyles.buttonPrimary}
-                    style={{ width: '100%' }}
-                  >
+                  <Button variant="primary" size="md" onClick={handleAddUnavailability} style={{ width: '100%' }}>
                     Add
-                  </button>
+                  </Button>
                 </div>
 
                 {/* Summary Section */}
@@ -844,28 +814,16 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
                     <label className={professionalStyles.formLabel}>Unavailable Period</label>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {unavailabilityPeriods.map(period => (
-                        <div
+                        <HubListItem
                           key={period.id}
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: '12px 16px',
-                            backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
-                            borderRadius: '8px',
-                            border: '1px solid var(--color-border, #dfe1e5)'
-                          }}
+                          actions={
+                            <Button variant="danger" size="sm" onClick={() => handleRemoveUnavailability(period.id)}>
+                              Remove
+                            </Button>
+                          }
                         >
-                          <span style={{ fontSize: '0.875rem' }}>{formatUnavailabilityText(period)}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveUnavailability(period.id)}
-                            className={professionalStyles.buttonSecondary}
-                            style={{ padding: '4px 12px', fontSize: '0.875rem' }}
-                          >
-                            Remove
-                          </button>
-                        </div>
+                          {formatUnavailabilityText(period)}
+                        </HubListItem>
                       ))}
                     </div>
                   </div>

@@ -1,0 +1,95 @@
+/**
+ * Filename: ListingsHeader.module.css
+ * Purpose: Styles for ListingsHeader component
+ * Created: 2026-01-19
+ */
+
+.header {
+  width: 100%;
+  padding: 0;
+}
+
+.headerRow {
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0;
+  height: 6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.titleSection {
+  min-width: 0;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: #6b7280;
+  margin: 0.25rem 0 0 0;
+}
+
+.actionsSection {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .headerRow {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    height: auto;
+    min-height: 4rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .titleSection {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .actionsSection {
+    margin-left: auto;
+    width: 100%;
+    flex: 1 1 100%;
+    justify-content: flex-end;
+  }
+}
+
+/* Tablet Responsive */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .headerRow {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+}

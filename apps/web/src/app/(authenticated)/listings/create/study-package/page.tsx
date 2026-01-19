@@ -1,45 +1,85 @@
+/**
+ * Filename: study-package/page.tsx
+ * Purpose: Study Package listing creation page
+ * Updated: 2026-01-19 - Migrated to Hub Layout Architecture
+ */
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { createListing } from '@/lib/api/listings';
 import type { CreateListingInput } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
-import StudyPackageForm from '@/app/components/feature/listings/create/provider/StudyPackageForm';
-import styles from '../one-to-one/page.module.css';
+import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
+import type { HubTab } from '@/app/components/hub/layout';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import ListingsHeader from '@/app/components/feature/listings/create/ListingsHeader';
+import ListingsStatsWidget from '@/app/components/feature/listings/create/ListingsStatsWidget';
+import ListingsHelpWidget from '@/app/components/feature/listings/create/ListingsHelpWidget';
+import ListingsTipWidget from '@/app/components/feature/listings/create/ListingsTipWidget';
+import ListingsVideoWidget from '@/app/components/feature/listings/create/ListingsVideoWidget';
+import StudyPackageForm from '@/app/components/feature/listings/create/tutor/StudyPackageForm';
+import styles from './page.module.css';
 
 export default function CreateStudyPackagePage() {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, activeRole, profile, isLoading: userLoading } = useUserProfile();
   const { isAllowed, isLoading: roleLoading } = useRoleGuard(['tutor', 'agent']);
   const [isSaving, setIsSaving] = useState(false);
   const [initialData, setInitialData] = useState<Partial<CreateListingInput>>({});
-  const [activeTab] = useState<'one-to-one' | 'group-session' | 'workshop' | 'study-package'>('study-package');
 
+  // Pre-fill form from professional_details
   useEffect(() => {
     if (!profile?.professional_details || !activeRole) return;
+
     const prefillData: Partial<CreateListingInput> = {};
+
     if (activeRole === 'tutor') {
       const tutorData = profile.professional_details.tutor;
       if (tutorData?.subjects) prefillData.subjects = tutorData.subjects as string[];
     }
+
     if (activeRole === 'agent') {
       const agentData = profile.professional_details.agent;
-      if (agentData?.subject_specializations) prefillData.subjects = agentData.subject_specializations;
+      if (agentData?.subject_specializations) {
+        prefillData.subjects = agentData.subject_specializations;
+      }
     }
+
     setInitialData(prefillData);
   }, [profile, activeRole]);
 
+  // Prepare tabs data
+  const tabs: HubTab[] = [
+    { id: 'one-to-one', label: 'One-to-One', active: pathname === '/listings/create/one-to-one' },
+    { id: 'group-session', label: 'Group Session', active: pathname === '/listings/create/group-session' },
+    { id: 'workshop', label: 'Workshop', active: pathname === '/listings/create/workshop' },
+    { id: 'study-package', label: 'Study Package', active: pathname === '/listings/create/study-package' },
+  ];
+
+  const handleTabChange = (tabId: string) => {
+    router.push(`/listings/create/${tabId}`);
+  };
+
   if (userLoading || roleLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
+      <HubPageLayout
+        header={<ListingsHeader title="Create Listing" subtitle="Set up your tutoring services" />}
+        tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
+        sidebar={
+          <HubSidebar>
+            <ListingsStatsWidget />
+            <ListingsHelpWidget />
+            <ListingsTipWidget />
+            <ListingsVideoWidget />
+          </HubSidebar>
+        }
+      >
+        <div className={styles.loading}>Loading...</div>
+      </HubPageLayout>
     );
   }
 
@@ -65,21 +105,36 @@ export default function CreateStudyPackagePage() {
     }
   };
 
-  const handleTabChange = (tab: string) => {
-    router.push(`/listings/create/${tab}`);
+  const handleCancel = () => {
+    router.push('/listings');
   };
 
   return (
-    <div className={styles.createPage}>
-      <div className={styles.tabsContainer}>
-        <div className={styles.tabs}>
-          <button className={`${styles.tab} ${activeTab === 'one-to-one' ? styles.tabActive : ''}`} onClick={() => handleTabChange('one-to-one')}>One-to-One</button>
-          <button className={`${styles.tab} ${activeTab === 'group-session' ? styles.tabActive : ''}`} onClick={() => handleTabChange('group-session')}>Group Session</button>
-          <button className={`${styles.tab} ${activeTab === 'workshop' ? styles.tabActive : ''}`} onClick={() => handleTabChange('workshop')}>Workshop</button>
-          <button className={`${styles.tab} ${activeTab === 'study-package' ? styles.tabActive : ''}`} onClick={() => handleTabChange('study-package')}>Study Package</button>
-        </div>
+    <HubPageLayout
+      header={
+        <ListingsHeader
+          title="Create Listing"
+          subtitle="Set up your comprehensive study package or course"
+        />
+      }
+      tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
+      sidebar={
+        <HubSidebar>
+          <ListingsStatsWidget />
+          <ListingsHelpWidget />
+          <ListingsTipWidget />
+          <ListingsVideoWidget />
+        </HubSidebar>
+      }
+    >
+      <div className={styles.content}>
+        <StudyPackageForm
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          isSaving={isSaving}
+          initialData={initialData}
+        />
       </div>
-      <StudyPackageForm onSubmit={handleSubmit} onCancel={() => router.push('/listings')} isSaving={isSaving} initialData={initialData} />
-    </div>
+    </HubPageLayout>
   );
 }

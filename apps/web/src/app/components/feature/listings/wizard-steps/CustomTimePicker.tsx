@@ -7,7 +7,7 @@ import styles from '../../onboarding/OnboardingWizard.module.css';
 interface CustomTimePickerProps {
   value: string; // "9:00 AM" format
   onChange: (time: string) => void;
-  label: string;
+  label?: string;
   onClearError?: () => void;
 }
 

@@ -8,7 +8,6 @@ import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import CustomTimePicker from '@/app/components/feature/listings/wizard-steps/CustomTimePicker';
 import DatePicker from '@/app/components/ui/forms/DatePicker';
 import Button from '@/app/components/ui/actions/Button';
-import HubListItem from '@/app/components/hub/content/HubListItem/HubListItem';
 import { useDocumentUpload } from '@/hooks/useDocumentUpload';
 import { useFormConfigs } from '@/hooks/useFormConfig';
 import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
@@ -1236,15 +1235,14 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
                 {/* Add Button */}
                 <div style={{ marginBottom: '32px' }}>
-                  <Button
+                  <button
                     type="button"
                     onClick={handleAddAvailability}
-                    variant="primary"
-                    size="md"
+                    className={styles.buttonPrimary}
                     style={{ width: '100%' }}
                   >
                     Add
-                  </Button>
+                  </button>
                 </div>
 
                 {/* Summary Sections */}
@@ -1253,20 +1251,28 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                     <label className={styles.formLabel}>Recurring Availability</label>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {recurringPeriods.map(period => (
-                        <HubListItem
+                        <div
                           key={period.id}
-                          actions={
-                            <Button
-                              variant="danger"
-                              size="sm"
-                              onClick={() => handleRemoveAvailability(period.id)}
-                            >
-                              Remove
-                            </Button>
-                          }
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '12px 16px',
+                            backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
+                            borderRadius: '8px',
+                            border: '1px solid var(--color-border, #dfe1e5)'
+                          }}
                         >
-                          {formatAvailabilityText(period)}
-                        </HubListItem>
+                          <span style={{ fontSize: '0.875rem' }}>{formatAvailabilityText(period)}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveAvailability(period.id)}
+                            className={styles.buttonSecondary}
+                            style={{ padding: '4px 12px', fontSize: '0.875rem' }}
+                          >
+                            Remove
+                          </button>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -1277,20 +1283,28 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                     <label className={styles.formLabel}>One-time Availability</label>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {oneTimePeriods.map(period => (
-                        <HubListItem
+                        <div
                           key={period.id}
-                          actions={
-                            <Button
-                              variant="danger"
-                              size="sm"
-                              onClick={() => handleRemoveAvailability(period.id)}
-                            >
-                              Remove
-                            </Button>
-                          }
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '12px 16px',
+                            backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
+                            borderRadius: '8px',
+                            border: '1px solid var(--color-border, #dfe1e5)'
+                          }}
                         >
-                          {formatAvailabilityText(period)}
-                        </HubListItem>
+                          <span style={{ fontSize: '0.875rem' }}>{formatAvailabilityText(period)}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveAvailability(period.id)}
+                            className={styles.buttonSecondary}
+                            style={{ padding: '4px 12px', fontSize: '0.875rem' }}
+                          >
+                            Remove
+                          </button>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -1333,15 +1347,14 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
                 {/* Add Button */}
                 <div style={{ marginBottom: '32px' }}>
-                  <Button
+                  <button
                     type="button"
                     onClick={handleAddUnavailability}
-                    variant="primary"
-                    size="md"
+                    className={styles.buttonPrimary}
                     style={{ width: '100%' }}
                   >
                     Add
-                  </Button>
+                  </button>
                 </div>
 
                 {/* Summary Section */}
@@ -1350,20 +1363,28 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                     <label className={styles.formLabel}>Unavailable Period</label>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {unavailabilityPeriods.map(period => (
-                        <HubListItem
+                        <div
                           key={period.id}
-                          actions={
-                            <Button
-                              variant="danger"
-                              size="sm"
-                              onClick={() => handleRemoveUnavailability(period.id)}
-                            >
-                              Remove
-                            </Button>
-                          }
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '12px 16px',
+                            backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
+                            borderRadius: '8px',
+                            border: '1px solid var(--color-border, #dfe1e5)'
+                          }}
                         >
-                          {formatUnavailabilityText(period)}
-                        </HubListItem>
+                          <span style={{ fontSize: '0.875rem' }}>{formatUnavailabilityText(period)}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveUnavailability(period.id)}
+                            className={styles.buttonSecondary}
+                            style={{ padding: '4px 12px', fontSize: '0.875rem' }}
+                          >
+                            Remove
+                          </button>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -1970,14 +1991,14 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
               {/* Add Button */}
               <div style={{ marginBottom: '32px' }}>
-                <Button
-                  variant="primary"
-                  size="md"
+                <button
+                  type="button"
                   onClick={handleAddAvailability}
+                  className={styles.buttonPrimary}
                   style={{ width: '100%' }}
                 >
                   Add
-                </Button>
+                </button>
               </div>
 
               {/* Summary Sections */}
@@ -1986,20 +2007,28 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                   <label className={styles.formLabel}>Recurring Availability</label>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {recurringPeriods.map(period => (
-                      <HubListItem
+                      <div
                         key={period.id}
-                        actions={
-                          <Button
-                            variant="danger"
-                            size="sm"
-                            onClick={() => handleRemoveAvailability(period.id)}
-                          >
-                            Remove
-                          </Button>
-                        }
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '12px 16px',
+                          backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
+                          borderRadius: '8px',
+                          border: '1px solid var(--color-border, #dfe1e5)'
+                        }}
                       >
-                        {formatAvailabilityText(period)}
-                      </HubListItem>
+                        <span style={{ fontSize: '0.875rem' }}>{formatAvailabilityText(period)}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveAvailability(period.id)}
+                          className={styles.buttonSecondary}
+                          style={{ padding: '4px 12px', fontSize: '0.875rem' }}
+                        >
+                          Remove
+                        </button>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -2010,20 +2039,28 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                   <label className={styles.formLabel}>One-time Availability</label>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {oneTimePeriods.map(period => (
-                      <HubListItem
+                      <div
                         key={period.id}
-                        actions={
-                          <Button
-                            variant="danger"
-                            size="sm"
-                            onClick={() => handleRemoveAvailability(period.id)}
-                          >
-                            Remove
-                          </Button>
-                        }
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '12px 16px',
+                          backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
+                          borderRadius: '8px',
+                          border: '1px solid var(--color-border, #dfe1e5)'
+                        }}
                       >
-                        {formatAvailabilityText(period)}
-                      </HubListItem>
+                        <span style={{ fontSize: '0.875rem' }}>{formatAvailabilityText(period)}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveAvailability(period.id)}
+                          className={styles.buttonSecondary}
+                          style={{ padding: '4px 12px', fontSize: '0.875rem' }}
+                        >
+                          Remove
+                        </button>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -2066,14 +2103,14 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
               {/* Add Button */}
               <div style={{ marginBottom: '32px' }}>
-                <Button
-                  variant="primary"
-                  size="md"
+                <button
+                  type="button"
                   onClick={handleAddUnavailability}
+                  className={styles.buttonPrimary}
                   style={{ width: '100%' }}
                 >
                   Add
-                </Button>
+                </button>
               </div>
 
               {/* Summary Section */}
@@ -2082,20 +2119,28 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
                   <label className={styles.formLabel}>Unavailable Period</label>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {unavailabilityPeriods.map(period => (
-                      <HubListItem
+                      <div
                         key={period.id}
-                        actions={
-                          <Button
-                            variant="danger"
-                            size="sm"
-                            onClick={() => handleRemoveUnavailability(period.id)}
-                          >
-                            Remove
-                          </Button>
-                        }
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '12px 16px',
+                          backgroundColor: 'var(--color-bg-secondary, #f9fafb)',
+                          borderRadius: '8px',
+                          border: '1px solid var(--color-border, #dfe1e5)'
+                        }}
                       >
-                        {formatUnavailabilityText(period)}
-                      </HubListItem>
+                        <span style={{ fontSize: '0.875rem' }}>{formatUnavailabilityText(period)}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveUnavailability(period.id)}
+                          className={styles.buttonSecondary}
+                          style={{ padding: '4px 12px', fontSize: '0.875rem' }}
+                        >
+                          Remove
+                        </button>
+                      </div>
                     ))}
                   </div>
                 </div>

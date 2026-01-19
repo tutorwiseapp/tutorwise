@@ -61,7 +61,7 @@ export function DeliveryModeSection({
           className={`${styles.select} ${errors.deliveryMode ? styles.inputError : ''}`}
         >
           <option value="">Select delivery mode...</option>
-          {deliveryModeOptions.map((opt) => (
+          {deliveryModeOptions.map((opt: { value: string; label: string }) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>

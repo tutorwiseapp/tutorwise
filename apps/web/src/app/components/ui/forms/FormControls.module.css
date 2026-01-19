@@ -175,12 +175,12 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  height: 36px;
-  padding: 0 0.75rem;
+  min-height: 44px;
+  padding: 11px 14px;
   background-color: #ffffff;
   border: 1px solid #dfe1e5;
-  border-radius: 6px;
-  font-size: 0.875rem;
+  border-radius: 8px;
+  font-size: 14px;
   line-height: 1.5;
   color: #202124;
   cursor: pointer;
@@ -204,6 +204,14 @@
   opacity: 0.5;
   cursor: not-allowed;
   background-color: #f5f5f5;
+}
+
+/* Small size variant for toolbars (36px height) */
+.selectTriggerSm {
+  min-height: 36px;
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+  border-radius: 0.375rem;
 }
 
 .selectTriggerError {
