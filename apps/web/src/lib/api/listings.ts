@@ -106,28 +106,17 @@ export async function createListing(input: CreateListingInput): Promise<Listing>
     throw new Error('Not authenticated');
   }
 
+  // Pass through ALL fields from input, adding only profile_id and defaults
   const listingData = {
+    ...input,
     profile_id: user.id,
-    full_name: input.full_name,
-    title: input.title,
-    description: input.description,
-    subjects: input.subjects,
-    levels: input.levels,
+    // Apply defaults only if not provided
     languages: input.languages || ['English'],
-    location_type: input.location_type,
-    location_address: input.location_address,
-    location_city: input.location_city,
-    location_postcode: input.location_postcode,
     location_country: input.location_country || 'United Kingdom',
     timezone: input.timezone || 'Europe/London',
-    hourly_rate: input.hourly_rate,
     currency: input.currency || 'GBP',
-    pricing_packages: input.pricing_packages,
-    free_trial: input.free_trial || false,
-    trial_duration_minutes: input.trial_duration_minutes,
-    availability: input.availability,
+    free_trial: input.free_trial ?? false,
     images: input.images || [],
-    video_url: input.video_url,
     tags: input.tags || [],
     status: input.status || 'draft',
   };
