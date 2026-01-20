@@ -415,7 +415,8 @@ export interface Listing {
   subjects: string[];
   levels: string[];
   hourly_rate?: number;
-  location_type: 'online' | 'in_person' | 'hybrid';
+  location_type?: 'online' | 'in_person' | 'hybrid'; // DEPRECATED - use delivery_mode
+  delivery_mode?: string[]; // Migration 195: Replaces location_type - array of 'online' | 'in_person' | 'hybrid'
   location_city?: string;
   view_count: number;
   booking_count: number;

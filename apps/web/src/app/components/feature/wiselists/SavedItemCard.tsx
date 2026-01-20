@@ -122,7 +122,7 @@ export default function SavedItemCard({
     { label: 'Added By', value: addedBy },
     // Row 2 - Migration 106: Fallback to cached fields
     { label: 'Rate', value: listing?.hourly_rate ? `£${listing.hourly_rate}/hr` : 'N/A' },
-    { label: 'Type', value: listing?.location_type || 'N/A' },
+    { label: 'Type', value: listing?.delivery_mode?.[0] || 'N/A' },
     { label: 'Subject', value: listing?.subjects?.[0] || item.cached_subjects?.[0] || 'N/A' },
     // Row 3 - Migration 106: Show tutor name and deleted status
     { label: 'Level', value: listing?.levels?.[0] || 'N/A' },

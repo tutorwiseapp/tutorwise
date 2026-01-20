@@ -86,15 +86,13 @@ export default function AdminListingDetailModal({
         { label: 'Levels', value: listing.levels?.join(', ') || 'N/A' },
         { label: 'Hourly Rate', value: `£${listing.hourly_rate}/hr` },
         {
-          label: 'Location Type',
-          value: listing.location_type
-            ? listing.location_type === 'online'
-              ? 'Online'
-              : listing.location_type === 'in_person'
-              ? 'In Person'
-              : listing.location_type === 'hybrid'
-              ? 'Hybrid'
-              : listing.location_type
+          label: 'Delivery Mode',
+          value: listing.delivery_mode && listing.delivery_mode.length > 0
+            ? listing.delivery_mode.map((mode: string) =>
+                mode === 'online' ? 'Online' :
+                mode === 'in_person' ? 'In Person' :
+                mode === 'hybrid' ? 'Hybrid' : mode
+              ).join(', ')
             : 'N/A',
         },
         { label: 'Location City', value: listing.location_city || 'N/A' },
