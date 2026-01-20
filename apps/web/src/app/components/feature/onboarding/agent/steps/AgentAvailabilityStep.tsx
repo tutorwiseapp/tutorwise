@@ -331,7 +331,17 @@ const AgentAvailabilityStep: React.FC<AgentAvailabilityStepProps> = ({
       newErrors.dates = 'Please select an end date for recurring availability';
     }
 
-    if (startTime >= endTime) {
+    // Convert time strings to comparable values (handles AM/PM)
+    const parseTime = (timeStr: string) => {
+      const [time, period] = timeStr.split(' ');
+      const [hours, minutes] = time.split(':').map(Number);
+      let hour24 = hours;
+      if (period === 'PM' && hours !== 12) hour24 += 12;
+      if (period === 'AM' && hours === 12) hour24 = 0;
+      return hour24 * 60 + minutes;
+    };
+
+    if (startTime && endTime && parseTime(startTime) >= parseTime(endTime)) {
       newErrors.times = 'End time must be after start time';
     }
 
