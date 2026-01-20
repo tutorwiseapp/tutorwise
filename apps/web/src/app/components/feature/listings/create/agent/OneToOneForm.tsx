@@ -361,6 +361,7 @@ export default function OneToOneForm({ onSubmit, onCancel, isSaving = false, ini
         description: formData.description,
         session_duration: formData.session_duration,
         delivery_mode: formData.delivery_mode ? [formData.delivery_mode] : [],
+        hourly_rate: parseFloat(formData.hourly_rate_min), // Set to min for compatibility
         hourly_rate_min: parseFloat(formData.hourly_rate_min),
         hourly_rate_max: formData.hourly_rate_max ? parseFloat(formData.hourly_rate_max) : undefined,
         availability: availabilityPeriods,
