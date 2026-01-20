@@ -31,7 +31,7 @@ interface WorkshopFormProps {
 }
 
 type EditingField = 'title' | 'subjects' | 'levels' | 'description' | 'session_duration' |
-  'hourly_rate_min' | 'hourly_rate_max' | 'delivery_mode' | 'images' | 'max_participants' |
+  'hourly_rate' | 'delivery_mode' | 'images' | 'max_participants' |
   'workshop_date' | 'workshop_start_time' | 'workshop_end_time' | null;
 
 type FieldType = 'text' | 'select' | 'multiselect' | 'textarea' | 'number' | 'date' | 'time';
@@ -106,8 +106,7 @@ export default function WorkshopForm({ onSubmit, onCancel, isSaving = false, ini
     levels: (initialData.levels as string[]) || [],
     description: initialData.description || '',
     session_duration: '',
-    hourly_rate_min: initialData.hourly_rate_min?.toString() || '',
-    hourly_rate_max: initialData.hourly_rate_max?.toString() || '',
+    hourly_rate: initialData.hourly_rate?.toString() || '',
     delivery_mode: '',
     images: (initialData.images as string[]) || [],
     max_participants: (initialData as any).max_participants || '',
@@ -227,11 +226,8 @@ export default function WorkshopForm({ onSubmit, onCancel, isSaving = false, ini
     if (!formData.delivery_mode) {
       errors.push('Please select a delivery mode');
     }
-    if (!formData.hourly_rate_min || parseFloat(formData.hourly_rate_min) <= 0) {
+    if (!formData.hourly_rate || parseFloat(formData.hourly_rate) <= 0) {
       errors.push('Please enter a valid hourly rate');
-    }
-    if (formData.hourly_rate_max && parseFloat(formData.hourly_rate_max) < parseFloat(formData.hourly_rate_min)) {
-      errors.push('Maximum rate must be greater than minimum rate');
     }
     if (!formData.max_participants || parseFloat(formData.max_participants as string) <= 0) {
       errors.push('Please enter a valid maximum number of participants');
@@ -273,8 +269,7 @@ export default function WorkshopForm({ onSubmit, onCancel, isSaving = false, ini
         description: formData.description,
         session_duration: formData.session_duration,
         delivery_mode: formData.delivery_mode ? [formData.delivery_mode] : [],
-        hourly_rate_min: parseFloat(formData.hourly_rate_min),
-        hourly_rate_max: formData.hourly_rate_max ? parseFloat(formData.hourly_rate_max) : undefined,
+        hourly_rate: parseFloat(formData.hourly_rate),
         max_participants: parseFloat(formData.max_participants as string),
         workshop_date: formData.workshop_date,
         workshop_start_time: formData.workshop_start_time,
@@ -465,8 +460,7 @@ export default function WorkshopForm({ onSubmit, onCancel, isSaving = false, ini
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('hourly_rate_min', 'hourly_rate_min', 'Minimum Hourly Rate (£)', 'number', '£25', undefined, true)}
-          {renderField('hourly_rate_max', 'hourly_rate_max', 'Maximum Hourly Rate (£)', 'number', '£50 (optional)')}
+          {renderField('hourly_rate', 'hourly_rate', 'Hourly Rate (£)', 'number', '£25', undefined, true)}
         </HubForm.Grid>
 
         <HubForm.Grid columns={1}>

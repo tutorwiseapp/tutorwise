@@ -29,7 +29,7 @@ interface TutoringRequestFormProps {
 
 type EditingField = 'title' | 'description' | 'who_needs_tutoring' | 'subjects' | 'levels' |
   'preferred_experience_level' | 'session_type' | 'delivery_mode' |
-  'budget_one_on_one' | 'budget_group' | 'preferred_qualifications' | 'preferred_credentials' |
+  'hourly_rate' | 'preferred_qualifications' | 'preferred_credentials' |
   'preferred_teaching_background' | null;
 
 type FieldType = 'text' | 'select' | 'multiselect' | 'textarea' | 'number';
@@ -142,8 +142,7 @@ export default function TutoringRequestForm({
     preferred_experience_level: '',
     session_type: [] as string[],
     delivery_mode: [] as string[],
-    budget_one_on_one: initialData.hourly_rate_min?.toString() || '',
-    budget_group: initialData.hourly_rate_max?.toString() || '',
+    hourly_rate: initialData.hourly_rate?.toString() || '',
     preferred_qualifications: [] as string[],
     preferred_credentials: [] as string[],
     preferred_teaching_background: '',
@@ -217,11 +216,8 @@ export default function TutoringRequestForm({
     if (formData.delivery_mode.length === 0) {
       errors.push('Please select at least one delivery mode');
     }
-    if (!formData.budget_one_on_one || parseFloat(formData.budget_one_on_one) <= 0) {
-      errors.push('Please enter a valid budget for one-to-one sessions');
-    }
-    if (formData.budget_group && parseFloat(formData.budget_group) > parseFloat(formData.budget_one_on_one)) {
-      errors.push('Group budget should not exceed one-to-one budget');
+    if (!formData.hourly_rate || parseFloat(formData.hourly_rate) <= 0) {
+      errors.push('Please enter a valid hourly budget');
     }
 
     if (errors.length > 0) {
@@ -249,8 +245,7 @@ export default function TutoringRequestForm({
         preferred_experience_level: formData.preferred_experience_level,
         session_type: formData.session_type,
         delivery_mode: formData.delivery_mode,
-        hourly_rate_min: parseFloat(formData.budget_one_on_one),
-        hourly_rate_max: formData.budget_group ? parseFloat(formData.budget_group) : undefined,
+        hourly_rate: parseFloat(formData.hourly_rate),
         preferred_qualifications: formData.preferred_qualifications.length > 0 ? formData.preferred_qualifications : undefined,
         preferred_credentials: formData.preferred_credentials.length > 0 ? formData.preferred_credentials : undefined,
         preferred_teaching_background: formData.preferred_teaching_background || undefined,
@@ -401,8 +396,7 @@ export default function TutoringRequestForm({
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('budget_one_on_one', 'budget_one_on_one', 'Budget for One-to-One (£/hour)', 'number', '£50')}
-          {renderField('budget_group', 'budget_group', 'Budget for Group Sessions (£/hour)', 'number', '£25 (optional)')}
+          {renderField('hourly_rate', 'hourly_rate', 'Hourly Budget (£/hour)', 'number', '£50')}
         </HubForm.Grid>
       </HubForm.Section>
 

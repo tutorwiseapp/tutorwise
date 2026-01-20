@@ -31,7 +31,7 @@ interface OneToOneFormProps {
 }
 
 type EditingField = 'title' | 'subjects' | 'levels' | 'description' | 'session_duration' |
-  'hourly_rate_min' | 'hourly_rate_max' | 'delivery_mode' | 'images' | null;
+  'hourly_rate' | 'delivery_mode' | 'images' | null;
 
 type FieldType = 'text' | 'select' | 'multiselect' | 'textarea' | 'number';
 
@@ -119,8 +119,7 @@ export default function OneToOneForm({ onSubmit, onCancel, isSaving = false, ini
     levels: (initialData.levels as string[]) || [],
     description: initialData.description || '',
     session_duration: '',
-    hourly_rate_min: initialData.hourly_rate_min?.toString() || '',
-    hourly_rate_max: initialData.hourly_rate_max?.toString() || '',
+    hourly_rate: initialData.hourly_rate?.toString() || '',
     delivery_mode: '',
     images: (initialData.images as string[]) || [],
   });
@@ -328,11 +327,8 @@ export default function OneToOneForm({ onSubmit, onCancel, isSaving = false, ini
     if (!formData.delivery_mode || formData.delivery_mode === '') {
       errors.push('Please select a delivery mode');
     }
-    if (!formData.hourly_rate_min || parseFloat(formData.hourly_rate_min) <= 0) {
+    if (!formData.hourly_rate || parseFloat(formData.hourly_rate) <= 0) {
       errors.push('Please enter a valid hourly rate');
-    }
-    if (formData.hourly_rate_max && parseFloat(formData.hourly_rate_max) < parseFloat(formData.hourly_rate_min)) {
-      errors.push('Maximum rate must be greater than minimum rate');
     }
     if (availabilityPeriods.length === 0) {
       errors.push('Please add at least one availability period');
@@ -361,9 +357,7 @@ export default function OneToOneForm({ onSubmit, onCancel, isSaving = false, ini
         description: formData.description,
         session_duration: formData.session_duration,
         delivery_mode: formData.delivery_mode ? [formData.delivery_mode] : [],
-        hourly_rate: parseFloat(formData.hourly_rate_min), // Set to min for compatibility
-        hourly_rate_min: parseFloat(formData.hourly_rate_min),
-        hourly_rate_max: formData.hourly_rate_max ? parseFloat(formData.hourly_rate_max) : undefined,
+        hourly_rate: parseFloat(formData.hourly_rate),
         availability: availabilityPeriods,
         unavailability: unavailabilityPeriods,
         images: formData.images,
@@ -508,8 +502,7 @@ export default function OneToOneForm({ onSubmit, onCancel, isSaving = false, ini
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('hourly_rate_min', 'hourly_rate_min', 'Minimum Hourly Rate (£)', 'number', '£25')}
-          {renderField('hourly_rate_max', 'hourly_rate_max', 'Maximum Hourly Rate (£)', 'number', '£50 (optional)')}
+          {renderField('hourly_rate', 'hourly_rate', 'Hourly Rate (£)', 'number', '£25')}
         </HubForm.Grid>
       </HubForm.Section>
 
