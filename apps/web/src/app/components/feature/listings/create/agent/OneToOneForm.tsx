@@ -325,7 +325,7 @@ export default function OneToOneForm({ onSubmit, onCancel, isSaving = false, ini
     if (!formData.session_duration) {
       errors.push('Please select a session duration');
     }
-    if (!formData.delivery_mode) {
+    if (!formData.delivery_mode || formData.delivery_mode === '') {
       errors.push('Please select a delivery mode');
     }
     if (!formData.hourly_rate_min || parseFloat(formData.hourly_rate_min) <= 0) {
@@ -369,10 +369,12 @@ export default function OneToOneForm({ onSubmit, onCancel, isSaving = false, ini
         status: 'published',
       };
 
+      console.log('[OneToOneForm] Submitting listing data:', listingData);
       await onSubmit(listingData);
       localStorage.removeItem('one_to_one_draft');
     } catch (error) {
-      console.error('Failed to create listing:', error);
+      console.error('[OneToOneForm] Failed to create listing:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to create listing');
     } finally {
       setLocalIsSaving(false);
     }
