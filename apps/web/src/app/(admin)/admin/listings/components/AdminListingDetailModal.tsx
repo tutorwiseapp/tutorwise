@@ -240,7 +240,7 @@ export default function AdminListingDetailModal({
   };
 
   const handleEditListing = () => {
-    router.push(`/tutor/listings/${listing.id}/edit`);
+    router.push(`/edit-listing/${listing.id}`);
   };
 
   const handleContactTutor = () => {
