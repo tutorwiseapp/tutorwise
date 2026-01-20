@@ -23,9 +23,9 @@ export type JobType = 'full-time' | 'part-time' | 'contract' | 'one-off';
 
 /**
  * v4.0: New listing type system for multi-service platform
- * Supports: One-to-One, Group Session, Workshop/Webinar, Study Package
+ * Supports: One-to-One, Group Session, Workshop/Webinar, Study Package, Job Listing
  */
-export type ServiceType = 'one-to-one' | 'group-session' | 'workshop' | 'study-package';
+export type ServiceType = 'one-to-one' | 'group-session' | 'workshop' | 'study-package' | 'job-listing';
 export type PackageType = 'pdf' | 'video' | 'bundle';
 
 /**
@@ -196,6 +196,34 @@ export interface Listing {
   job_budget_min?: number; // Minimum budget
   job_budget_max?: number; // Maximum budget
 
+  // v5.1: Extended Job Listing Fields (Added 2026-01-20 for comprehensive job postings)
+  employment_type?: string;
+  contract_length?: string;
+  start_date?: string;
+  end_date?: string;
+  application_deadline?: string;
+  student_numbers?: string;
+  class_type?: string[];
+  delivery_mode?: string[];
+  work_location?: string;
+  hours_per_week?: string;
+  schedule_flexibility?: string;
+  timezone_requirements?: string;
+  compensation_type?: string;
+  compensation_min?: number;
+  compensation_max?: number;
+  benefits?: string[];
+  additional_benefits?: string;
+  minimum_qualifications?: string[];
+  teaching_credentials?: string[];
+  minimum_experience?: string;
+  dbs_check?: string;
+  other_requirements?: string;
+  how_to_apply?: string;
+  application_instructions?: string;
+  about_organisation?: string;
+  organisation_type?: string;
+
   // Timestamps
   created_at: string;
   updated_at: string;
@@ -330,6 +358,47 @@ export interface CreateListingInput {
 
   // Status
   status?: ListingStatus;
+
+  // Job Listing Fields (v5.1: Added 2026-01-20 for agent job postings)
+  // Section 1: Job Basics
+  employment_type?: string; // 'full-time', 'part-time', 'contract', 'freelance'
+  contract_length?: string; // 'permanent', 'fixed-3m', 'fixed-6m', 'fixed-1y', 'temporary'
+  start_date?: string; // ISO date string
+  end_date?: string; // ISO date string
+  application_deadline?: string; // ISO date string
+
+  // Section 2: Teaching Details (extends existing subjects/levels)
+  student_numbers?: string; // '1-5', '6-10', '11-20', '20+'
+  class_type?: string[]; // ['one-to-one', 'small-group', 'medium-group', 'large-group']
+
+  // Section 3: Location & Schedule
+  delivery_mode?: string[]; // ['online', 'in-person', 'hybrid']
+  work_location?: string; // Full location string
+  hours_per_week?: string; // 'under-10', '10-20', '20-30', '30-40', '40+'
+  schedule_flexibility?: string; // 'fixed', 'flexible', 'weekends', 'evenings'
+  timezone_requirements?: string; // Free-form text
+
+  // Section 4: Compensation & Benefits
+  compensation_type?: string; // 'hourly', 'annual', 'per-session', 'commission'
+  compensation_min?: number;
+  compensation_max?: number;
+  benefits?: string[]; // ['flexible-schedule', 'professional-dev', 'paid-training', etc.]
+  additional_benefits?: string;
+
+  // Section 5: Requirements & Qualifications
+  minimum_qualifications?: string[]; // ['university-degree', 'masters', 'phd', etc.]
+  teaching_credentials?: string[]; // ['qtls-qts', 'pgce', 'teaching-license', 'none']
+  minimum_experience?: string; // 'entry', 'junior', 'mid', 'senior', 'any'
+  dbs_check?: string; // 'required', 'assist', 'no'
+  other_requirements?: string;
+
+  // Section 6: Application Process
+  how_to_apply?: string; // 'tutorwise', 'network', 'organisation'
+  application_instructions?: string;
+
+  // Section 7: About Organisation
+  about_organisation?: string;
+  organisation_type?: string; // 'tutoring-agency', 'company', 'school', 'college', 'university', 'charity', 'other'
 }
 
 export interface UpdateListingInput extends Partial<CreateListingInput> {

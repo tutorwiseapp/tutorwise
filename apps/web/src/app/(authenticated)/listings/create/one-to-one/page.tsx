@@ -61,12 +61,17 @@ export default function CreateOneToOnePage() {
   }, [profile, activeRole]);
 
   // Prepare tabs data
-  const tabs: HubTab[] = [
+  const baseTabs: HubTab[] = [
     { id: 'one-to-one', label: 'One-to-One', active: pathname === '/listings/create/one-to-one' },
     { id: 'group-session', label: 'Group Session', active: pathname === '/listings/create/group-session' },
     { id: 'workshop', label: 'Workshop', active: pathname === '/listings/create/workshop' },
     { id: 'study-package', label: 'Study Package', active: pathname === '/listings/create/study-package' },
   ];
+
+  // Add Job Listing tab only for agents
+  const tabs: HubTab[] = activeRole === 'agent'
+    ? [...baseTabs, { id: 'job-listing', label: 'Job Listing', active: pathname === '/listings/create/job-listing' }]
+    : baseTabs;
 
   const handleTabChange = (tabId: string) => {
     router.push(`/listings/create/${tabId}`);

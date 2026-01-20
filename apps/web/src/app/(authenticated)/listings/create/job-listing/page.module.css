@@ -1,0 +1,15 @@
+/**
+ * Updated: 2026-01-19 - Migrated to Hub Layout Architecture
+ */
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: var(--color-text-secondary);
+}
+
+.content {
+  width: 100%;
+}

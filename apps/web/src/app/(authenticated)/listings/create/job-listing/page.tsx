@@ -1,7 +1,7 @@
 /**
- * Filename: study-package/page.tsx
- * Purpose: Study Package listing creation page
- * Updated: 2026-01-19 - Migrated to Hub Layout Architecture
+ * Filename: job-listing/page.tsx
+ * Purpose: Job listing creation page (agent recruiting tutors)
+ * Created: 2026-01-20 - Agent job posting feature
  */
 'use client';
 
@@ -20,50 +20,49 @@ import ListingsStatsWidget from '@/app/components/feature/listings/create/Listin
 import ListingsHelpWidget from '@/app/components/feature/listings/create/ListingsHelpWidget';
 import ListingsTipWidget from '@/app/components/feature/listings/create/ListingsTipWidget';
 import ListingsVideoWidget from '@/app/components/feature/listings/create/ListingsVideoWidget';
-import StudyPackageForm from '@/app/components/feature/listings/create/tutor/StudyPackageForm';
+import JobListingForm from '@/app/components/feature/listings/create/agent/JobListingForm';
 import styles from './page.module.css';
 
-export default function CreateStudyPackagePage() {
+export default function CreateJobListingPage() {
   const router = useRouter();
   const pathname = usePathname();
   const { user, activeRole, profile, isLoading: userLoading } = useUserProfile();
-  const { isAllowed, isLoading: roleLoading } = useRoleGuard(['tutor', 'agent']);
+  const { isAllowed, isLoading: roleLoading } = useRoleGuard(['agent']);
   const [isSaving, setIsSaving] = useState(false);
   const [initialData, setInitialData] = useState<Partial<CreateListingInput>>({});
 
-  // Pre-fill form from professional_details
+  // Pre-fill form from professional_details and organisation
   useEffect(() => {
     if (!profile?.professional_details || !activeRole) return;
 
     const prefillData: Partial<CreateListingInput> = {};
 
-    if (activeRole === 'tutor') {
-      const tutorData = profile.professional_details.tutor;
-      if (tutorData?.subjects) prefillData.subjects = tutorData.subjects as string[];
-    }
-
     if (activeRole === 'agent') {
       const agentData = profile.professional_details.agent;
-      if (agentData?.subject_specializations) {
-        prefillData.subjects = agentData.subject_specializations;
+      if (agentData) {
+        if (agentData.subject_specializations) {
+          prefillData.subjects = agentData.subject_specializations;
+        }
       }
     }
+
+    // TODO: Add organisation pre-fill when organisation context is available
+    // if (profile.organisation) {
+    //   prefillData.about_organisation = profile.organisation.description;
+    //   prefillData.organisation_type = profile.organisation.type;
+    // }
 
     setInitialData(prefillData);
   }, [profile, activeRole]);
 
-  // Prepare tabs data
-  const baseTabs: HubTab[] = [
+  // Prepare tabs data (only agent role has Job Listing tab)
+  const tabs: HubTab[] = [
     { id: 'one-to-one', label: 'One-to-One', active: pathname === '/listings/create/one-to-one' },
     { id: 'group-session', label: 'Group Session', active: pathname === '/listings/create/group-session' },
     { id: 'workshop', label: 'Workshop', active: pathname === '/listings/create/workshop' },
     { id: 'study-package', label: 'Study Package', active: pathname === '/listings/create/study-package' },
+    { id: 'job-listing', label: 'Job Listing', active: pathname === '/listings/create/job-listing' },
   ];
-
-  // Add Job Listing tab only for agents
-  const tabs: HubTab[] = activeRole === 'agent'
-    ? [...baseTabs, { id: 'job-listing', label: 'Job Listing', active: pathname === '/listings/create/job-listing' }]
-    : baseTabs;
 
   const handleTabChange = (tabId: string) => {
     router.push(`/listings/create/${tabId}`);
@@ -72,7 +71,7 @@ export default function CreateStudyPackagePage() {
   if (userLoading || roleLoading) {
     return (
       <HubPageLayout
-        header={<ListingsHeader title="Create Listing" subtitle="Set up your tutoring services" />}
+        header={<ListingsHeader title="Create Listing" subtitle="Post job opportunities for tutors" />}
         tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
         sidebar={
           <HubSidebar>
@@ -89,22 +88,24 @@ export default function CreateStudyPackagePage() {
   }
 
   if (!user) {
-    router.push('/login?redirect=/listings/create/study-package');
+    router.push('/login?redirect=/listings/create/job-listing');
     return null;
   }
 
-  if (!isAllowed) return null;
+  if (!isAllowed) {
+    return null;
+  }
 
   const handleSubmit = async (data: CreateListingInput) => {
     setIsSaving(true);
     try {
-      await createListing(data);
-      toast.success('Study package listing published successfully!');
-      localStorage.removeItem('study_package_draft');
+      const listing = await createListing(data);
+      toast.success('Job listing published successfully!');
+      localStorage.removeItem('job_listing_draft');
       router.push('/listings');
     } catch (error) {
-      console.error('Failed to create listing:', error);
-      toast.error('Failed to create listing. Please try again.');
+      console.error('Failed to create job listing:', error);
+      toast.error('Failed to create job listing. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -119,7 +120,7 @@ export default function CreateStudyPackagePage() {
       header={
         <ListingsHeader
           title="Create Listing"
-          subtitle="Set up your comprehensive study package or course"
+          subtitle="Post a job opportunity to recruit tutors"
         />
       }
       tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
@@ -133,7 +134,7 @@ export default function CreateStudyPackagePage() {
       }
     >
       <div className={styles.content}>
-        <StudyPackageForm
+        <JobListingForm
           onSubmit={handleSubmit}
           onCancel={handleCancel}
           isSaving={isSaving}
