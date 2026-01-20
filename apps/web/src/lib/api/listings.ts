@@ -102,15 +102,24 @@ export async function createListing(input: CreateListingInput): Promise<Listing>
   const supabase = createClient();
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    throw new Error('Not authenticated');
+  if (authError) {
+    console.error('[createListing] Auth error:', authError);
+    throw new Error(`Authentication failed: ${authError.message}`);
+  }
+  if (!user) {
+    console.error('[createListing] No user found');
+    throw new Error('Not authenticated - please log in');
   }
 
-  // Pass through ALL fields from input, adding only profile_id and defaults
+  console.log('[createListing] User authenticated:', user.id);
+
+  // Pass through ALL fields from input, but ensure profile_id and defaults are set correctly
+  // Note: Spread input first, then override critical fields to ensure they're not undefined
   const listingData = {
     ...input,
+    // Critical: Override profile_id to ensure it's never undefined
     profile_id: user.id,
-    // Apply defaults only if not provided
+    // Apply defaults only if not provided (use logical OR for falsy values except false itself)
     languages: input.languages || ['English'],
     location_country: input.location_country || 'United Kingdom',
     timezone: input.timezone || 'Europe/London',
@@ -121,13 +130,23 @@ export async function createListing(input: CreateListingInput): Promise<Listing>
     status: input.status || 'draft',
   };
 
+  console.log('[createListing] Inserting listing data:', {
+    ...listingData,
+    description: listingData.description?.substring(0, 50) + '...'
+  });
+
   const { data, error } = await supabase
     .from('listings')
     .insert(listingData)
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    console.error('[createListing] Database error:', error);
+    throw new Error(`Failed to create listing: ${error.message}`);
+  }
+
+  console.log('[createListing] Successfully created listing:', data.id);
   return data as Listing;
 }
 
