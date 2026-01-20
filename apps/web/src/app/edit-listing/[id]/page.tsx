@@ -14,7 +14,7 @@ export default function EditListingPage() {
   const router = useRouter();
   const params = useParams();
   const { user, isLoading: userLoading } = useUserProfile();
-  const { isAllowed, isLoading: roleLoading } = useRoleGuard(['tutor', 'agent', 'client']);
+  const { isAllowed, isLoading: roleLoading } = useRoleGuard(['tutor', 'agent', 'client', 'admin']);
   const [listing, setListing] = useState<Listing | null>(null);
   const [isListingLoading, setIsListingLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
