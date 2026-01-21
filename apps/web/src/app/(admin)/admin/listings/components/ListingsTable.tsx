@@ -227,6 +227,8 @@ export default function ListingsTable() {
       };
     },
     staleTime: ADMIN_TABLE_DEFAULTS.STALE_TIME,
+    refetchOnMount: 'always', // Always refetch when component mounts (ensures fresh data after deletions)
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
     retry: 2,
   });
 
