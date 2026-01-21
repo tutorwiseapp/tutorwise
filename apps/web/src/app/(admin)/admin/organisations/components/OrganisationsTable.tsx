@@ -567,7 +567,7 @@ export default function OrganisationsTable() {
                         }
 
                         try {
-                          const response = await fetch(`/api/admin/organisations/${org.id}/reset-trial`, {
+                          const response = await fetch(`/api/admin/org/${org.id}/reset-trial`, {
                             method: 'DELETE',
                           });
 
@@ -603,7 +603,7 @@ export default function OrganisationsTable() {
                         }
 
                         try {
-                          const response = await fetch(`/api/admin/organisations/${org.id}/force-activate`, {
+                          const response = await fetch(`/api/admin/org/${org.id}/force-activate`, {
                             method: 'POST',
                           });
 
@@ -639,7 +639,7 @@ export default function OrganisationsTable() {
                         }
 
                         try {
-                          const response = await fetch(`/api/admin/organisations/${org.id}/subscription`, {
+                          const response = await fetch(`/api/admin/org/${org.id}/subscription`, {
                             method: 'DELETE',
                           });
 

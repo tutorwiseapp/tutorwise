@@ -60,14 +60,14 @@ export function useOrganisationSettings({ currentTab }: UseOrganisationSettingsO
   // Redirect if not authorized
   useEffect(() => {
     if (!isLoading && organisation && !isOwner) {
-      router.push('/organisation');
+      router.push('/organisations');
     }
   }, [isLoading, organisation, isOwner, router]);
 
   // Redirect if no organisation found
   useEffect(() => {
     if (!isLoading && !organisation) {
-      router.push('/organisation');
+      router.push('/organisations');
     }
   }, [isLoading, organisation, router]);
 

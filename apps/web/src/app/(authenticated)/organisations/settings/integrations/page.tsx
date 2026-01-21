@@ -13,10 +13,10 @@ import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import Button from '@/app/components/ui/actions/Button';
 import { useOrganisationSettings } from '@/app/hooks/useOrganisationSettings';
-import OrganisationStatsWidget from '@/app/components/feature/organisation/sidebar/OrganisationStatsWidget';
-import OrganisationHelpWidget from '@/app/components/feature/organisation/sidebar/OrganisationHelpWidget';
-import OrganisationTipWidget from '@/app/components/feature/organisation/sidebar/OrganisationTipWidget';
-import OrganisationVideoWidget from '@/app/components/feature/organisation/sidebar/OrganisationVideoWidget';
+import OrganisationStatsWidget from '@/app/components/feature/organisations/sidebar/OrganisationStatsWidget';
+import OrganisationHelpWidget from '@/app/components/feature/organisations/sidebar/OrganisationHelpWidget';
+import OrganisationTipWidget from '@/app/components/feature/organisations/sidebar/OrganisationTipWidget';
+import OrganisationVideoWidget from '@/app/components/feature/organisations/sidebar/OrganisationVideoWidget';
 import styles from './page.module.css';
 
 interface Integration {

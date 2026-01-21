@@ -21,17 +21,17 @@ export const revalidate = 300; // 5 minutes
 import { notFound } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
 import { PublicPageShell } from '@/app/components/layout/PublicPageShell';
-import { OrganisationHeroSection } from '@/components/feature/public-organisation-profile/OrganisationHeroSection';
-import { OrganisationStatsCard } from '@/components/feature/public-organisation-profile/OrganisationStatsCard';
-import { TeamMembersCard } from '@/components/feature/public-organisation-profile/TeamMembersCard';
-import { AboutCard } from '@/components/feature/public-organisation-profile/AboutCard';
-import { ServicesCard } from '@/components/feature/public-organisation-profile/ServicesCard';
-import { ReviewsCard } from '@/components/feature/public-organisation-profile/ReviewsCard';
-import { VerificationCard } from '@/components/feature/public-organisation-profile/VerificationCard';
-import { GetInTouchCard } from '@/components/feature/public-organisation-profile/GetInTouchCard';
-import { OrganisationViewTracker } from '@/components/feature/public-organisation-profile/OrganisationViewTracker';
-import { SimilarOrganisationsCard } from '@/components/feature/public-organisation-profile/SimilarOrganisationsCard';
-import { MobileBottomCTA } from '@/components/feature/public-organisation-profile/MobileBottomCTA';
+import { OrganisationHeroSection } from '@/components/feature/public-org/OrganisationHeroSection';
+import { OrganisationStatsCard } from '@/components/feature/public-org/OrganisationStatsCard';
+import { TeamMembersCard } from '@/components/feature/public-org/TeamMembersCard';
+import { AboutCard } from '@/components/feature/public-org/AboutCard';
+import { ServicesCard } from '@/components/feature/public-org/ServicesCard';
+import { ReviewsCard } from '@/components/feature/public-org/ReviewsCard';
+import { VerificationCard } from '@/components/feature/public-org/VerificationCard';
+import { GetInTouchCard } from '@/components/feature/public-org/GetInTouchCard';
+import { OrganisationViewTracker } from '@/components/feature/public-org/OrganisationViewTracker';
+import { SimilarOrganisationsCard } from '@/components/feature/public-org/SimilarOrganisationsCard';
+import { MobileBottomCTA } from '@/components/feature/public-org/MobileBottomCTA';
 
 interface PublicOrganisationPageProps {
   params: {

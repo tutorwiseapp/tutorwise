@@ -168,7 +168,7 @@ export default function MobileMenu({ isOpen, onClose, isAdminMode, setIsAdminMod
 
               {/* Role-specific items */}
               {activeRole === 'agent' && (
-                <Link href="/organisation" className={styles.menuItem} onClick={handleLinkClick}>
+                <Link href="/organisations" className={styles.menuItem} onClick={handleLinkClick}>
                   Organisation
                 </Link>
               )}

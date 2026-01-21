@@ -107,7 +107,7 @@ export default function AppSidebar() {
       // For organisation links, only check if the 'tab' param matches
       // This keeps the link highlighted when on that tab, regardless of other params (like subtab)
       // This matches how Financials works - /financials stays highlighted on /financials/payouts
-      if (path === '/organisation' && expectedParams.has('tab')) {
+      if (path === '/organisations' && expectedParams.has('tab')) {
         return currentParams.get('tab') === expectedParams.get('tab');
       }
 

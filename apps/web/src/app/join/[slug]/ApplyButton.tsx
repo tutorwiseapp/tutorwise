@@ -9,7 +9,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserPlus } from 'lucide-react';
-import { JoinTeamModal } from '@/components/feature/public-organisation-profile/JoinTeamModal';
+import { JoinTeamModal } from '@/components/feature/public-org/JoinTeamModal';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
 

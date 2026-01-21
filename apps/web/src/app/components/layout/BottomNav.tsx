@@ -206,7 +206,7 @@ export default function BottomNav() {
            pathname?.startsWith('/listings') ||
            pathname?.startsWith('/marketplace') ||
            pathname?.startsWith('/reviews') ||
-           pathname?.startsWith('/organisation') ||
+           pathname?.startsWith('/organisations') ||
            pathname?.startsWith('/my-students');
   };
 

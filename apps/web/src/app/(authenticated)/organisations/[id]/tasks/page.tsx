@@ -299,13 +299,13 @@ export default function OrganisationTasksPage({
 
   // Redirect if not authorized
   if (!isLoading && organisation && !hasAccess) {
-    router.push('/organisation');
+    router.push('/organisations');
     return null;
   }
 
   // Redirect if no organisation found
   if (!isLoading && !organisation) {
-    router.push('/organisation');
+    router.push('/organisations');
     return null;
   }
 

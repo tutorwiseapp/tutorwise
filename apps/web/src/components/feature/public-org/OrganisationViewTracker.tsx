@@ -35,7 +35,7 @@ export function OrganisationViewTracker({ organisationId, referrerSource }: Orga
         }
 
         // Track the view
-        await fetch(`/api/organisations/${organisationId}/track-view`, {
+        await fetch(`/api/org/${organisationId}/track-view`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

@@ -11,25 +11,25 @@ import React, { useState, useMemo } from 'react';
 import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useRouter } from 'next/navigation';
-import { ReferralSettingsCard } from '@/components/feature/organisation/referrals/ReferralSettingsCard';
-import { TeamReferralLeaderboard } from '@/components/feature/organisation/referrals/TeamReferralLeaderboard';
-import { MemberReferralDashboard } from '@/components/feature/organisation/referrals/MemberReferralDashboard';
-import { PayoutExportCard } from '@/components/feature/organisation/referrals/PayoutExportCard';
-import { ReferralPipeline } from '@/components/feature/organisation/referrals/ReferralPipeline';
-import { ReferralAnalyticsDashboard } from '@/components/feature/organisation/referrals/ReferralAnalyticsDashboard';
-import { ReferralAchievements } from '@/components/feature/organisation/referrals/ReferralAchievements';
-import { MonthlyChallenges } from '@/components/feature/organisation/referrals/MonthlyChallenges';
-import { OrganisationReferralDetailModal } from '@/components/feature/organisation/referrals/OrganisationReferralDetailModal';
-import { CreateReferralModal } from '@/components/feature/organisation/referrals/CreateReferralModal';
+import { ReferralSettingsCard } from '@/components/feature/organisations/referrals/ReferralSettingsCard';
+import { TeamReferralLeaderboard } from '@/components/feature/organisations/referrals/TeamReferralLeaderboard';
+import { MemberReferralDashboard } from '@/components/feature/organisations/referrals/MemberReferralDashboard';
+import { PayoutExportCard } from '@/components/feature/organisations/referrals/PayoutExportCard';
+import { ReferralPipeline } from '@/components/feature/organisations/referrals/ReferralPipeline';
+import { ReferralAnalyticsDashboard } from '@/components/feature/organisations/referrals/ReferralAnalyticsDashboard';
+import { ReferralAchievements } from '@/components/feature/organisations/referrals/ReferralAchievements';
+import { MonthlyChallenges } from '@/components/feature/organisations/referrals/MonthlyChallenges';
+import { OrganisationReferralDetailModal } from '@/components/feature/organisations/referrals/OrganisationReferralDetailModal';
+import { CreateReferralModal } from '@/components/feature/organisations/referrals/CreateReferralModal';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import HubToolbar from '@/app/components/hub/toolbar/HubToolbar';
 import type { Filter } from '@/app/components/hub/toolbar/types';
-import ReferralStatsWidget from '@/app/components/feature/organisation/sidebar/ReferralStatsWidget';
-import ReferralHelpWidget from '@/app/components/feature/organisation/sidebar/ReferralHelpWidget';
-import ReferralTipWidget from '@/app/components/feature/organisation/sidebar/ReferralTipWidget';
+import ReferralStatsWidget from '@/app/components/feature/organisations/sidebar/ReferralStatsWidget';
+import ReferralHelpWidget from '@/app/components/feature/organisations/sidebar/ReferralHelpWidget';
+import ReferralTipWidget from '@/app/components/feature/organisations/sidebar/ReferralTipWidget';
 import { createClient } from '@/utils/supabase/client';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
@@ -278,13 +278,13 @@ export default function OrganisationReferralsPage({
 
   // Redirect if not authorized
   if (!isLoading && organisation && !isOwner && !isMember) {
-    router.push('/organisation');
+    router.push('/organisations');
     return null;
   }
 
   // Redirect if no organisation found
   if (!isLoading && !organisation) {
-    router.push('/organisation');
+    router.push('/organisations');
     return null;
   }
 

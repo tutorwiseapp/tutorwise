@@ -206,7 +206,7 @@ export default function OrganisationBrowseClient({
             return (
               <Link
                 key={org.id}
-                href={`/organisation/${org.slug}`}
+                href={`/org/${org.slug}`}
                 className={styles.card}
               >
                 {/* Logo */}
