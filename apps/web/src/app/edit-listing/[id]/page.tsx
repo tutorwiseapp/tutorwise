@@ -2,7 +2,8 @@
  * Filename: edit-listing/[id]/page.tsx
  * Purpose: Edit an existing listing using hub-based forms
  * Created: 2026-01-21
- * Architecture: Uses role-specific hub-based forms (tutor/agent)
+ * Updated: 2026-01-21 - Added Hub Layout for consistency with create pages
+ * Architecture: Uses role-specific hub-based forms (tutor/agent) within Hub Layout
  */
 
 'use client';
@@ -13,6 +14,13 @@ import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getListing, updateListing } from '@/lib/api/listings';
 import type { Listing, CreateListingInput } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
+import { HubPageLayout } from '@/app/components/hub/layout';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import ListingsHeader from '@/app/components/feature/listings/create/widgets/ListingsHeader';
+import ListingsStatsWidget from '@/app/components/feature/listings/create/widgets/ListingsStatsWidget';
+import ListingsHelpWidget from '@/app/components/feature/listings/create/widgets/ListingsHelpWidget';
+import ListingsTipWidget from '@/app/components/feature/listings/create/widgets/ListingsTipWidget';
+import ListingsVideoWidget from '@/app/components/feature/listings/create/widgets/ListingsVideoWidget';
 
 // Import role-specific form components
 import TutorOneToOneForm from '@/app/components/feature/listings/create/tutor/OneToOneForm';
@@ -230,9 +238,40 @@ export default function EditListingPage() {
     );
   };
 
+  // Hub Layout Widgets
+  const sidebarWidgets = (
+    <>
+      <ListingsStatsWidget />
+      <ListingsHelpWidget />
+      <ListingsTipWidget />
+      <ListingsVideoWidget />
+    </>
+  );
+
+  // Determine subtitle based on service type
+  const getSubtitle = () => {
+    switch (listing.service_type) {
+      case 'one-to-one':
+        return 'Update your one-to-one tutoring service details';
+      case 'group-session':
+        return 'Update your group session details';
+      case 'workshop':
+        return 'Update your workshop details';
+      case 'study-package':
+        return 'Update your study package details';
+      case 'job-listing':
+        return 'Update your job listing details';
+      default:
+        return 'Update your listing details';
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <HubPageLayout
+      header={<ListingsHeader title={listing.title} subtitle={getSubtitle()} showActions={false} />}
+      sidebar={<HubSidebar>{sidebarWidgets}</HubSidebar>}
+    >
       {renderForm()}
-    </div>
+    </HubPageLayout>
   );
 }
