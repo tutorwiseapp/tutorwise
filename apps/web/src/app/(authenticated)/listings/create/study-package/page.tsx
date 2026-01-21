@@ -15,11 +15,11 @@ import toast from 'react-hot-toast';
 import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import ListingsHeader from '@/app/components/feature/listings/create/ListingsHeader';
-import ListingsStatsWidget from '@/app/components/feature/listings/create/ListingsStatsWidget';
-import ListingsHelpWidget from '@/app/components/feature/listings/create/ListingsHelpWidget';
-import ListingsTipWidget from '@/app/components/feature/listings/create/ListingsTipWidget';
-import ListingsVideoWidget from '@/app/components/feature/listings/create/ListingsVideoWidget';
+import ListingsHeader from '@/app/components/feature/listings/create/widgets/ListingsHeader';
+import ListingsStatsWidget from '@/app/components/feature/listings/create/widgets/ListingsStatsWidget';
+import ListingsHelpWidget from '@/app/components/feature/listings/create/widgets/ListingsHelpWidget';
+import ListingsTipWidget from '@/app/components/feature/listings/create/widgets/ListingsTipWidget';
+import ListingsVideoWidget from '@/app/components/feature/listings/create/widgets/ListingsVideoWidget';
 import StudyPackageForm from '@/app/components/feature/listings/create/tutor/StudyPackageForm';
 import styles from './page.module.css';
 

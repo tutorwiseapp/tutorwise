@@ -13,29 +13,39 @@ describe('SearchFilters', () => {
     jest.clearAllMocks();
   });
 
-  describe('Location Type Filtering', () => {
-    it('should select location type', () => {
+  describe('Delivery Mode Filtering', () => {
+    it('should select delivery mode', () => {
       render(<SearchFilters filters={defaultFilters} onFilterChange={mockOnFilterChange} />);
-      const onlineRadio = screen.getByLabelText('Online');
-      fireEvent.click(onlineRadio);
-      expect(mockOnFilterChange).toHaveBeenCalledWith({ location_type: 'online' });
+      const onlineCheckbox = screen.getByLabelText('Online');
+      fireEvent.click(onlineCheckbox);
+      expect(mockOnFilterChange).toHaveBeenCalledWith({ delivery_modes: ['online'] });
     });
 
-    it('should display selected location type as checked', () => {
-      const filtersWithLocation: ListingFilters = { location_type: 'online' };
-      render(<SearchFilters filters={filtersWithLocation} onFilterChange={mockOnFilterChange} />);
-      const onlineRadio = screen.getByLabelText('Online') as HTMLInputElement;
-      expect(onlineRadio.checked).toBe(true);
+    it('should display selected delivery mode as checked', () => {
+      const filtersWithDeliveryMode: ListingFilters = { delivery_modes: ['online'] };
+      render(<SearchFilters filters={filtersWithDeliveryMode} onFilterChange={mockOnFilterChange} />);
+      const onlineCheckbox = screen.getByLabelText('Online') as HTMLInputElement;
+      expect(onlineCheckbox.checked).toBe(true);
     });
 
-    it('should not trigger change on re-click of selected radio (standard HTML behavior)', () => {
-      const filtersWithLocation: ListingFilters = { location_type: 'online' };
-      render(<SearchFilters filters={filtersWithLocation} onFilterChange={mockOnFilterChange} />);
-      const onlineRadio = screen.getByLabelText('Online');
+    it('should deselect a delivery mode when clicked again', () => {
+      const filtersWithDeliveryMode: ListingFilters = { delivery_modes: ['online'] };
+      render(<SearchFilters filters={filtersWithDeliveryMode} onFilterChange={mockOnFilterChange} />);
+      const onlineCheckbox = screen.getByLabelText('Online');
 
-      // Re-click: no call since already selected
-      fireEvent.click(onlineRadio);
-      expect(mockOnFilterChange).not.toHaveBeenCalled();
+      // Click again to deselect
+      fireEvent.click(onlineCheckbox);
+      expect(mockOnFilterChange).toHaveBeenCalledWith({ ...filtersWithDeliveryMode, delivery_modes: [] });
+    });
+
+    it('should allow selecting multiple delivery modes', () => {
+      const filtersWithOnline: ListingFilters = { delivery_modes: ['online'] };
+      render(<SearchFilters filters={filtersWithOnline} onFilterChange={mockOnFilterChange} />);
+      const inPersonCheckbox = screen.getByLabelText('In Person');
+
+      // Select second delivery mode
+      fireEvent.click(inPersonCheckbox);
+      expect(mockOnFilterChange).toHaveBeenCalledWith({ ...filtersWithOnline, delivery_modes: ['online', 'in_person'] });
     });
   });
 

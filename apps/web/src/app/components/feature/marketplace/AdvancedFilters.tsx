@@ -63,6 +63,15 @@ export default function AdvancedFilters({
     setLocalFilters({ ...localFilters, levels: newLevels });
   };
 
+  const handleDeliveryModeToggle = (mode: string) => {
+    const modes = localFilters.delivery_modes || [];
+    const newModes = modes.includes(mode)
+      ? modes.filter(m => m !== mode)
+      : [...modes, mode];
+
+    setLocalFilters({ ...localFilters, delivery_modes: newModes });
+  };
+
   if (!isOpen) return null;
 
   const activeFilterCount = Object.keys(localFilters).filter(key => {
@@ -115,49 +124,23 @@ export default function AdvancedFilters({
             </div>
           </div>
 
-          {/* Location Type */}
+          {/* Delivery Modes */}
           <div className={styles.filterSection}>
-            <h3 className={styles.sectionTitle}>Location Type</h3>
-            <div className={styles.radioGroup}>
-              <label className={styles.radioLabel}>
-                <input
-                  type="radio"
-                  name="location_type"
-                  checked={!localFilters.location_type}
-                  onChange={() => setLocalFilters({ ...localFilters, location_type: undefined })}
-                />
-                <span>Any</span>
-              </label>
-              <label className={styles.radioLabel}>
-                <input
-                  type="radio"
-                  name="location_type"
-                  value="online"
-                  checked={localFilters.location_type === 'online'}
-                  onChange={(e) => setLocalFilters({ ...localFilters, location_type: e.target.value as any })}
-                />
-                <span>Online</span>
-              </label>
-              <label className={styles.radioLabel}>
-                <input
-                  type="radio"
-                  name="location_type"
-                  value="in_person"
-                  checked={localFilters.location_type === 'in_person'}
-                  onChange={(e) => setLocalFilters({ ...localFilters, location_type: e.target.value as any })}
-                />
-                <span>In Person</span>
-              </label>
-              <label className={styles.radioLabel}>
-                <input
-                  type="radio"
-                  name="location_type"
-                  value="hybrid"
-                  checked={localFilters.location_type === 'hybrid'}
-                  onChange={(e) => setLocalFilters({ ...localFilters, location_type: e.target.value as any })}
-                />
-                <span>Hybrid</span>
-              </label>
+            <h3 className={styles.sectionTitle}>Teaching Location</h3>
+            <div className={styles.chipGrid}>
+              {[
+                { value: 'online', label: 'Online' },
+                { value: 'in_person', label: 'In Person' },
+                { value: 'hybrid', label: 'Hybrid' }
+              ].map(({ value, label }) => (
+                <button
+                  key={value}
+                  className={`${styles.chip} ${(localFilters.delivery_modes || []).includes(value) ? styles.active : ''}`}
+                  onClick={() => handleDeliveryModeToggle(value)}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
           </div>
 

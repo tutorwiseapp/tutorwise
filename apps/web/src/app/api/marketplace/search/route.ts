@@ -39,10 +39,10 @@ export async function GET(request: NextRequest) {
       filters.filters!.levels = levels.split(',').map(l => l.trim());
     }
 
-    // Location type filter
-    const locationType = searchParams.get('location_type');
-    if (locationType && ['online', 'in_person', 'hybrid'].includes(locationType)) {
-      filters.filters!.location_type = locationType as 'online' | 'in_person' | 'hybrid';
+    // Delivery modes filter
+    const deliveryModes = searchParams.get('delivery_modes');
+    if (deliveryModes) {
+      filters.filters!.delivery_modes = deliveryModes.split(',').map(m => m.trim());
     }
 
     // Location city filter
@@ -179,8 +179,8 @@ async function searchListingsSemantic(query: string, params: ListingSearchParams
       dbQuery = dbQuery.overlaps('levels', filters.levels);
     }
 
-    if (filters.location_type) {
-      dbQuery = dbQuery.eq('location_type', filters.location_type);
+    if (filters.delivery_modes && filters.delivery_modes.length > 0) {
+      dbQuery = dbQuery.overlaps('delivery_mode', filters.delivery_modes);
     }
 
     if (filters.location_city) {

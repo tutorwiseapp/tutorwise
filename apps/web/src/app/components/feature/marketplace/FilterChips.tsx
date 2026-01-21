@@ -6,7 +6,7 @@ import styles from './FilterChips.module.css';
 export interface FilterState {
   subjects: string[];
   levels: string[];
-  locationType: string | null;
+  deliveryModes: string[];
   priceRange: { min: number | null; max: number | null };
   freeTrialOnly: boolean;
 }
@@ -62,8 +62,11 @@ export default function FilterChips({ filters, onFilterChange }: FilterChipsProp
     onFilterChange({ ...filters, levels: newLevels });
   };
 
-  const setLocationType = (type: string | null) => {
-    onFilterChange({ ...filters, locationType: type });
+  const toggleDeliveryMode = (mode: string) => {
+    const newModes = filters.deliveryModes.includes(mode)
+      ? filters.deliveryModes.filter(m => m !== mode)
+      : [...filters.deliveryModes, mode];
+    onFilterChange({ ...filters, deliveryModes: newModes });
   };
 
   const toggleFreeTrial = () => {
@@ -74,7 +77,7 @@ export default function FilterChips({ filters, onFilterChange }: FilterChipsProp
     onFilterChange({
       subjects: [],
       levels: [],
-      locationType: null,
+      deliveryModes: [],
       priceRange: { min: null, max: null },
       freeTrialOnly: false,
     });
@@ -83,7 +86,7 @@ export default function FilterChips({ filters, onFilterChange }: FilterChipsProp
   const hasActiveFilters =
     filters.subjects.length > 0 ||
     filters.levels.length > 0 ||
-    filters.locationType !== null ||
+    filters.deliveryModes.length > 0 ||
     filters.freeTrialOnly;
 
   return (
@@ -151,33 +154,27 @@ export default function FilterChips({ filters, onFilterChange }: FilterChipsProp
           )}
         </div>
 
-        {/* Location Type Filter */}
+        {/* Delivery Modes Filter */}
         <div className={styles.filterGroup}>
           <button
-            className={`${styles.filterButton} ${filters.locationType ? styles.active : ''}`}
+            className={`${styles.filterButton} ${filters.deliveryModes.length > 0 ? styles.active : ''}`}
             onClick={() => setExpandedSection(expandedSection === 'location' ? null : 'location')}
           >
             Location
+            {filters.deliveryModes.length > 0 && (
+              <span className={styles.filterCount}>{filters.deliveryModes.length}</span>
+            )}
           </button>
 
           {expandedSection === 'location' && (
             <div className={styles.dropdown}>
               <div className={styles.dropdownContent}>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="radio"
-                    checked={filters.locationType === null}
-                    onChange={() => setLocationType(null)}
-                    className={styles.checkbox}
-                  />
-                  <span>All</span>
-                </label>
                 {LOCATION_TYPES.map(type => (
                   <label key={type.value} className={styles.checkboxLabel}>
                     <input
-                      type="radio"
-                      checked={filters.locationType === type.value}
-                      onChange={() => setLocationType(type.value)}
+                      type="checkbox"
+                      checked={filters.deliveryModes.includes(type.value)}
+                      onChange={() => toggleDeliveryMode(type.value)}
                       className={styles.checkbox}
                     />
                     <span>{type.label}</span>

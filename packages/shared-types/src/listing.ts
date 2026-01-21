@@ -118,6 +118,7 @@ export interface Listing {
   avatar_url?: string; // Profile picture URL from profiles table
   listing_type?: string; // @deprecated Use listing_category instead
   listing_category?: ListingCategory; // v5.0: Marketplace category (session, course, job)
+  service_type?: ServiceType; // v4.0: Service delivery model (one-to-one, group-session, workshop, study-package, job-listing)
   title: string; // Service title (e.g., "GCSE Maths Tutor")
   description: string;
   status: ListingStatus;
@@ -150,7 +151,7 @@ export interface Listing {
   location_details?: string;
 
   // Availability & Location
-  location_type: LocationType;
+  delivery_mode: string[]; // ['online', 'in_person', 'hybrid'] - Replaces deprecated location_type (Migration 195)
   location_address?: string;
   location_city?: string;
   location_postcode?: string;
@@ -204,7 +205,7 @@ export interface Listing {
   application_deadline?: string;
   student_numbers?: string;
   class_type?: string[];
-  delivery_mode?: string[];
+  // delivery_mode is defined above at line 154
   work_location?: string;
   hours_per_week?: string;
   schedule_flexibility?: string;
@@ -334,7 +335,7 @@ export interface CreateListingInput {
   trial_duration_minutes?: number;
 
   // Location (required)
-  location_type: LocationType;
+  delivery_mode: string[]; // Migration 195: Array of delivery modes ['online', 'in_person', 'hybrid']
   location_address?: string;
   location_city?: string;
   location_postcode?: string;
@@ -372,7 +373,7 @@ export interface CreateListingInput {
   class_type?: string[]; // ['one-to-one', 'small-group', 'medium-group', 'large-group']
 
   // Section 3: Location & Schedule
-  delivery_mode?: string[]; // ['online', 'in-person', 'hybrid']
+  // Note: delivery_mode is defined above at line 338 (applies to all listings including jobs)
   work_location?: string; // Full location string
   hours_per_week?: string; // 'under-10', '10-20', '20-30', '30-40', '40+'
   schedule_flexibility?: string; // 'fixed', 'flexible', 'weekends', 'evenings'
@@ -409,7 +410,7 @@ export interface ListingFilters {
   listing_category?: ListingCategory; // v5.0: Filter by category
   subjects?: string[];
   levels?: string[];
-  location_type?: LocationType;
+  delivery_modes?: string[]; // Migration 195: Array filter for delivery modes
   location_city?: string;
   min_price?: number;
   max_price?: number;

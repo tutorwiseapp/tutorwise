@@ -17,7 +17,7 @@
  * Features (Phase 2):
  * - Real-time updates (30s auto-refresh)
  * - Saved filter views
- * - Bulk actions (activate, deactivate, feature, delete)
+ * - Bulk actions (delete only)
  * - Advanced filters drawer
  * - Keyboard shortcuts
  *
@@ -480,17 +480,29 @@ export default function ListingsTable() {
                 className={styles.actionMenuItem}
                 onClick={(e) => {
                   e.stopPropagation();
-                  // Edit listing - navigate to edit page
-                  window.location.href = `/edit-listing/${listing.id}`;
+                  // Contact tutor - navigate to messages
+                  window.location.href = `/messages?userId=${listing.profile_id}`;
                 }}
               >
-                Edit Listing
+                Contact Tutor
               </button>
               <button
                 className={`${styles.actionMenuItem} ${styles.actionMenuItemDanger}`}
                 onClick={async (e) => {
                   e.stopPropagation();
                   if (confirm('Delete this listing? This action cannot be undone.')) {
+                    // Log admin action before deleting
+                    await supabase.rpc('log_admin_action', {
+                      p_action: 'delete',
+                      p_resource_type: 'listing',
+                      p_resource_id: listing.id,
+                      p_details: {
+                        action: 'delete',
+                        listing_title: listing.title,
+                        listing_owner_id: listing.profile_id,
+                      },
+                    });
+
                     const { error } = await supabase.from('listings').delete().eq('id', listing.id);
                     if (error) {
                       alert('Failed to delete listing');
@@ -555,57 +567,8 @@ export default function ListingsTable() {
     },
   ];
 
-  // Define bulk actions
+  // Define bulk actions (only delete allowed for admins)
   const bulkActions: BulkAction[] = [
-    {
-      value: 'activate',
-      label: 'Activate',
-      variant: 'primary',
-      onClick: async (selectedIds: string[]) => {
-        if (!confirm(`Activate ${selectedIds.length} listing(s)?`)) return;
-
-        const { error } = await supabase
-          .from('listings')
-          .update({
-            status: 'published',
-            published_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          })
-          .in('id', selectedIds);
-
-        if (error) {
-          alert('Failed to activate listings');
-        } else {
-          alert(`${selectedIds.length} listing(s) activated successfully`);
-          refetch();
-          setSelectedRows(new Set());
-        }
-      },
-    },
-    {
-      value: 'deactivate',
-      label: 'Deactivate',
-      variant: 'secondary',
-      onClick: async (selectedIds: string[]) => {
-        if (!confirm(`Deactivate ${selectedIds.length} listing(s)?`)) return;
-
-        const { error } = await supabase
-          .from('listings')
-          .update({
-            status: 'archived',
-            updated_at: new Date().toISOString(),
-          })
-          .in('id', selectedIds);
-
-        if (error) {
-          alert('Failed to deactivate listings');
-        } else {
-          alert(`${selectedIds.length} listing(s) deactivated successfully`);
-          refetch();
-          setSelectedRows(new Set());
-        }
-      },
-    },
     {
       value: 'delete',
       label: 'Delete',
@@ -617,6 +580,19 @@ export default function ListingsTable() {
           )
         )
           return;
+
+        // Log bulk admin action before deleting
+        for (const listingId of selectedIds) {
+          await supabase.rpc('log_admin_action', {
+            p_action: 'delete',
+            p_resource_type: 'listing',
+            p_resource_id: listingId,
+            p_details: {
+              action: 'bulk_delete',
+              bulk_count: selectedIds.length,
+            },
+          });
+        }
 
         const { error} = await supabase
           .from('listings')

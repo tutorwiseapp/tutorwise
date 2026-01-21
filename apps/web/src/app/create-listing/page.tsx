@@ -1,131 +1,194 @@
+/**
+ * Filename: create-listing/page.tsx
+ * Purpose: Create a new listing using hub-based forms
+ * Created: 2026-01-21
+ * Architecture: Uses role-specific hub-based forms (tutor/agent)
+ */
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { createListing } from '@/lib/api/listings';
 import type { CreateListingInput } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
-import CreateListingForm from '@/app/components/feature/listings/CreateListingForm';
-import styles from './page.module.css';
+
+// Import role-specific form components
+import TutorOneToOneForm from '@/app/components/feature/listings/create/tutor/OneToOneForm';
+import TutorGroupSessionForm from '@/app/components/feature/listings/create/tutor/GroupSessionForm';
+import TutorWorkshopForm from '@/app/components/feature/listings/create/tutor/WorkshopForm';
+import TutorStudyPackageForm from '@/app/components/feature/listings/create/tutor/StudyPackageForm';
+
+import AgentOneToOneForm from '@/app/components/feature/listings/create/agent/OneToOneForm';
+import AgentGroupSessionForm from '@/app/components/feature/listings/create/agent/GroupSessionForm';
+import AgentWorkshopForm from '@/app/components/feature/listings/create/agent/WorkshopForm';
+import AgentStudyPackageForm from '@/app/components/feature/listings/create/agent/StudyPackageForm';
+import AgentJobListingForm from '@/app/components/feature/listings/create/agent/JobListingForm';
+
+type ServiceType = 'one_to_one' | 'group' | 'workshop' | 'study_package' | 'job_listing';
 
 export default function CreateListingPage() {
   const router = useRouter();
-  const { user, activeRole, profile, isLoading: userLoading } = useUserProfile();
-  const { isAllowed, isLoading: roleLoading } = useRoleGuard(['tutor', 'agent', 'client']);
+  const { profile, activeRole, isLoading } = useUserProfile();
+  const [selectedServiceType, setSelectedServiceType] = useState<ServiceType | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [initialData, setInitialData] = useState<Partial<CreateListingInput>>({});
 
-  // Pre-fill form from professional_details - MUST be before conditional returns
-  useEffect(() => {
-    if (!profile?.professional_details || !activeRole) return;
-
-    const prefillData: Partial<CreateListingInput> = {};
-
-    // Pre-fill from professional_details.tutor (for provider role)
-    if (activeRole === 'tutor') {
-      const tutorData = profile.professional_details.tutor;
-      if (tutorData) {
-        if (tutorData.subjects) {
-          prefillData.subjects = tutorData.subjects as string[];
-        }
-        if (tutorData.hourly_rate && Array.isArray(tutorData.hourly_rate)) {
-          prefillData.hourly_rate_min = tutorData.hourly_rate[0];
-          prefillData.hourly_rate_max = tutorData.hourly_rate[1] || tutorData.hourly_rate[0];
-        }
-        if (tutorData.certifications) {
-          prefillData.academic_qualifications = tutorData.certifications;
-        }
-        if (tutorData.experience_level) {
-          prefillData.years_of_experience = tutorData.experience_level;
-        }
-        if (tutorData.teaching_style) {
-          prefillData.teaching_methods = tutorData.teaching_style;
-        }
-      }
-    }
-
-    // Pre-fill from professional_details.agent (for agent role)
-    if (activeRole === 'agent') {
-      const agentData = profile.professional_details.agent;
-      if (agentData) {
-        if (agentData.subject_specializations) {
-          prefillData.subjects = agentData.subject_specializations;
-        }
-        if (agentData.description) {
-          prefillData.description = agentData.description;
-        }
-      }
-    }
-
-    // Pre-fill from professional_details.client (for client role)
-    if (activeRole === 'client') {
-      const clientData = profile.professional_details.client;
-      if (clientData) {
-        if (clientData.subjects) {
-          prefillData.subjects = clientData.subjects;
-        }
-      }
-    }
-
-    setInitialData(prefillData);
-  }, [profile, activeRole]);
-
-  // Show loading while checking auth and role
-  if (userLoading || roleLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Redirect if not logged in
-  if (!user) {
-    router.push('/login?redirect=/listings/create');
-    return null;
-  }
-
-  // Role guard handles redirect automatically
-  if (!isAllowed) {
-    return null;
-  }
-
+  // Handle form submission
   const handleSubmit = async (data: CreateListingInput) => {
     setIsSaving(true);
     try {
       const listing = await createListing(data);
-      toast.success('Listing published successfully!');
-
-      // Clear draft from localStorage on successful creation
-      localStorage.removeItem('listing_draft');
-
-      // Redirect to My Listings page after successful publish
-      router.push('/listings');
-    } catch (error) {
-      console.error('Failed to create listing:', error);
-      toast.error('Failed to create listing. Please try again.');
+      toast.success('Listing created successfully!');
+      router.push(`/dashboard`);
+    } catch (error: any) {
+      console.error('Error creating listing:', error);
+      toast.error(error.message || 'Failed to create listing');
     } finally {
       setIsSaving(false);
     }
   };
 
+  // Handle cancel
   const handleCancel = () => {
-    router.push('/listings');
+    router.back();
+  };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if user has permission
+  if (!profile || (activeRole !== 'tutor' && activeRole !== 'agent')) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
+          <p className="text-gray-600 mb-6">
+            Only tutors and agents can create listings. Please switch to a tutor or agent role.
+          </p>
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Service type selection screen
+  if (!selectedServiceType) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-12">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Create a New Listing</h1>
+            <p className="text-gray-600">Choose the type of service you want to offer</p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <ServiceTypeCard
+              title="One-to-One Tutoring"
+              description="Individual tutoring sessions tailored to each student"
+              onClick={() => setSelectedServiceType('one_to_one')}
+            />
+            <ServiceTypeCard
+              title="Group Sessions"
+              description="Teach multiple students together in small groups"
+              onClick={() => setSelectedServiceType('group')}
+            />
+            <ServiceTypeCard
+              title="Workshops"
+              description="Structured learning experiences on specific topics"
+              onClick={() => setSelectedServiceType('workshop')}
+            />
+            <ServiceTypeCard
+              title="Study Packages"
+              description="Pre-designed course packages for students"
+              onClick={() => setSelectedServiceType('study_package')}
+            />
+            {activeRole === 'agent' && (
+              <ServiceTypeCard
+                title="Job Listing"
+                description="Post a job opportunity for tutors"
+                onClick={() => setSelectedServiceType('job_listing')}
+              />
+            )}
+          </div>
+
+          <div className="mt-8 text-center">
+            <button
+              onClick={handleCancel}
+              className="text-gray-600 hover:text-gray-900 underline"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Render the appropriate form based on role and service type
+  const renderForm = () => {
+    if (activeRole === 'tutor') {
+      switch (selectedServiceType) {
+        case 'one_to_one':
+          return <TutorOneToOneForm onSubmit={handleSubmit} onCancel={handleCancel} isSaving={isSaving} />;
+        case 'group':
+          return <TutorGroupSessionForm onSubmit={handleSubmit} onCancel={handleCancel} isSaving={isSaving} />;
+        case 'workshop':
+          return <TutorWorkshopForm onSubmit={handleSubmit} onCancel={handleCancel} isSaving={isSaving} />;
+        case 'study_package':
+          return <TutorStudyPackageForm onSubmit={handleSubmit} onCancel={handleCancel} isSaving={isSaving} />;
+        default:
+          return null;
+      }
+    } else if (activeRole === 'agent') {
+      switch (selectedServiceType) {
+        case 'one_to_one':
+          return <AgentOneToOneForm onSubmit={handleSubmit} onCancel={handleCancel} isSaving={isSaving} />;
+        case 'group':
+          return <AgentGroupSessionForm onSubmit={handleSubmit} onCancel={handleCancel} isSaving={isSaving} />;
+        case 'workshop':
+          return <AgentWorkshopForm onSubmit={handleSubmit} onCancel={handleCancel} isSaving={isSaving} />;
+        case 'study_package':
+          return <AgentStudyPackageForm onSubmit={handleSubmit} onCancel={handleCancel} isSaving={isSaving} />;
+        case 'job_listing':
+          return <AgentJobListingForm onSubmit={handleSubmit} onCancel={handleCancel} isSaving={isSaving} />;
+        default:
+          return null;
+      }
+    }
+    return null;
   };
 
   return (
-    <div className={styles.listingPage}>
-      <CreateListingForm
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-        isSaving={isSaving}
-        initialData={initialData}
-      />
+    <div className="min-h-screen bg-gray-50">
+      {renderForm()}
     </div>
+  );
+}
+
+// Service type card component
+function ServiceTypeCard({ title, description, onClick }: { title: string; description: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:border-blue-500 hover:shadow-md transition-all text-left"
+    >
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
+      <p className="text-sm text-gray-600">{description}</p>
+    </button>
   );
 }

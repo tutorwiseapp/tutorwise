@@ -415,8 +415,7 @@ export interface Listing {
   subjects: string[];
   levels: string[];
   hourly_rate?: number;
-  location_type?: 'online' | 'in_person' | 'hybrid'; // DEPRECATED - use delivery_mode
-  delivery_mode?: string[]; // Migration 195: Replaces location_type - array of 'online' | 'in_person' | 'hybrid'
+  delivery_mode: string[]; // Migration 195: Array of 'online' | 'in_person' | 'hybrid' (replaces deprecated location_type)
   location_city?: string;
   view_count: number;
   booking_count: number;
@@ -442,7 +441,7 @@ export interface ListingFilters {
   levels?: string[];
   min_price?: number;
   max_price?: number;
-  location_type?: 'online' | 'in_person' | 'hybrid';
+  delivery_modes?: string[]; // Filter by delivery modes (online, in_person, hybrid)
   location_city?: string;
   free_trial_only?: boolean;
   min_rating?: number;

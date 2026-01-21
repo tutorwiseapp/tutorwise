@@ -26,7 +26,7 @@ export interface SavedSearch {
 export interface SearchFilters {
   subjects?: string[];
   levels?: string[];
-  location_type?: 'online' | 'in_person' | 'hybrid';
+  delivery_modes?: string[]; // Migration 195: Array of delivery modes
   location_city?: string;
   min_price?: number;
   max_price?: number;
@@ -151,8 +151,8 @@ export async function executeSavedSearch(
     query = query.contains('levels', filters.levels);
   }
 
-  if (filters.location_type) {
-    query = query.eq('location_type', filters.location_type);
+  if (filters.delivery_modes && filters.delivery_modes.length > 0) {
+    query = query.overlaps('delivery_mode', filters.delivery_modes);
   }
 
   if (filters.location_city) {
@@ -207,8 +207,8 @@ export async function checkForNewMatches(
     query = query.contains('levels', filters.levels);
   }
 
-  if (filters.location_type) {
-    query = query.eq('location_type', filters.location_type);
+  if (filters.delivery_modes && filters.delivery_modes.length > 0) {
+    query = query.overlaps('delivery_mode', filters.delivery_modes);
   }
 
   if (filters.location_city) {

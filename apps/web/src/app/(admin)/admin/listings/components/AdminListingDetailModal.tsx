@@ -2,14 +2,14 @@
  * Filename: AdminListingDetailModal.tsx
  * Purpose: Admin-specific listing detail modal with full information and admin actions
  * Created: 2025-12-27
+ * Updated: 2026-01-21 - Removed edit and status change capabilities (admin can only view, contact, delete)
  * Pattern: Uses HubDetailModal with admin-specific sections and actions (mirrors AdminBookingDetailModal)
  *
  * Features:
  * - Complete listing information (50+ fields from listings table)
- * - Admin-specific actions (Activate, Deactivate, Feature, Edit, Contact, Delete, Change Status)
+ * - Admin-specific actions (Contact Tutor, Delete)
  * - Engagement metrics (views, bookings, ratings)
  * - Service details and media information
- * - Radix UI DropdownMenu for Change Status action
  *
  * Usage:
  * <AdminListingDetailModal
@@ -29,8 +29,7 @@ import { HubDetailModal } from '@/app/components/hub/modal';
 import type { DetailSection } from '@/app/components/hub/modal';
 import Button from '@/app/components/ui/actions/Button';
 import { createClient } from '@/utils/supabase/client';
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { CheckCircle, XCircle, Edit, MessageSquare, Trash2, Settings } from 'lucide-react';
+import { MessageSquare, Trash2 } from 'lucide-react';
 import styles from './AdminListingDetailModal.module.css';
 
 interface AdminListingDetailModalProps {
@@ -128,98 +127,25 @@ export default function AdminListingDetailModal({
   ];
 
   // Action Handlers
-  const handleActivate = async () => {
-    if (!confirm('Activate this listing?')) return;
-
-    setIsProcessing(true);
-    try {
-      const { error } = await supabase
-        .from('listings')
-        .update({
-          status: 'published',
-          published_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', listing.id);
-
-      if (error) throw error;
-
-      alert('Listing activated successfully!');
-      onListingUpdated?.();
-      onClose();
-    } catch (error) {
-      alert('Failed to activate listing. Please try again.');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleDeactivate = async () => {
-    if (!confirm('Deactivate this listing?')) return;
-
-    setIsProcessing(true);
-    try {
-      const { error } = await supabase
-        .from('listings')
-        .update({
-          status: 'archived',
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', listing.id);
-
-      if (error) throw error;
-
-      alert('Listing deactivated successfully!');
-      onListingUpdated?.();
-      onClose();
-    } catch (error) {
-      alert('Failed to deactivate listing. Please try again.');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-
-  const handleChangeStatus = async (newStatus: string) => {
-    if (isProcessing) return;
-
-    if (!confirm(`Change listing status to "${newStatus}"?`)) {
-      return;
-    }
-
-    setIsProcessing(true);
-    try {
-      const updateData: Record<string, any> = {
-        status: newStatus,
-        updated_at: new Date().toISOString(),
-      };
-
-      if (newStatus === 'published') {
-        updateData.published_at = new Date().toISOString();
-      }
-
-      const { error } = await supabase
-        .from('listings')
-        .update(updateData)
-        .eq('id', listing.id);
-
-      if (error) throw error;
-
-      alert(`Listing status changed to ${newStatus} successfully!`);
-      onListingUpdated?.();
-      onClose();
-    } catch (error) {
-      alert('Failed to change listing status. Please try again.');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
 
   const handleDelete = async () => {
     if (!confirm('Delete this listing? This action cannot be undone.')) return;
 
     setIsProcessing(true);
     try {
+      // Log admin action before deleting
+      await supabase.rpc('log_admin_action', {
+        p_action: 'delete',
+        p_resource_type: 'listing',
+        p_resource_id: listing.id,
+        p_details: {
+          action: 'delete',
+          listing_title: listing.title,
+          listing_owner_id: listing.profile_id,
+          listing_status: listing.status,
+        },
+      });
+
       const { error } = await supabase
         .from('listings')
         .delete()
@@ -237,10 +163,6 @@ export default function AdminListingDetailModal({
     }
   };
 
-  const handleEditListing = () => {
-    router.push(`/edit-listing/${listing.id}`);
-  };
-
   const handleContactTutor = () => {
     router.push(`/messages?userId=${listing.profile_id}`);
   };
@@ -255,62 +177,11 @@ export default function AdminListingDetailModal({
       sections={sections}
       actions={
         <div className={styles.actionsWrapper}>
-          {/* Activate/Deactivate */}
-          {listing.status === 'published' ? (
-            <Button variant="secondary" onClick={handleDeactivate} disabled={isProcessing}>
-              <XCircle className={styles.buttonIcon} />
-              Deactivate
-            </Button>
-          ) : (
-            <Button variant="primary" onClick={handleActivate} disabled={isProcessing}>
-              <CheckCircle className={styles.buttonIcon} />
-              Activate
-            </Button>
-          )}
-
-          {/* Edit Listing */}
-          <Button variant="secondary" onClick={handleEditListing}>
-            <Edit className={styles.buttonIcon} />
-            Edit Listing
-          </Button>
-
           {/* Contact Tutor */}
           <Button variant="secondary" onClick={handleContactTutor}>
             <MessageSquare className={styles.buttonIcon} />
             Contact Tutor
           </Button>
-
-          {/* Change Status Dropdown (Radix UI) */}
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger asChild>
-              <Button variant="secondary" disabled={isProcessing}>
-                <Settings className={styles.buttonIcon} />
-                Change Status
-              </Button>
-            </DropdownMenu.Trigger>
-
-            <DropdownMenu.Portal>
-              <DropdownMenu.Content
-                className={styles.statusDropdownContent}
-                sideOffset={5}
-                align="start"
-              >
-                {['draft', 'published', 'archived'].map((status) => (
-                  <DropdownMenu.Item
-                    key={status}
-                    className={styles.statusDropdownItem}
-                    disabled={listing.status === status || isProcessing}
-                    onSelect={() => handleChangeStatus(status)}
-                  >
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                    {listing.status === status && (
-                      <span className={styles.currentStatusBadge}>(Current)</span>
-                    )}
-                  </DropdownMenu.Item>
-                ))}
-              </DropdownMenu.Content>
-            </DropdownMenu.Portal>
-          </DropdownMenu.Root>
 
           {/* Delete */}
           <Button variant="danger" onClick={handleDelete} disabled={isProcessing}>

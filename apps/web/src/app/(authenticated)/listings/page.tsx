@@ -23,12 +23,12 @@ import styles from './page.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 import ListingCard from './ListingCard';
-import ListingStatsWidget from '@/app/components/feature/listings/ListingStatsWidget';
-import ListingHelpWidget from '@/app/components/feature/listings/ListingHelpWidget';
-import ListingTipWidget from '@/app/components/feature/listings/ListingTipWidget';
-import ListingVideoWidget from '@/app/components/feature/listings/ListingVideoWidget';
-import ListingsSkeleton from '@/app/components/feature/listings/ListingsSkeleton';
-import ListingsError from '@/app/components/feature/listings/ListingsError';
+import ListingStatsWidget from '@/app/components/feature/listings/widgets/ListingStatsWidget';
+import ListingHelpWidget from '@/app/components/feature/listings/widgets/ListingHelpWidget';
+import ListingTipWidget from '@/app/components/feature/listings/widgets/ListingTipWidget';
+import ListingVideoWidget from '@/app/components/feature/listings/widgets/ListingVideoWidget';
+import ListingsSkeleton from '@/app/components/feature/listings/widgets/ListingsSkeleton';
+import ListingsError from '@/app/components/feature/listings/widgets/ListingsError';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import Button from '@/app/components/ui/actions/Button';
 
@@ -182,7 +182,7 @@ export default function ListingsPage() {
       const teachingMethods = listing.teaching_methods?.join(' ').toLowerCase() || '';
       const qualifications = listing.qualifications?.join(' ').toLowerCase() || '';
       const locationCity = listing.location_city?.toLowerCase() || '';
-      const locationType = listing.location_type?.toLowerCase() || '';
+      const deliveryModes = listing.delivery_mode?.join(' ').toLowerCase() || '';
       const fullName = listing.full_name?.toLowerCase() || '';
 
       return title.includes(query) ||
@@ -194,7 +194,7 @@ export default function ListingsPage() {
              teachingMethods.includes(query) ||
              qualifications.includes(query) ||
              locationCity.includes(query) ||
-             locationType.includes(query) ||
+             deliveryModes.includes(query) ||
              fullName.includes(query);
     });
   }, [filteredByTab, searchQuery]);

@@ -252,6 +252,7 @@ CAS will apply 8 agent perspectives:
 - **[ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md)** - Admin dashboard architecture (11 hubs)
 - **[SHARED-FIELDS.md](.ai/SHARED-FIELDS.md)** - Shared fields system (23 fields, 106 mappings, 9 contexts)
 - **[ONBOARDING.md](.ai/ONBOARDING.md)** - Onboarding system (page-based, 3 roles × 5 steps)
+- **[TUTORWISE.md](.ai/TUTORWISE.md)** - STRATEGIC PURPOSE AND CORE VALUES / PRINCIPLES FOR RESOLVING CHALLENGES AND ISSUES WE ENCOUNTER IN THE FUTURE
 
 ### 🚀 Getting Started
 - **[QUICK-START.md](.ai/QUICK-START.md)** - ⚡ Get running in 5 minutes (NEW)

@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         dbs_verified,
         available_free_help,
         profile_completed,
-        listings!listings_profile_id_fkey(id, status, subjects, levels, location_type, hourly_rate),
+        listings!listings_profile_id_fkey(id, status, subjects, levels, delivery_mode, hourly_rate),
         role_details!role_details_profile_id_fkey!left(role_type, subjects, hourly_rate, qualifications, availability)
       `, { count: 'exact' })
       .contains('roles', ['tutor'])
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Transform and aggregate subjects/levels/location_types/prices
+    // Transform and aggregate subjects/levels/delivery_modes/prices
     // STRATEGY: Use role_details as primary source, listings as supplementary
     // This ensures tutors appear in marketplace even without published listings
     const profiles: TutorProfile[] = (data || []).map((profile: any) => {
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
       // Start with role_details as base (strategic default)
       const allSubjects = new Set<string>(tutorRoleDetails?.subjects || []);
       const allLevels = new Set<string>();
-      const allLocationTypes = new Set<string>();
+      const allDeliveryModes = new Set<string>();
       const hourlyRates: number[] = [];
 
       // Add base hourly rate from role_details
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
       publishedListings.forEach((listing: any) => {
         listing.subjects?.forEach((subject: string) => allSubjects.add(subject));
         listing.levels?.forEach((level: string) => allLevels.add(level));
-        if (listing.location_type) allLocationTypes.add(listing.location_type);
+        listing.delivery_mode?.forEach((mode: string) => allDeliveryModes.add(mode));
         if (listing.hourly_rate) hourlyRates.push(listing.hourly_rate);
       });
 
@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
         listing_count: publishedListings.length,
         subjects: Array.from(allSubjects),
         levels: Array.from(allLevels),
-        location_types: Array.from(allLocationTypes),
+        location_types: Array.from(allDeliveryModes),
         min_hourly_rate: hourlyRates.length > 0 ? Math.min(...hourlyRates) : undefined,
         max_hourly_rate: hourlyRates.length > 0 ? Math.max(...hourlyRates) : undefined,
         // TODO: Get actual ratings from reviews - using 0 until implemented

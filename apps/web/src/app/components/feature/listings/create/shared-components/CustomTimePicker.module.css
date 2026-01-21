@@ -3,6 +3,31 @@
   width: 100%;
 }
 
+.formLabel {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1f2937);
+  margin-bottom: 0.5rem;
+}
+
+.formInput {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border, #dfe1e5);
+  border-radius: 8px;
+  font-size: 1rem;
+  color: var(--color-text-primary, #1f2937);
+  background-color: white;
+  transition: all 0.2s;
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: var(--color-primary, #0f766e);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+}
+
 .inputWrapper {
   position: relative;
 }

@@ -73,8 +73,8 @@ export async function searchMarketplace(filters: SearchFilters): Promise<SearchR
   if (filters.levels) {
     params.append('levels', filters.levels.join(','));
   }
-  if (filters.location_type) {
-    params.append('location_type', filters.location_type);
+  if (filters.delivery_modes && filters.delivery_modes.length > 0) {
+    params.append('delivery_modes', filters.delivery_modes.join(','));
   }
   if (filters.location_city) {
     params.append('location_city', filters.location_city);
@@ -144,8 +144,8 @@ export async function searchMarketplaceWithPagination(
   if (filters.levels) {
     params.append('levels', filters.levels.join(','));
   }
-  if (filters.location_type) {
-    params.append('location_type', filters.location_type);
+  if (filters.delivery_modes && filters.delivery_modes.length > 0) {
+    params.append('delivery_modes', filters.delivery_modes.join(','));
   }
   if (filters.location_city) {
     params.append('location_city', filters.location_city);

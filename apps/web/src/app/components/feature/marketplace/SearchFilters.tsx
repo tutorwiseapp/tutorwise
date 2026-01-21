@@ -59,11 +59,12 @@ export default function SearchFilters({ filters, onFilterChange }: SearchFilters
     onFilterChange({ ...filters, levels: newLevels });
   };
 
-  const toggleLocationType = (locationType: string) => {
-    onFilterChange({
-      ...filters,
-      location_type: filters.location_type === locationType ? undefined : locationType as any,
-    });
+  const toggleDeliveryMode = (mode: string) => {
+    const currentModes = filters.delivery_modes || [];
+    const newModes = currentModes.includes(mode)
+      ? currentModes.filter((m) => m !== mode)
+      : [...currentModes, mode];
+    onFilterChange({ ...filters, delivery_modes: newModes });
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -141,18 +142,17 @@ export default function SearchFilters({ filters, onFilterChange }: SearchFilters
         </div>
       </div>
 
-      {/* Location Type */}
+      {/* Delivery Modes */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Teaching Location</label>
         <div className="space-y-2">
           {LOCATION_TYPES.map(({ value, label }) => (
             <label key={value} className="flex items-center">
               <input
-                type="radio"
-                name="location_type"
-                checked={filters.location_type === value}
-                onChange={() => toggleLocationType(value)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                type="checkbox"
+                checked={filters.delivery_modes?.includes(value) || false}
+                onChange={() => toggleDeliveryMode(value)}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
               <span className="ml-2 text-sm text-gray-700">{label}</span>
             </label>

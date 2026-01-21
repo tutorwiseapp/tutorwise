@@ -7,7 +7,7 @@
  */
 
 import { useState, useRef } from 'react';
-import ImageUpload, { ImageUploadRef } from '@/app/components/feature/listings/ImageUpload';
+import ImageUpload, { ImageUploadRef } from '@/app/components/feature/listings/create/shared-components/ImageUpload';
 import styles from '../shared/FormSections.module.css';
 
 interface ImagesSectionProps {

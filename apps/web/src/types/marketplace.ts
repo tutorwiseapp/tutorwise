@@ -20,7 +20,7 @@ export interface TutorProfile {
   review_count?: number;
   subjects?: string[]; // Primary subjects taught (from listings)
   levels?: string[]; // Primary levels taught (from listings)
-  location_types?: string[]; // Delivery modes (online, in_person, hybrid)
+  delivery_modes?: string[]; // Delivery modes (online, in_person, hybrid)
   min_hourly_rate?: number; // Minimum price across all listings
   max_hourly_rate?: number; // Maximum price across all listings
 }

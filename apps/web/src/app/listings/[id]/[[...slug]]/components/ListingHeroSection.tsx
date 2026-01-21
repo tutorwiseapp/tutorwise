@@ -252,12 +252,12 @@ export default function ListingHeroSection({ listing, tutorProfile, tutorStats, 
               <MapPin size={16} className={styles.locationIcon} />
               {listing.location_city
                 ? `${listing.location_city}${listing.location_country ? `, ${listing.location_country}` : ''}`
-                : listing.location_type === 'online'
-                ? 'Online'
-                : listing.location_type === 'in_person'
-                ? 'In Person'
-                : listing.location_type === 'hybrid'
-                ? 'Hybrid'
+                : listing.delivery_mode && listing.delivery_mode.length > 0
+                ? listing.delivery_mode.map(mode =>
+                    mode === 'online' ? 'Online' :
+                    mode === 'in_person' ? 'In Person' :
+                    mode === 'hybrid' ? 'Hybrid' : mode
+                  ).join(', ')
                 : 'No Location'}
             </span>
 

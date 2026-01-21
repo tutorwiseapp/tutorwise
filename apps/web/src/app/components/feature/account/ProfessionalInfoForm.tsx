@@ -5,7 +5,7 @@ import type { Profile } from '@/types';
 import HubForm from '@/app/components/hub/form/HubForm';
 import UnifiedMultiSelect from '@/app/components/ui/forms/UnifiedMultiSelect';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
-import CustomTimePicker from '@/app/components/feature/listings/wizard-steps/CustomTimePicker';
+import CustomTimePicker from '@/app/components/feature/listings/create/shared-components/CustomTimePicker';
 import DatePicker from '@/app/components/ui/forms/DatePicker';
 import Button from '@/app/components/ui/actions/Button';
 import HubListItem from '@/app/components/hub/content/HubListItem/HubListItem';

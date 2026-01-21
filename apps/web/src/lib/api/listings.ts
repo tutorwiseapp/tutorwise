@@ -152,6 +152,7 @@ export async function createListing(input: CreateListingInput): Promise<Listing>
 
 /**
  * Update an existing listing
+ * Only the listing owner can update their listing
  */
 export async function updateListing(input: UpdateListingInput): Promise<Listing> {
   const supabase = createClient();
@@ -163,15 +164,18 @@ export async function updateListing(input: UpdateListingInput): Promise<Listing>
 
   const { id, ...updates } = input;
 
+  // Update listing - RLS policy ensures only owner can update
   const { data, error } = await supabase
     .from('listings')
     .update(updates)
     .eq('id', id)
-    .eq('profile_id', user.id) // Ensure user owns the listing
+    .eq('profile_id', user.id) // Only allow owner to update
     .select()
     .single();
 
   if (error) throw error;
+  if (!data) throw new Error('Listing not found or you do not have permission to edit it');
+
   return data as Listing;
 }
 
@@ -275,8 +279,8 @@ export async function searchListings(params: ListingSearchParams = {}): Promise<
     query = query.overlaps('levels', filters.levels);
   }
 
-  if (filters.location_type) {
-    query = query.eq('location_type', filters.location_type);
+  if (filters.delivery_modes && filters.delivery_modes.length > 0) {
+    query = query.overlaps('delivery_mode', filters.delivery_modes);
   }
 
   if (filters.location_city) {

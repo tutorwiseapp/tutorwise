@@ -57,8 +57,8 @@ export async function POST(request: NextRequest) {
         query = query.overlaps('levels', filters.levels);
       }
 
-      if (filters.location_type) {
-        query = query.eq('location_type', filters.location_type);
+      if (filters.delivery_modes && filters.delivery_modes.length > 0) {
+        query = query.overlaps('delivery_mode', filters.delivery_modes);
       }
 
       if (filters.location_city) {

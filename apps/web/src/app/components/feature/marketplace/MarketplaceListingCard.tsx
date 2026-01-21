@@ -177,9 +177,13 @@ export default function MarketplaceListingCard({ listing, matchScore }: Marketpl
           {listing.full_name || 'Tutor'}
         </CardBookLink>
         <CardDeliveryMode>
-          {listing.location_type === 'online' ? 'Online' :
-           listing.location_type === 'in_person' ? 'In Person' :
-           'Hybrid'}
+          {listing.delivery_mode && listing.delivery_mode.length > 0
+            ? listing.delivery_mode.map(mode =>
+                mode === 'online' ? 'Online' :
+                mode === 'in_person' ? 'In Person' :
+                mode === 'hybrid' ? 'Hybrid' : mode
+              ).join(', ')
+            : 'Not specified'}
         </CardDeliveryMode>
       </CardRow>
 

@@ -73,12 +73,15 @@ export default function ListingCard({
     }
   };
 
-  // Format location type to human-readable string
-  const formatLocationType = (locationType?: string): string => {
-    if (!locationType) return 'Not specified';
-    if (locationType === 'online') return 'Online';
-    if (locationType === 'in_person') return 'In Person';
-    return locationType;
+  // Format delivery modes to human-readable string
+  const formatDeliveryModes = (deliveryModes?: string[]): string => {
+    if (!deliveryModes || deliveryModes.length === 0) return 'Not specified';
+    return deliveryModes.map(mode => {
+      if (mode === 'online') return 'Online';
+      if (mode === 'in_person') return 'In Person';
+      if (mode === 'hybrid') return 'Hybrid';
+      return mode;
+    }).join(', ');
   };
 
   // Format status for display
@@ -174,7 +177,7 @@ export default function ListingCard({
   const details = [
     // Row 1: Rate, Type, Template
     { label: 'Rate', value: `£${listing.hourly_rate}/hr` },
-    { label: 'Type', value: formatLocationType(listing.location_type) },
+    { label: 'Type', value: formatDeliveryModes(listing.delivery_mode) },
     { label: 'Template', value: isTemplate ? 'Yes' : 'No' },
     // Row 2: Views, Inquiries, Bookings (hidden for templates)
     ...(isTemplate ? [
@@ -233,8 +236,15 @@ export default function ListingCard({
           </Button>
         </>
       ) : isPublished ? (
-        // Published: Only Unpublish (must unpublish before archiving)
+        // Published: Edit, Unpublish, Delete (bookings protected by snapshot pattern)
         <>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => router.push(`/edit-listing/${listing.id}`)}
+          >
+            Edit
+          </Button>
           <Button
             variant="secondary"
             size="sm"
@@ -242,10 +252,24 @@ export default function ListingCard({
           >
             Unpublish
           </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={handleDeleteClick}
+          >
+            Delete
+          </Button>
         </>
       ) : isUnpublished ? (
-        // Unpublished: Publish or Archive (only unpublished can be archived)
+        // Unpublished: Edit, Publish, Archive, Delete
         <>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => router.push(`/edit-listing/${listing.id}`)}
+          >
+            Edit
+          </Button>
           <Button
             variant="primary"
             size="sm"
@@ -260,22 +284,45 @@ export default function ListingCard({
           >
             Archive
           </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={handleDeleteClick}
+          >
+            Delete
+          </Button>
         </>
       ) : isArchived ? (
-        // Archived: Delete only (after 3-day wait)
-        <Button
-          variant="danger"
-          size="sm"
-          onClick={handleDeleteClick}
-          disabled={!canDelete()}
-          title={
-            canDelete()
-              ? 'Delete listing permanently'
-              : `Delete available after ${DAYS_BEFORE_DELETE} days`
-          }
-        >
-          Delete
-        </Button>
+        // Archived: Edit, Publish, Delete (can reactivate with updates)
+        <>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => router.push(`/edit-listing/${listing.id}`)}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => onPublish(listing.id)}
+          >
+            Publish
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={handleDeleteClick}
+            disabled={!canDelete()}
+            title={
+              canDelete()
+                ? 'Delete listing permanently'
+                : `Delete available after ${DAYS_BEFORE_DELETE} days`
+            }
+          >
+            Delete
+          </Button>
+        </>
       ) : null}
     </>
   );

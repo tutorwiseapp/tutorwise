@@ -65,7 +65,7 @@ export default function ListingGrid({
         const params = new URLSearchParams();
         if (subjects.length > 0) params.append('subjects', subjects.join(','));
         if (levels.length > 0) params.append('levels', levels.join(','));
-        if (locationTypes.length > 0) params.append('location_type', locationTypes[0]); // API supports single value
+        if (locationTypes.length > 0) params.append('delivery_modes', locationTypes.join(',')); // API supports multiple values
         if (maxPrice) params.append('max_price', maxPrice.toString());
         params.append('limit', limit.toString());
 

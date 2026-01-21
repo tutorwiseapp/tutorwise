@@ -29,7 +29,7 @@ interface TutorProfile {
   review_count?: number;
   subjects?: string[];
   levels?: string[];
-  location_types?: string[];
+  delivery_modes?: string[];
   min_hourly_rate?: number;
   max_hourly_rate?: number;
 }

@@ -5,8 +5,8 @@
  * Created: 2026-01-19
  */
 
-import AvailabilityFormSection from '@/app/components/feature/listings/AvailabilityFormSection';
-import UnavailabilityFormSection from '@/app/components/feature/listings/UnavailabilityFormSection';
+import AvailabilityFormSection from '@/app/components/feature/listings/create/shared-components/AvailabilityFormSection';
+import UnavailabilityFormSection from '@/app/components/feature/listings/create/shared-components/UnavailabilityFormSection';
 import type { AvailabilityPeriod } from '@tutorwise/shared-types';
 import styles from './FormSections.module.css';
 
