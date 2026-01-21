@@ -1,8 +1,8 @@
 /**
- * Filename: apps/web/src/app/(public)/organisations/page.tsx
+ * Filename: apps/web/src/app/(public)/org/page.tsx
  * Purpose: Browse all tutoring organisations (all categories)
  * Created: 2026-01-03
- * Route: /organisations
+ * Route: /org
  */
 
 import { createClient } from '@/utils/supabase/server';

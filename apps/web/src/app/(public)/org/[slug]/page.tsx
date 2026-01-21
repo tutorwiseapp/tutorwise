@@ -1,11 +1,11 @@
 /*
- * Filename: apps/web/src/app/public-organisation-profile/[slug]/page.tsx
+ * Filename: apps/web/src/app/(public)/org/[slug]/page.tsx
  * Purpose: Public Organisation Profile Page - Server Component
  * Created: 2025-12-31
  *
  * Features:
  * - SEO-optimized server-side rendering
- * - Slug-only URLs (e.g., /organisation/london-maths-tutors)
+ * - Slug-only URLs (e.g., /org/london-maths-tutors)
  * - 2-column layout matching public profile (2fr 1fr)
  * - Organisation hero with logo, stats, team info
  * - Team members showcase

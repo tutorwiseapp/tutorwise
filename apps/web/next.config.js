@@ -21,12 +21,7 @@ const nextConfig = {
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
   // URL rewrites for cleaner public URLs
   async rewrites() {
-    return [
-      {
-        source: '/organisation/:slug',
-        destination: '/public-organisation-profile/:slug',
-      },
-    ];
+    return [];
   },
   images: {
     remotePatterns: [

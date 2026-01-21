@@ -7,7 +7,7 @@
 
 import { createClient } from '@/utils/supabase/server';
 import type { Metadata } from 'next';
-import OrganisationBrowseClient from '../organisations/OrganisationBrowseClient';
+import OrganisationBrowseClient from '../org/OrganisationBrowseClient';
 
 export const revalidate = 300;
 
