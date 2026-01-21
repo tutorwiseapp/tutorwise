@@ -33,13 +33,13 @@ export default function AppSidebar() {
   const navItems: NavItem[] = [
     { href: '/dashboard', label: 'Dashboard' },
     {
-      href: '/organisation?tab=team',
+      href: '/organisations?tab=team',
       label: 'Organisation',
       subItems: [
-        { href: '/organisation?tab=team', label: 'Team', indent: true },
-        { href: '/organisation/tasks', label: 'Tasks', indent: true },
-        { href: '/organisation/referrals', label: 'Referrals', indent: true },
-        { href: '/organisation/settings', label: 'Settings', indent: true },
+        { href: '/organisations?tab=team', label: 'Team', indent: true },
+        { href: '/organisations/tasks', label: 'Tasks', indent: true },
+        { href: '/organisations/referrals', label: 'Referrals', indent: true },
+        { href: '/organisations/settings', label: 'Settings', indent: true },
       ],
     },
     {
@@ -107,7 +107,7 @@ export default function AppSidebar() {
       // For organisation links, only check if the 'tab' param matches
       // This keeps the link highlighted when on that tab, regardless of other params (like subtab)
       // This matches how Financials works - /financials stays highlighted on /financials/payouts
-      if (path === '/organisations' && expectedParams.has('tab')) {
+      if (path === '/organisationss' && expectedParams.has('tab')) {
         return currentParams.get('tab') === expectedParams.get('tab');
       }
 
@@ -119,19 +119,19 @@ export default function AppSidebar() {
       return true;
     }
 
-    // Special case: /organisation/referrals should match /organisation/[id]/referrals
-    if (href === '/organisation/referrals') {
-      return pathname === '/organisation/referrals' || pathname?.match(/^\/organisation\/[^/]+\/referrals/);
+    // Special case: /organisations/referrals should match /organisations/[id]/referrals
+    if (href === '/organisations/referrals') {
+      return pathname === '/organisations/referrals' || pathname?.match(/^\/organisations\/[^/]+\/referrals/);
     }
 
-    // Special case: /organisation/tasks should match /organisation/[id]/tasks
-    if (href === '/organisation/tasks') {
-      return pathname === '/organisation/tasks' || pathname?.match(/^\/organisation\/[^/]+\/tasks/);
+    // Special case: /organisations/tasks should match /organisations/[id]/tasks
+    if (href === '/organisations/tasks') {
+      return pathname === '/organisations/tasks' || pathname?.match(/^\/organisations\/[^/]+\/tasks/);
     }
 
-    // Special case: /organisation/settings should match /organisation/settings/*
-    if (href === '/organisation/settings') {
-      return pathname?.startsWith('/organisation/settings');
+    // Special case: /organisations/settings should match /organisations/settings/*
+    if (href === '/organisations/settings') {
+      return pathname?.startsWith('/organisations/settings');
     }
 
     // Special case: /listings/create should match /listings/create/*
