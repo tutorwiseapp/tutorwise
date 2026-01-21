@@ -8,6 +8,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { createClient } from '@/utils/supabase/client';
 import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
 import HubHeader from '@/app/components/hub/layout/HubHeader';
 import HubTabs from '@/app/components/hub/layout/HubTabs';
@@ -35,7 +37,30 @@ export default function AdminListingsOverviewPage() {
   const canManageListings = usePermission('listings', 'manage');
   const [activeTab, setActiveTab] = useState<'overview' | 'all-listings'>('overview');
 
-  // Fetch listings metrics with trend data from statistics table
+  // Fetch real-time listing counts from listings table
+  const supabase = createClient();
+  const { data: listingStats } = useQuery({
+    queryKey: ['admin-listing-stats'],
+    queryFn: async () => {
+      const [totalRes, activeRes, inactiveRes, draftRes] = await Promise.all([
+        supabase.from('listings').select('id', { count: 'exact', head: true }),
+        supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'published'),
+        supabase.from('listings').select('id', { count: 'exact', head: true }).in('status', ['unpublished', 'archived']),
+        supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'draft'),
+      ]);
+      return {
+        total: totalRes.count || 0,
+        active: activeRes.count || 0,
+        inactive: inactiveRes.count || 0,
+        draft: draftRes.count || 0,
+      };
+    },
+    staleTime: 30000, // 30 seconds
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+  });
+
+  // Fetch listings metrics with trend data from statistics table (for historical comparison)
   const totalListingsMetric = useAdminMetric({ metric: 'listings_total', compareWith: 'last_month' });
   const activeListingsMetric = useAdminMetric({ metric: 'listings_active', compareWith: 'last_month' });
   const inactiveListingsMetric = useAdminMetric({ metric: 'listings_inactive', compareWith: 'last_month' });
@@ -57,12 +82,11 @@ export default function AdminListingsOverviewPage() {
 
   const isLoadingCharts = listingTrendsQuery.isLoading || viewsTrendsQuery.isLoading || bookingsTrendsQuery.isLoading;
 
-  // Listing status breakdown data (using real metrics)
+  // Listing status breakdown data (using real-time counts)
   const listingStatusData: CategoryData[] = [
-    { label: 'Active', value: activeListingsMetric.value, color: '#10B981' },
-    { label: 'Inactive', value: inactiveListingsMetric.value, color: '#6B7280' },
-    // Note: Draft and Archived would need separate metrics in platform_statistics_daily
-    // For now, we only show Active/Inactive as those are the only metrics we track
+    { label: 'Active', value: listingStats?.active ?? 0, color: '#10B981' },
+    { label: 'Inactive', value: listingStats?.inactive ?? 0, color: '#6B7280' },
+    { label: 'Draft', value: listingStats?.draft ?? 0, color: '#F59E0B' },
   ];
 
   return (
@@ -79,7 +103,7 @@ export default function AdminListingsOverviewPage() {
         <HubTabs
           tabs={[
             { id: 'overview', label: 'Overview', active: activeTab === 'overview' },
-            { id: 'all-listings', label: 'All Listings', count: totalListingsMetric.value, active: activeTab === 'all-listings' }
+            { id: 'all-listings', label: 'All Listings', count: listingStats?.total, active: activeTab === 'all-listings' }
           ]}
           onTabChange={(tabId) => setActiveTab(tabId as 'overview' | 'all-listings')}
           className={styles.listingsTabs}
@@ -90,10 +114,10 @@ export default function AdminListingsOverviewPage() {
           <AdminStatsWidget
             title="Listing Breakdown"
             stats={[
-              { label: 'Total Listings', value: totalListingsMetric.value },
-              { label: 'Active', value: activeListingsMetric.value },
-              { label: 'Inactive', value: inactiveListingsMetric.value },
-              { label: 'Draft', value: draftListingsMetric.value },
+              { label: 'Total Listings', value: listingStats?.total ?? 0 },
+              { label: 'Active', value: listingStats?.active ?? 0 },
+              { label: 'Inactive', value: listingStats?.inactive ?? 0 },
+              { label: 'Draft', value: listingStats?.draft ?? 0 },
             ]}
           />
           <AdminHelpWidget
