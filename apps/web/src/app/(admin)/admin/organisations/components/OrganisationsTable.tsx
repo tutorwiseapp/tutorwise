@@ -532,7 +532,7 @@ export default function OrganisationsTable() {
                 className={styles.menuItem}
                 onClick={(e) => {
                   e.stopPropagation();
-                  window.open(`/organisation?id=${org.id}`, '_blank');
+                  window.open(`/org/${org.slug}`, '_blank');
                   setActionsMenuOpen(null);
                 }}
               >

@@ -385,7 +385,7 @@ export default function OrganisationPage() {
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId as TabType);
     // Update URL to reflect tab change
-    router.push(`/organisation?tab=${tabId}`, { scroll: false });
+    router.push(`/organisations?tab=${tabId}`, { scroll: false });
   };
 
   const handleInviteMember = () => {

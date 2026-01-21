@@ -133,8 +133,8 @@ export async function createTrialCheckoutSession(organisationId: string): Promis
       organisation_id: organisationId,
       organisation_name: org.name || 'Unnamed Organisation',
     },
-    success_url: `${process.env.NEXT_PUBLIC_URL}/organisation?subscription=success`,
-    cancel_url: `${process.env.NEXT_PUBLIC_URL}/organisation?subscription=canceled`,
+    success_url: `${process.env.NEXT_PUBLIC_URL}/organisations?subscription=success`,
+    cancel_url: `${process.env.NEXT_PUBLIC_URL}/organisations?subscription=canceled`,
     // Allow user to update subscription in future
     allow_promotion_codes: true,
   });
@@ -158,7 +158,7 @@ export async function createBillingPortalSession(
 
   const session = await stripe.billingPortal.sessions.create({
     customer: subscription.stripe_customer_id,
-    return_url: returnUrl || `${process.env.NEXT_PUBLIC_URL}/organisation`,
+    return_url: returnUrl || `${process.env.NEXT_PUBLIC_URL}/organisations`,
   });
 
   return session;

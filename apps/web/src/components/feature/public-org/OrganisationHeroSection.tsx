@@ -80,7 +80,7 @@ export function OrganisationHeroSection({ organisation, isOwner }: OrganisationH
 
   // Handle Edit button (for owners)
   const handleEdit = () => {
-    router.push(`/organisation?tab=info`);
+    router.push(`/organisations?tab=info`);
   };
 
   // Handle Join Team CTA (removed - now in GetInTouchCard)

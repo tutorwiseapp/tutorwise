@@ -97,7 +97,7 @@ export default function AdminOrganisationDetailModal({
 
   // Handler: View Public Page
   const handleViewPublicPage = () => {
-    window.open(`/organisation?id=${organisation.id}`, '_blank');
+    window.open(`/org/${organisation.slug}`, '_blank');
   };
 
   // Handler: View Members
