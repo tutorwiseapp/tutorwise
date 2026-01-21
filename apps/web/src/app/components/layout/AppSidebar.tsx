@@ -34,7 +34,7 @@ export default function AppSidebar() {
     { href: '/dashboard', label: 'Dashboard' },
     {
       href: '/organisations?tab=team',
-      label: 'Organisation',
+      label: 'Organisations',
       subItems: [
         { href: '/organisations?tab=team', label: 'Team', indent: true },
         { href: '/organisations/tasks', label: 'Tasks', indent: true },
