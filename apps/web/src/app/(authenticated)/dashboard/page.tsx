@@ -259,13 +259,13 @@ const DashboardPage = () => {
       <div className={styles.headerActions}>
         {/* Primary Action Button */}
         {activeRole === 'tutor' && (
-          <Link href="/create-listing">
+          <Link href="/listings/create/one-to-one">
             <Button variant="primary" size="sm">Create Listing</Button>
           </Link>
         )}
 
         {activeRole === 'agent' && (
-          <Link href="/create-listing">
+          <Link href="/listings/create/one-to-one">
             <Button variant="primary" size="sm">Create Listing</Button>
           </Link>
         )}

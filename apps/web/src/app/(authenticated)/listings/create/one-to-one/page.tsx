@@ -28,7 +28,7 @@ export default function CreateOneToOnePage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const editId = searchParams.get('edit'); // Get edit ID from query param
+  const editId = searchParams?.get('edit'); // Get edit ID from query param
   const isEditMode = !!editId;
 
   const { user, activeRole, profile, isLoading: userLoading } = useUserProfile();

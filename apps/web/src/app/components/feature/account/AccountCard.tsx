@@ -104,7 +104,7 @@ function calculateCompleteness(profile: Profile): { score: number; sections: Sec
       label: 'Active Listing',
       completed: hasListings,
       action: 'Create your first listing',
-      route: '/create-listing',
+      route: '/listings/create/one-to-one',
     });
   }
 

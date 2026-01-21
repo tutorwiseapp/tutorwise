@@ -421,7 +421,7 @@ export default function ListingsPage() {
               <Button
                 variant="primary"
                 size="sm"
-                onClick={() => router.push('/create-listing')}
+                onClick={() => router.push('/listings/create/one-to-one')}
               >
                 Create Listing
               </Button>
@@ -507,7 +507,7 @@ export default function ListingsPage() {
               : 'You have no listings yet. Create your first listing to get started.'
           }
           actionLabel={filter === 'all' ? 'Create Your First Listing' : undefined}
-          onAction={filter === 'all' ? () => router.push('/create-listing') : undefined}
+          onAction={filter === 'all' ? () => router.push('/listings/create/one-to-one') : undefined}
         />
       )}
 

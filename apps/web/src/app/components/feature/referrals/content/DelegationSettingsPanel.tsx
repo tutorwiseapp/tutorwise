@@ -346,7 +346,7 @@ export default function DelegationSettingsPanel({
             title="No Listings Yet"
             description="Create a listing to enable commission delegation and start managing your referral partnerships."
             actionLabel="Create Your First Listing"
-            onAction={() => window.location.href = '/create-listing'}
+            onAction={() => window.location.href = '/listings/create/one-to-one'}
           />
         ) : (
           <>

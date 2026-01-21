@@ -82,7 +82,7 @@ export default function HelpCard({
             title: 'Create Your First Listing',
             description: 'Set up your subjects, availability, and pricing to start accepting bookings',
             action: 'Create Listing',
-            href: '/create-listing',
+            href: '/listings/create/one-to-one',
             completed: hasListings
           },
           {
@@ -128,7 +128,7 @@ export default function HelpCard({
             title: 'Create Service Listings',
             description: 'Set up listings for your tutors with competitive pricing',
             action: 'Create Listing',
-            href: '/create-listing',
+            href: '/listings/create/one-to-one',
             completed: hasListings
           },
           {
