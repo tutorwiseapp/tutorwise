@@ -61,11 +61,17 @@ export async function getListing(id: string): Promise<Listing | null> {
     .eq('id', id)
     .single();
 
-  if (error && error.code !== 'PGRST116') {
-    throw error;
+  if (error) {
+    console.error('getListing error:', error);
+    if (error.code !== 'PGRST116') {
+      throw error;
+    }
   }
 
-  if (!data) return null;
+  if (!data) {
+    console.warn('getListing: No data found for id:', id);
+    return null;
+  }
 
   // Flatten the profile data into the listing object
   return {

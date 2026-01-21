@@ -41,30 +41,43 @@ export default function EditListingPage() {
   useEffect(() => {
     async function loadListing() {
       if (!listingId) {
+        console.error('edit-listing: No listing ID provided');
         setError('No listing ID provided');
         setIsLoadingListing(false);
         return;
       }
 
+      console.log('edit-listing: Loading listing with ID:', listingId);
+      console.log('edit-listing: Profile loading state:', isProfileLoading);
+      console.log('edit-listing: Current profile:', profile);
+      console.log('edit-listing: Active role:', activeRole);
+
       try {
         const data = await getListing(listingId);
+        console.log('edit-listing: Received listing data:', data);
         if (!data) {
+          console.error('edit-listing: No listing data returned');
           setError('Listing not found');
         } else {
+          console.log('edit-listing: Setting listing state');
           setListing(data);
         }
       } catch (err) {
-        console.error('Error loading listing:', err);
+        console.error('edit-listing: Error loading listing:', err);
         setError(err instanceof Error ? err.message : 'Failed to load listing');
       } finally {
+        console.log('edit-listing: Finished loading, setting isLoadingListing to false');
         setIsLoadingListing(false);
       }
     }
 
     if (!isProfileLoading) {
+      console.log('edit-listing: Profile loaded, starting loadListing()');
       loadListing();
+    } else {
+      console.log('edit-listing: Waiting for profile to load...');
     }
-  }, [listingId, isProfileLoading]);
+  }, [listingId, isProfileLoading, profile, activeRole]);
 
   // Handle form submission - forms pass CreateListingInput, we convert to UpdateListingInput
   const handleSubmit = async (data: CreateListingInput) => {
