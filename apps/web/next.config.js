@@ -22,9 +22,19 @@ const nextConfig = {
   // URL rewrites for cleaner public URLs
   async rewrites() {
     return [
+      // Organisation profile rewrite (brand-friendly URLs)
       {
         source: '/organisation/:slug',
         destination: '/public-organisation-profile/:slug',
+      },
+      // Profile rewrites (LinkedIn-style /in/ pattern)
+      {
+        source: '/in/:id/:slug',
+        destination: '/public-profile/:id/:slug',
+      },
+      {
+        source: '/in/:id',
+        destination: '/public-profile/:id',
       },
     ];
   },
