@@ -5,9 +5,9 @@
  */
 
 // Main Form
-export { default as TutoringRequestForm } from './TutoringRequestForm';
+export { default as TutorRequestForm } from './TutorRequestForm';
 
-// Legacy Section Components (for reference, may be deprecated)
+// Section Components
 export { LearnerTypeSection } from './LearnerTypeSection';
 export { BudgetSection } from './BudgetSection';
 export { TutorPreferencesSection } from './TutorPreferencesSection';

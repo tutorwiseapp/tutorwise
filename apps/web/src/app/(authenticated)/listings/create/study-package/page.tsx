@@ -28,7 +28,7 @@ export default function CreateStudyPackagePage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const editId = searchParams.get('edit');
+  const editId = searchParams?.get('edit');
   const isEditMode = !!editId;
   const { user, activeRole, profile, isLoading: userLoading } = useUserProfile();
   const { isAllowed, isLoading: roleLoading } = useRoleGuard(['tutor', 'agent']);
