@@ -223,7 +223,7 @@ export default function ListingCard({
           <Button
             variant="secondary"
             size="sm"
-            onClick={() => router.push(`/edit-listing/${listing.id}`)}
+            onClick={() => router.push(`/listings/create/${listing.service_type}?edit=${listing.id}`)}
           >
             Edit
           </Button>
@@ -241,7 +241,7 @@ export default function ListingCard({
           <Button
             variant="secondary"
             size="sm"
-            onClick={() => router.push(`/edit-listing/${listing.id}`)}
+            onClick={() => router.push(`/listings/create/${listing.service_type}?edit=${listing.id}`)}
           >
             Edit
           </Button>
@@ -266,7 +266,7 @@ export default function ListingCard({
           <Button
             variant="secondary"
             size="sm"
-            onClick={() => router.push(`/edit-listing/${listing.id}`)}
+            onClick={() => router.push(`/listings/create/${listing.service_type}?edit=${listing.id}`)}
           >
             Edit
           </Button>
@@ -298,7 +298,7 @@ export default function ListingCard({
           <Button
             variant="secondary"
             size="sm"
-            onClick={() => router.push(`/edit-listing/${listing.id}`)}
+            onClick={() => router.push(`/listings/create/${listing.service_type}?edit=${listing.id}`)}
           >
             Edit
           </Button>

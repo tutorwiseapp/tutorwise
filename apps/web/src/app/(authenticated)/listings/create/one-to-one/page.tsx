@@ -6,10 +6,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useRoleGuard } from '@/app/hooks/useRoleGuard';
-import { createListing } from '@/lib/api/listings';
+import { createListing, getListing, updateListing } from '@/lib/api/listings';
 import type { CreateListingInput } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
 import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
@@ -26,13 +26,45 @@ import styles from './page.module.css';
 export default function CreateOneToOnePage() {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get('edit'); // Get edit ID from query param
+  const isEditMode = !!editId;
+
   const { user, activeRole, profile, isLoading: userLoading } = useUserProfile();
   const { isAllowed, isLoading: roleLoading } = useRoleGuard(['tutor', 'agent']);
   const [isSaving, setIsSaving] = useState(false);
   const [initialData, setInitialData] = useState<Partial<CreateListingInput>>({});
+  const [isLoadingListing, setIsLoadingListing] = useState(isEditMode);
 
-  // Pre-fill form from professional_details
+  // Load existing listing data if in edit mode
   useEffect(() => {
+    async function loadListingData() {
+      if (!editId) return;
+
+      try {
+        const listing = await getListing(editId);
+        if (listing) {
+          // Convert listing to CreateListingInput format
+          setInitialData(listing as unknown as Partial<CreateListingInput>);
+        } else {
+          toast.error('Listing not found');
+          router.push('/listings');
+        }
+      } catch (error) {
+        console.error('Failed to load listing:', error);
+        toast.error('Failed to load listing');
+        router.push('/listings');
+      } finally {
+        setIsLoadingListing(false);
+      }
+    }
+
+    loadListingData();
+  }, [editId, router]);
+
+  // Pre-fill form from professional_details (only for create mode)
+  useEffect(() => {
+    if (isEditMode) return; // Skip prefill in edit mode
     if (!profile?.professional_details || !activeRole) return;
 
     const prefillData: Partial<CreateListingInput> = {};
@@ -58,7 +90,7 @@ export default function CreateOneToOnePage() {
     }
 
     setInitialData(prefillData);
-  }, [profile, activeRole]);
+  }, [profile, activeRole, isEditMode]);
 
   // Prepare tabs data
   const baseTabs: HubTab[] = [
@@ -77,10 +109,10 @@ export default function CreateOneToOnePage() {
     router.push(`/listings/create/${tabId}`);
   };
 
-  if (userLoading || roleLoading) {
+  if (userLoading || roleLoading || isLoadingListing) {
     return (
       <HubPageLayout
-        header={<ListingsHeader title="Create Listing" subtitle="Set up your tutoring services" />}
+        header={<ListingsHeader title={isEditMode ? "Edit Listing" : "Create Listing"} subtitle="Set up your tutoring services" />}
         tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
         sidebar={
           <HubSidebar>
@@ -108,13 +140,20 @@ export default function CreateOneToOnePage() {
   const handleSubmit = async (data: CreateListingInput) => {
     setIsSaving(true);
     try {
-      const listing = await createListing(data);
-      toast.success('Listing published successfully!');
-      localStorage.removeItem('one_to_one_draft');
+      if (isEditMode && editId) {
+        // Update existing listing
+        await updateListing({ ...data, id: editId });
+        toast.success('Listing updated successfully!');
+      } else {
+        // Create new listing
+        await createListing(data);
+        toast.success('Listing published successfully!');
+        localStorage.removeItem('one_to_one_draft');
+      }
       router.push('/listings');
     } catch (error) {
-      console.error('Failed to create listing:', error);
-      toast.error('Failed to create listing. Please try again.');
+      console.error(`Failed to ${isEditMode ? 'update' : 'create'} listing:`, error);
+      toast.error(`Failed to ${isEditMode ? 'update' : 'create'} listing. Please try again.`);
     } finally {
       setIsSaving(false);
     }
@@ -128,8 +167,11 @@ export default function CreateOneToOnePage() {
     <HubPageLayout
       header={
         <ListingsHeader
-          title="Create Listing"
-          subtitle="Set up your personalized one-on-one tutoring service"
+          title={isEditMode ? "Edit Listing" : "Create Listing"}
+          subtitle={isEditMode
+            ? "Update your personalized one-on-one tutoring service"
+            : "Set up your personalized one-on-one tutoring service"
+          }
         />
       }
       tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
