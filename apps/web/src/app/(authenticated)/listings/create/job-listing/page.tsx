@@ -6,10 +6,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useRoleGuard } from '@/app/hooks/useRoleGuard';
-import { createListing } from '@/lib/api/listings';
+import { createListing, getListing, updateListing } from '@/lib/api/listings';
 import type { CreateListingInput } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
 import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
@@ -26,10 +26,14 @@ import styles from './page.module.css';
 export default function CreateJobListingPage() {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get('edit');
+  const isEditMode = !!editId;
   const { user, activeRole, profile, isLoading: userLoading } = useUserProfile();
   const { isAllowed, isLoading: roleLoading } = useRoleGuard(['agent']);
   const [isSaving, setIsSaving] = useState(false);
   const [initialData, setInitialData] = useState<Partial<CreateListingInput>>({});
+  const [isLoadingListing, setIsLoadingListing] = useState(isEditMode);
 
   // Pre-fill form from professional_details and organisation
   useEffect(() => {
@@ -53,7 +57,7 @@ export default function CreateJobListingPage() {
     // }
 
     setInitialData(prefillData);
-  }, [profile, activeRole]);
+  }, [profile, activeRole, isEditMode]);
 
   // Prepare tabs data (only agent role has Job Listing tab)
   const tabs: HubTab[] = [
@@ -68,10 +72,10 @@ export default function CreateJobListingPage() {
     router.push(`/listings/create/${tabId}`);
   };
 
-  if (userLoading || roleLoading) {
+  if (userLoading || roleLoading || isLoadingListing) {
     return (
       <HubPageLayout
-        header={<ListingsHeader title="Create Listing" subtitle="Post job opportunities for tutors" />}
+        header={<ListingsHeader title={isEditMode ? "Edit Listing" : "Create Listing"} subtitle="Post job opportunities for tutors" />}
         tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
         sidebar={
           <HubSidebar>

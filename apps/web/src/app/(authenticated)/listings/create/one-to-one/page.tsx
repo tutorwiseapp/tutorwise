@@ -20,7 +20,8 @@ import ListingsStatsWidget from '@/app/components/feature/listings/create/widget
 import ListingsHelpWidget from '@/app/components/feature/listings/create/widgets/ListingsHelpWidget';
 import ListingsTipWidget from '@/app/components/feature/listings/create/widgets/ListingsTipWidget';
 import ListingsVideoWidget from '@/app/components/feature/listings/create/widgets/ListingsVideoWidget';
-import OneToOneForm from '@/app/components/feature/listings/create/tutor/OneToOneForm';
+import TutorOneToOneForm from '@/app/components/feature/listings/create/tutor/OneToOneForm';
+import AgentOneToOneForm from '@/app/components/feature/listings/create/agent/OneToOneForm';
 import styles from './page.module.css';
 
 export default function CreateOneToOnePage() {
@@ -185,12 +186,21 @@ export default function CreateOneToOnePage() {
       }
     >
       <div className={styles.content}>
-        <OneToOneForm
-          onSubmit={handleSubmit}
-          onCancel={handleCancel}
-          isSaving={isSaving}
-          initialData={initialData}
-        />
+        {activeRole === 'agent' ? (
+          <AgentOneToOneForm
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+            isSaving={isSaving}
+            initialData={initialData}
+          />
+        ) : (
+          <TutorOneToOneForm
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+            isSaving={isSaving}
+            initialData={initialData}
+          />
+        )}
       </div>
     </HubPageLayout>
   );
