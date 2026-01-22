@@ -118,7 +118,7 @@ From `platform_statistics_daily` table:
 
 | # | Column | Width | Sortable | Description |
 |---|--------|-------|----------|-------------|
-| 1 | ID | 100px | ✅ | 8-char truncated UUID with # prefix (e.g., #a1b2c3d4), monospace font, tooltip shows full UUID |
+| 1 | ID | 100px | ✅ | 8-char truncated UUID with # prefix (e.g., #a1b2c3d4), standard font, tooltip shows full UUID |
 | 2 | Created | 140px | ✅ | Primary date field (dd MMM yyyy format) |
 | 3 | Title | 200px | ✅ | "Service" column - Hero image (48x48) + title + slug |
 | 4 | Tutor | 180px | — | Avatar (32x32) + name + email |
@@ -1533,7 +1533,7 @@ Use the same checklist as Bookings Implementation, replacing "booking" with "lis
 ### Desktop (1024px+)
 
 - [ ] Table displays all 10 columns correctly
-- [ ] ID column shows first 8 chars, monospace font
+- [ ] ID column shows first 8 chars, standard font
 - [ ] Title column shows hero image (48x48) + title + slug
 - [ ] Tutor column shows avatar (32x32) + name + email
 - [ ] Subjects column shows "Mathematics +2" format (first subject + count)

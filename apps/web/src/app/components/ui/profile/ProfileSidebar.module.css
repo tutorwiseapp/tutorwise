@@ -45,7 +45,6 @@
 .agentId {
   font-size: var(--font-size-sm, 14px);
   color: var(--color-text-secondary, #5f6368);
-  font-family: monospace;
 }
 
 .textLink {

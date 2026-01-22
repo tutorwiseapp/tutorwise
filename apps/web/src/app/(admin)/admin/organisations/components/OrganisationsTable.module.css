@@ -6,9 +6,8 @@
  * Applies: Lessons #7 (rounded badges), #8 (actions menu), #12 (fonts)
  */
 
-/* ID Cell - Lesson #12: Monospace for IDs */
+/* ID Cell - Standard font for IDs */
 .idCell {
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.875rem;
   color: #6b7280;
 }

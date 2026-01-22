@@ -8,9 +8,8 @@
    Column Cell Styles
    ======================================== */
 
-/* Column 1: ID Cell - Monospace font for UUID */
+/* Column 1: ID Cell - Standard font for UUID */
 .idCell {
-  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
   font-size: 13px;
   color: var(--color-text-secondary);
   font-weight: 500;

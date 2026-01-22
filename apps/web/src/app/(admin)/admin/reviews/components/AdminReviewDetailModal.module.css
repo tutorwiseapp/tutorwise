@@ -353,7 +353,6 @@
 
 /* ID Text */
 .idText {
-  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
   font-size: 13px;
   color: var(--color-text-secondary);
   font-weight: 500;
@@ -361,7 +360,6 @@
 
 /* Link Button */
 .linkButton {
-  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
   font-size: 13px;
   color: var(--color-primary);
   font-weight: 500;

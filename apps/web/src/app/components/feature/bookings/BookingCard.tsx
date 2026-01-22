@@ -120,7 +120,6 @@ export default function BookingCard({
         <span
           title={booking.id}
           style={{
-            fontFamily: "'SF Mono', 'Monaco', 'Consolas', monospace",
             fontSize: '0.875rem',
             color: '#6b7280',
             cursor: 'default',

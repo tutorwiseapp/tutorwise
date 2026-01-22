@@ -825,7 +825,7 @@ N. Actions (100px)
 **CSS**:
 ```css
 .idCell {
-  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', standard font;
   font-size: 0.875rem;
   color: #6b7280;
 }
@@ -1056,7 +1056,7 @@ N. Actions (100px)
 
 Before considering a table implementation complete, verify:
 
-- [ ] Column 1 is ID (100px, monospace, `formatIdForDisplay()`)
+- [ ] Column 1 is ID (100px, standard font, `formatIdForDisplay()`)
 - [ ] Column 2 is primary Date (140px, `dd MMM yyyy` format)
 - [ ] Column 3 is Service/primary identifier (200px, with image if applicable)
 - [ ] Columns 4-N are domain-specific (5-8 columns)
@@ -1321,7 +1321,7 @@ Status badges should have **rectangular shape** with **8px border-radius** (NOT 
 ```css
 /* ID Cell - Monospace font, gray text */
 .idCell {
-  font-family: 'Monaco', 'Courier New', monospace;
+  font-family: 'Monaco', 'Courier New', standard font;
   font-size: 0.8125rem;
   color: #6b7280;
 }

@@ -35,7 +35,6 @@
   margin-top: var(--space-2);
 }
 .profileId {
-  font-family: monospace;
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
   margin-bottom: var(--space-2);

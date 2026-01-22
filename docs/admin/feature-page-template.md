@@ -528,7 +528,7 @@ import { formatIdForDisplay } from '@/lib/utils/formatId';
 
 ```typescript
 const columns: Column<{Feature}>[] = [
-  // Column 1: ID (MUST be first column, 100px width, monospace font)
+  // Column 1: ID (MUST be first column, 100px width, standard font)
   {
     key: 'id',
     label: 'ID',

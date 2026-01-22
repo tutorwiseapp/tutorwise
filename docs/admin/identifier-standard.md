@@ -73,7 +73,7 @@ All major tables confirmed to use UUID:
 **Format**: `#XXXXXXXX`
 - First 8 characters of UUID (hexadecimal)
 - Uppercase `#` prefix
-- Monospace font recommended
+- Standard font (consistent with app typography)
 - Example: `#a1b2c3d4`
 
 **Use Cases**:
@@ -100,7 +100,7 @@ All major tables confirmed to use UUID:
 
 **Format**: Full UUID with optional grouping
 - Example: `a1b2c3d4-5678-90ab-cdef-1234567890ab`
-- Monospace font required
+- Standard font (consistent with app typography)
 - Optional: Add `ID: ` prefix for clarity
 
 **Use Cases**:
@@ -247,12 +247,11 @@ import { formatIdForDisplay } from '@/lib/utils/formatId';
 
 ### 3.3 CSS Styling Standard
 
-**RULE**: Use monospace font and these standard styles for ID display.
+**RULE**: Use standard font (consistent with app typography) and these standard styles for ID display.
 
 ```css
 /* Truncated ID in tables and cards */
 .idCell {
-  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
   font-size: 0.875rem;
   color: #6b7280;
 }
@@ -264,7 +263,6 @@ import { formatIdForDisplay } from '@/lib/utils/formatId';
 
 /* Full ID in modals (copyable) */
 .idCodeBlock {
-  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
   font-size: 0.875rem;
   color: #1f2937;
   background: #f3f4f6;
@@ -525,7 +523,7 @@ Before merging any PR that includes tables, cards, or modals, verify:
 - [ ] Uses `formatIdForDisplay()` utility (not manual `.slice()` or `.substring()`)
 - [ ] Admin tables have ID as first column
 - [ ] ID column width is `100px`
-- [ ] ID cell uses monospace font
+- [ ] ID cell uses standard font (consistent with app typography)
 - [ ] Tooltip shows full UUID on hover
 - [ ] Mobile cards display truncated ID at top
 - [ ] Detail modals have System Information section with full UUID
@@ -570,7 +568,7 @@ describe('formatIdForDisplay', () => {
 - [ ] ID displays correctly in mobile card view
 - [ ] Tooltip shows full UUID on hover
 - [ ] Full UUID is selectable and copyable in modal
-- [ ] Monospace font renders correctly across browsers
+- [ ] Standard font renders consistently across browsers
 
 ---
 
