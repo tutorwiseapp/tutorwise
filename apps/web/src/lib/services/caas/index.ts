@@ -317,31 +317,4 @@ export class CaaSService {
     return this.calculateProfileCaaS(profileId, supabase);
   }
 
-  /**
-   * Queue a profile for CaaS score recalculation
-   *
-   * Adds the profile to the caas_recalculation_queue.
-   * The score will be recalculated by the caas-worker within 10 minutes.
-   *
-   * @param profileId - The profile_id to queue for recalculation
-   * @param supabase - Supabase client (can be user session or service_role)
-   */
-  static async queueRecalculation(profileId: string, supabase: SupabaseClient): Promise<void> {
-    try {
-      const { error } = await supabase
-        .from('caas_recalculation_queue')
-        .insert({ profile_id: profileId })
-        .select();
-
-      // Ignore conflict errors (profile already in queue)
-      if (error && error.code !== '23505') {
-        throw error;
-      }
-
-      console.log(`[CaaS] Profile ${profileId} queued for recalculation`);
-    } catch (error) {
-      console.error('[CaaS] Error queuing profile for recalculation', profileId, error);
-      throw error;
-    }
-  }
 }

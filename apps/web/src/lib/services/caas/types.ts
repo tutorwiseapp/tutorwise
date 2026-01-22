@@ -214,12 +214,3 @@ export const CaaSVersions = {
  */
 export type CaaSRole = 'TUTOR' | 'CLIENT' | 'AGENT' | 'STUDENT' | 'ORGANISATION';
 
-/**
- * CaaS recalculation queue record
- * Maps to caas_recalculation_queue table
- */
-export interface CaaSQueueRecord {
-  id: number;
-  profile_id: string;
-  created_at: string;
-}

@@ -78,16 +78,18 @@ tools/database/migrations/
 
 ## How It Works
 
-### Score Calculation Flow
+### Score Calculation Flow (v6.1 - Immediate Triggers)
 
 ```
-User Action (e.g., publish listing, complete booking)
+User Action (e.g., verify identity, publish listing, complete booking)
     ↓
-Database Trigger Fires (migrations 200-202)
+Database Trigger Fires IMMEDIATELY (< 10ms)
     ↓
-Insert into caas_recalculation_queue
+trigger_recalculate_caas_immediate() executes
     ↓
-CaaS Worker runs (every 10 min)
+Insert into caas_calculation_events (notification table)
+    ↓
+Next.js polls event table (or Realtime subscription)
     ↓
 CaaSService.calculateProfileCaaS(profileId)
     ↓
@@ -118,8 +120,14 @@ Final Score (0-100)
     ↓
 Save to caas_scores table (version = 'universal-v6.0')
     ↓
-User sees updated score on dashboard
+Mark event as processed in caas_calculation_events
+    ↓
+User refreshes dashboard → sees updated score (< 1 sec total)
 ```
+
+**Architecture:** Tier 1 (Immediate) - Event-Driven
+**Latency:** < 1 second (vs 10 minutes with queue)
+**No Queue:** Triggers calculate immediately, not via delayed worker
 
 ---
 
@@ -245,27 +253,28 @@ export class UniversalCaaSStrategy implements IProfileCaaSStrategy {
 
 ## Database Triggers
 
-**Already Created (Previous Session):**
-- ✅ **Migration 200**: Listing publish trigger
-- ✅ **Migration 201**: Enhanced booking payment trigger (all parties)
-- ✅ **Migration 202**: Referral lifecycle triggers (created + converted)
+**v6.1 Immediate Triggers (Tier 1 Architecture):**
+- ✅ **Migration 203**: RPC functions for immediate calculation
+- ✅ **Migration 204**: Attach immediate triggers to all events
+- ✅ **Migration 205**: Drop old queue infrastructure
 
 **Trigger Coverage:**
 
-| Event | Trigger | Who Gets Queued | Migration |
-|-------|---------|-----------------|-----------|
-| Listing published | `trigger_queue_on_listing_publish` | Listing owner | 200 |
-| Booking + payment complete | `trigger_queue_on_booking_payment` | Tutor, Client, Agent | 201 |
-| Referral created | `trigger_queue_on_referral_created` | Agent | 202 |
-| Referral converted | `trigger_queue_on_referral_conversion` | Agent, Referred user | 202 |
-| Profile updated | `trigger_queue_on_profile_update` | Profile owner | 078 |
-| Review given | `trigger_queue_on_new_review` | Tutor | 078 |
-| Recording URL added | `trigger_queue_on_recording_url_update` | Tutor | 078 |
-| Free help completed | `trigger_queue_caas_for_free_help` | Tutor | 088 |
-| Profile graph change | `trigger_queue_on_profile_graph_change` | Both profiles | 078 |
-| Integration link added | `trigger_queue_on_integration_link_change` | Profile owner | 078 |
+| Event | Trigger | Who Gets Calculated | Latency | Migration |
+|-------|---------|---------------------|---------|-----------|
+| Profile verification | `trigger_caas_immediate_on_profile_update` | Profile owner | < 1 sec | 204 |
+| Listing published | `trigger_caas_immediate_on_listing_publish` | Listing owner | < 1 sec | 204 |
+| Booking complete + paid | `trigger_caas_immediate_on_booking_complete` | Tutor, Client, Agent | < 1 sec | 204 |
+| Referral created | `trigger_caas_immediate_on_referral_created` | Agent | < 1 sec | 204 |
+| Referral converted | `trigger_caas_immediate_on_referral_conversion` | Agent, Referred user | < 1 sec | 204 |
+| Review given | `trigger_caas_immediate_on_new_review` | Tutor | < 1 sec | 204 |
+| Social connection | `trigger_caas_immediate_on_connection_change` | Both profiles | < 1 sec | 204 |
+| Integration link added | `trigger_caas_immediate_on_integration_change` | Profile owner | < 1 sec | 204 |
+| Recording URL added | `trigger_caas_immediate_on_recording_url_added` | Tutor | < 1 sec | 204 (if column exists) |
+| Free help completed | `trigger_caas_immediate_on_free_help_complete` | Tutor/Client | < 1 sec | 204 (if table exists) |
 
-**Total:** 10 automatic triggers covering all CaaS-affecting events
+**Total:** 10 immediate triggers covering all CaaS-affecting events
+**Architecture:** Event-driven immediate calculation (no queue, no worker, no cron)
 
 ---
 
