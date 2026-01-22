@@ -51,7 +51,7 @@ fetch('/api/admin/users').then(r => r.json()).then(console.log)
 
 ## Test 3: Admin Users Page
 
-**Navigate to:** http://localhost:3000/admin/users/admins
+**Navigate to:** http://localhost:3000/admin/accounts/users/admins
 
 - [ ] Page loads without errors
 - [ ] Tabs present: All | Superadmins | Admins | System Admins | Support Admins
@@ -331,12 +331,12 @@ SELECT get_user_admin_permissions('your-user-id-uuid');
 
 **As admin user, navigate to:**
 - [ ] /admin → ✅ Allowed
-- [ ] /admin/users/admins → ✅ Allowed
+- [ ] /admin/accounts/admins → ✅ Allowed
 - [ ] /admin/seo/hubs → ✅ Allowed (even if page doesn't exist yet)
 
 **Sign out, navigate to:**
 - [ ] /admin → ❌ Redirected to /dashboard?error=unauthorized
-- [ ] /admin/users/admins → ❌ Redirected
+- [ ] /admin/accounts/admins → ❌ Redirected
 
 **As non-admin user, navigate to:**
 - [ ] /admin → ❌ Redirected to /dashboard?error=unauthorized

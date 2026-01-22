@@ -91,7 +91,7 @@ export default function AdminOrganisationDetailModal({
   // Handler: View Owner Profile
   const handleViewOwner = () => {
     if (organisation.owner) {
-      router.push(`/admin/users?id=${organisation.owner.id}`);
+      router.push(`/admin/accounts/users?id=${organisation.owner.id}`);
     }
   };
 
@@ -102,7 +102,7 @@ export default function AdminOrganisationDetailModal({
 
   // Handler: View Members
   const handleViewMembers = () => {
-    router.push(`/admin/users?organisation_id=${organisation.id}`);
+    router.push(`/admin/accounts/users?organisation_id=${organisation.id}`);
   };
 
   // Handler: Delete Organisation

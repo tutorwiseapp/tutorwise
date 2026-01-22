@@ -431,7 +431,7 @@ const navigationGroups = [
   {
     label: 'Platform',
     items: [
-      { label: 'Users', href: '/admin/users', icon: Users },
+      { label: 'Users', href: '/admin/accounts', icon: Users },
       { label: 'Listings', href: '/admin/listings', icon: BookOpen },
       { label: 'Bookings', href: '/admin/bookings', icon: Calendar },
       { label: 'Reviews', href: '/admin/reviews', icon: Star },
@@ -1258,7 +1258,7 @@ interface FormField {
 
 #### 8.3.1 User Management
 
-**Route**: `/admin/users`
+**Route**: `/admin/accounts/users`
 
 **Features**:
 - List all users (tutors, students, parents)

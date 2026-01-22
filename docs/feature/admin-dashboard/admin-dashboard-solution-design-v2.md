@@ -141,7 +141,7 @@ export default function AdminSidebar() {
         { href: '/admin/seo/config', label: 'Configuration', indent: true },
       ],
     },
-    { href: '/admin/users', label: 'Users' },
+    { href: '/admin/accounts', label: 'Users' },
     { href: '/admin/listings', label: 'Listings' },
     { href: '/admin/bookings', label: 'Bookings' },
     { href: '/admin/reviews', label: 'Reviews' },
@@ -325,7 +325,7 @@ AdminSidebar Navigation
 │  ├─ Spokes                      → /admin/seo/spokes
 │  ├─ Citations                   → /admin/seo/citations
 │  └─ Configuration               → /admin/seo/config
-├─ Users                          → /admin/users
+├─ Users                          → /admin/accounts/users
 ├─ Listings                       → /admin/listings
 ├─ Bookings                       → /admin/bookings
 ├─ Reviews                        → /admin/reviews
@@ -567,7 +567,7 @@ export default function AdminSEOHubsPage() {
 | **SEO Spokes** | `/admin/seo/spokes` | All \| Published \| Draft |
 | **SEO Citations** | `/admin/seo/citations` | All Sources \| ChatGPT \| Perplexity \| Google AI |
 | **SEO Config** | `/admin/seo/config` | Organization \| SEO Settings \| AI Optimization \| Alerts |
-| **Users** | `/admin/users` | All \| Tutors \| Students \| Parents |
+| **Users** | `/admin/accounts/users` | All \| Tutors \| Students \| Parents |
 | **Listings** | `/admin/listings` | All \| Published \| Pending \| Flagged \| Archived |
 | **Bookings** | `/admin/bookings` | All \| Upcoming \| Completed \| Cancelled |
 | **Reviews** | `/admin/reviews` | All \| Published \| Flagged |

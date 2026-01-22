@@ -144,7 +144,7 @@ fetch('/api/admin/users')
 
 #### Step 6: Test Admin User Management
 
-1. **Navigate to:** http://localhost:3000/admin/users/admins
+1. **Navigate to:** http://localhost:3000/admin/accounts/users/admins
 2. **Click "Grant Admin Access"**
 3. **Enter test email** (use your own test email)
 4. **Select role:** "supportadmin"

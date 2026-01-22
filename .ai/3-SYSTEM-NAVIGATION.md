@@ -349,14 +349,10 @@
 # Admin Home
 /admin                               # Admin dashboard
 
-# Core Admin Hubs (13 pages)
+# Core Admin Hubs (11 pages)
 /admin/accounts                      # Accounts management hub
   /admin/accounts/admins             # Admin accounts
   /admin/accounts/users              # User accounts
-/admin/users                         # Users hub
-  /admin/users/admins                # Admin users
-  /admin/users/all                   # All users
-  /admin/users/roles                 # User roles/permissions
 /admin/bookings                      # Bookings management
 /admin/listings                      # Listings management
 /admin/organisations                 # Organisations management

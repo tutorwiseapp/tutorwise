@@ -157,13 +157,13 @@ Created a complete admin dashboard foundation with:
     - Uses HubPageLayout with tabs
     - 4-card sidebar with stats
 
-26. **apps/web/src/app/(admin)/admin/users/admins/page.tsx**
+26. **apps/web/src/app/(admin)/admin/accounts/admins/page.tsx**
     - Complete admin user management page
     - Table with search, filter, sort, pagination
     - Integrates all 3 modals (grant, revoke, change)
     - 4-card sidebar with admin statistics
 
-27. **apps/web/src/app/(admin)/admin/users/admins/page.module.css**
+27. **apps/web/src/app/(admin)/admin/accounts/admins/page.module.css**
     - Admin users page styles
 
 ### API Routes (3 files)

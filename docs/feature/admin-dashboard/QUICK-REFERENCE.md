@@ -248,7 +248,7 @@ import RoleGate from '@/app/components/admin/RoleGate';
 
 ### Pages
 - Overview: `apps/web/src/app/(admin)/admin/page.tsx`
-- Admin Users: `apps/web/src/app/(admin)/admin/users/admins/page.tsx`
+- Admin Users: `apps/web/src/app/(admin)/admin/accounts/admins/page.tsx`
 
 ### API Routes
 - List admins: `apps/web/src/app/api/admin/users/route.ts`

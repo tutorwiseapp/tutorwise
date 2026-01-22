@@ -103,7 +103,7 @@ Level 1: Supportadmin (User support & moderation)
 
 ### Grant Admin Access
 
-1. Navigate to `/admin/users/admins`
+1. Navigate to `/admin/accounts/admins`
 2. Click "Grant Admin Access"
 3. Enter user email
 4. Select role (you can only grant roles at or below your level)
@@ -382,7 +382,7 @@ tools/database/
 ### 2. Test Admin User Management
 
 ```bash
-# Go to /admin/users/admins
+# Go to /admin/accounts/admins
 # Click "Grant Admin Access"
 # Enter a test user email
 # Select "supportadmin" role
