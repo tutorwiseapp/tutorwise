@@ -3,7 +3,8 @@
  * One-Time Backfill Script: Universal CaaS v6.0
  *
  * Purpose:
- * - Recalculate CaaS scores for ALL existing users using Universal v6.0 model
+ * - Notify caas_calculation_events table for ALL existing users
+ * - Next.js will pick up events and recalculate using Universal v6.0 model
  * - Run once during migration from queue-based to immediate trigger architecture
  * - Delete this script after successful migration
  *
@@ -19,7 +20,6 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
-import { CaaSService } from '../apps/web/src/lib/services/caas/index.js';
 import * as dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -64,7 +64,7 @@ async function fetchEligibleProfiles() {
 }
 
 /**
- * Backfill CaaS scores for all eligible profiles
+ * Insert profiles into caas_calculation_events for recalculation
  */
 async function backfillAllScores() {
   console.log('');
@@ -106,43 +106,27 @@ async function backfillAllScores() {
     }
     console.log('');
 
-    // Recalculate scores with progress tracking
-    console.log('🔄 Recalculating scores...\n');
-    let successCount = 0;
-    let failureCount = 0;
-    let skipCount = 0;
+    // Insert into caas_calculation_events
+    console.log('🔄 Inserting into caas_calculation_events...\n');
 
-    for (let i = 0; i < profiles.length; i++) {
-      const profile = profiles[i];
-      const progress = `[${i + 1}/${profiles.length}]`;
+    const events = profiles
+      .filter((p) => p.roles && p.roles.length > 0)
+      .map((p) => ({
+        profile_id: p.id,
+        created_at: new Date().toISOString(),
+        version: 'universal-v6.0',
+      }));
 
-      try {
-        // Skip profiles with no roles
-        if (!profile.roles || profile.roles.length === 0) {
-          console.log(`${progress} ⏭️  Skipped ${profile.email} (no roles)`);
-          skipCount++;
-          continue;
-        }
+    const { data, error } = await supabase
+      .from('caas_calculation_events')
+      .insert(events)
+      .select();
 
-        // Calculate score
-        const scoreData = await CaaSService.calculateProfileCaaS(profile.id, supabase);
-
-        console.log(
-          `${progress} ✅ ${profile.email} → ${scoreData.total}/100 (${profile.roles.join(', ')})`
-        );
-        successCount++;
-      } catch (error) {
-        console.error(
-          `${progress} ❌ ${profile.email} → Error: ${error instanceof Error ? error.message : 'Unknown error'}`
-        );
-        failureCount++;
-      }
-
-      // Add small delay to avoid rate limiting
-      if (i > 0 && i % 10 === 0) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-      }
+    if (error) {
+      throw new Error(`Failed to insert events: ${error.message}`);
     }
+
+    console.log(`✅ Inserted ${events.length} events into calculation queue\n`);
 
     // Summary
     console.log('');
@@ -151,55 +135,24 @@ async function backfillAllScores() {
     console.log('============================================================');
     console.log('');
     console.log('Results:');
-    console.log(`  ✅ Successful: ${successCount}`);
-    console.log(`  ❌ Failed: ${failureCount}`);
-    console.log(`  ⏭️  Skipped: ${skipCount}`);
-    console.log(`  📊 Total: ${profiles.length}`);
+    console.log(`  ✅ Events created: ${events.length}`);
+    console.log(`  ⏭️  Skipped (no roles): ${roleBreakdown.no_role}`);
+    console.log(`  📊 Total profiles: ${profiles.length}`);
     console.log('');
 
-    if (failureCount > 0) {
-      console.log('⚠️  Some calculations failed. Review errors above.');
-      console.log('   You can re-run this script to retry failed profiles.');
-      console.log('');
-    }
-
-    // Verify migration
-    console.log('🔍 Verifying migration...\n');
-    const { data: versionStats, error: statsError } = await supabase
-      .from('caas_scores')
-      .select('calculation_version')
-      .in('calculation_version', ['universal-v6.0', 'tutor-v5.5', 'client-v1.0', 'agent-v1.0']);
-
-    if (!statsError && versionStats) {
-      const versionCounts = versionStats.reduce(
-        (acc, s) => {
-          acc[s.calculation_version] = (acc[s.calculation_version] || 0) + 1;
-          return acc;
-        },
-        {} as Record<string, number>
-      );
-
-      console.log('   Score version distribution:');
-      Object.entries(versionCounts)
-        .sort(([a], [b]) => b.localeCompare(a))
-        .forEach(([version, count]) => {
-          const icon = version === 'universal-v6.0' ? '✅' : '⚠️';
-          console.log(`     ${icon} ${version}: ${count} users`);
-        });
-      console.log('');
-
-      if (versionCounts['universal-v6.0'] === successCount) {
-        console.log('✅ All scores successfully migrated to v6.0');
-      } else {
-        console.log('⚠️  Score count mismatch - some users may need re-calculation');
-      }
-    }
-
+    console.log('🔍 Next.js will process these events...\n');
+    console.log('   The Next.js app needs to poll caas_calculation_events');
+    console.log('   and call CaaSService.calculateProfileCaaS() for each event.');
     console.log('');
+    console.log('   For now, these events are queued and ready for processing.');
+    console.log('');
+
     console.log('Next Steps:');
-    console.log('  1. Verify scores in dashboard');
-    console.log('  2. Test immediate triggers (create booking, verify identity, etc.)');
-    console.log('  3. Delete this script (scripts/backfill-caas-v6.mts)');
+    console.log('  1. Implement Next.js polling or Realtime subscription');
+    console.log('  2. OR manually process events via admin endpoint');
+    console.log('  3. Verify scores in dashboard');
+    console.log('  4. Test immediate triggers (verify identity, publish listing)');
+    console.log('  5. Delete this script (scripts/backfill-caas-v6.mts)');
     console.log('');
   } catch (error) {
     console.error('\n❌ Backfill failed:', error);
