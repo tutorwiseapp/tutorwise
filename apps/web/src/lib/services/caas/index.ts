@@ -11,9 +11,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { TutorCaaSStrategy } from './strategies/tutor';
-import { ClientCaaSStrategy } from './strategies/client';
-import { AgentCaaSStrategy } from './strategies/agent';
+import { UniversalCaaSStrategy } from './strategies/universal';
 import { OrganisationCaaSStrategy } from './strategies/organisation';
 import type {
   CaaSScoreData,
@@ -26,16 +24,22 @@ import { CaaSVersions } from './types';
 
 /**
  * CaaSService
- * Main service for Credibility as a Service (CaaS) Engine
+ * Main service for Credibility as a Service (CaaS) Engine v6.0
  *
  * This service implements a dual-path Strategy Pattern:
  * 1. PROFILE-based scoring (Tutor, Client, Agent, Student) → caas_scores table
  * 2. ENTITY-based scoring (Organisation, Team, Group) → entity's own table
  *
  * Architecture:
- * - Profile path: calculateProfileCaaS() → Strategy → caas_scores table
- * - Entity path: calculateEntityCaaS() → Strategy → entity's table
+ * - Profile path: calculateProfileCaaS() → UniversalCaaSStrategy → caas_scores table
+ * - Entity path: calculateEntityCaaS() → OrganisationCaaSStrategy → entity's table
  * - Legacy path: calculate_caas() → Wrapper for backwards compatibility
+ *
+ * v6.0 Universal Model:
+ * - Single 6-bucket model for all roles (Tutor, Client, Agent)
+ * - No hard ceilings - weighted bucket normalization
+ * - Provisional scoring (no more 0/100 after onboarding)
+ * - Verification multipliers (0.70 → 0.85 → 1.00)
  *
  * Usage:
  * - Called by POST /api/caas-worker (Pattern 2 - Internal Worker)
@@ -154,67 +158,60 @@ export class CaaSService {
         return { total: 0, breakdown: { gate: 'No roles assigned' } };
       }
 
-      // Determine primary role for scoring
-      // Priority order: TUTOR > CLIENT > AGENT > STUDENT
-      // (Most users only have one role, but if they have multiple, prioritize TUTOR)
-      let primaryRole: CaaSRole;
-      let version: string;
+      // ================================================================
+      // STEP 2: FETCH FULL PROFILE DATA FOR UNIVERSAL STRATEGY
+      // ================================================================
+      const { data: fullProfile, error: fullProfileError } = await supabase
+        .from('profiles')
+        .select(`
+          id,
+          roles,
+          identity_verified,
+          email_verified,
+          phone_verified,
+          background_check_completed,
+          onboarding_progress,
+          bio,
+          avatar_url,
+          location,
+          average_rating,
+          qualifications
+        `)
+        .eq('id', profileId)
+        .single();
 
-      // Convert roles to uppercase for comparison (database stores lowercase)
+      if (fullProfileError || !fullProfile) {
+        throw new Error(`Failed to fetch full profile: ${fullProfileError?.message || 'Not found'}`);
+      }
+
+      // ================================================================
+      // STEP 3: CALCULATE SCORE USING UNIVERSAL STRATEGY
+      // ================================================================
+      const universalStrategy = new UniversalCaaSStrategy();
+      const scoreData = await universalStrategy.calculateFromProfile(fullProfile as any, supabase);
+
+      // Determine primary role for logging and database record
       const upperRoles = profile.roles.map((r) => r.toUpperCase());
+      let primaryRole: CaaSRole;
 
       if (upperRoles.includes('TUTOR')) {
         primaryRole = 'TUTOR';
-        version = CaaSVersions.TUTOR;
       } else if (upperRoles.includes('CLIENT')) {
         primaryRole = 'CLIENT';
-        version = CaaSVersions.CLIENT;
       } else if (upperRoles.includes('AGENT')) {
         primaryRole = 'AGENT';
-        version = CaaSVersions.AGENT;
       } else if (upperRoles.includes('STUDENT')) {
         primaryRole = 'STUDENT';
-        version = CaaSVersions.STUDENT;
       } else {
-        // User has no scoreable role - return 0 score
         console.warn(`[CaaS] Profile ${profileId} has no scoreable role:`, profile.roles);
         return { total: 0, breakdown: { gate: 'No scoreable role' } };
       }
 
-      // ================================================================
-      // STEP 2: SELECT STRATEGY AND CALCULATE SCORE
-      // ================================================================
-      let scoreData: CaaSScoreData;
-
-      switch (primaryRole) {
-        case 'TUTOR':
-          const tutorStrategy = new TutorCaaSStrategy();
-          scoreData = await tutorStrategy.calculate(profileId, supabase);
-          break;
-
-        case 'CLIENT':
-          const clientStrategy = new ClientCaaSStrategy();
-          scoreData = await clientStrategy.calculate(profileId, supabase);
-          break;
-
-        case 'AGENT':
-          const agentStrategy = new AgentCaaSStrategy();
-          scoreData = await agentStrategy.calculate(profileId, supabase);
-          break;
-
-        case 'STUDENT':
-          // Student scoring not yet implemented - return default score
-          console.warn(`[CaaS] Student scoring not yet implemented for ${profileId}`);
-          scoreData = { total: 0, breakdown: { gate: 'Student scoring not implemented' } };
-          break;
-
-        default:
-          // This should never happen due to the check above, but TypeScript needs it
-          scoreData = { total: 0, breakdown: { gate: 'Unknown role' } };
-      }
+      const version = CaaSVersions.UNIVERSAL;
+      console.log(`[CaaS] Universal Model v6.0 calculated ${scoreData.total}/100 for ${primaryRole} ${profileId}`);
 
       // ================================================================
-      // STEP 3: SAVE SCORE TO DATABASE (UPSERT)
+      // STEP 4: SAVE SCORE TO DATABASE (UPSERT)
       // ================================================================
       const { error: upsertError } = await supabase.from('caas_scores').upsert(
         {

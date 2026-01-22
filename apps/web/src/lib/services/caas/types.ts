@@ -14,7 +14,11 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 export interface CaaSProfile {
   id: string;
   roles: string[]; // Changed from 'role' to match actual schema (text[] array)
+  role?: 'tutor' | 'client' | 'agent'; // v6.0: Single role for Universal strategy (derived from roles[])
   identity_verified: boolean;
+  email_verified?: boolean; // v6.0: Added for Universal strategy verification multiplier
+  phone_verified?: boolean; // v6.0: Added for Universal strategy verification multiplier
+  background_check_completed?: boolean; // v6.0: Added for Universal strategy verification multiplier
   dbs_verified: boolean | null;
   dbs_expiry_date: string | null; // Fixed: actual column name is dbs_expiry_date
   qualifications: any | null; // JSONB from role_details (education, certifications, etc.)
@@ -22,8 +26,10 @@ export interface CaaSProfile {
   degree_level: 'BACHELORS' | 'MASTERS' | 'PHD' | 'NONE' | null;
   created_at: string;
   bio_video_url: string | null; // v5.5: "Credibility Clip" URL
-  bio: string | null; // Used by ClientCaaSStrategy
-  avatar_url: string | null; // Used by ClientCaaSStrategy
+  bio: string | null; // Used by ClientCaaSStrategy and Universal strategy
+  avatar_url: string | null; // Used by ClientCaaSStrategy and Universal strategy
+  location?: string | null; // v6.0: Added for Universal strategy credentials bucket
+  average_rating?: number | null; // v6.0: Added for Universal strategy delivery bucket
   onboarding_progress: any | null; // JSONB onboarding progress data for provisional scoring
 }
 
@@ -197,9 +203,7 @@ export interface ICaaSStrategy extends IProfileCaaSStrategy {
  * Used for calculation_version column in caas_scores table
  */
 export const CaaSVersions = {
-  TUTOR: 'tutor-v5.5', // The finalized 5-bucket model (v5.9 updated)
-  CLIENT: 'client-v1.0', // 3-bucket client scoring model
-  AGENT: 'agent-v1.0', // 4-bucket agent scoring model (subscription-incentive based)
+  UNIVERSAL: 'universal-v6.0', // Universal 6-bucket model for all profile roles (Tutor, Client, Agent)
   ORGANISATION: 'organisation-v1.0', // Weighted team average organisation scoring
   STUDENT: 'student-v1.0', // Student scoring (future)
 } as const;

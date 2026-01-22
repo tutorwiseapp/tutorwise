@@ -265,7 +265,7 @@ CAS will apply 8 agent perspectives:
 - **[Platform Specification](.ai/PLATFORM-SPECIFICATION.md)** - Full technical architecture
 - **[Design System](.ai/DESIGN-SYSTEM.md)** - UI/UX component library (353 components)
 - **[Role-Based Dashboard Design](docs/features/dashboard/role-based-dashboard-design.md)** - Dashboard architecture
-- **[User Journey Map](docs/USER-JOURNEY-MAP.md)** - End-to-end user flows
+- **[User Journey Map](.ai/8-USER-JOURNEY-MAP.md)** - End-to-end user flows for all roles
 
 ### 🔧 Feature Documentation
 - **[Admin Dashboard](docs/admin/)** - Admin hub architecture and features
