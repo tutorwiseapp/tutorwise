@@ -39,25 +39,32 @@ interface Organisation {
 
 export default async function OrganisationsPage() {
   const supabase = await createClient();
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
 
-  // Fetch all public organisations
-  const { data: organisations, error } = await supabase
-    .from('connection_groups')
+  // Fetch organisations with pre-aggregated stats (single query - eliminates N+1 problem)
+  const { data: organisationsWithStats, error } = await supabase
+    .from('organisation_statistics_daily')
     .select(`
-      id,
-      name,
-      slug,
-      tagline,
-      avatar_url,
-      location_city,
-      location_country,
-      subjects_offered,
-      caas_score,
-      category
+      total_tutors,
+      average_rating,
+      total_reviews,
+      organisation:connection_groups!inner(
+        id,
+        name,
+        slug,
+        tagline,
+        avatar_url,
+        location_city,
+        location_country,
+        subjects_offered,
+        caas_score,
+        category
+      )
     `)
-    .eq('type', 'organisation')
-    .eq('public_visible', true)
-    .order('caas_score', { ascending: false })
+    .eq('date', today)
+    .eq('organisation.type', 'organisation')
+    .eq('organisation.public_visible', true)
+    .order('organisation.caas_score', { ascending: false, nullsLast: true })
     .limit(100);
 
   if (error) {
@@ -70,26 +77,27 @@ export default async function OrganisationsPage() {
     );
   }
 
-  // Fetch stats for each organisation
-  const organisationsWithStats: Organisation[] = await Promise.all(
-    (organisations || []).map(async (org) => {
-      const { data: stats } = await supabase.rpc('get_organisation_public_stats', {
-        p_org_id: org.id,
-      });
-
-      return {
-        ...org,
-        total_tutors: stats?.[0]?.total_tutors || 0,
-        avg_rating: stats?.[0]?.avg_rating ? Number(stats[0].avg_rating) : undefined,
-        total_reviews: stats?.[0]?.total_reviews || 0,
-      };
-    })
-  );
+  // Transform data to match expected Organisation interface
+  const organisations: Organisation[] = (organisationsWithStats || []).map((stat: any) => ({
+    id: stat.organisation.id,
+    name: stat.organisation.name,
+    slug: stat.organisation.slug,
+    tagline: stat.organisation.tagline,
+    avatar_url: stat.organisation.avatar_url,
+    location_city: stat.organisation.location_city,
+    location_country: stat.organisation.location_country,
+    subjects_offered: stat.organisation.subjects_offered,
+    caas_score: stat.organisation.caas_score,
+    category: stat.organisation.category,
+    total_tutors: stat.total_tutors || 0,
+    avg_rating: stat.average_rating ? Number(stat.average_rating) : undefined,
+    total_reviews: stat.total_reviews || 0,
+  }));
 
   // Extract unique values for filters
   const uniqueCities = Array.from(
     new Set(
-      organisationsWithStats
+      organisations
         .map((org) => org.location_city)
         .filter(Boolean)
     )
@@ -97,7 +105,7 @@ export default async function OrganisationsPage() {
 
   const uniqueSubjects = Array.from(
     new Set(
-      organisationsWithStats
+      organisations
         .flatMap((org) => org.subjects_offered || [])
         .filter(Boolean)
     )
@@ -105,7 +113,7 @@ export default async function OrganisationsPage() {
 
   const uniqueCategories = Array.from(
     new Set(
-      organisationsWithStats
+      organisations
         .map((org) => org.category)
         .filter(Boolean)
     )
@@ -113,7 +121,7 @@ export default async function OrganisationsPage() {
 
   return (
     <OrganisationBrowseClient
-      organisations={organisationsWithStats}
+      organisations={organisations}
       cities={uniqueCities as string[]}
       subjects={uniqueSubjects as string[]}
       categories={uniqueCategories as string[]}
