@@ -12,7 +12,8 @@ import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { createListing, getListing, updateListing } from '@/lib/api/listings';
 import type { CreateListingInput } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
-import { HubPageLayout } from '@/app/components/hub/layout';
+import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
+import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import ListingsHeader from '@/app/components/feature/listings/create/widgets/ListingsHeader';
 import ListingsStatsWidget from '@/app/components/feature/listings/create/widgets/ListingsStatsWidget';
@@ -74,10 +75,16 @@ export default function CreateRequestPage() {
     setInitialData(prefillData);
   }, [profile, activeRole, isEditMode]);
 
+  // Prepare tabs data - single tab for client requests
+  const tabs: HubTab[] = [
+    { id: 'request', label: 'Tutor Requests', active: true },
+  ];
+
   if (userLoading || roleLoading || isLoadingListing) {
     return (
       <HubPageLayout
         header={<ListingsHeader title={isEditMode ? "Edit Request" : "Create Tutoring Request"} subtitle="Tell us what you're looking for and we'll help you find the perfect tutor" />}
+        tabs={<HubTabs tabs={tabs} onTabChange={() => {}} />}
         sidebar={
           <HubSidebar>
             <ListingsStatsWidget />
@@ -136,6 +143,7 @@ export default function CreateRequestPage() {
           }
         />
       }
+      tabs={<HubTabs tabs={tabs} onTabChange={() => {}} />}
       sidebar={
         <HubSidebar>
           <ListingsStatsWidget />
