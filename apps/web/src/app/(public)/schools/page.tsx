@@ -49,7 +49,7 @@ export default async function SchoolsPage() {
     .eq('organisation.type', 'organisation')
     .eq('organisation.category', 'school')
     .eq('organisation.public_visible', true)
-    .order('organisation.caas_score', { ascending: false, nullsLast: true })
+    .order('organisation.caas_score', { ascending: false, nullsFirst: false })
     .limit(100);
 
   if (error) {

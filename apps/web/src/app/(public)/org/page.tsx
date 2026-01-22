@@ -64,7 +64,7 @@ export default async function OrganisationsPage() {
     .eq('date', today)
     .eq('organisation.type', 'organisation')
     .eq('organisation.public_visible', true)
-    .order('organisation.caas_score', { ascending: false, nullsLast: true })
+    .order('organisation.caas_score', { ascending: false, nullsFirst: false })
     .limit(100);
 
   if (error) {

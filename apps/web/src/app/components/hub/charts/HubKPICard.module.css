@@ -82,8 +82,8 @@
 
 /* Main Value */
 .value {
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 600;
   color: #1f2937;
   line-height: 1;
 }
@@ -155,7 +155,7 @@
   }
 
   .value {
-    font-size: 1.75rem;
+    font-size: 1.25rem;
   }
 
   .label {
@@ -170,6 +170,6 @@
   }
 
   .value {
-    font-size: 1.875rem;
+    font-size: 1.375rem;
   }
 }

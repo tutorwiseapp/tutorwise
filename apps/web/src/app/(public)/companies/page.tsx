@@ -49,7 +49,7 @@ export default async function CompaniesPage() {
     .eq('organisation.type', 'organisation')
     .eq('organisation.category', 'company')
     .eq('organisation.public_visible', true)
-    .order('organisation.caas_score', { ascending: false, nullsLast: true })
+    .order('organisation.caas_score', { ascending: false, nullsFirst: false })
     .limit(100);
 
   if (error) {
