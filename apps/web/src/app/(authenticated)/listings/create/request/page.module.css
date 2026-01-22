@@ -1,12 +1,15 @@
-.requestPage {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  background-color: var(--color-base-white, #FFFFFF);
+/**
+ * Updated: 2026-01-22 - Migrated to Hub Layout Architecture (copied from one-to-one)
+ */
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: var(--color-text-secondary);
 }
 
-@media (max-width: 767px) {
-  .requestPage {
-    padding: 1rem;
-  }
+.content {
+  width: 100%;
 }

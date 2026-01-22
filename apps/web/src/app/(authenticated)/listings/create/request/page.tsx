@@ -1,3 +1,8 @@
+/**
+ * Filename: request/page.tsx
+ * Purpose: Client tutoring request creation page
+ * Updated: 2026-01-22 - Migrated to Hub Layout Architecture (copied from one-to-one)
+ */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -7,6 +12,13 @@ import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { createListing, getListing, updateListing } from '@/lib/api/listings';
 import type { CreateListingInput } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
+import { HubPageLayout } from '@/app/components/hub/layout';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import ListingsHeader from '@/app/components/feature/listings/create/widgets/ListingsHeader';
+import ListingsStatsWidget from '@/app/components/feature/listings/create/widgets/ListingsStatsWidget';
+import ListingsHelpWidget from '@/app/components/feature/listings/create/widgets/ListingsHelpWidget';
+import ListingsTipWidget from '@/app/components/feature/listings/create/widgets/ListingsTipWidget';
+import ListingsVideoWidget from '@/app/components/feature/listings/create/widgets/ListingsVideoWidget';
 import TutorRequestForm from '@/app/components/feature/listings/create/client/TutorRequestForm';
 import styles from './page.module.css';
 
@@ -26,22 +38,24 @@ export default function CreateRequestPage() {
   useEffect(() => {
     async function loadListingData() {
       if (!editId) return;
+
       try {
         const listing = await getListing(editId);
         if (listing) {
           setInitialData(listing as unknown as Partial<CreateListingInput>);
         } else {
-          toast.error('Listing not found');
+          toast.error('Request not found');
           router.push('/listings');
         }
       } catch (error) {
-        console.error('Failed to load listing:', error);
-        toast.error('Failed to load listing');
+        console.error('Failed to load request:', error);
+        toast.error('Failed to load request');
         router.push('/listings');
       } finally {
         setIsLoadingListing(false);
       }
     }
+
     loadListingData();
   }, [editId, router]);
 
@@ -53,7 +67,6 @@ export default function CreateRequestPage() {
     const clientData = profile.professional_details.client;
     const prefillData: Partial<CreateListingInput> = {};
 
-    // Only prefill subjects if available
     if (clientData.subjects) {
       prefillData.subjects = clientData.subjects;
     }
@@ -61,25 +74,29 @@ export default function CreateRequestPage() {
     setInitialData(prefillData);
   }, [profile, activeRole, isEditMode]);
 
-  // Show loading while checking auth and role
   if (userLoading || roleLoading || isLoadingListing) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">{isLoadingListing ? 'Loading request...' : 'Loading...'}</p>
-        </div>
-      </div>
+      <HubPageLayout
+        header={<ListingsHeader title={isEditMode ? "Edit Request" : "Create Tutoring Request"} subtitle="Tell us what you're looking for and we'll help you find the perfect tutor" />}
+        sidebar={
+          <HubSidebar>
+            <ListingsStatsWidget />
+            <ListingsHelpWidget />
+            <ListingsTipWidget />
+            <ListingsVideoWidget />
+          </HubSidebar>
+        }
+      >
+        <div className={styles.loading}>Loading...</div>
+      </HubPageLayout>
     );
   }
 
-  // Redirect if not logged in
   if (!user) {
     router.push('/login?redirect=/listings/create/request');
     return null;
   }
 
-  // Role guard handles redirect automatically (clients only)
   if (!isAllowed) {
     return null;
   }
@@ -93,11 +110,8 @@ export default function CreateRequestPage() {
       } else {
         await createListing(data);
         toast.success('Tutoring request published successfully!');
-        // Clear draft from localStorage on successful creation
         localStorage.removeItem('client_request_draft');
       }
-
-      // Redirect to My Listings page after successful publish
       router.push('/listings');
     } catch (error) {
       console.error(`Failed to ${isEditMode ? 'update' : 'create'} request:`, error);
@@ -112,13 +126,33 @@ export default function CreateRequestPage() {
   };
 
   return (
-    <div className={styles.requestPage}>
-      <TutorRequestForm
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-        isSaving={isSaving}
-        initialData={initialData}
-      />
-    </div>
+    <HubPageLayout
+      header={
+        <ListingsHeader
+          title={isEditMode ? "Edit Request" : "Create Tutoring Request"}
+          subtitle={isEditMode
+            ? "Update your tutoring request details"
+            : "Tell us what you're looking for and we'll help you find the perfect tutor"
+          }
+        />
+      }
+      sidebar={
+        <HubSidebar>
+          <ListingsStatsWidget />
+          <ListingsHelpWidget />
+          <ListingsTipWidget />
+          <ListingsVideoWidget />
+        </HubSidebar>
+      }
+    >
+      <div className={styles.content}>
+        <TutorRequestForm
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          isSaving={isSaving}
+          initialData={initialData}
+        />
+      </div>
+    </HubPageLayout>
   );
 }

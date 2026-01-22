@@ -176,13 +176,6 @@ export default function ClientRequestForm({
 
   return (
     <div className={styles.formContainer}>
-      <div className={styles.formHeader}>
-        <h1 className={styles.formTitle}>Create Tutoring Request</h1>
-        <p className={styles.formSubtitle}>
-          Tell us what you&apos;re looking for and we&apos;ll help you find the perfect tutor
-        </p>
-      </div>
-
       <form
         onSubmit={(e) => {
           e.preventDefault();
