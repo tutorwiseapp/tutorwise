@@ -152,6 +152,62 @@ Agents are not a separate business entity. They are tutors with recruiting respo
    └─> breakdown: { buckets, weights, multiplier, final }
 ```
 
+### Event-Driven Architecture (v6.1)
+
+**Tier 1: Immediate Triggers**
+
+The CaaS system uses database triggers for instant score updates, eliminating queue delays:
+
+```
+User Action (e.g., verify identity, publish listing, complete booking)
+    ↓
+PostgreSQL Trigger Fires (< 10ms)
+    ↓
+Insert notification into caas_calculation_events
+    ↓
+Next.js processes event (< 500ms)
+    ↓
+CaaSService.calculateProfileCaaS() executes
+    ↓
+Score saved to caas_scores table
+    ↓
+User refreshes dashboard
+    ↓
+Sees updated score (< 1 second total latency)
+```
+
+**14 Immediate Triggers:**
+
+| Event | Trigger Name | Affected Buckets | Who |
+|-------|-------------|------------------|-----|
+| Profile verification | `trigger_caas_immediate_on_profile_update` | Trust (10%) | Profile owner |
+| Listing published | `trigger_caas_immediate_on_listing_publish` | Delivery (40%) | Listing owner |
+| Booking completed + paid | `trigger_caas_immediate_on_booking_complete` | Delivery (40%) | Tutor, Client, Agent |
+| Referral created | `trigger_caas_immediate_on_referral_created` | Network (15%) | Agent |
+| Referral converted | `trigger_caas_immediate_on_referral_conversion` | Network (15%) | Agent, Referred user |
+| Review submitted | `trigger_caas_immediate_on_new_review` | Delivery (40%) | Tutor |
+| Social connection made | `trigger_caas_immediate_on_connection_change` | Network (15%) | Both profiles |
+| Integration linked | `trigger_caas_immediate_on_integration_change` | Digital (10%) | Profile owner |
+| Recording URL added | `trigger_caas_immediate_on_recording_url_added` | Digital (10%) | Tutor |
+| Free help completed | `trigger_caas_immediate_on_free_help_complete` | Impact (5%) | Tutor, Client |
+
+**Key Benefits:**
+- **Instant feedback:** Users see score changes immediately after actions
+- **No queue:** Direct trigger-based calculation replaces queue polling
+- **Resource efficient:** Triggers fire only on actual events (not scheduled)
+- **Reliable:** PostgreSQL ACID guarantees (no missed events)
+- **Simple:** No worker process, no cron job, no queue management
+
+**Database Tables:**
+- `caas_calculation_events` - Lightweight notification table (not a queue)
+- `caas_scores` - Cached score storage (unchanged)
+- ~~`caas_recalculation_queue`~~ - Deleted in v6.1
+
+**Migrations:**
+- Migration 203: RPC functions for immediate calculation
+- Migration 204: Attach 14 immediate triggers
+- Migration 205: Drop old queue infrastructure
+
 ---
 
 ## Bucket Specifications

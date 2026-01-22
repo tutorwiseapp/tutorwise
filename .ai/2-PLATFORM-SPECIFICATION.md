@@ -855,11 +855,16 @@ Auto-Setup       KPI Charts      Assignment     Analytics        Public Page
 
 ## 5. Credibility as a Service (CaaS)
 
-### 5.1 Dual-Path Trust Scoring Architecture
+### 5.1 Universal Event-Driven Trust Scoring (v6.1)
 
-**Philosophy**: Transparent, gamified trust algorithm that rewards quality and effort, not just tenure.
+**Philosophy**: Transparent, gamified trust algorithm that rewards quality and effort with instant feedback.
 
-**Architecture**: CaaS implements a **dual-path system** to score different entity types:
+**Version**: Universal v6.1 (Jan 2026)
+- **Architecture**: Event-driven immediate triggers (< 1 sec latency)
+- **Model**: Universal 6-bucket for all roles (Tutor, Client, Agent)
+- **Scoring**: Provisional + Verification multipliers (no hard gates)
+
+**Dual-Path Architecture**:
 
 1. **PROFILE-based scoring** (Tutor, Client, Agent, Student) → `caas_scores` table
 2. **ENTITY-based scoring** (Organisation, Team, Group) → entity's own table
@@ -867,103 +872,92 @@ Auto-Setup       KPI Charts      Assignment     Analytics        Public Page
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                   CaaS Service Router                           │
-│                   (Dual-Path Strategy)                          │
+│           (Universal v6.1 - Event-Driven Immediate)             │
 └────────────────┬────────────────────────────┬───────────────────┘
                  │                            │
       ┌──────────┴──────────┐      ┌─────────┴──────────────┐
       │  PROFILE PATH       │      │  ENTITY PATH           │
-      │  (Individual Users) │      │  (Organisations/Teams) │
+      │  (All Roles)        │      │  (Organisations/Teams) │
       └──────────┬──────────┘      └─────────┬──────────────┘
                  │                            │
       ┌──────────┴──────────┐      ┌─────────┴──────────────┐
-      │ IProfileCaaSStrategy│      │ IEntityCaaSStrategy    │
+      │ UniversalStrategy   │      │ OrganisationStrategy   │
+      │ (Single Impl.)      │      │ TeamStrategy (future)  │
       └──────────┬──────────┘      └─────────┬──────────────┘
                  │                            │
       ┌──────────┴──────────┐      ┌─────────┴──────────────┐
-      │ TutorStrategy       │      │ OrganisationStrategy   │
-      │ ClientStrategy      │      │ TeamStrategy (future)  │
-      │ AgentStrategy       │      │ GroupStrategy (future) │
-      └──────────┬──────────┘      └─────────┬──────────────┘
-                 │                            │
-      ┌──────────┴──────────┐      ┌─────────┴──────────────┐
-      │ caas_scores table   │      │ connection_groups.     │
-      │ (centralized)       │      │   caas_score           │
-      └─────────────────────┘      │ (distributed storage)  │
-                                   └────────────────────────┘
+      │ 14 Immediate        │      │ connection_groups.     │
+      │ Triggers            │      │   caas_score           │
+      │ (< 1 sec latency)   │      │ (distributed storage)  │
+      └──────────┬──────────┘      └────────────────────────┘
+                 │
+      ┌──────────┴──────────┐
+      │ caas_scores table   │
+      │ (centralized)       │
+      │ version: v6.0       │
+      └─────────────────────┘
 ```
 
-### 5.2 Tutor CaaS (6-Bucket Model)
+### 5.2 Universal 6-Bucket Model (All Roles)
 
-**For Tutors**: Individual educators teaching on the platform
+**Same buckets, role-specific metrics**: Tutors, Clients, and Agents all use the same 6 buckets with different implementations.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│            TUTOR CaaS SCORE (0-110 Points, /100 Display)        │
+│        UNIVERSAL CaaS SCORE v6.1 (0-100 Points)                 │
 ├─────────────────────────────────────────────────────────────────┤
-│  BUCKET                           │  MAX   │  CRITERIA           │
+│  BUCKET          │  WEIGHT │  PURPOSE                           │
 ├─────────────────────────────────────────────────────────────────┤
-│  1. Performance & Quality         │  30    │  Ratings, retention │
-│     - Avg rating (5-star)         │  15    │  4.8+ = 15 pts      │
-│     - Session completion rate     │  10    │  95%+ = 10 pts      │
-│     - Client retention            │   5    │  3+ repeat = 5 pts  │
+│  1. Delivery     │  40%    │  Core value delivery               │
+│                  │         │  • Tutor: Teaching sessions        │
+│                  │         │  • Client: Booking completion      │
+│                  │         │  • Agent: Same as tutor            │
 ├─────────────────────────────────────────────────────────────────┤
-│  2. Qualifications & Authority    │  30    │  Credentials        │
-│     - Degree in subject           │  10    │  Verified degree    │
-│     - Teaching certification      │  10    │  QTS, PGCE, etc.    │
-│     - Years experience            │   5    │  5+ years = 5 pts   │
-│     - Subject expertise           │   5    │  Multiple subjects  │
+│  2. Credentials  │  20%    │  Qualifications & expertise        │
+│                  │         │  • Tutor: Degrees, certifications  │
+│                  │         │  • Client: Profile completeness    │
+│                  │         │  • Agent: Same as tutor            │
 ├─────────────────────────────────────────────────────────────────┤
-│  3. Network & Referrals           │  20    │  Social proof       │
-│     - Tutor referrals made        │  10    │  5+ refs = 10 pts   │
-│     - Professional connections    │   6    │  20+ conns = 6 pts  │
-│     - Organisation membership     │   4    │  Active member      │
+│  3. Network      │  15%    │  Connections & referrals           │
+│                  │         │  • All roles: Social connections   │
+│                  │         │  • All roles: Referrals made       │
+│                  │         │  • All roles: Referrals received   │
 ├─────────────────────────────────────────────────────────────────┤
-│  4. Verification & Safety         │  10    │  Trust & safety     │
-│     - Identity verified           │   5    │  ID uploaded        │
-│     - DBS check (UK)              │   5    │  Enhanced DBS       │
+│  4. Trust        │  10%    │  Verification status               │
+│                  │         │  • All roles: Identity verified    │
+│                  │         │  • All roles: Proof of address     │
+│                  │         │  • Tutors: DBS check               │
 ├─────────────────────────────────────────────────────────────────┤
-│  5. Digital Professionalism       │  10    │  Platform engagement│
-│     - Google Calendar sync        │   3    │  Integration active │
-│     - Profile completeness        │   4    │  90%+ complete      │
-│     - Response rate               │   3    │  <24hrs = 3 pts     │
+│  5. Digital      │  10%    │  Platform integration              │
+│                  │         │  • Google Calendar, Classroom      │
+│                  │         │  • Lessonspace recordings          │
+│                  │         │  • Platform engagement             │
 ├─────────────────────────────────────────────────────────────────┤
-│  6. Social Impact                 │  10    │  Community service  │
-│     - Free Help Now sessions      │   6    │  5+ free sessions   │
-│     - Availability commitment     │   4    │  20+ hrs/week       │
+│  6. Impact       │   5%    │  Community contribution            │
+│                  │         │  • Tutor: Free help delivered      │
+│                  │         │  • Client: Free help taken         │
+│                  │         │  • Agent: Same as tutor            │
 └─────────────────────────────────────────────────────────────────┘
+
+VERIFICATION MULTIPLIERS (v6.1):
+- Provisional (onboarding complete):    0.70 (70% of score)
+- Identity verified:                    0.85 (85% of score, +21% boost)
+- Fully verified (all checks):          1.00 (100% of score, +18% boost)
+
+FORMULA: final_score = (Σ weighted_buckets) × verification_multiplier
 ```
 
-**Safety Gate**: Unverified tutors (no identity check) receive 0 score, hidden from marketplace
-**Cold Start**: New tutors (0 sessions) get 30-point provisional score based on qualifications
+**No More Hard Gates (v6.1)**:
+- Users get provisional score after onboarding (no 0/100 scores)
+- Verification multipliers incentivize trust without blocking access
+- Weighted normalization (no hard ceilings, high performers differentiate)
 
-### 5.3 Client CaaS (3-Bucket Model)
+**Immediate Triggers (v6.1)**:
+- 14 database triggers for instant score updates (< 1 sec latency)
+- Event-driven architecture (no queue, no worker, no cron)
+- Migrations: 203 (RPC), 204 (triggers), 205 (drop queue)
 
-**For Clients**: Parents/guardians booking tutors
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│              CLIENT CaaS SCORE (0-100 Points)                   │
-├─────────────────────────────────────────────────────────────────┤
-│  BUCKET                           │  MAX   │  CRITERIA           │
-├─────────────────────────────────────────────────────────────────┤
-│  1. Identity Verification         │  40    │  Safety gate        │
-│     - Government ID verified      │  40    │  All or nothing     │
-├─────────────────────────────────────────────────────────────────┤
-│  2. Booking History               │  40    │  Reliability        │
-│     - Completed bookings          │  40    │  Progressive scale  │
-│       • 0 bookings                │   0    │  New user           │
-│       • 1-2 bookings              │  10    │  Getting started    │
-│       • 3-5 bookings              │  20    │  Regular user       │
-│       • 6-10 bookings             │  30    │  Loyal client       │
-│       • 11+ bookings              │  40    │  Champion           │
-├─────────────────────────────────────────────────────────────────┤
-│  3. Profile Completeness          │  20    │  Engagement         │
-│     - Bio (50+ characters)        │  10    │  Shows effort       │
-│     - Avatar uploaded             │  10    │  Personalization    │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### 5.4 Agent CaaS (4-Bucket Model)
+### 5.3 Organisation CaaS (Entity Scoring)
 
 **Status**: ✅ Production-ready (Implemented 2026-01-07)
 **For Agents**: Network builders who recruit tutors and build organisations

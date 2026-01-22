@@ -55,23 +55,8 @@ export async function POST(
       );
     }
 
-    // 5. Queue CaaS recalculation for the tutor (v5.5 integration)
-    if (booking.tutor_id) {
-      const { error: queueError } = await supabase
-        .from('caas_recalculation_queue')
-        .insert({
-          profile_id: booking.tutor_id,
-          priority: 'normal',
-          reason: 'session_completed',
-        })
-        .select()
-        .single();
-
-      if (queueError) {
-        // Log but don't fail the request - CaaS queue is not critical
-        console.warn('Failed to queue CaaS recalculation:', queueError);
-      }
-    }
+    // Note: CaaS recalculation happens automatically via database triggers (v6.1)
+    // No manual queue insertion needed - trigger_caas_immediate_on_booking_complete fires on status update
 
     return NextResponse.json({
       success: true,

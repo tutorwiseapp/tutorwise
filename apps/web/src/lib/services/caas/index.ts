@@ -42,9 +42,9 @@ import { CaaSVersions } from './types';
  * - Verification multipliers (0.70 → 0.85 → 1.00)
  *
  * Usage:
- * - Called by POST /api/caas-worker (Pattern 2 - Internal Worker)
- * - Processes caas_recalculation_queue entries every 10 minutes
- * - Also callable directly for manual score calculation (e.g., backfill script)
+ * - Called automatically by database triggers (v6.1 - Immediate Triggers)
+ * - Triggers fire on user actions (verify identity, publish listing, complete booking, etc.)
+ * - Also callable directly for manual score calculation (e.g., backfill script, admin tools)
  */
 export class CaaSService {
   /**

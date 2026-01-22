@@ -6,8 +6,8 @@ audience: "all"
 description: "Understanding Tutorwise's Credibility as a Service (CaaS) system - how your credibility score is calculated, what it means, and how to improve it."
 keywords: ["credibility", "CaaS", "score", "reputation", "trust", "verification", "rating"]
 author: "Tutorwise Team"
-lastUpdated: "2026-01-07"
-readTime: "9 min"
+lastUpdated: "2026-01-22"
+readTime: "10 min"
 relatedArticles:
   - "for-tutors"
   - "bookings"
@@ -42,15 +42,19 @@ Your Credibility Score appears prominently on your profile and in search results
 
 ## How Scores Are Calculated
 
-### For Tutors (6-Bucket Model)
+### Universal 6-Bucket Model (All Roles)
 
-Tutor credibility is calculated across six weighted categories:
+<CalloutBox type="success">
+**v6.1 Update**: All roles (Tutors, Clients, Agents) now use the same 6-bucket model for fairness and consistency. Same categories, role-specific metrics.
+</CalloutBox>
+
+Credibility is calculated across six weighted categories:
 
 <Tabs>
-  <Tab label="Performance">
-    **Performance & Quality**
+  <Tab label="Delivery (40%)">
+    **Delivery & Quality**
 
-    Based on your teaching track record:
+    Based on your core value delivery on the platform:
 
     - **Average Rating**: Star rating from completed sessions
       - Higher ratings contribute more to your score
@@ -65,10 +69,10 @@ Tutor credibility is calculated across six weighted categories:
     </CalloutBox>
   </Tab>
 
-  <Tab label="Qualifications">
-    **Qualifications & Authority**
+  <Tab label="Credentials (20%)">
+    **Credentials & Expertise**
 
-    Based on your education and expertise:
+    Based on your qualifications and professional profile:
 
     - **Degree Level**:
       - Having a Bachelor's, Master's, or PhD degree
@@ -84,10 +88,10 @@ Tutor credibility is calculated across six weighted categories:
       - More experience contributes to higher scores
   </Tab>
 
-  <Tab label="Network">
-    **Network & Referrals**
+  <Tab label="Network (15%)">
+    **Network & Connections**
 
-    Based on your professional connections:
+    Based on your professional network and referrals (all roles can make AND receive referrals):
 
     - **Outgoing Referrals**:
       - Number of tutors you've successfully referred
@@ -99,29 +103,25 @@ Tutor credibility is calculated across six weighted categories:
       - Provides third-party validation and community engagement
   </Tab>
 
-  <Tab label="Safety">
-    **Verification & Safety**
+  <Tab label="Trust (10%)">
+    **Trust & Verification**
 
-    Based on verification and safeguarding:
+    Based on your verification status:
 
-    - **Identity Verification**:
-      - Government-issued ID verification
-      - Essential for platform trust and unlocks all other points
+    - **Identity Verification**: Government-issued ID verification
+    - **Proof of Address**: Utility bill or bank statement
+    - **DBS Check**: Valid enhanced or standard DBS check (UK background check)
+    - **Business Verification**: For agents and organisations
 
-    - **DBS Check**:
-      - Valid enhanced or standard DBS check
-      - Disclosure and Barring Service (UK background check)
-      - Must be current (not expired)
-
-    <CalloutBox type="warning">
-    **Safety Gate:** You must have identity verification to earn any credibility points. Without it, your score is locked at 0.
+    <CalloutBox type="info">
+    **Provisional Scoring (v6.1):** You no longer need identity verification to get a score! Complete onboarding to get a provisional score (70% multiplier). Verify your identity to boost to 85%, then complete all verifications for 100% multiplier.
     </CalloutBox>
   </Tab>
 
-  <Tab label="Digital">
-    **Digital Professionalism**
+  <Tab label="Digital (10%)">
+    **Digital Integration**
 
-    Based on your tech integration and engagement:
+    Based on your platform integration and professional tools:
 
     - **Calendar Integration**:
       - Google Calendar sync
@@ -134,10 +134,10 @@ Tutor credibility is calculated across six weighted categories:
       - Shows commitment to quality and transparency
   </Tab>
 
-  <Tab label="Social Impact">
-    **Social Impact & Community**
+  <Tab label="Impact (5%)">
+    **Community Impact**
 
-    Based on your contribution to educational access:
+    Based on your contribution to education and community:
 
     - **Free Help Availability**:
       - Enabling "Offer Free Help" on your profile
@@ -436,24 +436,27 @@ Most tutors start around 30-40 points and grow to 60-70 within their first 6 mon
 
 ## Score Recalculation
 
-<CalloutBox type="info">
-**Your score updates automatically!** No need to request recalculation - the system handles it for you.
+<CalloutBox type="success">
+**Instant Updates (v6.1):** Your score updates in real-time! Within 1 second of any action, your score recalculates automatically.
 </CalloutBox>
 
-### When Scores Update
+### When Scores Update (Immediate Triggers)
 
-Your score is recalculated when:
-- You complete a booking (performance updated)
-- You add new qualifications (qualifications updated)
-- You receive a new review (performance updated)
-- You complete verification steps (safety updated)
-- You add integrations (digital updated)
-- You make new connections (network updated)
+Your score recalculates **instantly** (< 1 second) when:
+- **You verify your identity** → Trust bucket updates
+- **You publish a listing** → Delivery bucket updates
+- **You complete a booking** → Delivery bucket updates (tutor, client, agent)
+- **You receive a review** → Delivery bucket updates
+- **You create or convert a referral** → Network bucket updates
+- **You make a social connection** → Network bucket updates
+- **You add an integration** (Calendar, Classroom) → Digital bucket updates
+- **You complete a free help session** → Impact bucket updates
 
-**Update Frequency:**
-- Real-time triggers: Verifications, qualifications
-- Hourly batch: Performance metrics (bookings, ratings)
-- Daily batch: Network metrics (connections, referrals)
+**Architecture:**
+- Event-driven triggers (no delays)
+- Database triggers fire on user actions
+- Score calculated and saved immediately
+- Visible on next dashboard refresh
 
 ### Monitoring Your Progress
 
@@ -638,9 +641,10 @@ Learn more about [Organisations](/help-centre/features/organisations) and team m
 ## Common Questions
 
 **Why is my score 0?**
-- You likely haven't completed identity verification
-- This is the Safety Gate requirement
-- Complete ID verification to unlock scoring
+- You haven't completed onboarding OR verified your identity
+- v6.1 Update: You now get a provisional score after onboarding (no hard gate!)
+- Complete onboarding to get ~40-50 points (with 0.70 multiplier)
+- Verify identity to boost to ~50-60 points (with 0.85 multiplier)
 
 **Why did my score drop?**
 - Old DBS certificate expired
@@ -670,20 +674,27 @@ Learn more about [Organisations](/help-centre/features/organisations) and team m
 
 ### Calculation Version
 
-Current version: **Tutor v5.9** (Updated Dec 2025)
+Current version: **Universal v6.1** (Updated Jan 2026)
 
-**What's New in v5.9:**
-- Added Bucket 6: Social Impact for Free Help Now integration
-- Separated free help sessions from paid session metrics
-- Free help availability now contributes to score
-- Completed free sessions earn progressive points (up to 5 points)
+**What's New in v6.1:**
+- **Immediate Triggers:** Real-time score updates (< 1 second latency)
+- **Event-Driven Architecture:** Database triggers replace queue-based system
+- **No More Queue:** Direct calculation on user actions
+- **14 Automatic Triggers:** Covering all CaaS-affecting events
+
+**What's New in v6.0:**
+- **Universal Model:** All roles use same 6-bucket structure
+- **Provisional Scoring:** No more 0/100 after onboarding
+- **Verification Multipliers:** 0.70 → 0.85 → 1.00
+- **No Hard Ceilings:** High performers can differentiate
+- **Weighted Normalization:** Progressive scoring curves
 
 **Version History:**
-- v5.9 (Dec 2025): Social Impact bucket + Free Help Now integration
+- v6.1 (Jan 2026): Immediate triggers + event-driven architecture
+- v6.0 (Jan 2026): Universal 6-bucket model for all roles
+- v5.9 (Dec 2025): Impact bucket + Free Help Now integration
 - v5.5 (Dec 2025): Enhanced digital professionalism scoring
-- v5.0 (Nov 2025): 5-bucket model established
-- v4.0 (Oct 2025): Network bucket added
-- v3.0 (Sep 2025): Qualifications standardized
+- v5.0 (Nov 2025): 5-bucket tutor model established
 
 ### Data Privacy
 

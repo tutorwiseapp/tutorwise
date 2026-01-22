@@ -1,5 +1,5 @@
 module.exports = {
-  setupFilesAfterEnv: ['<rootDir>/../../jest.setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/../../tools/scripts/jest.setup.js'],
   testEnvironment: 'jest-environment-jsdom',
   testPathIgnorePatterns: [
     '<rootDir>/.next/',
@@ -10,7 +10,7 @@ module.exports = {
     '\.css$': 'identity-obj-proxy',
   },
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { configFile: '<rootDir>/../../babel.config.js' }],
+    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { configFile: '<rootDir>/../../tools/scripts/babel.config.js' }],
   },
   transformIgnorePatterns: [
     'node_modules/(?!(.*\\.mjs$))',

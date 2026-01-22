@@ -303,9 +303,9 @@ export class UniversalCaaSStrategy implements IProfileCaaSStrategy {
     let score = 0;
 
     // Academic qualifications (0-40 points)
-    const hasUndergrad = profile.qualifications?.some((q) => q.type === 'undergraduate');
-    const hasMasters = profile.qualifications?.some((q) => q.type === 'masters');
-    const hasPhd = profile.qualifications?.some((q) => q.type === 'phd');
+    const hasUndergrad = profile.qualifications?.some((q: any) => q.type === 'undergraduate');
+    const hasMasters = profile.qualifications?.some((q: any) => q.type === 'masters');
+    const hasPhd = profile.qualifications?.some((q: any) => q.type === 'phd');
 
     if (hasPhd) score += 40;
     else if (hasMasters) score += 30;
@@ -319,7 +319,7 @@ export class UniversalCaaSStrategy implements IProfileCaaSStrategy {
     }
 
     // Certifications (0-30 points, 10 pts each)
-    const certCount = profile.qualifications?.filter((q) => q.type === 'certification').length || 0;
+    const certCount = profile.qualifications?.filter((q: any) => q.type === 'certification').length || 0;
     score += Math.min(certCount * 10, 30);
 
     // Teaching experience (0-30 points)
