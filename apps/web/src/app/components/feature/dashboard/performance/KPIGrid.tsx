@@ -1,50 +1,32 @@
 /**
  * Filename: KPIGrid.tsx
- * Purpose: Grid container for KPI cards with role-specific metrics
+ * Purpose: Grid container for KPI cards using useUserMetric hook (Phase 1.4)
  * Created: 2025-12-07
+ * Updated: 2026-01-22 - Migrated to useUserMetric hook pattern
+ *
+ * Pattern: Follows admin dashboard useAdminMetric pattern for consistency
+ * Key Changes:
+ * - Uses useUserMetric hook instead of consolidated API call
+ * - Individual metric queries with automatic caching
+ * - Historical comparison built into hook (vs yesterday/week/month)
+ * - Better performance with parallel fetching
  */
 
 'use client';
 
 import React from 'react';
-import { Calendar, CheckCircle, Star, Users, Award, TrendingUp, Coins, Clock, Heart, MessageSquare } from 'lucide-react';
+import { Calendar, CheckCircle, Star, Users, Award, TrendingUp, Coins } from 'lucide-react';
 import HubKPICard, { HubKPICardProps } from '@/app/components/hub/charts/HubKPICard';
+import { useUserMetric } from '@/hooks/useUserMetric';
 import styles from './KPIGrid.module.css';
 
-export interface KPIData {
-  totalEarnings: number;
-  upcomingSessions: number;
-  upcomingHours: number;
-  completedSessionsThisMonth: number;
-  completedSessionsLastMonth: number;
-  averageRating: number;
-  totalReviews: number;
-  last10Rating?: number;
-  repeatStudentsPercent?: number;
-  repeatStudentsCount?: number;
-  totalStudents?: number;
-  responseRate?: number;
-  acceptanceRate?: number;
-  caasScore?: number;
-  totalSpent?: number;
-  activeBookings?: number;
-  favoriteTutors?: number;
-  totalHoursLearned?: number;
-  averageRatingGiven?: number;
-  reviewsGiven?: number;
-  // Month-over-month comparisons
-  earningsChangePercent?: number | null;
-  spentChangePercent?: number | null;
-  sessionsChange?: number;
-}
-
 interface KPIGridProps {
-  data: KPIData;
+  userId: string;
   role: 'tutor' | 'agent' | 'client';
   currency?: string;
 }
 
-export default function KPIGrid({ data, role, currency = 'GBP' }: KPIGridProps) {
+export default function KPIGrid({ userId, role, currency = 'GBP' }: KPIGridProps) {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GB', {
       style: 'currency',
@@ -54,127 +36,295 @@ export default function KPIGrid({ data, role, currency = 'GBP' }: KPIGridProps) 
     }).format(amount);
   };
 
-  // Helper to display value or "-" for unavailable data
-  const displayValue = (value: number | undefined, defaultValue: string = '-'): string | number => {
-    if (value === undefined || value === null) return defaultValue;
-    return value;
+  // Helper to format metric change
+  const formatMetricChange = (
+    value: number,
+    previousValue: number | null,
+    changePercent: number | null,
+    isPercentage?: boolean
+  ): string | undefined => {
+    if (changePercent === null || previousValue === null) return undefined;
+    const sign = changePercent >= 0 ? '+' : '';
+    if (isPercentage) {
+      return `${sign}${changePercent}% vs last month`;
+    }
+    return `${sign}${Math.abs(value - previousValue)} vs last month`;
   };
 
-  // Helper to format percentage change string
-  const formatPercentChange = (percent: number | null | undefined): string | undefined => {
-    if (percent === null || percent === undefined) return undefined;
-    const sign = percent >= 0 ? '+' : '';
-    return `${sign}${percent}% vs last month`;
-  };
+  // ============================================================
+  // TUTOR/AGENT METRICS
+  // ============================================================
 
-  // Helper to format sessions change string
-  const formatSessionsChange = (change: number | undefined): string | undefined => {
-    if (change === undefined || change === null) return undefined;
-    const sign = change >= 0 ? '+' : '';
-    return `${sign}${change} vs last month`;
-  };
+  // Earnings metrics
+  const monthlyEarnings = useUserMetric({
+    userId,
+    metric: 'monthly_earnings',
+    compareWith: 'last_month',
+  });
 
-  // TUTOR/AGENT KPIs
+  const upcomingSessions = useUserMetric({
+    userId,
+    metric: 'upcoming_sessions',
+    compareWith: 'last_week',
+  });
+
+  const monthlySessions = useUserMetric({
+    userId,
+    metric: 'monthly_sessions',
+    compareWith: 'last_month',
+  });
+
+  const averageRating = useUserMetric({
+    userId,
+    metric: 'average_rating',
+    compareWith: 'last_month',
+  });
+
+  const totalReviews = useUserMetric({
+    userId,
+    metric: 'total_reviews',
+    compareWith: 'last_month',
+  });
+
+  const activeStudents = useUserMetric({
+    userId,
+    metric: 'active_students',
+    compareWith: 'last_month',
+  });
+
+  const totalStudents = useUserMetric({
+    userId,
+    metric: 'total_students',
+    compareWith: 'last_month',
+  });
+
+  const caasScore = useUserMetric({
+    userId,
+    metric: 'caas_score',
+    compareWith: 'last_month',
+  });
+
+  // ============================================================
+  // CLIENT METRICS
+  // ============================================================
+
+  const monthlySpending = useUserMetric({
+    userId,
+    metric: 'monthly_spending',
+    compareWith: 'last_month',
+  });
+
+  const totalSpending = useUserMetric({
+    userId,
+    metric: 'total_spending',
+    compareWith: 'last_month',
+  });
+
+  // ============================================================
+  // TUTOR/AGENT KPI CARDS
+  // ============================================================
+
   const tutorKPIs: HubKPICardProps[] = [
     {
       label: 'Total Earnings',
-      value: formatCurrency(data.totalEarnings),
-      change: formatPercentChange(data.earningsChangePercent),
+      value: monthlyEarnings.isLoading ? '-' : formatCurrency(monthlyEarnings.value),
+      change: !monthlyEarnings.isLoading
+        ? formatMetricChange(
+            monthlyEarnings.value,
+            monthlyEarnings.previousValue,
+            monthlyEarnings.changePercent,
+            true
+          )
+        : undefined,
       timeframe: 'This Month',
       icon: Coins,
-      variant: 'success'
+      variant: 'success',
+      trend: monthlyEarnings.trend,
     },
     {
       label: 'Upcoming Sessions',
-      value: data.upcomingSessions,
-      sublabel: `${data.upcomingHours} hours`,
-      timeframe: 'Next 7 Days',
+      value: upcomingSessions.isLoading ? '-' : upcomingSessions.value,
+      sublabel: upcomingSessions.value > 0 ? 'Next 7 days' : 'No upcoming sessions',
+      timeframe: 'Next Week',
       icon: Calendar,
-      variant: 'info'
+      variant: 'info',
+      trend: upcomingSessions.trend,
     },
     {
       label: 'Completed Sessions',
-      value: data.completedSessionsThisMonth,
-      change: formatSessionsChange(data.sessionsChange),
+      value: monthlySessions.isLoading ? '-' : monthlySessions.value,
+      change: !monthlySessions.isLoading
+        ? formatMetricChange(
+            monthlySessions.value,
+            monthlySessions.previousValue,
+            monthlySessions.changePercent,
+            false
+          )
+        : undefined,
       timeframe: 'This Month',
       icon: CheckCircle,
-      variant: 'neutral'
+      variant: 'neutral',
+      trend: monthlySessions.trend,
     },
     {
       label: 'Average Rating',
-      value: data.averageRating > 0 ? data.averageRating.toFixed(1) : '-',
-      sublabel: data.totalReviews > 0 ? `From ${data.totalReviews} reviews` : 'No reviews yet',
-      change: data.last10Rating && data.averageRating > 0 ? `+${(data.averageRating - data.last10Rating).toFixed(1)} vs last 10` : undefined,
+      value: averageRating.isLoading
+        ? '-'
+        : averageRating.value > 0
+        ? averageRating.value.toFixed(1)
+        : '-',
+      sublabel: totalReviews.isLoading
+        ? 'Loading...'
+        : totalReviews.value > 0
+        ? `From ${totalReviews.value} reviews`
+        : 'No reviews yet',
       icon: Star,
-      variant: 'success'
+      variant: 'success',
+      trend: averageRating.trend,
     },
     {
-      label: 'Repeat Students',
-      value: data.totalStudents && data.totalStudents > 0 ? `${data.repeatStudentsPercent}%` : '-',
-      sublabel: data.totalStudents && data.totalStudents > 0 ? `${data.repeatStudentsCount} of ${data.totalStudents} students` : 'No students yet',
+      label: 'Active Students',
+      value: activeStudents.isLoading ? '-' : activeStudents.value,
+      sublabel: totalStudents.isLoading
+        ? 'Loading...'
+        : totalStudents.value > 0
+        ? `${totalStudents.value} total students`
+        : 'No students yet',
+      change: !activeStudents.isLoading
+        ? formatMetricChange(
+            activeStudents.value,
+            activeStudents.previousValue,
+            activeStudents.changePercent,
+            false
+          )
+        : undefined,
       icon: Users,
-      variant: 'success'
+      variant: 'success',
+      trend: activeStudents.trend,
     },
     {
       label: 'CaaS Score',
-      value: displayValue(data.caasScore, '-'),
-      sublabel: data.caasScore && data.caasScore >= 90 ? 'Premium tier' : data.caasScore && data.caasScore > 0 ? 'Standard tier' : 'Not yet calculated',
+      value: caasScore.isLoading ? '-' : caasScore.value,
+      sublabel:
+        caasScore.value >= 90
+          ? 'Premium tier'
+          : caasScore.value > 0
+          ? 'Standard tier'
+          : 'Not yet calculated',
+      change: !caasScore.isLoading
+        ? formatMetricChange(
+            caasScore.value,
+            caasScore.previousValue,
+            caasScore.changePercent,
+            false
+          )
+        : undefined,
       icon: Award,
       variant: 'info',
       clickable: true,
-      href: '/caas'
-    }
+      href: '/caas',
+      trend: caasScore.trend,
+    },
   ];
 
-  // CLIENT KPIs
+  // ============================================================
+  // CLIENT KPI CARDS
+  // ============================================================
+
   const clientKPIs: HubKPICardProps[] = [
     {
       label: 'Active Bookings',
-      value: displayValue(data.activeBookings, '0'),
-      sublabel: data.upcomingSessions && data.upcomingSessions > 0 ? 'Next session: Tomorrow' : 'No upcoming bookings', // TODO: Calculate actual next session date from API
+      value: upcomingSessions.isLoading ? '-' : upcomingSessions.value,
+      sublabel:
+        upcomingSessions.value > 0 ? 'Next 7 days' : 'No upcoming bookings',
       icon: Calendar,
-      variant: 'info'
+      variant: 'info',
+      trend: upcomingSessions.trend,
     },
     {
       label: 'Total Spent',
-      value: formatCurrency(data.totalSpent || 0),
-      change: formatPercentChange(data.spentChangePercent),
+      value: monthlySpending.isLoading ? '-' : formatCurrency(monthlySpending.value),
+      change: !monthlySpending.isLoading
+        ? formatMetricChange(
+            monthlySpending.value,
+            monthlySpending.previousValue,
+            monthlySpending.changePercent,
+            true
+          )
+        : undefined,
       timeframe: 'This Month',
       icon: Coins,
-      variant: 'neutral'
+      variant: 'neutral',
+      trend: monthlySpending.trend,
     },
     {
-      label: 'Favorite Tutors',
-      value: displayValue(data.favoriteTutors, '-'),
-      sublabel: data.favoriteTutors !== undefined && data.favoriteTutors > 0 ? `${data.upcomingSessions || 0} sessions booked` : 'Not available yet',
-      icon: Heart,
-      variant: 'success'
+      label: 'Completed Sessions',
+      value: monthlySessions.isLoading ? '-' : monthlySessions.value,
+      change: !monthlySessions.isLoading
+        ? formatMetricChange(
+            monthlySessions.value,
+            monthlySessions.previousValue,
+            monthlySessions.changePercent,
+            false
+          )
+        : undefined,
+      timeframe: 'This Month',
+      icon: CheckCircle,
+      variant: 'neutral',
+      trend: monthlySessions.trend,
     },
     {
-      label: 'Total Hours Learned',
-      value: data.totalHoursLearned && data.totalHoursLearned > 0 ? data.totalHoursLearned : '0',
-      change: data.upcomingHours > 0 ? `+${data.upcomingHours} upcoming` : undefined,
-      timeframe: 'All Time',
-      icon: Clock,
-      variant: 'info'
-    },
-    {
-      label: 'Average Rating Given',
-      value: data.averageRatingGiven && data.averageRatingGiven > 0 ? data.averageRatingGiven.toFixed(1) : '-',
-      sublabel: data.reviewsGiven && data.reviewsGiven > 0 ? `From ${data.reviewsGiven} reviews` : 'No reviews given yet',
+      label: 'Average Rating',
+      value: averageRating.isLoading
+        ? '-'
+        : averageRating.value > 0
+        ? averageRating.value.toFixed(1)
+        : '-',
+      sublabel: totalReviews.isLoading
+        ? 'Loading...'
+        : totalReviews.value > 0
+        ? `${totalReviews.value} reviews given`
+        : 'No reviews given yet',
       icon: Star,
-      variant: 'neutral'
+      variant: 'success',
+      trend: averageRating.trend,
+    },
+    {
+      label: 'Lifetime Spending',
+      value: totalSpending.isLoading ? '-' : formatCurrency(totalSpending.value),
+      sublabel: 'All time',
+      icon: TrendingUp,
+      variant: 'info',
+      trend: totalSpending.trend,
     },
     {
       label: 'CaaS Score',
-      value: displayValue(data.caasScore, '-'),
-      sublabel: data.caasScore && data.caasScore >= 90 ? 'Premium tier' : data.caasScore && data.caasScore > 0 ? 'Standard tier' : 'Not yet calculated',
+      value: caasScore.isLoading ? '-' : caasScore.value,
+      sublabel:
+        caasScore.value >= 90
+          ? 'Premium tier'
+          : caasScore.value > 0
+          ? 'Standard tier'
+          : 'Not yet calculated',
+      change: !caasScore.isLoading
+        ? formatMetricChange(
+            caasScore.value,
+            caasScore.previousValue,
+            caasScore.changePercent,
+            false
+          )
+        : undefined,
       icon: Award,
       variant: 'info',
       clickable: true,
-      href: '/caas'
-    }
+      href: '/caas',
+      trend: caasScore.trend,
+    },
   ];
+
+  // ============================================================
+  // RENDER
+  // ============================================================
 
   const kpis = role === 'client' ? clientKPIs : tutorKPIs;
 

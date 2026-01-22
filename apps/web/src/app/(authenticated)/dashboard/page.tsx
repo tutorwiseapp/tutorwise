@@ -24,7 +24,7 @@ import { useAdminProfile } from '@/lib/rbac';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { PendingLogsWidget } from '@/app/components/feature/dashboard/content/PendingLogsWidget';
-import KPIGrid, { KPIData } from '@/app/components/feature/dashboard/performance/KPIGrid';
+import KPIGrid from '@/app/components/feature/dashboard/performance/KPIGrid';
 import { HubEarningsTrendChart, HubCalendarHeatmap, type WeeklyEarnings, type DayData } from '@/app/components/hub/charts';
 import ProfileGrowthWidget from '@/app/components/feature/dashboard/performance/ProfileGrowthWidget';
 import FirstLoginModal from '@/app/components/feature/dashboard/content/FirstLoginModal';
@@ -49,26 +49,8 @@ const DashboardPage = () => {
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [showFirstLoginModal, setShowFirstLoginModal] = useState(false);
 
-  // React Query: Fetch KPI data with automatic retry, caching, and background refetch
-  // isLoading is true only on first fetch; isFetching is true on all fetches
-  const {
-    data: kpiData = null,
-    isLoading: isLoadingKPIs,
-    isFetching: isFetchingKPIs,
-  } = useQuery({
-    queryKey: ['dashboard', 'kpis', profile?.id],
-    queryFn: async () => {
-      const response = await fetch('/api/dashboard/kpis');
-      if (!response.ok) throw new Error('Failed to fetch KPIs');
-      return response.json();
-    },
-    enabled: !!profile?.id, // Wait for profile to load before fetching
-    placeholderData: keepPreviousData,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    gcTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
-    refetchOnWindowFocus: true, // Refetch when user returns to tab
-  });
+  // Phase 1.4 COMPLETE: KPI data now fetched via useUserMetric hooks in KPIGrid component
+  // Old API endpoint /api/dashboard/kpis can be deprecated after testing
 
   // React Query: Fetch Earnings Trend data
   // isLoading is true only on first fetch; isFetching is true on all fetches
@@ -380,16 +362,12 @@ const DashboardPage = () => {
       {/* Overview Tab */}
       {activeTab === 'overview' && (
         <>
-          {/* KPI Grid */}
-          {isLoadingKPIs ? (
-            <KPISkeleton count={4} />
-          ) : kpiData ? (
-            <KPIGrid
-              data={kpiData}
-              role={activeRole === 'client' ? 'client' : activeRole === 'agent' ? 'agent' : 'tutor'}
-              currency="GBP"
-            />
-          ) : null}
+          {/* KPI Grid - Migrated to useUserMetric hook (Phase 1.4) */}
+          <KPIGrid
+            userId={profile.id}
+            role={activeRole === 'client' ? 'client' : activeRole === 'agent' ? 'agent' : 'tutor'}
+            currency="GBP"
+          />
 
       {/* Charts Section */}
       <div className={styles.chartsSection}>
