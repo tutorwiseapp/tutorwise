@@ -182,108 +182,111 @@ export default function ClientRequestForm({
           handlePublish();
         }}
       >
-        {/* Who Needs Tutoring */}
-        <LearnerTypeSection
-          learnerType={learnerType}
-          onLearnerTypeChange={setLearnerType}
-          required={true}
-          errors={errors}
-        />
-
-        {/* Subjects & Levels */}
-        <div className={styles.twoColumnLayout}>
-          <SubjectsSection
-            selectedSubjects={subjects}
-            onSubjectsChange={setSubjects}
-            label="Subjects Needed"
-            placeholder="Select subjects"
-            helpText="Choose all subjects you need help with"
+        {/* Basic Information Section */}
+        <div className={styles.sectionContainer}>
+          <LearnerTypeSection
+            learnerType={learnerType}
+            onLearnerTypeChange={setLearnerType}
             required={true}
             errors={errors}
           />
 
-          <LevelsSection
-            selectedLevels={levels}
-            onLevelsChange={setLevels}
-            label="Education Levels"
-            placeholder="Select levels"
-            helpText="Choose the student's current or target level"
+          <div className={styles.twoColumnLayout}>
+            <SubjectsSection
+              selectedSubjects={subjects}
+              onSubjectsChange={setSubjects}
+              label="Subjects Needed"
+              placeholder="Select subjects"
+              helpText="Choose all subjects you need help with"
+              required={true}
+              errors={errors}
+            />
+
+            <LevelsSection
+              selectedLevels={levels}
+              onLevelsChange={setLevels}
+              label="Education Levels"
+              placeholder="Select levels"
+              helpText="Choose the student's current or target level"
+              required={true}
+              errors={errors}
+            />
+          </div>
+
+          <BudgetSection
+            oneToOneBudget={oneToOneBudget}
+            groupBudget={groupBudget}
+            onOneToOneBudgetChange={setOneToOneBudget}
+            onGroupBudgetChange={setGroupBudget}
+            showGroupBudget={true}
+            required={true}
+            errors={errors}
+          />
+
+          <DescriptionSection
+            description={description}
+            onDescriptionChange={setDescription}
+            label="Describe Your Tutoring Needs"
+            placeholder="Tell us about the student, their current situation, what challenges they're facing, and what kind of support would be most helpful..."
+            helpText="Be specific about what you're looking for to help tutors understand your needs"
+            minLength={50}
+            maxLength={1000}
             required={true}
             errors={errors}
           />
         </div>
 
-        {/* Budget */}
-        <BudgetSection
-          oneToOneBudget={oneToOneBudget}
-          groupBudget={groupBudget}
-          onOneToOneBudgetChange={setOneToOneBudget}
-          onGroupBudgetChange={setGroupBudget}
-          showGroupBudget={true}
-          required={true}
-          errors={errors}
-        />
+        {/* Additional Requirements Section */}
+        <div className={styles.sectionContainer}>
+          <LearningGoalsSection
+            learningGoals={learningGoals}
+            onLearningGoalsChange={setLearningGoals}
+            maxLength={500}
+            errors={errors}
+          />
 
-        {/* Description */}
-        <DescriptionSection
-          description={description}
-          onDescriptionChange={setDescription}
-          label="Describe Your Tutoring Needs"
-          placeholder="Tell us about the student, their current situation, what challenges they're facing, and what kind of support would be most helpful..."
-          helpText="Be specific about what you're looking for to help tutors understand your needs"
-          minLength={50}
-          maxLength={1000}
-          required={true}
-          errors={errors}
-        />
+          <SpecialRequirementsSection
+            specialRequirements={specialRequirements}
+            onSpecialRequirementsChange={setSpecialRequirements}
+            maxLength={500}
+            errors={errors}
+          />
+        </div>
 
-        {/* Learning Goals */}
-        <LearningGoalsSection
-          learningGoals={learningGoals}
-          onLearningGoalsChange={setLearningGoals}
-          maxLength={500}
-          errors={errors}
-        />
+        {/* Tutor Preferences Section */}
+        <div className={styles.sectionContainer}>
+          <TutorPreferencesSection
+            preferredQualifications={preferredQualifications}
+            preferredCredentials={preferredCredentials}
+            preferredTeachingExp={preferredTeachingExp}
+            preferredTutorExp={preferredTutorExp}
+            onPreferredQualificationsChange={setPreferredQualifications}
+            onPreferredCredentialsChange={setPreferredCredentials}
+            onPreferredTeachingExpChange={setPreferredTeachingExp}
+            onPreferredTutorExpChange={setPreferredTutorExp}
+            errors={errors}
+          />
 
-        {/* Special Requirements */}
-        <SpecialRequirementsSection
-          specialRequirements={specialRequirements}
-          onSpecialRequirementsChange={setSpecialRequirements}
-          maxLength={500}
-          errors={errors}
-        />
+          <DeliveryModeSection
+            deliveryMode={deliveryMode}
+            onDeliveryModeChange={setDeliveryMode}
+            label="Preferred Session Format"
+            required={true}
+            errors={errors}
+          />
+        </div>
 
-        {/* Tutor Preferences */}
-        <TutorPreferencesSection
-          preferredQualifications={preferredQualifications}
-          preferredCredentials={preferredCredentials}
-          preferredTeachingExp={preferredTeachingExp}
-          preferredTutorExp={preferredTutorExp}
-          onPreferredQualificationsChange={setPreferredQualifications}
-          onPreferredCredentialsChange={setPreferredCredentials}
-          onPreferredTeachingExpChange={setPreferredTeachingExp}
-          onPreferredTutorExpChange={setPreferredTutorExp}
-          errors={errors}
-        />
-
-        {/* Delivery Mode */}
-        <DeliveryModeSection
-          deliveryMode={deliveryMode}
-          onDeliveryModeChange={setDeliveryMode}
-          label="Preferred Session Format"
-          required={true}
-          errors={errors}
-        />
-
-        {/* Availability */}
-        <AvailabilitySection
-          availability={availability}
-          unavailability={unavailability}
-          onAvailabilityChange={setAvailability}
-          onUnavailabilityChange={setUnavailability}
-          showUnavailability={true}
-          errors={errors}
-        />
+        {/* Availability Section */}
+        <div className={styles.sectionContainer}>
+          <AvailabilitySection
+            availability={availability}
+            unavailability={unavailability}
+            onAvailabilityChange={setAvailability}
+            onUnavailabilityChange={setUnavailability}
+            showUnavailability={true}
+            errors={errors}
+          />
+        </div>
 
         {/* Form Actions */}
         <FormActionsSection

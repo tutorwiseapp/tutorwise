@@ -170,3 +170,41 @@
 .characterCount.error {
   color: var(--color-error-default, #F44336);
 }
+
+/* Form Container - Hub card styling */
+.formContainer {
+  width: 100%;
+}
+
+/* Section Container - Hub card styling with borders */
+.sectionContainer {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.sectionContainer:last-child {
+  margin-bottom: 0;
+}
+
+/* Section Header */
+.sectionHeader {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 4px 0;
+}
+
+.sectionDescription {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
