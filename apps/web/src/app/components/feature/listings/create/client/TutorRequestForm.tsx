@@ -30,8 +30,8 @@ interface TutorRequestFormProps {
   initialData?: Partial<CreateListingInput>;
 }
 
-type EditingField = 'learner_type' | 'subjects' | 'levels' | 'description' | 'hourly_rate_min' |
-  'hourly_rate_max' | 'delivery_mode' | null;
+type EditingField = 'tutoring_for' | 'subjects' | 'levels' | 'description' | 'hourly_rate' |
+  'group_hourly_rate' | 'delivery_mode' | null;
 
 type FieldType = 'text' | 'select' | 'multiselect' | 'textarea' | 'number';
 
@@ -54,7 +54,7 @@ interface UnavailabilityPeriod {
 }
 
 // Constants for select options
-const learnerTypeOptions = [
+const tutoringForOptions = [
   { value: 'myself', label: 'Myself' },
   { value: 'my_child', label: 'My Child' },
   { value: 'other', label: 'Someone Else' },
@@ -111,13 +111,15 @@ export default function TutorRequestForm({ onSubmit, onCancel, isSaving = false,
 
   // Form data with unified state
   const [formData, setFormData] = useState({
-    learner_type: (initialData as any).learner_type || '',
+    tutoring_for: (initialData as any).tutoring_for || '',
     subjects: (initialData.subjects as string[]) || [],
     levels: (initialData.levels as string[]) || [],
     description: initialData.description || '',
-    hourly_rate_min: initialData.hourly_rate_min?.toString() || '50',
-    hourly_rate_max: initialData.hourly_rate_max?.toString() || '25',
-    delivery_mode: (initialData as any).delivery_mode || '',
+    hourly_rate: initialData.hourly_rate?.toString() || '',
+    group_hourly_rate: (initialData as any).group_hourly_rate?.toString() || '',
+    delivery_mode: Array.isArray(initialData.delivery_mode)
+      ? initialData.delivery_mode[0]
+      : (initialData as any).delivery_mode || '',
   });
 
   // Availability state
@@ -305,22 +307,22 @@ export default function TutorRequestForm({ onSubmit, onCancel, isSaving = false,
   const validateForm = (): boolean => {
     const errors: string[] = [];
 
-    if (!formData.learner_type) {
+    if (!formData.tutoring_for) {
       errors.push('Please select who needs tutoring');
     }
     if (formData.subjects.length === 0) {
-      errors.push('Please select at least one subject');
+      errors.push('Please select at least one preferred subject');
     }
     if (formData.levels.length === 0) {
-      errors.push('Please select at least one education level');
+      errors.push('Please select at least one preferred level');
     }
     if (!formData.description.trim() || formData.description.length < 50) {
       errors.push('Description must be at least 50 characters');
     }
     if (!formData.delivery_mode || formData.delivery_mode === '') {
-      errors.push('Please select a delivery mode');
+      errors.push('Please select a preferred delivery mode');
     }
-    if (!formData.hourly_rate_min || parseFloat(formData.hourly_rate_min) <= 0) {
+    if (!formData.hourly_rate || parseFloat(formData.hourly_rate) <= 0) {
       errors.push('Please enter a valid budget for one-to-one sessions');
     }
     if (availabilityPeriods.length === 0) {
@@ -341,15 +343,25 @@ export default function TutorRequestForm({ onSubmit, onCancel, isSaving = false,
 
     setLocalIsSaving(true);
     try {
+      // Generate a title from subjects and levels for the request
+      const subjectsText = formData.subjects.length > 0
+        ? formData.subjects.slice(0, 2).join(' & ') + (formData.subjects.length > 2 ? '...' : '')
+        : 'Tutoring';
+      const levelsText = formData.levels.length > 0
+        ? formData.levels[0].split(' - ')[0] // Get first part like "Primary Education (KS1-KS2)"
+        : 'All Levels';
+      const generatedTitle = `${subjectsText} Tutor Needed - ${levelsText}`;
+
       const listingData: any = {
         listing_type: 'request',
-        learner_type: formData.learner_type,
+        title: generatedTitle, // Required field - auto-generated from subjects/levels
+        tutoring_for: formData.tutoring_for,
         subjects: formData.subjects,
         levels: formData.levels,
         description: formData.description,
         delivery_mode: formData.delivery_mode ? [formData.delivery_mode] : [],
-        hourly_rate_min: parseFloat(formData.hourly_rate_min),
-        hourly_rate_max: formData.hourly_rate_max ? parseFloat(formData.hourly_rate_max) : undefined,
+        hourly_rate: parseFloat(formData.hourly_rate),
+        group_hourly_rate: formData.group_hourly_rate ? parseFloat(formData.group_hourly_rate) : undefined,
         availability: availabilityPeriods,
         unavailability: unavailabilityPeriods,
         status: 'published',
@@ -475,17 +487,17 @@ export default function TutorRequestForm({ onSubmit, onCancel, isSaving = false,
       {/* Main Section - All basic request fields in ONE large section */}
       <HubForm.Section>
         <HubForm.Grid columns={1}>
-          {renderField('learner_type', 'learner_type', 'Who Needs Tutoring', 'select', 'Select who needs tutoring', learnerTypeOptions)}
+          {renderField('tutoring_for', 'tutoring_for', 'Who Needs Tutoring', 'select', 'Select who needs tutoring', tutoringForOptions)}
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('subjects', 'subjects', 'Subjects Needed', 'multiselect', 'Select subjects', configs.get('subjects')?.options || subjectsOptions)}
-          {renderField('levels', 'levels', 'Education Levels', 'multiselect', 'Select levels', configs.get('levels')?.options || levelsOptions)}
+          {renderField('subjects', 'subjects', 'Preferred Subjects', 'multiselect', 'Select subjects', configs.get('subjects')?.options || subjectsOptions)}
+          {renderField('levels', 'levels', 'Preferred Levels', 'multiselect', 'Select levels', configs.get('levels')?.options || levelsOptions)}
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('hourly_rate_min', 'hourly_rate_min', 'Budget for One-to-One (£/hour)', 'number', '50')}
-          {renderField('hourly_rate_max', 'hourly_rate_max', 'Budget for Group Sessions (£/hour)', 'number', '25')}
+          {renderField('hourly_rate', 'hourly_rate', 'Budget for One-to-One (£/hour)', 'number', '£25')}
+          {renderField('group_hourly_rate', 'group_hourly_rate', 'Budget for Group Sessions (£/hour)', 'number', '£15')}
         </HubForm.Grid>
 
         <HubForm.Grid columns={1}>
@@ -493,7 +505,7 @@ export default function TutorRequestForm({ onSubmit, onCancel, isSaving = false,
         </HubForm.Grid>
 
         <HubForm.Grid columns={1}>
-          {renderField('delivery_mode', 'delivery_mode', 'Preferred Session Format', 'select', 'Select delivery mode', configs.get('deliveryMode')?.options || deliveryModeOptions)}
+          {renderField('delivery_mode', 'delivery_mode', 'Preferred Delivery Mode', 'select', 'Select delivery mode', configs.get('deliveryMode')?.options || deliveryModeOptions)}
         </HubForm.Grid>
       </HubForm.Section>
 

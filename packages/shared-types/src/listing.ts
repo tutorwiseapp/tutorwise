@@ -22,6 +22,11 @@ export type ListingCategory = 'session' | 'course' | 'job';
 export type JobType = 'full-time' | 'part-time' | 'contract' | 'one-off';
 
 /**
+ * Tutoring for - Who needs tutoring (client requests)
+ */
+export type TutoringFor = 'myself' | 'my_child' | 'other';
+
+/**
  * v4.0: New listing type system for multi-service platform
  * Supports: One-to-One, Group Session, Workshop/Webinar, Study Package, Job Listing
  */
@@ -122,6 +127,7 @@ export interface Listing {
   title: string; // Service title (e.g., "GCSE Maths Tutor")
   description: string;
   status: ListingStatus;
+  tutoring_for?: TutoringFor; // v5.2: Who needs tutoring (client requests only)
 
   // Verification Status (from profiles table)
   identity_verified?: boolean; // Whether tutor's identity has been verified
@@ -138,6 +144,7 @@ export interface Listing {
 
   // Pricing
   hourly_rate?: number;
+  group_hourly_rate?: number; // v5.2: Budget for group sessions (client requests)
   currency: string;
   pricing_packages?: PricingPackage[];
   free_trial: boolean;
@@ -313,6 +320,7 @@ export interface CreateListingInput {
   listing_type?: string; // Type of listing (e.g., "Tutor: One-on-One Session")
   title: string; // Service title
   description: string;
+  tutoring_for?: TutoringFor; // v5.2: Who needs tutoring (client requests)
 
   // Teaching Details (required)
   subjects: string[];
@@ -329,6 +337,7 @@ export interface CreateListingInput {
   hourly_rate?: number;
   hourly_rate_min?: number;
   hourly_rate_max?: number;
+  group_hourly_rate?: number; // v5.2: Budget for group sessions (client requests)
   currency?: string;
   pricing_packages?: PricingPackage[];
   free_trial?: boolean;
