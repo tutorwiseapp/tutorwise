@@ -1,8 +1,8 @@
 /**
- * Filename: TutorRequestForm.tsx
- * Purpose: Client tutoring request creation form
- * Pattern: Copied from agent OneToOneForm.tsx and customized for client requests
- * Created: 2026-01-22
+ * Filename: OneToOneForm.tsx
+ * Purpose: One-to-One tutoring service listing creation form
+ * Pattern: Copied from ProfessionalInfoForm.tsx and customized for listing creation
+ * Created: 2026-01-19
  * Architecture: Uses HubForm components with unified state management
  */
 
@@ -21,17 +21,17 @@ import HubListItem from '@/app/components/hub/content/HubListItem/HubListItem';
 import { useFormConfigs } from '@/hooks/useFormConfig';
 import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
 import toast from 'react-hot-toast';
-import styles from './TutorRequestForm.module.css';
+import styles from './OneToOneForm.module.css';
 
-interface TutorRequestFormProps {
+interface OneToOneFormProps {
   onSubmit: (data: CreateListingInput) => void;
   onCancel: () => void;
   isSaving?: boolean;
   initialData?: Partial<CreateListingInput>;
 }
 
-type EditingField = 'learner_type' | 'subjects' | 'levels' | 'description' | 'hourly_rate_min' |
-  'hourly_rate_max' | 'delivery_mode' | null;
+type EditingField = 'title' | 'subjects' | 'levels' | 'description' | 'session_duration' |
+  'hourly_rate' | 'delivery_mode' | 'images' | null;
 
 type FieldType = 'text' | 'select' | 'multiselect' | 'textarea' | 'number';
 
@@ -54,10 +54,12 @@ interface UnavailabilityPeriod {
 }
 
 // Constants for select options
-const learnerTypeOptions = [
-  { value: 'myself', label: 'Myself' },
-  { value: 'my_child', label: 'My Child' },
-  { value: 'other', label: 'Someone Else' },
+const sessionDurationOptions = [
+  { value: '30', label: '30 minutes' },
+  { value: '45', label: '45 minutes' },
+  { value: '60', label: '1 hour' },
+  { value: '90', label: '1.5 hours' },
+  { value: '120', label: '2 hours' },
 ];
 
 const deliveryModeOptions = [
@@ -88,7 +90,7 @@ const levelsOptions = [
 
 const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-export default function TutorRequestForm({ onSubmit, onCancel, isSaving = false, initialData = {} }: TutorRequestFormProps) {
+export default function OneToOneForm({ onSubmit, onCancel, isSaving = false, initialData = {} }: OneToOneFormProps) {
   const router = useRouter();
   const [editingField, setEditingField] = useState<EditingField>(null);
   const [localIsSaving, setLocalIsSaving] = useState(false);
@@ -104,20 +106,22 @@ export default function TutorRequestForm({ onSubmit, onCancel, isSaving = false,
 
   // Fetch dynamic form configs
   const { configs } = useFormConfigs([
-    { fieldName: 'subjects', context: 'listing.client', fallback: { label: 'Subjects', placeholder: 'Select subjects', options: subjectsOptions } },
-    { fieldName: 'levels', context: 'listing.client', fallback: { label: 'Education Levels', placeholder: 'Select levels', options: levelsOptions } },
-    { fieldName: 'deliveryMode', context: 'listing.client', fallback: { label: 'Delivery Mode', placeholder: 'Select delivery mode', options: deliveryModeOptions } },
+    { fieldName: 'subjects', context: 'listing', fallback: { label: 'Subjects', placeholder: 'Select subjects', options: subjectsOptions } },
+    { fieldName: 'levels', context: 'listing', fallback: { label: 'Education Levels', placeholder: 'Select levels', options: levelsOptions } },
+    { fieldName: 'sessionDuration', context: 'listing', fallback: { label: 'Session Duration', placeholder: 'Select duration', options: sessionDurationOptions } },
+    { fieldName: 'deliveryMode', context: 'listing', fallback: { label: 'Delivery Mode', placeholder: 'Select delivery mode', options: deliveryModeOptions } },
   ]);
 
   // Form data with unified state
   const [formData, setFormData] = useState({
-    learner_type: (initialData as any).learner_type || '',
+    title: initialData.title || '',
     subjects: (initialData.subjects as string[]) || [],
     levels: (initialData.levels as string[]) || [],
     description: initialData.description || '',
-    hourly_rate_min: initialData.hourly_rate_min?.toString() || '50',
-    hourly_rate_max: initialData.hourly_rate_max?.toString() || '25',
-    delivery_mode: (initialData as any).delivery_mode || '',
+    session_duration: '',
+    hourly_rate: initialData.hourly_rate?.toString() || '',
+    delivery_mode: '',
+    images: (initialData.images as string[]) || [],
   });
 
   // Availability state
@@ -139,7 +143,7 @@ export default function TutorRequestForm({ onSubmit, onCancel, isSaving = false,
       availabilityPeriods,
       unavailabilityPeriods,
     };
-    localStorage.setItem('client_request_draft', JSON.stringify(draftData));
+    localStorage.setItem('one_to_one_draft', JSON.stringify(draftData));
   }, [formData, availabilityPeriods, unavailabilityPeriods]);
 
   // Auto-focus when entering edit mode
@@ -305,8 +309,8 @@ export default function TutorRequestForm({ onSubmit, onCancel, isSaving = false,
   const validateForm = (): boolean => {
     const errors: string[] = [];
 
-    if (!formData.learner_type) {
-      errors.push('Please select who needs tutoring');
+    if (!formData.title.trim() || formData.title.length < 10) {
+      errors.push('Title must be at least 10 characters');
     }
     if (formData.subjects.length === 0) {
       errors.push('Please select at least one subject');
@@ -317,11 +321,14 @@ export default function TutorRequestForm({ onSubmit, onCancel, isSaving = false,
     if (!formData.description.trim() || formData.description.length < 50) {
       errors.push('Description must be at least 50 characters');
     }
+    if (!formData.session_duration) {
+      errors.push('Please select a session duration');
+    }
     if (!formData.delivery_mode || formData.delivery_mode === '') {
       errors.push('Please select a delivery mode');
     }
-    if (!formData.hourly_rate_min || parseFloat(formData.hourly_rate_min) <= 0) {
-      errors.push('Please enter a valid budget for one-to-one sessions');
+    if (!formData.hourly_rate || parseFloat(formData.hourly_rate) <= 0) {
+      errors.push('Please enter a valid hourly rate');
     }
     if (availabilityPeriods.length === 0) {
       errors.push('Please add at least one availability period');
@@ -342,25 +349,27 @@ export default function TutorRequestForm({ onSubmit, onCancel, isSaving = false,
     setLocalIsSaving(true);
     try {
       const listingData: any = {
-        type: 'request',
-        learner_type: formData.learner_type,
+        listing_type: 'service',
+        service_type: 'one-to-one',
+        title: formData.title,
         subjects: formData.subjects,
         levels: formData.levels,
         description: formData.description,
-        location_type: formData.delivery_mode as any,
-        delivery_mode: formData.delivery_mode,
-        hourly_rate_min: parseFloat(formData.hourly_rate_min),
-        hourly_rate_max: formData.hourly_rate_max ? parseFloat(formData.hourly_rate_max) : undefined,
+        session_duration: formData.session_duration,
+        delivery_mode: formData.delivery_mode ? [formData.delivery_mode] : [],
+        hourly_rate: parseFloat(formData.hourly_rate),
         availability: availabilityPeriods,
         unavailability: unavailabilityPeriods,
+        images: formData.images,
+        status: 'published',
       };
 
-      console.log('[TutorRequestForm] Submitting request data:', listingData);
+      console.log('[OneToOneForm] Submitting listing data:', listingData);
       await onSubmit(listingData);
-      localStorage.removeItem('client_request_draft');
+      localStorage.removeItem('one_to_one_draft');
     } catch (error) {
-      console.error('[TutorRequestForm] Failed to create request:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to create request');
+      console.error('[OneToOneForm] Failed to create listing:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to create listing');
     } finally {
       setLocalIsSaving(false);
     }
@@ -472,32 +481,32 @@ export default function TutorRequestForm({ onSubmit, onCancel, isSaving = false,
 
   return (
     <HubForm.Root>
-      {/* Main Section - All basic request fields in ONE large section */}
+      {/* Main Section - All basic listing fields in ONE large section like ProfessionalInfoForm */}
       <HubForm.Section>
         <HubForm.Grid columns={1}>
-          {renderField('learner_type', 'learner_type', 'Who Needs Tutoring', 'select', 'Select who needs tutoring', learnerTypeOptions)}
+          {renderField('title', 'title', 'Service Title', 'text', 'E.g., Expert GCSE Maths Tutor - Build Confidence & Achieve A*')}
+        </HubForm.Grid>
+
+        <HubForm.Grid columns={1}>
+          {renderField('description', 'description', 'Service Description', 'textarea', 'Describe your teaching approach, what makes you unique, what students can expect...')}
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('subjects', 'subjects', 'Subjects Needed', 'multiselect', 'Select subjects', configs.get('subjects')?.options || subjectsOptions)}
+          {renderField('subjects', 'subjects', 'Subjects You Teach', 'multiselect', 'Select subjects', configs.get('subjects')?.options || subjectsOptions)}
           {renderField('levels', 'levels', 'Education Levels', 'multiselect', 'Select levels', configs.get('levels')?.options || levelsOptions)}
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('hourly_rate_min', 'hourly_rate_min', 'Budget for One-to-One (£/hour)', 'number', '50')}
-          {renderField('hourly_rate_max', 'hourly_rate_max', 'Budget for Group Sessions (£/hour)', 'number', '25')}
+          {renderField('session_duration', 'session_duration', 'Session Duration', 'select', 'Select duration', configs.get('sessionDuration')?.options || sessionDurationOptions)}
+          {renderField('delivery_mode', 'delivery_mode', 'Delivery Mode', 'select', 'Select delivery mode', configs.get('deliveryMode')?.options || deliveryModeOptions)}
         </HubForm.Grid>
 
-        <HubForm.Grid columns={1}>
-          {renderField('description', 'description', 'Describe Your Tutoring Needs', 'textarea', 'Tell us about the student, their current situation, what challenges they\'re facing, and what kind of support would be most helpful...')}
-        </HubForm.Grid>
-
-        <HubForm.Grid columns={1}>
-          {renderField('delivery_mode', 'delivery_mode', 'Preferred Session Format', 'select', 'Select delivery mode', configs.get('deliveryMode')?.options || deliveryModeOptions)}
+        <HubForm.Grid>
+          {renderField('hourly_rate', 'hourly_rate', 'Hourly Rate (£)', 'number', '£25')}
         </HubForm.Grid>
       </HubForm.Section>
 
-      {/* Availability Section - Separate section with title */}
+      {/* Availability Section - Separate section with title like ProfessionalInfoForm */}
       <HubForm.Section title="Availability">
         <div className={styles.availabilityGrid}>
           {/* Left Column: Availability Periods */}
@@ -718,7 +727,7 @@ export default function TutorRequestForm({ onSubmit, onCancel, isSaving = false,
         </div>
       </HubForm.Section>
 
-      {/* Form Actions - Using HubForm.Actions */}
+      {/* Form Actions - Using HubForm.Actions like ProfessionalInfoForm */}
       <HubForm.Actions>
         <Button
           type="button"
@@ -745,7 +754,7 @@ export default function TutorRequestForm({ onSubmit, onCancel, isSaving = false,
           onClick={handlePublish}
           disabled={isSaving || localIsSaving}
         >
-          {(isSaving || localIsSaving) ? 'Publishing...' : 'Publish Request'}
+          {(isSaving || localIsSaving) ? 'Publishing...' : 'Publish Listing'}
         </Button>
       </HubForm.Actions>
     </HubForm.Root>
