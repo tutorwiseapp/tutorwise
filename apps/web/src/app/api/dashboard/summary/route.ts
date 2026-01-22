@@ -2,6 +2,12 @@
  * Filename: apps/web/src/app/api/dashboard/summary/route.ts
  * Purpose: Aggregated dashboard stats for unified hub right sidebar
  * Created: 2025-11-08
+ * Updated: 2026-01-22 - Phase 2: Migrated to use user_statistics_daily table
+ *
+ * MIGRATION NOTES:
+ * - Now queries pre-aggregated user_statistics_daily table for most metrics
+ * - Still queries live data for urgent/upcoming items (reviews, bookings)
+ * - Simplified financial and reputation queries
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -37,14 +43,19 @@ export async function GET(request: NextRequest) {
 
     const role = profile.active_role;
 
-    // Parallel fetch all dashboard stats
-    const [
-      pendingReviewsResult,
-      upcomingBookingsResult,
-      earningsResult,
-      ratingsResult,
-      unreadMessagesResult,
-    ] = await Promise.all([
+    // Fetch today's statistics from pre-aggregated table
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const { data: todayStats } = await supabase
+      .from('user_statistics_daily')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('date', today.toISOString().split('T')[0])
+      .single();
+
+    // Parallel fetch live data for urgent/time-sensitive items
+    const [pendingReviewsResult, upcomingBookingsResult, unreadMessagesResult] = await Promise.all([
       // 1. Pending reviews (urgent)
       supabase
         .from('booking_review_sessions')
@@ -62,27 +73,7 @@ export async function GET(request: NextRequest) {
         .order('session_start_time', { ascending: true })
         .limit(5),
 
-      // 3. Earnings (role-specific)
-      role === 'client'
-        ? supabase
-            .from('bookings')
-            .select('total_price')
-            .eq('client_id', user.id)
-            .eq('status', 'completed')
-        : supabase
-            .from('bookings')
-            .select('tutor_earnings, agent_commission')
-            .or(`tutor_id.eq.${user.id},agent_id.eq.${user.id}`)
-            .eq('status', 'completed'),
-
-      // 4. Average rating
-      supabase
-        .from('reviews')
-        .select('rating')
-        .eq('reviewee_id', user.id)
-        .eq('status', 'published'),
-
-      // 5. Unread messages (placeholder - actual implementation depends on messaging system)
+      // 3. Unread messages (placeholder - actual implementation depends on messaging system)
       Promise.resolve({ data: [], count: 0 }),
     ]);
 
@@ -91,7 +82,9 @@ export async function GET(request: NextRequest) {
     // Calculate days remaining from publish_at date
     const urgentReviews = pendingReviews.filter((r) => {
       if (!r.publish_at) return false;
-      const daysRemaining = Math.ceil((new Date(r.publish_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+      const daysRemaining = Math.ceil(
+        (new Date(r.publish_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+      );
       return daysRemaining <= 1;
     });
 
@@ -99,36 +92,11 @@ export async function GET(request: NextRequest) {
     const upcomingBookings = upcomingBookingsResult.data || [];
     const nextBooking = upcomingBookings[0] || null;
 
-    // Process earnings
-    let totalEarnings = 0;
-    let totalSpent = 0;
-    if (role === 'client') {
-      // Client: total spent
-      totalSpent = (earningsResult.data || []).reduce(
-        (sum: number, b: any) => sum + (b.total_price || 0),
-        0
-      );
-      totalEarnings = 0; // Clients don't earn from bookings
-    } else if (role === 'tutor') {
-      // Tutor: tutor earnings only
-      totalEarnings = (earningsResult.data || []).reduce(
-        (sum: number, b: any) => sum + (b.tutor_earnings || 0),
-        0
-      );
-    } else if (role === 'agent') {
-      // Agent: agent commissions only
-      totalEarnings = (earningsResult.data || []).reduce(
-        (sum: number, b: any) => sum + (b.agent_commission || 0),
-        0
-      );
-    }
-
-    // Process average rating
-    const ratings = ratingsResult.data || [];
-    const averageRating =
-      ratings.length > 0
-        ? ratings.reduce((sum: number, r: any) => sum + r.rating, 0) / ratings.length
-        : 0;
+    // Get financial and reputation data from aggregated stats
+    const totalEarnings = todayStats?.total_earnings || 0;
+    const totalSpent = todayStats?.total_spending || 0;
+    const averageRating = todayStats?.average_rating || 0;
+    const totalReviews = todayStats?.total_reviews || 0;
 
     // Build response
     const summary = {
@@ -153,7 +121,7 @@ export async function GET(request: NextRequest) {
       },
       reputation: {
         average_rating: Math.round(averageRating * 10) / 10,
-        total_reviews: ratings.length,
+        total_reviews: totalReviews,
       },
       messages: {
         unread_count: 0, // Placeholder

@@ -2,6 +2,12 @@
  * Filename: apps/web/src/app/api/dashboard/earnings-trend/route.ts
  * Purpose: Fetch weekly earnings trend data for dashboard chart
  * Created: 2025-12-07
+ * Updated: 2026-01-22 - Phase 2: Migrated to use user_statistics_daily table
+ *
+ * MIGRATION NOTES:
+ * - Now queries pre-aggregated user_statistics_daily table
+ * - Simplified from N queries (one per week) to 1 query with date range
+ * - Supports daily granularity for better trend visualization
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -40,69 +46,83 @@ export async function GET(request: NextRequest) {
     // Get query parameters
     const searchParams = request.nextUrl.searchParams;
     const weeks = parseInt(searchParams.get('weeks') || '6');
+    const daysToFetch = weeks * 7;
 
-    // Calculate date ranges for last N weeks
-    const weeklyData = [];
-    const now = new Date();
+    // Calculate date range
+    const endDate = new Date();
+    endDate.setHours(0, 0, 0, 0);
 
-    for (let i = weeks - 1; i >= 0; i--) {
-      const weekStart = new Date(now);
-      weekStart.setDate(now.getDate() - (i + 1) * 7);
-      weekStart.setHours(0, 0, 0, 0);
+    const startDate = new Date(endDate);
+    startDate.setDate(startDate.getDate() - daysToFetch);
 
-      const weekEnd = new Date(now);
-      weekEnd.setDate(now.getDate() - i * 7);
-      weekEnd.setHours(23, 59, 59, 999);
+    // Fetch all daily statistics for the date range
+    const { data: dailyStats } = await supabase
+      .from('user_statistics_daily')
+      .select('date, total_earnings, total_spending, monthly_earnings, monthly_spending')
+      .eq('user_id', user.id)
+      .gte('date', startDate.toISOString().split('T')[0])
+      .lte('date', endDate.toISOString().split('T')[0])
+      .order('date', { ascending: true });
 
-      // Fetch earnings for this week
-      const { data: bookings } = await supabase
-        .from('bookings')
-        .select('tutor_earnings, agent_commission, total_price, tutor_id, agent_id, client_id')
-        .or(`tutor_id.eq.${user.id},agent_id.eq.${user.id},client_id.eq.${user.id}`)
-        .eq('status', 'completed')
-        .gte('session_start_time', weekStart.toISOString())
-        .lte('session_start_time', weekEnd.toISOString());
+    if (!dailyStats || dailyStats.length === 0) {
+      // No data available yet, return empty array
+      return NextResponse.json([]);
+    }
 
-      // Calculate earnings based on role
-      let weekEarnings = 0;
-      if (role === 'client') {
-        weekEarnings = (bookings || []).reduce(
-          (sum, b) => sum + (b.total_price || 0),
-          0
-        );
-      } else if (role === 'tutor') {
-        weekEarnings = (bookings || []).reduce(
-          (sum, b) => {
-            if (b.tutor_id === user.id) {
-              return sum + (b.tutor_earnings || 0);
-            }
-            return sum;
-          },
-          0
-        );
-      } else if (role === 'agent') {
-        weekEarnings = (bookings || []).reduce(
-          (sum, b) => {
-            if (b.agent_id === user.id) {
-              return sum + (b.agent_commission || 0);
-            }
-            return sum;
-          },
-          0
-        );
+    // Group by week and aggregate
+    const weeklyData: { week: string; earnings: number }[] = [];
+    let currentWeekStart = new Date(startDate);
+    let weekEarnings = 0;
+    let daysInWeek = 0;
+
+    dailyStats.forEach((stat, index) => {
+      const statDate = new Date(stat.date);
+
+      // Check if we need to start a new week
+      const daysSinceWeekStart = Math.floor(
+        (statDate.getTime() - currentWeekStart.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
+      if (daysSinceWeekStart >= 7) {
+        // Save current week if we have data
+        if (daysInWeek > 0) {
+          const weekLabel = currentWeekStart.toLocaleDateString('en-GB', {
+            month: 'short',
+            day: 'numeric',
+          });
+          weeklyData.push({
+            week: weekLabel,
+            earnings: Math.round(weekEarnings * 100) / 100,
+          });
+        }
+
+        // Start new week
+        currentWeekStart = new Date(stat.date);
+        weekEarnings = 0;
+        daysInWeek = 0;
       }
 
-      // Format week label
-      const weekLabel = weekStart.toLocaleDateString('en-GB', {
-        month: 'short',
-        day: 'numeric'
-      });
+      // Add earnings for this day based on role
+      const dayEarnings =
+        role === 'client'
+          ? stat.monthly_spending || 0
+          : stat.monthly_earnings || 0;
 
-      weeklyData.push({
-        week: weekLabel,
-        earnings: Math.round(weekEarnings * 100) / 100,
-      });
-    }
+      weekEarnings += dayEarnings;
+      daysInWeek++;
+
+      // If this is the last stat, close out the week
+      if (index === dailyStats.length - 1 && daysInWeek > 0) {
+        const weekLabel = currentWeekStart.toLocaleDateString('en-GB', {
+          month: 'short',
+          day: 'numeric',
+        });
+        weeklyData.push({
+          week: weekLabel,
+          earnings: Math.round(weekEarnings * 100) / 100,
+        });
+      }
+    });
 
     return NextResponse.json(weeklyData);
   } catch (error) {
