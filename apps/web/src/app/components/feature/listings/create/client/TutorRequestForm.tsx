@@ -342,17 +342,17 @@ export default function TutorRequestForm({ onSubmit, onCancel, isSaving = false,
     setLocalIsSaving(true);
     try {
       const listingData: any = {
-        type: 'request',
+        listing_type: 'request',
         learner_type: formData.learner_type,
         subjects: formData.subjects,
         levels: formData.levels,
         description: formData.description,
-        location_type: formData.delivery_mode as any,
-        delivery_mode: formData.delivery_mode,
+        delivery_mode: formData.delivery_mode ? [formData.delivery_mode] : [],
         hourly_rate_min: parseFloat(formData.hourly_rate_min),
         hourly_rate_max: formData.hourly_rate_max ? parseFloat(formData.hourly_rate_max) : undefined,
         availability: availabilityPeriods,
         unavailability: unavailabilityPeriods,
+        status: 'published',
       };
 
       console.log('[TutorRequestForm] Submitting request data:', listingData);
