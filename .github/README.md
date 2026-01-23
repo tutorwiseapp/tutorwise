@@ -232,8 +232,6 @@ Managed via Vercel dashboard:
 ## 🧹 Cleanup Status
 
 ### ✅ Completed Cleanup Tasks (2026-01-23):
-1. **workflows/ci.yml** - Deleted (deprecated, replaced by build-check.yml)
-2. **workflows/deploy.yml** - Updated (removed Railway/Slack, marked backend as ON-HOLD, updated to Node 22)
 3. **workflows/continuous-improvement.yml** - Updated Node version 18 → 22
 4. **.github/README.md** - Updated to v2.0 (current tech stack, removed TestAssured/Slack references)
 5. **ISSUE_TEMPLATE/bug_report.yml** - Updated categories (removed TestAssured, added Marketplace/Messages/Admin)
