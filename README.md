@@ -217,7 +217,7 @@ CAS will apply 8 agent perspectives:
 - **Support Snapshots**: Database tracking with sync status
 - **Progressive Capture Levels**: Minimal/standard/diagnostic data collection
 
-### Core Features by Module (18 Features)
+### Core Features by Module (20 Features)
 - **Authentication**: Supabase Auth with OAuth and multi-role support
 - **Onboarding**: Page-based routing for all 3 roles (Tutor, Client, Agent) with zero data loss
 - **Profiles**: Dynamic profile management with public/private views
@@ -227,6 +227,7 @@ CAS will apply 8 agent perspectives:
 - **Payments**: Stripe Connect with commission splitting and payouts
 - **Messages**: WhatsApp-style messaging with Ably real-time platform (typing indicators, presence, delivery status)
 - **Network**: Connection management, groups, trust graph
+- **Students**: Student (child) relationship to the Client (parent) and the Tutor
 - **Wiselists**: Collaborative lists ("My Saves" feature) with sharing
 - **WiseSpace**: Hybrid virtual classroom with tldraw whiteboard + Google Meet
 - **Reviews**: Mutual review system with moderation
@@ -236,6 +237,7 @@ CAS will apply 8 agent perspectives:
 - **Organisations**: Team management, subscriptions, tasks, recruitment
 - **Developer Tools**: API key management, webhooks, integrations
 - **Help Centre**: In-app bug reporting with Jira Service Desk integration
+- **Resources**: Articles for marketing purposes
 
 ---
 
@@ -249,6 +251,7 @@ CAS will apply 8 agent perspectives:
 - **[5-CONTEXT-MAP.md](.ai/5-CONTEXT-MAP.md)** - How all context files interconnect
 - **[6-DESIGN-SYSTEM.md](.ai/6-DESIGN-SYSTEM.md)** - UI/UX component library & design tokens
 - **[7-PROMPT.md](.ai/7-PROMPT.md)** - Tutorwise AI Development Context
+- **[8-USER-JOURNEY-MAP.md](.ai/8-USER-JOURNEY-MAP.md)**
 - **[ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md)** - Admin dashboard architecture (11 hubs)
 - **[SHARED-FIELDS.md](.ai/SHARED-FIELDS.md)** - Shared fields system (23 fields, 106 mappings, 9 contexts)
 - **[ONBOARDING.md](.ai/ONBOARDING.md)** - Onboarding system (page-based, 3 roles × 5 steps)
