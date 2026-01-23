@@ -147,8 +147,7 @@ CREATE LISTING → /listings/create
 
 AFTER PUBLISHING
 ├─ Database trigger fires (migration 200)
-├─ CaaS recalculation queued
-├─ Score updates within 10 minutes
+├─ CaaS recalculation Score updates immediately
 └─> Listing visible on marketplace
 ```
 
