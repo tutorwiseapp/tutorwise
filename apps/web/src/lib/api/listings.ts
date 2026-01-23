@@ -119,12 +119,29 @@ export async function createListing(input: CreateListingInput): Promise<Listing>
 
   console.log('[createListing] User authenticated:', user.id);
 
+  // Fetch user's active role to set created_as_role
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('active_role')
+    .eq('id', user.id)
+    .single();
+
+  if (profileError || !profile) {
+    console.error('[createListing] Profile fetch error:', profileError);
+    throw new Error('Failed to fetch user profile');
+  }
+
+  const activeRole = profile.active_role;
+  console.log('[createListing] User active role:', activeRole);
+
   // Pass through ALL fields from input, but ensure profile_id and defaults are set correctly
   // Note: Spread input first, then override critical fields to ensure they're not undefined
   const listingData = {
     ...input,
     // Critical: Override profile_id to ensure it's never undefined
     profile_id: user.id,
+    // Set created_as_role to track which role created this listing
+    created_as_role: activeRole,
     // Apply defaults only if not provided (use logical OR for falsy values except false itself)
     languages: input.languages || ['English'],
     location_country: input.location_country || 'United Kingdom',

@@ -29,12 +29,25 @@ export async function GET(req: Request) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    // 2. Parse query parameters
+    // 2. Fetch profile to get active_role
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('active_role')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile) {
+      return new NextResponse("Profile not found", { status: 404 });
+    }
+
+    const activeRole = profile.active_role;
+
+    // 3. Parse query parameters
     const { searchParams } = new URL(req.url);
     const typeFilter = searchParams.get('type');
     const statusFilter = searchParams.get('status');
 
-    // 3. Build query (v4.9: Include nested client and tutor profiles for TransactionCard)
+    // 4. Build query (v4.9: Include nested client and tutor profiles for TransactionCard)
     let query = supabase
       .from('transactions')
       .select(`
@@ -51,7 +64,17 @@ export async function GET(req: Request) {
       `)
       .eq('profile_id', user.id);
 
-    // Apply filters
+    // Apply role-based filtering by transaction type
+    if (activeRole === 'client') {
+      // Clients see: payments made to tutors + referral commissions received
+      query = query.in('type', ['Booking Payment', 'Referral Commission']);
+    } else if (activeRole === 'tutor') {
+      // Tutors see: teaching earnings + referral commissions received
+      query = query.in('type', ['Tutoring Payout', 'Referral Commission']);
+    }
+    // Agent role: no type filtering - sees all transaction types (Booking Payment, Tutoring Payout, Referral Commission, Withdrawal, Platform Fee)
+
+    // Apply additional filters
     if (typeFilter) {
       query = query.eq('type', typeFilter);
     }
@@ -60,13 +83,13 @@ export async function GET(req: Request) {
       query = query.eq('status', statusFilter);
     }
 
-    // 4. Execute query with ordering
+    // 5. Execute query with ordering
     const { data: transactions, error: transactionsError } = await query
       .order('created_at', { ascending: false });
 
     if (transactionsError) throw transactionsError;
 
-    // 5. Fetch wallet balances using v4.9 RPC functions
+    // 6. Fetch wallet balances using v4.9 RPC functions
     const { data: availableBalance, error: availableError } = await supabase
       .rpc('get_available_balance', { p_profile_id: user.id });
 

@@ -117,6 +117,7 @@ export interface JobRequirements {
 export interface Listing {
   id: string;
   profile_id: string;
+  created_as_role?: 'client' | 'tutor' | 'agent'; // v2.0: Role-based filtering - tracks which role created this listing
 
   // Basic Info
   full_name?: string; // Full name of the tutor (e.g., "Jane Doe")

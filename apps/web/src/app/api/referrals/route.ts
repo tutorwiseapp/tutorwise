@@ -32,16 +32,18 @@ export async function GET(req: Request) {
     const statusFilter = searchParams.get('status');
 
     // 3. Build query (migration 051: referrer_profile_id → agent_id)
-    // Note: We join with profiles to get the referred user's name
+    // Note: We join with profiles to get both agent and referred user's details
+    // Bidirectional: Show referrals where user is EITHER the agent (who made the referral) OR the referred user
     let query = supabase
       .from('referrals')
       .select(`
         *,
+        agent:profiles!agent_id(id, full_name, avatar_url),
         referred_user:profiles!referred_profile_id(id, full_name, avatar_url),
         first_booking:bookings!booking_id(id, service_name, amount),
         first_commission:transactions!transaction_id(id, amount)
       `)
-      .eq('agent_id', user.id);
+      .or(`agent_id.eq.${user.id},referred_profile_id.eq.${user.id}`);
 
     // Apply status filter
     if (statusFilter) {

@@ -115,49 +115,82 @@ export async function GET(request: NextRequest) {
       ? (todayStats.monthly_sessions || 0) - (yesterdayStats.monthly_sessions || 0)
       : 0;
 
-    // Build KPI response from aggregated data
-    const kpis = {
-      // Financial metrics (role-specific)
-      totalEarnings: Math.round(todayStats.total_earnings || 0),
-      totalSpent: Math.round(todayStats.total_spending || 0),
+    // Build KPI response from aggregated data (role-specific)
+    let kpis;
 
-      // Session metrics
-      upcomingSessions: todayStats.upcoming_sessions || 0,
-      upcomingHours: Math.round((todayStats.upcoming_sessions || 0) * 1), // Estimate 1 hour per session
-      completedSessionsThisMonth: todayStats.monthly_sessions || 0,
-      completedSessionsLastMonth: yesterdayStats?.monthly_sessions || 0,
+    if (role === 'client') {
+      // CLIENT ROLE: Show spending, learning hours, and booking metrics
+      kpis = {
+        // Financial metrics (client perspective)
+        totalSpent: Math.round(todayStats.total_spending || 0),
+        spentChangePercent: spentChange,
 
-      // Rating metrics
-      averageRating: todayStats.average_rating || 0,
-      totalReviews: todayStats.total_reviews || 0,
-      last10Rating: todayStats.average_rating || 0, // TODO: Calculate separately if needed
+        // Session metrics
+        upcomingSessions: todayStats.upcoming_sessions || 0,
+        upcomingHours: Math.round((todayStats.upcoming_sessions || 0) * 1), // Estimate 1 hour per session
+        completedSessionsThisMonth: todayStats.monthly_sessions || 0,
+        completedSessionsLastMonth: yesterdayStats?.monthly_sessions || 0,
+        sessionsChange: sessionsChange,
 
-      // Student metrics (for tutors/agents)
-      repeatStudentsPercent: 0, // TODO: Add to aggregation if needed
-      repeatStudentsCount: todayStats.returning_students || 0,
-      totalStudents: todayStats.total_students || 0,
+        // Learning metrics (client-specific)
+        totalHoursLearned: Math.round((todayStats.hours_learned || 0) * 10) / 10,
 
-      // Response metrics
-      responseRate: 92, // TODO: Calculate from messaging data when available
-      acceptanceRate: 78, // TODO: Calculate from booking requests when available
+        // Rating metrics (reviews received as a client)
+        averageRating: todayStats.average_rating || 0,
+        totalReviews: todayStats.total_reviews || 0,
 
-      // CaaS score
-      caasScore: todayStats.caas_score || 0,
+        // CaaS score
+        caasScore: todayStats.caas_score || 0,
 
-      // Activity metrics
-      activeBookings: todayStats.upcoming_sessions || 0,
-      favoriteTutors: 2, // TODO: Calculate from profile_graph when available
+        // Activity metrics
+        activeBookings: todayStats.upcoming_sessions || 0,
+        favoriteTutors: 2, // TODO: Calculate from profile_graph when available
+      };
+    } else if (role === 'tutor' || role === 'agent') {
+      // TUTOR/AGENT ROLE: Show earnings, teaching hours, student metrics
+      kpis = {
+        // Financial metrics (tutor perspective)
+        totalEarnings: Math.round(todayStats.total_earnings || 0),
+        earningsChangePercent: earningsChange,
 
-      // Client-specific metrics
-      totalHoursLearned: Math.round((todayStats.hours_learned || 0) * 10) / 10,
-      averageRatingGiven: 0, // TODO: Add if needed
-      reviewsGiven: 0, // TODO: Add if needed
+        // Session metrics
+        upcomingSessions: todayStats.upcoming_sessions || 0,
+        upcomingHours: Math.round((todayStats.upcoming_sessions || 0) * 1), // Estimate 1 hour per session
+        completedSessionsThisMonth: todayStats.monthly_sessions || 0,
+        completedSessionsLastMonth: yesterdayStats?.monthly_sessions || 0,
+        sessionsChange: sessionsChange,
 
-      // Month-over-month comparisons
-      earningsChangePercent: earningsChange,
-      spentChangePercent: spentChange,
-      sessionsChange: sessionsChange,
-    };
+        // Teaching metrics (tutor-specific)
+        totalHoursTaught: Math.round((todayStats.hours_taught || 0) * 10) / 10,
+
+        // Student metrics (for tutors/agents)
+        repeatStudentsCount: todayStats.returning_students || 0,
+        totalStudents: todayStats.total_students || 0,
+        activeStudents: todayStats.active_students || 0,
+        newStudents: todayStats.new_students || 0,
+
+        // Rating metrics
+        averageRating: todayStats.average_rating || 0,
+        totalReviews: todayStats.total_reviews || 0,
+        last10Rating: todayStats.average_rating || 0, // TODO: Calculate separately if needed
+
+        // Response metrics
+        responseRate: 92, // TODO: Calculate from messaging data when available
+        acceptanceRate: 78, // TODO: Calculate from booking requests when available
+
+        // CaaS score
+        caasScore: todayStats.caas_score || 0,
+
+        // Activity metrics
+        activeBookings: todayStats.upcoming_sessions || 0,
+      };
+    } else {
+      // Fallback: return minimal data if role not recognized
+      kpis = {
+        upcomingSessions: todayStats?.upcoming_sessions || 0,
+        caasScore: todayStats?.caas_score || 0,
+      };
+    }
 
     return NextResponse.json(kpis);
   } catch (error) {

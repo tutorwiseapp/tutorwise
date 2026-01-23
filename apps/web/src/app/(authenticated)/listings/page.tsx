@@ -41,7 +41,7 @@ export default function ListingsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
-  const { user, profile, isLoading: userLoading } = useUserProfile();
+  const { user, profile, activeRole, isLoading: userLoading } = useUserProfile();
   const { isAllowed, isLoading: roleLoading } = useRoleGuard(['tutor', 'agent', 'client']);
 
   // URL state management
@@ -129,22 +129,34 @@ export default function ListingsPage() {
     },
   });
 
+  // Filter listings by created_as_role - each role sees ONLY listings they created in that role
+  const roleFilteredListings = useMemo(() => {
+    return rawListings.filter((listing) => {
+      // Show only listings created while in the current active role
+      // This creates separate listing inventories per role:
+      // - Listings created as "client" only visible in client role
+      // - Listings created as "tutor" only visible in tutor role
+      // - Listings created as "agent" only visible in agent role
+      return listing.created_as_role === activeRole;
+    });
+  }, [rawListings, activeRole]);
+
   // Calculate tab counts
   const tabCounts = useMemo(() => {
-    const regularListings = rawListings.filter(l => !l.is_template);
+    const regularListings = roleFilteredListings.filter(l => !l.is_template);
     return {
       all: regularListings.length,
       published: regularListings.filter(l => l.status === 'published').length,
       unpublished: regularListings.filter(l => l.status === 'unpublished').length,
       draft: regularListings.filter(l => l.status === 'draft').length,
       archived: regularListings.filter(l => l.status === 'archived').length,
-      templates: rawListings.filter(l => l.is_template).length,
+      templates: roleFilteredListings.filter(l => l.is_template).length,
     };
-  }, [rawListings]);
+  }, [roleFilteredListings]);
 
   // Filter listings based on tab
   const filteredByTab = useMemo(() => {
-    return rawListings.filter((listing) => {
+    return roleFilteredListings.filter((listing) => {
       if (filter === 'templates') {
         return listing.is_template === true;
       }
@@ -165,7 +177,7 @@ export default function ListingsPage() {
       }
       return true;
     });
-  }, [rawListings, filter]);
+  }, [roleFilteredListings, filter]);
 
   // Apply client-side search (comprehensive search across all relevant fields)
   const searchedListings = useMemo(() => {
@@ -482,7 +494,7 @@ export default function ListingsPage() {
       }
       sidebar={
         <HubSidebar>
-          <ListingStatsWidget listings={rawListings} isLoading={isLoading} />
+          <ListingStatsWidget listings={roleFilteredListings} isLoading={isLoading} />
           <ListingHelpWidget />
           <ListingTipWidget />
           <ListingVideoWidget />

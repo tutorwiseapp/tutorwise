@@ -92,11 +92,28 @@ export async function GET(request: NextRequest) {
     const upcomingBookings = upcomingBookingsResult.data || [];
     const nextBooking = upcomingBookings[0] || null;
 
-    // Get financial and reputation data from aggregated stats
-    const totalEarnings = todayStats?.total_earnings || 0;
-    const totalSpent = todayStats?.total_spending || 0;
+    // Get financial and reputation data from aggregated stats (role-specific)
     const averageRating = todayStats?.average_rating || 0;
     const totalReviews = todayStats?.total_reviews || 0;
+
+    // Build role-specific financial data
+    let financials;
+    if (role === 'client') {
+      financials = {
+        total_spent: todayStats?.total_spending || 0,
+        currency: 'GBP',
+      };
+    } else if (role === 'tutor' || role === 'agent') {
+      financials = {
+        total_earnings: todayStats?.total_earnings || 0,
+        pending_earnings: todayStats?.pending_earnings || 0,
+        currency: 'GBP',
+      };
+    } else {
+      financials = {
+        currency: 'GBP',
+      };
+    }
 
     // Build response
     const summary = {
@@ -114,11 +131,7 @@ export async function GET(request: NextRequest) {
           : null,
         total_upcoming: upcomingBookings.length,
       },
-      financials: {
-        total_earnings: totalEarnings,
-        total_spent: totalSpent,
-        currency: 'GBP', // Default currency
-      },
+      financials,
       reputation: {
         average_rating: Math.round(averageRating * 10) / 10,
         total_reviews: totalReviews,
