@@ -190,6 +190,150 @@ Tutorwise is a next-generation EdTech platform that reimagines the tutoring mark
 - Zoom (video conferencing)
 - Resend (transactional email)
 
+### 1.2 Role-Based Data Filtering Architecture (v2.0)
+
+**Implementation Date**: January 2026 (Migration 213)
+**Purpose**: Ensure each role (client, tutor, agent) sees only contextually relevant data
+
+#### Filtering Strategy Overview
+
+Tutorwise implements **three distinct filtering strategies** based on data type and security requirements:
+
+| Strategy | Use Case | Examples |
+|----------|----------|----------|
+| **Role-Based Inventory** | User-generated content inventories | Listings (created_as_role) |
+| **API-Level Filtering** | Security-critical transactional data | Financials, Bookings |
+| **Bidirectional/Role-Agnostic** | Relationships and permanent records | Referrals, Reviews, Messages, Network |
+
+#### 1. Listings: Role-Based Inventories
+
+**Implementation**: `created_as_role` column (Migration 213)
+**Location**: `tools/database/migrations/213_add_created_as_role_to_listings.sql`
+
+Each listing is tagged with the role it was created in:
+- **Client role**: Creates tutoring requests (`listing_type = 'request'`)
+- **Tutor role**: Creates service offerings (tutoring sessions, courses)
+- **Agent role**: Creates job postings (`listing_type = 'job'`)
+
+**Filtering Logic**:
+```typescript
+// apps/web/src/app/(authenticated)/listings/page.tsx
+return listing.created_as_role === activeRole; // Separate inventories per role
+```
+
+**Why This Approach**:
+- Listings are **content** created in a specific role context
+- A tutoring request shouldn't appear in tutor service listings
+- Job postings shouldn't mix with personal tutoring offerings
+- Each role maintains its own catalog
+
+#### 2. Financials: API-Level Transaction Filtering
+
+**Implementation**: Filter by `transaction.type` based on `active_role`
+**Location**: `apps/web/src/app/api/financials/route.ts`
+
+**Filtering Logic**:
+- **Client role**: Shows `['Booking Payment', 'Referral Commission']`
+- **Tutor role**: Shows `['Tutoring Payout', 'Referral Commission']`
+- **Agent role**: Shows ALL transaction types (no filtering)
+
+**Why API-Level**:
+- Financial data is security-critical
+- Prevents client-side tampering
+- Ensures accurate balance calculations
+
+#### 3. Bookings: Multi-Role Relationship Filtering
+
+**Implementation**: API-level filtering by relationship columns
+**Location**: `apps/web/src/lib/api/bookings.ts`
+
+**Filtering Logic**:
+```typescript
+if (activeRole === 'client') {
+  query = query.eq('client_id', user.id);
+} else if (activeRole === 'tutor') {
+  query = query.eq('tutor_id', user.id);
+} else if (activeRole === 'agent') {
+  query = query.or(`client_id.eq.${user.id},tutor_id.eq.${user.id},agent_id.eq.${user.id}`);
+}
+```
+
+**Why This Approach**:
+- Bookings are **multi-role transactions** with explicit role columns
+- Same booking viewed from different perspectives (client vs tutor)
+- Bidirectional visibility based on involvement
+
+#### 4. Referrals: Bidirectional (No Role Filtering)
+
+**Implementation**: Show referrals where user is EITHER agent OR referred user
+**Location**: `apps/web/src/app/api/referrals/route.ts`
+
+**Filtering Logic**:
+```typescript
+.or(`agent_id.eq.${user.id},referred_profile_id.eq.${user.id}`)
+```
+
+**Why No Role Filtering**:
+- Referrals are **permanent relationships**, not role-specific
+- Commission tracking must persist across role switches
+- Two-sided marketplace (supply + demand) requires complete visibility
+
+#### 5. Dashboard KPIs: Role-Specific Response Shaping
+
+**Implementation**: Return different metrics based on `active_role`
+**Location**: `apps/web/src/app/api/dashboard/kpis/route.ts`
+
+**Client Role KPIs**:
+- `totalSpent`, `spentChangePercent`
+- `totalHoursLearned`
+- `upcomingSessions`, `favoriteTutors`
+
+**Tutor/Agent Role KPIs**:
+- `totalEarnings`, `earningsChangePercent`
+- `totalHoursTaught`
+- `totalStudents`, `activeStudents`, `newStudents`, `returningStudents`
+- `responseRate`, `acceptanceRate`
+
+**Why Response Shaping**:
+- Dashboard uses pre-aggregated `user_statistics_daily` table
+- Different roles care about different metrics
+- Single query, role-specific response structure
+
+#### Decision Matrix: Choosing Filtering Strategy
+
+**Use `created_as_role` (Role-Based Inventory) When**:
+- ✅ Feature creates separate inventories/catalogs per role
+- ✅ Content is role-specific and doesn't make sense in other roles
+- ✅ User-generated content (not system-generated)
+- ✅ Switching roles should hide that content
+
+**Use API-Level Filtering When**:
+- ✅ Security-critical data (money, sensitive info)
+- ✅ Large datasets requiring pagination
+- ✅ Prevents client-side tampering
+- ✅ Complex filtering logic
+
+**Use Bidirectional/No Filtering When**:
+- ✅ Relationships between people (social graph)
+- ✅ System-generated data (transactions, analytics)
+- ✅ Data should be visible across all roles
+- ✅ Table has explicit role columns (client_id, tutor_id, agent_id)
+
+#### Summary Table
+
+| Feature | Filtering Strategy | Rationale |
+|---------|-------------------|-----------|
+| **Listings** | Role-Based Inventory (`created_as_role`) | Separate content catalogs per role |
+| **Financials** | API-Level (by `type`) | Security-critical money data |
+| **Bookings** | API-Level (by relationship) | Multi-role transactions |
+| **Referrals** | Bidirectional (no role filter) | Permanent relationships |
+| **Reviews** | Bidirectional (separate endpoints) | Reputation persists across roles |
+| **Messages** | Role-Agnostic | Personal conversations |
+| **Network** | Role-Agnostic | Social graph |
+| **Dashboard** | Response Shaping | Role-specific metrics |
+
+**Documentation**: See `docs/ROLE_BASED_FILTERING_MIGRATION.md` for complete implementation details.
+
 ---
 
 ## 2. Core Platform Capabilities
