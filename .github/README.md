@@ -232,10 +232,10 @@ Managed via Vercel dashboard:
 ## 🧹 Cleanup Status
 
 ### ✅ Completed Cleanup Tasks (2026-01-23):
-3. **workflows/continuous-improvement.yml** - Updated Node version 18 → 22
-4. **.github/README.md** - Updated to v2.0 (current tech stack, removed TestAssured/Slack references)
-5. **ISSUE_TEMPLATE/bug_report.yml** - Updated categories (removed TestAssured, added Marketplace/Messages/Admin)
-6. **ISSUE_TEMPLATE/config.yml** - Replaced TestAssured link with Help Centre
+1. **workflows/continuous-improvement.yml** - Updated Node version 18 → 22
+2. **.github/README.md** - Updated to v2.0 (current tech stack, removed TestAssured references)
+3. **ISSUE_TEMPLATE/bug_report.yml** - Updated categories (removed TestAssured, added Marketplace/Messages/Admin)
+4. **ISSUE_TEMPLATE/config.yml** - Replaced TestAssured link with Help Centre
 
 ### Files to Keep As-Is:
 - ✅ build-check.yml (primary CI)
