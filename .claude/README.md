@@ -77,7 +77,7 @@ The base configuration includes permissions for:
 ### Testing and Quality
 - `npm run test:*` - All test commands
 - `npx playwright:*` - End-to-end testing
-- `python3 -m pytest:*` - Python testing
+- `jest:*` - Unit testing
 
 ## Local Customization
 
@@ -118,28 +118,16 @@ Create a `settings.local.json` file to override permissions or add new ones:
 
 ## Common Patterns
 
-### Web Development
+### Web Development (Next.js)
 ```json
 {
   "permissions": {
     "allow": [
       "Bash(npm:*)",
-      "Bash(yarn:*)",
+      "Bash(pnpm:*)",
       "Bash(npx:*)",
-      "Bash(node:*)"
-    ]
-  }
-}
-```
-
-### Python Development
-```json
-{
-  "permissions": {
-    "allow": [
-      "Bash(python3:*)",
-      "Bash(pip:*)",
-      "Bash(pytest:*)"
+      "Bash(node:*)",
+      "Bash(next:*)"
     ]
   }
 }
@@ -151,8 +139,20 @@ Create a `settings.local.json` file to override permissions or add new ones:
   "permissions": {
     "ask": [
       "Bash(psql:*)",
-      "Bash(mysql:*)",
-      "Bash(redis-cli:*)"
+      "Bash(supabase db:*)"
+    ]
+  }
+}
+```
+
+### Testing Frameworks
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(jest:*)",
+      "Bash(playwright:*)",
+      "Bash(npm run test:*)"
     ]
   }
 }
@@ -182,16 +182,23 @@ Solution: Ensure `Read(///**)` is in your allow list
 
 The configuration is tailored for Tutorwise development:
 
+### Current Tech Stack (2026)
+- **Frontend**: Next.js 15, React 18, TypeScript 5
+- **Backend**: Next.js API Routes, Supabase Functions
+- **Database**: PostgreSQL (Supabase), Neo4j (Graph), pgvector
+- **Infrastructure**: Vercel, Supabase, Stripe Connect, Upstash Redis, Ably
+- **Testing**: Jest, Playwright, React Testing Library
+
 ### Specific Permissions
-- AI integration scripts
-- Database migration tools
-- Testing frameworks
-- Build and deployment tools
+- Database migration tools (Supabase)
+- Testing frameworks (Jest, Playwright)
+- Build and deployment tools (Vercel)
+- Stripe CLI for payment testing
 
 ### Context Awareness
-- Integrates with project structure
-- Supports role-based development
-- Enables AI-powered code assistance
+- Integrates with monorepo structure (apps/web, packages/shared-types)
+- Supports role-based development (client, tutor, agent)
+- Enables AI-powered code assistance with full codebase context
 
 ## Updates and Maintenance
 
@@ -204,6 +211,7 @@ The configuration is tailored for Tutorwise development:
 - Audit permissions quarterly
 - Remove unused command patterns
 - Add new development tools as needed
+- Keep documentation current
 
 ## Support
 
@@ -212,3 +220,12 @@ For Claude Code configuration issues:
 2. Review the permission patterns
 3. Test with minimal permissions first
 4. Gradually add more as needed
+
+---
+
+**Version 2.0 Changes** (2026-01-23):
+- ✅ Removed outdated Python/FastAPI references
+- ✅ Updated to current Next.js 15 + API Routes architecture
+- ✅ Updated testing framework references (Jest, Playwright)
+- ✅ Clarified current tech stack and integrations
+- ✅ Added cloud platform permissions (Vercel, Supabase, Stripe)
