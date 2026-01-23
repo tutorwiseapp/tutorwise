@@ -297,8 +297,6 @@ gh workflow run daily-audit  # Manual workflow trigger
 - **Testing**: Jest, Playwright, Percy
 - **CI/CD**: GitHub Actions
 
-**Note**: No Python backend currently exists despite references in old workflows.
-
 ---
 
 **Version 2.0 Changes** (2026-01-23):
