@@ -1,6 +1,3 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
 # CRITICAL: Check for protected file violations
 echo "🛡️  Checking critical files protection..."
 node tools/change-management/critical-files-protection.js validate-commit || exit 1
