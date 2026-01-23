@@ -252,7 +252,7 @@ Managed via Vercel dashboard:
 
 - **Platform Specification**: `.ai/2-PLATFORM-SPECIFICATION.md`
 - **System Navigation**: `.ai/3-SYSTEM-NAVIGATION.md`
-- **Testing Guide**: `tests/README.md` (if exists)
+- **Testing Guide**: `tests/README.md`
 - **Deployment**: Check Vercel dashboard for current config
 
 ---
