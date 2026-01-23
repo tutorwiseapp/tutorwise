@@ -1,14 +1,19 @@
 {
-  "python.defaultInterpreterPath": "/Users/michaelquan/projects/tutorwise/ai-backend/venv/bin/python",
-  "python.analysis.extraPaths": [
-    "./ai-backend"
-  ],
-  "python.analysis.autoImportCompletions": true,
-  "python-envs.pythonProjects": [],
-  "python-envs.defaultEnvManager": "ms-python.python:system",
-  "python.analysis.typeCheckingMode": "standard",
   "workbench.colorCustomizations": {
     "chat.requestForeground": "#ffd700",
     "editorGhostText.foreground": "#ffd700"
-  }
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+  ]
 }

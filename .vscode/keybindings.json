@@ -1,14 +1,19 @@
 [
-    {
-        "key": "ctrl+shift+g",
-        "command": "workbench.action.tasks.runTask",
-        "args": "Gemini CLI Interactive",
-        "when": "!inDebugMode"
-    },
-    {
-        "key": "ctrl+shift+alt+g",
-        "command": "workbench.action.tasks.runTask",
-        "args": "Gemini CLI with Context",
-        "when": "!inDebugMode"
-    }
+  {
+    "key": "ctrl+shift+d",
+    "command": "workbench.action.tasks.runTask",
+    "args": "Dev Server",
+    "when": "!inDebugMode"
+  },
+  {
+    "key": "ctrl+shift+b",
+    "command": "workbench.action.tasks.build",
+    "when": "!inDebugMode"
+  },
+  {
+    "key": "ctrl+shift+t",
+    "command": "workbench.action.tasks.runTask",
+    "args": "Run Tests",
+    "when": "!inDebugMode"
+  }
 ]
