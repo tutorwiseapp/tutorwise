@@ -99,22 +99,26 @@ This directory contains GitHub-specific configuration files for automated workfl
 
 ---
 
-### 5. **CI Pipeline** (`ci.yml`) ⚠️ DEPRECATED
-**Old CI workflow** - Replaced by `build-check.yml`
+### 5. **Deploy** (`deploy.yml`) ✅
+**Production Deployment Workflow**
 
-**Status**: **Deprecated** - Safe to delete
-**Reason**: References non-existent Python backend, outdated structure
+**Triggers**:
+- Push to `main`
+- Manual dispatch
 
----
+**What it does**:
+- ✅ Pre-deployment quality checks (lint, build, tests)
+- ✅ Deploy frontend to Vercel
+- ✅ Post-deployment smoke tests (Playwright)
+- ✅ Health checks and deployment summary
+- 🔄 Backend deployment (ON-HOLD - FastAPI/Railway planned for future)
 
-### 6. **Deploy** (`deploy.yml`) ⚠️ NEEDS UPDATE
-**Production Deployment**
-
-**Status**: **Needs Review** - Has encoding issues, may be outdated
-**Issues**:
-- Character encoding problems in name
-- May reference outdated deployment setup
-- Should verify Vercel deployment config
+**Status**: **Active & Updated** (as of 2026-01-23)
+- Removed Railway backend deployment (on-hold)
+- Removed Slack notifications (not in use)
+- Updated to Node 22.x
+- Simplified to Vercel-only deployment
+- Backend: Supabase (cloud-hosted)
 
 ---
 
@@ -189,7 +193,6 @@ Provides links to:
 | continuous-improvement | ✅ | ✅ | ✅ (main only) | ❌ | ❌ | ❌ |
 | daily-audit | ❌ | ❌ | ❌ | ❌ | ✅ (2x daily) | ✅ |
 | protection-report | ❌ | ❌ | ❌ | ❌ | ✅ (2x daily) | ✅ |
-| ci (deprecated) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
 | deploy | ✅ (main only) | ❌ | ❌ | ❌ | ❌ | ✅ |
 
 ---
@@ -229,22 +232,23 @@ Managed via Vercel dashboard:
 
 ---
 
-## 🧹 Cleanup Recommendations
+## 🧹 Cleanup Status
 
-### Files to Remove:
-1. **.github/workflows/ci.yml** - Deprecated, replaced by build-check.yml
-2. **.github/workflows/.!67209!deploy.yml** - Backup/temp file
-3. **.github/.!82359!pull_request_template.md** - Backup/temp file
-
-### Files to Update:
-1. **workflows/deploy.yml** - Fix encoding, verify current deployment setup
-2. **workflows/continuous-improvement.yml** - Update Node version 18 → 22
+### ✅ Completed Cleanup Tasks (2026-01-23):
+1. **workflows/ci.yml** - Deleted (deprecated, replaced by build-check.yml)
+2. **workflows/deploy.yml** - Updated (removed Railway/Slack, marked backend as ON-HOLD, updated to Node 22)
+3. **workflows/continuous-improvement.yml** - Updated Node version 18 → 22
+4. **.github/README.md** - Updated to v2.0 (current tech stack, removed TestAssured/Slack references)
+5. **ISSUE_TEMPLATE/bug_report.yml** - Updated categories (removed TestAssured, added Marketplace/Messages/Admin)
+6. **ISSUE_TEMPLATE/config.yml** - Replaced TestAssured link with Help Centre
 
 ### Files to Keep As-Is:
 - ✅ build-check.yml (primary CI)
 - ✅ daily-audit.yml (monitoring)
 - ✅ protection-report.yml (security)
-- ✅ ISSUE_TEMPLATE/* (all templates)
+- ✅ deploy.yml (now updated and active)
+- ✅ continuous-improvement.yml (now on Node 22)
+- ✅ ISSUE_TEMPLATE/* (all templates updated)
 - ✅ pull_request_template.md
 
 ---
