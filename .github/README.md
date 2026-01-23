@@ -110,11 +110,9 @@ This directory contains GitHub-specific configuration files for automated workfl
 - ✅ Deploy frontend to Vercel
 - ✅ Post-deployment smoke tests (Playwright)
 - ✅ Health checks and deployment summary
-- 🔄 Backend deployment (ON-HOLD - FastAPI/Railway planned for future)
+- ✅ Backend deployment (FastAPI/Railway planned for future)
 
 **Status**: **Active & Updated** (as of 2026-01-23)
-- Removed Railway backend deployment (on-hold)
-- Removed Slack notifications (not in use)
 - Updated to Node 22.x
 - Simplified to Vercel-only deployment
 - Backend: Supabase (cloud-hosted)
