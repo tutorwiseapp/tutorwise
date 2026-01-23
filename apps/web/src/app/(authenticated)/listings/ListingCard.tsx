@@ -327,6 +327,23 @@ export default function ListingCard({
     </>
   );
 
+  // Determine href based on listing status
+  // Templates: No href (only Duplicate button works)
+  // Published: Link to public listing page
+  // Drafts/Unpublished/Archived: Link to edit page
+  const getHref = (): string | undefined => {
+    if (isTemplate) {
+      return undefined; // Templates should only be duplicated via button
+    }
+    if (isPublished) {
+      return `/listings/${listing.id}`; // Public listing page
+    }
+    // Drafts, unpublished, archived → edit page
+    return `/listings/create/${listing.service_type}?edit=${listing.id}`;
+  };
+
+  const href = getHref();
+
   return (
     <>
       <HubDetailCard
@@ -343,8 +360,8 @@ export default function ListingCard({
         description={description}
         details={details}
         actions={actions}
-        imageHref={`/listings/${listing.id}`}
-        titleHref={`/listings/${listing.id}`}
+        imageHref={href}
+        titleHref={href}
       />
 
       {/* Confirmation Dialog */}

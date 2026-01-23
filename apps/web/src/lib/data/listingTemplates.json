@@ -56,50 +56,50 @@
     "tags": ["GCSE", "English", "One-on-One", "Hybrid", "Exam Prep", "London"]
   },
   {
-    "template_id": "ai-tutor-study-support",
-    "title": "AI Tutor Study Support",
-    "description": "An AI-powered tutoring session designed to provide immediate study assistance, concept explanations, and personalised practice questions across multiple subjects. The AI Tutor offers interactive learning while being supervised by a qualified educator to ensure content quality and relevance.",
+    "template_id": "multi-subject-tutor",
+    "title": "Multi-Subject Tutor",
+    "description": "Flexible online tutoring sessions covering Mathematics, English, and Science. Perfect for students who need support across multiple subjects with personalised learning plans adapted to individual strengths and areas for improvement.",
     "subjects": ["Mathematics", "English", "Science"],
     "levels": ["GCSE", "A-Level"],
     "learning_outcomes": [
-      "Receive quick, accurate answers to study questions",
-      "Reinforce understanding through guided AI-generated exercises",
-      "Develop self-paced study habits supported by intelligent feedback"
+      "Strengthen understanding across core academic subjects",
+      "Build effective study habits and revision techniques",
+      "Develop confidence through regular practice and feedback"
     ],
-    "session_duration": 30,
-    "session_type": "On-Demand AI Study Support Session",
-    "hourly_rate": 10,
+    "session_duration": 60,
+    "session_type": "One-on-One Private Tutoring",
+    "hourly_rate": 30,
     "currency": "GBP",
     "location_type": "online",
     "location_country": "United Kingdom",
     "timezone": "Europe/London",
     "availability": {
-      "Monday": ["00:00-23:59"],
-      "Tuesday": ["00:00-23:59"],
-      "Wednesday": ["00:00-23:59"],
-      "Thursday": ["00:00-23:59"],
-      "Friday": ["00:00-23:59"],
-      "Saturday": ["00:00-23:59"],
-      "Sunday": ["00:00-23:59"]
+      "Monday": ["16:00-20:00"],
+      "Tuesday": ["16:00-20:00"],
+      "Wednesday": ["16:00-20:00"],
+      "Thursday": ["16:00-20:00"],
+      "Friday": ["16:00-20:00"],
+      "Saturday": ["10:00-14:00"],
+      "Sunday": ["10:00-14:00"]
     },
     "languages": ["English"],
-    "teaching_methods": ["AI-Powered Learning", "Interactive Exercises", "On-Demand Support"],
-    "specializations": ["Multi-Subject Support", "AI-Assisted Learning"],
-    "tags": ["AI Tutor", "On-Demand", "Multi-Subject", "Online", "Flexible", "GCSE", "A-Level"]
+    "teaching_methods": ["One-on-One Tutoring", "Personalised Learning", "Exam Preparation"],
+    "specializations": ["Multi-Subject Support", "Study Skills"],
+    "tags": ["Multi-Subject", "Online", "Flexible", "GCSE", "A-Level", "Mathematics", "English", "Science"]
   },
   {
-    "template_id": "science-tutor-referral",
-    "title": "Science Tutor Referral Programme",
-    "description": "Refer a client to our Science Tutoring Programme and earn rewards when they book sessions. The programme offers tailored one-on-one or small group science tutoring designed to simplify complex topics and prepare students for top grades in Biology, Chemistry, and Physics.",
+    "template_id": "science-tutor",
+    "title": "Science Tutor",
+    "description": "Expert one-on-one science tutoring covering Biology, Chemistry, and Physics. Sessions are tailored to your learning style and academic goals, helping you master complex concepts and achieve top grades at GCSE and A-Level.",
     "subjects": ["Biology", "Chemistry", "Physics"],
     "levels": ["GCSE", "A-Level"],
     "learning_outcomes": [
-      "Build a deeper understanding of scientific concepts",
-      "Develop strong exam strategies and practical application skills",
-      "Gain confidence in handling higher-level questions"
+      "Build a deeper understanding of scientific concepts and theories",
+      "Develop strong exam techniques and practical application skills",
+      "Gain confidence in tackling complex problems and higher-level questions"
     ],
     "session_duration": 60,
-    "session_type": "Referral-Based Tutoring Service",
+    "session_type": "One-on-One Private Tutoring",
     "hourly_rate": 40,
     "currency": "GBP",
     "location_type": "hybrid",
@@ -115,8 +115,8 @@
       "Saturday": ["10:00-14:00"]
     },
     "languages": ["English"],
-    "teaching_methods": ["One-on-One Tutoring", "Small Group Sessions", "Exam Preparation"],
-    "specializations": ["Biology", "Chemistry", "Physics", "Referral Programme"],
-    "tags": ["Science", "GCSE", "A-Level", "Referral", "Hybrid", "London", "Biology", "Chemistry", "Physics"]
+    "teaching_methods": ["One-on-One Tutoring", "Exam Preparation", "Practical Demonstrations"],
+    "specializations": ["Biology", "Chemistry", "Physics"],
+    "tags": ["Science", "GCSE", "A-Level", "Hybrid", "London", "Biology", "Chemistry", "Physics", "One-on-One"]
   }
 ]
