@@ -1,154 +1,306 @@
 # Tutorwise GitHub Configuration
 
-This directory contains GitHub-specific configuration files for the Tutorwise project, enabling automated workflows, standardized issue reporting, and streamlined development processes.
+**Last Updated**: 2026-01-23
+**Version**: 2.0
 
-## 📁 **Files Overview**
-
-### **🔄 Workflows (`workflows/`)**
-- **`ci.yml`** - Continuous Integration pipeline
-- **`deploy.yml`** - Production deployment automation
-
-### **📋 Issue Templates (`ISSUE_TEMPLATE/`)**
-- **`bug_report.yml`** - Standardized bug reporting
-- **`feature_request.yml`** - Feature suggestion template
-- **`config.yml`** - Issue template configuration
-
-### **📝 Pull Request Template**
-- **`pull_request_template.md`** - PR checklist and guidelines
+This directory contains GitHub-specific configuration files for automated workflows, issue management, and development standards.
 
 ---
 
-## 🧪 **CI/CD Pipeline Features**
+## 📁 Directory Structure
 
-### **Continuous Integration (`ci.yml`)**
-- ✅ **Frontend Testing**: Jest unit tests, React Testing Library
-- ✅ **Backend Testing**: pytest with coverage reporting
-- ✅ **Integration Testing**: API endpoint validation
-- ✅ **E2E Testing**: Playwright cross-browser testing
-- ✅ **Code Quality**: ESLint, Ruff linting
-- ✅ **Build Verification**: Production build testing
-- ✅ **Security Scanning**: npm audit, CodeQL analysis
-- ✅ **Quality Gate**: Comprehensive validation before merge
-
-### **Deployment Pipeline (`deploy.yml`)**
-- 🚀 **Automated Deployment**: Vercel (frontend) + Railway (backend)
-- 🔍 **Pre-deployment Checks**: Quality validation
-- ✅ **Post-deployment Verification**: Smoke tests
-- 📢 **Notifications**: Slack integration for deployment status
-- ⏪ **Rollback Capability**: Emergency rollback procedures
-
----
-
-## 📊 **Project Standards**
-
-### **Testing Requirements**
-- **Frontend**: 70% minimum coverage
-- **Backend**: 80% minimum coverage
-- **E2E**: Critical user journey coverage
-- **Quality Gate**: All tests must pass before merge
-
-### **Code Quality Standards**
-- **TypeScript**: Strict mode, proper typing
-- **Linting**: ESLint (frontend), Ruff (backend)
-- **Security**: Automated vulnerability scanning
-- **Performance**: Build optimization validation
-
-### **Review Process**
-- **Required Checks**: All CI tests must pass
-- **Manual Review**: Code quality and architecture review
-- **Testing**: Functional testing by reviewers
-- **Documentation**: Updates must include relevant docs
+```
+.github/
+├── workflows/              # GitHub Actions CI/CD workflows
+│   ├── ci.yml             # [DEPRECATED] Old CI pipeline
+│   ├── build-check.yml    # ✅ Build verification (main workflow)
+│   ├── continuous-improvement.yml  # ✅ Quality checks & improvements
+│   ├── daily-audit.yml    # ✅ Automated daily project audit
+│   ├── protection-report.yml  # ✅ Critical files protection monitoring
+│   └── deploy.yml         # [NEEDS UPDATE] Deployment automation
+├── ISSUE_TEMPLATE/         # Issue templates
+│   ├── bug_report.yml     # ✅ Bug reporting template
+│   ├── feature_request.yml  # ✅ Feature request template
+│   └── config.yml         # ✅ Template configuration
+├── pull_request_template.md  # ✅ PR checklist
+└── README.md              # This file
+```
 
 ---
 
-## 🎯 **Issue Management**
+## 🔄 Active Workflows
 
-### **Bug Reports** (`bug_report.yml`)
-- Comprehensive bug categorization (Authentication, Dashboard, Payments, etc.)
+### 1. **Build Check** (`build-check.yml`) ✅
+**Primary CI Workflow** - Runs on every push/PR
+
+**Triggers**:
+- Push to `main` or `develop`
+- PRs to `main` or `develop`
+- Only when web app files change
+
+**What it does**:
+- ✅ Install dependencies
+- ✅ Lint code (ESLint, TypeScript)
+- ✅ Build web application
+- ✅ Verify production build
+
+**Status**: **Active & Working**
+
+---
+
+### 2. **Continuous Improvement** (`continuous-improvement.yml`) ✅
+**Quality & Performance Monitoring**
+
+**Triggers**:
+- Push to `main` or `develop`
+- PRs to `main`
+
+**What it does**:
+- 🔍 Quality checks (linting, type checking)
+- 📊 Bundle size analysis
+- 🎯 Performance metrics
+- 🧪 Test coverage reporting
+
+**Status**: **Active** (Node 18 - consider updating to 22)
+
+---
+
+### 3. **Daily Audit** (`daily-audit.yml`) ✅
+**Automated Project Health Monitoring**
+
+**Triggers**:
+- Schedule: 6:00 AM & 6:00 PM UTC daily
+- Manual dispatch
+
+**What it does**:
+- 📋 Generates project audit report
+- 📧 Emails report to team
+- 📊 Tracks metrics over time
+- ⚠️ Identifies issues early
+
+**Status**: **Active & Working**
+
+---
+
+### 4. **Protection Report** (`protection-report.yml`) ✅
+**Critical Files Monitoring**
+
+**Triggers**:
+- Schedule: 6:02 AM & 6:02 PM UTC daily
+- Manual dispatch
+
+**What it does**:
+- 🛡️ Monitors critical file protection
+- 🔒 Verifies file integrity
+- 📧 Emails protection status
+- ⚠️ Alerts on protection violations
+
+**Status**: **Active & Working**
+
+---
+
+### 5. **CI Pipeline** (`ci.yml`) ⚠️ DEPRECATED
+**Old CI workflow** - Replaced by `build-check.yml`
+
+**Status**: **Deprecated** - Safe to delete
+**Reason**: References non-existent Python backend, outdated structure
+
+---
+
+### 6. **Deploy** (`deploy.yml`) ⚠️ NEEDS UPDATE
+**Production Deployment**
+
+**Status**: **Needs Review** - Has encoding issues, may be outdated
+**Issues**:
+- Character encoding problems in name
+- May reference outdated deployment setup
+- Should verify Vercel/Railway config
+
+---
+
+## 📋 Issue Templates
+
+### Bug Report (`bug_report.yml`) ✅
+**Comprehensive bug tracking**
+
+**Features**:
+- Categorization (Auth, Dashboard, Payments, Bookings, etc.)
 - Severity levels (Critical, High, Medium, Low)
-- Browser/device information collection
+- Browser/device information
 - Console error capture
-- TestAssured integration references
+- Steps to reproduce
 
-### **Feature Requests** (`feature_request.yml`)
-- User story formatting
+**Status**: **Active & Well-Structured**
+
+---
+
+### Feature Request (`feature_request.yml`) ✅
+**Structured feature proposals**
+
+**Features**:
+- User story format
 - Business value assessment
 - Technical complexity estimation
-- Roadmap alignment verification
-- Implementation acceptance criteria
+- Roadmap alignment
+- Acceptance criteria
+
+**Status**: **Active & Well-Structured**
 
 ---
 
-## 🚀 **Workflow Triggers**
+### Config (`config.yml`) ✅
+**Template configuration**
 
-### **CI Pipeline Triggers**
-- Push to `main` or `develop` branches
-- Pull requests to `main` or `develop`
-- Manual workflow dispatch
+Provides links to:
+- Documentation
+- Help Centre
+- Community discussions
 
-### **Deployment Triggers**
-- Push to `main` branch (production)
-- Manual deployment trigger
-- Emergency rollback capability
+**Status**: **Active**
 
 ---
 
-## 📈 **Monitoring & Notifications**
+## 🎯 Development Standards
 
-### **CI Results**
-- Automated PR comments with test results
-- Coverage reports uploaded to Codecov
-- Security scan results
-- Build artifact preservation
+### Testing Requirements
+- **Unit Tests**: Run via `npm run test:unit:coverage`
+- **Integration Tests**: Run via `npm run test:integration`
+- **E2E Tests**: Run via `npm run test:e2e` (Playwright)
+- **Visual Tests**: Run via `npm run test:visual` (Percy)
 
-### **Deployment Status**
-- Slack notifications for deployment events
-- Health check validation
-- Rollback notifications
-- Deployment URL sharing
+### Code Quality
+- **Linting**: ESLint + TypeScript strict mode
+- **Pre-commit**: Husky hooks enforce quality checks
+- **Build**: Next.js production build must succeed
+
+### CI Pipeline
+- ✅ All linting must pass
+- ✅ Production build must succeed
+- ✅ No critical file changes without review
+- ✅ PR template checklist must be completed
 
 ---
 
-## 🛠 **Local Development Integration**
+## 🚀 Workflow Triggers Summary
 
-### **Pre-commit Hooks** (Recommended)
+| Workflow | Push Main | Push Develop | PR Main | PR Develop | Schedule | Manual |
+|----------|-----------|--------------|---------|------------|----------|--------|
+| build-check | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| continuous-improvement | ✅ | ✅ | ✅ (main only) | ❌ | ❌ | ❌ |
+| daily-audit | ❌ | ❌ | ❌ | ❌ | ✅ (2x daily) | ✅ |
+| protection-report | ❌ | ❌ | ❌ | ❌ | ✅ (2x daily) | ✅ |
+| ci (deprecated) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| deploy | ✅ (main only) | ❌ | ❌ | ❌ | ❌ | ✅ |
+
+---
+
+## 🛠️ Repository Secrets Required
+
+### Deployment
+- `VERCEL_TOKEN` - Vercel deployment (if using deploy.yml)
+- `VERCEL_ORG_ID` - Vercel organization
+- `VERCEL_PROJECT_ID` - Vercel project
+
+### Monitoring
+- `SLACK_WEBHOOK_URL` - (Optional) Slack notifications
+
+### Environment Variables
+Managed via Vercel dashboard:
+- Supabase credentials
+- Stripe API keys
+- Google OAuth keys
+- Other service credentials
+
+---
+
+## 📝 Pull Request Template
+
+**Location**: `pull_request_template.md`
+
+**Sections**:
+- 🎯 Change summary
+- 🔗 Related issues
+- ✅ Testing checklist
+- 📚 Documentation updates
+- 🚀 Deployment notes
+
+**Status**: **Active & Current**
+
+---
+
+## 🧹 Cleanup Recommendations
+
+### Files to Remove:
+1. **.github/workflows/ci.yml** - Deprecated, replaced by build-check.yml
+2. **.github/workflows/.!67209!deploy.yml** - Backup/temp file
+3. **.github/.!82359!pull_request_template.md** - Backup/temp file
+
+### Files to Update:
+1. **workflows/deploy.yml** - Fix encoding, verify current deployment setup
+2. **workflows/continuous-improvement.yml** - Update Node version 18 → 22
+
+### Files to Keep As-Is:
+- ✅ build-check.yml (primary CI)
+- ✅ daily-audit.yml (monitoring)
+- ✅ protection-report.yml (security)
+- ✅ ISSUE_TEMPLATE/* (all templates)
+- ✅ pull_request_template.md
+
+---
+
+## 📚 Related Documentation
+
+- **Platform Specification**: `.ai/2-PLATFORM-SPECIFICATION.md`
+- **System Navigation**: `.ai/3-SYSTEM-NAVIGATION.md`
+- **Testing Guide**: `tests/README.md` (if exists)
+- **Deployment**: Check Vercel dashboard for current config
+
+---
+
+## 🔧 Local Development
+
+### Pre-commit Testing
 ```bash
-npm run quality:check    # Run before committing
-npm run test:all        # Full test suite
-npm run test:e2e        # E2E validation
+npm run lint              # Lint check
+npm run build            # Build verification
+npm run test:unit:quick  # Quick unit tests
 ```
 
-### **GitHub CLI Integration**
+### Full Test Suite
 ```bash
-gh pr create --template  # Use PR template
-gh issue create --web   # Use issue templates
+npm run test:all         # All tests (unit + integration + e2e)
+npm run test:unit:coverage  # Unit tests with coverage
+npm run test:e2e         # Playwright E2E tests
+npm run test:visual      # Percy visual regression
+```
+
+### GitHub CLI Integration
+```bash
+gh pr create             # Create PR (uses template)
+gh issue create --web    # Create issue (uses templates)
+gh workflow run daily-audit  # Manual workflow trigger
 ```
 
 ---
 
-## 🔧 **Configuration Secrets**
+## 📊 Current Project Stack
 
-### **Required Repository Secrets**
-- `VERCEL_TOKEN` - Vercel deployment token
-- `VERCEL_ORG_ID` - Vercel organization ID
-- `VERCEL_PROJECT_ID` - Vercel project ID
-- `RAILWAY_TOKEN` - Railway deployment token
-- `SLACK_WEBHOOK_URL` - Slack notifications (optional)
+- **Frontend**: Next.js 15, React 18, TypeScript
+- **Database**: Supabase (PostgreSQL)
+- **Auth**: Supabase Auth
+- **Payments**: Stripe Connect
+- **Hosting**: Vercel (web app)
+- **Testing**: Jest, Playwright, Percy
+- **CI/CD**: GitHub Actions
 
-### **Environment Variables**
-- Supabase configuration (handled by Vercel)
-- Stripe API keys (handled by Vercel)
-- Neo4j credentials (handled by Railway)
+**Note**: No Python backend currently exists despite references in old workflows.
 
 ---
 
-## 📚 **Related Documentation**
-
-- **Project Context**: `.ai/prompt.md`
-- **E2E Testing**: `.ai/e2e-test-results.md`
-- **Testing Guide**: `tests/README.md`
-- **TestAssured Platform**: Live monitoring at `/monitoring/test-assured`
-
----
-
-**🔄 This configuration ensures high-quality, tested, and reliable deployments for Tutorwise.**
+**Version 2.0 Changes** (2026-01-23):
+- ✅ Removed references to non-existent backend
+- ✅ Updated workflow status and descriptions
+- ✅ Added cleanup recommendations
+- ✅ Updated Node version references (18 → 22)
+- ✅ Clarified active vs deprecated workflows
+- ✅ Added workflow trigger matrix

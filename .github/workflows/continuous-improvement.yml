@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 env:
-  NODE_VERSION: '18'
-  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '22'
+  PYTHON_VERSION: '3.11'  # Not used - no Python backend exists
 
 jobs:
   # =============================================================================
