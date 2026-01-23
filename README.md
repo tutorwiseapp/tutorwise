@@ -4,12 +4,12 @@
 
 **Version**: 1.0.0-beta
 **Status**: Pre-Launch (Beta Release: 1 Feb 2026)
-**Last Updated**: 2026-01-18
+**Last Updated**: 2026-01-23
 
 ---
 
 ## <� **Project Overview**
-TutorWise is a production-grade, full-stack EdTech marketplace and CRM ecosystem designed to unify the fragmented tutoring economy. Built on a modern Next.js (Frontend) + FastAPI (Backend) architecture, it features a unique "Single Account, Multi-Role" identity system that allows users to seamlessly switch between Student, Tutor, and Agent personas.
+TutorWise is a production-grade, full-stack EdTech marketplace and CRM ecosystem designed to unify the fragmented tutoring economy. Currently built with Next.js 15 and Supabase (FastAPI backend on-hold for future roadmap), it features a unique "Single Account, Multi-Role" identity system that allows users to seamlessly switch between Client, Tutor, and Agent personas.
 
 Unlike standard marketplaces, TutorWise integrates a sophisticated "Growth Engine" directly into its core, leveraging a proprietary Profile Graph to power viral referrals, network building, and commission tracking.
 
@@ -48,10 +48,11 @@ Short Description: TutorWise is an AI-enhanced tutoring ecosystem that merges a 
 # Or manual setup:
 npm install                       # Install dependencies
 npm run sync:env                  # Sync environment variables
-npm run dev                       # Start both frontend & backend
+npm run dev                       # Start Next.js dev server
 
 # Frontend: http://localhost:3000
-# Backend API: http://localhost:8000/docs
+# Backend: Supabase (cloud-hosted)
+# FastAPI backend (port 8000): On-hold, planned for future
 ```
 
 **Complete setup guide**: [.ai/DEVELOPER-SETUP.md](.ai/DEVELOPER-SETUP.md)
@@ -63,13 +64,13 @@ npm run dev                       # Start both frontend & backend
 ```
 tutorwise/
 ├── apps/
-│   ├── web/              # Next.js 14 frontend
-│   └── api/              # FastAPI backend
+│   ├── web/              # Next.js 15 frontend (ACTIVE)
+│   └── api/              # FastAPI backend (ON-HOLD - future roadmap)
 ├── packages/
 │   └── shared-types/     # Shared TypeScript types
 ├── cas/                  # CAS development framework
-├── tools/                # Development tools
-├── tests/                # Test suites
+├── tools/                # Development tools & scripts
+├── tests/                # Test suites (Jest, Playwright, Percy)
 └── docs/                 # Documentation
 ```
 
@@ -77,21 +78,40 @@ tutorwise/
 
 ## Tech Stack
 
-### Frontend
-- **Next.js 14.x** - React framework with App Router
+### Frontend (ACTIVE)
+- **Next.js 15.x** - React framework with App Router
 - **TypeScript 5.x** - Type safety and developer experience
 - **React 18** - UI library with Server Components
-- **Tailwind CSS** - Utility-first styling
-- **Supabase Auth** - Authentication and user management
+- **Tailwind CSS** - Utility-first styling with 70+ CSS variables
 - **React Query (TanStack Query)** - Data fetching and server state management
-- **React Context API** - Client state management
+- **Zustand** - Lightweight client state management
 
-### Backend & Database
-- **Supabase** - PostgreSQL database
-- **Supabase Auth** - Authentication backend
-- **Supabase Storage** - File storage for avatars and documents
-- **Ably** - Real-time messaging, presence, and typing indicators
+### Backend & Database (ACTIVE)
+- **Next.js API Routes** - Primary API (serverless functions)
+- **Supabase** - PostgreSQL database with Row-Level Security (200+ RLS policies)
+- **Supabase Auth** - Authentication with OAuth (Google)
+- **Supabase Storage** - CDN-backed file storage for avatars and documents
+- **Supabase Functions** - Edge functions for server-side logic
+
+### Third-Party Services & Integrations (ACTIVE)
 - **Stripe Connect** - Payment processing and marketplace commissions
+- **Ably** - Real-time messaging, presence, typing indicators
+- **Resend** - Transactional email delivery
+- **Google Calendar API** - Calendar integration for scheduling
+- **Google AI (Gemini)** - AI-powered features and assistance
+- **Sentry** - Error tracking and monitoring
+- **Google Analytics** - User analytics and tracking
+- **Upstash Redis** - Rate limiting and caching (via Vercel)
+
+### Database Extensions (ACTIVE)
+- **pgvector** - Semantic search with 1536-dim embeddings
+- **PostgreSQL Full-Text Search** - Advanced search capabilities
+
+### Future Roadmap (ON-HOLD)
+- **FastAPI** - Python microservices backend (planned for advanced features)
+- **Neo4j** - Graph database for network trust propagation (planned)
+- **Railway** - Backend deployment platform (planned for FastAPI)
+- **Jira Service Desk** - Customer support integration (partially implemented)
 
 ### Admin & Management
 - **Custom Admin Dashboard** - Built with Next.js App Router
@@ -333,14 +353,19 @@ CAS will apply 8 agent perspectives:
 
 ### Development
 ```bash
-# Frontend
+# Frontend (ACTIVE)
 cd apps/web && npm run dev         # Start Next.js dev server (port 3000)
 cd apps/web && npm run build       # Build for production
 cd apps/web && npm run lint        # Lint code
 
-# Backend
-cd apps/api && npm run dev:api     # Start FastAPI dev server (port 8000)
-cd apps/api && npm run migrate     # Run database migrations
+# Backend (ON-HOLD - Future Roadmap)
+# cd apps/api && npm run dev:api   # FastAPI dev server (planned)
+# cd apps/api && npm run migrate   # Database migrations (planned)
+
+# Current Backend: Supabase (cloud-hosted)
+# - Database: Managed PostgreSQL with RLS
+# - Auth: Supabase Auth
+# - API: Next.js API Routes
 ```
 
 ### Testing
@@ -379,37 +404,79 @@ npm run cas:update-plan            # Update plan timestamp
 
 ### Required Environment Variables
 
-**Frontend (.env.local)**:
+**Frontend (.env.local)** - Active:
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# Stripe Configuration (Test/Live)
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST=pk_test_xxxxx
+STRIPE_SECRET_KEY_TEST=sk_test_xxxxx
+STRIPE_WEBHOOK_SECRET_TEST=whsec_xxxxx
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_LIVE=pk_live_xxxxx
+STRIPE_SECRET_KEY_LIVE=sk_live_xxxxx
+STRIPE_WEBHOOK_SECRET_LIVE=whsec_xxxxx
+
+# Ably Real-time
+NEXT_PUBLIC_ABLY_PUBLISHABLE_KEY=your_ably_key
+ABLY_SECRET_KEY=your_ably_secret
+
+# Resend Email
+RESEND_API_KEY=re_xxxxx
+
+# Google Services
+GOOGLE_AI_API_KEY=your_google_ai_key
+GOOGLE_CALENDAR_CLIENT_ID=your_client_id
+GOOGLE_CALENDAR_CLIENT_SECRET=your_client_secret
+
+# Monitoring & Analytics
+NEXT_PUBLIC_SENTRY_DSN=https://xxxxx@sentry.io/xxxxx
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+
+# Application
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+JWT_SECRET=generate-secure-random-string
+NEXTAUTH_SECRET=generate-secure-random-string
+CRON_SECRET=generate-secure-random-string
+
+# Feature Flags
+NEXT_PUBLIC_ENABLE_STRIPE=true
+NEXT_PUBLIC_ENABLE_CHAT=true
+NEXT_PUBLIC_ENABLE_VIDEO=false
 ```
 
-**Backend (.env)**:
+**Backend (.env)** - On-hold (FastAPI):
 ```bash
-SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_key
-DATABASE_URL=your_database_url
+# Planned for future FastAPI implementation
+# SUPABASE_URL=your_supabase_url
+# SUPABASE_KEY=your_supabase_key
+# DATABASE_URL=your_database_url
 ```
 
-See `.env.example` files for complete lists.
+See `.env.example` for complete list of variables.
 
 ---
 
 ## Database
 
-**Provider**: Supabase (PostgreSQL)
+**Provider**: Supabase (PostgreSQL with Row-Level Security)
 
-**Migrations**: Located in `apps/api/migrations/`
+**Migrations**: Located in `tools/database/migrations/`
 
 **Run migrations**:
 ```bash
-cd apps/api
-npm run migrate
+# Migrations managed via Supabase CLI
+supabase db push
+
+# Or via migration scripts
+cd tools/database
+./apply-migrations.sh
 ```
 
-**Key tables** (192 migrations, 191 numbered):
+**Key tables** (237 migrations total: 172 numbered + 65 supporting files):
 - `profiles` - User profiles (all roles) with soft delete and PII anonymization
 - `listings` - Tutor listings with dynamic field configuration
 - `shared_fields` - 23 centralized field definitions across 9 contexts
@@ -492,15 +559,35 @@ Following **CAS Developer Agent** checklist:
 
 ## Deployment
 
-### Frontend (Vercel)
+### Frontend - Vercel (ACTIVE)
 ```bash
+# Production deployment
 cd apps/web
 npm run build
+vercel deploy --prod
+
+# Preview deployment
 vercel deploy
 ```
 
-### Backend (TBD)
-Backend deployment strategy to be determined.
+**Status**: Live at production URL
+**CI/CD**: Automated via GitHub Actions (build-check.yml)
+**Environment**: Managed via Vercel dashboard
+
+### Backend - Supabase (ACTIVE)
+- **Database**: Hosted PostgreSQL with automatic backups
+- **Auth**: Managed authentication service
+- **Storage**: CDN-backed file storage
+- **Functions**: Edge functions deployment
+
+### Future Backend - Railway (ON-HOLD)
+FastAPI backend deployment planned for future roadmap:
+```bash
+# Planned for FastAPI implementation
+# railway up --service backend-api
+```
+
+**Status**: On-hold pending FastAPI implementation decision
 
 ---
 

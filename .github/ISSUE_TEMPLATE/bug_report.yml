@@ -81,15 +81,17 @@ body:
   - type: dropdown
     id: bug-category
     attributes:
-      label: =Â Bug Category
+      label: =ï¿½ Bug Category
       description: Which area of Tutorwise does this bug affect?
       options:
         - Authentication (Login/Signup)
         - Dashboard
         - Payment Processing
-        - TestAssured Platform
         - Booking System
         - User Profile
+        - Marketplace & Listings
+        - Messages & Real-time
+        - Admin Dashboard
         - Navigation
         - Mobile Experience
         - Performance
@@ -101,7 +103,7 @@ body:
   - type: dropdown
     id: severity
     attributes:
-      label: =¨ Severity
+      label: =ï¿½ Severity
       description: How severe is this bug?
       options:
         - Critical (System unusable, blocking core functionality)
@@ -129,7 +131,7 @@ body:
     id: console-errors
     attributes:
       label: = Console Errors
-      description: Any errors in browser console? (Press F12 ’ Console tab)
+      description: Any errors in browser console? (Press F12 ï¿½ Console tab)
       placeholder: "Paste console errors here..."
       render: javascript
 
@@ -137,20 +139,20 @@ body:
     id: network-errors
     attributes:
       label: < Network Errors
-      description: Any failed network requests? (Press F12 ’ Network tab)
+      description: Any failed network requests? (Press F12 ï¿½ Network tab)
       placeholder: "Paste network errors here..."
 
   - type: textarea
     id: additional-context
     attributes:
-      label: =Ý Additional Context
+      label: =ï¿½ Additional Context
       description: Any other context, screenshots, or information
       placeholder: "Additional details..."
 
   - type: checkboxes
     id: tested-environments
     attributes:
-      label: >ê Tested Environments
+      label: >ï¿½ Tested Environments
       description: Where have you confirmed this bug occurs?
       options:
         - label: Production (tutorwise.vercel.app)
@@ -164,6 +166,7 @@ body:
       value: |
         ---
         **=' For Developers:**
-        - Check TestAssured monitoring for related issues
-        - Review E2E test results for similar failures
+        - Review Sentry error logs for related issues
+        - Check E2E test results (Playwright) for similar failures
+        - Review CI/CD pipeline logs (GitHub Actions)
         - Consider adding test coverage for this scenario

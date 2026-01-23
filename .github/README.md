@@ -114,7 +114,7 @@ This directory contains GitHub-specific configuration files for automated workfl
 **Issues**:
 - Character encoding problems in name
 - May reference outdated deployment setup
-- Should verify Vercel/Railway config
+- Should verify Vercel deployment config
 
 ---
 
@@ -202,7 +202,8 @@ Provides links to:
 - `VERCEL_PROJECT_ID` - Vercel project
 
 ### Monitoring
-- `SLACK_WEBHOOK_URL` - (Optional) Slack notifications
+- `SENTRY_DSN` - Error tracking and monitoring (active)
+- `GA_MEASUREMENT_ID` - Google Analytics tracking (active)
 
 ### Environment Variables
 Managed via Vercel dashboard:
