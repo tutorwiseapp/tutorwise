@@ -45,6 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: pre-deployment-check
     environment: production
+    if: github.repository == 'tutorwiseapp/tutorwise'
 
     steps:
     - name: 📥 Checkout code
@@ -82,6 +83,7 @@ jobs:
     name: 🔍 Post-deployment Tests
     runs-on: ubuntu-latest
     needs: [deploy-frontend]
+    if: needs.deploy-frontend.result == 'success'
     environment: production
 
     steps:
