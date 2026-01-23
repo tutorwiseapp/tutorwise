@@ -12,12 +12,11 @@ This directory contains GitHub-specific configuration files for automated workfl
 ```
 .github/
 ├── workflows/              # GitHub Actions CI/CD workflows
-│   ├── ci.yml             # [DEPRECATED] Old CI pipeline
 │   ├── build-check.yml    # ✅ Build verification (main workflow)
 │   ├── continuous-improvement.yml  # ✅ Quality checks & improvements
 │   ├── daily-audit.yml    # ✅ Automated daily project audit
 │   ├── protection-report.yml  # ✅ Critical files protection monitoring
-│   └── deploy.yml         # [NEEDS UPDATE] Deployment automation
+│   └── deploy.yml         # ✅ Deployment automation (Vercel)
 ├── ISSUE_TEMPLATE/         # Issue templates
 │   ├── bug_report.yml     # ✅ Bug reporting template
 │   ├── feature_request.yml  # ✅ Feature request template
