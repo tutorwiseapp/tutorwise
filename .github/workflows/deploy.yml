@@ -1,4 +1,4 @@
-name: üöÄ Production Deployment
+name: =Ä Production Deployment
 
 on:
   push:
@@ -7,57 +7,51 @@ on:
 
 env:
   NODE_VERSION: '22.x'
+  PYTHON_VERSION: '3.8'
 
 jobs:
   # Pre-deployment Quality Gate
   pre-deployment-check:
-    name: ‚úÖ Pre-deployment Verification
+    name: = Pre-deployment Verification
     runs-on: ubuntu-latest
 
     steps:
-    - name: üì• Checkout code
+    - name: =Ê Checkout code
       uses: actions/checkout@v4
 
-    - name: üîß Setup Node.js
+    - name: ô Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
 
-    - name: üì¶ Install dependencies
+    - name: =À Install dependencies
       run: npm ci
 
-    - name: ‚ú® Quality check
+    - name: = Quality check
       run: npm run quality:check
 
-    - name: üèóÔ∏è Build verification
+    - name: <◊ Build verification
       run: npm run build
       env:
         SKIP_ENV_VALIDATION: true
 
-    - name: üß™ Critical E2E tests
+    - name: <≠ Critical E2E tests
       run: npm run test:e2e tests/e2e/auth.spec.ts tests/e2e/homepage.spec.ts
       continue-on-error: true
 
   # Frontend Deployment to Vercel
   deploy-frontend:
-    name: üåê Deploy Frontend
+    name: < Deploy Frontend
     runs-on: ubuntu-latest
     needs: pre-deployment-check
     environment: production
-    if: github.repository == 'tutorwiseapp/tutorwise'
 
     steps:
-    - name: üì• Checkout code
+    - name: =Ê Checkout code
       uses: actions/checkout@v4
 
-    - name: üîß Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-
-    - name: üöÄ Deploy to Vercel
+    - name: =Ä Deploy to Vercel
       uses: amondnet/vercel-action@v25
       with:
         vercel-token: ${{ secrets.VERCEL_TOKEN }}
@@ -65,44 +59,58 @@ jobs:
         vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
         vercel-args: '--prod'
 
-  # Backend Deployment (ON-HOLD - Future Roadmap)
-  # FastAPI backend + Railway deployment planned for future implementation
-  # Currently using Next.js API Routes + Supabase (cloud-hosted)
-  
-  # deploy-backend:
-  #   name: üîå Deploy Backend (ON-HOLD)
-  #   runs-on: ubuntu-latest
-  #   needs: pre-deployment-check
-  #   environment: production
-  #   steps:
-  #     - name: ‚ö†Ô∏è Railway deployment on-hold
-  #       run: echo "FastAPI backend deployment planned for future"
+    - name: =› Get Vercel URL
+      id: vercel-url
+      run: echo "url=$(vercel ls tutorwise --token ${{ secrets.VERCEL_TOKEN }} | grep https | head -1)" >> $GITHUB_OUTPUT
 
-  # Post-deployment verification
-  post-deployment-verification:
-    name: üîç Post-deployment Tests
+  # Backend Deployment to Railway
+  deploy-backend:
+    name: =Ç Deploy Backend
     runs-on: ubuntu-latest
-    needs: [deploy-frontend]
-    if: needs.deploy-frontend.result == 'success'
+    needs: pre-deployment-check
     environment: production
 
     steps:
-    - name: üì• Checkout code
+    - name: =Ê Checkout code
       uses: actions/checkout@v4
 
-    - name: üîß Setup Node.js
+    - name: =Ç Deploy to Railway
+      uses: railway/railway-deploy@v1
+      with:
+        railway-token: ${{ secrets.RAILWAY_TOKEN }}
+        service: tutorwise-backend
+
+    - name: Û Wait for Railway deployment
+      run: sleep 60
+
+    - name: = Health check
+      run: |
+        curl -f https://tutorwise-production.up.railway.app/health || exit 1
+
+  # Post-deployment verification
+  post-deployment-verification:
+    name:  Post-deployment Tests
+    runs-on: ubuntu-latest
+    needs: [deploy-frontend, deploy-backend]
+    environment: production
+
+    steps:
+    - name: =Ê Checkout code
+      uses: actions/checkout@v4
+
+    - name: ô Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
 
-    - name: üì¶ Install dependencies
+    - name: =À Install dependencies
       run: npm ci
 
-    - name: üé≠ Install Playwright browsers
+    - name: <≠ Install Playwright browsers
       run: npx playwright install chromium
 
-    - name: ‚úÖ Production smoke tests
+    - name: >Í Production smoke tests
       run: |
         npx playwright test tests/e2e/homepage.spec.ts \
           --config=playwright.config.ts \
@@ -110,34 +118,87 @@ jobs:
       env:
         BASE_URL: https://tutorwise.vercel.app
 
-    - name: üè• Frontend health check
-      run: curl -f https://tutorwise.vercel.app || exit 1
+    - name: <Â Backend health check
+      run: npm run health:check
 
-  # Deployment notifications (Slack removed - not in use)
+  # Deployment notifications
   notify-deployment:
-    name: üì¢ Deployment Status
+    name: =‚ Deployment Notification
     runs-on: ubuntu-latest
-    needs: [deploy-frontend, post-deployment-verification]
+    needs: [deploy-frontend, deploy-backend, post-deployment-verification]
     if: always()
 
     steps:
-    - name: ‚úÖ Deployment status
+    - name: =  Deployment status
       run: |
         if [[ "${{ needs.post-deployment-verification.result }}" == "success" ]]; then
-          echo "‚úÖ Deployment successful!"
-          echo "Frontend: https://tutorwise.vercel.app"
+          echo "DEPLOYMENT_STATUS= Success" >> $GITHUB_ENV
+          echo "DEPLOYMENT_COLOR=good" >> $GITHUB_ENV
         else
-          echo "‚ùå Deployment failed!"
-          exit 1
+          echo "DEPLOYMENT_STATUS=L Failed" >> $GITHUB_ENV
+          echo "DEPLOYMENT_COLOR=danger" >> $GITHUB_ENV
         fi
 
-    - name: üìä Create deployment summary
+    - name: =¨ Slack notification
+      if: env.SLACK_WEBHOOK_URL
+      uses: 8398a7/action-slack@v3
+      with:
+        status: custom
+        custom_payload: |
+          {
+            attachments: [{
+              color: '${{ env.DEPLOYMENT_COLOR }}',
+              title: 'Tutorwise Deployment ${{ env.DEPLOYMENT_STATUS }}',
+              fields: [{
+                title: 'Environment',
+                value: 'Production',
+                short: true
+              }, {
+                title: 'Branch',
+                value: '${{ github.ref_name }}',
+                short: true
+              }, {
+                title: 'Commit',
+                value: '<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>',
+                short: true
+              }, {
+                title: 'Author',
+                value: '${{ github.actor }}',
+                short: true
+              }],
+              actions: [{
+                type: 'button',
+                text: 'View Deployment',
+                url: 'https://tutorwise.vercel.app'
+              }, {
+                type: 'button',
+                text: 'View Logs',
+                url: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+              }]
+            }]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Rollback capability (manual trigger)
+  rollback:
+    name: Í Emergency Rollback
+    runs-on: ubuntu-latest
+    if: failure() && github.event_name == 'workflow_dispatch'
+    needs: [post-deployment-verification]
+
+    steps:
+    - name: =Ê Checkout code
+      uses: actions/checkout@v4
+
+    - name: Í Rollback Vercel
       run: |
-        echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "- **Environment**: Production" >> $GITHUB_STEP_SUMMARY
-        echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Frontend**: https://tutorwise.vercel.app" >> $GITHUB_STEP_SUMMARY
-        echo "- **Backend**: Supabase (cloud-hosted)" >> $GITHUB_STEP_SUMMARY
-        echo "- **Status**: ${{ needs.post-deployment-verification.result }}" >> $GITHUB_STEP_SUMMARY
+        # Get previous deployment
+        PREV_DEPLOYMENT=$(vercel ls tutorwise --token ${{ secrets.VERCEL_TOKEN }} | grep https | sed -n '2p' | awk '{print $2}')
+        # Promote previous deployment
+        vercel promote $PREV_DEPLOYMENT --token ${{ secrets.VERCEL_TOKEN }}
+
+    - name: =‚ Rollback notification
+      run: |
+        echo "=® Emergency rollback completed"
+        echo "Previous deployment promoted to production"
