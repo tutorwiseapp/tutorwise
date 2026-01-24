@@ -2,48 +2,55 @@
  * Filename: BetaBanner.module.css
  * Purpose: Styles for beta launch announcement banner
  * Created: 2026-01-24
+ * Updated: 2026-01-24 - Solid teal, bold Inter, fixed-width container
  */
 
 .banner {
-  background: linear-gradient(135deg, #006C67 0%, #4CAEAD 100%);
-  height: 44px;
+  background: #006C67;
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.banner:hover {
+  background: #005550;
+}
+
+.banner:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: -2px;
 }
 
 .content {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   color: #ffffff;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 18px;
   line-height: 1.4;
-}
-
-.icon {
-  flex-shrink: 0;
-  opacity: 0.9;
-}
-
-.staticText {
-  white-space: nowrap;
+  padding: 0 16px;
 }
 
 .typedText {
   display: inline-flex;
   align-items: center;
-  min-width: 140px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 700;
+  /* Fixed width based on longest phrase: "Finding your perfect tutor... in seconds." */
+  min-width: 400px;
+  text-align: left;
 }
 
 .cursor {
   display: inline-block;
-  animation: blink 1s step-end infinite;
-  margin-left: 1px;
+  margin-left: 2px;
   font-weight: 300;
+  animation: blink 1.1s step-end infinite;
 }
 
 @keyframes blink {
@@ -65,53 +72,47 @@
 
 /* Tablet */
 @media (max-width: 768px) {
+  .banner {
+    height: 46px;
+  }
+
   .content {
-    font-size: 13px;
-    gap: 6px;
+    font-size: 16px;
   }
 
   .typedText {
-    min-width: 130px;
+    min-width: 320px;
   }
 }
 
 /* Mobile */
 @media (max-width: 480px) {
   .banner {
-    height: auto;
-    min-height: 40px;
-    padding: 8px 16px;
+    height: 42px;
+    padding: 0 12px;
   }
 
   .content {
-    flex-wrap: wrap;
-    font-size: 12px;
-    gap: 4px;
-    text-align: center;
-  }
-
-  .icon {
-    width: 14px;
-    height: 14px;
-  }
-
-  .staticText {
-    white-space: normal;
+    font-size: 13px;
+    padding: 0 8px;
   }
 
   .typedText {
-    min-width: 100px;
-    justify-content: center;
+    min-width: 260px;
   }
 }
 
 /* Very small screens */
 @media (max-width: 360px) {
+  .banner {
+    height: 40px;
+  }
+
   .content {
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .typedText {
-    min-width: 90px;
+    min-width: 220px;
   }
 }

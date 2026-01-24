@@ -3,28 +3,32 @@
  * Purpose: Beta launch announcement banner with typewriter effect
  * Position: Between hero section and main content on homepage
  * Created: 2026-01-24
+ * Updated: 2026-01-24 - New phrase sequence, solid teal, clickable CTA
  */
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { BookOpen } from 'lucide-react';
+import Link from 'next/link';
 import styles from './BetaBanner.module.css';
 
 const PHRASES = [
-  'clients with tutors',
-  'agents with tutors',
-  'tutors with tutors',
+  'Beta Launch: Free to Join',
+  'Connecting clients, tutors & agents',
+  'Finding your perfect tutor... in seconds.',
+  'Refer tutors/clients – earn 10%',
 ];
 
-const TYPING_SPEED = 50; // ms per character
-const ERASING_SPEED = 30; // ms per character
-const PAUSE_DURATION = 2500; // ms to pause after typing complete
+const TYPING_SPEED = 70; // ms per character
+const ERASING_SPEED = 40; // ms per character
+const PAUSE_DURATION = 2200; // ms to pause after typing complete
+const DELAY_BEFORE_NEXT = 600; // ms delay before starting next phrase
 
 export default function BetaBanner() {
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
+  const [isDelaying, setIsDelaying] = useState(false);
 
   // Respect user's motion preferences
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -42,7 +46,14 @@ export default function BetaBanner() {
 
   const typeNextCharacter = useCallback(() => {
     if (displayedText.length < currentPhrase.length) {
-      setDisplayedText(currentPhrase.slice(0, displayedText.length + 1));
+      const nextChar = currentPhrase[displayedText.length];
+      // Add slight extra pause after ellipsis for natural feel
+      const isAfterEllipsis = displayedText.endsWith('...');
+      const delay = isAfterEllipsis ? TYPING_SPEED * 3 : TYPING_SPEED;
+
+      setTimeout(() => {
+        setDisplayedText(currentPhrase.slice(0, displayedText.length + 1));
+      }, isAfterEllipsis ? delay - TYPING_SPEED : 0);
     } else {
       setIsTyping(false);
       setIsPaused(true);
@@ -53,9 +64,8 @@ export default function BetaBanner() {
     if (displayedText.length > 0) {
       setDisplayedText(displayedText.slice(0, -1));
     } else {
-      // Move to next phrase
-      setCurrentPhraseIndex((prev) => (prev + 1) % PHRASES.length);
-      setIsTyping(true);
+      // Delay before starting next phrase
+      setIsDelaying(true);
     }
   }, [displayedText]);
 
@@ -71,7 +81,13 @@ export default function BetaBanner() {
 
     let timeout: NodeJS.Timeout;
 
-    if (isPaused) {
+    if (isDelaying) {
+      timeout = setTimeout(() => {
+        setIsDelaying(false);
+        setCurrentPhraseIndex((prev) => (prev + 1) % PHRASES.length);
+        setIsTyping(true);
+      }, DELAY_BEFORE_NEXT);
+    } else if (isPaused) {
       timeout = setTimeout(() => {
         setIsPaused(false);
       }, PAUSE_DURATION);
@@ -82,18 +98,16 @@ export default function BetaBanner() {
     }
 
     return () => clearTimeout(timeout);
-  }, [displayedText, isTyping, isPaused, typeNextCharacter, eraseCharacter, prefersReducedMotion, currentPhrase]);
+  }, [displayedText, isTyping, isPaused, isDelaying, typeNextCharacter, eraseCharacter, prefersReducedMotion, currentPhrase]);
 
   return (
-    <div className={styles.banner}>
+    <Link href="/signup" className={styles.banner}>
       <div className={styles.content}>
-        <BookOpen className={styles.icon} size={18} strokeWidth={2} />
-        <span className={styles.staticText}>We&apos;re in Beta – Connecting </span>
         <span className={styles.typedText}>
           {displayedText}
           <span className={styles.cursor}>|</span>
         </span>
       </div>
-    </div>
+    </Link>
   );
 }
