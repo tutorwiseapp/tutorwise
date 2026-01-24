@@ -12,10 +12,10 @@ import Link from 'next/link';
 import styles from './BetaBanner.module.css';
 
 const PHRASES = [
-  'Beta Launch: Free to Join',
-  'Connecting clients, tutors & agents',
+  'Beta Launch: Free to Join.',
+  'Connecting clients, tutors & agents.',
   'Finding your perfect tutor... in seconds.',
-  'Refer tutors/clients – earn 10%',
+  'Refer & earn 10% commission.',
 ];
 
 const TYPING_SPEED = 70; // ms per character
