@@ -41,8 +41,8 @@
   align-items: center;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-weight: 700;
-  /* Width calculated for longest phrase at 18px Inter Bold: ~335px + cursor */
-  min-width: 340px;
+  /* Fixed width for longest phrase "Finding your perfect tutor... in seconds." at 18px Inter Bold */
+  width: 385px;
   text-align: left;
 }
 
@@ -81,7 +81,7 @@
   }
 
   .typedText {
-    min-width: 300px;
+    width: 340px;
   }
 }
 
@@ -98,7 +98,7 @@
   }
 
   .typedText {
-    min-width: 260px;
+    width: 280px;
   }
 }
 
@@ -113,6 +113,6 @@
   }
 
   .typedText {
-    min-width: 220px;
+    width: 250px;
   }
 }
