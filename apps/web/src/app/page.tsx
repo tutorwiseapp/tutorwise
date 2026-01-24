@@ -16,6 +16,7 @@ import type { MarketplaceItem } from '@/types/marketplace';
 import { parseSearchQuery, queryToFilters } from '@/lib/services/gemini';
 import { getFeaturedItems, searchMarketplace, toMarketplaceItems } from '@/lib/api/marketplace';
 import HeroSection from '@/app/components/feature/marketplace/HeroSection';
+import BetaBanner from '@/app/components/feature/marketing/BetaBanner';
 import MarketplaceGrid from '@/app/components/feature/marketplace/MarketplaceGrid';
 import AdvancedFilters from '@/app/components/feature/marketplace/AdvancedFilters';
 import type { SearchFilters } from '@/lib/services/savedSearches';
@@ -131,6 +132,9 @@ export default function HomePage() {
         onReset={handleReset}
         hasActiveSearch={hasSearched}
       />
+
+      {/* Beta Launch Announcement Banner */}
+      <BetaBanner />
 
       {/* Advanced Filters Drawer */}
       <AdvancedFilters

@@ -1,0 +1,117 @@
+/**
+ * Filename: BetaBanner.module.css
+ * Purpose: Styles for beta launch announcement banner
+ * Created: 2026-01-24
+ */
+
+.banner {
+  background: linear-gradient(135deg, #006C67 0%, #4CAEAD 100%);
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.icon {
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.staticText {
+  white-space: nowrap;
+}
+
+.typedText {
+  display: inline-flex;
+  align-items: center;
+  min-width: 140px;
+}
+
+.cursor {
+  display: inline-block;
+  animation: blink 1s step-end infinite;
+  margin-left: 1px;
+  font-weight: 300;
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Reduced motion: disable cursor blink */
+@media (prefers-reduced-motion: reduce) {
+  .cursor {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .content {
+    font-size: 13px;
+    gap: 6px;
+  }
+
+  .typedText {
+    min-width: 130px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .banner {
+    height: auto;
+    min-height: 40px;
+    padding: 8px 16px;
+  }
+
+  .content {
+    flex-wrap: wrap;
+    font-size: 12px;
+    gap: 4px;
+    text-align: center;
+  }
+
+  .icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .staticText {
+    white-space: normal;
+  }
+
+  .typedText {
+    min-width: 100px;
+    justify-content: center;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 360px) {
+  .content {
+    font-size: 11px;
+  }
+
+  .typedText {
+    min-width: 90px;
+  }
+}
