@@ -1,10 +1,10 @@
 /*
  * Filename: src/app/(public)/confirm-email/page.tsx
- * Purpose: Client-side email confirmation handler that can access code_verifier
+ * Purpose: Email confirmation handler using token_hash verification
  *
- * This page handles email confirmation links. It must be client-side because
- * the PKCE code_verifier is stored in localStorage during signup and can only
- * be accessed in the browser where the signup occurred.
+ * This page handles email confirmation links from Supabase. It verifies the
+ * token_hash parameter and creates a session, then redirects to onboarding.
+ * The token_hash flow works across any browser/device (unlike PKCE).
  */
 'use client';
 
@@ -27,14 +27,12 @@ function ConfirmEmailContent() {
 
   useEffect(() => {
     const handleConfirmation = async () => {
-      const code = searchParams?.get('code');
       const token_hash = searchParams?.get('token_hash');
       const type = searchParams?.get('type');
       const error = searchParams?.get('error');
       const error_description = searchParams?.get('error_description');
 
       console.log('[Confirm Email] Params:', {
-        hasCode: !!code,
         hasTokenHash: !!token_hash,
         type,
         error,
@@ -48,29 +46,7 @@ function ConfirmEmailContent() {
         return;
       }
 
-      // Handle PKCE code exchange (client-side has access to code_verifier in localStorage)
-      if (code) {
-        console.log('[Confirm Email] Exchanging code for session...');
-        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-
-        if (exchangeError) {
-          console.error('[Confirm Email] Code exchange error:', exchangeError.message);
-          setStatus('error');
-          setErrorMessage(exchangeError.message);
-          return;
-        }
-
-        console.log('[Confirm Email] Code exchange successful');
-        setStatus('success');
-
-        // Redirect to onboarding after short delay
-        setTimeout(() => {
-          router.push('/onboarding');
-        }, 1500);
-        return;
-      }
-
-      // Handle token_hash verification (magic link style)
+      // Handle token_hash verification
       if (token_hash && type) {
         console.log('[Confirm Email] Verifying OTP with token_hash...');
         const { error: otpError } = await supabase.auth.verifyOtp({
@@ -139,9 +115,9 @@ function ConfirmEmailContent() {
             This can happen if:
           </p>
           <ul style={{ color: '#666', fontSize: '0.9rem', marginLeft: '1.5rem' }}>
-            <li>You clicked the link from a different browser or device</li>
             <li>The link has expired (links are valid for 24 hours)</li>
             <li>You&apos;ve already confirmed your email</li>
+            <li>The link was already used</li>
           </ul>
           <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
             <Button variant="primary" onClick={() => router.push('/login')}>

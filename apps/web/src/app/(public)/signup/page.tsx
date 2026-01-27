@@ -167,7 +167,7 @@ export default function SignUpPage() {
         email,
         password,
         options: {
-          // Route to client-side confirm-email page which has access to PKCE code_verifier in localStorage
+          // Fallback redirect URL (overridden by Supabase email template which uses token_hash)
           emailRedirectTo: `${siteUrl}/confirm-email`,
           data: metadata,
         },
