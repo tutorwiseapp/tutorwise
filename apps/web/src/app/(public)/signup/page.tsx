@@ -167,8 +167,8 @@ export default function SignUpPage() {
         email,
         password,
         options: {
-          // Route through auth/callback to exchange code for session before redirecting to onboarding
-          emailRedirectTo: `${siteUrl}/auth/callback`,
+          // Route to client-side confirm-email page which has access to PKCE code_verifier in localStorage
+          emailRedirectTo: `${siteUrl}/confirm-email`,
           data: metadata,
         },
       });
