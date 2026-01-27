@@ -295,6 +295,56 @@ npm run deploy:railway
 supabase db push
 ```
 
+**Configure Email Templates (Authentication):**
+
+The authentication flow uses **token_hash** verification for email confirmation. This works across any browser/device (unlike PKCE which requires localStorage).
+
+1. Go to Supabase Dashboard → Authentication → Email Templates
+2. Update each template to use the `token_hash` format:
+
+**Confirm signup:**
+```html
+<a href="{{ .SiteURL }}/confirm-email?token_hash={{ .TokenHash }}&type=signup">
+  Confirm your email
+</a>
+```
+
+**Magic link:**
+```html
+<a href="{{ .SiteURL }}/confirm-email?token_hash={{ .TokenHash }}&type=magiclink">
+  Log in to Tutorwise
+</a>
+```
+
+**Invite user:**
+```html
+<a href="{{ .SiteURL }}/confirm-email?token_hash={{ .TokenHash }}&type=invite">
+  Accept invitation
+</a>
+```
+
+**Reset password:**
+```html
+<a href="{{ .SiteURL }}/confirm-email?token_hash={{ .TokenHash }}&type=recovery">
+  Reset your password
+</a>
+```
+
+**Change email address:**
+```html
+<a href="{{ .SiteURL }}/confirm-email?token_hash={{ .TokenHash }}&type=email_change">
+  Confirm email change
+</a>
+```
+
+**Configure Redirect URLs:**
+1. Go to Supabase Dashboard → Authentication → URL Configuration
+2. Add these to "Redirect URLs":
+   - `https://www.tutorwise.io/*` (production)
+   - `http://localhost:3000/*` (development)
+
+**Important:** The `{{ .SiteURL }}` variable is set in Supabase Dashboard → Authentication → URL Configuration → Site URL.
+
 ### 2. Neo4j (Graph Database)
 
 **Option A: Neo4j Aura (Cloud - Recommended for Production)**

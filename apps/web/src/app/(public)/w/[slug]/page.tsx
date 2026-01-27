@@ -61,7 +61,7 @@ export default async function PublicWiselistPage({ params }: PageProps) {
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-4 py-6">
           <Link href="/" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4">
-            ← Back to TutorWise
+            ← Back to Tutorwise
           </Link>
 
           <div className="flex items-start gap-4 mt-4">
@@ -252,6 +252,6 @@ export async function generateMetadata({ params }: PageProps) {
 
   return {
     title: `${wiselist.name} - Wiselist by ${owner?.full_name || 'Unknown'}`,
-    description: wiselist.description || `A curated list of tutors and services by ${owner?.full_name || 'a TutorWise user'}`,
+    description: wiselist.description || `A curated list of tutors and services by ${owner?.full_name || 'a Tutorwise user'}`,
   };
 }

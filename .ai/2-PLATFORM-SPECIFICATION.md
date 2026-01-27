@@ -2301,11 +2301,32 @@ Tasks can link to any platform entity for context:
 
 ### 9.3 Communication Integrations
 
-**Email (Resend)**:
-- Transactional emails (booking confirmations, payouts)
+**Email (Resend + Supabase Auth)**:
+
+*Authentication Emails (Supabase Auth - token_hash flow)*:
+- Email confirmation (signup verification)
+- Password reset (recovery flow)
+- Magic link login (passwordless authentication)
+- Email change confirmation
+- User invitations (team/organisation)
+
+Note: All auth emails use token_hash verification (not PKCE) for cross-browser/device compatibility. Email templates configured in Supabase Dashboard → Authentication → Email Templates.
+
+*Transactional Emails (Resend API)*:
+- Booking confirmations, cancellations, reminders
+- Payment receipts, payout notifications
 - Review request emails (7 days after session)
-- Referral invitations (agents invite tutors)
+- Referral notifications (new referral, stage change, commission earned, achievement unlocked)
+- Referral reminder emails (follow-up for incomplete signups)
+- Connection invitations (network/wiselist)
 - Organisation invitations (team member invites)
+- Admin notifications (access granted/revoked/changed)
+
+*Email Queue Infrastructure*:
+- `referral_email_queue` table (Supabase) - queued referral emails
+- `admin_activity_notifications` table - queued admin emails
+- Vercel Cron: `/api/referrals/process-email-queue` (every 5 mins)
+- Vercel Cron: `/api/admin/notifications/process` (daily 9am)
 
 **Video Conferencing**:
 - Google Meet (primary, embedded in WiseSpace)
@@ -2479,6 +2500,14 @@ CREATE POLICY "Users can update own wiselists"
 - Immutable referral binding (set at signup, cannot change)
 - IP tracking (detect bot signups)
 - Email verification required
+
+**Email Verification (token_hash)**:
+- Uses Supabase Auth token_hash verification (not PKCE)
+- Works across any browser/device (no localStorage dependency)
+- `/confirm-email` page handles verification via `verifyOtp()`
+- Supported types: signup, recovery, invite, magiclink, email_change
+- 24-hour link expiry for security
+- Automatic session creation on successful verification
 
 **Payment Security**:
 - PCI DSS compliance via Stripe
@@ -2696,9 +2725,23 @@ const tutors = await client.tutors.search({
   - Applied uniformly across: User Dashboard, Admin Dashboard, Help Centre, Public Pages
 
 **Queue-Based Processing**:
-- CaaS recalculation queue (async updates)
-- Email queue (background jobs)
-- Webhook retry queue
+- CaaS recalculation: Event-driven via database triggers (no queue - instant)
+- Email queue: `referral_email_queue` + `admin_activity_notifications` tables
+- Webhook retry queue (Stripe webhooks)
+
+**Scheduled Jobs (Hybrid Vercel + Supabase pg_cron)**:
+
+*Vercel Crons* (`vercel.json`):
+- `/api/referrals/process-email-queue` - every 5 minutes (email sending)
+- `/api/admin/notifications/process` - daily at 9am UTC (admin emails)
+
+*Supabase pg_cron* (database-level):
+- SEO GSC sync - daily at 6am UTC
+- Rank tracking - daily at 7am UTC
+- Content quality analysis - weekly Monday 3am UTC
+- Network trust graph refresh - hourly
+- Daily statistics aggregation
+- Profile views monitoring
 
 **React Query Client-Side Optimization** (Platform-Wide Standard):
 

@@ -8,6 +8,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 import { notifySessionPublished } from '@/lib/review-notifications';
+import { sendNewReviewEmail } from '@/lib/email-templates/review';
 
 // Mark route as dynamic (required for cookies() in Next.js 15)
 export const dynamic = 'force-dynamic';
@@ -155,19 +156,58 @@ export async function POST(req: Request) {
 
     if (updatedSessionError) throw updatedSessionError;
 
-    // 8. If session was auto-published, send Ably notifications to all participants
+    // 8. If session was auto-published, send Ably notifications and emails to all participants
     if (updatedSession.status === 'published' && updatedSession.booking) {
       const booking: any = Array.isArray(updatedSession.booking)
         ? updatedSession.booking[0]
         : updatedSession.booking;
 
       if (booking) {
+        // Send Ably real-time notifications
         await notifySessionPublished(
           updatedSession.participant_ids,
           session_id,
           booking.id,
           booking.service_name
         );
+
+        // Send email notifications for each review
+        // Fetch all published reviews for this session with reviewer/reviewee info
+        const { data: publishedReviews } = await supabase
+          .from('profile_reviews')
+          .select(`
+            rating,
+            comment,
+            service_name,
+            session_date,
+            reviewer:reviewer_id(full_name),
+            reviewee:reviewee_id(full_name, email)
+          `)
+          .eq('session_id', session_id);
+
+        if (publishedReviews) {
+          for (const review of publishedReviews) {
+            const reviewer: any = Array.isArray(review.reviewer) ? review.reviewer[0] : review.reviewer;
+            const reviewee: any = Array.isArray(review.reviewee) ? review.reviewee[0] : review.reviewee;
+
+            if (reviewee?.email) {
+              try {
+                await sendNewReviewEmail({
+                  recipientName: reviewee.full_name || 'User',
+                  recipientEmail: reviewee.email,
+                  reviewerName: reviewer?.full_name || 'A user',
+                  rating: review.rating,
+                  comment: review.comment || undefined,
+                  serviceName: review.service_name || booking.service_name,
+                  sessionDate: review.session_date ? new Date(review.session_date) : undefined,
+                });
+                console.log(`[API] Review email sent to: ${reviewee.email}`);
+              } catch (emailErr) {
+                console.error('[API] Failed to send review email:', emailErr);
+              }
+            }
+          }
+        }
       }
     }
 

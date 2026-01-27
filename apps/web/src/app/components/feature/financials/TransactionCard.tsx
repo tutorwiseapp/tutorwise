@@ -31,7 +31,7 @@ export default function TransactionCard({ transaction, currentUserId }: Transact
       return { name: 'Withdrawal', id: null, avatar_url: null, fallbackChar: 'W' };
     }
     if (transaction.type === 'Platform Fee') {
-      return { name: 'TutorWise', id: null, avatar_url: null, fallbackChar: 'T' };
+      return { name: 'Tutorwise', id: null, avatar_url: null, fallbackChar: 'T' };
     }
 
     // Booking-related transactions

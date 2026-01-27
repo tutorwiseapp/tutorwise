@@ -2,10 +2,11 @@
  * Filename: apps/web/src/lib/email.ts
  * Purpose: Email service using Resend API
  * Created: 2025-11-07
- * Updated: 2025-11-14 - Lazy initialize Resend to avoid build-time errors
+ * Updated: 2025-01-27 - Refactored to use base email template
  */
 
 import { Resend } from 'resend';
+import { generateEmailTemplate, paragraph, bold, link, tokens } from './email-templates/base';
 
 // Lazy initialization to avoid build-time errors when env var is not set
 let resendClient: Resend | null = null;
@@ -58,6 +59,20 @@ export async function sendEmail(options: SendEmailOptions) {
 }
 
 /**
+ * Helper to create a feature list item
+ */
+function featureItem(emoji: string, title: string, description: string): string {
+  return `
+    <div style="padding: 12px 16px; background: ${tokens.colors.background}; border-radius: ${tokens.borderRadius}; margin-bottom: 8px;">
+      <p style="margin: 0; font-size: 15px; color: ${tokens.colors.textPrimary};">
+        <strong style="color: ${tokens.colors.primary};">${emoji} ${title}</strong><br/>
+        <span style="color: ${tokens.colors.textMuted}; font-size: 14px;">${description}</span>
+      </p>
+    </div>
+  `;
+}
+
+/**
  * Send connection invitation email to new users
  */
 export async function sendConnectionInvitation({
@@ -71,115 +86,27 @@ export async function sendConnectionInvitation({
 }) {
   const subject = `${senderName} invited you to join Tutorwise`;
 
-  const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Connection Invitation</title>
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f5f5f5;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
-    <tr>
-      <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-
-          <!-- Header -->
-          <tr>
-            <td style="background: linear-gradient(135deg, #006c67 0%, #004a47 100%); padding: 40px 30px; text-align: center;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">
-                You're invited to Tutorwise
-              </h1>
-            </td>
-          </tr>
-
-          <!-- Content -->
-          <tr>
-            <td style="padding: 40px 30px;">
-              <p style="margin: 0 0 20px; color: #4B4B4B; font-size: 16px; line-height: 1.6;">
-                Hi there,
-              </p>
-              <p style="margin: 0 0 20px; color: #4B4B4B; font-size: 16px; line-height: 1.6;">
-                <strong>${senderName}</strong> has invited you to join Tutorwise, a professional tutoring network where tutors, agents, and clients connect to grow together.
-              </p>
-
-              <!-- Features List -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                <tr>
-                  <td style="padding: 15px; background-color: #f9fafb; border-radius: 8px; margin-bottom: 10px;">
-                    <p style="margin: 0; color: #4B4B4B; font-size: 15px;">
-                      <strong style="color: #006c67;">🤝 Build Your Network</strong><br/>
-                      <span style="color: #8E8E8E; font-size: 14px;">Connect with tutors, agents, and clients in your field</span>
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding: 15px; background-color: #f9fafb; border-radius: 8px; margin-bottom: 10px;">
-                    <p style="margin: 0; color: #4B4B4B; font-size: 15px;">
-                      <strong style="color: #006c67;">💰 Earn Commissions</strong><br/>
-                      <span style="color: #8E8E8E; font-size: 14px;">Refer others and earn 10% lifetime commission on their bookings</span>
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding: 15px; background-color: #f9fafb; border-radius: 8px;">
-                    <p style="margin: 0; color: #4B4B4B; font-size: 15px;">
-                      <strong style="color: #006c67;">🚀 Grow Together</strong><br/>
-                      <span style="color: #8E8E8E; font-size: 14px;">Collaborate with your network to amplify your reach</span>
-                    </p>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- CTA Button -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                <tr>
-                  <td align="center">
-                    <a href="${referralUrl}"
-                       style="display: inline-block; background: linear-gradient(135deg, #006c67 0%, #004a47 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 6px rgba(0, 108, 103, 0.3);">
-                      Join Tutorwise
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
-              <p style="margin: 20px 0 0; color: #8E8E8E; font-size: 14px; line-height: 1.6; text-align: center;">
-                Or copy and paste this link into your browser:<br/>
-                <a href="${referralUrl}" style="color: #006c67; text-decoration: none; word-break: break-all;">
-                  ${referralUrl}
-                </a>
-              </p>
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="padding: 30px; background-color: #f9fafb; border-top: 1px solid #E5E7EB; text-align: center;">
-              <p style="margin: 0 0 10px; color: #8E8E8E; font-size: 14px;">
-                © 2025 Tutorwise. All rights reserved.
-              </p>
-              <p style="margin: 0; color: #8E8E8E; font-size: 12px;">
-                <a href="${process.env.NEXT_PUBLIC_SITE_URL}/terms-of-service" style="color: #006c67; text-decoration: none; margin: 0 10px;">Terms</a> |
-                <a href="${process.env.NEXT_PUBLIC_SITE_URL}/privacy-policy" style="color: #006c67; text-decoration: none; margin: 0 10px;">Privacy</a> |
-                <a href="${process.env.NEXT_PUBLIC_SITE_URL}/help-centre" style="color: #006c67; text-decoration: none; margin: 0 10px;">Get Help</a>
-              </p>
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
+  const body = `
+    ${paragraph(`${bold(senderName)} has invited you to join Tutorwise, a professional tutoring network where tutors, agents, and clients connect to grow together.`)}
+    <div style="margin: 24px 0;">
+      ${featureItem('🤝', 'Build Your Network', 'Connect with tutors, agents, and clients in your field')}
+      ${featureItem('💰', 'Earn Commissions', 'Refer others and earn 10% lifetime commission on their bookings')}
+      ${featureItem('🚀', 'Grow Together', 'Collaborate with your network to amplify your reach')}
+    </div>
   `;
 
-  return sendEmail({
-    to,
-    subject,
-    html,
+  const html = generateEmailTemplate({
+    headline: "You're invited to Tutorwise",
+    variant: 'default',
+    body,
+    cta: {
+      text: 'Join Tutorwise',
+      url: referralUrl,
+    },
+    footerNote: `Or copy and paste this link: ${link(referralUrl, referralUrl)}`,
   });
+
+  return sendEmail({ to, subject, html });
 }
 
 /**
@@ -200,102 +127,29 @@ export async function sendConnectionRequestNotification({
 }) {
   const subject = `${senderName} wants to connect with you on Tutorwise`;
 
-  const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Connection Request</title>
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f5f5f5;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
-    <tr>
-      <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+  let body = paragraph(`${bold(senderName)} (${senderEmail}) has sent you a connection request on Tutorwise.`);
 
-          <!-- Header -->
-          <tr>
-            <td style="background: linear-gradient(135deg, #006c67 0%, #004a47 100%); padding: 40px 30px; text-align: center;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">
-                New Connection Request
-              </h1>
-            </td>
-          </tr>
+  if (message) {
+    body += `
+      <div style="margin: 24px 0; padding: 16px 20px; background: ${tokens.colors.background}; border-left: 4px solid ${tokens.colors.primary}; border-radius: ${tokens.borderRadius};">
+        <p style="margin: 0 0 8px 0; font-size: 12px; color: ${tokens.colors.textMuted}; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Message:</p>
+        <p style="margin: 0; font-size: 15px; color: ${tokens.colors.textPrimary}; font-style: italic;">"${message}"</p>
+      </div>
+    `;
+  }
 
-          <!-- Content -->
-          <tr>
-            <td style="padding: 40px 30px;">
-              <p style="margin: 0 0 20px; color: #4B4B4B; font-size: 16px; line-height: 1.6;">
-                Hi there,
-              </p>
-              <p style="margin: 0 0 20px; color: #4B4B4B; font-size: 16px; line-height: 1.6;">
-                <strong>${senderName}</strong> (${senderEmail}) has sent you a connection request on Tutorwise.
-              </p>
-
-              ${message ? `
-              <!-- Personal Message -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                <tr>
-                  <td style="padding: 20px; background-color: #f9fafb; border-left: 4px solid #006c67; border-radius: 8px;">
-                    <p style="margin: 0; color: #8E8E8E; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">
-                      Message:
-                    </p>
-                    <p style="margin: 10px 0 0; color: #4B4B4B; font-size: 15px; line-height: 1.6; font-style: italic;">
-                      "${message}"
-                    </p>
-                  </td>
-                </tr>
-              </table>
-              ` : ''}
-
-              <!-- CTA Button -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                <tr>
-                  <td align="center">
-                    <a href="${networkUrl}"
-                       style="display: inline-block; background: linear-gradient(135deg, #006c67 0%, #004a47 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 6px rgba(0, 108, 103, 0.3);">
-                      View Request
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
-              <p style="margin: 20px 0 0; color: #8E8E8E; font-size: 14px; line-height: 1.6; text-align: center;">
-                Or copy and paste this link into your browser:<br/>
-                <a href="${networkUrl}" style="color: #006c67; text-decoration: none; word-break: break-all;">
-                  ${networkUrl}
-                </a>
-              </p>
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="padding: 30px; background-color: #f9fafb; border-top: 1px solid #E5E7EB; text-align: center;">
-              <p style="margin: 0 0 10px; color: #8E8E8E; font-size: 14px;">
-                © 2025 Tutorwise. All rights reserved.
-              </p>
-              <p style="margin: 0; color: #8E8E8E; font-size: 12px;">
-                <a href="${process.env.NEXT_PUBLIC_SITE_URL}/terms-of-service" style="color: #006c67; text-decoration: none; margin: 0 10px;">Terms</a> |
-                <a href="${process.env.NEXT_PUBLIC_SITE_URL}/privacy-policy" style="color: #006c67; text-decoration: none; margin: 0 10px;">Privacy</a> |
-                <a href="${process.env.NEXT_PUBLIC_SITE_URL}/settings" style="color: #006c67; text-decoration: none; margin: 0 10px;">Unsubscribe</a>
-              </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-  `;
-
-  return sendEmail({
-    to,
-    subject,
-    html,
+  const html = generateEmailTemplate({
+    headline: 'New Connection Request',
+    variant: 'default',
+    body,
+    cta: {
+      text: 'View Request',
+      url: networkUrl,
+    },
+    footerNote: `Or copy and paste this link: ${link(networkUrl, networkUrl)}`,
   });
+
+  return sendEmail({ to, subject, html });
 }
 
 /**
@@ -314,113 +168,25 @@ export async function sendOrganisationInvitation({
 }) {
   const subject = `${senderName} invited you to join ${organisationName} on Tutorwise`;
 
-  const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Organisation Invitation</title>
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f5f5f5;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
-    <tr>
-      <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-
-          <!-- Header -->
-          <tr>
-            <td style="background: linear-gradient(135deg, #006c67 0%, #004a47 100%); padding: 40px 30px; text-align: center;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">
-                Join ${organisationName}
-              </h1>
-            </td>
-          </tr>
-
-          <!-- Content -->
-          <tr>
-            <td style="padding: 40px 30px;">
-              <p style="margin: 0 0 20px; color: #4B4B4B; font-size: 16px; line-height: 1.6;">
-                Hi there,
-              </p>
-              <p style="margin: 0 0 20px; color: #4B4B4B; font-size: 16px; line-height: 1.6;">
-                <strong>${senderName}</strong> has invited you to join <strong>${organisationName}</strong> on Tutorwise - a professional tutoring network where organisations, tutors, and clients connect to grow together.
-              </p>
-
-              <!-- Features List -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                <tr>
-                  <td style="padding: 15px; background-color: #f9fafb; border-radius: 8px; margin-bottom: 10px;">
-                    <p style="margin: 0; color: #4B4B4B; font-size: 15px;">
-                      <strong style="color: #006c67;">🏢 Join an Organisation</strong><br/>
-                      <span style="color: #8E8E8E; font-size: 14px;">Become part of ${organisationName} and collaborate with your team</span>
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding: 15px; background-color: #f9fafb; border-radius: 8px; margin-bottom: 10px;">
-                    <p style="margin: 0; color: #4B4B4B; font-size: 15px;">
-                      <strong style="color: #006c67;">🤝 Build Your Network</strong><br/>
-                      <span style="color: #8E8E8E; font-size: 14px;">Connect with tutors, agents, and clients in your field</span>
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding: 15px; background-color: #f9fafb; border-radius: 8px;">
-                    <p style="margin: 0; color: #4B4B4B; font-size: 15px;">
-                      <strong style="color: #006c67;">🚀 Grow Together</strong><br/>
-                      <span style="color: #8E8E8E; font-size: 14px;">Collaborate with your organisation to amplify your reach</span>
-                    </p>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- CTA Button -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                <tr>
-                  <td align="center">
-                    <a href="${referralUrl}"
-                       style="display: inline-block; background: linear-gradient(135deg, #006c67 0%, #004a47 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 6px rgba(0, 108, 103, 0.3);">
-                      Join Tutorwise
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
-              <p style="margin: 20px 0 0; color: #8E8E8E; font-size: 14px; line-height: 1.6; text-align: center;">
-                Or copy and paste this link into your browser:<br/>
-                <a href="${referralUrl}" style="color: #006c67; text-decoration: none; word-break: break-all;">
-                  ${referralUrl}
-                </a>
-              </p>
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="padding: 30px; background-color: #f9fafb; border-top: 1px solid #E5E7EB; text-align: center;">
-              <p style="margin: 0 0 10px; color: #8E8E8E; font-size: 14px;">
-                © 2025 Tutorwise. All rights reserved.
-              </p>
-              <p style="margin: 0; color: #8E8E8E; font-size: 12px;">
-                <a href="${process.env.NEXT_PUBLIC_SITE_URL}/terms-of-service" style="color: #006c67; text-decoration: none; margin: 0 10px;">Terms</a> |
-                <a href="${process.env.NEXT_PUBLIC_SITE_URL}/privacy-policy" style="color: #006c67; text-decoration: none; margin: 0 10px;">Privacy</a> |
-                <a href="${process.env.NEXT_PUBLIC_SITE_URL}/help-centre" style="color: #006c67; text-decoration: none; margin: 0 10px;">Get Help</a>
-              </p>
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
+  const body = `
+    ${paragraph(`${bold(senderName)} has invited you to join ${bold(organisationName)} on Tutorwise - a professional tutoring network where organisations, tutors, and clients connect to grow together.`)}
+    <div style="margin: 24px 0;">
+      ${featureItem('🏢', 'Join an Organisation', `Become part of ${organisationName} and collaborate with your team`)}
+      ${featureItem('🤝', 'Build Your Network', 'Connect with tutors, agents, and clients in your field')}
+      ${featureItem('🚀', 'Grow Together', 'Collaborate with your organisation to amplify your reach')}
+    </div>
   `;
 
-  return sendEmail({
-    to,
-    subject,
-    html,
+  const html = generateEmailTemplate({
+    headline: `Join ${organisationName}`,
+    variant: 'default',
+    body,
+    cta: {
+      text: 'Join Tutorwise',
+      url: referralUrl,
+    },
+    footerNote: `Or copy and paste this link: ${link(referralUrl, referralUrl)}`,
   });
+
+  return sendEmail({ to, subject, html });
 }

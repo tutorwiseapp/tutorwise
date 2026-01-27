@@ -1,7 +1,7 @@
 # Authentication Solution Design
 
-**Version**: v2.0 (Supabase Auth)
-**Date**: 2025-12-12 (Reverse-Engineered from Codebase)
+**Version**: v2.1 (Supabase Auth + token_hash Email Confirmation)
+**Date**: 2026-01-27 (Updated for email confirmation flow)
 **Status**: Active
 **Owner**: Backend Team
 **Migration**: VIN-AUTH-MIG-04, VIN-AUTH-MIG-05 (Kinde → Supabase, Sept 2025)
@@ -12,7 +12,7 @@
 
 This document details the authentication and authorization system for Tutorwise, reverse-engineered from the working codebase. The system uses **Supabase Auth** for identity management with email/password and Google OAuth support, **HTTP-only cookie sessions** via @supabase/ssr, **database triggers** for automatic profile creation, **middleware-based route protection**, and **lifetime referral attribution** for commission tracking.
 
-The system integrates with **11 major features** across the platform, serving as the foundational layer for user identity, access control, and growth attribution.
+The system integrates with **12 major features** across the platform, serving as the foundational layer for user identity, access control, and growth attribution.
 
 ---
 
@@ -518,7 +518,151 @@ await supabase.auth.signInWithOAuth({
 
 ---
 
-### 10. DATABASE SCHEMA INTEGRATION
+### 10. EMAIL CONFIRMATION FLOW (token_hash)
+
+**Type**: Client-Side OTP Verification
+
+**Files**:
+- `apps/web/src/app/(public)/confirm-email/page.tsx`
+- `apps/web/src/app/(public)/auth/callback/route.ts`
+- `apps/web/src/app/(public)/signup/page.tsx`
+
+**Why token_hash Instead of PKCE?**
+
+Supabase's default PKCE flow has a critical limitation:
+- `code_verifier` is stored in localStorage during signup
+- When user clicks email link in different browser/device, `code_verifier` is missing
+- Results in error: "both auth code and code verifier should be non-empty"
+
+The **token_hash flow** solves this:
+- Self-contained verification (no localStorage dependency)
+- Works across any browser/device
+- More reliable for email confirmation scenarios
+
+**Email Template Configuration (Supabase Dashboard)**:
+
+All Supabase email templates must use this format:
+
+```html
+<!-- Confirm signup -->
+<a href="{{ .SiteURL }}/confirm-email?token_hash={{ .TokenHash }}&type=signup">
+  Confirm your email
+</a>
+
+<!-- Magic link -->
+<a href="{{ .SiteURL }}/confirm-email?token_hash={{ .TokenHash }}&type=magiclink">
+  Log in to Tutorwise
+</a>
+
+<!-- Invite user -->
+<a href="{{ .SiteURL }}/confirm-email?token_hash={{ .TokenHash }}&type=invite">
+  Accept invitation
+</a>
+
+<!-- Reset password -->
+<a href="{{ .SiteURL }}/confirm-email?token_hash={{ .TokenHash }}&type=recovery">
+  Reset your password
+</a>
+
+<!-- Change email address -->
+<a href="{{ .SiteURL }}/confirm-email?token_hash={{ .TokenHash }}&type=email_change">
+  Confirm email change
+</a>
+```
+
+**Client-Side Verification Flow**:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    EMAIL CONFIRMATION FLOW                       │
+└─────────────────────────────────────────────────────────────────┘
+
+User clicks email link
+       │
+       ↓
+┌──────────────────────────────────────┐
+│ /confirm-email?token_hash=...&type=signup │
+└──────┬───────────────────────────────┘
+       │
+       ↓
+┌──────────────────────────────────────┐
+│ useEffect() extracts params:         │
+│ - token_hash                         │
+│ - type (signup|recovery|invite|etc.) │
+└──────┬───────────────────────────────┘
+       │
+       ↓
+┌──────────────────────────────────────┐
+│ supabase.auth.verifyOtp({            │
+│   token_hash,                        │
+│   type                               │
+│ })                                   │
+└──────┬───────────────────────────────┘
+       │
+       ├── Success ──→ Session created ──→ Redirect to /onboarding
+       │
+       └── Error ──→ Display error message with recovery options
+```
+
+**Code Implementation**:
+
+```typescript
+// apps/web/src/app/(public)/confirm-email/page.tsx
+useEffect(() => {
+  const handleConfirmation = async () => {
+    const token_hash = searchParams?.get('token_hash');
+    const type = searchParams?.get('type');
+
+    if (token_hash && type) {
+      const { error } = await supabase.auth.verifyOtp({
+        token_hash,
+        type: type as 'signup' | 'recovery' | 'invite' | 'magiclink' | 'email_change',
+      });
+
+      if (error) {
+        setStatus('error');
+        setErrorMessage(error.message);
+        return;
+      }
+
+      setStatus('success');
+      router.push('/onboarding');
+    }
+  };
+
+  handleConfirmation();
+}, [searchParams]);
+```
+
+**Fallback: Server-Side Callback**:
+
+The `/auth/callback` route also handles token_hash as a fallback:
+
+```typescript
+// apps/web/src/app/(public)/auth/callback/route.ts
+if (token_hash && type) {
+  const { error } = await supabase.auth.verifyOtp({
+    token_hash,
+    type: type as 'signup' | 'recovery' | 'invite' | 'magiclink' | 'email_change',
+  });
+  // ... handle error or redirect
+}
+```
+
+**Error Handling**:
+
+Common error scenarios:
+- "Email link is invalid or has expired" → Link expired (24 hours)
+- "Token has already been used" → User already confirmed
+- Missing params → Invalid URL
+
+Recovery options displayed to user:
+- Go to Login (if already confirmed)
+- Sign Up Again (if link expired)
+
+---
+
+### 11. DATABASE SCHEMA INTEGRATION
 
 **Type**: PostgreSQL Tables + Triggers + Row Level Security
 
@@ -646,7 +790,7 @@ USING (auth.uid() = id);
 
 ---
 
-### 11. BOOKINGS INTEGRATION
+### 12. BOOKINGS INTEGRATION
 
 **Type**: User ID References + Agent Attribution
 
@@ -1023,17 +1167,31 @@ Later, after onboarding complete:
 
 ## Future Enhancements
 
-1. **Email Verification Enforcement**: Require confirmed email before access
-2. **Password Reset Flow**: Complete forgot password implementation
+1. ~~**Email Verification Enforcement**: Require confirmed email before access~~ ✅ Done (Jan 2026)
+2. ~~**Password Reset Flow**: Complete forgot password implementation~~ ✅ Done (Jan 2026 - uses token_hash)
 3. **Multi-Factor Authentication (MFA)**: TOTP-based 2FA
-4. **Magic Link Login**: Passwordless email authentication
+4. ~~**Magic Link Login**: Passwordless email authentication~~ ✅ Done (Jan 2026 - uses token_hash)
 5. **Session Management UI**: View and revoke active sessions
 6. **Additional OAuth Providers**: Facebook, GitHub, Apple
 7. **Audit Logging**: Track all auth events for security
 
 ---
 
-**Last Updated**: 2025-12-12
+**Last Updated**: 2026-01-27
 **Status**: Active (Production)
 **For Prompt**: See `auth-prompt.md`
 **For Implementation**: See `auth-implementation.md`
+
+---
+
+## Change Log
+
+### v2.1 (2026-01-27)
+- Added Email Confirmation Flow section (token_hash verification)
+- Documented Supabase email template configuration
+- Updated section numbering (10 → 11 for Database Schema, 11 → 12 for Bookings)
+- Marked email verification, password reset, and magic link as completed
+
+### v2.0 (2025-12-12)
+- Initial Supabase Auth documentation
+- Reverse-engineered from codebase

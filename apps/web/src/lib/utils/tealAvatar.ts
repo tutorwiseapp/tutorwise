@@ -4,7 +4,7 @@
  * Created: 2025-12-09
  *
  * Design:
- * - Profiles: TutorWise branded teal gradient (#66b2b2 → #99cccc)
+ * - Profiles: Tutorwise branded teal gradient (#66b2b2 → #99cccc)
  * - Listings: Subject-based gradient colors
  *   - Science: Orange (#ff8c42 → #ffb366)
  *   - Humanities: Yellow (#ffd700 → #ffe14d)
@@ -156,7 +156,7 @@ export function generateTealAvatar(
     gradientEnd = colors.gradientEnd;
     gradientId = `${category.toLowerCase()}-gradient`;
   } else {
-    // Profiles: Use TutorWise teal gradient
+    // Profiles: Use Tutorwise teal gradient
     gradientStart = '#26B0B9'; // Teal (start)
     gradientEnd = '#5cc9d1';   // Lighter teal (end)
     gradientId = 'teal-gradient';

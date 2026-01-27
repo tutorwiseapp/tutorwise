@@ -89,7 +89,7 @@ export default function GuestHomepage({
 
       {/* Value Propositions */}
       <section className={styles.valueSection}>
-        <h2 className={styles.sectionTitle}>Why Choose TutorWise?</h2>
+        <h2 className={styles.sectionTitle}>Why Choose Tutorwise?</h2>
         <div className={styles.valueGrid}>
           <div className={styles.valueCard}>
             <div className={styles.valueIcon}>🎯</div>
@@ -241,7 +241,7 @@ export default function GuestHomepage({
         <div className={styles.bottomCtaContent}>
           <h2 className={styles.bottomCtaTitle}>Ready to Get Started?</h2>
           <p className={styles.bottomCtaText}>
-            Join thousands of students and tutors already learning on TutorWise
+            Join thousands of students and tutors already learning on Tutorwise
           </p>
           <button
             className={styles.bottomCtaButton}

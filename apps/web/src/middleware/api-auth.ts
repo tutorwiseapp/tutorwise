@@ -1,6 +1,6 @@
 /**
  * API Authentication Middleware
- * Purpose: Validates API keys for programmatic access to TutorWise APIs
+ * Purpose: Validates API keys for programmatic access to Tutorwise APIs
  * Created: 2025-12-16
  *
  * Usage:

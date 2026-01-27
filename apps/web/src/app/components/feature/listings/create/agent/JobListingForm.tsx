@@ -159,7 +159,7 @@ const dbsCheckOptions = [
 ];
 
 const howToApplyOptions = [
-  { value: 'tutorwise', label: 'TutorWise Messages' },
+  { value: 'tutorwise', label: 'Tutorwise Messages' },
   { value: 'network', label: 'Network & Connections' },
   { value: 'organisation', label: "Organisation's Join Our Team page" },
 ];

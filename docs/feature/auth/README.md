@@ -1,8 +1,8 @@
 # Authentication Feature
 
 **Status**: Active
-**Last Code Update**: 2025-09-25 (Supabase migration)
-**Last Doc Update**: 2025-12-12
+**Last Code Update**: 2026-01-27 (Email confirmation token_hash flow)
+**Last Doc Update**: 2026-01-27
 **Priority**: High (Tier 1 - Critical)
 **Version**: v2.0 (Supabase Auth)
 
@@ -67,18 +67,20 @@ The Authentication feature provides secure user authentication and authorization
 ### Components (1 total)
 1. **ProtectedRoute** - Client-side route protection wrapper
 
-### Pages (3 auth pages)
+### Pages (4 auth pages)
 1. **Login** (`/login`) - Sign in page
 2. **Signup** (`/signup`) - Registration page
-3. **Forgot Password** (`/forgot-password`) - Password reset request (incomplete)
+3. **Confirm Email** (`/confirm-email`) - Email verification via token_hash
+4. **Forgot Password** (`/forgot-password`) - Password reset request
 
 ### Routes
 
 **Public Routes**:
 - `/login` - Sign in
 - `/signup` - Registration
+- `/confirm-email` - Email confirmation (handles token_hash verification)
 - `/forgot-password` - Password reset request
-- `/auth/callback` - OAuth callback handler
+- `/auth/callback` - OAuth callback handler and token_hash fallback
 
 **Protected Routes** (via middleware):
 - All routes under `/(authenticated)/` group
@@ -119,9 +121,25 @@ Sessions are stored in HTTP-only cookies via `@supabase/ssr`:
 3. Clicks "Sign Up"
 4. Supabase creates auth.users record
 5. Database trigger creates profiles record
-6. Session cookie set
-7. Redirect to /onboarding
+6. If email confirmation disabled: Session created, redirect to /onboarding
+7. If email confirmation enabled: User receives email with confirmation link
 ```
+
+### Email Confirmation Flow (token_hash)
+
+```
+1. User clicks confirmation link in email
+2. Link format: /confirm-email?token_hash={hash}&type=signup
+3. /confirm-email page verifies token_hash via supabase.auth.verifyOtp()
+4. On success: Session created, redirect to /onboarding
+5. On error: Display error with options to login or signup again
+```
+
+**Why token_hash instead of PKCE?**
+- PKCE stores `code_verifier` in localStorage during signup
+- If user opens email link in different browser/device, code_verifier is missing
+- token_hash verification works across any browser/device
+- More reliable for email confirmation flows
 
 ### Sign In Flow
 
@@ -208,7 +226,7 @@ Automatically runs on user signup:
 
 ## System Integrations
 
-The authentication system integrates with **11 major platform features**:
+The authentication system integrates with **12 major platform features**:
 
 1. **Onboarding** - Middleware enforces completion before feature access
 2. **Referrals** - Lifetime attribution via `referred_by_profile_id`
@@ -219,8 +237,9 @@ The authentication system integrates with **11 major platform features**:
 7. **Wiselist** - In-network sales attribution via cookies
 8. **Session Management** - HTTP-only cookies, auto-refresh
 9. **Google OAuth** - Forced account selection
-10. **Database Triggers** - Automatic profile creation
-11. **Bookings** - User ID references, role-based filtering
+10. **Email Confirmation** - token_hash verification (works across browsers/devices)
+11. **Database Triggers** - Automatic profile creation
+12. **Bookings** - User ID references, role-based filtering
 
 See [auth-solution-design.md](./auth-solution-design.md) for detailed integration documentation.
 
@@ -277,9 +296,12 @@ window.location.href = '/'; // Hard redirect
 - Implemented OAuth callback handler
 
 ### Known Issues
-- Password reset UI exists but not connected to Supabase
-- No email verification enforcement yet
 - MFA not implemented
+
+### Recently Fixed (January 2026)
+- Email confirmation flow now uses token_hash (works across browsers/devices)
+- Password reset flow uses token_hash verification
+- All Supabase email templates updated with token_hash URLs
 
 ---
 

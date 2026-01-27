@@ -149,7 +149,7 @@ export default function ClientHomepage({
       {/* Trust & Safety Banner */}
       <section className={styles.trustBanner}>
         <div className={styles.trustContent}>
-          <h3 className={styles.trustTitle}>Why Choose TutorWise?</h3>
+          <h3 className={styles.trustTitle}>Why Choose Tutorwise?</h3>
           <div className={styles.trustFeatures}>
             <div className={styles.trustFeature}>
               <span className={styles.trustIcon}>✓</span>

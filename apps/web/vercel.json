@@ -1,8 +1,2 @@
 {
-  "crons": [
-    {
-      "path": "/api/referrals/process-email-queue",
-      "schedule": "*/5 * * * *"
-    }
-  ]
 }

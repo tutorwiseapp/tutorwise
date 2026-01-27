@@ -56,7 +56,7 @@ export default function TransactionDetailModal({
       return 'Withdrawal to Bank Account';
     }
     if (transaction.type === 'Platform Fee') {
-      return 'TutorWise Platform';
+      return 'Tutorwise Platform';
     }
 
     if (transaction.booking) {

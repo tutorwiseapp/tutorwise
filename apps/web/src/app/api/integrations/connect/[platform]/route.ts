@@ -4,7 +4,7 @@
  *
  * This endpoint generates the OAuth consent URL for the specified platform
  * (e.g., google_classroom). The student will be redirected to this URL to
- * authorize TutorWise to access their learning platform data.
+ * authorize Tutorwise to access their learning platform data.
  *
  * Supported platforms:
  * - google_classroom: Google Classroom integration

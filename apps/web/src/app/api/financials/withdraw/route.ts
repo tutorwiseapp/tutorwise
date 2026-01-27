@@ -16,6 +16,7 @@ import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 import { createConnectPayout, canReceivePayouts } from '@/lib/stripe/payouts';
 import { PAYMENT_CONSTANTS } from '@/lib/stripe/client';
+import { sendWithdrawalProcessedEmail, sendWithdrawalFailedEmail } from '@/lib/email-templates/withdrawal';
 
 // Mark route as dynamic (required for cookies() in Next.js 15)
 export const dynamic = 'force-dynamic';
@@ -216,6 +217,19 @@ export async function POST(req: Request) {
         })
         .eq('id', transaction.id);
 
+      // Send failure email
+      try {
+        await sendWithdrawalFailedEmail({
+          userName: profile.full_name || 'User',
+          userEmail: profile.email,
+          amount,
+          transactionId: transaction.id,
+          reason: payoutResult.error,
+        });
+      } catch (emailErr) {
+        console.error(`[WITHDRAWAL:${requestId}] Failed to send failure email:`, emailErr);
+      }
+
       return new NextResponse(
         JSON.stringify({
           message: `Payout failed: ${payoutResult.error}`,
@@ -255,6 +269,21 @@ export async function POST(req: Request) {
     }
 
     console.log(`[WITHDRAWAL:${requestId}] Withdrawal completed successfully`);
+
+    // Send success email
+    try {
+      await sendWithdrawalProcessedEmail({
+        userName: profile.full_name || 'User',
+        userEmail: profile.email,
+        amount,
+        transactionId: transaction.id,
+        payoutId: payoutResult.payoutId,
+        estimatedArrival: payoutResult.estimatedArrival,
+      });
+      console.log(`[WITHDRAWAL:${requestId}] Success email sent`);
+    } catch (emailErr) {
+      console.error(`[WITHDRAWAL:${requestId}] Failed to send success email:`, emailErr);
+    }
 
     return NextResponse.json({
       success: true,

@@ -1,12 +1,16 @@
 -- Migration: Create SEO cron jobs using pg_cron
 -- Purpose: Automated daily/weekly SEO data synchronization
 -- Date: 2025-12-29
+-- Updated: 2025-01-27 (hardcoded secret - Supabase restricts vault/ALTER DATABASE)
 --
 -- Schedule:
 -- - GSC sync: Daily at 6:00 AM UTC
 -- - Rank tracking: Daily at 7:00 AM UTC
 -- - Content quality: Weekly Monday at 3:00 AM UTC
--- - Backlink sync: Weekly Sunday at 2:00 AM UTC
+--
+-- Note: The CRON_SECRET is hardcoded because Supabase restricts access to
+-- vault.secrets and ALTER DATABASE for app.* parameters. If you need to
+-- rotate the secret, update it here and in .env.local/Vercel env vars.
 
 -- =====================================================
 -- 1. Enable pg_cron extension (if not already enabled)
@@ -32,7 +36,7 @@ SELECT cron.schedule(
         url := 'https://tutorwise.io/api/cron/seo-sync',
         headers := jsonb_build_object(
             'Content-Type', 'application/json',
-            'Authorization', 'Bearer ' || current_setting('app.cron_secret', true)
+            'Authorization', 'Bearer sAt2XrOQMxTkwm2Xs7+bYE/sOkkwSTysTctrUPdSRmA='
         ),
         body := jsonb_build_object(
             'tasks', jsonb_build_array('gsc')
@@ -53,7 +57,7 @@ SELECT cron.schedule(
         url := 'https://tutorwise.io/api/cron/seo-sync',
         headers := jsonb_build_object(
             'Content-Type', 'application/json',
-            'Authorization', 'Bearer ' || current_setting('app.cron_secret', true)
+            'Authorization', 'Bearer sAt2XrOQMxTkwm2Xs7+bYE/sOkkwSTysTctrUPdSRmA='
         ),
         body := jsonb_build_object(
             'tasks', jsonb_build_array('ranks')
@@ -74,7 +78,7 @@ SELECT cron.schedule(
         url := 'https://tutorwise.io/api/cron/seo-sync',
         headers := jsonb_build_object(
             'Content-Type', 'application/json',
-            'Authorization', 'Bearer ' || current_setting('app.cron_secret', true)
+            'Authorization', 'Bearer sAt2XrOQMxTkwm2Xs7+bYE/sOkkwSTysTctrUPdSRmA='
         ),
         body := jsonb_build_object(
             'tasks', jsonb_build_array('quality'),
@@ -106,11 +110,14 @@ COMMENT ON EXTENSION pg_net IS 'Async HTTP client for making web requests from P
 -- SELECT cron.unschedule('seo-manual-test');
 
 -- =====================================================
--- 8. Set cron secret in database config
+-- 8. Secret Rotation Instructions
 -- =====================================================
-
--- Run this separately in Supabase SQL Editor with your actual CRON_SECRET:
--- ALTER DATABASE postgres SET app.cron_secret = 'your_cron_secret_here';
-
--- Or set per session:
--- SET app.cron_secret = 'your_cron_secret_here';
+--
+-- If you need to rotate the CRON_SECRET:
+-- 1. Generate new secret: openssl rand -base64 32
+-- 2. Update in these locations:
+--    - This migration file (all Bearer tokens)
+--    - Migration 214_migrate_vercel_crons_to_pgcron.sql
+--    - .env.local (CRON_SECRET)
+--    - Vercel Environment Variables (CRON_SECRET)
+-- 3. Re-run the cron.schedule commands to update the jobs

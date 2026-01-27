@@ -4,6 +4,7 @@ import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 import { createClient as createAdminClient } from '@supabase/supabase-js';
 import { stripe } from '@/lib/stripe';
+import { sendAccountDeletionEmails } from '@/lib/email-templates/account';
 
 // Mark route as dynamic (required for cookies() in Next.js 15)
 export const dynamic = 'force-dynamic';
@@ -27,12 +28,18 @@ export async function POST() {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    // 3. Fetch the user's profile to get Stripe IDs
+    // 3. Fetch the user's profile to get Stripe IDs and user info for email
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
-      .select('stripe_customer_id, stripe_account_id')
+      .select('stripe_customer_id, stripe_account_id, full_name, email')
       .eq('id', userId)
       .maybeSingle();
+
+    // Store user info before deletion for email
+    const userEmail = profile?.email || user.email;
+    const userName = profile?.full_name || 'User';
+    const hadStripeAccount = !!profile?.stripe_account_id;
+    const hadStripeCustomer = !!profile?.stripe_customer_id;
 
     if (profileError && profileError.code !== 'PGRST116') { // PGRST116 = not found
       console.error('[Delete Account] Error fetching profile:', profileError);
@@ -101,8 +108,26 @@ export async function POST() {
 
     console.log(`[Delete Account] Successfully deleted user: ${userId}`);
 
-    // 8. On success, return confirmation
-    return NextResponse.json({ 
+    // 8. Send deletion confirmation emails (to user and admin)
+    if (userEmail) {
+      try {
+        await sendAccountDeletionEmails({
+          userName,
+          userEmail,
+          userId,
+          deletedAt: new Date(),
+          hadStripeAccount,
+          hadStripeCustomer,
+        });
+        console.log('[Delete Account] Deletion emails sent successfully');
+      } catch (emailError) {
+        // Don't fail the request if email fails - deletion was successful
+        console.error('[Delete Account] Failed to send deletion emails:', emailError);
+      }
+    }
+
+    // 9. On success, return confirmation
+    return NextResponse.json({
       success: true,
       message: 'Account and all associated data deleted successfully.'
     });

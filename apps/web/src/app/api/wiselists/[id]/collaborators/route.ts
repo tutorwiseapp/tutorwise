@@ -237,7 +237,7 @@ export async function POST(
       // TODO Gap 2: Send invitation email with referral link
       // This will be implemented when we add the email service (Resend)
       // Email template should contain:
-      // - Subject: "{inviter_name} invited you to collaborate on TutorWise"
+      // - Subject: "{inviter_name} invited you to collaborate on Tutorwise"
       // - Body: "{inviter_name} invited you to collaborate on '{wiselist_name}'"
       // - CTA Link: https://tutorwise.com/a/{referral_code}?invite={inviteToken}
       // - When they sign up, the referral attribution happens automatically:

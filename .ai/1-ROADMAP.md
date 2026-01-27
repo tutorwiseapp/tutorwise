@@ -1,7 +1,7 @@
 # Tutorwise Development Roadmap
 
-**Document Version**: 2.4
-**Last Updated**: 2026-01-26
+**Document Version**: 2.5
+**Last Updated**: 2026-01-27
 **Project Status**: 90% Complete - Beta Release Feb 1, 2026
 **Development Velocity**: 1,400+ commits (Oct 2025 - Jan 2026)
 
@@ -1093,19 +1093,21 @@ where session_weight = MAX(sessions_90d, 1)
 - ✅ Recruitment Phase 2 completion
 
 ### Week of Jan 20-26, 2026
-- ⏳ Final authentication (Google social login)
+- ⏳ Final authentication (Google social login) - 100% Completed
 - ⏳ Final user onboarding
-- ⏳ Set up the email notifcation for the authentication and user onboarding workflow
+- ⏳ Set up the email notifcation for the authentication and user onboarding workflow - 100% Completed
 - ⏳ Final booking worflow enhancement
-- ⏳ Final service listing creation, listing UI (use hub architecture) and worflow
+- ⏳ Final service listing creation, listing UI (use hub architecture) and worflow - 100% Completed
+
 
 ### Week of Jan 27 - Feb 1, 2026
 - ⏳ Create Terms of Service and Privacy Policy
 - ⏳ Mobile responsiveness final polish (Directly impacts user experience, Quick wins with testing and fixes, Can be done incrementally page-by-page)
 - ⏳ Performance optimization pass (Improves perceived speed, Reduces costs eg smaller bundles / fewer queries, Makes a great first impression for beta users)
-- ⏳ Final bug fixes
+- ⏳ Final bug fixes - Email notifcation for critical workflow 100% Completed, tbc
 - ⏳ Beta environment preparation
 - ⏳ Beta documentation
+  
 - ⏳ **Beta Launch**: February 1, 2026
 
 ---

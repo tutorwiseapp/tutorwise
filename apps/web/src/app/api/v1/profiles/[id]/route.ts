@@ -5,7 +5,7 @@
  * Scope: profiles:read
  *
  * Use Cases:
- * - Partner platform: Display TutorWise tutor profiles on external site
+ * - Partner platform: Display Tutorwise tutor profiles on external site
  * - AI agent: "Show me this tutor's profile and qualifications"
  * - Analytics tool: Collect profile data for analysis
  * - Marketplace integration: Sync profile data

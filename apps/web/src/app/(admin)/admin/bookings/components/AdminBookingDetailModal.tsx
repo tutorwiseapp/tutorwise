@@ -159,31 +159,52 @@ export default function AdminBookingDetailModal({
     },
   ];
 
+  // Helper to update booking status via API (sends email notifications)
+  const updateBookingStatus = async (newStatus: string, reason?: string) => {
+    const response = await fetch(`/api/bookings/${booking.id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus, reason }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Failed to update status');
+    }
+
+    return response.json();
+  };
+
   // Admin action handlers
   const handleApprove = async () => {
     if (isProcessing) return;
 
-    if (!confirm(`Are you sure you want to approve/confirm this booking?\n\nService: ${booking.service_name}\nClient: ${booking.client?.full_name}\nTutor: ${booking.tutor?.full_name}`)) {
+    if (!confirm(`Are you sure you want to approve/confirm this booking?\n\nService: ${booking.service_name}\nClient: ${booking.client?.full_name}\nTutor: ${booking.tutor?.full_name}\n\nConfirmation emails will be sent to all parties.`)) {
       return;
     }
 
     setIsProcessing(true);
     try {
-      const { error } = await supabase
-        .from('bookings')
-        .update({
-          status: 'Confirmed',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', booking.id);
+      const result = await updateBookingStatus('Confirmed');
+      const emailsSent = result.emailsSent;
 
-      if (error) throw error;
+      let message = 'Booking approved successfully!';
+      if (emailsSent) {
+        const sent = [
+          emailsSent.client && 'client',
+          emailsSent.tutor && 'tutor',
+          emailsSent.agent && 'agent',
+        ].filter(Boolean);
+        if (sent.length > 0) {
+          message += `\n\nConfirmation emails sent to: ${sent.join(', ')}`;
+        }
+      }
 
-      alert('Booking approved successfully!');
+      alert(message);
       onBookingUpdated?.();
       onClose();
     } catch (error) {
-      alert('Failed to approve booking. Please try again.');
+      alert(error instanceof Error ? error.message : 'Failed to approve booking. Please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -192,27 +213,37 @@ export default function AdminBookingDetailModal({
   const handleCancel = async () => {
     if (isProcessing) return;
 
-    if (!confirm(`Are you sure you want to cancel this booking?\n\nService: ${booking.service_name}\nClient: ${booking.client?.full_name}\n\nThis action will update the booking status to Cancelled.`)) {
+    const reason = prompt(
+      `Are you sure you want to cancel this booking?\n\nService: ${booking.service_name}\nClient: ${booking.client?.full_name}\n\nCancellation emails will be sent to all parties.\n\nPlease provide a reason (optional):`
+    );
+
+    // prompt returns null if cancelled, empty string if OK with no input
+    if (reason === null) {
       return;
     }
 
     setIsProcessing(true);
     try {
-      const { error } = await supabase
-        .from('bookings')
-        .update({
-          status: 'Cancelled',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', booking.id);
+      const result = await updateBookingStatus('Cancelled', reason || undefined);
+      const emailsSent = result.emailsSent;
 
-      if (error) throw error;
+      let message = 'Booking cancelled successfully!';
+      if (emailsSent) {
+        const sent = [
+          emailsSent.client && 'client',
+          emailsSent.tutor && 'tutor',
+          emailsSent.agent && 'agent',
+        ].filter(Boolean);
+        if (sent.length > 0) {
+          message += `\n\nCancellation emails sent to: ${sent.join(', ')}`;
+        }
+      }
 
-      alert('Booking cancelled successfully!');
+      alert(message);
       onBookingUpdated?.();
       onClose();
     } catch (error) {
-      alert('Failed to cancel booking. Please try again.');
+      alert(error instanceof Error ? error.message : 'Failed to cancel booking. Please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -251,27 +282,46 @@ export default function AdminBookingDetailModal({
   const handleChangeStatus = async (newStatus: string) => {
     if (isProcessing) return;
 
-    if (!confirm(`Change booking status to "${newStatus}"?`)) {
-      return;
+    let reason: string | undefined;
+
+    // For cancellation, prompt for reason
+    if (newStatus === 'Cancelled') {
+      const input = prompt(
+        `Change booking status to "${newStatus}"?\n\nEmails will be sent to all parties.\n\nPlease provide a reason (optional):`
+      );
+      if (input === null) return;
+      reason = input || undefined;
+    } else {
+      const emailNote = newStatus === 'Confirmed'
+        ? '\n\nConfirmation emails will be sent to all parties.'
+        : '';
+      if (!confirm(`Change booking status to "${newStatus}"?${emailNote}`)) {
+        return;
+      }
     }
 
     setIsProcessing(true);
     try {
-      const { error } = await supabase
-        .from('bookings')
-        .update({
-          status: newStatus,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', booking.id);
+      const result = await updateBookingStatus(newStatus, reason);
+      const emailsSent = result.emailsSent;
 
-      if (error) throw error;
+      let message = `Booking status changed to ${newStatus} successfully!`;
+      if (emailsSent && (newStatus === 'Confirmed' || newStatus === 'Cancelled')) {
+        const sent = [
+          emailsSent.client && 'client',
+          emailsSent.tutor && 'tutor',
+          emailsSent.agent && 'agent',
+        ].filter(Boolean);
+        if (sent.length > 0) {
+          message += `\n\nEmails sent to: ${sent.join(', ')}`;
+        }
+      }
 
-      alert(`Booking status changed to ${newStatus} successfully!`);
+      alert(message);
       onBookingUpdated?.();
       onClose();
     } catch (error) {
-      alert('Failed to change booking status. Please try again.');
+      alert(error instanceof Error ? error.message : 'Failed to change booking status. Please try again.');
     } finally {
       setIsProcessing(false);
     }

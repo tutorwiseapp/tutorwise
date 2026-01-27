@@ -11,7 +11,7 @@
  * Requirement ID: VIN-A-01.2
  * Change Summary: Replaced academic-themed avatars with simple teal gradient initials
  * (e.g., "Michael Quan" → "MQ", "Mathematics" → "MA"). Provides simpler, more
- * branded user experience consistent with TutorWise design system.
+ * branded user experience consistent with Tutorwise design system.
  * Impact Analysis: All users without custom avatars will now see teal initials avatars
  * instead of academic pattern avatars. Custom uploaded avatars are still prioritized.
  * Dependencies: "@/types", "./tealAvatar".

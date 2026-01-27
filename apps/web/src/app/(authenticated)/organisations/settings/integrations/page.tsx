@@ -155,7 +155,7 @@ export default function IntegrationsSettingsPage() {
           <h3 className={styles.cardTitle}>Available Integrations</h3>
           <div className={styles.cardContent}>
             <p className={styles.description}>
-              Connect TutorWise with your existing tools to streamline your workflow.
+              Connect Tutorwise with your existing tools to streamline your workflow.
               All integrations are currently in development and will be available soon.
             </p>
           </div>
@@ -203,7 +203,7 @@ export default function IntegrationsSettingsPage() {
           <h3 className={styles.cardTitle}>Request an Integration</h3>
           <div className={styles.cardContent}>
             <p className={styles.description}>
-              Don&apos;t see the integration you need? Let us know what tools you&apos;d like to connect with TutorWise.
+              Don&apos;t see the integration you need? Let us know what tools you&apos;d like to connect with Tutorwise.
             </p>
             <Button variant="secondary" size="md" disabled>
               Request Integration

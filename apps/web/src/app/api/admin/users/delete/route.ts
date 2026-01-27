@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { createClient as createAdminClient } from '@supabase/supabase-js';
 import { stripe } from '@/lib/stripe';
+import { sendAdminDeletionEmails } from '@/lib/email-templates/account';
 
 /**
  * POST /api/admin/users/delete
@@ -156,6 +157,21 @@ export async function POST(request: NextRequest) {
         created_at: new Date().toISOString(),
       });
 
+      // Send emails to user and admin
+      try {
+        await sendAdminDeletionEmails({
+          userName: userToDelete.full_name || 'User',
+          userEmail: userToDelete.email,
+          userId,
+          deletedAt: new Date(),
+          deletionType: 'soft',
+          reason,
+        });
+        console.log('[Admin Delete] Soft delete emails sent');
+      } catch (emailError) {
+        console.error('[Admin Delete] Failed to send soft delete emails:', emailError);
+      }
+
       return NextResponse.json(
         {
           success: true,
@@ -227,6 +243,23 @@ export async function POST(request: NextRequest) {
         },
         created_at: new Date().toISOString(),
       });
+
+      // Send emails BEFORE deletion (we need user's email)
+      try {
+        await sendAdminDeletionEmails({
+          userName: userToDelete.full_name || 'User',
+          userEmail: userToDelete.email,
+          userId,
+          deletedAt: new Date(),
+          deletionType: 'hard',
+          reason,
+          hadStripeAccount: !!stripeData?.stripe_account_id,
+          hadStripeCustomer: !!stripeData?.stripe_customer_id,
+        });
+        console.log('[Admin Delete] Hard delete emails sent');
+      } catch (emailError) {
+        console.error('[Admin Delete] Failed to send hard delete emails:', emailError);
+      }
 
       // Delete from auth.users (cascade will handle profiles via FK)
       const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);

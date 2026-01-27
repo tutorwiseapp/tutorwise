@@ -8,6 +8,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 import { incrementListingBookings } from '@/lib/api/listings';
+import { sendBookingRequestEmail, type BookingEmailData } from '@/lib/email-templates/booking';
 
 // Mark route as dynamic (required for cookies() in Next.js 15)
 export const dynamic = 'force-dynamic';
@@ -312,6 +313,43 @@ export async function POST(req: Request) {
     // 6. Increment listing booking count (migration 103) - only if listing_id exists
     if (listing_id) {
       await incrementListingBookings(listing_id);
+    }
+
+    // 7. Send booking request email to tutor (async - don't block response)
+    // Fetch tutor and client profile data for email
+    const { data: tutorProfile } = await supabase
+      .from('profiles')
+      .select('full_name, email')
+      .eq('id', tutor_id)
+      .single();
+
+    const { data: clientProfile } = await supabase
+      .from('profiles')
+      .select('full_name, email')
+      .eq('id', user.id)
+      .single();
+
+    if (tutorProfile?.email && clientProfile?.email) {
+      const emailData: BookingEmailData = {
+        bookingId: booking.id,
+        serviceName: service_name,
+        sessionDate: new Date(session_start_time),
+        sessionDuration: session_duration,
+        amount: amount,
+        subjects: listing?.subjects,
+        locationType: listing?.location_type,
+        locationCity: listing?.location_city,
+        tutorName: tutorProfile.full_name || 'Tutor',
+        tutorEmail: tutorProfile.email,
+        clientName: clientProfile.full_name || 'Client',
+        clientEmail: clientProfile.email,
+        bookingType: booking_type,
+      };
+
+      // Send email asynchronously (don't await to avoid blocking)
+      sendBookingRequestEmail(emailData)
+        .then(() => console.log('[Booking API] Request email sent to tutor:', tutorProfile.email))
+        .catch((err) => console.error('[Booking API] Failed to send request email:', err));
     }
 
     return NextResponse.json({ booking }, { status: 201 });

@@ -20,6 +20,11 @@ jest.mock('@/lib/api/listings', () => ({
   incrementListingBookings: jest.fn().mockResolvedValue(undefined),
 }));
 
+// Mock email templates to prevent actual email sending in tests
+jest.mock('@/lib/email-templates/booking', () => ({
+  sendBookingRequestEmail: jest.fn().mockResolvedValue({ success: true }),
+}));
+
 describe('POST /api/bookings', () => {
   let mockSupabase: any;
 
@@ -102,6 +107,18 @@ describe('POST /api/bookings', () => {
         status: 'Pending',
         payment_status: 'Pending',
       },
+      error: null,
+    });
+
+    // Mock tutor profile fetch for email - fourth .single() call
+    mockSupabase.single.mockResolvedValueOnce({
+      data: { full_name: 'Test Tutor', email: 'tutor@test.com' },
+      error: null,
+    });
+
+    // Mock client profile fetch for email - fifth .single() call
+    mockSupabase.single.mockResolvedValueOnce({
+      data: { full_name: 'Test Client', email: 'client@test.com' },
       error: null,
     });
 
@@ -206,6 +223,18 @@ describe('POST /api/bookings', () => {
       error: null,
     });
 
+    // Mock tutor profile fetch for email - fourth .single() call
+    mockSupabase.single.mockResolvedValueOnce({
+      data: { full_name: 'Test Tutor', email: 'tutor@test.com' },
+      error: null,
+    });
+
+    // Mock client profile fetch for email - fifth .single() call
+    mockSupabase.single.mockResolvedValueOnce({
+      data: { full_name: 'Test Client', email: 'client@test.com' },
+      error: null,
+    });
+
     // Create request
     const requestBody = {
       tutor_id: mockTutorId,
@@ -291,6 +320,18 @@ describe('POST /api/bookings', () => {
         status: 'Pending',
         payment_status: 'Pending',
       },
+      error: null,
+    });
+
+    // Mock tutor profile fetch for email - third .single() call
+    mockSupabase.single.mockResolvedValueOnce({
+      data: { full_name: 'Test Tutor', email: 'tutor@test.com' },
+      error: null,
+    });
+
+    // Mock client profile fetch for email - fourth .single() call
+    mockSupabase.single.mockResolvedValueOnce({
+      data: { full_name: 'Test Client', email: 'client@test.com' },
       error: null,
     });
 

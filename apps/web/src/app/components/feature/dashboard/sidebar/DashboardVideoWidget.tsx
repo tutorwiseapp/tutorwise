@@ -16,7 +16,7 @@ export default function DashboardVideoWidget() {
       <h3 className={styles.title}>Video Tutorial</h3>
       <div className={styles.content}>
         <p className={styles.text}>
-          Learn how to make the most of your TutorWise dashboard.
+          Learn how to make the most of your Tutorwise dashboard.
         </p>
         <p className={styles.placeholder}>
           [Video content coming soon]

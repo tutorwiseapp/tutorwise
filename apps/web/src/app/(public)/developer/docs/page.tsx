@@ -21,7 +21,7 @@ export default function DeveloperDocsPage() {
       {/* Hero Section */}
       <div className={styles.hero}>
         <div className={styles.heroContent}>
-          <h1>TutorWise Platform API</h1>
+          <h1>Tutorwise Platform API</h1>
           <p className={styles.heroSubtitle}>
             Programmatic access to CaaS scores, profiles, bookings, and referrals
           </p>
@@ -65,7 +65,7 @@ export default function DeveloperDocsPage() {
             <div className={styles.stepNumber}>3</div>
             <h3>Start Building</h3>
             <p>
-              Integrate TutorWise data into your app, AI agent, or analytics
+              Integrate Tutorwise data into your app, AI agent, or analytics
               platform.
             </p>
           </div>
@@ -211,7 +211,7 @@ export default function DeveloperDocsPage() {
           <div className={styles.useCase}>
             <h3>🏢 Partner Platforms</h3>
             <p>
-              Display TutorWise tutor profiles on external marketplaces with
+              Display Tutorwise tutor profiles on external marketplaces with
               credibility scores and automatic referral attribution.
             </p>
           </div>

@@ -5,6 +5,7 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { sendWelcomeEmail } from '@/lib/email-templates/welcome'
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
@@ -40,6 +41,8 @@ export async function GET(request: NextRequest) {
     }
   )
 
+  let shouldSendWelcomeEmail = false
+
   // Handle PKCE code exchange (OAuth and some email flows)
   if (code) {
     console.log('[Auth Callback] Exchanging code for session...')
@@ -67,6 +70,32 @@ export async function GET(request: NextRequest) {
       )
     }
     console.log('[Auth Callback] OTP verification successful')
+
+    // Send welcome email for new signups only
+    if (type === 'signup') {
+      shouldSendWelcomeEmail = true
+    }
+  }
+
+  // Send welcome email asynchronously (don't block the redirect)
+  if (shouldSendWelcomeEmail) {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user?.email) {
+      // Get user's name from metadata or profile
+      const userName = user.user_metadata?.full_name ||
+                       user.user_metadata?.name ||
+                       user.email.split('@')[0]
+
+      // Send asynchronously - don't await
+      sendWelcomeEmail({
+        to: user.email,
+        userName,
+      }).then(() => {
+        console.log('[Auth Callback] Welcome email sent to:', user.email)
+      }).catch((err) => {
+        console.error('[Auth Callback] Failed to send welcome email:', err)
+      })
+    }
   }
 
   // If neither code nor token_hash, check if user is already authenticated

@@ -18,6 +18,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { stripe } from '@/lib/stripe';
 import Stripe from 'stripe';
+import {
+  sendPaymentReceiptEmail,
+  sendPaymentFailedEmail,
+  type PaymentEmailData,
+} from '@/lib/email-templates/payment';
 
 // Mark route as dynamic (required for cookies() in Next.js 15)
 export const dynamic = 'force-dynamic';
@@ -100,6 +105,41 @@ export async function POST(req: NextRequest) {
           }
         }
 
+        // Send payment receipt email to client (async - don't block webhook)
+        try {
+          const { data: booking } = await supabase
+            .from('bookings')
+            .select(`
+              *,
+              client:profiles!client_id(full_name, email),
+              tutor:profiles!tutor_id(full_name)
+            `)
+            .eq('id', booking_id)
+            .single();
+
+          if (booking?.client?.email) {
+            const emailData: PaymentEmailData = {
+              bookingId: booking.id,
+              serviceName: booking.service_name,
+              sessionDate: new Date(booking.session_start_time),
+              sessionDuration: booking.session_duration,
+              amount: booking.amount,
+              subjects: booking.subjects,
+              tutorName: booking.tutor?.full_name || 'Tutor',
+              clientName: booking.client?.full_name || 'Client',
+              clientEmail: booking.client.email,
+              // Note: receipt_url is on Charge object, not Session - omitted for simplicity
+            };
+
+            sendPaymentReceiptEmail(emailData)
+              .then(() => console.log('[Webhook] Payment receipt email sent to:', booking.client.email))
+              .catch((err) => console.error('[Webhook] Failed to send payment receipt:', err));
+          }
+        } catch (emailError) {
+          console.error('[Webhook] Error preparing payment receipt email:', emailError);
+          // Non-critical - don't throw
+        }
+
         break;
       }
 
@@ -117,6 +157,42 @@ export async function POST(req: NextRequest) {
             .from('bookings')
             .update({ payment_status: 'Failed' })
             .eq('id', booking_id);
+
+          // Send payment failed email to client (async - don't block webhook)
+          try {
+            const { data: booking } = await supabase
+              .from('bookings')
+              .select(`
+                *,
+                client:profiles!client_id(full_name, email),
+                tutor:profiles!tutor_id(full_name)
+              `)
+              .eq('id', booking_id)
+              .single();
+
+            if (booking?.client?.email) {
+              const emailData: PaymentEmailData = {
+                bookingId: booking.id,
+                serviceName: booking.service_name,
+                sessionDate: new Date(booking.session_start_time),
+                sessionDuration: booking.session_duration,
+                amount: booking.amount,
+                subjects: booking.subjects,
+                tutorName: booking.tutor?.full_name || 'Tutor',
+                clientName: booking.client?.full_name || 'Client',
+                clientEmail: booking.client.email,
+              };
+
+              const failureReason = paymentIntent.last_payment_error?.message || undefined;
+
+              sendPaymentFailedEmail(emailData, failureReason)
+                .then(() => console.log('[Webhook] Payment failed email sent to:', booking.client.email))
+                .catch((err) => console.error('[Webhook] Failed to send payment failed email:', err));
+            }
+          } catch (emailError) {
+            console.error('[Webhook] Error preparing payment failed email:', emailError);
+            // Non-critical - don't throw
+          }
         }
         break;
       }

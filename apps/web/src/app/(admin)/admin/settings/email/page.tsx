@@ -46,6 +46,29 @@ export default function EmailSettingsPage() {
     enableWelcomeEmails: true,
   });
 
+  // Email Testing State
+  const [testEmailType, setTestEmailType] = useState('booking_confirmation');
+  const [testEmailAddress, setTestEmailAddress] = useState('');
+  const [isSendingTest, setIsSendingTest] = useState(false);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  const emailTypes = [
+    { value: 'welcome', label: 'Welcome Email', category: 'Auth' },
+    { value: 'account_deleted', label: 'Account Deleted', category: 'Auth' },
+    { value: 'booking_request', label: 'Booking Request (to Tutor)', category: 'Booking' },
+    { value: 'booking_confirmation', label: 'Booking Confirmed (to Client)', category: 'Booking' },
+    { value: 'booking_cancelled', label: 'Booking Cancelled', category: 'Booking' },
+    { value: 'session_reminder', label: 'Session Reminder (24h)', category: 'Booking' },
+    { value: 'payment_receipt', label: 'Payment Receipt', category: 'Payment' },
+    { value: 'payment_failed', label: 'Payment Failed', category: 'Payment' },
+    { value: 'refund', label: 'Refund Processed', category: 'Payment' },
+    { value: 'withdrawal_processed', label: 'Withdrawal Processed', category: 'Payment' },
+    { value: 'withdrawal_failed', label: 'Withdrawal Failed', category: 'Payment' },
+    { value: 'new_review', label: 'New Review Received', category: 'Reports' },
+    { value: 'tutor_report', label: 'Tutor Weekly Report', category: 'Reports' },
+    { value: 'agent_report', label: 'Agent Weekly Report', category: 'Reports' },
+  ];
+
   // Fetch real email configuration from API on mount
   useEffect(() => {
     async function fetchEmailConfig() {
@@ -152,6 +175,50 @@ export default function EmailSettingsPage() {
       alert('Failed to send test email. Please check your SMTP configuration.');
     } finally {
       setIsTesting(false);
+    }
+  };
+
+  const handleSendTestEmail = async () => {
+    if (!testEmailAddress || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(testEmailAddress)) {
+      setTestResult({ success: false, message: 'Please enter a valid email address' });
+      return;
+    }
+
+    setIsSendingTest(true);
+    setTestResult(null);
+
+    try {
+      const response = await fetch('/api/admin/test-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: testEmailType,
+          to: testEmailAddress,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const emailLabel = emailTypes.find(e => e.value === testEmailType)?.label || testEmailType;
+        setTestResult({
+          success: true,
+          message: `${emailLabel} sent to ${testEmailAddress}`,
+        });
+      } else {
+        setTestResult({
+          success: false,
+          message: data.error || 'Failed to send test email',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to send test email:', error);
+      setTestResult({
+        success: false,
+        message: 'Network error. Please try again.',
+      });
+    } finally {
+      setIsSendingTest(false);
     }
   };
 
@@ -362,6 +429,65 @@ export default function EmailSettingsPage() {
               label="User Welcome Emails"
               description="Send welcome email to new users"
             />
+          </div>
+        </HubForm.Section>
+
+        {/* Section 3: Email Testing */}
+        <HubForm.Section title="Test Emails">
+          <p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280' }}>
+            Send test emails to verify your templates are working correctly.
+          </p>
+          <HubForm.Grid columns={2}>
+            <HubForm.Field label="Email Type">
+              <select
+                value={testEmailType}
+                onChange={(e) => setTestEmailType(e.target.value)}
+                style={{ width: '100%' }}
+              >
+                {['Auth', 'Booking', 'Payment', 'Reports'].map(category => (
+                  <optgroup key={category} label={category}>
+                    {emailTypes
+                      .filter(e => e.category === category)
+                      .map(email => (
+                        <option key={email.value} value={email.value}>
+                          {email.label}
+                        </option>
+                      ))}
+                  </optgroup>
+                ))}
+              </select>
+            </HubForm.Field>
+
+            <HubForm.Field label="Recipient Email">
+              <input
+                type="email"
+                value={testEmailAddress}
+                onChange={(e) => setTestEmailAddress(e.target.value)}
+                placeholder="Enter email address"
+              />
+            </HubForm.Field>
+          </HubForm.Grid>
+
+          <div className={styles.testButtonContainer}>
+            <Button
+              variant="secondary"
+              onClick={handleSendTestEmail}
+              disabled={isSendingTest || !testEmailAddress}
+              isLoading={isSendingTest}
+            >
+              {isSendingTest ? 'Sending...' : 'Send Test Email'}
+            </Button>
+            {testResult && (
+              <span
+                style={{
+                  marginLeft: '12px',
+                  fontSize: '14px',
+                  color: testResult.success ? '#059669' : '#dc2626',
+                }}
+              >
+                {testResult.success ? '✓' : '✗'} {testResult.message}
+              </span>
+            )}
           </div>
         </HubForm.Section>
 
