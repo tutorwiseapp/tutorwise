@@ -54,8 +54,8 @@ function LoginForm() {
   };
   
   const handleGoogleSignIn = async () => {
-    // Use NEXT_PUBLIC_BASE_URL for consistent domain (avoids www vs non-www issues)
-    const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || location.origin;
+    // Use NEXT_PUBLIC_BASE_URL with production fallback (never use localhost in production)
+    const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.tutorwise.io';
 
     await supabase.auth.signInWithOAuth({
       provider: 'google',

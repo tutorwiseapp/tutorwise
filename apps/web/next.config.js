@@ -13,6 +13,15 @@
  * avatars provided by Clerk, resolving a critical runtime error on authenticated pages.
  * Dependencies: "next".
  */
+// Build-time validation for critical environment variables
+if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_BASE_URL) {
+  console.warn(
+    '\x1b[33m⚠️  Warning: NEXT_PUBLIC_BASE_URL is not set for production build.\n' +
+    '   Auth redirects will fall back to https://www.tutorwise.io\n' +
+    '   Set this in Vercel environment variables for proper configuration.\x1b[0m'
+  );
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Enable standalone output for Docker deployment

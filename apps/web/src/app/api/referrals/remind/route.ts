@@ -105,8 +105,8 @@ export async function POST(request: NextRequest) {
       (Date.now() - new Date(referral.created_at).getTime()) / (1000 * 60 * 60 * 24)
     );
 
-    // Generate referral link
-    const referralLink = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}?ref=${referral.referral_code}`;
+    // Generate referral link (use NEXT_PUBLIC_BASE_URL with production fallback)
+    const referralLink = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.tutorwise.io'}?ref=${referral.referral_code}`;
 
     // Send reminder email
     const referrer = Array.isArray(referral.referrer) ? referral.referrer[0] : referral.referrer;
