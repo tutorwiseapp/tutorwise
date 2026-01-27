@@ -327,6 +327,27 @@ export const UserProfileProvider = ({ children }: { children: ReactNode }) => {
 
     const initialize = async () => {
       console.log('[UserProfileContext] Initializing...');
+
+      // Check for auth code in URL (from email confirmation or OAuth redirect)
+      // This handles PKCE flow where Supabase redirects with a code parameter
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+
+        if (code) {
+          console.log('[UserProfileContext] Found auth code in URL, exchanging for session...');
+          const { error } = await supabaseClient.auth.exchangeCodeForSession(code);
+          if (error) {
+            console.error('[UserProfileContext] Error exchanging code:', error);
+          } else {
+            console.log('[UserProfileContext] Successfully exchanged code for session');
+            // Clean up the URL by removing the code parameter
+            const cleanUrl = window.location.pathname;
+            window.history.replaceState({}, '', cleanUrl);
+          }
+        }
+      }
+
       const { data: { session } } = await supabaseClient.auth.getSession();
 
       if (!mounted) return;
