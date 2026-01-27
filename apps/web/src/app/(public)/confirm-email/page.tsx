@@ -141,7 +141,7 @@ function ConfirmEmailContent() {
           <ul style={{ color: '#666', fontSize: '0.9rem', marginLeft: '1.5rem' }}>
             <li>You clicked the link from a different browser or device</li>
             <li>The link has expired (links are valid for 24 hours)</li>
-            <li>You've already confirmed your email</li>
+            <li>You&apos;ve already confirmed your email</li>
           </ul>
           <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
             <Button variant="primary" onClick={() => router.push('/login')}>
