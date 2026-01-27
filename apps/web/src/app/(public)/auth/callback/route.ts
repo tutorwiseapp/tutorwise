@@ -36,5 +36,7 @@ export async function GET(request: NextRequest) {
   }
 
   // URL to redirect to after sign in process completes
-  return NextResponse.redirect(`${requestUrl.origin}/onboarding`)
+  // Support custom redirect via 'next' parameter, default to /onboarding
+  const next = requestUrl.searchParams.get('next') || '/onboarding'
+  return NextResponse.redirect(`${requestUrl.origin}${next}`)
 }

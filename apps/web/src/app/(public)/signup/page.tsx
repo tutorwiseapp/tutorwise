@@ -167,8 +167,8 @@ export default function SignUpPage() {
         email,
         password,
         options: {
-          // Redirect directly to onboarding - Supabase establishes session before redirect
-          emailRedirectTo: `${siteUrl}/onboarding`,
+          // Route through auth/callback to exchange code for session before redirecting to onboarding
+          emailRedirectTo: `${siteUrl}/auth/callback`,
           data: metadata,
         },
       });
