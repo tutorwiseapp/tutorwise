@@ -164,7 +164,9 @@ export default function SignUpPage() {
         email,
         password,
         options: {
-          emailRedirectTo: `${location.origin}/onboarding`,
+          // Redirect to auth callback first to exchange code for session,
+          // then callback redirects to /onboarding
+          emailRedirectTo: `${location.origin}/auth/callback`,
           data: metadata,
         },
       });

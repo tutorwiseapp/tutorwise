@@ -30,9 +30,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     '/resources', // Resource articles and category pages
     '/help-centre',
     '/about-tutorwise',
-    '/signin',
-    '/signup',
     '/login',
+    '/signup',
     '/forgot-password',
     '/reset-password',
     '/verify-email',

@@ -31,15 +31,17 @@ interface AuthenticatedLayoutProps {
 export default function AuthenticatedLayout({
   children,
 }: AuthenticatedLayoutProps) {
-  const { profile, isLoading } = useUserProfile();
+  const { profile, user, isLoading } = useUserProfile();
   const router = useRouter();
 
   // Redirect unauthenticated users to login
+  // Check for user (auth session) rather than profile, since new users
+  // won't have a profile yet until they complete onboarding
   useEffect(() => {
-    if (!isLoading && !profile) {
-      router.push('/signin?redirect=' + encodeURIComponent(window.location.pathname));
+    if (!isLoading && !user) {
+      router.push('/login?redirect=' + encodeURIComponent(window.location.pathname));
     }
-  }, [profile, isLoading, router]);
+  }, [user, isLoading, router]);
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -54,7 +56,7 @@ export default function AuthenticatedLayout({
   }
 
   // Don't render anything if not authenticated (will redirect)
-  if (!profile) {
+  if (!user) {
     return null;
   }
 

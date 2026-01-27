@@ -60,7 +60,7 @@ export default function SavedPage() {
   }, [profile, isLoading, router]);
 
   const handleSignIn = () => {
-    router.push('/signin?redirect=/wiselists');
+    router.push('/login?redirect=/wiselists');
   };
 
   const handleClearAll = () => {

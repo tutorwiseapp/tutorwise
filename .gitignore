@@ -159,3 +159,4 @@ apps/web/tsconfig.tsbuildinfo
 
 # CAS design system docs (work in progress)
 cas/docs/CAS-DESIGN-SYSTEM.md
+client_secret_*.json
