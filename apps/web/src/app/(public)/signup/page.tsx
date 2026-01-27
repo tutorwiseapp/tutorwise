@@ -160,13 +160,16 @@ export default function SignUpPage() {
         metadata.referral_code_manual = referralCode;
       }
 
+      // Use NEXT_PUBLIC_APP_URL for consistent domain (avoids www vs non-www issues)
+      const siteUrl = process.env.NEXT_PUBLIC_APP_URL || location.origin;
+
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           // Redirect to auth callback first to exchange code for session,
           // then callback redirects to /onboarding
-          emailRedirectTo: `${location.origin}/auth/callback`,
+          emailRedirectTo: `${siteUrl}/auth/callback`,
           data: metadata,
         },
       });
@@ -223,10 +226,13 @@ export default function SignUpPage() {
       metadata.referral_code_manual = referralCode;
     }
 
+    // Use NEXT_PUBLIC_APP_URL for consistent domain (avoids www vs non-www issues)
+    const siteUrl = process.env.NEXT_PUBLIC_APP_URL || location.origin;
+
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${location.origin}/auth/callback`,
+        redirectTo: `${siteUrl}/auth/callback`,
         queryParams: {
           prompt: 'select_account',
         },

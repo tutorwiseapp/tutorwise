@@ -23,8 +23,11 @@ const ForgotPasswordPage = () => {
     setError(null);
 
     try {
+      // Use NEXT_PUBLIC_APP_URL for consistent domain (avoids www vs non-www issues)
+      const siteUrl = process.env.NEXT_PUBLIC_APP_URL || location.origin;
+
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${location.origin}/reset-password`,
+        redirectTo: `${siteUrl}/reset-password`,
       });
 
       if (resetError) {

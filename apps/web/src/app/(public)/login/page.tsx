@@ -54,10 +54,13 @@ function LoginForm() {
   };
   
   const handleGoogleSignIn = async () => {
+    // Use NEXT_PUBLIC_APP_URL for consistent domain (avoids www vs non-www issues)
+    const siteUrl = process.env.NEXT_PUBLIC_APP_URL || location.origin;
+
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${location.origin}/auth/callback`,
+        redirectTo: `${siteUrl}/auth/callback`,
         queryParams: {
           // This is the key fix to ensure the user can select a different account
           prompt: 'select_account',
