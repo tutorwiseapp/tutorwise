@@ -12,10 +12,8 @@ import { createClient } from '@/utils/supabase/server';
  * POST /api/wiselists/[id]/items
  * Add an item (profile or listing) to a wiselist
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
     const { id: wiselistId } = params;

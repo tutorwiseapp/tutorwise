@@ -34,13 +34,14 @@ import { SimilarOrganisationsCard } from '@/components/feature/public-org/Simila
 import { MobileBottomCTA } from '@/components/feature/public-org/MobileBottomCTA';
 
 interface PublicOrganisationPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 // Generate metadata for SEO
-export async function generateMetadata({ params }: PublicOrganisationPageProps) {
+export async function generateMetadata(props: PublicOrganisationPageProps) {
+  const params = await props.params;
   const supabase = await createClient();
 
   const { data: organisation } = await supabase
@@ -98,7 +99,8 @@ export async function generateMetadata({ params }: PublicOrganisationPageProps) 
   return metadata;
 }
 
-export default async function PublicOrganisationPage({ params }: PublicOrganisationPageProps) {
+export default async function PublicOrganisationPage(props: PublicOrganisationPageProps) {
+  const params = await props.params;
   const supabase = await createClient();
 
   // ===========================================================

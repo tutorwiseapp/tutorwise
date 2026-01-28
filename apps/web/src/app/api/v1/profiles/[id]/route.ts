@@ -24,12 +24,13 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 interface ProfileRouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export async function GET(request: Request, { params }: ProfileRouteParams) {
+export async function GET(request: Request, props: ProfileRouteParams) {
+  const params = await props.params;
   return withApiAuth(
     request,
     async (authContext) => {

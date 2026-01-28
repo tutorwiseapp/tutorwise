@@ -20,10 +20,10 @@ import Tabs, { Tab } from '@/app/components/help-centre/mdx/Tabs';
 import styles from './page.module.css';
 
 interface ArticlePageProps {
-  params: {
+  params: Promise<{
     category: string;
     slug: string;
-  };
+  }>;
 }
 
 // MDX components mapping
@@ -36,7 +36,8 @@ const mdxComponents = {
 };
 
 // Generate metadata for SEO
-export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
+export async function generateMetadata(props: ArticlePageProps): Promise<Metadata> {
+  const params = await props.params;
   const { category, slug } = params;
   const article = getArticleBySlug(category, slug);
 
@@ -76,7 +77,8 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
   };
 }
 
-export default async function ArticlePage({ params }: ArticlePageProps) {
+export default async function ArticlePage(props: ArticlePageProps) {
+  const params = await props.params;
   const { category, slug } = params;
   const article = getArticleBySlug(category, slug);
 

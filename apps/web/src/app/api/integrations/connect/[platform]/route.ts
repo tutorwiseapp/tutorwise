@@ -33,10 +33,8 @@ const OAUTH_CONFIGS = {
   // khan_academy: { ... },
 };
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { platform: string } }
-) {
+export async function POST(request: NextRequest, props: { params: Promise<{ platform: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
     const { platform } = params;

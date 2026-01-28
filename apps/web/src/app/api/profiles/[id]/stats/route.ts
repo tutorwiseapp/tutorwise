@@ -8,10 +8,8 @@ export const dynamic = 'force-dynamic';
  * GET /api/profiles/[id]/stats
  * Fetch real-time statistics for a profile (ratings, reviews, bookings, etc.)
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
     const profileId = params.id;

@@ -7,7 +7,7 @@
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, use } from 'react';
 import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useRouter } from 'next/navigation';
@@ -24,16 +24,15 @@ import toast from 'react-hot-toast';
 import styles from './page.module.css';
 
 interface OrganisationTasksPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 type TabType = 'tasks';
 
-export default function OrganisationTasksPage({
-  params,
-}: OrganisationTasksPageProps) {
+export default function OrganisationTasksPage(props: OrganisationTasksPageProps) {
+  const params = use(props.params);
   const { profile, isLoading: profileLoading } = useUserProfile();
   const router = useRouter();
   const supabase = createClient();

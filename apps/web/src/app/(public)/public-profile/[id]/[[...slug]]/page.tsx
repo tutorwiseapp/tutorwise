@@ -40,14 +40,15 @@ import { ProfileViewTracker } from '@/app/components/feature/public-profile/Prof
 import { generateProfileSchema } from '@/services/seo/schema-generator';
 
 interface PublicProfilePageProps {
-  params: {
+  params: Promise<{
     id: string;
     slug?: string[];
-  };
+  }>;
 }
 
 // Generate metadata for SEO
-export async function generateMetadata({ params }: PublicProfilePageProps) {
+export async function generateMetadata(props: PublicProfilePageProps) {
+  const params = await props.params;
   const supabase = await createClient();
 
   const { data: profile } = await supabase
@@ -100,7 +101,8 @@ export async function generateMetadata({ params }: PublicProfilePageProps) {
   return metadata;
 }
 
-export default async function PublicProfilePage({ params }: PublicProfilePageProps) {
+export default async function PublicProfilePage(props: PublicProfilePageProps) {
+  const params = await props.params;
   const supabase = await createClient();
 
   // ===========================================================

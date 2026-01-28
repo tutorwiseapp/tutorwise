@@ -15,9 +15,9 @@ import { getArticlesByCategory, getCategories } from '@/lib/help-centre/articles
 import styles from './page.module.css';
 
 interface CategoryPageProps {
-  params: {
+  params: Promise<{
     category: string;
-  };
+  }>;
 }
 
 const CATEGORY_INFO: Record<string, { title: string; description: string }> = {
@@ -43,7 +43,8 @@ const CATEGORY_INFO: Record<string, { title: string; description: string }> = {
   },
 };
 
-export default function CategoryPage({ params }: CategoryPageProps) {
+export default async function CategoryPage(props: CategoryPageProps) {
+  const params = await props.params;
   const { category } = params;
   const articles = getArticlesByCategory(category);
 
@@ -109,7 +110,8 @@ export async function generateStaticParams() {
 }
 
 // Generate metadata for SEO
-export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
+export async function generateMetadata(props: CategoryPageProps): Promise<Metadata> {
+  const params = await props.params;
   const { category } = params;
   const articles = getArticlesByCategory(category);
 

@@ -13,10 +13,8 @@ export const dynamic = 'force-dynamic';
  * GET /api/admin/blog/articles/[id]
  * Fetch a single resource article by ID or slug
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
     const { id } = params;
@@ -61,10 +59,8 @@ export async function GET(
  * PUT /api/admin/blog/articles/[id]
  * Update a resource article
  */
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
     const { id } = params;
@@ -160,10 +156,8 @@ export async function PUT(
  * DELETE /api/admin/blog/articles/[id]
  * Delete a resource article
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
     const { id } = params;

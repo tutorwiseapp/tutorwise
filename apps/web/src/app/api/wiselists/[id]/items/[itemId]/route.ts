@@ -14,8 +14,9 @@ import { createClient } from '@/utils/supabase/server';
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; itemId: string } }
+  props: { params: Promise<{ id: string; itemId: string }> }
 ) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
     const { id: wiselistId, itemId } = params;

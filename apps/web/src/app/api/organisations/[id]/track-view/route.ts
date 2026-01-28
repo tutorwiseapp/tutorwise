@@ -10,10 +10,8 @@ export const dynamic = 'force-dynamic';
  * Tracks an organisation profile view with deduplication (max 1 view per session per 24 hours)
  * Body: { session_id: string, referrer_source?: string }
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
     const organisationId = params.id;

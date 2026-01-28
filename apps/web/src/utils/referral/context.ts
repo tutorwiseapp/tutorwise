@@ -20,7 +20,7 @@ export async function getReferralContext(): Promise<{
   referral_cookie_id?: string;
   referral_cookie_secret?: string;
 }> {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const referralCookie = cookieStore.get('tutorwise_referral_id');
 
   if (!referralCookie?.value) {
@@ -72,6 +72,6 @@ export async function buildSignupMetadata(userData: {
  * (Used to show referrer info on signup page)
  */
 export async function hasPendingReferral(): Promise<boolean> {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   return !!cookieStore.get('tutorwise_referral_id');
 }

@@ -8,12 +8,13 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     key_id: string;
-  };
+  }>;
 }
 
-export async function DELETE(request: Request, { params }: RouteParams) {
+export async function DELETE(request: Request, props: RouteParams) {
+  const params = await props.params;
   const supabase = await createClient();
 
   // Get authenticated user

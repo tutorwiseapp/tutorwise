@@ -62,11 +62,12 @@ async function getArticle(slug: string): Promise<BlogArticle | null> {
 }
 
 // Generate metadata with full SEO support
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string };
-}): Promise<Metadata> {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ slug: string }>;
+  }
+): Promise<Metadata> {
+  const params = await props.params;
   const article = await getArticle(params.slug);
 
   if (!article) {
@@ -116,7 +117,8 @@ export async function generateMetadata({
   };
 }
 
-export default async function BlogArticlePage({ params }: { params: { slug: string } }) {
+export default async function BlogArticlePage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const article = await getArticle(params.slug);
 
   if (!article) {

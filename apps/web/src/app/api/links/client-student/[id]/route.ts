@@ -14,10 +14,8 @@ export const dynamic = 'force-dynamic';
  * DELETE /api/links/client-student/[id]
  * Remove a Guardian Link (unlink a student from the guardian)
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();

@@ -16,10 +16,11 @@ import Image from 'next/image';
 import ArticleCard from '@/app/components/resources/ArticleCard';
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
-export default async function PublicWiselistPage({ params }: PageProps) {
+export default async function PublicWiselistPage(props: PageProps) {
+  const params = await props.params;
   const { slug } = params;
   const supabase = await createClient();
 
@@ -231,7 +232,8 @@ export default async function PublicWiselistPage({ params }: PageProps) {
   );
 }
 
-export async function generateMetadata({ params }: PageProps) {
+export async function generateMetadata(props: PageProps) {
+  const params = await props.params;
   const { slug } = params;
   const supabase = await createClient();
 

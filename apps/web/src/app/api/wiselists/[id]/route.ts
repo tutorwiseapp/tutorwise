@@ -13,10 +13,8 @@ import { generateSlug } from '@/lib/api/wiselists';
  * GET /api/wiselists/[id]
  * Get a single wiselist with items and collaborators
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
     const { id } = params;
@@ -117,10 +115,8 @@ export async function GET(
  * PATCH /api/wiselists/[id]
  * Update a wiselist
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
     const { id } = params;
@@ -222,10 +218,8 @@ export async function PATCH(
  * DELETE /api/wiselists/[id]
  * Delete a wiselist
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
     const { id } = params;

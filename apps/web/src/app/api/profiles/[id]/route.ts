@@ -8,10 +8,8 @@ export const dynamic = 'force-dynamic';
  * GET /api/profiles/[id]
  * Fetch public profile information for any user.
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
     const profileId = params.id;

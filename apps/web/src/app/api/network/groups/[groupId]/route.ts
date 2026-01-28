@@ -14,10 +14,8 @@ export const dynamic = 'force-dynamic';
  * PATCH /api/network/groups/[groupId]
  * Update a connection group
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { groupId: string } }
-) {
+export async function PATCH(request: NextRequest, props: { params: Promise<{ groupId: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
 
@@ -122,10 +120,8 @@ export async function PATCH(
  * DELETE /api/network/groups/[groupId]
  * Delete a connection group
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { groupId: string } }
-) {
+export async function DELETE(request: NextRequest, props: { params: Promise<{ groupId: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
 

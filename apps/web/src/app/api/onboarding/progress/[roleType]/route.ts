@@ -11,10 +11,8 @@ export const dynamic = 'force-dynamic';
  * GET /api/onboarding/progress/[roleType]
  * Retrieve saved onboarding progress for a specific role (tutor, client, agent)
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { roleType: string } }
-) {
+export async function GET(request: NextRequest, props: { params: Promise<{ roleType: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
 
@@ -81,10 +79,8 @@ export async function GET(
  * DELETE /api/onboarding/progress/[roleType]
  * Delete onboarding progress for a specific role
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { roleType: string } }
-) {
+export async function DELETE(request: NextRequest, props: { params: Promise<{ roleType: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
 

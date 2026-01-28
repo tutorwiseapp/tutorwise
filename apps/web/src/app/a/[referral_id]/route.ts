@@ -58,10 +58,8 @@ function createSignedCookieValue(referralId: string): string {
  * For logged-in users: Creates 'Referred' record with referred_profile_id
  * For anonymous users: Creates 'Referred' record, sets HMAC-signed cookie
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { referral_id: string } }
-) {
+export async function GET(request: NextRequest, props: { params: Promise<{ referral_id: string }> }) {
+  const params = await props.params;
   const { referral_id } = params;
   const supabase = await createClient();
 
@@ -131,7 +129,7 @@ export async function GET(
         console.error('[Referral] Error creating anonymous referral:', referralError);
       } else {
         // Set secure, httpOnly, HMAC-signed cookie (Patent Section 2.2)
-        const cookieStore = cookies();
+        const cookieStore = await cookies();
         const signedValue = createSignedCookieValue(referralRecord.id);
 
         cookieStore.set('tutorwise_referral_id', signedValue, {

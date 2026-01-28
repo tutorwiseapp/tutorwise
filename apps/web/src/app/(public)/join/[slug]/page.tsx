@@ -13,15 +13,17 @@ import { ApplyButton } from './ApplyButton';
 import styles from './page.module.css';
 
 interface JoinPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
-  searchParams: {
+  }>;
+  searchParams: Promise<{
     ref?: string;
-  };
+  }>;
 }
 
-export default async function JoinPage({ params, searchParams }: JoinPageProps) {
+export default async function JoinPage(props: JoinPageProps) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const supabase = await createClient();
 
   // Get current user with profile

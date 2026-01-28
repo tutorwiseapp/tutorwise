@@ -14,10 +14,8 @@ export const dynamic = 'force-dynamic';
  * GET /api/network/groups/[groupId]/members
  * Get all members of a group with their connection details
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { groupId: string } }
-) {
+export async function GET(request: NextRequest, props: { params: Promise<{ groupId: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
 
@@ -84,10 +82,8 @@ export async function GET(
  * POST /api/network/groups/[groupId]/members
  * Add connections to a group
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { groupId: string } }
-) {
+export async function POST(request: NextRequest, props: { params: Promise<{ groupId: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
 
@@ -200,10 +196,8 @@ export async function POST(
  * DELETE /api/network/groups/[groupId]/members
  * Remove connections from a group
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { groupId: string } }
-) {
+export async function DELETE(request: NextRequest, props: { params: Promise<{ groupId: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
 

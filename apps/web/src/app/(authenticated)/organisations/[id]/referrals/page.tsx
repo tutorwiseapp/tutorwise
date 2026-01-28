@@ -7,7 +7,7 @@
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, use } from 'react';
 import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useRouter } from 'next/navigation';
@@ -35,17 +35,16 @@ import toast from 'react-hot-toast';
 import styles from './page.module.css';
 
 interface OrganisationReferralsPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 type TabType = 'overview' | 'pipeline' | 'team' | 'achievements';
 type DateFilterType = 'active' | '30days' | '90days' | 'all';
 
-export default function OrganisationReferralsPage({
-  params,
-}: OrganisationReferralsPageProps) {
+export default function OrganisationReferralsPage(props: OrganisationReferralsPageProps) {
+  const params = use(props.params);
   const { profile, isLoading: profileLoading } = useUserProfile();
   const router = useRouter();
   const supabase = createClient();

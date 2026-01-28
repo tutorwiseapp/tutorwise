@@ -20,10 +20,8 @@ import { createClient } from '@/utils/supabase/server';
  * 1. Existing user: profileId provided
  * 2. New user invite: email provided (creates profile_graph PENDING link for v4.3)
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
     const { id: wiselistId } = params;

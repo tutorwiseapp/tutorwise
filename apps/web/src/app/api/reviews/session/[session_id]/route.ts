@@ -16,10 +16,8 @@ export const dynamic = 'force-dynamic';
  * Returns details of a specific review session including all reviews
  * Only accessible to participants in the session
  */
-export async function GET(
-  req: Request,
-  { params }: { params: { session_id: string } }
-) {
+export async function GET(req: Request, props: { params: Promise<{ session_id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient();
 
   try {

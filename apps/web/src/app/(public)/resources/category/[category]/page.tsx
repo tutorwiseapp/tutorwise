@@ -74,11 +74,12 @@ async function getCategoryArticles(category: string): Promise<BlogArticle[]> {
   return articles || [];
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { category: string };
-}): Promise<Metadata> {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ category: string }>;
+  }
+): Promise<Metadata> {
+  const params = await props.params;
   const categoryInfo = CATEGORY_INFO[params.category];
 
   if (!categoryInfo) {
@@ -104,7 +105,8 @@ export async function generateMetadata({
   };
 }
 
-export default async function BlogCategoryPage({ params }: { params: { category: string } }) {
+export default async function BlogCategoryPage(props: { params: Promise<{ category: string }> }) {
+  const params = await props.params;
   const categoryInfo = CATEGORY_INFO[params.category];
 
   if (!categoryInfo) {

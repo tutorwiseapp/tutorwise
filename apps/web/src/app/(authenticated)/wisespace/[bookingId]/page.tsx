@@ -10,12 +10,13 @@ import { createClient } from '@/utils/supabase/server';
 import { WiseSpaceClient } from './WiseSpaceClient';
 
 interface WiseSpacePageProps {
-  params: {
+  params: Promise<{
     bookingId: string;
-  };
+  }>;
 }
 
-export default async function WiseSpacePage({ params }: WiseSpacePageProps) {
+export default async function WiseSpacePage(props: WiseSpacePageProps) {
+  const params = await props.params;
   const supabase = await createClient();
   const { bookingId } = params;
 

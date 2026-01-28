@@ -8,10 +8,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { bookingId: string } }
-) {
+export async function POST(request: NextRequest, props: { params: Promise<{ bookingId: string }> }) {
+  const params = await props.params;
   try {
     const supabase = await createClient();
     const bookingId = params.bookingId;

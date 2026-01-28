@@ -22,7 +22,7 @@ playwright/test	1.56.0	1.58.0
 storybook/*	8.6.x	10.2.x
 chromatic-com/storybook	3.2.7	5.0.0
 
-React 18 to 19 ecosystem
+React 18 to 19.2.4 ecosystem
 Next.js 14.2.33 to Next.js 16.x (latest)
 
 

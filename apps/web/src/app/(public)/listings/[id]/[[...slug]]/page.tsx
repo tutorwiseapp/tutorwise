@@ -37,14 +37,15 @@ import MobileBottomCTA from './components/MobileBottomCTA';
 import { generateListingSchemaForPage } from '@/services/seo/schema-generator';
 
 interface ListingDetailsPageProps {
-  params: {
+  params: Promise<{
     id: string;
     slug?: string[];
-  };
+  }>;
 }
 
 // Generate metadata for SEO
-export async function generateMetadata({ params }: ListingDetailsPageProps) {
+export async function generateMetadata(props: ListingDetailsPageProps) {
+  const params = await props.params;
   // Safe cast: ListingV41 extends Listing and adds optional fields
   // Database returns all fields including v4.1 additions (service_type, hero_image_url, etc.)
   const listing = (await getListing(params.id)) as ListingV41 | null;
@@ -95,7 +96,8 @@ export async function generateMetadata({ params }: ListingDetailsPageProps) {
   };
 }
 
-export default async function ListingDetailsPage({ params }: ListingDetailsPageProps) {
+export default async function ListingDetailsPage(props: ListingDetailsPageProps) {
+  const params = await props.params;
   const supabase = await createClient();
 
   // Fetch listing data server-side
