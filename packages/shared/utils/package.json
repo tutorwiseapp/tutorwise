@@ -9,7 +9,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@vercel/blob": "^1.1.1",
+    "@vercel/blob": "^2.0.1",
     "date-fns": "^4.1.0",
     "nanoid": "^5.1.5",
     "qrcode": "^1.5.4"
