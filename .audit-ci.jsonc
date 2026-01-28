@@ -1,0 +1,27 @@
+{
+  // npm audit CI configuration
+  // See: https://github.com/IBM/audit-ci
+  "$schema": "https://github.com/IBM/audit-ci/raw/main/audit-ci.schema.json",
+
+  // Fail on moderate or higher (but allow specific exceptions)
+  "moderate": true,
+
+  // Allowed advisories (with documented reasons)
+  // Use GitHub Advisory IDs (GHSA-xxxx format)
+  "allowlist": [
+    // elliptic CVE-2025-14505 - Uses a Cryptographic Primitive with a Risky Implementation
+    // Reason: Dev-only dependency via Storybook, no production impact
+    // Status: Unpatched - no fix available from elliptic maintainers
+    // Tracking: https://github.com/storybookjs/storybook/issues/33522
+    "GHSA-848j-6mx2-7j84",
+
+    // next.js - DoS via Image Optimizer remotePatterns configuration
+    // Reason: Requires Next.js 16 major upgrade, not yet stable
+    // Impact: Only affects self-hosted deployments with specific remotePatterns config
+    // Mitigation: Using Vercel hosting which is not affected
+    "GHSA-9g9p-9gw9-jx7f"
+  ],
+
+  // Output format
+  "report-type": "important"
+}
