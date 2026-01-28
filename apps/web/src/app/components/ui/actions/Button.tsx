@@ -12,9 +12,10 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   href?: string;
   fullWidth?: boolean;
   square?: boolean;
+  ref?: React.Ref<HTMLButtonElement>;
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
+const Button = ({
   children,
   variant = 'primary',
   size = 'md',
@@ -23,8 +24,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
   fullWidth = false,
   square = false,
   className: customClassName,
+  ref,
   ...props
-}, ref) => {
+}: ButtonProps) => {
   const className = `
     ${styles.button}
     ${styles[variant]}
@@ -54,8 +56,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
       {content}
     </button>
   );
-});
-
-Button.displayName = 'Button';
+};
 
 export default Button;

@@ -5,17 +5,18 @@ import styles from './form.module.css';
 
 interface RadioProps extends React.ComponentPropsWithoutRef<'input'> {
   label: string;
+  ref?: React.Ref<HTMLInputElement>;
 }
 
-const Radio = React.forwardRef<HTMLInputElement, RadioProps>(({ label, ...props }, ref) => (
+const Radio = ({ label, ref, ...props }: RadioProps) => (
   // --- FIX: Use CSS module classes ---
   <label className={styles.radioLabel}>
     <input type="radio" ref={ref} {...props} className={styles.radioInput} />
     <span className={styles.radioCustom}></span>
     {label}
   </label>
-));
-Radio.displayName = 'Radio';
+);
+
 export default Radio;
 
 // This component also needs to be fixed to use the CSS module

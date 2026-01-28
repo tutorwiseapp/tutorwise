@@ -4,9 +4,10 @@ import styles from './form.module.css';
 
 interface ToggleSwitchProps extends React.ComponentPropsWithoutRef<'input'> {
   label: string;
+  ref?: React.Ref<HTMLInputElement>;
 }
 
-const ToggleSwitch = React.forwardRef<HTMLInputElement, ToggleSwitchProps>(({ label, ...props }, ref) => (
+const ToggleSwitch = ({ label, ref, ...props }: ToggleSwitchProps) => (
   <label className={styles.toggleLabel}>
     <span>{label}</span>
     <div className={styles.toggleSwitch}>
@@ -14,7 +15,6 @@ const ToggleSwitch = React.forwardRef<HTMLInputElement, ToggleSwitchProps>(({ la
       <span className={styles.toggleSlider}></span>
     </div>
   </label>
-));
+);
 
-ToggleSwitch.displayName = 'ToggleSwitch';
 export default ToggleSwitch;

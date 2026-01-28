@@ -4,18 +4,15 @@ import styles from './form.module.css';
 // Add a 'variant' to the props
 type InputProps = React.ComponentPropsWithoutRef<'input'> & {
   variant?: 'default' | 'quiet';
+  ref?: React.Ref<HTMLInputElement>;
 };
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ variant = 'default', ...props }, ref) => {
-    
-    // Combine the base class with the variant class
-    const inputClasses = `${styles.input} ${styles[variant]}`;
-    
-    return <input {...props} ref={ref} className={inputClasses} />;
-  }
-);
+const Input = ({ variant = 'default', ref, ...props }: InputProps) => {
 
-Input.displayName = 'Input';
+  // Combine the base class with the variant class
+  const inputClasses = `${styles.input} ${styles[variant]}`;
+
+  return <input {...props} ref={ref} className={inputClasses} />;
+};
 
 export default Input;

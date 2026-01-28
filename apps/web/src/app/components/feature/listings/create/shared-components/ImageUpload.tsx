@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useCallback, useImperativeHandle } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
@@ -9,6 +9,7 @@ import styles from './ImageUpload.module.css';
 interface ImageUploadProps {
   onUploadComplete: (urls: string[]) => void;
   existingImages?: string[];
+  ref?: React.Ref<ImageUploadRef>;
 }
 
 export interface ImageUploadRef {
@@ -16,7 +17,7 @@ export interface ImageUploadRef {
   hasUnuploadedFiles: () => boolean;
 }
 
-const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({ onUploadComplete, existingImages = [] }, ref) => {
+const ImageUpload = ({ onUploadComplete, existingImages = [], ref }: ImageUploadProps) => {
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>(existingImages);
   const [isUploading, setIsUploading] = useState(false);
@@ -97,8 +98,6 @@ const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({ onUploadComp
       )}
     </div>
   );
-});
-
-ImageUpload.displayName = 'ImageUpload';
+};
 
 export default ImageUpload;

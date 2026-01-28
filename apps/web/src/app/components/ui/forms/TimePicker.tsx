@@ -23,14 +23,12 @@ interface TimePickerProps {
   disabled?: boolean;
   error?: boolean;
   className?: string;
+  ref?: React.Ref<HTMLButtonElement>;
 }
 
-const TimePicker = React.forwardRef<HTMLButtonElement, TimePickerProps>(
-  ({ interval = 30, ...props }, ref) => {
-    const timeOptions = generateTimeOptions(interval);
-    return <UnifiedSelect ref={ref} options={timeOptions} {...props} />;
-  }
-);
+const TimePicker = ({ interval = 30, ref, ...props }: TimePickerProps) => {
+  const timeOptions = generateTimeOptions(interval);
+  return <UnifiedSelect ref={ref} options={timeOptions} {...props} />;
+};
 
-TimePicker.displayName = 'TimePicker';
 export default TimePicker;

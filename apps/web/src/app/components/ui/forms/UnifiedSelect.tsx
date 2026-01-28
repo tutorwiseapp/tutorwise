@@ -38,9 +38,10 @@ export interface UnifiedSelectProps {
   onBlur?: () => void;
   onKeyDown?: (e: React.KeyboardEvent) => void;
   size?: 'sm' | 'md'; // sm = 36px (toolbars), md = 44px (forms, default)
+  ref?: React.Ref<HTMLButtonElement>;
 }
 
-const UnifiedSelect = React.forwardRef<HTMLButtonElement, UnifiedSelectProps>(({
+const UnifiedSelect = ({
   options,
   value,
   onChange,
@@ -51,7 +52,8 @@ const UnifiedSelect = React.forwardRef<HTMLButtonElement, UnifiedSelectProps>(({
   onBlur,
   onKeyDown,
   size = 'md',
-}, ref) => {
+  ref,
+}: UnifiedSelectProps) => {
   const selectedOption = options.find(opt => opt.value === value);
   const displayLabel = selectedOption?.label || placeholder || 'Select...';
 
@@ -103,8 +105,6 @@ const UnifiedSelect = React.forwardRef<HTMLButtonElement, UnifiedSelectProps>(({
       </DropdownMenu.Portal>
     </DropdownMenu.Root>
   );
-});
-
-UnifiedSelect.displayName = 'UnifiedSelect';
+};
 
 export default UnifiedSelect;
