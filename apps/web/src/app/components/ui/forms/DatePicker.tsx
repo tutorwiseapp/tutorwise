@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import * as Popover from '@radix-ui/react-popover';
 import { DayPicker } from 'react-day-picker';
-import 'react-day-picker/dist/style.css';
+import 'react-day-picker/style.css';
 import styles from './Pickers.module.css';
 
 interface DatePickerProps {
@@ -46,13 +46,13 @@ const DatePicker = ({ selected, onSelect, placeholder = 'Pick a date' }: DatePic
             mode="single"
             selected={selected}
             onSelect={(date) => {
-              onSelect(date);
+              onSelect(date ?? undefined);
               setOpen(false); // Close after selection
             }}
-            initialFocus
-            captionLayout="dropdown-buttons"
-            fromYear={1900}
-            toYear={new Date().getFullYear()}
+            autoFocus
+            captionLayout="dropdown"
+            startMonth={new Date(1900, 0)}
+            endMonth={new Date(new Date().getFullYear(), 11)}
             className={styles.datePickerCalendar}
           />
         </Popover.Content>
