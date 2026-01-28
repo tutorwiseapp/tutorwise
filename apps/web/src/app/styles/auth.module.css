@@ -242,6 +242,85 @@
   gap: var(--space-2);
 }
 
+/* Check Email Page Styles */
+.checkEmailContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+}
+
+.emailIcon {
+  color: var(--color-primary);
+  margin-bottom: var(--space-1);
+}
+
+.checkEmailText {
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  max-width: 400px;
+}
+
+.checkEmailText strong {
+  color: var(--color-text-primary);
+  word-break: break-all;
+}
+
+.checkEmailTips {
+  background-color: var(--color-bg-tertiary);
+  border-radius: 8px;
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  width: 100%;
+}
+
+.checkEmailTips p {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.checkEmailTips ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.checkEmailTips li {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  padding: 4px 0;
+  padding-left: var(--space-2);
+  position: relative;
+}
+
+.checkEmailTips li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--color-primary);
+}
+
+.checkEmailActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  margin-top: var(--space-1);
+}
+
+.checkEmailLink {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-decoration: underline;
+}
+
+.checkEmailLink:hover {
+  color: var(--color-primary);
+}
+
 @media (max-width: 480px) {
     .twoColGrid {
         grid-template-columns: 1fr;

@@ -186,9 +186,8 @@ export default function SignUpPage() {
         console.log('Session created, redirecting to onboarding...');
         router.push('/onboarding');
       } else if (data.user && !data.user.email_confirmed_at) {
-        // Email confirmation is enabled
-        setMessage("Check your email for a confirmation link!");
-        setIsLoading(false);
+        // Email confirmation is enabled - redirect to check-email page
+        router.push(`/signup/check-email?email=${encodeURIComponent(email)}`);
       } else {
         // Edge case: user created but no session yet
         setMessage("Account created! Redirecting...");
