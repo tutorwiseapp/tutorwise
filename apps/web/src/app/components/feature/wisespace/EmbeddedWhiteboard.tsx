@@ -75,8 +75,8 @@ export function EmbeddedWhiteboard({ bookingId, onSnapshotRequest }: EmbeddedWhi
       (window as any).__wiseSpaceExportSnapshot = async () => {
         if (!storeRef.current) return '';
 
-        // Export as JSON snapshot
-        const snapshot = storeRef.current.getSnapshot();
+        // Export as JSON snapshot (tldraw v4 API)
+        const snapshot = storeRef.current.getStoreSnapshot();
         return JSON.stringify(snapshot);
       };
     }
