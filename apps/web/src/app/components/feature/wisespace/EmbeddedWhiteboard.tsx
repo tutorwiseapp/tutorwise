@@ -17,7 +17,7 @@ interface EmbeddedWhiteboardProps {
 }
 
 export function EmbeddedWhiteboard({ bookingId, onSnapshotRequest }: EmbeddedWhiteboardProps) {
-  const storeRef = useRef<ReturnType<typeof createTLStore>>();
+  const storeRef = useRef<ReturnType<typeof createTLStore>>(undefined);
   const channelName = `wisespace:${bookingId}`;
 
   // Initialize tldraw store

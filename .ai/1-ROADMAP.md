@@ -1087,28 +1087,27 @@ where session_weight = MAX(sessions_90d, 1)
 
 ## 🎯 **Critical Path to Beta**
 
-### Week of Jan 13-19, 2026
+### Week of 12-16 Jan 2026
 - ✅ Complete Agent CaaS core features
 - ✅ Complete Organisation CaaS core features
 - ✅ Recruitment Phase 2 completion
 
-### Week of Jan 20-26, 2026
+### Week of 20-30 Jan 2026
 - ⏳ Final authentication (Google social login) - 100% Completed
 - ⏳ Final user onboarding
 - ⏳ Set up the email notifcation for the authentication and user onboarding workflow - 100% Completed
 - ⏳ Final booking worflow enhancement
 - ⏳ Final service listing creation, listing UI (use hub architecture) and worflow - 100% Completed
+- ⏳ Update all software packages worlow (update-packages-tasks.md) - 100% Completed
 
-
-### Week of Jan 27 - Feb 1, 2026
+### Week of 2-13 Feb 2026
 - ⏳ Create Terms of Service and Privacy Policy
 - ⏳ Mobile responsiveness final polish (Directly impacts user experience, Quick wins with testing and fixes, Can be done incrementally page-by-page)
 - ⏳ Performance optimization pass (Improves perceived speed, Reduces costs eg smaller bundles / fewer queries, Makes a great first impression for beta users)
 - ⏳ Final bug fixes - Email notifcation for critical workflow 100% Completed, tbc
 - ⏳ Beta environment preparation
 - ⏳ Beta documentation
-  
-- ⏳ **Beta Launch**: March 1, 2026
+- ⏳ **Beta Launch**: 1 March 2026
 
 ---
 

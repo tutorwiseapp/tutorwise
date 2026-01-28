@@ -41,7 +41,7 @@ export function RoleStatsCard({ profile }: RoleStatsCardProps) {
   };
 
   // Always show all stats - use 0 if no data available
-  const stats: JSX.Element[] = [];
+  const stats: React.JSX.Element[] = [];
 
   // 1. Member Since (always show - we always have created_at)
   if (profile.created_at) {

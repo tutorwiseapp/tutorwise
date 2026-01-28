@@ -40,7 +40,7 @@ export function useOnboardingSave<T>(
   const [saveState, setSaveState] = useState<SaveState>('idle');
   const [retryCount, setRetryCount] = useState(0);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const saveTimeoutRef = useRef<NodeJS.Timeout>();
+  const saveTimeoutRef = useRef<NodeJS.Timeout>(undefined);
   const lastSavedDataRef = useRef<T>(formData);
 
   // Track unsaved changes

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { spawn } from 'child_process';
-import path from 'path';
+import { exec } from 'child_process';
 import fs from 'fs/promises';
 
 export async function POST(request: Request): Promise<NextResponse> {
@@ -11,26 +10,9 @@ export async function POST(request: Request): Promise<NextResponse> {
       const results: any[] = [];
       let testStatus = 'running';
 
-      // Run the Playwright screenshot script
-      const scriptPath = path.join(process.cwd(), 'screenshot.js');
-      const child = spawn('node', [scriptPath], {
-        cwd: process.cwd(),
-        stdio: 'pipe'
-      });
-
-      let output = '';
-      let error = '';
-
-      child.stdout.on('data', (data) => {
-        output += data.toString();
-      });
-
-      child.stderr.on('data', (data) => {
-        error += data.toString();
-      });
-
-      child.on('close', async (code) => {
-        testStatus = code === 0 ? 'success' : 'error';
+      // Run the Playwright screenshot script using exec to avoid Turbopack static analysis
+      exec('node screenshot.js', { cwd: process.cwd() }, async (err, stdout, stderr) => {
+        testStatus = err ? 'error' : 'success';
 
         // Check for generated screenshots
         const screenshots = [];
@@ -40,16 +22,16 @@ export async function POST(request: Request): Promise<NextResponse> {
             file.endsWith('.png') && file.includes('testassured')
           );
           screenshots.push(...screenshotFiles);
-        } catch (err) {
-          console.error('Error reading screenshots:', err);
+        } catch (readErr) {
+          console.error('Error reading screenshots:', readErr);
         }
 
         const response = NextResponse.json({
           status: testStatus,
-          message: code === 0 ? 'Visual testing completed successfully' : 'Visual testing failed',
+          message: !err ? 'Visual testing completed successfully' : 'Visual testing failed',
           timestamp: Date.now(),
-          output,
-          error: error || null,
+          output: stdout,
+          error: stderr || null,
           screenshots,
           results: screenshots.map(file => ({
             test: file,
