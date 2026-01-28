@@ -30,6 +30,7 @@
 
 import { ReactNode } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styles from './MarketplaceCard.module.css';
 
@@ -217,16 +218,19 @@ interface CardBookLinkProps {
 }
 
 export function CardBookLink({ href, children }: CardBookLinkProps) {
+  const router = useRouter();
   return (
-    <Link
-      href={href}
+    <button
+      type="button"
       className={styles.bookLink}
       onClick={(e) => {
         e.stopPropagation();
+        e.preventDefault();
+        router.push(href);
       }}
     >
       {children}
-    </Link>
+    </button>
   );
 }
 

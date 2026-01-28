@@ -1,7 +1,5 @@
 # Update Software Packages Tasks
 
-# Packages
-
 Package	Before	After
 Stripe SDK 18.5.0 → 20.2.0
 vercel/speed-insights	1.2.0	1.3.1
