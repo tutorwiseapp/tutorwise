@@ -68,8 +68,8 @@
   height: 32px;
   padding: 4px;
   border-radius: 6px;
-  border: 1px solid transparent;
-  background-color: transparent;
+  border: 1px solid #dfe1e5;
+  background-color: #ffffff;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
