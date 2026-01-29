@@ -9,21 +9,22 @@
  * --hub-tabs-margin-bottom: 1rem
  */
 
-/* Outer container - Border extends full width from left edge to right edge */
+/* Outer container - Wrapper for layout spacing */
 .filterTabsContainer {
   position: relative;
-  border-bottom: 2px solid #e5e7eb;
   margin-top: var(--hub-tabs-margin-top, 0rem);
   margin-bottom: var(--hub-tabs-margin-bottom, 1rem);
+  border-bottom: 2px solid #e5e7eb; /* Gray line spans full width */
 }
 
-/* Inner wrapper - Contains tab buttons with padding for alignment */
+/* Inner wrapper - Contains tab buttons with scrolling */
 .filterTabs {
   display: flex;
   gap: 1rem;
   padding-left: 1rem; /* Align tabs with header content */
   padding-right: 1rem; /* Add right padding for symmetry */
   position: relative;
+  margin-bottom: -2px; /* Pull tabs down to overlap container border */
   overflow-x: auto; /* Enable horizontal scrolling when tabs overflow */
   scrollbar-width: thin; /* Firefox */
   scrollbar-color: #cbd5e0 transparent; /* Firefox */
@@ -52,7 +53,6 @@
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
-  margin-bottom: -2px; /* Overlap container border */
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-gray-700, #4B4B4B);
