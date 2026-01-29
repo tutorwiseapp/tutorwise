@@ -6,6 +6,7 @@
 
 import { ReactNode } from 'react';
 import { Metadata } from 'next';
+import Footer from '@/app/components/layout/Footer';
 
 // SEO Metadata for Privacy Policy page
 export const metadata: Metadata = {
@@ -43,5 +44,10 @@ interface PrivacyPolicyLayoutProps {
 }
 
 export default function PrivacyPolicyLayout({ children }: PrivacyPolicyLayoutProps) {
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <Footer />
+    </>
+  );
 }
