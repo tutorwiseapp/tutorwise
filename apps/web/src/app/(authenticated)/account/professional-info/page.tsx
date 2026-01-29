@@ -29,7 +29,7 @@ import styles from './page.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
 export default function ProfessionalPage() {
-  const { profile, refreshProfile } = useUserProfile();
+  const { profile, refreshProfile, activeRole } = useUserProfile();
   const pathname = usePathname();
   const [showActionsMenu, setShowActionsMenu] = useState(false);
 
@@ -251,7 +251,7 @@ export default function ProfessionalPage() {
       }
     >
       <div className={styles.content}>
-        <ProfessionalInfoForm profile={profile} onSave={handleSave} />
+        <ProfessionalInfoForm profile={profile} onSave={handleSave} activeRole={activeRole} />
       </div>
     </HubPageLayout>
   );

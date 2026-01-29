@@ -77,12 +77,21 @@ const tutoringExperienceOptions = [
   { value: 'Expert Tutor (5+ years)', label: 'Expert Tutor (5+ years)' },
 ];
 
-// Key stages
+// Key stages (Preferred Key Stages)
 const keyStagesOptions = [
   { value: 'Primary Education (KS1-KS2) - Age 5 to 11', label: 'Primary Education (KS1-KS2) - Age 5 to 11' },
   { value: 'Secondary Education (KS3) - Age 11 to 14', label: 'Secondary Education (KS3) - Age 11 to 14' },
   { value: 'Secondary Education (KS4) - Age 14 to 16', label: 'Secondary Education (KS4) - Age 14 to 16' },
   { value: 'A-Levels - Age 16 to 18', label: 'A-Levels - Age 16 to 18' },
+];
+
+// Levels (Preferred Levels)
+const levelsOptions = [
+  { value: 'Primary Education (KS1-KS2) - Age 5 to 11', label: 'Primary Education (KS1-KS2) - Age 5 to 11' },
+  { value: 'Secondary Education (KS3) - Age 11 to 14', label: 'Secondary Education (KS3) - Age 11 to 14' },
+  { value: 'Secondary Education (KS4) - Age 14 to 16', label: 'Secondary Education (KS4) - Age 14 to 16' },
+  { value: 'A-Levels - Age 16 to 18', label: 'A-Levels - Age 16 to 18' },
+  { value: 'University/Undergraduate', label: 'University/Undergraduate' },
 ];
 
 // Subjects
@@ -128,6 +137,7 @@ const ClientProfessionalDetailStep: React.FC<ClientProfessionalDetailStepProps> 
     teachingExperience: '',
     tutoringExperience: '',
     keyStages: [],
+    levels: [],
     subjects: [],
     sessionType: [],
     deliveryMode: [],
@@ -138,21 +148,22 @@ const ClientProfessionalDetailStep: React.FC<ClientProfessionalDetailStepProps> 
   const [editingField, setEditingField] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Fetch dynamic form configs (with fallback to hardcoded values)
+  // Fetch dynamic form configs (with fallback to hardcoded values - aligned with Account form labels)
   const { configs, isLoading: isLoadingConfigs } = useFormConfigs([
-    { fieldName: 'bio', context: 'onboarding.client', fallback: { label: 'About Your Learning Needs', placeholder: 'Tell us about your learning needs or the learning needs of your child/student who needs tutoring...', helpText: 'characters minimum' } },
+    { fieldName: 'bio', context: 'onboarding.client', fallback: { label: 'Describe Your Tutoring Needs', placeholder: 'Tell us about the student, their current situation, what challenges they\'re facing, and what kind of support would be most helpful...', helpText: 'characters minimum' } },
     { fieldName: 'bioVideoUrl', context: 'onboarding.client', fallback: { label: '30-Second Intro Video (Optional)', placeholder: 'Paste YouTube, Loom, or Vimeo URL (optional)' } },
-    { fieldName: 'status', context: 'onboarding.client', fallback: { label: 'Who Needs Tutoring?', placeholder: 'Select who needs tutoring', options: whoNeedsTutoringOptions } },
-    { fieldName: 'academicQualifications', context: 'onboarding.client', fallback: { label: 'Preferred Tutor Qualifications', placeholder: 'Select preferred qualifications (optional)', options: academicQualificationsOptions } },
-    { fieldName: 'teachingProfessionalQualifications', context: 'onboarding.client', fallback: { label: 'Preferred Teaching Credentials', placeholder: 'Select preferred credentials (optional)', options: teachingProfessionalQualificationsOptions } },
-    { fieldName: 'teachingExperience', context: 'onboarding.client', fallback: { label: 'Preferred Teaching Background', placeholder: 'Select preferred background (optional)', options: preferredTutorExperienceOptions } },
-    { fieldName: 'tutoringExperience', context: 'onboarding.client', fallback: { label: 'Preferred Tutor Experience Level', placeholder: 'Select preferred experience level', options: tutoringExperienceOptions } },
-    { fieldName: 'keyStages', context: 'onboarding.client', fallback: { label: 'Student\'s Education Level', placeholder: 'Select education level(s)', options: keyStagesOptions } },
-    { fieldName: 'subjects', context: 'onboarding.client', fallback: { label: 'Subjects Needed', placeholder: 'Select subjects', options: subjectsOptions } },
-    { fieldName: 'sessionType', context: 'onboarding.client', fallback: { label: 'Preferred Session Type', placeholder: 'Select preferred session types', options: sessionTypeOptions } },
-    { fieldName: 'deliveryMode', context: 'onboarding.client', fallback: { label: 'Preferred Delivery Mode', placeholder: 'Select preferred delivery modes', options: deliveryModeOptions } },
-    { fieldName: 'oneOnOneRate', context: 'onboarding.client', fallback: { label: 'Budget for One-on-One Sessions (per hour)', placeholder: '£50' } },
-    { fieldName: 'groupSessionRate', context: 'onboarding.client', fallback: { label: 'Budget for Group Sessions (per hour)', placeholder: '£25 (skip if flexible)' } },
+    { fieldName: 'status', context: 'onboarding.client', fallback: { label: 'Who Needs Tutoring', placeholder: 'Select who needs tutoring', options: whoNeedsTutoringOptions } },
+    { fieldName: 'academicQualifications', context: 'onboarding.client', fallback: { label: 'Preferred Academic Qualifications', placeholder: 'Select qualifications (optional)', options: academicQualificationsOptions } },
+    { fieldName: 'teachingProfessionalQualifications', context: 'onboarding.client', fallback: { label: 'Preferred Teaching Qualifications', placeholder: 'Select qualifications (optional)', options: teachingProfessionalQualificationsOptions } },
+    { fieldName: 'teachingExperience', context: 'onboarding.client', fallback: { label: 'Preferred Teaching Experience', placeholder: 'Select experience (optional)', options: preferredTutorExperienceOptions } },
+    { fieldName: 'tutoringExperience', context: 'onboarding.client', fallback: { label: 'Preferred Tutoring Experience', placeholder: 'Select tutoring experience', options: tutoringExperienceOptions } },
+    { fieldName: 'keyStages', context: 'onboarding.client', fallback: { label: 'Preferred Key Stages', placeholder: 'Select key stages', options: keyStagesOptions } },
+    { fieldName: 'levels', context: 'onboarding.client', fallback: { label: 'Preferred Levels', placeholder: 'Select levels', options: levelsOptions } },
+    { fieldName: 'subjects', context: 'onboarding.client', fallback: { label: 'Preferred Subjects', placeholder: 'Select subjects', options: subjectsOptions } },
+    { fieldName: 'sessionType', context: 'onboarding.client', fallback: { label: 'Preferred Session Type', placeholder: 'Select session types', options: sessionTypeOptions } },
+    { fieldName: 'deliveryMode', context: 'onboarding.client', fallback: { label: 'Preferred Delivery Mode', placeholder: 'Select delivery mode', options: deliveryModeOptions } },
+    { fieldName: 'oneOnOneRate', context: 'onboarding.client', fallback: { label: 'Budget: One-on-One (£/hour)', placeholder: '£25' } },
+    { fieldName: 'groupSessionRate', context: 'onboarding.client', fallback: { label: 'Budget: Group Session (£/hour per student)', placeholder: '£15' } },
   ]);
 
   // Restore saved onboarding progress on mount
@@ -271,6 +282,7 @@ const ClientProfessionalDetailStep: React.FC<ClientProfessionalDetailStepProps> 
     // teachingExperience is optional for clients
     formData.tutoringExperience !== '' &&
     formData.keyStages.length > 0 &&
+    (formData.levels?.length || 0) > 0 &&
     formData.subjects.length > 0 &&
     formData.sessionType.length > 0 &&
     formData.deliveryMode.length > 0 &&
@@ -283,18 +295,20 @@ const ClientProfessionalDetailStep: React.FC<ClientProfessionalDetailStepProps> 
       bioValid: formData.bio.trim().length >= 50,
       whoNeedsTutoring: formData.status,
       whoNeedsTutoringValid: formData.status !== '',
-      preferredQualifications: formData.academicQualifications.length,
-      preferredQualificationsOptional: true,
-      preferredCredentials: formData.teachingProfessionalQualifications.length,
-      preferredCredentialsOptional: true,
-      preferredBackground: formData.teachingExperience,
-      preferredBackgroundOptional: true,
-      preferredExperienceLevel: formData.tutoringExperience,
-      preferredExperienceLevelValid: formData.tutoringExperience !== '',
-      educationLevel: formData.keyStages.length,
-      educationLevelValid: formData.keyStages.length > 0,
-      subjectsNeeded: formData.subjects.length,
-      subjectsNeededValid: formData.subjects.length > 0,
+      preferredAcademicQualifications: formData.academicQualifications.length,
+      preferredAcademicQualificationsOptional: true,
+      preferredTeachingQualifications: formData.teachingProfessionalQualifications.length,
+      preferredTeachingQualificationsOptional: true,
+      preferredTeachingExperience: formData.teachingExperience,
+      preferredTeachingExperienceOptional: true,
+      preferredTutoringExperience: formData.tutoringExperience,
+      preferredTutoringExperienceValid: formData.tutoringExperience !== '',
+      preferredSubjects: formData.subjects.length,
+      preferredSubjectsValid: formData.subjects.length > 0,
+      preferredKeyStages: formData.keyStages.length,
+      preferredKeyStagesValid: formData.keyStages.length > 0,
+      preferredLevels: formData.levels?.length || 0,
+      preferredLevelsValid: (formData.levels?.length || 0) > 0,
       preferredSessionType: formData.sessionType.length,
       preferredSessionTypeValid: formData.sessionType.length > 0,
       preferredDeliveryMode: formData.deliveryMode.length,
@@ -444,18 +458,9 @@ const ClientProfessionalDetailStep: React.FC<ClientProfessionalDetailStepProps> 
               </HubForm.Field>
             </HubForm.Grid>
 
-            {/* Student's Education Level & Subjects Needed */}
+            {/* Preferred Subjects & Key Stages */}
             <HubForm.Grid>
-              <HubForm.Field label={configs.get('keyStages')?.label || 'Student\'s Education Level'} required>
-                <UnifiedMultiSelect
-                  triggerLabel={formatMultiSelectLabel(formData.keyStages, configs.get('keyStages')?.placeholder || 'Select education level(s)')}
-                  options={configs.get('keyStages')?.options || keyStagesOptions}
-                  selectedValues={formData.keyStages}
-                  onSelectionChange={(values) => handleSelectChange('keyStages', values)}
-                />
-              </HubForm.Field>
-
-              <HubForm.Field label={configs.get('subjects')?.label || 'Subjects Needed'} required>
+              <HubForm.Field label={configs.get('subjects')?.label || 'Preferred Subjects'} required>
                 <UnifiedMultiSelect
                   triggerLabel={formatMultiSelectLabel(formData.subjects, configs.get('subjects')?.placeholder || 'Select subjects')}
                   options={configs.get('subjects')?.options || subjectsOptions}
@@ -463,22 +468,31 @@ const ClientProfessionalDetailStep: React.FC<ClientProfessionalDetailStepProps> 
                   onSelectionChange={(values) => handleSelectChange('subjects', values)}
                 />
               </HubForm.Field>
+
+              <HubForm.Field label={configs.get('keyStages')?.label || 'Preferred Key Stages'} required>
+                <UnifiedMultiSelect
+                  triggerLabel={formatMultiSelectLabel(formData.keyStages, configs.get('keyStages')?.placeholder || 'Select key stages')}
+                  options={configs.get('keyStages')?.options || keyStagesOptions}
+                  selectedValues={formData.keyStages}
+                  onSelectionChange={(values) => handleSelectChange('keyStages', values)}
+                />
+              </HubForm.Field>
             </HubForm.Grid>
 
-            {/* Preferred Session Details */}
+            {/* Preferred Levels & Delivery Mode */}
             <HubForm.Grid>
-              <HubForm.Field label={configs.get('sessionType')?.label || 'Preferred Session Type'} required>
+              <HubForm.Field label={configs.get('levels')?.label || 'Preferred Levels'} required>
                 <UnifiedMultiSelect
-                  triggerLabel={formatMultiSelectLabel(formData.sessionType, configs.get('sessionType')?.placeholder || 'Select preferred session types')}
-                  options={configs.get('sessionType')?.options || sessionTypeOptions}
-                  selectedValues={formData.sessionType}
-                  onSelectionChange={(values) => handleSelectChange('sessionType', values)}
+                  triggerLabel={formatMultiSelectLabel(formData.levels || [], configs.get('levels')?.placeholder || 'Select levels')}
+                  options={configs.get('levels')?.options || levelsOptions}
+                  selectedValues={formData.levels || []}
+                  onSelectionChange={(values) => handleSelectChange('levels', values)}
                 />
               </HubForm.Field>
 
               <HubForm.Field label={configs.get('deliveryMode')?.label || 'Preferred Delivery Mode'} required>
                 <UnifiedMultiSelect
-                  triggerLabel={formatMultiSelectLabel(formData.deliveryMode, configs.get('deliveryMode')?.placeholder || 'Select preferred delivery modes')}
+                  triggerLabel={formatMultiSelectLabel(formData.deliveryMode, configs.get('deliveryMode')?.placeholder || 'Select delivery mode')}
                   options={configs.get('deliveryMode')?.options || deliveryModeOptions}
                   selectedValues={formData.deliveryMode}
                   onSelectionChange={(values) => handleSelectChange('deliveryMode', values)}
@@ -488,33 +502,46 @@ const ClientProfessionalDetailStep: React.FC<ClientProfessionalDetailStepProps> 
 
             {/* Budget */}
             <HubForm.Grid>
-              <HubForm.Field label={configs.get('oneOnOneRate')?.label || 'Budget for One-on-One Sessions (per hour)'} required>
+              <HubForm.Field label={configs.get('oneOnOneRate')?.label || 'Budget: One-on-One (£/hour)'} required>
                 <input
                   type="number"
                   value={formData.oneOnOneRate || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, oneOnOneRate: parseFloat(e.target.value) || 0 }))}
                   onFocus={() => setEditingField('oneOnOneRate')}
                   onBlur={() => handleBlur('oneOnOneRate')}
-                  placeholder={configs.get('oneOnOneRate')?.placeholder || '£50'}
+                  placeholder={configs.get('oneOnOneRate')?.placeholder || '£25'}
                   disabled={isLoading || isSaving}
                   min="0"
                   step="1"
                 />
               </HubForm.Field>
 
-              <HubForm.Field label={configs.get('groupSessionRate')?.label || 'Budget for Group Sessions (per hour)'}>
+              <HubForm.Field label={configs.get('groupSessionRate')?.label || 'Budget: Group Session (£/hour per student)'}>
                 <input
                   type="number"
                   value={formData.groupSessionRate || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, groupSessionRate: parseFloat(e.target.value) || 0 }))}
                   onFocus={() => setEditingField('groupSessionRate')}
                   onBlur={() => handleBlur('groupSessionRate')}
-                  placeholder={configs.get('groupSessionRate')?.placeholder || '£25 (skip if flexible)'}
+                  placeholder={configs.get('groupSessionRate')?.placeholder || '£15'}
                   disabled={isLoading || isSaving}
                   min="0"
                   step="1"
                 />
               </HubForm.Field>
+            </HubForm.Grid>
+
+            {/* Preferred Session Type */}
+            <HubForm.Grid>
+              <HubForm.Field label={configs.get('sessionType')?.label || 'Preferred Session Type'} required>
+                <UnifiedMultiSelect
+                  triggerLabel={formatMultiSelectLabel(formData.sessionType, configs.get('sessionType')?.placeholder || 'Select session types')}
+                  options={configs.get('sessionType')?.options || sessionTypeOptions}
+                  selectedValues={formData.sessionType}
+                  onSelectionChange={(values) => handleSelectChange('sessionType', values)}
+                />
+              </HubForm.Field>
+              <div></div>
             </HubForm.Grid>
           </HubForm.Section>
         </HubForm.Root>

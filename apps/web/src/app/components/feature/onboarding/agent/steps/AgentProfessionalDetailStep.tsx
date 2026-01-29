@@ -149,8 +149,8 @@ const AgentProfessionalDetailStep: React.FC<AgentProfessionalDetailStepProps> = 
     { fieldName: 'subjects', context: 'onboarding.agent', fallback: { label: 'Subjects', placeholder: 'Select subjects', options: subjectsOptions } },
     { fieldName: 'sessionType', context: 'onboarding.agent', fallback: { label: 'Session Type', placeholder: 'Select session types', options: sessionTypeOptions } },
     { fieldName: 'deliveryMode', context: 'onboarding.agent', fallback: { label: 'Delivery Mode', placeholder: 'Select delivery modes', options: deliveryModeOptions } },
-    { fieldName: 'oneOnOneRate', context: 'onboarding.agent', fallback: { label: 'One-on-One Session Rate (1 hour session, 1 student)', placeholder: '£50' } },
-    { fieldName: 'groupSessionRate', context: 'onboarding.agent', fallback: { label: 'Group Session Rate (1 hour session, 1 student)', placeholder: '£25' } },
+    { fieldName: 'oneOnOneRate', context: 'onboarding.agent', fallback: { label: 'One-on-One Rate (£/hour)', placeholder: '£50' } },
+    { fieldName: 'groupSessionRate', context: 'onboarding.agent', fallback: { label: 'Group Rate (£/hour per student)', placeholder: '£25' } },
   ]);
 
   // Restore saved onboarding progress on mount
@@ -491,7 +491,7 @@ const AgentProfessionalDetailStep: React.FC<AgentProfessionalDetailStepProps> = 
 
             {/* Rates */}
             <HubForm.Grid>
-              <HubForm.Field label={configs.get('oneOnOneRate')?.label || 'One-on-One Session Rate (1 hour session, 1 student)'} required>
+              <HubForm.Field label={configs.get('oneOnOneRate')?.label || 'One-on-One Rate (£/hour)'} required>
                 <input
                   type="number"
                   value={formData.oneOnOneRate || ''}
@@ -505,7 +505,7 @@ const AgentProfessionalDetailStep: React.FC<AgentProfessionalDetailStepProps> = 
                 />
               </HubForm.Field>
 
-              <HubForm.Field label={configs.get('groupSessionRate')?.label || 'Group Session Rate (1 hour session, 1 student)'}>
+              <HubForm.Field label={configs.get('groupSessionRate')?.label || 'Group Rate (£/hour per student)'}>
                 <input
                   type="number"
                   value={formData.groupSessionRate || ''}

@@ -32,7 +32,7 @@ interface ProgressData {
   }>;
 }
 
-interface TutorAvailabilityStepProps {
+interface ClientAvailabilityStepProps {
   onNext: (availability: AvailabilityData) => void;
   onBack?: () => void;
   isLoading: boolean;
@@ -78,7 +78,7 @@ const timeOptions = [
   { value: 'all_day', label: 'All day (6am-10pm)' }
 ];
 
-const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
+const ClientAvailabilityStep: React.FC<ClientAvailabilityStepProps> = ({
   onNext,
   onBack,
   isLoading,
@@ -151,7 +151,7 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
       await saveOnboardingProgress({
         userId: user.id,
         progress: {
-          tutor: {
+          client: {
             availability: data
           }
         }
@@ -166,81 +166,81 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
   const handleImmediateSave = React.useCallback(() => {
     if (!user?.id) return;
 
-    console.log('[TutorAvailabilityStep] Immediate save triggered');
+    console.log('[ClientAvailabilityStep] Immediate save triggered');
     saveOnboardingProgress({
       userId: user.id,
       progress: {
-        tutor: {
+        client: {
           availability: availabilityData
         }
       }
     })
-      .then(() => console.log('[TutorAvailabilityStep] ✓ Immediate save completed'))
-      .catch((error) => console.error('[TutorAvailabilityStep] ❌ Immediate save failed:', error));
+      .then(() => console.log('[ClientAvailabilityStep] ✓ Immediate save completed'))
+      .catch((error) => console.error('[ClientAvailabilityStep] ❌ Immediate save failed:', error));
   }, [user?.id, availabilityData]);
 
   // Restore saved onboarding progress on mount
   React.useEffect(() => {
-    console.log('[TutorAvailabilityStep] Restoration useEffect triggered', {
+    console.log('[ClientAvailabilityStep] Restoration useEffect triggered', {
       isRestored,
       hasUserId: !!user?.id,
       userId: user?.id
     });
 
     if (!isRestored && user?.id) {
-      console.log('[TutorAvailabilityStep] Starting getOnboardingProgress call...');
+      console.log('[ClientAvailabilityStep] Starting getOnboardingProgress call...');
 
-      getOnboardingProgress('tutor')
+      getOnboardingProgress('client')
         .then(savedProgress => {
-          console.log('[TutorAvailabilityStep] getOnboardingProgress returned:', savedProgress);
+          console.log('[ClientAvailabilityStep] getOnboardingProgress returned:', savedProgress);
 
-          const savedData = savedProgress?.progress?.tutor?.availability;
-          console.log('[TutorAvailabilityStep] Extracted availability data:', savedData);
+          const savedData = savedProgress?.progress?.client?.availability;
+          console.log('[ClientAvailabilityStep] Extracted availability data:', savedData);
 
           if (savedData) {
-            console.log('[TutorAvailabilityStep] ✅ Restoring saved progress');
+            console.log('[ClientAvailabilityStep] ✅ Restoring saved progress');
 
             // Restore general availability
             if (savedData.generalDays) {
-              console.log('[TutorAvailabilityStep] Setting generalDays:', savedData.generalDays);
+              console.log('[ClientAvailabilityStep] Setting generalDays:', savedData.generalDays);
               setGeneralDays(savedData.generalDays);
             } else {
-              console.log('[TutorAvailabilityStep] No generalDays to restore');
+              console.log('[ClientAvailabilityStep] No generalDays to restore');
             }
 
             if (savedData.generalTimes) {
-              console.log('[TutorAvailabilityStep] Setting generalTimes:', savedData.generalTimes);
+              console.log('[ClientAvailabilityStep] Setting generalTimes:', savedData.generalTimes);
               setGeneralTimes(savedData.generalTimes);
             } else {
-              console.log('[TutorAvailabilityStep] No generalTimes to restore');
+              console.log('[ClientAvailabilityStep] No generalTimes to restore');
             }
 
             // Restore detailed schedule
             if (savedData.availabilityPeriods) {
-              console.log('[TutorAvailabilityStep] Setting availabilityPeriods:', savedData.availabilityPeriods);
+              console.log('[ClientAvailabilityStep] Setting availabilityPeriods:', savedData.availabilityPeriods);
               setAvailabilityPeriods(savedData.availabilityPeriods);
             }
             if (savedData.unavailabilityPeriods) {
-              console.log('[TutorAvailabilityStep] Setting unavailabilityPeriods:', savedData.unavailabilityPeriods);
+              console.log('[ClientAvailabilityStep] Setting unavailabilityPeriods:', savedData.unavailabilityPeriods);
               setUnavailabilityPeriods(savedData.unavailabilityPeriods);
             }
           } else {
-            console.log('[TutorAvailabilityStep] ⚠️ No saved availability data found');
+            console.log('[ClientAvailabilityStep] ⚠️ No saved availability data found');
           }
 
-          console.log('[TutorAvailabilityStep] Setting isRestored to true');
+          console.log('[ClientAvailabilityStep] Setting isRestored to true');
           setIsRestored(true);
         })
         .catch(error => {
-          console.error('[TutorAvailabilityStep] ❌ Error loading saved progress:', error);
+          console.error('[ClientAvailabilityStep] ❌ Error loading saved progress:', error);
           setIsRestored(true);
         });
     } else {
       if (isRestored) {
-        console.log('[TutorAvailabilityStep] Skipping restoration - already restored');
+        console.log('[ClientAvailabilityStep] Skipping restoration - already restored');
       }
       if (!user?.id) {
-        console.log('[TutorAvailabilityStep] Skipping restoration - no user ID');
+        console.log('[ClientAvailabilityStep] Skipping restoration - no user ID');
       }
     }
   }, [user?.id, isRestored]);
@@ -477,16 +477,16 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
   const oneTimePeriods = availabilityPeriods.filter(p => p.type === 'one-time');
 
   const handleNext = () => {
-    console.log('[TutorAvailabilityStep] handleNext called');
-    console.log('[TutorAvailabilityStep] Form data:', availabilityData);
-    console.log('[TutorAvailabilityStep] isValid:', isValid);
-    console.log('[TutorAvailabilityStep] Calling onNext...');
+    console.log('[ClientAvailabilityStep] handleNext called');
+    console.log('[ClientAvailabilityStep] Form data:', availabilityData);
+    console.log('[ClientAvailabilityStep] isValid:', isValid);
+    console.log('[ClientAvailabilityStep] Calling onNext...');
 
     // The WizardActionButtons component ensures this only runs when isValid is true
     // Pass data to wizard - wizard handles all database operations in background
     onNext(availabilityData);
 
-    console.log('[TutorAvailabilityStep] onNext called successfully');
+    console.log('[ClientAvailabilityStep] onNext called successfully');
   };
 
 
@@ -855,4 +855,4 @@ const TutorAvailabilityStep: React.FC<TutorAvailabilityStepProps> = ({
   );
 };
 
-export default TutorAvailabilityStep;
+export default ClientAvailabilityStep;

@@ -164,19 +164,24 @@ export default function AgentAvailabilityPage() {
         console.log('[AgentAvailability] ✓ Agent role added');
       }
 
-      // Save to role_details table
+      // Fetch existing role_details to preserve all professional details fields
+      const { data: existingRoleDetails } = await supabase
+        .from('role_details')
+        .select('*')
+        .eq('profile_id', user.id)
+        .eq('role_type', 'agent')
+        .single();
+
+      console.log('[AgentAvailability] Existing role_details:', existingRoleDetails);
+
+      // Save to role_details table - preserve existing fields, add availability
       console.log('[AgentAvailability] Saving to role_details...');
       const roleDetailsData = {
+        // Preserve all existing fields from professional-details step
+        ...existingRoleDetails,
         profile_id: user.id,
         role_type: 'agent',
-        subjects: professionalDetails?.subjects || [],
-        qualifications: {
-          experience_level: professionalDetails?.tutoringExperience || '',
-          education: professionalDetails?.academicQualifications?.[0] || '',
-          certifications: professionalDetails?.teachingProfessionalQualifications || [],
-          bio: professionalDetails?.bio || '',
-        },
-        hourly_rate: professionalDetails?.oneOnOneRate || 0,
+        // Add/update availability data
         availability: {
           general_days: data.generalDays || [],
           general_times: data.generalTimes || [],

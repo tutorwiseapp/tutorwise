@@ -194,6 +194,53 @@ export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormPr
     const fieldKey = field as keyof typeof formData;
     const isEditing = editingField === field;
 
+    // For select fields, always show the dropdown (no click-to-edit) - matches ProfessionalInfoForm
+    if (type === 'select') {
+      return (
+        <HubForm.Field
+          label={label}
+          isEditing={true}
+          onClick={undefined}
+        >
+          <UnifiedSelect
+            ref={(el) => { inputRefs.current[field] = el; }}
+            value={formData[fieldKey]}
+            onChange={(value) => {
+              const event = {
+                target: {
+                  name: fieldKey,
+                  value: String(value)
+                }
+              } as React.ChangeEvent<HTMLSelectElement>;
+              handleChange(event);
+            }}
+            options={options || []}
+            placeholder={placeholder || `Select ${label.toLowerCase()}`}
+            disabled={isSaving}
+            onBlur={() => handleBlur(field)}
+            onKeyDown={(e) => handleKeyDown(e as any, field)}
+          />
+        </HubForm.Field>
+      );
+    }
+
+    // For date fields, always show the DatePicker (no click-to-edit) - matches ProfessionalInfoForm
+    if (type === 'date') {
+      return (
+        <HubForm.Field
+          label={label}
+          isEditing={true}
+          onClick={undefined}
+        >
+          <DatePicker
+            selected={selectedDate}
+            onSelect={handleDateChange}
+          />
+        </HubForm.Field>
+      );
+    }
+
+    // For text inputs (text, email, tel), use click-to-edit pattern
     return (
       <HubForm.Field
         label={label}
@@ -202,57 +249,26 @@ export default function PersonalInfoForm({ profile, onSave }: PersonalInfoFormPr
       >
         {isEditing ? (
           <>
-            {type === 'select' ? (
-              <UnifiedSelect
-                ref={(el) => { inputRefs.current[field] = el; }}
-                value={formData[fieldKey]}
-                onChange={(value) => {
-                  const event = {
-                    target: {
-                      name: fieldKey,
-                      value: String(value)
-                    }
-                  } as React.ChangeEvent<HTMLSelectElement>;
-                  handleChange(event);
-                }}
-                options={options || []}
-                placeholder={`Select ${label.toLowerCase()}`}
-                disabled={isSaving}
-                onBlur={() => handleBlur(field)}
-                onKeyDown={(e) => handleKeyDown(e as any, field)}
-              />
-            ) : type === 'date' ? (
-              <div onBlur={() => handleBlur(field)}>
-                <DatePicker
-                  selected={selectedDate}
-                  onSelect={handleDateChange}
-                />
-              </div>
-            ) : (
-              <input
-                ref={(el) => { inputRefs.current[field] = el; }}
-                className={hubFormStyles.input}
-                type={type}
-                name={fieldKey}
-                value={formData[fieldKey]}
-                onChange={handleChange}
-                onBlur={() => handleBlur(field)}
-                onKeyDown={(e) => handleKeyDown(e, field)}
-                placeholder={placeholder}
-                disabled={isSaving}
-                {...(isSaving && { style: { opacity: 0.6, cursor: 'wait' } })}
-              />
-            )}
+            <input
+              ref={(el) => { inputRefs.current[field] = el; }}
+              className={hubFormStyles.input}
+              type={type}
+              name={fieldKey}
+              value={formData[fieldKey]}
+              onChange={handleChange}
+              onBlur={() => handleBlur(field)}
+              onKeyDown={(e) => handleKeyDown(e, field)}
+              placeholder={placeholder}
+              disabled={isSaving}
+              {...(isSaving && { style: { opacity: 0.6, cursor: 'wait' } })}
+            />
             {isSaving && editingField === field && (
               <span className={styles.savingIndicator}>Saving...</span>
             )}
           </>
         ) : (
           <>
-            {type === 'date' && formData[fieldKey]
-              ? format(parse(formData[fieldKey] as string, 'yyyy-MM-dd', new Date()), 'dd MMMM yyyy')
-              : formData[fieldKey] || <span className={styles.placeholder}>{placeholder || `Click to add ${label.toLowerCase()}...`}</span>
-            }
+            {formData[fieldKey] || <span className={styles.placeholder}>{placeholder || `Click to add ${label.toLowerCase()}...`}</span>}
           </>
         )}
       </HubForm.Field>

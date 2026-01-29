@@ -185,6 +185,7 @@ export interface ProfessionalDetailsData {
 
   // Service Details
   keyStages: string[]; // KS1-KS2, KS3, KS4, A-Levels
+  levels?: string[]; // Primary, Secondary, A-Levels, University (client preference)
   subjects: string[]; // Mathematics, English, Science, etc.
   sessionType: string[]; // One-to-One Session, Group Session
   deliveryMode: string[]; // Online, In-person, Hybrid

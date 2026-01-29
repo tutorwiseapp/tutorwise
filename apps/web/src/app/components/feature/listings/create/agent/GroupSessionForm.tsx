@@ -399,7 +399,8 @@ export default function GroupSessionForm({ onSubmit, onCancel, isSaving = false,
     label: string,
     type: FieldType,
     placeholder?: string,
-    options?: { value: string; label: string }[]
+    options?: { value: string; label: string }[],
+    required?: boolean
   ) => {
     const isEditing = editingField === field;
     const fieldValue = (formData as any)[fieldKey];
@@ -416,6 +417,7 @@ export default function GroupSessionForm({ onSubmit, onCancel, isSaving = false,
           label={label}
           isEditing={true}
           onClick={undefined}
+          required={required}
         >
           {type === 'multiselect' ? (
             <UnifiedMultiSelect
@@ -452,6 +454,7 @@ export default function GroupSessionForm({ onSubmit, onCancel, isSaving = false,
         label={label}
         isEditing={isEditing}
         onClick={() => !isEditing && handleFieldClick(field)}
+        required={required}
       >
         {isEditing ? (
           <>
@@ -496,30 +499,30 @@ export default function GroupSessionForm({ onSubmit, onCancel, isSaving = false,
       {/* Main Section - All basic listing fields in ONE large section like ProfessionalInfoForm */}
       <HubForm.Section>
         <HubForm.Grid columns={1}>
-          {renderField('title', 'title', 'Service Title', 'text', 'E.g., Expert GCSE Maths Tutor - Build Confidence & Achieve A*')}
+          {renderField('title', 'title', 'Service Title', 'text', 'E.g., Expert GCSE Maths Tutor - Build Confidence & Achieve A*', undefined, true)}
         </HubForm.Grid>
 
         <HubForm.Grid columns={1}>
-          {renderField('description', 'description', 'Service Description', 'textarea', 'Describe your teaching approach, what makes you unique, what students can expect...')}
+          {renderField('description', 'description', 'Service Description', 'textarea', 'Describe your teaching approach, what makes you unique, what students can expect...', undefined, true)}
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('subjects', 'subjects', 'Subjects You Teach', 'multiselect', 'Select subjects', configs.get('subjects')?.options || subjectsOptions)}
-          {renderField('levels', 'levels', 'Education Levels', 'multiselect', 'Select levels', configs.get('levels')?.options || levelsOptions)}
+          {renderField('subjects', 'subjects', 'Subjects You Teach', 'multiselect', 'Select subjects', configs.get('subjects')?.options || subjectsOptions, true)}
+          {renderField('levels', 'levels', 'Education Levels', 'multiselect', 'Select levels', configs.get('levels')?.options || levelsOptions, true)}
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('session_duration', 'session_duration', 'Session Duration', 'select', 'Select duration', configs.get('sessionDuration')?.options || sessionDurationOptions)}
-          {renderField('delivery_mode', 'delivery_mode', 'Delivery Mode', 'select', 'Select delivery mode', configs.get('deliveryMode')?.options || deliveryModeOptions)}
+          {renderField('session_duration', 'session_duration', 'Session Duration', 'select', 'Select duration', configs.get('sessionDuration')?.options || sessionDurationOptions, true)}
+          {renderField('delivery_mode', 'delivery_mode', 'Delivery Mode', 'select', 'Select delivery mode', configs.get('deliveryMode')?.options || deliveryModeOptions, true)}
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('hourly_rate', 'hourly_rate', 'Hourly Rate (£)', 'number', '£25')}
+          {renderField('hourly_rate', 'hourly_rate', 'Group Rate (£/hour per student)', 'number', '£25', undefined, true)}
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('min_participants', 'min_participants', 'Minimum Participants', 'number', 'Enter minimum number of participants')}
-          {renderField('max_participants', 'max_participants', 'Maximum Participants', 'number', 'Enter maximum number of participants')}
+          {renderField('min_participants', 'min_participants', 'Minimum Participants', 'number', 'Enter minimum number of participants', undefined, true)}
+          {renderField('max_participants', 'max_participants', 'Maximum Participants', 'number', 'Enter maximum number of participants', undefined, true)}
         </HubForm.Grid>
       </HubForm.Section>
 

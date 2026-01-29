@@ -35,7 +35,7 @@ interface ProgressData {
   }>;
 }
 
-interface TutorProfessionalVerificationStepProps {
+interface ClientProfessionalVerificationStepProps {
   onNext: (details: VerificationDetailsData) => void;
   onBack?: () => void;
   isLoading: boolean;
@@ -62,7 +62,7 @@ export interface VerificationDetailsData {
   dbs_expiry_date?: string;
 }
 
-const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationStepProps> = ({
+const ClientProfessionalVerificationStep: React.FC<ClientProfessionalVerificationStepProps> = ({
   onNext,
   onBack,
   isLoading,
@@ -111,12 +111,12 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
   // Restore saved onboarding progress on mount
   React.useEffect(() => {
     if (!isRestored && user?.id) {
-      getOnboardingProgress('tutor')
+      getOnboardingProgress('client')
         .then(savedProgress => {
-          const savedData = savedProgress?.progress?.tutor?.verification;
+          const savedData = savedProgress?.progress?.client?.verification;
 
           if (savedData) {
-            console.log('[TutorProfessionalVerificationStep] ✅ Restored saved progress:', savedData);
+            console.log('[ClientProfessionalVerificationStep] ✅ Restored saved progress:', savedData);
 
             // Restore form fields
             const {
@@ -139,7 +139,7 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
           setIsRestored(true);
         })
         .catch(error => {
-          console.error('[TutorProfessionalVerificationStep] Error loading saved progress:', error);
+          console.error('[ClientProfessionalVerificationStep] Error loading saved progress:', error);
           setIsRestored(true);
         });
     }
@@ -154,7 +154,7 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
       await saveOnboardingProgress({
         userId: user.id,
         progress: {
-          tutor: {
+          client: {
             verification: data
           }
         }
@@ -172,19 +172,19 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
     setTimeout(() => {
       if (editingField !== fieldName) return;
 
-      console.log(`[TutorProfessionalVerificationStep] onBlur save for: ${fieldName}`);
+      console.log(`[ClientProfessionalVerificationStep] onBlur save for: ${fieldName}`);
       setIsSaving(true);
 
       saveOnboardingProgress({
         userId: user.id,
         progress: {
-          tutor: {
+          client: {
             verification: combinedData
           }
         }
       })
-        .then(() => console.log('[TutorProfessionalVerificationStep] ✓ Blur save completed'))
-        .catch((error) => console.error('[TutorProfessionalVerificationStep] ❌ Blur save failed:', error))
+        .then(() => console.log('[ClientProfessionalVerificationStep] ✓ Blur save completed'))
+        .catch((error) => console.error('[ClientProfessionalVerificationStep] ❌ Blur save failed:', error))
         .finally(() => {
           setIsSaving(false);
           setEditingField(null);
@@ -199,18 +199,18 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
 
     if (!user?.id) return;
 
-    console.log(`[TutorProfessionalVerificationStep] Immediate save for select: ${field}`);
+    console.log(`[ClientProfessionalVerificationStep] Immediate save for select: ${field}`);
     const newCombinedData = { ...newFormData, ...uploadedFiles };
     saveOnboardingProgress({
       userId: user.id,
       progress: {
-        tutor: {
+        client: {
           verification: newCombinedData
         }
       }
     })
-      .then(() => console.log('[TutorProfessionalVerificationStep] ✓ Select save completed'))
-      .catch((error) => console.error('[TutorProfessionalVerificationStep] ❌ Select save failed:', error));
+      .then(() => console.log('[ClientProfessionalVerificationStep] ✓ Select save completed'))
+      .catch((error) => console.error('[ClientProfessionalVerificationStep] ❌ Select save failed:', error));
   }, [formData, uploadedFiles, user?.id]);
 
   const handleDateChange = React.useCallback((field: string, dateStr: string) => {
@@ -219,18 +219,18 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
 
     if (!user?.id) return;
 
-    console.log(`[TutorProfessionalVerificationStep] Immediate save for date: ${field}`);
+    console.log(`[ClientProfessionalVerificationStep] Immediate save for date: ${field}`);
     const newCombinedData = { ...newFormData, ...uploadedFiles };
     saveOnboardingProgress({
       userId: user.id,
       progress: {
-        tutor: {
+        client: {
           verification: newCombinedData
         }
       }
     })
-      .then(() => console.log('[TutorProfessionalVerificationStep] ✓ Date save completed'))
-      .catch((error) => console.error('[TutorProfessionalVerificationStep] ❌ Date save failed:', error));
+      .then(() => console.log('[ClientProfessionalVerificationStep] ✓ Date save completed'))
+      .catch((error) => console.error('[ClientProfessionalVerificationStep] ❌ Date save failed:', error));
   }, [formData, uploadedFiles, user?.id]);
 
   // beforeunload warning - prevent accidental close with unsaved changes
@@ -251,7 +251,7 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
   const isValid = true;
 
   const handleNext = () => {
-    console.log('[TutorProfessionalVerificationStep] handleNext called');
+    console.log('[ClientProfessionalVerificationStep] handleNext called');
 
     const dataToSave = {
       ...formData,
@@ -260,10 +260,10 @@ const TutorProfessionalVerificationStep: React.FC<TutorProfessionalVerificationS
       dbs_certificate_url: uploadedFiles.dbs,
     };
 
-    console.log('[TutorProfessionalVerificationStep] Calling onNext...');
+    console.log('[ClientProfessionalVerificationStep] Calling onNext...');
     // Page handles all database operations
     onNext(dataToSave);
-    console.log('[TutorProfessionalVerificationStep] onNext called successfully');
+    console.log('[ClientProfessionalVerificationStep] onNext called successfully');
   };
 
 
@@ -544,4 +544,4 @@ const DocumentUploadField: React.FC<DocumentUploadFieldProps> = ({
   );
 };
 
-export default TutorProfessionalVerificationStep;
+export default ClientProfessionalVerificationStep;

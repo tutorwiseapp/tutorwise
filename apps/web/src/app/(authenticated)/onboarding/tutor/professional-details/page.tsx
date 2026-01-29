@@ -116,11 +116,28 @@ export default function TutorProfessionalDetailsPage() {
 
       console.log('[TutorProfessionalDetails] Existing availability:', existingRoleDetails?.availability);
 
-      // Write-through to role_details table
+      // Write-through to role_details table - save ALL form fields
       const roleDetailsData = {
         profile_id: user.id,
         role_type: 'tutor',
+        // Core fields
+        bio: data.bio || '',
+        bio_video_url: data.bioVideoUrl || '',
+        status: data.status || '',
         subjects: data.subjects || [],
+        key_stages: data.keyStages || [],
+        // Qualifications & Experience
+        academic_qualifications: data.academicQualifications || [],
+        teaching_professional_qualifications: data.teachingProfessionalQualifications || [],
+        teaching_experience: data.teachingExperience || '',
+        tutoring_experience: data.tutoringExperience || '',
+        // Session & Delivery
+        session_types: data.sessionType || [],
+        delivery_mode: data.deliveryMode || [],
+        // Rates
+        one_on_one_rate: data.oneOnOneRate || 0,
+        group_session_rate: data.groupSessionRate || 0,
+        // Legacy qualifications field for backward compatibility
         qualifications: {
           bio: data.bio || '',
           experience_level: data.tutoringExperience || '',

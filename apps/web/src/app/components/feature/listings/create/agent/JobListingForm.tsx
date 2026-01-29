@@ -436,7 +436,8 @@ export default function JobListingForm({ onSubmit, onCancel, isSaving = false, i
     label: string,
     type: FieldType,
     placeholder?: string,
-    options?: { value: string; label: string }[]
+    options?: { value: string; label: string }[],
+    required?: boolean
   ) => {
     const isEditing = editingField === field;
     const fieldValue = (formData as any)[fieldKey];
@@ -453,6 +454,7 @@ export default function JobListingForm({ onSubmit, onCancel, isSaving = false, i
           label={label}
           isEditing={true}
           onClick={undefined}
+          required={required}
         >
           <DatePicker
             selected={fieldValue ? new Date(fieldValue) : undefined}
@@ -475,6 +477,7 @@ export default function JobListingForm({ onSubmit, onCancel, isSaving = false, i
           label={label}
           isEditing={true}
           onClick={undefined}
+          required={required}
         >
           {type === 'multiselect' ? (
             <UnifiedMultiSelect
@@ -511,6 +514,7 @@ export default function JobListingForm({ onSubmit, onCancel, isSaving = false, i
         label={label}
         isEditing={isEditing}
         onClick={() => !isEditing && handleFieldClick(field)}
+        required={required}
       >
         {isEditing ? (
           <>
@@ -555,20 +559,20 @@ export default function JobListingForm({ onSubmit, onCancel, isSaving = false, i
       {/* Section 1: Job Basics */}
       <HubForm.Section title="Job Basics">
         <HubForm.Grid columns={1}>
-          {renderField('job_title', 'job_title', 'Job Title', 'text', 'E.g., Maths Tutor - GCSE Level')}
+          {renderField('job_title', 'job_title', 'Job Title', 'text', 'E.g., Maths Tutor - GCSE Level', undefined, true)}
         </HubForm.Grid>
 
         <HubForm.Grid columns={1}>
-          {renderField('description', 'description', 'Job Description', 'textarea', 'Describe the role, responsibilities, and what makes this opportunity unique...')}
+          {renderField('description', 'description', 'Job Description', 'textarea', 'Describe the role, responsibilities, and what makes this opportunity unique...', undefined, true)}
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('employment_type', 'employment_type', 'Employment Type', 'select', 'Select type', employmentTypeOptions)}
+          {renderField('employment_type', 'employment_type', 'Employment Type', 'select', 'Select type', employmentTypeOptions, true)}
           {renderField('contract_length', 'contract_length', 'Contract Length', 'select', 'Select length', contractLengthOptions)}
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('start_date', 'start_date', 'Start Date', 'date', 'Select start date')}
+          {renderField('start_date', 'start_date', 'Start Date', 'date', 'Select start date', undefined, true)}
           {renderField('end_date', 'end_date', 'End Date (if applicable)', 'date', 'Select end date')}
         </HubForm.Grid>
 
@@ -580,8 +584,8 @@ export default function JobListingForm({ onSubmit, onCancel, isSaving = false, i
       {/* Section 2: Teaching Details */}
       <HubForm.Section title="Teaching Details">
         <HubForm.Grid>
-          {renderField('subjects', 'subjects', 'Subjects', 'multiselect', 'Select subjects', configs.get('subjects')?.options || subjectsOptions)}
-          {renderField('levels', 'levels', 'Education Levels', 'multiselect', 'Select levels', configs.get('levels')?.options || levelsOptions)}
+          {renderField('subjects', 'subjects', 'Subjects', 'multiselect', 'Select subjects', configs.get('subjects')?.options || subjectsOptions, true)}
+          {renderField('levels', 'levels', 'Education Levels', 'multiselect', 'Select levels', configs.get('levels')?.options || levelsOptions, true)}
         </HubForm.Grid>
 
         <HubForm.Grid>
@@ -593,12 +597,12 @@ export default function JobListingForm({ onSubmit, onCancel, isSaving = false, i
       {/* Section 3: Location & Schedule */}
       <HubForm.Section title="Location & Schedule">
         <HubForm.Grid>
-          {renderField('delivery_mode', 'delivery_mode', 'Delivery Mode', 'multiselect', 'Select modes', deliveryModeOptions)}
+          {renderField('delivery_mode', 'delivery_mode', 'Delivery Mode', 'multiselect', 'Select modes', deliveryModeOptions, true)}
           {renderField('work_location', 'work_location', 'Work Location', 'text', 'E.g., London, SW1')}
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('hours_per_week', 'hours_per_week', 'Hours Per Week', 'select', 'Select hours', hoursPerWeekOptions)}
+          {renderField('hours_per_week', 'hours_per_week', 'Hours Per Week', 'select', 'Select hours', hoursPerWeekOptions, true)}
           {renderField('schedule_flexibility', 'schedule_flexibility', 'Schedule Flexibility (Optional)', 'select', 'Select flexibility', scheduleFlexibilityOptions)}
         </HubForm.Grid>
 
@@ -610,11 +614,11 @@ export default function JobListingForm({ onSubmit, onCancel, isSaving = false, i
       {/* Section 4: Compensation & Benefits */}
       <HubForm.Section title="Compensation & Benefits">
         <HubForm.Grid columns={1}>
-          {renderField('compensation_type', 'compensation_type', 'Compensation Type', 'select', 'Select type', compensationTypeOptions)}
+          {renderField('compensation_type', 'compensation_type', 'Compensation Type', 'select', 'Select type', compensationTypeOptions, true)}
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('compensation_min', 'compensation_min', 'Minimum Compensation (£)', 'number', 'E.g., 25')}
+          {renderField('compensation_min', 'compensation_min', 'Minimum Compensation (£)', 'number', 'E.g., 25', undefined, true)}
           {renderField('compensation_max', 'compensation_max', 'Maximum Compensation (£)', 'number', 'E.g., 50')}
         </HubForm.Grid>
 
@@ -630,13 +634,13 @@ export default function JobListingForm({ onSubmit, onCancel, isSaving = false, i
       {/* Section 5: Requirements & Qualifications */}
       <HubForm.Section title="Requirements & Qualifications">
         <HubForm.Grid>
-          {renderField('minimum_qualifications', 'minimum_qualifications', 'Minimum Qualifications', 'multiselect', 'Select qualifications', minimumQualificationsOptions)}
+          {renderField('minimum_qualifications', 'minimum_qualifications', 'Minimum Qualifications', 'multiselect', 'Select qualifications', minimumQualificationsOptions, true)}
           {renderField('teaching_credentials', 'teaching_credentials', 'Teaching Credentials', 'multiselect', 'Select credentials', teachingCredentialsOptions)}
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('minimum_experience', 'minimum_experience', 'Minimum Experience', 'select', 'Select experience', minimumExperienceOptions)}
-          {renderField('dbs_check', 'dbs_check', 'DBS Check Required', 'select', 'Select requirement', dbsCheckOptions)}
+          {renderField('minimum_experience', 'minimum_experience', 'Minimum Experience', 'select', 'Select experience', minimumExperienceOptions, true)}
+          {renderField('dbs_check', 'dbs_check', 'DBS Check Required', 'select', 'Select requirement', dbsCheckOptions, true)}
         </HubForm.Grid>
 
         <HubForm.Grid columns={1}>
@@ -647,7 +651,7 @@ export default function JobListingForm({ onSubmit, onCancel, isSaving = false, i
       {/* Section 6: Application Process */}
       <HubForm.Section title="Application Process">
         <HubForm.Grid columns={1}>
-          {renderField('how_to_apply', 'how_to_apply', 'How to Apply', 'select', 'Select method', howToApplyOptions)}
+          {renderField('how_to_apply', 'how_to_apply', 'How to Apply', 'select', 'Select method', howToApplyOptions, true)}
         </HubForm.Grid>
 
         <HubForm.Grid columns={1}>

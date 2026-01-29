@@ -214,7 +214,8 @@ export default function StudyPackageForm({ onSubmit, onCancel, isSaving = false,
     label: string,
     type: FieldType,
     placeholder?: string,
-    options?: { value: string; label: string }[]
+    options?: { value: string; label: string }[],
+    required?: boolean
   ) => {
     const isEditing = editingField === field;
     const fieldValue = (formData as any)[fieldKey];
@@ -231,6 +232,7 @@ export default function StudyPackageForm({ onSubmit, onCancel, isSaving = false,
           label={label}
           isEditing={true}
           onClick={undefined}
+          required={required}
         >
           {type === 'multiselect' ? (
             <UnifiedMultiSelect
@@ -267,6 +269,7 @@ export default function StudyPackageForm({ onSubmit, onCancel, isSaving = false,
         label={label}
         isEditing={isEditing}
         onClick={() => !isEditing && handleFieldClick(field)}
+        required={required}
       >
         {isEditing ? (
           <>
@@ -311,28 +314,28 @@ export default function StudyPackageForm({ onSubmit, onCancel, isSaving = false,
       {/* Main Section - All basic listing fields in ONE large section like ProfessionalInfoForm */}
       <HubForm.Section>
         <HubForm.Grid columns={1}>
-          {renderField('title', 'title', 'Package Title', 'text', 'E.g., Complete GCSE Maths Study Guide - PDF & Video Bundle')}
+          {renderField('title', 'title', 'Package Title', 'text', 'E.g., Complete GCSE Maths Study Guide - PDF & Video Bundle', undefined, true)}
         </HubForm.Grid>
 
         <HubForm.Grid columns={1}>
-          {renderField('description', 'description', 'Package Description', 'textarea', 'Describe your study package, what makes it valuable, what students will learn...')}
+          {renderField('description', 'description', 'Package Description', 'textarea', 'Describe your study package, what makes it valuable, what students will learn...', undefined, true)}
         </HubForm.Grid>
 
         <HubForm.Grid columns={1}>
-          {renderField('package_contents', 'package_contents', 'Package Contents', 'textarea', 'Describe what\'s included in this package (files, videos, resources, etc.)')}
+          {renderField('package_contents', 'package_contents', 'Package Contents', 'textarea', 'Describe what\'s included in this package (files, videos, resources, etc.)', undefined, true)}
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('subjects', 'subjects', 'Subjects Covered', 'multiselect', 'Select subjects', configs.get('subjects')?.options || subjectsOptions)}
-          {renderField('levels', 'levels', 'Education Levels', 'multiselect', 'Select levels', configs.get('levels')?.options || levelsOptions)}
+          {renderField('subjects', 'subjects', 'Subjects Covered', 'multiselect', 'Select subjects', configs.get('subjects')?.options || subjectsOptions, true)}
+          {renderField('levels', 'levels', 'Education Levels', 'multiselect', 'Select levels', configs.get('levels')?.options || levelsOptions, true)}
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('package_type', 'package_type', 'Package Type', 'select', 'Select package type', configs.get('packageType')?.options || packageTypeOptions)}
+          {renderField('package_type', 'package_type', 'Package Type', 'select', 'Select package type', configs.get('packageType')?.options || packageTypeOptions, true)}
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('hourly_rate_min', 'hourly_rate_min', 'Package Price (Minimum) (£)', 'number', '£25')}
+          {renderField('hourly_rate_min', 'hourly_rate_min', 'Package Price (Minimum) (£)', 'number', '£25', undefined, true)}
           {renderField('hourly_rate_max', 'hourly_rate_max', 'Package Price (Maximum) (£)', 'number', '£50 (optional)')}
         </HubForm.Grid>
       </HubForm.Section>

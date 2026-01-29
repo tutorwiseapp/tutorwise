@@ -26,10 +26,13 @@ type EditingField = 'bio' | 'bio_video_url' | 'status' | 'academic_qualification
   'teaching_professional_qualifications' | 'subjects' | 'teaching_experience' |
   'session_type' | 'tutoring_experience' | 'one_on_one_rate' | 'group_session_rate' |
   'delivery_mode' | 'dbs_certificate' |
-  // Client fields
-  'subjects_client' | 'education_level' | 'learning_goals' | 'learning_preferences' |
-  'budget_min' | 'budget_max' | 'sessions_per_week' | 'session_duration' |
-  'special_needs' | 'additional_info_client' |
+  // Client fields (aligned with Create Listing form labels)
+  'status_client' | 'subjects_client' | 'key_stages_client' | 'levels_client' |
+  'delivery_mode_client' | 'one_on_one_rate_client' | 'group_session_rate_client' |
+  'session_type_client' | 'sessions_per_week' | 'session_duration' |
+  'learning_goals' | 'learning_preferences' | 'special_needs' |
+  'academic_qualifications_client' | 'teaching_qualifications_client' |
+  'teaching_experience_client' | 'tutoring_experience_client' |
   // Agent fields
   'agency_name' | 'agency_size' | 'years_in_business' | 'description' | 'services' |
   'commission_rate' | 'service_areas' | 'student_capacity' | 'subject_specializations' |
@@ -74,10 +77,11 @@ const academicQualificationsOptions = [
   { value: 'Professional Certificate', label: 'Professional Certificate' },
 ];
 
+// Key stages options (aligned with onboarding - chronological order)
 const keyStagesOptions = [
-  { value: 'Secondary Education (KS4) - Age 14 to 16', label: 'Secondary Education (KS4) - Age 14 to 16' },
   { value: 'Primary Education (KS1-KS2) - Age 5 to 11', label: 'Primary Education (KS1-KS2) - Age 5 to 11' },
   { value: 'Secondary Education (KS3) - Age 11 to 14', label: 'Secondary Education (KS3) - Age 11 to 14' },
+  { value: 'Secondary Education (KS4) - Age 14 to 16', label: 'Secondary Education (KS4) - Age 14 to 16' },
   { value: 'A-Levels - Age 16 to 18', label: 'A-Levels - Age 16 to 18' },
 ];
 
@@ -88,40 +92,92 @@ const teachingProfessionalQualificationsOptions = [
   { value: 'None', label: 'None' },
 ];
 
+// Subjects options (aligned with onboarding - individual values for multi-select)
 const subjectsOptions = [
-  { value: 'Mathematics, English', label: 'Mathematics, English' },
+  { value: 'Mathematics', label: 'Mathematics' },
+  { value: 'English', label: 'English' },
   { value: 'Science', label: 'Science' },
+  { value: 'Physics', label: 'Physics' },
+  { value: 'Chemistry', label: 'Chemistry' },
+  { value: 'Biology', label: 'Biology' },
   { value: 'History', label: 'History' },
   { value: 'Geography', label: 'Geography' },
   { value: 'Languages', label: 'Languages' },
 ];
 
+// Teaching experience options (aligned with onboarding - ascending order)
 const teachingExperienceOptions = [
-  { value: 'Experienced Teacher (4-7 years)', label: 'Experienced Teacher (4-7 years)' },
   { value: 'New Teacher (0-3 years)', label: 'New Teacher (0-3 years)' },
+  { value: 'Experienced Teacher (4-7 years)', label: 'Experienced Teacher (4-7 years)' },
   { value: 'Senior Teacher (8+ years)', label: 'Senior Teacher (8+ years)' },
 ];
 
+// Session type options (aligned with onboarding - individual values for multi-select)
 const sessionTypeOptions = [
-  { value: 'One-to-One Session, Group Session', label: 'One-to-One Session, Group Session' },
   { value: 'One-to-One Session', label: 'One-to-One Session' },
   { value: 'Group Session', label: 'Group Session' },
 ];
 
+// Tutoring experience options (aligned with onboarding - ascending order)
 const tutoringExperienceOptions = [
-  { value: 'Experienced Tutor (3-5 years)', label: 'Experienced Tutor (3-5 years)' },
   { value: 'New Tutor (0-2 years)', label: 'New Tutor (0-2 years)' },
+  { value: 'Experienced Tutor (3-5 years)', label: 'Experienced Tutor (3-5 years)' },
   { value: 'Expert Tutor (5+ years)', label: 'Expert Tutor (5+ years)' },
 ];
 
+// Delivery mode options (aligned with onboarding - individual values for multi-select)
 const deliveryModeOptions = [
-  { value: 'In-person, Online, Hybrid', label: 'In-person, Online, Hybrid' },
-  { value: 'In-person', label: 'In-person' },
   { value: 'Online', label: 'Online' },
+  { value: 'In-person', label: 'In-person' },
   { value: 'Hybrid', label: 'Hybrid' },
 ];
 
-// Client-specific field options
+// Client-specific field options (aligned with Create Listing form)
+const whoNeedsTutoringOptions = [
+  { value: 'myself', label: 'Myself' },
+  { value: 'my_child', label: 'My Child' },
+  { value: 'other', label: 'Someone Else' },
+];
+
+const clientSubjectsOptions = [
+  { value: 'Mathematics', label: 'Mathematics' },
+  { value: 'English', label: 'English' },
+  { value: 'Science', label: 'Science' },
+  { value: 'History', label: 'History' },
+  { value: 'Geography', label: 'Geography' },
+  { value: 'Languages', label: 'Languages' },
+  { value: 'Physics', label: 'Physics' },
+  { value: 'Chemistry', label: 'Chemistry' },
+  { value: 'Biology', label: 'Biology' },
+];
+
+const clientKeyStagesOptions = [
+  { value: 'Primary Education (KS1-KS2) - Age 5 to 11', label: 'Primary Education (KS1-KS2) - Age 5 to 11' },
+  { value: 'Secondary Education (KS3) - Age 11 to 14', label: 'Secondary Education (KS3) - Age 11 to 14' },
+  { value: 'Secondary Education (KS4) - Age 14 to 16', label: 'Secondary Education (KS4) - Age 14 to 16' },
+  { value: 'A-Levels - Age 16 to 18', label: 'A-Levels - Age 16 to 18' },
+];
+
+const clientLevelsOptions = [
+  { value: 'Primary Education (KS1-KS2) - Age 5 to 11', label: 'Primary Education (KS1-KS2) - Age 5 to 11' },
+  { value: 'Secondary Education (KS3) - Age 11 to 14', label: 'Secondary Education (KS3) - Age 11 to 14' },
+  { value: 'Secondary Education (KS4) - Age 14 to 16', label: 'Secondary Education (KS4) - Age 14 to 16' },
+  { value: 'A-Levels - Age 16 to 18', label: 'A-Levels - Age 16 to 18' },
+  { value: 'University/Undergraduate', label: 'University/Undergraduate' },
+];
+
+const clientDeliveryModeOptions = [
+  { value: 'online', label: 'Online' },
+  { value: 'in_person', label: 'In-person' },
+  { value: 'hybrid', label: 'Hybrid (Online & In-person)' },
+];
+
+const clientSessionTypeOptions = [
+  { value: 'One-to-One Session', label: 'One-to-One Session' },
+  { value: 'Group Session', label: 'Group Session' },
+];
+
+// Legacy client options (kept for backward compatibility)
 const educationLevelOptions = [
   { value: 'Primary Education (KS1-KS2) - Age 5 to 11', label: 'Primary Education (KS1-KS2) - Age 5 to 11' },
   { value: 'Secondary Education (KS3) - Age 11 to 14', label: 'Secondary Education (KS3) - Age 11 to 14' },
@@ -265,17 +321,24 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     website: '',
     agent_additional_info: '',
 
-    // Client fields
-    subjects_client: [] as string[], // Multi-select (different from tutor subjects)
-    education_level: '',
-    learning_goals: [] as string[], // Multi-select
-    learning_preferences: [] as string[], // Multi-select
-    budget_min: '',
-    budget_max: '',
-    sessions_per_week: '',
-    session_duration: '',
-    special_needs: [] as string[], // Multi-select
-    additional_info_client: '', // Textarea (different from generic additional_info)
+    // Client fields (aligned with Create Listing form)
+    status_client: '', // Who Needs Tutoring
+    subjects_client: [] as string[], // Preferred Subjects
+    key_stages_client: [] as string[], // Preferred Key Stages
+    levels_client: [] as string[], // Preferred Levels
+    delivery_mode_client: [] as string[], // Preferred Delivery Mode
+    one_on_one_rate_client: '', // Budget for One-to-One (£/hour)
+    group_session_rate_client: '', // Budget for Group Sessions (£/hour)
+    session_type_client: [] as string[], // Preferred Session Type
+    sessions_per_week: '', // Preferred Sessions Per Week
+    session_duration: '', // Preferred Session Duration
+    learning_goals: [] as string[], // Learning Goals
+    learning_preferences: [] as string[], // Learning Preferences
+    special_needs: [] as string[], // Special Educational Needs (SEN)
+    academic_qualifications_client: [] as string[], // Preferred Academic Qualifications
+    teaching_qualifications_client: [] as string[], // Preferred Teaching Qualifications
+    teaching_experience_client: '', // Preferred Teaching Experience
+    tutoring_experience_client: '', // Preferred Tutoring Experience
 
     // Trust & Verification fields
     proof_of_address_type: '',
@@ -324,10 +387,14 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     const tutorData = combined?.tutor;
     const clientData = combined?.client;
 
+    // Determine the correct data source based on activeRole
+    const roleSpecificData = activeRole === 'agent' ? agentData : activeRole === 'client' ? clientData : tutorData;
+
     setFormData(prev => ({
       ...prev,
-      bio: profile.bio || '',
-      bio_video_url: profile.bio_video_url || '',
+      // Bio fields - try role-specific data first, then fall back to profile level
+      bio: roleSpecificData?.bio || profile.bio || '',
+      bio_video_url: roleSpecificData?.bio_video_url || profile.bio_video_url || '',
       dbs_certificate: profile.dbs_certificate_number || '',
 
       // Agent fields (16 fields)
@@ -347,30 +414,38 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
       website: agentData?.website || '',
       agent_additional_info: agentData?.additional_info || '',
 
-      // Tutor fields (11 fields)
-      status: tutorData?.status || '',
-      academic_qualifications: tutorData?.academic_qualifications || [],
-      key_stages: tutorData?.key_stages || [],
-      teaching_professional_qualifications: tutorData?.teaching_professional_qualifications || [],
-      subjects: tutorData?.subjects || [],
-      teaching_experience: tutorData?.teaching_experience || '',
-      session_type: tutorData?.session_types || [],
-      tutoring_experience: tutorData?.tutoring_experience || '',
-      one_on_one_rate: tutorData?.one_on_one_rate?.toString() || '',
-      group_session_rate: tutorData?.group_session_rate?.toString() || '',
-      delivery_mode: tutorData?.delivery_mode || [],
+      // Tutor/Agent fields (11 fields) - Agent now uses same fields as Tutor
+      // Load from activeRole's data source (tutorData for tutor, agentData for agent)
+      status: (activeRole === 'agent' ? agentData?.status : tutorData?.status) || '',
+      academic_qualifications: (activeRole === 'agent' ? agentData?.academic_qualifications : tutorData?.academic_qualifications) || [],
+      key_stages: (activeRole === 'agent' ? agentData?.key_stages : tutorData?.key_stages) || [],
+      teaching_professional_qualifications: (activeRole === 'agent' ? agentData?.teaching_professional_qualifications : tutorData?.teaching_professional_qualifications) || [],
+      subjects: (activeRole === 'agent' ? agentData?.subjects : tutorData?.subjects) || [],
+      teaching_experience: (activeRole === 'agent' ? agentData?.teaching_experience : tutorData?.teaching_experience) || '',
+      session_type: (activeRole === 'agent' ? agentData?.session_types : tutorData?.session_types) || [],
+      tutoring_experience: (activeRole === 'agent' ? agentData?.tutoring_experience : tutorData?.tutoring_experience) || '',
+      one_on_one_rate: (activeRole === 'agent' ? agentData?.one_on_one_rate?.toString() : tutorData?.one_on_one_rate?.toString()) || '',
+      group_session_rate: (activeRole === 'agent' ? agentData?.group_session_rate?.toString() : tutorData?.group_session_rate?.toString()) || '',
+      delivery_mode: (activeRole === 'agent' ? agentData?.delivery_mode : tutorData?.delivery_mode) || [],
 
-      // Client fields (10 fields)
+      // Client fields (aligned with Create Listing form)
+      status_client: clientData?.status || clientData?.tutoring_for || '',
       subjects_client: clientData?.subjects || [],
-      education_level: clientData?.education_level || '',
-      learning_goals: clientData?.learning_goals || [],
-      learning_preferences: clientData?.learning_preferences || [],
-      budget_min: clientData?.budget_range ? clientData.budget_range.split('-')[0] : '',
-      budget_max: clientData?.budget_range ? clientData.budget_range.split('-')[1] : '',
+      key_stages_client: clientData?.key_stages || [],
+      levels_client: clientData?.levels || [],
+      delivery_mode_client: clientData?.delivery_mode || [],
+      one_on_one_rate_client: clientData?.one_on_one_rate?.toString() || clientData?.hourly_rate?.toString() || '',
+      group_session_rate_client: clientData?.group_session_rate?.toString() || clientData?.group_hourly_rate?.toString() || '',
+      session_type_client: clientData?.session_type || clientData?.session_types || [],
       sessions_per_week: clientData?.sessions_per_week || '',
       session_duration: clientData?.session_duration || '',
+      learning_goals: clientData?.learning_goals || [],
+      learning_preferences: clientData?.learning_preferences || [],
       special_needs: clientData?.special_needs || [],
-      additional_info_client: clientData?.additional_info || '',
+      academic_qualifications_client: clientData?.academic_qualifications || [],
+      teaching_qualifications_client: clientData?.teaching_qualifications || clientData?.teaching_professional_qualifications || [],
+      teaching_experience_client: clientData?.teaching_experience || '',
+      tutoring_experience_client: clientData?.tutoring_experience || '',
 
       // Trust & Verification fields
       proof_of_address_type: profile.proof_of_address_type || '',
@@ -491,11 +566,43 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     try {
       let updateData: Partial<Profile> = {};
 
-      // Handle profile-level fields
+      // Handle bio and bio_video_url - save to both profile-level and role_details
       if (field === 'bio') {
-        updateData = { bio: formData.bio };
+        if (activeRole === 'tutor' || activeRole === 'agent') {
+          // Save to role_details for tutor/agent
+          const targetRole = activeRole;
+          const currentRoleData = profile.professional_details?.[targetRole as keyof typeof profile.professional_details] || {};
+          updateData = {
+            bio: formData.bio, // Also save to profile level
+            professional_details: {
+              ...profile.professional_details,
+              [targetRole]: {
+                ...currentRoleData,
+                bio: formData.bio
+              }
+            }
+          };
+        } else {
+          updateData = { bio: formData.bio };
+        }
       } else if (field === 'bio_video_url') {
-        updateData = { bio_video_url: formData.bio_video_url };
+        if (activeRole === 'tutor' || activeRole === 'agent') {
+          // Save to role_details for tutor/agent
+          const targetRole = activeRole;
+          const currentRoleData = profile.professional_details?.[targetRole as keyof typeof profile.professional_details] || {};
+          updateData = {
+            bio_video_url: formData.bio_video_url, // Also save to profile level
+            professional_details: {
+              ...profile.professional_details,
+              [targetRole]: {
+                ...currentRoleData,
+                bio_video_url: formData.bio_video_url
+              }
+            }
+          };
+        } else {
+          updateData = { bio_video_url: formData.bio_video_url };
+        }
       } else if (field === 'dbs_certificate') {
         updateData = { dbs_certificate_number: formData.dbs_certificate };
       }
@@ -506,44 +613,42 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
         const fieldValue = formData[field as keyof typeof formData];
         updateData = { [field]: fieldValue };
       }
-      // Handle client fields
-      else if (['subjects_client', 'education_level', 'learning_goals', 'learning_preferences',
-                 'budget_min', 'budget_max', 'sessions_per_week', 'session_duration',
-                 'special_needs', 'additional_info_client'].includes(field)) {
+      // Handle client fields (aligned with Create Listing form)
+      else if (['status_client', 'subjects_client', 'key_stages_client', 'levels_client',
+                 'delivery_mode_client', 'one_on_one_rate_client', 'group_session_rate_client',
+                 'session_type_client', 'sessions_per_week', 'session_duration',
+                 'learning_goals', 'learning_preferences', 'special_needs',
+                 'academic_qualifications_client', 'teaching_qualifications_client',
+                 'teaching_experience_client', 'tutoring_experience_client'].includes(field)) {
         const currentClient = profile.professional_details?.client || {};
         const fieldValue = formData[field as keyof typeof formData];
 
-        // Special handling for budget fields
-        if (field === 'budget_min' || field === 'budget_max') {
-          const min = field === 'budget_min' ? fieldValue : formData.budget_min;
-          const max = field === 'budget_max' ? fieldValue : formData.budget_max;
-          updateData = {
-            professional_details: {
-              ...profile.professional_details,
-              client: {
-                ...currentClient,
-                budget_range: `${min}-${max}`
-              }
-            }
-          };
-        } else {
-          // Map field names
-          const fieldMapping: Record<string, string> = {
-            'subjects_client': 'subjects',
-            'additional_info_client': 'additional_info'
-          };
-          const dbField = fieldMapping[field] || field;
+        // Map form field names to database field names
+        const fieldMapping: Record<string, string> = {
+          'status_client': 'status',
+          'subjects_client': 'subjects',
+          'key_stages_client': 'key_stages',
+          'levels_client': 'levels',
+          'delivery_mode_client': 'delivery_mode',
+          'one_on_one_rate_client': 'one_on_one_rate',
+          'group_session_rate_client': 'group_session_rate',
+          'session_type_client': 'session_type',
+          'academic_qualifications_client': 'academic_qualifications',
+          'teaching_qualifications_client': 'teaching_qualifications',
+          'teaching_experience_client': 'teaching_experience',
+          'tutoring_experience_client': 'tutoring_experience'
+        };
+        const dbField = fieldMapping[field] || field;
 
-          updateData = {
-            professional_details: {
-              ...profile.professional_details,
-              client: {
-                ...currentClient,
-                [dbField]: fieldValue
-              }
+        updateData = {
+          professional_details: {
+            ...profile.professional_details,
+            client: {
+              ...currentClient,
+              [dbField]: fieldValue
             }
-          };
-        }
+          }
+        };
       }
       // Handle agent fields
       else if (['agency_name', 'agency_size', 'years_in_business', 'description',
@@ -568,11 +673,13 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
           }
         };
       }
-      // Handle tutor fields
+      // Handle tutor/agent fields (Agent now uses same fields as Tutor)
       else if (['status', 'academic_qualifications', 'key_stages', 'teaching_professional_qualifications',
                 'subjects', 'teaching_experience', 'session_type', 'tutoring_experience',
                 'one_on_one_rate', 'group_session_rate', 'delivery_mode'].includes(field)) {
-        const currentTutor = profile.professional_details?.tutor || {};
+        // Determine target role based on activeRole (agent uses same fields as tutor)
+        const targetRole = activeRole === 'agent' ? 'agent' : 'tutor';
+        const currentRoleData = profile.professional_details?.[targetRole as keyof typeof profile.professional_details] || {};
         const fieldValue = formData[field as keyof typeof formData];
 
         // Map field names (form field name → database field name)
@@ -584,8 +691,8 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
         updateData = {
           professional_details: {
             ...profile.professional_details,
-            tutor: {
-              ...currentTutor,
+            [targetRole]: {
+              ...currentRoleData,
               [dbField]: fieldValue
             }
           }
@@ -686,7 +793,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     if (e.key === 'Escape') {
       e.preventDefault();
       handleCancelField(field);
-    } else if (e.key === 'Enter' && field !== 'bio' && field !== 'description' && field !== 'additional_info_client' && field !== 'agent_additional_info') {
+    } else if (e.key === 'Enter' && field !== 'bio' && field !== 'description' && field !== 'agent_additional_info') {
       e.preventDefault();
       await handleSaveField(field);
     }
@@ -953,7 +1060,8 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     label: string,
     type: FieldType = 'text',
     placeholder?: string,
-    options?: { value: string; label: string }[]
+    options?: { value: string; label: string }[],
+    required?: boolean
   ) => {
     if (!field) return null;
 
@@ -975,6 +1083,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
           label={label}
           isEditing={true}  // Always in edit mode for dropdowns
           onClick={undefined}  // No click handler
+          required={required}
         >
           {type === 'multiselect' ? (
             <UnifiedMultiSelect
@@ -1012,6 +1121,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
         label={label}
         isEditing={isEditing}
         onClick={() => !isEditing && handleFieldClick(field)}
+        required={required}
       >
         {isEditing ? (
           <>
@@ -1059,54 +1169,69 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     if (activeRole === 'client') {
       return (
         <HubForm.Root>
-          {/* About/Bio */}
+          {/* Section 1: Professional Details */}
           <HubForm.Section>
+            {/* Describe Your Tutoring Needs */}
             <HubForm.Grid columns={1}>
-              {renderField('bio', 'About', 'textarea', 'Tell tutors about your learning goals and what you\'re looking for')}
+              {renderField('bio', 'Describe Your Tutoring Needs', 'textarea', 'Tell us about the student, their current situation, what challenges they\'re facing, and what kind of support would be most helpful...', undefined, true)}
             </HubForm.Grid>
-          </HubForm.Section>
 
-          {/* Subjects and Education Level */}
-          <HubForm.Section>
+            {/* Video and Who Needs Tutoring */}
             <HubForm.Grid>
-              {renderField('subjects_client', 'Subjects', 'multiselect', 'Select subjects', configs.get('subjects')?.options || subjectsOptions)}
-              {renderField('education_level', 'Education Level', 'select', 'Select your current level', configs.get('educationLevel')?.options || educationLevelOptions)}
+              {renderField('bio_video_url', '30-Second Intro Video (Optional)', 'text', 'Paste YouTube, Loom, or Vimeo URL')}
+              {renderField('status_client', 'Who Needs Tutoring', 'select', 'Select who needs tutoring', whoNeedsTutoringOptions, true)}
             </HubForm.Grid>
-          </HubForm.Section>
 
-          {/* Learning Goals and Learning Preferences */}
-          <HubForm.Section>
+            {/* Preferred Tutor Qualifications */}
             <HubForm.Grid>
-              {renderField('learning_goals', 'Learning Goals', 'multiselect', 'Select your goals', configs.get('learningGoals')?.options || learningGoalsOptions)}
-              {renderField('learning_preferences', 'Learning Preferences', 'multiselect', 'Select preferences', configs.get('learningPreferences')?.options || learningPreferencesOptions)}
+              {renderField('academic_qualifications_client', 'Preferred Academic Qualifications', 'multiselect', 'Select qualifications', academicQualificationsOptions)}
+              {renderField('teaching_qualifications_client', 'Preferred Teaching Qualifications', 'multiselect', 'Select qualifications', teachingProfessionalQualificationsOptions)}
             </HubForm.Grid>
-          </HubForm.Section>
 
-          {/* Budget Range */}
-          <HubForm.Section>
+            {/* Preferred Tutor Experience */}
             <HubForm.Grid>
-              {renderField('budget_min', 'Minimum Budget (£/hour)', 'number', '£20')}
-              {renderField('budget_max', 'Maximum Budget (£/hour)', 'number', '£50')}
+              {renderField('teaching_experience_client', 'Preferred Teaching Experience', 'select', 'Select experience', teachingExperienceOptions)}
+              {renderField('tutoring_experience_client', 'Preferred Tutoring Experience', 'select', 'Select tutoring experience', tutoringExperienceOptions, true)}
             </HubForm.Grid>
-          </HubForm.Section>
 
-          {/* Sessions Per Week and Session Duration */}
-          <HubForm.Section>
+            {/* Preferred Subjects and Key Stages */}
             <HubForm.Grid>
-              {renderField('sessions_per_week', 'Sessions Per Week', 'select', 'Select frequency', configs.get('sessionsPerWeek')?.options || sessionsPerWeekOptions)}
-              {renderField('session_duration', 'Session Duration', 'select', 'Select duration', configs.get('sessionDuration')?.options || sessionDurationOptions)}
+              {renderField('subjects_client', 'Preferred Subjects', 'multiselect', 'Select subjects', clientSubjectsOptions, true)}
+              {renderField('key_stages_client', 'Preferred Key Stages', 'multiselect', 'Select key stages', clientKeyStagesOptions, true)}
             </HubForm.Grid>
-          </HubForm.Section>
 
-          {/* Special Needs */}
-          <HubForm.Section>
+            {/* Preferred Levels and Delivery Mode */}
             <HubForm.Grid>
-              {renderField('special_needs', 'Special Educational Needs (SEN)', 'multiselect', 'Select if applicable', configs.get('specialNeeds')?.options || specialNeedsOptions)}
-              <div></div>
+              {renderField('levels_client', 'Preferred Levels', 'multiselect', 'Select levels', clientLevelsOptions, true)}
+              {renderField('delivery_mode_client', 'Preferred Delivery Mode', 'multiselect', 'Select delivery mode', clientDeliveryModeOptions, true)}
+            </HubForm.Grid>
+
+            {/* Budget */}
+            <HubForm.Grid>
+              {renderField('one_on_one_rate_client', 'Budget: One-on-One (£/hour)', 'number', '£25', undefined, true)}
+              {renderField('group_session_rate_client', 'Budget: Group Session (£/hour per student)', 'number', '£15')}
+            </HubForm.Grid>
+
+            {/* Session Preferences */}
+            <HubForm.Grid>
+              {renderField('session_type_client', 'Preferred Session Type', 'multiselect', 'Select session types', clientSessionTypeOptions, true)}
+              {renderField('sessions_per_week', 'Preferred Sessions Per Week', 'select', 'Select frequency', sessionsPerWeekOptions)}
+            </HubForm.Grid>
+
+            {/* Session Duration and Learning Goals */}
+            <HubForm.Grid>
+              {renderField('session_duration', 'Preferred Session Duration', 'select', 'Select duration', sessionDurationOptions)}
+              {renderField('learning_goals', 'Learning Goals', 'multiselect', 'Select your goals', learningGoalsOptions)}
+            </HubForm.Grid>
+
+            {/* Learning Preferences and Special Needs */}
+            <HubForm.Grid>
+              {renderField('learning_preferences', 'Learning Preferences', 'multiselect', 'Select preferences', learningPreferencesOptions)}
+              {renderField('special_needs', 'Special Educational Needs (SEN)', 'multiselect', 'Select if applicable', specialNeedsOptions)}
             </HubForm.Grid>
           </HubForm.Section>
 
-          {/* General Availability Section */}
+          {/* Section 2: General Availability */}
           <HubForm.Section title="General Availability">
             <HubForm.Grid>
               <HubForm.Field label="Days of the week" required>
@@ -1414,52 +1539,50 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
       );
     }
 
-    // For agents, show agent-specific fields
+    // For agents, show tutor-like fields (aligned with Agent onboarding form)
     if (activeRole === 'agent') {
       return (
         <HubForm.Root>
-          {/* Agency Name and Agency Size */}
           <HubForm.Section>
-            <HubForm.Grid>
-              {renderField('agency_name', 'Agency Name', 'text', 'Enter agency name')}
-              {renderField('agency_size', 'Agency Size', 'text', 'e.g., 5-10 tutors')}
-            </HubForm.Grid>
-          </HubForm.Section>
-
-          {/* Years in Business and Commission Rate */}
-          <HubForm.Section>
-            <HubForm.Grid>
-              {renderField('years_in_business', 'Years in Business', 'text', 'e.g., 5 years')}
-              {renderField('commission_rate', 'Commission Rate', 'text', 'e.g., 15%')}
-            </HubForm.Grid>
-          </HubForm.Section>
-
-          {/* About Your Agency */}
-          <HubForm.Section>
+            {/* About */}
             <HubForm.Grid columns={1}>
-              {renderField('description', 'About Your Agency', 'textarea', 'Describe your agency and the services you provide')}
+              {renderField('bio', 'About', 'textarea', 'Describe your tutoring or teaching style, strengths, and what areas you specialise in', undefined, true)}
             </HubForm.Grid>
-          </HubForm.Section>
 
-          {/* Student Capacity and Number of Tutors */}
-          <HubForm.Section>
+            {/* 30-Second Intro Video and Status */}
             <HubForm.Grid>
-              {renderField('student_capacity', 'Student Capacity', 'text', 'e.g., 50 students')}
-              {renderField('number_of_tutors', 'Current Number of Tutors', 'text', 'e.g., 8 tutors')}
+              {renderField('bio_video_url', '30-Second Intro Video (Optional)', 'text', 'Paste YouTube, Loom, or Vimeo URL for +5 CaaS points')}
+              {renderField('status', 'Status', 'select', 'Select status', configs.get('status')?.options || statusOptions, true)}
             </HubForm.Grid>
-          </HubForm.Section>
 
-          {/* Website */}
-          <HubForm.Section>
-            <HubForm.Grid columns={1}>
-              {renderField('website', 'Website', 'text', 'https://yourwebsite.com')}
+            {/* Academic Qualifications and Teaching Professional Qualifications */}
+            <HubForm.Grid>
+              {renderField('academic_qualifications', 'Academic Qualifications', 'multiselect', 'Select qualifications', configs.get('academicQualifications')?.options || academicQualificationsOptions, true)}
+              {renderField('teaching_professional_qualifications', 'Teaching Professional Qualifications', 'multiselect', 'Select qualification', configs.get('teachingProfessionalQualifications')?.options || teachingProfessionalQualificationsOptions, true)}
             </HubForm.Grid>
-          </HubForm.Section>
 
-          {/* Additional Information */}
-          <HubForm.Section>
-            <HubForm.Grid columns={1}>
-              {renderField('agent_additional_info', 'Additional Information', 'textarea', 'Any other information about your agency')}
+            {/* Teaching Experience and Tutoring Experience */}
+            <HubForm.Grid>
+              {renderField('teaching_experience', 'Teaching Experience', 'select', 'Select experience', configs.get('teachingExperience')?.options || teachingExperienceOptions, true)}
+              {renderField('tutoring_experience', 'Tutoring Experience', 'select', 'Select tutoring experience', configs.get('tutoringExperience')?.options || tutoringExperienceOptions, true)}
+            </HubForm.Grid>
+
+            {/* Key Stages and Subjects */}
+            <HubForm.Grid>
+              {renderField('key_stages', 'Key Stages', 'multiselect', 'Select key stage', configs.get('keyStages')?.options || keyStagesOptions, true)}
+              {renderField('subjects', 'Subjects', 'multiselect', 'Select subjects', configs.get('subjects')?.options || subjectsOptions, true)}
+            </HubForm.Grid>
+
+            {/* Session Type and Delivery Mode */}
+            <HubForm.Grid>
+              {renderField('session_type', 'Session Type', 'multiselect', 'Select session types', configs.get('sessionType')?.options || sessionTypeOptions, true)}
+              {renderField('delivery_mode', 'Delivery Mode', 'multiselect', 'Select delivery modes', configs.get('deliveryMode')?.options || deliveryModeOptions, true)}
+            </HubForm.Grid>
+
+            {/* Rates */}
+            <HubForm.Grid>
+              {renderField('one_on_one_rate', 'One-on-One Rate (£/hour)', 'number', '£50', undefined, true)}
+              {renderField('group_session_rate', 'Group Rate (£/hour per student)', 'number', '£25')}
             </HubForm.Grid>
           </HubForm.Section>
 
@@ -1627,11 +1750,11 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
           </HubForm.Section>
 
-          {/* Availability Note */}
+          {/* Professional Info Note */}
           <HubForm.Section>
             <div style={{ padding: '20px', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
               <p style={{ margin: 0, color: '#6b7280', fontSize: '14px' }}>
-                <strong>Note:</strong> To manage multi-select fields like Services Offered, Subject Specializations, Education Levels, Coverage Areas, and Certifications, please complete the onboarding process again or contact support.
+                Your professional information improves the accuracy and quality of our matching process. Keeping your details complete and current enables us to connect you with the right opportunities.
               </p>
             </div>
           </HubForm.Section>
@@ -1667,43 +1790,43 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
         <HubForm.Section>
           {/* About */}
           <HubForm.Grid columns={1}>
-            {renderField('bio', 'About', 'textarea', 'Describe your tutoring or teaching style, strengths, and what areas you specialise in')}
+            {renderField('bio', 'About', 'textarea', 'Describe your tutoring or teaching style, strengths, and what areas you specialise in', undefined, true)}
           </HubForm.Grid>
 
           {/* 30-Second Intro Video and Status */}
           <HubForm.Grid>
             {renderField('bio_video_url', '30-Second Intro Video (Optional)', 'text', 'Paste YouTube, Loom, or Vimeo URL for +5 CaaS points')}
-            {renderField('status', 'Status', 'select', 'Select status', configs.get('status')?.options || statusOptions)}
+            {renderField('status', 'Status', 'select', 'Select status', configs.get('status')?.options || statusOptions, true)}
           </HubForm.Grid>
 
           {/* Academic Qualifications and Teaching Professional Qualifications */}
           <HubForm.Grid>
-            {renderField('academic_qualifications', 'Academic Qualifications', 'multiselect', 'Select qualifications', configs.get('academicQualifications')?.options || academicQualificationsOptions)}
-            {renderField('teaching_professional_qualifications', 'Teaching Professional Qualifications', 'multiselect', 'Select qualification', configs.get('teachingProfessionalQualifications')?.options || teachingProfessionalQualificationsOptions)}
+            {renderField('academic_qualifications', 'Academic Qualifications', 'multiselect', 'Select qualifications', configs.get('academicQualifications')?.options || academicQualificationsOptions, true)}
+            {renderField('teaching_professional_qualifications', 'Teaching Professional Qualifications', 'multiselect', 'Select qualification', configs.get('teachingProfessionalQualifications')?.options || teachingProfessionalQualificationsOptions, true)}
           </HubForm.Grid>
 
           {/* Teaching Experience and Tutoring Experience */}
           <HubForm.Grid>
-            {renderField('teaching_experience', 'Teaching Experience', 'select', 'Select experience', configs.get('teachingExperience')?.options || teachingExperienceOptions)}
-            {renderField('tutoring_experience', 'Tutoring Experience', 'select', 'Select tutoring experience', configs.get('tutoringExperience')?.options || tutoringExperienceOptions)}
+            {renderField('teaching_experience', 'Teaching Experience', 'select', 'Select experience', configs.get('teachingExperience')?.options || teachingExperienceOptions, true)}
+            {renderField('tutoring_experience', 'Tutoring Experience', 'select', 'Select tutoring experience', configs.get('tutoringExperience')?.options || tutoringExperienceOptions, true)}
           </HubForm.Grid>
 
           {/* Key Stages and Subjects */}
           <HubForm.Grid>
-            {renderField('key_stages', 'Key Stages', 'multiselect', 'Select key stage', configs.get('keyStages')?.options || keyStagesOptions)}
-            {renderField('subjects', 'Subjects', 'multiselect', 'Mathematics, English', configs.get('subjects')?.options || subjectsOptions)}
+            {renderField('key_stages', 'Key Stages', 'multiselect', 'Select key stage', configs.get('keyStages')?.options || keyStagesOptions, true)}
+            {renderField('subjects', 'Subjects', 'multiselect', 'Mathematics, English', configs.get('subjects')?.options || subjectsOptions, true)}
           </HubForm.Grid>
 
           {/* Session Type and Delivery Mode */}
           <HubForm.Grid>
-            {renderField('session_type', 'Session Type', 'multiselect', 'Select session type', configs.get('sessionType')?.options || sessionTypeOptions)}
-            {renderField('delivery_mode', 'Delivery Mode', 'multiselect', 'Select delivery mode', configs.get('deliveryMode')?.options || deliveryModeOptions)}
+            {renderField('session_type', 'Session Type', 'multiselect', 'Select session type', configs.get('sessionType')?.options || sessionTypeOptions, true)}
+            {renderField('delivery_mode', 'Delivery Mode', 'multiselect', 'Select delivery mode', configs.get('deliveryMode')?.options || deliveryModeOptions, true)}
           </HubForm.Grid>
 
           {/* Rates */}
           <HubForm.Grid>
-            {renderField('one_on_one_rate', 'One-on-One Session Rate (1 hour session, 1 student)', 'number', '£50')}
-            {renderField('group_session_rate', 'Group Session Rate (1 hour session, 1 student)', 'number', '£25')}
+            {renderField('one_on_one_rate', 'One-on-One Rate (£/hour)', 'number', '£50', undefined, true)}
+            {renderField('group_session_rate', 'Group Rate (£/hour per student)', 'number', '£25')}
           </HubForm.Grid>
         </HubForm.Section>
 
@@ -1842,7 +1965,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
         {/* General Availability Section */}
         <HubForm.Section title="General Availability">
           <HubForm.Grid>
-            <HubForm.Field label="Days of the week *">
+            <HubForm.Field label="Days of the week" required>
               <UnifiedMultiSelect
                 triggerLabel="Days of the week"
                 placeholder="Select days you're generally available"
@@ -1856,7 +1979,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
               />
             </HubForm.Field>
 
-            <HubForm.Field label="Times of day *">
+            <HubForm.Field label="Times of day" required>
               <UnifiedMultiSelect
                 triggerLabel="Times of day"
                 placeholder="Select times you're generally available"

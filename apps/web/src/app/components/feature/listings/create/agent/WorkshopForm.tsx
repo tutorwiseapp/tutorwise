@@ -318,6 +318,7 @@ export default function WorkshopForm({ onSubmit, onCancel, isSaving = false, ini
           label={label}
           isEditing={true}
           onClick={undefined}
+          required={required}
         >
           {type === 'multiselect' ? (
             <UnifiedMultiSelect
@@ -355,6 +356,7 @@ export default function WorkshopForm({ onSubmit, onCancel, isSaving = false, ini
           label={label}
           isEditing={true}
           onClick={undefined}
+          required={required}
         >
           <DatePicker
             selected={fieldValue ? new Date(fieldValue) : undefined}
@@ -378,6 +380,7 @@ export default function WorkshopForm({ onSubmit, onCancel, isSaving = false, ini
           label={label}
           isEditing={true}
           onClick={undefined}
+          required={required}
         >
           <CustomTimePicker
             value={fieldValue as string || '9:00 AM'}
@@ -398,6 +401,7 @@ export default function WorkshopForm({ onSubmit, onCancel, isSaving = false, ini
         label={label}
         isEditing={isEditing}
         onClick={() => !isEditing && handleFieldClick(field)}
+        required={required}
       >
         {isEditing ? (
           <>
@@ -460,7 +464,7 @@ export default function WorkshopForm({ onSubmit, onCancel, isSaving = false, ini
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('hourly_rate', 'hourly_rate', 'Hourly Rate (£)', 'number', '£25', undefined, true)}
+          {renderField('hourly_rate', 'hourly_rate', 'Workshop Rate (£/hour per student)', 'number', '£25', undefined, true)}
         </HubForm.Grid>
 
         <HubForm.Grid columns={1}>

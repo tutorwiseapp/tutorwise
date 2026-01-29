@@ -103,27 +103,48 @@
   }
 }
 
-/* Overriding react-day-picker's default styles to match our brand */
-.datePickerContent :global(.rdp) {
-  --rdp-cell-size: 40px;
+/* Overriding react-day-picker v9 styles to match our brand */
+/* v9 uses .rdp-root as the root class */
+.datePickerContent :global(.rdp-root) {
+  /* v9 CSS variables - override defaults */
   --rdp-accent-color: var(--color-primary, #006C67);
-  --rdp-background-color: var(--color-primary-light, #E0F2F1);
+  --rdp-accent-background-color: var(--color-primary-light, #E0F2F1);
+  --rdp-today-color: var(--color-primary, #006C67);
+  --rdp-day-width: 40px;
+  --rdp-day-height: 40px;
+}
+
+/* Legacy support for older class name */
+.datePickerContent :global(.rdp) {
+  --rdp-accent-color: var(--color-primary, #006C67);
+  --rdp-accent-background-color: var(--color-primary-light, #E0F2F1);
+  --rdp-today-color: var(--color-primary, #006C67);
   margin: 0;
 }
 
-.datePickerContent :global(.rdp-button:hover:not([disabled]):not(.rdp-day_selected)) {
-  background-color: var(--color-primary-light, #E0F2F1);
-}
-
-.datePickerContent :global(.rdp-day_selected) {
+/* v9 selected day styling */
+.datePickerContent :global(.rdp-selected .rdp-day_button),
+.datePickerContent :global(.rdp-day_button.rdp-selected) {
   background-color: var(--color-primary, #006C67);
   color: white;
   font-weight: 600;
 }
 
-.datePickerContent :global(.rdp-day_today) {
+/* v9 today indicator */
+.datePickerContent :global(.rdp-today .rdp-day_button),
+.datePickerContent :global(.rdp-day.rdp-today .rdp-day_button) {
   font-weight: 600;
+  color: var(--color-primary, #006C67) !important;
+}
+
+/* Today text when not selected */
+.datePickerContent :global(.rdp-today:not(.rdp-selected) .rdp-day_button) {
   color: var(--color-primary, #006C67);
+}
+
+/* Hover state for day buttons */
+.datePickerContent :global(.rdp-day_button:hover:not(.rdp-selected)) {
+  background-color: var(--color-primary-light, #E0F2F1);
 }
 
 .datePickerContent :global(.rdp-caption) {
@@ -140,11 +161,44 @@
   font-size: 16px;
 }
 
+/* v9 navigation arrows */
 .datePickerContent :global(.rdp-nav) {
   display: flex;
   gap: 8px;
 }
 
+.datePickerContent :global(.rdp-button_previous),
+.datePickerContent :global(.rdp-button_next) {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  color: var(--color-primary, #006C67);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.datePickerContent :global(.rdp-button_previous:hover:not([disabled])),
+.datePickerContent :global(.rdp-button_next:hover:not([disabled])) {
+  background-color: var(--color-primary-light, #E0F2F1);
+}
+
+.datePickerContent :global(.rdp-button_previous:focus),
+.datePickerContent :global(.rdp-button_next:focus) {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 108, 103, 0.3);
+}
+
+/* v9 chevron (arrow icons) - uses fill not color */
+.datePickerContent :global(.rdp-chevron) {
+  fill: var(--color-primary, #006C67);
+}
+
+/* Legacy v8 nav button support */
 .datePickerContent :global(.rdp-nav_button) {
   width: 32px;
   height: 32px;
@@ -153,6 +207,7 @@
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s;
+  color: var(--color-primary, #006C67);
 }
 
 .datePickerContent :global(.rdp-nav_button:hover:not([disabled])) {
@@ -166,7 +221,10 @@
   text-transform: uppercase;
 }
 
-/* Dropdown styles for year/month selection */
+/* v9 Dropdown styles for year/month selection */
+.datePickerContent :global(.rdp-dropdown),
+.datePickerContent :global(.rdp-years_dropdown),
+.datePickerContent :global(.rdp-months_dropdown),
 .datePickerContent :global(.rdp-dropdown_year),
 .datePickerContent :global(.rdp-dropdown_month) {
   font-size: 14px;
@@ -176,38 +234,52 @@
   background: white;
   cursor: pointer;
   margin: 0 4px;
+  color: var(--color-text-primary, #1f2937);
 }
 
+/* Year dropdown scrollable list */
+.datePickerContent :global(.rdp-years_dropdown),
 .datePickerContent :global(.rdp-dropdown_year) {
-  /* Limit dropdown height to show ~12 years (similar to 12 months) */
   max-height: 300px;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: var(--color-primary-light, #E0F2F1) transparent;
+  scrollbar-color: var(--color-primary, #006C67) transparent;
 }
 
+.datePickerContent :global(.rdp-years_dropdown::-webkit-scrollbar),
 .datePickerContent :global(.rdp-dropdown_year::-webkit-scrollbar) {
   width: 6px;
 }
 
+.datePickerContent :global(.rdp-years_dropdown::-webkit-scrollbar-track),
 .datePickerContent :global(.rdp-dropdown_year::-webkit-scrollbar-track) {
   background: transparent;
 }
 
+.datePickerContent :global(.rdp-years_dropdown::-webkit-scrollbar-thumb),
 .datePickerContent :global(.rdp-dropdown_year::-webkit-scrollbar-thumb) {
   background-color: var(--color-primary-light, #E0F2F1);
   border-radius: 3px;
 }
 
+.datePickerContent :global(.rdp-years_dropdown::-webkit-scrollbar-thumb:hover),
 .datePickerContent :global(.rdp-dropdown_year::-webkit-scrollbar-thumb:hover) {
   background-color: var(--color-primary, #006C67);
 }
 
+/* Dropdown hover states */
+.datePickerContent :global(.rdp-dropdown:hover),
+.datePickerContent :global(.rdp-years_dropdown:hover),
+.datePickerContent :global(.rdp-months_dropdown:hover),
 .datePickerContent :global(.rdp-dropdown_year:hover),
 .datePickerContent :global(.rdp-dropdown_month:hover) {
   border-color: var(--color-primary, #006C67);
 }
 
+/* Dropdown focus states */
+.datePickerContent :global(.rdp-dropdown:focus),
+.datePickerContent :global(.rdp-years_dropdown:focus),
+.datePickerContent :global(.rdp-months_dropdown:focus),
 .datePickerContent :global(.rdp-dropdown_year:focus),
 .datePickerContent :global(.rdp-dropdown_month:focus) {
   outline: none;
@@ -215,16 +287,42 @@
   box-shadow: 0 0 0 2px rgba(0, 108, 103, 0.2);
 }
 
+/* Selected option in dropdown - native select styling has limited support */
+.datePickerContent :global(.rdp-dropdown option:checked),
+.datePickerContent :global(.rdp-years_dropdown option:checked),
+.datePickerContent :global(.rdp-months_dropdown option:checked),
+.datePickerContent :global(select option:checked) {
+  background-color: var(--color-primary, #006C67);
+  color: white;
+}
+
+/* Dropdown chevron icon in caption */
+.datePickerContent :global(.rdp-dropdown_root .rdp-chevron),
+.datePickerContent :global(.rdp-dropdowns .rdp-chevron) {
+  fill: var(--color-primary, #006C67);
+}
+
+/* Focus ring for dropdown root */
+.datePickerContent :global(.rdp-dropdown_root:focus-within) {
+  outline: 2px solid var(--color-primary, #006C67);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 /* Mobile optimizations for dropdowns */
 @media (max-width: 640px) {
   .datePickerContent :global(.rdp) {
-    --rdp-cell-size: 36px;
+    --rdp-day-width: 36px;
+    --rdp-day-height: 36px;
   }
 
   .datePickerContent :global(.rdp-caption_label) {
     font-size: 14px;
   }
 
+  .datePickerContent :global(.rdp-dropdown),
+  .datePickerContent :global(.rdp-years_dropdown),
+  .datePickerContent :global(.rdp-months_dropdown),
   .datePickerContent :global(.rdp-dropdown_year),
   .datePickerContent :global(.rdp-dropdown_month) {
     font-size: 13px;
@@ -232,6 +330,7 @@
     min-height: 36px;
   }
 
+  .datePickerContent :global(.rdp-years_dropdown),
   .datePickerContent :global(.rdp-dropdown_year) {
     /* Smaller max-height on mobile for better visibility */
     max-height: 240px;

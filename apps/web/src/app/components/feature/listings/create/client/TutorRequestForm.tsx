@@ -390,7 +390,8 @@ export default function TutorRequestForm({ onSubmit, onCancel, isSaving = false,
     label: string,
     type: FieldType,
     placeholder?: string,
-    options?: { value: string; label: string }[]
+    options?: { value: string; label: string }[],
+    required?: boolean
   ) => {
     const isEditing = editingField === field;
     const fieldValue = (formData as any)[fieldKey];
@@ -407,6 +408,7 @@ export default function TutorRequestForm({ onSubmit, onCancel, isSaving = false,
           label={label}
           isEditing={true}
           onClick={undefined}
+          required={required}
         >
           {type === 'multiselect' ? (
             <UnifiedMultiSelect
@@ -443,6 +445,7 @@ export default function TutorRequestForm({ onSubmit, onCancel, isSaving = false,
         label={label}
         isEditing={isEditing}
         onClick={() => !isEditing && handleFieldClick(field)}
+        required={required}
       >
         {isEditing ? (
           <>
@@ -487,25 +490,25 @@ export default function TutorRequestForm({ onSubmit, onCancel, isSaving = false,
       {/* Main Section - All basic request fields in ONE large section */}
       <HubForm.Section>
         <HubForm.Grid columns={1}>
-          {renderField('tutoring_for', 'tutoring_for', 'Who Needs Tutoring', 'select', 'Select who needs tutoring', tutoringForOptions)}
+          {renderField('tutoring_for', 'tutoring_for', 'Who Needs Tutoring', 'select', 'Select who needs tutoring', tutoringForOptions, true)}
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('subjects', 'subjects', 'Preferred Subjects', 'multiselect', 'Select subjects', configs.get('subjects')?.options || subjectsOptions)}
-          {renderField('levels', 'levels', 'Preferred Levels', 'multiselect', 'Select levels', configs.get('levels')?.options || levelsOptions)}
+          {renderField('subjects', 'subjects', 'Preferred Subjects', 'multiselect', 'Select subjects', configs.get('subjects')?.options || subjectsOptions, true)}
+          {renderField('levels', 'levels', 'Preferred Levels', 'multiselect', 'Select levels', configs.get('levels')?.options || levelsOptions, true)}
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('hourly_rate', 'hourly_rate', 'Budget for One-to-One (£/hour)', 'number', '£25')}
-          {renderField('group_hourly_rate', 'group_hourly_rate', 'Budget for Group Sessions (£/hour)', 'number', '£15')}
+          {renderField('hourly_rate', 'hourly_rate', 'Budget: One-on-One (£/hour)', 'number', '£25', undefined, true)}
+          {renderField('group_hourly_rate', 'group_hourly_rate', 'Budget: Group Session (£/hour per student)', 'number', '£15')}
         </HubForm.Grid>
 
         <HubForm.Grid columns={1}>
-          {renderField('description', 'description', 'Describe Your Tutoring Needs', 'textarea', 'Tell us about the student, their current situation, what challenges they\'re facing, and what kind of support would be most helpful...')}
+          {renderField('description', 'description', 'Describe Your Tutoring Needs', 'textarea', 'Tell us about the student, their current situation, what challenges they\'re facing, and what kind of support would be most helpful...', undefined, true)}
         </HubForm.Grid>
 
         <HubForm.Grid columns={1}>
-          {renderField('delivery_mode', 'delivery_mode', 'Preferred Delivery Mode', 'select', 'Select delivery mode', configs.get('deliveryMode')?.options || deliveryModeOptions)}
+          {renderField('delivery_mode', 'delivery_mode', 'Preferred Delivery Mode', 'select', 'Select delivery mode', configs.get('deliveryMode')?.options || deliveryModeOptions, true)}
         </HubForm.Grid>
       </HubForm.Section>
 
