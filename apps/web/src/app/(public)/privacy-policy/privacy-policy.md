@@ -2,7 +2,7 @@ Tutorwise Privacy Policy
 
 Last Updated: 29 January 2026
 
-1\. Introduction
+## 1. Introduction
 
 1.1 Tutorwise Limited ("Tutorwise", "we", "us", "our"), a company registered in England and Wales, respects your privacy and is committed to protecting your personal data.
 
@@ -12,7 +12,7 @@ Last Updated: 29 January 2026
 
 1.4 By accessing or using the Platform, you acknowledge that your personal data will be processed as described in this Policy.
 
-2\. Definitions
+## 2. Definitions
 
 2.1 "Personal Data" means any information relating to an identified or identifiable individual, as defined under UK GDPR.
 
@@ -30,7 +30,7 @@ Last Updated: 29 January 2026
 
 2.8 "Organisation" refers to a business, school, or entity subscribing to Tutorwise CRM and operational features.
 
-3\. Data We Collect
+## 3. Data We Collect
 
 3.1 Account Information
 
@@ -73,7 +73,7 @@ Last Updated: 29 January 2026
 - Usage of cookies, analytics scripts, and similar tracking technologies
 - See Section 11 for details on cookies
 
-4\. How We Use Your Data
+## 4. How We Use Your Data
 
 4.1 Platform Operation
 
@@ -103,7 +103,7 @@ Monitoring, analysing, and improving Platform performance and user experience.
 
 With your explicit consent, we may use Personal Data for promotional communications. You may withdraw consent at any time.
 
-5\. Legal Basis for Processing
+## 5. Legal Basis for Processing
 
 5.1 Contractual Necessity (Article 6(1)(b) UK GDPR)
 
@@ -125,7 +125,7 @@ Compliance with safeguarding legislation, tax requirements, anti-money launderin
 
 DBS and safeguarding data is processed for employment and social protection purposes as required by law.
 
-6\. Automated Decision-Making
+## 6. Automated Decision-Making
 
 6.1 The Platform uses automated systems for referral attribution, determining which Agent is credited for a Session based on recorded referral data.
 
@@ -133,7 +133,7 @@ DBS and safeguarding data is processed for employment and social protection purp
 
 6.3 Users may request human review of automated decisions by contacting us.
 
-7\. Data Sharing and Disclosure
+## 7. Data Sharing and Disclosure
 
 7.1 Third-Party Service Providers
 
@@ -162,7 +162,7 @@ Where required by law, court order, or regulatory obligation.
 
 In the event of a merger, acquisition, or sale of assets, Personal Data may be transferred to the successor entity.
 
-8\. International Transfers
+## 8. International Transfers
 
 8.1 Personal Data may be transferred outside the UK where our service providers operate internationally.
 
@@ -172,7 +172,7 @@ In the event of a merger, acquisition, or sale of assets, Personal Data may be t
 - Transfers to countries with adequacy decisions under UK law
 - Binding Corporate Rules where applicable
 
-9\. Data Retention
+## 9. Data Retention
 
 9.1 Personal Data is retained only for as long as necessary to fulfil the purposes outlined in this Policy, comply with legal obligations, resolve disputes, or enforce agreements.
 
@@ -187,7 +187,7 @@ In the event of a merger, acquisition, or sale of assets, Personal Data may be t
 
 9.3 Upon expiry of retention periods, Personal Data is securely deleted or anonymised.
 
-10\. User Rights
+## 10. User Rights
 
 Under UK GDPR, you have the following rights. We will respond to requests within one month of receipt.
 
@@ -226,7 +226,7 @@ You may lodge a complaint with the Information Commissioner's Office (ICO) at an
 - Website: ico.org.uk
 - Telephone: 0303 123 1113
 
-11\. Cookies and Tracking
+## 11. Cookies and Tracking
 
 11.1 Tutorwise uses cookies and similar technologies to improve Platform functionality and user experience.
 
@@ -238,7 +238,7 @@ You may lodge a complaint with the Information Commissioner's Office (ICO) at an
 
 11.3 Users can control cookie preferences through Platform settings or browser controls. Disabling certain cookies may affect Platform functionality.
 
-12\. Security Measures
+## 12. Security Measures
 
 12.1 Tutorwise implements administrative, technical, and physical safeguards to protect Personal Data against unauthorised access, disclosure, alteration, or destruction, including:
 
@@ -251,7 +251,7 @@ You may lodge a complaint with the Information Commissioner's Office (ICO) at an
 
 12.3 While we take reasonable measures to protect Personal Data, no system is completely secure. Users should safeguard their account credentials.
 
-13\. Children and Minors
+## 13. Children and Minors
 
 13.1 The Platform is intended for users aged 18 or over.
 
@@ -261,7 +261,7 @@ You may lodge a complaint with the Information Commissioner's Office (ICO) at an
 
 13.4 If we become aware that we have collected Personal Data from a child under 13 without parental consent, we will delete that data promptly.
 
-14\. Referral System and Intellectual Property
+## 14. Referral System and Intellectual Property
 
 14.1 The Platform's referral system, including attribution logic, algorithms, and data structures, is proprietary and subject to intellectual property protections (designated "IP Pending").
 
@@ -269,7 +269,7 @@ You may lodge a complaint with the Information Commissioner's Office (ICO) at an
 
 14.3 Tutorwise retains full operational control over referral logic, attribution, and reward distribution.
 
-15\. Changes to This Policy
+## 15. Changes to This Policy
 
 15.1 Tutorwise may amend this Privacy Policy from time to time to reflect legal, regulatory, or operational changes.
 
@@ -277,7 +277,7 @@ You may lodge a complaint with the Information Commissioner's Office (ICO) at an
 
 15.3 Updated policies will be published on the Platform with a new "Last Updated" date. Continued use of the Platform following publication constitutes acknowledgement of the updated Policy.
 
-16\. Contact Information
+## 16. Contact Information
 
 16.1 For general enquiries: support@tutorwise.io
 
