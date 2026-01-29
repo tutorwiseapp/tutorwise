@@ -40,7 +40,7 @@
 .tabButton.active {
   color: var(--color-primary, #006c67);
   background-color: #ffffff;
-  border-bottom-color: var(--color-primary, #006c67);
+  border-bottom: 2px solid var(--color-primary, #006c67);
   font-weight: 600;
 }
 

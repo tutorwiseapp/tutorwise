@@ -144,7 +144,7 @@
 
 .filterButton.active {
   color: var(--color-primary-default, #006c67);
-  border-bottom-color: var(--color-primary-default, #006c67);
+  border-bottom: 2px solid var(--color-primary-default, #006c67);
 }
 
 /* Achievements Grid */
