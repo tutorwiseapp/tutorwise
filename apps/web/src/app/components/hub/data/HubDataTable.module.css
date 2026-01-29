@@ -622,9 +622,11 @@
 .pageSizeSelector {
   position: absolute;
   left: 1rem; /* Left-aligned */
-  padding: 0.25rem 1.75rem 0.25rem 0.5rem; /* Compact padding with space for arrow */
+  height: 32px; /* Match page button height */
+  line-height: 30px; /* Account for 1px border on each side */
+  padding: 0 1.75rem 0 0.5rem; /* Horizontal padding only, vertical centering via line-height */
   border: 1px solid #e5e7eb;
-  border-radius: 0.25rem;
+  border-radius: 6px; /* Match page button border-radius */
   font-size: 0.8125rem;
   color: #6b7280;
   background-color: #ffffff;
