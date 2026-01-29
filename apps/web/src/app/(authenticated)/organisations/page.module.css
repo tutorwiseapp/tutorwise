@@ -57,14 +57,14 @@
 }
 
 .filterTab:hover {
-  color: var(--color-primary-default, #006c67);
+  color: var(--color-primary, #006c67);
   background-color: var(--color-primary-light, #E6F0F0);
   border-radius: 0.375rem 0.375rem 0 0;
 }
 
 .filterTabActive {
-  color: var(--color-primary-default, #006c67);
-  border-bottom: 2px solid var(--color-primary-default, #006c67);
+  color: var(--color-primary, #006c67);
+  border-bottom: 2px solid var(--color-primary, #006c67);
   font-weight: 600;
 }
 
