@@ -790,8 +790,9 @@ export async function getOrganisationRecruitments(
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('[getOrganisationRecruitments] Error:', error);
-    throw error;
+    // Log but don't throw - recruitments are optional and RLS may block access
+    console.warn('[getOrganisationRecruitments] Query error (returning empty):', error);
+    return [];
   }
 
   // Map to RecruitmentApplication format
