@@ -623,8 +623,8 @@
   position: absolute;
   left: 1rem; /* Left-aligned */
   height: 32px; /* Match page button height */
-  line-height: 30px; /* Account for 1px border on each side */
-  padding: 0 1.75rem 0 0.5rem; /* Horizontal padding only, vertical centering via line-height */
+  box-sizing: border-box; /* Include border in height calculation */
+  padding: 0 1.75rem 0 0.5rem; /* Horizontal padding only */
   border: 1px solid #e5e7eb;
   border-radius: 6px; /* Match page button border-radius */
   font-size: 0.8125rem;
