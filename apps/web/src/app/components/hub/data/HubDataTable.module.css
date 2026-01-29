@@ -622,7 +622,7 @@
 .pageSizeSelector {
   position: absolute;
   left: 1rem; /* Left-aligned */
-  height: 32px; /* Match page button height */
+  height: 28px; /* Match page button height */
   box-sizing: border-box; /* Include border in height calculation */
   padding: 0 1.75rem 0 0.5rem; /* Horizontal padding only */
   border: 1px solid #e5e7eb;
@@ -683,8 +683,11 @@
 .paginationButton {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.375rem;
-  padding: 0.5rem 0.75rem;
+  height: 28px; /* Match pageSizeSelector height */
+  box-sizing: border-box;
+  padding: 0 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
   font-size: 0.875rem;
@@ -831,7 +834,7 @@
 
   .paginationButton {
     font-size: 0.8125rem;
-    padding: 0.5rem 0.625rem;
+    padding: 0 0.625rem;
   }
 
   .paginationText {

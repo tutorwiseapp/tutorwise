@@ -37,7 +37,7 @@ export interface UnifiedSelectProps {
   className?: string;
   onBlur?: () => void;
   onKeyDown?: (e: React.KeyboardEvent) => void;
-  size?: 'sm' | 'md'; // sm = 36px (toolbars), md = 44px (forms, default)
+  size?: 'xs' | 'sm' | 'md'; // xs = 28px (pagination), sm = 36px (toolbars), md = 44px (forms, default)
   ref?: React.Ref<HTMLButtonElement>;
 }
 
@@ -70,7 +70,7 @@ const UnifiedSelect = ({
       <DropdownMenu.Trigger asChild>
         <button
           ref={ref}
-          className={`${styles.selectTrigger} ${size === 'sm' ? styles.selectTriggerSm : ''} ${error ? styles.selectTriggerError : ''} ${className}`}
+          className={`${styles.selectTrigger} ${size === 'xs' ? styles.selectTriggerXs : size === 'sm' ? styles.selectTriggerSm : ''} ${error ? styles.selectTriggerError : ''} ${className}`}
           disabled={disabled}
           onBlur={onBlur}
           onKeyDown={onKeyDown}

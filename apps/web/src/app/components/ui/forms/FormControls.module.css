@@ -214,6 +214,14 @@
   border-radius: 0.375rem;
 }
 
+/* Extra-small size variant for pagination (28px height) */
+.selectTriggerXs {
+  min-height: 28px;
+  padding: 0 0.625rem;
+  font-size: 0.8125rem;
+  border-radius: 6px;
+}
+
 .selectTriggerError {
   border-color: #dc2626;
 }

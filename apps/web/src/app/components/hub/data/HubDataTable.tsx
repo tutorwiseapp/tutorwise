@@ -488,6 +488,7 @@ export default function HubDataTable<T extends Record<string, any>>({
                   label: `${size} per page`
                 }))}
                 placeholder="Page size"
+                size="xs"
               />
             </div>
           )}
