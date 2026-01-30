@@ -52,12 +52,29 @@
   box-shadow: var(--shadow-md);
 }
 
+.avatarWrapper {
+  position: relative;
+  display: inline-block;
+}
+
 .avatar {
   /* --- FIX 2: Increase avatar size to match the sphere --- */
   width: 40px;
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+.adminBadge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.adminTrigger {
+  border-color: var(--color-warning, #f59e0b);
 }
 
 /* --- Dropdown Menu --- */
@@ -144,6 +161,15 @@
 .logoutItem:hover, .logoutItem:focus {
   background-color: var(--color-error-bg);
   color: var(--color-error-text);
+}
+
+.adminItem {
+  color: var(--color-warning, #f59e0b) !important;
+  font-weight: var(--font-weight-semibold);
+}
+.adminItem:hover, .adminItem:focus {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--color-warning, #f59e0b) !important;
 }
 
 .separator {

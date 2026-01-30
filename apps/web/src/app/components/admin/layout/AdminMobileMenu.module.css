@@ -1,7 +1,7 @@
 /*
- * Filename: src/app/components/layout/MobileMenu.module.css
- * Purpose: Styles for mobile hamburger menu
- * Created: 2025-12-11
+ * Filename: src/app/components/admin/layout/AdminMobileMenu.module.css
+ * Purpose: Styles for admin mobile hamburger menu
+ * Created: 2026-01-30
  */
 
 /* Backdrop */
@@ -46,14 +46,14 @@
   }
 }
 
-/* Menu Header */
+/* Menu Header - Admin themed */
 .menuHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 1rem;
   border-bottom: 1px solid #e5e7eb;
-  background-color: #f9fafb;
+  background-color: #fef3e0; /* Light orange for admin */
 }
 
 .userInfo {
@@ -68,10 +68,22 @@
   object-fit: cover;
 }
 
+.userDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
 .userName {
   font-size: 0.9375rem;
   font-weight: 600;
   color: #111827;
+}
+
+.adminBadge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #f97316; /* Orange */
 }
 
 .closeButton {
@@ -99,17 +111,6 @@
   padding: 0.5rem 0;
 }
 
-/* Role Label */
-.roleLabel {
-  padding: 0.75rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #2c7a7b;
-  background-color: #f0fdfa;
-  margin: 0 1rem;
-  border-radius: 6px;
-}
-
 /* Separators */
 .separator {
   height: 1px;
@@ -117,10 +118,14 @@
   margin: 0.5rem 0;
 }
 
-.separator12px {
-  height: 1px;
-  background-color: #e5e7eb;
-  margin: 0.75rem 0;
+/* Menu Section Headers */
+.menuSection {
+  padding: 0.75rem 1rem 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #f97316; /* Orange for admin */
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 /* Menu Items */
@@ -142,21 +147,16 @@
   background-color: #f9fafb;
 }
 
-/* Admin Dashboard Item */
-.adminItem {
+.menuItemActive {
+  background-color: #fef3e0;
   color: #f97316;
   font-weight: 600;
-  background-color: #fef3e0;
-}
-
-.adminItem:hover {
-  background-color: #fed7aa;
 }
 
 /* Sub Menu Items (indented) */
 .subMenuItem {
   display: block;
-  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  padding: 0.625rem 1rem 0.625rem 2rem;
   font-size: 0.875rem;
   color: #6b7280;
   text-decoration: none;
@@ -168,63 +168,20 @@
   color: #374151;
 }
 
-/* Switch Label */
-.switchLabel {
-  padding: 0.5rem 1rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* Role Items */
-.roleItem {
+/* Exit to Dashboard Item */
+.exitItem {
   display: block;
   padding: 0.875rem 1rem;
   font-size: 0.9375rem;
-  color: #374151;
-  background: transparent;
-  border: none;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.roleItem:hover:not(:disabled) {
-  background-color: #f0fdfa;
-}
-
-.roleItem:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Become Items */
-.becomeItem {
-  display: block;
-  padding: 0.875rem 1rem;
+  font-weight: 600;
+  color: #006c67; /* Teal - user color */
   text-decoration: none;
   background: transparent;
   transition: background-color 0.2s;
-  cursor: pointer;
 }
 
-.becomeItem:hover {
+.exitItem:hover {
   background-color: #f0fdfa;
-}
-
-.becomeTitle {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: #2c7a7b;
-  margin-bottom: 0.125rem;
-}
-
-.becomeSubtitle {
-  font-size: 0.8125rem;
-  color: #6b7280;
 }
 
 /* Logout Item */
@@ -237,7 +194,7 @@
   background-color: #fef2f2;
 }
 
-/* Tablet breakpoint */
+/* Tablet breakpoint - hide on desktop */
 @media (min-width: 1024px) {
   .backdrop,
   .menuPanel {

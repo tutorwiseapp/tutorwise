@@ -10,6 +10,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { useIsAdmin } from '@/lib/rbac/hooks';
 import styles from './AppSidebar.module.css';
 
 interface NavItem {
@@ -24,6 +25,7 @@ export default function AppSidebar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { activeRole } = useUserProfile();
+  const { isAdmin: isAdminUser } = useIsAdmin();
 
   // Track which sections are expanded (use Set for efficient lookups)
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
@@ -70,6 +72,7 @@ export default function AppSidebar() {
     { href: '/payments', label: 'Payments' },
     { href: '/help-centre', label: 'Help Centre' },
     { href: '/developer/api-keys', label: 'Developer' },
+    { href: '/admin', label: 'Admin Dashboard', roles: ['admin'] }, // Admin-only link
   ];
 
   const isActive = (href: string, hasSubItems?: boolean) => {
@@ -178,8 +181,14 @@ export default function AppSidebar() {
         <ul className={styles.navList}>
           {navItems.map((item) => {
             // Role-based filtering: only show item if no roles specified or current role matches
-            if (item.roles && activeRole && !item.roles.includes(activeRole)) {
-              return null;
+            // Special handling for admin role - check isAdminUser instead of activeRole
+            if (item.roles) {
+              if (item.roles.includes('admin')) {
+                // Admin-only items use isAdminUser check
+                if (!isAdminUser) return null;
+              } else if (activeRole && !item.roles.includes(activeRole)) {
+                return null;
+              }
             }
 
             return (

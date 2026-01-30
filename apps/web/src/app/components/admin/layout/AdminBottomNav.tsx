@@ -1,52 +1,33 @@
 /*
- * Filename: src/app/components/layout/BottomNav.tsx
- * Purpose: Mobile bottom navigation bar for marketplace and main app navigation
- * Created: 2025-12-10
- * Updated: 2025-12-11 - Integrated MobileMenu component for hamburger menu
- * Updated: 2026-01-30 - Route-based admin navigation (renders AdminBottomNav on /admin/* routes)
+ * Filename: src/app/components/admin/layout/AdminBottomNav.tsx
+ * Purpose: Mobile bottom navigation bar for admin pages
+ * Created: 2026-01-30
  *
  * Features:
  * - Fixed bottom navigation bar for mobile devices
- * - 5 primary navigation items (Home, Dashboard, Bookings, Referrals, Menu)
+ * - 5 primary admin navigation items (Home, Dashboard, Accounts, SEO, Menu)
  * - Active state highlighting
- * - Badge support for notifications
  * - Only visible on mobile (hidden on desktop)
- * - Authentication-aware routing for protected pages
- * - Menu tab opens MobileMenu slide-in panel
- * - Route-based detection: renders AdminBottomNav when on /admin/* routes
+ * - Menu tab opens AdminMobileMenu slide-in panel
  */
 'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { useIsAdmin } from '@/lib/rbac/hooks';
-import MobileMenu from './MobileMenu';
-import AdminBottomNav from '@/app/components/admin/layout/AdminBottomNav';
-import styles from './BottomNav.module.css';
+import { usePathname } from 'next/navigation';
+import AdminMobileMenu from './AdminMobileMenu';
+import styles from './AdminBottomNav.module.css';
 
 interface NavItem {
   href?: string;
   label: string;
   icon: React.ReactNode;
-  badge?: number;
-  requiresAuth?: boolean;
   isMenuButton?: boolean;
 }
 
-export default function BottomNav() {
+export default function AdminBottomNav() {
   const pathname = usePathname();
-  const router = useRouter();
-  const { profile } = useUserProfile();
-  const { isAdmin: isAdminUser } = useIsAdmin();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // Route-based detection: if on admin routes, render AdminBottomNav
-  const isAdminRoute = pathname?.startsWith('/admin');
-  if (isAdminRoute && isAdminUser) {
-    return <AdminBottomNav />;
-  }
 
   const navItems: NavItem[] = [
     {
@@ -72,7 +53,7 @@ export default function BottomNav() {
       ),
     },
     {
-      href: '/dashboard',
+      href: '/admin',
       label: 'Dashboard',
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -84,63 +65,27 @@ export default function BottomNav() {
       ),
     },
     {
-      href: '/bookings',
-      label: 'Bookings',
-      icon: (
-        <svg width="27" height="27" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M12 14l9-5-9-5-9 5 9 5z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-      requiresAuth: true,
-    },
-    {
-      href: '/referrals',
-      label: 'Referrals',
+      href: '/admin/accounts/users',
+      label: 'Accounts',
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
-            d="M20 12v8H4v-8"
+            d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2" />
+          <path
+            d="M23 21v-2a4 4 0 0 0-3-3.87"
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
           <path
-            d="M22 7H2l2-4h16l2 4z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M12 12v8"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M12 7v5"
+            d="M16 3.13a4 4 0 0 1 0 7.75"
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
@@ -148,7 +93,22 @@ export default function BottomNav() {
           />
         </svg>
       ),
-      requiresAuth: true,
+    },
+    {
+      href: '/admin/seo',
+      label: 'SEO',
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2" />
+          <path
+            d="M21 21l-4.35-4.35"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      ),
     },
     {
       label: 'Menu',
@@ -170,40 +130,35 @@ export default function BottomNav() {
   const isActive = (href?: string) => {
     if (!href) return false;
 
-    // Home is active for /, /marketplace, and /about-tutorwise
+    // Home is active only for /
     if (href === '/') {
-      return pathname === '/' || pathname === '/marketplace' || pathname === '/about-tutorwise';
+      return pathname === '/';
+    }
+    // Dashboard is active only for exact /admin
+    if (href === '/admin') {
+      return pathname === '/admin';
     }
     return pathname?.startsWith(href);
   };
 
   const isMenuActive = () => {
-    // Menu is active for account, messages, wiselists, network, financials, payments, listings, marketplace, reviews, organisation, my-students
-    return pathname?.startsWith('/account') ||
-           pathname?.startsWith('/messages') ||
-           pathname?.startsWith('/wiselists') ||
-           pathname?.startsWith('/network') ||
-           pathname?.startsWith('/financials') ||
-           pathname?.startsWith('/payments') ||
-           pathname?.startsWith('/listings') ||
-           pathname?.startsWith('/marketplace') ||
-           pathname?.startsWith('/reviews') ||
-           pathname?.startsWith('/organisations') ||
-           pathname?.startsWith('/my-students');
+    // Menu is active for other admin pages not in bottom nav
+    return pathname?.startsWith('/admin/listings') ||
+           pathname?.startsWith('/admin/bookings') ||
+           pathname?.startsWith('/admin/referrals') ||
+           pathname?.startsWith('/admin/organisations') ||
+           pathname?.startsWith('/admin/financials') ||
+           pathname?.startsWith('/admin/reviews') ||
+           pathname?.startsWith('/admin/resources') ||
+           pathname?.startsWith('/admin/signal') ||
+           pathname?.startsWith('/admin/configurations') ||
+           pathname?.startsWith('/admin/settings');
   };
 
   const handleNavClick = (e: React.MouseEvent, item: NavItem) => {
-    // If it's the menu button, toggle mobile menu
     if (item.isMenuButton) {
       e.preventDefault();
       setIsMobileMenuOpen(true);
-      return;
-    }
-
-    // If the item requires auth and user is not logged in, redirect to login
-    if (item.requiresAuth && !profile) {
-      e.preventDefault();
-      router.push('/login');
     }
   };
 
@@ -223,9 +178,6 @@ export default function BottomNav() {
                 >
                   <div className={styles.iconWrapper}>
                     {item.icon}
-                    {item.badge && item.badge > 0 && (
-                      <span className={styles.badge}>{item.badge > 99 ? '99+' : item.badge}</span>
-                    )}
                   </div>
                   <span className={styles.label}>{item.label}</span>
                 </button>
@@ -237,13 +189,9 @@ export default function BottomNav() {
                 key={item.href}
                 href={item.href!}
                 className={`${styles.navItem} ${isItemActive ? styles.navItemActive : ''}`}
-                onClick={(e) => handleNavClick(e, item)}
               >
                 <div className={styles.iconWrapper}>
                   {item.icon}
-                  {item.badge && item.badge > 0 && (
-                    <span className={styles.badge}>{item.badge > 99 ? '99+' : item.badge}</span>
-                  )}
                 </div>
                 <span className={styles.label}>{item.label}</span>
               </Link>
@@ -252,11 +200,10 @@ export default function BottomNav() {
         </div>
       </nav>
 
-      {/* Mobile Menu */}
-      <MobileMenu
+      {/* Admin Mobile Menu */}
+      <AdminMobileMenu
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
-        isAdminUser={isAdminUser}
       />
     </>
   );

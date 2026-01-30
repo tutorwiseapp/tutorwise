@@ -2,6 +2,7 @@
  * Filename: src/app/components/layout/MobileMenu.tsx
  * Purpose: Mobile hamburger menu for mobile/tablet navigation
  * Created: 2025-12-11
+ * Updated: 2026-01-30 - Simplified admin access (link instead of toggle)
  *
  * Features:
  * - Full-screen slide-in menu from right
@@ -9,13 +10,13 @@
  * - Role indicator and switching
  * - Account management items
  * - Only visible on mobile/tablet devices
+ * - Admin Dashboard link for admin users
  */
 'use client';
 
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname, useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { createClient } from '@/utils/supabase/client';
 import type { Role } from '@/types';
@@ -25,8 +26,6 @@ import styles from './MobileMenu.module.css';
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
-  isAdminMode: boolean;
-  setIsAdminMode: (value: boolean) => void;
   isAdminUser: boolean;
 }
 
@@ -35,27 +34,8 @@ interface RoleConfig {
   icon: string;
 }
 
-export default function MobileMenu({ isOpen, onClose, isAdminMode, setIsAdminMode, isAdminUser }: MobileMenuProps) {
-  const pathname = usePathname();
-  const router = useRouter();
+export default function MobileMenu({ isOpen, onClose, isAdminUser }: MobileMenuProps) {
   const { profile, activeRole, availableRoles, switchRole, isRoleSwitching } = useUserProfile();
-
-  const handleAdminModeToggle = () => {
-    const newMode = !isAdminMode;
-    setIsAdminMode(newMode);
-    localStorage.setItem('adminModeEnabled', String(newMode));
-
-    // If turning on admin mode, navigate to admin dashboard
-    if (newMode && isAdminUser) {
-      router.push('/admin');
-      onClose();
-    }
-    // If turning off admin mode, navigate to user dashboard
-    else if (!newMode) {
-      router.push('/dashboard');
-      onClose();
-    }
-  };
 
   const roleConfig: Record<Role, RoleConfig> = {
     agent: { label: 'Agent', icon: '🏠' },
@@ -240,23 +220,13 @@ export default function MobileMenu({ isOpen, onClose, isAdminMode, setIsAdminMod
                 Developer
               </Link>
 
-              {/* Admin Mode Toggle - Only show for admin users */}
+              {/* Admin Dashboard Link - Only show for admin users */}
               {isAdminUser && (
                 <>
                   <div className={styles.separator12px} />
-                  <div className={styles.adminModeToggle}>
-                    <div className={styles.adminModeLabel}>
-                      <span className={styles.adminModeText}>Admin Mode</span>
-                      <span className={styles.adminModeStatus}>{isAdminMode ? 'On' : 'Off'}</span>
-                    </div>
-                    <button
-                      className={`${styles.toggleSwitch} ${isAdminMode ? styles.toggleSwitchActive : ''}`}
-                      onClick={handleAdminModeToggle}
-                      aria-label="Toggle admin mode"
-                    >
-                      <span className={styles.toggleSlider} />
-                    </button>
-                  </div>
+                  <Link href="/admin" className={`${styles.menuItem} ${styles.adminItem}`} onClick={handleLinkClick}>
+                    ⚙️ Admin Dashboard
+                  </Link>
                 </>
               )}
 

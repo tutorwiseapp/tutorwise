@@ -1,16 +1,15 @@
-/* BottomNav.module.css */
+/* AdminBottomNav.module.css */
 
 .bottomNav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  background: var(--color-background-primary, #ffffff);
-  border-top: 1px solid var(--color-border, #e0e0e0);
+  background: #fff7ed; /* Light orange for admin */
+  border-top: 1px solid #fdba74; /* Orange border */
   z-index: 100;
   display: none; /* Hidden by default, shown on mobile */
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .navContainer {
@@ -28,7 +27,7 @@
   justify-content: center;
   gap: 2px;
   padding: 4px 8px;
-  color: var(--color-text-secondary, #666);
+  color: #78716c; /* Gray-ish for admin */
   text-decoration: none;
   background: transparent;
   border: none;
@@ -40,11 +39,11 @@
 }
 
 .navItem:hover {
-  color: #00c6c7;
+  color: #f97316; /* Orange on hover */
 }
 
 .navItemActive {
-  color: #00c6c7;
+  color: #f97316; /* Orange for active */
 }
 
 .navItemActive .iconWrapper {
@@ -66,22 +65,6 @@
   font-weight: 500;
   line-height: 1;
   white-space: nowrap;
-}
-
-.badge {
-  position: absolute;
-  top: -4px;
-  right: -6px;
-  background: var(--color-error, #ff4444);
-  color: white;
-  font-size: 0.625rem;
-  font-weight: 700;
-  padding: 2px 5px;
-  border-radius: 10px;
-  min-width: 16px;
-  text-align: center;
-  line-height: 1;
-  border: 2px solid var(--color-background-primary, #ffffff);
 }
 
 /* Show on mobile and tablet screens */

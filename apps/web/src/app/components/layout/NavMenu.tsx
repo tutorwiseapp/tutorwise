@@ -17,6 +17,7 @@ import Image from 'next/image';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { useIsAdmin } from '@/lib/rbac/hooks';
 import { createClient } from '@/utils/supabase/client';
 import type { Role } from '@/types';
 import GuanMenuIcon from '@/app/components/ui/navigation/GuanMenuIcon';
@@ -31,6 +32,7 @@ interface RoleConfig {
 const NavMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { profile, isLoading, activeRole, availableRoles, switchRole, isRoleSwitching } = useUserProfile();
+  const { isAdmin: isAdminUser } = useIsAdmin();
   const router = useRouter();
 
   // Role configuration matching your design
@@ -81,18 +83,21 @@ const NavMenu = () => {
       <DropdownMenu.Root open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenu.Trigger asChild>
           <button
-            className={isAuthenticated ? styles.loggedInTrigger : styles.loggedOutTrigger}
+            className={`${isAuthenticated ? styles.loggedInTrigger : styles.loggedOutTrigger} ${isAdminUser ? styles.adminTrigger : ''}`}
             aria-label="Open user menu"
           >
             {isAuthenticated ? (
               <>
-                <Image
-                  src={getProfileImageUrl(profile)}
-                  alt="User Avatar"
-                  width={40}
-                  height={40}
-                  className={styles.avatar}
-                />
+                <div className={styles.avatarWrapper}>
+                  <Image
+                    src={getProfileImageUrl(profile)}
+                    alt="User Avatar"
+                    width={40}
+                    height={40}
+                    className={styles.avatar}
+                  />
+                  {isAdminUser && <span className={styles.adminBadge}>⚙️</span>}
+                </div>
                 <GuanMenuIcon isOpen={isOpen} />
               </>
             ) : (
@@ -124,6 +129,16 @@ const NavMenu = () => {
                 <DropdownMenu.Item asChild className={styles.menuItem}>
                   <Link href="/resources">Resources</Link>
                 </DropdownMenu.Item>
+
+                {/* Admin Dashboard Link - Only show for admin users */}
+                {isAdminUser && (
+                  <>
+                    <div className={styles.separator} />
+                    <DropdownMenu.Item asChild className={`${styles.menuItem} ${styles.adminItem}`}>
+                      <Link href="/admin">⚙️ Admin Dashboard</Link>
+                    </DropdownMenu.Item>
+                  </>
+                )}
 
                 <div className={styles.separator} />
 
