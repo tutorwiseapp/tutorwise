@@ -368,6 +368,10 @@ export interface AgentProfessionalInfo {
   subjects?: string[];
   commission_preferences?: string;
 
+  // Rate fields (for agency listings)
+  one_on_one_rate?: number;                 // Optional - agency's one-on-one session rate
+  group_session_rate?: number;              // Optional - agency's group session rate
+
   // Availability fields (same as client/tutor - reusing calendar design)
   availability?: any;                       // Optional - when agency is accepting new clients/tutors
   unavailability?: any;                     // Optional - blackout periods (holidays, capacity limits)

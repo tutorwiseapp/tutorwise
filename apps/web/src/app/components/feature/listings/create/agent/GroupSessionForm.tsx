@@ -31,7 +31,7 @@ interface GroupSessionFormProps {
 }
 
 type EditingField = 'title' | 'subjects' | 'levels' | 'description' | 'session_duration' |
-  'hourly_rate' | 'delivery_mode' | 'images' | 'min_participants' | 'max_participants' | null;
+  'group_hourly_rate' | 'delivery_mode' | 'images' | 'min_participants' | 'max_participants' | null;
 
 type FieldType = 'text' | 'select' | 'multiselect' | 'textarea' | 'number';
 
@@ -119,7 +119,7 @@ export default function GroupSessionForm({ onSubmit, onCancel, isSaving = false,
     levels: (initialData.levels as string[]) || [],
     description: initialData.description || '',
     session_duration: '',
-    hourly_rate: initialData.hourly_rate?.toString() || '',
+    group_hourly_rate: (initialData as any).group_hourly_rate?.toString() || '',
     delivery_mode: '',
     images: (initialData.images as string[]) || [],
     max_participants: (initialData as any).max_participants || '',
@@ -329,8 +329,8 @@ export default function GroupSessionForm({ onSubmit, onCancel, isSaving = false,
     if (!formData.delivery_mode) {
       errors.push('Please select a delivery mode');
     }
-    if (!formData.hourly_rate || parseFloat(formData.hourly_rate) <= 0) {
-      errors.push('Please enter a valid hourly rate');
+    if (!formData.group_hourly_rate || parseFloat(formData.group_hourly_rate) <= 0) {
+      errors.push('Please enter a valid group hourly rate');
     }
     if (!formData.min_participants || parseFloat(formData.min_participants.toString()) <= 0) {
       errors.push('Please enter a valid minimum number of participants');
@@ -369,7 +369,7 @@ export default function GroupSessionForm({ onSubmit, onCancel, isSaving = false,
         description: formData.description,
         session_duration: formData.session_duration,
         delivery_mode: formData.delivery_mode ? [formData.delivery_mode] : [],
-        hourly_rate: parseFloat(formData.hourly_rate),
+        group_hourly_rate: parseFloat(formData.group_hourly_rate),
         min_participants: parseFloat(formData.min_participants.toString()),
         max_participants: parseFloat(formData.max_participants.toString()),
         availability: availabilityPeriods,
@@ -517,7 +517,7 @@ export default function GroupSessionForm({ onSubmit, onCancel, isSaving = false,
         </HubForm.Grid>
 
         <HubForm.Grid>
-          {renderField('hourly_rate', 'hourly_rate', 'Group Rate (£/hour per student)', 'number', '£25', undefined, true)}
+          {renderField('group_hourly_rate', 'group_hourly_rate', 'Group Rate (£/hour per student)', 'number', '£25', undefined, true)}
         </HubForm.Grid>
 
         <HubForm.Grid>
