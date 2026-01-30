@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * TutorWise Critical Files Protection Report Email System
+ * Tutorwise Critical Files Protection Report Email System
  * Sends daily protection status reports to tutorwiseapp@gmail.com
  */
 
@@ -17,7 +17,7 @@ require('dotenv').config({ path: path.join(__dirname, '../../../.env.local') });
 class ProtectionReportEmailer {
   constructor() {
     this.recipientEmail = 'tutorwiseapp@gmail.com';
-    this.senderEmail = process.env.RESEND_FROM_EMAIL || 'TutorWise Security <security@tutorwise.app>';
+    this.senderEmail = process.env.RESEND_FROM_EMAIL || 'Tutorwise Security <security@tutorwise.app>';
 
     // Resend SMTP Configuration (preferred)
     this.resendConfig = {
@@ -346,7 +346,7 @@ class ProtectionReportEmailer {
     <!-- Footer -->
     <div class="footer">
       <p>
-        🤖 Automated Protection Report | TutorWise Security System<br>
+        🤖 Automated Protection Report | Tutorwise Security System<br>
         Generated at ${reportData.timestamp}<br>
         <a href="https://tutorwise.io">tutorwise.io</a>
       </p>
@@ -417,7 +417,7 @@ ${reportData.reportOutput}
 📋 Next .ai-restrictions review: 2024-10-08
 
 Generated: ${reportData.timestamp}
-TutorWise Security System
+Tutorwise Security System
     `.trim();
 
     return text;

@@ -1,8 +1,8 @@
-# TutorWise Email Configuration Guide
+# Tutorwise Email Configuration Guide
 
 ## Overview
 
-TutorWise uses a multi-tier email system that supports both user authentication emails (via Supabase) and automated audit notifications. The system tries multiple email providers in order of preference.
+Tutorwise uses a multi-tier email system that supports both user authentication emails (via Supabase) and automated audit notifications. The system tries multiple email providers in order of preference.
 
 ## Email Providers (Priority Order)
 
@@ -48,7 +48,7 @@ TutorWise uses a multi-tier email system that supports both user authentication 
    ```bash
    # Add to .env.local
    RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxxx
-   RESEND_FROM_EMAIL=TutorWise System <noreply@yourdomain.com>
+   RESEND_FROM_EMAIL=Tutorwise System <noreply@yourdomain.com>
    ```
 
 4. **Test Configuration**
@@ -109,9 +109,9 @@ node tools/scripts/email/send-audit-email.js docs/project-audit/project-audit-20
    High Issues: 0
 📤 Attempting email method 1...
 📧 Sending via Resend...
-   From: TutorWise System <noreply@tutorwise.app>
+   From: Tutorwise System <noreply@tutorwise.app>
    To: tutorwiseapp@gmail.com
-   Subject: 📊 TutorWise Project Audit - September 30, 2024 (Health: 7.2/10)
+   Subject: 📊 Tutorwise Project Audit - September 30, 2024 (Health: 7.2/10)
 ✅ Resend success: <message-id>
 ✅ Email sent successfully!
 🎉 Audit email process completed successfully!
@@ -132,7 +132,7 @@ node tools/scripts/email/send-audit-email.js docs/project-audit/project-audit-20
 ## Email Content Features
 
 ### Professional HTML Design
-- **TutorWise Branding**: Consistent colors and styling
+- **Tutorwise Branding**: Consistent colors and styling
 - **Metrics Dashboard**: Visual health score and issue counts
 - **Responsive**: Works on mobile and desktop
 - **Rich Content**: Achievements, remaining work, attachments
@@ -143,7 +143,7 @@ node tools/scripts/email/send-audit-email.js docs/project-audit/project-audit-20
 - ✅ **Key Achievements**: Recent accomplishments
 - ✅ **Remaining Work**: Next steps and priorities
 - ✅ **File Attachment**: Complete audit report (Markdown)
-- ✅ **Professional Styling**: TutorWise brand colors
+- ✅ **Professional Styling**: Tutorwise brand colors
 
 ## Automatic Integration
 
