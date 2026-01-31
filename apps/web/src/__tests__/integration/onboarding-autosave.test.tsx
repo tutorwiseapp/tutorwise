@@ -6,7 +6,7 @@
 
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import TutorPersonalInfoStep from '@/app/components/feature/onboarding/tutor/steps/TutorPersonalInfoStep';
+import PersonalInfoStep from '@/app/components/feature/onboarding/shared/steps/PersonalInfoStep';
 import { saveOnboardingProgress, getOnboardingProgress } from '@/lib/api/onboarding';
 
 // Mock dependencies
@@ -57,7 +57,8 @@ describe.skip('Onboarding Auto-Save Integration', () => {
     const mockOnNext = jest.fn();
 
     render(
-      <TutorPersonalInfoStep
+      <PersonalInfoStep
+        role="tutor"
         onNext={mockOnNext}
         isLoading={false}
         progressData={{
@@ -104,7 +105,8 @@ describe.skip('Onboarding Auto-Save Integration', () => {
     );
 
     render(
-      <TutorPersonalInfoStep
+      <PersonalInfoStep
+        role="tutor"
         onNext={mockOnNext}
         isLoading={false}
         progressData={{
@@ -145,7 +147,8 @@ describe.skip('Onboarding Auto-Save Integration', () => {
     const mockOnNext = jest.fn();
 
     render(
-      <TutorPersonalInfoStep
+      <PersonalInfoStep
+        role="tutor"
         onNext={mockOnNext}
         isLoading={false}
         progressData={{
@@ -184,7 +187,8 @@ describe.skip('Onboarding Auto-Save Integration', () => {
     const mockOnBack = jest.fn();
 
     render(
-      <TutorPersonalInfoStep
+      <PersonalInfoStep
+        role="tutor"
         onNext={mockOnNext}
         onBack={mockOnBack}
         isLoading={false}
@@ -219,7 +223,8 @@ describe.skip('Onboarding Auto-Save Integration', () => {
     mockSaveOnboardingProgress.mockRejectedValue(new Error('Network error'));
 
     render(
-      <TutorPersonalInfoStep
+      <PersonalInfoStep
+        role="tutor"
         onNext={mockOnNext}
         isLoading={false}
         progressData={{
@@ -259,7 +264,8 @@ describe.skip('Onboarding Auto-Save Integration', () => {
     const mockOnNext = jest.fn();
 
     render(
-      <TutorPersonalInfoStep
+      <PersonalInfoStep
+        role="tutor"
         onNext={mockOnNext}
         isLoading={false}
         progressData={{

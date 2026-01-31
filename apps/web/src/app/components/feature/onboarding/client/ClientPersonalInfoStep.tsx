@@ -3,8 +3,7 @@
 'use client';
 
 import React from 'react';
-import TutorPersonalInfoStep from '../tutor/steps/TutorPersonalInfoStep';
-import { PersonalInfoData } from '../tutor/steps/TutorPersonalInfoStep';
+import PersonalInfoStep, { PersonalInfoData } from '../shared/steps/PersonalInfoStep';
 
 interface ClientPersonalInfoStepProps {
   onBack?: () => void;
@@ -18,11 +17,11 @@ const ClientPersonalInfoStep: React.FC<ClientPersonalInfoStepProps> = ({
   isLoading = false
 }) => {
   return (
-    <TutorPersonalInfoStep
+    <PersonalInfoStep
+      role="client"
       onNext={onNext}
       onBack={onBack}
       isLoading={isLoading}
-      userRole="client"
     />
   );
 };

@@ -1,7 +1,7 @@
 # Tutorwise Onboarding System Documentation
 
-**Document Version**: 1.0
-**Last Updated**: 2026-01-14
+**Document Version**: 1.1
+**Last Updated**: 2026-01-31
 **Purpose**: Comprehensive documentation of the page-based onboarding system
 **Status**: Production-ready (100% complete)
 
@@ -81,6 +81,134 @@ Benefits:
 5. **Gradual Rollout**: Feature flag controlled the transition
 
 **Result**: 100% of users migrated with zero data loss or complaints.
+
+---
+
+## 🧩 **Shared Component Architecture (v1.1)**
+
+### **Configuration-Based Components**
+
+As of January 2026, the onboarding system uses a **shared component architecture** where step components are role-agnostic and configured via a `role` prop. This eliminates code duplication while maintaining role-specific behavior.
+
+**Before (Role-Specific Components)**:
+```
+apps/web/src/app/components/feature/onboarding/
+├── tutor/steps/
+│   ├── TutorPersonalInfoStep.tsx          (~400 lines)
+│   ├── TutorAvailabilityStep.tsx          (~700 lines)
+│   ├── TutorProfessionalDetailStep.tsx    (~600 lines)
+│   └── TutorProfessionalVerificationStep.tsx
+├── client/steps/
+│   ├── ClientPersonalInfoStep.tsx         (~400 lines)
+│   ├── ClientAvailabilityStep.tsx         (~700 lines)
+│   └── ...
+└── agent/steps/
+    ├── AgentPersonalInfoStep.tsx          (~400 lines)
+    └── ...
+
+Problems:
+❌ ~3000+ lines of duplicated code across roles
+❌ Bug fixes needed in 3 places
+❌ Inconsistent behavior between roles
+❌ Hard to add new roles
+```
+
+**After (Shared Components)**:
+```
+apps/web/src/app/components/feature/onboarding/shared/steps/
+├── PersonalInfoStep.tsx           (~400 lines, all roles)
+├── AvailabilityStep.tsx           (~700 lines, all roles)
+├── ProfessionalDetailStep.tsx     (~600 lines, all roles)
+└── VerificationStep.tsx           (~500 lines, all roles)
+
+Benefits:
+✅ Single source of truth (~2200 lines vs ~6600)
+✅ Bug fixes apply to all roles automatically
+✅ Consistent behavior guaranteed
+✅ Easy to add new roles (just add config)
+```
+
+### **Role Prop Pattern**
+
+Each shared step component accepts a `role` prop of type `OnboardingRole`:
+
+```typescript
+// Type definition
+type OnboardingRole = 'tutor' | 'client' | 'agent';
+
+// Component interface
+interface PersonalInfoStepProps {
+  role: OnboardingRole;
+  onNext: (data: PersonalInfoData) => void;
+  onBack?: () => void;
+  isLoading?: boolean;
+  profileId?: string;
+  progressData?: OnboardingProgressData;
+}
+
+// Usage in page.tsx
+import PersonalInfoStep from '@/app/components/feature/onboarding/shared/steps/PersonalInfoStep';
+
+export default function TutorPersonalInfoPage() {
+  return (
+    <PersonalInfoStep
+      role="tutor"
+      onNext={handleNext}
+      onBack={handleBack}
+    />
+  );
+}
+```
+
+### **Role-Specific Behavior**
+
+Components use the `role` prop to customize:
+
+1. **API Endpoints**: `getOnboardingProgress(role)` fetches role-specific data
+2. **Field Visibility**: Some fields only appear for certain roles
+3. **Validation Rules**: Role-specific validation requirements
+4. **Labels/Copy**: Role-appropriate text (e.g., "Your tutoring availability" vs "Your preferred times")
+
+```typescript
+// Example: Role-specific field rendering
+const getFields = (role: OnboardingRole) => {
+  const baseFields = ['firstName', 'lastName', 'email', 'phone'];
+
+  if (role === 'tutor' || role === 'agent') {
+    return [...baseFields, 'bio', 'qualifications'];
+  }
+
+  return baseFields;
+};
+```
+
+### **Shared Step Components**
+
+| Component | Purpose | Roles |
+|-----------|---------|-------|
+| `PersonalInfoStep` | Basic personal/contact info | All |
+| `AvailabilityStep` | Weekly availability schedule | All |
+| `ProfessionalDetailStep` | Professional qualifications | Tutor, Agent |
+| `VerificationStep` | Document upload & verification | All |
+
+### **Component Location**
+
+```
+apps/web/src/app/components/feature/onboarding/
+├── shared/
+│   ├── steps/                         # Shared step components
+│   │   ├── PersonalInfoStep.tsx
+│   │   ├── AvailabilityStep.tsx
+│   │   ├── ProfessionalDetailStep.tsx
+│   │   └── VerificationStep.tsx
+│   └── ...
+└── client/                            # Legacy wizard (still active)
+    ├── ClientOnboardingWizard.tsx     # Modal-based wizard
+    ├── ClientPersonalInfoStep.tsx     # Used by wizard only
+    └── ClientAvailabilityStep.tsx     # Used by wizard only
+```
+
+**Note**: The `client/` directory still contains the legacy `ClientOnboardingWizard` and its supporting components. These are used for the modal-based onboarding flow and are separate from the shared page-based components.
 
 ---
 
@@ -835,10 +963,11 @@ ORDER BY dropoff_count DESC;
 - [PATTERNS.md](.ai/PATTERNS.md) - Form handling patterns
 
 ### **Code Locations**
-- Onboarding pages: `apps/web/src/app/(auth)/onboarding/[role]/`
+- Onboarding pages: `apps/web/src/app/(authenticated)/onboarding/[role]/`
 - Draft API: `apps/web/src/app/api/onboarding/draft/`
 - Submission API: `apps/web/src/app/api/onboarding/[role]/submit/`
-- Components: `apps/web/src/app/components/onboarding/`
+- Shared step components: `apps/web/src/app/components/feature/onboarding/shared/steps/`
+- Legacy wizard: `apps/web/src/app/components/feature/onboarding/client/`
 
 ### **Database Migrations**
 - `080_create_onboarding_drafts.sql` - Create onboarding_drafts table
@@ -855,13 +984,14 @@ ORDER BY dropoff_count DESC;
 5. **Shared Fields**: Dynamic forms, admin-controlled options
 6. **Real-Time Validation**: Instant feedback, better UX
 7. **Mobile-First**: Responsive design for all devices
+8. **Shared Components**: Role-agnostic components configured via `role` prop (~67% code reduction)
 
-**The onboarding system successfully transitioned from a complex wizard modal to a clean, page-based architecture with improved UX, zero data loss, and 100% user satisfaction.**
+**The onboarding system successfully transitioned from a complex wizard modal to a clean, page-based architecture with improved UX, zero data loss, and 100% user satisfaction. The v1.1 refactor introduced shared components, reducing duplication from ~6600 lines to ~2200 lines.**
 
 ---
 
 *This documentation covers the complete onboarding system architecture, implementation, and user flows.*
 
-**Last Updated**: 2026-01-14
+**Last Updated**: 2026-01-31
 **Maintained By**: Platform Architecture Team
 **Status**: Production-ready (100% complete)
