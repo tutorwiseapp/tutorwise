@@ -92,29 +92,6 @@
   font-weight: 400;
 }
 
-/* Exit Admin Dashboard Link */
-.exitSection {
-  padding: 0.75rem 1rem;
-  border-top: 1px solid #e5e7eb;
-}
-
-.exitLink {
-  display: block;
-  padding: 0.75rem 1rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: #006c67;
-  text-decoration: none;
-  background-color: #E6F0F0;
-  border-radius: 0.5rem;
-  text-align: center;
-  transition: background-color 0.2s;
-}
-
-.exitLink:hover {
-  background-color: #d0e7e7;
-}
-
 /* Role Indicator */
 .roleIndicator {
   padding: 1rem;
