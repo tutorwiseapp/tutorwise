@@ -68,22 +68,10 @@
   object-fit: cover;
 }
 
-.userDetails {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-}
-
 .userName {
   font-size: 0.9375rem;
   font-weight: 600;
   color: #111827;
-}
-
-.adminBadge {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: #f97316; /* Orange */
 }
 
 .closeButton {
@@ -109,6 +97,14 @@
 /* Menu Content */
 .menuContent {
   padding: 0.5rem 0;
+}
+
+/* Role Label */
+.roleLabel {
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #f97316;
 }
 
 /* Separators */
@@ -166,22 +162,6 @@
 .subMenuItem:hover {
   background-color: #f9fafb;
   color: #374151;
-}
-
-/* Exit to Dashboard Item */
-.exitItem {
-  display: block;
-  padding: 0.875rem 1rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: #006c67; /* Teal - user color */
-  text-decoration: none;
-  background: transparent;
-  transition: background-color 0.2s;
-}
-
-.exitItem:hover {
-  background-color: #f0fdfa;
 }
 
 /* Logout Item */

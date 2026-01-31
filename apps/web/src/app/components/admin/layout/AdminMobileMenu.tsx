@@ -73,15 +73,10 @@ export default function AdminMobileMenu({ isOpen, onClose }: AdminMobileMenuProp
                 height={40}
                 className={styles.avatar}
               />
-              <div className={styles.userDetails}>
-                <div className={styles.userName}>
-                  {profile.first_name && profile.last_name
-                    ? `${profile.first_name} ${profile.last_name}`
-                    : profile.email}
-                </div>
-                <div className={styles.adminBadge}>
-                  ⚙️ {adminProfile?.admin_role || 'Admin'}
-                </div>
+              <div className={styles.userName}>
+                {profile.first_name && profile.last_name
+                  ? `${profile.first_name} ${profile.last_name}`
+                  : profile.email}
               </div>
             </div>
           )}
@@ -92,6 +87,19 @@ export default function AdminMobileMenu({ isOpen, onClose }: AdminMobileMenuProp
 
         {/* Menu Content */}
         <div className={styles.menuContent}>
+          {/* Admin Role Indicator */}
+          {adminProfile?.admin_role && (
+            <>
+              <div className={styles.roleLabel}>
+                ⚙️ {adminProfile.admin_role === 'superadmin' && 'Superadmin'}
+                {adminProfile.admin_role === 'admin' && 'Admin'}
+                {adminProfile.admin_role === 'systemadmin' && 'System Admin'}
+                {adminProfile.admin_role === 'supportadmin' && 'Support Admin'}
+              </div>
+              <div className={styles.separator} />
+            </>
+          )}
+
           {/* Main Admin Navigation */}
           <Link
             href="/admin"
@@ -218,8 +226,8 @@ export default function AdminMobileMenu({ isOpen, onClose }: AdminMobileMenuProp
           <div className={styles.separator} />
 
           {/* Return to User Dashboard */}
-          <Link href="/dashboard" className={styles.exitItem} onClick={handleLinkClick}>
-            Dashboard
+          <Link href="/dashboard" className={styles.menuItem} onClick={handleLinkClick}>
+            Switch to User Dashboard
           </Link>
 
           <div className={styles.separator} />
