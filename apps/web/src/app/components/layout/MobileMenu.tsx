@@ -160,12 +160,13 @@ export default function MobileMenu({ isOpen, onClose, isAdminUser }: MobileMenuP
 
               <div className={styles.separator12px} />
 
-              {/* Role Switching Section */}
-              {availableRoles && availableRoles.length > 1 && (
+              {/* Role Switching Section (excluding admin - admin is not a switchable role) */}
+              {availableRoles && availableRoles.filter(r => r !== 'admin' && r !== activeRole).length > 0 && (
                 <>
                   <div className={styles.switchLabel}>Switch Role:</div>
                   {availableRoles.map((role) => {
                     if (role === activeRole) return null;
+                    if (role === 'admin') return null; // Admin is not a switchable role
                     const config = roleConfig[role];
                     return (
                       <button
@@ -220,12 +221,12 @@ export default function MobileMenu({ isOpen, onClose, isAdminUser }: MobileMenuP
                 Developer
               </Link>
 
-              {/* Admin Dashboard Link - Only show for admin users */}
+              {/* Admin Link - Only show for admin users */}
               {isAdminUser && (
                 <>
                   <div className={styles.separator12px} />
                   <Link href="/admin" className={`${styles.menuItem} ${styles.adminItem}`} onClick={handleLinkClick}>
-                    ⚙️ Admin Dashboard
+                    ⚙️ Admin
                   </Link>
                 </>
               )}

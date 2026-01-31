@@ -192,6 +192,13 @@ export default function AdminSidebar() {
         </ul>
       </nav>
 
+      {/* Exit Admin Dashboard link */}
+      <div className={styles.exitSection}>
+        <Link href="/dashboard" className={styles.exitLink}>
+          🏠 Exit Admin Dashboard
+        </Link>
+      </div>
+
       {/* Admin role indicator at bottom */}
       {profile && profile.admin_role && (
         <div className={styles.roleIndicator}>

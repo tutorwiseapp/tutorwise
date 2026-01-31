@@ -217,9 +217,9 @@ export default function AdminMobileMenu({ isOpen, onClose }: AdminMobileMenuProp
 
           <div className={styles.separator} />
 
-          {/* Exit to User Dashboard */}
+          {/* Return to User Dashboard */}
           <Link href="/dashboard" className={styles.exitItem} onClick={handleLinkClick}>
-            🏠 Exit to Dashboard
+            🏠 Dashboard
           </Link>
 
           <div className={styles.separator} />

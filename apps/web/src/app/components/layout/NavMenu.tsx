@@ -127,16 +127,17 @@ const NavMenu = () => {
 
                 <div className={styles.separator} />
 
-                {/* Role Switching Section - Show if user has multiple roles */}
-                {availableRoles && availableRoles.length > 1 && (
+                {/* Role Switching Section - Show if user has multiple switchable roles (excluding admin) */}
+                {availableRoles && availableRoles.filter(r => r !== 'admin' && r !== activeRole).length > 0 && (
                   <>
                     <DropdownMenu.Label className={styles.switchLabel}>
                       Switch Role:
                     </DropdownMenu.Label>
 
-                    {/* Other Available Roles (excluding current active role) */}
+                    {/* Other Available Roles (excluding current active role and admin) */}
                     {availableRoles.map((role) => {
                       if (role === activeRole) return null;
+                      if (role === 'admin') return null; // Admin is not a switchable role
                       const config = roleConfig[role];
                       // Safety check: skip roles not in roleConfig
                       if (!config) return null;
