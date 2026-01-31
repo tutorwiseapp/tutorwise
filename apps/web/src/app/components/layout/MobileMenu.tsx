@@ -226,7 +226,7 @@ export default function MobileMenu({ isOpen, onClose, isAdminUser }: MobileMenuP
                 <>
                   <div className={styles.separator12px} />
                   <Link href="/admin" className={`${styles.menuItem} ${styles.adminItem}`} onClick={handleLinkClick}>
-                    ⚙️ Admin Dashboard
+                    Admin
                   </Link>
                 </>
               )}

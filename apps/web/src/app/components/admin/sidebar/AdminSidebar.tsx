@@ -91,6 +91,7 @@ export default function AdminSidebar() {
     { href: '/admin/reports', label: 'Reports' },
     { href: '/admin/configurations', label: 'Configurations' },
     { href: '/admin/settings', label: 'Settings' },
+    { href: '/dashboard', label: 'Exit Admin Dashboard' },
   ];
 
   const isActive = (href: string, hasSubItems?: boolean) => {
@@ -191,13 +192,6 @@ export default function AdminSidebar() {
           ))}
         </ul>
       </nav>
-
-      {/* Exit Admin Dashboard link */}
-      <div className={styles.exitSection}>
-        <Link href="/dashboard" className={styles.exitLink}>
-          🏠 Exit Admin Dashboard
-        </Link>
-      </div>
 
       {/* Admin role indicator at bottom */}
       {profile && profile.admin_role && (
