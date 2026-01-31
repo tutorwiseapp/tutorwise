@@ -3,19 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import ClientPersonalInfoStep from '@/app/components/feature/onboarding/client/steps/ClientPersonalInfoStep';
-import { getOnboardingProgress } from '@/lib/api/onboarding';
+import PersonalInfoStep, { PersonalInfoData } from '@/app/components/feature/onboarding/shared/steps/PersonalInfoStep';
 import styles from '../../page.module.css';
-
-export interface PersonalInfoData {
-  firstName: string;
-  lastName: string;
-  gender: string;
-  dateOfBirth: string;
-  email: string;
-  phone: string;
-  completed?: boolean;  // Completion flag for step tracking
-}
 
 // CaaS Points
 const STEP_POINTS = {
@@ -166,11 +155,11 @@ export default function ClientPersonalInfoPage() {
 
   return (
     <div className={styles.onboardingStepPage}>
-      <ClientPersonalInfoStep
+      <PersonalInfoStep
+        role="client"
         onNext={handleNext}
         onBack={handleBack}
         isLoading={isPageLoading}
-        userRole="client"
         progressData={progressData}
       />
     </div>

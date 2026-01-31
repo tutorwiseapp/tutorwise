@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import AgentProfessionalVerificationStep from '@/app/components/feature/onboarding/agent/steps/AgentProfessionalVerificationStep';
+import VerificationStep from '@/app/components/feature/onboarding/shared/steps/VerificationStep';
 import { VerificationDetailsData } from '@/types';
 import styles from '../../page.module.css';
 
@@ -236,7 +236,8 @@ export default function AgentVerificationPage() {
 
   return (
     <div className={styles.onboardingStepPage}>
-      <AgentProfessionalVerificationStep
+      <VerificationStep
+        role="agent"
         onNext={handleNext}
         onBack={handleBack}
         isLoading={isPageLoading}

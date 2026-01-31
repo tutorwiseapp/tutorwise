@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import AgentProfessionalDetailStep from '@/app/components/feature/onboarding/agent/steps/AgentProfessionalDetailStep';
+import ProfessionalDetailStep from '@/app/components/feature/onboarding/shared/steps/ProfessionalDetailStep';
 import { ProfessionalDetailsData } from '@/types';
 import styles from '../../page.module.css';
 
@@ -135,7 +135,7 @@ export default function AgentProfessionalDetailsPage() {
         session_types: data.sessionType || [],
         delivery_mode: data.deliveryMode || [],
         // Rates
-        one_on_one_rate: data.oneOnOneRate || 0,
+        one_to_one_session_rate: data.oneToOneSessionRate || 0,
         group_session_rate: data.groupSessionRate || 0,
         // Legacy qualifications field for backward compatibility
         qualifications: {
@@ -144,7 +144,7 @@ export default function AgentProfessionalDetailsPage() {
           education: data.academicQualifications?.[0] || '',
           certifications: data.teachingProfessionalQualifications || [],
         },
-        hourly_rate: data.oneOnOneRate || 0,
+        hourly_rate: data.oneToOneSessionRate || 0,
         // Preserve existing availability data if it exists
         ...(existingRoleDetails?.availability && {
           availability: existingRoleDetails.availability
@@ -190,11 +190,11 @@ export default function AgentProfessionalDetailsPage() {
 
   return (
     <div className={styles.onboardingStepPage}>
-      <AgentProfessionalDetailStep
+      <ProfessionalDetailStep
+        role="agent"
         onNext={handleNext}
         onBack={handleBack}
         isLoading={isPageLoading}
-        userRole="agent"
         progressData={progressData}
       />
     </div>

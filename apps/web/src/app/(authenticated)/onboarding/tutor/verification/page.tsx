@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import TutorProfessionalVerificationStep from '@/app/components/feature/onboarding/tutor/steps/TutorProfessionalVerificationStep';
+import VerificationStep from '@/app/components/feature/onboarding/shared/steps/VerificationStep';
 import { VerificationDetailsData } from '@/types';
 import styles from '../../page.module.css';
 
@@ -236,7 +236,8 @@ export default function TutorVerificationPage() {
 
   return (
     <div className={styles.onboardingStepPage}>
-      <TutorProfessionalVerificationStep
+      <VerificationStep
+        role="tutor"
         onNext={handleNext}
         onBack={handleBack}
         isLoading={isPageLoading}

@@ -129,7 +129,7 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
     subjects: [],
     sessionType: [],
     deliveryMode: [],
-    oneOnOneRate: 0,
+    oneToOneSessionRate: 0,
     groupSessionRate: 0,
   });
   const [isRestored, setIsRestored] = useState(false);
@@ -149,7 +149,7 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
     { fieldName: 'subjects', context: 'onboarding.tutor', fallback: { label: 'Subjects', placeholder: 'Select subjects', options: subjectsOptions } },
     { fieldName: 'sessionType', context: 'onboarding.tutor', fallback: { label: 'Session Type', placeholder: 'Select session types', options: sessionTypeOptions } },
     { fieldName: 'deliveryMode', context: 'onboarding.tutor', fallback: { label: 'Delivery Mode', placeholder: 'Select delivery modes', options: deliveryModeOptions } },
-    { fieldName: 'oneOnOneRate', context: 'onboarding.tutor', fallback: { label: 'One-on-One Rate (£/hour)', placeholder: '£50' } },
+    { fieldName: 'oneToOneSessionRate', context: 'onboarding.tutor', fallback: { label: 'One-to-One Session Rate (£/hour)', placeholder: '£50' } },
     { fieldName: 'groupSessionRate', context: 'onboarding.tutor', fallback: { label: 'Group Rate (£/hour per student)', placeholder: '£25' } },
   ]);
 
@@ -272,7 +272,7 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
     formData.subjects.length > 0 &&
     formData.sessionType.length > 0 &&
     formData.deliveryMode.length > 0 &&
-    formData.oneOnOneRate > 0;
+    formData.oneToOneSessionRate > 0;
 
   // Debug validation
   React.useEffect(() => {
@@ -297,8 +297,8 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
       sessionTypeValid: formData.sessionType.length > 0,
       deliveryMode: formData.deliveryMode.length,
       deliveryModeValid: formData.deliveryMode.length > 0,
-      oneOnOneRate: formData.oneOnOneRate,
-      rateValid: formData.oneOnOneRate > 0,
+      oneToOneSessionRate: formData.oneToOneSessionRate,
+      rateValid: formData.oneToOneSessionRate > 0,
       isValid
     });
   }, [formData, isValid]);
@@ -484,14 +484,14 @@ const TutorProfessionalDetailStep: React.FC<TutorProfessionalDetailStepProps> = 
 
             {/* Rates */}
             <HubForm.Grid>
-              <HubForm.Field label={configs.get('oneOnOneRate')?.label || 'One-on-One Rate (£/hour)'} required>
+              <HubForm.Field label={configs.get('oneToOneSessionRate')?.label || 'One-to-One Session Rate (£/hour)'} required>
                 <input
                   type="number"
-                  value={formData.oneOnOneRate || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, oneOnOneRate: parseFloat(e.target.value) || 0 }))}
-                  onFocus={() => setEditingField('oneOnOneRate')}
-                  onBlur={() => handleBlur('oneOnOneRate')}
-                  placeholder={configs.get('oneOnOneRate')?.placeholder || '£50'}
+                  value={formData.oneToOneSessionRate || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, oneToOneSessionRate: parseFloat(e.target.value) || 0 }))}
+                  onFocus={() => setEditingField('oneToOneSessionRate')}
+                  onBlur={() => handleBlur('oneToOneSessionRate')}
+                  placeholder={configs.get('oneToOneSessionRate')?.placeholder || '£50'}
                   disabled={isLoading || isSaving}
                   min="0"
                   step="1"

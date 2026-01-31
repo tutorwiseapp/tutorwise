@@ -24,11 +24,11 @@ interface ProfessionalInfoFormProps {
 
 type EditingField = 'bio' | 'bio_video_url' | 'status' | 'academic_qualifications' | 'key_stages' |
   'teaching_professional_qualifications' | 'subjects' | 'teaching_experience' |
-  'session_type' | 'tutoring_experience' | 'one_on_one_rate' | 'group_session_rate' |
+  'session_type' | 'tutoring_experience' | 'one_to_one_session_rate' | 'group_session_rate' |
   'delivery_mode' | 'dbs_certificate' |
   // Client fields (aligned with Create Listing form labels)
   'status_client' | 'subjects_client' | 'key_stages_client' | 'levels_client' |
-  'delivery_mode_client' | 'one_on_one_rate_client' | 'group_session_rate_client' |
+  'delivery_mode_client' | 'one_to_one_session_rate_client' | 'group_session_rate_client' |
   'session_type_client' | 'sessions_per_week' | 'session_duration' |
   'learning_goals' | 'learning_preferences' | 'special_needs' |
   'academic_qualifications_client' | 'teaching_qualifications_client' |
@@ -300,7 +300,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     teaching_experience: '', // Single select
     session_type: [] as string[], // Multi-select
     tutoring_experience: '', // Single select
-    one_on_one_rate: '',
+    one_to_one_session_rate: '',
     group_session_rate: '',
     delivery_mode: [] as string[], // Multi-select
 
@@ -327,7 +327,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     key_stages_client: [] as string[], // Preferred Key Stages
     levels_client: [] as string[], // Preferred Levels
     delivery_mode_client: [] as string[], // Preferred Delivery Mode
-    one_on_one_rate_client: '', // Budget for One-to-One (£/hour)
+    one_to_one_session_rate_client: '', // Budget for One-to-One Session (£/hour)
     group_session_rate_client: '', // Budget for Group Sessions (£/hour)
     session_type_client: [] as string[], // Preferred Session Type
     sessions_per_week: '', // Preferred Sessions Per Week
@@ -424,7 +424,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
       teaching_experience: (activeRole === 'agent' ? agentData?.teaching_experience : tutorData?.teaching_experience) || '',
       session_type: (activeRole === 'agent' ? agentData?.session_types : tutorData?.session_types) || [],
       tutoring_experience: (activeRole === 'agent' ? agentData?.tutoring_experience : tutorData?.tutoring_experience) || '',
-      one_on_one_rate: (activeRole === 'agent' ? agentData?.one_on_one_rate?.toString() : tutorData?.one_on_one_rate?.toString()) || '',
+      one_to_one_session_rate: (activeRole === 'agent' ? agentData?.one_to_one_session_rate?.toString() : tutorData?.one_to_one_session_rate?.toString()) || '',
       group_session_rate: (activeRole === 'agent' ? agentData?.group_session_rate?.toString() : tutorData?.group_session_rate?.toString()) || '',
       delivery_mode: (activeRole === 'agent' ? agentData?.delivery_mode : tutorData?.delivery_mode) || [],
 
@@ -434,7 +434,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
       key_stages_client: clientData?.key_stages || [],
       levels_client: clientData?.levels || [],
       delivery_mode_client: clientData?.delivery_mode || [],
-      one_on_one_rate_client: clientData?.one_on_one_rate?.toString() || clientData?.hourly_rate?.toString() || '',
+      one_to_one_session_rate_client: clientData?.one_to_one_session_rate?.toString() || clientData?.hourly_rate?.toString() || '',
       group_session_rate_client: clientData?.group_session_rate?.toString() || clientData?.group_hourly_rate?.toString() || '',
       session_type_client: clientData?.session_type || clientData?.session_types || [],
       sessions_per_week: clientData?.sessions_per_week || '',
@@ -615,7 +615,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
       }
       // Handle client fields (aligned with Create Listing form)
       else if (['status_client', 'subjects_client', 'key_stages_client', 'levels_client',
-                 'delivery_mode_client', 'one_on_one_rate_client', 'group_session_rate_client',
+                 'delivery_mode_client', 'one_to_one_session_rate_client', 'group_session_rate_client',
                  'session_type_client', 'sessions_per_week', 'session_duration',
                  'learning_goals', 'learning_preferences', 'special_needs',
                  'academic_qualifications_client', 'teaching_qualifications_client',
@@ -630,7 +630,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
           'key_stages_client': 'key_stages',
           'levels_client': 'levels',
           'delivery_mode_client': 'delivery_mode',
-          'one_on_one_rate_client': 'one_on_one_rate',
+          'one_to_one_session_rate_client': 'one_to_one_session_rate',
           'group_session_rate_client': 'group_session_rate',
           'session_type_client': 'session_type',
           'academic_qualifications_client': 'academic_qualifications',
@@ -676,7 +676,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
       // Handle tutor/agent fields (Agent now uses same fields as Tutor)
       else if (['status', 'academic_qualifications', 'key_stages', 'teaching_professional_qualifications',
                 'subjects', 'teaching_experience', 'session_type', 'tutoring_experience',
-                'one_on_one_rate', 'group_session_rate', 'delivery_mode'].includes(field)) {
+                'one_to_one_session_rate', 'group_session_rate', 'delivery_mode'].includes(field)) {
         // Determine target role based on activeRole (agent uses same fields as tutor)
         const targetRole = activeRole === 'agent' ? 'agent' : 'tutor';
         const currentRoleData = profile.professional_details?.[targetRole as keyof typeof profile.professional_details] || {};
@@ -1208,7 +1208,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
             {/* Budget */}
             <HubForm.Grid>
-              {renderField('one_on_one_rate_client', 'Budget: One-on-One (£/hour)', 'number', '£25', undefined, true)}
+              {renderField('one_to_one_session_rate_client', 'Budget: One-to-One Session (£/hour)', 'number', '£25', undefined, true)}
               {renderField('group_session_rate_client', 'Budget: Group Session (£/hour per student)', 'number', '£15')}
             </HubForm.Grid>
 
@@ -1581,7 +1581,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
             {/* Rates */}
             <HubForm.Grid>
-              {renderField('one_on_one_rate', 'One-on-One Rate (£/hour)', 'number', '£50', undefined, true)}
+              {renderField('one_to_one_session_rate', 'One-to-One Session Rate (£/hour)', 'number', '£50', undefined, true)}
               {renderField('group_session_rate', 'Group Rate (£/hour per student)', 'number', '£25')}
             </HubForm.Grid>
           </HubForm.Section>
@@ -1825,7 +1825,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
           {/* Rates */}
           <HubForm.Grid>
-            {renderField('one_on_one_rate', 'One-on-One Rate (£/hour)', 'number', '£50', undefined, true)}
+            {renderField('one_to_one_session_rate', 'One-to-One Session Rate (£/hour)', 'number', '£50', undefined, true)}
             {renderField('group_session_rate', 'Group Rate (£/hour per student)', 'number', '£25')}
           </HubForm.Grid>
         </HubForm.Section>

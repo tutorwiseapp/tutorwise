@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import ClientProfessionalVerificationStep from '@/app/components/feature/onboarding/client/steps/ClientProfessionalVerificationStep';
+import VerificationStep from '@/app/components/feature/onboarding/shared/steps/VerificationStep';
 import { VerificationDetailsData } from '@/types';
 import styles from '../../page.module.css';
 
@@ -236,7 +236,8 @@ export default function ClientVerificationPage() {
 
   return (
     <div className={styles.onboardingStepPage}>
-      <ClientProfessionalVerificationStep
+      <VerificationStep
+        role="client"
         onNext={handleNext}
         onBack={handleBack}
         isLoading={isPageLoading}

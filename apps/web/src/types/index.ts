@@ -191,7 +191,7 @@ export interface ProfessionalDetailsData {
   deliveryMode: string[]; // Online, In-person, Hybrid
 
   // Rates
-  oneOnOneRate: number;
+  oneToOneSessionRate: number;
   groupSessionRate: number;
 
   // Completion flag for step tracking
@@ -325,12 +325,14 @@ export interface TutorProfessionalInfo {
   hourly_rate?: number;
   // Additional fields from role_details table
   status?: string;
+  bio?: string;
+  bio_video_url?: string;
   academic_qualifications?: string[];
   teaching_professional_qualifications?: string[];
   teaching_experience?: string;
   tutoring_experience?: string;
   session_types?: string[];
-  one_on_one_rate?: number;
+  one_to_one_session_rate?: number;
   group_session_rate?: number;
   delivery_mode?: string[];
   certifications?: string[];
@@ -369,12 +371,23 @@ export interface AgentProfessionalInfo {
   commission_preferences?: string;
 
   // Rate fields (for agency listings)
-  one_on_one_rate?: number;                 // Optional - agency's one-on-one session rate
+  one_to_one_session_rate?: number;         // Optional - agency's one-to-one session rate
   group_session_rate?: number;              // Optional - agency's group session rate
 
   // Availability fields (same as client/tutor - reusing calendar design)
   availability?: any;                       // Optional - when agency is accepting new clients/tutors
   unavailability?: any;                     // Optional - blackout periods (holidays, capacity limits)
+
+  // Additional fields from role_details table (migration 217)
+  status?: string;
+  bio?: string;
+  bio_video_url?: string;
+  academic_qualifications?: string[];
+  teaching_professional_qualifications?: string[];
+  tutoring_experience?: string;
+  key_stages?: string[];
+  session_types?: string[];
+  delivery_mode?: string[];
 }
 
 export interface ClientProfessionalInfo {
@@ -396,6 +409,19 @@ export interface ClientProfessionalInfo {
   // Availability fields (reusing tutor calendar design)
   availability?: any;                   // Availability periods
   unavailability?: any;                 // Unavailability periods
+  // Additional fields from role_details table (migration 217)
+  status?: string;
+  bio?: string;
+  bio_video_url?: string;
+  academic_qualifications?: string[];
+  teaching_professional_qualifications?: string[];
+  tutoring_experience?: string;
+  key_stages?: string[];
+  levels?: string[];
+  session_types?: string[];
+  delivery_mode?: string[];
+  one_to_one_session_rate?: number;
+  group_session_rate?: number;
 }
 
 export interface ColumnDef<T> {

@@ -49,6 +49,9 @@ function transformRoleDetailsToProfileDetails(roleDetails: RoleDetailsData[] | n
   }
 
   roleDetails.forEach((rd) => {
+    // Cast to any to access dynamic columns from database
+    const rdAny = rd as any;
+
     if (rd.role_type === 'tutor') {
       professional_details.tutor = {
         subjects: rd.subjects || [],
@@ -60,6 +63,18 @@ function transformRoleDetailsToProfileDetails(roleDetails: RoleDetailsData[] | n
         teaching_methods: rd.teaching_methods || [],
         professional_background: rd.professional_background,
         teaching_experience: rd.teaching_experience,
+        // New fields from migration 217
+        status: rdAny.status,
+        bio: rdAny.bio,
+        bio_video_url: rdAny.bio_video_url,
+        academic_qualifications: rdAny.academic_qualifications || [],
+        teaching_professional_qualifications: rdAny.teaching_professional_qualifications || [],
+        tutoring_experience: rdAny.tutoring_experience,
+        key_stages: rdAny.key_stages || [],
+        session_types: rdAny.session_types || [],
+        delivery_mode: rdAny.delivery_mode || [],
+        one_to_one_session_rate: rdAny.one_to_one_session_rate,
+        group_session_rate: rdAny.group_session_rate,
       } as TutorProfessionalInfo;
     } else if (rd.role_type === 'client') {
       professional_details.client = {
@@ -73,6 +88,19 @@ function transformRoleDetailsToProfileDetails(roleDetails: RoleDetailsData[] | n
         schedule_preferences: rd.schedule_preferences,
         previous_experience: rd.previous_experience ? 'Yes' : 'No',
         availability: rd.availability,
+        // New fields from migration 217
+        status: rdAny.status,
+        bio: rdAny.bio,
+        bio_video_url: rdAny.bio_video_url,
+        academic_qualifications: rdAny.academic_qualifications || [],
+        teaching_professional_qualifications: rdAny.teaching_professional_qualifications || [],
+        tutoring_experience: rdAny.tutoring_experience,
+        key_stages: rdAny.key_stages || [],
+        levels: rdAny.levels || [],
+        session_types: rdAny.session_types || [],
+        delivery_mode: rdAny.delivery_mode || [],
+        one_to_one_session_rate: rdAny.one_to_one_session_rate,
+        group_session_rate: rdAny.group_session_rate,
       } as ClientProfessionalInfo;
     } else if (rd.role_type === 'agent') {
       professional_details.agent = {
@@ -81,6 +109,18 @@ function transformRoleDetailsToProfileDetails(roleDetails: RoleDetailsData[] | n
         professional_background: rd.professional_background,
         commission_preferences: rd.commission_preferences,
         availability: rd.availability,
+        // New fields from migration 217
+        status: rdAny.status,
+        bio: rdAny.bio,
+        bio_video_url: rdAny.bio_video_url,
+        academic_qualifications: rdAny.academic_qualifications || [],
+        teaching_professional_qualifications: rdAny.teaching_professional_qualifications || [],
+        tutoring_experience: rdAny.tutoring_experience,
+        key_stages: rdAny.key_stages || [],
+        session_types: rdAny.session_types || [],
+        delivery_mode: rdAny.delivery_mode || [],
+        one_to_one_session_rate: rdAny.one_to_one_session_rate,
+        group_session_rate: rdAny.group_session_rate,
       } as AgentProfessionalInfo;
     }
   });

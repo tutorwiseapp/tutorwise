@@ -74,9 +74,9 @@ export default function CreateOneToOnePage() {
       const tutorData = profile.professional_details.tutor;
       if (tutorData) {
         if (tutorData.subjects) prefillData.subjects = tutorData.subjects as string[];
-        if (tutorData.hourly_rate && Array.isArray(tutorData.hourly_rate)) {
-          prefillData.hourly_rate_min = tutorData.hourly_rate[0];
-          prefillData.hourly_rate_max = tutorData.hourly_rate[1] || tutorData.hourly_rate[0];
+        // Pre-fill hourly rate from tutor's one_to_one_session_rate profile setting
+        if (tutorData.one_to_one_session_rate) {
+          (prefillData as any).hourly_rate = tutorData.one_to_one_session_rate;
         }
       }
     }
@@ -86,6 +86,10 @@ export default function CreateOneToOnePage() {
       if (agentData) {
         if (agentData.subject_specializations) {
           prefillData.subjects = agentData.subject_specializations;
+        }
+        // Pre-fill hourly rate from agent's one_to_one_session_rate profile setting
+        if (agentData.one_to_one_session_rate) {
+          (prefillData as any).hourly_rate = agentData.one_to_one_session_rate;
         }
       }
     }

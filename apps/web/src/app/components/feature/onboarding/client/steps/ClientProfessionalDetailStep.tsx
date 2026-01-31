@@ -141,7 +141,7 @@ const ClientProfessionalDetailStep: React.FC<ClientProfessionalDetailStepProps> 
     subjects: [],
     sessionType: [],
     deliveryMode: [],
-    oneOnOneRate: 0,
+    oneToOneSessionRate: 0,
     groupSessionRate: 0,
   });
   const [isRestored, setIsRestored] = useState(false);
@@ -162,7 +162,7 @@ const ClientProfessionalDetailStep: React.FC<ClientProfessionalDetailStepProps> 
     { fieldName: 'subjects', context: 'onboarding.client', fallback: { label: 'Preferred Subjects', placeholder: 'Select subjects', options: subjectsOptions } },
     { fieldName: 'sessionType', context: 'onboarding.client', fallback: { label: 'Preferred Session Type', placeholder: 'Select session types', options: sessionTypeOptions } },
     { fieldName: 'deliveryMode', context: 'onboarding.client', fallback: { label: 'Preferred Delivery Mode', placeholder: 'Select delivery mode', options: deliveryModeOptions } },
-    { fieldName: 'oneOnOneRate', context: 'onboarding.client', fallback: { label: 'Budget: One-on-One (£/hour)', placeholder: '£25' } },
+    { fieldName: 'oneToOneSessionRate', context: 'onboarding.client', fallback: { label: 'Budget: One-to-One Session (£/hour)', placeholder: '£25' } },
     { fieldName: 'groupSessionRate', context: 'onboarding.client', fallback: { label: 'Budget: Group Session (£/hour per student)', placeholder: '£15' } },
   ]);
 
@@ -286,7 +286,7 @@ const ClientProfessionalDetailStep: React.FC<ClientProfessionalDetailStepProps> 
     formData.subjects.length > 0 &&
     formData.sessionType.length > 0 &&
     formData.deliveryMode.length > 0 &&
-    formData.oneOnOneRate > 0;
+    formData.oneToOneSessionRate > 0;
 
   // Debug validation
   React.useEffect(() => {
@@ -313,8 +313,8 @@ const ClientProfessionalDetailStep: React.FC<ClientProfessionalDetailStepProps> 
       preferredSessionTypeValid: formData.sessionType.length > 0,
       preferredDeliveryMode: formData.deliveryMode.length,
       preferredDeliveryModeValid: formData.deliveryMode.length > 0,
-      budgetOneOnOne: formData.oneOnOneRate,
-      budgetOneOnOneValid: formData.oneOnOneRate > 0,
+      budgetOneToOneSession: formData.oneToOneSessionRate,
+      budgetOneToOneSessionValid: formData.oneToOneSessionRate > 0,
       budgetGroup: formData.groupSessionRate,
       budgetGroupOptional: true,
       isValid
@@ -502,14 +502,14 @@ const ClientProfessionalDetailStep: React.FC<ClientProfessionalDetailStepProps> 
 
             {/* Budget */}
             <HubForm.Grid>
-              <HubForm.Field label={configs.get('oneOnOneRate')?.label || 'Budget: One-on-One (£/hour)'} required>
+              <HubForm.Field label={configs.get('oneToOneSessionRate')?.label || 'Budget: One-to-One Session (£/hour)'} required>
                 <input
                   type="number"
-                  value={formData.oneOnOneRate || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, oneOnOneRate: parseFloat(e.target.value) || 0 }))}
-                  onFocus={() => setEditingField('oneOnOneRate')}
-                  onBlur={() => handleBlur('oneOnOneRate')}
-                  placeholder={configs.get('oneOnOneRate')?.placeholder || '£25'}
+                  value={formData.oneToOneSessionRate || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, oneToOneSessionRate: parseFloat(e.target.value) || 0 }))}
+                  onFocus={() => setEditingField('oneToOneSessionRate')}
+                  onBlur={() => handleBlur('oneToOneSessionRate')}
+                  placeholder={configs.get('oneToOneSessionRate')?.placeholder || '£25'}
                   disabled={isLoading || isSaving}
                   min="0"
                   step="1"

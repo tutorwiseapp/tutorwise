@@ -100,7 +100,7 @@ export interface RoleDetailsUpdate {
   teaching_experience?: string;
   session_types?: string[];
   tutoring_experience?: string;
-  one_on_one_rate?: number;
+  one_to_one_session_rate?: number;
   group_session_rate?: number;
   delivery_mode?: string[];
   qualifications?: any;

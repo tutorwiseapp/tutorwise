@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import AgentAvailabilityStep from '@/app/components/feature/onboarding/agent/steps/AgentAvailabilityStep';
-import { AvailabilityData } from '@/app/components/feature/onboarding/agent/steps/AgentAvailabilityStep';
+import AvailabilityStep, { AvailabilityData } from '@/app/components/feature/onboarding/shared/steps/AvailabilityStep';
 import styles from '../../page.module.css';
 
 // CaaS Points
@@ -122,7 +121,7 @@ export default function AgentAvailabilityPage() {
       // Validate previous steps' data exists before final save
       if (!professionalDetails?.subjects?.length ||
           !professionalDetails?.tutoringExperience ||
-          !professionalDetails?.oneOnOneRate) {
+          !professionalDetails?.oneToOneSessionRate) {
         console.error('[AgentAvailability] ❌ Missing professional details data');
         alert('Please complete Professional Details step first. Missing required fields: subjects, experience, or rate.');
         setIsPageLoading(false);
@@ -289,7 +288,8 @@ export default function AgentAvailabilityPage() {
 
   return (
     <div className={styles.onboardingStepPage}>
-      <AgentAvailabilityStep
+      <AvailabilityStep
+        role="agent"
         onNext={handleNext}
         onBack={handleBack}
         isLoading={isPageLoading}
