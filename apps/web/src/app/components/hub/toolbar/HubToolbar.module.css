@@ -250,8 +250,8 @@
 }
 
 .scrollButton:disabled {
-  opacity: 0.3;
   cursor: default;
+  /* Keep full opacity - always visible for consistent UI */
 }
 
 /* CSS Triangle arrows */
@@ -271,11 +271,7 @@
   border-left: 6px solid #6b7280;
 }
 
-.scrollButton:disabled .scrollArrowLeft,
-.scrollButton:disabled .scrollArrowRight {
-  border-right-color: #9ca3af;
-  border-left-color: #9ca3af;
-}
+/* Keep arrow color consistent even when disabled */
 
 /* Scrollable content between scroll buttons */
 .scrollableContent {
