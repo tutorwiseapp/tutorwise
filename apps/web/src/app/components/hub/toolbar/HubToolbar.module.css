@@ -119,12 +119,19 @@
   pointer-events: none;
 }
 
+/* Scrollable container for filters and actions */
+.toolbarScrollable {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
 /* Actions */
 .actions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-left: auto; /* Push to right */
 }
 
 /* Auto-refresh Toggle */
@@ -630,8 +637,8 @@
     height: 36px;
   }
 
-  /* Scrollable row for filters and actions */
-  .filters {
+  /* Single scrollable row for all non-search items */
+  .toolbarScrollable {
     display: flex;
     flex-wrap: nowrap;
     gap: 0.5rem;
@@ -640,10 +647,18 @@
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE/Edge */
     padding-bottom: 2px; /* Prevent cut-off on scroll */
+    flex: 1 1 100%;
   }
 
-  .filters::-webkit-scrollbar {
+  .toolbarScrollable::-webkit-scrollbar {
     display: none; /* Chrome/Safari */
+  }
+
+  /* Filters inside scrollable container */
+  .filters {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
   }
 
   .filterWrapper {
@@ -656,21 +671,11 @@
     padding-right: 1.75rem;
   }
 
-  /* Actions row - scrollable */
+  /* Actions inside scrollable container */
   .actions {
     display: flex;
     flex-wrap: nowrap;
     gap: 0.5rem;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    margin-left: 0; /* Remove auto margin on mobile */
-    padding-bottom: 2px;
-  }
-
-  .actions::-webkit-scrollbar {
-    display: none;
   }
 
   .iconButton {
@@ -696,18 +701,20 @@
   }
 
   /* Saved views button - compact */
+  .savedViewsWrapper {
+    flex-shrink: 0;
+  }
+
   .savedViewsButton {
     height: 32px;
     font-size: 0.8125rem;
     padding: 0 1.75rem 0 0.625rem;
-    flex-shrink: 0;
     white-space: nowrap;
   }
 
   /* Bulk actions - compact */
   .bulkActionsContainer {
     flex-shrink: 0;
-    margin-left: 0;
     padding-left: 0.5rem;
   }
 

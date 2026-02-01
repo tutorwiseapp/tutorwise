@@ -792,18 +792,21 @@
     padding: 0 0.75rem;
   }
 
+  /* Show scrollable table on mobile instead of hiding it */
   .desktopTable {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Hide mobile cards - table is shown instead */
+  .mobileCards {
     display: none;
   }
 
-  .mobileCards {
-    display: block;
-    padding: 0.75rem;
-  }
-
-  /* New pagination wrapper - mobile */
+  /* Pagination - mobile */
   .paginationWrapper {
-    flex-direction: column;
+    flex-direction: row;
     justify-content: center;
     gap: 0.5rem;
     padding: 0.625rem;
@@ -814,7 +817,7 @@
   }
 
   .pageSizeWrapper {
-    position: static; /* Remove absolute positioning on mobile */
+    display: none; /* Hide page size selector on mobile */
   }
 
   .paginationCenter {
