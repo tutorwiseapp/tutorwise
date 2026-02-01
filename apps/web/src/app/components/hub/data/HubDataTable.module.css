@@ -803,12 +803,18 @@
 
   /* New pagination wrapper - mobile */
   .paginationWrapper {
+    flex-direction: column;
     justify-content: center;
+    gap: 0.5rem;
     padding: 0.625rem;
   }
 
   .pageSizeSelector {
-    display: none; /* Hide page size selector on mobile */
+    display: none; /* Hide native page size selector on mobile */
+  }
+
+  .pageSizeWrapper {
+    position: static; /* Remove absolute positioning on mobile */
   }
 
   .paginationCenter {

@@ -48,7 +48,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import HubPagination from '@/app/components/hub/layout/HubPagination';
@@ -181,6 +181,25 @@ export default function HubDataTable<T extends Record<string, any>>({
 
   // Phase 2: Saved views state
   const [savedViews, setSavedViews] = useState<SavedView[]>([]);
+
+  // Mobile detection for responsive labels
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Responsive page size options - shorter labels on mobile
+  const pageSizeOptions = useMemo(() => {
+    const sizes = pagination?.pageSizeOptions || [10, 20, 50, 100];
+    return sizes.map((size) => ({
+      value: size,
+      label: isMobile ? `${size}` : `${size} per page`
+    }));
+  }, [pagination?.pageSizeOptions, isMobile]);
 
   // Handle sort
   const handleSort = (key: string) => {
@@ -483,10 +502,7 @@ export default function HubDataTable<T extends Record<string, any>>({
                   pagination.onLimitChange!(Number(value));
                   pagination.onPageChange(1); // Reset to first page when changing page size
                 }}
-                options={(pagination.pageSizeOptions || [10, 20, 50, 100]).map((size) => ({
-                  value: size,
-                  label: `${size} per page`
-                }))}
+                options={pageSizeOptions}
                 placeholder="Page size"
                 size="xs"
               />
