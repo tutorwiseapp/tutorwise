@@ -613,12 +613,41 @@
 /* Mobile Responsive (<768px) */
 @media (max-width: 767px) {
   .toolbar {
-    padding: 0.875rem;
-    gap: 0.625rem;
+    flex-wrap: wrap;
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  /* Search stays full width on top */
+  .searchWrapper {
+    flex: 1 1 100%;
+    max-width: none;
+    order: -1;
   }
 
   .searchInput {
     font-size: 0.8125rem;
+    height: 36px;
+  }
+
+  /* Scrollable row for filters and actions */
+  .filters {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+    padding-bottom: 2px; /* Prevent cut-off on scroll */
+  }
+
+  .filters::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+
+  .filterWrapper {
+    flex-shrink: 0;
   }
 
   .filterSelect {
@@ -627,7 +656,25 @@
     padding-right: 1.75rem;
   }
 
+  /* Actions row - scrollable */
+  .actions {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    margin-left: 0; /* Remove auto margin on mobile */
+    padding-bottom: 2px;
+  }
+
+  .actions::-webkit-scrollbar {
+    display: none;
+  }
+
   .iconButton {
+    flex-shrink: 0;
     width: 32px;
     height: 32px;
   }
@@ -637,8 +684,41 @@
     height: 0.875rem;
   }
 
-  .filters {
-    flex-wrap: wrap;
-    gap: 0.375rem;
+  /* Auto-refresh: hide label, show only checkbox */
+  .autoRefreshToggle {
+    height: 32px;
+    padding: 0 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .autoRefreshLabel {
+    display: none;
+  }
+
+  /* Saved views button - compact */
+  .savedViewsButton {
+    height: 32px;
+    font-size: 0.8125rem;
+    padding: 0 1.75rem 0 0.625rem;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  /* Bulk actions - compact */
+  .bulkActionsContainer {
+    flex-shrink: 0;
+    margin-left: 0;
+    padding-left: 0.5rem;
+  }
+
+  .bulkSelectedCount {
+    font-size: 0.8125rem;
+    padding: 0 0.375rem;
+  }
+
+  .bulkActionsButton {
+    height: 32px;
+    font-size: 0.8125rem;
+    padding: 0 0.625rem;
   }
 }
