@@ -165,8 +165,7 @@
 
 .autoRefreshLabel {
   font-size: 0.875rem;
-  font-weight: 500;
-  color: #6b7280; /* Match other toolbar text colors */
+  color: #1f2937; /* Match filter dropdown text color */
   cursor: pointer;
 }
 
