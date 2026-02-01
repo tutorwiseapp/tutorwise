@@ -6,7 +6,6 @@
 
 import { ReactNode } from 'react';
 import { Metadata } from 'next';
-import Footer from '@/app/components/layout/Footer';
 
 // SEO Metadata for About Tutorwise page
 export const metadata: Metadata = {
@@ -63,10 +62,5 @@ interface AboutTutorwiseLayoutProps {
 }
 
 export default function AboutTutorwiseLayout({ children }: AboutTutorwiseLayoutProps) {
-  return (
-    <>
-      {children}
-      <Footer />
-    </>
-  );
+  return <>{children}</>;
 }

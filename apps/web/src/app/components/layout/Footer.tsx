@@ -7,6 +7,7 @@ const Footer = () => {
       <p>
         <span>© 2025 Tutorwise. All rights reserved.</span>
         <Link href="/">Home</Link>
+        <Link href="/about-tutorwise">About</Link>
         <Link href="/help-centre">Get Help</Link>
         <Link href="/resources">Resources</Link>
         {/* --- THIS IS THE FIX --- */}
