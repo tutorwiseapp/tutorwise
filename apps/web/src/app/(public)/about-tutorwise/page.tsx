@@ -269,16 +269,12 @@ export default function AboutTutorwisePage() {
           <div className={styles.ctaContent}>
             <h2 className={styles.ctaTitle}>Here for Good</h2>
             <p className={styles.ctaSubtitle}>
-              We&apos;re not just building a platform — we&apos;re building a future where quality
-              education is accessible to everyone. Join thousands of learners and tutors who are
-              already part of the Tutorwise community.
+              We&apos;re not just building a platform — we&apos;re building a trusted ecosystem for learning. Join a growing community of learners, tutors and agents who believe education should be credible, human, and personal.
+
             </p>
             <div className={styles.ctaButtons}>
-              <Button href="/register?role=client" variant="primary" size="lg">
-                Get Started as a Student
-              </Button>
-              <Button href="/register?role=tutor" variant="secondary" size="lg">
-                Become a Tutor
+              <Button href="/signup" variant="primary" size="lg">
+                Get Started
               </Button>
             </div>
           </div>
