@@ -67,6 +67,53 @@ export default function HubToolbar({
   const [showSavedViewsMenu, setShowSavedViewsMenu] = useState(false);
   const savedViewsMenuRef = useRef<HTMLDivElement>(null);
 
+  // Scroll buttons state for mobile/tablet
+  const scrollableContentRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  // Check scroll overflow and update button states
+  const checkScrollOverflow = () => {
+    const el = scrollableContentRef.current;
+    if (!el) return;
+
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollLeft(scrollLeft > 0);
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 1);
+  };
+
+  // Scroll by a fixed amount
+  const handleScrollLeft = () => {
+    const el = scrollableContentRef.current;
+    if (!el) return;
+    el.scrollBy({ left: -150, behavior: 'smooth' });
+  };
+
+  const handleScrollRight = () => {
+    const el = scrollableContentRef.current;
+    if (!el) return;
+    el.scrollBy({ left: 150, behavior: 'smooth' });
+  };
+
+  // Check overflow on mount, resize, and content changes
+  useEffect(() => {
+    checkScrollOverflow();
+
+    const el = scrollableContentRef.current;
+    if (el) {
+      el.addEventListener('scroll', checkScrollOverflow);
+    }
+
+    window.addEventListener('resize', checkScrollOverflow);
+
+    return () => {
+      if (el) {
+        el.removeEventListener('scroll', checkScrollOverflow);
+      }
+      window.removeEventListener('resize', checkScrollOverflow);
+    };
+  }, [filters, filterValues]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -202,6 +249,194 @@ export default function HubToolbar({
     }
   };
 
+  // Render toolbar content (filters, actions, etc.) - used in both desktop and mobile layouts
+  const renderToolbarContent = () => (
+    <>
+      {/* Filters */}
+      {filters.length > 0 && (
+        <div className={styles.filters}>
+          {filters.map((filter) => {
+            const filterValue = filterValues[filter.key];
+            const stringValue = Array.isArray(filterValue) ? filterValue[0] || '' : (filterValue || '');
+
+            return (
+              <div key={filter.key} className={styles.filterWrapper}>
+                <UnifiedSelect
+                  value={stringValue}
+                  onChange={(value) => onFilterChange?.(filter.key, String(value))}
+                  options={[
+                    { value: '', label: filter.label },
+                    ...filter.options.map(option => ({
+                      value: option.value,
+                      label: option.label
+                    }))
+                  ]}
+                  placeholder={filter.label}
+                  size="sm"
+                />
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Saved Views */}
+      {enableSavedViews && mergedSavedViews.length > 0 && (
+        <div className={styles.savedViewsWrapper} ref={savedViewsMenuRef}>
+          <button
+            onClick={() => setShowSavedViewsMenu(!showSavedViewsMenu)}
+            className={styles.savedViewsButton}
+            aria-label="Saved views"
+          >
+            Saved Views
+            <ChevronDown className={styles.filterIcon} />
+          </button>
+          {showSavedViewsMenu && (
+            <div className={styles.savedViewsMenu}>
+              {mergedSavedViews.map((view) => {
+                const isLocalView = localSavedViews.some(v => v.id === view.id);
+                return (
+                  <div key={view.id} className={styles.savedViewItem}>
+                    <button
+                      onClick={() => {
+                        if (onLoadView) onLoadView(view);
+                        setShowSavedViewsMenu(false);
+                      }}
+                      className={styles.savedViewItemButton}
+                    >
+                      {view.name}
+                    </button>
+                    {isLocalView && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteView(view.id);
+                        }}
+                        className={styles.savedViewDeleteButton}
+                        title="Delete view"
+                        aria-label="Delete view"
+                      >
+                        <Trash2 className={styles.savedViewDeleteIcon} />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Save View Button */}
+      {enableSavedViews && onSaveView && (
+        <button
+          onClick={() => setShowSaveViewModal(true)}
+          className={styles.iconButton}
+          title="Save current view"
+          aria-label="Save view"
+        >
+          <Save className={styles.buttonIcon} />
+        </button>
+      )}
+
+      {/* Bulk Actions */}
+      {bulkActions.length > 0 && selectedCount > 0 && (
+        <div className={styles.bulkActionsContainer}>
+          <div className={styles.bulkSelectedCount}>
+            {selectedCount} selected
+            {onClearSelection && (
+              <button
+                onClick={onClearSelection}
+                className={styles.bulkClearButton}
+                aria-label="Clear selection"
+              >
+                <X className={styles.bulkClearIcon} />
+              </button>
+            )}
+          </div>
+          <div className={styles.bulkActionsWrapper} ref={bulkMenuRef}>
+            <button
+              onClick={() => setShowBulkMenu(!showBulkMenu)}
+              className={styles.bulkActionsButton}
+              aria-label="Bulk actions"
+            >
+              Actions
+              <ChevronDown className={styles.bulkActionIcon} />
+            </button>
+            {showBulkMenu && (
+              <div className={styles.bulkActionsMenu}>
+                {bulkActions.map((action) => {
+                  const ActionIcon = action.icon;
+                  return (
+                    <button
+                      key={action.value}
+                      onClick={() => {
+                        const selectedIds: string[] = []; // Parent should track selected IDs
+                        action.onClick(selectedIds);
+                        setShowBulkMenu(false);
+                      }}
+                      className={`${styles.bulkActionItem} ${action.variant ? styles[`variant-${action.variant}`] : ''}`}
+                    >
+                      {ActionIcon && <ActionIcon className={styles.bulkActionItemIcon} />}
+                      {action.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Actions */}
+      <div className={styles.actions}>
+        {/* Refresh Button */}
+        {onRefresh && (
+          <button
+            onClick={onRefresh}
+            disabled={isRefreshing}
+            className={`${styles.iconButton} ${isRefreshing ? styles.refreshing : ''}`}
+            title="Refresh (⌘R)"
+            aria-label="Refresh"
+          >
+            <RefreshCw className={styles.buttonIcon} />
+          </button>
+        )}
+
+        {/* Auto-refresh Toggle */}
+        {onRefresh && autoRefreshInterval && (
+          <label className={styles.autoRefreshToggle}>
+            <input
+              type="checkbox"
+              checked={internalAutoRefreshEnabled}
+              onChange={(e) => handleAutoRefreshToggle(e.target.checked)}
+              className={styles.autoRefreshCheckbox}
+            />
+            <span className={styles.autoRefreshLabel}>Auto-refresh</span>
+          </label>
+        )}
+
+        {/* Custom Toolbar Actions (rendered before Export) */}
+        {toolbarActions}
+
+        {/* Export Button */}
+        {onExport && (
+          <button
+            onClick={onExport}
+            className={styles.iconButton}
+            title="Export to CSV"
+            aria-label="Export to CSV"
+          >
+            <Download className={styles.buttonIcon} />
+          </button>
+        )}
+
+        {/* Custom Actions */}
+        {customActions}
+      </div>
+    </>
+  );
+
   return (
     <div className={`${styles.toolbar} ${variant === 'minimal' ? styles.toolbarMinimal : ''} ${sticky ? styles.sticky : ''} ${className}`}>
       {/* Search */}
@@ -219,190 +454,40 @@ export default function HubToolbar({
         </div>
       )}
 
-      {/* Scrollable container for all non-search items on mobile */}
+      {/* Desktop: Scrollable container (shown on desktop, hidden on mobile/tablet via CSS) */}
       <div className={styles.toolbarScrollable}>
-        {/* Filters */}
-        {filters.length > 0 && (
-          <div className={styles.filters}>
-            {filters.map((filter) => {
-              const filterValue = filterValues[filter.key];
-              const stringValue = Array.isArray(filterValue) ? filterValue[0] || '' : (filterValue || '');
+        {renderToolbarContent()}
+      </div>
 
-              return (
-                <div key={filter.key} className={styles.filterWrapper}>
-                  <UnifiedSelect
-                    value={stringValue}
-                    onChange={(value) => onFilterChange?.(filter.key, String(value))}
-                    options={[
-                      { value: '', label: filter.label },
-                      ...filter.options.map(option => ({
-                        value: option.value,
-                        label: option.label
-                      }))
-                    ]}
-                    placeholder={filter.label}
-                    size="sm"
-                  />
-                </div>
-              );
-            })}
-          </div>
-        )}
+      {/* Mobile/Tablet: Scroll buttons wrapper (hidden on desktop, shown on mobile/tablet via CSS) */}
+      <div className={styles.scrollButtonsWrapper}>
+        {/* Left scroll button */}
+        <button
+          className={`${styles.scrollButton} ${styles.scrollButtonLeft}`}
+          onClick={handleScrollLeft}
+          disabled={!canScrollLeft}
+          aria-label="Scroll left"
+        >
+          <span className={styles.scrollArrowLeft} />
+        </button>
 
-        {/* Saved Views */}
-        {enableSavedViews && mergedSavedViews.length > 0 && (
-          <div className={styles.savedViewsWrapper} ref={savedViewsMenuRef}>
-            <button
-              onClick={() => setShowSavedViewsMenu(!showSavedViewsMenu)}
-              className={styles.savedViewsButton}
-              aria-label="Saved views"
-            >
-              Saved Views
-              <ChevronDown className={styles.filterIcon} />
-            </button>
-            {showSavedViewsMenu && (
-              <div className={styles.savedViewsMenu}>
-                {mergedSavedViews.map((view) => {
-                  const isLocalView = localSavedViews.some(v => v.id === view.id);
-                  return (
-                    <div key={view.id} className={styles.savedViewItem}>
-                      <button
-                        onClick={() => {
-                          if (onLoadView) onLoadView(view);
-                          setShowSavedViewsMenu(false);
-                        }}
-                        className={styles.savedViewItemButton}
-                      >
-                        {view.name}
-                      </button>
-                      {isLocalView && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteView(view.id);
-                          }}
-                          className={styles.savedViewDeleteButton}
-                          title="Delete view"
-                          aria-label="Delete view"
-                        >
-                          <Trash2 className={styles.savedViewDeleteIcon} />
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Save View Button */}
-        {enableSavedViews && onSaveView && (
-          <button
-            onClick={() => setShowSaveViewModal(true)}
-            className={styles.iconButton}
-            title="Save current view"
-            aria-label="Save view"
-          >
-            <Save className={styles.buttonIcon} />
-          </button>
-        )}
-
-        {/* Bulk Actions */}
-        {bulkActions.length > 0 && selectedCount > 0 && (
-          <div className={styles.bulkActionsContainer}>
-            <div className={styles.bulkSelectedCount}>
-              {selectedCount} selected
-              {onClearSelection && (
-                <button
-                  onClick={onClearSelection}
-                  className={styles.bulkClearButton}
-                  aria-label="Clear selection"
-                >
-                  <X className={styles.bulkClearIcon} />
-                </button>
-              )}
-            </div>
-            <div className={styles.bulkActionsWrapper} ref={bulkMenuRef}>
-              <button
-                onClick={() => setShowBulkMenu(!showBulkMenu)}
-                className={styles.bulkActionsButton}
-                aria-label="Bulk actions"
-              >
-                Actions
-                <ChevronDown className={styles.bulkActionIcon} />
-              </button>
-              {showBulkMenu && (
-                <div className={styles.bulkActionsMenu}>
-                  {bulkActions.map((action) => {
-                    const ActionIcon = action.icon;
-                    return (
-                      <button
-                        key={action.value}
-                        onClick={() => {
-                          const selectedIds: string[] = []; // Parent should track selected IDs
-                          action.onClick(selectedIds);
-                          setShowBulkMenu(false);
-                        }}
-                        className={`${styles.bulkActionItem} ${action.variant ? styles[`variant-${action.variant}`] : ''}`}
-                      >
-                        {ActionIcon && <ActionIcon className={styles.bulkActionItemIcon} />}
-                        {action.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Actions */}
-        <div className={styles.actions}>
-          {/* Refresh Button */}
-          {onRefresh && (
-            <button
-              onClick={onRefresh}
-              disabled={isRefreshing}
-              className={`${styles.iconButton} ${isRefreshing ? styles.refreshing : ''}`}
-              title="Refresh (⌘R)"
-              aria-label="Refresh"
-            >
-              <RefreshCw className={styles.buttonIcon} />
-            </button>
-          )}
-
-          {/* Auto-refresh Toggle */}
-          {onRefresh && autoRefreshInterval && (
-            <label className={styles.autoRefreshToggle}>
-              <input
-                type="checkbox"
-                checked={internalAutoRefreshEnabled}
-                onChange={(e) => handleAutoRefreshToggle(e.target.checked)}
-                className={styles.autoRefreshCheckbox}
-              />
-              <span className={styles.autoRefreshLabel}>Auto-refresh</span>
-            </label>
-          )}
-
-          {/* Custom Toolbar Actions (rendered before Export) */}
-          {toolbarActions}
-
-          {/* Export Button */}
-          {onExport && (
-            <button
-              onClick={onExport}
-              className={styles.iconButton}
-              title="Export to CSV"
-              aria-label="Export to CSV"
-            >
-              <Download className={styles.buttonIcon} />
-            </button>
-          )}
-
-          {/* Custom Actions */}
-          {customActions}
+        {/* Scrollable content */}
+        <div
+          ref={scrollableContentRef}
+          className={styles.scrollableContent}
+        >
+          {renderToolbarContent()}
         </div>
+
+        {/* Right scroll button */}
+        <button
+          className={`${styles.scrollButton} ${styles.scrollButtonRight}`}
+          onClick={handleScrollRight}
+          disabled={!canScrollRight}
+          aria-label="Scroll right"
+        >
+          <span className={styles.scrollArrowRight} />
+        </button>
       </div>
 
       {/* Save View Modal */}
