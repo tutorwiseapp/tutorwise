@@ -18,7 +18,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { createClient } from '@/utils/supabase/client';
+import { performLogout } from '@/lib/utils/logout';
 import type { Role } from '@/types';
 import getProfileImageUrl from '@/lib/utils/image';
 import styles from './MobileMenu.module.css';
@@ -55,15 +55,8 @@ export default function MobileMenu({ isOpen, onClose, isAdminUser }: MobileMenuP
     }
   };
 
-  const handleSignOut = async () => {
-    try {
-      const supabase = createClient();
-      await supabase.auth.signOut({ scope: 'global' });
-      window.location.href = '/';
-    } catch (error) {
-      console.error('Logout error:', error);
-      window.location.href = '/';
-    }
+  const handleSignOut = () => {
+    performLogout('/');
   };
 
   const handleLinkClick = () => {

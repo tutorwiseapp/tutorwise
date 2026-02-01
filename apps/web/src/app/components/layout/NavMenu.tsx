@@ -16,7 +16,7 @@ import Image from 'next/image';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { createClient } from '@/utils/supabase/client';
+import { performLogout } from '@/lib/utils/logout';
 import type { Role } from '@/types';
 import GuanMenuIcon from '@/app/components/ui/navigation/GuanMenuIcon';
 import styles from './NavMenu.module.css';
@@ -51,21 +51,8 @@ const NavMenu = () => {
     }
   };
 
-  const handleSignOut = async () => {
-    try {
-      const supabase = createClient();
-      // 1. Let Supabase handle the global sign out.
-      // This clears its own cookies and localStorage items correctly.
-      await supabase.auth.signOut({ scope: 'global' });
-
-      // 2. Force a hard refresh to the homepage to clear all client-side state.
-      window.location.href = '/';
-
-    } catch (error) {
-      console.error('Logout error:', error);
-      // Fallback: still force the redirect if the sign out fails for any reason.
-      window.location.href = '/';
-    }
+  const handleSignOut = () => {
+    performLogout('/');
   };
 
   if (isLoading) {

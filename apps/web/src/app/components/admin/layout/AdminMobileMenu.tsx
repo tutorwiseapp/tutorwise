@@ -17,7 +17,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useAdminProfile } from '@/lib/rbac';
-import { createClient } from '@/utils/supabase/client';
+import { performLogout } from '@/lib/utils/logout';
 import getProfileImageUrl from '@/lib/utils/image';
 import styles from './AdminMobileMenu.module.css';
 
@@ -31,15 +31,8 @@ export default function AdminMobileMenu({ isOpen, onClose }: AdminMobileMenuProp
   const { profile } = useUserProfile();
   const { profile: adminProfile } = useAdminProfile();
 
-  const handleSignOut = async () => {
-    try {
-      const supabase = createClient();
-      await supabase.auth.signOut({ scope: 'global' });
-      window.location.href = '/';
-    } catch (error) {
-      console.error('Logout error:', error);
-      window.location.href = '/';
-    }
+  const handleSignOut = () => {
+    performLogout('/');
   };
 
   const handleLinkClick = () => {
