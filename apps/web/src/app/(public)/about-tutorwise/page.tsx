@@ -193,7 +193,7 @@ export default function AboutTutorwisePage() {
           </div>
           <div className={styles.helpCentreLink}>
             <p>Want to learn more about using Tutorwise?</p>
-            <Link href="/help-centre" className={styles.textLink}>
+            <Link href="/help-centre" className={styles.textLink} scroll={true}>
               Visit our Help Centre for detailed guides →
             </Link>
           </div>
