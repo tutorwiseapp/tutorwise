@@ -22,7 +22,17 @@ const CATEGORIES = [
   { name: 'For Clients', slug: 'for-clients', count: 3, color: '#dbeafe' },
   { name: 'For Tutors', slug: 'for-tutors', count: 3, color: '#d1fae5' },
   { name: 'For Agents', slug: 'for-agents', count: 3, color: '#fce7f3' },
+  { name: 'For Organisations', slug: 'for-organisations', count: 0, color: '#e0e7ff' },
+  { name: 'Getting Started', slug: 'getting-started', count: 0, color: '#ccfbf1' },
+  { name: 'FAQs', slug: 'faqs', count: 0, color: '#f3e8ff' },
+  { name: 'Best Practices', slug: 'best-practices', count: 0, color: '#fef9c3' },
+  { name: 'Success Stories', slug: 'success-stories', count: 0, color: '#fee2e2' },
+  { name: 'Product Updates', slug: 'product-updates', count: 0, color: '#dbeafe' },
+  { name: 'Pricing & Billing', slug: 'pricing-billing', count: 0, color: '#fef3c7' },
+  { name: 'Safety & Trust', slug: 'safety-trust', count: 0, color: '#dcfce7' },
   { name: 'Education Insights', slug: 'education-insights', count: 3, color: '#fef3c7' },
+  { name: 'Content Marketing', slug: 'content-marketing', count: 0, color: '#fbcfe8' },
+  { name: 'About Tutorwise', slug: 'about-tutorwise', count: 0, color: '#bfdbfe' },
   { name: 'Company News', slug: 'company-news', count: 2, color: '#e9d5ff' },
 ];
 
@@ -47,7 +57,7 @@ export default function BlogCategoriesPage() {
       tabs={
         <HubTabs
           tabs={[
-            { id: 'categories', label: 'All Categories', count: 5, active: true },
+            { id: 'categories', label: 'All Categories', count: 15, active: true },
           ]}
           onTabChange={() => {}}
           className={styles.blogTabs}
@@ -58,10 +68,10 @@ export default function BlogCategoriesPage() {
           <AdminStatsWidget
             title="Category Statistics"
             stats={[
-              { label: 'Total Categories', value: 5 },
-              { label: 'Active Categories', value: 5 },
+              { label: 'Total Categories', value: 15 },
+              { label: 'Active Categories', value: 15 },
               { label: 'Total Articles', value: 14 },
-              { label: 'Avg per Category', value: 2.8 },
+              { label: 'Avg per Category', value: 0.9 },
             ]}
           />
           <AdminHelpWidget

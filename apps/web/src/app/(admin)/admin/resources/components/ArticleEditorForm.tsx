@@ -35,7 +35,17 @@ const CATEGORIES = [
   { value: 'for-clients', label: 'For Clients' },
   { value: 'for-tutors', label: 'For Tutors' },
   { value: 'for-agents', label: 'For Agents' },
+  { value: 'for-organisations', label: 'For Organisations' },
+  { value: 'getting-started', label: 'Getting Started' },
+  { value: 'faqs', label: 'FAQs' },
+  { value: 'best-practices', label: 'Best Practices' },
+  { value: 'success-stories', label: 'Success Stories' },
+  { value: 'product-updates', label: 'Product Updates' },
+  { value: 'pricing-billing', label: 'Pricing & Billing' },
+  { value: 'safety-trust', label: 'Safety & Trust' },
   { value: 'education-insights', label: 'Education Insights' },
+  { value: 'content-marketing', label: 'Content Marketing' },
+  { value: 'about-tutorwise', label: 'About Tutorwise' },
   { value: 'company-news', label: 'Company News' },
 ];
 
