@@ -15,6 +15,7 @@ import { MoreVertical, CheckCircle2, XCircle, Filter as FilterIcon } from 'lucid
 import styles from './UsersTable.module.css';
 import AdvancedFiltersDrawer, { AdvancedFilters } from './AdvancedFiltersDrawer';
 import DeleteUserModal from './DeleteUserModal';
+import UserDetailsModal from './UserDetailsModal';
 
 // User type
 interface User {
@@ -88,6 +89,10 @@ export default function UsersTable() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
+  // Details modal state
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [userToView, setUserToView] = useState<User | null>(null);
+
   // Advanced filters state
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
@@ -145,9 +150,9 @@ export default function UsersTable() {
 
   // Action handlers
   const handleViewDetails = (user: User) => {
-    setSelectedUser(user);
+    setUserToView(user);
+    setIsDetailModalOpen(true);
     setOpenMenuId(null);
-    // TODO: Open detail modal
   };
 
   const handleImpersonateUser = async (user: User) => {
@@ -446,6 +451,19 @@ export default function UsersTable() {
         onClose={() => setIsDeleteModalOpen(false)}
         user={userToDelete}
         onDeleteComplete={handleDeleteComplete}
+      />
+
+      {/* User Details Modal */}
+      <UserDetailsModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        user={userToView}
+        onUserUpdated={() => refetch()}
+        onDelete={(user) => {
+          setIsDetailModalOpen(false);
+          setUserToDelete(user);
+          setIsDeleteModalOpen(true);
+        }}
       />
 
       {/* Advanced Filters Drawer */}

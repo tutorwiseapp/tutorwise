@@ -137,6 +137,7 @@
 /* Auto-refresh Toggle */
 .autoRefreshToggle {
   display: flex;
+  flex-direction: row-reverse; /* Checkbox on the right */
   align-items: center;
   gap: 0.375rem;
   height: 36px;
@@ -147,6 +148,7 @@
   cursor: pointer;
   transition: all 0.15s ease;
   user-select: none;
+  white-space: nowrap;
 }
 
 .autoRefreshToggle:hover {
@@ -164,7 +166,7 @@
 .autoRefreshLabel {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #1f2937;
+  color: #6b7280; /* Match other toolbar text colors */
   cursor: pointer;
 }
 
@@ -648,34 +650,39 @@
     -ms-overflow-style: none; /* IE/Edge */
     padding-bottom: 2px; /* Prevent cut-off on scroll */
     flex: 1 1 100%;
+    min-width: 0; /* Allow container to be smaller than content for overflow */
   }
 
   .toolbarScrollable::-webkit-scrollbar {
     display: none; /* Chrome/Safari */
   }
 
-  /* Filters inside scrollable container */
+  /* Filters inside scrollable container - must not shrink */
   .filters {
     display: flex;
     flex-wrap: nowrap;
     gap: 0.5rem;
+    flex-shrink: 0;
   }
 
   .filterWrapper {
     flex-shrink: 0;
+    min-width: max-content; /* Ensure filter takes full content width */
   }
 
   .filterSelect {
     font-size: 0.8125rem;
     height: 32px;
     padding-right: 1.75rem;
+    min-width: max-content; /* Ensure dropdown takes full content width */
   }
 
-  /* Actions inside scrollable container */
+  /* Actions inside scrollable container - must not shrink */
   .actions {
     display: flex;
     flex-wrap: nowrap;
     gap: 0.5rem;
+    flex-shrink: 0;
   }
 
   .iconButton {
@@ -689,15 +696,22 @@
     height: 0.875rem;
   }
 
-  /* Auto-refresh: hide label, show only checkbox */
+  /* Auto-refresh: compact icon-button style on mobile */
   .autoRefreshToggle {
+    width: 32px;
     height: 32px;
-    padding: 0 0.5rem;
+    padding: 0;
     flex-shrink: 0;
+    justify-content: center;
   }
 
   .autoRefreshLabel {
     display: none;
+  }
+
+  .autoRefreshCheckbox {
+    width: 1rem;
+    height: 1rem;
   }
 
   /* Saved views button - compact */
@@ -710,6 +724,7 @@
     font-size: 0.8125rem;
     padding: 0 1.75rem 0 0.625rem;
     white-space: nowrap;
+    min-width: max-content; /* Ensure button takes full content width */
   }
 
   /* Bulk actions - compact */
@@ -727,5 +742,6 @@
     height: 32px;
     font-size: 0.8125rem;
     padding: 0 0.625rem;
+    min-width: max-content; /* Ensure button takes full content width */
   }
 }

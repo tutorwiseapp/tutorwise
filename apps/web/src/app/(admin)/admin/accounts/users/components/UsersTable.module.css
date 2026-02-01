@@ -143,20 +143,22 @@
   background-color: #fef2f2;
 }
 
-/* Advanced Filters Button */
+/* Advanced Filters Button - matches icon button style (HUB-UI-STANDARDS) */
 .filtersButton {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.875rem;
+  justify-content: center;
+  width: 36px;          /* Match icon button */
+  height: 36px;         /* Match icon button */
+  padding: 0;
   border: 1px solid #d1d5db;
   background-color: #ffffff;
-  color: #374151;
-  font-size: 0.875rem;
-  font-weight: 500;
+  color: #6b7280;
   border-radius: 0.375rem;
   cursor: pointer;
   transition: all 0.15s ease;
+  flex-shrink: 0;
 }
 
 .filtersButton:hover {
@@ -171,15 +173,26 @@
 }
 
 .filtersBadge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 1.25rem;
-  height: 1.25rem;
-  padding: 0 0.375rem;
+  min-width: 1rem;
+  height: 1rem;
+  padding: 0 0.25rem;
   background-color: #3b82f6;
   color: #ffffff;
-  font-size: 0.6875rem;
+  font-size: 0.625rem;
   font-weight: 600;
-  border-radius: 0.625rem;
+  border-radius: 0.5rem;
+}
+
+/* Mobile: smaller icon button */
+@media (max-width: 767px) {
+  .filtersButton {
+    width: 32px;
+    height: 32px;
+  }
 }
