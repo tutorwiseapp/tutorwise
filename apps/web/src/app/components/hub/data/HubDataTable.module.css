@@ -772,6 +772,11 @@
 
 /* Mobile Responsive (<768px) */
 @media (max-width: 767px) {
+  /* Allow toolbar horizontal scroll on mobile (parent overflow:hidden blocks it) */
+  .tableContainer {
+    overflow: visible;
+  }
+
   .toolbar {
     padding: 0.875rem;
     gap: 0.625rem;
