@@ -1,9 +1,491 @@
-/*
- * Your Home Page - Role-Based Personalized Homepage
- * Displays personalized content based on user role (client, tutor, agent, or guest)
+/**
+ * Filename: apps/web/src/app/(public)/about-tutorwise/page.module.css
+ * Purpose: Styles for the About Tutorwise page
+ * Created: 2025-01-31
+ * Design System: v1.1 - Uses 8px border-radius standard, Tutorwise teal palette
  */
 
-.yourHomePage {
+.aboutPage {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
-  background-color: #ffffff;
+  background-color: var(--color-bg-page, #ffffff);
+}
+
+/* ================================
+   Hero Section - Lead with Philosophy
+   ================================ */
+.hero {
+  background: linear-gradient(135deg, var(--color-primary-light, #E6F0F0) 0%, #d4e8e8 100%);
+  padding: 80px 24px;
+  text-align: center;
+}
+
+.heroContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.heroTitle {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--color-primary, #006C67);
+  margin: 0 0 16px 0;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.heroPhilosophy {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--color-primary-dark, #005550);
+  margin: 0 0 24px 0;
+  font-style: italic;
+}
+
+.heroIntro {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary, #5f6368);
+  line-height: 1.7;
+  margin: 0;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ================================
+   Story Section - The Narrative
+   ================================ */
+.story {
+  padding: 80px 24px;
+  background-color: var(--color-bg-page, #ffffff);
+}
+
+.sectionTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-gray-900, #111827);
+  text-align: center;
+  margin: 0 0 32px 0;
+}
+
+.storyContent {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.storyContent p {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary, #5f6368);
+  line-height: 1.8;
+  margin: 0 0 24px 0;
+}
+
+.storyContent p:last-child {
+  margin-bottom: 0;
+}
+
+.storyContent strong {
+  color: var(--color-primary, #006C67);
+  font-weight: 600;
+}
+
+/* ================================
+   Mission & Vision Section
+   ================================ */
+.missionVision {
+  padding: 80px 24px;
+  background-color: var(--color-gray-50, #f9fafb);
+}
+
+.missionVisionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.missionCard,
+.visionCard {
+  background: var(--color-bg-card, #ffffff);
+  border: 1px solid var(--color-border-light, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  padding: 40px;
+  transition: all 0.2s ease;
+}
+
+.missionCard:hover,
+.visionCard:hover {
+  border-color: var(--color-primary, #006C67);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.missionCard h3,
+.visionCard h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-primary, #006C67);
+  margin: 0 0 16px 0;
+}
+
+.missionCard p,
+.visionCard p {
+  font-size: 1rem;
+  color: var(--color-text-secondary, #5f6368);
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ================================
+   Values Section
+   ================================ */
+.values {
+  padding: 80px 24px;
+  background-color: var(--color-bg-page, #ffffff);
+}
+
+.sectionSubtitle {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary, #5f6368);
+  text-align: center;
+  max-width: 600px;
+  margin: -16px auto 48px auto;
+  line-height: 1.6;
+}
+
+.valuesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.valueCard {
+  background: var(--color-bg-card, #ffffff);
+  border: 1px solid var(--color-border-light, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  padding: 32px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.valueCard:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-primary, #006C67);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.valueIcon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-primary-light, #E6F0F0);
+  border-radius: var(--border-radius-full, 9999px);
+  color: var(--color-primary, #006C67);
+}
+
+.valueCard h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-gray-900, #111827);
+  margin: 0 0 12px 0;
+}
+
+.valueCard p {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary, #5f6368);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ================================
+   How It Works Section
+   ================================ */
+.howItWorks {
+  padding: 80px 24px;
+  background-color: var(--color-gray-50, #f9fafb);
+}
+
+.howItWorksGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 48px;
+  max-width: 1000px;
+  margin: 0 auto 48px auto;
+}
+
+.howItWorksColumn h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-primary, #006C67);
+  margin: 0 0 24px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--color-primary-light, #E6F0F0);
+}
+
+.stepsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.stepsList li {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.stepNumber {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  background-color: var(--color-primary, #006C67);
+  color: white;
+  border-radius: var(--border-radius-full, 9999px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.stepsList li div strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-gray-900, #111827);
+  margin-bottom: 4px;
+}
+
+.stepsList li div p {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary, #5f6368);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.helpCentreLink {
+  text-align: center;
+  padding-top: 32px;
+  border-top: 1px solid var(--color-border-light, #e5e7eb);
+}
+
+.helpCentreLink p {
+  font-size: 1rem;
+  color: var(--color-text-secondary, #5f6368);
+  margin: 0 0 8px 0;
+}
+
+.textLink {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-primary, #006C67);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.textLink:hover {
+  color: var(--color-primary-dark, #005550);
+  text-decoration: underline;
+}
+
+/* ================================
+   Why Tutorwise Section
+   ================================ */
+.whyTutorwise {
+  padding: 80px 24px;
+  background-color: var(--color-bg-page, #ffffff);
+}
+
+.differentiatorGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.differentiator {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  background: var(--color-bg-card, #ffffff);
+  border: 1px solid var(--color-border-light, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  transition: all 0.2s ease;
+}
+
+.differentiator:hover {
+  border-color: var(--color-primary, #006C67);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.differentiatorIcon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-primary-light, #E6F0F0);
+  border-radius: var(--border-radius-md, 8px);
+  color: var(--color-primary, #006C67);
+}
+
+.differentiator h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-gray-900, #111827);
+  margin: 0;
+}
+
+.differentiator p {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #5f6368);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ================================
+   CTA Section - Moral Anchor
+   ================================ */
+.cta {
+  padding: 80px 24px;
+  background: linear-gradient(135deg, var(--color-primary, #006C67) 0%, var(--color-primary-dark, #005550) 100%);
+}
+
+.ctaContent {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.ctaTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 20px 0;
+}
+
+.ctaSubtitle {
+  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.7;
+  margin: 0 0 40px 0;
+}
+
+.ctaButtons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ================================
+   Responsive Styles
+   ================================ */
+@media (max-width: 1024px) {
+  .valuesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .differentiatorGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 56px 20px;
+  }
+
+  .heroTitle {
+    font-size: 2.5rem;
+  }
+
+  .heroPhilosophy {
+    font-size: 1.25rem;
+  }
+
+  .heroIntro {
+    font-size: 1rem;
+  }
+
+  .story,
+  .missionVision,
+  .values,
+  .howItWorks,
+  .whyTutorwise,
+  .cta {
+    padding: 56px 20px;
+  }
+
+  .sectionTitle {
+    font-size: 1.75rem;
+  }
+
+  .missionVisionGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .missionCard,
+  .visionCard {
+    padding: 32px;
+  }
+
+  .valuesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .howItWorksGrid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .differentiatorGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .ctaTitle {
+    font-size: 2rem;
+  }
+
+  .ctaButtons {
+    flex-direction: column;
+  }
+
+  .ctaButtons > * {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroTitle {
+    font-size: 2rem;
+  }
+
+  .heroPhilosophy {
+    font-size: 1.125rem;
+  }
+
+  .storyContent p {
+    font-size: 1rem;
+  }
+
+  .missionCard,
+  .visionCard {
+    padding: 24px;
+  }
+
+  .valueCard {
+    padding: 24px;
+  }
 }
