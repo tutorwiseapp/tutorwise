@@ -19,9 +19,10 @@ export default function AboutTutorwisePage() {
             <h1 className={styles.heroTitle}>Learn Your Way</h1>
             <p className={styles.heroPhilosophy}>Trust the way you learn.</p>
             <p className={styles.heroIntro}>
-              There is no single path to learning. No single authority. No single type of tutor.
-              No socioeconomic barrier. No single definition of success. At Tutorwise, we believe
-              education should adapt to you — not the other way around.
+              Learning is personal. So should be the people who guide it. Tutorwise connects
+              learners with tutors they can truly trust — not just by profiles or ratings, but
+              by credibility, contribution, and real-world impact. Because the right tutor
+              doesn&apos;t just teach. They change how you learn.
             </p>
           </div>
         </Container>
@@ -33,19 +34,17 @@ export default function AboutTutorwisePage() {
           <h2 className={styles.sectionTitle}>No More Strangers in Learning</h2>
           <div className={styles.storyContent}>
             <p>
-              Finding the right tutor has always been a leap of faith. You search through endless
-              profiles, unsure who to trust. You take a chance on a stranger, hoping they&apos;ll
-              understand your goals, your pace, your way of learning.
+              Finding the right tutor has always been a leap of faith. Parents scroll through
+              profiles. Students meet strangers. Decisions that shape futures are often made on
+              limited information, surface-level ratings, and unfamiliar names. Tutorwise was
+              built to change this.
             </p>
             <p>
-              We built Tutorwise to change that. Our mission is simple: <strong>turn strangers
-              into trusted teachers</strong>.
-            </p>
-            <p>
-              Through rigorous verification, intelligent matching, and a community built on
-              credibility, we&apos;ve created an ecosystem where trust comes first. Where every
-              tutor is vetted. Where every connection is meaningful. Where opportunity flows
-              through networks, referrals, and genuine relationships.
+              We transform strangers into credible teachers — not through marketing, but through
+              trust, proof, and community recognition. In our ecosystem, tutors earn credibility
+              through real impact, learners gain confidence in who they choose, and connections
+              are built on more than reviews. Here, <strong>trust is not assumed. It is built,
+              measured, and shared</strong>.
             </p>
           </div>
         </Container>
@@ -81,8 +80,8 @@ export default function AboutTutorwisePage() {
         <Container>
           <h2 className={styles.sectionTitle}>What We Stand For</h2>
           <p className={styles.sectionSubtitle}>
-            Our values guide everything we do. They help us build meaningful connections,
-            empower our community, and create experiences that inspire trust and inclusivity.
+            Our values shape everything we build. They guide how we design experiences,
+            connect people, and measure success — not only by outcomes, but by impact.
           </p>
           <div className={styles.valuesGrid}>
             <div className={styles.valueCard}>
@@ -92,11 +91,12 @@ export default function AboutTutorwisePage() {
                   <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <h3>Focus on the User</h3>
+              <h3>Focus on the Learner</h3>
               <p>
-                We create user-driven experiences by simplifying complexity, fostering
-                opportunities, and incentivising meaningful interactions. Every feature,
-                every decision puts your experience at the heart of what we do.
+                We design every experience around how people actually learn — not how systems
+                expect them to. We simplify complexity, prioritise clarity, and ensure that
+                every feature serves real learning needs. Learning should feel personal,
+                intuitive, and empowering.
               </p>
             </div>
             <div className={styles.valueCard}>
@@ -107,11 +107,12 @@ export default function AboutTutorwisePage() {
                   <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <h3>Build Thriving Communities</h3>
+              <h3>Build Trust-Based Communities</h3>
               <p>
-                We build a community where everyone feels connected, valued, and empowered
-                to achieve shared success. Long-term relationships and growth matter more
-                than one-off transactions.
+                We believe credibility grows through contribution, collaboration, and shared
+                success — not just transactions. Tutorwise is built to help tutors earn trust,
+                learners make confident choices, and communities thrive through recommendation,
+                recognition, and genuine connection. Trust is not a by-product. It is the foundation.
               </p>
             </div>
             <div className={styles.valueCard}>
@@ -120,11 +121,12 @@ export default function AboutTutorwisePage() {
                   <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <h3>Commit to Excellence</h3>
+              <h3>Commit to Meaningful Excellence</h3>
               <p>
-                We deliver excellence in every connection we make, every interaction we
-                facilitate, and every experience we create. We hold ourselves to the
-                highest standards because you deserve nothing less.
+                We pursue excellence not only in performance, but in purpose. Every connection
+                we enable, every interaction we design, and every experience we shape is guided
+                by one principle: education should create real, lasting impact — for individuals
+                and for society.
               </p>
             </div>
           </div>
