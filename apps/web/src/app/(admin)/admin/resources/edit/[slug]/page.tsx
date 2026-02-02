@@ -92,6 +92,23 @@ export default function EditBlogArticlePage() {
     }
   };
 
+  // Autosave handler - saves silently without redirect
+  const handleAutoSave = async (updatedArticle: Partial<Article>) => {
+    if (!article) return;
+
+    const response = await fetch(`/api/admin/resources/articles/${article.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatedArticle),
+    });
+
+    if (!response.ok) {
+      throw new Error('Autosave failed');
+    }
+  };
+
   const handleCancel = () => {
     router.push('/admin/resources');
   };
@@ -214,6 +231,7 @@ export default function EditBlogArticlePage() {
         onSave={handleSave}
         onCancel={handleCancel}
         isSaving={saving}
+        onAutoSave={handleAutoSave}
       />
     </HubPageLayout>
   );

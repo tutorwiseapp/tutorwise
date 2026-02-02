@@ -45,6 +45,8 @@ const USER_SPECIFIC_PREFIXES = [
   'offline_queue_',       // Offline queue data
   'draft_',               // Draft sync data
   'org_trial_dismissed_', // Trial dismissal flags
+  'article_draft_',       // Article editor drafts
+  'onboarding-',          // Onboarding draft data
 ];
 
 /**
