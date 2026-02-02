@@ -21,6 +21,9 @@ import Button from '@/app/components/ui/actions/Button';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import DatePicker from '@/app/components/ui/forms/DatePicker';
 import TimePicker from '@/app/components/ui/forms/TimePicker';
+import PlatformPreview from './PlatformPreview';
+import SEOScore from './SEOScore';
+import ContentTemplates from './ContentTemplates';
 import styles from './ArticleEditorForm.module.css';
 
 // Types
@@ -199,6 +202,9 @@ export default function ArticleEditorForm({
       ? format(new Date(article.scheduled_for), 'HH:mm')
       : '09:00'
   );
+
+  // Content templates state
+  const [showTemplates, setShowTemplates] = useState(false);
 
   // Track if form has unsaved changes
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -569,6 +575,30 @@ export default function ArticleEditorForm({
     }
   }, [isScheduled, scheduledDate]);
 
+  // Handle template selection
+  const handleTemplateSelect = useCallback(
+    (template: { content: string; category: string }) => {
+      // Only apply template if content is empty or user confirms
+      if (formData.content && formData.content.trim().length > 0) {
+        const confirmed = window.confirm(
+          'Applying a template will replace your current content. Continue?'
+        );
+        if (!confirmed) {
+          setShowTemplates(false);
+          return;
+        }
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        content: template.content,
+        category: template.category,
+      }));
+      setShowTemplates(false);
+    },
+    [formData.content]
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -779,7 +809,18 @@ export default function ArticleEditorForm({
 
       {/* Content */}
       <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Content</h3>
+        <div className={styles.sectionHeader}>
+          <h3 className={styles.sectionTitle}>Content</h3>
+          {!article?.id && (
+            <button
+              type="button"
+              className={styles.templateButton}
+              onClick={() => setShowTemplates(true)}
+            >
+              📋 Use Template
+            </button>
+          )}
+        </div>
 
         <div className={styles.formGroup}>
           <label htmlFor="content" className={styles.label}>
@@ -825,6 +866,17 @@ export default function ArticleEditorForm({
             </div>
           ))}
         </div>
+
+        {/* Live Platform Preview */}
+        {(formData.publish_platforms?.length ?? 0) > 0 && (
+          <PlatformPreview
+            title={formData.title || ''}
+            description={formData.description || ''}
+            imageUrl={formData.featured_image_url}
+            imageColor={selectedColor}
+            platforms={formData.publish_platforms || []}
+          />
+        )}
       </div>
 
       {/* Image Selection */}
@@ -1068,6 +1120,17 @@ export default function ArticleEditorForm({
             placeholder="Custom description for search engines (optional)"
           />
         </div>
+
+        {/* SEO Score Analysis */}
+        <SEOScore
+          title={formData.title || ''}
+          slug={formData.slug || ''}
+          description={formData.description || ''}
+          content={formData.content || ''}
+          metaTitle={formData.meta_title}
+          metaDescription={formData.meta_description}
+          featuredImageUrl={formData.featured_image_url}
+        />
       </div>
 
       {/* Version History - Only for existing articles */}
@@ -1136,6 +1199,14 @@ export default function ArticleEditorForm({
           {isSaving ? 'Saving...' : article?.id ? 'Update Article' : 'Create Article'}
         </Button>
       </div>
+
+      {/* Content Templates Modal */}
+      {showTemplates && (
+        <ContentTemplates
+          onSelect={handleTemplateSelect}
+          onClose={() => setShowTemplates(false)}
+        />
+      )}
     </form>
   );
 }

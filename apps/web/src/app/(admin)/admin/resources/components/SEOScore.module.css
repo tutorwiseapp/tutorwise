@@ -1,0 +1,176 @@
+/**
+ * Filename: apps/web/src/app/(admin)/admin/resources/components/SEOScore.module.css
+ * Purpose: Styles for SEO score analysis component
+ * Created: 2026-02-02
+ */
+
+.container {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.scoreCircle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 3px solid;
+  background: var(--color-background);
+}
+
+.scoreNumber {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.scoreLabel {
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+.checksList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.checkItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--color-surface);
+}
+
+.checkItem.good {
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.checkItem.warning {
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.checkItem.error {
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.checkIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.good .checkIcon {
+  background: #10b981;
+  color: white;
+}
+
+.warning .checkIcon {
+  background: #f59e0b;
+  color: white;
+}
+
+.error .checkIcon {
+  background: #ef4444;
+  color: white;
+}
+
+.checkContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.checkName {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.checkMessage {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.checkScore {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.good .checkScore {
+  color: #10b981;
+}
+
+.warning .checkScore {
+  color: #f59e0b;
+}
+
+.error .checkScore {
+  color: #ef4444;
+}
+
+.tips {
+  background: var(--color-surface);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.tipsTitle {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.tipsList {
+  margin: 0;
+  padding: 0 0 0 16px;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.tipsList li {
+  margin-bottom: 4px;
+}
+
+.tipsList li:last-child {
+  margin-bottom: 0;
+}
