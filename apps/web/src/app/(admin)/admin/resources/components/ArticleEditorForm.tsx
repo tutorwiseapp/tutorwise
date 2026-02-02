@@ -17,6 +17,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { format } from 'date-fns';
+import { Linkedin, Facebook, Instagram, Globe } from 'lucide-react';
 import Button from '@/app/components/ui/actions/Button';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import DatePicker from '@/app/components/ui/forms/DatePicker';
@@ -104,10 +105,10 @@ const STATUSES = [
 ];
 
 const PLATFORMS = [
-  { id: 'linkedin', name: 'LinkedIn', icon: '💼' },
-  { id: 'facebook', name: 'Facebook', icon: '📘' },
-  { id: 'instagram', name: 'Instagram', icon: '📸' },
-  { id: 'all', name: 'All Platforms', icon: '🌐' },
+  { id: 'linkedin', name: 'LinkedIn', Icon: Linkedin },
+  { id: 'facebook', name: 'Facebook', Icon: Facebook },
+  { id: 'instagram', name: 'Instagram', Icon: Instagram },
+  { id: 'all', name: 'All Platforms', Icon: Globe },
 ];
 
 const THEME_COLORS = [
@@ -817,7 +818,7 @@ export default function ArticleEditorForm({
               className={styles.templateButton}
               onClick={() => setShowTemplates(true)}
             >
-              📋 Use Template
+              Use Template
             </button>
           )}
         </div>
@@ -858,7 +859,7 @@ export default function ArticleEditorForm({
               }`}
               onClick={() => handlePlatformToggle(platform.id)}
             >
-              <span className={styles.platformIcon}>{platform.icon}</span>
+              <platform.Icon className={styles.platformIcon} size={24} />
               <span className={styles.platformName}>{platform.name}</span>
               {formData.publish_platforms?.includes(platform.id) && (
                 <span className={styles.platformCheckmark}>✓</span>

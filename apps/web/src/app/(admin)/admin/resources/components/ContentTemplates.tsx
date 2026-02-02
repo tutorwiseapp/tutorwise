@@ -2,6 +2,7 @@
  * Filename: apps/web/src/app/(admin)/admin/resources/components/ContentTemplates.tsx
  * Purpose: Reusable content templates for article creation
  * Created: 2026-02-02
+ * Updated: 2026-02-02 - Use HubComplexModal for consistency
  *
  * Provides:
  * - Pre-defined article structures
@@ -11,13 +12,14 @@
 'use client';
 
 import React, { useState } from 'react';
+import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
+import Button from '@/app/components/ui/actions/Button';
 import styles from './ContentTemplates.module.css';
 
 interface ContentTemplate {
   id: string;
   name: string;
   description: string;
-  icon: string;
   category: string;
   content: string;
 }
@@ -32,7 +34,6 @@ const TEMPLATES: ContentTemplate[] = [
     id: 'how-to-guide',
     name: 'How-To Guide',
     description: 'Step-by-step instructions for completing a task',
-    icon: '📋',
     category: 'for-tutors',
     content: `# How to [Task Name]
 
@@ -84,7 +85,6 @@ Before you begin, make sure you have:
     id: 'getting-started',
     name: 'Getting Started',
     description: 'Introduction guide for new users',
-    icon: '🚀',
     category: 'getting-started',
     content: `# Getting Started with [Feature/Product Name]
 
@@ -141,7 +141,6 @@ Now that you're set up, here are some recommended next steps:
     id: 'faq-article',
     name: 'FAQ Article',
     description: 'Frequently asked questions format',
-    icon: '❓',
     category: 'faqs',
     content: `# [Topic] FAQ
 
@@ -207,7 +206,6 @@ If you couldn't find the answer you're looking for:
     id: 'product-update',
     name: 'Product Update',
     description: 'Announce new features or changes',
-    icon: '✨',
     category: 'product-updates',
     content: `# [Feature Name]: [Brief Description]
 
@@ -219,13 +217,13 @@ We're excited to announce [feature name], now available for all users!
 
 ## Key Highlights
 
-### 🎯 [Highlight 1]
+### [Highlight 1]
 [Description of first major improvement]
 
-### ⚡ [Highlight 2]
+### [Highlight 2]
 [Description of second major improvement]
 
-### 🔒 [Highlight 3]
+### [Highlight 3]
 [Description of third major improvement]
 
 ## How It Works
@@ -269,7 +267,6 @@ We'd love to hear what you think! Share your feedback:
     id: 'best-practices',
     name: 'Best Practices',
     description: 'Expert tips and recommendations',
-    icon: '⭐',
     category: 'best-practices',
     content: `# Best Practices for [Topic]
 
@@ -318,14 +315,14 @@ Once you've mastered the fundamentals, try these advanced strategies:
 
 ## Common Mistakes to Avoid
 
-❌ **Mistake 1:** [Description]
-✅ **Instead:** [What to do]
+**Mistake 1:** [Description]
+**Instead:** [What to do]
 
-❌ **Mistake 2:** [Description]
-✅ **Instead:** [What to do]
+**Mistake 2:** [Description]
+**Instead:** [What to do]
 
-❌ **Mistake 3:** [Description]
-✅ **Instead:** [What to do]
+**Mistake 3:** [Description]
+**Instead:** [What to do]
 
 ## Checklist
 
@@ -351,7 +348,6 @@ Use this checklist to ensure you're following best practices:
     id: 'success-story',
     name: 'Success Story',
     description: 'Case study or customer story format',
-    icon: '🏆',
     category: 'success-stories',
     content: `# How [Customer/Tutor Name] Achieved [Result] with Tutorwise
 
@@ -436,15 +432,28 @@ export default function ContentTemplates({ onSelect, onClose }: ContentTemplates
   };
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.modal}>
-        <div className={styles.header}>
-          <h3 className={styles.title}>Choose a Template</h3>
-          <button type="button" className={styles.closeButton} onClick={onClose}>
-            ✕
-          </button>
+    <HubComplexModal
+      isOpen={true}
+      onClose={onClose}
+      title="Choose a Template"
+      size="md"
+      footer={
+        <div className={styles.footer}>
+          <Button variant="secondary" size="md" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            size="md"
+            onClick={handleSelect}
+            disabled={!selectedTemplate}
+          >
+            Use Template
+          </Button>
         </div>
-
+      }
+    >
+      <div className={styles.content}>
         <div className={styles.search}>
           <input
             type="text"
@@ -464,7 +473,6 @@ export default function ContentTemplates({ onSelect, onClose }: ContentTemplates
               }`}
               onClick={() => setSelectedTemplate(template)}
             >
-              <div className={styles.templateIcon}>{template.icon}</div>
               <div className={styles.templateContent}>
                 <h4 className={styles.templateName}>{template.name}</h4>
                 <p className={styles.templateDescription}>{template.description}</p>
@@ -484,21 +492,7 @@ export default function ContentTemplates({ onSelect, onClose }: ContentTemplates
             </div>
           </div>
         )}
-
-        <div className={styles.actions}>
-          <button type="button" className={styles.cancelButton} onClick={onClose}>
-            Cancel
-          </button>
-          <button
-            type="button"
-            className={styles.selectButton}
-            onClick={handleSelect}
-            disabled={!selectedTemplate}
-          >
-            Use Template
-          </button>
-        </div>
       </div>
-    </div>
+    </HubComplexModal>
   );
 }
