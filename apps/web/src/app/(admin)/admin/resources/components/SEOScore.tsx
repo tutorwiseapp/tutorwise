@@ -313,7 +313,7 @@ export default function SEOScore({
     <div className={styles.container}>
       <div className={styles.header}>
         <h4 className={styles.title}>SEO Score</h4>
-        <div className={styles.scoreCircle} style={{ borderColor: getScoreColor() }}>
+        <div className={styles.scoreCircle}>
           <span className={styles.scoreNumber} style={{ color: getScoreColor() }}>
             {percentage}
           </span>

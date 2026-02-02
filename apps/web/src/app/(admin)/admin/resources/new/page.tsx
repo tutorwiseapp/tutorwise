@@ -31,10 +31,12 @@ export default function NewBlogArticlePage() {
         body: JSON.stringify(articleData),
       });
 
+      const data = await response.json();
       if (response.ok) {
         router.push('/admin/resources');
       } else {
-        alert('Failed to create article');
+        console.error('API error:', data);
+        alert(`Failed to create article: ${data.error || response.statusText}`);
       }
     } catch (error) {
       console.error('Error creating article:', error);

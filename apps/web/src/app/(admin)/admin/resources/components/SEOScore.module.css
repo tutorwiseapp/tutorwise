@@ -29,14 +29,8 @@
 
 .scoreCircle {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  border: 3px solid;
-  background: var(--color-background);
+  gap: 8px;
 }
 
 .scoreNumber {
@@ -46,9 +40,8 @@
 }
 
 .scoreLabel {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--color-text-secondary);
-  margin-top: 2px;
 }
 
 .checksList {
@@ -122,13 +115,13 @@
 }
 
 .checkMessage {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--color-text-secondary);
   line-height: 1.4;
 }
 
 .checkScore {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--color-text-secondary);
   flex-shrink: 0;
@@ -162,7 +155,7 @@
 .tipsList {
   margin: 0;
   padding: 0 0 0 16px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--color-text-secondary);
   line-height: 1.6;
 }

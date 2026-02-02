@@ -105,8 +105,8 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
     if (meta_title !== undefined) updates.meta_title = meta_title;
     if (meta_description !== undefined) updates.meta_description = meta_description;
     if (meta_keywords !== undefined) updates.meta_keywords = meta_keywords;
-    if (scheduled_for !== undefined) updates.scheduled_for = scheduled_for;
-    if (read_time !== undefined) updates.read_time = read_time;
+    if (scheduled_for !== undefined) updates.scheduled_for = scheduled_for || null;
+    if (read_time !== undefined) updates.read_time = read_time || null;
 
     // Handle status changes
     if (status !== undefined) {

@@ -120,8 +120,8 @@ export async function POST(request: NextRequest) {
         meta_keywords,
         status: status || 'draft',
         published_at: publishedAt,
-        scheduled_for,
-        read_time,
+        scheduled_for: scheduled_for || null,
+        read_time: read_time || null,
         author_id: user.id,
         author_name: authorName,
       })
