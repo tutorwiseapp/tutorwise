@@ -170,7 +170,7 @@ export default function ArticlesTable() {
         const isPublished = article.status === 'published';
         const href = isPublished
           ? `/resources/${article.slug}`
-          : `/admin/resources/new?slug=${article.slug}`;
+          : `/admin/resources/create?slug=${article.slug}`;
 
         return (
           <div className={styles.titleCell}>
@@ -238,7 +238,7 @@ export default function ArticlesTable() {
           actions={[
             {
               label: 'Edit Article',
-              onClick: () => router.push(`/admin/resources/new?slug=${article.slug}`),
+              onClick: () => router.push(`/admin/resources/create?slug=${article.slug}`),
             },
             {
               label: article.status === 'published' ? 'Unpublish' : 'Publish',

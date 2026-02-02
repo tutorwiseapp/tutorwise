@@ -116,8 +116,8 @@ export default function AdminMobileMenu({ isOpen, onClose }: AdminMobileMenuProp
           <Link href="/admin/resources" className={styles.subMenuItem} onClick={handleLinkClick}>
             All Articles
           </Link>
-          <Link href="/admin/resources/new" className={styles.subMenuItem} onClick={handleLinkClick}>
-            New Article
+          <Link href="/admin/resources/create" className={styles.subMenuItem} onClick={handleLinkClick}>
+            Create Article
           </Link>
           <Link href="/admin/resources/seo" className={styles.subMenuItem} onClick={handleLinkClick}>
             SEO Performance

@@ -45,7 +45,7 @@ export default function AdminSidebar() {
       label: 'Resources',
       subItems: [
         { href: '/admin/resources', label: 'All Articles', indent: true },
-        { href: '/admin/resources/new', label: 'New Article', indent: true },
+        { href: '/admin/resources/create', label: 'Create Article', indent: true },
         { href: '/admin/resources/seo', label: 'SEO Performance', indent: true },
         { href: '/admin/resources/categories', label: 'Categories', indent: true },
         { href: '/admin/resources/settings', label: 'Settings', indent: true },

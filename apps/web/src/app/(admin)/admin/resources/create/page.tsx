@@ -1,12 +1,12 @@
 /**
- * Filename: apps/web/src/app/(admin)/admin/resources/new/page.tsx
+ * Filename: apps/web/src/app/(admin)/admin/resources/create/page.tsx
  * Purpose: Admin resource - Create new article or edit existing article
  * Created: 2026-01-15
  * Updated: 2026-02-02
  *
  * Handles both create and edit:
- * - /admin/resources/new → Create new article
- * - /admin/resources/new?slug=my-article → Edit existing article
+ * - /admin/resources/create → Create new article
+ * - /admin/resources/create?slug=my-article → Edit existing article
  */
 'use client';
 
@@ -200,7 +200,7 @@ export default function NewBlogArticlePage() {
     <HubPageLayout
       header={
         <HubHeader
-          title={isEditMode ? 'Edit Article' : 'New Article'}
+          title={isEditMode ? 'Edit Article' : 'Create Article'}
           subtitle={isEditMode ? article?.title : 'Create and publish new resource content'}
           actions={
             isEditMode ? (

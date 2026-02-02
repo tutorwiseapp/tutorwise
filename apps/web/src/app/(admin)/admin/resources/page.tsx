@@ -33,8 +33,8 @@ export default function AdminBlogPage() {
           title="Resource Articles"
           subtitle="Manage resource content and publications"
           actions={
-            <Button variant="primary" size="sm" onClick={() => router.push('/admin/resources/new')}>
-              New Article
+            <Button variant="primary" size="sm" onClick={() => router.push('/admin/resources/create')}>
+              Create Article
             </Button>
           }
           className={styles.blogHeader}
