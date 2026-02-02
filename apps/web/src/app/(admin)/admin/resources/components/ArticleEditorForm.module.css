@@ -486,6 +486,238 @@
   color: #065f46;
 }
 
+/* Version History */
+.versionHistorySection {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.versionHistoryHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.versionHistoryTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.versionCount {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+}
+
+.versionList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.versionItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.versionItem:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.versionItem.milestone {
+  border-left: 3px solid var(--color-primary, #006c67);
+  background-color: rgba(0, 108, 103, 0.03);
+}
+
+.versionInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.versionNumber {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.milestoneBadge {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-primary, #006c67);
+  background-color: rgba(0, 108, 103, 0.1);
+  padding: 0.125rem 0.375rem;
+  border-radius: 3px;
+}
+
+.versionMeta {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.versionActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.restoreVersionButton {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  background-color: transparent;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.restoreVersionButton:hover {
+  background-color: #ffffff;
+  border-color: var(--color-primary, #006c67);
+  color: var(--color-primary, #006c67);
+}
+
+.noVersions {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Scheduled Publishing */
+.scheduledSection {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.scheduledHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.scheduledToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.toggleSwitch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background-color: #d1d5db;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.toggleSwitch.active {
+  background-color: var(--color-primary, #006c67);
+}
+
+.toggleSwitch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.toggleSwitch.active::after {
+  transform: translateX(20px);
+}
+
+.toggleLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.scheduledInputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.scheduledInput {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.scheduledInput label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.scheduledPreview {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  color: #92400e;
+}
+
+/* Loading State */
+.loadingVersions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: #6b7280;
+}
+
+.loadingSpinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e5e7eb;
+  border-top-color: var(--color-primary, #006c67);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 767px) {
   .formRow {
     grid-template-columns: 1fr;
@@ -515,5 +747,23 @@
     flex-direction: column;
     gap: 0.75rem;
     text-align: center;
+  }
+
+  .scheduledInputs {
+    grid-template-columns: 1fr;
+  }
+
+  .versionItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .versionActions {
+    width: 100%;
+  }
+
+  .restoreVersionButton {
+    flex: 1;
   }
 }

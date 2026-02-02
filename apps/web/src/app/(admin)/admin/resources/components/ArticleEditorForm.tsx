@@ -16,8 +16,11 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { format } from 'date-fns';
 import Button from '@/app/components/ui/actions/Button';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
+import DatePicker from '@/app/components/ui/forms/DatePicker';
+import TimePicker from '@/app/components/ui/forms/TimePicker';
 import styles from './ArticleEditorForm.module.css';
 
 // Types
@@ -37,6 +40,18 @@ interface Article {
   publish_platforms?: string[];
   image_type?: 'solid' | 'theme' | 'free' | 'upload';
   image_color?: string;
+  scheduled_for?: string; // ISO timestamp for scheduled publishing
+}
+
+interface ArticleVersion {
+  id: string;
+  version_number: number;
+  title: string;
+  status: string;
+  created_by_name: string;
+  created_at: string;
+  is_milestone: boolean;
+  change_summary: string | null;
 }
 
 interface ArticleEditorFormProps {
@@ -150,6 +165,7 @@ export default function ArticleEditorForm({
     publish_platforms: article?.publish_platforms || [],
     image_type: article?.image_type || 'upload',
     image_color: article?.image_color || '#006c67',
+    scheduled_for: article?.scheduled_for || '',
   });
 
   // Save status states
@@ -167,6 +183,22 @@ export default function ArticleEditorForm({
     article?.image_type || 'upload'
   );
   const [selectedColor, setSelectedColor] = useState(article?.image_color || '#006c67');
+
+  // Version history states
+  const [versions, setVersions] = useState<ArticleVersion[]>([]);
+  const [isLoadingVersions, setIsLoadingVersions] = useState(false);
+  const [isRestoringVersion, setIsRestoringVersion] = useState(false);
+
+  // Scheduled publishing states
+  const [isScheduled, setIsScheduled] = useState(article?.status === 'scheduled');
+  const [scheduledDate, setScheduledDate] = useState<Date | undefined>(
+    article?.scheduled_for ? new Date(article.scheduled_for) : undefined
+  );
+  const [scheduledTime, setScheduledTime] = useState<string>(
+    article?.scheduled_for
+      ? format(new Date(article.scheduled_for), 'HH:mm')
+      : '09:00'
+  );
 
   // Track if form has unsaved changes
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -327,6 +359,48 @@ export default function ArticleEditorForm({
     setHasUnsavedChanges(currentData !== initialDataRef.current);
   }, [formData]);
 
+  // Load version history for existing articles
+  useEffect(() => {
+    if (!article?.id) return;
+
+    const loadVersionHistory = async () => {
+      setIsLoadingVersions(true);
+      try {
+        const response = await fetch(`/api/admin/resources/articles/${article.id}/versions`);
+        if (response.ok) {
+          const data = await response.json();
+          setVersions(data.versions || []);
+        }
+      } catch (error) {
+        console.error('Error loading version history:', error);
+      } finally {
+        setIsLoadingVersions(false);
+      }
+    };
+
+    loadVersionHistory();
+  }, [article?.id]);
+
+  // Update scheduled_for when date/time changes
+  useEffect(() => {
+    if (isScheduled && scheduledDate) {
+      const [hours, minutes] = scheduledTime.split(':').map(Number);
+      const combined = new Date(scheduledDate);
+      combined.setHours(hours, minutes, 0, 0);
+      setFormData((prev) => ({
+        ...prev,
+        status: 'scheduled',
+        scheduled_for: combined.toISOString(),
+      }));
+    } else if (!isScheduled && formData.status === 'scheduled') {
+      setFormData((prev) => ({
+        ...prev,
+        status: 'draft',
+        scheduled_for: '',
+      }));
+    }
+  }, [isScheduled, scheduledDate, scheduledTime]);
+
   // Handlers
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -419,6 +493,81 @@ export default function ArticleEditorForm({
       console.error('[ArticleDraft] Error clearing draft:', error);
     }
   }, [draftKey]);
+
+  // Restore article to a previous version
+  const handleRestoreVersion = useCallback(
+    async (versionId: string) => {
+      if (!article?.id) return;
+
+      const confirmed = window.confirm(
+        'Are you sure you want to restore this version? Current unsaved changes will be lost.'
+      );
+      if (!confirmed) return;
+
+      setIsRestoringVersion(true);
+      try {
+        const response = await fetch(`/api/admin/resources/articles/${article.id}/versions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ versionId }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // Update form with restored data
+          if (data.article) {
+            setFormData({
+              title: data.article.title || '',
+              slug: data.article.slug || '',
+              description: data.article.description || '',
+              content: data.article.content || '',
+              category: data.article.category || 'for-clients',
+              status: data.article.status || 'draft',
+              read_time: data.article.read_time || '',
+              featured_image_url: data.article.featured_image_url || '',
+              meta_title: data.article.meta_title || '',
+              meta_description: data.article.meta_description || '',
+              publish_platforms: data.article.publish_platforms || [],
+              image_type: data.article.image_type || 'upload',
+              image_color: data.article.image_color || '#006c67',
+              scheduled_for: data.article.scheduled_for || '',
+            });
+            initialDataRef.current = JSON.stringify(data.article);
+            setHasUnsavedChanges(false);
+          }
+          // Reload version history
+          const versionsResponse = await fetch(
+            `/api/admin/resources/articles/${article.id}/versions`
+          );
+          if (versionsResponse.ok) {
+            const versionsData = await versionsResponse.json();
+            setVersions(versionsData.versions || []);
+          }
+        } else {
+          alert('Failed to restore version');
+        }
+      } catch (error) {
+        console.error('Error restoring version:', error);
+        alert('Error restoring version');
+      } finally {
+        setIsRestoringVersion(false);
+      }
+    },
+    [article?.id]
+  );
+
+  // Toggle scheduled publishing
+  const handleScheduledToggle = useCallback(() => {
+    setIsScheduled((prev) => !prev);
+    if (!isScheduled && !scheduledDate) {
+      // Default to tomorrow at 9 AM
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(9, 0, 0, 0);
+      setScheduledDate(tomorrow);
+      setScheduledTime('09:00');
+    }
+  }, [isScheduled, scheduledDate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -827,6 +976,65 @@ export default function ArticleEditorForm({
         )}
       </div>
 
+      {/* Scheduled Publishing */}
+      <div className={styles.scheduledSection}>
+        <div className={styles.scheduledHeader}>
+          <h3 className={styles.sectionTitle} style={{ margin: 0, border: 'none', padding: 0 }}>
+            Scheduled Publishing
+          </h3>
+          <div className={styles.scheduledToggle}>
+            <div
+              className={`${styles.toggleSwitch} ${isScheduled ? styles.active : ''}`}
+              onClick={handleScheduledToggle}
+              role="switch"
+              aria-checked={isScheduled}
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && handleScheduledToggle()}
+            />
+            <span className={styles.toggleLabel}>
+              {isScheduled ? 'Enabled' : 'Disabled'}
+            </span>
+          </div>
+        </div>
+
+        {isScheduled && (
+          <>
+            <div className={styles.scheduledInputs}>
+              <div className={styles.scheduledInput}>
+                <label>Publish Date</label>
+                <DatePicker
+                  selected={scheduledDate}
+                  onSelect={setScheduledDate}
+                  placeholder="Select date"
+                />
+              </div>
+              <div className={styles.scheduledInput}>
+                <label>Publish Time</label>
+                <TimePicker
+                  value={scheduledTime}
+                  onChange={(value) => setScheduledTime(String(value))}
+                  interval={30}
+                  placeholder="Select time"
+                />
+              </div>
+            </div>
+            {scheduledDate && (
+              <div className={styles.scheduledPreview}>
+                This article will be published on{' '}
+                <strong>
+                  {format(scheduledDate, 'MMMM d, yyyy')} at{' '}
+                  {new Date(`2000-01-01T${scheduledTime}`).toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true,
+                  })}
+                </strong>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
       {/* SEO & Meta */}
       <div className={styles.section}>
         <h3 className={styles.sectionTitle}>SEO & Meta</h3>
@@ -861,6 +1069,63 @@ export default function ArticleEditorForm({
           />
         </div>
       </div>
+
+      {/* Version History - Only for existing articles */}
+      {article?.id && (
+        <div className={styles.versionHistorySection}>
+          <div className={styles.versionHistoryHeader}>
+            <h3 className={styles.versionHistoryTitle}>
+              Version History
+              {versions.length > 0 && (
+                <span className={styles.versionCount}>{versions.length}</span>
+              )}
+            </h3>
+          </div>
+
+          {isLoadingVersions ? (
+            <div className={styles.loadingVersions}>
+              <span className={styles.loadingSpinner} />
+              Loading versions...
+            </div>
+          ) : versions.length > 0 ? (
+            <div className={styles.versionList}>
+              {versions.map((version) => (
+                <div
+                  key={version.id}
+                  className={`${styles.versionItem} ${version.is_milestone ? styles.milestone : ''}`}
+                >
+                  <div className={styles.versionInfo}>
+                    <span className={styles.versionNumber}>
+                      Version {version.version_number}
+                      {version.is_milestone && (
+                        <span className={styles.milestoneBadge}>Published</span>
+                      )}
+                    </span>
+                    <span className={styles.versionMeta}>
+                      {version.created_by_name || 'Unknown'} •{' '}
+                      {format(new Date(version.created_at), 'MMM d, yyyy h:mm a')}
+                    </span>
+                  </div>
+                  <div className={styles.versionActions}>
+                    <button
+                      type="button"
+                      className={styles.restoreVersionButton}
+                      onClick={() => handleRestoreVersion(version.id)}
+                      disabled={isRestoringVersion}
+                    >
+                      {isRestoringVersion ? 'Restoring...' : 'Restore'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.noVersions}>
+              No version history yet. Versions are created automatically when you save changes.
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Form Actions */}
       <div className={styles.formActions}>
