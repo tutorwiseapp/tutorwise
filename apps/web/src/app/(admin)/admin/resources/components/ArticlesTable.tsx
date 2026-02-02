@@ -2,7 +2,7 @@
  * Filename: apps/web/src/app/(admin)/admin/resources/components/ArticlesTable.tsx
  * Purpose: Resource articles table using HubDataTable pattern
  * Created: 2026-01-15
- * Pattern: Follows ListingsTable pattern with filters, search, and bulk actions
+ * Pattern: Follows UsersTable pattern with 3-dot action menu
  */
 'use client';
 
@@ -10,9 +10,9 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { HubDataTable } from '@/app/components/hub/data';
 import type { Column, Filter, PaginationConfig, BulkAction } from '@/app/components/hub/data';
-import { FileText, Eye, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import StatusBadge from '@/app/components/admin/badges/StatusBadge';
+import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
 import styles from './ArticlesTable.module.css';
 
 interface Article {
@@ -27,69 +27,6 @@ interface Article {
   status: 'published' | 'draft' | 'scheduled';
   views?: number;
 }
-
-const MOCK_ARTICLES: Article[] = [
-  {
-    id: '1',
-    title: "Building a Successful Tutoring Business in 2026: The Complete Guide",
-    slug: "building-successful-tutoring-business",
-    category: "for-tutors",
-    categoryLabel: "For Tutors",
-    author: "James Chen",
-    publishedAt: "2026-01-08",
-    readTime: "15 min read",
-    status: "published",
-    views: 1243,
-  },
-  {
-    id: '2',
-    title: "How to Find the Perfect Tutor for Your Child: A Complete Guide for Parents",
-    slug: "how-to-find-perfect-tutor",
-    category: "for-clients",
-    categoryLabel: "For Clients",
-    author: "Sarah Thompson",
-    publishedAt: "2026-01-10",
-    readTime: "10 min read",
-    status: "published",
-    views: 2156,
-  },
-  {
-    id: '3',
-    title: "UK Tutoring Market 2026: Trends, Data & Growth Opportunities",
-    slug: "uk-tutoring-market-2026",
-    category: "education-insights",
-    categoryLabel: "Education Insights",
-    author: "Dr. Emily Roberts",
-    publishedAt: "2026-01-05",
-    readTime: "12 min read",
-    status: "published",
-    views: 3421,
-  },
-  {
-    id: '4',
-    title: "How to Price Your Tutoring Services: The Complete Pricing Guide for UK Tutors",
-    slug: "how-to-price-tutoring-services",
-    category: "for-tutors",
-    categoryLabel: "For Tutors",
-    author: "James Chen",
-    publishedAt: "2025-12-20",
-    readTime: "14 min read",
-    status: "published",
-    views: 1876,
-  },
-  {
-    id: '5',
-    title: "Growing Your Tutoring Agency: From Solo Tutor to Scalable Business",
-    slug: "growing-tutoring-agency",
-    category: "for-agents",
-    categoryLabel: "For Agents",
-    author: "Rachel Morrison",
-    publishedAt: "2025-12-15",
-    readTime: "16 min read",
-    status: "published",
-    views: 987,
-  },
-];
 
 const CATEGORY_COLORS: Record<string, string> = {
   'for-clients': '#dbeafe',
@@ -116,7 +53,6 @@ export default function ArticlesTable() {
   const [limit, setLimit] = useState<number>(20);
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-
   // Fetch articles from API
   useEffect(() => {
     fetchArticles();
@@ -125,23 +61,30 @@ export default function ArticlesTable() {
   const fetchArticles = async () => {
     try {
       setLoading(true);
-      // TODO: Create /api/admin/resources/articles endpoint
-      // For now, use mock data
-      setArticles(MOCK_ARTICLES);
-      setLoading(false);
-
-      // Uncomment when API is ready:
-      // const response = await fetch('/api/admin/resources/articles');
-      // if (response.ok) {
-      //   const data = await response.json();
-      //   setArticles(data.articles || []);
-      // } else {
-      //   console.error('Failed to fetch articles');
-      //   setArticles(MOCK_ARTICLES); // Fallback to mock data
-      // }
+      const response = await fetch('/api/admin/resources/articles');
+      if (response.ok) {
+        const data = await response.json();
+        const mapped = (data.articles || []).map((a: any) => ({
+          id: a.id,
+          title: a.title,
+          slug: a.slug,
+          category: a.category,
+          categoryLabel: a.category?.replace(/_/g, ' ').replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) || '',
+          author: a.author_name || 'Unknown',
+          publishedAt: a.published_at || '',
+          readTime: a.read_time ? `${a.read_time} min read` : '',
+          status: a.status || 'draft',
+          views: a.views || 0,
+        }));
+        setArticles(mapped);
+      } else {
+        console.error('Failed to fetch articles');
+        setArticles([]);
+      }
     } catch (error) {
       console.error('Error fetching articles:', error);
-      setArticles(MOCK_ARTICLES); // Fallback to mock data
+      setArticles([]);
+    } finally {
       setLoading(false);
     }
   };
@@ -157,9 +100,7 @@ export default function ArticlesTable() {
       });
 
       if (response.ok) {
-        // Refresh articles list
         fetchArticles();
-        // Clear selection if deleted article was selected
         setSelectedRows((prev) => {
           const next = new Set(prev);
           next.delete(articleId);
@@ -174,14 +115,42 @@ export default function ArticlesTable() {
     }
   };
 
+  const handleStatusToggle = async (article: Article) => {
+    const newStatus = article.status === 'published' ? 'draft' : 'published';
+    try {
+      const response = await fetch(`/api/admin/resources/articles/${article.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (response.ok) {
+        fetchArticles();
+      } else {
+        alert(`Failed to ${newStatus === 'published' ? 'publish' : 'unpublish'} article`);
+      }
+    } catch (error) {
+      console.error('Error updating article status:', error);
+    }
+  };
+
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return '—';
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '—';
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  };
+
   // Define table columns
   const columns: Column<Article>[] = [
     {
       key: 'id',
       label: 'ID',
-      width: '80px',
+      width: '60px',
       sortable: false,
-      render: (article: Article) => <span className={styles.idCell}>#{article.id}</span>,
+      render: (article: Article) => (
+        <span className={styles.idCell}>#{article.id.slice(0, 6)}</span>
+      ),
     },
     {
       key: 'publishedAt',
@@ -189,13 +158,7 @@ export default function ArticlesTable() {
       width: '120px',
       sortable: true,
       render: (article: Article) => (
-        <span className={styles.dateCell}>
-          {new Date(article.publishedAt).toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-          })}
-        </span>
+        <span className={styles.dateCell}>{formatDate(article.publishedAt)}</span>
       ),
     },
     {
@@ -203,14 +166,25 @@ export default function ArticlesTable() {
       label: 'Title',
       width: 'auto',
       sortable: true,
-      render: (article: Article) => (
-        <div className={styles.titleCell}>
-          <Link href={`/resources/${article.slug}`} className={styles.titleLink} target="_blank">
-            {article.title}
-          </Link>
-          <div className={styles.readTime}>{article.readTime}</div>
-        </div>
-      ),
+      render: (article: Article) => {
+        const isPublished = article.status === 'published';
+        const href = isPublished
+          ? `/resources/${article.slug}`
+          : `/admin/resources/new?slug=${article.slug}`;
+
+        return (
+          <div className={styles.titleCell}>
+            <Link
+              href={href}
+              className={styles.titleLink}
+              {...(isPublished ? { target: '_blank' } : {})}
+            >
+              {article.title}
+            </Link>
+            {article.readTime && <div className={styles.readTime}>{article.readTime}</div>}
+          </div>
+        );
+      },
     },
     {
       key: 'category',
@@ -234,15 +208,6 @@ export default function ArticlesTable() {
       render: (article: Article) => <span className={styles.authorCell}>{article.author}</span>,
     },
     {
-      key: 'views',
-      label: 'Views',
-      width: '100px',
-      sortable: true,
-      render: (article: Article) => (
-        <span className={styles.viewsCell}>{article.views?.toLocaleString() || 0}</span>
-      ),
-    },
-    {
       key: 'status',
       label: 'Status',
       width: '120px',
@@ -255,27 +220,37 @@ export default function ArticlesTable() {
       ),
     },
     {
+      key: 'views',
+      label: 'Views',
+      width: '80px',
+      sortable: true,
+      render: (article: Article) => (
+        <span className={styles.viewsCell}>{article.views?.toLocaleString() || 0}</span>
+      ),
+    },
+    {
       key: 'actions',
       label: 'Actions',
-      width: '180px',
+      width: '100px',
       sortable: false,
       render: (article: Article) => (
-        <div className={styles.actionsCell}>
-          <button
-            className={styles.actionButton}
-            onClick={() => router.push(`/admin/resources/edit/${article.slug}`)}
-            title="Edit article"
-          >
-            Edit
-          </button>
-          <button
-            className={`${styles.actionButton} ${styles.actionButtonDanger}`}
-            onClick={() => handleDelete(article.id)}
-            title="Delete article"
-          >
-            Delete
-          </button>
-        </div>
+        <VerticalDotsMenu
+          actions={[
+            {
+              label: 'Edit Article',
+              onClick: () => router.push(`/admin/resources/new?slug=${article.slug}`),
+            },
+            {
+              label: article.status === 'published' ? 'Unpublish' : 'Publish',
+              onClick: () => handleStatusToggle(article),
+            },
+            {
+              label: 'Delete Article',
+              onClick: () => handleDelete(article.id),
+              variant: 'danger',
+            },
+          ]}
+        />
       ),
     },
   ];
@@ -319,10 +294,6 @@ export default function ArticlesTable() {
       label: 'Author',
       options: [
         { value: 'all', label: 'All Authors' },
-        { value: 'james-chen', label: 'James Chen' },
-        { value: 'sarah-thompson', label: 'Sarah Thompson' },
-        { value: 'emily-roberts', label: 'Dr. Emily Roberts' },
-        { value: 'rachel-morrison', label: 'Rachel Morrison' },
       ],
     },
   ];
@@ -330,27 +301,52 @@ export default function ArticlesTable() {
   // Define bulk actions
   const bulkActions: BulkAction[] = [
     {
+      label: 'Publish',
+      value: 'publish',
+      onClick: async (ids: string[]) => {
+        for (const id of ids) {
+          await fetch(`/api/admin/resources/articles/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'published' }),
+          });
+        }
+        fetchArticles();
+        setSelectedRows(new Set());
+      },
+    },
+    {
       label: 'Unpublish',
       value: 'unpublish',
       onClick: async (ids: string[]) => {
-        console.log('Unpublish articles:', ids);
-        alert(`Unpublish ${ids.length} article(s) - Coming soon`);
+        for (const id of ids) {
+          await fetch(`/api/admin/resources/articles/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'draft' }),
+          });
+        }
+        fetchArticles();
+        setSelectedRows(new Set());
       },
     },
     {
       label: 'Delete',
       value: 'delete',
       onClick: async (ids: string[]) => {
-        if (confirm(`Delete ${ids.length} article(s)?`)) {
-          console.log('Delete articles:', ids);
-          alert(`Delete ${ids.length} article(s) - Coming soon`);
+        if (confirm(`Delete ${ids.length} article(s)? This action cannot be undone.`)) {
+          for (const id of ids) {
+            await fetch(`/api/admin/resources/articles/${id}`, { method: 'DELETE' });
+          }
+          fetchArticles();
+          setSelectedRows(new Set());
         }
       },
       variant: 'danger',
     },
   ];
 
-  // Pagination config (matching BookingsTable pattern)
+  // Pagination config
   const pagination: PaginationConfig = {
     page,
     limit,

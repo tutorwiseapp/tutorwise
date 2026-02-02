@@ -29,14 +29,15 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import { HubDataTable } from '@/app/components/hub/data';
 import type { Column, Filter, PaginationConfig, BulkAction } from '@/app/components/hub/data';
 import { Referral } from '@/types';
 import AdminReferralDetailModal from './AdminReferralDetailModal';
-import { Filter as FilterIcon, Save, MoreVertical } from 'lucide-react';
+import { Filter as FilterIcon, Save } from 'lucide-react';
+import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
 import styles from './ReferralsTable.module.css';
 import AdvancedFiltersDrawer, { AdvancedFilters } from './AdvancedFiltersDrawer';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
@@ -76,10 +77,6 @@ export default function ReferralsTable() {
     hasCommission: false,
     convertedOnly: false,
   });
-
-  // Actions menu state
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
 
   // Modal state
   const [selectedReferral, setSelectedReferral] = useState<Referral | null>(null);
@@ -260,22 +257,6 @@ export default function ReferralsTable() {
     exportToCSV(data.referrals, columns, 'referrals');
   };
 
-  // Close actions menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest('.actionsMenu') && !target.closest(`.${styles.actionsButton}`)) {
-        setOpenMenuId(null);
-        setMenuPosition(null);
-      }
-    };
-
-    if (openMenuId) {
-      document.addEventListener('click', handleClickOutside);
-      return () => document.removeEventListener('click', handleClickOutside);
-    }
-  }, [openMenuId]);
-
   // Table columns definition - UNIVERSAL COLUMN ORDER: ID → Date → Service → Domain → Actions
   const columns: Column<Referral>[] = [
     {
@@ -433,72 +414,34 @@ export default function ReferralsTable() {
       label: 'Actions',
       width: '100px',
       render: (referral: Referral) => (
-        <div className={styles.actionsCell}>
-          <button
-            className={styles.actionsButton}
-            onClick={(e) => {
-              e.stopPropagation();
-              const button = e.currentTarget;
-              const rect = button.getBoundingClientRect();
+        <VerticalDotsMenu
+          actions={[
+            {
+              label: 'View Details',
+              onClick: () => {
+                setSelectedReferral(referral);
+                setIsModalOpen(true);
+              },
+            },
+            {
+              label: 'Mark as Expired',
+              onClick: async () => {
+                if (!confirm('Mark this referral as expired?')) return;
 
-              if (openMenuId === referral.id) {
-                setOpenMenuId(null);
-                setMenuPosition(null);
-              } else {
-                setOpenMenuId(referral.id);
-                setMenuPosition({
-                  top: rect.bottom + 4,
-                  left: rect.right - 160,
-                });
-              }
-            }}
-            aria-label="More actions"
-          >
-            <MoreVertical size={16} />
-          </button>
-          {openMenuId === referral.id && menuPosition && (
-            <div
-              className={`${styles.actionsMenu} actionsMenu`}
-              style={{
-                top: `${menuPosition.top}px`,
-                left: `${menuPosition.left}px`,
-              }}
-            >
-              <button
-                className={styles.menuItem}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedReferral(referral);
-                  setIsModalOpen(true);
-                  setOpenMenuId(null);
-                }}
-              >
-                View Details
-              </button>
-              <button
-                className={styles.menuItem}
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  if (!confirm('Mark this referral as expired?')) return;
+                const { error } = await supabase
+                  .from('referrals')
+                  .update({ status: 'Expired' })
+                  .eq('id', referral.id);
 
-                  const { error } = await supabase
-                    .from('referrals')
-                    .update({ status: 'Expired' })
-                    .eq('id', referral.id);
-
-                  if (error) {
-                    alert('Failed to expire referral');
-                  } else {
-                    refetch();
-                  }
-                  setOpenMenuId(null);
-                }}
-              >
-                Mark as Expired
-              </button>
-            </div>
-          )}
-        </div>
+                if (error) {
+                  alert('Failed to expire referral');
+                } else {
+                  refetch();
+                }
+              },
+            },
+          ]}
+        />
       ),
     },
   ];

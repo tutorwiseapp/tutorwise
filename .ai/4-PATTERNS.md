@@ -367,6 +367,56 @@ fields.map(field => (
 
 ---
 
+### VerticalDotsMenu Pattern (Table Row Actions)
+
+**Purpose**: Shared 3-dot action menu for admin data table rows. Uses `createPortal` to render the dropdown to `document.body`, escaping the `overflow: hidden` on HubDataTable cells.
+
+**Location**: `apps/web/src/app/components/ui/actions/VerticalDotsMenu.tsx`
+
+**Key Characteristics**:
+- `createPortal` renders menu to `document.body` (required — HubDataTable `.dataCell` has `overflow: hidden`)
+- Fixed positioning calculated from button's `getBoundingClientRect()`
+- Closes on outside click and scroll
+- Each instance manages its own open/close state (no parent state needed)
+- `z-index: 1000` to sit above all table layers
+
+**Usage Example**:
+```typescript
+import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
+
+// In a HubDataTable column render:
+{
+  key: 'actions',
+  label: 'Actions',
+  width: '100px',
+  sortable: false,
+  render: (item) => (
+    <VerticalDotsMenu
+      actions={[
+        { label: 'Edit', onClick: () => router.push(`/admin/edit/${item.id}`) },
+        { label: 'Delete', onClick: () => handleDelete(item.id), variant: 'danger' },
+      ]}
+    />
+  ),
+}
+```
+
+**MenuAction Interface**:
+```typescript
+interface MenuAction {
+  label: string;
+  onClick: () => void;
+  variant?: 'default' | 'danger';
+}
+```
+
+**Used In / Should Be Used In**:
+- `ArticlesTable` (Resources) — currently uses this component
+- `UsersTable` (Accounts) — can be migrated
+- `ListingsTable`, `BookingsTable`, `ReviewsTable`, `OrganisationsTable`, `ReferralsTable` — can be migrated
+
+---
+
 ## 📊 **State Management Patterns**
 
 ### React Query (TanStack Query) - Server State

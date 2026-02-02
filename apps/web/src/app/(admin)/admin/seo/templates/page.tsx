@@ -15,7 +15,8 @@ import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubDataTable from '@/app/components/hub/data/HubDataTable';
 import { AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
-import { FileText, MoreVertical } from 'lucide-react';
+import { FileText } from 'lucide-react';
+import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
 import AdminTemplateDetailModal from './components/AdminTemplateDetailModal';
 import styles from './page.module.css';
 
@@ -48,8 +49,6 @@ export default function AdminSeoTemplatesPage() {
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<'all' | 'hub' | 'spoke'>('all');
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<ContentTemplate | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -136,73 +135,27 @@ export default function AdminSeoTemplatesPage() {
       label: 'Actions',
       width: '100px',
       render: (template: ContentTemplate) => (
-        <div className={styles.actionsCell}>
-          <button
-            className={styles.actionsButton}
-            onClick={(e) => {
-              e.stopPropagation();
-              const button = e.currentTarget;
-              const rect = button.getBoundingClientRect();
-
-              if (openMenuId === template.id) {
-                setOpenMenuId(null);
-                setMenuPosition(null);
-              } else {
-                setOpenMenuId(template.id);
-                setMenuPosition({
-                  top: rect.bottom + 4,
-                  left: rect.right - 160, // 160px is menu width
-                });
-              }
-            }}
-            aria-label="More actions"
-          >
-            <MoreVertical size={16} />
-          </button>
-          {openMenuId === template.id && menuPosition && (
-            <div
-              className={`${styles.actionsMenu} actionsMenu`}
-              style={{
-                top: `${menuPosition.top}px`,
-                left: `${menuPosition.left}px`,
-              }}
-            >
-              <button
-                className={styles.actionMenuItem}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  showTemplateDetails(template);
-                  setOpenMenuId(null);
-                }}
-              >
-                View Checklist
-              </button>
-              <button
-                className={styles.actionMenuItem}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // TODO: Navigate to edit page or open edit modal
-                  alert('Edit template functionality coming soon');
-                  setOpenMenuId(null);
-                }}
-              >
-                Edit Template
-              </button>
-              <button
-                className={`${styles.actionMenuItem} ${styles.actionMenuItemDanger}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (confirm(`Delete template "${template.name}"? This action cannot be undone.`)) {
-                    alert('Delete functionality coming soon');
-                  }
-                  setOpenMenuId(null);
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          )}
-        </div>
+        <VerticalDotsMenu
+          actions={[
+            {
+              label: 'View Checklist',
+              onClick: () => showTemplateDetails(template),
+            },
+            {
+              label: 'Edit Template',
+              onClick: () => alert('Edit template functionality coming soon'),
+            },
+            {
+              label: 'Delete',
+              variant: 'danger' as const,
+              onClick: () => {
+                if (confirm(`Delete template "${template.name}"? This action cannot be undone.`)) {
+                  alert('Delete functionality coming soon');
+                }
+              },
+            },
+          ]}
+        />
       ),
     },
   ];
@@ -218,21 +171,6 @@ export default function AdminSeoTemplatesPage() {
     setSelectedTemplate(template);
     setIsModalOpen(true);
   };
-
-  // Close actions menu when clicking outside
-  React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (openMenuId && !(event.target as Element).closest('.actionsMenu')) {
-        setOpenMenuId(null);
-        setMenuPosition(null);
-      }
-    };
-
-    if (openMenuId) {
-      document.addEventListener('click', handleClickOutside);
-      return () => document.removeEventListener('click', handleClickOutside);
-    }
-  }, [openMenuId]);
 
   return (
     <HubPageLayout

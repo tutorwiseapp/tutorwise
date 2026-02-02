@@ -29,3 +29,20 @@
     --hub-tabs-margin-bottom: 1rem;
   }
 }
+
+.loadingState,
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+  gap: 1rem;
+}
+
+.loadingState p,
+.errorState p {
+  color: #6b7280;
+  font-size: 1rem;
+}

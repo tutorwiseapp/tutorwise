@@ -7,11 +7,11 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { HubDataTable } from '@/app/components/hub/data';
 import type { Column, Filter, PaginationConfig } from '@/app/components/hub/data';
-import { MoreVertical } from 'lucide-react';
+import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
 import styles from './AdminsTable.module.css';
 import type { AdminRole } from '@/lib/rbac/types';
 
@@ -63,10 +63,6 @@ export default function AdminsTable({ currentUserId, onChangeRole, onRevokeAdmin
   const [limit, setLimit] = useState(20);
   const [selectedAdmin, setSelectedAdmin] = useState<AdminUser | null>(null);
 
-  // Actions menu state
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
-
   // Fetch admins data
   const { data: adminsData, isLoading, refetch, error } = useQuery<{ admins: AdminUser[]; total: number }>({
     queryKey: ['admin-admins-table', page, limit],
@@ -88,20 +84,6 @@ export default function AdminsTable({ currentUserId, onChangeRole, onRevokeAdmin
   });
 
   const admins = adminsData?.admins || [];
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (openMenuId && !(event.target as Element).closest('.actionsMenu')) {
-        setOpenMenuId(null);
-      }
-    };
-
-    if (openMenuId) {
-      document.addEventListener('click', handleClickOutside);
-      return () => document.removeEventListener('click', handleClickOutside);
-    }
-  }, [openMenuId]);
 
   // Format date helper
   const formatDate = (dateString?: string) => {
@@ -166,60 +148,12 @@ export default function AdminsTable({ currentUserId, onChangeRole, onRevokeAdmin
         }
 
         return (
-          <div className={styles.actionsCell}>
-            <button
-              className={styles.actionsButton}
-              onClick={(e) => {
-                e.stopPropagation();
-                const button = e.currentTarget;
-                const rect = button.getBoundingClientRect();
-
-                if (openMenuId === admin.id) {
-                  setOpenMenuId(null);
-                  setMenuPosition(null);
-                } else {
-                  setOpenMenuId(admin.id);
-                  setMenuPosition({
-                    top: rect.bottom + 4,
-                    left: rect.right - 160,
-                  });
-                }
-              }}
-              aria-label="More actions"
-            >
-              <MoreVertical size={16} />
-            </button>
-            {openMenuId === admin.id && menuPosition && (
-              <div
-                className={`${styles.actionsMenu} actionsMenu`}
-                style={{
-                  top: `${menuPosition.top}px`,
-                  left: `${menuPosition.left}px`,
-                }}
-              >
-                <button
-                  className={styles.actionMenuItem}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onChangeRole(admin);
-                    setOpenMenuId(null);
-                  }}
-                >
-                  Change Role
-                </button>
-                <button
-                  className={`${styles.actionMenuItem} ${styles.actionMenuItemDanger}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRevokeAdmin(admin);
-                    setOpenMenuId(null);
-                  }}
-                >
-                  Revoke Admin Access
-                </button>
-              </div>
-            )}
-          </div>
+          <VerticalDotsMenu
+            actions={[
+              { label: 'Change Role', onClick: () => onChangeRole(admin) },
+              { label: 'Revoke Admin Access', onClick: () => onRevokeAdmin(admin), variant: 'danger' as const },
+            ]}
+          />
         );
       },
     },

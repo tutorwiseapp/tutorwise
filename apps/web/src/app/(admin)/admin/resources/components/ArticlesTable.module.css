@@ -1,6 +1,6 @@
 /**
- * Filename: apps/web/src/app/(admin)/admin/blog/components/ArticlesTable.module.css
- * Purpose: Styles for blog articles table cells (HubDataTable custom rendering)
+ * Filename: apps/web/src/app/(admin)/admin/resources/components/ArticlesTable.module.css
+ * Purpose: Styles for resource articles table cells (HubDataTable custom rendering)
  */
 
 .idCell {
@@ -59,39 +59,3 @@
   font-weight: 500;
 }
 
-.actionsCell {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.actionButton {
-  padding: 0.375rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: #374151;
-  background-color: white;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.actionButton:hover:not(:disabled) {
-  background-color: #f9fafb;
-  border-color: #9ca3af;
-}
-
-.actionButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.actionButtonDanger {
-  color: #dc2626;
-  border-color: #dc2626;
-}
-
-.actionButtonDanger:hover:not(:disabled) {
-  background-color: #fef2f2;
-  border-color: #dc2626;
-}

@@ -15,7 +15,8 @@ import { HubDataTable } from '@/app/components/hub/data';
 import type { Column, Filter } from '@/app/components/hub/data';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import { formatDate as formatDateUtil, formatDaysRemaining, calculateDaysRemaining } from '@/lib/utils/format-date';
-import { MoreVertical, Filter as FilterIcon } from 'lucide-react';
+import { Filter as FilterIcon } from 'lucide-react';
+import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
 import AdminOrganisationDetailModal from './AdminOrganisationDetailModal';
 import AdvancedFiltersDrawer, { type AdvancedFilters } from './AdvancedFiltersDrawer';
 import styles from './OrganisationsTable.module.css';
@@ -77,9 +78,6 @@ export default function OrganisationsTable() {
     createdAfter: '',
     createdBefore: '',
   });
-  const [actionsMenuOpen, setActionsMenuOpen] = useState<string | null>(null);
-  const [actionsMenuPosition, setActionsMenuPosition] = useState<{ top: number; left: number } | null>(null);
-
   // Fetch organisations
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [
@@ -258,22 +256,6 @@ export default function OrganisationsTable() {
   const handleRefresh = () => {
     refetch();
   };
-
-  // Close actions menu when clicking outside
-  React.useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest('.actionsMenu') && !target.closest(`.${styles.actionsButton}`)) {
-        setActionsMenuOpen(null);
-        setActionsMenuPosition(null);
-      }
-    };
-
-    if (actionsMenuOpen) {
-      document.addEventListener('click', handleClickOutside);
-      return () => document.removeEventListener('click', handleClickOutside);
-    }
-  }, [actionsMenuOpen]);
 
   // Columns following Universal Column Order: ID → Date → Service → Domain → Actions
   const columns: Column<Organisation>[] = [
@@ -486,187 +468,79 @@ export default function OrganisationsTable() {
       label: 'Actions',
       width: '100px',
       sortable: false,
-      render: (org) => (
-        <div className={styles.actionsCell}>
-          <button
-            className={`${styles.actionsButton} ${actionsMenuOpen === org.id ? styles.actionsButtonActive : ''}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              const button = e.currentTarget;
-              const rect = button.getBoundingClientRect();
+      render: (org) => {
+        const sub = Array.isArray(org.subscription) ? org.subscription[0] : org.subscription;
+        const hasSubscription = !!sub;
+        const isActiveOrTrialing = sub && ['active', 'trialing'].includes(sub.status);
+        const isInactive = sub && !['active', 'trialing'].includes(sub.status);
 
-              if (actionsMenuOpen === org.id) {
-                setActionsMenuOpen(null);
-                setActionsMenuPosition(null);
-              } else {
-                setActionsMenuOpen(org.id);
-                setActionsMenuPosition({
-                  top: rect.bottom + 4,
-                  left: rect.right - 160,
-                });
-              }
-            }}
-            aria-label="More actions"
-          >
-            <MoreVertical size={16} />
-          </button>
-          {actionsMenuOpen === org.id && actionsMenuPosition && (
-            <div
-              className={`${styles.actionsMenu} actionsMenu`}
-              style={{
-                top: `${actionsMenuPosition.top}px`,
-                left: `${actionsMenuPosition.left}px`,
-              }}
-            >
-              <button
-                className={styles.menuItem}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRowClick(org);
-                  setActionsMenuOpen(null);
-                }}
-              >
-                View Details
-              </button>
-              <button
-                className={styles.menuItem}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  window.open(`/org/${org.slug}`, '_blank');
-                  setActionsMenuOpen(null);
-                }}
-              >
-                View Public Page
-              </button>
+        const resetDisabled = !isInactive;
+        const activateDisabled = !!isActiveOrTrialing;
+        const deleteDisabled = !hasSubscription;
 
-              {/* Subscription Management Actions - Always show all 3 */}
-              {(() => {
-                const sub = Array.isArray(org.subscription) ? org.subscription[0] : org.subscription;
-                const hasSubscription = !!sub;
-                const isActiveOrTrialing = sub && ['active', 'trialing'].includes(sub.status);
-                const isInactive = sub && !['active', 'trialing'].includes(sub.status);
-
-                // Determine disabled states
-                const resetDisabled = !isInactive; // Can only reset inactive subscriptions
-                const activateDisabled = isActiveOrTrialing; // Can't activate already active/trialing
-                const deleteDisabled = !hasSubscription; // Can't delete if no subscription
-
-                return (
-                  <>
-                    {/* Reset Trial - Always show */}
-                    <button
-                      className={styles.menuItem}
-                      disabled={resetDisabled}
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        if (resetDisabled) return;
-                        setActionsMenuOpen(null);
-
-                        if (!confirm(`Reset trial period for "${org.name}"?\n\nThis will delete the current subscription record and allow them to start a fresh 14-day trial.`)) {
-                          return;
-                        }
-
-                        try {
-                          const response = await fetch(`/api/admin/org/${org.id}/reset-trial`, {
-                            method: 'DELETE',
-                          });
-
-                          const data = await response.json();
-
-                          if (!response.ok) {
-                            throw new Error(data.error || 'Failed to reset trial');
-                          }
-
-                          alert(data.message);
-                          refetch();
-                        } catch (error: any) {
-                          alert(`Error: ${error.message}`);
-                        }
-                      }}
-                      style={{ color: resetDisabled ? '#9ca3af' : '#ea580c' }}
-                      title={resetDisabled ? 'No inactive subscription to reset' : 'Delete subscription and allow fresh trial'}
-                    >
-                      Reset Trial Period
-                    </button>
-
-                    {/* Force Activate - Always show */}
-                    <button
-                      className={styles.menuItem}
-                      disabled={activateDisabled}
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        if (activateDisabled) return;
-                        setActionsMenuOpen(null);
-
-                        if (!confirm(`Force activate subscription for "${org.name}"?\n\nThis will grant them free premium access for 1 year without requiring payment.`)) {
-                          return;
-                        }
-
-                        try {
-                          const response = await fetch(`/api/admin/org/${org.id}/force-activate`, {
-                            method: 'POST',
-                          });
-
-                          const data = await response.json();
-
-                          if (!response.ok) {
-                            throw new Error(data.error || 'Failed to force activate');
-                          }
-
-                          alert(data.message);
-                          refetch();
-                        } catch (error: any) {
-                          alert(`Error: ${error.message}`);
-                        }
-                      }}
-                      style={{ color: activateDisabled ? '#9ca3af' : '#059669' }}
-                      title={activateDisabled ? 'Subscription already active' : 'Grant 1 year free access'}
-                    >
-                      Force Activate (Free)
-                    </button>
-
-                    {/* Delete Subscription - Always show */}
-                    <button
-                      className={styles.menuItem}
-                      disabled={deleteDisabled}
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        if (deleteDisabled) return;
-                        setActionsMenuOpen(null);
-
-                        if (!confirm(`Delete subscription for "${org.name}"?\n\nThis will permanently remove the subscription record. They will need to start a new trial.${sub?.stripe_subscription_id ? '\n\nWARNING: This will NOT cancel the Stripe subscription. You must do that manually in Stripe dashboard.' : ''}`)) {
-                          return;
-                        }
-
-                        try {
-                          const response = await fetch(`/api/admin/org/${org.id}/subscription`, {
-                            method: 'DELETE',
-                          });
-
-                          const data = await response.json();
-
-                          if (!response.ok) {
-                            throw new Error(data.error || 'Failed to delete subscription');
-                          }
-
-                          alert(data.message);
-                          refetch();
-                        } catch (error: any) {
-                          alert(`Error: ${error.message}`);
-                        }
-                      }}
-                      style={{ color: deleteDisabled ? '#9ca3af' : '#dc2626' }}
-                      title={deleteDisabled ? 'No subscription to delete' : 'Permanently remove subscription record'}
-                    >
-                      Delete Subscription
-                    </button>
-                  </>
-                );
-              })()}
-            </div>
-          )}
-        </div>
-      ),
+        return (
+          <VerticalDotsMenu
+            actions={[
+              { label: 'View Details', onClick: () => handleRowClick(org) },
+              { label: 'View Public Page', onClick: () => window.open(`/org/${org.slug}`, '_blank') },
+              {
+                label: 'Reset Trial Period',
+                disabled: resetDisabled,
+                color: '#ea580c',
+                title: resetDisabled ? 'No inactive subscription to reset' : 'Delete subscription and allow fresh trial',
+                onClick: async () => {
+                  if (!confirm(`Reset trial period for "${org.name}"?\n\nThis will delete the current subscription record and allow them to start a fresh 14-day trial.`)) return;
+                  try {
+                    const response = await fetch(`/api/admin/org/${org.id}/reset-trial`, { method: 'DELETE' });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'Failed to reset trial');
+                    alert(data.message);
+                    refetch();
+                  } catch (error: any) {
+                    alert(`Error: ${error.message}`);
+                  }
+                },
+              },
+              {
+                label: 'Force Activate (Free)',
+                disabled: activateDisabled,
+                color: '#059669',
+                title: activateDisabled ? 'Subscription already active' : 'Grant 1 year free access',
+                onClick: async () => {
+                  if (!confirm(`Force activate subscription for "${org.name}"?\n\nThis will grant them free premium access for 1 year without requiring payment.`)) return;
+                  try {
+                    const response = await fetch(`/api/admin/org/${org.id}/force-activate`, { method: 'POST' });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'Failed to force activate');
+                    alert(data.message);
+                    refetch();
+                  } catch (error: any) {
+                    alert(`Error: ${error.message}`);
+                  }
+                },
+              },
+              {
+                label: 'Delete Subscription',
+                disabled: deleteDisabled,
+                color: '#dc2626',
+                title: deleteDisabled ? 'No subscription to delete' : 'Permanently remove subscription record',
+                onClick: async () => {
+                  if (!confirm(`Delete subscription for "${org.name}"?\n\nThis will permanently remove the subscription record. They will need to start a new trial.${sub?.stripe_subscription_id ? '\n\nWARNING: This will NOT cancel the Stripe subscription. You must do that manually in Stripe dashboard.' : ''}`)) return;
+                  try {
+                    const response = await fetch(`/api/admin/org/${org.id}/subscription`, { method: 'DELETE' });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'Failed to delete subscription');
+                    alert(data.message);
+                    refetch();
+                  } catch (error: any) {
+                    alert(`Error: ${error.message}`);
+                  }
+                },
+              },
+            ]}
+          />
+        );
+      },
     },
   ];
 

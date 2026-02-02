@@ -7,11 +7,12 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { HubDataTable } from '@/app/components/hub/data';
 import type { Column, Filter, PaginationConfig } from '@/app/components/hub/data';
-import { MoreVertical, Filter as FilterIcon } from 'lucide-react';
+import { Filter as FilterIcon } from 'lucide-react';
+import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
 import StatusBadge from '@/app/components/admin/badges/StatusBadge';
 import { exportToCSV, CSVFormatters, type CSVColumn } from '@/lib/utils/exportToCSV';
 import { ADMIN_TABLE_DEFAULTS } from '@/constants/admin';
@@ -54,9 +55,6 @@ export default function PayoutsTable() {
   const [limit, setLimit] = useState<number>(ADMIN_TABLE_DEFAULTS.PAGE_SIZE);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
-
   // Advanced filters state
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
     dateFrom: '',
@@ -91,15 +89,6 @@ export default function PayoutsTable() {
 
   const payouts = payoutsData?.payouts || [];
   const total = payoutsData?.total || 0;
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = () => setOpenMenuId(null);
-    if (openMenuId) {
-      document.addEventListener('click', handleClickOutside);
-      return () => document.removeEventListener('click', handleClickOutside);
-    }
-  }, [openMenuId]);
 
   // Format date
   const formatDate = (dateString?: string) => {
@@ -182,33 +171,13 @@ export default function PayoutsTable() {
       label: '',
       width: '50px',
       render: (payout) => (
-        <div className={styles.actionsCell}>
-          <button
-            className={styles.actionsButton}
-            onClick={(e) => {
-              e.stopPropagation();
-              const rect = e.currentTarget.getBoundingClientRect();
-              setMenuPosition({
-                top: rect.bottom + window.scrollY,
-                left: rect.left + window.scrollX - 140,
-              });
-              setOpenMenuId(openMenuId === payout.id ? null : payout.id);
-            }}
-          >
-            <MoreVertical size={16} />
-          </button>
-          {openMenuId === payout.id && menuPosition && (
-            <div
-              className={styles.actionsMenu}
-              style={{ top: `${menuPosition.top}px`, left: `${menuPosition.left}px` }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button className={styles.actionMenuItem}>View Details</button>
-              <button className={styles.actionMenuItem}>View in Stripe</button>
-              <button className={styles.actionMenuItem}>Approve Payout</button>
-            </div>
-          )}
-        </div>
+        <VerticalDotsMenu
+          actions={[
+            { label: 'View Details', onClick: () => console.log('View details', payout.id) },
+            { label: 'View in Stripe', onClick: () => console.log('View in Stripe', payout.id) },
+            { label: 'Approve Payout', onClick: () => console.log('Approve payout', payout.id) },
+          ]}
+        />
       ),
     },
   ];

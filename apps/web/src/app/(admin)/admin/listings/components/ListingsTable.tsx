@@ -34,7 +34,8 @@ import { HubDataTable } from '@/app/components/hub/data';
 import type { Column, Filter, PaginationConfig, BulkAction } from '@/app/components/hub/data';
 import { Listing } from '@/types';
 import AdminListingDetailModal from './AdminListingDetailModal';
-import { Star, Eye, Calendar, CheckCircle, XCircle, Trash2, Filter as FilterIcon, MoreVertical } from 'lucide-react';
+import { Star, Eye, Calendar, CheckCircle, XCircle, Trash2, Filter as FilterIcon } from 'lucide-react';
+import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
 import Button from '@/app/components/ui/actions/Button';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import styles from './ListingsTable.module.css';
@@ -88,25 +89,6 @@ export default function ListingsTable() {
   // Modal state
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // Actions menu state
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
-
-  // Close actions menu when clicking outside
-  React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (openMenuId && !(event.target as Element).closest('.actionsMenu')) {
-        setOpenMenuId(null);
-        setMenuPosition(null);
-      }
-    };
-
-    if (openMenuId) {
-      document.addEventListener('click', handleClickOutside);
-      return () => document.removeEventListener('click', handleClickOutside);
-    }
-  }, [openMenuId]);
 
   // Fetch listings data with React Query
   const { data, isLoading, error, refetch } = useQuery({
@@ -437,90 +419,38 @@ export default function ListingsTable() {
       label: 'Actions',
       width: '100px',
       render: (listing) => (
-        <div className={styles.actionsCell}>
-          <button
-            className={styles.actionsButton}
-            onClick={(e) => {
-              e.stopPropagation();
-              const button = e.currentTarget;
-              const rect = button.getBoundingClientRect();
+        <VerticalDotsMenu
+          actions={[
+            { label: 'View Details', onClick: () => handleRowClick(listing) },
+            { label: 'Contact Tutor', onClick: () => { window.location.href = `/messages?userId=${listing.profile_id}`; } },
+            {
+              label: 'Delete',
+              variant: 'danger' as const,
+              onClick: async () => {
+                if (confirm('Delete this listing? This action cannot be undone.')) {
+                  await supabase.rpc('log_admin_action', {
+                    p_action: 'delete',
+                    p_resource_type: 'listing',
+                    p_resource_id: listing.id,
+                    p_details: {
+                      action: 'delete',
+                      listing_title: listing.title,
+                      listing_owner_id: listing.profile_id,
+                    },
+                  });
 
-              if (openMenuId === listing.id) {
-                setOpenMenuId(null);
-                setMenuPosition(null);
-              } else {
-                setOpenMenuId(listing.id);
-                setMenuPosition({
-                  top: rect.bottom + 4,
-                  left: rect.right - 160, // 160px is menu width
-                });
-              }
-            }}
-            aria-label="More actions"
-          >
-            <MoreVertical size={16} />
-          </button>
-          {openMenuId === listing.id && menuPosition && (
-            <div
-              className={`${styles.actionsMenu} actionsMenu`}
-              style={{
-                top: `${menuPosition.top}px`,
-                left: `${menuPosition.left}px`,
-              }}
-            >
-              <button
-                className={styles.actionMenuItem}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRowClick(listing);
-                  setOpenMenuId(null);
-                }}
-              >
-                View Details
-              </button>
-              <button
-                className={styles.actionMenuItem}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // Contact tutor - navigate to messages
-                  window.location.href = `/messages?userId=${listing.profile_id}`;
-                }}
-              >
-                Contact Tutor
-              </button>
-              <button
-                className={`${styles.actionMenuItem} ${styles.actionMenuItemDanger}`}
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  if (confirm('Delete this listing? This action cannot be undone.')) {
-                    // Log admin action before deleting
-                    await supabase.rpc('log_admin_action', {
-                      p_action: 'delete',
-                      p_resource_type: 'listing',
-                      p_resource_id: listing.id,
-                      p_details: {
-                        action: 'delete',
-                        listing_title: listing.title,
-                        listing_owner_id: listing.profile_id,
-                      },
-                    });
-
-                    const { error } = await supabase.from('listings').delete().eq('id', listing.id);
-                    if (error) {
-                      alert('Failed to delete listing');
-                    } else {
-                      alert('Listing deleted successfully');
-                      refetch();
-                    }
+                  const { error } = await supabase.from('listings').delete().eq('id', listing.id);
+                  if (error) {
+                    alert('Failed to delete listing');
+                  } else {
+                    alert('Listing deleted successfully');
+                    refetch();
                   }
-                  setOpenMenuId(null);
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          )}
-        </div>
+                }
+              },
+            },
+          ]}
+        />
       ),
     },
   ];

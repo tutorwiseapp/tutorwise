@@ -7,11 +7,12 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { HubDataTable } from '@/app/components/hub/data';
 import type { Column, Filter, PaginationConfig } from '@/app/components/hub/data';
-import { MoreVertical, CheckCircle2, XCircle, Filter as FilterIcon } from 'lucide-react';
+import { CheckCircle2, XCircle, Filter as FilterIcon } from 'lucide-react';
+import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
 import styles from './UsersTable.module.css';
 import AdvancedFiltersDrawer, { AdvancedFilters } from './AdvancedFiltersDrawer';
 import DeleteUserModal from './DeleteUserModal';
@@ -81,10 +82,6 @@ export default function UsersTable() {
   const [limit, setLimit] = useState(20);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-  // Actions menu state
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
-
   // Delete modal state
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
@@ -127,20 +124,6 @@ export default function UsersTable() {
   const users = usersData?.users || [];
 
 
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (openMenuId && !(event.target as Element).closest('.actionsMenu')) {
-        setOpenMenuId(null);
-      }
-    };
-
-    if (openMenuId) {
-      document.addEventListener('click', handleClickOutside);
-      return () => document.removeEventListener('click', handleClickOutside);
-    }
-  }, [openMenuId]);
-
   // Format date helper
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '—';
@@ -152,14 +135,12 @@ export default function UsersTable() {
   const handleViewDetails = (user: User) => {
     setUserToView(user);
     setIsDetailModalOpen(true);
-    setOpenMenuId(null);
   };
 
   const handleImpersonateUser = async (user: User) => {
     if (confirm(`Impersonate ${user.full_name || user.email}?\n\nThis will log you in as this user.`)) {
       // TODO: Implement impersonation
       alert('Impersonation functionality coming soon');
-      setOpenMenuId(null);
     }
   };
 
@@ -167,14 +148,12 @@ export default function UsersTable() {
     if (confirm(`Send password reset email to ${user.email}?`)) {
       // TODO: Implement password reset
       alert('Password reset functionality coming soon');
-      setOpenMenuId(null);
     }
   };
 
   const handleDeleteUser = (user: User) => {
     setUserToDelete(user);
     setIsDeleteModalOpen(true);
-    setOpenMenuId(null);
   };
 
   const handleDeleteComplete = () => {
@@ -274,79 +253,14 @@ export default function UsersTable() {
       label: 'Actions',
       width: '100px',
       render: (user) => (
-        <div className={styles.actionsCell}>
-          <button
-            className={styles.actionsButton}
-            onClick={(e) => {
-              e.stopPropagation();
-              const button = e.currentTarget;
-              const rect = button.getBoundingClientRect();
-
-              if (openMenuId === user.id) {
-                setOpenMenuId(null);
-                setMenuPosition(null);
-              } else {
-                setOpenMenuId(user.id);
-                // Position menu below the button, aligned to the right
-                setMenuPosition({
-                  top: rect.bottom + 4,
-                  left: rect.right - 160, // 160px is menu width
-                });
-              }
-            }}
-            aria-label="More actions"
-          >
-            <MoreVertical size={16} />
-          </button>
-          {openMenuId === user.id && menuPosition && (
-            <div
-              className={`${styles.actionsMenu} actionsMenu`}
-              style={{
-                top: `${menuPosition.top}px`,
-                left: `${menuPosition.left}px`,
-              }}
-            >
-              <button
-                className={styles.actionMenuItem}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleViewDetails(user);
-                }}
-              >
-                View Details
-              </button>
-              {!user.is_admin && (
-                <button
-                  className={styles.actionMenuItem}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleImpersonateUser(user);
-                  }}
-                >
-                  Impersonate User
-                </button>
-              )}
-              <button
-                className={styles.actionMenuItem}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleResetPassword(user);
-                }}
-              >
-                Reset Password
-              </button>
-              <button
-                className={`${styles.actionMenuItem} ${styles.actionMenuItemDanger}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteUser(user);
-                }}
-              >
-                Delete User
-              </button>
-            </div>
-          )}
-        </div>
+        <VerticalDotsMenu
+          actions={[
+            { label: 'View Details', onClick: () => handleViewDetails(user) },
+            ...(!user.is_admin ? [{ label: 'Impersonate User', onClick: () => handleImpersonateUser(user) }] : []),
+            { label: 'Reset Password', onClick: () => handleResetPassword(user) },
+            { label: 'Delete User', onClick: () => handleDeleteUser(user), variant: 'danger' as const },
+          ]}
+        />
       ),
     },
   ];

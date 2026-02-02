@@ -25,7 +25,7 @@
 
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import { HubDataTable } from '@/app/components/hub/data';
@@ -33,7 +33,8 @@ import type { Column, Filter, PaginationConfig, BulkAction } from '@/app/compone
 import { Booking } from '@/types';
 import BookingCard from '@/app/components/feature/bookings/BookingCard';
 import AdminBookingDetailModal from './AdminBookingDetailModal';
-import { MoreVertical, Filter as FilterIcon } from 'lucide-react';
+import { Filter as FilterIcon } from 'lucide-react';
+import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
 import styles from './BookingsTable.module.css';
 import AdvancedFiltersDrawer, { AdvancedFilters } from './AdvancedFiltersDrawer';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
@@ -73,10 +74,6 @@ export default function BookingsTable() {
   // Modal state
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // Actions menu state
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
 
   // Fetch dropdown data for filters (unique profiles from bookings)
   const { data: filterOptionsData } = useQuery({
@@ -300,14 +297,12 @@ export default function BookingsTable() {
   const handleViewDetails = (booking: Booking) => {
     setSelectedBooking(booking);
     setIsModalOpen(true);
-    setOpenMenuId(null);
   };
 
   const handleCancelBooking = async (booking: Booking) => {
     if (confirm(`Are you sure you want to cancel this booking?\n\nService: ${booking.service_name}\nClient: ${booking.client?.full_name}`)) {
       // TODO: Implement cancel booking
       alert('Cancel booking functionality coming soon');
-      setOpenMenuId(null);
     }
   };
 
@@ -315,7 +310,6 @@ export default function BookingsTable() {
     if (confirm(`Are you sure you want to issue a refund?\n\nAmount: £${booking.amount.toFixed(2)}\nClient: ${booking.client?.full_name}`)) {
       // TODO: Implement refund booking
       alert('Refund functionality coming soon');
-      setOpenMenuId(null);
     }
   };
 
@@ -323,23 +317,8 @@ export default function BookingsTable() {
     if (confirm(`Are you sure you want to DELETE this booking? This action cannot be undone.\n\nService: ${booking.service_name}\nClient: ${booking.client?.full_name}`)) {
       // TODO: Implement delete booking
       alert('Delete booking functionality coming soon');
-      setOpenMenuId(null);
     }
   };
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (openMenuId && !(event.target as Element).closest('.actionsMenu')) {
-        setOpenMenuId(null);
-      }
-    };
-
-    if (openMenuId) {
-      document.addEventListener('click', handleClickOutside);
-      return () => document.removeEventListener('click', handleClickOutside);
-    }
-  }, [openMenuId]);
 
   // Column configuration
   const columns: Column<Booking>[] = [
@@ -469,81 +448,18 @@ export default function BookingsTable() {
       label: 'Actions',
       width: '100px',
       render: (booking) => (
-        <div className={styles.actionsCell}>
-          <button
-            className={styles.actionsButton}
-            onClick={(e) => {
-              e.stopPropagation();
-              const button = e.currentTarget;
-              const rect = button.getBoundingClientRect();
-
-              if (openMenuId === booking.id) {
-                setOpenMenuId(null);
-                setMenuPosition(null);
-              } else {
-                setOpenMenuId(booking.id);
-                // Position menu below the button, aligned to the right
-                setMenuPosition({
-                  top: rect.bottom + 4,
-                  left: rect.right - 160, // 160px is menu width
-                });
-              }
-            }}
-            aria-label="More actions"
-          >
-            <MoreVertical size={16} />
-          </button>
-          {openMenuId === booking.id && menuPosition && (
-            <div
-              className={`${styles.actionsMenu} actionsMenu`}
-              style={{
-                top: `${menuPosition.top}px`,
-                left: `${menuPosition.left}px`,
-              }}
-            >
-              <button
-                className={styles.actionMenuItem}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleViewDetails(booking);
-                }}
-              >
-                View Details
-              </button>
-              {booking.status !== 'Cancelled' && booking.status !== 'Completed' && (
-                <button
-                  className={styles.actionMenuItem}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCancelBooking(booking);
-                  }}
-                >
-                  Cancel Booking
-                </button>
-              )}
-              {booking.payment_status === 'Paid' && booking.status !== 'Cancelled' && (
-                <button
-                  className={styles.actionMenuItem}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRefundBooking(booking);
-                  }}
-                >
-                  Issue Refund
-                </button>
-              )}
-              <button
-                className={`${styles.actionMenuItem} ${styles.actionMenuItemDanger}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteBooking(booking);
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          )}
-        </div>
+        <VerticalDotsMenu
+          actions={[
+            { label: 'View Details', onClick: () => handleViewDetails(booking) },
+            ...(booking.status !== 'Cancelled' && booking.status !== 'Completed'
+              ? [{ label: 'Cancel Booking', onClick: () => handleCancelBooking(booking) }]
+              : []),
+            ...(booking.payment_status === 'Paid' && booking.status !== 'Cancelled'
+              ? [{ label: 'Issue Refund', onClick: () => handleRefundBooking(booking) }]
+              : []),
+            { label: 'Delete', onClick: () => handleDeleteBooking(booking), variant: 'danger' as const },
+          ]}
+        />
       ),
     },
   ];
