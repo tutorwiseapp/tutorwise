@@ -199,7 +199,7 @@ export default function AboutTutorwisePage() {
           <div className={styles.ecosystemPrinciples}>
             <p>Simple in use.</p>
             <p>Structured in design.</p>
-            <p>Trust-driven by intent.</p>
+            <p>Trust in learning.</p>
           </div>
 
           <div className={styles.helpCentreLink}>
