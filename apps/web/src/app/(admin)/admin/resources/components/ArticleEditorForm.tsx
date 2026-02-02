@@ -1195,8 +1195,32 @@ export default function ArticleEditorForm({
         <Button type="button" variant="secondary" size="md" onClick={handleCancel} disabled={isSaving}>
           Cancel
         </Button>
+        {!article?.id && (
+          <Button
+            type="button"
+            variant="secondary"
+            size="md"
+            disabled={isSaving}
+            onClick={() => {
+              setFormData((prev) => ({ ...prev, status: 'draft' }));
+              // Submit form after state update
+              setTimeout(() => {
+                const form = document.querySelector('form');
+                if (form) form.requestSubmit();
+              }, 0);
+            }}
+          >
+            {isSaving ? 'Saving...' : 'Save Draft'}
+          </Button>
+        )}
         <Button type="submit" variant="primary" size="md" disabled={isSaving}>
-          {isSaving ? 'Saving...' : article?.id ? 'Update Article' : 'Create Article'}
+          {isSaving
+            ? 'Saving...'
+            : article?.id
+              ? 'Update Article'
+              : formData.status === 'published'
+                ? 'Publish'
+                : 'Create Article'}
         </Button>
       </div>
 
