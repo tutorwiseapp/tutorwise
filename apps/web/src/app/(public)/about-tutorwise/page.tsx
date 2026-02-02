@@ -120,66 +120,89 @@ export default function AboutTutorwisePage() {
         </Container>
       </section>
 
-      {/* How It Works - Summary */}
+      {/* Tutorwise as a Learning Ecosystem */}
       <section className={styles.howItWorks}>
         <Container>
-          <h2 className={styles.sectionTitle}>How Tutorwise Works</h2>
-          <div className={styles.howItWorksGrid}>
-            <div className={styles.howItWorksColumn}>
-              <h3>For Students & Clients</h3>
-              <ol className={styles.stepsList}>
-                <li>
-                  <span className={styles.stepNumber}>1</span>
-                  <div>
-                    <strong>Search</strong>
-                    <p>Tell us what you need — our AI-powered matching finds tutors who fit your goals, location, and schedule.</p>
-                  </div>
-                </li>
-                <li>
-                  <span className={styles.stepNumber}>2</span>
-                  <div>
-                    <strong>Book</strong>
-                    <p>Review verified profiles, read reviews, and book sessions instantly with secure payments.</p>
-                  </div>
-                </li>
-                <li>
-                  <span className={styles.stepNumber}>3</span>
-                  <div>
-                    <strong>Learn</strong>
-                    <p>Connect with your tutor online or in-person and start your personalised learning journey.</p>
-                  </div>
-                </li>
-              </ol>
+          <h2 className={styles.sectionTitle}>Tutorwise as a Learning Ecosystem</h2>
+          <p className={styles.ecosystemIntro}>
+            Tutorwise is designed for everyone who participates in learning —
+            not just tutors and students, but the wider community that shapes
+            trust and opportunity in education.
+          </p>
+
+          {/* Who It's For */}
+          <h3 className={styles.ecosystemSubheading}>Who It&apos;s For</h3>
+          <div className={styles.ecosystemGrid}>
+            <div className={styles.ecosystemCard}>
+              <h4>Learners</h4>
+              <ul>
+                <li>Discover tutors beyond price and profiles</li>
+                <li>Choose with confidence</li>
+              </ul>
             </div>
-            <div className={styles.howItWorksColumn}>
-              <h3>For Tutors</h3>
-              <ol className={styles.stepsList}>
-                <li>
-                  <span className={styles.stepNumber}>1</span>
-                  <div>
-                    <strong>Register</strong>
-                    <p>Create your profile, showcase your expertise, qualifications, and teaching style.</p>
-                  </div>
-                </li>
-                <li>
-                  <span className={styles.stepNumber}>2</span>
-                  <div>
-                    <strong>Get Verified</strong>
-                    <p>Complete our verification process including identity checks and DBS certification.</p>
-                  </div>
-                </li>
-                <li>
-                  <span className={styles.stepNumber}>3</span>
-                  <div>
-                    <strong>Start Teaching</strong>
-                    <p>Receive bookings, grow your network through referrals, and build your tutoring business.</p>
-                  </div>
-                </li>
-              </ol>
+            <div className={styles.ecosystemCard}>
+              <h4>Tutors</h4>
+              <ul>
+                <li>Build credibility beyond visibility</li>
+                <li>Earn trust</li>
+                <li>Turn impact into opportunity</li>
+              </ul>
+            </div>
+            <div className={styles.ecosystemCard}>
+              <h4>Agents</h4>
+              <ul>
+                <li>Connect talent with demand</li>
+                <li>Enable meaningful matches in a trusted network</li>
+              </ul>
             </div>
           </div>
+          <div className={styles.ecosystemGridBottom}>
+            <div className={styles.ecosystemCard}>
+              <h4>Organisations</h4>
+              <ul>
+                <li>Identify credible tutors</li>
+                <li>Build trusted learning networks at scale</li>
+              </ul>
+            </div>
+            <div className={styles.ecosystemCard}>
+              <h4>Communities</h4>
+              <ul>
+                <li>Shape access to quality education</li>
+                <li>Strengthen trust</li>
+                <li>Drive contribution and referrals</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* How the Ecosystem Works */}
+          <h3 className={styles.ecosystemSubheading}>How the Ecosystem Works</h3>
+          <div className={styles.ecosystemSteps}>
+            <div className={styles.ecosystemStep}>
+              <span className={styles.stepNumber}>1</span>
+              <p>Tutors build verified profiles and credibility</p>
+            </div>
+            <div className={styles.ecosystemStep}>
+              <span className={styles.stepNumber}>2</span>
+              <p>Learners discover and connect with trusted tutors</p>
+            </div>
+            <div className={styles.ecosystemStep}>
+              <span className={styles.stepNumber}>3</span>
+              <p>Sessions are delivered, reviewed, and refined</p>
+            </div>
+            <div className={styles.ecosystemStep}>
+              <span className={styles.stepNumber}>4</span>
+              <p>Credibility and referrals reinforce trust across the network</p>
+            </div>
+          </div>
+
+          {/* Core Principles */}
+          <div className={styles.ecosystemPrinciples}>
+            <p>Simple in use.</p>
+            <p>Structured in design.</p>
+            <p>Trust-driven by intent.</p>
+          </div>
+
           <div className={styles.helpCentreLink}>
-            <p>Want to learn more about using Tutorwise?</p>
             <Link href="/help-centre" className={styles.textLink} scroll={true}>
               Visit our Help Centre for detailed guides →
             </Link>
