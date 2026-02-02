@@ -19,10 +19,7 @@ export default function AboutTutorwisePage() {
             <h1 className={styles.heroTitle}>Learn Your Way</h1>
             <p className={styles.heroPhilosophy}>Trust the way you learn.</p>
             <p className={styles.heroIntro}>
-              Learning is personal. So should be the people who guide it. Tutorwise connects
-              learners with tutors they can truly trust — not just by profiles or ratings, but
-              by credibility, contribution, and real-world impact. Because the right tutor
-              doesn&apos;t just teach. They change how you learn.
+              Learning is personal. Trust should be too. Tutorwise connects learners with tutors they can genuinely trust — not just by profiles or ratings, but by credibility, contribution, and real-world impact. Because the right tutor doesn&apos;t just teach. They change how you learn.
             </p>
           </div>
         </Container>
@@ -35,16 +32,12 @@ export default function AboutTutorwisePage() {
           <div className={styles.storyContent}>
             <p>
               Finding the right tutor has always been a leap of faith. Parents scroll through
-              profiles. Students meet strangers. Decisions that shape futures are often made on
-              limited information, surface-level ratings, and unfamiliar names. Tutorwise was
+              profiles. Students choose strangers. Decisions that shape futures are often made on
+              limited signals, surface-level ratings, and unfamiliar names. Tutorwise was
               built to change this.
             </p>
             <p>
-              We transform strangers into credible teachers — not through marketing, but through
-              trust, proof, and community recognition. In our ecosystem, tutors earn credibility
-              through real impact, learners gain confidence in who they choose, and connections
-              are built on more than reviews. Here, <strong>trust is not assumed. It is built,
-              measured, and shared</strong>.
+              Tutorwise transforms strangers into credible teachers through trust, proof, and community recognition. In our ecosystem, tutors earn credibility through real impact, learners gain confidence in who they choose, and connections are built on more than reviews. Here <strong>trust is not assumed. It is built, measured, and shared</strong>.
             </p>
           </div>
         </Container>
@@ -57,18 +50,13 @@ export default function AboutTutorwisePage() {
             <div className={styles.missionCard}>
               <h3>Our Vision</h3>
               <p>
-                To become the global leader in education — where opportunity flows through
-                credibility, referrals, and networks. We&apos;re creating an inclusive, equitable
-                tutoring ecosystem where trust and connection shape meaningful opportunities.
+                To build the world&apos; most trusted learning ecosystem — where credibility, contribution, and community shape opportunity in education.
               </p>
             </div>
             <div className={styles.visionCard}>
               <h3>Our Mission</h3>
               <p>
-                To maximise opportunities by fostering trust, incentivising referrals, and
-                growing connections across our global tutoring network. We focus on helping
-                clients, tutors, and agents connect, collaborate, and engage seamlessly —
-                ensuring transparency and meaningful outcomes at every step.
+               To make credibility visible in learning — so learners choose with confidence, tutors earn recognition, and communities create opportunity through trust and referrals.
               </p>
             </div>
           </div>
@@ -80,8 +68,7 @@ export default function AboutTutorwisePage() {
         <Container>
           <h2 className={styles.sectionTitle}>What We Stand For</h2>
           <p className={styles.sectionSubtitle}>
-            Our values shape everything we build. They guide how we design experiences,
-            connect people, and measure success — not only by outcomes, but by impact.
+            At Tutorwise, credibility is not claimed — it is earned. Contribution is not invisible — it is recognised. And community is not a feature — it is the foundation of learning.
           </p>
           <div className={styles.valuesGrid}>
             <div className={styles.valueCard}>
