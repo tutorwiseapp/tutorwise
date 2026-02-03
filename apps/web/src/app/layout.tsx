@@ -33,13 +33,12 @@ export const metadata: Metadata = {
   description: 'Connect with verified, credible tutors for personalized learning. Browse workshops, study packages, and one-to-one tutoring from expert educators you can trust.',
   icons: {
     icon: [
-      { url: '/image/tutorwise-app-icon.svg', type: 'image/svg+xml' },
       { url: '/image/Tutorwise-app-logo.png', sizes: '512x512', type: 'image/png' },
     ],
     apple: [
       { url: '/image/Tutorwise-app-logo.png', sizes: '180x180', type: 'image/png' },
     ],
-    shortcut: '/image/tutorwise-app-icon.svg',
+    shortcut: '/image/Tutorwise-app-logo.png',
   },
   keywords: [
     'connect with tutors',
