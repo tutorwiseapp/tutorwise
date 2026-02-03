@@ -32,13 +32,9 @@ export const metadata: Metadata = {
   title: 'Connect Clients with Credible Tutors & Educational Services | Tutorwise',
   description: 'Connect with verified, credible tutors for personalized learning. Browse workshops, study packages, and one-to-one tutoring from expert educators you can trust.',
   icons: {
-    icon: [
-      { url: '/image/Tutorwise-app-logo.png', sizes: '512x512', type: 'image/png' },
-    ],
-    apple: [
-      { url: '/image/Tutorwise-app-logo.png', sizes: '180x180', type: 'image/png' },
-    ],
-    shortcut: '/image/Tutorwise-app-logo.png',
+    icon: '/favicon.png',
+    apple: '/favicon.png',
+    shortcut: '/favicon.png',
   },
   keywords: [
     'connect with tutors',
