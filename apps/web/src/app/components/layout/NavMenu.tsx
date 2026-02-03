@@ -55,11 +55,10 @@ const NavMenu = () => {
     performLogout('/');
   };
 
-  if (isLoading) {
-    return <div style={{ width: '80px' }} />; // Placeholder to prevent layout shift
-  }
-
-  const isAuthenticated = !!profile;
+  // CRITICAL: Always show the menu icon, never hide it
+  // During loading, treat as unauthenticated to show at least the menu icon
+  // This ensures users can always access navigation even if auth fails
+  const isAuthenticated = !isLoading && !!profile;
 
   return (
     <nav>
