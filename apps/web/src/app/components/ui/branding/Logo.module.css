@@ -1,6 +1,19 @@
-.logoText {
-  font-family: var(--font-secondary);
-  font-size: 30px;
-  font-weight: 700;
-  fill: var(--color-primary);
+.logo {
+  display: block;
+  flex-shrink: 0;
+}
+
+.logoTutor {
+  color: var(--color-gray-900, #111827);
+}
+
+.logoWise {
+  color: var(--color-primary, #006C67);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .logoTutor {
+    color: var(--color-gray-100, #f3f4f6);
+  }
 }

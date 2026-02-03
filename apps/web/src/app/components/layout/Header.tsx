@@ -17,6 +17,7 @@
 
 import Link from 'next/link';
 import NavMenu from './NavMenu';
+import Logo from '../ui/branding/Logo';
 import styles from './Header.module.css';
 
 const Header = () => {
@@ -25,7 +26,9 @@ const Header = () => {
   return (
     <header className={styles.header}>
       <div className={styles.headerLogo}>
-        <Link href={logoHref}>tutorwise</Link>
+        <Link href={logoHref} aria-label="Tutorwise Home">
+          <Logo width={160} height={28} />
+        </Link>
       </div>
 
       <div className={styles.headerActions}>
