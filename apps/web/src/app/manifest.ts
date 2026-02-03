@@ -12,7 +12,7 @@ export default function manifest(): MetadataRoute.Manifest {
     icons: [
       {
         src: '/image/Tutorwise-app-logo.png',
-        sizes: '512x512',
+        sizes: '1000x1000',
         type: 'image/png',
         purpose: 'any',
       },
