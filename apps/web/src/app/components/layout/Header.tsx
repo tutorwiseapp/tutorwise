@@ -27,7 +27,7 @@ const Header = () => {
     <header className={styles.header}>
       <div className={styles.headerLogo}>
         <Link href={logoHref} aria-label="Tutorwise Home">
-          <Logo width={160} height={28} />
+          <Logo width={140} height={24} />
         </Link>
       </div>
 
