@@ -19,7 +19,7 @@ export default function AboutTutorwisePage() {
             <h1 className={styles.heroTitle}>Learn Your Way</h1>
             <p className={styles.heroPhilosophy}>Trust the way you learn.</p>
             <p className={styles.heroIntro}>
-              Learning is personal. Trust should be too. Tutorwise connects learners with tutors they can genuinely trust — not just by profiles or ratings, but by credibility, contribution, and real-world impact. Because the right tutor doesn&apos;t just teach. They change how you learn.
+              Learning is personal. Trust should be too. Tutorwise connects learners with tutors and agents they can genuinely trust — not just by profiles or ratings, but by credibility, contribution, and real-world impact. Because the right tutor doesn&apos;t just teach. They change how you learn.
             </p>
           </div>
         </Container>
