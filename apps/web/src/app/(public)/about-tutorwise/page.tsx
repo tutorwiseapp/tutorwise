@@ -50,7 +50,7 @@ export default function AboutTutorwisePage() {
             <div className={styles.missionCard}>
               <h3>Our Vision</h3>
               <p>
-                To build the world&apos; most trusted learning ecosystem — where credibility, contribution, and community shape opportunity in education.
+                To build the world&apos;s most trusted learning ecosystem — where credibility, contribution, and community shape opportunity in education.
               </p>
             </div>
             <div className={styles.visionCard}>
