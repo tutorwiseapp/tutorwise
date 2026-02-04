@@ -291,8 +291,9 @@
 
 /* Ecosystem Steps */
 .ecosystemSteps {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 24px;
   max-width: 1100px;
   margin: 0 auto 48px auto;
@@ -304,6 +305,7 @@
   align-items: center;
   text-align: center;
   gap: 12px;
+  flex: 0 0 calc(33.33% - 16px);
 }
 
 .stepNumber {
@@ -467,8 +469,8 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .ecosystemSteps {
-    grid-template-columns: repeat(2, 1fr);
+  .ecosystemStep {
+    flex: 0 0 calc(50% - 12px);
   }
 
   .differentiatorGrid {
@@ -525,11 +527,11 @@
   }
 
   .ecosystemSteps {
-    grid-template-columns: 1fr;
     gap: 16px;
   }
 
   .ecosystemStep {
+    flex: 0 0 100%;
     flex-direction: row;
     text-align: left;
   }
