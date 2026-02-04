@@ -19,7 +19,7 @@ export default function AboutTutorwisePage() {
             <h1 className={styles.heroTitle}>Learn Your Way</h1>
             <p className={styles.heroPhilosophy}>Trust the way you learn.</p>
             <p className={styles.heroIntro}>
-              Learning is personal. Trust should be too. Tutorwise connects learners with tutors and agents they can genuinely trust — not just by profiles or ratings, but by credibility, contribution, and real-world impact. Because the right tutor doesn&apos;t just teach. They change how you learn.
+              Learning is personal. Trust should be too. Tutorwise connects learners with tutors, agents and organisations they can genuinely trust — not just by profiles or ratings, but by credibility, contribution, and real-world impact. Because the right tutor doesn&apos;t just teach. They change how you learn.
             </p>
           </div>
         </Container>
@@ -179,19 +179,23 @@ export default function AboutTutorwisePage() {
           <div className={styles.ecosystemSteps}>
             <div className={styles.ecosystemStep}>
               <span className={styles.stepNumber}>1</span>
-              <p>Tutors build verified profiles and credibility</p>
+              <p>Tutors and agents build verified profiles and listings that students can trust</p>
             </div>
             <div className={styles.ecosystemStep}>
               <span className={styles.stepNumber}>2</span>
-              <p>Learners discover and connect with trusted tutors</p>
+              <p>Students discover and connect with trusted tutors from the marketplace</p>
             </div>
             <div className={styles.ecosystemStep}>
               <span className={styles.stepNumber}>3</span>
-              <p>Sessions are delivered, reviewed, and refined</p>
+              <p>Sessions are delivered by credible tutors, reviewed, and continuously improved</p>
             </div>
             <div className={styles.ecosystemStep}>
               <span className={styles.stepNumber}>4</span>
-              <p>Credibility and referrals reinforce trust across the network</p>
+              <p>Agents educate students and recruit qualified tutors while growing their agencies</p>
+            </div>
+            <div className={styles.ecosystemStep}>
+              <span className={styles.stepNumber}>5</span>
+              <p>Credibility and referrals create a symbiotic community of trust</p>
             </div>
           </div>
 
