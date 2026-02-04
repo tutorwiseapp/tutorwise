@@ -56,7 +56,7 @@ export default function AboutTutorwisePage() {
             <div className={styles.visionCard}>
               <h3>Our Mission</h3>
               <p>
-               To make credibility visible in learning — so learners choose with confidence, tutors earn recognition, and communities create opportunity through trust and referrals.
+               To make credibility visible in learning — so learners choose with confidence, tutors and agents earn recognition, communities create opportunity through trust and referrals.
               </p>
             </div>
           </div>
