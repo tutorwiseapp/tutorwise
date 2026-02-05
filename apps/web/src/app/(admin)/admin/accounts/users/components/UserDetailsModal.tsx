@@ -29,7 +29,7 @@ import type { DetailSection } from '@/app/components/hub/modal';
 import Button from '@/app/components/ui/actions/Button';
 import styles from './UserDetailsModal.module.css';
 
-// User type matching UsersTable
+// User type matching UsersTable (extended with more fields)
 interface User {
   id: string;
   email: string;
@@ -44,6 +44,22 @@ interface User {
   admin_role: string | null;
   created_at: string;
   updated_at: string | null;
+  // Extended fields
+  phone?: string | null;
+  bio?: string | null;
+  location_city?: string | null;
+  location_postcode?: string | null;
+  location_country?: string | null;
+  timezone?: string | null;
+  gender?: string | null;
+  date_of_birth?: string | null;
+  last_login_at?: string | null;
+  login_count?: number;
+  referral_code?: string | null;
+  stripe_customer_id?: string | null;
+  stripe_connect_id?: string | null;
+  onboarding_completed_at?: string | null;
+  deactivated_at?: string | null;
 }
 
 interface UserDetailsModalProps {
@@ -103,16 +119,41 @@ export default function UserDetailsModal({
   // Build subtitle
   const subtitle = `User ID: ${user.id}`;
 
+  // Format short ID
+  const formatIdForDisplay = (id: string) => {
+    return id.substring(0, 8) + '...';
+  };
+
   // Build sections
   const sections: DetailSection[] = [
     {
       title: 'Account Information',
       fields: [
+        { label: 'User ID', value: formatIdForDisplay(user.id) },
         { label: 'Email', value: user.email },
         { label: 'Full Name', value: user.full_name || 'Not Set' },
         { label: 'User Type', value: getUserTypeLabel() },
         { label: 'Admin Status', value: user.is_admin ? 'Yes' : 'No' },
         ...(user.is_admin && user.admin_role ? [{ label: 'Admin Role', value: user.admin_role }] : []),
+        ...(user.referral_code ? [{ label: 'Referral Code', value: user.referral_code }] : []),
+      ],
+    },
+    {
+      title: 'Contact Information',
+      fields: [
+        { label: 'Phone', value: user.phone || 'Not provided' },
+        { label: 'City', value: user.location_city || 'Not specified' },
+        { label: 'Postcode', value: user.location_postcode || 'Not specified' },
+        { label: 'Country', value: user.location_country || 'Not specified' },
+        { label: 'Timezone', value: user.timezone || 'Not specified' },
+      ],
+    },
+    {
+      title: 'Profile Details',
+      fields: [
+        { label: 'Gender', value: user.gender || 'Not specified' },
+        { label: 'Date of Birth', value: user.date_of_birth ? formatDateTime(user.date_of_birth) : 'Not specified' },
+        { label: 'Bio', value: user.bio || 'No bio provided' },
       ],
     },
     {
@@ -122,6 +163,22 @@ export default function UserDetailsModal({
         { label: 'Identity Verified', value: getVerificationStatus(user.identity_verified) },
         { label: 'DBS Verified', value: getVerificationStatus(user.dbs_verified) },
         { label: 'Proof of Address', value: getVerificationStatus(user.proof_of_address_verified) },
+      ],
+    },
+    {
+      title: 'Activity',
+      fields: [
+        { label: 'Last Login', value: user.last_login_at ? formatDateTime(user.last_login_at) : 'Never logged in' },
+        { label: 'Login Count', value: `${user.login_count || 0} logins` },
+        { label: 'Onboarding Completed', value: user.onboarding_completed_at ? formatDateTime(user.onboarding_completed_at) : 'Not completed' },
+        ...(user.deactivated_at ? [{ label: 'Deactivated At', value: formatDateTime(user.deactivated_at) }] : []),
+      ],
+    },
+    {
+      title: 'Payment Integration',
+      fields: [
+        { label: 'Stripe Customer ID', value: user.stripe_customer_id || 'Not connected' },
+        { label: 'Stripe Connect ID', value: user.stripe_connect_id || 'Not connected' },
       ],
     },
     {

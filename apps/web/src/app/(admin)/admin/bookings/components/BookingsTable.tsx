@@ -38,12 +38,13 @@ import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
 import styles from './BookingsTable.module.css';
 import AdvancedFiltersDrawer, { AdvancedFilters } from './AdvancedFiltersDrawer';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
-import StatusBadge, { getBookingStatusVariant, getPaymentStatusVariant } from '@/app/components/admin/badges/StatusBadge';
+import StatusBadge, { getBookingStatusVariant, getPaymentStatusVariant, getSchedulingStatusVariant } from '@/app/components/admin/badges/StatusBadge';
 import { exportToCSV, CSVFormatters, type CSVColumn } from '@/lib/utils/exportToCSV';
 import { useTableState, buildTableQueryParams } from '@/hooks/useTableState';
 import {
   ADMIN_TABLE_DEFAULTS,
   BOOKING_STATUS_OPTIONS,
+  SCHEDULING_STATUS_OPTIONS,
   DATE_RANGE_OPTIONS,
 } from '@/constants/admin';
 
@@ -57,6 +58,7 @@ export default function BookingsTable() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
+  const [schedulingFilter, setSchedulingFilter] = useState<string>('');
   const [dateFilter, setDateFilter] = useState<string>('');
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
 
@@ -148,7 +150,7 @@ export default function BookingsTable() {
 
   // Fetch bookings with pagination and filters
   const { data: bookingsData, isLoading, error, refetch } = useQuery({
-    queryKey: ['admin-bookings', page, limit, sortKey, sortDirection, searchQuery, statusFilter, dateFilter, advancedFilters],
+    queryKey: ['admin-bookings', page, limit, sortKey, sortDirection, searchQuery, statusFilter, schedulingFilter, dateFilter, advancedFilters],
     queryFn: async () => {
       let query = supabase
         .from('bookings')
@@ -167,6 +169,7 @@ export default function BookingsTable() {
           amount,
           status,
           payment_status,
+          scheduling_status,
           subjects,
           levels,
           location_type,
@@ -204,6 +207,11 @@ export default function BookingsTable() {
       // Apply status filter
       if (statusFilter) {
         query = query.eq('status', statusFilter);
+      }
+
+      // Apply scheduling status filter
+      if (schedulingFilter) {
+        query = query.eq('scheduling_status', schedulingFilter);
       }
 
       // Apply date filter
@@ -344,6 +352,9 @@ export default function BookingsTable() {
       width: '140px',
       sortable: true,
       render: (booking) => {
+        if (!booking.session_start_time) {
+          return <div className={styles.dateCell}>Not scheduled</div>;
+        }
         const date = new Date(booking.session_start_time);
         return (
           <div className={styles.dateCell}>
@@ -431,6 +442,15 @@ export default function BookingsTable() {
       ),
     },
     {
+      key: 'scheduling_status',
+      label: 'Schedule',
+      width: '110px',
+      sortable: true,
+      render: (booking) => (
+        <StatusBadge variant={getSchedulingStatusVariant(booking.scheduling_status ?? null)} />
+      ),
+    },
+    {
       key: 'booking_type',
       label: 'Type',
       width: '100px',
@@ -470,6 +490,14 @@ export default function BookingsTable() {
       key: 'status',
       label: 'All Statuses',
       options: BOOKING_STATUS_OPTIONS.slice(1).map(opt => ({
+        label: opt.label,
+        value: opt.value,
+      })),
+    },
+    {
+      key: 'scheduling',
+      label: 'All Scheduling',
+      options: SCHEDULING_STATUS_OPTIONS.slice(1).map(opt => ({
         label: opt.label,
         value: opt.value,
       })),
@@ -519,6 +547,8 @@ export default function BookingsTable() {
 
     if (filterKey === 'status') {
       setStatusFilter(stringValue);
+    } else if (filterKey === 'scheduling') {
+      setSchedulingFilter(stringValue);
     } else if (filterKey === 'date') {
       setDateFilter(stringValue);
     }
@@ -587,6 +617,7 @@ export default function BookingsTable() {
       },
       { key: 'status', header: 'Status' },
       { key: 'payment_status', header: 'Payment' },
+      { key: 'scheduling_status', header: 'Scheduling' },
       { key: 'booking_type', header: 'Type' },
     ];
 

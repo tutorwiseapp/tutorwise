@@ -48,46 +48,112 @@ export default function DisputeDetailModal({
     return `${formatDate(dateString)} at ${formatTime(dateString)}`;
   };
 
-  // Build subtitle
-  const subtitle = dispute.description || 'Disputed Transaction';
+  // Format short date
+  const formatShortDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
 
-  // Build sections with all transaction fields
+  // Get status display
+  const getStatusDisplay = (status: string) => {
+    const statusLower = status.toLowerCase();
+    if (statusLower === 'won') return 'Resolved - Won';
+    if (statusLower === 'lost') return 'Resolved - Lost';
+    if (statusLower === 'under_review') return 'Under Review';
+    if (statusLower === 'action_required' || statusLower === 'needs_response') return 'Action Required';
+    return status;
+  };
+
+  // Calculate days until due
+  const getDaysUntilDue = (dueDate?: string) => {
+    if (!dueDate) return null;
+    const due = new Date(dueDate);
+    const now = new Date();
+    const diffTime = due.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  const daysUntilDue = getDaysUntilDue((dispute as any).response_due);
+
+  // Build subtitle
+  const subtitle = (dispute as any).reason || dispute.description || 'Disputed Transaction';
+
+  // Build sections with comprehensive dispute fields
   const sections: DetailSection[] = [
     {
       title: 'Dispute Information',
       fields: [
-        { label: 'Amount', value: `£${Math.abs(dispute.amount).toFixed(2)}` },
-        { label: 'Type', value: dispute.type || 'Unknown' },
-        { label: 'Status', value: dispute.status || 'Unknown' },
+        { label: 'Disputed Amount', value: `£${Math.abs(dispute.amount).toFixed(2)}` },
+        { label: 'Reason', value: (dispute as any).reason || 'Unknown' },
+        { label: 'Status', value: getStatusDisplay(dispute.status || 'Unknown') },
+        { label: 'Dispute Type', value: (dispute as any).dispute_type || dispute.type || 'Unknown' },
         { label: 'Description', value: dispute.description || 'N/A' },
+      ],
+    },
+    {
+      title: 'Timeline',
+      fields: [
         { label: 'Dispute Raised', value: formatDateTime(dispute.created_at) },
-        { label: 'Available At', value: dispute.available_at ? formatDateTime(dispute.available_at) : 'N/A' },
+        { label: 'Response Due', value: (dispute as any).response_due
+          ? `${formatShortDate((dispute as any).response_due)}${daysUntilDue !== null ? (daysUntilDue > 0 ? ` (${daysUntilDue} days left)` : ' (Overdue)') : ''}`
+          : 'N/A' },
+        { label: 'Evidence Due', value: (dispute as any).evidence_due ? formatShortDate((dispute as any).evidence_due) : 'N/A' },
+        ...((dispute as any).resolved_at ? [{ label: 'Resolved At', value: formatDateTime((dispute as any).resolved_at) }] : []),
+      ],
+    },
+    {
+      title: 'Evidence Status',
+      fields: [
+        { label: 'Evidence Submitted', value: (dispute as any).evidence_submitted ? 'Yes' : 'No' },
+        ...((dispute as any).evidence_submitted_at ? [{ label: 'Submitted At', value: formatDateTime((dispute as any).evidence_submitted_at) }] : []),
+        ...((dispute as any).evidence_details ? [{ label: 'Evidence Notes', value: (dispute as any).evidence_details }] : []),
       ],
     },
     {
       title: 'Payment Details',
       fields: [
-        { label: 'Payment Method', value: 'Bank Transfer' },
-        { label: 'Stripe Payout ID', value: dispute.stripe_payout_id || 'N/A' },
+        { label: 'Stripe Dispute ID', value: (dispute as any).stripe_dispute_id || 'N/A' },
         { label: 'Stripe Checkout ID', value: dispute.stripe_checkout_id || 'N/A' },
-      ],
-    },
-    {
-      title: 'Related Booking',
-      fields: [
-        { label: 'Booking ID', value: dispute.booking_id || 'N/A' },
-      ],
-    },
-    {
-      title: 'System Information',
-      fields: [
-        { label: 'Transaction ID', value: dispute.id },
-        { label: 'Profile ID', value: dispute.profile_id || 'N/A' },
-        { label: 'Created At', value: formatDateTime(dispute.created_at) },
-        { label: 'Available At', value: dispute.available_at ? formatDateTime(dispute.available_at) : 'N/A' },
+        { label: 'Stripe Payout ID', value: dispute.stripe_payout_id || 'N/A' },
       ],
     },
   ];
+
+  // Add outcome section if resolved
+  if ((dispute as any).outcome && (dispute as any).outcome !== 'pending') {
+    sections.push({
+      title: 'Outcome',
+      fields: [
+        { label: 'Result', value: (dispute as any).outcome === 'won' ? 'Won - Funds Returned' : 'Lost - Funds Deducted' },
+        ...((dispute as any).outcome_reason ? [{ label: 'Reason', value: (dispute as any).outcome_reason }] : []),
+      ],
+    });
+  }
+
+  // Add related booking if exists
+  if (dispute.booking_id || dispute.booking) {
+    sections.push({
+      title: 'Related Booking',
+      fields: [
+        { label: 'Booking ID', value: dispute.booking_id || 'N/A' },
+        { label: 'Service Name', value: dispute.booking?.service_name || 'N/A' },
+        { label: 'Session Date', value: dispute.booking?.session_start_time ? formatDate(dispute.booking.session_start_time) : 'N/A' },
+      ],
+    });
+  }
+
+  // Add system information
+  sections.push({
+    title: 'System Information',
+    fields: [
+      { label: 'Transaction ID', value: dispute.id },
+      { label: 'Profile ID', value: dispute.profile_id || 'N/A' },
+    ],
+  });
 
   return (
     <HubDetailModal

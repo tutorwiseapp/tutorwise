@@ -48,31 +48,73 @@ export default function PayoutDetailModal({
     return `${formatDate(dateString)} at ${formatTime(dateString)}`;
   };
 
+  // Get status display
+  const getStatusDisplay = (status: string) => {
+    const statusLower = status.toLowerCase();
+    if (statusLower === 'paid' || statusLower === 'completed') return 'Completed';
+    if (statusLower === 'pending') return 'Pending';
+    if (statusLower === 'in_transit') return 'In Transit';
+    if (statusLower === 'failed') return 'Failed';
+    return status;
+  };
+
   // Build subtitle
   const subtitle = payout.description || 'Payout Transaction';
 
   // Build sections with all transaction fields
   const sections: DetailSection[] = [
     {
-      title: 'Transaction Information',
+      title: 'Payout Information',
       fields: [
         { label: 'Amount', value: `£${Math.abs(payout.amount).toFixed(2)}` },
         { label: 'Type', value: payout.type || 'Withdrawal' },
-        { label: 'Status', value: payout.status || 'Unknown' },
+        { label: 'Status', value: getStatusDisplay(payout.status || 'Unknown') },
         { label: 'Description', value: payout.description || 'N/A' },
+        { label: 'Currency', value: (payout as any).currency || 'GBP' },
+      ],
+    },
+    {
+      title: 'Bank Account',
+      fields: [
+        { label: 'Payment Method', value: 'Bank Transfer' },
+        { label: 'Bank Name', value: (payout as any).bank_name || 'N/A' },
+        { label: 'Account', value: (payout as any).bank_account ? `****${String((payout as any).bank_account).slice(-4)}` : 'N/A' },
+        { label: 'Account Holder', value: (payout as any).account_holder_name || 'N/A' },
+      ],
+    },
+    {
+      title: 'Timeline',
+      fields: [
         { label: 'Created At', value: formatDateTime(payout.created_at) },
-        { label: 'Available At', value: payout.available_at ? formatDateTime(payout.available_at) : 'N/A' },
+        { label: 'Initiated At', value: (payout as any).initiated_at ? formatDateTime((payout as any).initiated_at) : 'N/A' },
+        { label: 'Arrival Date', value: (payout as any).arrival_date ? formatDate((payout as any).arrival_date) : (payout.available_at ? formatDate(payout.available_at) : 'N/A') },
+        ...((payout as any).completed_at ? [{ label: 'Completed At', value: formatDateTime((payout as any).completed_at) }] : []),
+        ...((payout as any).failed_at ? [{ label: 'Failed At', value: formatDateTime((payout as any).failed_at) }] : []),
       ],
     },
     {
       title: 'Payment Details',
       fields: [
-        { label: 'Payment Method', value: 'Bank Transfer' },
         { label: 'Stripe Payout ID', value: payout.stripe_payout_id || 'N/A' },
         { label: 'Stripe Checkout ID', value: payout.stripe_checkout_id || 'N/A' },
       ],
     },
-    {
+  ];
+
+  // Add failure details if failed
+  if (payout.status?.toLowerCase() === 'failed') {
+    sections.push({
+      title: 'Failure Details',
+      fields: [
+        { label: 'Failure Code', value: (payout as any).failure_code || 'Unknown' },
+        { label: 'Failure Message', value: (payout as any).failure_message || 'No details available' },
+      ],
+    });
+  }
+
+  // Add related booking if exists
+  if (payout.booking_id || payout.booking) {
+    sections.push({
       title: 'Related Booking',
       fields: [
         { label: 'Booking ID', value: payout.booking_id || 'N/A' },
@@ -81,15 +123,17 @@ export default function PayoutDetailModal({
         { label: 'Client', value: payout.booking?.client?.full_name || 'N/A' },
         { label: 'Tutor', value: payout.booking?.tutor?.full_name || 'N/A' },
       ],
-    },
-    {
-      title: 'System Information',
-      fields: [
-        { label: 'Transaction ID', value: payout.id },
-        { label: 'Profile ID', value: payout.profile_id || 'Platform Fee' },
-      ],
-    },
-  ];
+    });
+  }
+
+  // Add system information
+  sections.push({
+    title: 'System Information',
+    fields: [
+      { label: 'Transaction ID', value: payout.id },
+      { label: 'Profile ID', value: payout.profile_id || 'Platform Fee' },
+    ],
+  });
 
   return (
     <HubDetailModal

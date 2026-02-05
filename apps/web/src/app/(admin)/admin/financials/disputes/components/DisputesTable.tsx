@@ -18,6 +18,7 @@ import StatusBadge from '@/app/components/admin/badges/StatusBadge';
 import { exportToCSV, CSVFormatters, type CSVColumn } from '@/lib/utils/exportToCSV';
 import { ADMIN_TABLE_DEFAULTS } from '@/constants/admin';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
+import AdminDisputeDetailModal, { type DisputeDetail } from './AdminDisputeDetailModal';
 
 // Helper function to map dispute status to StatusBadge variant
 function getDisputeStatusVariant(status: string) {
@@ -29,17 +30,8 @@ function getDisputeStatusVariant(status: string) {
   return 'neutral' as const;
 }
 
-// Dispute type
-interface Dispute {
-  id: string;
-  created_at: string;
-  amount: number;
-  status: string;
-  reason?: string;
-  user_email?: string;
-  user_name?: string;
-  response_due?: string;
-}
+// Dispute type (extends DisputeDetail for table display)
+type Dispute = DisputeDetail;
 
 // Advanced filters type
 interface AdvancedFilters {
@@ -55,6 +47,9 @@ export default function DisputesTable() {
   const [limit, setLimit] = useState<number>(ADMIN_TABLE_DEFAULTS.PAGE_SIZE);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
+  // Detail modal state
+  const [selectedDispute, setSelectedDispute] = useState<Dispute | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   // Advanced filters state
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
     dateFrom: '',
@@ -172,8 +167,22 @@ export default function DisputesTable() {
       render: (dispute) => (
         <VerticalDotsMenu
           actions={[
-            { label: 'View Details', onClick: () => console.log('View details', dispute.id) },
-            { label: 'View in Stripe', onClick: () => console.log('View in Stripe', dispute.id) },
+            {
+              label: 'View Details',
+              onClick: () => {
+                setSelectedDispute(dispute);
+                setIsDetailModalOpen(true);
+              },
+            },
+            {
+              label: 'View in Stripe',
+              onClick: () => {
+                const stripeUrl = dispute.stripe_dispute_id
+                  ? `https://dashboard.stripe.com/disputes/${dispute.stripe_dispute_id}`
+                  : 'https://dashboard.stripe.com/disputes';
+                window.open(stripeUrl, '_blank');
+              },
+            },
             { label: 'Resolve Dispute', onClick: () => console.log('Resolve dispute', dispute.id) },
           ]}
         />
@@ -267,6 +276,19 @@ export default function DisputesTable() {
           </button>
         }
       />
+
+      {/* Detail Modal */}
+      {selectedDispute && (
+        <AdminDisputeDetailModal
+          dispute={selectedDispute}
+          isOpen={isDetailModalOpen}
+          onClose={() => {
+            setIsDetailModalOpen(false);
+            setSelectedDispute(null);
+          }}
+          onUpdate={() => refetch()}
+        />
+      )}
     </>
   );
 }

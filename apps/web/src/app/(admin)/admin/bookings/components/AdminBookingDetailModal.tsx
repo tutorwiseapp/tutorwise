@@ -82,8 +82,8 @@ export default function AdminBookingDetailModal({
       title: 'Session Information',
       fields: [
         { label: 'Service Name', value: booking.service_name },
-        { label: 'Session Date', value: formatDate(booking.session_start_time) },
-        { label: 'Session Time', value: formatTime(booking.session_start_time) },
+        { label: 'Session Date', value: booking.session_start_time ? formatDate(booking.session_start_time) : 'Not scheduled' },
+        { label: 'Session Time', value: booking.session_start_time ? formatTime(booking.session_start_time) : 'Not scheduled' },
         { label: 'Duration', value: `${booking.session_duration} minutes` },
         { label: 'Subjects', value: booking.subjects?.join(', ') || 'N/A' },
         { label: 'Levels', value: booking.levels?.join(', ') || 'N/A' },

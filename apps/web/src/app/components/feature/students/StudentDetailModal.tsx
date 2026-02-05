@@ -82,8 +82,30 @@ export default function StudentDetailModal({
         { label: 'Email', value: profile.email },
         { label: 'Age', value: age ? `${age} years old` : 'Not specified' },
         { label: 'Date of Birth', value: profile.date_of_birth ? formatDate(profile.date_of_birth) : 'Not specified' },
+        { label: 'Gender', value: (profile as any).gender || 'Not specified' },
         { label: 'Status', value: 'Active' },
         { label: 'Student ID', value: profile.id },
+      ],
+    },
+    {
+      title: 'Education & Learning',
+      fields: [
+        { label: 'Education Level', value: (profile as any).education_level || 'Not specified' },
+        { label: 'Subjects', value: (profile as any).subjects?.join(', ') || 'Not specified' },
+        { label: 'Key Stages', value: (profile as any).key_stages?.join(', ') || 'Not specified' },
+        { label: 'Learning Goals', value: (profile as any).learning_goals?.join(', ') || 'Not specified' },
+        { label: 'Learning Preferences', value: (profile as any).learning_preferences?.join(', ') || 'Not specified' },
+        ...((profile as any).special_needs?.length > 0 ? [{ label: 'Special Educational Needs', value: (profile as any).special_needs.join(', ') }] : []),
+      ],
+    },
+    {
+      title: 'Contact & Location',
+      fields: [
+        { label: 'Phone', value: (profile as any).phone || 'Not provided' },
+        { label: 'City', value: (profile as any).location_city || 'Not specified' },
+        { label: 'Postcode', value: (profile as any).location_postcode || 'Not specified' },
+        { label: 'Country', value: (profile as any).location_country || 'Not specified' },
+        { label: 'Timezone', value: (profile as any).timezone || 'Not specified' },
       ],
     },
     {
@@ -93,6 +115,7 @@ export default function StudentDetailModal({
         { label: 'Guardian ID', value: student.guardian_id },
         { label: 'Linked Since', value: formatDateTime(student.created_at) },
         { label: 'Link Status', value: student.status.charAt(0).toUpperCase() + student.status.slice(1) },
+        { label: 'Relationship', value: (student as any).relationship || 'Guardian' },
       ],
     },
   ];

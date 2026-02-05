@@ -17,19 +17,11 @@ import StatusBadge from '@/app/components/admin/badges/StatusBadge';
 import { exportToCSV, CSVFormatters, type CSVColumn } from '@/lib/utils/exportToCSV';
 import { ADMIN_TABLE_DEFAULTS } from '@/constants/admin';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
+import AdminTransactionDetailModal, { type TransactionDetail } from './AdminTransactionDetailModal';
 import styles from './TransactionsTable.module.css';
 
-// Transaction type
-interface Transaction {
-  id: string;
-  created_at: string;
-  amount: number;
-  status: string;
-  type: string;
-  description?: string;
-  user_email?: string;
-  user_name?: string;
-}
+// Transaction type (extends TransactionDetail for table display)
+type Transaction = TransactionDetail;
 
 // Advanced filters type
 interface AdvancedFilters {
@@ -56,6 +48,9 @@ export default function TransactionsTable() {
   const [limit, setLimit] = useState<number>(ADMIN_TABLE_DEFAULTS.PAGE_SIZE);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
+  // Detail modal state
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   // Advanced filters state
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
     dateFrom: '',
@@ -172,8 +167,22 @@ export default function TransactionsTable() {
       render: (txn) => (
         <VerticalDotsMenu
           actions={[
-            { label: 'View Details', onClick: () => console.log('View details', txn.id) },
-            { label: 'View in Stripe', onClick: () => console.log('View in Stripe', txn.id) },
+            {
+              label: 'View Details',
+              onClick: () => {
+                setSelectedTransaction(txn);
+                setIsDetailModalOpen(true);
+              },
+            },
+            {
+              label: 'View in Stripe',
+              onClick: () => {
+                const stripeUrl = txn.stripe_checkout_id
+                  ? `https://dashboard.stripe.com/payments/${txn.stripe_checkout_id}`
+                  : 'https://dashboard.stripe.com/payments';
+                window.open(stripeUrl, '_blank');
+              },
+            },
             { label: 'Export Receipt', onClick: () => console.log('Export receipt', txn.id) },
           ]}
         />
@@ -268,6 +277,19 @@ export default function TransactionsTable() {
           </button>
         }
       />
+
+      {/* Detail Modal */}
+      {selectedTransaction && (
+        <AdminTransactionDetailModal
+          transaction={selectedTransaction}
+          isOpen={isDetailModalOpen}
+          onClose={() => {
+            setIsDetailModalOpen(false);
+            setSelectedTransaction(null);
+          }}
+          onUpdate={() => refetch()}
+        />
+      )}
     </>
   );
 }

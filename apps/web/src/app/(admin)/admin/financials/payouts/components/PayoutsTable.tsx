@@ -17,19 +17,11 @@ import StatusBadge from '@/app/components/admin/badges/StatusBadge';
 import { exportToCSV, CSVFormatters, type CSVColumn } from '@/lib/utils/exportToCSV';
 import { ADMIN_TABLE_DEFAULTS } from '@/constants/admin';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
+import AdminPayoutDetailModal, { type PayoutDetail } from './AdminPayoutDetailModal';
 import styles from './PayoutsTable.module.css';
 
-// Payout type
-interface Payout {
-  id: string;
-  created_at: string;
-  amount: number;
-  status: string;
-  user_email?: string;
-  user_name?: string;
-  bank_account?: string;
-  arrival_date?: string;
-}
+// Payout type (extends PayoutDetail for table display)
+type Payout = PayoutDetail;
 
 // Advanced filters type
 interface AdvancedFilters {
@@ -55,6 +47,9 @@ export default function PayoutsTable() {
   const [limit, setLimit] = useState<number>(ADMIN_TABLE_DEFAULTS.PAGE_SIZE);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
+  // Detail modal state
+  const [selectedPayout, setSelectedPayout] = useState<Payout | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   // Advanced filters state
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
     dateFrom: '',
@@ -173,8 +168,22 @@ export default function PayoutsTable() {
       render: (payout) => (
         <VerticalDotsMenu
           actions={[
-            { label: 'View Details', onClick: () => console.log('View details', payout.id) },
-            { label: 'View in Stripe', onClick: () => console.log('View in Stripe', payout.id) },
+            {
+              label: 'View Details',
+              onClick: () => {
+                setSelectedPayout(payout);
+                setIsDetailModalOpen(true);
+              },
+            },
+            {
+              label: 'View in Stripe',
+              onClick: () => {
+                const stripeUrl = payout.stripe_payout_id
+                  ? `https://dashboard.stripe.com/payouts/${payout.stripe_payout_id}`
+                  : 'https://dashboard.stripe.com/payouts';
+                window.open(stripeUrl, '_blank');
+              },
+            },
             { label: 'Approve Payout', onClick: () => console.log('Approve payout', payout.id) },
           ]}
         />
@@ -268,6 +277,19 @@ export default function PayoutsTable() {
           </button>
         }
       />
+
+      {/* Detail Modal */}
+      {selectedPayout && (
+        <AdminPayoutDetailModal
+          payout={selectedPayout}
+          isOpen={isDetailModalOpen}
+          onClose={() => {
+            setIsDetailModalOpen(false);
+            setSelectedPayout(null);
+          }}
+          onUpdate={() => refetch()}
+        />
+      )}
     </>
   );
 }
