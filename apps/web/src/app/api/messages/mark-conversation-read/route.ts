@@ -1,7 +1,8 @@
 /**
- * Filename: apps/web/src/app/api/network/chat/mark-read/route.ts
- * Purpose: API endpoint to mark messages as read
+ * Filename: apps/web/src/app/api/messages/mark-conversation-read/route.ts
+ * Purpose: API endpoint to mark all messages in a conversation as read
  * Created: 2025-11-08
+ * Updated: 2026-02-05 - Moved from /api/network/chat/ to /api/messages/
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -26,31 +27,34 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json();
-    const { messageId } = body;
+    const { userId } = body;
 
-    if (!messageId) {
+    if (!userId) {
       return NextResponse.json(
-        { error: 'Message ID is required' },
+        { error: 'User ID is required' },
         { status: 400 }
       );
     }
 
-    // Mark message as read using the database function
-    const { data, error } = await supabase.rpc('mark_message_as_read', {
-      message_id: messageId,
-    });
+    // Mark all unread messages from this user as read
+    const { error: updateError } = await supabase
+      .from('chat_messages')
+      .update({ read: true, read_at: new Date().toISOString() })
+      .eq('sender_id', userId)
+      .eq('receiver_id', user.id)
+      .eq('read', false);
 
-    if (error) {
-      console.error('[ChatAPI] Error marking message as read:', error);
+    if (updateError) {
+      console.error('[MessagesAPI] Update error:', updateError);
       return NextResponse.json(
-        { error: 'Failed to mark message as read' },
+        { error: 'Failed to mark messages as read' },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ success: data }, { status: 200 });
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
-    console.error('[ChatAPI] Unexpected error:', error);
+    console.error('[MessagesAPI] Unexpected error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

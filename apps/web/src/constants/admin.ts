@@ -51,6 +51,13 @@ export const BOOKING_STATUS_OPTIONS = [
   { value: 'rejected', label: 'Rejected' },
 ] as const;
 
+export const SCHEDULING_STATUS_OPTIONS = [
+  { value: 'all', label: 'All Scheduling' },
+  { value: 'unscheduled', label: 'Unscheduled' },
+  { value: 'proposed', label: 'Proposed' },
+  { value: 'scheduled', label: 'Scheduled' },
+] as const;
+
 export const USER_STATUS_OPTIONS = [
   { value: 'all', label: 'All Users' },
   { value: 'active', label: 'Active' },

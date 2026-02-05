@@ -45,7 +45,7 @@ The Messages feature provides a real-time chat system for Tutorwise users with W
 │ └───────────────────┘  └──────────────┘  └─────────────────┘  │
 └─────────────┬───────────────────────────────────┬───────────────┘
               │                                   │
-              │ POST /api/network/chat/send      │ Subscribe
+              │ POST /api/messages/send      │ Subscribe
               ↓                                   ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │                      API ROUTES (Next.js)                        │
@@ -102,7 +102,7 @@ if (authError || !user) {
 
 **Integration Points**:
 - **File**: `apps/web/src/middleware.ts` (line 67)
-- **Files**: `apps/web/src/app/api/network/chat/**/route.ts` (all routes)
+- **Files**: `apps/web/src/app/api/messages/**/route.ts` (all routes)
 
 **What Gets Protected**:
 - Main messages hub page
@@ -144,7 +144,7 @@ import { getProfileImageUrl } from '@/lib/utils/profile';
 **Integration Points**:
 - **File**: `apps/web/src/app/components/feature/messages/ConversationList.tsx` (line 98-102)
 - **File**: `apps/web/src/app/components/feature/messages/ChatThread.tsx` (line 275-280)
-- **File**: `apps/web/src/app/api/network/chat/conversations/route.ts` (line 37-38)
+- **File**: `apps/web/src/app/api/messages/conversations/route.ts` (line 37-38)
 
 **What Gets Used**:
 - `full_name` - Display name in chat header and conversation list
@@ -160,7 +160,7 @@ import { getProfileImageUrl } from '@/lib/utils/profile';
 
 **Connection Validation** (Before Sending Message):
 ```typescript
-// apps/web/src/app/api/network/chat/send/route.ts (line 41-55)
+// apps/web/src/app/api/messages/send/route.ts (line 41-55)
 
 // Check if users have ACTIVE SOCIAL connection
 const { data: connection } = await supabase
@@ -184,7 +184,7 @@ if (!connection) {
 
 **Conversation List Population**:
 ```typescript
-// apps/web/src/app/api/network/chat/conversations/route.ts (line 28-51)
+// apps/web/src/app/api/messages/conversations/route.ts (line 28-51)
 
 // Get ALL accepted connections (WhatsApp-style)
 const { data: connections } = await supabase
@@ -202,8 +202,8 @@ const { data: connections } = await supabase
 ```
 
 **Integration Points**:
-- **File**: `apps/web/src/app/api/network/chat/send/route.ts` (line 41-55)
-- **File**: `apps/web/src/app/api/network/chat/conversations/route.ts` (line 28-51)
+- **File**: `apps/web/src/app/api/messages/send/route.ts` (line 41-55)
+- **File**: `apps/web/src/app/api/messages/conversations/route.ts` (line 28-51)
 - **File**: `apps/web/src/lib/services/ProfileGraphService.ts`
 - **Migration**: `apps/api/migrations/061_add_profile_graph_v4_6.sql`
 
@@ -442,8 +442,8 @@ $$ LANGUAGE sql SECURITY DEFINER;
 ```
 
 **Integration Points**:
-- **File**: `apps/web/src/app/api/network/chat/[userId]/route.ts` (line 40-42)
-- **File**: `apps/web/src/app/api/network/chat/mark-read/route.ts` (line 39-41)
+- **File**: `apps/web/src/app/api/messages/[userId]/route.ts` (line 40-42)
+- **File**: `apps/web/src/app/api/messages/mark-read/route.ts` (line 39-41)
 
 ---
 
@@ -586,7 +586,7 @@ User A Types Message
 │ 2. React Query Mutation │
 └──────────┬──────────────┘
            │
-           │ POST /api/network/chat/send
+           │ POST /api/messages/send
            ↓
 ┌──────────────────────────────────────────────────────────────────┐
 │ API ROUTE VALIDATION                                              │
@@ -639,7 +639,7 @@ User A Types Message
 │ READ RECEIPT FLOW                                                │
 │ ┌────────────────────────────────────────────────────────────┐  │
 │ │ 1. User B views message (Intersection Observer)            │  │
-│ │ 2. POST /api/network/chat/mark-read                        │  │
+│ │ 2. POST /api/messages/mark-read                        │  │
 │ │ 3. UPDATE chat_messages SET read=true, read_at=NOW()       │  │
 │ │ 4. Publish message:read to Ably                            │  │
 │ │ 5. User A sees read receipt (✓✓ turns blue)                │  │
@@ -981,11 +981,11 @@ No explicit migration files found in codebase, but inferred schema:
 
 | Route | Method | Description | Auth | Connection Required |
 |-------|--------|-------------|------|-------------------|
-| `/api/network/chat/send` | POST | Send message | ✅ | ✅ (SOCIAL, ACTIVE) |
-| `/api/network/chat/conversations` | GET | List conversations | ✅ | ❌ |
-| `/api/network/chat/[userId]` | GET | Fetch conversation history | ✅ | ✅ (implicit) |
-| `/api/network/chat/mark-read` | POST | Mark message as read | ✅ | ❌ |
-| `/api/network/chat/mark-conversation-read` | POST | Mark all messages from user as read | ✅ | ❌ |
+| `/api/messages/send` | POST | Send message | ✅ | ✅ (SOCIAL, ACTIVE) |
+| `/api/messages/conversations` | GET | List conversations | ✅ | ❌ |
+| `/api/messages/[userId]` | GET | Fetch conversation history | ✅ | ✅ (implicit) |
+| `/api/messages/mark-read` | POST | Mark message as read | ✅ | ❌ |
+| `/api/messages/mark-conversation-read` | POST | Mark all messages from user as read | ✅ | ❌ |
 
 ### Ably Events
 
@@ -1013,8 +1013,8 @@ No explicit migration files found in codebase, but inferred schema:
 | `apps/web/src/app/hooks/useAblyPresence.tsx` | Presence tracking hook |
 | `apps/web/src/lib/ably.ts` | Ably client configuration |
 | `apps/web/src/lib/api/messages.ts` | Client-side API utilities |
-| `apps/web/src/app/api/network/chat/send/route.ts` | Send message endpoint |
-| `apps/web/src/app/api/network/chat/conversations/route.ts` | Get conversations endpoint |
+| `apps/web/src/app/api/messages/send/route.ts` | Send message endpoint |
+| `apps/web/src/app/api/messages/conversations/route.ts` | Get conversations endpoint |
 | `apps/web/src/middleware.ts` | Route protection (line 67) |
 
 ---

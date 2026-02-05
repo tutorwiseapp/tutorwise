@@ -16,6 +16,10 @@ export type StatusVariant =
   | 'completed'
   | 'cancelled'
   | 'rejected'
+  // Scheduling statuses (v6.0)
+  | 'unscheduled'
+  | 'proposed'
+  | 'scheduled'
   // User statuses
   | 'active'
   | 'inactive'
@@ -59,6 +63,10 @@ const DEFAULT_LABELS: Record<StatusVariant, string> = {
   completed: 'Completed',
   cancelled: 'Cancelled',
   rejected: 'Rejected',
+  // Scheduling statuses (v6.0)
+  unscheduled: 'Unscheduled',
+  proposed: 'Proposed',
+  scheduled: 'Scheduled',
   // User statuses
   active: 'Active',
   inactive: 'Inactive',
@@ -164,4 +172,15 @@ export function getDisputeStatusVariant(status: string): StatusVariant {
   if (statusLower === 'in_progress' || statusLower === 'investigating')
     return 'in_progress';
   return 'open';
+}
+
+/**
+ * Helper function to map scheduling status to badge variant (v6.0)
+ */
+export function getSchedulingStatusVariant(status: string | null): StatusVariant {
+  if (!status) return 'unscheduled';
+  const statusLower = status.toLowerCase();
+  if (statusLower === 'scheduled') return 'scheduled';
+  if (statusLower === 'proposed') return 'proposed';
+  return 'unscheduled';
 }

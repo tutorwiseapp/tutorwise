@@ -2,12 +2,16 @@
  * Filename: apps/web/src/lib/email-templates/booking.ts
  * Purpose: Booking-related email templates
  * Created: 2025-01-27
+ * Updated: 2026-02-05 - Added scheduling email templates (v6.0)
  *
  * Email types:
  * - Booking Request (to tutor) - New booking request received
  * - Booking Confirmed (to client) - Tutor/admin confirmed the booking
  * - Booking Cancelled (to both) - Booking was cancelled
  * - Session Reminder (to both) - Upcoming session reminder
+ * - Time Proposed (to other party) - v6.0: Time has been proposed
+ * - Schedule Confirmed (to both) - v6.0: Schedule has been confirmed
+ * - Reschedule Requested (to other party) - v6.0: Reschedule has been requested
  */
 
 import { sendEmail } from '../email';
@@ -30,6 +34,17 @@ export interface BookingEmailData {
   agentName?: string;
   agentEmail?: string;
   bookingType?: 'direct' | 'referred' | 'agent_job';
+}
+
+/**
+ * v6.0 Scheduling email data (extends BookingEmailData)
+ */
+export interface SchedulingEmailData extends Omit<BookingEmailData, 'sessionDate'> {
+  proposedTime: Date;
+  proposedByName: string;
+  proposedByRole: 'tutor' | 'client';
+  slotExpiresAt?: Date;
+  rescheduleCount?: number;
 }
 
 /**
@@ -431,6 +446,195 @@ export async function sendBookingCancellationEmails(
     } catch (err) {
       console.error('[Booking Email] Failed to send cancellation to agent:', err);
     }
+  }
+
+  return results;
+}
+
+// ============================================================================
+// v6.0 Scheduling Email Templates
+// ============================================================================
+
+/**
+ * Create scheduling details section for emails
+ */
+function schedulingDetailsSection(data: SchedulingEmailData): string {
+  const proposedTime = new Date(data.proposedTime);
+  const subjects = data.subjects?.length ? data.subjects.join(', ') : data.serviceName;
+
+  return `
+    <div style="margin: 24px 0; background: ${tokens.colors.background}; border-radius: ${tokens.borderRadius}; padding: 20px;">
+      ${infoRow('Proposed Date', formatDate(proposedTime))}
+      ${infoRow('Proposed Time', formatTime(proposedTime) + ' (UK time)')}
+      ${infoRow('Duration', formatDuration(data.sessionDuration))}
+      ${infoRow('Subject', subjects)}
+      ${infoRow('Location', formatLocation(data.locationType, data.locationCity))}
+      ${data.amount > 0 ? infoRow('Price', `£${data.amount.toFixed(2)}`) : infoRow('Price', 'Free Session')}
+    </div>
+  `;
+}
+
+/**
+ * v6.0: Send email when a time is proposed (to the other party)
+ */
+export async function sendTimeProposedEmail(data: SchedulingEmailData) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tutorwise.io';
+  const proposedTime = new Date(data.proposedTime);
+
+  // Determine recipient (the other party)
+  const isProposedByTutor = data.proposedByRole === 'tutor';
+  const recipientName = isProposedByTutor ? data.clientName : data.tutorName;
+  const recipientEmail = isProposedByTutor ? data.clientEmail : data.tutorEmail;
+  const proposerName = data.proposedByName;
+
+  const subject = `${proposerName} Proposed a Session Time - Please Confirm`;
+
+  const body = `
+    ${paragraph(`${bold(proposerName)} has proposed a time for your upcoming tutoring session.`)}
+    ${schedulingDetailsSection(data)}
+    ${paragraph(`${bold('Important:')} This slot is reserved for 15 minutes. Please confirm or suggest a different time before the reservation expires.`)}
+    ${paragraph('If this time works for you, click the button below to confirm and proceed to payment.')}
+  `;
+
+  const html = generateEmailTemplate({
+    headline: 'New Session Time Proposed',
+    variant: 'default',
+    recipientName,
+    body,
+    cta: {
+      text: 'Review & Confirm',
+      url: `${siteUrl}/bookings`,
+    },
+    footerNote: 'The proposed slot will expire in 15 minutes if not confirmed.',
+  });
+
+  return sendEmail({
+    to: recipientEmail,
+    subject,
+    html,
+  });
+}
+
+/**
+ * v6.0: Send email when schedule is confirmed (to both parties)
+ */
+export async function sendScheduleConfirmedEmail(
+  data: SchedulingEmailData,
+  recipientType: 'client' | 'tutor'
+) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tutorwise.io';
+  const confirmedTime = new Date(data.proposedTime);
+  const isClient = recipientType === 'client';
+
+  const recipientName = isClient ? data.clientName : data.tutorName;
+  const recipientEmail = isClient ? data.clientEmail : data.tutorEmail;
+  const otherPartyName = isClient ? data.tutorName : data.clientName;
+
+  const subject = `Session Scheduled - ${formatDate(confirmedTime)} at ${formatTime(confirmedTime)}`;
+
+  const body = `
+    ${paragraph(`Great news! Your session with ${bold(otherPartyName)} has been scheduled.`)}
+    ${schedulingDetailsSection(data)}
+    ${paragraph(isClient
+      ? data.amount > 0
+        ? 'Your payment has been processed. You will receive a session link before the scheduled time.'
+        : 'This is a free session. You will receive a session link before the scheduled time.'
+      : 'Make sure you are prepared and ready at the scheduled time.'
+    )}
+  `;
+
+  const html = generateEmailTemplate({
+    headline: 'Session Scheduled!',
+    variant: 'success',
+    recipientName,
+    body,
+    cta: {
+      text: 'View Booking Details',
+      url: `${siteUrl}/bookings`,
+    },
+    footerNote: "We'll send you a reminder 24 hours before your session.",
+  });
+
+  return sendEmail({
+    to: recipientEmail,
+    subject,
+    html,
+  });
+}
+
+/**
+ * v6.0: Send email when a reschedule is requested (to the other party)
+ */
+export async function sendRescheduleRequestedEmail(data: SchedulingEmailData) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tutorwise.io';
+  const newProposedTime = new Date(data.proposedTime);
+
+  // Determine recipient (the other party)
+  const isProposedByTutor = data.proposedByRole === 'tutor';
+  const recipientName = isProposedByTutor ? data.clientName : data.tutorName;
+  const recipientEmail = isProposedByTutor ? data.clientEmail : data.tutorEmail;
+  const proposerName = data.proposedByName;
+
+  const rescheduleInfo = data.rescheduleCount !== undefined
+    ? ` (Reschedule ${data.rescheduleCount} of 4)`
+    : '';
+
+  const subject = `Reschedule Request from ${proposerName}${rescheduleInfo}`;
+
+  const body = `
+    ${paragraph(`${bold(proposerName)} has requested to reschedule your session.`)}
+    <div style="margin: 16px 0; padding: 16px; background: ${tokens.colors.warningLight}; border-left: 4px solid ${tokens.colors.warning}; border-radius: ${tokens.borderRadius};">
+      <p style="margin: 0; color: ${tokens.colors.warning}; font-weight: 600;">New Proposed Time</p>
+    </div>
+    ${schedulingDetailsSection(data)}
+    ${paragraph(`${bold('Note:')} This new slot is reserved for 15 minutes. Please confirm or suggest an alternative time.`)}
+    ${data.rescheduleCount !== undefined ? paragraph(`This is reschedule ${data.rescheduleCount} of 4 allowed for this booking.`) : ''}
+  `;
+
+  const html = generateEmailTemplate({
+    headline: 'Reschedule Requested',
+    variant: 'warning',
+    recipientName,
+    body,
+    cta: {
+      text: 'Review New Time',
+      url: `${siteUrl}/bookings`,
+    },
+    footerNote: 'Each booking can be rescheduled up to 4 times (2 per party).',
+  });
+
+  return sendEmail({
+    to: recipientEmail,
+    subject,
+    html,
+  });
+}
+
+/**
+ * v6.0: Send scheduling confirmation emails to all relevant parties
+ */
+export async function sendSchedulingConfirmationEmails(data: SchedulingEmailData) {
+  const results = {
+    client: false,
+    tutor: false,
+  };
+
+  // Send to client
+  try {
+    await sendScheduleConfirmedEmail(data, 'client');
+    results.client = true;
+    console.log('[Scheduling Email] Sent confirmation to client:', data.clientEmail);
+  } catch (err) {
+    console.error('[Scheduling Email] Failed to send to client:', err);
+  }
+
+  // Send to tutor
+  try {
+    await sendScheduleConfirmedEmail(data, 'tutor');
+    results.tutor = true;
+    console.log('[Scheduling Email] Sent confirmation to tutor:', data.tutorEmail);
+  } catch (err) {
+    console.error('[Scheduling Email] Failed to send to tutor:', err);
   }
 
   return results;

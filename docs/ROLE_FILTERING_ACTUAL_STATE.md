@@ -193,7 +193,7 @@ CREATE TABLE public.chat_messages (
 );
 ```
 
-**Current Implementation** (`/app/api/network/chat/conversations/route.ts`):
+**Current Implementation** (`/app/api/messages/conversations/route.ts`):
 - Fetches all `profile_graph` connections WHERE `status = 'ACTIVE'` AND `relationship_type = 'SOCIAL'`
 - Fetches all `chat_messages` WHERE user is sender OR receiver
 - Groups messages by conversation partner
@@ -229,7 +229,7 @@ CREATE TABLE public.profile_graph (
 );
 ```
 
-**Current Implementation** (`/app/api/network/chat/conversations/route.ts:29-43`):
+**Current Implementation** (`/app/api/messages/conversations/route.ts:29-43`):
 ```typescript
 const { data: connections } = await supabase
   .from('profile_graph')

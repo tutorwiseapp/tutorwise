@@ -527,11 +527,11 @@ POST /api/network/remove             # Remove connection
 POST /api/network/invite-by-email    # Invite by email
 
 # Messaging
-GET  /api/network/chat/conversations # Get conversations
-POST /api/network/chat/send          # Send message
-POST /api/network/chat/mark-read     # Mark message as read
-POST /api/network/chat/mark-conversation-read # Mark conversation read
-GET  /api/network/chat/[userId]      # Get user chat
+GET  /api/messages/conversations       # Get conversations
+POST /api/messages/send                # Send message
+POST /api/messages/mark-read           # Mark message as read
+POST /api/messages/mark-conversation-read # Mark conversation read
+GET  /api/messages/[userId]            # Get conversation with user
 
 # Groups
 GET  /api/network/groups             # Get groups

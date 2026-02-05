@@ -1,16 +1,17 @@
 # Bookings Solution Design
 
-**Status**: ✅ Active (v5.9 - Free Help Support)
-**Last Updated**: 2025-12-15
-**Last Code Update**: 2025-12-12
+**Status**: ✅ Active (v6.0 - 5-Stage Scheduling Workflow)
+**Last Updated**: 2026-02-05
+**Last Code Update**: 2026-02-05
 **Priority**: Critical (Tier 1 - Core Transaction Infrastructure)
-**Architecture**: Gold Standard Hub + Event-Driven Transactions + Listing Snapshots
+**Architecture**: Gold Standard Hub + Event-Driven Transactions + Listing Snapshots + Scheduling State Machine
 **Business Model**: Commission-based (10% platform fee, 10-20% commission splits based on referral/agent type)
 
 ## Change Log
 
 | Date | Version | Description |
 |------|---------|-------------|
+| 2026-02-05 | v6.0 | **5-Stage Scheduling Workflow**: Discover > Book > Schedule > Pay > Review. New scheduling_status enum, propose/confirm/reschedule APIs, 15-min slot reservation, pg_cron cleanup |
 | 2025-12-12 | v5.9 | **Free Help Support**: Added free_help booking type, instant confirmation flow, 30-minute session format |
 | 2025-12-08 | v5.8 | **Listing Snapshots**: Preserved 7 critical listing fields in bookings for historical accuracy |
 | 2025-11-20 | v5.7 | **Wiselist Attribution**: Cookie-based referral tracking for in-network conversions |
@@ -37,11 +38,12 @@
 
 **Bookings** is TutorWise's core transaction management system that orchestrates the complete tutoring session lifecycle from listing discovery through payment, delivery, and review triggering. The system processes over 200 monthly bookings across three booking types (direct, agent-referred, free help) with 99.7% payment success rate and sub-5-second booking creation.
 
-The architecture implements three critical innovations:
+The architecture implements four critical innovations:
 
-1. **Listing Snapshot Mechanism (v5.8)** - Preserves booking context even if listings are modified or deleted, ensuring historical accuracy and audit compliance
-2. **Atomic Payment Processing (v4.9)** - Single database transaction creates 4-way commission splits (client, tutor, agent, platform) with idempotency guarantees
-3. **Free Help Integration (v5.9)** - Zero-friction instant booking flow for 30-minute free sessions, bypassing payment entirely while maintaining full lifecycle tracking
+1. **5-Stage Scheduling Workflow (v6.0)** - Discover > Book > Schedule > Pay > Review. Separates booking creation from scheduling, allowing flexible time negotiation with 15-minute slot reservations
+2. **Listing Snapshot Mechanism (v5.8)** - Preserves booking context even if listings are modified or deleted, ensuring historical accuracy and audit compliance
+3. **Atomic Payment Processing (v4.9)** - Single database transaction creates 4-way commission splits (client, tutor, agent, platform) with idempotency guarantees
+4. **Free Help Integration (v5.9)** - Zero-friction instant booking flow for 30-minute free sessions, bypassing payment entirely while maintaining full lifecycle tracking
 
 ### Key Design Goals
 
@@ -53,6 +55,8 @@ The architecture implements three critical innovations:
 | **Booking Creation Speed** | <5 seconds from click to confirmation (paid) or instant (free) |
 | **Commission Accuracy** | Correct 3-way or 4-way splits for all referred bookings |
 | **Review Completion** | >60% review submission rate via automatic triggering |
+| **Scheduling Flexibility** | Either party can propose times, 15-min slot hold, max 4 reschedules |
+| **Slot Conflict Prevention** | Automatic cleanup of expired reservations via pg_cron every 5 minutes |
 
 ---
 
@@ -192,22 +196,38 @@ KEY INTEGRATIONS:
 └─ Referrals: Agent commission attribution
 ```
 
+### 5-Stage Booking Workflow (v6.0)
+
+The booking system now implements a clear 5-stage workflow that separates concerns:
+
+| Stage | Actions | Status Changes |
+|-------|---------|----------------|
+| **1. Discover** | Client browses marketplace, views listings | Pre-booking |
+| **2. Book** | Client creates booking request | status=Pending, scheduling_status=unscheduled |
+| **3. Schedule** | Propose → Confirm time negotiation | scheduling_status=proposed → scheduled |
+| **4. Pay** | Stripe checkout (triggered on schedule confirm) | payment_status=Paid, status=Confirmed |
+| **5. Review** | Session delivery, review submission | status=Completed |
+
+**Key Design Decision**: Payment is combined with scheduling confirmation. When one party confirms the proposed time, Stripe checkout is triggered immediately. This prevents "scheduled but unpaid" states and reduces booking abandonment.
+
 ### Booking Flow Architecture
 
 **Three Booking Paths**:
 
-**Path 1: Paid Direct Booking** (Standard)
-1. Client selects listing, chooses date/time, clicks "Book Now"
-2. System creates booking record (status: Pending, payment_status: Pending)
+**Path 1: Paid Direct Booking with Scheduling** (v6.0 Standard)
+1. Client selects listing, clicks "Book Now" (no date/time selection yet)
+2. System creates booking record (status: Pending, scheduling_status: unscheduled, session_start_time: NULL)
 3. Snapshot 7 listing fields into booking (subjects, levels, hourly_rate, etc.)
-4. Redirect to Stripe Checkout with booking_id in metadata
-5. Client completes payment on Stripe
-6. Stripe webhook fires `checkout.session.completed`
-7. System calls `handle_successful_payment()` RPC (atomic transaction)
-8. RPC creates 4 transaction records (client debit, tutor credit, platform fee, agent commission if applicable)
-9. RPC updates booking (status: Confirmed, payment_status: Paid)
-10. RPC updates referrals table if this is first conversion
-11. Client and tutor receive email confirmations
+4. Either party proposes a time via SchedulingModal
+5. System validates time (24h minimum notice, 30-day max advance)
+6. System sets scheduling_status=proposed, slot_reserved_until=NOW()+15min
+7. Other party receives notification and confirms
+8. On confirmation: Stripe Checkout created with booking_id + scheduling_confirmed metadata
+9. Client completes payment on Stripe
+10. Stripe webhook fires `checkout.session.completed`
+11. System calls `handle_successful_payment()` RPC (atomic transaction)
+12. RPC creates 4 transaction records, updates booking (status: Confirmed, scheduling_status: scheduled)
+13. Client and tutor receive email confirmations
 
 **Path 2: Agent-Referred Booking** (With Referral Commission)
 - Same as Path 1, but client has `referred_by_agent_id` set
@@ -420,7 +440,7 @@ CRITICAL: Verification prevents fraudulent completion claims
 
 ### Database Schema Essentials
 
-**Table: `bookings`** (36 columns across 6 functional groups)
+**Table: `bookings`** (43 columns across 7 functional groups)
 
 **Identity & Relationships** (7 fields):
 - `id` (UUID primary key)
@@ -433,7 +453,7 @@ CRITICAL: Verification prevents fraudulent completion claims
 
 **Session Details** (4 fields):
 - `service_name` (e.g., "GCSE Maths Tutoring")
-- `session_start_time` (TIMESTAMPTZ)
+- `session_start_time` (TIMESTAMPTZ, **nullable** for unscheduled bookings - v6.0)
 - `session_duration` (integer minutes)
 - `duration_minutes` (v5.9 free help - 30 minutes)
 
@@ -447,6 +467,15 @@ CRITICAL: Verification prevents fraudulent completion claims
 - `booking_type` (direct | referred | agent_job)
 - `status` (Pending | Confirmed | Completed | Cancelled | Declined)
 - `payment_status` (Pending | Paid | Failed | Refunded)
+
+**Scheduling Fields** (7 fields - v6.0 Migration 219):
+- `scheduling_status` (ENUM: unscheduled | proposed | scheduled)
+- `proposed_by` (UUID FK to profiles - who proposed current time)
+- `proposed_at` (TIMESTAMPTZ - when time was proposed)
+- `schedule_confirmed_by` (UUID FK to profiles - who confirmed)
+- `schedule_confirmed_at` (TIMESTAMPTZ - when confirmed)
+- `slot_reserved_until` (TIMESTAMPTZ - 15-minute reservation expiry)
+- `reschedule_count` (INTEGER - max 4, 2 per party)
 
 **Listing Snapshot** (7 fields - v5.8 Migration 104):
 - `subjects` (TEXT[] - preserved for filtering/analytics)
@@ -469,20 +498,74 @@ CRITICAL: Verification prevents fraudulent completion claims
 - `updated_at`
 - `completed_at`
 
-**Total Columns**: 36 (intentionally denormalized for performance)
+**Total Columns**: 43 (intentionally denormalized for performance)
 
 ---
 
 ## Booking Lifecycle
 
-### Status State Machine
+### Scheduling State Machine (v6.0)
+
+The scheduling workflow operates independently of the booking status, tracking the time negotiation process:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│             SCHEDULING STATE MACHINE (v6.0)                      │
+│                 (scheduling_status field)                        │
+└─────────────────────────────────────────────────────────────────┘
+
+     ┌───────────────┐
+     │  unscheduled  │ ← Initial state (booking created without time)
+     └───────┬───────┘
+             │
+             │ Either party proposes time via SchedulingModal
+             │ → slot_reserved_until = NOW() + 15 minutes
+             ↓
+     ┌───────────────┐
+     │   proposed    │ ← Time proposed, awaiting confirmation
+     └───────┬───────┘
+             │
+     ┌───────┴────────────────────────┐
+     │                                │
+     │ Slot expires (15 min)          │ Other party confirms
+     │ pg_cron cleanup                │ → Stripe checkout (paid)
+     │                                │ → Instant confirm (free)
+     ↓                                ↓
+┌───────────────┐            ┌───────────────┐
+│  unscheduled  │            │   scheduled   │ ← Time confirmed
+│   (reset)     │            │               │
+└───────────────┘            └───────┬───────┘
+                                     │
+                                     │ Reschedule requested
+                                     │ (if reschedule_count < 4)
+                                     ↓
+                             ┌───────────────┐
+                             │   proposed    │ ← New time proposed
+                             │  (reschedule) │
+                             └───────────────┘
+
+KEY TRANSITIONS:
+  unscheduled → proposed (Time proposed, 15-min slot hold)
+  proposed → scheduled (Confirmed + paid/free)
+  proposed → unscheduled (Slot expired, pg_cron cleanup)
+  scheduled → proposed (Reschedule initiated)
+
+BUSINESS RULES:
+  • Minimum 24 hours notice for proposed times
+  • Maximum 30 days in advance
+  • 15-minute slot reservation expires automatically
+  • Maximum 4 reschedules total (2 per party)
+  • Platform timezone: Europe/London (UK time)
+```
+
+### Booking Status State Machine
 
 **Valid State Transitions**:
 
 ```
                          ┌──────────────────────────────┐
                          │   BOOKING LIFECYCLE          │
-                         │   State Machine (v5.9)       │
+                         │   State Machine (v6.0)       │
                          └──────────────────────────────┘
 
                                 ┌──────────┐
@@ -495,9 +578,9 @@ CRITICAL: Verification prevents fraudulent completion claims
                   ┌──────────┐  ┌──────────┐  ┌──────────┐
      Paid         │ Pending  │  │Confirmed │  │Confirmed │  Free Help
      Booking ────→│ (Awaiting│  │ (Direct  │←─│(Instant) │←── (v5.9)
-                  │ Payment) │  │ via      │  │  No      │
-                  └────┬─────┘  │ Webhook) │  │ Payment) │
-                       │        └─────┬────┘  └────┬─────┘
+     (v6.0:       │ Schedule │  │ via      │  │  No      │
+     unscheduled) │+ Payment)│  │ Webhook) │  │ Payment) │
+                  └────┬─────┘  └─────┬────┘  └────┬─────┘
                        │              │            │
            ┌───────────┼──────┬───────┘            │
            │           │      │                    │
@@ -530,9 +613,9 @@ CRITICAL: Verification prevents fraudulent completion claims
       └─────────────────────────────────────────────────┘
 
 KEY TRANSITIONS:
-  Created → Pending (Paid booking initiated)
-  Created → Confirmed (Free help instant confirmation)
-  Pending → Confirmed (Stripe webhook: payment_status=Paid)
+  Created → Pending (Paid booking initiated, scheduling_status=unscheduled)
+  Created → Confirmed (Free help instant confirmation, scheduling_status=scheduled)
+  Pending → Confirmed (Stripe webhook after schedule confirm: payment_status=Paid)
   Pending → Cancelled (Client cancels before paying)
   Pending → Declined (Tutor rejects within 24h)
   Confirmed → Completed (WiseSpace marks session done)
@@ -1026,7 +1109,7 @@ Note: This is different from agent-led bookings where `agent_profile_id` is expl
 
 ## Future Roadmap
 
-### v6.0: Recurring Bookings (Q1 2026)
+### v6.1: Recurring Bookings (Q2 2026)
 
 **Problem**: Clients booking weekly tutoring sessions must manually rebook each week. 40% churn rate between session 3 and 4 due to rebooking friction.
 
@@ -1039,17 +1122,6 @@ Note: This is different from agent-led bookings where `agent_profile_id` is expl
 - Add `recurrence_end_date` (subscription end)
 
 **Payment Model**: Charge upfront for entire block (e.g., £200 for 4 weekly sessions). If client cancels mid-block, refund unattended sessions prorated.
-
-### v6.1: Smart Availability Checking
-
-**Problem**: Clients see listings but don't know if tutor available for desired time slot until after attempting booking (50% booking failures due to scheduling conflicts).
-
-**Solution**: Real-time availability API checks tutor's existing bookings and availability blocks before allowing booking creation.
-
-**Implementation**:
-- New API: `GET /api/bookings/check-availability?tutorId={id}&date={date}`
-- Returns: Array of available time slots for that day
-- UI shows: Green checkmarks on available slots, red X on booked slots
 
 ### v6.2: Multi-Student Group Bookings
 
@@ -1070,12 +1142,24 @@ Note: This is different from agent-led bookings where `agent_profile_id` is expl
 
 **Business Risk**: Must hold tutor payout until final installment received (prevents scenario where client pays 30%, receives 10 hours tutoring, then defaults on remaining 70%).
 
----
+### v6.4: Calendar Sync Integration
+
+**Problem**: Tutors manage availability across multiple platforms (Google Calendar, Outlook, iCal). Double-booking risk when tutor accepts session on TutorWise but has conflicting event in personal calendar.
+
+**Solution**: Two-way calendar sync that reads tutor's external calendar to block conflicting slots and writes confirmed TutorWise bookings to external calendar.
+
+**Implementation**:
+- Google Calendar API integration for availability checking
+- Outlook/Microsoft 365 support via Microsoft Graph API
+- iCal feed subscription for read-only availability import
+- Automatic event creation on booking confirmation
 
 ---
 
-**Document Version**: v5.9
-**Last Reviewed**: 2025-12-15
-**Next Review**: 2026-01-15 (Post-Free Help Launch)
+---
+
+**Document Version**: v6.0
+**Last Reviewed**: 2026-02-05
+**Next Review**: 2026-03-05 (Post-Scheduling Launch)
 **Maintained By**: Backend Team + Payments Team
 **Feedback**: backend@tutorwise.com

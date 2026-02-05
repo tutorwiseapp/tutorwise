@@ -1,16 +1,17 @@
 # Bookings
 
-**Status**: ✅ Active (v5.9 - Free Help Support)
-**Last Updated**: 2025-12-15
-**Last Code Update**: 2025-12-12
+**Status**: ✅ Active (v6.0 - 5-Stage Scheduling Workflow)
+**Last Updated**: 2026-02-05
+**Last Code Update**: 2026-02-05
 **Priority**: Critical (Tier 1 - Core Transaction Infrastructure)
-**Architecture**: Gold Standard Hub + Event-Driven Transactions + Listing Snapshots
+**Architecture**: Gold Standard Hub + Event-Driven Transactions + Listing Snapshots + Scheduling State Machine
 **Business Model**: Commission-based (10% platform fee, 10-20% commission splits based on referral/agent type)
 
 ## Change Log
 
 | Date | Version | Description |
 |------|---------|-------------|
+| 2026-02-05 | v6.0 | **5-Stage Scheduling Workflow**: Discover > Book > Schedule > Pay > Review. New scheduling_status enum, propose/confirm/reschedule APIs, 15-min slot reservation, pg_cron cleanup |
 | 2025-12-15 | v5.9 docs | **Documentation v2**: Created solution-design-v2, prompt-v2 following CaaS pattern |
 | 2025-12-12 | v5.9 | **Free Help Support**: Added free_help booking type, instant confirmation flow, 30-minute sessions |
 | 2025-12-08 | v5.8 | **Listing Snapshots**: Preserved 7 critical listing fields in bookings for historical accuracy |
@@ -30,7 +31,19 @@
 
 ## Overview
 
-The **Bookings** system is TutorWise's core transaction orchestration engine managing the complete tutoring session lifecycle from listing discovery through payment, delivery, and review triggering. The system processes 200+ monthly bookings across three booking types (paid direct, agent-referred, free help) with 99.7% payment success rate and sub-5-second booking creation.
+The **Bookings** system is TutorWise's core transaction orchestration engine managing the complete tutoring session lifecycle through a **5-stage workflow**: Discover > Book > Schedule > Pay > Review. The system processes 200+ monthly bookings across three booking types (paid direct, agent-referred, free help) with 99.7% payment success rate and sub-5-second booking creation.
+
+### 5-Stage Booking Workflow (v6.0)
+
+| Stage | Description | Status |
+|-------|-------------|--------|
+| **1. Discover** | Client browses marketplace, finds tutor listing | Pre-booking |
+| **2. Book** | Client creates booking (status: Pending, scheduling_status: unscheduled) | Booking created |
+| **3. Schedule** | Tutor/client propose and confirm session time (15-min slot reservation) | Time confirmed |
+| **4. Pay** | Client pays via Stripe checkout (combined with schedule confirmation) | Payment complete |
+| **5. Review** | Session occurs, both parties submit reviews | Booking complete |
+
+**Key Innovation (v6.0)**: Payment is combined with scheduling confirmation. When one party proposes a time and the other confirms, Stripe checkout is triggered immediately. For free sessions, confirmation is instant with no payment step.
 
 ### Why Bookings Matter
 
@@ -61,6 +74,13 @@ The **Bookings** system is TutorWise's core transaction orchestration engine man
 ## Key Features
 
 ### Core Capabilities
+
+**5-Stage Scheduling Workflow** (v6.0):
+- **Propose/Confirm Flow**: Either party can propose a time, other party confirms
+- **15-Minute Slot Reservation**: Prevents double-booking while awaiting confirmation
+- **Pay at Confirmation**: Stripe checkout triggered when scheduling confirmed (not after)
+- **Reschedule Support**: Maximum 4 reschedules (2 per party) with audit logging
+- **Automatic Cleanup**: Supabase pg_cron job expires stale reservations every 5 minutes
 
 **Three Booking Paths**:
 1. **Paid Direct** - Standard flow with Stripe checkout and webhook confirmation (90/10 tutor/platform split)
@@ -96,9 +116,22 @@ The **Bookings** system is TutorWise's core transaction orchestration engine man
 
 ## Implementation Status
 
-### ✅ Completed (v5.9)
+### ✅ Completed (v6.0)
 
-**Phase 1: Free Help Support (2025-12-12)**
+**Phase 1: 5-Stage Scheduling Workflow (2026-02-05)**
+- ✅ Migration 219: Added scheduling_status enum ('unscheduled' | 'proposed' | 'scheduled')
+- ✅ Migration 219: Added 7 scheduling columns (proposed_by, proposed_at, slot_reserved_until, etc.)
+- ✅ Migration 219: Made session_start_time nullable for unscheduled bookings
+- ✅ Migration 220: Supabase pg_cron job for expired slot cleanup (runs every 5 minutes)
+- ✅ API: POST /api/bookings/[id]/schedule/propose - Propose session time
+- ✅ API: POST /api/bookings/[id]/schedule/confirm - Confirm proposed time (triggers Stripe for paid)
+- ✅ API: POST /api/bookings/[id]/schedule/reschedule - Reschedule confirmed booking
+- ✅ UI: SchedulingModal component with date/time picker
+- ✅ UI: BookingCard updated with scheduling status and Messages button
+- ✅ Stripe webhook updated to handle scheduling_confirmed metadata
+- ✅ Scheduling rules engine (24h minimum notice, 30-day max advance, 15-min slot hold)
+
+**Phase 2: Free Help Support (2025-12-12)**
 - ✅ Migration 108: Added `type` column (paid | free_help)
 - ✅ Instant confirmation flow bypassing payment
 - ✅ Rate limiting (5 sessions per 7 days per student)
@@ -106,19 +139,14 @@ The **Bookings** system is TutorWise's core transaction orchestration engine man
 - ✅ 30-minute fixed duration
 - ✅ Google Meet link generation
 
-**Phase 2: Listing Snapshots (2025-12-08)**
+**Phase 3: Listing Snapshots (2025-12-08)**
 - ✅ Migration 104: Added 7 snapshot columns
 - ✅ Booking creation snapshots listing fields
 - ✅ UI handles NULL listing_id gracefully
 - ✅ Query performance improved 3x
 
-**Phase 3: Documentation v2 (2025-12-15)**
-- ✅ Created solution-design-v2.md (<5 code blocks)
-- ✅ Created prompt-v2.md (0 code blocks)
-- ✅ Updated README with CaaS v5.9 header pattern
-- ✅ Cleaned up old v1 documentation files
-
 **Previous Releases**:
+- ✅ v5.9 docs (2025-12-15): Documentation v2 following CaaS pattern
 - ✅ v5.7 (2025-11-20): Wiselist attribution via cookies
 - ✅ v5.0 (2025-11-01): 3-party bookings (guardian/student/tutor)
 - ✅ v4.9 (2025-10-15): Atomic payment webhook with commission splits
@@ -126,16 +154,17 @@ The **Bookings** system is TutorWise's core transaction orchestration engine man
 
 ### 🔄 In Progress
 
-- 🔄 Implementation guide v2 (code examples, testing strategies)
-- 🔄 Dashboard booking visualizations
+- 🔄 Email notification templates for scheduling events
+- 🔄 Messages integration for booking chat
+- 🔄 Admin dashboard scheduling filters
 - 🔄 Booking analytics and reporting
 
-### 📋 Future Enhancements (Post v5.9)
+### 📋 Future Enhancements (Post v6.0)
 
 - Recurring bookings (subscribe to weekly sessions)
-- Smart availability checking (real-time slot validation)
 - Multi-student group bookings (1 tutor, 3+ students)
 - Installment payments for high-value packages (£500+)
+- Calendar sync (Google Calendar, Outlook integration)
 
 ---
 
@@ -143,15 +172,24 @@ The **Bookings** system is TutorWise's core transaction orchestration engine man
 
 ### Database Schema
 
-**Table: `bookings`** (36 columns across 6 functional groups)
+**Table: `bookings`** (43 columns across 7 functional groups)
 
 **Core Fields**: id, client_id, tutor_id, student_id, listing_id, agent_profile_id, booking_referrer_id
 
-**Session Details**: service_name, session_start_time, session_duration, duration_minutes
+**Session Details**: service_name, session_start_time (nullable), session_duration, duration_minutes
 
 **Pricing**: amount, hourly_rate (snapshot), hours_requested
 
 **Type & Status**: type (paid | free_help), booking_type (direct | referred | agent_job), status (Pending | Confirmed | Completed | Cancelled | Declined), payment_status (Pending | Paid | Failed | Refunded)
+
+**Scheduling Fields** (v6.0 - Migration 219):
+- `scheduling_status` (unscheduled | proposed | scheduled) - Current scheduling state
+- `proposed_by` (UUID) - Who proposed the current time
+- `proposed_at` (TIMESTAMPTZ) - When the time was proposed
+- `schedule_confirmed_by` (UUID) - Who confirmed the schedule
+- `schedule_confirmed_at` (TIMESTAMPTZ) - When the schedule was confirmed
+- `slot_reserved_until` (TIMESTAMPTZ) - 15-minute reservation expiry
+- `reschedule_count` (INTEGER) - Number of reschedules (max 4)
 
 **Listing Snapshots** (v5.8): subjects, levels, location_type, location_city, hourly_rate, listing_slug, available_free_help
 
@@ -169,13 +207,31 @@ The **Bookings** system is TutorWise's core transaction orchestration engine man
 - `POST /api/bookings/assign` - Agent assigns tutor to job
 - `POST /api/wisespace/[bookingId]/complete` - Mark session complete with verification
 
+**Scheduling Routes** (v6.0):
+- `POST /api/bookings/[id]/schedule/propose` - Propose a session time (creates 15-min slot reservation)
+- `POST /api/bookings/[id]/schedule/confirm` - Confirm proposed time (triggers Stripe for paid, instant for free)
+- `POST /api/bookings/[id]/schedule/reschedule` - Reschedule a confirmed booking (max 4 times)
+
 ### Key Workflows
 
-**Paid Booking Creation**:
-Client selects listing → Validates and snapshots listing data → Creates booking (Pending) → Redirects to Stripe Checkout → Client pays → Webhook fires → RPC creates 4 transactions → Booking status updates to Confirmed → Email notifications sent
+**5-Stage Paid Booking Flow** (v6.0):
+1. **Discover**: Client finds tutor listing in marketplace
+2. **Book**: Client creates booking → status=Pending, scheduling_status=unscheduled, session_start_time=NULL
+3. **Schedule**: Tutor/client propose time → scheduling_status=proposed, slot_reserved_until=NOW()+15min → Other party confirms
+4. **Pay**: On confirmation → Stripe checkout created → Client pays → Webhook fires → status=Confirmed, scheduling_status=scheduled
+5. **Review**: Session occurs → Completed → Reviews triggered → Payout clearing begins
 
-**Free Help Booking Creation**:
-Student clicks "Get Free Help Now" → Validates rate limit and tutor online status → Creates booking (Confirmed immediately) → Generates Google Meet link → Returns instant confirmation (total 3 seconds)
+**Free Help Booking Creation** (Instant):
+Student clicks "Get Free Help Now" → Validates rate limit and tutor online status → Creates booking (Confirmed, scheduled immediately) → Generates Google Meet link → Returns instant confirmation (total 3 seconds)
+
+**Scheduling Propose/Confirm Flow**:
+Either party proposes time → slot_reserved_until set to NOW()+15min → Other party receives notification → Confirming party clicks Confirm → For paid: Stripe checkout triggers → For free: Instantly confirmed → scheduling_status=scheduled
+
+**Reschedule Flow**:
+Either party initiates reschedule → Check reschedule_count < 4 → Reset to proposed state with new time → Other party confirms → reschedule_count incremented → Logged to audit_logs
+
+**Expired Slot Cleanup** (pg_cron):
+Every 5 minutes → cleanup_expired_slot_reservations() runs → Bookings with slot_reserved_until < NOW() reset to unscheduled → Proposed time cleared
 
 **Booking Completion**:
 Session occurs in WiseSpace → WiseSpace verifies completion → Updates booking status to Completed → Trigger creates review session → CaaS queues tutor for score recalculation → Payout clearing period begins (7 days)
@@ -205,12 +261,17 @@ Session occurs in WiseSpace → WiseSpace verifies completion → Updates bookin
 **Main Hub Page**:
 - [page.tsx](../../apps/web/src/app/(authenticated)/bookings/page.tsx) - Gold Standard Hub with 3x3 widget grid
 
-**Core Components** (9 total):
-- [BookingCard.tsx](../../apps/web/src/app/components/feature/bookings/BookingCard.tsx) - Individual booking display
-- [BookingDetailModal.tsx](../../apps/web/src/app/components/feature/bookings/BookingDetailModal.tsx) - 19-field detail view
+**Core Components** (11 total):
+- [BookingCard.tsx](../../apps/web/src/app/components/feature/bookings/BookingCard.tsx) - Individual booking display with scheduling status
+- [BookingDetailModal.tsx](../../apps/web/src/app/components/feature/bookings/BookingDetailModal.tsx) - Full detail view with scheduling fields
+- [SchedulingModal.tsx](../../apps/web/src/app/components/feature/bookings/SchedulingModal.tsx) - Date/time picker for propose/confirm flow (v6.0)
+- [SchedulingModal.module.css](../../apps/web/src/app/components/feature/bookings/SchedulingModal.module.css) - Scheduling modal styles
 - [BookingStatsWidget.tsx](../../apps/web/src/app/components/feature/bookings/BookingStatsWidget.tsx) - Statistics overview
 - [UpcomingSessionWidget.tsx](../../apps/web/src/app/components/feature/bookings/UpcomingSessionWidget.tsx) - Next session preview
 - Plus 5 more widgets (help, tip, video, skeleton, error)
+
+**Scheduling Library** (v6.0):
+- [apps/web/src/lib/scheduling/rules.ts](../../apps/web/src/lib/scheduling/rules.ts) - Scheduling rules engine and validation
 
 **API Routes**:
 - [apps/web/src/app/api/bookings/route.ts](../../apps/web/src/app/api/bookings/route.ts) - Main endpoints
@@ -224,6 +285,8 @@ Session occurs in WiseSpace → WiseSpace verifies completion → Updates bookin
 - Migration 084: Add booking_referrer_id for wiselist attribution
 - Migration 104: Add listing snapshot fields (v5.8 - 7 columns)
 - Migration 108: Add type column for free_help support (v5.9)
+- Migration 219: Add scheduling fields (v6.0 - scheduling_status enum, 7 columns)
+- Migration 220: Add pg_cron job for expired slot cleanup (v6.0)
 
 **RPC Functions**:
 - Migration 030: `handle_successful_payment()` - Atomic payment processing
@@ -291,6 +354,28 @@ Create booking and verify UI shows immediate success before server responds. Sim
 
 **Solution**: Check `caas_recalculation_queue` table for tutor_id. If missing, manually INSERT. Verify cron job running every 10 minutes.
 
+### Slot Reservation Not Expiring (v6.0)
+
+**Cause**: pg_cron job not running or not enabled
+
+**Solution**:
+1. Verify pg_cron extension enabled: `SELECT * FROM pg_extension WHERE extname = 'pg_cron'`
+2. Check job exists: `SELECT * FROM cron.job WHERE jobname = 'cleanup-expired-slot-reservations'`
+3. View recent runs: `SELECT * FROM cron.job_run_details ORDER BY start_time DESC LIMIT 10`
+4. Manual cleanup: `SELECT cleanup_expired_slot_reservations()`
+
+### Scheduling Confirmation Fails (v6.0)
+
+**Possible Causes**:
+1. Slot reservation expired (15-min limit)
+2. Proposed time doesn't meet 24-hour minimum notice
+3. Reschedule limit exceeded (max 4)
+
+**Solutions**:
+1. Check `slot_reserved_until` > NOW() before confirming
+2. Verify proposed time is at least 24 hours in future
+3. Check `reschedule_count` < 4 for the booking
+
 ---
 
 ## Migration Guide
@@ -337,6 +422,6 @@ Create booking and verify UI shows immediate success before server responds. Sim
 
 ---
 
-**Last Updated**: 2025-12-15
-**Next Review**: When implementing recurring bookings (v6.0)
+**Last Updated**: 2026-02-05
+**Next Review**: When implementing recurring bookings (v6.1)
 **Maintained By**: Backend Team + Payments Team

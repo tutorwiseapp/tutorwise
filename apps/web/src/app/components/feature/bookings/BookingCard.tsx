@@ -3,6 +3,7 @@
  * Purpose: Display booking information in detail card format with HubDetailCard
  * Created: 2025-11-02
  * Updated: 2025-12-06 - Added BookingDetailModal for viewing all 19 fields
+ * Updated: 2026-02-05 - Added scheduling status, Messages button, SchedulingModal (5-stage workflow)
  * Specification: Expanded detail card layout with HubDetailCard component
  * Design: Uses HubDetailCard component for consistent visual layout across all hubs
  */
@@ -10,12 +11,15 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Booking, BookingStatus } from '@/types';
+import { useRouter } from 'next/navigation';
+import { Booking, BookingStatus, SchedulingStatus } from '@/types';
 import Button from '@/app/components/ui/actions/Button';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import BookingDetailModal from './BookingDetailModal';
+import SchedulingModal from './SchedulingModal';
 import getProfileImageUrl from '@/lib/utils/image';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
 
 interface BookingCardProps {
   booking: Booking;
@@ -34,23 +38,51 @@ export default function BookingCard({
   onReschedule,
   onCancel,
 }: BookingCardProps) {
-  // Modal state
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const router = useRouter();
+  const { profile } = useUserProfile();
 
-  // Format date/time
-  const sessionDate = new Date(booking.session_start_time);
-  const formattedTime = sessionDate.toLocaleTimeString('en-GB', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  // Modal states
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isSchedulingModalOpen, setIsSchedulingModalOpen] = useState(false);
+
+  // Scheduling status helpers
+  const schedulingStatus = booking.scheduling_status || 'scheduled'; // Default for existing bookings
+  const isProposer = booking.proposed_by === profile?.id;
+  const needsScheduling = schedulingStatus === 'unscheduled';
+  const hasPendingProposal = schedulingStatus === 'proposed';
+  const isScheduled = schedulingStatus === 'scheduled';
+
+  // Format date/time - handle null session_start_time for unscheduled bookings
+  const hasSessionTime = !!booking.session_start_time;
+  const sessionDate = hasSessionTime ? new Date(booking.session_start_time!) : null;
+  const formattedTime = sessionDate
+    ? sessionDate.toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : 'Not scheduled';
 
   // Format date helper
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return 'Not scheduled';
     return new Date(dateString).toLocaleDateString('en-GB', {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
     });
+  };
+
+  // Get scheduling status display
+  const getSchedulingStatusDisplay = (): { label: string; variant: 'warning' | 'info' | 'success' } => {
+    switch (schedulingStatus) {
+      case 'unscheduled':
+        return { label: 'Needs Scheduling', variant: 'warning' };
+      case 'proposed':
+        return { label: isProposer ? 'Awaiting Confirmation' : 'Time Proposed', variant: 'info' };
+      case 'scheduled':
+      default:
+        return { label: 'Scheduled', variant: 'success' };
+    }
   };
 
   // Map booking status to status variant
@@ -68,16 +100,24 @@ export default function BookingCard({
     }
   };
 
+  // Build combined status label (booking status + scheduling status for pending)
+  const getStatusLabel = (): string => {
+    if (booking.status === 'Pending') {
+      const schedStatus = getSchedulingStatusDisplay();
+      return `${booking.status} - ${schedStatus.label}`;
+    }
+    return booking.status;
+  };
+
   // Determine who the "other party" is based on view mode
   const otherParty = viewMode === 'client' ? booking.tutor : booking.client;
 
   // Use other party's name for avatar (consistent with marketplace)
-  // Migration 104: booking.subjects now contains snapshot of listing.subjects
   const avatarUrl = getProfileImageUrl({
     id: otherParty?.id || booking.id,
     avatar_url: otherParty?.avatar_url,
     full_name: otherParty?.full_name || booking.service_name,
-  }, false); // isListing = false for profile avatars
+  }, false);
   const fallbackChar = otherParty?.full_name?.substring(0, 2).toUpperCase() || booking.service_name?.substring(0, 2).toUpperCase() || '?';
 
   // Build description with tutor/client info
@@ -92,19 +132,21 @@ export default function BookingCard({
     // Row 1: Date, Time, Duration
     {
       label: 'Date',
-      value: sessionDate.toLocaleDateString('en-GB', {
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric'
-      })
+      value: sessionDate
+        ? sessionDate.toLocaleDateString('en-GB', {
+            weekday: 'short',
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+          })
+        : 'Not scheduled'
     },
     { label: 'Time', value: formattedTime },
     { label: 'Duration', value: `${booking.session_duration} mins` },
-    // Row 2: Amount, Payment, Agent (Status removed - shown in badge)
-    { label: 'Amount', value: `£${booking.amount.toFixed(2)}` },
+    // Row 2: Amount, Payment, Schedule Status
+    { label: 'Amount', value: booking.amount ? `£${booking.amount.toFixed(2)}` : 'Free' },
     { label: 'Payment', value: booking.payment_status },
-    { label: 'Agent', value: agentName },
+    { label: 'Schedule', value: getSchedulingStatusDisplay().label },
     // Row 3: Type, Created, ID (truncated)
     {
       label: 'Type',
@@ -132,57 +174,89 @@ export default function BookingCard({
     },
   ];
 
+  // Handle messages navigation
+  const handleMessages = () => {
+    // Navigate to messages with booking context
+    const otherPartyId = viewMode === 'client' ? booking.tutor_id : booking.client_id;
+    router.push(`/messages?user=${otherPartyId}&booking=${booking.id}`);
+  };
+
   // Determine if Join WiseSpace button should be enabled
-  const canJoinWiseSpace = booking.status === 'Confirmed' && isOnline;
+  const canJoinWiseSpace = booking.status === 'Confirmed' && isOnline && isScheduled;
 
   // Build actions
   const actions = (
     <>
-      {/* Join WiseSpace: Always shown, disabled if not Confirmed or not online */}
-      <Link
-        href={canJoinWiseSpace ? `/wisespace/${booking.id}` : '#'}
-        target={canJoinWiseSpace ? '_blank' : undefined}
-        onClick={(e) => {
-          if (!canJoinWiseSpace) {
-            e.preventDefault();
-          }
-        }}
+      {/* Messages Button - Always visible for communication */}
+      <Button
+        onClick={handleMessages}
+        variant="secondary"
+        size="sm"
       >
+        Messages
+      </Button>
+
+      {/* Schedule Session - Show if unscheduled */}
+      {needsScheduling && (
         <Button
+          onClick={() => setIsSchedulingModalOpen(true)}
           variant="primary"
           size="sm"
-          disabled={!canJoinWiseSpace}
         >
-          Join WiseSpace
+          Schedule Session
         </Button>
-      </Link>
+      )}
 
-      {/* View Details button - opens modal with all 19 fields */}
+      {/* Review Proposal - Show if other party proposed */}
+      {hasPendingProposal && !isProposer && (
+        <Button
+          onClick={() => setIsSchedulingModalOpen(true)}
+          variant="primary"
+          size="sm"
+        >
+          Review & {booking.amount ? `Pay £${booking.amount.toFixed(2)}` : 'Confirm'}
+        </Button>
+      )}
+
+      {/* Waiting message - Show if user proposed */}
+      {hasPendingProposal && isProposer && (
+        <Button
+          onClick={() => setIsSchedulingModalOpen(true)}
+          variant="secondary"
+          size="sm"
+        >
+          View Proposal
+        </Button>
+      )}
+
+      {/* Join WiseSpace: Show only if Confirmed and scheduled */}
+      {canJoinWiseSpace && (
+        <Link
+          href={`/wisespace/${booking.id}`}
+          target="_blank"
+        >
+          <Button
+            variant="primary"
+            size="sm"
+          >
+            Join WiseSpace
+          </Button>
+        </Link>
+      )}
+
+      {/* View Details button - opens modal with all fields */}
       <Button
-        onClick={() => setIsModalOpen(true)}
+        onClick={() => setIsDetailModalOpen(true)}
         variant="secondary"
         size="sm"
       >
         View Details
       </Button>
 
-      {/* Client-specific: Show "Pay Now" if Pending */}
-      {viewMode === 'client' &&
-        booking.payment_status === 'Pending' &&
-        onPayNow && (
-          <Button
-            onClick={() => onPayNow(booking.id)}
-            variant="primary"
-            size="sm"
-          >
-            Pay Now
-          </Button>
-        )}
-
-      {/* Reschedule button - only if handler provided */}
-      {onReschedule && (
+      {/* Reschedule button - only if confirmed and handler provided */}
+      {booking.status === 'Confirmed' && onReschedule && (
         <Button
-          onClick={() => onReschedule(booking.id)}
+          onClick={() => setIsSchedulingModalOpen(true)}
           variant="secondary"
           size="sm"
         >
@@ -213,7 +287,7 @@ export default function BookingCard({
         }}
         title={booking.service_name}
         status={{
-          label: booking.status,
+          label: getStatusLabel(),
           variant: getStatusVariant(booking.status),
         }}
         description={description}
@@ -224,10 +298,17 @@ export default function BookingCard({
 
       {/* Booking Detail Modal */}
       <BookingDetailModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
         booking={booking}
         viewMode={viewMode}
+      />
+
+      {/* Scheduling Modal */}
+      <SchedulingModal
+        isOpen={isSchedulingModalOpen}
+        onClose={() => setIsSchedulingModalOpen(false)}
+        booking={booking}
       />
     </>
   );

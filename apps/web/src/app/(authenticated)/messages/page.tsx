@@ -2,12 +2,14 @@
  * Filename: apps/web/src/app/(authenticated)/messages/page.tsx
  * Purpose: Messages - WhatsApp-style messaging interface
  * Created: 2025-12-05
+ * Updated: 2026-02-05 - Added URL parameter handling for booking messages integration
  * Specification: Clean 2-pane split layout (30% conversations / 70% chat thread)
  */
 
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getConversations } from '@/lib/api/messages';
@@ -30,12 +32,16 @@ type SortOption = 'recent' | 'name' | 'unread';
 
 export default function MessagesPage() {
   const { profile, isLoading: profileLoading } = useUserProfile();
+  const searchParams = useSearchParams();
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [isMobileThreadView, setIsMobileThreadView] = useState(false);
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const [hasShownError, setHasShownError] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('recent');
+
+  // Track if we've processed the URL user parameter (from booking messages integration)
+  const hasProcessedUrlUser = useRef(false);
 
   // Always broadcast presence (users are always reachable for messages)
   useAblyPresenceBroadcast(profile?.id || '', !!profile);
@@ -68,6 +74,29 @@ export default function MessagesPage() {
       setHasShownError(false);
     }
   }, [error, hasShownError]);
+
+  // Auto-select conversation from URL parameter (e.g., from booking messages button)
+  useEffect(() => {
+    const userIdFromUrl = searchParams.get('user');
+
+    // Only process once and only when conversations are loaded
+    if (userIdFromUrl && !isLoading && conversations.length > 0 && !hasProcessedUrlUser.current) {
+      hasProcessedUrlUser.current = true;
+
+      // Find conversation with the specified user
+      const conversation = conversations.find(
+        (conv) => conv.otherUser.id === userIdFromUrl
+      );
+
+      if (conversation) {
+        setSelectedConversationId(conversation.id);
+        // Switch to thread view on mobile
+        if (window.innerWidth <= 768) {
+          setIsMobileThreadView(true);
+        }
+      }
+    }
+  }, [searchParams, conversations, isLoading]);
 
   // Filter and sort conversations
   const filteredConversations = useMemo(() => {

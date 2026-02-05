@@ -70,10 +70,31 @@ export async function POST(req: NextRequest) {
 
         console.log(`Payment succeeded for booking: ${booking_id}, checkout: ${session.id}`);
 
-        // Call the RPC function to process payment atomically
-        // v4.9: Pass stripe_checkout_id for idempotency check
+        // v8.0: Check if this is from the new scheduling flow
+        const isSchedulingConfirmed = session.metadata?.scheduling_confirmed === 'true';
+
         const supabase = await createClient();
 
+        // v8.0: For scheduled bookings, verify scheduling was completed before payment
+        if (isSchedulingConfirmed) {
+          const { data: booking } = await supabase
+            .from('bookings')
+            .select('scheduling_status')
+            .eq('id', booking_id)
+            .single();
+
+          if (booking?.scheduling_status !== 'scheduled') {
+            console.error(`[WEBHOOK] Booking ${booking_id} not scheduled but payment received. Setting to scheduled.`);
+            // Safety: ensure scheduling_status is set
+            await supabase
+              .from('bookings')
+              .update({ scheduling_status: 'scheduled' })
+              .eq('id', booking_id);
+          }
+        }
+
+        // Call the RPC function to process payment atomically
+        // v4.9: Pass stripe_checkout_id for idempotency check
         const { error: rpcError } = await supabase.rpc('handle_successful_payment', {
           p_booking_id: booking_id,
           p_stripe_checkout_id: session.id // v4.9: Idempotency key

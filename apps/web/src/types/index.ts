@@ -499,6 +499,10 @@ export type BookingStatus = 'Pending' | 'Confirmed' | 'Completed' | 'Cancelled';
 // Payment status enum (SDD v3.6, Section 3.2)
 export type PaymentStatus = 'Pending' | 'Paid' | 'Failed' | 'Refunded';
 
+// Scheduling status enum (migration 219 - Booking Scheduling System)
+// Tracks the state of session time negotiation in the 5-stage booking workflow
+export type SchedulingStatus = 'unscheduled' | 'proposed' | 'scheduled';
+
 // Transaction type enum (SDD v3.6, Section 3.4)
 export type TransactionType =
   | 'Booking Payment'           // T-TYPE-1: Full amount paid by client
@@ -522,6 +526,7 @@ export type ReferralStatus = 'Referred' | 'Signed Up' | 'Converted' | 'Expired';
 // migration 049: student_id → client_id
 // migration 051: referrer_profile_id → agent_id
 // migration 104: Added snapshot fields from listing
+// migration 219: Added scheduling fields for 5-stage booking workflow
 export interface Booking {
   id: string;
   client_id: string; // Updated from student_id (migration 049)
@@ -532,11 +537,20 @@ export interface Booking {
   booking_type?: 'direct' | 'referred' | 'agent_job'; // Added in migration 049 (referral attribution status)
   booking_source?: 'listing' | 'profile'; // v5.0: Booking source - listing (via service listing) or profile (direct from profile page) - migration 133
   service_name: string;
-  session_start_time: string; // ISO timestamp
+  session_start_time?: string | null; // ISO timestamp - Now nullable (migration 219: bookings can be created without a scheduled time)
   session_duration: number; // In minutes
   amount: number; // Total amount in GBP
   status: BookingStatus;
   payment_status: PaymentStatus;
+
+  // Scheduling fields (migration 219 - 5-stage booking workflow: Discover > Book > Schedule > Pay > Review)
+  scheduling_status?: SchedulingStatus; // unscheduled, proposed, scheduled
+  proposed_by?: string | null;          // Profile ID who proposed the current session time
+  proposed_at?: string | null;          // When the time was proposed (ISO timestamp)
+  schedule_confirmed_by?: string | null; // Profile ID who confirmed the time (must differ from proposed_by)
+  schedule_confirmed_at?: string | null; // When confirmed (ISO timestamp)
+  slot_reserved_until?: string | null;  // Temporary hold expiration (15 min window)
+  reschedule_count?: number;            // Number of reschedules (max 4 total, 2 per party)
 
   // NEW: Snapshot fields from Listing (migrations 104, 108) - Copied at booking creation time
   subjects?: string[];              // Subjects taught (from listing.subjects)

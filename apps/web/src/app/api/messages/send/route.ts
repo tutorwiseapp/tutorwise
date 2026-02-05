@@ -1,7 +1,8 @@
 /**
- * Filename: apps/web/src/app/api/network/chat/send/route.ts
+ * Filename: apps/web/src/app/api/messages/send/route.ts
  * Purpose: API endpoint to send chat messages (persist to DB)
  * Created: 2025-11-08
+ * Updated: 2026-02-05 - Moved from /api/network/chat/ to /api/messages/
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (insertError) {
-      console.error('[ChatAPI] Insert error:', insertError);
+      console.error('[MessagesAPI] Insert error:', insertError);
       return NextResponse.json(
         { error: 'Failed to send message' },
         { status: 500 }
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ message }, { status: 201 });
   } catch (error) {
-    console.error('[ChatAPI] Unexpected error:', error);
+    console.error('[MessagesAPI] Unexpected error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

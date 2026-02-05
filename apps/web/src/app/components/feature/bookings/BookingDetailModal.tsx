@@ -1,7 +1,8 @@
 /**
  * Filename: BookingDetailModal.tsx
- * Purpose: Modal for displaying complete booking details (all 19 fields)
+ * Purpose: Modal for displaying complete booking details (all fields including scheduling)
  * Created: 2025-12-06
+ * Updated: 2026-02-05 - Added scheduling fields (5-stage workflow)
  * Specification: Uses HubDetailModal to show all booking information
  */
 
@@ -26,8 +27,9 @@ export default function BookingDetailModal({
   booking,
   viewMode,
 }: BookingDetailModalProps) {
-  // Format date helper
-  const formatDate = (dateString: string) => {
+  // Format date helper - handles null/undefined
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return 'Not scheduled';
     return new Date(dateString).toLocaleDateString('en-GB', {
       weekday: 'long',
       day: 'numeric',
@@ -36,8 +38,9 @@ export default function BookingDetailModal({
     });
   };
 
-  // Format time helper
-  const formatTime = (dateString: string) => {
+  // Format time helper - handles null/undefined
+  const formatTime = (dateString: string | null | undefined) => {
+    if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleTimeString('en-GB', {
       hour: '2-digit',
       minute: '2-digit',
@@ -45,9 +48,24 @@ export default function BookingDetailModal({
     });
   };
 
-  // Format datetime helper
-  const formatDateTime = (dateString: string) => {
+  // Format datetime helper - handles null/undefined
+  const formatDateTime = (dateString: string | null | undefined) => {
+    if (!dateString) return 'Not scheduled';
     return `${formatDate(dateString)} at ${formatTime(dateString)}`;
+  };
+
+  // Get scheduling status display
+  const getSchedulingStatusDisplay = () => {
+    switch (booking.scheduling_status) {
+      case 'unscheduled':
+        return 'Needs Scheduling';
+      case 'proposed':
+        return 'Time Proposed';
+      case 'scheduled':
+        return 'Scheduled';
+      default:
+        return booking.scheduling_status || 'Scheduled';
+    }
   };
 
   // Determine the other party
@@ -57,7 +75,7 @@ export default function BookingDetailModal({
   // Build subtitle
   const subtitle = booking.service_name;
 
-  // Build sections with all booking fields (including Migration 104 snapshot fields)
+  // Build sections with all booking fields (including scheduling and snapshot fields)
   const sections: DetailSection[] = [
     {
       title: 'Session Information',
@@ -87,6 +105,17 @@ export default function BookingDetailModal({
             : booking.referrer_role === 'client' ? 'Client'
             : booking.referrer_role || 'N/A'
         },
+      ],
+    },
+    {
+      title: 'Scheduling Details (Migration 219)',
+      fields: [
+        { label: 'Scheduling Status', value: getSchedulingStatusDisplay() },
+        { label: 'Proposed By', value: booking.proposed_by || 'N/A' },
+        { label: 'Proposed At', value: booking.proposed_at ? formatDateTime(booking.proposed_at) : 'N/A' },
+        { label: 'Confirmed By', value: booking.schedule_confirmed_by || 'N/A' },
+        { label: 'Confirmed At', value: booking.schedule_confirmed_at ? formatDateTime(booking.schedule_confirmed_at) : 'N/A' },
+        { label: 'Reschedule Count', value: booking.reschedule_count?.toString() || '0' },
       ],
     },
     {

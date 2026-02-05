@@ -104,7 +104,7 @@ export default function ChatThread({
       setIsLoading(true);
       try {
         // Load existing messages from database
-        const response = await fetch(`/api/network/chat/${otherUser.id}`);
+        const response = await fetch(`/api/messages/${otherUser.id}`);
         if (!response.ok) throw new Error('Failed to load messages');
         const data = await response.json();
 
@@ -166,7 +166,7 @@ export default function ChatThread({
 
   const markAsRead = async (messageId: string) => {
     try {
-      await fetch('/api/network/chat/mark-read', {
+      await fetch('/api/messages/mark-read', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messageId }),
@@ -205,7 +205,7 @@ export default function ChatThread({
 
     try {
       // Persist message to database first
-      const response = await fetch('/api/network/chat/send', {
+      const response = await fetch('/api/messages/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

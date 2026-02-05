@@ -1,7 +1,8 @@
 /**
- * Filename: apps/web/src/app/api/network/chat/[userId]/route.ts
+ * Filename: apps/web/src/app/api/messages/[userId]/route.ts
  * Purpose: API endpoint to fetch conversation history between two users
  * Created: 2025-11-08
+ * Updated: 2026-02-05 - Moved from /api/network/chat/ to /api/messages/
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -41,7 +42,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ userI
     });
 
     if (error) {
-      console.error('[ChatAPI] Error fetching conversation:', error);
+      console.error('[MessagesAPI] Error fetching conversation:', error);
       return NextResponse.json(
         { error: 'Failed to fetch messages' },
         { status: 500 }
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ userI
 
     return NextResponse.json({ messages }, { status: 200 });
   } catch (error) {
-    console.error('[ChatAPI] Unexpected error:', error);
+    console.error('[MessagesAPI] Unexpected error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -22,7 +22,7 @@ export interface Conversation {
  * Get all conversations for the current user
  */
 export async function getConversations(): Promise<Conversation[]> {
-  const response = await fetch('/api/network/chat/conversations');
+  const response = await fetch('/api/messages/conversations');
 
   if (!response.ok) {
     throw new Error('Failed to fetch conversations');
@@ -36,7 +36,7 @@ export async function getConversations(): Promise<Conversation[]> {
  * Mark a conversation as read
  */
 export async function markConversationRead(userId: string): Promise<void> {
-  const response = await fetch('/api/network/chat/mark-conversation-read', {
+  const response = await fetch('/api/messages/mark-conversation-read', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ userId }),

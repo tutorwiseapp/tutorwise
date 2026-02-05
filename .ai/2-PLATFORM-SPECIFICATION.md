@@ -1450,32 +1450,86 @@ Final Organisation CaaS: 87.2 + 4 = 91.2 (rounded to 91)
 
 ## 7. Booking & Session Workflow
 
-### 7.1 Booking State Machine
+### 7.0 5-Stage Booking Workflow (v6.0)
+
+The booking system follows a clear 5-stage workflow:
+
+```
+┌──────────────────────────────────────────────────────────────────────────┐
+│                    5-STAGE BOOKING WORKFLOW (v6.0)                        │
+├──────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌────────┐ │
+│  │ DISCOVER │ → │   BOOK   │ → │ SCHEDULE │ → │   PAY    │ → │ REVIEW │ │
+│  │          │   │          │   │          │   │          │   │        │ │
+│  │ Browse   │   │ Create   │   │ Propose/ │   │ Stripe   │   │ Submit │ │
+│  │ listings │   │ booking  │   │ Confirm  │   │ Checkout │   │ review │ │
+│  │          │   │ request  │   │ time     │   │          │   │        │ │
+│  └──────────┘   └──────────┘   └──────────┘   └──────────┘   └────────┘ │
+│                                                                          │
+│  Status:        Pending        scheduling_    Confirmed       Completed  │
+│                 unscheduled    status:        scheduled                  │
+│                               proposed→                                  │
+│                               scheduled                                  │
+└──────────────────────────────────────────────────────────────────────────┘
+```
+
+**Key Innovation**: Payment is combined with scheduling confirmation. When one party confirms the proposed time, Stripe checkout triggers immediately (for paid sessions).
+
+### 7.1 Scheduling State Machine (v6.0)
+
+```
+┌─────────────────┐
+│  UNSCHEDULED    │  Booking created, no time set
+└───────┬─────────┘
+        │ Either party proposes time (15-min slot reservation)
+        ▼
+┌─────────────────┐
+│    PROPOSED     │  Time proposed, awaiting confirmation
+└───────┬─────────┘
+        │
+        ├──► SCHEDULED (Other party confirms → triggers payment if paid)
+        │
+        └──► UNSCHEDULED (Slot expired after 15 min, pg_cron cleanup)
+
+SCHEDULED ──► PROPOSED (Reschedule requested, if count < 4)
+```
+
+**Scheduling Rules**:
+- Minimum 24 hours notice for proposed times
+- Maximum 30 days in advance
+- 15-minute slot reservation (expires automatically)
+- Maximum 4 reschedules (2 per party)
+- Platform timezone: Europe/London (UK time)
+
+### 7.2 Booking Status State Machine
 
 ```
 ┌──────────┐
-│ CREATED  │  Client requests booking
+│ CREATED  │  Client requests booking (scheduling_status: unscheduled)
 └────┬─────┘
      │
      ▼
 ┌──────────┐
-│ PENDING  │  Awaiting tutor confirmation
+│ PENDING  │  Awaiting scheduling + payment
 └────┬─────┘
      │
-     ├──► ACCEPTED ──► CONFIRMED ──► COMPLETED ──► REVIEWED
-     │                    │               │
-     │                    │               └──► DISPUTED (rare)
-     │                    │
-     │                    └──► CANCELLED (by either party)
+     ├──► CONFIRMED (Schedule confirmed + payment via webhook)
+     │         │
+     │         ├──► COMPLETED ──► REVIEWED
+     │         │         │
+     │         │         └──► DISPUTED (rare)
+     │         │
+     │         └──► CANCELLED (by either party with refund policy)
      │
      └──► DECLINED (tutor rejects)
 ```
 
 **Payment Flow**:
 ```
-Booking Confirmed ──► Stripe Charge ──► Payment Pending ──► Payment Paid
-                                              │
-                                              └──► Payment Failed ──► Retry Logic
+Schedule Confirmed ──► Stripe Checkout ──► Payment Pending ──► Payment Paid
+                                                  │
+                                                  └──► Payment Failed ──► Retry Logic
 ```
 
 **Clearing Timeline**:
