@@ -15,8 +15,9 @@ const Footer = () => {
         <Link href="/privacy-policy">Privacy Policy</Link>
         
         {/* Social links can be moved to a separate line or component later if needed */}
-        <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer">YouTube</a>
-        <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="https://www.youtube.com/@tutorwisesystems" target="_blank" rel="noopener noreferrer">YouTube</a>
+        <a href="https://www.linkedin.com/company/tutorwisesystems" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="https://www.facebook.com/people/tutorwise/61587485011487" target="_blank" rel="noopener noreferrer">Facebook</a>
       </p>
     </footer>
   );

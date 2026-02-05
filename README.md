@@ -79,9 +79,9 @@ tutorwise/
 ## Tech Stack
 
 ### Frontend (ACTIVE)
-- **Next.js 15.x** - React framework with App Router
+- **Next.js 16.x** - React framework with App Router
 - **TypeScript 5.x** - Type safety and developer experience
-- **React 18** - UI library with Server Components
+- **React 19** - UI library with Server Components
 - **Tailwind CSS** - Utility-first styling with 70+ CSS variables
 - **React Query (TanStack Query)** - Data fetching and server state management
 - **Zustand** - Lightweight client state management
