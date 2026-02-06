@@ -145,19 +145,26 @@ export async function POST(
         caasImpact: refund.caasImpact
       });
 
-      // Process Stripe refund
+      // Process Stripe refund (net amount after Stripe fees)
       try {
         if (booking.stripe_payment_intent_id) {
           await stripe.refunds.create({
             payment_intent: booking.stripe_payment_intent_id,
-            amount: Math.round(refund.clientRefund * 100), // Convert to cents
+            amount: Math.round(refund.clientRefund * 100), // Net refund in pence (after Stripe fee deduction)
             reason: 'requested_by_customer',
             metadata: {
               booking_id: bookingId,
-              reason: 'tutor_no_show'
+              reason: 'tutor_no_show',
+              gross_amount: refund.clientRefundGross.toString(),
+              stripe_fee: refund.stripeFee.toString(),
+              net_refund: refund.clientRefund.toString()
             }
           });
-          console.log('[No-Show] Stripe refund processed successfully');
+          console.log('[No-Show] Stripe refund processed:', {
+            grossAmount: refund.clientRefundGross,
+            stripeFee: refund.stripeFee,
+            netRefund: refund.clientRefund
+          });
         }
       } catch (stripeError) {
         console.error('[No-Show] Stripe refund failed:', stripeError);

@@ -30,10 +30,13 @@ Life happens. We understand that sometimes you need to cancel a session. Here's 
 ### 24+ Hours Notice (Full Refund)
 
 If you cancel **24 hours or more** before your session:
-- ✅ **100% refund** to your original payment method
+- ✅ **Full refund** to your original payment method (minus Stripe processing fee)
 - ✅ Refund processed within 5-10 business days
 - ✅ No questions asked
 - ✅ No impact on your account
+
+**About Stripe Processing Fees:**
+When you pay for a session, Stripe (our payment processor) charges a small fee (1.5% + 20p for UK/EU cards). When we refund you, Stripe keeps this fee. This means if you paid £50, you'll receive approximately £49.05 back.
 
 **How to Cancel:**
 1. Go to **Bookings** in your dashboard
@@ -67,18 +70,22 @@ We hold tutors to high professional standards. If a tutor cancels or doesn't sho
 ### Tutor Cancels (Any Time)
 
 If your tutor cancels at any time before the session:
-- ✅ **100% refund** to your original payment method
+- ✅ **Full refund** to your original payment method (minus Stripe fee)
 - ✅ Tutor's CaaS (reputation) score reduced by 10 points
 - ✅ Lower CaaS score = lower search ranking for tutor
 - 📧 You'll receive a notification with rebooking suggestions
 
+**Example:** £50 session → you receive £49.05 refund (£50 - £0.95 Stripe fee)
+
 ### Tutor No-Show
 
 If your tutor doesn't show up for a confirmed session:
-- ✅ **Automatic 100% refund** (no need to request)
+- ✅ **Automatic full refund** (minus Stripe fee, no need to request)
 - ✅ Tutor's CaaS score reduced by 50 points (major penalty)
 - ⚠️ Repeated no-shows can lead to tutor account suspension
 - 🎯 Refund processed within 24 hours
+
+**Example:** £100 session → you receive £98.30 refund (£100 - £1.70 Stripe fee)
 
 **To Report a No-Show:**
 1. Wait 15 minutes past session start time
@@ -94,8 +101,9 @@ If your tutor doesn't show up for a confirmed session:
 ### How Refunds Work
 
 1. **Automatic Processing:** Refunds are processed automatically when you cancel with 24+ hours notice or report a tutor no-show
-2. **Refund Timeline:** Money returns to your original payment method within 5-10 business days
-3. **Confirmation Email:** You'll receive an email confirming your refund with expected timeline
+2. **Refund Amount:** You receive the full amount **minus Stripe's processing fee** (1.5% + 20p for UK/EU cards)
+3. **Refund Timeline:** Money returns to your original payment method within 5-10 business days
+4. **Confirmation Email:** You'll receive an email confirming your refund with expected timeline
 
 ### Refund Methods
 
@@ -104,6 +112,10 @@ If your tutor doesn't show up for a confirmed session:
 - **Bank Transfer:** 7-10 business days
 
 **Note:** Refund timing depends on your bank's processing speed, not TutorWise.
+
+### Why is the Stripe Fee Deducted?
+
+When you make a payment, Stripe (our secure payment processor) charges a transaction fee. This fee is non-refundable—even when we issue a refund, Stripe keeps their processing fee. This is standard practice across all platforms using Stripe and protects the platform from absorbing these costs.
 
 ---
 

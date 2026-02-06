@@ -13,12 +13,14 @@ import { Booking } from '@/types';
 import { HubDetailModal } from '@/app/components/hub/modal';
 import type { DetailSection } from '@/app/components/hub/modal';
 import Button from '@/app/components/ui/actions/Button';
+import CancelBookingButton from './CancelBookingButton';
 
 interface BookingDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   booking: Booking;
   viewMode: 'client' | 'tutor';
+  onBookingUpdated?: () => void; // Callback when booking is updated (cancelled)
 }
 
 export default function BookingDetailModal({
@@ -26,6 +28,7 @@ export default function BookingDetailModal({
   onClose,
   booking,
   viewMode,
+  onBookingUpdated,
 }: BookingDetailModalProps) {
   // Format date helper - handles null/undefined
   const formatDate = (dateString: string | null | undefined) => {
@@ -178,9 +181,21 @@ export default function BookingDetailModal({
       subtitle={subtitle}
       sections={sections}
       actions={
-        <Button variant="secondary" size="sm" onClick={onClose}>
-          Close
-        </Button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <CancelBookingButton
+            booking={booking}
+            viewMode={viewMode}
+            onCancelled={() => {
+              onClose();
+              if (onBookingUpdated) {
+                onBookingUpdated();
+              }
+            }}
+          />
+          <Button variant="secondary" size="sm" onClick={onClose}>
+            Close
+          </Button>
+        </div>
       }
     />
   );

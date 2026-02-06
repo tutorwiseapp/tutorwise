@@ -89,6 +89,11 @@ export const PAYMENT_CONSTANTS = {
   // Statement descriptors
   PLATFORM_NAME: 'TUTORWISE',
   PAYOUT_DESCRIPTOR: 'TUTORWISE PAYOUT',
+
+  // Stripe processing fees (UK/EU cards)
+  // Source: https://stripe.com/gb/pricing
+  STRIPE_FEE_PERCENT: 1.5,      // 1.5% for UK/European cards
+  STRIPE_FEE_FIXED_GBP: 0.20,   // £0.20 fixed fee
 } as const;
 
 /**
