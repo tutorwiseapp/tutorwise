@@ -13,7 +13,7 @@
 
 import { createClient } from '@/utils/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
-import { calculateRefund } from '@/lib/booking-policies/cancellation';
+import { calculateRefund, updateTutorCaaSScore, reverseBookingCommissions } from '@/lib/booking-policies/cancellation';
 import { stripe } from '@/lib/stripe';
 import { sendBookingCancellationEmails } from '@/lib/email-templates/booking';
 
@@ -63,11 +63,20 @@ export async function POST(
       return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
     }
 
-    // 4. Verify user is authorized (client or tutor)
+    // 4. Verify user is authorized (client, tutor, or admin)
     const isClient = user.id === booking.client_id;
     const isTutor = user.id === booking.tutor_id;
 
-    if (!isClient && !isTutor) {
+    // Check if user is admin
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('roles')
+      .eq('id', user.id)
+      .single();
+
+    const isAdmin = profile?.roles?.includes('admin');
+
+    if (!isClient && !isTutor && !isAdmin) {
       return NextResponse.json(
         { error: 'You are not authorized to cancel this booking' },
         { status: 403 }
@@ -102,7 +111,8 @@ export async function POST(
     const hoursUntilSession = (sessionStart.getTime() - now.getTime()) / (1000 * 60 * 60);
 
     // 7. Determine who is cancelling
-    const cancelledBy: 'client' | 'tutor' = isClient ? 'client' : 'tutor';
+    // Admin cancellations are treated as "client" cancellations (time-based policy)
+    const cancelledBy: 'client' | 'tutor' = isTutor ? 'tutor' : 'client';
 
     // 8. Calculate refund using policy
     const refundCalc = calculateRefund(
@@ -185,13 +195,17 @@ export async function POST(
       );
     }
 
-    // 11. TODO: Update tutor's CaaS score if they cancelled
-    // This would be done via a separate CaaS service/API
-    // if (cancelledBy === 'tutor' && refundCalc.caasImpact !== 0) {
-    //   await updateCaaSScore(booking.tutor_id, refundCalc.caasImpact, 'cancellation', bookingId);
-    // }
+    // 11. Update tutor's CaaS score if they cancelled
+    if (cancelledBy === 'tutor' && refundCalc.caasImpact !== 0) {
+      await updateTutorCaaSScore(booking.tutor_id, refundCalc.caasImpact, 'cancellation', bookingId);
+    }
 
-    // 12. Send cancellation emails to all parties
+    // 12. Reverse commission transactions if refund was issued
+    if (refundCalc.clientRefund > 0) {
+      await reverseBookingCommissions(bookingId);
+    }
+
+    // 13. Send cancellation emails to all parties
     try {
       const emailData = {
         bookingId: booking.id,
@@ -223,9 +237,16 @@ export async function POST(
       // Don't fail the request if emails fail
     }
 
-    // 13. Build response message
+    // 14. Build response message
     let message = '';
-    if (cancelledBy === 'client') {
+    if (isAdmin) {
+      // Admin cancellation message
+      if (refundCalc.clientRefund > 0) {
+        message = `Booking cancelled by admin. Client will receive a refund of £${refundCalc.clientRefund.toFixed(2)} (original amount £${refundCalc.clientRefundGross.toFixed(2)} minus £${refundCalc.stripeFee.toFixed(2)} Stripe processing fee). Refund will appear in their account within 5-10 business days.`;
+      } else {
+        message = `Booking cancelled by admin. No refund issued as cancellation was within 24 hours of the session. The tutor will receive the full payment of £${booking.amount.toFixed(2)}.`;
+      }
+    } else if (cancelledBy === 'client') {
       if (refundCalc.clientRefund > 0) {
         message = `Booking cancelled successfully. You will receive a refund of £${refundCalc.clientRefund.toFixed(2)} (original amount £${refundCalc.clientRefundGross.toFixed(2)} minus £${refundCalc.stripeFee.toFixed(2)} Stripe processing fee). Refund will appear in your account within 5-10 business days.`;
       } else {

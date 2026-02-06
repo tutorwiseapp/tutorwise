@@ -15,7 +15,7 @@
 
 import { createClient } from '@/utils/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
-import { calculateRefund } from '@/lib/booking-policies/cancellation';
+import { calculateRefund, updateTutorCaaSScore, reverseBookingCommissions } from '@/lib/booking-policies/cancellation';
 import { stripe } from '@/lib/stripe';
 
 export const dynamic = 'force-dynamic';
@@ -193,9 +193,11 @@ export async function POST(
         );
       }
 
-      // TODO: Update tutor's CaaS score (-50 points)
-      // This would be done via a separate CaaS service/API
-      // await updateCaaSScore(booking.tutor_id, refund.caasImpact, 'no_show', bookingId);
+      // Update tutor's CaaS score (-50 points)
+      await updateTutorCaaSScore(booking.tutor_id, refund.caasImpact, 'no_show', bookingId);
+
+      // Reverse commission transactions (tutor no-show always results in refund)
+      await reverseBookingCommissions(bookingId);
 
       console.log(`[No-Show] ✅ Tutor no-show processed - full refund issued, CaaS penalty: ${refund.caasImpact}`);
 

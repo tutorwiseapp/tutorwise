@@ -204,3 +204,167 @@ export function getCancellationPolicyPreview(
     };
   }
 }
+
+/**
+ * Update tutor's CaaS score after cancellation or no-show
+ *
+ * This function recalculates the tutor's CaaS score using the CaaSService.
+ * It requires service_role access to bypass RLS policies.
+ *
+ * @param tutorId - The tutor's profile ID
+ * @param caasImpact - The CaaS impact from the cancellation policy (e.g., -10, -50)
+ * @param reason - The reason for the update ('cancellation' or 'no_show')
+ * @param bookingId - The booking ID for logging purposes
+ *
+ * NOTE: This function logs errors but does not throw - we don't want to fail
+ * a refund just because the CaaS update failed. The score can be manually
+ * recalculated later if needed.
+ */
+export async function updateTutorCaaSScore(
+  tutorId: string,
+  caasImpact: number,
+  reason: 'cancellation' | 'no_show',
+  bookingId: string
+): Promise<void> {
+  try {
+    // Import dependencies dynamically to avoid circular dependencies
+    const { createClient } = await import('@supabase/supabase-js');
+    const { CaaSService } = await import('@/lib/services/caas');
+
+    // Create service_role client for CaaS updates
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('[CaaS Update] Missing Supabase credentials - cannot update CaaS score');
+      return;
+    }
+
+    const serviceSupabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    console.log(`[CaaS Update] Recalculating CaaS score for tutor ${tutorId} after ${reason} (impact: ${caasImpact})`);
+
+    // Recalculate the tutor's CaaS score
+    // The CaaSService will automatically factor in all booking history,
+    // including this cancellation/no-show, when calculating the new score
+    const scoreData = await CaaSService.calculateProfileCaaS(tutorId, serviceSupabase);
+
+    console.log(`[CaaS Update] ✅ CaaS score updated for tutor ${tutorId}: ${scoreData.total}/100 (booking: ${bookingId})`);
+  } catch (error) {
+    // Log error but don't throw - we don't want to fail the refund
+    console.error(`[CaaS Update] ❌ Failed to update CaaS score for tutor ${tutorId}:`, error);
+    console.error(`[CaaS Update] Booking ${bookingId} refund succeeded, but CaaS update failed. Manual recalculation may be needed.`);
+  }
+}
+
+/**
+ * Reverse commission transactions when a booking is cancelled
+ *
+ * When a booking is refunded, any commission transactions (Agent Commission,
+ * Referral Commission, Tutoring Payout) that haven't been paid out yet should
+ * be reversed by creating offsetting refund transactions.
+ *
+ * This follows the same pattern as failed payout reversals in the Stripe webhook.
+ *
+ * @param bookingId - The booking ID to reverse commissions for
+ *
+ * Transaction status lifecycle:
+ * - 'pending' → Commission just created
+ * - 'clearing' → Commission in 7-day clearing period (NOT yet available for withdrawal)
+ * - 'available' → Commission available for withdrawal (NOT yet withdrawn)
+ * - 'paid_out' → Commission already paid out via Stripe (CANNOT be reversed)
+ *
+ * We only reverse transactions in 'pending', 'clearing', or 'available' status.
+ * Once paid out, the money has already been sent to the user's bank account.
+ *
+ * NOTE: This function logs errors but does not throw - we don't want to fail
+ * a refund just because the commission reversal failed. Reversals can be
+ * done manually by admin if needed.
+ */
+export async function reverseBookingCommissions(bookingId: string): Promise<void> {
+  try {
+    // Import Supabase client dynamically
+    const { createClient } = await import('@supabase/supabase-js');
+
+    // Create service_role client for transaction modifications
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('[Commission Reversal] Missing Supabase credentials - cannot reverse commissions');
+      return;
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    console.log(`[Commission Reversal] Finding transactions to reverse for booking ${bookingId}`);
+
+    // Find all commission/payout transactions for this booking that haven't been paid out yet
+    const { data: transactions, error: fetchError } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('booking_id', bookingId)
+      .in('type', ['Referral Commission', 'Agent Commission', 'Tutoring Payout'])
+      .in('status', ['pending', 'clearing', 'available']); // Only reverse unpaid transactions
+
+    if (fetchError) {
+      console.error('[Commission Reversal] Failed to fetch transactions:', fetchError);
+      return;
+    }
+
+    if (!transactions || transactions.length === 0) {
+      console.log(`[Commission Reversal] No reversible transactions found for booking ${bookingId}`);
+      return;
+    }
+
+    console.log(`[Commission Reversal] Found ${transactions.length} transactions to reverse`);
+
+    // Create reversal transactions for each commission
+    const reversals = transactions.map((tx) => ({
+      profile_id: tx.profile_id,
+      booking_id: bookingId,
+      type: 'Refund',
+      description: `Booking cancellation reversal: ${tx.type} for ${tx.service_name || 'session'}`,
+      amount: -tx.amount, // Negative of the original amount to offset it
+      status: 'available',
+      available_at: new Date().toISOString(),
+      // Copy context fields from original transaction
+      service_name: tx.service_name,
+      subjects: tx.subjects,
+      session_date: tx.session_date,
+      delivery_mode: tx.delivery_mode,
+      tutor_name: tx.tutor_name,
+      client_name: tx.client_name,
+      agent_name: tx.agent_name,
+      metadata: {
+        reversal_of: tx.id,
+        reversal_reason: 'booking_cancellation',
+        original_type: tx.type,
+        original_amount: tx.amount,
+      },
+    }));
+
+    const { error: insertError } = await supabase
+      .from('transactions')
+      .insert(reversals);
+
+    if (insertError) {
+      console.error('[Commission Reversal] Failed to create reversal transactions:', insertError);
+      return;
+    }
+
+    console.log(`[Commission Reversal] ✅ Created ${reversals.length} reversal transactions for booking ${bookingId}`);
+
+    // Log details for each reversal
+    reversals.forEach((reversal, index) => {
+      console.log(
+        `[Commission Reversal] ${index + 1}. Reversed ${transactions[index].type}: ${reversal.amount} for profile ${reversal.profile_id}`
+      );
+    });
+
+  } catch (error) {
+    // Log error but don't throw - we don't want to fail the refund
+    console.error(`[Commission Reversal] ❌ Failed to reverse commissions for booking ${bookingId}:`, error);
+    console.error(`[Commission Reversal] Booking refund succeeded, but commission reversal failed. Admin intervention may be needed.`);
+  }
+}
