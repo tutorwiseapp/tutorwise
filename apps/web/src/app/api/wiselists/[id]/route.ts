@@ -48,7 +48,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
         .select(`
           *,
           profile:profiles!wiselist_items_profile_id_fkey(id, full_name, avatar_url, bio, city, slug, active_role),
-          listing:listings(id, title, description, hourly_rate, slug, subjects, levels, location_type, images),
+          listing:listings(id, title, description, hourly_rate, slug, subjects, levels, delivery_mode, images),
           added_by:profiles!wiselist_items_added_by_profile_id_fkey(id, full_name, avatar_url)
         `)
         .eq('wiselist_id', id),

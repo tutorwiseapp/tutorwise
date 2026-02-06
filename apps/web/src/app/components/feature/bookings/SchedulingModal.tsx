@@ -2,25 +2,36 @@
  * Filename: SchedulingModal.tsx
  * Purpose: Modal for scheduling/proposing session times (Stage 3: SCHEDULE)
  * Created: 2026-02-05
+ * Updated: 2026-02-06 - Inline month calendar with availability-based date styling
  *
  * Part of the 5-stage booking workflow: Discover > Book > SCHEDULE > Pay > Review
  *
  * Features:
- * - Calendar date picker
- * - Time slot selection
+ * - Inline month calendar (always visible, not popover)
+ * - Month/Year dropdowns for navigation
+ * - Available dates shown in green, unavailable in gray
+ * - Time slot selection with radio buttons grouped by Morning/Afternoon/Evening
+ * - Two-column fixed layout (date picker + time picker)
+ * - Current scheduled time info (plain text, no card)
  * - Timezone notice (UK time)
- * - Propose time / Confirm proposal / Counter-propose
+ * - Propose time / Confirm proposal / Counter-propose / Reschedule
  */
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { Booking, SchedulingStatus } from '@/types';
-import Modal from '@/app/components/ui/feedback/Modal';
+import React, { useState } from 'react';
+import { Booking } from '@/types';
+import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
 import Button from '@/app/components/ui/actions/Button';
+import { DayPicker } from 'react-day-picker';
+import 'react-day-picker/style.css';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { DEFAULT_SCHEDULING_RULES, getPlatformTimezoneDisplay } from '@/lib/scheduling/rules';
+import { Calendar, Clock, Info } from 'lucide-react';
+import { formatIdForDisplay } from '@/lib/utils/formatId';
 import styles from './SchedulingModal.module.css';
+import pickerStyles from '@/app/components/ui/forms/Pickers.module.css';
 
 interface SchedulingModalProps {
   isOpen: boolean;
@@ -30,33 +41,61 @@ interface SchedulingModalProps {
   onScheduleConfirmed?: () => void;
 }
 
-// Generate time slots (30-minute intervals from 8am to 9pm)
-const generateTimeSlots = (): string[] => {
-  const slots: string[] = [];
-  for (let hour = 8; hour <= 21; hour++) {
-    slots.push(`${hour.toString().padStart(2, '0')}:00`);
-    if (hour < 21) {
-      slots.push(`${hour.toString().padStart(2, '0')}:30`);
-    }
-  }
-  return slots;
+// Generate time slots grouped by time of day
+interface TimeSlotGroup {
+  label: string;
+  slots: string[];
+}
+
+const generateTimeSlots = (): TimeSlotGroup[] => {
+  return [
+    {
+      label: 'Morning',
+      slots: ['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30'],
+    },
+    {
+      label: 'Afternoon',
+      slots: ['12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'],
+    },
+    {
+      label: 'Evening',
+      slots: ['17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00'],
+    },
+  ];
 };
 
-const TIME_SLOTS = generateTimeSlots();
+const TIME_SLOT_GROUPS = generateTimeSlots();
 
-// Generate next 30 available dates
-const generateAvailableDates = (): Date[] => {
-  const dates: Date[] = [];
+// TODO: Replace with actual availability check from backend/tutor availability data
+const isDateAvailable = (date: Date | null): boolean => {
+  if (!date) return false;
+
   const now = new Date();
-  const minDate = new Date(now.getTime() + DEFAULT_SCHEDULING_RULES.minimumNoticeHours * 60 * 60 * 1000);
+  const compareDate = new Date(date);
+  compareDate.setHours(0, 0, 0, 0);
 
-  for (let i = 0; i < 30; i++) {
-    const date = new Date(minDate);
-    date.setDate(minDate.getDate() + i);
-    date.setHours(0, 0, 0, 0);
-    dates.push(date);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // If the date is in the past (before today), it's not available
+  if (compareDate < today) return false;
+
+  // If the date is today, check if there are any slots available later today
+  if (compareDate.getTime() === today.getTime()) {
+    // Calculate the earliest available time (now + minimum notice hours)
+    const earliestTime = new Date();
+    earliestTime.setTime(earliestTime.getTime() + DEFAULT_SCHEDULING_RULES.minimumNoticeHours * 60 * 60 * 1000);
+
+    // Check if earliest available time is still within today (before midnight)
+    const endOfDay = new Date(today);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Today is available if we can still book slots later today
+    return earliestTime <= endOfDay;
   }
-  return dates;
+
+  // Future dates are available
+  return true;
 };
 
 export default function SchedulingModal({
@@ -73,13 +112,13 @@ export default function SchedulingModal({
   const [error, setError] = useState<string | null>(null);
   const [showCounterPropose, setShowCounterPropose] = useState(false);
 
-  const availableDates = useMemo(() => generateAvailableDates(), []);
-
   // Determine user's role in this booking
   const isProposer = booking.proposed_by === profile?.id;
+  const isRescheduling = booking.scheduling_status === 'scheduled';
   const canConfirm = booking.scheduling_status === 'proposed' && !isProposer;
   const canPropose = booking.scheduling_status === 'unscheduled' ||
-    (booking.scheduling_status === 'proposed' && !isProposer && showCounterPropose);
+    (booking.scheduling_status === 'proposed' && !isProposer && showCounterPropose) ||
+    isRescheduling;
 
   // Format proposed date for display
   const proposedDateDisplay = booking.session_start_time
@@ -94,7 +133,17 @@ export default function SchedulingModal({
       })
     : null;
 
-  // Handle propose time
+  // Format selected date for time picker header
+  const selectedDateDisplay = selectedDate
+    ? selectedDate.toLocaleDateString('en-GB', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      })
+    : null;
+
+  // Handle propose time (or reschedule if already scheduled)
   const handleProposeTime = async () => {
     if (!selectedDate || !selectedTime) return;
 
@@ -107,7 +156,12 @@ export default function SchedulingModal({
       const proposedDateTime = new Date(selectedDate);
       proposedDateTime.setHours(hours, minutes, 0, 0);
 
-      const response = await fetch(`/api/bookings/${booking.id}/schedule/propose`, {
+      // Use reschedule endpoint if booking is already scheduled
+      const endpoint = isRescheduling
+        ? `/api/bookings/${booking.id}/schedule/reschedule`
+        : `/api/bookings/${booking.id}/schedule/propose`;
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ proposed_date: proposedDateTime.toISOString() }),
@@ -116,7 +170,7 @@ export default function SchedulingModal({
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to propose time');
+        throw new Error(data.error || `Failed to ${isRescheduling ? 'reschedule' : 'propose time'}`);
       }
 
       onScheduleProposed?.(proposedDateTime);
@@ -124,7 +178,7 @@ export default function SchedulingModal({
       // Reload to show updated state
       window.location.reload();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to propose time');
+      setError(err instanceof Error ? err.message : `Failed to ${isRescheduling ? 'reschedule' : 'propose time'}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -166,162 +220,192 @@ export default function SchedulingModal({
   // Determine if free session
   const isFreeSession = !booking.amount || booking.amount === 0;
 
+  // Format booking ID for subtitle
+  const bookingIdDisplay = formatIdForDisplay(booking.id);
+
+  // Footer actions
+  const footer = (
+    <div className={styles.footer}>
+      <Button variant="ghost" onClick={onClose} disabled={isSubmitting}>
+        Cancel
+      </Button>
+      {canConfirm && (
+        <Button
+          variant="primary"
+          onClick={handleConfirmTime}
+          disabled={isSubmitting}
+          title={isSubmitting ? 'Processing...' : ''}
+        >
+          {isSubmitting ? 'Processing...' :
+            isFreeSession ? 'Confirm Time' : `Confirm & Pay £${booking.amount.toFixed(2)}`}
+        </Button>
+      )}
+      {(canPropose || showCounterPropose) && (
+        <Button
+          variant="primary"
+          onClick={handleProposeTime}
+          disabled={isSubmitting || !selectedDate || !selectedTime}
+          title={!selectedDate || !selectedTime ? 'Select date and time first' : ''}
+        >
+          {isSubmitting
+            ? (isRescheduling ? 'Requesting Reschedule...' : 'Proposing...')
+            : (isRescheduling ? 'Request Reschedule' : 'Propose This Time')}
+        </Button>
+      )}
+    </div>
+  );
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Schedule Your Session">
-      <div className={styles.modalContent}>
-        {/* Session Summary */}
-        <div className={styles.sessionSummary}>
-          <div className={styles.summaryRow}>
-            <span className={styles.summaryLabel}>Service:</span>
-            <span className={styles.summaryValue}>{booking.service_name}</span>
-          </div>
-          <div className={styles.summaryRow}>
-            <span className={styles.summaryLabel}>Duration:</span>
-            <span className={styles.summaryValue}>{booking.session_duration} minutes</span>
-          </div>
-          <div className={styles.summaryRow}>
-            <span className={styles.summaryLabel}>Rate:</span>
-            <span className={styles.summaryValue}>
-              {isFreeSession ? 'Free' : `£${booking.amount.toFixed(2)}`}
-            </span>
-          </div>
+    <HubComplexModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Schedule Your Session"
+      subtitle={`Booking ${bookingIdDisplay}`}
+      size="lg"
+      footer={footer}
+      isLoading={isSubmitting}
+    >
+      {/* Error Display */}
+      {error && (
+        <div className={styles.errorBanner}>
+          <Info size={16} />
+          <span>{error}</span>
         </div>
+      )}
 
-        {/* Timezone Notice */}
-        <div className={styles.timezoneNotice}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm0 14.5a6.5 6.5 0 1 1 0-13 6.5 6.5 0 0 1 0 13zm.75-9.75H7.5v4.5l3.75 2.25.75-1.23-3-1.8V4.75z"/>
-          </svg>
-          <span>All times shown in {getPlatformTimezoneDisplay()}</span>
-        </div>
-
-        {/* Error Display */}
-        {error && (
-          <div className={styles.errorMessage}>
-            {error}
-          </div>
-        )}
-
-        {/* Current Proposal Display */}
-        {booking.scheduling_status === 'proposed' && proposedDateDisplay && !showCounterPropose && (
-          <div className={styles.proposalSection}>
-            <h3 className={styles.sectionTitle}>Proposed Time</h3>
-            <div className={styles.proposedTime}>
-              {proposedDateDisplay}
-            </div>
-            <p className={styles.proposedBy}>
-              Proposed by {isProposer ? 'you' : 'the other party'}
-            </p>
-
-            {canConfirm && (
-              <div className={styles.confirmActions}>
-                <Button
-                  variant="primary"
-                  onClick={handleConfirmTime}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Processing...' :
-                    isFreeSession ? 'Confirm Time' : `Confirm & Pay £${booking.amount.toFixed(2)}`}
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() => setShowCounterPropose(true)}
-                  disabled={isSubmitting}
-                >
-                  Suggest Different Time
-                </Button>
-              </div>
-            )}
-
-            {isProposer && (
-              <p className={styles.waitingText}>
-                Waiting for the other party to confirm...
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* Date/Time Picker */}
-        {(canPropose || showCounterPropose) && (
-          <>
-            {showCounterPropose && (
+      {/* Current Scheduled/Proposed Time Info (Plain Text) */}
+      {(isRescheduling || (booking.scheduling_status === 'proposed' && !showCounterPropose)) && proposedDateDisplay && (
+        <div className={styles.currentTimeInfo}>
+          <p className={styles.currentTimeLabel}>
+            {isRescheduling ? 'Current Scheduled Time' : 'Proposed Time'}
+          </p>
+          <p className={styles.currentTimeValue}>{proposedDateDisplay}</p>
+          <p className={styles.currentTimeFooter}>
+            {isRescheduling
+              ? `All times shown in ${getPlatformTimezoneDisplay()}`
+              : `Proposed by ${isProposer ? 'you' : 'the other party'}`}
+          </p>
+          {canConfirm && (
+            <div className={styles.confirmActions}>
               <Button
-                variant="ghost"
+                variant="primary"
+                onClick={handleConfirmTime}
+                disabled={isSubmitting}
                 size="sm"
-                onClick={() => setShowCounterPropose(false)}
-                className={styles.backButton}
               >
-                &larr; Back to proposal
+                {isSubmitting ? 'Processing...' :
+                  isFreeSession ? 'Confirm Time' : `Confirm & Pay £${booking.amount.toFixed(2)}`}
               </Button>
-            )}
+              <Button
+                variant="secondary"
+                onClick={() => setShowCounterPropose(true)}
+                disabled={isSubmitting}
+                size="sm"
+              >
+                Suggest Different Time
+              </Button>
+            </div>
+          )}
+          {isProposer && !canConfirm && (
+            <p className={styles.waitingText}>
+              Waiting for the other party to confirm...
+            </p>
+          )}
+        </div>
+      )}
 
-            <div className={styles.dateSection}>
-              <h3 className={styles.sectionTitle}>Select a Date</h3>
-              <div className={styles.dateGrid}>
-                {availableDates.slice(0, 14).map((date) => {
-                  const isSelected = selectedDate?.toDateString() === date.toDateString();
-                  return (
-                    <button
-                      key={date.toISOString()}
-                      className={`${styles.dateButton} ${isSelected ? styles.selected : ''}`}
-                      onClick={() => setSelectedDate(date)}
-                    >
-                      <span className={styles.dateDay}>
-                        {date.toLocaleDateString('en-GB', { weekday: 'short' })}
-                      </span>
-                      <span className={styles.dateNum}>
-                        {date.getDate()}
-                      </span>
-                      <span className={styles.dateMonth}>
-                        {date.toLocaleDateString('en-GB', { month: 'short' })}
-                      </span>
-                    </button>
-                  );
-                })}
+      {/* Two-Column Layout: Date Picker + Time Picker */}
+      {(canPropose || showCounterPropose) && (
+        <>
+          {showCounterPropose && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowCounterPropose(false)}
+              className={styles.backButton}
+            >
+              &larr; Back to proposal
+            </Button>
+          )}
+
+          <div className={styles.twoColumnLayout}>
+            {/* Left Column: Inline Calendar */}
+            <div className={styles.datePickerColumn}>
+              <div className={styles.columnHeader}>
+                <Calendar size={18} />
+                <h4>Select Date</h4>
+              </div>
+
+              {/* DayPicker Inline Calendar */}
+              <div className={styles.calendarContainer}>
+                <DayPicker
+                  mode="single"
+                  selected={selectedDate || undefined}
+                  onSelect={(date) => {
+                    setSelectedDate(date || null);
+                    setSelectedTime(null); // Reset time when date changes
+                  }}
+                  disabled={(date) => !isDateAvailable(date)}
+                  captionLayout="dropdown"
+                  fromYear={new Date().getFullYear()}
+                  toYear={new Date().getFullYear() + 2}
+                  className={pickerStyles.datePickerCalendar}
+                  modifiersClassNames={{
+                    selected: styles.calendarDaySelected,
+                    disabled: styles.calendarDayDisabled,
+                  }}
+                />
               </div>
             </div>
 
-            {selectedDate && (
-              <div className={styles.timeSection}>
-                <h3 className={styles.sectionTitle}>Select a Time</h3>
-                <div className={styles.timeGrid}>
-                  {TIME_SLOTS.map((time) => {
-                    const isSelected = selectedTime === time;
-                    return (
-                      <button
-                        key={time}
-                        className={`${styles.timeButton} ${isSelected ? styles.selected : ''}`}
-                        onClick={() => setSelectedTime(time)}
-                      >
-                        {time}
-                      </button>
-                    );
-                  })}
+            {/* Right Column: Time Picker */}
+            <div className={styles.timePickerColumn}>
+              <div className={styles.columnHeader}>
+                <Clock size={18} />
+                <h4>Select Time</h4>
+              </div>
+
+              {!selectedDate ? (
+                <div className={styles.emptyState}>
+                  <Calendar size={32} />
+                  <p>Select a date to see available times</p>
                 </div>
-              </div>
-            )}
+              ) : (
+                <>
+                  {/* Selected date display */}
+                  <div className={styles.selectedDateDisplay}>
+                    {selectedDateDisplay}
+                  </div>
 
-            {selectedDate && selectedTime && (
-              <div className={styles.proposeActions}>
-                <Button
-                  variant="primary"
-                  onClick={handleProposeTime}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Proposing...' : 'Propose This Time'}
-                </Button>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Modal Actions */}
-        <div className={styles.modalActions}>
-          <Button variant="ghost" onClick={onClose} disabled={isSubmitting}>
-            Cancel
-          </Button>
-        </div>
-      </div>
-    </Modal>
+                  {/* Time slots with radio buttons */}
+                  <div className={styles.timeSlotGroups}>
+                    {TIME_SLOT_GROUPS.map((group) => (
+                      <div key={group.label} className={styles.timeGroup}>
+                        <h5 className={styles.timeGroupLabel}>{group.label}</h5>
+                        <div className={styles.timeSlotGrid}>
+                          {group.slots.map((time) => (
+                            <label key={time} className={styles.timeSlotLabel}>
+                              <input
+                                type="radio"
+                                name="time-slot"
+                                value={time}
+                                checked={selectedTime === time}
+                                onChange={() => setSelectedTime(time)}
+                                className={styles.timeSlotRadio}
+                              />
+                              <span className={styles.timeSlotText}>{time}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </HubComplexModal>
   );
 }

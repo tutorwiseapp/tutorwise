@@ -3,6 +3,7 @@
  * Purpose: Bookings hub page - displays user's bookings (SDD v3.6)
  * Created: 2025-11-02
  * Updated: 2025-11-28 - Migrated to HubPageLayout with Gold Standard Hub Architecture
+ * Updated: 2026-02-06 - Fixed isOnline detection to read from booking.delivery_mode snapshot
  * Specification: SDD v3.6, Section 4.1 - /bookings hub, Section 2.0 - Server-side filtering via URL params
  */
 'use client';
@@ -120,7 +121,7 @@ export default function BookingsPage() {
         const subjects = booking.subjects?.join(' ').toLowerCase() || '';
         const levels = booking.levels?.join(' ').toLowerCase() || '';
         const locationCity = booking.location_city?.toLowerCase() || '';
-        const locationType = booking.location_type?.toLowerCase() || '';
+        const deliveryMode = booking.delivery_mode?.toLowerCase() || '';
 
         return serviceName.includes(query) ||
                listingTitle.includes(query) ||
@@ -130,7 +131,7 @@ export default function BookingsPage() {
                subjects.includes(query) ||
                levels.includes(query) ||
                locationCity.includes(query) ||
-               locationType.includes(query);
+               deliveryMode.includes(query);
       });
     }
 
@@ -465,7 +466,7 @@ export default function BookingsPage() {
                 key={booking.id}
                 booking={booking}
                 viewMode={viewMode}
-                isOnline={true} // TODO: Determine from booking.delivery_mode or listing settings
+                isOnline={booking.delivery_mode !== 'in_person'} // online or hybrid sessions support WiseSpace
                 onPayNow={activeRole === 'client' ? handlePayNow : undefined}
                 onReschedule={handleReschedule}
                 onCancel={handleCancel}

@@ -97,7 +97,7 @@ export default function TransactionsPage() {
         const tutorName = txn.tutor_name?.toLowerCase() || '';
         const clientName = txn.client_name?.toLowerCase() || '';
         const agentName = txn.agent_name?.toLowerCase() || '';
-        const locationType = txn.location_type?.toLowerCase() || '';
+        const locationType = txn.delivery_mode?.toLowerCase() || '';
         const type = txn.type?.toLowerCase() || '';
         const status = txn.status?.toLowerCase() || '';
 

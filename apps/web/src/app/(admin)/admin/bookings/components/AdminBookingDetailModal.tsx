@@ -114,11 +114,11 @@ export default function AdminBookingDetailModal({
       title: 'Location & Details',
       fields: [
         {
-          label: 'Location Type',
-          value: booking.location_type === 'online' ? 'Online'
-            : booking.location_type === 'in_person' ? 'In Person'
-            : booking.location_type === 'hybrid' ? 'Hybrid'
-            : booking.location_type || 'N/A'
+          label: 'Delivery Mode',
+          value: booking.delivery_mode === 'online' ? 'Online'
+            : booking.delivery_mode === 'in_person' ? 'In Person'
+            : booking.delivery_mode === 'hybrid' ? 'Hybrid'
+            : booking.delivery_mode || 'N/A'
         },
         { label: 'City', value: booking.location_city || 'N/A' },
         { label: 'Listing Slug', value: booking.listing_slug || 'N/A' },

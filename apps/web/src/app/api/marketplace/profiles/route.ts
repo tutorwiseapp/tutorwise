@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
         listing_count: publishedListings.length,
         subjects: Array.from(allSubjects),
         levels: Array.from(allLevels),
-        location_types: Array.from(allDeliveryModes),
+        delivery_modes: Array.from(allDeliveryModes),
         min_hourly_rate: hourlyRates.length > 0 ? Math.min(...hourlyRates) : undefined,
         max_hourly_rate: hourlyRates.length > 0 ? Math.max(...hourlyRates) : undefined,
         // TODO: Get actual ratings from reviews - using 0 until implemented

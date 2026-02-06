@@ -34,7 +34,7 @@ export interface TransactionDetail {
   service_name?: string;
   subjects?: string[];
   session_date?: string;
-  location_type?: 'online' | 'in_person' | 'hybrid';
+  delivery_mode?: 'online' | 'in_person' | 'hybrid';
   tutor_name?: string;
   client_name?: string;
   agent_name?: string;
@@ -240,7 +240,7 @@ export default function AdminTransactionDetailModal({
     },
     {
       label: 'Location Type',
-      value: formatLocationType(transaction.location_type),
+      value: formatLocationType(transaction.delivery_mode),
     },
     ...(transaction.tutor_name
       ? [{ label: 'Tutor', value: transaction.tutor_name }]

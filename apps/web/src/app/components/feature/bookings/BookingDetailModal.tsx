@@ -124,10 +124,10 @@ export default function BookingDetailModal({
       fields: [
         { label: 'Subjects', value: booking.subjects?.join(', ') || 'N/A' },
         { label: 'Levels', value: booking.levels?.join(', ') || 'N/A' },
-        { label: 'Location Type', value: booking.location_type ?
-            booking.location_type === 'online' ? 'Online' :
-            booking.location_type === 'in_person' ? 'In Person' :
-            booking.location_type === 'hybrid' ? 'Hybrid' : booking.location_type
+        { label: 'Delivery Mode', value: booking.delivery_mode ?
+            booking.delivery_mode === 'online' ? 'Online' :
+            booking.delivery_mode === 'in_person' ? 'In Person' :
+            booking.delivery_mode === 'hybrid' ? 'Hybrid' : booking.delivery_mode
           : 'N/A' },
         { label: 'Location City', value: booking.location_city || 'N/A' },
         { label: 'Free Trial', value: booking.free_trial ? 'Yes' : 'No' },

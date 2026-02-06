@@ -45,7 +45,7 @@ const sampleBookingData: BookingEmailData = {
   sessionDuration: 60,
   amount: 45.00,
   subjects: ['Mathematics', 'GCSE'],
-  locationType: 'online',
+  deliveryMode: 'online',
   tutorName: 'John Smith',
   tutorEmail: 'tutor@example.com',
   clientName: 'Sarah Johnson',

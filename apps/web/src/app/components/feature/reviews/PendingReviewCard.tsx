@@ -83,7 +83,7 @@ export default function PendingReviewCard({ task, currentUserId, onSubmit }: Pro
     { label: 'Status', value: getStatus().label },
     // Row 3: Session Duration, Location, Task ID
     { label: 'Duration', value: booking.session_duration ? `${booking.session_duration} mins` : 'N/A' },
-    { label: 'Location', value: (booking as any).location_type || 'N/A' },
+    { label: 'Location', value: (booking as any).delivery_mode || 'N/A' },
     { label: 'Task ID', value: formatIdForDisplay(task.id) },
   ];
 

@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
       // Fetch listings without embeddings
       const { data: listings, error: fetchError } = await supabase
         .from('listings')
-        .select('id, title, description, subjects, levels, specializations, location_type, location_city')
+        .select('id, title, description, subjects, levels, specializations, delivery_mode, location_city')
         .eq('status', 'published')
         .is('embedding', null)
         .limit(limit);

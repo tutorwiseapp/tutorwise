@@ -555,7 +555,7 @@ export interface Booking {
   // NEW: Snapshot fields from Listing (migrations 104, 108) - Copied at booking creation time
   subjects?: string[];              // Subjects taught (from listing.subjects)
   levels?: string[];                // Education levels (from listing.levels)
-  location_type?: 'online' | 'in_person' | 'hybrid'; // Delivery mode
+  delivery_mode?: 'online' | 'in_person' | 'hybrid'; // Delivery mode
   location_city?: string;           // City for in-person sessions
   free_trial?: boolean;             // Whether this was a trial session
   hourly_rate?: number;             // Rate at booking time (may differ from current listing rate)
@@ -605,7 +605,7 @@ export interface Transaction {
   service_name?: string;           // Service name (from booking)
   subjects?: string[];             // Subjects taught (from booking)
   session_date?: string;           // Session date (from booking.session_start_time)
-  location_type?: 'online' | 'in_person' | 'hybrid'; // Delivery mode
+  delivery_mode?: 'online' | 'in_person' | 'hybrid'; // Delivery mode
   tutor_name?: string;             // Tutor name for display
   client_name?: string;            // Client name for display
   agent_name?: string;             // Agent name for display (migration 110)

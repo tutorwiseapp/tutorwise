@@ -361,11 +361,11 @@ export function AdminReviewDetailModal({
           },
         ]
       : []),
-    ...(review.location_type
+    ...(review.delivery_mode
       ? [
           {
             label: 'Location Type',
-            value: <span className={styles.locationBadge}>{review.location_type}</span>,
+            value: <span className={styles.locationBadge}>{review.delivery_mode}</span>,
           },
         ]
       : []),

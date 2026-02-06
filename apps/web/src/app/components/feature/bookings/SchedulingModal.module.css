@@ -1,229 +1,423 @@
 /**
  * Filename: SchedulingModal.module.css
- * Purpose: Styles for the SchedulingModal component
+ * Purpose: Styles for the improved SchedulingModal component
  * Created: 2026-02-05
+ * Updated: 2026-02-06 - Inline month calendar with green/gray date styling
  */
 
-.modalContent {
+/* ============================================================================
+ * Footer
+ * ============================================================================ */
+.footer {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-4, 24px);
-  padding: var(--space-2, 8px) 0;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
 }
 
-/* Session Summary */
-.sessionSummary {
-  background-color: var(--color-bg-page, #f9fafb);
-  border-radius: var(--border-radius-md, 8px);
-  padding: var(--space-3, 16px);
-}
-
-.summaryRow {
-  display: flex;
-  justify-content: space-between;
-  padding: var(--space-1, 4px) 0;
-}
-
-.summaryLabel {
-  color: var(--color-text-secondary, #6b7280);
-  font-size: var(--font-size-sm, 14px);
-}
-
-.summaryValue {
-  color: var(--color-text-primary, #111827);
-  font-weight: var(--font-weight-medium, 500);
-  font-size: var(--font-size-sm, 14px);
-}
-
-/* Timezone Notice */
-.timezoneNotice {
+/* ============================================================================
+ * Error Banner
+ * ============================================================================ */
+.errorBanner {
   display: flex;
   align-items: center;
-  gap: var(--space-2, 8px);
-  padding: var(--space-2, 8px) var(--space-3, 12px);
-  background-color: var(--color-info-bg, #eff6ff);
-  border-radius: var(--border-radius-sm, 4px);
-  color: var(--color-info-text, #1e40af);
-  font-size: var(--font-size-sm, 14px);
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: #fef2f2;
+  border: 1px solid #ef4444;
+  border-radius: 8px;
+  color: #991b1b;
+  font-size: 14px;
+  margin: 16px 32px 0;
 }
 
-.timezoneNotice svg {
-  flex-shrink: 0;
+/* ============================================================================
+ * Current Time Info (Plain Text, No Card)
+ * ============================================================================ */
+.currentTimeInfo {
+  padding: 24px 32px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-/* Error Message */
-.errorMessage {
-  padding: var(--space-3, 12px);
-  background-color: var(--color-error-bg, #fef2f2);
-  border: 1px solid var(--color-error, #ef4444);
-  border-radius: var(--border-radius-sm, 4px);
-  color: var(--color-error-text, #991b1b);
-  font-size: var(--font-size-sm, 14px);
+.currentTimeLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* Proposal Section */
-.proposalSection {
-  text-align: center;
-  padding: var(--space-4, 24px);
-  background-color: var(--color-bg-page, #f9fafb);
-  border-radius: var(--border-radius-md, 8px);
+.currentTimeValue {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 8px 0;
 }
 
-.sectionTitle {
-  font-size: var(--font-size-md, 16px);
-  font-weight: var(--font-weight-semibold, 600);
-  color: var(--color-text-primary, #111827);
-  margin-bottom: var(--space-3, 12px);
-}
-
-.proposedTime {
-  font-size: var(--font-size-lg, 18px);
-  font-weight: var(--font-weight-semibold, 600);
-  color: var(--color-primary, #006C67);
-  margin-bottom: var(--space-2, 8px);
-}
-
-.proposedBy {
-  font-size: var(--font-size-sm, 14px);
-  color: var(--color-text-secondary, #6b7280);
-  margin-bottom: var(--space-4, 16px);
+.currentTimeFooter {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0 0 16px 0;
 }
 
 .confirmActions {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-2, 8px);
+  gap: 8px;
+  margin-top: 16px;
 }
 
 .waitingText {
-  font-size: var(--font-size-sm, 14px);
-  color: var(--color-text-secondary, #6b7280);
+  font-size: 14px;
+  color: #6b7280;
   font-style: italic;
+  margin-top: 12px;
 }
 
-/* Back Button */
+/* ============================================================================
+ * Back Button
+ * ============================================================================ */
 .backButton {
-  align-self: flex-start;
-  margin-bottom: var(--space-2, 8px);
+  margin: 16px 32px 0;
 }
 
-/* Date Section */
-.dateSection {
-  /* No extra styles needed */
-}
-
-.dateGrid {
+/* ============================================================================
+ * Two-Column Layout (Fixed 50/50)
+ * ============================================================================ */
+.twoColumnLayout {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: var(--space-2, 8px);
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-top: 1px solid #e5e7eb;
+  min-height: 500px;
 }
 
-@media (max-width: 600px) {
-  .dateGrid {
-    grid-template-columns: repeat(5, 1fr);
+@media (max-width: 768px) {
+  .twoColumnLayout {
+    grid-template-columns: 1fr;
   }
 }
 
-.dateButton {
+/* ============================================================================
+ * Column Headers
+ * ============================================================================ */
+.columnHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 24px 16px;
+  border-top: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.columnHeader h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* ============================================================================
+ * Date Picker Column (Left)
+ * ============================================================================ */
+.datePickerColumn {
+  border-right: 2px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .datePickerColumn {
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+}
+
+/* Month/Year Selector */
+.monthYearSelector {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Calendar Container */
+.calendarContainer {
+  padding: 20px 24px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Day Headers (Mo Tu We...) */
+.dayHeaders {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 1fr 4px 1fr 4px 1fr 4px 1fr 4px 1fr 4px 1fr 4px 1fr;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: auto;
+  grid-gap: 4px;
+  gap: 4px;
+  margin-bottom: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dayHeader {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6b7280;
+  text-align: center;
+  padding: 8px 0;
+  box-sizing: border-box;
+  display: block;
+}
+
+/* Calendar Grid (7x6 = 42 cells) */
+.calendarGrid {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 1fr 4px 1fr 4px 1fr 4px 1fr 4px 1fr 4px 1fr 4px 1fr;
+  -ms-grid-rows: 40px 4px 40px 4px 40px 4px 40px 4px 40px 4px 40px;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(6, 40px);
+  grid-gap: 4px;
+  gap: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.emptyCell {
+  height: 40px;
+  width: 100%;
+}
+
+.calendarDay {
+  height: 40px;
+  width: 100%;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background-color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* Available dates - Green */
+.calendarDay.available {
+  background-color: #d1fae5 !important;
+  color: #065f46 !important;
+  border-color: #10b981 !important;
+}
+
+.calendarDay.available:hover {
+  background-color: #a7f3d0 !important;
+  border-color: #059669 !important;
+  transform: translateY(-1px);
+}
+
+/* Unavailable dates - Gray */
+.calendarDay.unavailable {
+  background-color: #f3f4f6 !important;
+  color: #9ca3af !important;
+  border-color: #e5e7eb !important;
+  cursor: not-allowed !important;
+  opacity: 0.5;
+}
+
+/* Selected date - Darker green with strong border */
+.calendarDay.selected {
+  background-color: #006C67 !important;
+  color: white !important;
+  border-color: #004d4a !important;
+  font-weight: 700;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 108, 103, 0.3);
+}
+
+.calendarDay.selected:hover {
+  background-color: #005a56 !important;
+}
+
+/* ============================================================================
+ * DayPicker Modifier Classes (for inline calendar using react-day-picker)
+ * ============================================================================ */
+
+/* Hide navigation arrows (redundant with dropdowns) */
+.calendarContainer :global(.rdp-nav),
+.calendarContainer :global(.rdp-button_previous),
+.calendarContainer :global(.rdp-button_next) {
+  display: none !important;
+}
+
+/* Increase day header font size to 13px */
+.calendarContainer :global(.rdp-head_cell) {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+/* Increase dropdown font size to 13px */
+.calendarContainer :global(.rdp-dropdown),
+.calendarContainer :global(.rdp-dropdown_year),
+.calendarContainer :global(.rdp-dropdown_month) {
+  font-size: 13px !important;
+}
+
+/* Highlight today's date with border */
+.calendarContainer :global(.rdp-today:not(.rdp-selected) .rdp-day_button) {
+  border: 2px solid #006C67 !important;
+  font-weight: 600 !important;
+}
+
+/* Override DayPicker selected styling with our brand color */
+.calendarDaySelected :global(.rdp-day_button) {
+  background-color: #006C67 !important;
+  color: white !important;
+  border-color: #004d4a !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 4px rgba(0, 108, 103, 0.3) !important;
+}
+
+.calendarDaySelected :global(.rdp-day_button):hover {
+  background-color: #005a56 !important;
+}
+
+/* Override DayPicker disabled styling for unavailable dates - Gray */
+.calendarDayDisabled :global(.rdp-day_button) {
+  background-color: #f3f4f6 !important;
+  color: #9ca3af !important;
+  border: 1px solid #e5e7eb !important;
+  cursor: not-allowed !important;
+  opacity: 0.5 !important;
+}
+
+/* Available dates (non-disabled, non-selected) should be green */
+.calendarContainer :global(.rdp-day_button:not(.rdp-disabled):not(.rdp-selected)) {
+  background-color: #d1fae5 !important;
+  color: #065f46 !important;
+  border: 1px solid #10b981 !important;
+}
+
+.calendarContainer :global(.rdp-day_button:not(.rdp-disabled):not(.rdp-selected):hover) {
+  background-color: #a7f3d0 !important;
+  border-color: #059669 !important;
+}
+
+/* ============================================================================
+ * Time Picker Column (Right)
+ * ============================================================================ */
+.timePickerColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Empty State */
+.emptyState {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: var(--space-2, 8px) var(--space-1, 4px);
-  border: 1px solid var(--color-border, #e5e7eb);
-  border-radius: var(--border-radius-md, 8px);
-  background-color: var(--color-bg-card, #ffffff);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.dateButton:hover {
-  border-color: var(--color-primary, #006C67);
-  background-color: var(--color-primary-bg, #f0fdfa);
-}
-
-.dateButton.selected {
-  border-color: var(--color-primary, #006C67);
-  background-color: var(--color-primary, #006C67);
-  color: white;
-}
-
-.dateDay {
-  font-size: var(--font-size-xs, 12px);
-  color: var(--color-text-secondary, #6b7280);
-}
-
-.dateButton.selected .dateDay {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.dateNum {
-  font-size: var(--font-size-lg, 18px);
-  font-weight: var(--font-weight-semibold, 600);
-}
-
-.dateMonth {
-  font-size: var(--font-size-xs, 12px);
-  color: var(--color-text-secondary, #6b7280);
-}
-
-.dateButton.selected .dateMonth {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-/* Time Section */
-.timeSection {
-  margin-top: var(--space-2, 8px);
-}
-
-.timeGrid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: var(--space-2, 8px);
-}
-
-@media (max-width: 600px) {
-  .timeGrid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-.timeButton {
-  padding: var(--space-2, 8px) var(--space-3, 12px);
-  border: 1px solid var(--color-border, #e5e7eb);
-  border-radius: var(--border-radius-sm, 4px);
-  background-color: var(--color-bg-card, #ffffff);
-  font-size: var(--font-size-sm, 14px);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.timeButton:hover {
-  border-color: var(--color-primary, #006C67);
-  background-color: var(--color-primary-bg, #f0fdfa);
-}
-
-.timeButton.selected {
-  border-color: var(--color-primary, #006C67);
-  background-color: var(--color-primary, #006C67);
-  color: white;
-}
-
-.timeButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Propose Actions */
-.proposeActions {
-  display: flex;
   justify-content: center;
-  margin-top: var(--space-4, 16px);
+  padding: 60px 24px;
+  color: #9ca3af;
+  flex: 1;
 }
 
-/* Modal Actions */
-.modalActions {
+.emptyState p {
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+/* Selected Date Display */
+.selectedDateDisplay {
+  padding: 16px 24px;
+  background-color: #f0fdfa;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 15px;
+  font-weight: 600;
+  color: #006C67;
+  text-align: center;
+}
+
+/* Time Slot Groups */
+.timeSlotGroups {
+  padding: 20px 24px;
+  overflow-y: auto;
+  max-height: 450px;
+}
+
+.timeGroup {
+  margin-bottom: 24px;
+}
+
+.timeGroup:last-child {
+  margin-bottom: 0;
+}
+
+.timeGroupLabel {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6b7280;
+  margin: 0 0 12px 0;
+}
+
+.timeSlotGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+/* Radio Button Time Slots */
+.timeSlotLabel {
   display: flex;
-  justify-content: flex-end;
-  padding-top: var(--space-3, 12px);
-  border-top: 1px solid var(--color-border, #e5e7eb);
+  align-items: center;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.timeSlotLabel:hover {
+  border-color: #006C67;
+  background-color: #f0fdfa;
+}
+
+.timeSlotRadio {
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+  cursor: pointer;
+  accent-color: #006C67;
+}
+
+.timeSlotText {
+  font-size: 15px;
+  font-weight: 500;
+  color: #111827;
+  flex: 1;
+}
+
+/* Selected radio button label */
+.timeSlotLabel:has(.timeSlotRadio:checked) {
+  border-color: #006C67;
+  background-color: #006C67;
+}
+
+.timeSlotLabel:has(.timeSlotRadio:checked) .timeSlotText {
+  color: white;
+  font-weight: 600;
 }

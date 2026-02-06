@@ -124,7 +124,7 @@ export default function TransactionDetailModal({
         { label: 'Service Name', value: transaction.service_name || transaction.booking?.service_name || 'N/A' },
         { label: 'Subjects', value: transaction.subjects?.join(', ') || 'N/A' },
         { label: 'Session Date', value: transaction.session_date ? formatDate(transaction.session_date) : (transaction.booking?.session_start_time ? formatDate(transaction.booking.session_start_time) : 'N/A') },
-        { label: 'Location Type', value: transaction.location_type || 'N/A' },
+        { label: 'Location Type', value: transaction.delivery_mode || 'N/A' },
         { label: 'Tutor', value: transaction.tutor_name || transaction.booking?.tutor?.full_name || 'N/A' },
         { label: 'Client', value: transaction.client_name || transaction.booking?.client?.full_name || 'N/A' },
         { label: 'Agent', value: transaction.agent_name || 'N/A' },

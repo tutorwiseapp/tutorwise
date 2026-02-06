@@ -157,7 +157,7 @@ export async function POST(req: Request) {
     if (listing_id) {
       const { data: listingData, error: listingError } = await supabase
         .from('listings')
-        .select('availability, timezone, status, subjects, levels, location_type, location_city, hourly_rate, slug, free_trial, available_free_help')
+        .select('availability, timezone, status, subjects, levels, delivery_mode, location_city, hourly_rate, slug, free_trial, available_free_help')
         .eq('id', listing_id)
         .single();
 
@@ -290,11 +290,12 @@ export async function POST(req: Request) {
       payment_status: 'Pending',
     };
 
-    // Add snapshot fields from listing if available (migrations 104, 108)
+    // Add snapshot fields from listing if available (migrations 104, 108, 233)
     if (listing) {
       bookingData.subjects = listing.subjects;
       bookingData.levels = listing.levels;
-      bookingData.location_type = listing.location_type;
+      // delivery_mode: listing has array, booking needs single value - take first or from body
+      bookingData.delivery_mode = body.delivery_mode || (listing.delivery_mode?.[0] as 'online' | 'in_person' | 'hybrid');
       bookingData.location_city = listing.location_city;
       bookingData.hourly_rate = listing.hourly_rate;
       bookingData.listing_slug = listing.slug;
@@ -337,7 +338,7 @@ export async function POST(req: Request) {
         sessionDuration: session_duration,
         amount: amount,
         subjects: listing?.subjects,
-        locationType: listing?.location_type,
+        deliveryMode: booking.delivery_mode,
         locationCity: listing?.location_city,
         tutorName: tutorProfile.full_name || 'Tutor',
         tutorEmail: tutorProfile.email,

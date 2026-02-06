@@ -172,7 +172,7 @@ export default function BookingsTable() {
           scheduling_status,
           subjects,
           levels,
-          location_type,
+          delivery_mode,
           location_city,
           free_trial,
           hourly_rate,
@@ -718,7 +718,7 @@ export default function BookingsTable() {
     <BookingCard
       booking={booking}
       viewMode="client"
-      isOnline={booking.location_type === 'online'}
+      isOnline={booking.delivery_mode === 'online'}
     />
   );
 

@@ -96,7 +96,7 @@ export default function ProfileReviewCard({ review, variant }: Props) {
     // Row 2: From/To, Session Date, Location
     { label: variant === 'received' ? 'From' : 'To', value: profile.full_name || 'Anonymous' },
     { label: 'Session', value: formatDate(sessionDate) },
-    { label: 'Location', value: review.location_type || 'N/A' },
+    { label: 'Location', value: review.delivery_mode || 'N/A' },
     // Row 3: Verified, Levels, Status
     { label: 'Verified', value: isPending ? 'No' : 'Yes' },
     { label: 'Levels', value: review.levels?.join(', ') || 'N/A' },

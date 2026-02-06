@@ -3,6 +3,8 @@
  * Purpose: Messages - WhatsApp-style messaging interface
  * Created: 2025-12-05
  * Updated: 2026-02-05 - Added URL parameter handling for booking messages integration
+ * Updated: 2026-02-06 - Fixed deep link handling: now creates new conversations when user param
+ *   points to someone not in conversation list (enables Messages button from BookingCard)
  * Specification: Clean 2-pane split layout (30% conversations / 70% chat thread)
  */
 
@@ -40,6 +42,14 @@ export default function MessagesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('recent');
 
+  // State for starting a new conversation from URL param (e.g., from BookingCard Messages button)
+  const [targetUserFromUrl, setTargetUserFromUrl] = useState<{
+    id: string;
+    full_name: string | null;
+    avatar_url: string | null;
+  } | null>(null);
+  const [isLoadingTargetUser, setIsLoadingTargetUser] = useState(false);
+
   // Track if we've processed the URL user parameter (from booking messages integration)
   const hasProcessedUrlUser = useRef(false);
 
@@ -76,11 +86,12 @@ export default function MessagesPage() {
   }, [error, hasShownError]);
 
   // Auto-select conversation from URL parameter (e.g., from booking messages button)
+  // If no conversation exists with that user, fetch their profile to start a new conversation
   useEffect(() => {
     const userIdFromUrl = searchParams.get('user');
 
-    // Only process once and only when conversations are loaded
-    if (userIdFromUrl && !isLoading && conversations.length > 0 && !hasProcessedUrlUser.current) {
+    // Only process once and only when conversations are loaded (or empty array after loading)
+    if (userIdFromUrl && !isLoading && !hasProcessedUrlUser.current) {
       hasProcessedUrlUser.current = true;
 
       // Find conversation with the specified user
@@ -89,11 +100,41 @@ export default function MessagesPage() {
       );
 
       if (conversation) {
+        // Existing conversation found - select it
         setSelectedConversationId(conversation.id);
+        setTargetUserFromUrl(null); // Clear any previous target user
         // Switch to thread view on mobile
         if (window.innerWidth <= 768) {
           setIsMobileThreadView(true);
         }
+      } else {
+        // No existing conversation - fetch user profile to start new conversation
+        const fetchTargetUser = async () => {
+          setIsLoadingTargetUser(true);
+          try {
+            const response = await fetch(`/api/profiles/${userIdFromUrl}`);
+            if (response.ok) {
+              const userData = await response.json();
+              setTargetUserFromUrl({
+                id: userIdFromUrl,
+                full_name: userData.full_name || null,
+                avatar_url: userData.avatar_url || null,
+              });
+              setSelectedConversationId(null); // Clear any selected conversation
+              // Switch to thread view on mobile
+              if (window.innerWidth <= 768) {
+                setIsMobileThreadView(true);
+              }
+            } else {
+              console.error('[Messages] Failed to fetch target user profile');
+            }
+          } catch (error) {
+            console.error('[Messages] Error fetching target user:', error);
+          } finally {
+            setIsLoadingTargetUser(false);
+          }
+        };
+        fetchTargetUser();
       }
     }
   }, [searchParams, conversations, isLoading]);
@@ -160,6 +201,7 @@ export default function MessagesPage() {
   // Handle conversation selection
   const handleSelectConversation = (conversationId: string) => {
     setSelectedConversationId(conversationId);
+    setTargetUserFromUrl(null); // Clear URL-based target user when selecting from list
     // Only switch to thread view on mobile (max-width: 768px)
     if (window.innerWidth <= 768) {
       setIsMobileThreadView(true);
@@ -277,11 +319,24 @@ export default function MessagesPage() {
         {/* Chat thread pane (70%) */}
         <div className={`${styles.threadPane} ${isMobileThreadView ? styles.threadPaneMobile : ''}`}>
           {selectedConversation ? (
+            // Existing conversation selected from list
             <ChatThread
               currentUserId={profile.id}
               otherUser={selectedConversation.otherUser}
               onBack={handleBack}
             />
+          ) : targetUserFromUrl ? (
+            // New conversation from URL param (e.g., from BookingCard Messages button)
+            <ChatThread
+              currentUserId={profile.id}
+              otherUser={targetUserFromUrl}
+              onBack={handleBack}
+            />
+          ) : isLoadingTargetUser ? (
+            // Loading target user from URL param
+            <div className={styles.noSelection}>
+              <p className={styles.noSelectionText}>Loading...</p>
+            </div>
           ) : (
             <div className={styles.noSelection}>
               <h3 className={styles.noSelectionTitle}>No conversation selected</h3>

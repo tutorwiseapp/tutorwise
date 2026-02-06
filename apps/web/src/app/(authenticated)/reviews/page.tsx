@@ -186,7 +186,7 @@ export default function ReviewsPage() {
         const serviceName = review.service_name?.toLowerCase() || '';
         const subjects = review.subjects?.join(' ').toLowerCase() || '';
         const levels = review.levels?.join(' ').toLowerCase() || '';
-        const locationType = review.location_type?.toLowerCase() || '';
+        const locationType = review.delivery_mode?.toLowerCase() || '';
 
         return reviewerName.includes(query) ||
                revieweeName.includes(query) ||

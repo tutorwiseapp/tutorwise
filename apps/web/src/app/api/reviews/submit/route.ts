@@ -63,7 +63,7 @@ export async function POST(req: Request) {
           subjects,
           levels,
           session_start_time,
-          location_type
+          delivery_mode
         )
       `)
       .eq('id', session_id)
@@ -124,7 +124,7 @@ export async function POST(req: Request) {
       subjects: booking?.subjects,
       levels: booking?.levels,
       session_date: booking?.session_start_time,
-      location_type: booking?.location_type,
+      delivery_mode: booking?.delivery_mode,
       booking_id: (session as any).booking_id,
     }));
 

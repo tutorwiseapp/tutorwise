@@ -57,7 +57,7 @@ export interface ProfileReview {
   subjects?: string[];             // Subjects taught (from booking)
   levels?: string[];               // Education levels (from booking)
   session_date?: string;           // Session date (from booking.session_start_time)
-  location_type?: 'online' | 'in_person' | 'hybrid'; // Delivery mode
+  delivery_mode?: 'online' | 'in_person' | 'hybrid'; // Delivery mode (renamed from location_type)
   booking_id?: string;             // Reference to booking
 
   reviewer?: Profile;

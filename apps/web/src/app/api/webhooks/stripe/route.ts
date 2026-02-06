@@ -270,7 +270,7 @@ export async function POST(req: NextRequest) {
         // Find the withdrawal transaction and create a reversal (Migrations 109, 111: with context)
         const { data: failedTransaction } = await supabase
           .from('transactions')
-          .select('profile_id, amount, service_name, subjects, session_date, location_type, tutor_name, client_name, agent_name')
+          .select('profile_id, amount, service_name, subjects, session_date, delivery_mode, tutor_name, client_name, agent_name')
           .eq('stripe_payout_id', payout.id)
           .single();
 
@@ -289,7 +289,7 @@ export async function POST(req: NextRequest) {
               service_name: failedTransaction.service_name,
               subjects: failedTransaction.subjects,
               session_date: failedTransaction.session_date,
-              location_type: failedTransaction.location_type,
+              delivery_mode: failedTransaction.delivery_mode,
               tutor_name: failedTransaction.tutor_name,
               client_name: failedTransaction.client_name,
               agent_name: failedTransaction.agent_name,
@@ -324,7 +324,7 @@ export async function POST(req: NextRequest) {
         // Refund the amount back to user's available balance (Migrations 109, 111: with context)
         const { data: canceledTransaction } = await supabase
           .from('transactions')
-          .select('profile_id, amount, service_name, subjects, session_date, location_type, tutor_name, client_name, agent_name')
+          .select('profile_id, amount, service_name, subjects, session_date, delivery_mode, tutor_name, client_name, agent_name')
           .eq('stripe_payout_id', payout.id)
           .single();
 
@@ -342,7 +342,7 @@ export async function POST(req: NextRequest) {
               service_name: canceledTransaction.service_name,
               subjects: canceledTransaction.subjects,
               session_date: canceledTransaction.session_date,
-              location_type: canceledTransaction.location_type,
+              delivery_mode: canceledTransaction.delivery_mode,
               tutor_name: canceledTransaction.tutor_name,
               client_name: canceledTransaction.client_name,
               agent_name: canceledTransaction.agent_name,

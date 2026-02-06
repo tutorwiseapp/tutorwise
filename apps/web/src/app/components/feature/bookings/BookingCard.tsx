@@ -4,6 +4,9 @@
  * Created: 2025-11-02
  * Updated: 2025-12-06 - Added BookingDetailModal for viewing all 19 fields
  * Updated: 2026-02-05 - Added scheduling status, Messages button, SchedulingModal (5-stage workflow)
+ * Updated: 2026-02-06 - Fixed button visibility:
+ *   - Reschedule: Now shows for all scheduled bookings (not just Confirmed)
+ *   - WiseSpace: Always shows for online sessions (disabled until ready)
  * Specification: Expanded detail card layout with HubDetailCard component
  * Design: Uses HubDetailCard component for consistent visual layout across all hubs
  */
@@ -229,19 +232,36 @@ export default function BookingCard({
         </Button>
       )}
 
-      {/* Join WiseSpace: Show only if Confirmed and scheduled */}
-      {canJoinWiseSpace && (
-        <Link
-          href={`/wisespace/${booking.id}`}
-          target="_blank"
-        >
+      {/* Join WiseSpace: Always show for online sessions, disabled until ready */}
+      {isOnline && (
+        canJoinWiseSpace ? (
+          <Link
+            href={`/wisespace/${booking.id}`}
+            target="_blank"
+          >
+            <Button
+              variant="primary"
+              size="sm"
+            >
+              Join WiseSpace
+            </Button>
+          </Link>
+        ) : (
           <Button
-            variant="primary"
+            variant="secondary"
             size="sm"
+            disabled
+            title={
+              booking.status !== 'Confirmed'
+                ? 'Available after payment is confirmed'
+                : !isScheduled
+                  ? 'Available after session is scheduled'
+                  : 'WiseSpace not available'
+            }
           >
             Join WiseSpace
           </Button>
-        </Link>
+        )
       )}
 
       {/* View Details button - opens modal with all fields */}
@@ -253,8 +273,8 @@ export default function BookingCard({
         View Details
       </Button>
 
-      {/* Reschedule button - only if confirmed and handler provided */}
-      {booking.status === 'Confirmed' && onReschedule && (
+      {/* Reschedule button - show for scheduled bookings (regardless of payment status) */}
+      {isScheduled && onReschedule && (
         <Button
           onClick={() => setIsSchedulingModalOpen(true)}
           variant="secondary"

@@ -103,7 +103,7 @@ export async function PATCH(
       sessionDuration: booking.session_duration,
       amount: booking.amount,
       subjects: booking.subjects,
-      locationType: booking.location_type,
+      deliveryMode: booking.delivery_mode,
       locationCity: booking.location_city,
       tutorName: booking.tutor?.full_name || 'Tutor',
       tutorEmail: booking.tutor?.email || '',

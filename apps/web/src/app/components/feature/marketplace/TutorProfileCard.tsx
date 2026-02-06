@@ -48,7 +48,7 @@ interface TutorProfile {
   review_count?: number;
   subjects?: string[]; // Primary subjects taught
   levels?: string[]; // Primary levels taught
-  location_types?: string[]; // Delivery modes (online, in_person, hybrid)
+  delivery_modes?: string[]; // Delivery modes (online, in_person, hybrid)
   min_hourly_rate?: number; // Minimum price across all listings
   max_hourly_rate?: number; // Maximum price across all listings
 }
@@ -73,13 +73,13 @@ export default function TutorProfileCard({ profile }: TutorProfileCardProps) {
   const rating = profile.average_rating ?? 0;
 
   // Format delivery modes: "Online, In Person" or "Online" or "+2 more"
-  const deliveryModes = profile.location_types && profile.location_types.length > 0
-    ? profile.location_types.slice(0, 2).map(type => {
+  const deliveryModes = profile.delivery_modes && profile.delivery_modes.length > 0
+    ? profile.delivery_modes.slice(0, 2).map(type => {
         if (type === 'online') return 'Online';
         if (type === 'in_person') return 'In Person';
         if (type === 'hybrid') return 'Hybrid';
         return type;
-      }).join(', ') + (profile.location_types.length > 2 ? ` +${profile.location_types.length - 2}` : '')
+      }).join(', ') + (profile.delivery_modes.length > 2 ? ` +${profile.delivery_modes.length - 2}` : '')
     : 'Available Online';
 
   // Format price range: "From £10/hr" or "£10-50/hr"

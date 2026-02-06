@@ -164,7 +164,7 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
         query = query.not('comment', 'is', null);
       }
       if (advancedFilters.locationType) {
-        query = query.eq('location_type', advancedFilters.locationType);
+        query = query.eq('delivery_mode', advancedFilters.locationType);
       }
       if (advancedFilters.reviewedAfter) {
         query = query.gte('created_at', advancedFilters.reviewedAfter);

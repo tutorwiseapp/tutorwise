@@ -24,7 +24,7 @@ export interface BookingEmailData {
   sessionDuration: number; // minutes
   amount: number;
   subjects?: string[];
-  locationType?: 'online' | 'in_person' | 'hybrid';
+  deliveryMode?: 'online' | 'in_person' | 'hybrid';
   locationCity?: string;
   tutorName: string;
   tutorEmail: string;
@@ -83,10 +83,10 @@ function formatDuration(minutes: number): string {
 /**
  * Format location for display
  */
-function formatLocation(locationType?: string, locationCity?: string): string {
-  if (locationType === 'online') return 'Online Session';
-  if (locationType === 'in_person' && locationCity) return `In Person - ${locationCity}`;
-  if (locationType === 'hybrid') return 'Online or In Person';
+function formatLocation(deliveryMode?: string, locationCity?: string): string {
+  if (deliveryMode === 'online') return 'Online Session';
+  if (deliveryMode === 'in_person' && locationCity) return `In Person - ${locationCity}`;
+  if (deliveryMode === 'hybrid') return 'Online or In Person';
   return 'To be confirmed';
 }
 
@@ -103,7 +103,7 @@ function bookingDetailsSection(data: BookingEmailData): string {
       ${infoRow('Time', formatTime(sessionDate))}
       ${infoRow('Duration', formatDuration(data.sessionDuration))}
       ${infoRow('Subject', subjects)}
-      ${infoRow('Location', formatLocation(data.locationType, data.locationCity))}
+      ${infoRow('Location', formatLocation(data.deliveryMode, data.locationCity))}
       ${infoRow('Price', `£${data.amount.toFixed(2)}`)}
     </div>
   `;
@@ -468,7 +468,7 @@ function schedulingDetailsSection(data: SchedulingEmailData): string {
       ${infoRow('Proposed Time', formatTime(proposedTime) + ' (UK time)')}
       ${infoRow('Duration', formatDuration(data.sessionDuration))}
       ${infoRow('Subject', subjects)}
-      ${infoRow('Location', formatLocation(data.locationType, data.locationCity))}
+      ${infoRow('Location', formatLocation(data.deliveryMode, data.locationCity))}
       ${data.amount > 0 ? infoRow('Price', `£${data.amount.toFixed(2)}`) : infoRow('Price', 'Free Session')}
     </div>
   `;
