@@ -15,6 +15,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { isSlotReservationExpired } from '@/lib/scheduling/rules';
 import Stripe from 'stripe';
 import { sendSchedulingConfirmationEmails, type SchedulingEmailData } from '@/lib/email-templates/booking';
+import { syncBookingConfirmation, syncBookingReschedule } from '@/lib/calendar/sync-booking';
 
 export const dynamic = 'force-dynamic';
 
@@ -161,6 +162,22 @@ export async function POST(
         } catch (emailError) {
           console.error('[Schedule Confirm] Failed to send emails:', emailError);
         }
+      }
+
+      // Determine if this is a reschedule or initial booking
+      const isReschedule = (booking.reschedule_count || 0) > 0;
+
+      // Sync to calendar (async - don't block response)
+      if (isReschedule) {
+        // Update existing calendar events with new time
+        syncBookingReschedule(booking)
+          .then(() => console.log('[Schedule Confirm] Calendar events updated for reschedule:', bookingId))
+          .catch((err) => console.error('[Schedule Confirm] Calendar sync error:', err));
+      } else {
+        // Create new calendar events
+        syncBookingConfirmation(booking)
+          .then(() => console.log('[Schedule Confirm] Calendar events created for booking:', bookingId))
+          .catch((err) => console.error('[Schedule Confirm] Calendar sync error:', err));
       }
 
       return NextResponse.json({

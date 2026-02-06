@@ -23,6 +23,7 @@ import {
   sendPaymentFailedEmail,
   type PaymentEmailData,
 } from '@/lib/email-templates/payment';
+import { syncBookingConfirmation } from '@/lib/calendar/sync-booking';
 
 // Mark route as dynamic (required for cookies() in Next.js 15)
 export const dynamic = 'force-dynamic';
@@ -155,6 +156,13 @@ export async function POST(req: NextRequest) {
             sendPaymentReceiptEmail(emailData)
               .then(() => console.log('[Webhook] Payment receipt email sent to:', booking.client.email))
               .catch((err) => console.error('[Webhook] Failed to send payment receipt:', err));
+          }
+
+          // Sync booking to connected calendars (async - don't block webhook)
+          if (booking) {
+            syncBookingConfirmation(booking)
+              .then(() => console.log('[Webhook] Calendar sync completed for booking:', booking.id))
+              .catch((err) => console.error('[Webhook] Calendar sync error:', err));
           }
         } catch (emailError) {
           console.error('[Webhook] Error preparing payment receipt email:', emailError);

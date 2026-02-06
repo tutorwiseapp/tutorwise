@@ -15,6 +15,7 @@ import {
   sendBookingCancellationEmails,
   type BookingEmailData,
 } from '@/lib/email-templates/booking';
+import { syncBookingCancellation } from '@/lib/calendar/sync-booking';
 
 export const dynamic = 'force-dynamic';
 
@@ -173,6 +174,11 @@ export async function PATCH(
         );
         console.log('[Booking Status] Cancellation emails sent:', emailResults);
       }
+
+      // Delete calendar events (async - don't block response)
+      syncBookingCancellation(booking)
+        .then(() => console.log('[Booking Status] Calendar events deleted for booking:', id))
+        .catch((err) => console.error('[Booking Status] Calendar sync error:', err));
     }
 
     return NextResponse.json({
