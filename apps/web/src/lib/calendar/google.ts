@@ -102,6 +102,49 @@ function getCalendarClient(accessToken: string) {
 }
 
 /**
+ * Check if access token is expired or will expire soon (within 5 minutes)
+ */
+export function isTokenExpired(tokenExpiry: string | null): boolean {
+  if (!tokenExpiry) return false; // If no expiry, assume valid (shouldn't happen)
+
+  const expiryTime = new Date(tokenExpiry).getTime();
+  const now = Date.now();
+  const fiveMinutes = 5 * 60 * 1000;
+
+  return expiryTime <= (now + fiveMinutes);
+}
+
+/**
+ * Get valid access token, refreshing if expired
+ * Returns { accessToken, needsRefresh, newExpiry }
+ */
+export async function getValidAccessToken(
+  accessToken: string,
+  refreshToken: string | null,
+  tokenExpiry: string | null
+): Promise<{ accessToken: string; needsRefresh: boolean; newExpiry?: string }> {
+  // Check if token is expired or will expire soon
+  if (!isTokenExpired(tokenExpiry)) {
+    return { accessToken, needsRefresh: false };
+  }
+
+  // Token is expired - refresh it
+  if (!refreshToken) {
+    throw new Error('Token expired and no refresh token available. User must reconnect calendar.');
+  }
+
+  console.log('[Google Calendar] Refreshing expired access token');
+
+  const { access_token, token_expiry } = await refreshGoogleAccessToken(refreshToken);
+
+  return {
+    accessToken: access_token,
+    needsRefresh: true,
+    newExpiry: token_expiry || undefined,
+  };
+}
+
+/**
  * Get user's email from Google
  */
 export async function getGoogleUserEmail(accessToken: string): Promise<string> {

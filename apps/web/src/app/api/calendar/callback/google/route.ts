@@ -9,6 +9,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { exchangeCodeForTokens, getGoogleUserEmail } from '@/lib/calendar/google';
+import { bulkSyncExistingBookings } from '@/lib/calendar/bulk-sync';
+import { encryptToken } from '@/lib/calendar/encryption';
 
 export const dynamic = 'force-dynamic';
 
@@ -50,14 +52,18 @@ export async function GET(request: NextRequest) {
     // 3. Get user's email from Google
     const email = await getGoogleUserEmail(tokens.access_token);
 
-    // 4. Store connection in database
+    // 4. Encrypt tokens before storage
+    const encryptedAccessToken = encryptToken(tokens.access_token);
+    const encryptedRefreshToken = tokens.refresh_token ? encryptToken(tokens.refresh_token) : null;
+
+    // 5. Store connection in database
     const { error: dbError } = await supabase
       .from('calendar_connections')
       .upsert({
         profile_id: user.id,
         provider: 'google',
-        access_token: tokens.access_token, // TODO: Encrypt before storage in production
-        refresh_token: tokens.refresh_token,
+        access_token: encryptedAccessToken,
+        refresh_token: encryptedRefreshToken,
         token_expiry: tokens.token_expiry,
         calendar_id: 'primary',
         email,
@@ -77,8 +83,19 @@ export async function GET(request: NextRequest) {
 
     console.log(`[Calendar Callback] ✅ Google Calendar connected for user ${user.id}`);
 
+    // Bulk sync existing confirmed bookings (async - don't block redirect)
+    // This runs in the background and creates calendar events for all existing bookings
+    bulkSyncExistingBookings(user.id)
+      .then((result) => {
+        console.log(`[Calendar Callback] Bulk sync completed: ${result.synced}/${result.total} bookings synced`);
+      })
+      .catch((error) => {
+        console.error('[Calendar Callback] Bulk sync failed:', error);
+        // Non-critical - user can manually sync later if needed
+      });
+
     return NextResponse.redirect(
-      new URL('/account/settings?calendar_success=google_connected', request.url)
+      new URL('/account/settings/calendar?calendar_success=google_connected', request.url)
     );
   } catch (error) {
     console.error('[Calendar Callback] Error:', error);

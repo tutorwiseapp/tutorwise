@@ -1,564 +1,386 @@
-# Calendar Integration Implementation Guide
+# Calendar Integration - Complete Implementation
 
-## Phase 1 & 2: OAuth + One-Way Sync + Reminders
-
-**Status:** Foundation complete, API endpoints and UI needed
+**Status:** ✅ Phase 1 & 2 Complete + Production Improvements
 **Created:** 2026-02-06
 **Last Updated:** 2026-02-06
 
 ---
 
-## ✅ Completed
+## 🎉 Fully Implemented Features
 
-### 1. Database Schema (Migration 236)
-- ✅ `calendar_connections` table - OAuth tokens and connection status
-- ✅ `calendar_events` table - Sync tracking between bookings and external events
-- ✅ RLS policies for user data security
-- ✅ Indexes for performance
-- ✅ Migration ran successfully
+### Phase 1: OAuth + One-Way Sync
+✅ Google Calendar OAuth 2.0 authentication
+✅ Secure connection management with RLS policies
+✅ One-way sync: TutorWise → External Calendar
+✅ Calendar settings UI at `/account/settings/calendar`
+✅ Connect/disconnect functionality
 
-### 2. TypeScript Types
-- ✅ `CalendarConnection` - OAuth connection model
-- ✅ `CalendarEvent` - Event sync tracking model
-- ✅ `GoogleCalendarEvent` - Google Calendar API format
-- ✅ `OutlookCalendarEvent` - Microsoft Graph API format
-- ✅ API response types
+### Phase 2: Automatic Reminders
+✅ Calendar events include automatic reminders:
+- 1 day before (email)
+- 1 hour before (popup)
+- 15 minutes before (popup)
 
-### 3. Google Calendar Service
-- ✅ OAuth URL generation (`getGoogleAuthUrl`)
-- ✅ Code-to-token exchange (`exchangeCodeForTokens`)
-- ✅ Token refresh (`refreshGoogleAccessToken`)
-- ✅ Event creation (`createGoogleCalendarEvent`)
-- ✅ Event updates (`updateGoogleCalendarEvent`)
-- ✅ Event deletion (`deleteGoogleCalendarEvent`)
-- ✅ Automatic reminders (1 day, 1 hour, 15 min)
-- ✅ Booking-to-event conversion with full context
+### Booking Lifecycle Integration
+✅ **Auto-create** events when bookings confirmed (paid or free)
+✅ **Auto-update** events when bookings rescheduled
+✅ **Auto-delete** events when bookings cancelled
+✅ Syncs to both client and tutor calendars
+✅ Context-aware event descriptions
 
-**Location:** `apps/web/src/lib/calendar/google.ts`
+### Production Improvements
+✅ **Automatic Token Refresh** - Prevents sync failures from expired tokens
+✅ **Bulk Sync** - Retroactively syncs existing bookings on first connection
+✅ **Token Encryption** - AES-256-GCM encryption for secure token storage
+✅ **Error Recovery** - Graceful handling of API failures
+✅ **Rate Limiting Protection** - Delays between bulk operations
 
 ---
 
-## 🚧 Next Steps
+## 📂 File Structure
 
-### 1. Install Dependencies
-
-```bash
-cd apps/web
-npm install googleapis @microsoft/microsoft-graph-client @azure/msal-node
 ```
-
-**Packages:**
-- `googleapis` - Google Calendar API
-- `@microsoft/microsoft-graph-client` - Microsoft Graph API
-- `@azure/msal-node` - Microsoft OAuth
-
-### 2. Create API Endpoints
-
-#### A. OAuth Connection Endpoint
-
-**File:** `apps/web/src/app/api/calendar/connect/google/route.ts`
-
-```typescript
-import { NextRequest, NextResponse } from 'next/server';
-import { getGoogleAuthUrl } from '@/lib/calendar/google';
-
-export async function GET(request: NextRequest) {
-  try {
-    const authUrl = getGoogleAuthUrl();
-
-    return NextResponse.json({
-      success: true,
-      auth_url: authUrl,
-    });
-  } catch (error) {
-    console.error('[Calendar Connect] Error:', error);
-    return NextResponse.json(
-      { error: 'Failed to generate auth URL' },
-      { status: 500 }
-    );
-  }
-}
-```
-
-#### B. OAuth Callback Endpoint
-
-**File:** `apps/web/src/app/api/calendar/callback/google/route.ts`
-
-```typescript
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
-import { exchangeCodeForTokens, getGoogleUserEmail } from '@/lib/calendar/google';
-
-export async function GET(request: NextRequest) {
-  const supabase = await createClient();
-  const searchParams = request.nextUrl.searchParams;
-  const code = searchParams.get('code');
-
-  if (!code) {
-    return NextResponse.redirect(
-      new URL('/account/settings/calendar?error=no_code', request.url)
-    );
-  }
-
-  try {
-    // 1. Authenticate user
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.redirect(
-        new URL('/login', request.url)
-      );
-    }
-
-    // 2. Exchange code for tokens
-    const tokens = await exchangeCodeForTokens(code);
-
-    // 3. Get user's email from Google
-    const email = await getGoogleUserEmail(tokens.access_token);
-
-    // 4. Store connection in database
-    const { error } = await supabase
-      .from('calendar_connections')
-      .upsert({
-        profile_id: user.id,
-        provider: 'google',
-        access_token: tokens.access_token, // TODO: Encrypt before storage
-        refresh_token: tokens.refresh_token,
-        token_expiry: tokens.token_expiry,
-        calendar_id: 'primary',
-        email,
-        sync_enabled: true,
-        sync_mode: 'one_way',
-        status: 'active',
-        connected_at: new Date().toISOString(),
-      }, {
-        onConflict: 'profile_id,provider',
-      });
-
-    if (error) throw error;
-
-    return NextResponse.redirect(
-      new URL('/account/settings/calendar?success=google_connected', request.url)
-    );
-  } catch (error) {
-    console.error('[Calendar Callback] Error:', error);
-    return NextResponse.redirect(
-      new URL('/account/settings/calendar?error=connection_failed', request.url)
-    );
-  }
-}
-```
-
-#### C. Disconnect Endpoint
-
-**File:** `apps/web/src/app/api/calendar/disconnect/route.ts`
-
-```typescript
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
-
-export async function POST(request: NextRequest) {
-  const supabase = await createClient();
-  const { provider } = await request.json();
-
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Delete connection and all associated events
-    const { error } = await supabase
-      .from('calendar_connections')
-      .delete()
-      .eq('profile_id', user.id)
-      .eq('provider', provider);
-
-    if (error) throw error;
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('[Calendar Disconnect] Error:', error);
-    return NextResponse.json(
-      { error: 'Failed to disconnect calendar' },
-      { status: 500 }
-    );
-  }
-}
-```
-
-#### D. Get Connections Endpoint
-
-**File:** `apps/web/src/app/api/calendar/connections/route.ts`
-
-```typescript
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
-
-export async function GET(request: NextRequest) {
-  const supabase = await createClient();
-
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { data: connections, error } = await supabase
-      .from('calendar_connections')
-      .select('*')
-      .eq('profile_id', user.id);
-
-    if (error) throw error;
-
-    // Don't expose tokens to frontend
-    const safeConnections = connections?.map(conn => ({
-      ...conn,
-      access_token: undefined,
-      refresh_token: undefined,
-    }));
-
-    return NextResponse.json({
-      success: true,
-      connections: safeConnections,
-    });
-  } catch (error) {
-    console.error('[Calendar Connections] Error:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch connections' },
-      { status: 500 }
-    );
-  }
-}
-```
-
-### 3. Create Account Settings Calendar Page
-
-**File:** `apps/web/src/app/(authenticated)/account/settings/calendar/page.tsx`
-
-```typescript
-'use client';
-
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import AccountHeroHeader from '@/app/components/feature/account/AccountHeroHeader';
-import Button from '@/app/components/ui/actions/Button';
-import toast from 'react-hot-toast';
-import type { CalendarConnection } from '@/types';
-import styles from './page.module.css';
-
-export default function CalendarSettingsPage() {
-  const searchParams = useSearchParams();
-  const [connections, setConnections] = useState<CalendarConnection[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    fetchConnections();
-
-    // Handle OAuth callback messages
-    if (searchParams?.get('success') === 'google_connected') {
-      toast.success('Google Calendar connected successfully!');
-    } else if (searchParams?.get('error')) {
-      toast.error('Failed to connect calendar. Please try again.');
-    }
-  }, [searchParams]);
-
-  const fetchConnections = async () => {
-    try {
-      const response = await fetch('/api/calendar/connections');
-      const data = await response.json();
-      if (data.success) {
-        setConnections(data.connections || []);
-      }
-    } catch (error) {
-      console.error('Failed to fetch connections:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleConnectGoogle = async () => {
-    try {
-      const response = await fetch('/api/calendar/connect/google');
-      const data = await response.json();
-      if (data.success && data.auth_url) {
-        window.location.href = data.auth_url;
-      }
-    } catch (error) {
-      toast.error('Failed to initiate Google Calendar connection');
-    }
-  };
-
-  const handleDisconnect = async (provider: string) => {
-    if (!confirm('Disconnect calendar? Existing events will remain but won't sync.')) {
-      return;
-    }
-
-    try {
-      const response = await fetch('/api/calendar/disconnect', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider }),
-      });
-
-      if (response.ok) {
-        toast.success('Calendar disconnected');
-        fetchConnections();
-      } else {
-        throw new Error('Disconnect failed');
-      }
-    } catch (error) {
-      toast.error('Failed to disconnect calendar');
-    }
-  };
-
-  const googleConnection = connections.find(c => c.provider === 'google');
-
-  return (
-    <HubPageLayout
-      header={<AccountHeroHeader />}
-      tabs={<HubTabs tabs={[/* account tabs */]} onTabChange={() => {}} />}
-      sidebar={<HubSidebar>{/* widgets */}</HubSidebar>}
-    >
-      <div className={styles.content}>
-        <h1>Calendar Integration</h1>
-        <p>Connect your calendar to automatically sync TutorWise bookings</p>
-
-        <div className={styles.calendarGrid}>
-          {/* Google Calendar Card */}
-          <div className={styles.connectionCard}>
-            <div className={styles.cardHeader}>
-              <h3>Google Calendar</h3>
-            </div>
-
-            {googleConnection ? (
-              <div className={styles.connected}>
-                <div className={styles.statusBadge}>✓ Connected</div>
-                <p>{googleConnection.email}</p>
-                <p className={styles.lastSync}>
-                  Last synced: {googleConnection.last_synced_at
-                    ? new Date(googleConnection.last_synced_at).toLocaleString()
-                    : 'Never'}
-                </p>
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() => handleDisconnect('google')}
-                >
-                  Disconnect
-                </Button>
-              </div>
-            ) : (
-              <div className={styles.disconnected}>
-                <p>Sync bookings to your Google Calendar automatically</p>
-                <Button variant="primary" onClick={handleConnectGoogle}>
-                  Connect Google Calendar
-                </Button>
-              </div>
-            )}
-          </div>
-
-          {/* Outlook Calendar Card (Coming Soon) */}
-          <div className={styles.connectionCard + ' ' + styles.comingSoon}>
-            <div className={styles.cardHeader}>
-              <h3>Outlook Calendar</h3>
-            </div>
-            <p>Microsoft Outlook integration coming soon</p>
-          </div>
-        </div>
-      </div>
-    </HubPageLayout>
-  );
-}
-```
-
-### 4. Update Account Settings to Include Calendar Link
-
-**File:** `apps/web/src/app/(authenticated)/account/settings/page.tsx`
-
-Add new card after line 201:
-
-```typescript
-{/* Calendar Integration - NEW */}
-<Link href="/account/settings/calendar" className={styles.settingCard}>
-  <div className={styles.cardContent}>
-    <h3 className={styles.cardTitle}>Calendar Integration</h3>
-    <p className={styles.cardDescription}>
-      Connect Google or Outlook to automatically sync bookings
-    </p>
-  </div>
-</Link>
-```
-
-### 5. Update Bookings Sync Button
-
-**File:** `apps/web/src/app/(authenticated)/bookings/page.tsx`
-
-Update `handleSyncCalendar` function (line 271):
-
-```typescript
-const handleSyncCalendar = () => {
-  router.push('/account/settings/calendar');
-  setShowActionsMenu(false);
-};
-```
-
-### 6. Integrate with Booking Lifecycle
-
-When bookings are confirmed, cancelled, or rescheduled, automatically sync to connected calendars.
-
-**Example: After booking confirmation**
-
-```typescript
-// In booking confirmation API
-const { data: connections } = await supabase
-  .from('calendar_connections')
-  .select('*')
-  .or(`profile_id.eq.${booking.client_id},profile_id.eq.${booking.tutor_id}`)
-  .eq('status', 'active')
-  .eq('sync_enabled', true);
-
-for (const connection of connections || []) {
-  const viewMode = connection.profile_id === booking.client_id ? 'client' : 'tutor';
-
-  try {
-    const eventId = await createGoogleCalendarEvent(
-      connection.access_token,
-      booking,
-      viewMode,
-      connection.calendar_id || 'primary'
-    );
-
-    await supabase.from('calendar_events').insert({
-      calendar_connection_id: connection.id,
-      booking_id: booking.id,
-      external_event_id: eventId,
-      external_calendar_id: connection.calendar_id,
-      event_title: booking.service_name,
-      event_start: booking.session_start_time,
-      event_end: new Date(new Date(booking.session_start_time).getTime() +
-        booking.session_duration * 60000).toISOString(),
-      sync_status: 'synced',
-    });
-  } catch (error) {
-    console.error('Failed to sync to calendar:', error);
-  }
-}
+apps/web/src/
+├── lib/calendar/
+│   ├── google.ts                 # Google Calendar API service
+│   ├── sync-booking.ts           # Booking lifecycle sync logic
+│   ├── bulk-sync.ts              # Bulk sync existing bookings
+│   ├── encryption.ts             # Token encryption/decryption
+│   └── README.md                 # This file
+│
+├── app/api/calendar/
+│   ├── connect/google/route.ts   # OAuth initiation
+│   ├── callback/google/route.ts  # OAuth callback handler
+│   ├── disconnect/route.ts       # Disconnect calendar
+│   └── connections/route.ts      # Get user connections
+│
+├── app/(authenticated)/account/settings/
+│   ├── calendar/page.tsx         # Calendar settings UI
+│   ├── calendar/page.module.css  # Styles
+│   └── page.tsx                  # Updated with calendar card
+│
+├── types/index.ts                # TypeScript types
+│
+└── tools/database/migrations/
+    └── 236_add_calendar_integration_tables.sql
 ```
 
 ---
 
-## 🔒 Security Considerations
+## 🔧 Environment Setup
 
-### 1. Token Encryption
-**TODO:** Encrypt tokens before storing in database
+### Required Environment Variables
 
-```typescript
-import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
-
-const ENCRYPTION_KEY = process.env.CALENDAR_TOKEN_ENCRYPTION_KEY!; // 32 bytes
-const IV_LENGTH = 16;
-
-export function encryptToken(token: string): string {
-  const iv = randomBytes(IV_LENGTH);
-  const cipher = createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY, 'hex'), iv);
-  let encrypted = cipher.update(token, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
-  return iv.toString('hex') + ':' + encrypted;
-}
-
-export function decryptToken(encrypted: string): string {
-  const parts = encrypted.split(':');
-  const iv = Buffer.from(parts[0], 'hex');
-  const encryptedText = parts[1];
-  const decipher = createDecipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY, 'hex'), iv);
-  let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
-  return decrypted;
-}
-```
-
-### 2. Environment Variables
 Add to `.env.local`:
 
 ```bash
-# Calendar Integration
-CALENDAR_TOKEN_ENCRYPTION_KEY="generate_random_32_byte_hex_string"
+# Google Calendar OAuth
+GOOGLE_CLIENT_ID="your_google_client_id"
+GOOGLE_CLIENT_SECRET="your_google_client_secret"
+NEXT_PUBLIC_BASE_URL="http://localhost:3000"  # or your production URL
+
+# Token Encryption (Production Required)
+CALENDAR_ENCRYPTION_KEY="your_32_byte_hex_encryption_key"
+```
+
+### Generate Encryption Key
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+**Important:** In development without `CALENDAR_ENCRYPTION_KEY`, tokens are stored unencrypted with a warning. In production, the app will throw an error if the key is missing.
+
+---
+
+## 🏗️ Database Schema
+
+### `calendar_connections` Table
+Stores OAuth connections between users and calendar providers.
+
+```sql
+CREATE TABLE calendar_connections (
+  id UUID PRIMARY KEY,
+  profile_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  provider TEXT CHECK (provider IN ('google', 'outlook')),
+  access_token TEXT,        -- Encrypted
+  refresh_token TEXT,       -- Encrypted
+  token_expiry TIMESTAMPTZ,
+  calendar_id TEXT,
+  email TEXT,
+  sync_enabled BOOLEAN DEFAULT true,
+  sync_mode TEXT DEFAULT 'one_way',
+  status TEXT DEFAULT 'active',
+  last_synced_at TIMESTAMPTZ,
+  last_error TEXT,
+  connected_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(profile_id, provider)
+);
+```
+
+### `calendar_events` Table
+Tracks sync between bookings and external calendar events.
+
+```sql
+CREATE TABLE calendar_events (
+  id UUID PRIMARY KEY,
+  calendar_connection_id UUID REFERENCES calendar_connections(id) ON DELETE CASCADE,
+  booking_id UUID REFERENCES bookings(id) ON DELETE CASCADE,
+  external_event_id TEXT,
+  sync_status TEXT DEFAULT 'synced',
+  synced_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(calendar_connection_id, booking_id)
+);
 ```
 
 ---
 
-## 📊 Performance Optimization
+## 🔐 Security Features
 
-### Background Job Queue
-Use BullMQ or similar for async calendar sync:
+### 1. Token Encryption (AES-256-GCM)
+All OAuth tokens are encrypted before storage using:
+- **Algorithm:** AES-256-GCM (authenticated encryption)
+- **Format:** `iv:authTag:encryptedData` (hex-encoded)
+- **Key Length:** 32 bytes (256 bits)
+
+**Implementation:**
+```typescript
+import { encryptToken, decryptToken } from '@/lib/calendar/encryption';
+
+// Encrypt before storing
+const encrypted = encryptToken(accessToken);
+
+// Decrypt before using
+const decrypted = decryptToken(encrypted);
+```
+
+### 2. Automatic Token Refresh
+Tokens are automatically refreshed before API calls if they expire within 5 minutes:
 
 ```typescript
-import { Queue } from 'bullmq';
+import { getValidAccessToken } from '@/lib/calendar/google';
 
-const calendarQueue = new Queue('calendar-sync', {
-  connection: redis,
-});
+const { accessToken, needsRefresh, newExpiry } = await getValidAccessToken(
+  connection.access_token,
+  connection.refresh_token,
+  connection.token_expiry
+);
 
-// Add job when booking confirmed
-await calendarQueue.add('sync-booking', {
-  bookingId: booking.id,
-  action: 'create',
-});
+if (needsRefresh) {
+  // Update database with new token
+}
+```
+
+### 3. Row-Level Security (RLS)
+Database policies ensure users can only access their own connections:
+
+```sql
+-- Users can only see their own connections
+CREATE POLICY "Users can view own calendar connections"
+  ON calendar_connections FOR SELECT
+  USING (auth.uid() = profile_id);
 ```
 
 ---
 
-## 🧪 Testing
+## 🔄 How It Works
+
+### User Flow
+
+1. **Connect Calendar**
+   - User visits `/account/settings/calendar`
+   - Clicks "Connect Google Calendar"
+   - Redirected to Google OAuth consent screen
+   - Grants permissions and redirects back
+   - Tokens encrypted and stored in database
+   - **Bulk sync triggered** - all existing confirmed bookings synced
+
+2. **Booking Confirmed**
+   - Payment succeeds via Stripe webhook (or free session confirmed)
+   - `syncBookingConfirmation()` called
+   - Creates calendar events for client and tutor
+   - Records in `calendar_events` table
+
+3. **Booking Rescheduled**
+   - User proposes new time → other party confirms
+   - `syncBookingReschedule()` called
+   - Updates existing calendar events with new time
+
+4. **Booking Cancelled**
+   - User cancels booking
+   - `syncBookingCancellation()` called
+   - Deletes calendar events from both calendars
+
+5. **Token Expired**
+   - Before API call, token expiry checked
+   - If expired, automatically refreshed using `refresh_token`
+   - New token encrypted and stored
+   - API call proceeds with fresh token
+
+---
+
+## 📊 Sync Logic
+
+### Non-Blocking Design
+All calendar sync operations are **async and non-blocking**:
+- Booking operations never fail due to calendar sync errors
+- Errors are logged but don't propagate to user
+- Connection marked as 'error' status if repeated failures
+
+### Example: Booking Confirmation Sync
+
+```typescript
+// In Stripe webhook after payment success
+if (booking) {
+  syncBookingConfirmation(booking)
+    .then(() => console.log('Calendar sync completed'))
+    .catch((err) => console.error('Calendar sync error:', err));
+  // Don't await - webhook returns immediately
+}
+```
+
+### Error Handling
+
+1. **Token Refresh Failed**
+   - Connection status set to 'error'
+   - `last_error`: "Token expired. Please reconnect your calendar."
+   - User sees error in settings UI
+
+2. **API Call Failed**
+   - Error logged with context
+   - Connection status set to 'error'
+   - Sync attempt skipped on next booking
+
+3. **Orphaned Events**
+   - If event created in Google but DB insert fails
+   - Logged for manual cleanup: `{external_event_id, booking_id, connection_id}`
+
+---
+
+## 🧪 Testing Guide
 
 ### Manual Testing Checklist
-- [ ] Connect Google Calendar
-- [ ] Verify event appears in Google Calendar
-- [ ] Update booking time, verify event updates
-- [ ] Cancel booking, verify event deleted
-- [ ] Disconnect calendar
-- [ ] Reconnect calendar
-- [ ] Test token refresh flow
+
+#### Initial Setup
+- [ ] Set environment variables (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, CALENDAR_ENCRYPTION_KEY)
+- [ ] Run database migration 236
+- [ ] Verify OAuth redirect URI in Google Console: `{BASE_URL}/api/calendar/callback/google`
+
+#### Connection Flow
+- [ ] Visit `/account/settings/calendar`
+- [ ] Click "Connect Google Calendar"
+- [ ] Verify redirect to Google consent screen
+- [ ] Grant permissions
+- [ ] Verify redirect back with success message
+- [ ] Check database: `calendar_connections` row created with encrypted tokens
+- [ ] Verify bulk sync: existing confirmed bookings appear in Google Calendar
+
+#### Booking Lifecycle
+- [ ] Create and confirm a paid booking (Stripe checkout)
+- [ ] Verify event appears in Google Calendar for both client and tutor
+- [ ] Verify event has correct title, time, duration, reminders
+- [ ] Reschedule the booking
+- [ ] Verify event time updated in Google Calendar
+- [ ] Cancel the booking
+- [ ] Verify event deleted from Google Calendar
+
+#### Error Scenarios
+- [ ] Delete `CALENDAR_ENCRYPTION_KEY` → verify dev warning
+- [ ] Set invalid token expiry → verify auto-refresh
+- [ ] Revoke Google Calendar permissions → verify error status
+- [ ] Disconnect calendar → verify connection deleted
 
 ---
 
-## 📈 Phase 3: Two-Way Sync (Future)
+## 🚀 Deployment Checklist
 
-**Not Yet Implemented**
+### Before Production
 
-Features:
+1. **Environment Variables**
+   ```bash
+   # Set in production environment
+   GOOGLE_CLIENT_ID="prod_client_id"
+   GOOGLE_CLIENT_SECRET="prod_client_secret"
+   CALENDAR_ENCRYPTION_KEY="generate_new_key_for_prod"
+   NEXT_PUBLIC_BASE_URL="https://tutorwise.com"
+   ```
+
+2. **Google OAuth Setup**
+   - Create production OAuth client in Google Console
+   - Add authorized redirect URI: `https://tutorwise.com/api/calendar/callback/google`
+   - Enable Google Calendar API
+   - Set up OAuth consent screen (verified)
+
+3. **Database**
+   - Run migration 236 on production database
+   - Verify RLS policies are active
+   - Check indexes created for performance
+
+4. **Monitoring**
+   - Set up alerts for calendar sync failures
+   - Monitor token refresh success rate
+   - Track bulk sync performance
+
+---
+
+## 🔮 Future Enhancements
+
+### Phase 3: Two-Way Sync (Not Implemented)
 - Pull busy times from external calendar
-- Auto-block TutorWise availability based on external events
+- Auto-block TutorWise availability
 - Periodic sync job (every 15 minutes)
-- Conflict detection
+- Conflict detection and resolution
+
+### Additional Providers
+- Microsoft Outlook Calendar (similar OAuth pattern)
+- Apple Calendar (via CalDAV)
+
+### Advanced Features
+- Selective sync (choose which bookings to sync)
+- Custom event templates
+- Timezone handling improvements
+- Sync history and audit logs
 
 ---
 
-## 📝 Documentation Updates Needed
+## 📞 Support
 
-1. Add calendar sync section to user documentation
-2. Update API documentation with new endpoints
-3. Add troubleshooting guide
-4. Create admin guide for managing calendar integrations
+### Common Issues
+
+**"Token expired" error in settings UI**
+- User needs to disconnect and reconnect calendar
+- Refresh token may have been revoked
+- Check `calendar_connections.last_error` for details
+
+**Events not syncing**
+- Check `calendar_connections.status` = 'active'
+- Verify `sync_enabled` = true
+- Check server logs for API errors
+- Verify Google Calendar API quota
+
+**Encryption errors**
+- Ensure `CALENDAR_ENCRYPTION_KEY` is set
+- Key must be exactly 32 bytes (64 hex chars)
+- If key changed, existing connections won't decrypt
 
 ---
 
-## Summary
+## 📝 Commits
 
-**Foundation Complete:**
-- ✅ Database tables
-- ✅ TypeScript types
-- ✅ Google Calendar service
+- **Initial Setup:** `86b9bc77` - OAuth + UI + API endpoints
+- **Lifecycle Integration:** `1006c6da` - Booking lifecycle hooks
+- **Production Improvements:** (pending) - Token refresh, bulk sync, encryption
 
-**Next Implementation Steps:**
-1. Install packages: `googleapis`, `@microsoft/microsoft-graph-client`, `@azure/msal-node`
-2. Create API endpoints (4 files)
-3. Create settings page UI (1 file)
-4. Add calendar card to Account Settings
-5. Update Bookings sync button
-6. Integrate with booking lifecycle
-7. Add token encryption
-8. Test end-to-end flow
+---
 
-**Estimated completion:** 2-4 hours for remaining implementation
+## ✅ Summary
+
+Calendar integration is **fully functional** with:
+- ✅ Google Calendar OAuth connection
+- ✅ Automatic event creation, updates, and deletion
+- ✅ Token encryption and automatic refresh
+- ✅ Bulk sync of existing bookings
+- ✅ Production-ready error handling
+
+**Ready for production deployment** after environment setup and testing.

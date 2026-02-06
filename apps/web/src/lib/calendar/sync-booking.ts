@@ -13,7 +13,9 @@ import {
   createGoogleCalendarEvent,
   updateGoogleCalendarEvent,
   deleteGoogleCalendarEvent,
+  getValidAccessToken,
 } from './google';
+import { safeDecrypt, encryptToken } from './encryption';
 import type { Booking, CalendarConnection } from '@/types';
 
 export type SyncAction = 'create' | 'update' | 'delete';
@@ -111,7 +113,7 @@ async function syncToConnection(
   action: SyncAction,
   supabase: any
 ): Promise<SyncResult> {
-  const { provider, access_token, calendar_id, profile_id } = connection;
+  const { provider, calendar_id, profile_id } = connection;
 
   // Currently only Google is supported
   if (provider !== 'google') {
@@ -123,11 +125,61 @@ async function syncToConnection(
     };
   }
 
+  // Decrypt tokens from storage
+  const decryptedAccessToken = safeDecrypt(connection.access_token);
+  const decryptedRefreshToken = connection.refresh_token ? safeDecrypt(connection.refresh_token) : null;
+
+  // Get valid access token (refresh if expired)
+  let accessToken: string;
+  try {
+    const tokenResult = await getValidAccessToken(
+      decryptedAccessToken,
+      decryptedRefreshToken,
+      connection.token_expiry
+    );
+
+    accessToken = tokenResult.accessToken;
+
+    // Update database if token was refreshed
+    if (tokenResult.needsRefresh) {
+      const encryptedNewToken = encryptToken(tokenResult.accessToken);
+
+      await supabase
+        .from('calendar_connections')
+        .update({
+          access_token: encryptedNewToken,
+          token_expiry: tokenResult.newExpiry,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', connection.id);
+
+      console.log(`[Calendar Sync] ✅ Refreshed access token for connection ${connection.id}`);
+    }
+  } catch (error) {
+    console.error('[Calendar Sync] Token refresh failed:', error);
+
+    // Mark connection as error - user needs to reconnect
+    await supabase
+      .from('calendar_connections')
+      .update({
+        status: 'error',
+        last_error: 'Token expired. Please reconnect your calendar.',
+      })
+      .eq('id', connection.id);
+
+    return {
+      success: false,
+      profile_id,
+      provider,
+      error: 'Token refresh failed - user must reconnect calendar',
+    };
+  }
+
   try {
     if (action === 'create') {
       // Create new calendar event
       const externalEventId = await createGoogleCalendarEvent(
-        access_token,
+        accessToken,
         booking,
         viewMode,
         calendar_id || 'primary'
@@ -185,7 +237,7 @@ async function syncToConnection(
 
       // Update existing event
       await updateGoogleCalendarEvent(
-        access_token,
+        accessToken,
         calendarEvent.external_event_id,
         booking,
         viewMode,
@@ -228,7 +280,7 @@ async function syncToConnection(
 
       // Delete from Google Calendar
       await deleteGoogleCalendarEvent(
-        access_token,
+        accessToken,
         calendarEvent.external_event_id,
         calendar_id || 'primary'
       );
