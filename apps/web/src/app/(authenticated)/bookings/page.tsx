@@ -269,7 +269,7 @@ export default function BookingsPage() {
   };
 
   const handleSyncCalendar = () => {
-    toast('Calendar sync functionality coming soon!', { icon: '📅' });
+    router.push('/account/settings/calendar');
     setShowActionsMenu(false);
   };
 

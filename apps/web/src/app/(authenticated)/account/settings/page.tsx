@@ -209,6 +209,16 @@ export default function SettingsPage() {
             </div>
           </Link>
 
+          {/* Calendar Integration */}
+          <Link href="/account/settings/calendar" className={styles.settingCard}>
+            <div className={styles.cardContent}>
+              <h3 className={styles.cardTitle}>Calendar Integration</h3>
+              <p className={styles.cardDescription}>
+                Connect Google or Outlook to automatically sync bookings
+              </p>
+            </div>
+          </Link>
+
           {/* Notification Preferences (Future) */}
           <div className={`${styles.settingCard} ${styles.cardDisabled}`}>
             <div className={styles.cardContent}>
