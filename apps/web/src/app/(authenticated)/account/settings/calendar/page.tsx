@@ -87,7 +87,7 @@ export default function CalendarSettingsPage() {
   };
 
   const handleDisconnect = async (provider: 'google' | 'outlook') => {
-    if (!confirm('Disconnect calendar? Existing events will remain but won't sync anymore.')) {
+    if (!confirm('Disconnect calendar? Existing events will remain but will not sync anymore.')) {
       return;
     }
 
