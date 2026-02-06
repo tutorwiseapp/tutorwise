@@ -42,9 +42,10 @@ export interface BookingEmailData {
 export interface SchedulingEmailData extends Omit<BookingEmailData, 'sessionDate'> {
   proposedTime: Date;
   proposedByName: string;
-  proposedByRole: 'tutor' | 'client';
+  proposedByRole: 'tutor' | 'client' | 'other';
   slotExpiresAt?: Date;
   rescheduleCount?: number;
+  action?: 'withdrawn' | 'declined'; // For withdraw/decline emails
 }
 
 /**
@@ -601,6 +602,59 @@ export async function sendRescheduleRequestedEmail(data: SchedulingEmailData) {
       url: `${siteUrl}/bookings`,
     },
     footerNote: 'Each booking can be rescheduled up to 4 times (2 per party).',
+  });
+
+  return sendEmail({
+    to: recipientEmail,
+    subject,
+    html,
+  });
+}
+
+/**
+ * v6.0: Send email when a time proposal is withdrawn or declined
+ */
+export async function sendTimeWithdrawnEmail(data: SchedulingEmailData) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tutorwise.io';
+  const proposedTime = new Date(data.proposedTime);
+
+  // Determine recipient (the other party)
+  const isProposedByTutor = data.proposedByRole === 'tutor';
+  const recipientName = isProposedByTutor ? data.clientName : data.tutorName;
+  const recipientEmail = isProposedByTutor ? data.clientEmail : data.tutorEmail;
+  const proposerName = data.proposedByName;
+  const action = data.action || 'withdrawn';
+
+  const subject = `Time Proposal ${action === 'withdrawn' ? 'Withdrawn' : 'Declined'} by ${proposerName}`;
+
+  const body = `
+    ${paragraph(`${bold(proposerName)} has ${action === 'withdrawn' ? 'withdrawn their' : 'declined the'} proposed time for your session.`)}
+    <div style="margin: 16px 0; padding: 16px; background: ${tokens.colors.errorLight}; border-left: 4px solid ${tokens.colors.error}; border-radius: ${tokens.borderRadius};">
+      <p style="margin: 0; color: ${tokens.colors.error}; font-weight: 600;">${action === 'withdrawn' ? 'Proposal Withdrawn' : 'Proposal Declined'}</p>
+      <p style="margin: 8px 0 0; font-size: 14px;">The proposed time was: ${proposedTime.toLocaleDateString('en-GB', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        timeZone: 'Europe/London',
+      })}</p>
+    </div>
+    ${paragraph(`Please propose a new time that works for both of you.`)}
+    ${schedulingDetailsSection(data)}
+  `;
+
+  const html = generateEmailTemplate({
+    headline: `Time Proposal ${action === 'withdrawn' ? 'Withdrawn' : 'Declined'}`,
+    variant: 'error',
+    recipientName,
+    body,
+    cta: {
+      text: 'Propose New Time',
+      url: `${siteUrl}/bookings`,
+    },
+    footerNote: 'You can propose as many times as needed until you find a mutually convenient time.',
   });
 
   return sendEmail({

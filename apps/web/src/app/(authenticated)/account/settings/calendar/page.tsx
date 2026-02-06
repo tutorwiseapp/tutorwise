@@ -9,7 +9,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
@@ -26,6 +26,7 @@ import styles from './page.module.css';
 export default function CalendarSettingsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const [connections, setConnections] = useState<CalendarConnection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -116,7 +117,6 @@ export default function CalendarSettingsPage() {
   };
 
   // Prepare tabs data
-  const pathname = '/account/settings/calendar';
   const tabs: HubTab[] = [
     { id: 'personal-info', label: 'Personal Info', active: pathname === '/account/personal-info' },
     { id: 'professional-info', label: 'Professional Info', active: pathname === '/account/professional-info' },

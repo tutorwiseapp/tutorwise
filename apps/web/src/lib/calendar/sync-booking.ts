@@ -48,7 +48,7 @@ export async function syncBookingToCalendars(
     const supabase = await createClient();
 
     // 1. Get all calendar connections for client and tutor
-    const profileIds = [booking.client_profile_id, booking.tutor_profile_id];
+    const profileIds = [booking.client_id, booking.tutor_id];
 
     const { data: connections, error: fetchError } = await supabase
       .from('calendar_connections')
@@ -71,7 +71,7 @@ export async function syncBookingToCalendars(
     for (const connection of connections as CalendarConnection[]) {
       try {
         // Determine view mode based on whose calendar this is
-        const viewMode = connection.profile_id === booking.client_profile_id ? 'client' : 'tutor';
+        const viewMode = connection.profile_id === booking.client_id ? 'client' : 'tutor';
 
         const result = await syncToConnection(
           booking,
@@ -135,7 +135,7 @@ async function syncToConnection(
     const tokenResult = await getValidAccessToken(
       decryptedAccessToken,
       decryptedRefreshToken,
-      connection.token_expiry
+      connection.token_expiry || null
     );
 
     accessToken = tokenResult.accessToken;

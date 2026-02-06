@@ -552,6 +552,9 @@ export interface Booking {
   slot_reserved_until?: string | null;  // Temporary hold expiration (15 min window)
   reschedule_count?: number;            // Number of reschedules (max 4 total, 2 per party)
 
+  // Reminder fields (migration 215 - Session Reminder Cron)
+  reminder_sent_at?: string | null;     // Timestamp when 24-hour reminder email was sent
+
   // NEW: Snapshot fields from Listing (migrations 104, 108) - Copied at booking creation time
   subjects?: string[];              // Subjects taught (from listing.subjects)
   levels?: string[];                // Education levels (from listing.levels)

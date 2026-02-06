@@ -161,6 +161,10 @@ export async function getGoogleUserEmail(accessToken: string): Promise<string> {
  * Convert booking to Google Calendar event format
  */
 function bookingToGoogleEvent(booking: Booking, viewMode: 'client' | 'tutor'): GoogleCalendarEvent {
+  if (!booking.session_start_time) {
+    throw new Error('Cannot create calendar event: booking has no session_start_time');
+  }
+
   const startTime = new Date(booking.session_start_time);
   const endTime = new Date(startTime.getTime() + booking.session_duration * 60000);
 
@@ -192,15 +196,15 @@ function bookingToGoogleEvent(booking: Booking, viewMode: 'client' | 'tutor'): G
         { method: 'popup', minutes: 15 }, // 15 minutes before
       ],
     },
-    // Add attendees if we have email addresses
-    ...(otherParty?.email && {
-      attendees: [
-        {
-          email: otherParty.email,
-          displayName: otherPartyName,
-        },
-      ],
-    }),
+    // TODO: Add attendees when email is available in booking joined data
+    // ...(otherParty?.email && {
+    //   attendees: [
+    //     {
+    //       email: otherParty.email,
+    //       displayName: otherPartyName,
+    //     },
+    //   ],
+    // }),
   };
 }
 

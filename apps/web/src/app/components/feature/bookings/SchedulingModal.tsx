@@ -197,12 +197,12 @@ export default function SchedulingModal({
   // Fetch tutor availability when month/year changes
   useEffect(() => {
     async function fetchAvailability() {
-      if (!booking.tutorId || !isOpen) return;
+      if (!booking.tutor_id || !isOpen) return;
 
       setIsLoadingAvailability(true);
       try {
         const response = await fetch(
-          `/api/availability?tutorId=${booking.tutorId}&month=${currentMonth}&year=${currentYear}`
+          `/api/availability?tutorId=${booking.tutor_id}&month=${currentMonth}&year=${currentYear}`
         );
 
         if (!response.ok) {
@@ -222,7 +222,7 @@ export default function SchedulingModal({
     }
 
     fetchAvailability();
-  }, [booking.tutorId, currentMonth, currentYear, isOpen]);
+  }, [booking.tutor_id, currentMonth, currentYear, isOpen]);
 
   // Generate calendar days for current view
   const calendarDays = useMemo(
@@ -332,7 +332,7 @@ export default function SchedulingModal({
           setSelectedTime(null);
           // Trigger availability refresh by re-fetching
           const availResponse = await fetch(
-            `/api/availability?tutorId=${booking.tutorId}&month=${currentMonth}&year=${currentYear}`
+            `/api/availability?tutorId=${booking.tutor_id}&month=${currentMonth}&year=${currentYear}`
           );
           if (availResponse.ok) {
             const availData = await availResponse.json();
