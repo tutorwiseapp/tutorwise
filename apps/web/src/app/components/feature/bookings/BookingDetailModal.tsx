@@ -155,6 +155,51 @@ export default function BookingDetailModal({
         { label: 'Booking Status', value: booking.status },
       ],
     },
+    // Cancellation & Refund section (only show if cancelled)
+    ...(booking.status === 'Cancelled' ? [{
+      title: 'Cancellation & Refund Details',
+      fields: [
+        {
+          label: 'Cancelled At',
+          value: booking.cancelled_at ? formatDateTime(booking.cancelled_at) : 'N/A'
+        },
+        {
+          label: 'Cancelled By',
+          value: booking.cancelled_by === booking.client_id ? 'Client' :
+                 booking.cancelled_by === booking.tutor_id ? 'Tutor' :
+                 'Admin'
+        },
+        {
+          label: 'Cancellation Reason',
+          value: booking.cancellation_reason || 'N/A'
+        },
+        {
+          label: 'Policy Applied',
+          value: booking.cancellation_policy_applied ?
+            booking.cancellation_policy_applied === 'client_24h+' ? 'Client (24h+ notice) - Full refund' :
+            booking.cancellation_policy_applied === 'client_<24h' ? 'Client (<24h notice) - No refund' :
+            booking.cancellation_policy_applied === 'client_no_show' ? 'Client no-show - No refund' :
+            booking.cancellation_policy_applied === 'tutor_cancellation' ? 'Tutor cancellation - Full refund + CaaS penalty' :
+            booking.cancellation_policy_applied === 'tutor_no_show' ? 'Tutor no-show - Full refund + Major CaaS penalty' :
+            booking.cancellation_policy_applied
+            : 'N/A'
+        },
+        {
+          label: 'Refund Status',
+          value: booking.payment_status === 'Refunded' ? '✅ Refunded' :
+                 booking.payment_status === 'Paid' ? 'No refund issued' :
+                 booking.payment_status
+        },
+        ...(booking.payment_status === 'Refunded' ? [{
+          label: 'Estimated Net Refund',
+          value: `£${(booking.amount - (booking.amount * 0.015 + 0.20)).toFixed(2)} (minus Stripe fee)`
+        }] : []),
+        ...(booking.caas_impact ? [{
+          label: 'CaaS Impact (Tutor)',
+          value: `${booking.caas_impact} points`
+        }] : []),
+      ].filter(Boolean),
+    }] : []),
     {
       title: 'Listing & References',
       fields: [

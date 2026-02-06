@@ -562,6 +562,20 @@ export interface Booking {
   listing_slug?: string;            // Listing slug for reference
   available_free_help?: boolean;    // v5.9: Whether tutor was offering free help at booking time (migration 108)
 
+  // Cancellation fields (added 2026-02-06 - Cancellation Policy System)
+  cancellation_reason?: string | null;         // Reason for cancellation (e.g., "cancelled_by_client", "tutor_no_show")
+  cancellation_policy_applied?: string | null; // Policy that was applied (e.g., "client_24h+", "tutor_cancellation")
+  cancelled_by?: string | null;                // Profile ID who cancelled the booking
+  cancelled_at?: string | null;                // ISO timestamp when booking was cancelled
+  caas_impact?: number | null;                 // CaaS score impact for tutor (e.g., -10, -50)
+
+  // Stripe payment fields
+  stripe_payment_intent_id?: string | null;    // Stripe Payment Intent ID
+  stripe_checkout_id?: string | null;          // Stripe Checkout Session ID
+
+  // Session artifacts (flexible JSON field for no-show reports, session notes, etc.)
+  session_artifacts?: Record<string, any> | null;
+
   created_at: string;
   updated_at?: string;
   // Joined data from API

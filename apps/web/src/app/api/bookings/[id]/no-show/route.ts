@@ -71,8 +71,19 @@ export async function POST(
       return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
     }
 
-    // 4. Verify user is a participant
-    if (user.id !== booking.client_id && user.id !== booking.tutor_id) {
+    // 4. Verify user is authorized (participant or admin)
+    const isParticipant = user.id === booking.client_id || user.id === booking.tutor_id;
+
+    // Check if user is admin
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('roles')
+      .eq('id', user.id)
+      .single();
+
+    const isAdmin = profile?.roles?.includes('admin');
+
+    if (!isParticipant && !isAdmin) {
       return NextResponse.json(
         { error: 'You are not authorized to report no-show for this booking' },
         { status: 403 }
@@ -115,12 +126,21 @@ export async function POST(
     }
 
     // 8. Store no-show report in session_artifacts
+    let reporterRole: string;
+    if (isAdmin) {
+      reporterRole = 'admin';
+    } else if (user.id === booking.client_id) {
+      reporterRole = 'client';
+    } else {
+      reporterRole = 'tutor';
+    }
+
     const noShowReport = {
       reported_by: user.id,
       reported_party,
       reported_at: new Date().toISOString(),
       reason: reason || null,
-      reporter_role: user.id === booking.client_id ? 'client' : 'tutor',
+      reporter_role: reporterRole,
     };
 
     const updatedArtifacts = {

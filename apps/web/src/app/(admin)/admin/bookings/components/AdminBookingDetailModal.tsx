@@ -168,6 +168,55 @@ export default function AdminBookingDetailModal({
         { label: 'Reminder Sent At', value: booking.reminder_sent_at ? formatDateTime(booking.reminder_sent_at) : 'Not sent' },
       ],
     },
+    // Cancellation & Refund section (only show if cancelled)
+    ...(booking.status === 'Cancelled' ? [{
+      title: 'Cancellation & Refund Details',
+      fields: [
+        {
+          label: 'Cancelled At',
+          value: booking.cancelled_at ? formatDateTime(booking.cancelled_at) : 'N/A'
+        },
+        {
+          label: 'Cancelled By',
+          value: booking.cancelled_by === booking.client_id ? `Client (${booking.client?.full_name})` :
+                 booking.cancelled_by === booking.tutor_id ? `Tutor (${booking.tutor?.full_name})` :
+                 'Admin'
+        },
+        {
+          label: 'Cancellation Reason',
+          value: booking.cancellation_reason || 'N/A'
+        },
+        {
+          label: 'Policy Applied',
+          value: booking.cancellation_policy_applied ?
+            booking.cancellation_policy_applied === 'client_24h+' ? 'Client (24h+ notice) - Full refund' :
+            booking.cancellation_policy_applied === 'client_<24h' ? 'Client (<24h notice) - No refund' :
+            booking.cancellation_policy_applied === 'client_no_show' ? 'Client no-show - No refund' :
+            booking.cancellation_policy_applied === 'tutor_cancellation' ? 'Tutor cancellation - Full refund + CaaS penalty' :
+            booking.cancellation_policy_applied === 'tutor_no_show' ? 'Tutor no-show - Full refund + Major CaaS penalty' :
+            booking.cancellation_policy_applied
+            : 'N/A'
+        },
+        {
+          label: 'Refund Status',
+          value: booking.payment_status === 'Refunded' ? '✅ Refunded' :
+                 booking.payment_status === 'Paid' ? 'No refund issued' :
+                 booking.payment_status
+        },
+        ...(booking.payment_status === 'Refunded' ? [{
+          label: 'Net Refund (Client)',
+          value: `£${(booking.amount - (booking.amount * 0.015 + 0.20)).toFixed(2)} (minus Stripe fee)`
+        }] : []),
+        ...(booking.caas_impact ? [{
+          label: 'CaaS Impact (Tutor)',
+          value: `${booking.caas_impact} points`
+        }] : []),
+        ...(booking.session_artifacts?.no_show_report ? [{
+          label: 'No-Show Reported',
+          value: `Yes - ${booking.session_artifacts.no_show_report.reported_party} (by ${booking.session_artifacts.no_show_report.reporter_role})`
+        }] : []),
+      ].filter(Boolean),
+    }] : []),
     {
       title: 'Status & Timeline',
       fields: [
@@ -234,7 +283,7 @@ export default function AdminBookingDetailModal({
     if (isProcessing) return;
 
     const reason = prompt(
-      `Are you sure you want to cancel this booking?\n\nService: ${booking.service_name}\nClient: ${booking.client?.full_name}\n\nCancellation emails will be sent to all parties.\n\nPlease provide a reason (optional):`
+      `Are you sure you want to cancel this booking?\n\nService: ${booking.service_name}\nClient: ${booking.client?.full_name}\n\nThis will apply the cancellation policy (time-based refunds) and send cancellation emails to all parties.\n\nPlease provide a reason (optional):`
     );
 
     // prompt returns null if cancelled, empty string if OK with no input
@@ -244,22 +293,20 @@ export default function AdminBookingDetailModal({
 
     setIsProcessing(true);
     try {
-      const result = await updateBookingStatus('Cancelled', reason || undefined);
-      const emailsSent = result.emailsSent;
+      // Use the proper cancel endpoint with policy enforcement
+      const response = await fetch(`/api/bookings/${booking.id}/cancel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: reason || 'Admin cancellation' }),
+      });
 
-      let message = 'Booking cancelled successfully!';
-      if (emailsSent) {
-        const sent = [
-          emailsSent.client && 'client',
-          emailsSent.tutor && 'tutor',
-          emailsSent.agent && 'agent',
-        ].filter(Boolean);
-        if (sent.length > 0) {
-          message += `\n\nCancellation emails sent to: ${sent.join(', ')}`;
-        }
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to cancel booking');
       }
 
-      alert(message);
+      alert(result.message || 'Booking cancelled successfully with policy enforcement!');
       onBookingUpdated?.();
       onClose();
     } catch (error) {
