@@ -116,6 +116,29 @@ Last Updated: 29 January 2026
 
 9.4 Tutorwise is not liable for delays, failures, or errors in payments caused by third-party payment providers.
 
+## 9A. Cancellations and Refunds
+
+9A.1 Cancellations of Sessions are subject to Tutorwise's Cancellation and Refund Policy, as published on the Platform and available in the Help Centre.
+
+9A.2 Client-initiated cancellations:
+- 24 hours or more before the scheduled Session: 100% refund to the Client
+- Less than 24 hours before the scheduled Session: No refund; Tutor receives full payment
+- Client no-show: No refund; Tutor receives full payment
+
+9A.3 Tutor-initiated cancellations:
+- At any time: Client receives 100% refund; Tutor's CaaS (Credibility as a Service) reputation score is reduced
+- Tutor no-show: Client receives automatic 100% refund; Tutor's CaaS score is significantly reduced
+
+9A.4 Refunds are processed to the original payment method within 5-10 business days, subject to the processing times of the relevant payment provider.
+
+9A.5 Tutorwise may grant refund exceptions in cases of medical emergencies, extreme circumstances, or platform technical issues, at its sole discretion.
+
+9A.6 Commissions paid to Agents and platform fees are reversed proportionally when a refund is issued.
+
+9A.7 Disputes regarding cancellations or refunds must be raised within 24 hours of the incident via the Platform. Tutorwise's decision on such disputes is final.
+
+9A.8 The complete Cancellation and Refund Policy is available at: [Help Centre - Cancellation Policy](https://tutorwise.com/help/cancellation-policy)
+
 ## 10. Independent Contractor Relationship
 
 10.1 Tutors, Agents, and Organisations are independent contractors. Nothing in these Terms creates an employment, worker, partnership, joint venture, agency, or fiduciary relationship between Tutorwise and any user.

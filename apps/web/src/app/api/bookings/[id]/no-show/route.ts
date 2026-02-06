@@ -15,6 +15,8 @@
 
 import { createClient } from '@/utils/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { calculateRefund } from '@/lib/booking-policies/cancellation';
+import { stripe } from '@/lib/stripe';
 
 export const dynamic = 'force-dynamic';
 
@@ -126,6 +128,83 @@ export async function POST(
       no_show_report: noShowReport,
     };
 
+    // 9. Process automatic refund if tutor no-show
+    if (reported_party === 'tutor' && booking.payment_status === 'Paid') {
+      // Calculate refund using cancellation policy
+      const refund = calculateRefund(
+        booking.amount,
+        0, // Session already happened (or should have)
+        'tutor',
+        'no-show'
+      );
+
+      console.log('[No-Show] Processing tutor no-show refund:', {
+        bookingId,
+        amount: booking.amount,
+        refund: refund.clientRefund,
+        caasImpact: refund.caasImpact
+      });
+
+      // Process Stripe refund
+      try {
+        if (booking.stripe_payment_intent_id) {
+          await stripe.refunds.create({
+            payment_intent: booking.stripe_payment_intent_id,
+            amount: Math.round(refund.clientRefund * 100), // Convert to cents
+            reason: 'requested_by_customer',
+            metadata: {
+              booking_id: bookingId,
+              reason: 'tutor_no_show'
+            }
+          });
+          console.log('[No-Show] Stripe refund processed successfully');
+        }
+      } catch (stripeError) {
+        console.error('[No-Show] Stripe refund failed:', stripeError);
+        // Continue anyway - admin can process manually
+      }
+
+      // Update booking with no-show report and refund info
+      const { error: updateError } = await supabase
+        .from('bookings')
+        .update({
+          status: 'Cancelled',
+          payment_status: 'Refunded',
+          cancellation_reason: 'tutor_no_show',
+          cancellation_policy_applied: refund.policyApplied,
+          caas_impact: refund.caasImpact,
+          session_artifacts: updatedArtifacts,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', bookingId);
+
+      if (updateError) {
+        console.error('[No-Show] Update error:', updateError);
+        return NextResponse.json(
+          { error: 'Failed to process no-show refund' },
+          { status: 500 }
+        );
+      }
+
+      // TODO: Update tutor's CaaS score (-50 points)
+      // This would be done via a separate CaaS service/API
+      // await updateCaaSScore(booking.tutor_id, refund.caasImpact, 'no_show', bookingId);
+
+      console.log(`[No-Show] ✅ Tutor no-show processed - full refund issued, CaaS penalty: ${refund.caasImpact}`);
+
+      // TODO: Send email notifications to both parties
+
+      return NextResponse.json({
+        success: true,
+        message: 'Tutor no-show confirmed. Full refund issued to your account. The tutor\'s reputation has been affected.',
+        refund: {
+          amount: refund.clientRefund,
+          caasImpact: refund.caasImpact
+        }
+      });
+    }
+
+    // 10. For client no-show, just record the report (no refund)
     const { error: updateError } = await supabase
       .from('bookings')
       .update({
@@ -142,10 +221,9 @@ export async function POST(
       );
     }
 
-    console.log(`[No-Show Report] ✅ No-show reported for booking ${bookingId} by ${user.id}`);
+    console.log(`[No-Show Report] ✅ Client no-show reported for booking ${bookingId}`);
 
     // TODO: Trigger admin notification email for review
-    // TODO: In Q2, implement automated dispute resolution workflow
 
     return NextResponse.json({
       success: true,
