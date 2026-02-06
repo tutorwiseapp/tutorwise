@@ -13,6 +13,7 @@
 import { withApiAuth } from '@/middleware/api-auth';
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
+import { sendReferralInvitationEmail } from '@/lib/email/referral-invitation';
 
 export const dynamic = 'force-dynamic';
 
@@ -169,14 +170,20 @@ export async function POST(request: Request) {
       // Generate referral link
       const referralLink = `${process.env.NEXT_PUBLIC_APP_URL || 'https://tutorwise.com'}/a/${referrerCode}`;
 
-      // TODO: Send invitation email if requested
-      // if (body.send_email !== false) {
-      //   await sendReferralInvitationEmail({
-      //     to: body.referred_email,
-      //     referrerName: profile.full_name,
-      //     referralLink,
-      //   });
-      // }
+      // Send invitation email if requested (default: true)
+      if (body.send_email !== false) {
+        try {
+          await sendReferralInvitationEmail({
+            to: body.referred_email,
+            referredName: body.referred_name,
+            referrerName: profile.full_name || 'A Tutorwise user',
+            referralLink,
+          });
+        } catch (emailError) {
+          // Log but don't fail the referral creation if email fails
+          console.error('Referral invitation email failed:', emailError);
+        }
+      }
 
       // Return success response
       return NextResponse.json(

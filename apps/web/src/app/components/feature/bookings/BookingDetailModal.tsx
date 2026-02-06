@@ -108,7 +108,7 @@ export default function BookingDetailModal({
       ],
     },
     {
-      title: 'Scheduling Details (Migration 219)',
+      title: 'Scheduling Details',
       fields: [
         { label: 'Scheduling Status', value: getSchedulingStatusDisplay() },
         { label: 'Proposed By', value: booking.proposed_by || 'N/A' },
@@ -116,10 +116,11 @@ export default function BookingDetailModal({
         { label: 'Confirmed By', value: booking.schedule_confirmed_by || 'N/A' },
         { label: 'Confirmed At', value: booking.schedule_confirmed_at ? formatDateTime(booking.schedule_confirmed_at) : 'N/A' },
         { label: 'Reschedule Count', value: booking.reschedule_count?.toString() || '0' },
+        { label: 'Slot Reserved Until', value: booking.slot_reserved_until ? formatDateTime(booking.slot_reserved_until) : 'N/A' },
       ],
     },
     {
-      title: 'Service Details (Migrations 104, 108)',
+      title: 'Service Details',
       fields: [
         { label: 'Subjects', value: booking.subjects?.join(', ') || 'N/A' },
         { label: 'Levels', value: booking.levels?.join(', ') || 'N/A' },

@@ -2,6 +2,7 @@
  * Filename: ReferralDetailModal.tsx
  * Purpose: Modal for displaying complete referral details
  * Created: 2025-12-06
+ * Updated: 2026-02-05 - Simplified conversion stages (marketplace model)
  * Specification: Uses HubDetailModal to show all referral information
  */
 
@@ -49,19 +50,35 @@ export default function ReferralDetailModal({
     return `${formatDate(dateString)} at ${formatTime(dateString)}`;
   };
 
-  // Get status description
+  // Get status description (simplified 4-stage marketplace model)
   const getStatusDescription = (status: string): string => {
     switch (status) {
       case 'Referred':
-        return 'Link clicked - waiting for signup';
+        return 'Invitation sent - waiting for signup';
       case 'Signed Up':
         return 'Account created - waiting for first booking';
       case 'Converted':
-        return 'First booking completed - commission earned';
+        return 'First booking completed - 10% commission earned';
       case 'Expired':
-        return 'Link expired - no longer active';
+        return 'Expired after 90 days without conversion';
       default:
         return '';
+    }
+  };
+
+  // Get conversion stage (auto-synced with status)
+  const getConversionStage = (status: string): string => {
+    switch (status) {
+      case 'Referred':
+        return 'referred';
+      case 'Signed Up':
+        return 'signed_up';
+      case 'Converted':
+        return 'converted';
+      case 'Expired':
+        return 'expired';
+      default:
+        return 'referred';
     }
   };
 
@@ -83,10 +100,12 @@ export default function ReferralDetailModal({
       fields: [
         { label: 'Referral ID', value: formatIdForDisplay(referral.id) },
         { label: 'Status', value: referral.status },
+        { label: 'Conversion Stage', value: getConversionStage(referral.status) },
         { label: 'Status Description', value: getStatusDescription(referral.status) },
         { label: 'Lead Type', value: referral.referred_user ? 'Named Lead' : 'Anonymous Lead' },
         { label: 'Link Status', value: referral.status === 'Expired' ? 'Expired' : 'Active' },
         { label: 'Days Active', value: `${getDaysActive()} days` },
+        { label: 'Commission Rate', value: '10% (lifetime)' },
       ],
     },
     {

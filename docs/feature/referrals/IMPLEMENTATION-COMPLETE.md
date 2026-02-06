@@ -1,16 +1,28 @@
 # Referral System - Implementation Complete
 
-**Date**: 2025-12-16
-**Status**: ✅ **PRODUCTION-READY**
-**Implementation Phase**: Hierarchical Attribution (Phase 1)
+**Date**: 2026-02-05 (Updated from 2025-12-16)
+**Status**: ✅ **100% CORE COMPLETE - AUTOMATED PAYOUTS LIVE**
+**Implementation Phase**: Phase 2 Complete (Automated Payouts + Simplified 4-Stage Model)
 
 ---
 
 ## Executive Summary
 
-The TutorWise referral system with **Hierarchical Attribution Resolution** (Patent Section 3, Dependent Claim 2) is now **100% complete** and ready for production deployment.
+The TutorWise referral system is now **100% core complete** with:
 
-All code, migrations, tests, documentation, and UI components have been implemented and are awaiting deployment to production.
+1. **Hierarchical Attribution Resolution** (Patent Section 3, Dependent Claim 2) - Phase 1 Complete
+2. **Automated Payouts with Simplified 4-Stage Model** (Feb 2026) - Phase 2 Complete
+
+### Phase 2 Additions (Feb 2026)
+
+- **Simplified 4-Stage Conversion Model**: Referred → Signed Up → Converted → Expired
+- **90-Day Auto-Expiry**: pg_cron job automatically expires unconverted referrals
+- **7-Day Commission Clearing**: Pending → Available transition via hourly cron
+- **Weekly Batch Payouts**: Automated Stripe Connect transfers (Fridays 10am UTC)
+- **£25 Minimum Threshold**: Payout only triggers above threshold
+- **Email Notifications**: Commission available, payout processed, payout failed
+
+All code, migrations, cron jobs, and documentation have been implemented and deployed.
 
 ---
 
@@ -399,46 +411,34 @@ COMMIT;
 
 ## Next Steps
 
-### Immediate (After Deployment)
+### ✅ Phase 2 Complete (Feb 2026)
 
-1. **Monitor production logs** for 24 hours
-   - Check for any attribution errors
-   - Verify HMAC validation is working
-   - Track attribution method distribution
+Automated payouts are now live:
+- ✅ Simplified 4-stage conversion model (Migrations 231-232)
+- ✅ pg_cron jobs for auto-expiry and commission processing
+- ✅ Weekly batch payouts via Stripe Connect
+- ✅ Email notifications for commission/payout events
 
-2. **Run production smoke tests**
-   - Click referral link
-   - Verify cookie is signed (contains `.`)
-   - Sign up and check attribution
+### Future Enhancements (Q2-Q3 2026)
 
-3. **Update team documentation**
-   - Share deployment success with team
-   - Update status in project management tool
-   - Schedule post-deployment review
+1. **Multi-Tier Commission Activation** (Requires legal review)
+   - Tier 2: 3% indirect referral
+   - Tier 3: 1.5% third level
+   - MLM compliance verification
 
-### Week 1
-
-1. **Analyze attribution data**
-   - Which method is most popular? (URL vs Cookie vs Manual)
-   - What's the attribution rate? (% of signups with referrer)
-   - Any fraud attempts detected? (tampered cookies)
-
-2. **Optimize based on data**
-   - If cookie attribution is low, investigate cookie persistence issues
-   - If URL attribution is low, improve link sharing UI
-   - If manual attribution is high, simplify manual entry flow
-
-### Month 1
-
-1. **Plan QR Code Implementation** (Phase 2)
+2. **QR Code API** (Phase 3)
    - Design QR code generation API
    - Create offline partnership onboarding flow
    - Test QR → URL → Cookie → Signup flow
 
-2. **Implement Fraud Detection** (Phase 2)
+3. **Advanced Fraud Detection** (Phase 3)
    - ML-based anomaly detection
    - Alert on suspicious patterns (same IP + multiple codes, rapid velocity)
    - Block/flag fraudulent referrals
+
+4. **Client Referral Monetization** (Migration 122 ready)
+   - 5% commission when referring clients to ANY tutor
+   - Currently only tutor referrals monetized
 
 ---
 
@@ -513,16 +513,20 @@ COMMIT;
 
 ## Conclusion
 
-The TutorWise referral system with hierarchical attribution is **production-ready** and fully patent-compliant. All code, tests, and documentation are complete.
+The TutorWise referral system is now **100% core complete** with:
+- ✅ Hierarchical attribution (Phase 1 - Dec 2025)
+- ✅ Automated payouts with simplified 4-stage model (Phase 2 - Feb 2026)
 
-**👉 Next Action**: Follow the [DEPLOYMENT-GUIDE.md](DEPLOYMENT-GUIDE.md) to deploy to production (30 minutes).
+The system is fully patent-compliant, production-ready, and includes automated weekly payouts via Stripe Connect.
+
+**Remaining Work**: Multi-tier commission activation (pending legal review), advanced fraud detection, client referral monetization.
 
 ---
 
-**Document Version**: 1.0
-**Date**: 2025-12-16
-**Status**: ✅ Implementation Complete - Ready for Production Deployment
+**Document Version**: 2.0
+**Date**: 2026-02-05
+**Status**: ✅ 100% Core Complete - Automated Payouts Live
 **Owner**: Growth Team
 **Approval**: Product Lead, CTO
 
-**🎉 Implementation Complete! 🎉**
+**🎉 Phase 1 & 2 Implementation Complete! 🎉**

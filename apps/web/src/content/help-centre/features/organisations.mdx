@@ -6,7 +6,7 @@ audience: "all"
 description: "Complete guide to creating and managing tutoring organisations, agencies, and schools on Tutorwise with team collaboration and client management."
 keywords: ["organisations", "agencies", "schools", "team management", "collaboration", "clients", "premium"]
 author: "Tutorwise Team"
-lastUpdated: "2025-12-28"
+lastUpdated: "2026-02-05"
 readTime: "8 min"
 relatedArticles:
   - "referrals"
@@ -188,56 +188,73 @@ The Clients tab shows all students who have booked with any team member. This gi
 
 ## Referral Pipeline & Conversion Tracking
 
-Track and manage referrals through a visual conversion pipeline.
+Track referrals through our **simplified 4-stage automatic conversion pipeline**.
 
-### Pipeline Example
+### Simplified 4-Stage Model (Updated Feb 2026)
 
-The 6-stage pipeline lets you manually track referrals as you nurture them towards conversion. Here's an example:
+The referral system now uses a streamlined automatic pipeline:
+
+| Stage | Description | Transition |
+|-------|-------------|------------|
+| **Referred** | Invitation sent, waiting for signup | Auto → Signed Up (when user creates account) |
+| **Signed Up** | Account created, waiting for first booking | Auto → Converted (when booking completes) |
+| **Converted** | First booking completed, 10% lifetime commission earned | Final state |
+| **Expired** | Auto-expired after 90 days without conversion | Final state |
+
+<CalloutBox type="success">
+**Simpler, Faster:** The new model removes manual CRM overhead. Stage transitions happen automatically based on user actions.
+</CalloutBox>
 
 **Example: Maths Tutor Refers English Tutor**
-1. **Referred** - Sarah creates referral entry for Tom in the pipeline
-2. **Contacted** - Sarah manually moves to this stage after emailing Tom about joining
-3. **Meeting Set** - Sarah manually moves here after scheduling a call with Tom
-4. **Proposal Sent** - Sarah manually moves here after Tom signs up and creates profile
-5. **Negotiating** - Sarah manually moves here as Tom starts getting clients
-6. **Won** - Automatically updates when Tom completes a paid booking (Sarah earns commission)
+1. **Referred** - Sarah sends Tom a referral link
+2. **Signed Up** - Tom clicks link and creates his Tutorwise account (automatic)
+3. **Converted** - Tom completes his first paid session (automatic) → Sarah earns 10% commission
 
-**Another Example: Tutor Refers Client**
-1. **Referred** - Organisation member creates referral entry for potential client
-2. **Contacted** - Manually moved after sending initial outreach email
-3. **Meeting Set** - Manually moved after client schedules discovery call
-4. **Proposal Sent** - Manually moved after sending lesson package proposal
-5. **Negotiating** - Manually moved when client negotiates pricing/schedule
-6. **Won** - Automatically updates when client completes first booking (commission earned)
+**Example: Agent Refers Client**
+1. **Referred** - Organisation member shares referral link with potential client
+2. **Signed Up** - Client creates account via referral link (automatic)
+3. **Converted** - Client completes first booking (automatic) → member earns 10% commission
+
+### Automatic Features
+
+**90-Day Auto-Expiry:**
+- Referrals that don't convert within 90 days are automatically marked as "Expired"
+- Daily cron job checks and updates stale referrals
+- Keeps your pipeline clean and focused on active leads
+
+**Lifetime Commission:**
+- Once converted, you earn 10% commission on ALL future bookings from that user
+- Commission continues indefinitely (not just first booking)
+- Truly passive income from successful referrals
 
 ### Managing Referrals
 
-**Drag-and-Drop Management:**
+**View Referral Dashboard:**
 - Go to Organisation → Referrals tab
-- Drag referral cards between stages
-- Track estimated value per referral
-- Monitor conversion rates
+- See all referrals with current stage
+- Filter by status, date range, or member
+- Track conversion rates and earnings
 
-**Filtering & Analytics:**
+**Analytics & Insights:**
 - View active referrals or historical data (30d, 90d, all-time)
 - See member-specific performance
-- Track drop-off rates between stages
-- Time-in-stage analytics
+- Track conversion rates by stage
+- Monitor time-to-conversion metrics
 
 <CalloutBox type="tip">
-**Best Practice:** Move referrals to "Contacted" within 24 hours of "Referred" stage for highest conversion rates (industry benchmark: 60% when contacted within 1 day).
+**Best Practice:** Share your referral link within 24 hours of meeting potential tutors/clients for best conversion rates.
 </CalloutBox>
 
 ### Conversion Funnel Metrics
 
 Track your recruitment funnel health:
-- Stage conversion rates (Referred → Won)
-- Average days to progress each stage
+- Stage conversion rates (Referred → Signed Up → Converted)
+- Average days to conversion
 - Drop-off identification
-- Revenue forecasting (conservative, realistic, optimistic)
+- Revenue forecasting based on pending referrals
 
 <CalloutBox type="success">
-**Goal:** Aim for 30%+ conversion from Referred → Won within 30 days for healthy recruitment pipeline.
+**Goal:** Aim for 30%+ conversion from Referred → Converted within 90 days (before auto-expiry).
 </CalloutBox>
 
 ## Gamification & Achievements
@@ -462,20 +479,29 @@ New Recruit Override: 5% (probation period)
 **Accounting Integration:** Export monthly CSVs for your bookkeeper or import into QuickBooks/Xero for automated accounting.
 </CalloutBox>
 
-### Commission Payment Timeline
+### Commission Payment Timeline (Automated Payouts)
 
-**Standard Flow:**
-1. Referred tutor completes paid session
+**Fully Automated Flow (Updated Feb 2026):**
+1. Referred user completes paid session
 2. Platform fee deducted (10%)
-3. Tutor earnings calculated
-4. Referrer commission calculated (% of tutor net)
-5. Organisation/member split applied
-6. Clearing period (7 days new tutors, 3 days established)
-7. Commission added to available balance
-8. Weekly Friday payout (if above threshold)
+3. Referrer commission calculated (10% lifetime commission)
+4. Organisation/member split applied (if configured)
+5. **Pending**: Commission enters 7-day clearing period
+6. **Available**: After clearing, commission moves to available balance (hourly cron check)
+7. **Paid Out**: Weekly Friday 10am UTC batch payout (if above £25 threshold)
+
+**Key Points:**
+- **£25 minimum payout threshold** - Prevents micro-transactions
+- **Automatic clearing** - No manual action required after 7 days
+- **Stripe Connect** - Payouts go directly to your connected bank account
+- **Email notifications** - You'll be notified when commissions become available and when payouts are processed
+
+<CalloutBox type="info">
+**No Manual Withdrawals Needed:** The system automatically processes payouts every Friday. Just ensure your Stripe Connect account is set up correctly.
+</CalloutBox>
 
 <CalloutBox type="warning">
-**Refunds & Disputes:** If a session is refunded or disputed, pending commissions are reversed. Only successful, completed sessions generate commission.
+**Refunds & Disputes:** If a session is refunded or disputed within the 7-day clearing period, pending commissions are reversed. Only successful, completed sessions generate commission.
 </CalloutBox>
 
 ## Performance Analytics

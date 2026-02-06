@@ -4,9 +4,9 @@ slug: "referrals"
 category: "features"
 audience: "all"
 description: "Tutorwise includes a built-in referral system that allows tutors, clients, and agents to earn commission by introducing tutors and clients to the platform."
-keywords: ["referrals", "refer and earn", "commission", "QR code", "referral link", "delegation", "tutors", "clients", "agents"]
+keywords: ["referrals", "refer and earn", "commission", "QR code", "referral link", "delegation", "tutors", "clients", "agents", "automatic payouts"]
 author: "Tutorwise Team"
-lastUpdated: "2026-01-23"
+lastUpdated: "2026-02-05"
 readTime: "10 min"
 relatedArticles:
   - "for-tutors"
@@ -214,13 +214,36 @@ This allows flexible partnerships without breaking referral integrity.
 
 ## Payments, Clearing & Withdrawals
 
-- Referral rewards appear as pending until the booking is completed
-- After the clearing period, rewards become available
-- Withdrawals are processed through Stripe
-- Refunds, cancellations, or disputes may affect pending rewards
+Tutorwise makes getting paid simple with automatic payouts:
+
+### Automatic Payout System (NEW!)
+
+<CalloutBox type="success">
+**Zero effort required!** Once your commission clears, we pay you automatically every Friday.
+</CalloutBox>
+
+**How it works:**
+1. **Booking completes** → Commission created (status: Pending)
+2. **7 days pass** → Commission clears (status: Available)
+3. **Every Friday at 10am** → Automatic payout to your bank
+4. **2-3 business days** → Money arrives in your account
+
+**Key details:**
+- Minimum payout amount: £25
+- You can withdraw manually anytime from your dashboard
+- Weekly automatic payouts happen every Friday
+- Email notifications when commission is available and when paid
+
+### Manual Withdrawals
+
+If you prefer, you can still withdraw manually:
+1. Go to [Financials](/financials/payouts)
+2. Check your available balance
+3. Click "Withdraw"
+4. Funds arrive in 2-3 business days
 
 <CalloutBox type="info">
-Full payment details are available in your account settings.
+Refunds, cancellations, or disputes may affect pending rewards. Full payment details are available in your account settings.
 </CalloutBox>
 
 ## Important Notes
@@ -598,23 +621,25 @@ If you're part of an organisation or creating one, you get access to advanced re
 
 ### Organisation Referral Pipeline
 
-Manually track referrals through a visual 6-stage conversion pipeline:
+Track referrals through a simple 4-stage automatic conversion pipeline:
 
-**Pipeline Stages:**
-1. Referred - Create referral entry in pipeline
-2. Contacted - Manually move here after making initial contact
-3. Meeting Set - Manually move here after scheduling meeting/call
-4. Proposal Sent - Manually move here after sending proposal/offer
-5. Negotiating - Manually move here during negotiation phase
-6. Won - Automatically updates when booking completes (commission earned)
+**Pipeline Stages (Automatic):**
+1. **Referred** - Invitation sent, waiting for signup
+2. **Signed Up** - Account created, waiting for first booking
+3. **Converted** - First booking completed, 10% commission earned!
+4. **Expired** - Automatically expires after 90 days without conversion
+
+<CalloutBox type="success">
+**Simplified for Marketplace:** Unlike CRM-style pipelines, Tutorwise referrals progress automatically based on user actions. No manual stage management required!
+</CalloutBox>
 
 **Management Features:**
-- Drag-and-drop referral cards between stages
+- View all referrals by status
 - Monitor conversion rates and drop-offs
-- Track estimated value per referral
+- Track commission earned per referral
 - Compare member performance
 - Filter by date range (30d, 90d, all-time)
-- Time-in-stage analytics
+- Export referral data
 
 **Learn More:** See [Organisation Referral Pipeline](/help-centre/features/organisations#referral-pipeline-conversion-tracking) for full guide.
 

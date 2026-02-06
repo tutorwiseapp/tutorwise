@@ -2,6 +2,11 @@
  * Filename: AdminReferralDetailModal.tsx
  * Purpose: Detail modal for admin referral management
  * Created: 2025-12-27
+ * Updated: 2026-02-05 - Simplified conversion stages (4-stage marketplace model)
+ *   - 4 stages: referred → signed_up → converted → expired
+ *   - Added status descriptions explaining each stage
+ *   - Added commission rate field (10% lifetime)
+ *   - Auto-expiry after 90 days
  * Pattern: Follows AdminBookingDetailModal/AdminReviewDetailModal structure
  */
 
@@ -69,6 +74,38 @@ export default function AdminReferralDetailModal({
     return diffDays;
   };
 
+  // Get status description for the simplified 4-stage model
+  const getStatusDescription = (status: string): string => {
+    switch (status) {
+      case 'Referred':
+        return 'Invitation sent - waiting for signup';
+      case 'Signed Up':
+        return 'Account created - waiting for first booking';
+      case 'Converted':
+        return 'First booking completed - 10% lifetime commission earned';
+      case 'Expired':
+        return 'Expired after 90 days without conversion';
+      default:
+        return '';
+    }
+  };
+
+  // Get conversion stage from status
+  const getConversionStage = (status: string): string => {
+    switch (status) {
+      case 'Referred':
+        return 'Stage 1: Referred';
+      case 'Signed Up':
+        return 'Stage 2: Signed Up';
+      case 'Converted':
+        return 'Stage 3: Converted';
+      case 'Expired':
+        return 'Expired';
+      default:
+        return status;
+    }
+  };
+
   // Handle expire referral
   const handleExpire = async () => {
     if (!confirm('Mark this referral as expired?')) return;
@@ -110,6 +147,7 @@ export default function AdminReferralDetailModal({
   };
 
   // Section 1: Referral Information
+  const statusDescription = getStatusDescription(referral.status);
   const referralInfoFields = [
     {
       label: 'Referral ID',
@@ -119,13 +157,29 @@ export default function AdminReferralDetailModal({
       label: 'Status',
       value: <span className={styles[`status${referral.status.replace(' ', '')}`]}>{referral.status}</span>,
     },
+    ...(statusDescription
+      ? [
+          {
+            label: 'Status Description',
+            value: <span className={styles.statusDescription}>{statusDescription}</span>,
+          },
+        ]
+      : []),
+    {
+      label: 'Conversion Stage',
+      value: getConversionStage(referral.status),
+    },
+    {
+      label: 'Commission Rate',
+      value: '10% (lifetime)',
+    },
     {
       label: 'Created At',
       value: formatDate(referral.created_at, 'dd MMM yyyy HH:mm'),
     },
     {
       label: 'Days Active',
-      value: `${getDaysActive(referral.created_at)} days`,
+      value: `${getDaysActive(referral.created_at)} days${referral.status !== 'Converted' && referral.status !== 'Expired' && getDaysActive(referral.created_at) > 60 ? ' (expires at 90 days)' : ''}`,
     },
     ...(referral.converted_at
       ? [

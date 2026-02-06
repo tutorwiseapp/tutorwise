@@ -1956,7 +1956,7 @@ const sendMessageWithAttachment = async (content: string, file: File) => {
 
 **Tasks System** (Jan 2026):
 - **Database Tables**: `org_tasks`, `org_task_comments`, `org_task_attachments`
-- **Kanban Pipeline**: 6-stage workflow (Referred → Contacted → Meeting → Proposal → Negotiating → Won)
+- **Kanban Pipeline**: 5-stage workflow (Backlog → Todo → In Progress → Approved → Done)
 - **Task Assignment**: Assign tasks to team members with notifications
 - **Task Categories**: 70+ predefined types (interview, onboarding, training, admin, client_follow_up, etc.)
 - **Comments & Attachments**: Full collaboration with file uploads to Supabase storage
@@ -1965,12 +1965,13 @@ const sendMessageWithAttachment = async (content: string, file: File) => {
 - **Real-Time Updates**: Changes sync instantly across team members via React Query
 - **Recruitment Integration**: Phase 1 complete - JoinTeamModal and API endpoints
 
-**Referrals Network**:
+**Referrals Network** (Updated 2026-02-05):
 - **Referral Dashboard**: Comprehensive analytics with charts and trends
-- **Commission Tracking**: Track earnings per referral, per member
+- **Commission Tracking**: Track 10% lifetime earnings per referral, per member
 - **Team Leaderboard**: Gamified performance comparison
 - **Referral Codes**: Generate and manage unique invite links
-- **Pipeline Analytics**: Conversion rates, stage-by-stage metrics
+- **4-Stage Pipeline**: Automatic conversion tracking (Referred → Signed Up → Converted → Expired)
+- **Auto-Payouts**: Weekly batch payouts with £25 minimum threshold
 - **Monthly Challenges**: Team-wide goals and achievements
 - **Payout Export**: CSV export for commission payments
 
@@ -2010,31 +2011,51 @@ const sendMessageWithAttachment = async (content: string, file: File) => {
 - Peer referrals within organisation
 - Graduated students replaced by new recruits
 
-### 8.4 Organisation Referral Pipeline (Advanced)
+### 8.4 Organisation Referral Pipeline (Simplified 4-Stage Model)
 
-**Kanban-Style Conversion Tracking:**
-- 6-stage pipeline: Referred → Contacted → Meeting Set → Proposal Sent → Negotiating → Won
-- Drag-and-drop management
-- Per-referral estimated value tracking
-- Member-specific performance metrics
+**Automatic Conversion Tracking (Updated 2026-02-05):**
+- 4-stage pipeline: Referred → Signed Up → Converted → Expired
+- **Referred**: Invitation sent, waiting for signup (90-day expiry)
+- **Signed Up**: Account created, waiting for first booking
+- **Converted**: First booking completed, 10% lifetime commission earned
+- **Expired**: Auto-expired after 90 days without conversion (pg_cron job)
+- Automatic stage transitions (no manual management required)
+- Status syncs automatically with conversion_stage via database trigger
+
+**Commission System:**
+- 10% lifetime commission on all bookings from converted referrals
+- 7-day clearing period (Pending → Available)
+- Automated weekly batch payouts (Fridays 10am UTC)
+- £25 minimum payout threshold
+- Stripe Connect integration for agent payouts
 
 **Analytics:**
 - Conversion funnel (stage-by-stage drop-off rates)
-- Time-in-stage metrics (average days to progress each stage)
-- Revenue forecasting (conservative, realistic, optimistic estimates)
+- Time-to-conversion metrics
+- Revenue forecasting based on pending referrals
 - Historical performance trends (30d, 90d, 6m, 1y)
 
 **Database Tables:**
-- `organisation_referral_config` - Pipeline settings and configuration
 - `referrals` - Extended with `organisation_id`, `referrer_member_id`, commission tracking
+  - `status` ENUM: Referred, Signed Up, Converted, Expired
+  - `conversion_stage` auto-syncs with status via trigger
+  - 90-day auto-expiry via pg_cron job
 - `organisation_referral_stats` - Materialized view for organisation-level analytics
 - `member_referral_stats` - Per-member performance aggregation
+- `transactions` - Commission tracking with 7-day clearing period
+
+**Cron Jobs (pg_cron):**
+- `expire_stale_referrals` - Daily job to mark 90-day old referrals as Expired
+- `process-pending-commissions` - Hourly job to transition clearing → available
+- `process-batch-payouts` - Weekly job (Fridays 10am UTC) for automated payouts
 
 **API Endpoints:**
 - Referral CRUD operations
-- Stage transitions
+- Automatic stage transitions (via database triggers)
 - Analytics aggregation
 - Export functionality (CSV/JSON)
+- `/api/cron/process-pending-commissions` - Commission clearing processor
+- `/api/cron/process-batch-payouts` - Automated payout processor
 
 ### 8.5 Gamification System
 

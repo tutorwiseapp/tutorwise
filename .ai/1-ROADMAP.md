@@ -1,7 +1,7 @@
 # Tutorwise Development Roadmap
 
 **Document Version**: 2.5
-**Last Updated**: 2026-01-27
+**Last Updated**: 2026-02-05
 **Project Status**: 90% Complete - Beta Release Mar 1, 2026
 **Development Velocity**: 1,400+ commits (Oct 2025 - Jan 2026)
 
@@ -168,26 +168,38 @@
 - ✅ Webhook handling
 
 ### 9. Referral System ✅
-**Status**: Production-ready
-**Completion**: 100% (Phases 1-3)
-- ✅ Referral system (refer > convert > reward)
-- ✅ 5-stage referral workflow (refer > book > schedule > pay > review)
+**Status**: Production-ready (100% Core Complete)
+**Completion**: 100% (Phases 1-3 + Automated Payouts)
+**Last Updated**: 2026-02-05
+- ✅ Simplified 4-stage automatic pipeline (Referred → Signed Up → Converted → Expired)
+- ✅ 10% lifetime commission on all future bookings from converted referrals
+- ✅ Integrate with booking and payment workflow (refer > book > pay > commission)
 
 **Phase 1: Foundation** ✅
-- ✅ Referral code generation
-- ✅ Referral tracking
-- ✅ Basic analytics
+- ✅ Referral code generation (7-char alphanumeric)
+- ✅ Referral tracking with hierarchical attribution (URL → Cookie → Manual)
+- ✅ Basic analytics and conversion tracking
 
 **Phase 2: Rewards** ✅
-- ✅ Credit system
-- ✅ Automated reward distribution
-- ✅ Reward history
+- ✅ 10% lifetime commission system
+- ✅ 7-day clearing period (Pending → Available via hourly pg_cron)
+- ✅ Automated weekly batch payouts (Fridays 10am UTC via pg_cron)
+- ✅ £25 minimum payout threshold
+- ✅ Email notifications (commission available, payout processed, payout failed)
 
 **Phase 3: Advanced** ✅
-- ✅ Tiered rewards
-- ✅ Leaderboards
-- ✅ Referral campaigns
-- ✅ Analytics dashboard
+- ✅ Multi-tier commission infrastructure (1-tier active, 3-tier roadmap)
+- ✅ Commission delegation (partners can redirect commissions)
+- ✅ 90-day auto-expiry for unconverted referrals (daily pg_cron)
+- ✅ Fraud detection with automated triggers
+- ✅ Analytics dashboard with conversion funnels
+
+**Future Enhancements** (Q2-Q3 2026):
+- ⏳ Multi-tier commission activation (Tier 2: 3%, Tier 3: 1.5%) - pending legal review
+- ⏳ Client referral monetization (5% commission on ANY tutor bookings)
+- ⏳ Advanced fraud detection with ML scoring
+- ⏳ QR code generation API for physical marketing
+- ⏳ Partnership onboarding system with custom commission structures
 
 ### 10. Reviews System ✅
 **Status**: Production-ready
@@ -211,7 +223,8 @@
 - ✅ Article search and filtering
 - ✅ Jira Service Desk integration
 - ✅ Ticket submission and tracking
-- ✅ Admin ticket management
+- ✅ Problem ticket management (bug reporting) phase 1
+- ✅ Support ticket management (help request) phase 1
 
 **Technical Architecture**:
 - ✅ React Query data fetching (5min cache, automatic refetch)

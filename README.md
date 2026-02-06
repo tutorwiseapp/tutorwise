@@ -4,7 +4,7 @@
 
 **Version**: 1.0.0-beta
 **Status**: Pre-Launch (Beta Release: 1 Mar 2026)
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-05
 
 ---
 
@@ -198,14 +198,18 @@ CAS will apply 8 agent perspectives:
 - **Payment processing** (Stripe Connect integration)
 - **Booking system** (in progress)
 
-### Referral System
+### Referral System (100% Core Complete - Feb 2026)
+- **Simplified 4-Stage Pipeline**: Referred → Signed Up → Converted → Expired (automatic transitions)
+- **Lifetime 10% Commission**: Earned on ALL future bookings from converted referrals
+- **Automated Payouts**: Weekly batch payouts (Fridays 10am UTC) via Stripe Connect
+- **7-Day Clearing Period**: Commission clears automatically via hourly pg_cron job
+- **90-Day Auto-Expiry**: Unconverted referrals expire automatically via daily pg_cron job
 - **Hierarchical Attribution**: URL → Cookie (HMAC-signed) → Manual entry
 - **Commission Delegation**: Partners can redirect commissions (coffee shops, schools)
-- **Multi-Tier Commissions**: Configurable 1-7 tier system (1-tier launch, 3-tier roadmap)
+- **Multi-Tier Commissions**: Configurable 1-7 tier system (1-tier active, 3-tier roadmap pending legal review)
 - **Fraud Detection**: Automated anomaly detection with admin investigation workflow
-- **Partnership Onboarding**: Offline partner applications with QR code generation
-- **Client Referrals**: Two-sided marketplace monetization (tutor + client referrals)
-- **QR Code API**: Generate scannable referral links for physical marketing
+- **Email Notifications**: Commission available, payout processed, payout failed
+- **£25 Minimum Payout**: Automated threshold prevents micro-transactions
 
 ### Admin Features
 - **User Management**: Comprehensive admin dashboard with user CRUD operations
@@ -696,14 +700,18 @@ Co-Authored-By: CAS <cas@tutorwise.com>
   - ✅ **SEO Hub**: Hub management, trust graph, eligibility tracking, cron jobs
   - ✅ **Settings Hub**: Payments, subscriptions, security, integrations, email
   - ✅ **Users Hub**: User administration and permissions
-- ✅ **Complete referral system** (Phases 1-3):
+- ✅ **Complete referral system** (100% Core Complete - Feb 2026):
+  - ✅ Simplified 4-stage automatic pipeline (Referred → Signed Up → Converted → Expired)
   - ✅ Hierarchical attribution with HMAC cookie signing
   - ✅ Commission delegation mechanism (patent-protected)
-  - ✅ Multi-tier commission infrastructure (1-tier active, 3-tier roadmap)
+  - ✅ 10% lifetime commission on all future bookings from converted referrals
+  - ✅ Automated weekly batch payouts (Fridays 10am UTC via pg_cron)
+  - ✅ 7-day clearing period with hourly processing cron
+  - ✅ 90-day auto-expiry for unconverted referrals (daily cron)
+  - ✅ Email notifications (commission available, payout processed, payout failed)
+  - ✅ Multi-tier commission infrastructure (1-tier active, 3-tier pending legal)
   - ✅ Fraud detection with automated triggers
-  - ✅ Partnership onboarding system
-  - ✅ Client referral monetization
-  - ✅ QR code generation API
+  - ✅ £25 minimum payout threshold
 - ✅ **Shared Fields System** (Jan 2026):
   - ✅ 23 global field definitions (single source of truth)
   - ✅ 106 field mappings across 9 contexts

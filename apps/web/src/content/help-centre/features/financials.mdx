@@ -6,7 +6,7 @@ audience: "all"
 description: "Track your earnings, transactions, and financial performance. Understand your financials dashboard and maximize your revenue on Tutorwise."
 keywords: ["financials", "earnings", "transactions", "revenue", "dashboard", "analytics"]
 author: "Tutorwise Team"
-lastUpdated: "2026-01-23"
+lastUpdated: "2026-02-05"
 readTime: "5 min"
 relatedArticles:
   - "how-to-get-paid"
@@ -94,18 +94,27 @@ Switch roles to see different financial perspectives of your account!
   </Tab>
 
   <Tab label="Referral Commissions">
-    **From Referrals System:**
+    **Lifetime 10% Commission (Updated Feb 2026):**
 
     When users you referred complete sessions:
-    - 10% commission on tutor's earnings
-    - Tracked automatically
-    - Shows referral source
+    - 10% **lifetime** commission on ALL their future bookings
+    - Automatically tracked and calculated
+    - Shows referral source and conversion date
+    - Automated weekly payouts (£25 minimum)
 
     **Example:**
     ```
     Referred Tutor Earns: £90
     Your Commission (10%): £9.00
+    Clearing Period: 7 days
+    Payout: Next Friday 10am UTC
     ```
+
+    **Payout Flow:**
+    1. Session completes → Commission calculated
+    2. 7-day clearing period (status: Pending)
+    3. Commission available (status: Available)
+    4. Weekly Friday batch payout → Bank account
 
     See [Referrals Guide](/help-centre/features/referrals) for details.
   </Tab>
@@ -254,26 +263,32 @@ Each transaction shows:
 - Accumulates until next payout
 
 **Minimum Payout:**
-- £20 minimum for automatic payout
-- Below £20: Carries to next week
+- £20 minimum for tutoring earnings
+- £25 minimum for referral commissions
+- Below threshold: Carries to next week automatically
 - No maximum limit
 
-### Payout Schedule
+### Payout Schedule (Automated System)
 
-**Weekly Payouts:**
-- Every Friday at 12:00 PM GMT
-- Includes all cleared transactions
-- Transferred via Stripe to bank
+**Weekly Automatic Payouts:**
+- Every Friday at 10:00 AM UTC (automated batch processor)
+- Includes all cleared transactions (teaching earnings + referral commissions)
+- Transferred via Stripe Connect to your bank
 - Arrives in 2-5 business days
 
+**Minimum Thresholds:**
+- **Tutoring earnings:** £20 minimum for payout
+- **Referral commissions:** £25 minimum for automated payout
+- Below threshold: Carries to next week automatically
+
 **Tracking Payouts:**
-- Email notification when sent
+- Email notification when payout is processed
+- Email notification if payout fails (update bank details)
 - Reference ID for bank matching
-- Detailed breakdown PDF
-- Transaction list included
+- View all payouts in Financials dashboard
 
 <CalloutBox type="info">
-**First Payout:** May take 7-10 days for initial verification. Subsequent payouts are faster (2-5 days).
+**First Payout:** May take 7-10 days for initial Stripe verification. Subsequent payouts are fully automated every Friday.
 </CalloutBox>
 
 ### Withdrawals & Bank Details
@@ -349,10 +364,11 @@ A: New tutors: 7 days. Established tutors (50+ sessions): 3 days. Check transact
 
 **Q: I didn't receive my Friday payout. Where is it?**
 A: Check:
-- Email for payout notification
+- Email for payout notification (sent when processed)
+- Email for payout failed notification (if bank details issue)
 - Stripe dashboard for transfer status
-- Bank account (may take 2-5 days)
-- Minimum £20 balance requirement
+- Bank account (may take 2-5 business days to arrive)
+- Minimum balance requirement (£20 teaching, £25 referral commissions)
 
 **Q: How do I dispute a refund?**
 A: Email support@tutorwise.com with:

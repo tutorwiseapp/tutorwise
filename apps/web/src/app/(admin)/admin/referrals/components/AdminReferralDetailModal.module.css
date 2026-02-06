@@ -136,3 +136,10 @@
   background-color: #fee2e2;
   color: #991b1b;
 }
+
+/* Status Description */
+.statusDescription {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-style: italic;
+}

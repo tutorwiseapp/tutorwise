@@ -1,8 +1,8 @@
 # Referrals
 
-**Status**: Active (Phase 1 Complete, Automated Payouts Pending)
-**Last Code Update**: 2025-12-18 (Migrations 117-123, 129-130)
-**Last Doc Update**: 2025-12-21
+**Status**: Active (100% Core Complete - Automated Payouts Live)
+**Last Code Update**: 2026-02-05 (Migrations 231-232 - Simplified 4-Stage Model + Auto-Payouts)
+**Last Doc Update**: 2026-02-05
 **Priority**: Critical (Tier 1 - Growth Engine)
 **Architecture**: Patent-Protected Persistent Attribution System
 
@@ -23,7 +23,10 @@ This is a **patent-protected invention** (UK Provisional Application filed) repr
 - **7-Character Secure Codes**: e.g., `kRz7Bq2` (62^7 = 3.5 trillion combinations)
 - **Hybrid Attribution**: QR codes → Cookies → Manual codes → Device fingerprints
 - **Commission Delegation**: Tutors can assign commission to partner stores
-- **Pipeline Tracking**: Referred → Signed Up → Converted → Expired
+- **Simplified 4-Stage Pipeline**: Referred → Signed Up → Converted → Expired (auto-transitions)
+- **10% Lifetime Commission**: Earned on all bookings from converted referrals
+- **Automated Payouts**: Weekly batch payouts with 7-day clearing period
+- **90-Day Auto-Expiry**: Unconverted referrals automatically expired via pg_cron
 - **Social Sharing**: WhatsApp, Facebook, LinkedIn integration
 - **Analytics Dashboard**: Conversion rates, earnings, top performers
 - **Store Partnerships**: Physical locations earn via delegation mechanism
@@ -74,14 +77,17 @@ This is a **patent-protected invention** (UK Provisional Application filed) repr
 - ✅ Delegation fraud prevention (cannot delegate to self)
 - ✅ Audit trail (immutable attribution decisions)
 
-### ⏳ Pending Implementation
+### ✅ Automated Payouts (Completed Feb 2026)
 
-**Automated Payouts** (Q1 2026):
-- ❌ Automated cron job to transition Pending → Available
-- ❌ Batch payout processor
-- ❌ Weekly automatic transfers
-- ❌ Configurable payout schedule
-- Current: Manual withdrawal only
+**Migrations 231-232:**
+- ✅ Simplified 4-stage conversion model (removed CRM overhead)
+- ✅ Auto-sync trigger (`conversion_stage` syncs with `status`)
+- ✅ 90-day auto-expiry via pg_cron (`expire_stale_referrals`)
+- ✅ Hourly commission clearing processor (`process-pending-commissions`)
+- ✅ Weekly batch payout processor (`process-batch-payouts` - Fridays 10am UTC)
+- ✅ £25 minimum payout threshold
+- ✅ Stripe Connect integration for automated transfers
+- ✅ Email notifications (commission available, payout processed, payout failed)
 
 **Multi-Tier Activation** (Q2 2026 - requires legal review):
 - ⏸️ Tier 2 activation (3% indirect referral)
@@ -257,25 +263,32 @@ Tutor:     £81 (80%)
 
 **Key Rule**: Delegation only applies when `listing.profile_id == referred_by_profile_id` (tutor is the referrer)
 
-## Referral Pipeline
+## Referral Pipeline (Simplified 4-Stage Model)
 
 ```
 ┌─────────────┐
-│  Referred   │  User clicked referral link (cookie set)
+│  Referred   │  Stage 1: Invitation sent, waiting for signup
 └──────┬──────┘
        │
-       ↓ (User signs up)
+       ↓ (User signs up - auto-transition)
 ┌─────────────┐
-│ Signed Up   │  User created account (attribution permanent)
+│ Signed Up   │  Stage 2: Account created, waiting for first booking
 └──────┬──────┘
        │
-       ↓ (User makes first booking)
-┌─────────────┐
-│  Converted  │  First booking completed (commission earned)
-└─────────────┘
+       ├────────────────────────────────────────────────────────┐
+       │ (User makes first booking)                             │ (90 days without booking)
+       ↓                                                        ↓
+┌─────────────┐                                          ┌─────────────┐
+│  Converted  │  Stage 3: First booking completed        │   Expired   │  Auto-expired
+│             │  → 10% lifetime commission earned        │             │  via pg_cron
+└─────────────┘                                          └─────────────┘
 ```
 
-**Expired**: Cookie expired without signup (30 days)
+**Key Changes (Feb 2026):**
+- Removed CRM stages (Contacted, Meeting Set, Proposal Sent, Negotiating)
+- Automatic stage transitions via database triggers
+- 90-day auto-expiry for unconverted referrals (daily pg_cron job)
+- `conversion_stage` column auto-syncs with `status` enum
 
 ## Usage Examples
 
@@ -557,6 +570,8 @@ if (refundRate > 0.05) {
 
 | Date | Version | Description |
 |------|---------|-------------|
+| 2026-02-05 | v7.0 | **Automated payouts complete** - Simplified 4-stage model, pg_cron jobs, weekly batch payouts |
+| 2025-12-18 | v6.0 | Hierarchical attribution complete (Migration 117-123, 129-130) |
 | 2025-12-12 | v4.3 | Documentation complete with current/future state |
 | 2025-11-17 | v4.3 | Fixed handle_new_user trigger (migration 090) |
 | 2025-11-07 | v4.3 | Implemented commission delegation for store partnerships |
@@ -565,7 +580,7 @@ if (refundRate > 0.05) {
 
 ---
 
-**Last Updated**: 2025-12-12
-**Version**: v4.3 (MVP Complete, Enhancements In Progress)
-**Status**: Active - 70% Complete (Core functional, security enhancements pending)
+**Last Updated**: 2026-02-05
+**Version**: v7.0 (100% Core Complete - Automated Payouts Live)
+**Status**: Active - 100% Core Complete (Multi-tier pending legal review)
 **Patent**: UK Provisional Application Filed

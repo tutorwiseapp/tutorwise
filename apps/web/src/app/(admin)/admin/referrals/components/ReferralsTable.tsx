@@ -2,7 +2,14 @@
  * Filename: ReferralsTable.tsx
  * Purpose: Referrals-specific instance of HubDataTable for admin management
  * Created: 2025-12-27
+ * Updated: 2026-02-05 - Simplified 4-stage marketplace model
  * Pattern: Follows BookingsTable and ListingsTable structure
+ *
+ * 4-Stage Conversion Model:
+ * 1. Referred - Invitation sent, waiting for signup
+ * 2. Signed Up - Account created, waiting for first booking
+ * 3. Converted - First booking completed, 10% lifetime commission earned
+ * 4. Expired - Auto-expired after 90 days without conversion
  *
  * Features:
  * - 11 columns optimized for admin referral management
@@ -11,7 +18,7 @@
  * - CSV export functionality
  * - Real-time updates (30s auto-refresh)
  * - Saved filter views
- * - Bulk actions (approve, expire referrals)
+ * - Bulk actions (expire referrals)
  *
  * Table Columns:
  * 1. ID - Referral UUID (8-char truncated with #prefix)
@@ -19,12 +26,13 @@
  * 3. Status - Referred/Signed Up/Converted/Expired
  * 4. Agent - Agent who created the referral
  * 5. Referred User - User who was referred (if signed up)
- * 6. Converted - Conversion date (if converted)
- * 7. First Booking - First booking details (if converted)
- * 8. Commission - Commission amount (if paid)
- * 9. Attribution - Attribution method (URL/Cookie/Manual)
- * 10. Days Active - Days since referral created
- * 11. Actions - Row actions menu
+ * 6. Other Party - The other party in the first booking
+ * 7. Converted - Conversion date (if converted)
+ * 8. First Booking - First booking details (if converted)
+ * 9. Commission - Commission amount (10% of first booking)
+ * 10. Attribution - Attribution method (URL/Cookie/Manual)
+ * 11. Days Active - Days since referral created
+ * 12. Actions - Row actions menu
  */
 
 'use client';
