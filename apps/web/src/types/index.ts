@@ -802,3 +802,134 @@ export interface WiselistWithDetails extends Wiselist {
   collaborators: WiselistCollaborator[];
   article_saves?: any[]; // Resource article saves (optional)
 }
+
+/**
+ * ==================================================================
+ * Calendar Integration Types (Phase 1 & 2)
+ * Added: 2026-02-06
+ * ==================================================================
+ */
+
+export type CalendarProvider = 'google' | 'outlook';
+export type CalendarSyncMode = 'one_way' | 'two_way';
+export type CalendarConnectionStatus = 'active' | 'error' | 'disconnected';
+export type CalendarEventSyncStatus = 'synced' | 'pending' | 'error' | 'deleted';
+
+export interface CalendarConnection {
+  id: string;
+  profile_id: string;
+  provider: CalendarProvider;
+
+  // OAuth tokens (encrypted)
+  access_token: string;
+  refresh_token?: string | null;
+  token_expiry?: string | null; // ISO date string
+
+  // Provider-specific metadata
+  calendar_id?: string | null; // External calendar ID (e.g., "primary")
+  email?: string | null; // Email associated with the calendar
+
+  // Sync preferences
+  sync_enabled: boolean;
+  sync_mode: CalendarSyncMode;
+
+  // Status tracking
+  status: CalendarConnectionStatus;
+  last_synced_at?: string | null; // ISO date string
+  last_error?: string | null;
+
+  // Timestamps
+  connected_at: string; // ISO date string
+  updated_at: string; // ISO date string
+}
+
+export interface CalendarEvent {
+  id: string;
+  calendar_connection_id: string;
+  booking_id: string;
+
+  // External calendar event details
+  external_event_id: string;
+  external_calendar_id?: string | null;
+
+  // Event snapshot
+  event_title?: string | null;
+  event_start?: string | null; // ISO date string
+  event_end?: string | null; // ISO date string
+  event_description?: string | null;
+
+  // Sync status
+  sync_status: CalendarEventSyncStatus;
+  last_synced_at: string; // ISO date string
+  sync_error?: string | null;
+
+  // Timestamps
+  created_at: string; // ISO date string
+  updated_at: string; // ISO date string
+}
+
+// Google Calendar API types
+export interface GoogleCalendarEvent {
+  summary: string;
+  description?: string;
+  start: {
+    dateTime: string;
+    timeZone?: string;
+  };
+  end: {
+    dateTime: string;
+    timeZone?: string;
+  };
+  reminders?: {
+    useDefault: boolean;
+    overrides?: Array<{
+      method: 'email' | 'popup';
+      minutes: number;
+    }>;
+  };
+  attendees?: Array<{
+    email: string;
+    displayName?: string;
+  }>;
+}
+
+// Microsoft Graph Calendar API types
+export interface OutlookCalendarEvent {
+  subject: string;
+  body?: {
+    contentType: 'HTML' | 'Text';
+    content: string;
+  };
+  start: {
+    dateTime: string;
+    timeZone: string;
+  };
+  end: {
+    dateTime: string;
+    timeZone: string;
+  };
+  isReminderOn?: boolean;
+  reminderMinutesBeforeStart?: number;
+  attendees?: Array<{
+    emailAddress: {
+      address: string;
+      name?: string;
+    };
+    type: 'required' | 'optional';
+  }>;
+}
+
+// API response types
+export interface CalendarConnectionResponse {
+  success: boolean;
+  connection?: CalendarConnection;
+  error?: string;
+}
+
+export interface CalendarSyncResponse {
+  success: boolean;
+  synced_count?: number;
+  failed_count?: number;
+  events?: CalendarEvent[];
+  error?: string;
+}
