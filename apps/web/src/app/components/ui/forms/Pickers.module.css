@@ -69,7 +69,21 @@
 
 /* Date picker calendar responsive styles */
 .datePickerCalendar {
-  font-size: 14px;
+  font-size: 15px;
+}
+
+/* Add spacing between calendar elements */
+.datePickerContent :global(.rdp-weeks) {
+  gap: 6px;
+}
+
+.datePickerContent :global(.rdp-week) {
+  gap: 6px;
+}
+
+.datePickerContent :global(.rdp-weekdays) {
+  gap: 6px;
+  margin-bottom: 12px;
 }
 
 /* Responsive adjustments for mobile */
@@ -110,8 +124,8 @@
   --rdp-accent-color: var(--color-primary, #006C67);
   --rdp-accent-background-color: var(--color-primary-light, #E0F2F1);
   --rdp-today-color: var(--color-primary, #006C67);
-  --rdp-day-width: 40px;
-  --rdp-day-height: 40px;
+  --rdp-day-width: 48px;
+  --rdp-day-height: 48px;
 }
 
 /* Legacy support for older class name */
@@ -133,13 +147,16 @@
 /* v9 today indicator */
 .datePickerContent :global(.rdp-today .rdp-day_button),
 .datePickerContent :global(.rdp-day.rdp-today .rdp-day_button) {
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-primary, #006C67) !important;
+  border: 3px solid #10b981 !important;
 }
 
 /* Today text when not selected */
 .datePickerContent :global(.rdp-today:not(.rdp-selected) .rdp-day_button) {
   color: var(--color-primary, #006C67);
+  border: 3px solid #10b981 !important;
+  font-weight: 700;
 }
 
 /* Hover state for day buttons */
@@ -217,7 +234,7 @@
 .datePickerContent :global(.rdp-head_cell) {
   font-weight: 600;
   color: var(--color-text-secondary, #5f6368);
-  font-size: 12px;
+  font-size: 13px;
   text-transform: uppercase;
 }
 
@@ -227,7 +244,7 @@
 .datePickerContent :global(.rdp-months_dropdown),
 .datePickerContent :global(.rdp-dropdown_year),
 .datePickerContent :global(.rdp-dropdown_month) {
-  font-size: 14px;
+  font-size: 13px;
   padding: 4px 8px;
   border: 1px solid var(--color-border, #dfe1e5);
   border-radius: 6px;

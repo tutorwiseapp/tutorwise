@@ -1154,6 +1154,124 @@ Note: This is different from agent-led bookings where `agent_profile_id` is expl
 - iCal feed subscription for read-only availability import
 - Automatic event creation on booking confirmation
 
+### v6.5: Cancellation & Refund Policy Implementation (Q2 2026)
+
+**Problem**: Current system allows cancellations but lacks formal refund policy enforcement. No clear rules for when clients/tutors can cancel and what refund they receive.
+
+**Solution**: Implement time-based cancellation policy with automated refund processing:
+- **24+ hours before session**: Full refund (100%) - no penalty
+- **12-24 hours before session**: Partial refund (50%) - shared penalty
+- **<12 hours before session**: No refund (0%) - tutor protected
+- **No-show**: No refund, session marked completed, tutor paid in full
+
+**Schema Changes**:
+- Add `cancellation_reason` (text field for audit trail)
+- Add `cancellation_policy_applied` (which policy tier was used)
+- Add `refund_amount` (calculated refund based on policy)
+- Add `refund_processed_at` (timestamp of Stripe refund)
+
+**Implementation**:
+- Automatic refund calculation based on time_until_session
+- Stripe refund API integration
+- Email notifications to both parties with policy explanation
+- Admin override capability for exceptional circumstances
+
+### v6.6: No-Show Handling System (Q2 2026)
+
+**Problem**: When either party doesn't attend a confirmed session, there's no formal process to report no-shows, resolve disputes, or apply penalties.
+
+**Solution**: Add no-show reporting workflow with dispute resolution:
+
+**Features**:
+- Either party can report no-show within 24 hours of session time
+- Counter-party has 48 hours to respond/dispute
+- If undisputed: automatic penalty application
+  - **Tutor no-show**: Full refund to client + CaaS score penalty
+  - **Client no-show**: Full payment to tutor + warning to client
+- If disputed: Flag for admin review with evidence submission
+
+**Schema Changes**:
+- Add `no_show_reported_by` (client_id | tutor_id)
+- Add `no_show_reported_at` (timestamp)
+- Add `no_show_disputed` (boolean)
+- Add `no_show_resolution` (confirmed | disputed | admin_override)
+- Store in `session_artifacts` JSONB field
+
+**Implementation**:
+- New API endpoint: `POST /api/bookings/[id]/no-show`
+- 24-hour reporting window enforced
+- Email notifications with evidence upload capability
+- Admin dashboard for dispute review
+
+### v6.7: Event History Tracking (Q2 2026)
+
+**Problem**: No audit trail of booking state changes. Cannot answer "Why was this booking cancelled?" or "Who rescheduled this session?"
+
+**Solution**: Comprehensive event sourcing for all booking lifecycle events.
+
+**Events to Track**:
+- `booking.created` - Initial booking creation
+- `booking.time_proposed` - Either party proposes session time
+- `booking.time_confirmed` - Other party confirms proposed time
+- `booking.rescheduled` - Session time changed (with who initiated)
+- `booking.payment_completed` - Stripe payment succeeded
+- `booking.payment_failed` - Stripe payment failed (with reason)
+- `booking.confirmed` - Booking fully confirmed (paid + scheduled)
+- `booking.cancelled` - Cancellation (with who initiated + reason)
+- `booking.completed` - Session marked complete
+- `booking.reviewed` - Review submitted (by client or tutor)
+- `booking.no_show_reported` - No-show claim filed
+
+**Schema Changes**:
+- New table: `booking_events`
+  - `id` (PK)
+  - `booking_id` (FK)
+  - `event_type` (enum of events above)
+  - `actor_id` (who triggered this event)
+  - `metadata` (JSONB - event-specific data)
+  - `created_at` (timestamp)
+
+**Implementation**:
+- Event emitter function in all booking mutation endpoints
+- Chronological event timeline in booking detail modals
+- Queryable for analytics and reporting
+
+### v6.8: Booking Analytics & Reporting Views (Q2 2026)
+
+**Problem**: No visibility into booking performance metrics. Cannot answer business questions like "What's our conversion rate?" or "Which tutors have highest no-show rates?"
+
+**Solution**: Build comprehensive analytics views and dashboards.
+
+**Key Metrics to Track**:
+
+**Conversion Funnel**:
+- Listing views → Booking requests → Payment completed → Session delivered
+- Conversion rate by listing type, subject, price point
+- Drop-off points in booking flow
+
+**Operational Metrics**:
+- Average time from booking to session delivery
+- Cancellation rate (by timing: <12h, 12-24h, 24h+)
+- No-show rate (client vs tutor)
+- Reschedule frequency (by booking)
+
+**Financial Metrics**:
+- Revenue by booking type (direct, referred, agent-led)
+- Average booking value by subject, level, tutor
+- Commission splits (platform, agent, tutor)
+- Refund volume and reasons
+
+**User Behavior**:
+- Repeat booking rate (client retention)
+- Tutor utilization rate (sessions delivered / capacity)
+- Popular booking times (day of week, time of day)
+
+**Implementation**:
+- New table: `booking_analytics` (materialized view, refreshed daily)
+- Admin dashboard with filterable charts (D3.js or Chart.js)
+- CSV export for detailed analysis
+- Real-time metrics for platform health monitoring
+
 ---
 
 ---

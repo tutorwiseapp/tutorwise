@@ -53,6 +53,7 @@ export async function GET(request: NextRequest) {
         tutor:profiles!tutor_id(id, full_name, email)
       `)
       .eq('status', 'Confirmed')
+      .eq('scheduling_status', 'scheduled') // Only fully scheduled sessions
       .gte('session_start_time', windowStart.toISOString())
       .lte('session_start_time', windowEnd.toISOString())
       .is('reminder_sent_at', null); // Only bookings that haven't been reminded

@@ -150,9 +150,29 @@ export default function AdminBookingDetailModal({
       ],
     },
     {
+      title: 'Scheduling Details',
+      fields: [
+        {
+          label: 'Scheduling Status',
+          value: booking.scheduling_status === 'unscheduled' ? 'Needs Scheduling'
+            : booking.scheduling_status === 'proposed' ? 'Time Proposed'
+            : booking.scheduling_status === 'scheduled' ? 'Scheduled'
+            : booking.scheduling_status || 'Scheduled'
+        },
+        { label: 'Proposed By', value: booking.proposed_by || 'N/A' },
+        { label: 'Proposed At', value: booking.proposed_at ? formatDateTime(booking.proposed_at) : 'N/A' },
+        { label: 'Confirmed By', value: booking.schedule_confirmed_by || 'N/A' },
+        { label: 'Confirmed At', value: booking.schedule_confirmed_at ? formatDateTime(booking.schedule_confirmed_at) : 'N/A' },
+        { label: 'Reschedule Count', value: booking.reschedule_count?.toString() || '0' },
+        { label: 'Slot Reserved Until', value: booking.slot_reserved_until ? formatDateTime(booking.slot_reserved_until) : 'N/A' },
+        { label: 'Reminder Sent At', value: booking.reminder_sent_at ? formatDateTime(booking.reminder_sent_at) : 'Not sent' },
+      ],
+    },
+    {
       title: 'Status & Timeline',
       fields: [
         { label: 'Booking Status', value: booking.status },
+        { label: 'Payment Status', value: booking.payment_status },
         { label: 'Created At', value: formatDateTime(booking.created_at) },
         { label: 'Last Updated', value: booking.updated_at ? formatDateTime(booking.updated_at) : 'N/A' },
       ],
@@ -427,7 +447,7 @@ export default function AdminBookingDetailModal({
                 sideOffset={5}
                 align="start"
               >
-                {['Pending', 'Confirmed', 'Completed', 'Cancelled'].map((status) => (
+                {['Pending', 'Confirmed', 'Completed', 'Cancelled', 'Declined'].map((status) => (
                   <DropdownMenu.Item
                     key={status}
                     className={styles.statusDropdownItem}

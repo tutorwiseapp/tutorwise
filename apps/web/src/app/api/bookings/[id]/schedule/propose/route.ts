@@ -78,6 +78,29 @@ export async function POST(
       return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
     }
 
+    // 4. Rate limiting: Check proposal attempts
+    const artifacts = booking.session_artifacts || {};
+    const proposalHistory = artifacts.proposal_history || [];
+    const now = new Date();
+    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    // Count proposals in last 24 hours by this user
+    const recentProposals = proposalHistory.filter((p: any) =>
+      p.proposed_by === user.id && new Date(p.proposed_at) > oneDayAgo
+    );
+
+    const MAX_PROPOSALS_PER_DAY = 5;
+    if (recentProposals.length >= MAX_PROPOSALS_PER_DAY) {
+      return NextResponse.json(
+        {
+          error: `Rate limit exceeded. Maximum ${MAX_PROPOSALS_PER_DAY} proposals per day allowed.`,
+          code: 'RATE_LIMIT_EXCEEDED',
+          retry_after: Math.ceil((recentProposals[0].proposed_at.getTime() + 24 * 60 * 60 * 1000 - now.getTime()) / 1000)
+        },
+        { status: 429 }
+      );
+    }
+
     // Verify user is either client or tutor
     if (user.id !== booking.client_id && user.id !== booking.tutor_id) {
       return NextResponse.json(
@@ -103,10 +126,35 @@ export async function POST(
       );
     }
 
-    // 6. Calculate slot reservation expiry (15 minutes)
+    // 6. Check for conflicts with existing bookings
+    const { data: conflictingBookings, error: conflictError } = await supabase
+      .from('bookings')
+      .select('id, session_start_time')
+      .eq('tutor_id', booking.tutor_id)
+      .eq('session_start_time', proposedTime.toISOString())
+      .in('status', ['Pending', 'Confirmed'])
+      .in('scheduling_status', ['proposed', 'scheduled'])
+      .neq('id', bookingId); // Exclude current booking
+
+    if (conflictError) {
+      console.error('[Schedule Propose] Conflict check error:', conflictError);
+      return NextResponse.json(
+        { error: 'Failed to check availability' },
+        { status: 500 }
+      );
+    }
+
+    if (conflictingBookings && conflictingBookings.length > 0) {
+      return NextResponse.json(
+        { error: 'This time slot is no longer available. Please select a different time.' },
+        { status: 409 }
+      );
+    }
+
+    // 7. Calculate slot reservation expiry (15 minutes)
     const slotReservedUntil = getSlotReservationExpiry(DEFAULT_SCHEDULING_RULES);
 
-    // 7. Update booking with proposed time
+    // 8. Update booking with proposed time
     const { error: updateError } = await supabase
       .from('bookings')
       .update({
@@ -130,7 +178,7 @@ export async function POST(
       );
     }
 
-    // 8. Send notification email to other party
+    // 9. Send notification email to other party
     const isProposedByTutor = user.id === booking.tutor_id;
     const proposerName = isProposedByTutor ? booking.tutor?.full_name : booking.client?.full_name;
 

@@ -6,6 +6,30 @@
  */
 
 /* ============================================================================
+ * CSS Variables (Design Tokens)
+ * ============================================================================ */
+:root {
+  /* Calendar dimensions */
+  --calendar-cell-size: 40px;
+  --calendar-gap: 4px;
+  --calendar-day-header-height: 32px;
+
+  /* Spacing */
+  --section-padding-x: 32px;
+  --section-padding-y: 16px;
+  --section-padding-mobile: 20px;
+  --section-padding-small: 16px;
+
+  /* Border radius */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+
+  /* Time slots */
+  --time-slot-padding-y: 12px;
+  --time-slot-padding-x: 16px;
+}
+
+/* ============================================================================
  * Footer
  * ============================================================================ */
 .footer {
@@ -33,46 +57,65 @@
 }
 
 /* ============================================================================
+ * Timezone Info Banner
+ * ============================================================================ */
+.timezoneInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: var(--section-padding-y) var(--section-padding-x);
+  background-color: #eff6ff;
+  border-left: 3px solid #3b82f6;
+  font-size: 13px;
+  color: #1e40af;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* ============================================================================
  * Current Time Info (Plain Text, No Card)
  * ============================================================================ */
 .currentTimeInfo {
-  padding: 24px 32px;
+  padding: var(--section-padding-y) var(--section-padding-x);
   border-bottom: 1px solid #e5e7eb;
 }
 
 .currentTimeLabel {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: #6b7280;
-  margin: 0 0 8px 0;
+  margin: 0 0 6px 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .currentTimeValue {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: #111827;
-  margin: 0 0 8px 0;
+  margin: 0 0 6px 0;
 }
 
 .currentTimeFooter {
-  font-size: 13px;
+  font-size: 12px;
   color: #6b7280;
-  margin: 0 0 16px 0;
+  margin: 0 0 12px 0;
 }
 
 .confirmActions {
   display: flex;
   gap: 8px;
-  margin-top: 16px;
+  margin-top: 12px;
 }
 
 .waitingText {
-  font-size: 14px;
+  font-size: 13px;
   color: #6b7280;
   font-style: italic;
-  margin-top: 12px;
+  margin-top: 8px;
+}
+
+.withdrawButton {
+  margin-top: 8px;
 }
 
 /* ============================================================================
@@ -90,12 +133,61 @@
   grid-template-columns: 1fr 1fr;
   gap: 0;
   border-top: 1px solid #e5e7eb;
-  min-height: 500px;
+  min-height: 580px;
 }
 
 @media (max-width: 768px) {
   .twoColumnLayout {
     grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  /* Reduce padding on mobile for better space usage */
+  .calendarContainer {
+    padding: 16px 20px;
+  }
+
+  .timeSlotGroups {
+    padding: 16px 20px;
+  }
+
+  .currentTimeInfo,
+  .timezoneInfo,
+  .columnHeader {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .errorBanner {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+}
+
+/* Extra small screens - single column time slots */
+@media (max-width: 480px) {
+  .timeSlotGrid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .calendarContainer {
+    padding: 12px 16px;
+  }
+
+  .timeSlotGroups {
+    padding: 12px 16px;
+  }
+
+  .currentTimeInfo,
+  .timezoneInfo,
+  .columnHeader {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .errorBanner {
+    margin-left: 16px;
+    margin-right: 16px;
   }
 }
 
@@ -106,7 +198,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 20px 24px 16px;
+  padding: var(--section-padding-y) var(--section-padding-x);
   border-top: 1px solid #e5e7eb;
   border-bottom: 1px solid #e5e7eb;
   background-color: #f9fafb;
@@ -137,38 +229,62 @@
   }
 }
 
-/* Month/Year Selector */
+/* Month/Year Selector - now integrated into calendar */
 .monthYearSelector {
   display: flex;
-  gap: 12px;
-  padding: 16px 24px;
-  border-bottom: 1px solid #e5e7eb;
+  gap: 8px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+/* Make the select dropdowns inside stretch to fill available space */
+.monthYearSelector > * {
+  flex: 1;
+  min-width: 0;
 }
 
 /* Calendar Container */
 .calendarContainer {
-  padding: 20px 24px;
+  padding: 24px 32px;
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
+}
+
+/* Override react-day-picker CSS variables for larger calendar */
+/* Use high specificity to override Pickers.module.css */
+.calendarContainer :global(.rdp-root),
+.calendarContainer :global(.rdp),
+:global(.datePickerContent) .calendarContainer :global(.rdp-root),
+:global(.datePickerContent) .calendarContainer :global(.rdp) {
+  --rdp-day-width: 48px !important;
+  --rdp-day-height: 48px !important;
+  min-width: 380px !important;
+  font-size: 15px !important;
+}
+
+/* Additional override for the calendar wrapper itself */
+.calendarContainer {
+  --rdp-day-width: 48px !important;
+  --rdp-day-height: 48px !important;
 }
 
 /* Day Headers (Mo Tu We...) */
 .dayHeaders {
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: 1fr 4px 1fr 4px 1fr 4px 1fr 4px 1fr 4px 1fr 4px 1fr;
+  -ms-grid-columns: 1fr var(--calendar-gap) 1fr var(--calendar-gap) 1fr var(--calendar-gap) 1fr var(--calendar-gap) 1fr var(--calendar-gap) 1fr var(--calendar-gap) 1fr;
   grid-template-columns: repeat(7, 1fr);
   grid-template-rows: auto;
-  grid-gap: 4px;
-  gap: 4px;
-  margin-bottom: 8px;
+  grid-gap: var(--calendar-gap);
+  gap: var(--calendar-gap);
+  margin-bottom: 12px;
   width: 100%;
   box-sizing: border-box;
 }
 
 .dayHeader {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -183,26 +299,26 @@
 .calendarGrid {
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: 1fr 4px 1fr 4px 1fr 4px 1fr 4px 1fr 4px 1fr 4px 1fr;
-  -ms-grid-rows: 40px 4px 40px 4px 40px 4px 40px 4px 40px 4px 40px;
+  -ms-grid-columns: 1fr var(--calendar-gap) 1fr var(--calendar-gap) 1fr var(--calendar-gap) 1fr var(--calendar-gap) 1fr var(--calendar-gap) 1fr var(--calendar-gap) 1fr;
+  -ms-grid-rows: var(--calendar-cell-size) var(--calendar-gap) var(--calendar-cell-size) var(--calendar-gap) var(--calendar-cell-size) var(--calendar-gap) var(--calendar-cell-size) var(--calendar-gap) var(--calendar-cell-size) var(--calendar-gap) var(--calendar-cell-size);
   grid-template-columns: repeat(7, 1fr);
-  grid-template-rows: repeat(6, 40px);
-  grid-gap: 4px;
-  gap: 4px;
+  grid-template-rows: repeat(6, var(--calendar-cell-size));
+  grid-gap: var(--calendar-gap);
+  gap: var(--calendar-gap);
   width: 100%;
   box-sizing: border-box;
 }
 
 .emptyCell {
-  height: 40px;
+  height: var(--calendar-cell-size);
   width: 100%;
 }
 
 .calendarDay {
-  height: 40px;
-  width: 100%;
-  border: 2px solid transparent;
-  border-radius: 6px;
+  height: var(--calendar-cell-size);
+  width: var(--calendar-cell-size);
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-sm);
   background-color: #ffffff;
   font-size: 14px;
   font-weight: 500;
@@ -212,6 +328,7 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  margin: 0 auto;
 }
 
 /* Available dates - Green */
@@ -236,6 +353,14 @@
   opacity: 0.5;
 }
 
+/* Today's date - Prominent 2px dark green border (when not selected) */
+.calendarDay.today:not(.selected) {
+  border: 2px solid #059669 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 0 0 1px rgba(5, 150, 105, 0.3) !important;
+  background-color: #a7f3d0 !important;
+}
+
 /* Selected date - Darker green with strong border */
 .calendarDay.selected {
   background-color: #006C67 !important;
@@ -256,28 +381,66 @@
 
 /* Hide navigation arrows (redundant with dropdowns) */
 .calendarContainer :global(.rdp-nav),
+.calendarContainer :global(.rdp-nav_button),
 .calendarContainer :global(.rdp-button_previous),
 .calendarContainer :global(.rdp-button_next) {
   display: none !important;
+  visibility: hidden !important;
 }
 
 /* Increase day header font size to 13px */
 .calendarContainer :global(.rdp-head_cell) {
   font-size: 13px !important;
   font-weight: 600 !important;
+  text-transform: uppercase !important;
+  width: 48px !important;
+  height: auto !important;
 }
 
-/* Increase dropdown font size to 13px */
+/* Increase dropdown font size to 13px and improve styling */
 .calendarContainer :global(.rdp-dropdown),
 .calendarContainer :global(.rdp-dropdown_year),
-.calendarContainer :global(.rdp-dropdown_month) {
+.calendarContainer :global(.rdp-dropdown_month),
+.calendarContainer :global(.rdp-years_dropdown),
+.calendarContainer :global(.rdp-months_dropdown),
+.calendarContainer :global(select.rdp-dropdown_month),
+.calendarContainer :global(select.rdp-dropdown_year),
+.calendarContainer :global(.rdp-dropdowns select),
+.calendarContainer :global(.rdp-caption_label select),
+.calendarContainer :global(.rdp-caption select),
+.calendarContainer :global(.rdp-caption) select {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  padding: 6px 10px !important;
+  min-height: 36px !important;
+}
+
+/* Dropdown options */
+.calendarContainer :global(.rdp-dropdown option),
+.calendarContainer :global(select option) {
   font-size: 13px !important;
 }
 
 /* Highlight today's date with border */
-.calendarContainer :global(.rdp-today:not(.rdp-selected) .rdp-day_button) {
-  border: 2px solid #006C67 !important;
-  font-weight: 600 !important;
+.calendarContainer :global(.rdp-today:not(.rdp-selected) .rdp-day_button),
+.calendarContainer :global(.rdp-day.rdp-today:not(.rdp-selected) button) {
+  border: 3px solid #10b981 !important;
+  font-weight: 700 !important;
+}
+
+/* Today modifier class - adds prominent border to today's date */
+.calendarDayToday :global(.rdp-day_button),
+.calendarDayToday :global(button),
+.calendarDayToday {
+  border: 3px solid #10b981 !important;
+  font-weight: 700 !important;
+  position: relative !important;
+}
+
+/* Ensure today is visible even when available */
+.calendarContainer :global(.rdp-today) :global(.rdp-day_button) {
+  border: 3px solid #10b981 !important;
+  font-weight: 700 !important;
 }
 
 /* Override DayPicker selected styling with our brand color */
@@ -314,6 +477,44 @@
   border-color: #059669 !important;
 }
 
+/* Increase size and spacing of calendar day buttons */
+.calendarContainer :global(.rdp-day_button) {
+  width: 48px !important;
+  height: 48px !important;
+  font-size: 15px !important;
+  border-radius: 6px !important;
+}
+
+.calendarContainer :global(.rdp-day) {
+  width: 48px !important;
+  height: 48px !important;
+}
+
+/* Increase spacing between weeks and days */
+.calendarContainer :global(.rdp-month) {
+  gap: 6px !important;
+  width: 100% !important;
+}
+
+.calendarContainer :global(.rdp-weeks) {
+  gap: 6px !important;
+}
+
+.calendarContainer :global(.rdp-week) {
+  gap: 6px !important;
+  display: flex !important;
+}
+
+.calendarContainer :global(.rdp-weekdays) {
+  margin-bottom: 12px !important;
+  gap: 6px !important;
+  display: flex !important;
+}
+
+.calendarContainer :global(.rdp-weekday) {
+  width: 48px !important;
+}
+
 /* ============================================================================
  * Time Picker Column (Right)
  * ============================================================================ */
@@ -328,7 +529,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 24px;
+  padding: 60px 32px;
   color: #9ca3af;
   flex: 1;
 }
@@ -340,7 +541,7 @@
 
 /* Selected Date Display */
 .selectedDateDisplay {
-  padding: 16px 24px;
+  padding: 16px 32px;
   background-color: #f0fdfa;
   border-bottom: 1px solid #e5e7eb;
   font-size: 15px;
@@ -351,9 +552,9 @@
 
 /* Time Slot Groups */
 .timeSlotGroups {
-  padding: 20px 24px;
+  padding: 24px 32px;
   overflow-y: auto;
-  max-height: 450px;
+  max-height: 480px;
 }
 
 .timeGroup {
@@ -383,9 +584,9 @@
 .timeSlotLabel {
   display: flex;
   align-items: center;
-  padding: 12px 16px;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
+  padding: var(--time-slot-padding-y) var(--time-slot-padding-x);
+  border: 1px solid #e5e7eb;
+  border-radius: var(--border-radius-md);
   background-color: #ffffff;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -420,4 +621,20 @@
 .timeSlotLabel:has(.timeSlotRadio:checked) .timeSlotText {
   color: white;
   font-weight: 600;
+}
+
+/* Disabled time slot (past times) */
+.timeSlotDisabled {
+  opacity: 0.4;
+  cursor: not-allowed !important;
+  background-color: #f9fafb !important;
+}
+
+.timeSlotDisabled:hover {
+  border-color: #e5e7eb !important;
+  background-color: #f9fafb !important;
+}
+
+.timeSlotDisabled .timeSlotText {
+  color: #9ca3af;
 }

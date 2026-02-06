@@ -42,6 +42,7 @@ export async function GET(req: Request) {
     // 3. Parse query parameters
     const { searchParams } = new URL(req.url);
     const statusFilter = searchParams.get('status');
+    const schedulingStatusFilter = searchParams.get('scheduling_status');
 
     // 4. Build query based on active role (migrations 049 & 051)
     let query = supabase
@@ -77,18 +78,24 @@ export async function GET(req: Request) {
 
       if (agentError) throw agentError;
 
-      // Apply status filter if provided
+      // Apply filters if provided
       let filteredBookings = agentBookings || [];
       if (statusFilter) {
         filteredBookings = filteredBookings.filter(b => b.status === statusFilter);
+      }
+      if (schedulingStatusFilter) {
+        filteredBookings = filteredBookings.filter(b => b.scheduling_status === schedulingStatusFilter);
       }
 
       return NextResponse.json({ bookings: filteredBookings });
     }
 
-    // Apply status filter for client/tutor
+    // Apply filters for client/tutor
     if (statusFilter) {
       query = query.eq('status', statusFilter);
+    }
+    if (schedulingStatusFilter) {
+      query = query.eq('scheduling_status', schedulingStatusFilter);
     }
 
     // 5. Execute query

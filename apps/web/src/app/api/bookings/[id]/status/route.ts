@@ -25,6 +25,15 @@ interface StatusUpdateBody {
   reason?: string; // For cancellation
 }
 
+// Valid status transitions - prevents invalid state changes
+const VALID_TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {
+  'Pending': ['Confirmed', 'Cancelled', 'Declined'],
+  'Confirmed': ['Completed', 'Cancelled'],
+  'Completed': [], // Terminal state - no transitions allowed
+  'Cancelled': [], // Terminal state - no transitions allowed
+  'Declined': [], // Terminal state - no transitions allowed
+};
+
 /**
  * PATCH /api/bookings/[id]/status
  * Update booking status and send appropriate email notifications
@@ -45,10 +54,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // 2. Check if user is admin (for now, allow any authenticated user who has access)
-    // In production, you'd want to check admin role here
-
-    // 3. Parse request body
+    // 2. Parse request body
     const body: StatusUpdateBody = await request.json();
     const { status, reason } = body;
 
@@ -79,9 +85,43 @@ export async function PATCH(
       return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
     }
 
+    // 5. Authorization: Verify user is participant (client/tutor/agent) OR admin
+    const isParticipant =
+      user.id === booking.client_id ||
+      user.id === booking.tutor_id ||
+      user.id === booking.agent_id;
+
+    // Check if user is admin
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('roles')
+      .eq('id', user.id)
+      .single();
+
+    const isAdmin = profile?.roles?.includes('admin');
+
+    if (!isParticipant && !isAdmin) {
+      return NextResponse.json(
+        { error: 'You are not authorized to update this booking status' },
+        { status: 403 }
+      );
+    }
+
     const previousStatus = booking.status;
 
-    // 5. Update booking status
+    // 6. Validate status transition
+    const allowedTransitions = VALID_TRANSITIONS[previousStatus as BookingStatus];
+    if (!allowedTransitions.includes(status)) {
+      return NextResponse.json(
+        {
+          error: `Invalid status transition from '${previousStatus}' to '${status}'. Allowed transitions: ${allowedTransitions.join(', ') || 'none (terminal state)'}`,
+          code: 'INVALID_TRANSITION'
+        },
+        { status: 400 }
+      );
+    }
+
+    // 7. Update booking status
     const { error: updateError } = await supabase
       .from('bookings')
       .update({
@@ -95,7 +135,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Failed to update status' }, { status: 500 });
     }
 
-    // 6. Prepare email data
+    // 8. Prepare email data
     const emailData: BookingEmailData = {
       bookingId: booking.id,
       serviceName: booking.service_name,
@@ -114,7 +154,7 @@ export async function PATCH(
       bookingType: booking.booking_type,
     };
 
-    // 7. Send appropriate emails based on status change
+    // 9. Send appropriate emails based on status change
     let emailResults = { client: false, tutor: false, agent: false };
 
     if (status === 'Confirmed' && previousStatus !== 'Confirmed') {

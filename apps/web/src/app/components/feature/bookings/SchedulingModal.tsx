@@ -19,19 +19,17 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Booking } from '@/types';
 import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
 import Button from '@/app/components/ui/actions/Button';
-import { DayPicker } from 'react-day-picker';
-import 'react-day-picker/style.css';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { DEFAULT_SCHEDULING_RULES, getPlatformTimezoneDisplay } from '@/lib/scheduling/rules';
-import { Calendar, Clock, Info } from 'lucide-react';
+import { AlertCircle, Calendar, Clock, Info } from 'lucide-react';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
+import { useLocalStorageDraft, formatDraftAge } from '@/hooks/useLocalStorageDraft';
 import styles from './SchedulingModal.module.css';
-import pickerStyles from '@/app/components/ui/forms/Pickers.module.css';
 
 interface SchedulingModalProps {
   isOpen: boolean;
@@ -39,6 +37,7 @@ interface SchedulingModalProps {
   booking: Booking;
   onScheduleProposed?: (date: Date) => void;
   onScheduleConfirmed?: () => void;
+  onSchedulingComplete?: () => Promise<void>;
 }
 
 // Generate time slots grouped by time of day
@@ -66,36 +65,42 @@ const generateTimeSlots = (): TimeSlotGroup[] => {
 
 const TIME_SLOT_GROUPS = generateTimeSlots();
 
-// TODO: Replace with actual availability check from backend/tutor availability data
-const isDateAvailable = (date: Date | null): boolean => {
-  if (!date) return false;
+const MONTHS = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
 
-  const now = new Date();
-  const compareDate = new Date(date);
-  compareDate.setHours(0, 0, 0, 0);
+const DAYS_OF_WEEK = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+// Generate calendar days for a given month/year
+const generateCalendarDays = (year: number, month: number): (Date | null)[] => {
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const daysInMonth = lastDay.getDate();
 
-  // If the date is in the past (before today), it's not available
-  if (compareDate < today) return false;
+  // Get day of week (0 = Sunday, 1 = Monday, etc.)
+  // Adjust so Monday = 0
+  let firstDayOfWeek = firstDay.getDay() - 1;
+  if (firstDayOfWeek < 0) firstDayOfWeek = 6; // Sunday becomes 6
 
-  // If the date is today, check if there are any slots available later today
-  if (compareDate.getTime() === today.getTime()) {
-    // Calculate the earliest available time (now + minimum notice hours)
-    const earliestTime = new Date();
-    earliestTime.setTime(earliestTime.getTime() + DEFAULT_SCHEDULING_RULES.minimumNoticeHours * 60 * 60 * 1000);
+  const days: (Date | null)[] = [];
 
-    // Check if earliest available time is still within today (before midnight)
-    const endOfDay = new Date(today);
-    endOfDay.setHours(23, 59, 59, 999);
-
-    // Today is available if we can still book slots later today
-    return earliestTime <= endOfDay;
+  // Add empty cells for days before month starts
+  for (let i = 0; i < firstDayOfWeek; i++) {
+    days.push(null);
   }
 
-  // Future dates are available
-  return true;
+  // Add actual days
+  for (let day = 1; day <= daysInMonth; day++) {
+    days.push(new Date(year, month, day));
+  }
+
+  // Pad to complete the week grid (6 rows x 7 days = 42 cells)
+  while (days.length < 42) {
+    days.push(null);
+  }
+
+  return days;
 };
 
 export default function SchedulingModal({
@@ -104,13 +109,153 @@ export default function SchedulingModal({
   booking,
   onScheduleProposed,
   onScheduleConfirmed,
+  onSchedulingComplete,
 }: SchedulingModalProps) {
   const { profile } = useUserProfile();
+
+  // Early return if profile is not available
+  if (!profile?.id) {
+    return (
+      <HubComplexModal
+        isOpen={isOpen}
+        onClose={onClose}
+        title="Schedule Your Session"
+      >
+        <div className={styles.errorBanner}>
+          <AlertCircle size={20} />
+          <span>Unable to load user profile. Please refresh and try again.</span>
+        </div>
+        <div className={styles.footer}>
+          <Button onClick={onClose}>Close</Button>
+        </div>
+      </HubComplexModal>
+    );
+  }
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showCounterPropose, setShowCounterPropose] = useState(false);
+
+  // Calendar navigation state (must be declared before draftData uses them)
+  const today = new Date();
+  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
+  const [currentYear, setCurrentYear] = useState(today.getFullYear());
+
+  // Rate limiting state
+  const [lastActionTime, setLastActionTime] = useState<number>(0);
+  const ACTION_COOLDOWN_MS = 2000; // 2 seconds between actions
+
+  // Draft state for persistence
+  interface SchedulingDraft {
+    selectedDate: string | null; // ISO string
+    selectedTime: string | null;
+    currentMonth: number;
+    currentYear: number;
+  }
+
+  const draftData: SchedulingDraft = {
+    selectedDate: selectedDate?.toISOString() || null,
+    selectedTime,
+    currentMonth,
+    currentYear,
+  };
+
+  const { hasDraft, draftAge, loadDraft, clearDraft } = useLocalStorageDraft({
+    key: `scheduling-modal-${booking.id}-${profile.id}`,
+    data: draftData,
+    enabled: isOpen,
+  });
+
+  // Load draft on mount
+  useEffect(() => {
+    if (hasDraft && isOpen) {
+      const draft = loadDraft();
+      if (draft) {
+        const draftTyped = draft as SchedulingDraft;
+        if (draftTyped.selectedDate) {
+          setSelectedDate(new Date(draftTyped.selectedDate));
+        }
+        if (draftTyped.selectedTime) {
+          setSelectedTime(draftTyped.selectedTime);
+        }
+        if (draftTyped.currentMonth !== undefined) {
+          setCurrentMonth(draftTyped.currentMonth);
+        }
+        if (draftTyped.currentYear !== undefined) {
+          setCurrentYear(draftTyped.currentYear);
+        }
+        console.log(`[SchedulingModal] Restored draft: ${formatDraftAge(draftAge)}`);
+      }
+    }
+  }, [hasDraft, isOpen]); // Only run on mount when modal opens
+
+  // Availability API state
+  const [availableDates, setAvailableDates] = useState<string[]>([]);
+  const [isLoadingAvailability, setIsLoadingAvailability] = useState(false);
+
+  // Fetch tutor availability when month/year changes
+  useEffect(() => {
+    async function fetchAvailability() {
+      if (!booking.tutorId || !isOpen) return;
+
+      setIsLoadingAvailability(true);
+      try {
+        const response = await fetch(
+          `/api/availability?tutorId=${booking.tutorId}&month=${currentMonth}&year=${currentYear}`
+        );
+
+        if (!response.ok) {
+          console.error('Failed to fetch availability');
+          setAvailableDates([]);
+          return;
+        }
+
+        const data = await response.json();
+        setAvailableDates(data.availableDates || []);
+      } catch (error) {
+        console.error('Error fetching availability:', error);
+        setAvailableDates([]);
+      } finally {
+        setIsLoadingAvailability(false);
+      }
+    }
+
+    fetchAvailability();
+  }, [booking.tutorId, currentMonth, currentYear, isOpen]);
+
+  // Generate calendar days for current view
+  const calendarDays = useMemo(
+    () => generateCalendarDays(currentYear, currentMonth),
+    [currentYear, currentMonth]
+  );
+
+  // Generate year options (current year + next 2 years)
+  const yearOptions = useMemo(() => {
+    const years: number[] = [];
+    for (let i = 0; i < 3; i++) {
+      years.push(today.getFullYear() + i);
+    }
+    return years;
+  }, [today]);
+
+  // Check if a date is available based on API data
+  const isDateAvailable = (date: Date | null): boolean => {
+    if (!date) return false;
+
+    const compareDate = new Date(date);
+    compareDate.setHours(0, 0, 0, 0);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Past dates are not available
+    if (compareDate < today) return false;
+
+    // Check if date is in the available dates from API
+    const dateString = compareDate.toISOString().split('T')[0]; // YYYY-MM-DD
+    return availableDates.includes(dateString);
+  };
 
   // Determine user's role in this booking
   const isProposer = booking.proposed_by === profile?.id;
@@ -147,6 +292,16 @@ export default function SchedulingModal({
   const handleProposeTime = async () => {
     if (!selectedDate || !selectedTime) return;
 
+    // Rate limiting check
+    const now = Date.now();
+    const timeSinceLastAction = now - lastActionTime;
+    if (timeSinceLastAction < ACTION_COOLDOWN_MS) {
+      const remainingSeconds = Math.ceil((ACTION_COOLDOWN_MS - timeSinceLastAction) / 1000);
+      setError(`Please wait ${remainingSeconds} second${remainingSeconds > 1 ? 's' : ''} before trying again.`);
+      return;
+    }
+
+    setLastActionTime(now);
     setIsSubmitting(true);
     setError(null);
 
@@ -170,13 +325,28 @@ export default function SchedulingModal({
       const data = await response.json();
 
       if (!response.ok) {
+        // Handle conflict (409) separately - refresh availability
+        if (response.status === 409) {
+          setError(data.error || 'This time slot was just booked. Please select another time.');
+          // Clear selected time and refresh available dates
+          setSelectedTime(null);
+          // Trigger availability refresh by re-fetching
+          const availResponse = await fetch(
+            `/api/availability?tutorId=${booking.tutorId}&month=${currentMonth}&year=${currentYear}`
+          );
+          if (availResponse.ok) {
+            const availData = await availResponse.json();
+            setAvailableDates(availData.availableDates || []);
+          }
+          return;
+        }
         throw new Error(data.error || `Failed to ${isRescheduling ? 'reschedule' : 'propose time'}`);
       }
 
       onScheduleProposed?.(proposedDateTime);
+      clearDraft(); // Clear draft after successful submission
+      await onSchedulingComplete?.();
       onClose();
-      // Reload to show updated state
-      window.location.reload();
     } catch (err) {
       setError(err instanceof Error ? err.message : `Failed to ${isRescheduling ? 'reschedule' : 'propose time'}`);
     } finally {
@@ -184,8 +354,62 @@ export default function SchedulingModal({
     }
   };
 
+  // Handle withdraw/decline proposal
+  const handleWithdrawProposal = async () => {
+    // Rate limiting check
+    const now = Date.now();
+    const timeSinceLastAction = now - lastActionTime;
+    if (timeSinceLastAction < ACTION_COOLDOWN_MS) {
+      const remainingSeconds = Math.ceil((ACTION_COOLDOWN_MS - timeSinceLastAction) / 1000);
+      setError(`Please wait ${remainingSeconds} second${remainingSeconds > 1 ? 's' : ''} before trying again.`);
+      return;
+    }
+
+    if (!window.confirm(
+      isProposer
+        ? 'Are you sure you want to withdraw your time proposal?'
+        : 'Are you sure you want to decline this time proposal?'
+    )) {
+      return;
+    }
+
+    setLastActionTime(now);
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/bookings/${booking.id}/schedule/withdraw`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to withdraw proposal');
+      }
+
+      clearDraft(); // Clear draft after successful withdrawal
+      await onSchedulingComplete?.();
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to withdraw proposal');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Handle confirm time
   const handleConfirmTime = async () => {
+    // Rate limiting check
+    const now = Date.now();
+    const timeSinceLastAction = now - lastActionTime;
+    if (timeSinceLastAction < ACTION_COOLDOWN_MS) {
+      const remainingSeconds = Math.ceil((ACTION_COOLDOWN_MS - timeSinceLastAction) / 1000);
+      setError(`Please wait ${remainingSeconds} second${remainingSeconds > 1 ? 's' : ''} before trying again.`);
+      return;
+    }
+
+    setLastActionTime(now);
     setIsSubmitting(true);
     setError(null);
 
@@ -208,8 +432,9 @@ export default function SchedulingModal({
       }
 
       onScheduleConfirmed?.();
+      clearDraft(); // Clear draft after successful confirmation
+      await onSchedulingComplete?.();
       onClose();
-      window.location.reload();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to confirm time');
     } finally {
@@ -223,35 +448,56 @@ export default function SchedulingModal({
   // Format booking ID for subtitle
   const bookingIdDisplay = formatIdForDisplay(booking.id);
 
+  // Handle date selection
+  const handleDateClick = (date: Date | null) => {
+    if (!date || !isDateAvailable(date)) return;
+    setSelectedDate(date);
+    setSelectedTime(null); // Reset time selection when date changes
+  };
+
   // Footer actions
   const footer = (
     <div className={styles.footer}>
       <Button variant="ghost" onClick={onClose} disabled={isSubmitting}>
         Cancel
       </Button>
-      {canConfirm && (
-        <Button
-          variant="primary"
-          onClick={handleConfirmTime}
-          disabled={isSubmitting}
-          title={isSubmitting ? 'Processing...' : ''}
-        >
-          {isSubmitting ? 'Processing...' :
-            isFreeSession ? 'Confirm Time' : `Confirm & Pay £${booking.amount.toFixed(2)}`}
-        </Button>
-      )}
-      {(canPropose || showCounterPropose) && (
-        <Button
-          variant="primary"
-          onClick={handleProposeTime}
-          disabled={isSubmitting || !selectedDate || !selectedTime}
-          title={!selectedDate || !selectedTime ? 'Select date and time first' : ''}
-        >
-          {isSubmitting
+
+      {/* Confirm & Pay button - always shown, disabled when not applicable */}
+      <Button
+        variant="primary"
+        onClick={handleConfirmTime}
+        disabled={isSubmitting || !canConfirm}
+        title={
+          isSubmitting
+            ? 'Processing...'
+            : !canConfirm
+              ? 'Wait for time proposal to confirm'
+              : ''
+        }
+      >
+        {isSubmitting ? 'Processing...' :
+          isFreeSession ? 'Confirm Time' : `Confirm & Pay £${booking.amount.toFixed(2)}`}
+      </Button>
+
+      {/* Propose/Reschedule button - always shown, disabled when not applicable */}
+      <Button
+        variant="primary"
+        onClick={handleProposeTime}
+        disabled={isSubmitting || !selectedDate || !selectedTime || (!canPropose && !showCounterPropose)}
+        title={
+          isSubmitting
             ? (isRescheduling ? 'Requesting Reschedule...' : 'Proposing...')
-            : (isRescheduling ? 'Request Reschedule' : 'Propose This Time')}
-        </Button>
-      )}
+            : !selectedDate || !selectedTime
+              ? 'Select date and time first'
+              : (!canPropose && !showCounterPropose)
+                ? 'No proposal needed at this stage'
+                : ''
+        }
+      >
+        {isSubmitting
+          ? (isRescheduling ? 'Requesting Reschedule...' : 'Proposing...')
+          : (isRescheduling ? 'Request Reschedule' : 'Propose This Time')}
+      </Button>
     </div>
   );
 
@@ -293,7 +539,7 @@ export default function SchedulingModal({
                 disabled={isSubmitting}
                 size="sm"
               >
-                {isSubmitting ? 'Processing...' :
+                {isSubmitting ? 'Confirming...' :
                   isFreeSession ? 'Confirm Time' : `Confirm & Pay £${booking.amount.toFixed(2)}`}
               </Button>
               <Button
@@ -302,14 +548,33 @@ export default function SchedulingModal({
                 disabled={isSubmitting}
                 size="sm"
               >
-                Suggest Different Time
+                {isSubmitting ? 'Loading...' : 'Suggest Different Time'}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={handleWithdrawProposal}
+                disabled={isSubmitting}
+                size="sm"
+              >
+                {isSubmitting ? 'Declining...' : 'Decline Proposal'}
               </Button>
             </div>
           )}
           {isProposer && !canConfirm && (
-            <p className={styles.waitingText}>
-              Waiting for the other party to confirm...
-            </p>
+            <>
+              <p className={styles.waitingText}>
+                Waiting for the other party to confirm...
+              </p>
+              <Button
+                variant="ghost"
+                onClick={handleWithdrawProposal}
+                disabled={isSubmitting}
+                size="sm"
+                className={styles.withdrawButton}
+              >
+                {isSubmitting ? 'Withdrawing...' : 'Withdraw Proposal'}
+              </Button>
+            </>
           )}
         </div>
       )}
@@ -333,28 +598,68 @@ export default function SchedulingModal({
             <div className={styles.datePickerColumn}>
               <div className={styles.columnHeader}>
                 <Calendar size={18} />
-                <h4>Select Date</h4>
+                <h4>SELECT DATE</h4>
               </div>
 
-              {/* DayPicker Inline Calendar */}
+              {/* Calendar Grid */}
               <div className={styles.calendarContainer}>
-                <DayPicker
-                  mode="single"
-                  selected={selectedDate || undefined}
-                  onSelect={(date) => {
-                    setSelectedDate(date || null);
-                    setSelectedTime(null); // Reset time when date changes
-                  }}
-                  disabled={(date) => !isDateAvailable(date)}
-                  captionLayout="dropdown"
-                  fromYear={new Date().getFullYear()}
-                  toYear={new Date().getFullYear() + 2}
-                  className={pickerStyles.datePickerCalendar}
-                  modifiersClassNames={{
-                    selected: styles.calendarDaySelected,
-                    disabled: styles.calendarDayDisabled,
-                  }}
-                />
+                {/* Month/Year Dropdowns */}
+                <div className={styles.monthYearSelector}>
+                  <UnifiedSelect
+                    options={MONTHS.map((month, index) => ({
+                      value: index,
+                      label: month,
+                    }))}
+                    value={currentMonth}
+                    onChange={(value) => setCurrentMonth(Number(value))}
+                    size="md"
+                  />
+                  <UnifiedSelect
+                    options={yearOptions.map((year) => ({
+                      value: year,
+                      label: String(year),
+                    }))}
+                    value={currentYear}
+                    onChange={(value) => setCurrentYear(Number(value))}
+                    size="md"
+                  />
+                </div>
+
+                {/* Day headers */}
+                <div className={styles.dayHeaders}>
+                  {DAYS_OF_WEEK.map((day) => (
+                    <div key={day} className={styles.dayHeader}>
+                      {day}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Calendar days */}
+                <div className={styles.calendarGrid}>
+                  {calendarDays.map((date, index) => {
+                    if (!date) {
+                      return <div key={`empty-${index}`} className={styles.emptyCell} />;
+                    }
+
+                    const isAvailable = isDateAvailable(date);
+                    const isSelected = selectedDate?.toDateString() === date.toDateString();
+                    const isToday = date.toDateString() === new Date().toDateString();
+
+                    return (
+                      <button
+                        key={date.toISOString()}
+                        className={`${styles.calendarDay} ${
+                          isAvailable ? styles.available : styles.unavailable
+                        } ${isSelected ? styles.selected : ''} ${isToday ? styles.today : ''}`}
+                        onClick={() => handleDateClick(date)}
+                        disabled={!isAvailable}
+                        type="button"
+                      >
+                        {date.getDate()}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
@@ -362,7 +667,7 @@ export default function SchedulingModal({
             <div className={styles.timePickerColumn}>
               <div className={styles.columnHeader}>
                 <Clock size={18} />
-                <h4>Select Time</h4>
+                <h4>SELECT TIME</h4>
               </div>
 
               {!selectedDate ? (
@@ -378,28 +683,78 @@ export default function SchedulingModal({
                   </div>
 
                   {/* Time slots with radio buttons */}
-                  <div className={styles.timeSlotGroups}>
-                    {TIME_SLOT_GROUPS.map((group) => (
-                      <div key={group.label} className={styles.timeGroup}>
-                        <h5 className={styles.timeGroupLabel}>{group.label}</h5>
-                        <div className={styles.timeSlotGrid}>
-                          {group.slots.map((time) => (
-                            <label key={time} className={styles.timeSlotLabel}>
-                              <input
-                                type="radio"
-                                name="time-slot"
-                                value={time}
-                                checked={selectedTime === time}
-                                onChange={() => setSelectedTime(time)}
-                                className={styles.timeSlotRadio}
-                              />
-                              <span className={styles.timeSlotText}>{time}</span>
-                            </label>
-                          ))}
+                  {(() => {
+                    // Calculate available time slots
+                    const isToday = selectedDate?.toDateString() === new Date().toDateString();
+                    const availableSlots = TIME_SLOT_GROUPS.flatMap(group =>
+                      group.slots.filter(time => {
+                        if (!isToday || !selectedDate) return true;
+
+                        const [hours, minutes] = time.split(':').map(Number);
+                        const slotTime = new Date(selectedDate);
+                        slotTime.setHours(hours, minutes, 0, 0);
+                        const now = new Date();
+
+                        const minNoticeMs = DEFAULT_SCHEDULING_RULES.minimumNoticeHours * 60 * 60 * 1000;
+                        return slotTime.getTime() - now.getTime() >= minNoticeMs;
+                      })
+                    );
+
+                    if (availableSlots.length === 0) {
+                      return (
+                        <div className={styles.emptyState}>
+                          <Clock size={32} />
+                          <p>No available times for this date</p>
+                          <p className={styles.waitingText}>
+                            Please select a different date
+                          </p>
                         </div>
+                      );
+                    }
+
+                    return (
+                      <div className={styles.timeSlotGroups}>
+                        {TIME_SLOT_GROUPS.map((group) => (
+                          <div key={group.label} className={styles.timeGroup}>
+                            <h5 className={styles.timeGroupLabel}>{group.label}</h5>
+                            <div className={styles.timeSlotGrid}>
+                              {group.slots.map((time) => {
+                                let isPastTime = false;
+
+                                if (isToday && selectedDate) {
+                                  const [hours, minutes] = time.split(':').map(Number);
+                                  const slotTime = new Date(selectedDate);
+                                  slotTime.setHours(hours, minutes, 0, 0);
+                                  const now = new Date();
+
+                                  const minNoticeMs = DEFAULT_SCHEDULING_RULES.minimumNoticeHours * 60 * 60 * 1000;
+                                  isPastTime = slotTime.getTime() - now.getTime() < minNoticeMs;
+                                }
+
+                                return (
+                                  <label
+                                    key={time}
+                                    className={`${styles.timeSlotLabel} ${isPastTime ? styles.timeSlotDisabled : ''}`}
+                                  >
+                                    <input
+                                      type="radio"
+                                      name="time-slot"
+                                      value={time}
+                                      checked={selectedTime === time}
+                                      onChange={() => setSelectedTime(time)}
+                                      disabled={isPastTime}
+                                      className={styles.timeSlotRadio}
+                                    />
+                                    <span className={styles.timeSlotText}>{time}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })()}
                 </>
               )}
             </div>
