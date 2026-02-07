@@ -168,7 +168,34 @@ export async function POST(req: Request) {
       );
     }
 
-    // 9. Create withdrawal transaction record
+    // 9. Check for concurrent/pending withdrawals (CRITICAL: Prevent race conditions)
+    const { data: pendingWithdrawals, error: pendingError } = await supabase
+      .from('transactions')
+      .select('id, created_at, amount')
+      .eq('profile_id', user.id)
+      .eq('type', 'Withdrawal')
+      .eq('status', 'clearing')
+      .gte('created_at', new Date(Date.now() - 15 * 60 * 1000).toISOString()); // Last 15 minutes
+
+    if (pendingError) {
+      console.error(`[WITHDRAWAL:${requestId}] Pending check failed:`, pendingError);
+      return new NextResponse(
+        JSON.stringify({ message: 'Failed to verify withdrawal status' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (pendingWithdrawals && pendingWithdrawals.length > 0) {
+      console.warn(`[WITHDRAWAL:${requestId}] Concurrent withdrawal detected:`, pendingWithdrawals);
+      return new NextResponse(
+        JSON.stringify({
+          message: 'You already have a withdrawal in progress. Please wait for it to complete before requesting another.',
+        }),
+        { status: 409, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // 10. Create withdrawal transaction record
     // Generate idempotency key to prevent duplicate transactions
     const idempotencyKey = `withdrawal_${user.id}_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
 
@@ -197,7 +224,7 @@ export async function POST(req: Request) {
 
     console.log(`[WITHDRAWAL:${requestId}] Transaction created:`, transaction.id);
 
-    // 10. Process Stripe payout
+    // 11. Process Stripe payout
     const payoutResult = await createConnectPayout(
       stripeAccountId,
       amount,
@@ -255,18 +282,12 @@ export async function POST(req: Request) {
       // Non-critical error - payout was successful, just log for manual review
     }
 
-    // 12. Mark all available funds as paid_out
-    const { error: markPaidError } = await supabase
-      .from('transactions')
-      .update({ status: 'paid_out' })
-      .eq('profile_id', user.id)
-      .eq('status', 'available')
-      .lte('available_at', new Date().toISOString());
-
-    if (markPaidError) {
-      console.error(`[WITHDRAWAL:${requestId}] Marking transactions failed:`, markPaidError);
-      // Non-critical error - the withdrawal was recorded
-    }
+    // 12. Transaction status will be updated to 'paid_out' by Stripe webhook
+    // when payout is confirmed (payout.paid event).
+    // DO NOT bulk-mark all available transactions here - this causes race conditions
+    // if user makes concurrent withdrawals. Only the withdrawal transaction itself
+    // will be marked as paid_out, which happens in the webhook handler.
+    console.log(`[WITHDRAWAL:${requestId}] Transaction created, awaiting Stripe payout confirmation`);
 
     console.log(`[WITHDRAWAL:${requestId}] Withdrawal completed successfully`);
 

@@ -398,6 +398,98 @@ export async function POST(req: NextRequest) {
         break;
       }
 
+      // Financials Audit Fix: Dispute/Chargeback Handler (Issue #10)
+      case 'charge.dispute.created': {
+        const dispute = event.data.object as Stripe.Dispute;
+        console.log(`[WEBHOOK:DISPUTE] Dispute created: ${dispute.id}, Amount: ${dispute.amount}`);
+
+        const supabase = await createClient();
+
+        // Get payment intent to find associated booking
+        const paymentIntentId = dispute.payment_intent as string;
+
+        if (!paymentIntentId) {
+          console.error('[WEBHOOK:DISPUTE] No payment intent ID in dispute');
+          break;
+        }
+
+        // Find booking associated with this payment intent
+        const { data: booking, error: bookingError } = await supabase
+          .from('bookings')
+          .select('id, client_id, tutor_id, amount, service_name')
+          .eq('stripe_payment_intent_id', paymentIntentId)
+          .single();
+
+        if (bookingError || !booking) {
+          console.error('[WEBHOOK:DISPUTE] Booking not found for payment intent:', paymentIntentId);
+          break;
+        }
+
+        console.log(`[WEBHOOK:DISPUTE] Found booking ${booking.id} for disputed charge`);
+
+        // Mark all associated transactions as 'disputed'
+        const { error: updateError } = await supabase
+          .from('transactions')
+          .update({ status: 'disputed' })
+          .eq('booking_id', booking.id)
+          .in('status', ['clearing', 'available'])
+          .in('type', ['Tutoring Payout', 'Referral Commission', 'Agent Commission']);
+
+        if (updateError) {
+          console.error('[WEBHOOK:DISPUTE] Failed to mark transactions as disputed:', updateError);
+          throw updateError;
+        }
+
+        // Create reversal transactions to offset any disputed amounts
+        // This prevents payout of disputed funds
+        const { data: disputedTransactions, error: fetchError } = await supabase
+          .from('transactions')
+          .select('*')
+          .eq('booking_id', booking.id)
+          .eq('status', 'disputed');
+
+        if (!fetchError && disputedTransactions && disputedTransactions.length > 0) {
+          const reversals = disputedTransactions.map((tx) => ({
+            profile_id: tx.profile_id,
+            booking_id: booking.id,
+            type: 'Refund',
+            description: `Chargeback reversal: ${tx.type} for ${tx.service_name || 'session'}`,
+            amount: -tx.amount,
+            status: 'available', // Immediately offset the balance
+            available_at: new Date().toISOString(),
+            service_name: tx.service_name,
+            subjects: tx.subjects,
+            session_date: tx.session_date,
+            delivery_mode: tx.delivery_mode,
+            tutor_name: tx.tutor_name,
+            client_name: tx.client_name,
+            metadata: {
+              reversal_of: tx.id,
+              reversal_reason: 'chargeback',
+              dispute_id: dispute.id,
+              original_type: tx.type,
+              original_amount: tx.amount,
+            },
+          }));
+
+          const { error: reversalError } = await supabase
+            .from('transactions')
+            .insert(reversals);
+
+          if (reversalError) {
+            console.error('[WEBHOOK:DISPUTE] Failed to create reversal transactions:', reversalError);
+          } else {
+            console.log(`[WEBHOOK:DISPUTE] Created ${reversals.length} reversal transactions`);
+          }
+        }
+
+        // TODO: Send notification to both client and tutor about dispute
+        // TODO: Create admin task to review dispute
+
+        console.log(`[WEBHOOK:DISPUTE] Dispute handled for booking ${booking.id}`);
+        break;
+      }
+
       // v7.0: Organisation Premium subscription event handlers
       case 'customer.subscription.created': {
         const subscription = event.data.object as Stripe.Subscription;

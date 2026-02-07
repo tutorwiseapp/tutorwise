@@ -300,12 +300,13 @@ export async function reverseBookingCommissions(bookingId: string): Promise<void
     console.log(`[Commission Reversal] Finding transactions to reverse for booking ${bookingId}`);
 
     // Find all commission/payout transactions for this booking that haven't been paid out yet
+    // CRITICAL: Also reverse Platform Fee to properly account for full refund
     const { data: transactions, error: fetchError } = await supabase
       .from('transactions')
       .select('*')
       .eq('booking_id', bookingId)
-      .in('type', ['Referral Commission', 'Agent Commission', 'Tutoring Payout'])
-      .in('status', ['pending', 'clearing', 'available']); // Only reverse unpaid transactions
+      .in('type', ['Referral Commission', 'Agent Commission', 'Tutoring Payout', 'Platform Fee'])
+      .in('status', ['pending', 'clearing', 'available', 'paid_out']); // Reverse even paid_out for Platform Fee
 
     if (fetchError) {
       console.error('[Commission Reversal] Failed to fetch transactions:', fetchError);
@@ -354,6 +355,20 @@ export async function reverseBookingCommissions(bookingId: string): Promise<void
     }
 
     console.log(`[Commission Reversal] ✅ Created ${reversals.length} reversal transactions for booking ${bookingId}`);
+
+    // Mark original transactions as 'refunded' to maintain audit trail
+    const transactionIds = transactions.map(tx => tx.id);
+    const { error: updateError } = await supabase
+      .from('transactions')
+      .update({ status: 'refunded' })
+      .in('id', transactionIds);
+
+    if (updateError) {
+      console.error('[Commission Reversal] Failed to mark original transactions as refunded:', updateError);
+      // Non-critical - reversal transactions were created successfully
+    } else {
+      console.log(`[Commission Reversal] ✅ Marked ${transactionIds.length} original transactions as refunded`);
+    }
 
     // Log details for each reversal
     reversals.forEach((reversal, index) => {
