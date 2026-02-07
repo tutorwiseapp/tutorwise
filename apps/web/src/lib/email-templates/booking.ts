@@ -693,3 +693,128 @@ export async function sendSchedulingConfirmationEmails(data: SchedulingEmailData
 
   return results;
 }
+
+/**
+ * No-Show Alert Email Data
+ * v7.0: Sends notification when a no-show is detected
+ */
+export interface NoShowAlertData {
+  bookingId: string;
+  serviceName: string;
+  sessionDate: Date;
+  sessionDuration: number;
+  noShowParty: 'client' | 'tutor';
+  tutorName: string;
+  tutorEmail: string;
+  clientName: string;
+  clientEmail: string;
+  detectedAt: Date;
+}
+
+/**
+ * v7.0: Sends no-show alert email to both parties
+ * Notifies when a session has been automatically detected as a no-show
+ *
+ * @param data - No-show alert email data
+ * @param recipient - 'tutor' | 'client' | 'both'
+ */
+export async function sendNoShowAlertEmail(
+  data: NoShowAlertData,
+  recipient: 'tutor' | 'client' | 'both' = 'both'
+) {
+  const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat('en-GB', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Europe/London',
+    }).format(date);
+  };
+
+  const noShowPartyName = data.noShowParty === 'client' ? data.clientName : data.tutorName;
+
+  // Determine which party to send to
+  const shouldSendToTutor = recipient === 'tutor' || recipient === 'both';
+  const shouldSendToClient = recipient === 'client' || recipient === 'both';
+
+  // Send to tutor
+  if (shouldSendToTutor) {
+    const tutorSubject = `⚠️ No-Show Alert: ${data.serviceName}`;
+    const tutorBody = generateEmailTemplate({
+      preheader: `Session with ${data.clientName} was not attended`,
+      heading: '⚠️ No-Show Detected',
+      intro: paragraph(
+        `We've detected that the scheduled session with ${bold(data.clientName)} was not attended.`
+      ),
+      body: [
+        infoRow('Session', data.serviceName),
+        infoRow('Scheduled Time', formatDate(data.sessionDate)),
+        infoRow('Duration', `${data.sessionDuration} minutes`),
+        infoRow('No-Show Party', noShowPartyName),
+        infoRow('Detected At', formatDate(data.detectedAt)),
+        '',
+        paragraph(
+          `This no-show has been recorded and ${data.noShowParty === 'client' ? 'the client will not receive a refund. You will receive full payment for this session.' : 'the client will be fully refunded.'}`
+        ),
+        '',
+        paragraph(
+          'If you believe this detection was incorrect, please contact support immediately.'
+        ),
+      ],
+      cta: {
+        text: 'View Booking Details',
+        url: `${process.env.NEXT_PUBLIC_SITE_URL}/bookings?id=${data.bookingId}`,
+      },
+      footer: 'This is an automated notification. For support, contact support@tutorwise.com',
+    });
+
+    await sendEmail({
+      to: data.tutorEmail,
+      subject: tutorSubject,
+      html: tutorBody,
+      from: tokens.from,
+    });
+  }
+
+  // Send to client
+  if (shouldSendToClient) {
+    const clientSubject = `⚠️ No-Show Alert: ${data.serviceName}`;
+    const clientBody = generateEmailTemplate({
+      preheader: `Session with ${data.tutorName} was not attended`,
+      heading: '⚠️ No-Show Detected',
+      intro: paragraph(
+        `We've detected that your scheduled session with ${bold(data.tutorName)} was not attended.`
+      ),
+      body: [
+        infoRow('Session', data.serviceName),
+        infoRow('Scheduled Time', formatDate(data.sessionDate)),
+        infoRow('Duration', `${data.sessionDuration} minutes`),
+        infoRow('No-Show Party', noShowPartyName),
+        infoRow('Detected At', formatDate(data.detectedAt)),
+        '',
+        paragraph(
+          `This no-show has been recorded. ${data.noShowParty === 'client' ? 'Unfortunately, no refund can be issued for missed sessions. The tutor will receive full payment.' : 'You will receive a full refund for this session.'}`
+        ),
+        '',
+        paragraph(
+          'If you believe this detection was incorrect, please contact support immediately.'
+        ),
+      ],
+      cta: {
+        text: 'View Booking Details',
+        url: `${process.env.NEXT_PUBLIC_SITE_URL}/bookings?id=${data.bookingId}`,
+      },
+      footer: 'This is an automated notification. For support, contact support@tutorwise.com',
+    });
+
+    await sendEmail({
+      to: data.clientEmail,
+      subject: clientSubject,
+      html: clientBody,
+      from: tokens.from,
+    });
+  }
+}
