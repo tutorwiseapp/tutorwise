@@ -168,18 +168,24 @@ export async function sendNoShowAlert(bookingId: string): Promise<boolean> {
       return false;
     }
 
+    // Type assertion for Supabase relationship (single object, not array)
+    const client = booking.client as unknown as { full_name: string; email: string } | null;
+    const tutor = booking.tutor as unknown as { full_name: string; email: string } | null;
+
     // Send alert emails
-    if (booking.client?.email && booking.tutor?.email) {
+    if (client?.email && tutor?.email) {
       try {
         await sendNoShowAlertEmail({
           bookingId: booking.id,
           serviceName: booking.service_name,
-          sessionStartTime: new Date(booking.session_start_time),
+          sessionDate: new Date(booking.session_start_time),
           sessionDuration: booking.session_duration,
-          clientName: booking.client.full_name || 'Client',
-          clientEmail: booking.client.email,
-          tutorName: booking.tutor.full_name || 'Tutor',
-          tutorEmail: booking.tutor.email,
+          clientName: client.full_name || 'Client',
+          clientEmail: client.email,
+          tutorName: tutor.full_name || 'Tutor',
+          tutorEmail: tutor.email,
+          noShowParty: 'client',
+          detectedAt: new Date(),
         });
 
         console.log('[No-Show Detection] Alert emails sent for booking:', bookingId);
