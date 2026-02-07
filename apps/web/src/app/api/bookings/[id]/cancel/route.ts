@@ -134,34 +134,50 @@ export async function POST(
       caasImpact: refundCalc.caasImpact
     });
 
-    // 9. Process Stripe refund if applicable
+    // 9. Process Stripe refund if applicable (with idempotency check)
     let stripeRefundId: string | null = null;
 
     if (refundCalc.clientRefund > 0 && booking.payment_status === 'Paid') {
       try {
         if (booking.stripe_payment_intent_id) {
-          const stripeRefund = await stripe.refunds.create({
+          // MEDIUM Priority Fix: Check if refund already exists (idempotency)
+          const existingRefunds = await stripe.refunds.list({
             payment_intent: booking.stripe_payment_intent_id,
-            amount: Math.round(refundCalc.clientRefund * 100), // Net refund in pence
-            reason: 'requested_by_customer',
-            metadata: {
-              booking_id: bookingId,
-              cancelled_by: cancelledBy,
-              policy_applied: refundCalc.policyApplied,
-              gross_amount: refundCalc.clientRefundGross.toString(),
-              stripe_fee: refundCalc.stripeFee.toString(),
-              net_refund: refundCalc.clientRefund.toString()
-            }
+            limit: 1
           });
 
-          stripeRefundId = stripeRefund.id;
+          if (existingRefunds.data.length > 0) {
+            console.log('[Cancel Booking] Refund already exists:', existingRefunds.data[0].id);
+            stripeRefundId = existingRefunds.data[0].id;
+          } else {
+            // Create new refund with idempotency key
+            const idempotencyKey = `refund_${bookingId}_${Date.now()}`;
 
-          console.log('[Cancel Booking] Stripe refund processed:', {
-            refundId: stripeRefundId,
-            grossAmount: refundCalc.clientRefundGross,
-            stripeFee: refundCalc.stripeFee,
-            netRefund: refundCalc.clientRefund
-          });
+            const stripeRefund = await stripe.refunds.create({
+              payment_intent: booking.stripe_payment_intent_id,
+              amount: Math.round(refundCalc.clientRefund * 100), // Net refund in pence
+              reason: 'requested_by_customer',
+              metadata: {
+                booking_id: bookingId,
+                cancelled_by: cancelledBy,
+                policy_applied: refundCalc.policyApplied,
+                gross_amount: refundCalc.clientRefundGross.toString(),
+                stripe_fee: refundCalc.stripeFee.toString(),
+                net_refund: refundCalc.clientRefund.toString()
+              }
+            }, {
+              idempotencyKey // Stripe idempotency protection
+            });
+
+            stripeRefundId = stripeRefund.id;
+
+            console.log('[Cancel Booking] Stripe refund processed:', {
+              refundId: stripeRefundId,
+              grossAmount: refundCalc.clientRefundGross,
+              stripeFee: refundCalc.stripeFee,
+              netRefund: refundCalc.clientRefund
+            });
+          }
         }
       } catch (stripeError) {
         console.error('[Cancel Booking] Stripe refund failed:', stripeError);
