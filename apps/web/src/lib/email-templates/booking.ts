@@ -743,78 +743,84 @@ export async function sendNoShowAlertEmail(
   // Send to tutor
   if (shouldSendToTutor) {
     const tutorSubject = `⚠️ No-Show Alert: ${data.serviceName}`;
-    const tutorBody = generateEmailTemplate({
-      preheader: `Session with ${data.clientName} was not attended`,
-      heading: '⚠️ No-Show Detected',
-      intro: paragraph(
+
+    const tutorBody = `
+      ${paragraph(
         `We've detected that the scheduled session with ${bold(data.clientName)} was not attended.`
-      ),
-      body: [
-        infoRow('Session', data.serviceName),
-        infoRow('Scheduled Time', formatDate(data.sessionDate)),
-        infoRow('Duration', `${data.sessionDuration} minutes`),
-        infoRow('No-Show Party', noShowPartyName),
-        infoRow('Detected At', formatDate(data.detectedAt)),
-        '',
-        paragraph(
-          `This no-show has been recorded and ${data.noShowParty === 'client' ? 'the client will not receive a refund. You will receive full payment for this session.' : 'the client will be fully refunded.'}`
-        ),
-        '',
-        paragraph(
-          'If you believe this detection was incorrect, please contact support immediately.'
-        ),
-      ],
+      )}
+      <div style="margin: 24px 0; background: ${tokens.colors.background}; border-radius: ${tokens.borderRadius}; padding: 20px;">
+        ${infoRow('Session', data.serviceName)}
+        ${infoRow('Scheduled Time', formatDate(data.sessionDate))}
+        ${infoRow('Duration', `${data.sessionDuration} minutes`)}
+        ${infoRow('No-Show Party', noShowPartyName)}
+        ${infoRow('Detected At', formatDate(data.detectedAt))}
+      </div>
+      ${paragraph(
+        `This no-show has been recorded and ${data.noShowParty === 'client' ? 'the client will not receive a refund. You will receive full payment for this session.' : 'the client will be fully refunded.'}`
+      )}
+      ${paragraph(
+        'If you believe this detection was incorrect, please contact support immediately.'
+      )}
+    `;
+
+    const tutorHtml = generateEmailTemplate({
+      headline: '⚠️ No-Show Detected',
+      variant: 'warning',
+      recipientName: data.tutorName,
+      body: tutorBody,
       cta: {
         text: 'View Booking Details',
         url: `${process.env.NEXT_PUBLIC_SITE_URL}/bookings?id=${data.bookingId}`,
       },
-      footer: 'This is an automated notification. For support, contact support@tutorwise.com',
+      footerNote: 'This is an automated notification. For support, contact support@tutorwise.com',
     });
 
     await sendEmail({
       to: data.tutorEmail,
       subject: tutorSubject,
-      html: tutorBody,
-      from: tokens.from,
+      html: tutorHtml,
     });
   }
 
   // Send to client
   if (shouldSendToClient) {
     const clientSubject = `⚠️ No-Show Alert: ${data.serviceName}`;
-    const clientBody = generateEmailTemplate({
-      preheader: `Session with ${data.tutorName} was not attended`,
-      heading: '⚠️ No-Show Detected',
-      intro: paragraph(
+
+    const clientBody = `
+      ${paragraph(
         `We've detected that your scheduled session with ${bold(data.tutorName)} was not attended.`
-      ),
-      body: [
-        infoRow('Session', data.serviceName),
-        infoRow('Scheduled Time', formatDate(data.sessionDate)),
-        infoRow('Duration', `${data.sessionDuration} minutes`),
-        infoRow('No-Show Party', noShowPartyName),
-        infoRow('Detected At', formatDate(data.detectedAt)),
-        '',
-        paragraph(
-          `This no-show has been recorded. ${data.noShowParty === 'client' ? 'Unfortunately, no refund can be issued for missed sessions. The tutor will receive full payment.' : 'You will receive a full refund for this session.'}`
-        ),
-        '',
-        paragraph(
-          'If you believe this detection was incorrect, please contact support immediately.'
-        ),
-      ],
+      )}
+      <div style="margin: 24px 0; background: ${tokens.colors.background}; border-radius: ${tokens.borderRadius}; padding: 20px;">
+        ${infoRow('Session', data.serviceName)}
+        ${infoRow('Scheduled Time', formatDate(data.sessionDate))}
+        ${infoRow('Duration', `${data.sessionDuration} minutes`)}
+        ${infoRow('No-Show Party', noShowPartyName)}
+        ${infoRow('Detected At', formatDate(data.detectedAt))}
+      </div>
+      ${paragraph(
+        `This no-show has been recorded. ${data.noShowParty === 'client' ? 'Unfortunately, no refund can be issued for missed sessions. The tutor will receive full payment.' : 'You will receive a full refund for this session.'}`
+      )}
+      ${paragraph(
+        'If you believe this detection was incorrect, please contact support immediately.'
+      )}
+    `;
+
+    const clientHtml = generateEmailTemplate({
+      headline: '⚠️ No-Show Detected',
+      variant: 'warning',
+      recipientName: data.clientName,
+      body: clientBody,
       cta: {
         text: 'View Booking Details',
         url: `${process.env.NEXT_PUBLIC_SITE_URL}/bookings?id=${data.bookingId}`,
       },
-      footer: 'This is an automated notification. For support, contact support@tutorwise.com',
+      footerNote: 'This is an automated notification. For support, contact support@tutorwise.com',
     });
 
     await sendEmail({
       to: data.clientEmail,
       subject: clientSubject,
-      html: clientBody,
-      from: tokens.from,
+      html: clientHtml,
     });
   }
 }
