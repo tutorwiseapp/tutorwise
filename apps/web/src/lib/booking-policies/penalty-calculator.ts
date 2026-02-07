@@ -110,7 +110,7 @@ export async function calculateCancellationPenalty(
   hoursUntilSession: number
 ): Promise<CancellationPenaltyResult> {
   // Get refund calculation from existing policy
-  const refundCalc = calculateRefund(booking.amount, cancelledBy, hoursUntilSession, 'cancelled');
+  const refundCalc = calculateRefund(booking.amount, hoursUntilSession, cancelledBy, 'cancelled');
 
   // Determine who's getting penalized
   const penalizedUserId = cancelledBy === 'client' ? booking.client_id : booking.tutor_id;
