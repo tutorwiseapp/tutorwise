@@ -41,6 +41,8 @@ describe('POST /api/bookings', () => {
       eq: jest.fn(() => mockSupabase),
       in: jest.fn(() => mockSupabase),
       gte: jest.fn(() => mockSupabase),
+      lte: jest.fn(() => mockSupabase),
+      neq: jest.fn(() => mockSupabase),
       single: jest.fn(),
       insert: jest.fn(() => mockSupabase),
     };
@@ -86,7 +88,13 @@ describe('POST /api/bookings', () => {
       error: null,
     });
 
-    // Mock existing bookings check (to prevent double booking) - .gte() is the terminal call
+    // Mock conflict detection - checkBookingConflicts (no conflicts)
+    mockSupabase.gte.mockResolvedValueOnce({
+      data: [],
+      error: null,
+    });
+
+    // Mock conflict detection - checkAvailabilityExceptions (no exceptions)
     mockSupabase.gte.mockResolvedValueOnce({
       data: [],
       error: null,
@@ -199,7 +207,13 @@ describe('POST /api/bookings', () => {
       error: null,
     });
 
-    // Mock existing bookings check (to prevent double booking) - .gte() is the terminal call
+    // Mock conflict detection - checkBookingConflicts (no conflicts)
+    mockSupabase.gte.mockResolvedValueOnce({
+      data: [],
+      error: null,
+    });
+
+    // Mock conflict detection - checkAvailabilityExceptions (no exceptions)
     mockSupabase.gte.mockResolvedValueOnce({
       data: [],
       error: null,
@@ -300,7 +314,13 @@ describe('POST /api/bookings', () => {
 
     // No listing fetch needed for profile bookings (listing_id is null)
 
-    // Mock existing bookings check - .gte() is the terminal call
+    // Mock conflict detection - checkBookingConflicts (no conflicts)
+    mockSupabase.gte.mockResolvedValueOnce({
+      data: [],
+      error: null,
+    });
+
+    // Mock conflict detection - checkAvailabilityExceptions (no exceptions)
     mockSupabase.gte.mockResolvedValueOnce({
       data: [],
       error: null,

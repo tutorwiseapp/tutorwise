@@ -1,16 +1,17 @@
 # Bookings
 
-**Status**: ✅ Active (v6.0 - 5-Stage Scheduling Workflow)
-**Last Updated**: 2026-02-05
-**Last Code Update**: 2026-02-05
+**Status**: ✅ Active (v7.0 - Advanced Scheduling & Automation)
+**Last Updated**: 2026-02-07
+**Last Code Update**: 2026-02-07
 **Priority**: Critical (Tier 1 - Core Transaction Infrastructure)
-**Architecture**: Gold Standard Hub + Event-Driven Transactions + Listing Snapshots + Scheduling State Machine
+**Architecture**: Gold Standard Hub + Event-Driven Transactions + Listing Snapshots + Scheduling State Machine + Multi-Interval Reminders + Auto-Detection
 **Business Model**: Commission-based (10% platform fee, 10-20% commission splits based on referral/agent type)
 
 ## Change Log
 
 | Date | Version | Description |
 |------|---------|-------------|
+| 2026-02-07 | v7.0 | **Advanced Scheduling & Automation**: 9 major enhancements - conflict detection, timezone support, availability exceptions, multi-interval reminders (24h/1h/15min), no-show auto-detection, recurring bookings, cancellation penalties, quick ratings |
 | 2026-02-05 | v6.0 | **5-Stage Scheduling Workflow**: Discover > Book > Schedule > Pay > Review. New scheduling_status enum, propose/confirm/reschedule APIs, 15-min slot reservation, pg_cron cleanup |
 | 2025-12-15 | v5.9 docs | **Documentation v2**: Created solution-design-v2, prompt-v2 following CaaS pattern |
 | 2025-12-12 | v5.9 | **Free Help Support**: Added free_help booking type, instant confirmation flow, 30-minute sessions |
@@ -82,6 +83,16 @@ The **Bookings** system is TutorWise's core transaction orchestration engine man
 - **Reschedule Support**: Maximum 4 reschedules (2 per party) with audit logging
 - **Automatic Cleanup**: Supabase pg_cron job expires stale reservations every 5 minutes
 
+**Advanced Scheduling & Automation** (v7.0):
+- **Enhanced Conflict Detection**: Time range overlap algorithm checks bookings AND availability exceptions
+- **Timezone Support**: User timezone preferences (24 cities), dual display (user + platform time)
+- **Availability Exceptions**: Tutors block dates (holidays/vacation), all-day or time-specific, UK bank holidays bulk import
+- **Multi-Interval Reminders**: Auto-schedules 3 reminders (24h, 1h, 15min) when booking confirmed, pg_cron delivery
+- **No-Show Detection**: Auto-detects sessions 30min+ overdue, creates pending reports, sends alerts to both parties
+- **Recurring Bookings**: Create weekly/biweekly/monthly series, auto-generate instances, pause/resume/cancel
+- **Cancellation Penalties**: Preview refund amount, track repeat offenders (3+ in 30 days), escalating warnings
+- **Quick Ratings**: Capture 1-5 stars immediately post-session, pre-fills full review form (hybrid with 7-day escrow)
+
 **Three Booking Paths**:
 1. **Paid Direct** - Standard flow with Stripe checkout and webhook confirmation (90/10 tutor/platform split)
 2. **Agent-Referred** - Client has referring agent, receives 10% lifetime commission (80/10/10 tutor/referral/platform split)
@@ -152,19 +163,32 @@ The **Bookings** system is TutorWise's core transaction orchestration engine man
 - ✅ v4.9 (2025-10-15): Atomic payment webhook with commission splits
 - ✅ v4.0 (2025-09-20): Initial release with Stripe + WiseSpace
 
+**Phase 4: Advanced Scheduling & Automation (v7.0 - 2026-02-07)**
+- ✅ Migration 237-243: 7 new tables (recurring_booking_series, availability_exceptions, booking_reminders, no_show_reports, cancellation_penalties, session_quick_ratings, profiles.timezone)
+- ✅ Enhanced Conflict Detection: Time range overlap checking + availability exceptions integration
+- ✅ Timezone-Aware Scheduling: Per-user timezone preferences with auto-conversion
+- ✅ Availability Exceptions: Tutors can block dates for holidays/vacations (all-day or partial)
+- ✅ Multi-Interval Reminders: 3 reminders per session (24h, 1h, 15min before) via Supabase pg_cron
+- ✅ No-Show Auto-Detection: Detects sessions 30min past start, creates reports, sends alerts
+- ✅ Recurring Bookings: Weekly/biweekly/monthly series with conflict checking
+- ✅ Cancellation Penalties: Graduated warnings for repeat offenders (3+ late cancels in 30 days)
+- ✅ Quick Ratings: Immediate 1-5 star capture post-session (pre-fills 7-day blind escrow review)
+- ✅ Cron Jobs: session-reminders (3 intervals), no-show-detection (every 15min)
+- ✅ API Endpoints: 5 new routes (exceptions, recurring, quick-rate, cron/no-show-detection)
+- ✅ Utility Libraries: 7 new modules (conflict-detection, timezone-converter, recurring-sessions, reminder-scheduler, no-show/detection, penalty-calculator, exceptions)
+
 ### 🔄 In Progress
 
-- 🔄 Email notification templates for scheduling events
-- 🔄 Messages integration for booking chat
-- 🔄 Admin dashboard scheduling filters
-- 🔄 Booking analytics and reporting
+- 🔄 UI components for recurring booking setup
+- 🔄 UI for managing availability exceptions
+- 🔄 Cancellation warning modal
+- 🔄 Quick rating prompt after session completion
 
-### 📋 Future Enhancements (Post v6.0)
+### 📋 Future Enhancements (Post v7.0)
 
-- Recurring bookings (subscribe to weekly sessions)
 - Multi-student group bookings (1 tutor, 3+ students)
 - Installment payments for high-value packages (£500+)
-- Calendar sync (Google Calendar, Outlook integration)
+- Advanced recurring patterns (every other Tuesday, last Friday of month)
 
 ---
 
@@ -211,6 +235,22 @@ The **Bookings** system is TutorWise's core transaction orchestration engine man
 - `POST /api/bookings/[id]/schedule/propose` - Propose a session time (creates 15-min slot reservation)
 - `POST /api/bookings/[id]/schedule/confirm` - Confirm proposed time (triggers Stripe for paid, instant for free)
 - `POST /api/bookings/[id]/schedule/reschedule` - Reschedule a confirmed booking (max 4 times)
+
+**Advanced Scheduling Routes** (v7.0):
+- `GET /api/availability/exceptions` - List tutor's availability exceptions
+- `POST /api/availability/exceptions` - Create exception (supports bulk, UK holidays import)
+- `DELETE /api/availability/exceptions?id=X` - Remove exception
+- `POST /api/bookings/recurring` - Create recurring series with pattern
+- `GET /api/bookings/recurring` - List user's recurring series
+- `GET /api/bookings/recurring/[id]` - Get series details with instances
+- `PATCH /api/bookings/recurring/[id]` - Pause/resume/generate instances
+- `DELETE /api/bookings/recurring/[id]` - Cancel series (all future instances)
+- `POST /api/bookings/[id]/quick-rate` - Submit immediate 1-5 star rating
+- `GET /api/bookings/[id]/quick-rate` - Retrieve quick rating for pre-fill
+
+**Cron Jobs** (Supabase pg_cron):
+- `GET /api/cron/session-reminders?type=24h|1h|15min` - Send multi-interval reminders
+- `GET /api/cron/no-show-detection` - Auto-detect and report no-shows
 
 ### Key Workflows
 
@@ -287,6 +327,13 @@ Session occurs in WiseSpace → WiseSpace verifies completion → Updates bookin
 - Migration 108: Add type column for free_help support (v5.9)
 - Migration 219: Add scheduling fields (v6.0 - scheduling_status enum, 7 columns)
 - Migration 220: Add pg_cron job for expired slot cleanup (v6.0)
+- Migration 237: Create recurring_booking_series table + add recurring fields to bookings (v7.0)
+- Migration 238: Create tutor_availability_exceptions table (v7.0)
+- Migration 239: Create booking_reminders table for multi-interval reminders (v7.0)
+- Migration 240: Create no_show_reports table with auto-detection support (v7.0)
+- Migration 241: Create cancellation_penalties table + is_repeat_offender() function (v7.0)
+- Migration 242: Create session_quick_ratings table (v7.0)
+- Migration 243: Add timezone field to profiles (v7.0)
 
 **RPC Functions**:
 - Migration 030: `handle_successful_payment()` - Atomic payment processing

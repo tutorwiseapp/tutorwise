@@ -1,11 +1,12 @@
 /**
  * Filename: availability/route.ts
  * Purpose: API endpoint to check tutor availability for scheduling
- * Returns: Available dates for a given month based on tutor's weekly schedule and existing bookings
+ * Returns: Available dates for a given month based on tutor's weekly schedule, existing bookings, and exceptions
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { getTutorExceptions } from '@/lib/availability/exceptions';
 
 export async function GET(request: NextRequest) {
   try {
@@ -70,10 +71,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 3. Calculate available dates
+    // 3. Get availability exceptions for the month
+    const startDateStr = startOfMonth.toISOString().split('T')[0];
+    const endDateStr = endOfMonth.toISOString().split('T')[0];
+    const exceptions = await getTutorExceptions(tutorId, startDateStr, endDateStr);
+
+    // 4. Calculate available dates
     const availableDates = calculateAvailability(
       listing.availability || {},
       bookings || [],
+      exceptions,
       monthNum,
       yearNum
     );
@@ -92,11 +99,12 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * Calculate available dates for a month based on weekly schedule and existing bookings
+ * Calculate available dates for a month based on weekly schedule, existing bookings, and exceptions
  */
 function calculateAvailability(
   weeklyAvailability: Record<string, string[]>,
   bookings: Array<{ session_start_time: string; duration_minutes: number }>,
+  exceptions: Array<{ start_date: string; end_date: string; blocks_all_day: boolean }>,
   month: number,
   year: number
 ): string[] {
@@ -116,6 +124,20 @@ function calculateAvailability(
       continue;
     }
 
+    const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+
+    // Check if date has an all-day exception
+    const hasException = exceptions.some(exception => {
+      if (!exception.blocks_all_day) {
+        return false; // Partial day exceptions still allow some availability
+      }
+      return dateStr >= exception.start_date && dateStr <= exception.end_date;
+    });
+
+    if (hasException) {
+      continue; // Skip dates with all-day exceptions
+    }
+
     const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' });
 
     // Check if tutor has availability on this day of week
@@ -133,7 +155,7 @@ function calculateAvailability(
     });
 
     if (hasAnyAvailability) {
-      availableDates.push(date.toISOString().split('T')[0]); // YYYY-MM-DD format
+      availableDates.push(dateStr);
     }
   }
 

@@ -17,6 +17,7 @@ import {
   DEFAULT_SCHEDULING_RULES,
 } from '@/lib/scheduling/rules';
 import { sendTimeProposedEmail, type SchedulingEmailData } from '@/lib/email-templates/booking';
+import { checkAllConflicts } from '@/lib/scheduling/conflict-detection';
 
 export const dynamic = 'force-dynamic';
 
@@ -126,28 +127,32 @@ export async function POST(
       );
     }
 
-    // 6. Check for conflicts with existing bookings
-    const { data: conflictingBookings, error: conflictError } = await supabase
-      .from('bookings')
-      .select('id, session_start_time')
-      .eq('tutor_id', booking.tutor_id)
-      .eq('session_start_time', proposedTime.toISOString())
-      .in('status', ['Pending', 'Confirmed'])
-      .in('scheduling_status', ['proposed', 'scheduled'])
-      .neq('id', bookingId); // Exclude current booking
+    // 6. Check for conflicts with existing bookings and availability exceptions
+    try {
+      const conflictCheck = await checkAllConflicts(
+        booking.tutor_id,
+        proposedTime,
+        booking.session_duration,
+        {
+          excludeBookingId: bookingId,
+          schedulingStatuses: ['proposed', 'scheduled'],
+        }
+      );
 
-    if (conflictError) {
+      if (conflictCheck.hasConflict) {
+        return NextResponse.json(
+          {
+            error: conflictCheck.message || 'This time slot is no longer available. Please select a different time.',
+            code: 'TIME_SLOT_CONFLICT'
+          },
+          { status: 409 }
+        );
+      }
+    } catch (conflictError) {
       console.error('[Schedule Propose] Conflict check error:', conflictError);
       return NextResponse.json(
         { error: 'Failed to check availability' },
         { status: 500 }
-      );
-    }
-
-    if (conflictingBookings && conflictingBookings.length > 0) {
-      return NextResponse.json(
-        { error: 'This time slot is no longer available. Please select a different time.' },
-        { status: 409 }
       );
     }
 

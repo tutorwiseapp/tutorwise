@@ -6,7 +6,7 @@ audience: "all"
 description: "Complete guide to creating, managing, and completing bookings on Tutorwise for both tutors and students"
 keywords: ["bookings", "scheduling", "sessions", "calendar", "availability"]
 author: "Tutorwise Team"
-lastUpdated: "2026-02-05"
+lastUpdated: "2026-02-07"
 readTime: "6 min"
 relatedArticles:
   - "create-listing"
@@ -72,7 +72,11 @@ Once your booking is created, the scheduling process begins:
 - When confirmed, payment is processed (for paid sessions)
 
 <CalloutBox type="info">
-**New Feature (Feb 2026):** The scheduling flow is now separate from booking creation. You can create a booking and schedule the exact time later.
+**New Features (Feb 2026):**
+- **Timezone Support**: All times shown in your local timezone
+- **Multi-Reminder System**: You'll receive reminders 24 hours, 1 hour, and 15 minutes before your session
+- **Quick Ratings**: Rate sessions immediately after completion with a simple 1-5 star rating
+- **Recurring Bookings**: Book weekly/monthly sessions in one go
 </CalloutBox>
 
 ### Step 5: Wait for Confirmation
@@ -82,7 +86,19 @@ Once your booking is created, the scheduling process begins:
 - If accepted, you'll get calendar invite and session details
 - If declined, no charge is made to your card
 
-### Step 5: Attend Your Session
+### Session Reminders
+
+Once your session is confirmed, you'll receive **3 automatic reminders**:
+
+1. **24 hours before** - Email reminder with session details
+2. **1 hour before** - Final preparation reminder
+3. **15 minutes before** - Get ready to join!
+
+<CalloutBox type="tip">
+**Pro Tip**: All times are shown in YOUR local timezone automatically. If you're in New York and your tutor is in London, you'll see times in EST/EDT while they see GMT/BST.
+</CalloutBox>
+
+### Step 6: Attend Your Session
 
 **For Online Sessions:**
 - Join via the session link in your dashboard
@@ -103,11 +119,32 @@ Keep your calendar updated to receive bookings:
 1. Go to your [Dashboard](/dashboard)
 2. Click "Manage Availability"
 3. Set your regular teaching hours
-4. Block out personal commitments
+4. Block out personal commitments (holidays, vacations)
 5. Set buffer time between sessions
 
+**New: Block Dates for Holidays/Vacations**
+
+You can now block entire days or specific time ranges:
+
+1. Click "Add Exception Date"
+2. Choose exception type:
+   - **Holiday**: Bank holidays, public holidays
+   - **Vacation**: Personal time off
+   - **Personal**: Doctor appointments, emergencies
+   - **Unavailable**: Other commitments
+3. Select dates (single day or date range)
+4. Choose block type:
+   - **All day**: Completely unavailable
+   - **Specific times**: Block only certain hours (e.g., "2pm-5pm")
+5. Confirm exception
+
+**Bulk Import UK Bank Holidays:**
+- Click "Import UK Holidays"
+- Select year (e.g., 2026)
+- All 8 UK bank holidays added automatically
+
 <CalloutBox type="warning">
-**Important**: Keep your availability current. Outdated calendars frustrate students and reduce bookings.
+**Important**: Students cannot book during exception dates. These automatically filter out from your availability calendar.
 </CalloutBox>
 
 ### Receiving Booking Requests
@@ -158,8 +195,28 @@ Click "Decline" if:
 **After the Session:**
 - Send summary notes
 - Assign homework if appropriate
-- Request feedback
+- Leave a quick rating (optional)
 - Suggest next steps
+
+### Quick Session Ratings
+
+After your session completes, you can immediately rate it with 1-5 stars:
+
+**How it works:**
+1. Session ends
+2. "Quick Rate This Session" prompt appears
+3. Select 1-5 stars (takes 5 seconds)
+4. Skip if you want to rate later
+
+**Why quick rate?**
+- Capture your immediate impression
+- Pre-fills the full review form (you can still add comments later)
+- Helps both parties remember the session quality
+- You still have 7 days to write a detailed review
+
+<CalloutBox type="info">
+**Quick ratings work with our review system**: Your star rating is saved privately. When you submit your full review (within 7 days), the stars are pre-filled but you can change them before final submission.
+</CalloutBox>
 
 ## Payment Processing
 
@@ -209,18 +266,27 @@ Click "Decline" if:
 ### Student Cancellations
 
 **More than 24 hours before:**
-- Full refund
+- Full refund (minus Stripe processing fee of ~£0.20 + 1.5%)
 - No penalty
 - Instant processing
 
 **Less than 24 hours before:**
-- 50% refund
-- Tutor receives 50% compensation
-- Processed within 3-5 business days
+- **No refund** - Tutor is compensated for the late notice
+- Your account will be flagged for a late cancellation
+- ⚠️ **Repeat Offenders**: 3+ late cancellations in 30 days may result in account restrictions
 
 **No-show (student doesn't attend):**
 - No refund
 - Tutor receives full payment
+- Automatically detected 30 minutes after session start time
+- Both parties notified
+
+<CalloutBox type="warning">
+**Late Cancellation Warning**: Before cancelling within 24 hours, you'll see a preview showing:
+- Exact refund amount (if any)
+- Number of previous late cancellations
+- Impact on your account standing
+</CalloutBox>
 
 ### Tutor Cancellations
 
@@ -266,29 +332,39 @@ Click "Decline" if:
 
 ## Recurring Bookings
 
+<CalloutBox type="success">
+**New in Feb 2026**: Recurring bookings are now fully automated! Book weekly, biweekly, or monthly sessions that auto-generate until your specified end date.
+</CalloutBox>
+
 Book multiple sessions at once to:
-- Secure your preferred time slot
-- Build learning continuity
-- Save time on booking
-- Often get package discounts
+- Secure your preferred time slot week after week
+- Build learning continuity and momentum
+- Save time on repetitive booking
+- Never worry about scheduling again
 
 ### Setting Up Recurring Bookings
 
-1. After first session, click "Book Recurring"
-2. Choose frequency:
-   - Weekly (same day/time each week)
-   - Bi-weekly
-   - Custom schedule
-3. Select end date or number of sessions
-4. Review total cost
-5. Confirm booking
+1. When creating a booking, select "Make this recurring"
+2. Choose your pattern:
+   - **Weekly**: Same day/time each week (e.g., Every Monday at 3pm)
+   - **Biweekly**: Every other week
+   - **Monthly**: Same date each month
+3. Choose how long to continue:
+   - **After X sessions**: e.g., "10 sessions then stop"
+   - **Until specific date**: e.g., "Until end of term"
+   - **Never**: Ongoing until you cancel
+4. Review all auto-generated sessions
+5. Confirm series
 
-**Package Discounts:**
-- 5 sessions: Typical 5% discount
-- 10 sessions: Typical 10% discount
-- 20+ sessions: Typical 15% discount
+**Managing Your Series:**
+- **Pause**: Temporarily pause series (e.g., during holidays)
+- **Resume**: Restart a paused series
+- **Cancel**: Stop all future sessions in the series
+- **Individual sessions**: Can still cancel/reschedule individual sessions
 
-*Discounts set by individual tutors*
+<CalloutBox type="info">
+**Automatic Conflict Detection**: The system checks all future sessions for scheduling conflicts with tutor's availability and exceptions (holidays/vacations).
+</CalloutBox>
 
 ## Session History
 

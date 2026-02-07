@@ -16,6 +16,7 @@ import { isSlotReservationExpired } from '@/lib/scheduling/rules';
 import Stripe from 'stripe';
 import { sendSchedulingConfirmationEmails, type SchedulingEmailData } from '@/lib/email-templates/booking';
 import { syncBookingConfirmation, syncBookingReschedule } from '@/lib/calendar/sync-booking';
+import { scheduleBookingReminders, rescheduleBookingReminders } from '@/lib/reminders/reminder-scheduler';
 
 export const dynamic = 'force-dynamic';
 
@@ -135,6 +136,31 @@ export async function POST(
         );
       }
 
+      // Determine if this is a reschedule
+      const isReschedule = (booking.reschedule_count || 0) > 0;
+
+      // Schedule reminders (24h, 1h, 15min before session)
+      try {
+        if (isReschedule) {
+          // Reschedule: cancel old reminders and create new ones
+          await rescheduleBookingReminders(
+            bookingId,
+            new Date(booking.session_start_time)
+          );
+          console.log('[Schedule Confirm] Reminders rescheduled for booking:', bookingId);
+        } else {
+          // Initial booking: create reminders
+          await scheduleBookingReminders(
+            bookingId,
+            new Date(booking.session_start_time)
+          );
+          console.log('[Schedule Confirm] Reminders scheduled for booking:', bookingId);
+        }
+      } catch (reminderError) {
+        console.error('[Schedule Confirm] Failed to schedule reminders:', reminderError);
+        // Don't fail the request if reminder scheduling fails
+      }
+
       // Send confirmation emails to both parties
       if (booking.client?.email && booking.tutor?.email) {
         const emailData: SchedulingEmailData = {
@@ -163,9 +189,6 @@ export async function POST(
           console.error('[Schedule Confirm] Failed to send emails:', emailError);
         }
       }
-
-      // Determine if this is a reschedule or initial booking
-      const isReschedule = (booking.reschedule_count || 0) > 0;
 
       // Sync to calendar (async - don't block response)
       if (isReschedule) {

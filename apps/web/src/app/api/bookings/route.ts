@@ -9,6 +9,7 @@ import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 import { incrementListingBookings } from '@/lib/api/listings';
 import { sendBookingRequestEmail, type BookingEmailData } from '@/lib/email-templates/booking';
+import { checkAllConflicts } from '@/lib/scheduling/conflict-detection';
 
 // Mark route as dynamic (required for cookies() in Next.js 15)
 export const dynamic = 'force-dynamic';
@@ -232,42 +233,39 @@ export async function POST(req: Request) {
       }
     }
 
-    // Check for conflicting bookings
-    const { data: existingBookings, error: conflictError } = await supabase
-      .from('bookings')
-      .select('session_start_time, session_duration')
-      .eq('tutor_id', tutor_id)
-      .in('status', ['Pending', 'Confirmed'])
-      .gte('session_start_time', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()); // Check bookings from last 24h
+    // Check for conflicting bookings and availability exceptions
+    try {
+      const conflictCheck = await checkAllConflicts(
+        tutor_id,
+        new Date(session_start_time),
+        session_duration
+      );
 
-    if (conflictError) {
-      console.error("Error checking booking conflicts:", conflictError);
-    } else if (existingBookings && existingBookings.length > 0) {
-      const requestedStart = new Date(session_start_time).getTime();
-      const requestedEnd = requestedStart + session_duration * 60000;
+      if (conflictCheck.hasConflict) {
+        const conflictingTime = conflictCheck.conflictingBookings.length > 0
+          ? conflictCheck.conflictingBookings[0].session_start_time
+          : undefined;
 
-      for (const booking of existingBookings) {
-        const bookingStart = new Date(booking.session_start_time).getTime();
-        const bookingEnd = bookingStart + booking.session_duration * 60000;
-
-        // Check if times overlap
-        if (
-          (requestedStart >= bookingStart && requestedStart < bookingEnd) ||
-          (requestedEnd > bookingStart && requestedEnd <= bookingEnd) ||
-          (requestedStart <= bookingStart && requestedEnd >= bookingEnd)
-        ) {
-          return new NextResponse(
-            JSON.stringify({
-              error: "This time slot conflicts with an existing booking",
-              conflicting_time: booking.session_start_time
-            }),
-            {
-              status: 409,
-              headers: { 'Content-Type': 'application/json' }
-            }
-          );
-        }
+        return new NextResponse(
+          JSON.stringify({
+            error: conflictCheck.message || "This time slot is not available",
+            conflicting_time: conflictingTime
+          }),
+          {
+            status: 409,
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
       }
+    } catch (conflictError) {
+      console.error("Error checking booking conflicts:", conflictError);
+      return new NextResponse(
+        JSON.stringify({ error: "Failed to verify availability" }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     // 5. Create booking with agent_id from client's profile and snapshot fields
