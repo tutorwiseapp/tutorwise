@@ -8,7 +8,7 @@
  */
 
 import { createClient } from '@/utils/supabase/server';
-import { sendSessionReminderEmail } from '@/lib/email-templates/booking';
+import { sendSessionReminderEmail, type BookingEmailData } from '@/lib/email-templates/booking';
 
 export type ReminderType = '24h' | '1h' | '15min';
 export type DeliveryMethod = 'email' | 'push' | 'sms';
@@ -196,19 +196,26 @@ export async function sendReminder(
   const supabase = await createClient();
 
   try {
-    // Send reminder emails to both tutor and client
-    await sendSessionReminderEmail({
+    // Prepare booking data for email
+    const emailData: BookingEmailData = {
       bookingId: reminderData.booking_id,
-      sessionStartTime: new Date(reminderData.session_start_time),
+      sessionDate: new Date(reminderData.session_start_time),
       serviceName: reminderData.service_name,
       sessionDuration: reminderData.session_duration,
-      deliveryMode: reminderData.delivery_mode,
+      amount: 0, // Not needed for reminders
+      deliveryMode: reminderData.delivery_mode as 'online' | 'in_person' | 'hybrid',
       locationCity: reminderData.location_city,
       tutorName: reminderData.tutor_name,
       tutorEmail: reminderData.tutor_email,
       clientName: reminderData.client_name,
       clientEmail: reminderData.client_email,
-    });
+    };
+
+    // Send reminder emails to both tutor and client
+    await Promise.all([
+      sendSessionReminderEmail(emailData, 'client'),
+      sendSessionReminderEmail(emailData, 'tutor'),
+    ]);
 
     // Mark reminder as sent
     const { error } = await supabase
