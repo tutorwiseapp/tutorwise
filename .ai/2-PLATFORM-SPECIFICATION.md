@@ -1552,7 +1552,90 @@ Session Complete ──► 24hrs ──► Charge Student ──► 7 days ─�
 - Auto-refresh when user returns to browser tab ensures always-current data
 - Network error resilience with automatic retry prevents failed balance checks
 
-### 7.2 WiseSpace Virtual Classroom
+### 7.3 Advanced Scheduling & Automation (v7.0 - February 2026)
+
+**Implementation Date**: 2026-02-07
+**Status**: ✅ Complete
+**Documentation**: [docs/feature/bookings/BOOKING_ENHANCEMENTS_V7_COMPLETE.md](../docs/feature/bookings/BOOKING_ENHANCEMENTS_V7_COMPLETE.md)
+
+The v7.0 release introduces 9 major enhancements that transform the booking system with enterprise-grade scheduling capabilities:
+
+**1. Enhanced Conflict Detection**
+- Time range overlap algorithm (not just exact time matches)
+- Checks against both existing bookings AND availability exceptions
+- Buffer time consideration for back-to-back sessions
+- Prevents double-booking across recurring series
+
+**2. Timezone-Aware Scheduling**
+- User timezone preferences (stored in profiles.timezone)
+- Auto-conversion between user timezone and platform timezone (Europe/London)
+- Dual-time display: "Your time: 2:00 PM EST (7:00 PM UK)"
+- 24 timezone city options for global tutoring
+- All booking times stored in UTC internally
+
+**3. Availability Exceptions**
+- Tutors block dates for holidays/vacations/personal time
+- All-day blocking or specific time ranges (e.g., "2pm-5pm unavailable")
+- Bulk import UK bank holidays with one click
+- Exception types: holiday, vacation, personal, unavailable
+- Integrates with conflict detection system
+- Database: `tutor_availability_exceptions` table (Migration 238)
+
+**4. Multi-Interval Reminders**
+- 3 automated reminders per session: 24 hours, 1 hour, 15 minutes before
+- Supabase pg_cron jobs for reliable delivery
+- Tracks delivery status (pending, sent, failed)
+- Calendar integration provides additional reminders
+- Database: `booking_reminders` table (Migration 239)
+- Cron jobs: session-reminders-24h (hourly), session-reminders-1h (15min), session-reminders-15min (5min)
+
+**5. No-Show Auto-Detection**
+- Automatic detection 30 minutes after session start time
+- Creates pending no-show reports for review
+- Sends alerts to both client and tutor
+- Runs every 15 minutes via pg_cron
+- Database: `no_show_reports` table (Migration 240)
+- Cron job: no-show-detection (every 15 minutes)
+
+**6. Recurring Bookings**
+- Create weekly, biweekly, or monthly booking series
+- Auto-generates future instances with conflict checking
+- End conditions: after N sessions, by date, or never
+- Pause/resume/cancel entire series
+- Individual sessions can still be rescheduled/cancelled
+- Database: `recurring_booking_series` table + bookings.recurring_series_id (Migration 237)
+
+**7. Cancellation Penalties**
+- Preview exact refund amount before confirming cancellation
+- Track repeat late cancellations (3+ in 30 days)
+- Graduated warnings for repeat offenders
+- Shows previous cancellation history in warning modal
+- Database: `cancellation_penalties` table (Migration 241)
+
+**8. Quick Session Ratings**
+- Capture 1-5 star rating immediately after session completion
+- Pre-fills the full review form (7-day blind escrow still applies)
+- Quick ratings are private until full review window ends
+- Hybrid approach: immediate feedback + thoughtful review
+- Database: `session_quick_ratings` table (Migration 242)
+
+**9. Database & Infrastructure**
+- 7 new tables (migrations 237-243)
+- 5 new API routes + 2 cron jobs
+- 7 utility libraries for scheduling logic
+- profiles.timezone field added
+- All changes production-ready and deployed
+
+**Architecture Highlights**:
+- Centralized conflict detection utility (`conflict-detection.ts`)
+- Timezone conversion library (`timezone-converter.ts`)
+- Recurring series manager (`recurring-sessions.ts`)
+- Reminder scheduler (`reminder-scheduler.ts`)
+- No-show detection service (`no-show/detection.ts`)
+- Penalty calculator (`penalty-calculator.ts`)
+- Exception management (`availability/exceptions.ts`)
+
+### 7.4 WiseSpace Virtual Classroom
 
 **Hybrid Architecture**:
 ```
@@ -1579,7 +1662,7 @@ Session Complete ──► 24hrs ──► Charge Student ──► 7 days ─�
 3. Triggers payment processing (charge student, clear to tutor after 7 days)
 4. Review request sent to both parties
 
-### 7.3 Free Help Now Flow
+### 7.5 Free Help Now Flow
 
 ```
 ┌──────────────┐       ┌──────────────┐       ┌──────────────┐

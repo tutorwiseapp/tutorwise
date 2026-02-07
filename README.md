@@ -196,7 +196,20 @@ CAS will apply 8 agent perspectives:
 - **Search and discovery** with advanced filtering
 - **Admin dashboard** with comprehensive user management
 - **Payment processing** (Stripe Connect integration)
-- **Booking system** (in progress)
+- **Advanced booking system** (v7.0 - production-ready with scheduling automation)
+
+### Booking System (v7.0 - Advanced Scheduling & Automation - Feb 2026)
+- **5-Stage Workflow**: Discover → Book → Schedule → Pay → Review
+- **Enhanced Conflict Detection**: Time range overlap + availability exception checking
+- **Timezone-Aware Scheduling**: User timezone preferences with auto-conversion
+- **Availability Exceptions**: Holiday/vacation blocking (all-day or time-specific)
+- **Multi-Interval Reminders**: Automated reminders at 24h, 1h, and 15min before sessions
+- **No-Show Auto-Detection**: Automatic detection 30min after session start
+- **Recurring Bookings**: Weekly/biweekly/monthly series with conflict checking
+- **Cancellation Penalties**: Repeat offender tracking (3+ late cancels in 30 days)
+- **Quick Session Ratings**: Immediate 1-5 star capture post-session
+- **Production-Ready**: 7 new tables, 5 API routes, 2 cron jobs, 7 utility libraries
+- **Documentation**: [Booking Enhancements v7.0 Complete](docs/feature/bookings/BOOKING_ENHANCEMENTS_V7_COMPLETE.md)
 
 ### Referral System (100% Core Complete - Feb 2026)
 - **Simplified 4-Stage Pipeline**: Referred → Signed Up → Converted → Expired (automatic transitions)

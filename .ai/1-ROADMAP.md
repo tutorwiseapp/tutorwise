@@ -143,7 +143,9 @@
 ### 7. Booking System ✅
 **Status**: Production-ready
 **Completion**: 100%
+**Last Updated**: 2026-02-07 (v7.0 - Advanced Scheduling & Automation)
 
+**Core Booking System**:
 - ✅ 5-stage booking workflow (discover > book > schedule > pay > review)
 - ✅ Calendar integration (react-day-picker)
 - ✅ Lesson scheduling interface
@@ -153,6 +155,19 @@
 - ✅ Booking state management
 - ✅ Email notifications
 - ✅ Booking history
+
+**Advanced Scheduling & Automation (v7.0 - 2026-02-07)**:
+- ✅ Enhanced Conflict Detection - Time range overlap + availability exceptions
+- ✅ Timezone-Aware Scheduling - User timezone preferences with auto-conversion
+- ✅ Availability Exceptions - Holiday/vacation blocking (all-day or partial)
+- ✅ Multi-Interval Reminders - 3 reminders per session (24h, 1h, 15min) via pg_cron
+- ✅ No-Show Auto-Detection - Detects 30min+ overdue sessions, creates reports
+- ✅ Recurring Bookings - Weekly/biweekly/monthly series with conflict checking
+- ✅ Cancellation Penalties - Repeat offender tracking (3+ in 30 days)
+- ✅ Quick Session Ratings - Immediate 1-5 star capture (pre-fills review form)
+- ✅ 7 new database tables (migrations 237-243)
+- ✅ 5 new API routes + 2 cron jobs
+- ✅ 7 utility libraries for scheduling logic
 
 ### 8. Payment Processing ✅
 **Status**: Production-ready
