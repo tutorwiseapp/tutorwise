@@ -31,6 +31,12 @@ export default function CalendarSettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncProgress, setSyncProgress] = useState<{
+    total: number;
+    synced: number;
+    failed: number;
+  } | null>(null);
 
   useEffect(() => {
     fetchConnections();
@@ -40,8 +46,13 @@ export default function CalendarSettingsPage() {
     const error = searchParams?.get('calendar_error');
 
     if (success === 'google_connected') {
-      toast.success('Google Calendar connected successfully!');
+      toast.success('Google Calendar connected successfully! Syncing existing bookings...');
       // Clean up URL
+      router.replace('/account/settings/calendar');
+      // Note: Bulk sync happens automatically in the OAuth callback
+      // User will see the last_synced_at timestamp update
+    } else if (success === 'outlook_connected') {
+      toast.success('Outlook Calendar connected successfully! Syncing existing bookings...');
       router.replace('/account/settings/calendar');
     } else if (error === 'cancelled') {
       toast.error('Calendar connection cancelled');
@@ -87,6 +98,25 @@ export default function CalendarSettingsPage() {
     }
   };
 
+  const handleConnectOutlook = async () => {
+    setIsConnecting(true);
+    try {
+      const response = await fetch('/api/calendar/connect/outlook');
+      const data = await response.json();
+
+      if (data.success && data.auth_url) {
+        // Redirect to Microsoft OAuth
+        window.location.href = data.auth_url;
+      } else {
+        throw new Error(data.error || 'Failed to get auth URL');
+      }
+    } catch (error) {
+      console.error('Connect error:', error);
+      toast.error('Failed to initiate Outlook Calendar connection');
+      setIsConnecting(false);
+    }
+  };
+
   const handleDisconnect = async (provider: 'google' | 'outlook') => {
     if (!confirm('Disconnect calendar? Existing events will remain but will not sync anymore.')) {
       return;
@@ -113,6 +143,45 @@ export default function CalendarSettingsPage() {
       toast.error('Failed to disconnect calendar');
     } finally {
       setIsDisconnecting(false);
+    }
+  };
+
+  const handleManualSync = async () => {
+    setIsSyncing(true);
+    setSyncProgress(null);
+
+    try {
+      const response = await fetch('/api/calendar/bulk-sync', {
+        method: 'POST',
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSyncProgress({
+          total: data.result.total,
+          synced: data.result.synced,
+          failed: data.result.failed,
+        });
+
+        if (data.result.failed > 0) {
+          toast.error(`Synced ${data.result.synced}/${data.result.total} bookings. ${data.result.failed} failed.`);
+        } else if (data.result.total === 0) {
+          toast.success('No bookings to sync');
+        } else {
+          toast.success(`Successfully synced ${data.result.synced} booking(s) to your calendar`);
+        }
+
+        // Refresh connections to update last_synced_at
+        fetchConnections();
+      } else {
+        throw new Error(data.error || 'Sync failed');
+      }
+    } catch (error) {
+      console.error('Manual sync error:', error);
+      toast.error('Failed to sync bookings. Please try again.');
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -163,33 +232,118 @@ export default function CalendarSettingsPage() {
 
               {googleConnection ? (
                 <div className={styles.connectedState}>
-                  <div className={styles.statusBadge}>✓ Connected</div>
+                  {/* Status Badge - Dynamic based on connection health */}
+                  <div className={`${styles.statusBadge} ${
+                    googleConnection.status === 'error' ? styles.statusError :
+                    googleConnection.status === 'active' ? styles.statusActive :
+                    styles.statusInactive
+                  }`}>
+                    {googleConnection.status === 'error' ? '⚠ Error' :
+                     googleConnection.status === 'active' ? '✓ Connected' :
+                     '○ Inactive'}
+                  </div>
+
                   <p className={styles.emailText}>{googleConnection.email}</p>
 
-                  {googleConnection.last_synced_at && (
-                    <p className={styles.lastSync}>
-                      Last synced: {new Date(googleConnection.last_synced_at).toLocaleString('en-GB', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </p>
+                  {/* Health Dashboard */}
+                  <div className={styles.healthDashboard}>
+                    <div className={styles.healthItem}>
+                      <span className={styles.healthLabel}>Sync Status:</span>
+                      <span className={styles.healthValue}>
+                        {googleConnection.sync_enabled ? 'Enabled' : 'Disabled'}
+                      </span>
+                    </div>
+                    <div className={styles.healthItem}>
+                      <span className={styles.healthLabel}>Connection:</span>
+                      <span className={styles.healthValue}>
+                        {googleConnection.status === 'active' ? 'Healthy' :
+                         googleConnection.status === 'error' ? 'Needs Attention' :
+                         'Inactive'}
+                      </span>
+                    </div>
+                    {googleConnection.last_synced_at ? (
+                      <div className={styles.healthItem}>
+                        <span className={styles.healthLabel}>Last Sync:</span>
+                        <span className={styles.healthValue}>
+                          {new Date(googleConnection.last_synced_at).toLocaleString('en-GB', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className={styles.healthItem}>
+                        <span className={styles.healthLabel}>Last Sync:</span>
+                        <span className={`${styles.healthValue} ${styles.healthWarning}`}>
+                          Never synced
+                        </span>
+                      </div>
+                    )}
+                    <div className={styles.healthItem}>
+                      <span className={styles.healthLabel}>Connected:</span>
+                      <span className={styles.healthValue}>
+                        {new Date(googleConnection.connected_at).toLocaleString('en-GB', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Error Message */}
+                  {googleConnection.status === 'error' && googleConnection.last_error && (
+                    <div className={styles.errorAlert}>
+                      <div className={styles.errorHeader}>
+                        <span className={styles.errorIcon}>⚠</span>
+                        <span className={styles.errorTitle}>Connection Error</span>
+                      </div>
+                      <p className={styles.errorMessage}>{googleConnection.last_error}</p>
+                      <p className={styles.errorAction}>
+                        Try disconnecting and reconnecting your calendar to resolve this issue.
+                      </p>
+                    </div>
                   )}
 
-                  {googleConnection.status === 'error' && googleConnection.last_error && (
-                    <p className={styles.errorText}>
-                      Error: {googleConnection.last_error}
-                    </p>
+                  {/* Bulk Sync Progress */}
+                  {isSyncing && (
+                    <div className={styles.syncProgress}>
+                      <div className={styles.syncSpinner}></div>
+                      <p className={styles.syncText}>
+                        {syncProgress
+                          ? `Syncing ${syncProgress.synced} of ${syncProgress.total} bookings...`
+                          : 'Starting sync...'}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Sync result summary */}
+                  {!isSyncing && syncProgress && (
+                    <div className={styles.syncResult}>
+                      <p className={styles.syncResultText}>
+                        ✓ Synced {syncProgress.synced}/{syncProgress.total} bookings
+                        {syncProgress.failed > 0 && ` (${syncProgress.failed} failed)`}
+                      </p>
+                    </div>
                   )}
 
                   <div className={styles.cardActions}>
                     <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleManualSync}
+                      disabled={isSyncing || isDisconnecting}
+                    >
+                      {isSyncing ? 'Syncing...' : 'Sync Now'}
+                    </Button>
+                    <Button
                       variant="danger"
                       size="sm"
                       onClick={() => handleDisconnect('google')}
-                      disabled={isDisconnecting}
+                      disabled={isDisconnecting || isSyncing}
                     >
                       {isDisconnecting ? 'Disconnecting...' : 'Disconnect'}
                     </Button>
@@ -217,19 +371,152 @@ export default function CalendarSettingsPage() {
               )}
             </div>
 
-            {/* Outlook Calendar Card (Coming Soon) */}
-            <div className={`${styles.connectionCard} ${styles.comingSoon}`}>
+            {/* Outlook Calendar Card */}
+            <div className={styles.connectionCard}>
               <div className={styles.cardHeader}>
                 <div className={styles.providerIcon}>📆</div>
                 <h3 className={styles.cardTitle}>Outlook Calendar</h3>
               </div>
 
-              <div className={styles.disconnectedState}>
-                <p className={styles.featureText}>
-                  Microsoft Outlook calendar integration
-                </p>
-                <p className={styles.comingSoonText}>Coming Soon</p>
-              </div>
+              {outlookConnection ? (
+                <div className={styles.connectedState}>
+                  {/* Status Badge - Dynamic based on connection health */}
+                  <div className={`${styles.statusBadge} ${
+                    outlookConnection.status === 'error' ? styles.statusError :
+                    outlookConnection.status === 'active' ? styles.statusActive :
+                    styles.statusInactive
+                  }`}>
+                    {outlookConnection.status === 'error' ? '⚠ Error' :
+                     outlookConnection.status === 'active' ? '✓ Connected' :
+                     '○ Inactive'}
+                  </div>
+
+                  <p className={styles.emailText}>{outlookConnection.email}</p>
+
+                  {/* Health Dashboard */}
+                  <div className={styles.healthDashboard}>
+                    <div className={styles.healthItem}>
+                      <span className={styles.healthLabel}>Sync Status:</span>
+                      <span className={styles.healthValue}>
+                        {outlookConnection.sync_enabled ? 'Enabled' : 'Disabled'}
+                      </span>
+                    </div>
+                    <div className={styles.healthItem}>
+                      <span className={styles.healthLabel}>Connection:</span>
+                      <span className={styles.healthValue}>
+                        {outlookConnection.status === 'active' ? 'Healthy' :
+                         outlookConnection.status === 'error' ? 'Needs Attention' :
+                         'Inactive'}
+                      </span>
+                    </div>
+                    {outlookConnection.last_synced_at ? (
+                      <div className={styles.healthItem}>
+                        <span className={styles.healthLabel}>Last Sync:</span>
+                        <span className={styles.healthValue}>
+                          {new Date(outlookConnection.last_synced_at).toLocaleString('en-GB', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className={styles.healthItem}>
+                        <span className={styles.healthLabel}>Last Sync:</span>
+                        <span className={`${styles.healthValue} ${styles.healthWarning}`}>
+                          Never synced
+                        </span>
+                      </div>
+                    )}
+                    <div className={styles.healthItem}>
+                      <span className={styles.healthLabel}>Connected:</span>
+                      <span className={styles.healthValue}>
+                        {new Date(outlookConnection.connected_at).toLocaleString('en-GB', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Error Message */}
+                  {outlookConnection.status === 'error' && outlookConnection.last_error && (
+                    <div className={styles.errorAlert}>
+                      <div className={styles.errorHeader}>
+                        <span className={styles.errorIcon}>⚠</span>
+                        <span className={styles.errorTitle}>Connection Error</span>
+                      </div>
+                      <p className={styles.errorMessage}>{outlookConnection.last_error}</p>
+                      <p className={styles.errorAction}>
+                        Try disconnecting and reconnecting your calendar to resolve this issue.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Bulk Sync Progress */}
+                  {isSyncing && (
+                    <div className={styles.syncProgress}>
+                      <div className={styles.syncSpinner}></div>
+                      <p className={styles.syncText}>
+                        {syncProgress
+                          ? `Syncing ${syncProgress.synced} of ${syncProgress.total} bookings...`
+                          : 'Starting sync...'}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Sync result summary */}
+                  {!isSyncing && syncProgress && (
+                    <div className={styles.syncResult}>
+                      <p className={styles.syncResultText}>
+                        ✓ Synced {syncProgress.synced}/{syncProgress.total} bookings
+                        {syncProgress.failed > 0 && ` (${syncProgress.failed} failed)`}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className={styles.cardActions}>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleManualSync}
+                      disabled={isSyncing || isDisconnecting}
+                    >
+                      {isSyncing ? 'Syncing...' : 'Sync Now'}
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDisconnect('outlook')}
+                      disabled={isDisconnecting || isSyncing}
+                    >
+                      {isDisconnecting ? 'Disconnecting...' : 'Disconnect'}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className={styles.disconnectedState}>
+                  <p className={styles.featureText}>
+                    Automatically sync bookings to Outlook Calendar with reminders
+                  </p>
+                  <ul className={styles.featureList}>
+                    <li>Confirmed sessions appear automatically</li>
+                    <li>Get reminders before sessions</li>
+                    <li>See all commitments in one place</li>
+                    <li>Works with Microsoft 365 and Outlook.com</li>
+                  </ul>
+                  <Button
+                    variant="primary"
+                    onClick={handleConnectOutlook}
+                    disabled={isConnecting}
+                  >
+                    {isConnecting ? 'Connecting...' : 'Connect Outlook Calendar'}
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         )}

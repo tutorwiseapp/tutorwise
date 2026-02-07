@@ -1,8 +1,8 @@
 # Calendar Integration - Complete Implementation
 
-**Status:** ✅ Phase 1 & 2 Complete + Production Improvements
+**Status:** ✅ Phase 1 & 2 Complete + Production Improvements + Outlook Integration
 **Created:** 2026-02-06
-**Last Updated:** 2026-02-06
+**Last Updated:** 2026-02-07
 
 ---
 
@@ -10,16 +10,17 @@
 
 ### Phase 1: OAuth + One-Way Sync
 ✅ Google Calendar OAuth 2.0 authentication
+✅ Microsoft Outlook Calendar OAuth 2.0 authentication (Microsoft 365 & Outlook.com)
 ✅ Secure connection management with RLS policies
 ✅ One-way sync: TutorWise → External Calendar
 ✅ Calendar settings UI at `/account/settings/calendar`
-✅ Connect/disconnect functionality
+✅ Connect/disconnect functionality for both providers
+✅ **Health Dashboard** - Real-time connection status, sync status, error alerts
 
 ### Phase 2: Automatic Reminders
 ✅ Calendar events include automatic reminders:
-- 1 day before (email)
-- 1 hour before (popup)
-- 15 minutes before (popup)
+- Google: 1 day before (email), 1 hour before (popup), 15 minutes before (popup)
+- Outlook: 1 hour before (default reminder)
 
 ### Booking Lifecycle Integration
 ✅ **Auto-create** events when bookings confirmed (paid or free)
@@ -27,10 +28,12 @@
 ✅ **Auto-delete** events when bookings cancelled
 ✅ Syncs to both client and tutor calendars
 ✅ Context-aware event descriptions
+✅ **Multi-provider support** - Works with Google and Outlook simultaneously
 
 ### Production Improvements
-✅ **Automatic Token Refresh** - Prevents sync failures from expired tokens
+✅ **Automatic Token Refresh** - Prevents sync failures from expired tokens (both providers)
 ✅ **Bulk Sync** - Retroactively syncs existing bookings on first connection
+✅ **Bulk Sync Progress UI** - Visual progress tracking with "Sync Now" button
 ✅ **Token Encryption** - AES-256-GCM encryption for secure token storage
 ✅ **Error Recovery** - Graceful handling of API failures
 ✅ **Rate Limiting Protection** - Delays between bulk operations
@@ -42,24 +45,28 @@
 ```
 apps/web/src/
 ├── lib/calendar/
-│   ├── google.ts                 # Google Calendar API service
-│   ├── sync-booking.ts           # Booking lifecycle sync logic
-│   ├── bulk-sync.ts              # Bulk sync existing bookings
-│   ├── encryption.ts             # Token encryption/decryption
-│   └── README.md                 # This file
+│   ├── google.ts                      # Google Calendar API service
+│   ├── outlook.ts                     # Microsoft Outlook Calendar API service
+│   ├── sync-booking.ts                # Booking lifecycle sync logic (both providers)
+│   ├── bulk-sync.ts                   # Bulk sync existing bookings
+│   ├── encryption.ts                  # Token encryption/decryption
+│   └── README.md                      # This file
 │
 ├── app/api/calendar/
-│   ├── connect/google/route.ts   # OAuth initiation
-│   ├── callback/google/route.ts  # OAuth callback handler
-│   ├── disconnect/route.ts       # Disconnect calendar
-│   └── connections/route.ts      # Get user connections
+│   ├── connect/google/route.ts        # Google OAuth initiation
+│   ├── connect/outlook/route.ts       # Outlook OAuth initiation
+│   ├── callback/google/route.ts       # Google OAuth callback handler
+│   ├── callback/outlook/route.ts      # Outlook OAuth callback handler
+│   ├── disconnect/route.ts            # Disconnect calendar
+│   ├── connections/route.ts           # Get user connections
+│   └── bulk-sync/route.ts             # Manual bulk sync trigger
 │
 ├── app/(authenticated)/account/settings/
-│   ├── calendar/page.tsx         # Calendar settings UI
-│   ├── calendar/page.module.css  # Styles
-│   └── page.tsx                  # Updated with calendar card
+│   ├── calendar/page.tsx              # Calendar settings UI (with health dashboard)
+│   ├── calendar/page.module.css       # Styles
+│   └── page.tsx                       # Updated with calendar card
 │
-├── types/index.ts                # TypeScript types
+├── types/index.ts                     # TypeScript types
 │
 └── tools/database/migrations/
     └── 236_add_calendar_integration_tables.sql
@@ -77,6 +84,12 @@ Add to `.env.local`:
 # Google Calendar OAuth
 GOOGLE_CLIENT_ID="your_google_client_id"
 GOOGLE_CLIENT_SECRET="your_google_client_secret"
+
+# Microsoft Outlook Calendar OAuth
+MICROSOFT_CLIENT_ID="your_microsoft_client_id"
+MICROSOFT_CLIENT_SECRET="your_microsoft_client_secret"
+
+# Base URL
 NEXT_PUBLIC_BASE_URL="http://localhost:3000"  # or your production URL
 
 # Token Encryption (Production Required)
@@ -267,7 +280,7 @@ if (booking) {
 - [ ] Run database migration 236
 - [ ] Verify OAuth redirect URI in Google Console: `{BASE_URL}/api/calendar/callback/google`
 
-#### Connection Flow
+#### Connection Flow - Google
 - [ ] Visit `/account/settings/calendar`
 - [ ] Click "Connect Google Calendar"
 - [ ] Verify redirect to Google consent screen
@@ -275,6 +288,17 @@ if (booking) {
 - [ ] Verify redirect back with success message
 - [ ] Check database: `calendar_connections` row created with encrypted tokens
 - [ ] Verify bulk sync: existing confirmed bookings appear in Google Calendar
+- [ ] Verify health dashboard shows correct status
+
+#### Connection Flow - Outlook
+- [ ] Visit `/account/settings/calendar`
+- [ ] Click "Connect Outlook Calendar"
+- [ ] Verify redirect to Microsoft login
+- [ ] Grant permissions
+- [ ] Verify redirect back with success message
+- [ ] Check database: `calendar_connections` row created for Outlook
+- [ ] Verify bulk sync: existing confirmed bookings appear in Outlook Calendar
+- [ ] Verify health dashboard shows correct status
 
 #### Booking Lifecycle
 - [ ] Create and confirm a paid booking (Stripe checkout)
@@ -312,15 +336,23 @@ if (booking) {
    - Enable Google Calendar API
    - Set up OAuth consent screen (verified)
 
-3. **Database**
+3. **Microsoft OAuth Setup**
+   - Register app in Azure Portal (App registrations)
+   - Add platform: Web with redirect URI `https://tutorwise.com/api/calendar/callback/outlook`
+   - API Permissions: Microsoft Graph - Calendars.ReadWrite, offline_access, User.Read (delegated)
+   - Grant admin consent if required
+   - Create client secret and save securely
+
+4. **Database**
    - Run migration 236 on production database
    - Verify RLS policies are active
    - Check indexes created for performance
 
-4. **Monitoring**
+5. **Monitoring**
    - Set up alerts for calendar sync failures
    - Monitor token refresh success rate
    - Track bulk sync performance
+   - Monitor connection health status for both providers
 
 ---
 
@@ -333,14 +365,15 @@ if (booking) {
 - Conflict detection and resolution
 
 ### Additional Providers
-- Microsoft Outlook Calendar (similar OAuth pattern)
 - Apple Calendar (via CalDAV)
+- iCloud Calendar
 
 ### Advanced Features
 - Selective sync (choose which bookings to sync)
 - Custom event templates
 - Timezone handling improvements
 - Sync history and audit logs
+- Real-time sync progress via WebSockets
 
 ---
 
@@ -378,9 +411,19 @@ if (booking) {
 
 Calendar integration is **fully functional** with:
 - ✅ Google Calendar OAuth connection
-- ✅ Automatic event creation, updates, and deletion
-- ✅ Token encryption and automatic refresh
+- ✅ Microsoft Outlook Calendar OAuth connection
+- ✅ Automatic event creation, updates, and deletion (both providers)
+- ✅ Token encryption and automatic refresh (both providers)
 - ✅ Bulk sync of existing bookings
-- ✅ Production-ready error handling
+- ✅ Health dashboard with real-time status monitoring
+- ✅ Manual sync trigger with progress tracking
+- ✅ Production-ready error handling and recovery
 
 **Ready for production deployment** after environment setup and testing.
+
+### Key Features at a Glance
+- **Multi-provider**: Users can connect both Google and Outlook simultaneously
+- **Auto-sync**: Booking lifecycle events automatically sync to connected calendars
+- **Secure**: AES-256-GCM encryption for OAuth tokens
+- **Resilient**: Automatic token refresh, error recovery, graceful degradation
+- **User-friendly**: Health dashboard, manual sync, clear error messages

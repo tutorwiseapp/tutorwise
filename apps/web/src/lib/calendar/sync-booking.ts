@@ -13,8 +13,14 @@ import {
   createGoogleCalendarEvent,
   updateGoogleCalendarEvent,
   deleteGoogleCalendarEvent,
-  getValidAccessToken,
+  getValidAccessToken as getValidGoogleAccessToken,
 } from './google';
+import {
+  createOutlookEvent,
+  updateOutlookEvent,
+  deleteOutlookEvent,
+  getValidAccessToken as getValidOutlookAccessToken,
+} from './outlook';
 import { safeDecrypt, encryptToken } from './encryption';
 import type { Booking, CalendarConnection } from '@/types';
 
@@ -115,8 +121,8 @@ async function syncToConnection(
 ): Promise<SyncResult> {
   const { provider, calendar_id, profile_id } = connection;
 
-  // Currently only Google is supported
-  if (provider !== 'google') {
+  // Validate provider
+  if (provider !== 'google' && provider !== 'outlook') {
     return {
       success: false,
       profile_id,
@@ -129,9 +135,13 @@ async function syncToConnection(
   const decryptedAccessToken = safeDecrypt(connection.access_token);
   const decryptedRefreshToken = connection.refresh_token ? safeDecrypt(connection.refresh_token) : null;
 
-  // Get valid access token (refresh if expired)
+  // Get valid access token (refresh if expired) - use provider-specific function
   let accessToken: string;
   try {
+    const getValidAccessToken = provider === 'google'
+      ? getValidGoogleAccessToken
+      : getValidOutlookAccessToken;
+
     const tokenResult = await getValidAccessToken(
       decryptedAccessToken,
       decryptedRefreshToken,
@@ -153,10 +163,10 @@ async function syncToConnection(
         })
         .eq('id', connection.id);
 
-      console.log(`[Calendar Sync] ✅ Refreshed access token for connection ${connection.id}`);
+      console.log(`[Calendar Sync] ✅ Refreshed ${provider} access token for connection ${connection.id}`);
     }
   } catch (error) {
-    console.error('[Calendar Sync] Token refresh failed:', error);
+    console.error(`[Calendar Sync] ${provider} token refresh failed:`, error);
 
     // Mark connection as error - user needs to reconnect
     await supabase
@@ -177,13 +187,21 @@ async function syncToConnection(
 
   try {
     if (action === 'create') {
-      // Create new calendar event
-      const externalEventId = await createGoogleCalendarEvent(
-        accessToken,
-        booking,
-        viewMode,
-        calendar_id || 'primary'
-      );
+      // Create new calendar event - use provider-specific function
+      let externalEventId: string;
+
+      if (provider === 'google') {
+        externalEventId = await createGoogleCalendarEvent(
+          accessToken,
+          booking,
+          viewMode,
+          calendar_id || 'primary'
+        );
+      } else {
+        // Outlook
+        const result = await createOutlookEvent(accessToken, booking, viewMode);
+        externalEventId = result.event_id;
+      }
 
       // Store in calendar_events table
       const { error: insertError } = await supabase
@@ -235,14 +253,24 @@ async function syncToConnection(
         return await syncToConnection(booking, connection, viewMode, 'create', supabase);
       }
 
-      // Update existing event
-      await updateGoogleCalendarEvent(
-        accessToken,
-        calendarEvent.external_event_id,
-        booking,
-        viewMode,
-        calendar_id || 'primary'
-      );
+      // Update existing event - use provider-specific function
+      if (provider === 'google') {
+        await updateGoogleCalendarEvent(
+          accessToken,
+          calendarEvent.external_event_id,
+          booking,
+          viewMode,
+          calendar_id || 'primary'
+        );
+      } else {
+        // Outlook
+        await updateOutlookEvent(
+          accessToken,
+          calendarEvent.external_event_id,
+          booking,
+          viewMode
+        );
+      }
 
       // Update sync timestamp
       await supabase
@@ -278,12 +306,17 @@ async function syncToConnection(
         return { success: true, profile_id, provider };
       }
 
-      // Delete from Google Calendar
-      await deleteGoogleCalendarEvent(
-        accessToken,
-        calendarEvent.external_event_id,
-        calendar_id || 'primary'
-      );
+      // Delete from calendar - use provider-specific function
+      if (provider === 'google') {
+        await deleteGoogleCalendarEvent(
+          accessToken,
+          calendarEvent.external_event_id,
+          calendar_id || 'primary'
+        );
+      } else {
+        // Outlook
+        await deleteOutlookEvent(accessToken, calendarEvent.external_event_id);
+      }
 
       // Delete from calendar_events table
       await supabase
