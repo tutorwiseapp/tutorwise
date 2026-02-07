@@ -20,7 +20,9 @@ SELECT cron.schedule(
   $$
   SELECT net.http_get(
     url := 'https://tutorwise.vercel.app/api/cron/session-reminders?type=24h',
-    headers := jsonb_build_object('Authorization', 'Bearer ' || current_setting('app.cron_secret'))
+    headers := jsonb_build_object(
+      'Authorization', 'Bearer sAt2XrOQMxTkwm2Xs7+bYE/sOkkwSTysTctrUPdSRmA='
+    )
   );
   $$
 );
@@ -34,7 +36,9 @@ SELECT cron.schedule(
   $$
   SELECT net.http_get(
     url := 'https://tutorwise.vercel.app/api/cron/session-reminders?type=1h',
-    headers := jsonb_build_object('Authorization', 'Bearer ' || current_setting('app.cron_secret'))
+    headers := jsonb_build_object(
+      'Authorization', 'Bearer sAt2XrOQMxTkwm2Xs7+bYE/sOkkwSTysTctrUPdSRmA='
+    )
   );
   $$
 );
@@ -48,7 +52,9 @@ SELECT cron.schedule(
   $$
   SELECT net.http_get(
     url := 'https://tutorwise.vercel.app/api/cron/session-reminders?type=15min',
-    headers := jsonb_build_object('Authorization', 'Bearer ' || current_setting('app.cron_secret'))
+    headers := jsonb_build_object(
+      'Authorization', 'Bearer sAt2XrOQMxTkwm2Xs7+bYE/sOkkwSTysTctrUPdSRmA='
+    )
   );
   $$
 );
@@ -62,17 +68,19 @@ SELECT cron.schedule(
   $$
   SELECT net.http_get(
     url := 'https://tutorwise.vercel.app/api/cron/no-show-detection',
-    headers := jsonb_build_object('Authorization', 'Bearer ' || current_setting('app.cron_secret'))
+    headers := jsonb_build_object(
+      'Authorization', 'Bearer sAt2XrOQMxTkwm2Xs7+bYE/sOkkwSTysTctrUPdSRmA='
+    )
   );
   $$
 );
 
 -- ============================================================================
--- Set the CRON_SECRET from environment variable
+-- Note: CRON_SECRET is hardcoded in the job definitions above
 -- ============================================================================
--- IMPORTANT: Replace 'your-cron-secret-here' with the actual CRON_SECRET from .env.local
--- The secret is: sAt2XrOQMxTkwm2Xs7+bYE/sOkkwSTysTctrUPdSRmA=
-ALTER DATABASE postgres SET app.cron_secret = 'sAt2XrOQMxTkwm2Xs7+bYE/sOkkwSTysTctrUPdSRmA=';
+-- Using the same approach as existing cron jobs in the database
+-- Secret: sAt2XrOQMxTkwm2Xs7+bYE/sOkkwSTysTctrUPdSRmA=
+-- No need to set app.cron_secret database parameter
 
 -- ============================================================================
 -- Verification Queries
@@ -93,18 +101,13 @@ ORDER BY jobname;
 -- Run this to check if jobs are executing successfully
 SELECT
   jobid,
-  job_name,
+  runid,
   status,
   return_message,
-  start_time,
-  end_time
+  start_time
 FROM cron.job_run_details
 ORDER BY start_time DESC
 LIMIT 20;
-
--- Check if app.cron_secret is set correctly
--- Run this to verify the cron secret was configured
-SHOW app.cron_secret;
 
 -- ============================================================================
 -- Cleanup Commands (if you need to remove and recreate jobs)
